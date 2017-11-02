@@ -32,11 +32,11 @@ public final class FirmwareEventFactory extends AbstractEventFactory {
 
     private static final int THING_UID_TOPIC_IDX = 2;
 
-    private static final String THING_UID_TOPIC_KEY = "{thingUID}";
+    static final String THING_UID_TOPIC_KEY = "{thingUID}";
 
-    private static final String FIRMWARE_STATUS_TOPIC = "smarthome/things/{thingUID}/firmware/status";
-    private static final String FIRMWARE_UPDATE_PROGRESS_TOPIC = "smarthome/things/{thingUID}/firmware/update/progress";
-    private static final String FIRMWARE_UPDATE_RESULT_TOPIC = "smarthome/things/{thingUID}/firmware/update/result";
+    static final String FIRMWARE_STATUS_TOPIC = "smarthome/things/{thingUID}/firmware/status";
+    static final String FIRMWARE_UPDATE_PROGRESS_TOPIC = "smarthome/things/{thingUID}/firmware/update/progress";
+    static final String FIRMWARE_UPDATE_RESULT_TOPIC = "smarthome/things/{thingUID}/firmware/update/result";
 
     /**
      * Creates a new firmware event factory.
