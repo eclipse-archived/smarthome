@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.cache;
 
+import java.lang.ref.SoftReference;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -25,8 +26,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExpiringCache<V> {
     private final long expiry;
     private final Supplier<V> action;
-    @Nullable
-    private V value;
+    private SoftReference<V> value;
     private long expiresAt;
 
     /**
@@ -51,17 +51,17 @@ public class ExpiringCache<V> {
      */
     @Nullable
     public synchronized V getValue() {
-        if (value == null || isExpired()) {
+        if (value.get() == null || isExpired()) {
             return refreshValue();
         }
-        return value;
+        return value.get();
     }
 
     /**
      * Invalidates the value in the cache.
      */
-    public synchronized void invalidateValue() {
-        value = null;
+    public final synchronized void invalidateValue() {
+        value = new SoftReference<>(null);
         expiresAt = 0;
     }
 
@@ -72,9 +72,9 @@ public class ExpiringCache<V> {
      */
     @Nullable
     public synchronized V refreshValue() {
-        value = action.get();
+        value = new SoftReference<>(action.get());
         expiresAt = System.nanoTime() + expiry;
-        return value;
+        return value.get();
     }
 
     /**
