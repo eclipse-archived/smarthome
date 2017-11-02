@@ -471,7 +471,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     break;
                 case "LineInConnected":
                 case "TOSLinkConnected":
-                    updateChannel(LINEIN);
+                    if (SonosBindingConstants.WITH_LINEIN_THING_TYPES_UIDS.contains(getThing().getThingTypeUID())) {
+                        updateChannel(LINEIN);
+                    }
                     break;
                 case "AlarmRunning":
                     updateChannel(ALARMRUNNING);
@@ -1765,8 +1767,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     public Boolean isShuffleActive() {
         return ((stateMap.get("CurrentPlayMode") != null) && stateMap.get("CurrentPlayMode").startsWith("SHUFFLE"))
-                ? true
-                : false;
+                ? true : false;
     }
 
     public String getRepeatMode() {
