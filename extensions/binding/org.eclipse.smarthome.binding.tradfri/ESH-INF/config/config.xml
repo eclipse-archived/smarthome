@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config-description:config-descriptions
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
+<config-description:config-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0 http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
 
 	<config-description uri="bridge-type:tradfri:gateway">
@@ -19,12 +19,6 @@
 			<context>password</context>
 			<label>Security Code</label>
 			<description>Security code printed on the label underneath the gateway.</description>
-		</parameter>
-		<parameter name="ntpServer" type="text" required="false">
-			<label>NTP Server 1</label>
-			<description>The hostname for NTP Server used by the gateway to get the time.</description>
-			<default>pool.ntp.org</default>
-			<advanced>true</advanced>
 		</parameter>
 	</config-description>
 

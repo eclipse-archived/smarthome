@@ -185,36 +185,9 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
         deviceClient.setURI(this.gatewayInfoURI);
         deviceClient.asyncGet().thenAccept(data -> {
             JsonObject json = new JsonParser().parse(data).getAsJsonObject();
-            String ntpServer = json.get(NTP_SERVER).getAsString();
-            Configuration configuration = editConfiguration();
-            configuration.put(CONFIG_NTP_SERVER, ntpServer);
-            updateConfiguration(configuration);
             String firmwareVersion = json.get(VERSION).getAsString();
             getThing().setProperty(Thing.PROPERTY_FIRMWARE_VERSION, firmwareVersion);
         });
-        // restore root URI
-        deviceClient.setURI(gatewayURI);
-    }
-
-    @Override
-    public void handleConfigurationUpdate(Map<String, Object> configurationParameters) {
-        for (Entry<String, Object> configurationParameter : configurationParameters.entrySet()) {
-            logger.debug("TRADFRI Gateway {}: Configuration update {} to {}", getThing().getThingTypeUID(),
-                    configurationParameter.getKey(), configurationParameter.getValue());
-            if (CONFIG_NTP_SERVER.equals(configurationParameter.getKey())) {
-                JsonObject root = new JsonObject();
-                root.add(NTP_SERVER, new JsonPrimitive((String) configurationParameters.get(CONFIG_NTP_SERVER)));
-                //updateGatewayInfo(root.toString());
-            }
-        }
-        super.handleConfigurationUpdate(configurationParameters);
-    }
-
-    private synchronized void updateGatewayInfo(String payload) {
-        // we are reusing our coap client and merely temporarily set a gateway info to update
-        deviceClient.setURI(gatewayInfoURI);
-        logger.debug("Sending payload: {}", payload);
-        deviceClient.asyncPut(payload, this, null, scheduler);
         // restore root URI
         deviceClient.setURI(gatewayURI);
     }

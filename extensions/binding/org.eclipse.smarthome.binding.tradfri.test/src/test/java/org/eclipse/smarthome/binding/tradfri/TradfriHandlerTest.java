@@ -51,7 +51,6 @@ public class TradfriHandlerTest extends JavaOSGiTest {
         Map<String, Object> properties = new HashMap<>();
         properties.put(CONFIG_HOST, "1.2.3.4");
         properties.put(CONFIG_CODE, "abc");
-        properties.put(CONFIG_NTP_SERVER, "europe.pool.ntp.org");
         bridge = BridgeBuilder.create(GATEWAY_TYPE_UID, "1").withLabel("My Gateway")
                 .withConfiguration(new Configuration(properties)).build();
 
@@ -83,16 +82,6 @@ public class TradfriHandlerTest extends JavaOSGiTest {
 
         assertThat(configuration.get(CONFIG_HOST), is("1.2.3.4"));
         assertThat(configuration.get(CONFIG_CODE), is("abc"));
-        assertThat(configuration.get(CONFIG_NTP_SERVER), is("europe.pool.ntp.org"));
-
-        Map<String, Object> configurationParameters = new HashMap<>();
-        configurationParameters.put(CONFIG_NTP_SERVER, "de.pool.ntp.org");
-        bridge.getHandler().handleConfigurationUpdate(configurationParameters);
-
-        configuration = bridge.getConfiguration();
-        assertThat(configuration, is(notNullValue()));
-
-        assertThat(configuration.get(CONFIG_NTP_SERVER), is("de.pool.ntp.org"));
     }
 
     @Test
