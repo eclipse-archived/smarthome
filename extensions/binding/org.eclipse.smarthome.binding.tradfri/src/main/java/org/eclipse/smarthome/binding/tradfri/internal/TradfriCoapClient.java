@@ -116,7 +116,6 @@ public class TradfriCoapClient extends CoapClient {
      * @param scheduler scheduler to be used for sending commands
      */
     public void asyncPut(PayloadCallbackPair payloadCallbackPair, ScheduledExecutorService scheduler) {
-        
         synchronized (this.commandsQueue) {
             if (this.commandsQueue.isEmpty()) {
                 this.commandsQueue.offer(payloadCallbackPair);

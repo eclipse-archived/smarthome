@@ -5,17 +5,17 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.tradfri;
+package org.eclipse.smarthome.binding.tradfri.internal.config;
 
 /**
- * The {@link DeviceConfig} holds the
+ * The {@link TradfriDeviceConfig} holds the
  * configuration information needed to access single bulbs on the gateway.
  *
  * @author Kai Kreuzer - Initial contribution
  */
-public class DeviceConfig {
+public class TradfriDeviceConfig {
 
-    public static final String ID = "id";
+    public static final String CONFIG_ID = "id";
 
     public Integer id;
 }

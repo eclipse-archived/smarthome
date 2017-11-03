@@ -8,18 +8,20 @@
 package org.eclipse.smarthome.binding.tradfri.internal.discovery;
 
 import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
+import static org.eclipse.smarthome.core.thing.Thing.*;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.binding.tradfri.handler.TradfriGatewayHandler;
 import org.eclipse.smarthome.binding.tradfri.internal.DeviceUpdateListener;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
-import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
@@ -32,6 +34,7 @@ import com.google.gson.JsonSyntaxException;
  * This class identifies devices that are available on the gateway and adds discovery results for them.
  *
  * @author Kai Kreuzer - Initial contribution
+ * @author Christoph Weitkamp - Added support for remote controller and motion sensor devices (read-only battery level)
  * @author Andre Fuechsel - fixed the results removal
  */
 public class TradfriDiscoveryService extends AbstractDiscoveryService implements DeviceUpdateListener {
@@ -40,6 +43,8 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
 
     private final TradfriGatewayHandler handler;
 
+    private static final String REMOTE_CONTROLLER_MODEL = "TRADFRI remote control";
+
     private static final String[] COLOR_TEMP_MODELS = new String[] { "TRADFRI bulb E27 WS opal 980lm",
             "TRADFRI bulb E27 WS clear 950lm", "TRADFRI bulb GU10 WS 400lm", "TRADFRI bulb E14 WS opal 400lm",
             "FLOALT panel WS 30x30", "FLOALT panel WS 60x60", "FLOALT panel WS 30x90" };
@@ -47,7 +52,8 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
     private static final String COLOR_MODELS_IDENTIFIER = "CWS";
 
     public TradfriDiscoveryService(TradfriGatewayHandler bridgeHandler) {
-        super(SUPPORTED_LIGHT_TYPES_UIDS, 10, true);
+        super(Stream.concat(SUPPORTED_LIGHT_TYPES_UIDS.stream(), SUPPORTED_CONTROLLER_TYPES_UIDS.stream())
+                .collect(Collectors.toSet()), 10, true);
         this.handler = bridgeHandler;
     }
 
@@ -83,7 +89,7 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
                 String model = deviceInfo.get(DEVICE_MODEL).getAsString();
                 ThingUID thingId = null;
 
-                if (type.equals(TYPE_LIGHT) && data.has(LIGHT)) {
+                if (TYPE_LIGHT.equals(type) && data.has(LIGHT)) {
                     JsonObject state = data.get(LIGHT).getAsJsonArray().get(0).getAsJsonObject();
 
                     // Color temperature light:
@@ -105,6 +111,16 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
                         thingType = THING_TYPE_DIMMABLE_LIGHT;
                     }
                     thingId = new ThingUID(thingType, bridge, Integer.toString(id));
+                } else if (TYPE_SWITCH.equals(type) && data.has(SWITCH)) {
+                    // Remote control and wireless dimmer
+                    // As protocol does not distinguishes between remote control and wireless dimmer,
+                    // we check for the whole model name
+                    ThingTypeUID thingType = (model != null && REMOTE_CONTROLLER_MODEL.equals(model))
+                            ? THING_TYPE_REMOTE_CONTROL : THING_TYPE_DIMMER;
+                    thingId = new ThingUID(thingType, bridge, Integer.toString(id));
+                } else if (TYPE_SENSOR.equals(type) && data.has(SENSOR)) {
+                    // Motion sensor
+                    thingId = new ThingUID(THING_TYPE_MOTION_SENSOR, bridge, Integer.toString(id));
                 }
 
                 if (thingId == null) {
@@ -116,13 +132,13 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
 
                 Map<String, Object> properties = new HashMap<>(1);
                 properties.put("id", id);
-                properties.put(Thing.PROPERTY_MODEL_ID, model);
+                properties.put(PROPERTY_MODEL_ID, model);
 
                 if (deviceInfo.get(DEVICE_VENDOR) != null) {
-                    properties.put(Thing.PROPERTY_VENDOR, deviceInfo.get(DEVICE_VENDOR).getAsString());
+                    properties.put(PROPERTY_VENDOR, deviceInfo.get(DEVICE_VENDOR).getAsString());
                 }
                 if (deviceInfo.get(DEVICE_FIRMWARE) != null) {
-                    properties.put(Thing.PROPERTY_FIRMWARE_VERSION, deviceInfo.get(DEVICE_FIRMWARE).getAsString());
+                    properties.put(PROPERTY_FIRMWARE_VERSION, deviceInfo.get(DEVICE_FIRMWARE).getAsString());
                 }
 
                 logger.debug("Adding device {} to inbox", thingId);

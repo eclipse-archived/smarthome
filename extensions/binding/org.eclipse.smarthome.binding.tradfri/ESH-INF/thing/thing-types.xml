@@ -7,24 +7,7 @@
 		<label>TRÅDFRI Gateway</label>
 		<description>IKEA TRÅDFRI IP Gateway</description>
 
-		<config-description>
-			<parameter name="host" type="text" required="true">
-				<context>network-address</context>
-				<label>Host</label>
-				<description>Hostname or IP address of the IKEA TRÅDFRI gateway</description>
-			</parameter>
-			<parameter name="port" type="integer" required="false">
-				<label>Port</label>
-				<description>Port for accessing the gateway</description>
-				<advanced>true</advanced>
-				<default>5684</default>
-			</parameter>
-			<parameter name="code" type="text" required="true">
-				<context>password</context>
-				<label>Security Code</label>
-				<description>Security code printed on the label underneath the gateway.</description>
-			</parameter>
-		</config-description>
+		<config-description-ref uri="bridge-type:tradfri:gateway" />
 	</bridge-type>
 
 	<!-- thing types for devices -->
@@ -82,16 +65,53 @@
 		<config-description-ref uri="thing-type:tradfri:device" />
 	</thing-type>
 
-	<!-- note that this isn't yet supported by the code as we do not receive any data from the gateway for it -->
+	<thing-type id="0107">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="gateway" />
+		</supported-bridge-type-refs>
+
+		<label>Occupancy Sensor</label>
+		<description>This represents the motion sensor capable of reporting the battery level.</description>
+
+		<channels>
+			<channel id="battery_level" typeId="system.battery-level" />
+			<channel id="battery_low" typeId="system.low-battery" />
+		</channels>
+
+		<representation-property>id</representation-property>
+
+		<config-description-ref uri="thing-type:tradfri:device" />
+	</thing-type>
+
 	<thing-type id="0820" listed="false">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="gateway" />
 		</supported-bridge-type-refs>
 
-		<label>Non-Color Control Unit</label>
+		<label>Non-Colour Controller</label>
+		<description>This represents the wireless dimmer sensor capable of reporting the battery level.</description>
 
 		<channels>
-			<channel id="brightness" typeId="brightness" />
+			<channel id="battery_level" typeId="system.battery-level" />
+			<channel id="battery_low" typeId="system.low-battery" />
+		</channels>
+
+		<representation-property>id</representation-property>
+
+		<config-description-ref uri="thing-type:tradfri:device" />
+	</thing-type>
+
+	<thing-type id="0830">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="gateway" />
+		</supported-bridge-type-refs>
+
+		<label>Non-Colour Scene Controller</label>
+		<description>This represents the remote control capable of reporting the battery level.</description>
+
+		<channels>
+			<channel id="battery_level" typeId="system.battery-level" />
+			<channel id="battery_low" typeId="system.low-battery" />
 		</channels>
 
 		<representation-property>id</representation-property>
