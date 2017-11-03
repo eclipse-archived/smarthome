@@ -83,7 +83,7 @@ public class ExpiringCacheMap<K, V> {
     }
 
     /**
-     * If the specified key is not already associated with a value, associate it with the given expiringCache.
+     * If the specified key is not already associated with a value, associate it with the given {@link ExpiringCache}.
      *
      * @param key the key with which the specified value is to be associated
      * @param item the item to be associated with the specified key
@@ -113,7 +113,7 @@ public class ExpiringCacheMap<K, V> {
     }
 
     /**
-     * If the specified key is not already associated with a value, associate it with the given expiringCache.
+     * If the specified key is not already associated with a value, associate it with the given {@link ExpiringCache}.
      *
      * Note that this method has the overhead of actually calling/performing the action
      *

@@ -70,7 +70,9 @@ public class ExpiringCacheMapTest {
 
         subject.put(FIRST_TEST_KEY, PREDICTABLE_CACHE_ACTION_2);
 
-        assertEquals(RESPONSE_2, subject.get(FIRST_TEST_KEY));
+        String response = subject.get(FIRST_TEST_KEY);
+        assertNotEquals(RESPONSE_1, response);
+        assertEquals(RESPONSE_2, response);
     }
 
     @Test
@@ -83,6 +85,7 @@ public class ExpiringCacheMapTest {
         response = subject.putIfAbsentAndGet(FIRST_TEST_KEY, PREDICTABLE_CACHE_ACTION_2);
 
         assertEquals(RESPONSE_1, response);
+        assertNotEquals(RESPONSE_2, response);
     }
 
     @Test
