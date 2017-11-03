@@ -70,7 +70,7 @@
 			<bridge-type-ref id="gateway" />
 		</supported-bridge-type-refs>
 
-		<label>Occupancy Sensor Unit</label>
+		<label>Occupancy Sensor</label>
 		<description>This represents the motion sensor capable of reporting the battery level.</description>
 
 		<channels>
@@ -88,7 +88,7 @@
 			<bridge-type-ref id="gateway" />
 		</supported-bridge-type-refs>
 
-		<label>Non-Color Control Unit</label>
+		<label>Non-Colour Controller</label>
 		<description>This represents the wireless dimmer sensor capable of reporting the battery level.</description>
 
 		<channels>
@@ -106,7 +106,7 @@
 			<bridge-type-ref id="gateway" />
 		</supported-bridge-type-refs>
 
-		<label>Non-Color Scene Control Unit</label>
+		<label>Non-Colour Scene Controller</label>
 		<description>This represents the remote control capable of reporting the battery level.</description>
 
 		<channels>
