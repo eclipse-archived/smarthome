@@ -19,6 +19,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.naming.ConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -41,13 +43,15 @@ import org.slf4j.LoggerFactory;
  */
 @Component(immediate = true, service = { MqttService.class }, configurationPid = {
         "org.eclipse.smarthome.mqtt" }, property = "service.pid=org.eclipse.smarthome.mqtt")
+@NonNullByDefault
 public class MqttService {
     private static final String NAME_PROPERTY = "name";
     private final Logger logger = LoggerFactory.getLogger(MqttService.class);
     private final Map<String, MqttBrokerConnection> brokerConnections = new ConcurrentHashMap<String, MqttBrokerConnection>();
     private final List<MqttBrokersObserver> brokersObservers = new CopyOnWriteArrayList<>();
+
     @Deprecated
-    private EventPublisher eventPublisher;
+    private @Nullable EventPublisher eventPublisher;
 
     /**
      * The expected service configuration looks like this:
@@ -127,7 +131,12 @@ public class MqttService {
 
         for (Map<String, String> brokerConfig : brokerConfigs.values()) {
             try {
-                addBrokerConnection(brokerConfig).start();
+                final MqttBrokerConnection conn = addBrokerConnection(brokerConfig);
+                if (conn == null) {
+                    logger.warn("MqttBroker connection name already present.");
+                    continue;
+                }
+                conn.start();
             } catch (ConfigurationException e) {
                 logger.warn("MqttBroker connection configuration faulty: {}", e.getMessage());
             } catch (MqttException e) {
@@ -182,7 +191,7 @@ public class MqttService {
      * @param brokerName to look for.
      * @return existing connection or null
      */
-    public MqttBrokerConnection getBrokerConnection(String brokerName) {
+    public @Nullable MqttBrokerConnection getBrokerConnection(String brokerName) {
         synchronized (brokerConnections) {
             return brokerConnections.get(brokerName.toLowerCase());
         }
@@ -222,17 +231,17 @@ public class MqttService {
      * @throws ConfigurationException Most likely your provided name and url are invalid.
      * @throws MqttException
      */
-    public MqttBrokerConnection addBrokerConnection(Map<String, String> brokerConnectionConfig)
+    public @Nullable MqttBrokerConnection addBrokerConnection(Map<String, String> brokerConnectionConfig)
             throws ConfigurationException, MqttException {
         // Extract mandatory fields
         String brokerID = brokerConnectionConfig.get(NAME_PROPERTY);
-        if (StringUtils.isBlank(brokerID)) {
+        if (brokerID == null || brokerID.isEmpty()) {
             throw new ConfigurationException("MQTT Broker property 'name' is not provided");
         }
         brokerID = brokerID.toLowerCase();
 
         final String brokerURL = brokerConnectionConfig.get("url");
-        if (StringUtils.isBlank(brokerURL)) {
+        if (brokerURL == null || brokerURL.isEmpty()) {
             throw new ConfigurationException("MQTT Broker property 'url' is not provided");
         }
         // Add the connection
@@ -295,7 +304,7 @@ public class MqttService {
      * @param brokerName The broker name
      * @return Returns the removed broker connection, or null if there was none with the given name.
      */
-    public MqttBrokerConnection removeBrokerConnection(String brokerName) {
+    public @Nullable MqttBrokerConnection removeBrokerConnection(String brokerName) {
         synchronized (brokerConnections) {
             MqttBrokerConnection connection = brokerConnections.remove(brokerName.toLowerCase());
             if (connection != null) {

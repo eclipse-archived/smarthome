@@ -7,11 +7,14 @@
  */
 package org.eclipse.smarthome.core.common.registry;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Interface for classes that instances provide an identifier.
  *
  * @author Markus Rathgeb - Initial contribution
  */
+@NonNullByDefault
 public interface Identifiable<T> {
 
     /**
