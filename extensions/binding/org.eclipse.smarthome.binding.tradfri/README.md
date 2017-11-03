@@ -19,9 +19,9 @@ These are:
 | Dimmable Light                  | 0x0100           | 0100       |
 | Colour Temperature Light        | 0x0220           | 0220       |
 | Extended Colour Light           | 0x0210           | 0210       |
-| Occupancy Sensor Unit           | 0x0107           | 0107       |
-| Non-Color Control Unit          | 0x0820           | 0820       |
-| Non-Color Scene Control Unit    | 0x0830           | 0830       |
+| Occupancy Sensor                | 0x0107           | 0107       |
+| Non-Colour Controller           | 0x0820           | 0820       |
+| Non-Colour Scene Controller     | 0x0830           | 0830       |
 
 The following matrix lists the capabilities (channels) for each of the supported lighting device types:
 

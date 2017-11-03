@@ -71,6 +71,6 @@ public class TradfriSensorHandler extends TradfriThingHandler {
             return;
         }
 
-        logger.warn("The sensor is a read-only device and cannot handle commands.");
+        logger.debug("The sensor is a read-only device and cannot handle commands.");
     }
 }

@@ -44,7 +44,6 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
     private final TradfriGatewayHandler handler;
 
     private static final String REMOTE_CONTROLLER_MODEL = "TRADFRI remote control";
-    private static final String WIRELESS_DIMMER_MODEL = "TRADFRI wireless dimmer";
 
     private static final String[] COLOR_TEMP_MODELS = new String[] { "TRADFRI bulb E27 WS opal 980lm",
             "TRADFRI bulb E27 WS clear 950lm", "TRADFRI bulb GU10 WS 400lm", "TRADFRI bulb E14 WS opal 400lm",
@@ -112,9 +111,6 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
                         thingType = THING_TYPE_DIMMABLE_LIGHT;
                     }
                     thingId = new ThingUID(thingType, bridge, Integer.toString(id));
-                    // } else if (TYPE_SWITCH.equals(type) && data.has(SWITCH)) {
-                    // TODO How to distinguish between remote control and wireless dimmer?
-                    // thingId = new ThingUID(THING_TYPE_DIMMER, bridge, Integer.toString(id));
                 } else if (TYPE_SWITCH.equals(type) && data.has(SWITCH)) {
                     // Remote control and wireless dimmer
                     // As protocol does not distinguishes between remote control and wireless dimmer,

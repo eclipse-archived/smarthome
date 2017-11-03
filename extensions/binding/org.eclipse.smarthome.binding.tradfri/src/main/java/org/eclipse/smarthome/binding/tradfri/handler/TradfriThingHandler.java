@@ -83,9 +83,7 @@ public abstract class TradfriThingHandler extends BaseThingHandler implements Co
         if (active && getBridge().getStatus() != ThingStatus.OFFLINE && status != ThingStatus.ONLINE) {
             updateStatus(status, statusDetail);
             // we are offline and lost our observe relation - let's try to establish the connection in 10 seconds again
-            scheduler.schedule(() -> {
-                coapClient.startObserve(this);
-            }, 10, TimeUnit.SECONDS);
+            scheduler.schedule(() -> coapClient.startObserve(this), 10, TimeUnit.SECONDS);
         }
     }
 
@@ -94,9 +92,7 @@ public abstract class TradfriThingHandler extends BaseThingHandler implements Co
         super.bridgeStatusChanged(bridgeStatusInfo);
 
         if (bridgeStatusInfo.getStatus() == ThingStatus.ONLINE) {
-            scheduler.schedule(() -> {
-                coapClient.startObserve(this);
-            }, 0, TimeUnit.SECONDS);
+            scheduler.submit(() -> coapClient.startObserve(this));
         }
     }
 

@@ -71,6 +71,6 @@ public class TradfriControllerHandler extends TradfriThingHandler {
             return;
         }
 
-        logger.warn("The controller is a read-only device and cannot handle commands.");
+        logger.debug("The controller is a read-only device and cannot handle commands.");
     }
 }
