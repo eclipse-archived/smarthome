@@ -68,8 +68,32 @@ public class TradfriDiscoveryParticipantOSGITest extends JavaOSGiTest {
 
     @Test
     public void correctThingUID() {
+        when(tradfriGateway.getName()).thenReturn("gw:12-34-56-78-90-ab");
         assertThat(discoveryParticipant.getThingUID(tradfriGateway),
                 is(new ThingUID("tradfri:gateway:gw1234567890ab")));
+
+        when(tradfriGateway.getName()).thenReturn("gw:1234567890ab");
+        assertThat(discoveryParticipant.getThingUID(tradfriGateway),
+                is(new ThingUID("tradfri:gateway:gw1234567890ab")));
+
+        when(tradfriGateway.getName()).thenReturn("gw-12-34-56-78-90-ab");
+        assertThat(discoveryParticipant.getThingUID(tradfriGateway),
+                is(new ThingUID("tradfri:gateway:gw1234567890ab")));
+
+        when(tradfriGateway.getName()).thenReturn("gw:1234567890ab");
+        assertThat(discoveryParticipant.getThingUID(tradfriGateway),
+                is(new ThingUID("tradfri:gateway:gw1234567890ab")));
+
+        when(tradfriGateway.getName()).thenReturn("gw:1234567890abServiceInfo");
+        assertThat(discoveryParticipant.getThingUID(tradfriGateway),
+                is(new ThingUID("tradfri:gateway:gw1234567890ab")));
+
+        when(tradfriGateway.getName()).thenReturn("gw:12-34-56-78-90-ab-service-info");
+        assertThat(discoveryParticipant.getThingUID(tradfriGateway),
+                is(new ThingUID("tradfri:gateway:gw1234567890ab")));
+
+        // restore original value
+        when(tradfriGateway.getName()).thenReturn("gw:12-34-56-78-90-ab");
     }
 
     @Test
@@ -83,14 +107,27 @@ public class TradfriDiscoveryParticipantOSGITest extends JavaOSGiTest {
         assertThat(result.getThingTypeUID(), is(GATEWAY_TYPE_UID));
         assertThat(result.getBridgeUID(), is(nullValue()));
         assertThat(result.getProperties().get(Thing.PROPERTY_VENDOR), is("IKEA of Sweden"));
-        assertThat(result.getProperties().get(CONFIG_HOST), is("192.168.0.5"));
-        assertThat(result.getProperties().get(CONFIG_PORT), is(1234));
-        assertThat(result.getRepresentationProperty(), is(CONFIG_HOST));
+        assertThat(result.getProperties().get(GATEWAY_CONFIG_HOST), is("192.168.0.5"));
+        assertThat(result.getProperties().get(GATEWAY_CONFIG_PORT), is(1234));
+        assertThat(result.getRepresentationProperty(), is(GATEWAY_CONFIG_HOST));
     }
 
     @Test
     public void noThingUIDForUnknownDevice() {
+        when(otherDevice.getName()).thenReturn("something");
         assertThat(discoveryParticipant.getThingUID(otherDevice), is(nullValue()));
+
+        when(otherDevice.getName()).thenReturn("gw_1234567890ab");
+        assertThat(discoveryParticipant.getThingUID(otherDevice), is(nullValue()));
+
+        when(otherDevice.getName()).thenReturn("gw:12-3456--7890-ab");
+        assertThat(discoveryParticipant.getThingUID(otherDevice), is(nullValue()));
+
+        when(otherDevice.getName()).thenReturn("gw1234567890ab");
+        assertThat(discoveryParticipant.getThingUID(otherDevice), is(nullValue()));
+
+        // restore original value
+        when(otherDevice.getName()).thenReturn("something");
     }
 
     @Test

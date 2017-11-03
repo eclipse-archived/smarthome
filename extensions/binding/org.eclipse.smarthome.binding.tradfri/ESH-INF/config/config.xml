@@ -15,10 +15,21 @@
 			<advanced>true</advanced>
 			<default>5684</default>
 		</parameter>
-		<parameter name="code" type="text" required="true">
+		<parameter name="code" type="text" required="false">
 			<context>password</context>
 			<label>Security Code</label>
 			<description>Security code printed on the label underneath the gateway.</description>
+		</parameter>
+		<parameter name="identity" type="text" required="false">
+			<advanced>true</advanced>
+			<label>Identity</label>
+			<description>Unique identity used for communication with the gateway</description>
+		</parameter>
+		<parameter name="preSharedKey" type="text" required="false">
+			<advanced>true</advanced>
+			<context>password</context>
+			<label>Pre-Shared security key</label>
+			<description>Security key obtained during first initialization of the gateway</description>
 		</parameter>
 	</config-description>
 
