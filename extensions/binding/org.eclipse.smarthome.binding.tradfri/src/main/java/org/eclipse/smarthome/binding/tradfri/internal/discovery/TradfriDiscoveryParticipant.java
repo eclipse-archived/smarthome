@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.binding.tradfri.internal.discovery;
 
+import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,8 +65,8 @@ public class TradfriDiscoveryParticipant implements MDNSDiscoveryParticipant {
 
         if (service.getHostAddresses() != null && service.getHostAddresses().length > 0
                 && !service.getHostAddresses()[0].isEmpty()) {
-            String ip = service.getHostAddresses()[0];
-
+            String ip = getFirstReachableAddress(service.getHostAddresses());
+            
             ThingUID thingUID = getThingUID(service);
             if (thingUID != null) {
                 logger.debug("Discovered Tradfri gateway: {}", service);
@@ -81,5 +83,22 @@ public class TradfriDiscoveryParticipant implements MDNSDiscoveryParticipant {
             }
         }
         return null;
+    }
+    
+    protected String getFirstReachableAddress(String[] serviceAddresses) {
+        for (String ip : serviceAddresses) {
+            try {
+                if (InetAddress.getByName(ip).isReachable(1000)) {
+                    logger.info("Found gateway at address: {}", ip);
+                    return ip;
+                }
+            } catch (IOException e) {
+                logger.warn("Gateway address {} not reachable", ip);
+            }
+        }
+        
+        String defaultIp = serviceAddresses[0];
+        logger.warn("No reachable gateway address found - defaulting to first one: {}", defaultIp);
+        return defaultIp;
     }
 }
