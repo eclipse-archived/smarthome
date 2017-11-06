@@ -266,6 +266,7 @@
     <requirement>esh.tp;filter:="(feature=jmdns)"</requirement>
 
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.mdns/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.discovery.mdns/${project.version}</bundle>
     <capability>
       osgi.service;objectClass=org.eclipse.smarthome.io.transport.mdns.MDNSService
     </capability>
@@ -285,6 +286,7 @@
     <feature>esh-base</feature>
     <requirement>esh.tp;filter:="(feature=jupnp)"</requirement>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.upnp/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.discovery.upnp/${project.version}</bundle>
   </feature>
 
   <feature name="esh-model-item" version="${project.version}">
