@@ -51,10 +51,11 @@ public class ExpiringCache<V> {
      */
     @Nullable
     public synchronized V getValue() {
-        if (value.get() == null || isExpired()) {
+        V cachedValue = value.get();
+        if (cachedValue == null || isExpired()) {
             return refreshValue();
         }
-        return value.get();
+        return cachedValue;
     }
 
     /**
@@ -72,9 +73,10 @@ public class ExpiringCache<V> {
      */
     @Nullable
     public synchronized V refreshValue() {
-        value = new SoftReference<>(action.get());
+        V freshValue = action.get();
+        value = new SoftReference<>(freshValue);
         expiresAt = System.nanoTime() + expiry;
-        return value.get();
+        return freshValue;
     }
 
     /**
