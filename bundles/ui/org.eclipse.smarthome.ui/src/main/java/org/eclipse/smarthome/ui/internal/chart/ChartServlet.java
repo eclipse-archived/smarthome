@@ -67,6 +67,7 @@ public class ChartServlet extends HttpServlet {
     private int defaultHeight = CHART_HEIGHT;
     private int defaultWidth = CHART_WIDTH;
     private double scale = 1.0;
+    private int maxWidth = -1;
 
     // The URI of this servlet
     public static final String SERVLET_NAME = "/chart";
@@ -178,6 +179,12 @@ public class ChartServlet extends HttpServlet {
                 scale = 1.0;
             }
         }
+
+        final String maxWidthString = Objects.toString(config.get("maxWidth"), null);
+        if (maxWidthString != null) {
+            maxWidth = Integer.parseInt(maxWidthString);
+        }
+
     }
 
     @Override
@@ -273,8 +280,17 @@ public class ChartServlet extends HttpServlet {
             legend = BooleanUtils.toBoolean(req.getParameter("legend"));
         }
 
+        if (maxWidth > 0 && width > maxWidth) {
+            height = Math.round((float) height / (float) width * maxWidth);
+            if (dpi != null) {
+                dpi = Math.round((float) dpi / (float) width * maxWidth);
+            }
+            width = maxWidth;
+        }
+
         // Set the content type to that provided by the chart provider
         res.setContentType("image/" + provider.getChartType());
+        logger.debug("chart building with width {} height {} dpi {}", width, height, dpi);
         try (ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(res.getOutputStream())) {
             BufferedImage chart = provider.createChart(serviceName, req.getParameter("theme"), timeBegin, timeEnd,
                     height, width, req.getParameter("items"), req.getParameter("groups"), dpi, legend);
@@ -284,6 +300,7 @@ public class ChartServlet extends HttpServlet {
         } catch (IllegalArgumentException e) {
             logger.warn("Illegal argument in chart: {}", e.getMessage());
         }
+        logger.debug("chart built");
     }
 
     /**
