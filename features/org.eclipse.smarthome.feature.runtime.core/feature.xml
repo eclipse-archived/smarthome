@@ -153,6 +153,13 @@
          unpack="false"/>
 
    <plugin
+         id="org.eclipse.smarthome.config.discovery.mdns"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="org.eclipse.smarthome.io.transport.mqtt"
          download-size="0"
          install-size="0"
@@ -217,6 +224,13 @@
 
    <plugin
          id="org.eclipse.smarthome.io.transport.upnp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.smarthome.config.discovery.upnp"
          download-size="0"
          install-size="0"
          version="0.0.0"

@@ -50,7 +50,7 @@ import org.xml.sax.InputSource;
  */
 public class WemoLinkDiscoveryService extends AbstractDiscoveryService implements UpnpIOParticipant {
 
-    private Logger logger = LoggerFactory.getLogger(WemoLinkDiscoveryService.class);
+    private final Logger logger = LoggerFactory.getLogger(WemoLinkDiscoveryService.class);
 
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_MZ100);
 
@@ -74,12 +74,12 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
     /**
      * The handler for WeMo Link bridge
      */
-    private WemoBridgeHandler wemoBridgeHandler;
+    private final WemoBridgeHandler wemoBridgeHandler;
 
     /**
      * Job which will do the background scanning
      */
-    private WemoLinkScan scanningRunnable;
+    private final WemoLinkScan scanningRunnable;
 
     /**
      * Schedule for scanning

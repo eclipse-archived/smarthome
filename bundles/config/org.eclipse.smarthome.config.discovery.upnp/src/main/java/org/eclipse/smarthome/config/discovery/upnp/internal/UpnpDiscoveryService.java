@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.config.discovery.internal;
+package org.eclipse.smarthome.config.discovery.upnp.internal;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -16,7 +16,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
-import org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant;
+import org.eclipse.smarthome.config.discovery.upnp.UpnpDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.jupnp.UpnpService;
@@ -45,7 +45,10 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
 
     private final Logger logger = LoggerFactory.getLogger(UpnpDiscoveryService.class);
 
-    private Set<UpnpDiscoveryParticipant> participants = new CopyOnWriteArraySet<>();
+    @Deprecated
+    private final Set<org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant> oldParticipants = new CopyOnWriteArraySet<>();
+
+    private final Set<UpnpDiscoveryParticipant> participants = new CopyOnWriteArraySet<>();
 
     public UpnpDiscoveryService() {
         super(5);
@@ -74,7 +77,7 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
         this.upnpService = null;
     }
 
-    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, policy = ReferencePolicy.DYNAMIC)
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addUpnpDiscoveryParticipant(UpnpDiscoveryParticipant participant) {
         this.participants.add(participant);
 
@@ -93,10 +96,36 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
         this.participants.remove(participant);
     }
 
+    @Deprecated
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    protected void addUpnpDiscoveryParticipant_old(
+            org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant participant) {
+        this.oldParticipants.add(participant);
+
+        if (upnpService != null) {
+            Collection<RemoteDevice> devices = upnpService.getRegistry().getRemoteDevices();
+            for (RemoteDevice device : devices) {
+                DiscoveryResult result = participant.createResult(device);
+                if (result != null) {
+                    thingDiscovered(result);
+                }
+            }
+        }
+    }
+
+    @Deprecated
+    protected void removeUpnpDiscoveryParticipant_old(
+            org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant participant) {
+        this.oldParticipants.remove(participant);
+    }
+
     @Override
     public Set<ThingTypeUID> getSupportedThingTypes() {
         Set<ThingTypeUID> supportedThingTypes = new HashSet<>();
         for (UpnpDiscoveryParticipant participant : participants) {
+            supportedThingTypes.addAll(participant.getSupportedThingTypeUIDs());
+        }
+        for (org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant participant : oldParticipants) {
             supportedThingTypes.addAll(participant.getSupportedThingTypeUIDs());
         }
         return supportedThingTypes;
@@ -142,11 +171,31 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
                 logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
             }
         }
+        for (org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant participant : oldParticipants) {
+            try {
+                DiscoveryResult result = participant.createResult(device);
+                if (result != null) {
+                    thingDiscovered(result);
+                }
+            } catch (Exception e) {
+                logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
+            }
+        }
     }
 
     @Override
     public void remoteDeviceRemoved(Registry registry, RemoteDevice device) {
         for (UpnpDiscoveryParticipant participant : participants) {
+            try {
+                ThingUID thingUID = participant.getThingUID(device);
+                if (thingUID != null) {
+                    thingRemoved(thingUID);
+                }
+            } catch (Exception e) {
+                logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
+            }
+        }
+        for (org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant participant : oldParticipants) {
             try {
                 ThingUID thingUID = participant.getThingUID(device);
                 if (thingUID != null) {

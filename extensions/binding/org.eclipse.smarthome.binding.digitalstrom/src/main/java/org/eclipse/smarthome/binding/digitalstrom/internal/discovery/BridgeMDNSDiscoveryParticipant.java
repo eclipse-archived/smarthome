@@ -22,8 +22,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant;
-import org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryService;
+import org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BridgeMDNSDiscoveryParticipant implements MDNSDiscoveryParticipant {
 
-    private Logger logger = LoggerFactory.getLogger(BridgeMDNSDiscoveryParticipant.class);
+    private final Logger logger = LoggerFactory.getLogger(BridgeMDNSDiscoveryParticipant.class);
 
     @Override
     public Set<ThingTypeUID> getSupportedThingTypeUIDs() {
