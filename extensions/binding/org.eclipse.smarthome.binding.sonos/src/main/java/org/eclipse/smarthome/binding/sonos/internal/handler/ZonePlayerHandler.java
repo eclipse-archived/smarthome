@@ -500,7 +500,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     updateChannel(CURRENTTRACKURI);
                     break;
                 case "CurrentAlbumArtURI":
-                    updateChannel(CURRENTALBUMART);
                     updateChannel(CURRENTALBUMARTURL);
                     break;
 
@@ -683,18 +682,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 }
                 break;
             case CURRENTALBUMART:
-                url = getAlbumArtUrl();
-                if (url != null) {
-                    // We run the update of the covert art channel in a different thread
-                    // because it can take time
-                    newState = null;
-                    scheduler.submit(() -> {
-                        RawType image = HttpUtil.downloadImage(url, true, 500000);
-                        if (image != null) {
-                            updateState(channeldD, image);
-                        }
-                    });
-                }
+                newState = null;
+                updateAlbumArtChannel(false);
                 break;
             case CURRENTALBUMARTURL:
                 url = getAlbumArtUrl();
@@ -723,6 +712,38 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
         if (newState != null) {
             updateState(channeldD, newState);
+        }
+    }
+
+    private void updateAlbumArtChannel(boolean allGroup) {
+        String url = getAlbumArtUrl();
+        if (url != null) {
+            // We download the cover art in a different thread to not delay the other operations
+            scheduler.submit(() -> {
+                RawType image = HttpUtil.downloadImage(url, true, 500000);
+                updateChannel(CURRENTALBUMART, image != null ? image : UnDefType.UNDEF, allGroup);
+            });
+        } else {
+            updateChannel(CURRENTALBUMART, UnDefType.UNDEF, allGroup);
+        }
+    }
+
+    private void updateChannel(String channeldD, State state, boolean allGroup) {
+        if (allGroup) {
+            for (String member : getZoneGroupMembers()) {
+                try {
+                    ZonePlayerHandler memberHandler = getHandlerByName(member);
+                    if (memberHandler != null && memberHandler.getThing() != null
+                            && ThingStatus.ONLINE.equals(memberHandler.getThing().getStatus())
+                            && memberHandler.isLinked(channeldD)) {
+                        memberHandler.updateState(channeldD, state);
+                    }
+                } catch (IllegalStateException e) {
+                    logger.warn("Cannot update channel for group member ({})", e.getMessage());
+                }
+            }
+        } else if (ThingStatus.ONLINE.equals(getThing().getStatus()) && isLinked(channeldD)) {
+            updateState(channeldD, state);
         }
     }
 
@@ -1062,11 +1083,16 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         String albumArtURI = (currentTrack != null && currentTrack.getAlbumArtUri() != null
                 && !currentTrack.getAlbumArtUri().isEmpty()) ? currentTrack.getAlbumArtUri() : "";
 
+        ZonePlayerHandler handlerForImageUpdate = null;
         for (String member : getZoneGroupMembers()) {
             try {
                 ZonePlayerHandler memberHandler = getHandlerByName(member);
                 if (memberHandler != null && memberHandler.getThing() != null
                         && ThingStatus.ONLINE.equals(memberHandler.getThing().getStatus())) {
+                    if (memberHandler.isLinked(CURRENTALBUMART)
+                            && hasValueChanged(albumArtURI, memberHandler.stateMap.get("CurrentAlbumArtURI"))) {
+                        handlerForImageUpdate = memberHandler;
+                    }
                     memberHandler.onValueReceived("CurrentTuneInStationId", (stationID != null) ? stationID : "",
                             "AVTransport");
                     if (needsUpdating) {
@@ -1081,6 +1107,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             } catch (IllegalStateException e) {
                 logger.warn("Cannot update media data for group member ({})", e.getMessage());
             }
+        }
+        if (needsUpdating && handlerForImageUpdate != null) {
+            handlerForImageUpdate.updateAlbumArtChannel(true);
         }
     }
 
