@@ -8,15 +8,12 @@
 package org.eclipse.smarthome.binding.tradfri.handler;
 
 import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
-import static org.eclipse.smarthome.binding.tradfri.internal.config.TradfriGatewayConfig.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -29,9 +26,9 @@ import org.eclipse.californium.scandium.dtls.pskstore.StaticPskStore;
 import org.eclipse.smarthome.binding.tradfri.internal.CoapCallback;
 import org.eclipse.smarthome.binding.tradfri.internal.DeviceUpdateListener;
 import org.eclipse.smarthome.binding.tradfri.internal.TradfriCoapClient;
+import org.eclipse.smarthome.binding.tradfri.internal.TradfriCoapEndpoint;
 import org.eclipse.smarthome.binding.tradfri.internal.TradfriCoapHandler;
 import org.eclipse.smarthome.binding.tradfri.internal.config.TradfriGatewayConfig;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -46,7 +43,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 
 /**
@@ -65,7 +61,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
     private DTLSConnector dtlsConnector;
     private CoapEndpoint endPoint;
 
-    private Set<DeviceUpdateListener> deviceUpdateListeners = new CopyOnWriteArraySet<>();
+    private final Set<DeviceUpdateListener> deviceUpdateListeners = new CopyOnWriteArraySet<>();
 
     private ScheduledFuture<?> scanJob;
 
@@ -107,7 +103,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
         DtlsConnectorConfig.Builder builder = new DtlsConnectorConfig.Builder(new InetSocketAddress(0));
         builder.setPskStore(new StaticPskStore("", configuration.code.getBytes()));
         dtlsConnector = new DTLSConnector(builder.build());
-        endPoint = new CoapEndpoint(dtlsConnector, NetworkConfig.getStandard());
+        endPoint = new TradfriCoapEndpoint(dtlsConnector, NetworkConfig.getStandard());
         deviceClient.setEndpoint(endPoint);
         updateStatus(ThingStatus.UNKNOWN);
 
