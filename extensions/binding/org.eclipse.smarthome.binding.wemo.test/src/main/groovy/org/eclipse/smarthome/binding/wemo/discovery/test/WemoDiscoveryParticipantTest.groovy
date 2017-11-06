@@ -14,7 +14,7 @@ import org.eclipse.smarthome.binding.wemo.WemoBindingConstants
 import org.eclipse.smarthome.binding.wemo.internal.discovery.WemoDiscoveryParticipant
 import org.eclipse.smarthome.binding.wemo.test.GenericWemoOSGiTest
 import org.eclipse.smarthome.config.discovery.DiscoveryResult
-import org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant
+import org.eclipse.smarthome.config.discovery.upnp.UpnpDiscoveryParticipant
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.junit.Test

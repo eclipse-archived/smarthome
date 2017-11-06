@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.transport.mdns.discovery;
+package org.eclipse.smarthome.config.discovery.mdns.internal;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,9 +19,14 @@ import javax.jmdns.ServiceListener;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
+import org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.transport.mdns.MDNSClient;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,10 +38,14 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Improved startup behavior and background discovery
  * @author Andre Fuechsel - make {@link #startScan()} asynchronous
  */
+@Component(immediate = true)
 public class MDNSDiscoveryService extends AbstractDiscoveryService implements ServiceListener {
     private final Logger logger = LoggerFactory.getLogger(MDNSDiscoveryService.class);
 
-    private Set<MDNSDiscoveryParticipant> participants = new CopyOnWriteArraySet<>();
+    @Deprecated
+    private final Set<org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant> oldParticipants = new CopyOnWriteArraySet<>();
+
+    private final Set<MDNSDiscoveryParticipant> participants = new CopyOnWriteArraySet<>();
 
     private MDNSClient mdnsClient;
 
@@ -44,10 +53,14 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
         super(5);
     }
 
+    @Reference
     public void setMDNSClient(MDNSClient mdnsClient) {
         this.mdnsClient = mdnsClient;
         if (isBackgroundDiscoveryEnabled()) {
             for (MDNSDiscoveryParticipant participant : participants) {
+                mdnsClient.addServiceListener(participant.getServiceType(), this);
+            }
+            for (org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant participant : oldParticipants) {
                 mdnsClient.addServiceListener(participant.getServiceType(), this);
             }
         }
@@ -55,6 +68,9 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
 
     public void unsetMDNSClient(MDNSClient mdnsClient) {
         for (MDNSDiscoveryParticipant participant : participants) {
+            mdnsClient.removeServiceListener(participant.getServiceType(), this);
+        }
+        for (org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant participant : oldParticipants) {
             mdnsClient.removeServiceListener(participant.getServiceType(), this);
         }
         this.mdnsClient = null;
@@ -65,12 +81,18 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
         for (MDNSDiscoveryParticipant participant : participants) {
             mdnsClient.addServiceListener(participant.getServiceType(), this);
         }
+        for (org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant participant : oldParticipants) {
+            mdnsClient.addServiceListener(participant.getServiceType(), this);
+        }
         startScan();
     }
 
     @Override
     protected void stopBackgroundDiscovery() {
         for (MDNSDiscoveryParticipant participant : participants) {
+            mdnsClient.removeServiceListener(participant.getServiceType(), this);
+        }
+        for (org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant participant : oldParticipants) {
             mdnsClient.removeServiceListener(participant.getServiceType(), this);
         }
     }
@@ -96,17 +118,47 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
                 }
             }
         }
+        for (org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant participant : oldParticipants) {
+            ServiceInfo[] services = mdnsClient.list(participant.getServiceType());
+            logger.debug("{} services found for {}", services.length, participant.getServiceType());
+            for (ServiceInfo service : services) {
+                DiscoveryResult result = participant.createResult(service);
+                if (result != null) {
+                    thingDiscovered(result);
+                }
+            }
+        }
     }
 
-    protected void addMdnsDiscoveryParticipant(MDNSDiscoveryParticipant participant) {
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    protected void addMDNSDiscoveryParticipant(MDNSDiscoveryParticipant participant) {
         this.participants.add(participant);
         if (mdnsClient != null && isBackgroundDiscoveryEnabled()) {
             mdnsClient.addServiceListener(participant.getServiceType(), this);
         }
     }
 
-    protected void removeMdnsDiscoveryParticipant(MDNSDiscoveryParticipant participant) {
+    protected void removeMDNSDiscoveryParticipant(MDNSDiscoveryParticipant participant) {
         this.participants.remove(participant);
+        if (mdnsClient != null) {
+            mdnsClient.removeServiceListener(participant.getServiceType(), this);
+        }
+    }
+
+    @Deprecated
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    protected void addMDNSDiscoveryParticipant_old(
+            org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant participant) {
+        this.oldParticipants.add(participant);
+        if (mdnsClient != null && isBackgroundDiscoveryEnabled()) {
+            mdnsClient.addServiceListener(participant.getServiceType(), this);
+        }
+    }
+
+    @Deprecated
+    protected void removeMDNSDiscoveryParticipant_old(
+            org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant participant) {
+        this.oldParticipants.remove(participant);
         if (mdnsClient != null) {
             mdnsClient.removeServiceListener(participant.getServiceType(), this);
         }
@@ -116,6 +168,9 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
     public Set<ThingTypeUID> getSupportedThingTypes() {
         Set<ThingTypeUID> supportedThingTypes = new HashSet<>();
         for (MDNSDiscoveryParticipant participant : participants) {
+            supportedThingTypes.addAll(participant.getSupportedThingTypeUIDs());
+        }
+        for (org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant participant : oldParticipants) {
             supportedThingTypes.addAll(participant.getSupportedThingTypeUIDs());
         }
         return supportedThingTypes;
@@ -138,6 +193,16 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
                 logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
             }
         }
+        for (org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant participant : oldParticipants) {
+            try {
+                ThingUID thingUID = participant.getThingUID(serviceEvent.getInfo());
+                if (thingUID != null) {
+                    thingRemoved(thingUID);
+                }
+            } catch (Exception e) {
+                logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
+            }
+        }
     }
 
     @Override
@@ -148,6 +213,16 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
     private void considerService(ServiceEvent serviceEvent) {
         if (isBackgroundDiscoveryEnabled()) {
             for (MDNSDiscoveryParticipant participant : participants) {
+                try {
+                    DiscoveryResult result = participant.createResult(serviceEvent.getInfo());
+                    if (result != null) {
+                        thingDiscovered(result);
+                    }
+                } catch (Exception e) {
+                    logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
+                }
+            }
+            for (org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant participant : oldParticipants) {
                 try {
                     DiscoveryResult result = participant.createResult(serviceEvent.getInfo());
                     if (result != null) {

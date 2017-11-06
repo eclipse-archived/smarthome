@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.binding.tradfri.internal.discovery;
 
-import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
+import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.GATEWAY_TYPE_UID;
 import static org.eclipse.smarthome.binding.tradfri.internal.config.TradfriGatewayConfig.*;
 import static org.eclipse.smarthome.core.thing.Thing.*;
 
@@ -20,9 +20,9 @@ import javax.jmdns.ServiceInfo;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
+import org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TradfriDiscoveryParticipant implements MDNSDiscoveryParticipant {
 
-    private Logger logger = LoggerFactory.getLogger(TradfriDiscoveryParticipant.class);
+    private final Logger logger = LoggerFactory.getLogger(TradfriDiscoveryParticipant.class);
 
     private static final String SERVICE_TYPE = "_coap._udp.local.";
 

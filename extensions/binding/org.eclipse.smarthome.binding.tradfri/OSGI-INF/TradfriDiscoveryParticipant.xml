@@ -11,6 +11,6 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.binding.tradfri.internal.discovery.TradfriDiscoveryParticipant">
  <implementation class="org.eclipse.smarthome.binding.tradfri.internal.discovery.TradfriDiscoveryParticipant"/>
  <service>
-    <provide interface="org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant"/>
+    <provide interface="org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant"/>
  </service>
 </scr:component>
