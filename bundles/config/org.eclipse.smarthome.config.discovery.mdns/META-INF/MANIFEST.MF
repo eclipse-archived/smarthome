@@ -9,6 +9,7 @@ Export-Package:
  org.eclipse.smarthome.config.discovery.mdns
 Import-Package: 
  javax.jmdns,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.discovery,
  org.eclipse.smarthome.config.discovery.mdns,
  org.eclipse.smarthome.core.thing,
