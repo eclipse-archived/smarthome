@@ -46,6 +46,9 @@ public interface Thing extends Identifiable<ThingUID> {
     /** the key for the firmware version property */
     String PROPERTY_FIRMWARE_VERSION = "firmwareVersion";
 
+    /** the key for the MAC address property */
+    String PROPERTY_MAC_ADDRESS = "macAddress";
+
     /**
      * Returns the human readable label for this thing.
      *
