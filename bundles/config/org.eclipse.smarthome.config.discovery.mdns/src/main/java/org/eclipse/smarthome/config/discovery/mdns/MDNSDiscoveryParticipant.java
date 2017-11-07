@@ -11,6 +11,8 @@ import java.util.Set;
 
 import javax.jmdns.ServiceInfo;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.mdns.internal.MDNSDiscoveryService;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -24,6 +26,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  * @author Tobias Bräutigam - Initial contribution
  *
  */
+@NonNullByDefault
 public interface MDNSDiscoveryParticipant {
 
     /**
@@ -48,6 +51,7 @@ public interface MDNSDiscoveryParticipant {
      * @return the according discovery result or <code>null</code>, if device is not
      *         supported by this participant
      */
+    @Nullable
     public DiscoveryResult createResult(ServiceInfo service);
 
     /**
@@ -58,5 +62,6 @@ public interface MDNSDiscoveryParticipant {
      * @return a thing UID or <code>null</code>, if device is not supported
      *         by this participant
      */
+    @Nullable
     public ThingUID getThingUID(ServiceInfo service);
 }
