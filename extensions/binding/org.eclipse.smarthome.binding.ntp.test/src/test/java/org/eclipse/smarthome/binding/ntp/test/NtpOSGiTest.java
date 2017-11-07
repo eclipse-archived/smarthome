@@ -192,7 +192,6 @@ public class NtpOSGiTest extends JavaOSGiTest {
 
     @Test
     public void testDateTimeChannelTimeZoneUpdate() {
-        final ZoneOffset expectedOffset = ZoneOffset.of("-07:00");
 
         Configuration configuration = new Configuration();
         configuration.put(NtpBindingConstants.PROPERTY_TIMEZONE, TEST_TIME_ZONE_ID);
@@ -200,10 +199,16 @@ public class NtpOSGiTest extends JavaOSGiTest {
 
         String testItemState = getItemState(ACCEPTED_ITEM_TYPE_DATE_TIME).toString();
         assertFormat(testItemState, DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS);
-        ZoneOffset timeZoneFromItemRegistry = ((DateTimeType) getItemState(ACCEPTED_ITEM_TYPE_DATE_TIME))
-                .getZonedDateTime().getOffset();
+        ZonedDateTime timeZoneFromItemRegistry = ((DateTimeType) getItemState(ACCEPTED_ITEM_TYPE_DATE_TIME))
+                .getZonedDateTime();
+        ZoneOffset expectedOffset;
+        if (timeZoneFromItemRegistry.getZone().getRules().isDaylightSavings(timeZoneFromItemRegistry.toInstant())) {
+            expectedOffset = ZoneOffset.of("-07:00");
+        } else {
+            expectedOffset = ZoneOffset.of("-08:00");
+        }
 
-        assertThat("The dateTime channel was not updated with the right timezone", timeZoneFromItemRegistry,
+        assertThat("The dateTime channel was not updated with the right timezone", timeZoneFromItemRegistry.getOffset(),
                 is(equalTo(expectedOffset)));
     }
 
@@ -212,11 +217,16 @@ public class NtpOSGiTest extends JavaOSGiTest {
         Configuration configuration = new Configuration();
         configuration.put(NtpBindingConstants.PROPERTY_TIMEZONE, TEST_TIME_ZONE_ID);
         initialize(configuration, NtpBindingConstants.CHANNEL_DATE_TIME, ACCEPTED_ITEM_TYPE_DATE_TIME, null, null);
-        ZoneOffset timeZoneIdFromItemRegistry = ((DateTimeType) getItemState(ACCEPTED_ITEM_TYPE_DATE_TIME))
-                .getZonedDateTime().getOffset();
-        ZoneOffset testZoneid = ZoneOffset.of("-07:00");
-        assertThat("The dateTime channel calendar was not updated with the right timezone", timeZoneIdFromItemRegistry,
-                is(equalTo(testZoneid)));
+        ZonedDateTime timeZoneIdFromItemRegistry = ((DateTimeType) getItemState(ACCEPTED_ITEM_TYPE_DATE_TIME))
+                .getZonedDateTime();
+        ZoneOffset testZoneId;
+        if (timeZoneIdFromItemRegistry.getZone().getRules().isDaylightSavings(timeZoneIdFromItemRegistry.toInstant())) {
+            testZoneId = ZoneOffset.of("-07:00");
+        } else {
+            testZoneId = ZoneOffset.of("-08:00");
+        }
+        assertThat("The dateTime channel calendar was not updated with the right timezone",
+                timeZoneIdFromItemRegistry.getOffset(), is(equalTo(testZoneId)));
     }
 
     @Test
@@ -264,10 +274,18 @@ public class NtpOSGiTest extends JavaOSGiTest {
         // Initialize with configuration with no time zone property set.
         initialize(configuration, NtpBindingConstants.CHANNEL_DATE_TIME, ACCEPTED_ITEM_TYPE_DATE_TIME, null, null);
 
-        ZoneOffset timeZoneIdFromItemRegistry = ((DateTimeType) getItemState(ACCEPTED_ITEM_TYPE_DATE_TIME))
-                .getZonedDateTime().getOffset();
-        assertThat("The dateTime channel calendar was not updated with the right timezone", timeZoneIdFromItemRegistry,
-                is(equalTo(ZoneOffset.of("+03:00"))));
+        ZonedDateTime timeZoneIdFromItemRegistry = ((DateTimeType) getItemState(ACCEPTED_ITEM_TYPE_DATE_TIME))
+                .getZonedDateTime();
+        ZoneOffset expectedOffset;
+
+        if (timeZoneIdFromItemRegistry.getZone().getRules().isDaylightSavings(timeZoneIdFromItemRegistry.toInstant())) {
+            expectedOffset = ZoneOffset.of("+03:00");
+        } else {
+            expectedOffset = ZoneOffset.of("+02:00");
+        }
+
+        assertThat("The dateTime channel calendar was not updated with the right timezone",
+                timeZoneIdFromItemRegistry.getOffset(), is(equalTo(expectedOffset)));
     }
 
     @Test
