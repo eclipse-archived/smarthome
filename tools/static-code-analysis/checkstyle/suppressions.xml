@@ -19,5 +19,4 @@
     <!-- Some source files have different headers -->
     <suppress files=".+org.eclipse.smarthome.automation.+" checks="HeaderCheck"/>
     <suppress files=".+org.eclipse.smarthome.config.dispatch.test.+" checks="ServiceComponentManifestCheck"/>
-    <suppress files=".+org.eclipse.smarthome.core.thing.+" checks="PackageExportsNameCheck"/>
 </suppressions>
