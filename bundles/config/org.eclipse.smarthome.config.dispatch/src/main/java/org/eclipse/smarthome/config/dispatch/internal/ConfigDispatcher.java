@@ -326,6 +326,10 @@ public class ConfigDispatcher extends AbstractWatchService {
         List<String> lines = IOUtils.readLines(new FileInputStream(configFile));
         String exclusivePID = lines.size() > 0 ? getPIDFromLine(lines.get(0)) : null;
         if (exclusivePID != null) {
+            if (exclusivePIDMap.contains(exclusivePID)) {
+                logger.warn("The file {} subsequently defines the exclusive PID '{}'.", configFile.getAbsolutePath(),
+                        exclusivePID);
+            }
             pid = exclusivePID;
             lines = lines.subList(1, lines.size());
             exclusivePIDMap.setProcessedPID(pid, configFile.getAbsolutePath());
@@ -354,6 +358,13 @@ public class ConfigDispatcher extends AbstractWatchService {
                         configFile.getName(), pid, parsedLine.pid);
                 configuration.update((Dictionary) new Properties()); // update with empty properties
                 return;
+            }
+
+            if (!exclusivePIDMap.contains(pid) && parsedLine.pid != null && exclusivePIDMap.contains(parsedLine.pid)) {
+                logger.error(
+                        "Error parsing config file {}. The PID {} is exclusive but defined in another file, skipping the line.",
+                        configFile.getName(), parsedLine.pid);
+                continue;
             }
 
             if (parsedLine.pid != null) {
