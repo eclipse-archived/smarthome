@@ -68,9 +68,9 @@ public final class FirmwareUpdateService implements EventSubscriber {
     private static final String THREAD_POOL_NAME = FirmwareUpdateService.class.getSimpleName();
     private static final Set<String> SUPPORTED_TIME_UNITS = ImmutableSet.of(TimeUnit.SECONDS.name(),
             TimeUnit.MINUTES.name(), TimeUnit.HOURS.name(), TimeUnit.DAYS.name());
-    private static final String PERIOD_CONFIG_KEY = "period";
-    private static final String DELAY_CONFIG_KEY = "delay";
-    private static final String TIME_UNIT_CONFIG_KEY = "timeUnit";
+    protected static final String PERIOD_CONFIG_KEY = "period";
+    protected static final String DELAY_CONFIG_KEY = "delay";
+    protected static final String TIME_UNIT_CONFIG_KEY = "timeUnit";
     private static final String CONFIG_DESC_URI_KEY = "system:firmware-status-info-job";
 
     private final Logger logger = LoggerFactory.getLogger(FirmwareUpdateService.class);
@@ -81,7 +81,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
 
     private ScheduledFuture<?> firmwareStatusInfoJob;
 
-    private int timeout = 30 * 60 * 1000;
+    protected int timeout = 30 * 60 * 1000;
 
     private final Set<String> subscribedEventTypes = ImmutableSet.of(ThingStatusInfoChangedEvent.TYPE);
 
@@ -479,6 +479,18 @@ public final class FirmwareUpdateService implements EventSubscriber {
 
     private static ScheduledExecutorService getPool() {
         return ThreadPoolManager.getScheduledPool(THREAD_POOL_NAME);
+    }
+
+    protected int getFirmwareStatusInfoJobPeriod() {
+        return firmwareStatusInfoJobPeriod;
+    }
+
+    protected int getFirmwareStatusInfoJobDelay() {
+        return firmwareStatusInfoJobDelay;
+    }
+
+    protected TimeUnit getFirmwareStatusInfoJobTimeUnit() {
+        return firmwareStatusInfoJobTimeUnit;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
