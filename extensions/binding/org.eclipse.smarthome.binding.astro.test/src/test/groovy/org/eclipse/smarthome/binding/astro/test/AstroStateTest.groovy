@@ -50,7 +50,7 @@ class AstroStateTest {
     private State expectedState
     
     // These test result timestamps are adapted for the +03:00 time zone 
-    private static final ZoneId zone= ZoneId.of("+03:00")
+    private static final ZoneId zone = ZoneId.of("+03:00")
 
     public AstroStateTest(String thingID, String channelId, State expectedState){
         this.thingID = thingID
@@ -69,20 +69,19 @@ class AstroStateTest {
 
         PropertyUtils.unsetTimeZone();
         
-        // Anonymous implementation of the service to adapt the time zone to the tested longtitude and langtitude
+        // Anonymous implementation of the service to adapt the time zone to the tested longtitude and latitude
         PropertyUtils.setTimeZone(new TimeZoneProvider() {
                     @Override
                     ZoneId getTimeZone() {
                         return ZoneId.of("+03:00");
                     }
-                }
-                )
+                })
         assertStateUpdate(thingID, channelId, expectedState)
     }
 
     private void assertStateUpdate(String thingID, String channelId, State expectedState){
         LocalDateTime time = LocalDateTime.of(TEST_YEAR, TEST_MONTH, TEST_DAY,0,0)
-        ZonedDateTime zonedTime = ZonedDateTime.ofLocal(time,zone,null)
+        ZonedDateTime zonedTime = ZonedDateTime.ofLocal(time, zone, null)
         Calendar calendar = GregorianCalendar.from(zonedTime)
 
         Planet planet

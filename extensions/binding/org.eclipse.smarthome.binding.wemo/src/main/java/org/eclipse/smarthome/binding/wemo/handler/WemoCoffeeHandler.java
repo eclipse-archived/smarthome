@@ -467,7 +467,7 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                         getThing().getUID());
                 return null;
             }
-            ZonedDateTime zoned= ZonedDateTime.ofInstant(Instant.ofEpochMilli(value), TimeZone.getDefault().toZoneId());
+            ZonedDateTime zoned = ZonedDateTime.ofInstant(Instant.ofEpochMilli(value), TimeZone.getDefault().toZoneId());
             State dateTimeState = new DateTimeType(zoned);
             if (dateTimeState != null) {
                 logger.trace("New attribute brewed '{}' received", dateTimeState);

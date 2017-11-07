@@ -38,7 +38,7 @@ public class PropertyUtils {
         throw new IllegalAccessError("Non-instantiable");
     }
 
-    private static TimeZoneProvider zone;
+    private static TimeZoneProvider timeZoneProvider;
     
     /**
      * Returns the state of the channel.
@@ -48,10 +48,9 @@ public class PropertyUtils {
         if (value == null) {
             return UnDefType.UNDEF;
         } else if (value instanceof Calendar) {
-            // TODO use LocationProvider service once it's merged https://github.com/eclipse/smarthome/issues/3936
             Calendar cal = (Calendar) value;
             GregorianCalendar gregorianCal = (GregorianCalendar) DateTimeUtils.applyConfig(cal, config);
-            cal.setTimeZone(TimeZone.getTimeZone(zone.getTimeZone()));
+            cal.setTimeZone(TimeZone.getTimeZone(timeZoneProvider.getTimeZone()));
             ZonedDateTime zoned = gregorianCal.toZonedDateTime().withFixedOffsetZone();
             return new DateTimeType(zoned);
         } else if (value instanceof Number) {
@@ -65,11 +64,11 @@ public class PropertyUtils {
     }
     
     public static void setTimeZone (TimeZoneProvider zone) {
-        PropertyUtils.zone=zone;
+        PropertyUtils.timeZoneProvider=zone;
     }
 
     public static void unsetTimeZone() {
-        PropertyUtils.zone=null;
+        PropertyUtils.timeZoneProvider=null;
     }
     
     /**

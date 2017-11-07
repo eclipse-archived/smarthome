@@ -175,14 +175,14 @@ public class DateTimeTypeTest {
     public void serializationTestZoned() {
         ZonedDateTime zoned = ZonedDateTime.now();
         DateTimeType dt = new DateTimeType(zoned);
-        DateTimeType sdt = new DateTimeType(dt.toString());
+        DateTimeType sdt = new DateTimeType(dt.toFullString());
         assertEquals(dt.getZonedDateTime(), sdt.getZonedDateTime());
     }
 
     @Test
     public void equalityTest() {
         DateTimeType dt1 = new DateTimeType(Calendar.getInstance());
-        DateTimeType dt2 = DateTimeType.valueOf(dt1.toString());
+        DateTimeType dt2 = DateTimeType.valueOf(dt1.toFullString());
 
         assertTrue(dt1.toString().equals(dt2.toString()));
         assertTrue(dt1.equals(dt2));
@@ -195,12 +195,10 @@ public class DateTimeTypeTest {
     public void equalityTestZoned() {
         ZonedDateTime zoned = ZonedDateTime.now();
         DateTimeType dt1 = new DateTimeType(zoned);
-        DateTimeType dt2 = DateTimeType.valueOf(dt1.toString());
+        DateTimeType dt2 = DateTimeType.valueOf(dt1.toFullString());
 
-        assertTrue(dt1.toString().equals(dt2.toString()));
-        assertTrue(dt1.equals(dt2));
+        assertTrue(dt1.toString().equals(dt2.toFullString()));
         assertTrue(dt1.getZonedDateTime().equals(dt2.getZonedDateTime()));
-
         assertTrue(dt1.equals(dt2));
     }
 
@@ -249,7 +247,6 @@ public class DateTimeTypeTest {
             ZonedDateTime zonedDate = ZonedDateTime.of(dateTime, parameterSet.inputTimeZone.toZoneId()).toInstant()
                     .atZone(parameterSet.defaultTimeZone.toZoneId());
             inputTimeString = zonedDate.format((DateTimeFormatter.ofPattern(DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS)));
-            ;
         } else {
             inputTimeString = parameterSet.inputTimeString;
         }
