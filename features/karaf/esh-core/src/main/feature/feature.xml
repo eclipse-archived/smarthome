@@ -281,6 +281,11 @@
     </capability>
   </feature>
 
+  <feature name="esh-io-transport-http" version="${project.version}">
+    <feature>esh-base</feature>
+    <requirement>esh.tp;filter:="(feature=httpclient)"</requirement>
+  </feature>
+
   <feature name="esh-io-transport-upnp" version="${project.version}">
     <feature>esh-base</feature>
     <requirement>esh.tp;filter:="(feature=jupnp)"</requirement>
