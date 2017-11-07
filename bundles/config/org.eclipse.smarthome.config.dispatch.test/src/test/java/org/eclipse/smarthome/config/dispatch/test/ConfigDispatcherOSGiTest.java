@@ -621,7 +621,7 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
     }
 
     @Test
-    public void theSameLocalAndGlobalPIDsInDifferentFilesAreConsideredOnePID() {
+    public void whenExclusivePIDisDefinedInlineFromDifferentFile_skipTheLine() {
         String configDirectory = configBaseDirectory + SEP + "global_and_local_pid_different_files_conf";
         String servicesDirectory = "global_and_local_pid_no_conflict_services";
         String defaultConfigFilePath = configDirectory + SEP + "global.and.local.pid.default.file.cfg";
@@ -629,8 +629,8 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
         initialize(configDirectory, servicesDirectory, defaultConfigFilePath);
 
         // Assert that the configuration is updated with all the properties for a pid from all the processed files.
-        verifyValueOfConfigurationProperty("no.conflict.global.and.local.pid", "global.property", "global.value");
-        verifyValueOfConfigurationProperty("no.conflict.global.and.local.pid", "local.property", "local.value");
+        verifyValueOfConfigurationProperty("no.conflict.global.and.local.pid", "exclusive.property", "global.value");
+        verifyNotExistingConfigurationProperty("no.conflict.global.and.local.pid", "inline.property");
     }
 
     @Test
