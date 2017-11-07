@@ -184,23 +184,27 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
     @Override
     public void serviceRemoved(ServiceEvent serviceEvent) {
         for (MDNSDiscoveryParticipant participant : participants) {
-            try {
-                ThingUID thingUID = participant.getThingUID(serviceEvent.getInfo());
-                if (thingUID != null) {
-                    thingRemoved(thingUID);
+            if (participant.getServiceType().equals(serviceEvent.getType())) {
+                try {
+                    ThingUID thingUID = participant.getThingUID(serviceEvent.getInfo());
+                    if (thingUID != null) {
+                        thingRemoved(thingUID);
+                    }
+                } catch (Exception e) {
+                    logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
                 }
-            } catch (Exception e) {
-                logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
             }
         }
         for (org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant participant : oldParticipants) {
-            try {
-                ThingUID thingUID = participant.getThingUID(serviceEvent.getInfo());
-                if (thingUID != null) {
-                    thingRemoved(thingUID);
+            if (participant.getServiceType().equals(serviceEvent.getType())) {
+                try {
+                    ThingUID thingUID = participant.getThingUID(serviceEvent.getInfo());
+                    if (thingUID != null) {
+                        thingRemoved(thingUID);
+                    }
+                } catch (Exception e) {
+                    logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
                 }
-            } catch (Exception e) {
-                logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
             }
         }
     }
@@ -213,23 +217,27 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
     private void considerService(ServiceEvent serviceEvent) {
         if (isBackgroundDiscoveryEnabled()) {
             for (MDNSDiscoveryParticipant participant : participants) {
-                try {
-                    DiscoveryResult result = participant.createResult(serviceEvent.getInfo());
-                    if (result != null) {
-                        thingDiscovered(result);
+                if (participant.getServiceType().equals(serviceEvent.getType())) {
+                    try {
+                        DiscoveryResult result = participant.createResult(serviceEvent.getInfo());
+                        if (result != null) {
+                            thingDiscovered(result);
+                        }
+                    } catch (Exception e) {
+                        logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
                     }
-                } catch (Exception e) {
-                    logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
                 }
             }
             for (org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant participant : oldParticipants) {
-                try {
-                    DiscoveryResult result = participant.createResult(serviceEvent.getInfo());
-                    if (result != null) {
-                        thingDiscovered(result);
+                if (participant.getServiceType().equals(serviceEvent.getType())) {
+                    try {
+                        DiscoveryResult result = participant.createResult(serviceEvent.getInfo());
+                        if (result != null) {
+                            thingDiscovered(result);
+                        }
+                    } catch (Exception e) {
+                        logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
                     }
-                } catch (Exception e) {
-                    logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
                 }
             }
         }
