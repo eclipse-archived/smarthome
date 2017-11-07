@@ -50,9 +50,16 @@
   </feature>
 
   <feature name="esh-tp-httpclient" version="${project.version}">
-    <capability>esh.tp;feature=httpclient;version=4.2.3</capability>
-    <bundle dependency="true">mvn:org.apache.httpcomponents/httpcore-osgi/4.2.3</bundle>
-    <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/4.2.3</bundle>
+    <capability>esh.tp;feature=httpclient;version=9.3.14.v20161028</capability>
+    <bundle dependency="true">mvn:javax.servlet/javax.servlet-api/3.1.0</bundle>
+    <bundle dependency="true">mvn:org.eclipse.jetty/jetty-client/9.3.14.v20161028</bundle>
+    <bundle dependency="true">mvn:org.eclipse.jetty/jetty-http/9.3.14.v20161028</bundle>
+    <bundle dependency="true">mvn:org.eclipse.jetty/jetty-util/9.3.14.v20161028</bundle>
+    <bundle dependency="true">mvn:org.eclipse.jetty/jetty-io/9.3.14.v20161028</bundle>
+    <bundle dependency="true">mvn:org.eclipse.jetty/jetty-proxy/9.3.14.v20161028</bundle>
+    <bundle dependency="true">mvn:org.eclipse.jetty.websocket/websocket-api/9.3.14.v20161028</bundle>
+    <bundle dependency="true">mvn:org.eclipse.jetty.websocket/websocket-common/9.3.14.v20161028</bundle>
+    <bundle dependency="true">mvn:org.eclipse.jetty.websocket/websocket-client/9.3.14.v20161028</bundle>
   </feature>
 
   <feature name="esh-tp-jax-rs" version="${project.version}">
@@ -141,11 +148,11 @@
   </feature>
 
   <feature name="esh-tp-jupnp" description="UPnP/DLNA library for Java" version="${project.version}">
-    <capability>esh.tp;feature=jupnp;version=2.2.0</capability>
-
+    <capability>esh.tp;feature=jupnp;version=2.3.0</capability>
     <feature dependency="true">http</feature>
+    <feature dependency="true">scr</feature>
     <feature dependency="true">esh-tp-httpclient</feature>
-    <bundle>mvn:org.jupnp/org.jupnp/2.2.0</bundle>
+    <bundle>mvn:org.jupnp/org.jupnp/2.3.0</bundle>
   </feature>
 
   <feature name="esh-tp-jmdns" description="An implementation of multi-cast DNS in Java." version="${project.version}">
