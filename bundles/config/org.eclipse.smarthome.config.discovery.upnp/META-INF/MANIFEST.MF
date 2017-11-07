@@ -8,6 +8,7 @@ Bundle-Version: 0.9.0.qualifier
 Export-Package: 
  org.eclipse.smarthome.config.discovery.upnp
 Import-Package: 
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.discovery,
  org.eclipse.smarthome.config.discovery.upnp,
  org.eclipse.smarthome.core.thing,
