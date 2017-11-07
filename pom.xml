@@ -54,6 +54,9 @@
     <build.helper.maven.plugin.version>1.8</build.helper.maven.plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <sat.version>0.4.1</sat.version>
+    <eea-url>http://www.TODO.tld</eea-url>
+    <eea-dir>path/to/file/on/server</eea-dir>
+    <eea-file>jdk.zip</eea-file>
   </properties>
 
   <packaging>pom</packaging>
@@ -70,6 +73,25 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>wagon-maven-plugin</artifactId>
+        <version>1.0</version>
+        <executions>
+          <execution>
+            <id>download-eea-zip</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>download-single</goal>
+            </goals>
+            <configuration>
+              <url>${eea-url}</url>
+              <fromFile>${eea-dir}/${eea-file}</fromFile>
+              <toDir>${basedirRoot}/targetplatform/eea/</toDir>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.commonjava.maven.plugins</groupId>
         <artifactId>directory-maven-plugin</artifactId>
@@ -201,8 +223,10 @@
               </extraClasspathElement>
             </extraClasspathElements>
             <compilerArgs>
-              <!--<arg>-err:+nullAnnot(org.eclipse.jdt.annotation.Nullable|org.eclipse.jdt.annotation.NonNull|org.eclipse.jdt.annotation.NonNullByDefault),+inheritNullAnnot</arg>-->
-              <arg>-warn:+nullAnnot(org.eclipse.jdt.annotation.Nullable|org.eclipse.jdt.annotation.NonNull|org.eclipse.jdt.annotation.NonNullByDefault),+null,+inheritNullAnnot,+nullAnnotConflict,+nullUncheckedConversion,+nullAnnotRedundant,+nullDereference</arg>
+              <arg>-err:+nullAnnot(org.eclipse.jdt.annotation.Nullable|org.eclipse.jdt.annotation.NonNull|org.eclipse.jdt.annotation.NonNullByDefault),+inheritNullAnnot</arg>
+              <arg>-warn:+null,+inheritNullAnnot,+nullAnnotConflict,+nullUncheckedConversion,+nullAnnotRedundant,+nullDereference</arg>
+              <arg>-annotationpath</arg>
+              <arg>${basedirRoot}/targetplatform/eea/${eea-file}</arg>
             </compilerArgs>
           </configuration>
         </plugin>

@@ -124,7 +124,7 @@
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.nullUncheckedConversion"
-          value="ignore"/>
+          value="warning"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.parameterAssignment"
@@ -2447,6 +2447,10 @@
         content="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xA;&lt;lifecycleMappingMetadata>&#xA;  &lt;pluginExecutions>&#xA;    &lt;pluginExecution>&#xA;      &lt;pluginExecutionFilter>&#xA;        &lt;groupId>org.codehaus.mojo&lt;/groupId>&#xA;        &lt;artifactId>build-helper-maven-plugin&lt;/artifactId>&#xA;        &lt;versionRange>1.8&lt;/versionRange>&#xA;        &lt;goals>&#xA;          &lt;goal>add-source&lt;/goal>&#xA;          &lt;goal>add-test-source&lt;/goal>&#xA;        &lt;/goals>&#xA;      &lt;/pluginExecutionFilter>&#xA;      &lt;action>&#xA;        &lt;ignore />&#xA;      &lt;/action>&#xA;    &lt;/pluginExecution>&#xA;  &lt;/pluginExecutions>&#xA;&lt;/lifecycleMappingMetadata>&#xA;"
         targetURL="${workspace.location|uri}/.metadata/.plugins/org.eclipse.m2e.core/lifecycle-mapping-metadata.xml"
         encoding="UTF-8"/>
+    <setupTask
+        xsi:type="setup:ResourceCopyTask"
+        sourceURL="http://www.TODO.tld/path/to/file/on/server/jdk.zip"
+        targetURL="${git.clone.eclipsesmarthome.location|uri}/targetplatform/eea/jdk.zip"/>
     <stream
         name="master"/>
   </project>
