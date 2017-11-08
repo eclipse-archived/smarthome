@@ -58,10 +58,10 @@ public class ThingTypeI18nLocalizationService {
                 thingType.getChannelDefinitions().size());
 
         for (final ChannelDefinition channelDefinition : thingType.getChannelDefinitions()) {
-            String channelLabel = this.thingTypeI18nUtil.getChannelLabel(bundle, channelDefinition.getChannelTypeUID(),
+            String channelLabel = this.thingTypeI18nUtil.getChannelLabel(bundle, thingType.getUID(), channelDefinition,
                     channelDefinition.getLabel(), locale);
-            String channelDescription = this.thingTypeI18nUtil.getChannelDescription(bundle,
-                    channelDefinition.getChannelTypeUID(), channelDefinition.getDescription(), locale);
+            String channelDescription = this.thingTypeI18nUtil.getChannelDescription(bundle, thingType.getUID(),
+                    channelDefinition, channelDefinition.getDescription(), locale);
             if (channelLabel == null || channelDescription == null) {
                 ChannelType channelType = TypeResolver.resolve(channelDefinition.getChannelTypeUID(), locale);
                 if (channelType != null) {

@@ -135,8 +135,8 @@ public class ThingTypeI18nUtil {
     }
 
     private String inferThingTypeKey(ThingTypeUID thingTypeUID, ChannelDefinition channel, String lastSegment) {
-        return "thing-type." + thingTypeUID.getBindingId() + "." + thingTypeUID.getId() + "." + channel.getId() + "."
-                + lastSegment;
+        return "thing-type." + thingTypeUID.getBindingId() + "." + thingTypeUID.getId() + ".channel." + channel.getId()
+                + "." + lastSegment;
     }
 
 }
