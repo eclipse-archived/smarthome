@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
@@ -361,7 +362,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
                     for (Item newItem : newItems.values()) {
                         if (oldItems.containsKey(newItem.getName())) {
                             Item oldItem = oldItems.get(newItem.getName());
-                            if (!oldItem.equals(newItem)) {
+                            if (hasItemChanged(oldItem, newItem)) {
                                 notifyListenersAboutUpdatedElement(oldItem, newItem);
                             }
                         } else {
@@ -385,6 +386,17 @@ public class GenericItemProvider extends AbstractProvider<Item>
                     break;
             }
         }
+    }
+
+    private boolean hasItemChanged(Item item1, Item item2) {
+        return !Objects.equals(item1.getClass(), item2.getClass()) || //
+                !Objects.equals(item1.getName(), item2.getName()) || //
+                !Objects.equals(item1.getCategory(), item2.getCategory()) || //
+                !Objects.equals(item1.getGroupNames(), item2.getGroupNames()) || //
+                !Objects.equals(item1.getLabel(), item2.getLabel()) || //
+                !Objects.equals(item1.getTags(), item2.getTags()) || //
+                !Objects.equals(item1.getType(), item2.getType());
+
     }
 
     private Map<String, Item> toItemMap(Collection<Item> items) {
