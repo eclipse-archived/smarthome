@@ -103,31 +103,27 @@ public class SystemWideChannelTypesTest extends JavaOSGiTest {
         // install test bundle
         Bundle sysBundle = SyntheticBundleInstaller.install(bundleContext, SYSTEM_CHANNELS_BUNDLE_NAME);
         assertThat(sysBundle, is(notNullValue()));
-        List<ThingType> thingTypes = thingTypeProvider.getThingTypes(null).stream()
-                .filter(it -> it.getUID().getId().equals("wireless-router")).collect(Collectors.toList());
 
-        assertThat(thingTypes.size(), is(1));
+        ThingType wirelessRouterType = thingTypeProvider.getThingTypes(null).stream()
+                .filter(it -> it.getUID().getAsString().equals("SystemChannels:wireless-router")).findFirst().get();
+        assertThat(wirelessRouterType, is(notNullValue()));
 
-        Collection<ChannelDefinition> channelDefs = thingTypes.get(0).getChannelDefinitions();
-
+        Collection<ChannelDefinition> channelDefs = wirelessRouterType.getChannelDefinitions();
         assertThat(channelDefs.size(), is(3));
 
-        List<ChannelDefinition> myChannel = channelDefs.stream().filter(
+        ChannelDefinition myChannel = channelDefs.stream().filter(
                 it -> it.getId().equals("test") && it.getChannelTypeUID().getAsString().equals("system:my-channel"))
-                .collect(Collectors.toList());
+                .findFirst().get();
+        assertThat(myChannel, is(notNullValue()));
 
-        List<ChannelDefinition> sigStr = channelDefs.stream()
-                .filter(it -> it.getId().equals("sigstr")
-                        && it.getChannelTypeUID().getAsString().equals("system:signal-strength"))
-                .collect(Collectors.toList());
+        ChannelDefinition sigStr = channelDefs.stream().filter(it -> it.getId().equals("sigstr")
+                && it.getChannelTypeUID().getAsString().equals("system:signal-strength")).findFirst().get();
+        assertThat(sigStr, is(notNullValue()));
 
-        List<ChannelDefinition> lowBat = channelDefs.stream().filter(
+        ChannelDefinition lowBat = channelDefs.stream().filter(
                 it -> it.getId().equals("lowbat") && it.getChannelTypeUID().getAsString().equals("system:low-battery"))
-                .collect(Collectors.toList());
-
-        assertThat(myChannel.size(), is(1));
-        assertThat(sigStr.size(), is(1));
-        assertThat(lowBat.size(), is(1));
+                .findFirst().get();
+        assertThat(lowBat, is(notNullValue()));
     }
 
     @Test
@@ -150,7 +146,6 @@ public class SystemWideChannelTypesTest extends JavaOSGiTest {
         assertThat(sysBundle.getState(), is(Bundle.UNINSTALLED));
 
         assertThat(getChannelTypes().size(), is(initialNumberOfChannelTypes));
-
     }
 
     @Test
@@ -164,45 +159,45 @@ public class SystemWideChannelTypesTest extends JavaOSGiTest {
         Collection<ThingType> thingTypes = thingTypeProvider.getThingTypes(Locale.GERMAN);
         assertThat(thingTypes.size(), is(initialNumberOfThingTypes + 1));
 
-        List<ThingType> thingsFiltered = thingTypes.stream()
-                .filter(it -> it.getUID().getAsString().equals("SystemChannels:wireless-router"))
-                .collect(Collectors.toList());
+        ThingType wirelessRouterType = thingTypes.stream()
+                .filter(it -> it.getUID().getAsString().equals("SystemChannels:wireless-router")).findFirst().get();
+        assertThat(wirelessRouterType, is(notNullValue()));
 
-        assertThat(thingsFiltered.size(), is(1));
-        List<ChannelDefinition> channelDefs = thingsFiltered.get(0).getChannelDefinitions();
+        List<ChannelDefinition> channelDefs = wirelessRouterType.getChannelDefinitions();
+        assertThat(channelDefs.size(), is(3));
 
-        List<ChannelDefinition> myChannel = channelDefs.stream().filter(
+        ChannelDefinition myChannel = channelDefs.stream().filter(
                 it -> it.getId().equals("test") && it.getChannelTypeUID().getAsString().equals("system:my-channel"))
-                .collect(Collectors.toList());
+                .findFirst().get();
+        assertThat(myChannel, is(notNullValue()));
 
-        List<ChannelDefinition> sigStr = channelDefs.stream()
-                .filter(it -> it.getId().equals("sigstr")
-                        && it.getChannelTypeUID().getAsString().equals("system:signal-strength"))
-                .collect(Collectors.toList());
+        ChannelDefinition sigStr = channelDefs.stream().filter(it -> it.getId().equals("sigstr")
+                && it.getChannelTypeUID().getAsString().equals("system:signal-strength")).findFirst().get();
+        assertThat(sigStr, is(notNullValue()));
 
-        List<ChannelDefinition> lowBat = channelDefs.stream().filter(
+        ChannelDefinition lowBat = channelDefs.stream().filter(
                 it -> it.getId().equals("lowbat") && it.getChannelTypeUID().getAsString().equals("system:low-battery"))
-                .collect(Collectors.toList());
+                .findFirst().get();
+        assertThat(lowBat, is(notNullValue()));
 
-        assertThat(myChannel.size(), is(1));
-        assertThat(sigStr.size(), is(1));
-        assertThat(lowBat.size(), is(1));
-
-        assertThat(TypeResolver.resolve(myChannel.get(0).getChannelTypeUID(), Locale.GERMAN).getLabel(),
+        assertThat(TypeResolver.resolve(myChannel.getChannelTypeUID(), Locale.GERMAN).getLabel(),
                 is("Mein String My Channel"));
-        assertThat(TypeResolver.resolve(myChannel.get(0).getChannelTypeUID(), Locale.GERMAN).getDescription(),
+        assertThat(TypeResolver.resolve(myChannel.getChannelTypeUID(), Locale.GERMAN).getDescription(),
                 is("Wetterinformation mit My Channel Type Beschreibung"));
 
-        assertThat(TypeResolver.resolve(sigStr.get(0).getChannelTypeUID(), Locale.GERMAN).getLabel(),
-                is(not("Mein String Signal Strength")));
-        assertThat(TypeResolver.resolve(sigStr.get(0).getChannelTypeUID(), Locale.GERMAN).getDescription(),
-                is(not("Wetterinformation mit Signal Strength Channel Type Beschreibung")));
+        assertThat(myChannel.getLabel(), is("Mein String My Channel"));
+        assertThat(myChannel.getDescription(), is("Wetterinformation mit My Channel Type Beschreibung"));
 
-        assertThat(TypeResolver.resolve(sigStr.get(0).getChannelTypeUID(), Locale.GERMAN).getLabel(),
-                is("Signalstärke"));
+        assertThat(TypeResolver.resolve(sigStr.getChannelTypeUID(), Locale.GERMAN).getLabel(), is("Signalstärke"));
 
-        assertThat(TypeResolver.resolve(lowBat.get(0).getChannelTypeUID(), Locale.GERMAN).getLabel(),
+        assertThat(sigStr.getLabel(), is("Meine spezial Signalstärke"));
+        assertThat(sigStr.getDescription(), is("Meine spezial Beschreibung für Signalstärke"));
+
+        assertThat(TypeResolver.resolve(lowBat.getChannelTypeUID(), Locale.GERMAN).getLabel(),
                 is("Niedriger Batteriestatus"));
+
+        assertThat(lowBat.getLabel(), is("Niedriger Batteriestatus"));
+        assertThat(lowBat.getDescription(), is(nullValue()));
     }
 
     private List<ChannelType> getChannelTypes() {
