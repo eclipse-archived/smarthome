@@ -1,12 +1,15 @@
 Manifest-Version: 1.0
+Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Wemo Binding
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.binding.wemo;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-ClassPath: .
-Import-Package: com.google.common.collect,
+Export-Package: 
+ org.eclipse.smarthome.binding.wemo,
+ org.eclipse.smarthome.binding.wemo.handler
+Import-Package: 
  org.apache.commons.io,
  org.apache.commons.lang,
  org.eclipse.jdt.annotation;resolution:=optional,
@@ -14,6 +17,7 @@ Import-Package: com.google.common.collect,
  org.eclipse.smarthome.binding.wemo.handler,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.config.discovery,
+ org.eclipse.smarthome.config.discovery.upnp,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.thing.binding,
@@ -30,5 +34,3 @@ Import-Package: com.google.common.collect,
  org.w3c.dom,
  org.xml.sax
 Service-Component: OSGI-INF/*.xml
-Export-Package: org.eclipse.smarthome.binding.wemo,
- org.eclipse.smarthome.binding.wemo.handler

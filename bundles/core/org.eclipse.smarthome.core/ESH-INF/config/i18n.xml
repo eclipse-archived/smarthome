@@ -43,6 +43,15 @@
 			</description>
 			<advanced>true</advanced>
 		</parameter>
+		<parameter name="timezone" type="text" required="false">
+			<label>Time Zone</label>
+			<description><![CDATA[
+				<p>A time zone can be set from the user interface.</p>
+				<p>The underlying system's time zone is the default.</p>
+				<p>Example: Asia/Tokyo, Europe/Berlin</p>
+			]]>
+			</description>
+		</parameter>
 		<parameter name="location" type="text" required="false">
 			<context>location</context>
 			<label>Location</label>

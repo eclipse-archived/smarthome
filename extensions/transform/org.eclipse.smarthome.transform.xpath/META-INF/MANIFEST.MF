@@ -1,17 +1,18 @@
 Manifest-Version: 1.0
+Bundle-ClassPath: .
+Bundle-License: http://www.eclipse.org/legal/epl-v10.html
+Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome XPath Transformation Service
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.transform.xpath
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-ManifestVersion: 2
-Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: javax.xml.parsers,
+Import-Package: 
+ javax.xml.parsers,
  javax.xml.xpath,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.transform,
  org.slf4j,
  org.w3c.dom,
  org.xml.sax
-Bundle-SymbolicName: org.eclipse.smarthome.transform.xpath
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Service-Component: OSGI-INF/*.xml
-Bundle-ClassPath: .
-

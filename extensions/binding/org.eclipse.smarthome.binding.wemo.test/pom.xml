@@ -76,6 +76,11 @@
 								<id>org.eclipse.smarthome.io.transport.upnp</id>
 								<versionRange>0.0.0</versionRange>
 							</requirement>
+							<requirement>
+								<type>eclipse-plugin</type>
+								<id>org.eclipse.smarthome.config.discovery.upnp</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
 						</extraRequirements>
 					</dependency-resolution>
 				</configuration>
@@ -142,6 +147,11 @@
 						</bundle>
 						<bundle>
 							<id>org.eclipse.smarthome.config.discovery</id>
+							<level>4</level>
+							<autoStart>true</autoStart>
+						</bundle>
+						<bundle>
+							<id>org.eclipse.smarthome.config.discovery.upnp</id>
 							<level>4</level>
 							<autoStart>true</autoStart>
 						</bundle>

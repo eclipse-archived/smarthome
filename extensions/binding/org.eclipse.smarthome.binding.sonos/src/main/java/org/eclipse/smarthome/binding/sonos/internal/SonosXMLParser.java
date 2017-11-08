@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
@@ -222,6 +223,21 @@ public class SonosXMLParser {
         }
 
         return handler.getMetaData();
+    }
+
+    public static List<SonosMusicService> getMusicServicesFromXML(String xml) {
+        MusicServiceHandler handler = new MusicServiceHandler();
+        try {
+            XMLReader reader = XMLReaderFactory.createXMLReader();
+            reader.setContentHandler(handler);
+            reader.parse(new InputSource(new StringReader(xml)));
+        } catch (IOException e) {
+            // This should never happen - we're not performing I/O!
+            logger.error("Could not parse music services from string '{}'", xml);
+        } catch (SAXException s) {
+            logger.error("Could not parse music services from string '{}'", xml);
+        }
+        return handler.getServices();
     }
 
     static private class EntryHandler extends DefaultHandler {
@@ -826,6 +842,24 @@ public class SonosXMLParser {
 
     }
 
+    static private class MusicServiceHandler extends DefaultHandler {
+
+        private final List<SonosMusicService> services = new ArrayList<SonosMusicService>();
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+            // All services are of the form <services Id="value" Name="value">...</Service>
+            if ("Service".equals(qName) && atts.getValue("Id") != null && atts.getValue("Name") != null) {
+                services.add(new SonosMusicService(atts.getValue("Id"), atts.getValue("Name")));
+            }
+        }
+
+        public List<SonosMusicService> getServices() {
+            return services;
+        }
+
+    }
+
     public static String getRoomName(String descriptorXML) {
         RoomNameHandler roomNameHandler = new RoomNameHandler();
         try {
@@ -909,15 +943,15 @@ public class SonosXMLParser {
      * @return the extracted players model name without column (:) character used for ThingType creation
      */
     public static String extractModelName(String sonosModelName) {
-        //
-        Matcher matcher = Pattern.compile("\\s(.*)").matcher(sonosModelName);
+        String ret = sonosModelName;
+        Matcher matcher = Pattern.compile("\\s(.*)").matcher(ret);
         if (matcher.find()) {
-            sonosModelName = matcher.group(1);
+            ret = matcher.group(1);
         }
-        if (sonosModelName.contains(":")) {
-            sonosModelName = sonosModelName.replace(":", "");
+        if (ret.contains(":")) {
+            ret = ret.replace(":", "");
         }
-        return sonosModelName;
+        return ret;
     }
 
     public static String compileMetadataString(SonosEntry entry) {
@@ -936,7 +970,10 @@ public class SonosXMLParser {
          * subscription like pandora we need to use the desc string asscoiated
          * with that item.
          */
-        String desc = "RINCON_AssociatedZPUDN";
+        String desc = entry.getDesc();
+        if (desc == null) {
+            desc = "RINCON_AssociatedZPUDN";
+        }
 
         /**
          * If resource meta data exists, use it over the parent data
@@ -948,6 +985,8 @@ public class SonosXMLParser {
             desc = entry.getResourceMetaData().getDesc();
             upnpClass = entry.getResourceMetaData().getUpnpClass();
         }
+
+        title = StringEscapeUtils.escapeXml(title);
 
         String metadata = METADATA_FORMAT.format(new Object[] { id, parentId, title, upnpClass, desc });
 

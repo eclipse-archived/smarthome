@@ -23,6 +23,7 @@ import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.TypeParser;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.http.NamespaceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,12 +52,13 @@ public class CmdServlet extends BaseServlet {
         this.eventPublisher = null;
     }
 
-    protected void activate() {
+    protected void activate(BundleContext bundleContext) {
         try {
             logger.debug("Starting up CMD servlet at " + WEBAPP_ALIAS + "/" + SERVLET_NAME);
 
             Hashtable<String, String> props = new Hashtable<String, String>();
-            httpService.registerServlet(WEBAPP_ALIAS + "/" + SERVLET_NAME, this, props, createHttpContext());
+            httpService.registerServlet(WEBAPP_ALIAS + "/" + SERVLET_NAME, this, props,
+                    createHttpContext(bundleContext.getBundle()));
 
         } catch (NamespaceException e) {
             logger.error("Error during servlet startup", e);

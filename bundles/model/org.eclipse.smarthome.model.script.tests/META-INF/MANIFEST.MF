@@ -1,19 +1,19 @@
 Manifest-Version: 1.0
+Bundle-ActivationPolicy: lazy
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Script Tests
-Bundle-SymbolicName: org.eclipse.smarthome.model.script.tests;singleton:=true
-Bundle-Version: 0.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.model.script.tests;singleton:
+ =true
 Bundle-Vendor: Eclipse.org/SmartHome
-Require-Bundle: org.eclipse.xtend.lib,
- com.google.guava,
- org.eclipse.xtext.xbase.lib,
- org.eclipse.core.runtime
-Import-Package: groovy.lang,
+Bundle-Version: 0.9.0.qualifier
+Import-Package: 
+ groovy.lang,
  org.codehaus.groovy.reflection,
  org.codehaus.groovy.runtime,
  org.codehaus.groovy.runtime.callsite,
  org.codehaus.groovy.runtime.typehandling,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.items,
@@ -24,13 +24,17 @@ Import-Package: groovy.lang,
  org.eclipse.smarthome.model.script.engine.action,
  org.eclipse.smarthome.test,
  org.eclipse.xtext.xbase,
- org.hamcrest;core=split,
  org.hamcrest.core,
- org.junit;version="4.0.0",
- org.junit.runner;version="4.0.0",
+ org.hamcrest;core=split,
  org.junit.runner.manipulation;version="4.0.0",
  org.junit.runner.notification;version="4.0.0",
- org.junit.runners;version="4.0.0",
+ org.junit.runner;version="4.0.0",
  org.junit.runners.model;version="4.0.0",
+ org.junit.runners;version="4.0.0",
+ org.junit;version="4.0.0",
  org.slf4j
-Bundle-ActivationPolicy: lazy
+Require-Bundle: 
+ com.google.guava,
+ org.eclipse.core.runtime,
+ org.eclipse.xtend.lib,
+ org.eclipse.xtext.xbase.lib

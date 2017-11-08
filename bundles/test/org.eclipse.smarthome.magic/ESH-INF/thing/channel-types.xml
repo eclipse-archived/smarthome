@@ -7,12 +7,18 @@
 		<item-type>Switch</item-type>
 		<label>Switch</label>
 		<description>The on/off channel allows to toggle between on and off.</description>
+		<config-description>
+          <parameter name="invert" type="boolean">
+              <label>Invert operation</label>
+          </parameter>
+        </config-description>
 	</channel-type>
 
 	<channel-type id="brightness">
 		<item-type>Dimmer</item-type>
 		<label>Dimmer</label>
 		<description>The dimmer channel allows to control the brightness.</description>
+		<category>DimmableLight</category>
 	</channel-type>
 
 	<channel-type id="color">
@@ -25,6 +31,20 @@
 		<tags>
 			<tag>Lighting</tag>
 		</tags>
+		<config-description>
+		  <parameter name="boostRed" type="decimal" min="0" max="100">
+		      <label>Red boost</label>
+		      <description>Boost the red color channel (in percent)</description>
+		  </parameter>
+		  <parameter name="boostGreen" type="decimal" min="0" max="100">
+		      <label>Green boost</label>
+              <description>Boost the green color channel (in percent)</description>
+		  </parameter>
+		  <parameter name="boostBlue" type="decimal" min="0" max="100">
+		      <label>Blue boost</label>
+              <description>Boost the blue color channel (in percent)</description>
+		  </parameter>
+		</config-description>
 	</channel-type>
 
 	<channel-type id="alert" advanced="true">

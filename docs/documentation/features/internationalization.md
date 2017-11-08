@@ -86,6 +86,10 @@ XML file (thing-types.xml):
         <channels>
             <channel id="precipitation" typeId="precipitation" />
             <channel id="temperature" typeId="temperature" />
+            <channel id="minTemperature" typeId="temperature">
+                <label>Min. Temperature</label>
+                <description>Minimum temperature in degrees celsius (metric) or fahrenheit (imperial).</description>
+            </channel>
         </channels>
         <config-description>
             <parameter name="location" type="text">
@@ -148,6 +152,9 @@ channel-type.yahooweather.temperature.label = Temperatur
 channel-type.yahooweather.temperature.description = Aktuelle Temperatur in Grad Celsius (Metrisch) oder Grad Fahrenheit (US).
 channel-type.yahooweather.temperature.state.pattern = %d Wert
 
+thing-type.yahooweather.weather.channel.minTemperature.label = Min. Temperatur
+thing-type.yahooweather.weather.channel.minTemperature.description = Minimale Temperatur in Grad Celsius (Metrisch) oder Grad Fahrenheit (US).
+
 channel-type.config.yahooweather.temperature.unit.label = Temperatur Einheit
 channel-type.config.yahooweather.temperature.unit.description = Auswahl der gewünschten Temperatur Einheit.
 channel-type.config.yahooweather.temperature.unit.option.C = Grad Celsius
@@ -155,7 +162,7 @@ channel-type.config.yahooweather.temperature.unit.option.F = Grad Fahrenheit
 ```
 
 So the key for referencing a label of a defined thing type is `thing-type.<binding-id>.<thing-type-id>.label`.
-A label of a channel can be referenced with `channel-type.<binding-id>.<channel-type-id>.label`.
+A label of a channel type can be referenced with `channel-type.<binding-id>.<channel-type-id>.label` and a label of a channel definition with `thing-type.<binding-id>.<thing-type-id>.channel.<channel-id>.label`.
 And finally the config description parameter key is `thing-type.config.<binding-id>.<thing-type-id>.<parameter-name>.label` or `channel-type.config.<binding-id>.<channel-type-id>.<parameter-name>.label`.
 
 The following snippet shows an excerpt of the thing type definition XML file of the Weather Underground Binding and its language file that localizes labels and descriptions for the French language.

@@ -21,4 +21,5 @@
    <service>
       <provide interface="javax.servlet.Servlet"/>
    </service>
+   <reference bind="setHttpContextFactoryService" cardinality="1..1" interface="org.eclipse.smarthome.io.net.http.HttpContextFactoryService" name="HttpContextFactoryService" policy="dynamic" unbind="unsetHttpContextFactoryService"/>
 </scr:component>

@@ -9,14 +9,17 @@ package org.eclipse.smarthome.binding.tradfri.internal;
 
 import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.eclipse.smarthome.binding.tradfri.handler.TradfriControllerHandler;
 import org.eclipse.smarthome.binding.tradfri.handler.TradfriGatewayHandler;
 import org.eclipse.smarthome.binding.tradfri.handler.TradfriLightHandler;
+import org.eclipse.smarthome.binding.tradfri.handler.TradfriSensorHandler;
 import org.eclipse.smarthome.binding.tradfri.internal.discovery.TradfriDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -27,17 +30,18 @@ import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.osgi.framework.ServiceRegistration;
 
-import com.google.common.collect.Sets;
-
 /**
  * The {@link TradfriHandlerFactory} is responsible for creating things and thing handlers.
  *
  * @author Kai Kreuzer - Initial contribution
+ * @author Christoph Weitkamp - Added support for remote controller and motion sensor devices (read-only battery level)
  */
 public class TradfriHandlerFactory extends BaseThingHandlerFactory {
 
-    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Sets
-            .union(Collections.singleton(GATEWAY_TYPE_UID), SUPPORTED_LIGHT_TYPES_UIDS);
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Stream
+            .concat(Stream.of(GATEWAY_TYPE_UID),
+                    Stream.concat(SUPPORTED_LIGHT_TYPES_UIDS.stream(), SUPPORTED_CONTROLLER_TYPES_UIDS.stream()))
+            .collect(Collectors.toSet());
 
     private Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
 
@@ -50,10 +54,14 @@ public class TradfriHandlerFactory extends BaseThingHandlerFactory {
     protected ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (thingTypeUID.equals(GATEWAY_TYPE_UID)) {
+        if (GATEWAY_TYPE_UID.equals(thingTypeUID)) {
             TradfriGatewayHandler handler = new TradfriGatewayHandler((Bridge) thing);
             registerDiscoveryService(handler);
             return handler;
+        } else if (THING_TYPE_DIMMER.equals(thingTypeUID) || THING_TYPE_REMOTE_CONTROL.equals(thingTypeUID)) {
+            return new TradfriControllerHandler(thing);
+        } else if (THING_TYPE_MOTION_SENSOR.equals(thingTypeUID)) {
+            return new TradfriSensorHandler(thing);
         } else if (SUPPORTED_LIGHT_TYPES_UIDS.contains(thingTypeUID)) {
             return new TradfriLightHandler(thing);
         }

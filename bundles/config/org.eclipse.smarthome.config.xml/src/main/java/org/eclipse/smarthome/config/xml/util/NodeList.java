@@ -104,8 +104,9 @@ public class NodeList implements NodeName {
         if (this.list != null) {
             attributes = new ArrayList<>(this.list.size());
 
-            if ((formattedText == null) || (formattedText.isEmpty())) {
-                formattedText = "%s";
+            String format = formattedText;
+            if ((format == null) || (format.isEmpty())) {
+                format = "%s";
             }
 
             for (NodeAttributes node : (List<NodeAttributes>) this.list) {
@@ -113,10 +114,10 @@ public class NodeList implements NodeName {
                     String attributeValue = node.getAttribute(attributeName);
 
                     if (attributeValue != null) {
-                        attributes.add(String.format(formattedText, attributeValue));
+                        attributes.add(String.format(format, attributeValue));
                     } else {
-                        throw new ConversionException("Missing attribute '" + attributeName + "' in '" + nodeName
-                                + "'!");
+                        throw new ConversionException(
+                                "Missing attribute '" + attributeName + "' in '" + nodeName + "'!");
                     }
                 } else {
                     throw new ConversionException("Invalid attribute in '" + nodeName + "'!");

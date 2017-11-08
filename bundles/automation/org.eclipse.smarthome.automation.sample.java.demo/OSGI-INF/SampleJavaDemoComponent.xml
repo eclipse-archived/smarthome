@@ -18,9 +18,9 @@
  *******************************************************************************/
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate"
-               immediate="true" name="org.eclipse.smarthome.automation.sample.java.demo">
+               immediate="true" name="org.eclipse.smarthome.automation.sample.java.demo.internal">
 
-    <implementation class="org.eclipse.smarthome.automation.sample.java.demo.SampleJavaDemo"/>
+    <implementation class="org.eclipse.smarthome.automation.sample.java.demo.internal.SampleJavaDemo"/>
     
     <reference bind="setRuleRegistry" cardinality="1..1"
                interface="org.eclipse.smarthome.automation.RuleRegistry" name="RuleRegistry"

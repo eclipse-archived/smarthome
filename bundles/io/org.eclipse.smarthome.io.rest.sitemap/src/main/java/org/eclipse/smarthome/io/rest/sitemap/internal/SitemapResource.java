@@ -413,9 +413,10 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             EList<Widget> children = itemUIRegistry.getChildren(linkableWidget);
             if (widget instanceof Frame) {
                 int cntWidget = 0;
+                String wID = widgetId;
                 for (Widget child : children) {
-                    widgetId += "_" + cntWidget;
-                    WidgetDTO subWidget = createWidgetBean(sitemapName, child, drillDown, uri, widgetId, locale);
+                    wID += "_" + cntWidget;
+                    WidgetDTO subWidget = createWidgetBean(sitemapName, child, drillDown, uri, wID, locale);
                     if (subWidget != null) {
                         bean.widgets.add(subWidget);
                         cntWidget++;
@@ -456,31 +457,21 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             bean.separator = listWidget.getSeparator();
         }
         if (widget instanceof Image) {
+            bean.url = buildProxyUrl(sitemapName, widget, uri);
             Image imageWidget = (Image) widget;
-            String wId = itemUIRegistry.getWidgetId(widget);
-            if (uri.getPort() < 0 || uri.getPort() == 80) {
-                bean.url = uri.getScheme() + "://" + uri.getHost() + "/proxy?sitemap=" + sitemapName
-                        + ".sitemap&widgetId=" + wId;
-            } else {
-                bean.url = uri.getScheme() + "://" + uri.getHost() + ":" + uri.getPort() + "/proxy?sitemap="
-                        + sitemapName + ".sitemap&widgetId=" + wId;
-            }
             if (imageWidget.getRefresh() > 0) {
                 bean.refresh = imageWidget.getRefresh();
             }
         }
         if (widget instanceof Video) {
             Video videoWidget = (Video) widget;
-            String wId = itemUIRegistry.getWidgetId(widget);
             if (videoWidget.getEncoding() != null) {
                 bean.encoding = videoWidget.getEncoding();
             }
-            if (uri.getPort() < 0 || uri.getPort() == 80) {
-                bean.url = uri.getScheme() + "://" + uri.getHost() + "/proxy?sitemap=" + sitemapName
-                        + ".sitemap&widgetId=" + wId;
+            if (videoWidget.getEncoding() != null && videoWidget.getEncoding().toLowerCase().contains("hls")) {
+                bean.url = videoWidget.getUrl();
             } else {
-                bean.url = uri.getScheme() + "://" + uri.getHost() + ":" + uri.getPort() + "/proxy?sitemap="
-                        + sitemapName + ".sitemap&widgetId=" + wId;
+                bean.url = buildProxyUrl(sitemapName, videoWidget, uri);
             }
         }
         if (widget instanceof Webview) {
@@ -496,6 +487,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             Chart chartWidget = (Chart) widget;
             bean.service = chartWidget.getService();
             bean.period = chartWidget.getPeriod();
+            bean.legend = chartWidget.getLegend();
             if (chartWidget.getRefresh() > 0) {
                 bean.refresh = chartWidget.getRefresh();
             }
@@ -507,6 +499,17 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             bean.step = setpointWidget.getStep();
         }
         return bean;
+    }
+
+    private String buildProxyUrl(String sitemapName, Widget widget, URI uri) {
+        String wId = itemUIRegistry.getWidgetId(widget);
+        StringBuilder sb = new StringBuilder();
+        sb.append(uri.getScheme()).append("://").append(uri.getHost());
+        if (uri.getPort() >= 0) {
+            sb.append(":").append(uri.getPort());
+        }
+        sb.append("/proxy?sitemap=").append(sitemapName).append(".sitemap&widgetId=").append(wId);
+        return sb.toString();
     }
 
     private boolean isLeaf(EList<Widget> children) {

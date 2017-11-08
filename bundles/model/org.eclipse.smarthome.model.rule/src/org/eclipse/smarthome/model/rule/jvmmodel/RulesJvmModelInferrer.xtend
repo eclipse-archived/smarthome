@@ -9,14 +9,18 @@ package org.eclipse.smarthome.model.rule.jvmmodel
 
 import com.google.inject.Inject
 import java.util.Set
+import org.eclipse.smarthome.core.items.ItemRegistry
+import org.eclipse.smarthome.core.thing.ThingRegistry
+import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.State
 import org.eclipse.smarthome.model.rule.rules.ChangedEventTrigger
 import org.eclipse.smarthome.model.rule.rules.CommandEventTrigger
+import org.eclipse.smarthome.model.rule.rules.EventEmittedTrigger
 import org.eclipse.smarthome.model.rule.rules.EventTrigger
 import org.eclipse.smarthome.model.rule.rules.Rule
 import org.eclipse.smarthome.model.rule.rules.RuleModel
-import org.eclipse.smarthome.model.script.engine.IItemRegistryProvider
+import org.eclipse.smarthome.model.rule.rules.ThingStateChangedEventTrigger
 import org.eclipse.smarthome.model.script.jvmmodel.ScriptJvmModelInferrer
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider
 import org.eclipse.xtext.naming.IQualifiedNameProvider
@@ -24,11 +28,6 @@ import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.eclipse.smarthome.model.rule.rules.EventEmittedTrigger
-import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent
-import org.eclipse.smarthome.model.script.engine.IThingRegistryProvider
-import org.eclipse.smarthome.model.rule.rules.ThingStateChangedEventTrigger
-import org.eclipse.smarthome.model.rule.rules.ThingStateUpdateEventTrigger
 
 /**
  * <p>Infers a JVM model from the source model.</p> 
@@ -59,10 +58,10 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
     @Inject extension IQualifiedNameProvider
 
     @Inject
-    IItemRegistryProvider itemRegistryProvider
+    ItemRegistry itemRegistry
 
     @Inject
-    IThingRegistryProvider thingRegistryProvider
+    ThingRegistry thingRegistry
 
     @Inject
     StateAndCommandProvider stateAndCommandProvider
@@ -101,7 +100,6 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
                 }
             ]
 
-            val itemRegistry = itemRegistryProvider.get
             itemRegistry?.items?.forEach [ item |
                 val name = item.name
                 if (fieldNames.add(name)) {
@@ -113,7 +111,6 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
                 }
             ]
 
-            val thingRegistry = thingRegistryProvider.get
             val things = thingRegistry?.getAll()
             things?.forEach [ thing |
                 val name = thing.getUID().toString()

@@ -39,12 +39,12 @@ public class BridgeTypeConverter extends ThingTypeConverter {
     protected BridgeTypeXmlResult unmarshalType(HierarchicalStreamReader reader, UnmarshallingContext context,
             Map<String, String> attributes, NodeIterator nodeIterator) throws ConversionException {
 
-        BridgeTypeXmlResult bridgeTypeXmlResult = new BridgeTypeXmlResult(
-                new ThingTypeUID(super.getUID(attributes, context)),
-                super.readSupportedBridgeTypeUIDs(nodeIterator, context), super.readLabel(nodeIterator),
-                super.readDescription(nodeIterator), super.getListed(attributes),
-                super.getChannelTypeReferenceObjects(nodeIterator), getProperties(nodeIterator),
-                super.getRepresentationProperty(nodeIterator), super.getConfigDescriptionObjects(nodeIterator));
+        BridgeTypeXmlResult bridgeTypeXmlResult = new BridgeTypeXmlResult(new ThingTypeUID(getUID(attributes, context)),
+                readSupportedBridgeTypeUIDs(nodeIterator, context), readLabel(nodeIterator),
+                readDescription(nodeIterator), readCategory(nodeIterator), getListed(attributes),
+                getExtensibleChannelTypeIds(attributes), getChannelTypeReferenceObjects(nodeIterator),
+                getProperties(nodeIterator), getRepresentationProperty(nodeIterator),
+                getConfigDescriptionObjects(nodeIterator));
 
         return bridgeTypeXmlResult;
     }

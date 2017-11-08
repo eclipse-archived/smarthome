@@ -1,23 +1,26 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome IO SSE Tests
-Bundle-SymbolicName: org.eclipse.smarthome.io.rest.sse.test;singleton:=true
-Bundle-Version: 0.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.io.rest.sse.test;singleton:=t
+ rue
 Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
 Fragment-Host: org.eclipse.smarthome.io.rest.sse
-Import-Package: groovy.lang,
+Import-Package: 
+ groovy.lang,
  org.codehaus.groovy.reflection,
  org.codehaus.groovy.runtime,
  org.codehaus.groovy.runtime.callsite,
  org.codehaus.groovy.runtime.typehandling,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.library.items,
+ org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.storage,
  org.eclipse.smarthome.core.thing.binding,
  org.eclipse.smarthome.core.thing.binding.builder,
  org.eclipse.smarthome.core.types,
- org.eclipse.smarthome.core.library.types,
- org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.test,
  org.hamcrest;core=split,
  org.junit;version="4.0.0"

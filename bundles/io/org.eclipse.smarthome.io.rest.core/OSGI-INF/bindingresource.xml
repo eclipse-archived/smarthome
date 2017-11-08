@@ -8,11 +8,11 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.io.rest.core.binding.BindingResource">
-   <implementation class="org.eclipse.smarthome.io.rest.core.binding.BindingResource"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.io.rest.core.internal.binding.BindingResource">
+   <implementation class="org.eclipse.smarthome.io.rest.core.internal.binding.BindingResource"/>
    <service>
-      <provide interface="org.eclipse.smarthome.io.rest.core.binding.BindingResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
+      <provide interface="org.eclipse.smarthome.io.rest.core.internal.binding.BindingResource"/>
    </service>
    <reference bind="setBindingInfoRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.binding.BindingInfoRegistry" name="BindingInfoRegistry" policy="dynamic" unbind="unsetBindingInfoRegistry"/>
    <reference bind="setConfigurationService" cardinality="0..1" interface="org.eclipse.smarthome.io.rest.core.config.ConfigurationService" name="ConfigurationService" policy="dynamic" unbind="unsetConfigurationService"/>

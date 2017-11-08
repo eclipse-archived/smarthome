@@ -9,11 +9,14 @@ package org.eclipse.smarthome.binding.hue.internal.discovery;
 
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler;
 import org.eclipse.smarthome.binding.hue.handler.HueLightHandler;
@@ -27,8 +30,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableMap;
 
 /**
  * The {@link HueBridgeServiceTracker} tracks for hue lights which are connected
@@ -47,15 +48,15 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
     private final static int SEARCH_TIME = 60;
 
     // @formatter:off
-    private final static Map<String, String> TYPE_TO_ZIGBEE_ID_MAP = new ImmutableMap.Builder<String, String>()
-            .put("on_off_light", "0000")
-            .put("on_off_plug_in_unit", "0010")
-            .put("dimmable_light", "0100")
-            .put("dimmable_plug_in_unit", "0110")
-            .put("color_light", "0200")
-            .put("extended_color_light", "0210")
-            .put("color_temperature_light", "0220")
-            .build();
+    private final static Map<String, String> TYPE_TO_ZIGBEE_ID_MAP = Stream.of(
+            new SimpleEntry<>("on_off_light", "0000"),
+            new SimpleEntry<>("on_off_plug_in_unit", "0010"),
+            new SimpleEntry<>("dimmable_light", "0100"),
+            new SimpleEntry<>("dimmable_plug_in_unit", "0110"),
+            new SimpleEntry<>("color_light", "0200"),
+            new SimpleEntry<>("extended_color_light", "0210"),
+            new SimpleEntry<>("color_temperature_light", "0220")
+        ).collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()));
     // @formatter:on
 
     private HueBridgeHandler hueBridgeHandler;

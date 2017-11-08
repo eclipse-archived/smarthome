@@ -50,7 +50,7 @@
             </goals>
           </execution>
         </executions>
-      </plugin>      
+      </plugin>
     </plugins>
   </build>
 
@@ -61,6 +61,6 @@
       <version>${ds-annotations.version}</version>
       <optional>true</optional>
     </dependency>
-  </dependencies>  
+  </dependencies>
 
 </project>

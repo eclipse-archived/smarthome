@@ -9,10 +9,12 @@ package org.eclipse.smarthome.core.library.types;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.Item;
@@ -209,13 +211,13 @@ public class ArithmeticGroupFunctionTest {
         }
 
         @Override
-        public List<Class<? extends State>> getAcceptedDataTypes() {
-            return null;
+        public @NonNull List<@NonNull Class<? extends State>> getAcceptedDataTypes() {
+            return Collections.emptyList();
         }
 
         @Override
-        public List<Class<? extends Command>> getAcceptedCommandTypes() {
-            return null;
+        public @NonNull List<@NonNull Class<? extends Command>> getAcceptedCommandTypes() {
+            return Collections.emptyList();
         }
 
     }

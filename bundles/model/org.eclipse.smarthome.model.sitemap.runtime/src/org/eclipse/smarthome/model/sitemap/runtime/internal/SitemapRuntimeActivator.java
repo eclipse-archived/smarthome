@@ -22,6 +22,7 @@ public class SitemapRuntimeActivator implements ModelParser {
     }
 
     public void deactivate() throws Exception {
+        SitemapStandaloneSetup.unregister();
     }
 
     @Override

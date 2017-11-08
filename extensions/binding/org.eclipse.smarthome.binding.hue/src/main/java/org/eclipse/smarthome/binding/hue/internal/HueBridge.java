@@ -248,13 +248,13 @@ public class HueBridge {
      * @throws UnauthorizedException thrown if the user no longer exists
      * @throws EntityNotAvailableException thrown if the specified light no longer exists
      * @throws DeviceOffException thrown if the specified light is turned off
+     * @throws IOException if the bridge cannot be reached
      */
     public void setLightState(Light light, StateUpdate update) throws IOException, ApiException {
         requireAuthentication();
 
         String body = update.toJson();
         Result result = http.put(getRelativeURL("lights/" + enc(light.getId()) + "/state"), body);
-
         handleErrors(result);
     }
 
@@ -665,9 +665,9 @@ public class HueBridge {
                 if (requestMethod.equals("GET")) {
                     return super.doNetwork(address, requestMethod, body);
                 } else {
-                    address = Util.quickMatch("^http://[^/]+(.+)$", address);
+                    String extractedAddress = Util.quickMatch("^http://[^/]+(.+)$", address);
                     JsonElement commandBody = new JsonParser().parse(body);
-                    scheduleCommand = new ScheduleCommand(address, requestMethod, commandBody);
+                    scheduleCommand = new ScheduleCommand(extractedAddress, requestMethod, commandBody);
 
                     // Return a fake result that will cause an exception and the callback to end
                     return new Result(null, 405);
@@ -903,10 +903,13 @@ public class HueBridge {
     }
 
     private String getRelativeURL(String path) {
-        if (username == null) {
-            return "http://" + ip + "/api/" + path;
-        } else {
-            return "http://" + ip + "/api/" + enc(username) + "/" + path;
+        String relativeUrl = "http://" + ip + "/api";
+        if (username != null) {
+            relativeUrl += "/" + enc(username);
         }
+        if (!path.isEmpty()) {
+            relativeUrl += "/" + path;
+        }
+        return relativeUrl;
     }
 }

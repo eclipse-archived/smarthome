@@ -37,7 +37,7 @@ public interface Item extends Identifiable<String> {
      *
      * @return the current state
      */
-    public State getState();
+    public @NonNull State getState();
 
     /**
      * returns the current state of the item as a specific type
@@ -77,7 +77,7 @@ public interface Item extends Identifiable<String> {
      *
      * @return a list of data types that can be used to update the item state
      */
-    public List<Class<? extends State>> getAcceptedDataTypes();
+    public @NonNull List<@NonNull Class<? extends State>> getAcceptedDataTypes();
 
     /**
      * <p>
@@ -90,7 +90,7 @@ public interface Item extends Identifiable<String> {
      *
      * @return a list of all command types that can be used for this item
      */
-    public List<Class<? extends Command>> getAcceptedCommandTypes();
+    public @NonNull List<@NonNull Class<? extends Command>> getAcceptedCommandTypes();
 
     /**
      * Returns a list of the names of the groups this item belongs to.

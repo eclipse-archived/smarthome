@@ -45,6 +45,7 @@ public class WidgetDTO {
     public String encoding;
     public String service;
     public String period;
+    public Boolean legend;
 
     public EnrichedItemDTO item;
     public PageDTO linkedPage;

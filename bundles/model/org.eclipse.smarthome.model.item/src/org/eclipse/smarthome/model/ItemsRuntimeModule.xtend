@@ -11,14 +11,21 @@ package
  */
 org.eclipse.smarthome.model
 
-import org.eclipse.xtext.linking.lazy.LazyURIEncoder
 import com.google.inject.Binder
 import com.google.inject.name.Names
+import org.eclipse.smarthome.model.internal.valueconverter.ItemValueConverters
+import org.eclipse.xtext.conversion.IValueConverterService
+import org.eclipse.xtext.linking.lazy.LazyURIEncoder
 
 /** 
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
-class ItemsRuntimeModule extends org.eclipse.smarthome.model.AbstractItemsRuntimeModule {
+class ItemsRuntimeModule extends AbstractItemsRuntimeModule {
+    
+    override Class<? extends IValueConverterService> bindIValueConverterService() {
+        return ItemValueConverters
+    }
+    
     override void configureUseIndexFragmentsForLazyLinking(Binder binder) {
         binder.bind(Boolean.TYPE).annotatedWith(Names.named(LazyURIEncoder.USE_INDEXED_FRAGMENTS_BINDING)).toInstance(
             Boolean.FALSE)

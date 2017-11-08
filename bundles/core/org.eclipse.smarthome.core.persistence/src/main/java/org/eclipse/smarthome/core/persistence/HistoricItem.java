@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.persistence;
 
 import java.util.Date;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.types.State;
 
@@ -29,6 +30,7 @@ public interface HistoricItem {
      *
      * @return the timestamp of the item
      */
+    @NonNull
     Date getTimestamp();
 
     /**
@@ -36,6 +38,7 @@ public interface HistoricItem {
      *
      * @return the current state
      */
+    @NonNull
     State getState();
 
     /**
@@ -43,6 +46,7 @@ public interface HistoricItem {
      *
      * @return the name of the item
      */
+    @NonNull
     String getName();
 
 }

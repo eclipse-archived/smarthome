@@ -18,12 +18,14 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -64,6 +66,7 @@ public class FolderObserver extends AbstractWatchService {
 
     /* set of files that have been ignored due to a missing parser */
     private final Set<File> ignoredFiles = new HashSet<>();
+    private final Map<String, File> nameFileMap = new HashMap<>();
 
     public void setModelRepository(ModelRepository modelRepo) {
         this.modelRepo = modelRepo;
@@ -82,6 +85,9 @@ public class FolderObserver extends AbstractWatchService {
 
     protected void removeModelParser(ModelParser modelParser) {
         parsers.remove(modelParser.getExtension());
+
+        Set<String> removed = modelRepo.removeAllModelsOfType(modelParser.getExtension());
+        ignoredFiles.addAll(removed.stream().map(name -> nameFileMap.get(name)).collect(Collectors.toSet()));
     }
 
     public void activate(ComponentContext ctx) {
@@ -120,6 +126,7 @@ public class FolderObserver extends AbstractWatchService {
         this.ignoredFiles.clear();
         this.folderFileExtMap.clear();
         this.parsers.clear();
+        this.nameFileMap.clear();
     }
 
     private void processIgnoredFiles(String extension) {
@@ -187,7 +194,7 @@ public class FolderObserver extends AbstractWatchService {
 
     protected class FileExtensionsFilter implements FilenameFilter {
 
-        private String[] validExtensions;
+        private final String[] validExtensions;
 
         public FileExtensionsFilter(String[] validExtensions) {
             this.validExtensions = validExtensions;
@@ -231,6 +238,7 @@ public class FolderObserver extends AbstractWatchService {
                         if (parsers.contains(getExtension(file.getName()))) {
                             checkPreconditions(file);
                             try (FileInputStream inputStream = FileUtils.openInputStream(file)) {
+                                nameFileMap.put(file.getName(), file);
                                 modelRepo.addOrRefreshModel(file.getName(), inputStream);
                             } catch (IOException e) {
                                 logger.warn("Error while opening file during update: {}", file.getAbsolutePath());
@@ -240,6 +248,7 @@ public class FolderObserver extends AbstractWatchService {
                         }
                     } else if (kind == ENTRY_DELETE) {
                         modelRepo.removeModel(file.getName());
+                        nameFileMap.remove(file.getName());
                     }
                 }
             } catch (Exception e) {

@@ -1,14 +1,17 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Model Lazy Generation
-Bundle-SymbolicName: org.eclipse.smarthome.model.lazygen
-Bundle-Version: 0.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.model.lazygen
 Bundle-Vendor: Eclipse.org/SmartHome
-Require-Bundle: org.eclipse.xtext,
+Bundle-Version: 0.9.0.qualifier
+Import-Package: 
+ org.apache.log4j,
+ org.eclipse.jdt.annotation;resolution:=optional
+Require-Bundle: 
  org.apache.commons.logging,
  org.eclipse.emf.codegen,
  org.eclipse.emf.codegen.ecore,
- org.eclipse.xtext.generator,
- org.eclipse.xtext.ecore
-Import-Package: org.apache.log4j
+ org.eclipse.xtext,
+ org.eclipse.xtext.ecore,
+ org.eclipse.xtext.generator

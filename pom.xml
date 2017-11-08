@@ -49,10 +49,11 @@
     <tycho-groupid>org.eclipse.tycho</tycho-groupid>
     <xtext-version>2.12.0</xtext-version>
     <karaf.version>4.0.3</karaf.version>
-    <ds-annotations.version>1.2.8</ds-annotations.version>
+    <ds-annotations.version>1.2.10</ds-annotations.version>
     <jdt-annotations.version>2.1.0</jdt-annotations.version>
     <build.helper.maven.plugin.version>1.8</build.helper.maven.plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <sat.version>0.3.0</sat.version>
   </properties>
 
   <packaging>pom</packaging>
@@ -69,6 +70,23 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.commonjava.maven.plugins</groupId>
+        <artifactId>directory-maven-plugin</artifactId>
+        <version>0.2</version>
+        <executions>
+          <execution>
+            <id>directories</id>
+            <goals>
+              <goal>highest-basedir</goal>
+            </goals>
+            <phase>initialize</phase>
+            <configuration>
+              <property>basedirRoot</property>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>${tycho-groupid}</groupId>
         <artifactId>tycho-maven-plugin</artifactId>
@@ -167,7 +185,7 @@
               <arg>-err:+nullAnnot(org.eclipse.jdt.annotation.Nullable|org.eclipse.jdt.annotation.NonNull|org.eclipse.jdt.annotation.NonNullByDefault),+inheritNullAnnot</arg>
               <arg>-warn:+null,+inheritNullAnnot,+nullAnnotConflict,+nullUncheckedConversion,+nullAnnotRedundant,+nullDereference</arg>
             </compilerArgs>
-          </configuration>          
+          </configuration>
         </plugin>
         <plugin>
           <groupId>${tycho-groupid}</groupId>
@@ -469,6 +487,81 @@
         </plugins>
       </build>
     </profile>
+    <!-- static code analysis profiles -->
+    <profile>
+      <id>check</id>
+      <activation>
+        <property>
+          <name>!skipChecks</name>
+        </property>
+      </activation>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.openhab.tools</groupId>
+              <artifactId>static-code-analysis</artifactId>
+              <version>${sat.version}</version>
+              <executions>
+                <execution>
+                  <phase>verify</phase>
+                  <goals>
+                    <goal>checkstyle</goal>
+                    <goal>pmd</goal>
+                    <goal>findbugs</goal>
+                    <goal>report</goal>
+                  </goals>
+                </execution>
+              </executions>
+              <configuration>
+                <checkstyleProperties>${basedirRoot}/tools/static-code-analysis/checkstyle/ruleset.properties</checkstyleProperties>
+                <checkstyleFilter>${basedirRoot}/tools/static-code-analysis/checkstyle/suppressions.xml</checkstyleFilter>
+                <findbugsExclude>${basedirRoot}/tools/static-code-analysis/findbugs/suppressions.xml</findbugsExclude>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+    <profile>
+      <id>check-bundles</id>
+      <activation>
+        <file>
+          <exists>META-INF/MANIFEST.MF</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.openhab.tools</groupId>
+            <artifactId>static-code-analysis</artifactId>
+            <version>${sat.version}</version>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>jcenter</id>
+      <url>https://jcenter.bintray.com</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <repositories>
+    <repository>
+      <id>jcenter</id>
+      <name>JCenter Repository</name>
+      <url>https://jcenter.bintray.com</url>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
 </project>

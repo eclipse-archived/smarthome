@@ -68,9 +68,9 @@ public final class FirmwareUpdateService implements EventSubscriber {
     private static final String THREAD_POOL_NAME = FirmwareUpdateService.class.getSimpleName();
     private static final Set<String> SUPPORTED_TIME_UNITS = ImmutableSet.of(TimeUnit.SECONDS.name(),
             TimeUnit.MINUTES.name(), TimeUnit.HOURS.name(), TimeUnit.DAYS.name());
-    private static final String PERIOD_CONFIG_KEY = "period";
-    private static final String DELAY_CONFIG_KEY = "delay";
-    private static final String TIME_UNIT_CONFIG_KEY = "timeUnit";
+    protected static final String PERIOD_CONFIG_KEY = "period";
+    protected static final String DELAY_CONFIG_KEY = "delay";
+    protected static final String TIME_UNIT_CONFIG_KEY = "timeUnit";
     private static final String CONFIG_DESC_URI_KEY = "system:firmware-status-info-job";
 
     private final Logger logger = LoggerFactory.getLogger(FirmwareUpdateService.class);
@@ -81,7 +81,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
 
     private ScheduledFuture<?> firmwareStatusInfoJob;
 
-    private int timeout = 30 * 60 * 1000;
+    protected int timeout = 30 * 60 * 1000;
 
     private final Set<String> subscribedEventTypes = ImmutableSet.of(ThingStatusInfoChangedEvent.TYPE);
 
@@ -94,7 +94,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
     private TranslationProvider i18nProvider;
     private LocaleProvider localeProvider;
 
-    private Runnable firmwareStatusRunnable = new Runnable() {
+    private final Runnable firmwareStatusRunnable = new Runnable() {
         @Override
         public void run() {
             logger.debug("Running firmware status check.");
@@ -103,8 +103,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
                     logger.debug("Executing firmware status check for thing with UID {}.",
                             firmwareUpdateHandler.getThing().getUID());
 
-                    Firmware latestFirmware = firmwareRegistry
-                            .getLatestFirmware(firmwareUpdateHandler.getThing().getThingTypeUID());
+                    Firmware latestFirmware = getLatestSuitableFirmware(firmwareUpdateHandler.getThing());
 
                     FirmwareStatusInfo newFirmwareStatusInfo = getFirmwareStatusInfo(firmwareUpdateHandler,
                             latestFirmware);
@@ -172,8 +171,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
             return null;
         }
 
-        Firmware latestFirmware = firmwareRegistry
-                .getLatestFirmware(firmwareUpdateHandler.getThing().getThingTypeUID());
+        Firmware latestFirmware = getLatestSuitableFirmware(firmwareUpdateHandler.getThing());
 
         FirmwareStatusInfo firmwareStatusInfo = getFirmwareStatusInfo(firmwareUpdateHandler, latestFirmware);
 
@@ -327,6 +325,11 @@ public final class FirmwareUpdateService implements EventSubscriber {
         return progressCallbackMap.get(thingUID);
     }
 
+    private Firmware getLatestSuitableFirmware(Thing thing) {
+        return firmwareRegistry.getFirmwares(thing.getThingTypeUID()).stream()
+                .filter(firmware -> firmware.isSuitableFor(thing)).findFirst().orElse(null);
+    }
+
     private FirmwareStatusInfo getFirmwareStatusInfo(FirmwareUpdateHandler firmwareUpdateHandler,
             Firmware latestFirmware) {
         String thingFirmwareVersion = getThingFirmwareVersion(firmwareUpdateHandler);
@@ -391,7 +394,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
 
     private void validateFirmwareSuitability(Firmware firmware, FirmwareUpdateHandler firmwareUpdateHandler) {
         Thing thing = firmwareUpdateHandler.getThing();
-        if (!firmware.getUID().getThingTypeUID().equals(thing.getThingTypeUID())) {
+        if (!firmware.isSuitableFor(thing)) {
             throw new IllegalArgumentException(String.format(
                     "Firmware with UID %s is not suitable for thing with UID %s.", firmware.getUID(), thing.getUID()));
         }
@@ -476,6 +479,18 @@ public final class FirmwareUpdateService implements EventSubscriber {
 
     private static ScheduledExecutorService getPool() {
         return ThreadPoolManager.getScheduledPool(THREAD_POOL_NAME);
+    }
+
+    protected int getFirmwareStatusInfoJobPeriod() {
+        return firmwareStatusInfoJobPeriod;
+    }
+
+    protected int getFirmwareStatusInfoJobDelay() {
+        return firmwareStatusInfoJobDelay;
+    }
+
+    protected TimeUnit getFirmwareStatusInfoJobTimeUnit() {
+        return firmwareStatusInfoJobTimeUnit;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)

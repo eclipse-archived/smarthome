@@ -213,7 +213,7 @@ gulp.task('inject', ['build'], function () {
         files = [
                      './web-src/js/app.js',
                      './web-src/js/constants.js',
-                     './web-src/js/controllers.configuration.js',
+                     './web-src/js/controllers.services.js',
                      './web-src/js/controllers.configuration.bindings.js',
                      './web-src/js/controllers.system.js',
                      './web-src/js/controllers.items.js',

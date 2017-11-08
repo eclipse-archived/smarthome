@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-Activator: org.eclipse.smarthome.io.rest.optimize.internal.Activa
+ tor
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome REST Interface JAX-RS optimization Bundle
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.io.rest.optimize;singleton:=t
+ rue
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Import-Package: 
+ com.eclipsesource.jaxrs.publisher,
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.osgi.framework,
+ org.slf4j

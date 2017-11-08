@@ -9,6 +9,9 @@ package org.eclipse.smarthome.core.persistence;
 
 import java.util.Date;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * This class provides information about an item that is stored in a persistence service.
  * It is used to return information about the item to the system
@@ -25,6 +28,7 @@ public interface PersistenceItemInfo {
      *
      * @return Item name
      */
+    @NonNull
     String getName();
 
     /**
@@ -34,6 +38,7 @@ public interface PersistenceItemInfo {
      *
      * @return count of the number of rows of data. May return null if the persistence service doesn't support this.
      */
+    @Nullable
     Integer getCount();
 
     /**
@@ -42,6 +47,7 @@ public interface PersistenceItemInfo {
      * @return the earliest {@link Date} stored in the database. May return null if the persistence service doesn't
      *         support this.
      */
+    @Nullable
     Date getEarliest();
 
     /**
@@ -50,5 +56,6 @@ public interface PersistenceItemInfo {
      * @return the latest {@link Date} stored in the database. May return null if the persistence service doesn't
      *         support this.
      */
+    @Nullable
     Date getLatest();
 }

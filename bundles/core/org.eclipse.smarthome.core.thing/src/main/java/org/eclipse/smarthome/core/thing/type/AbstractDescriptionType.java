@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.thing.type;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.common.registry.Identifiable;
 import org.eclipse.smarthome.core.thing.UID;
 
@@ -19,11 +21,12 @@ import org.eclipse.smarthome.core.thing.UID;
  *
  * @author Michael Grammling - Initial Contribution
  */
+@NonNullByDefault
 public abstract class AbstractDescriptionType implements Identifiable<UID> {
 
     private UID uid;
     private String label;
-    private String description;
+    private @Nullable String description;
 
     /**
      * Creates a new instance of this class with the specified parameters.
@@ -39,12 +42,8 @@ public abstract class AbstractDescriptionType implements Identifiable<UID> {
      *
      * @throws IllegalArgumentException if the UID is null, or the label is null or empty
      */
-    public AbstractDescriptionType(UID uid, String label, String description) throws IllegalArgumentException {
-
-        if (uid == null) {
-            throw new IllegalArgumentException("The UID must not be null");
-        }
-
+    public AbstractDescriptionType(UID uid, String label, @Nullable String description)
+            throws IllegalArgumentException {
         if ((label == null) || (label.isEmpty())) {
             throw new IllegalArgumentException("The label must neither be null nor empty!");
         }
@@ -79,7 +78,7 @@ public abstract class AbstractDescriptionType implements Identifiable<UID> {
      *
      * @return the human readable description for the according type (could be null or empty)
      */
-    public String getDescription() {
+    public @Nullable String getDescription() {
         return this.description;
     }
 

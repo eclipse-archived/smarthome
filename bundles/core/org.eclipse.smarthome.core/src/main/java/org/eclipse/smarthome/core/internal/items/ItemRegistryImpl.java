@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.internal.items;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,6 +29,10 @@ import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * This is the main implementing class of the {@link ItemRegistry} interface. It
@@ -38,9 +44,10 @@ import org.osgi.service.component.ComponentContext;
  * @author Stefan Bußweiler - Migration to new event mechanism
  *
  */
+@Component(immediate = true)
 public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvider> implements ItemRegistry {
 
-    private List<StateDescriptionProvider> stateDescriptionProviders = Collections
+    private final List<StateDescriptionProvider> stateDescriptionProviders = Collections
             .synchronizedList(new ArrayList<StateDescriptionProvider>());
 
     public ItemRegistryImpl() {
@@ -125,6 +132,21 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         }
     }
 
+    private void replaceInGroupItems(Item oldItem, Item newItem, List<String> groupItemNames) {
+        for (String groupName : groupItemNames) {
+            if (groupName != null) {
+                try {
+                    Item groupItem = getItem(groupName);
+                    if (groupItem instanceof GroupItem) {
+                        ((GroupItem) groupItem).replaceMember(oldItem, newItem);
+                    }
+                } catch (ItemNotFoundException e) {
+                    // the group might not yet be registered, let's ignore this
+                }
+            }
+        }
+    }
+
     /**
      * An item should be initialized, which means that the event publisher is
      * injected and its implementation is notified that it has just been
@@ -201,14 +223,21 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     protected void onUpdateElement(Item oldItem, Item item) {
         clearServices(oldItem);
         injectServices(item);
-        removeFromGroupItems(oldItem, oldItem.getGroupNames());
-        addToGroupItems(item, item.getGroupNames());
+
+        List<String> oldNames = oldItem.getGroupNames();
+        List<String> newNames = item.getGroupNames();
+        List<String> commonNames = oldNames.stream().filter(name -> newNames.contains(name)).collect(toList());
+
+        removeFromGroupItems(oldItem, oldNames.stream().filter(name -> !commonNames.contains(name)).collect(toList()));
+        replaceInGroupItems(oldItem, item, commonNames);
+        addToGroupItems(item, newNames.stream().filter(name -> !commonNames.contains(name)).collect(toList()));
         if (item instanceof GroupItem) {
             addMembersToGroupItem((GroupItem) item);
         }
     }
 
     @Override
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setEventPublisher(EventPublisher eventPublisher) {
         super.setEventPublisher(eventPublisher);
         for (Item item : getItems()) {
@@ -305,6 +334,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         super.deactivate();
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addStateDescriptionProvider(StateDescriptionProvider provider) {
         synchronized (stateDescriptionProviders) {
             stateDescriptionProviders.add(provider);
@@ -328,6 +358,15 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         for (Item item : getItems()) {
             ((GenericItem) item).setStateDescriptionProviders(stateDescriptionProviders);
         }
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setManagedProvider(ManagedItemProvider provider) {
+        super.setManagedProvider(provider);
+    }
+
+    protected void unsetManagedProvider(ManagedItemProvider provider) {
+        super.unsetManagedProvider(provider);
     }
 
 }

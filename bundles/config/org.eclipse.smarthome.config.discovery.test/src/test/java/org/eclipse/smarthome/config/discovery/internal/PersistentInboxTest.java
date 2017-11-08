@@ -37,6 +37,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.junit.Before;
 import org.junit.Test;
@@ -139,7 +140,8 @@ public class PersistentInboxTest {
 
     private void configureConfigDescriptionRegistryMock(String paramName, Type type) throws URISyntaxException {
         URI configDescriptionURI = new URI("thing-type:test:test");
-        ThingType thingType = new ThingType(THING_TYPE_UID, null, "Test", null, null, null, null, configDescriptionURI);
+        ThingType thingType = ThingTypeBuilder.instance(THING_TYPE_UID, "Test")
+                .withConfigDescriptionURI(configDescriptionURI).build();
         ConfigDescriptionParameter param = ConfigDescriptionParameterBuilder.create(paramName, type).build();
         ConfigDescription configDesc = new ConfigDescription(configDescriptionURI, Collections.singletonList(param));
 

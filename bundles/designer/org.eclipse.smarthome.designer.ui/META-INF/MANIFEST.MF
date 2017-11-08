@@ -1,19 +1,16 @@
 Manifest-Version: 1.0
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.eclipse.smarthome.designer.ui.UIActivator
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Designer UI
-Bundle-SymbolicName: org.eclipse.smarthome.designer.ui;singleton:=true
-Bundle-Version: 0.9.0.qualifier
-Bundle-Activator: org.eclipse.smarthome.designer.ui.UIActivator
-Bundle-Vendor: Eclipse.org/SmartHome
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- org.eclipse.smarthome.designer.core,
- org.eclipse.ui.ide,
- org.eclipse.core.resources,
- org.eclipse.ui.navigator,
- org.eclipse.ui.navigator.resources
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.apache.commons.lang,
+Bundle-SymbolicName: org.eclipse.smarthome.designer.ui;singleton:=true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Export-Package: org.eclipse.smarthome.designer.ui
+Import-Package: 
+ org.apache.commons.lang,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.items,
@@ -21,5 +18,11 @@ Import-Package: org.apache.commons.lang,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.designer.ui,
  org.slf4j
-Export-Package: org.eclipse.smarthome.designer.ui
-Bundle-ActivationPolicy: lazy
+Require-Bundle: 
+ org.eclipse.core.resources,
+ org.eclipse.core.runtime,
+ org.eclipse.smarthome.designer.core,
+ org.eclipse.ui,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.navigator,
+ org.eclipse.ui.navigator.resources

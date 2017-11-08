@@ -1,13 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ${bindingIdCamelCase} Binding Tests
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: ${artifactId};singleton:=true
 Bundle-Vendor: ${vendorName}
 Bundle-Version: ${version.replaceAll("-SNAPSHOT", ".qualifier")}
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: ${package};uses:="org.eclipse.smarthome.test"
 Fragment-Host: ${package}
-Import-Package: ${package},
+Import-Package: 
+ ${package},
  ${package}.handler,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.thing,
@@ -22,6 +25,7 @@ Import-Package: ${package},
  org.osgi.framework,
  org.osgi.service.device,
  org.slf4j
-Require-Bundle: org.junit,org.mockito,org.hamcrest
-Export-Package: ${package};uses:="org.eclipse.smarthome.test"
-
+Require-Bundle: 
+ org.hamcrest,
+ org.junit,
+ org.mockito

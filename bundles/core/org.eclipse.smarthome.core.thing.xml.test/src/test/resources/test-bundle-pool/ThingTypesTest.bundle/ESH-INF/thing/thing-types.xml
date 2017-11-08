@@ -10,6 +10,8 @@
 		<description>The hue Bridge represents the Philips hue bridge.
 		</description>
 
+		<category>NetworkAppliance</category>
+
 		<properties>
 			<property name="vendor">Philips</property>
 		</properties>
@@ -33,13 +35,15 @@
 	</bridge-type>
 
 	<!-- HUE Lamp -->
-	<thing-type id="lamp" listed="false">
+	<thing-type id="lamp" listed="false" extensible="alarm,brightness">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="bridge" />
 		</supported-bridge-type-refs>
 
 		<label>HUE Lamp</label>
 		<description>My own great HUE Lamp.</description>
+
+		<category>Lightbulb</category>
 
 		<channels>
 			<channel id="color" typeId="color">
@@ -60,7 +64,7 @@
 	</thing-type>
 
 	<!-- HUE Lamp with Group -->
-	<thing-type id="lamp-with-group">
+	<thing-type id="lamp-with-group" extensible="brightness, alarm">
 
 		<label>HUE Lamp</label>
 		<description>My own great HUE Lamp.</description>

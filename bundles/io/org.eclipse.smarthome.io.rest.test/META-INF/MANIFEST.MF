@@ -1,18 +1,20 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome IO REST Tests
-Bundle-SymbolicName: org.eclipse.smarthome.io.rest.test;singleton:=true
-Bundle-Version: 0.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.io.rest.test;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
 Fragment-Host: org.eclipse.smarthome.io.rest
-Import-Package: com.google.gson.annotations,
+Import-Package: 
+ com.google.gson.annotations,
  groovy.lang,
  org.apache.commons.io,
  org.codehaus.groovy.reflection,
  org.codehaus.groovy.runtime,
  org.codehaus.groovy.runtime.callsite,
  org.codehaus.groovy.runtime.typehandling,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.storage,
  org.eclipse.smarthome.core.thing.binding,
@@ -23,4 +25,7 @@ Import-Package: com.google.gson.annotations,
  org.hamcrest;core=split,
  org.junit;version="4.0.0",
  org.mockito
-Require-Bundle: org.junit,org.mockito,org.hamcrest
+Require-Bundle: 
+ org.hamcrest,
+ org.junit,
+ org.mockito

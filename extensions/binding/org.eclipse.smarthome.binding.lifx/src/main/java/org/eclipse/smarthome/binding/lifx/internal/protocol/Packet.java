@@ -120,7 +120,7 @@ public abstract class Packet {
     }
 
     public void setTarget(MACAddress lightAddress) {
-        this.target = lightAddress;
+        this.target = lightAddress != null ? lightAddress : MACAddress.BROADCAST_ADDRESS;
     }
 
     public ByteBuffer getReserved1() {

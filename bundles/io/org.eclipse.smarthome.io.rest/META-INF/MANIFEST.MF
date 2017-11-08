@@ -1,11 +1,15 @@
 Manifest-Version: 1.0
+Bundle-Activator: org.eclipse.smarthome.io.rest.internal.RESTActivator
+Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome REST Interface Bundle
-Bundle-SymbolicName: org.eclipse.smarthome.io.rest
-Bundle-Version: 0.9.0.qualifier
-Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: com.google.common.base,
+Bundle-SymbolicName: org.eclipse.smarthome.io.rest
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Export-Package: org.eclipse.smarthome.io.rest
+Import-Package: 
+ com.google.common.base,
  com.google.common.collect,
  com.google.gson,
  com.google.gson.stream,
@@ -18,6 +22,7 @@ Import-Package: com.google.common.base,
  javax.ws.rs.ext,
  org.apache.commons.io,
  org.apache.commons.lang,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.i18n,
  org.eclipse.smarthome.core.items,
@@ -32,8 +37,4 @@ Import-Package: com.google.common.base,
  org.osgi.service.http,
  org.osgi.util.tracker,
  org.slf4j
-Bundle-ClassPath: .
 Service-Component: OSGI-INF/*.xml
-Export-Package: org.eclipse.smarthome.io.rest
-Bundle-Activator: org.eclipse.smarthome.io.rest.internal.RESTActivator
-

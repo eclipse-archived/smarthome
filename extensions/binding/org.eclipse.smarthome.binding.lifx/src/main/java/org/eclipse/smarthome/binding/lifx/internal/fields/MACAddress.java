@@ -15,8 +15,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +24,8 @@ import org.slf4j.LoggerFactory;
  * @author Karel Goderis
  */
 public class MACAddress {
+
+    public static final MACAddress BROADCAST_ADDRESS = new MACAddress("000000000000", true);
 
     private final Logger logger = LoggerFactory.getLogger(MACAddress.class);
 
@@ -51,7 +51,7 @@ public class MACAddress {
             this.bytes = ByteBuffer.wrap(string.getBytes());
             createHex();
         } else {
-            this.bytes = ByteBuffer.wrap(DatatypeConverter.parseHexBinary(string));
+            this.bytes = ByteBuffer.wrap(parseHexBinary(string));
 
             try {
                 formatHex(string, 2, ":");
@@ -59,6 +59,15 @@ public class MACAddress {
                 logger.error("An exception occurred while formatting an HEX string : '{}'", e.getMessage());
             }
         }
+    }
+
+    private byte[] parseHexBinary(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16));
+        }
+        return data;
     }
 
     public MACAddress() {
@@ -104,7 +113,6 @@ public class MACAddress {
         }
 
         hex = StringUtils.left(result, result.length() - 1);
-
     }
 
     @Override

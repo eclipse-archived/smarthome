@@ -10,7 +10,7 @@ The integration happens through the Hue bridge, which acts as an IP gateway to t
 
 The Hue bridge is required as a "bridge" for accessing any other Hue devices.
 
-Almost all available Hue devices are supported by this binding. This includes not only the "friends of Hue", but also products like the LivingWhites adapter. Additionally, it is possible to use Osram Lightify devices as well as other ZigBee LightLink compatible products like e.g. the [GE bulb](http://gelinkbulbs.com/). Please note that the devices need to be registered with the Hue bridge before it is possible for this binding to use them.
+Almost all available Hue devices are supported by this binding. This includes not only the "friends of Hue", but also products like the LivingWhites adapter. Additionally, it is possible to use Osram Lightify devices as well as other ZigBee LightLink compatible products. Please note that the devices need to be registered with the Hue bridge before it is possible for this binding to use them.
 
 The Hue binding supports all seven types of lighting devices defined for ZigBee LightLink ([see page 24, table 2](https://www.nxp.com/documents/user_manual/JN-UG-3091.pdf). These are:
 

@@ -15,12 +15,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.binding.wemo.WemoBindingConstants;
-import org.eclipse.smarthome.binding.wemo.discovery.WemoLinkDiscoveryService;
 import org.eclipse.smarthome.binding.wemo.handler.WemoBridgeHandler;
 import org.eclipse.smarthome.binding.wemo.handler.WemoCoffeeHandler;
 import org.eclipse.smarthome.binding.wemo.handler.WemoHandler;
 import org.eclipse.smarthome.binding.wemo.handler.WemoLightHandler;
 import org.eclipse.smarthome.binding.wemo.handler.WemoMakerHandler;
+import org.eclipse.smarthome.binding.wemo.internal.discovery.WemoLinkDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -32,8 +32,6 @@ import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Sets;
 
 /**
  * The {@link WemoHandlerFactory} is responsible for creating things and thing
@@ -48,8 +46,7 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
 
     private UpnpIOService upnpIOService;
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets
-            .newHashSet(WemoBindingConstants.SUPPORTED_THING_TYPES);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = WemoBindingConstants.SUPPORTED_THING_TYPES;
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {

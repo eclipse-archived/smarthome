@@ -11,14 +11,13 @@ import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTrigg
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventSubscriber;
@@ -30,7 +29,6 @@ import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
-import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
@@ -47,8 +45,11 @@ import org.eclipse.smarthome.model.rule.runtime.internal.RuleRuntimeActivator;
 import org.eclipse.smarthome.model.script.engine.Script;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
-import org.eclipse.smarthome.model.script.engine.ScriptExecutionThread;
 import org.eclipse.xtext.naming.QualifiedName;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,17 +67,18 @@ import com.google.inject.Injector;
  *
  */
 @SuppressWarnings("restriction")
+@Component(immediate = true, service = { EventSubscriber.class, RuleEngine.class })
 public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeListener, ModelRepositoryChangeListener,
         RuleEngine, EventSubscriber {
 
     private final Logger logger = LoggerFactory.getLogger(RuleEngineImpl.class);
 
-    protected final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    protected final ScheduledExecutorService scheduler = ThreadPoolManager
+            .getScheduledPool(RuleEngine.class.getSimpleName());
 
     private ItemRegistry itemRegistry;
     private ModelRepository modelRepository;
     private ScriptEngine scriptEngine;
-    private ThingRegistry thingRegistry;
 
     private RuleTriggerManager triggerManager;
 
@@ -88,13 +90,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
     // ready to be operational
     private boolean starting = true;
 
-    private Runnable startupRunnable = new Runnable() {
-        @Override
-        public void run() {
-            runStartupRules();
-        }
-    };
-
+    @Activate
     public void activate() {
         injector = RulesStandaloneSetup.getInjector();
         triggerManager = injector.getInstance(RuleTriggerManager.class);
@@ -128,6 +124,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         scheduleStartupRules();
     }
 
+    @Deactivate
     public void deactivate() {
         // unregister listeners
         for (Item item : itemRegistry.getItems()) {
@@ -142,6 +139,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         triggerManager = null;
     }
 
+    @Reference
     public void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
     }
@@ -150,6 +148,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         this.itemRegistry = null;
     }
 
+    @Reference
     public void setModelRepository(ModelRepository modelRepository) {
         this.modelRepository = modelRepository;
     }
@@ -158,6 +157,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         this.modelRepository = null;
     }
 
+    @Reference
     public void setScriptEngine(ScriptEngine scriptEngine) {
         this.scriptEngine = scriptEngine;
     }
@@ -166,14 +166,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         this.scriptEngine = null;
     }
 
-    public void setThingRegistry(ThingRegistry thingRegistry) {
-        this.thingRegistry = thingRegistry;
-    }
-
-    public void unsetThingRegistry(ThingRegistry thingRegistry) {
-        this.thingRegistry = null;
-    }
-
+    @Reference
     protected void setRuleRuntimeActivator(RuleRuntimeActivator ruleRuntimeActivator) {
         // noop - only make sure RuleRuntimeActivator gets "used", hence activated
     }
@@ -297,51 +290,61 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         if (startupJob != null && !startupJob.isCancelled() && !startupJob.isDone()) {
             startupJob.cancel(true);
         }
-        startupJob = scheduler.schedule(startupRunnable, 5, TimeUnit.SECONDS);
+        startupJob = scheduler.schedule(() -> {
+            runStartupRules();
+        }, 5, TimeUnit.SECONDS);
     }
 
     private void runStartupRules() {
         if (triggerManager != null) {
             Iterable<Rule> startupRules = triggerManager.getRules(STARTUP);
-            List<Rule> executedRules = Lists.newArrayList();
 
             for (Rule rule : startupRules) {
-                try {
-                    Script script = scriptEngine.newScriptFromXExpression(rule.getScript());
-                    logger.debug("Executing startup rule '{}'", rule.getName());
-                    RuleEvaluationContext context = new RuleEvaluationContext();
-                    context.setGlobalContext(RuleContextHelper.getContext(rule, injector));
-                    script.execute(context);
-                    executedRules.add(rule);
-                } catch (ScriptExecutionException e) {
-                    if (!e.getMessage().contains("cannot be resolved to an item or type")) {
-                        logger.error("Error during the execution of startup rule '{}': {}",
-                                new Object[] { rule.getName(), e.getCause().getMessage() });
-                        executedRules.add(rule);
-                    } else {
-                        logger.debug("Execution of startup rule '{}' has been postponed as items are still missing: {}",
-                                rule.getName(), e.getMessage());
+                scheduler.execute(() -> {
+                    try {
+                        Script script = scriptEngine.newScriptFromXExpression(rule.getScript());
+                        logger.debug("Executing startup rule '{}'", rule.getName());
+                        RuleEvaluationContext context = new RuleEvaluationContext();
+                        context.setGlobalContext(RuleContextHelper.getContext(rule, injector));
+                        script.execute(context);
+                        triggerManager.removeRule(STARTUP, rule);
+                    } catch (ScriptExecutionException e) {
+                        if (!e.getMessage().contains("cannot be resolved to an item or type")) {
+                            logger.error("Error during the execution of startup rule '{}': {}", rule.getName(),
+                                    e.getCause().getMessage());
+                            triggerManager.removeRule(STARTUP, rule);
+                        } else {
+                            logger.debug(
+                                    "Execution of startup rule '{}' has been postponed as items are still missing: {}",
+                                    rule.getName(), e.getMessage());
+                        }
                     }
-                }
+                });
             }
-            for (Rule rule : executedRules) {
-                triggerManager.removeRule(STARTUP, rule);
-            }
-            // now that we have executed the startup rules, we are ready for others as well
+            // now that we have scheduled the startup rules, we are ready for others as well
             starting = false;
             triggerManager.startTimerRuleExecution();
         }
     }
 
     protected synchronized void executeRule(Rule rule, RuleEvaluationContext context) {
-        Script script = scriptEngine.newScriptFromXExpression(rule.getScript());
 
-        logger.debug("Executing rule '{}'", rule.getName());
+        scheduler.execute(() -> {
+            Script script = scriptEngine.newScriptFromXExpression(rule.getScript());
 
-        context.setGlobalContext(RuleContextHelper.getContext(rule, injector));
-
-        ScriptExecutionThread thread = new ScriptExecutionThread(rule.getName(), script, context);
-        thread.start();
+            logger.debug("Executing rule '{}'", rule.getName());
+            context.setGlobalContext(RuleContextHelper.getContext(rule, injector));
+            try {
+                script.execute(context);
+            } catch (Exception e) {
+                String msg = e.getMessage();
+                if (msg == null) {
+                    logger.error("Rule '{}'", rule.getName(), e.getCause());
+                } else {
+                    logger.error("Rule '{}': {}", rule.getName(), msg);
+                }
+            }
+        });
     }
 
     protected synchronized void executeRules(Iterable<Rule> rules) {

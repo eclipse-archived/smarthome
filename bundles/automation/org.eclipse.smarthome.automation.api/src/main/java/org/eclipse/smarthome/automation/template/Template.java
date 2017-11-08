@@ -9,6 +9,8 @@ package org.eclipse.smarthome.automation.template;
 
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Visibility;
 import org.eclipse.smarthome.core.common.registry.Identifiable;
@@ -27,6 +29,7 @@ import org.eclipse.smarthome.core.common.registry.Identifiable;
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
  */
+@NonNullByDefault
 public interface Template extends Identifiable<String> {
 
     /**
@@ -55,7 +58,7 @@ public interface Template extends Identifiable<String> {
      *
      * @return the label of the Template.
      */
-    public String getLabel();
+    public @Nullable String getLabel();
 
     /**
      * This method is used for getting the description of the Template. The
@@ -64,7 +67,7 @@ public interface Template extends Identifiable<String> {
      *
      * @return the description of the Template.
      */
-    public String getDescription();
+    public @Nullable String getDescription();
 
     /**
      * This method is used to show visibility of the template

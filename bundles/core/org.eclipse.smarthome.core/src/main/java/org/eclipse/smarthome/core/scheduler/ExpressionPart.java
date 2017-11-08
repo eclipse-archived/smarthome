@@ -8,8 +8,8 @@
 package org.eclipse.smarthome.core.scheduler;
 
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <code>ExpressionPart</code> are the building blocks that make up an {@link Expression}. Each part can be set, then
@@ -43,7 +43,7 @@ interface ExpressionPart extends Comparable<ExpressionPart> {
      * @param candidates - the list of candidates
      * @return a list of candidates post application of the expression part
      */
-    public ArrayList<Date> apply(Date startDate, ArrayList<Date> candidates);
+    public List<Date> apply(Date startDate, List<Date> candidates);
 
     /**
      * Get the "order" of the expression part. When an expression is parsed into a list of expression part, then the

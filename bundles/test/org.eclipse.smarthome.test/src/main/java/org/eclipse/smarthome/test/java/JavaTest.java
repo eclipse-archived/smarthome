@@ -108,10 +108,27 @@ public class JavaTest {
      * @param sleepTime interval for checking the condition
      */
     protected void waitForAssert(Runnable assertion, Runnable beforeLastCall, int timeout, int sleepTime) {
+        waitForAssert(assertion, beforeLastCall, null, timeout, sleepTime);
+    }
+
+    /**
+     * Wait until the assertion is fulfilled or the timeout is reached.
+     *
+     * @param assertion the logic to execute
+     * @param beforeLastCall logic to execute in front of the last call to ${code assertion}
+     * @param afterLastCall logic to execute after the last call to ${code assertion}
+     * @param sleepTime interval for checking the condition
+     */
+    protected void waitForAssert(Runnable assertion, Runnable beforeLastCall, Runnable afterLastCall, int timeout,
+            int sleepTime) {
         int waitingTime = 0;
         while (waitingTime < timeout) {
             try {
                 assertion.run();
+
+                if (afterLastCall != null) {
+                    afterLastCall.run();
+                }
                 return;
             } catch (final Error | NullPointerException error) {
                 waitingTime += sleepTime;
@@ -121,7 +138,14 @@ public class JavaTest {
         if (beforeLastCall != null) {
             beforeLastCall.run();
         }
-        assertion.run();
+
+        try {
+            assertion.run();
+        } finally {
+            if (afterLastCall != null) {
+                afterLastCall.run();
+            }
+        }
     }
 
     /**

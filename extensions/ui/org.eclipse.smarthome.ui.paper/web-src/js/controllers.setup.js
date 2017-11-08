@@ -195,6 +195,7 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
     $scope.thingType = null;
     $scope.thing = {
         UID : null,
+        thingTypeUID : thingTypeUID,
         configuration : {},
         item : {
             label : null,
@@ -204,30 +205,11 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
     $scope.thingID = null;
 
     $scope.addThing = function(thing) {
-        thing.thingTypeUID = thingTypeUID;
         thing.UID = thing.thingTypeUID + ":" + thing.ID;
         thing.configuration = configService.setConfigDefaults(thing.configuration, $scope.parameters, true);
         thingService.add(thing, function() {
             toastService.showDefaultToast('Thing added.', 'Show Thing', 'configuration/things/view/' + thing.UID);
-            window.localStorage.setItem('thingUID', thing.UID);
             $location.path('configuration/things');
-        });
-    };
-
-    $scope.needsBridge = false;
-    $scope.bridges = [];
-    $scope.getBridges = function() {
-        $scope.bridges = [];
-        thingRepository.getAll(function(things) {
-            for (var i = 0; i < things.length; i++) {
-                var thing = things[i];
-                for (var j = 0; j < $scope.thingType.supportedBridgeTypeUIDs.length; j++) {
-                    var supportedBridgeTypeUID = $scope.thingType.supportedBridgeTypeUIDs[j];
-                    if (thing.thingTypeUID === supportedBridgeTypeUID) {
-                        $scope.bridges.push(thing);
-                    }
-                }
-            }
         });
     };
 
@@ -241,10 +223,7 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
         $scope.thing.ID = generateUUID();
         $scope.thing.item.label = thingType.label;
         $scope.thing.label = thingType.label;
-        $scope.needsBridge = $scope.thingType.supportedBridgeTypeUIDs && $scope.thingType.supportedBridgeTypeUIDs.length > 0;
-        if ($scope.needsBridge) {
-            $scope.getBridges();
-        }
+
         configService.setDefaults($scope.thing, $scope.thingType)
     });
 }).controller('SetupWizardController', function($scope, discoveryResultRepository) {

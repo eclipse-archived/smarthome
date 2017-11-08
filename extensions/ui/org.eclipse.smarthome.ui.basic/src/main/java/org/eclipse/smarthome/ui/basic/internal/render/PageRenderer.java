@@ -67,6 +67,7 @@ public class PageRenderer extends AbstractWidgetRenderer {
             throws RenderException {
 
         String snippet = getSnippet(async ? "layer" : "main");
+        snippet = snippet.replaceAll("%main.offline-msg%", localizeText("@text/main.offline-msg"));
         snippet = snippet.replaceAll("%id%", id);
 
         // if the label contains a value span, we remove this span as
@@ -74,14 +75,16 @@ public class PageRenderer extends AbstractWidgetRenderer {
         // Note: we can have a span here, if the parent widget had a label
         // with some value defined (e.g. "Windows [%d]"), which getLabel()
         // will convert into a "Windows <span>5</span>".
-        if (label.contains("[") && label.endsWith("]")) {
-            label = label.replace("[", "").replace("]", "");
+        String labelPlain = label;
+        if (labelPlain.contains("[") && labelPlain.endsWith("]")) {
+            labelPlain = labelPlain.replace("[", "").replace("]", "");
         }
-        snippet = StringUtils.replace(snippet, "%label%", escapeHtml(label));
+        snippet = StringUtils.replace(snippet, "%label%", escapeHtml(labelPlain));
         snippet = StringUtils.replace(snippet, "%servletname%", WebAppServlet.SERVLET_NAME);
         snippet = StringUtils.replace(snippet, "%sitemap%", sitemap);
         snippet = StringUtils.replace(snippet, "%htmlclass%", config.getCssClassList());
         snippet = StringUtils.replace(snippet, "%icon_type%", config.getIconType());
+        snippet = StringUtils.replace(snippet, "%theme%", config.getTheme());
 
         String[] parts = snippet.split("%children%");
 
@@ -198,13 +201,20 @@ public class PageRenderer extends AbstractWidgetRenderer {
 
         StringBuilder sb = new StringBuilder();
         if (sitemapList.isEmpty()) {
-            sb.append(getSnippet("sitemaps_list_empty"));
+            String listEmptySnippet = getSnippet("sitemaps_list_empty");
+            listEmptySnippet = StringUtils.replace(listEmptySnippet, "%sitemaps-list-empty.info%",
+                    localizeText("@text/sitemaps-list-empty.info"));
+            sb.append(listEmptySnippet);
         } else {
             for (String sitemap : sitemapList) {
                 sb.append(StringUtils.replace(sitemapSnippet, "%sitemap%", sitemap));
             }
         }
 
+        listSnippet = StringUtils.replace(listSnippet, "%sitemaps-list.welcome%",
+                localizeText("@text/sitemaps-list.welcome"));
+        listSnippet = StringUtils.replace(listSnippet, "%sitemaps-list.available-sitemaps%",
+                localizeText("@text/sitemaps-list.available-sitemaps"));
         listSnippet = StringUtils.replace(listSnippet, "%items%", sb.toString());
 
         pageSnippet = StringUtils.replace(pageSnippet, "%title%", "BasicUI");

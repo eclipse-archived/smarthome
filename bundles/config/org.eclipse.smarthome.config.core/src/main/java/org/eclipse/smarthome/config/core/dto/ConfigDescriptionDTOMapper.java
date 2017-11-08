@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.config.core.dto;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,7 +37,12 @@ public class ConfigDescriptionDTOMapper {
         List<ConfigDescriptionParameterGroupDTO> parameterGroups = mapParameterGroups(
                 configDescription.getParameterGroups());
         List<ConfigDescriptionParameterDTO> parameters = mapParameters(configDescription.getParameters());
-        return new ConfigDescriptionDTO(configDescription.getUID().toString(), parameters, parameterGroups);
+        return new ConfigDescriptionDTO(toDecodedString(configDescription.getUID()), parameters, parameterGroups);
+    }
+
+    private static String toDecodedString(URI uri) {
+        // combine these partials because URI.toString() does not decode
+        return uri.getScheme() + ":" + uri.getSchemeSpecificPart();
     }
 
     /**

@@ -27,7 +27,6 @@ public class GenericPacket extends Packet {
 
     @Override
     protected void parsePacket(ByteBuffer bytes) {
-
     }
 
     @Override

@@ -17,6 +17,8 @@ import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.library.items.StringItem
 import org.eclipse.smarthome.core.storage.Storage;
 import org.eclipse.smarthome.core.storage.StorageService
+import org.eclipse.smarthome.storage.mapdb.internal.MapDbStorage
+import org.eclipse.smarthome.storage.mapdb.internal.MapDbStorageService
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before

@@ -1,16 +1,19 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Automation Integration Test
-Bundle-SymbolicName: org.eclipse.smarthome.automation.integration.test;singleton:=true
-Bundle-Version: 0.9.0.qualifier
-Bundle-Vendor: Eclipse/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: com.google.common.collect,
+Bundle-SymbolicName: org.eclipse.smarthome.automation.integration.test;s
+ ingleton:=true
+Bundle-Vendor: Eclipse/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Import-Package: 
+ com.google.common.collect,
  groovy.lang,
  org.codehaus.groovy.reflection,
  org.codehaus.groovy.runtime,
  org.codehaus.groovy.runtime.callsite,
  org.codehaus.groovy.runtime.typehandling,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.automation,
  org.eclipse.smarthome.automation.events,
  org.eclipse.smarthome.automation.handler,
@@ -35,11 +38,12 @@ Import-Package: com.google.common.collect,
  org.osgi.service.packageadmin,
  org.osgi.util.tracker,
  org.slf4j;version="1.7.2"
-Require-Bundle: org.junit;bundle-version="4.0.0",
+Require-Bundle: 
  org.eclipse.smarthome.automation.api,
  org.eclipse.smarthome.automation.core,
  org.eclipse.smarthome.automation.module.core,
  org.eclipse.smarthome.automation.parser.gson,
  org.eclipse.smarthome.automation.providers,
  org.eclipse.smarthome.automation.sample.extension.json,
- org.eclipse.smarthome.io.console
+ org.eclipse.smarthome.io.console,
+ org.junit;bundle-version="4.0.0"

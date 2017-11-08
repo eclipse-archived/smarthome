@@ -9,7 +9,8 @@ package org.eclipse.smarthome.core.thing.binding;
 
 import java.util.Map;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -33,6 +34,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author Thomas Höfer - Added config description validation exception to handleConfigurationUpdate operation
  * @author Stefan Bußweiler - API changes due to bridge/thing life cycle refactoring
  */
+@NonNullByDefault
 public interface ThingHandler {
 
     /**
@@ -78,7 +80,7 @@ public interface ThingHandler {
      *
      * @param thingHandlerCallback the callback (can be null)
      */
-    void setCallback(ThingHandlerCallback thingHandlerCallback);
+    void setCallback(@Nullable ThingHandlerCallback thingHandlerCallback);
 
     /**
      * Handles a command for a given channel.
@@ -89,7 +91,7 @@ public interface ThingHandler {
      * @param channelUID the {@link ChannelUID} of the channel to which the command was sent
      * @param command the {@link Command}
      */
-    void handleCommand(@NonNull ChannelUID channelUID, Command command);
+    void handleCommand(ChannelUID channelUID, Command command);
 
     /**
      * Handles a {@link State} update for a given channel.
@@ -99,8 +101,11 @@ public interface ThingHandler {
      *
      * @param channelUID the {@link ChannelUID} of the channel on which the update was performed
      * @param newState the new {@link State}
+     * @deprecated in favor of using a "slave" profile. Will be removed before a 1.0 release. Bindings must not
+     *             implement this method!
      */
-    void handleUpdate(@NonNull ChannelUID channelUID, @NonNull State newState);
+    @Deprecated
+    void handleUpdate(ChannelUID channelUID, State newState);
 
     /**
      * Handles a configuration update.
@@ -123,7 +128,7 @@ public interface ThingHandler {
      *
      * @param thing the {@link Thing}, that has been updated
      */
-    void thingUpdated(@NonNull Thing thing);
+    void thingUpdated(Thing thing);
 
     /**
      * Notifies the handler that a channel was linked.
@@ -133,7 +138,7 @@ public interface ThingHandler {
      *
      * @param channelUID UID of the linked channel
      */
-    void channelLinked(@NonNull ChannelUID channelUID);
+    void channelLinked(ChannelUID channelUID);
 
     /**
      * Notifies the handler that a channel was unlinked.
@@ -143,7 +148,7 @@ public interface ThingHandler {
      *
      * @param channelUID UID of the unlinked channel
      */
-    void channelUnlinked(@NonNull ChannelUID channelUID);
+    void channelUnlinked(ChannelUID channelUID);
 
     /**
      * Notifies the handler that the bridge's status has changed.

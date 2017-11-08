@@ -11,7 +11,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -26,19 +27,20 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
  * @author Alex Tugarev - Extended about default tags
  * @author Chris Jackson - Added properties and label/description
  */
+@NonNullByDefault
 public class ChannelBuilder {
 
     private ChannelUID channelUID;
-    private String acceptedItemType;
+    private @Nullable String acceptedItemType;
     private ChannelKind kind;
-    private Configuration configuration;
+    private @Nullable Configuration configuration;
     private Set<String> defaultTags;
-    private Map<@NonNull String, String> properties;
-    private String label;
-    private String description;
-    private ChannelTypeUID channelTypeUID;
+    private @Nullable Map<String, String> properties;
+    private @Nullable String label;
+    private @Nullable String description;
+    private @Nullable ChannelTypeUID channelTypeUID;
 
-    private ChannelBuilder(ChannelUID channelUID, String acceptedItemType, Set<String> defaultTags) {
+    private ChannelBuilder(ChannelUID channelUID, @Nullable String acceptedItemType, Set<String> defaultTags) {
         this.channelUID = channelUID;
         this.acceptedItemType = acceptedItemType;
         this.defaultTags = defaultTags;
@@ -54,7 +56,7 @@ public class ChannelBuilder {
      *            item type that is accepted by this channel
      * @return channel builder
      */
-    public @NonNull static ChannelBuilder create(@NonNull ChannelUID channelUID, @NonNull String acceptedItemType) {
+    public static ChannelBuilder create(ChannelUID channelUID, @Nullable String acceptedItemType) {
         return new ChannelBuilder(channelUID, acceptedItemType, new HashSet<String>());
     }
 
@@ -64,7 +66,7 @@ public class ChannelBuilder {
      * @param channelTypeUID channel type UID
      * @return channel builder
      */
-    public @NonNull ChannelBuilder withType(@NonNull ChannelTypeUID channelTypeUID) {
+    public ChannelBuilder withType(@Nullable ChannelTypeUID channelTypeUID) {
         this.channelTypeUID = channelTypeUID;
         return this;
     }
@@ -76,7 +78,7 @@ public class ChannelBuilder {
      *            configuration
      * @return channel builder
      */
-    public @NonNull ChannelBuilder withConfiguration(Configuration configuration) {
+    public ChannelBuilder withConfiguration(Configuration configuration) {
         this.configuration = configuration;
         return this;
     }
@@ -87,7 +89,7 @@ public class ChannelBuilder {
      * @param properties properties to add
      * @return channel builder
      */
-    public @NonNull ChannelBuilder withProperties(Map<@NonNull String, String> properties) {
+    public ChannelBuilder withProperties(Map<String, String> properties) {
         this.properties = properties;
         return this;
     }
@@ -98,7 +100,7 @@ public class ChannelBuilder {
      * @param label the channel label to override the label set in the {@link ChannelType}
      * @return channel builder
      */
-    public @NonNull ChannelBuilder withLabel(String label) {
+    public ChannelBuilder withLabel(String label) {
         this.label = label;
         return this;
     }
@@ -109,7 +111,7 @@ public class ChannelBuilder {
      * @param label the channel label to override the label set in the {@link ChannelType}
      * @return channel builder
      */
-    public @NonNull ChannelBuilder withDescription(String description) {
+    public ChannelBuilder withDescription(String description) {
         this.description = description;
         return this;
     }
@@ -121,7 +123,7 @@ public class ChannelBuilder {
      *            default tags
      * @return channel builder
      */
-    public @NonNull ChannelBuilder withDefaultTags(Set<String> defaultTags) {
+    public ChannelBuilder withDefaultTags(Set<String> defaultTags) {
         this.defaultTags = defaultTags;
         return this;
     }
@@ -132,7 +134,7 @@ public class ChannelBuilder {
      * @param kind kind.
      * @return channel builder
      */
-    public @NonNull ChannelBuilder withKind(ChannelKind kind) {
+    public ChannelBuilder withKind(ChannelKind kind) {
         if (kind == null) {
             throw new IllegalArgumentException("kind must not be null");
         }
@@ -146,7 +148,7 @@ public class ChannelBuilder {
      *
      * @return channel
      */
-    public @NonNull Channel build() {
+    public Channel build() {
         return new Channel(channelUID, channelTypeUID, acceptedItemType, kind, configuration, defaultTags, properties,
                 label, description);
     }

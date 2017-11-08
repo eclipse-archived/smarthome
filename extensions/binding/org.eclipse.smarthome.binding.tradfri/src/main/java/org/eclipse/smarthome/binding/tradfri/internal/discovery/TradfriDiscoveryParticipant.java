@@ -7,6 +7,10 @@
  */
 package org.eclipse.smarthome.binding.tradfri.internal.discovery;
 
+import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.GATEWAY_TYPE_UID;
+import static org.eclipse.smarthome.binding.tradfri.internal.config.TradfriGatewayConfig.*;
+import static org.eclipse.smarthome.core.thing.Thing.*;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,14 +18,11 @@ import java.util.Set;
 
 import javax.jmdns.ServiceInfo;
 
-import org.eclipse.smarthome.binding.tradfri.GatewayConfig;
-import org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
-import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,13 +33,13 @@ import org.slf4j.LoggerFactory;
  */
 public class TradfriDiscoveryParticipant implements MDNSDiscoveryParticipant {
 
-    private Logger logger = LoggerFactory.getLogger(TradfriDiscoveryParticipant.class);
+    private final Logger logger = LoggerFactory.getLogger(TradfriDiscoveryParticipant.class);
 
     private static final String SERVICE_TYPE = "_coap._udp.local.";
 
     @Override
     public Set<ThingTypeUID> getSupportedThingTypeUIDs() {
-        return Collections.singleton(TradfriBindingConstants.GATEWAY_TYPE_UID);
+        return Collections.singleton(GATEWAY_TYPE_UID);
     }
 
     @Override
@@ -52,7 +53,7 @@ public class TradfriDiscoveryParticipant implements MDNSDiscoveryParticipant {
             String name = service.getName();
             if ((service.getType() != null) && service.getType().equals(getServiceType())
                     && (name.matches("gw:([a-f0-9]{2}[-]?){6}"))) {
-                return new ThingUID(TradfriBindingConstants.GATEWAY_TYPE_UID, name.replaceAll("[^A-Za-z0-9_]", ""));
+                return new ThingUID(GATEWAY_TYPE_UID, name.replaceAll("[^A-Za-z0-9_]", ""));
             }
         }
         return null;
@@ -69,15 +70,15 @@ public class TradfriDiscoveryParticipant implements MDNSDiscoveryParticipant {
             if (thingUID != null) {
                 logger.debug("Discovered Tradfri gateway: {}", service);
                 Map<String, Object> properties = new HashMap<>(4);
-                properties.put(Thing.PROPERTY_VENDOR, "IKEA of Sweden");
-                properties.put(GatewayConfig.HOST, ip);
-                properties.put(GatewayConfig.PORT, service.getPort());
+                properties.put(PROPERTY_VENDOR, "IKEA of Sweden");
+                properties.put(CONFIG_HOST, ip);
+                properties.put(CONFIG_PORT, service.getPort());
                 String fwVersion = service.getPropertyString("version");
                 if (fwVersion != null) {
-                    properties.put(Thing.PROPERTY_FIRMWARE_VERSION, fwVersion);
+                    properties.put(PROPERTY_FIRMWARE_VERSION, fwVersion);
                 }
-                return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel("Trådfri Gateway")
-                        .withRepresentationProperty(GatewayConfig.HOST).build();
+                return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel("TRÅDFRI Gateway")
+                        .withRepresentationProperty(CONFIG_HOST).build();
             }
         }
         return null;

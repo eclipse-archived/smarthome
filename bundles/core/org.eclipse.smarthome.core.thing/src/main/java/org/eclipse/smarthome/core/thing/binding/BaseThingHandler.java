@@ -142,8 +142,8 @@ public abstract class BaseThingHandler implements ThingHandler {
 
         // can be overridden by subclasses
         Configuration configuration = editConfiguration();
-        for (Entry<String, Object> configurationParmeter : configurationParameters.entrySet()) {
-            configuration.put(configurationParmeter.getKey(), configurationParmeter.getValue());
+        for (Entry<String, Object> configurationParameter : configurationParameters.entrySet()) {
+            configuration.put(configurationParameter.getKey(), configurationParameter.getValue());
         }
 
         if (isInitialized()) {
@@ -169,6 +169,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     @Override
+    @Deprecated
     public void handleUpdate(ChannelUID channelUID, State newState) {
         // can be overridden by subclasses
     }

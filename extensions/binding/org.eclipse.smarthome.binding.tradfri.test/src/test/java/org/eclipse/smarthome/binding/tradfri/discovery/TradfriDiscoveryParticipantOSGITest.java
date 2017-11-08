@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.binding.tradfri.discovery;
 
+import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
+import static org.eclipse.smarthome.binding.tradfri.internal.config.TradfriGatewayConfig.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -14,14 +16,12 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import javax.jmdns.ServiceInfo;
 
-import org.eclipse.smarthome.binding.tradfri.GatewayConfig;
-import org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants;
 import org.eclipse.smarthome.binding.tradfri.internal.discovery.TradfriDiscoveryParticipant;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
-import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant;
+import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,8 +63,7 @@ public class TradfriDiscoveryParticipantOSGITest extends JavaOSGiTest {
     @Test
     public void correctSupportedTypes() {
         assertThat(discoveryParticipant.getSupportedThingTypeUIDs().size(), is(1));
-        assertThat(discoveryParticipant.getSupportedThingTypeUIDs().iterator().next(),
-                is(TradfriBindingConstants.GATEWAY_TYPE_UID));
+        assertThat(discoveryParticipant.getSupportedThingTypeUIDs().iterator().next(), is(GATEWAY_TYPE_UID));
     }
 
     @Test
@@ -81,12 +80,12 @@ public class TradfriDiscoveryParticipantOSGITest extends JavaOSGiTest {
         assertThat(result.getProperties().get(Thing.PROPERTY_FIRMWARE_VERSION), is("1.1"));
         assertThat(result.getFlag(), is(DiscoveryResultFlag.NEW));
         assertThat(result.getThingUID(), is(new ThingUID("tradfri:gateway:gw1234567890ab")));
-        assertThat(result.getThingTypeUID(), is(TradfriBindingConstants.GATEWAY_TYPE_UID));
+        assertThat(result.getThingTypeUID(), is(GATEWAY_TYPE_UID));
         assertThat(result.getBridgeUID(), is(nullValue()));
         assertThat(result.getProperties().get(Thing.PROPERTY_VENDOR), is("IKEA of Sweden"));
-        assertThat(result.getProperties().get(GatewayConfig.HOST), is("192.168.0.5"));
-        assertThat(result.getProperties().get(GatewayConfig.PORT), is(1234));
-        assertThat(result.getRepresentationProperty(), is(GatewayConfig.HOST));
+        assertThat(result.getProperties().get(CONFIG_HOST), is("192.168.0.5"));
+        assertThat(result.getProperties().get(CONFIG_PORT), is(1234));
+        assertThat(result.getRepresentationProperty(), is(CONFIG_HOST));
     }
 
     @Test

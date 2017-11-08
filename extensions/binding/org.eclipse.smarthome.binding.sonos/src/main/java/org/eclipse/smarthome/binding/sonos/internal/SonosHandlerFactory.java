@@ -7,15 +7,14 @@
  */
 package org.eclipse.smarthome.binding.sonos.internal;
 
-import static org.eclipse.smarthome.binding.sonos.config.ZonePlayerConfiguration.UDN;
+import static org.eclipse.smarthome.binding.sonos.internal.config.ZonePlayerConfiguration.UDN;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.smarthome.binding.sonos.SonosBindingConstants;
-import org.eclipse.smarthome.binding.sonos.handler.ZonePlayerHandler;
+import org.eclipse.smarthome.binding.sonos.internal.handler.ZonePlayerHandler;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.core.audio.AudioHTTPServer;
@@ -143,14 +142,12 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
     }
 
     private ThingUID getPlayerUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration) {
-
-        String udn = (String) configuration.get(UDN);
-
-        if (thingUID == null) {
-            thingUID = new ThingUID(thingTypeUID, udn);
+        if (thingUID != null) {
+            return thingUID;
+        } else {
+            String udn = (String) configuration.get(UDN);
+            return new ThingUID(thingTypeUID, udn);
         }
-
-        return thingUID;
     }
 
     @Reference

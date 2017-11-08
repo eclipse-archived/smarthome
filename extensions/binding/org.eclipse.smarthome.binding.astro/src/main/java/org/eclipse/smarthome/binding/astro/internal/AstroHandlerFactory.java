@@ -12,6 +12,8 @@ import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.binding.astro.handler.AstroThingHandler;
 import org.eclipse.smarthome.binding.astro.handler.MoonHandler;
@@ -20,18 +22,20 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-
-import com.google.common.collect.Sets;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * The {@link AstroHandlerFactory} is responsible for creating things and thing handlers.
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@Component(service = ThingHandlerFactory.class, immediate = true)
 public class AstroHandlerFactory extends BaseThingHandlerFactory {
 
-    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.union(SunHandler.SUPPORTED_THING_TYPES,
-            MoonHandler.SUPPORTED_THING_TYPES);
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream
+            .concat(SunHandler.SUPPORTED_THING_TYPES.stream(), MoonHandler.SUPPORTED_THING_TYPES.stream())
+            .collect(Collectors.toSet());
     private static final Map<String, AstroThingHandler> astroThingHandlers = new HashMap<>();
 
     @Override

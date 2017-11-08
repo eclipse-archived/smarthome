@@ -1,13 +1,17 @@
 Manifest-Version: 1.0
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
-Bundle-Name: Tradfri Binding
-Bundle-SymbolicName: org.eclipse.smarthome.binding.tradfri;singleton:=true
+Bundle-Name: TRÅDFRI Binding
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.binding.tradfri;singleton:=tr
+ ue
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-ClassPath: .
+Export-Package: 
+ org.eclipse.smarthome.binding.tradfri,
+ org.eclipse.smarthome.binding.tradfri.handler
 Import-Package: 
- com.google.common.collect,
  com.google.gson,
  javax.jmdns,
  org.eclipse.californium.core,
@@ -23,16 +27,13 @@ Import-Package:
  org.eclipse.smarthome.binding.tradfri.handler,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.config.discovery,
+ org.eclipse.smarthome.config.discovery.mdns,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.thing.binding,
  org.eclipse.smarthome.core.thing.binding.builder,
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.types,
- org.eclipse.smarthome.io.transport.mdns.discovery,
  org.osgi.framework,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
-Export-Package: org.eclipse.smarthome.binding.tradfri,
- org.eclipse.smarthome.binding.tradfri.handler
-Bundle-ActivationPolicy: lazy

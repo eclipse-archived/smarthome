@@ -37,6 +37,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelType
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.test.OSGiTest
@@ -393,7 +394,7 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
 
     private ThingType registerThingTypeAndConfigDescription(ThingTypeUID thingTypeUID) {
         def URI configDescriptionUri = new URI("test:" + thingTypeUID.getId());
-        def thingType = new ThingType(thingTypeUID, null, "label", null, getChannelDefinitions(thingTypeUID), null, null, configDescriptionUri)
+        def thingType = ThingTypeBuilder.instance(thingTypeUID, "label").withChannelDefinitions(getChannelDefinitions(thingTypeUID)).withConfigDescriptionURI(configDescriptionUri).build();
         def configDescription = new ConfigDescription(configDescriptionUri, [
             ConfigDescriptionParameterBuilder.create("parameter"+thingTypeUID.getId(), ConfigDescriptionParameter.Type.TEXT).withRequired(false).withDefault("default"+thingTypeUID.getId()).build(),
             ConfigDescriptionParameterBuilder.create("provided"+thingTypeUID.getId(), ConfigDescriptionParameter.Type.TEXT).withRequired(false).build()

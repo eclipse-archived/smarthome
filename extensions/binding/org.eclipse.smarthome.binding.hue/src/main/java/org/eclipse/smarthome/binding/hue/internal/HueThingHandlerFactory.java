@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler;
 import org.eclipse.smarthome.binding.hue.handler.HueLightHandler;
@@ -27,8 +29,6 @@ import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.osgi.framework.ServiceRegistration;
 
-import com.google.common.collect.Sets;
-
 /**
  * {@link HueThingHandlerFactory} is a factory for {@link HueBridgeHandler}s.
  *
@@ -39,8 +39,9 @@ import com.google.common.collect.Sets;
  */
 public class HueThingHandlerFactory extends BaseThingHandlerFactory {
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.union(HueBridgeHandler.SUPPORTED_THING_TYPES,
-            HueLightHandler.SUPPORTED_THING_TYPES);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream
+            .concat(HueBridgeHandler.SUPPORTED_THING_TYPES.stream(), HueLightHandler.SUPPORTED_THING_TYPES.stream())
+            .collect(Collectors.toSet());
 
     private Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
 
@@ -64,12 +65,12 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
 
     private ThingUID getLightUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration,
             ThingUID bridgeUID) {
-        String lightId = (String) configuration.get(LIGHT_ID);
-
-        if (thingUID == null) {
-            thingUID = new ThingUID(thingTypeUID, lightId, bridgeUID.getId());
+        if (thingUID != null) {
+            return thingUID;
+        } else {
+            String lightId = (String) configuration.get(LIGHT_ID);
+            return new ThingUID(thingTypeUID, lightId, bridgeUID.getId());
         }
-        return thingUID;
     }
 
     @Override

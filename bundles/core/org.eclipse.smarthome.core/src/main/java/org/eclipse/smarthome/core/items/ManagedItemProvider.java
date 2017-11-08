@@ -25,6 +25,10 @@ import org.eclipse.smarthome.core.items.ManagedItemProvider.PersistedItem;
 import org.eclipse.smarthome.core.items.dto.GroupFunctionDTO;
 import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.storage.StorageService;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +44,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - improved return values
  * @author Alex Tugarev - added tags
  */
+@Component(immediate = true, service = { ItemProvider.class, ManagedItemProvider.class })
 public class ManagedItemProvider extends AbstractManagedProvider<Item, String, PersistedItem> implements ItemProvider {
 
     public static class PersistedItem {
@@ -70,7 +75,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
     private final Logger logger = LoggerFactory.getLogger(ManagedItemProvider.class);
 
-    private Collection<ItemFactory> itemFactories = new CopyOnWriteArrayList<ItemFactory>();
+    private final Collection<ItemFactory> itemFactories = new CopyOnWriteArrayList<ItemFactory>();
 
     private final Map<String, PersistedItem> failedToCreate = new ConcurrentHashMap<>();
 
@@ -137,6 +142,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
         return item.getType();
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addItemFactory(ItemFactory itemFactory) {
         itemFactories.add(itemFactory);
 
@@ -274,6 +280,17 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
                 persistedItem.functionParams = Arrays.asList(functionDTO.params);
             }
         }
+    }
+
+    @Override
+    @Reference
+    protected void setStorageService(StorageService storageService) {
+        super.setStorageService(storageService);
+    }
+
+    @Override
+    protected void unsetStorageService(StorageService storageService) {
+        super.unsetStorageService(storageService);
     }
 
 }

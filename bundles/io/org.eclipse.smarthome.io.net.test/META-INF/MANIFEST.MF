@@ -1,10 +1,14 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tests for the Network I/O bundle
-Bundle-SymbolicName: org.eclipse.smarthome.io.net.test
-Bundle-Version: 0.9.0.qualifier
-Bundle-Vendor: Eclipse.org/SmartHome
-Fragment-Host: org.eclipse.smarthome.io.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.junit;version="4.0.0",
- org.hamcrest.core
+Bundle-SymbolicName: org.eclipse.smarthome.io.net.test
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Fragment-Host: org.eclipse.smarthome.io.net
+Import-Package: 
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.hamcrest.core,
+ org.junit;version="4.0.0",
+ org.mockito
+Require-Bundle: org.junit,org.hamcrest,org.mockito

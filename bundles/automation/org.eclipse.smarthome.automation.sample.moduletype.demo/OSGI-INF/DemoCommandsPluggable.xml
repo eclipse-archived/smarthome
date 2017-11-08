@@ -18,9 +18,9 @@
  *******************************************************************************/
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate"
-               immediate="true" name="org.eclipse.smarthome.automation.sample.moduletype.demo">
+               immediate="true" name="org.eclipse.smarthome.automation.sample.moduletype.demo.internal">
 
-    <implementation class="org.eclipse.smarthome.automation.sample.moduletype.commands.DemoCommandsPluggable"/>
+    <implementation class="org.eclipse.smarthome.automation.sample.moduletype.demo.internal.commands.DemoCommandsPluggable"/>
 
     <service>
         <provide interface="org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension"/>

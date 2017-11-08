@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
@@ -18,6 +21,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.annotations.Component;
@@ -31,9 +35,10 @@ import org.osgi.service.component.annotations.Reference;
  * @author Laurent Garnier - fix localized label and description for channel group definition
  */
 @Component(immediate = true, service = ThingTypeI18nLocalizationService.class)
+@NonNullByDefault
 public class ThingTypeI18nLocalizationService {
 
-    private ThingTypeI18nUtil thingTypeI18nUtil;
+    private @Nullable ThingTypeI18nUtil thingTypeI18nUtil;
 
     @Reference
     protected void setTranslationProvider(TranslationProvider i18nProvider) {
@@ -75,7 +80,7 @@ public class ThingTypeI18nLocalizationService {
                             channelDefinition.getProperties(), channelLabel, channelDescription));
         }
 
-        final List<ChannelGroupDefinition> localizedChannelGroupDefinitions = new ArrayList<>(
+        final List<@NonNull ChannelGroupDefinition> localizedChannelGroupDefinitions = new ArrayList<>(
                 thingType.getChannelGroupDefinitions().size());
         for (final ChannelGroupDefinition channelGroupDefinition : thingType.getChannelGroupDefinitions()) {
             String channelGroupLabel = this.thingTypeI18nUtil.getChannelGroupLabel(bundle, thingType.getUID(),
@@ -99,16 +104,15 @@ public class ThingTypeI18nLocalizationService {
                     channelGroupDefinition.getTypeUID(), channelGroupLabel, channelGroupDescription));
         }
 
+        ThingTypeBuilder builder = ThingTypeBuilder.instance(thingType).withLabel(label).withDescription(description)
+                .withChannelDefinitions(localizedChannelDefinitions)
+                .withChannelGroupDefinitions(localizedChannelGroupDefinitions);
+
         if (thingType instanceof BridgeType) {
-            final BridgeType bridgeType = (BridgeType) thingType;
-            return new BridgeType(bridgeType.getUID(), bridgeType.getSupportedBridgeTypeUIDs(), label, description,
-                    thingType.isListed(), thingType.getRepresentationProperty(), localizedChannelDefinitions,
-                    localizedChannelGroupDefinitions, thingType.getProperties(), bridgeType.getConfigDescriptionURI());
-        } else {
-            return new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(), label, description,
-                    thingType.isListed(), thingType.getRepresentationProperty(), localizedChannelDefinitions,
-                    localizedChannelGroupDefinitions, thingType.getProperties(), thingType.getConfigDescriptionURI());
+            return builder.buildBridge();
         }
+
+        return builder.build();
     }
 
 }

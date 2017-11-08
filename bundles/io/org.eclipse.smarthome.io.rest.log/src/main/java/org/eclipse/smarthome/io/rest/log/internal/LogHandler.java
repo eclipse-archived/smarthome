@@ -28,7 +28,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.log.LogConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,18 +83,21 @@ public class LogHandler implements RESTResource {
             return Response.ok("[]").build();
         }
 
+        int effectiveLimit;
         if (limit == null || limit <= 0 || limit > LogConstants.LOG_BUFFER_LIMIT) {
-            limit = LOG_BUFFER.size();
+            effectiveLimit = LOG_BUFFER.size();
+        } else {
+            effectiveLimit = limit;
         }
 
-        if (limit >= LOG_BUFFER.size()) {
+        if (effectiveLimit >= LOG_BUFFER.size()) {
             return Response.ok(LOG_BUFFER.toArray()).build();
         } else {
             final List<LogMessage> result = new ArrayList<>();
             Iterator<LogMessage> iter = LOG_BUFFER.descendingIterator();
             do {
                 result.add(iter.next());
-            } while (iter.hasNext() && result.size() < limit);
+            } while (iter.hasNext() && result.size() < effectiveLimit);
             Collections.reverse(result);
             return Response.ok(result).build();
         }

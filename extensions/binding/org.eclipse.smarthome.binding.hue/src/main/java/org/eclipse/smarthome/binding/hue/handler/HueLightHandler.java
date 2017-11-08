@@ -9,11 +9,15 @@ package org.eclipse.smarthome.binding.hue.handler;
 
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.binding.hue.internal.FullLight;
 import org.eclipse.smarthome.binding.hue.internal.HueBridge;
@@ -36,10 +40,6 @@ import org.eclipse.smarthome.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 /**
  * {@link HueLightHandler} is the handler for a hue light. It uses the {@link HueBridgeHandler} to execute the actual
  * command.
@@ -59,16 +59,20 @@ import com.google.common.collect.Sets;
  */
 public class HueLightHandler extends BaseThingHandler implements LightStatusListener {
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_COLOR_LIGHT,
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream.of(THING_TYPE_COLOR_LIGHT,
             THING_TYPE_COLOR_TEMPERATURE_LIGHT, THING_TYPE_DIMMABLE_LIGHT, THING_TYPE_EXTENDED_COLOR_LIGHT,
-            THING_TYPE_ON_OFF_LIGHT, THING_TYPE_ON_OFF_PLUG, THING_TYPE_DIMMABLE_PLUG);
+            THING_TYPE_ON_OFF_LIGHT, THING_TYPE_ON_OFF_PLUG, THING_TYPE_DIMMABLE_PLUG).collect(Collectors.toSet());
 
-    private final static Map<String, List<String>> VENDOR_MODEL_MAP = new ImmutableMap.Builder<String, List<String>>()
-            .put("Philips",
-                    Lists.newArrayList("LCT001", "LCT002", "LCT003", "LCT007", "LLC001", "LLC006", "LLC007", "LLC010",
+    // @formatter:off
+    private final static Map<String, List<String>> VENDOR_MODEL_MAP = Stream.of(
+            new SimpleEntry<>("Philips",
+                    Arrays.asList("LCT001", "LCT002", "LCT003", "LCT007", "LLC001", "LLC006", "LLC007", "LLC010",
                             "LLC011", "LLC012", "LLC013", "LLC020", "LST001", "LST002", "LWB004", "LWB006", "LWB007",
-                            "LWL001"))
-            .put("OSRAM", Lists.newArrayList("Classic_A60_RGBW", "PAR16_50_TW", "Surface_Light_TW", "Plug_01")).build();
+                            "LWL001")),
+            new SimpleEntry<>("OSRAM",
+                    Arrays.asList("Classic_A60_RGBW", "PAR16_50_TW", "Surface_Light_TW", "Plug_01")))
+        .collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()));
+    // @formatter:on
 
     private final static String OSRAM_PAR16_50_TW_MODEL_ID = "PAR16_50_TW";
 
@@ -136,6 +140,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                 }
                 updateProperty(LIGHT_UNIQUE_ID, fullLight.getUniqueID());
                 isOsramPar16 = OSRAM_PAR16_50_TW_MODEL_ID.equals(modelId);
+                updateThing(thing);
                 propertiesInitializedSuccessfully = true;
             }
         }
@@ -449,12 +454,8 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         int delay = getAlertDuration(command);
 
         if (delay > 0) {
-            scheduledFuture = scheduler.schedule(new Runnable() {
-
-                @Override
-                public void run() {
-                    updateState(CHANNEL_ALERT, new StringType(LightStateConverter.ALERT_MODE_NONE));
-                }
+            scheduledFuture = scheduler.schedule(() -> {
+                updateState(CHANNEL_ALERT, new StringType(LightStateConverter.ALERT_MODE_NONE));
             }, delay, TimeUnit.MILLISECONDS);
         }
     }

@@ -9,6 +9,8 @@ package org.eclipse.smarthome.ui.basic.internal.render;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.smarthome.core.library.types.StringType;
+import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.sitemap.Video;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.basic.render.RenderException;
@@ -36,14 +38,22 @@ public class VideoRenderer extends AbstractWidgetRenderer {
         String widgetId = itemUIRegistry.getWidgetId(w);
         String sitemap = w.eResource().getURI().path();
 
-        if (videoWidget.getEncoding() != null && videoWidget.getEncoding().contains("mjpeg")) {
+        if (videoWidget.getEncoding() != null && videoWidget.getEncoding().toLowerCase().contains("mjpeg")) {
             // we handle mjpeg streams as an html image as browser can usually handle this
             snippet = getSnippet("image");
         } else {
             snippet = getSnippet("video");
         }
         String url = "../proxy?sitemap=" + sitemap + "&widgetId=" + widgetId;
+        String mediaType = "";
+        if (videoWidget.getEncoding() != null && videoWidget.getEncoding().toLowerCase().contains("hls")) {
+            // For HTTP Live Stream we don't proxy the URL and we set the appropriate media type
+            State state = itemUIRegistry.getState(w);
+            url = (state instanceof StringType) ? state.toString() : videoWidget.getUrl();
+            mediaType = "type=\"application/vnd.apple.mpegurl\"";
+        }
         snippet = StringUtils.replace(snippet, "%url%", url);
+        snippet = StringUtils.replace(snippet, "%media_type%", mediaType);
         snippet = preprocessSnippet(snippet, videoWidget);
 
         sb.append(snippet);

@@ -1,15 +1,16 @@
 Manifest-Version: 1.0
+Bundle-ClassPath: .
+Bundle-License: http://www.eclipse.org/legal/epl-v10.html
+Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Map Transformation Service
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.transform.map
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-ManifestVersion: 2
-Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: org.eclipse.smarthome.core.i18n,
+Import-Package: 
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.core.i18n,
  org.eclipse.smarthome.core.transform,
  org.osgi.framework,
  org.slf4j
-Bundle-SymbolicName: org.eclipse.smarthome.transform.map
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Service-Component: OSGI-INF/*.xml
-Bundle-ClassPath: .
-

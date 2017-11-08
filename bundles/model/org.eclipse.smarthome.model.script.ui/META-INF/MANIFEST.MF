@@ -1,30 +1,25 @@
 Manifest-Version: 1.0
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.eclipse.smarthome.model.script.ui.internal.ScriptU
+ IActivator
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Script UI
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.model.script.ui;singleton:=tr
+ ue
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-SymbolicName: org.eclipse.smarthome.model.script.ui;singleton:=true
-Require-Bundle: org.eclipse.smarthome.model.script;visibility:=reexport,
- org.eclipse.smarthome.model.script.ide,
- org.eclipse.xtext.ui,
- org.eclipse.ui.editors;bundle-version="3.5.0",
- org.eclipse.ui.ide;bundle-version="3.5.0",
- org.eclipse.xtext.ui.shared,
- org.eclipse.ui,
- org.eclipse.xtext.builder,
- org.antlr.runtime,
- org.eclipse.xtext.common.types.ui,
- org.eclipse.xtext.xbase.ui,
- org.eclipse.xtext.ui.codetemplates.ui,
- org.eclipse.compare,
- org.eclipse.xtext.xbase.lib,
- org.eclipse.jdt.debug.ui,
- org.eclipse.xtend.lib;resolution:=optional
-Import-Package: com.google.common.base,
+Export-Package: 
+ org.eclipse.smarthome.model.script.ui.contentassist,
+ org.eclipse.smarthome.model.script.ui.internal,
+ org.eclipse.smarthome.model.script.ui.quickfix
+Import-Package: 
+ com.google.common.base,
  com.google.common.collect,
  org.apache.commons.lang,
  org.apache.commons.logging,
  org.apache.log4j,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types,
@@ -37,9 +32,20 @@ Import-Package: com.google.common.base,
  org.joda.time.base,
  org.osgi.service.cm,
  org.slf4j
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: org.eclipse.smarthome.model.script.ui.contentassist,
- org.eclipse.smarthome.model.script.ui.internal,
- org.eclipse.smarthome.model.script.ui.quickfix
-Bundle-Activator: org.eclipse.smarthome.model.script.ui.internal.ScriptUIActivator
-Bundle-ActivationPolicy: lazy
+Require-Bundle: 
+ org.antlr.runtime,
+ org.eclipse.compare,
+ org.eclipse.jdt.debug.ui,
+ org.eclipse.smarthome.model.script.ide,
+ org.eclipse.smarthome.model.script;visibility:=reexport,
+ org.eclipse.ui,
+ org.eclipse.ui.editors;bundle-version="3.5.0",
+ org.eclipse.ui.ide;bundle-version="3.5.0",
+ org.eclipse.xtend.lib;resolution:=optional,
+ org.eclipse.xtext.builder,
+ org.eclipse.xtext.common.types.ui,
+ org.eclipse.xtext.ui,
+ org.eclipse.xtext.ui.codetemplates.ui,
+ org.eclipse.xtext.ui.shared,
+ org.eclipse.xtext.xbase.lib,
+ org.eclipse.xtext.xbase.ui

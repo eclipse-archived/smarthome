@@ -40,7 +40,7 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
     private List<@NonNull E> expressionParts = Collections.emptyList();
 
     private boolean continueSearch;
-    private ArrayList<Date> candidates = new ArrayList<Date>();
+    private List<Date> candidates = new ArrayList<>();
     private Date startDate = null;
     private TimeZone timeZone = null;
 
@@ -166,7 +166,6 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
             position++;
             parts.add(parseToken(token, position));
         }
-        Collections.sort(parts);
         setExpressionParts(parts);
 
         validateExpression();
@@ -339,20 +338,20 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
      */
     abstract protected void populateWithSeeds();
 
-    public ExpressionPart getExpressionPart(Class<?> part) {
+    public <T extends ExpressionPart> T getExpressionPart(Class<T> part) {
         for (ExpressionPart aPart : getExpressionParts()) {
             if (aPart.getClass().equals(part)) {
-                return aPart;
+                return part.cast(aPart);
             }
         }
         return null;
     }
 
-    protected ArrayList<Date> getCandidates() {
+    protected List<Date> getCandidates() {
         return candidates;
     }
 
-    protected void setCandidates(ArrayList<Date> candidates) {
+    protected void setCandidates(List<Date> candidates) {
         this.candidates = candidates;
     }
 
@@ -366,6 +365,7 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
 
     public void setExpressionParts(List<@NonNull E> expressionParts) {
         synchronized (this) {
+            Collections.sort(expressionParts);
             this.expressionParts = Collections.unmodifiableList(new LinkedList<>(expressionParts));
         }
     }

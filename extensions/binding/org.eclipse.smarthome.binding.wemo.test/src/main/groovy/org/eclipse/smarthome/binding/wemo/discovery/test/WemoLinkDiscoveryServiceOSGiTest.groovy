@@ -9,14 +9,9 @@ package org.eclipse.smarthome.binding.wemo.discovery.test
 
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
-import groovy.xml.XmlUtil
-
-import javax.servlet.http.HttpServlet
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 import org.eclipse.smarthome.binding.wemo.WemoBindingConstants
-import org.eclipse.smarthome.binding.wemo.discovery.WemoLinkDiscoveryService
+import org.eclipse.smarthome.binding.wemo.internal.discovery.WemoLinkDiscoveryService
 import org.eclipse.smarthome.binding.wemo.test.GenericWemoHttpServlet
 import org.eclipse.smarthome.binding.wemo.test.GenericWemoLightOSGiTest
 import org.eclipse.smarthome.config.discovery.DiscoveryResult
@@ -26,6 +21,8 @@ import org.eclipse.smarthome.core.thing.ThingUID
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+
+import groovy.xml.XmlUtil
 
 /**
  * Tests for {@link WemoLinkDiscoveryService}.

@@ -1,12 +1,19 @@
 Manifest-Version: 1.0
+Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Net I/O Bundle
-Bundle-SymbolicName: org.eclipse.smarthome.io.net
-Bundle-Version: 0.9.0.qualifier
-Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.apache.commons.exec,
+Bundle-SymbolicName: org.eclipse.smarthome.io.net
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Export-Package: 
+ org.eclipse.smarthome.io.net.exec,
+ org.eclipse.smarthome.io.net.http
+Import-Package: 
+ javax.servlet.http,
+ org.apache.commons.exec,
  org.apache.commons.lang,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.jetty.client,
  org.eclipse.jetty.client.api,
  org.eclipse.jetty.client.util,
@@ -18,7 +25,9 @@ Import-Package: org.apache.commons.exec,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.io.net.exec,
  org.eclipse.smarthome.io.net.http,
+ org.osgi.framework,
+ org.osgi.service.component;resolution:=optional,
+ org.osgi.service.http,
  org.slf4j
-Bundle-ClassPath: .
-Export-Package: org.eclipse.smarthome.io.net.exec,
- org.eclipse.smarthome.io.net.http
+Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/*.xml

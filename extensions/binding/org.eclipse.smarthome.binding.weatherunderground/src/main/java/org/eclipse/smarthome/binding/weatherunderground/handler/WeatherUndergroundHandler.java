@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.weatherunderground.WeatherUndergroundBindingConstants;
@@ -39,7 +41,6 @@ import org.eclipse.smarthome.io.net.http.HttpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
@@ -57,7 +58,8 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
     private static final String FEATURE_CONDITIONS = "conditions";
     private static final String FEATURE_FORECAST10DAY = "forecast10day";
     private static final String FEATURE_GEOLOOKUP = "geolookup";
-    private static final Set<String> USUAL_FEATURES = Sets.newHashSet(FEATURE_CONDITIONS, FEATURE_FORECAST10DAY);
+    private static final Set<String> USUAL_FEATURES = Stream.of(FEATURE_CONDITIONS, FEATURE_FORECAST10DAY)
+            .collect(Collectors.toSet());
 
     private static final int DEFAULT_REFRESH_PERIOD = 30;
 
