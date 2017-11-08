@@ -7,10 +7,8 @@
  */
 package org.eclipse.smarthome.core.thing.profiles;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.smarthome.core.events.EventPublisher;
-import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.smarthome.core.types.State;
 
 /**
  * A {@link TriggerProfile} specifies the communication between the framework and the handler for trigger channels.
@@ -24,9 +22,21 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
+@NonNullByDefault
 public interface TriggerProfile extends Profile {
 
-    void onTrigger(@NonNull EventPublisher eventPublisher, @NonNull ItemChannelLink link, String event,
-            @NonNull Item item);
+    /**
+     * Will be called whenever the binding intends to issue a trigger event.
+     *
+     * @param event the event payload
+     */
+    void onTrigger(String event);
+
+    /**
+     * Will be called if the linked item's state is updated.
+     *
+     * @param state the new {@link State}
+     */
+    void onUpdate(State state);
 
 }

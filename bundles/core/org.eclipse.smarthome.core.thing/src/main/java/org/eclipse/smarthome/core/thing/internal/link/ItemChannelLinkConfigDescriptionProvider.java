@@ -12,10 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
@@ -28,14 +25,14 @@ import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
-import org.eclipse.smarthome.core.thing.internal.profiles.DefaultProfileFactory;
+import org.eclipse.smarthome.core.thing.internal.profiles.ProfileTypeRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
-import org.eclipse.smarthome.core.thing.profiles.ProfileAdvisor;
+import org.eclipse.smarthome.core.thing.profiles.ProfileType;
+import org.eclipse.smarthome.core.thing.profiles.StateProfileType;
+import org.eclipse.smarthome.core.thing.profiles.TriggerProfileType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * Provider for framework config parameters on {@link ItemChannelLink}s.
@@ -50,8 +47,7 @@ public class ItemChannelLinkConfigDescriptionProvider implements ConfigDescripti
 
     public static final String PARAM_PROFILE = "profile";
 
-    private final Set<ProfileAdvisor> profileAdvisors = new CopyOnWriteArraySet<>();
-    private final ProfileAdvisor defaultProfileFactory = new DefaultProfileFactory();
+    private ProfileTypeRegistry profileTypeRegistry;
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private ItemRegistry itemRegistry;
@@ -90,21 +86,41 @@ public class ItemChannelLinkConfigDescriptionProvider implements ConfigDescripti
     }
 
     private List<ParameterOption> getOptions(ItemChannelLink link, Item item, Channel channel, Locale locale) {
-        return Stream
-                .concat(Stream.of(defaultProfileFactory.getApplicableProfileTypeUIDs(link, item, channel)),
-                        profileAdvisors.stream().map(f -> f.getApplicableProfileTypeUIDs(link, item, channel)))
-                .flatMap(c -> c.stream())
-                .map(profileTypeUID -> new ParameterOption(profileTypeUID.toString(), profileTypeUID.getLabel()))
+        Collection<ProfileType> profileTypes = profileTypeRegistry.getAll();
+        return profileTypes.stream().filter(profileType -> {
+            switch (channel.getKind()) {
+                case STATE:
+                    return profileType instanceof StateProfileType && isSupportedItemType(profileType, item);
+                case TRIGGER:
+                    return profileType instanceof TriggerProfileType && isSupportedItemType(profileType, item)
+                            && isSupportedChannelType(profileType, channel);
+                default:
+                    throw new IllegalArgumentException("Unknown channel kind: " + channel.getKind());
+            }
+        }).map(profileType -> new ParameterOption(profileType.getUID().toString(), profileType.getLabel()))
                 .collect(Collectors.toList());
     }
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addProfileAdvisor(ProfileAdvisor profileAdvisor) {
-        profileAdvisors.add(profileAdvisor);
+    private boolean isSupportedItemType(ProfileType profileType, Item item) {
+        return profileType.getSupportedItemTypes() == ProfileType.ANY_ITEM_TYPE
+                || profileType.getSupportedItemTypes().contains(item.getType());
     }
 
-    public void removeProfileAdvisor(ProfileAdvisor profileAdvisor) {
-        profileAdvisors.remove(profileAdvisor);
+    private boolean isSupportedChannelType(ProfileType profileType, Channel channel) {
+        return profileType instanceof StateProfileType
+                || ((TriggerProfileType) profileType)
+                        .getSupportedChannelTypeUIDs() == TriggerProfileType.ANY_CHANNEL_TYPE
+                || ((TriggerProfileType) profileType).getSupportedChannelTypeUIDs()
+                        .contains(channel.getChannelTypeUID());
+    }
+
+    @Reference
+    public void addProfileAdvisor(ProfileTypeRegistry profileTypeRegistry) {
+        this.profileTypeRegistry = profileTypeRegistry;
+    }
+
+    public void removeProfileAdvisor(ProfileTypeRegistry profileTypeRegistry) {
+        this.profileTypeRegistry = null;
     }
 
     @Reference

@@ -25,10 +25,11 @@ public interface ProfileFactory {
      * Create a {@link Profile} instance for the given profile tye ID.
      *
      * @param profileTypeUID the profile identifier
+     * @param callback the ProfileCallback instance to be used by the {@link Profile} instance
      * @return a profile instance or {@code null} if this factory cannot handle the given link
      */
     @Nullable
-    Profile createProfile(ProfileTypeUID profileTypeUID);
+    Profile createProfile(ProfileTypeUID profileTypeUID, ProfileCallback callback);
 
     /**
      * Return the identifiers of all supported profile types

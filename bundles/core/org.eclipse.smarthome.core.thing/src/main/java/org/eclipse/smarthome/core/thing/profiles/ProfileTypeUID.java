@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.core.thing.profiles;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.UID;
 
 /**
@@ -22,17 +21,12 @@ public class ProfileTypeUID extends UID {
 
     public static final String SYSTEM_SCOPE = "system";
 
-    @Nullable
-    private final String label;
-
     public ProfileTypeUID(String profileType) {
         super(profileType);
-        this.label = null;
     }
 
-    public ProfileTypeUID(String scope, String id, String label) {
+    public ProfileTypeUID(String scope, String id) {
         super(scope, id);
-        this.label = label;
     }
 
     @Override
@@ -46,11 +40,6 @@ public class ProfileTypeUID extends UID {
 
     public String getId() {
         return getSegment(1);
-    }
-
-    @Nullable
-    public String getLabel() {
-        return label;
     }
 
 }

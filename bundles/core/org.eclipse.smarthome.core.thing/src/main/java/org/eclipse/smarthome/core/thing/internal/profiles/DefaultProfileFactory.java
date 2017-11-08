@@ -8,20 +8,24 @@
 package org.eclipse.smarthome.core.thing.internal.profiles;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.DefaultSystemChannelTypeProvider;
-import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.profiles.Profile;
 import org.eclipse.smarthome.core.thing.profiles.ProfileAdvisor;
+import org.eclipse.smarthome.core.thing.profiles.ProfileCallback;
 import org.eclipse.smarthome.core.thing.profiles.ProfileFactory;
+import org.eclipse.smarthome.core.thing.profiles.ProfileType;
+import org.eclipse.smarthome.core.thing.profiles.ProfileTypeProvider;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
+import org.eclipse.smarthome.core.thing.profiles.SystemProfiles;
 import org.osgi.service.component.annotations.Component;
 
 /**
@@ -36,60 +40,65 @@ import org.osgi.service.component.annotations.Component;
  *
  */
 @Component(service = DefaultProfileFactory.class)
-public class DefaultProfileFactory implements ProfileFactory, ProfileAdvisor {
+public class DefaultProfileFactory implements ProfileFactory, ProfileAdvisor, ProfileTypeProvider {
 
-    private static final Set<ProfileTypeUID> SUPPORTED_PROFILE_TYPES = Stream
-            .of(DefaultMasterProfile.UID, DefaultSlaveProfile.UID, RawButtonToggleProfile.UID)
+    private static final Set<ProfileType> SUPPORTED_PROFILE_TYPES = Stream
+            .of(SystemProfiles.MASTER_TYPE, SystemProfiles.SLAVE_TYPE, SystemProfiles.RAWBUTTON_TOGGLE_SWITCH_TYPE)
+            .collect(Collectors.toSet());
+
+    private static final Set<ProfileTypeUID> SUPPORTED_PROFILE_TYPE_UIDS = Stream
+            .of(SystemProfiles.MASTER, SystemProfiles.SLAVE, SystemProfiles.RAWBUTTON_TOGGLE_SWITCH)
             .collect(Collectors.toSet());
 
     @Override
-    public Profile createProfile(ProfileTypeUID profileTypeUID) {
-        if (DefaultMasterProfile.UID.equals(profileTypeUID)) {
-            return new DefaultMasterProfile();
-        } else if (DefaultSlaveProfile.UID.equals(profileTypeUID)) {
-            return new DefaultSlaveProfile();
-        } else if (RawButtonToggleProfile.UID.equals(profileTypeUID)) {
-            return new RawButtonToggleProfile();
+    public Profile createProfile(ProfileTypeUID profileTypeUID, ProfileCallback callback) {
+        if (SystemProfiles.MASTER.equals(profileTypeUID)) {
+            return new DefaultMasterProfile(callback);
+        } else if (SystemProfiles.SLAVE.equals(profileTypeUID)) {
+            return new DefaultSlaveProfile(callback);
+        } else if (SystemProfiles.RAWBUTTON_TOGGLE_SWITCH.equals(profileTypeUID)) {
+            return new RawButtonToggleSwitchProfile(callback);
         } else {
             return null;
         }
     }
 
     @Override
-    public Collection<ProfileTypeUID> getSupportedProfileTypeUIDs() {
-        return SUPPORTED_PROFILE_TYPES;
-    }
-
-    @Override
-    public Collection<ProfileTypeUID> getApplicableProfileTypeUIDs(ItemChannelLink link, Item item, Channel channel) {
+    public ProfileTypeUID getSuggestedProfileTypeUID(Channel channel, @Nullable String itemType) {
         switch (channel.getKind()) {
             case STATE:
-                return Stream.of(DefaultMasterProfile.UID, DefaultSlaveProfile.UID).collect(Collectors.toList());
+                return SystemProfiles.MASTER;
             case TRIGGER:
                 if (DefaultSystemChannelTypeProvider.SYSTEM_RAWBUTTON.getUID().equals(channel.getChannelTypeUID())) {
-                    return Collections.singletonList(RawButtonToggleProfile.UID);
-                }
-                break;
-            default:
-                throw new NotImplementedException();
-        }
-        return Collections.emptyList();
-    }
-
-    @Override
-    public ProfileTypeUID getSuggestedProfileTypeUID(ItemChannelLink link, Item item, Channel channel) {
-        switch (channel.getKind()) {
-            case STATE:
-                return DefaultMasterProfile.UID;
-            case TRIGGER:
-                if (DefaultSystemChannelTypeProvider.SYSTEM_RAWBUTTON.getUID().equals(channel.getChannelTypeUID())) {
-                    return RawButtonToggleProfile.UID;
+                    if ("Switch".equalsIgnoreCase(itemType)) {
+                        return SystemProfiles.RAWBUTTON_TOGGLE_SWITCH;
+                    }
                 }
                 break;
             default:
                 throw new NotImplementedException();
         }
         return null;
+    }
+
+    @Override
+    public Collection<@NonNull ProfileType> getAll() {
+        return SUPPORTED_PROFILE_TYPES;
+    }
+
+    @Override
+    public @NonNull Collection<@NonNull ProfileTypeUID> getSupportedProfileTypeUIDs() {
+        return SUPPORTED_PROFILE_TYPE_UIDS;
+    }
+
+    @Override
+    public void addProviderChangeListener(ProviderChangeListener<@NonNull ProfileType> listener) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void removeProviderChangeListener(ProviderChangeListener<@NonNull ProfileType> listener) {
+        // TODO Auto-generated method stub
     }
 
 }

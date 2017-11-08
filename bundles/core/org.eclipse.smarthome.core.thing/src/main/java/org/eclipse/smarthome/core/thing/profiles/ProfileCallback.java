@@ -12,40 +12,40 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 
 /**
- * A {@link StateProfile} defined the communication for channels of STATE kind.
+ * Gives access to the framework features for continuing the communication flow.
  *
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
 @NonNullByDefault
-public interface StateProfile extends Profile {
+public interface ProfileCallback {
 
     /**
-     * Will be called if a command should be forwarded to the binding.
+     * Forward the given command to the respective thing handler.
      *
      * @param command
      */
-    void onCommand(Command command);
+    void handleCommand(Command command);
 
     /**
-     * Will be called if an item has changed its state and this information should be forwarded to the binding.
+     * Forward the given state update to the respective thing handler.
      *
      * @param state
      */
-    void onUpdate(State state);
+    void handleUpdate(State state);
 
     /**
-     * If the binding indicated a state update on a channel, then this method will be called for each linked item.
-     *
-     * @param state
-     */
-    void stateUpdated(State state);
-
-    /**
-     * If a binding issued a command to a channel, this method will be called for each linked item.
+     * Send a command to the framework.
      *
      * @param command
      */
-    void postCommand(Command command);
+    void sendCommandEvent(Command command);
+
+    /**
+     * Send a state update to the framework.
+     *
+     * @param state
+     */
+    void sendStateEvent(State state);
 
 }

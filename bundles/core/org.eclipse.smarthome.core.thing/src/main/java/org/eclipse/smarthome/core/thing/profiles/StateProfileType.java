@@ -10,18 +10,12 @@ package org.eclipse.smarthome.core.thing.profiles;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
- * Common ancestor of all profile types.
- *
- * Profiles define the communication flow between the framework and bindings, i.e. how (and if) certain events and
- * commands are forwarded from the framework to the thing handler and vice versa.
- * <p>
- * Profiles are allowed to maintain some transient state internally, i.e. the same instance of a profile will be used
- * per link for all communication so that the temporal dimension can be taken in account.
+ * Describes a {@link StateProfile} type.
  *
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
 @NonNullByDefault
-public interface Profile {
+public interface StateProfileType extends ProfileType {
 
 }

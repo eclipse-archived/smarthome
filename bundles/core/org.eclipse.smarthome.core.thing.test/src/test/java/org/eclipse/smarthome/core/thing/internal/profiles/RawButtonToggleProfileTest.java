@@ -7,29 +7,19 @@
  */
 package org.eclipse.smarthome.core.thing.internal.profiles;
 
-import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.smarthome.core.events.EventPublisher;
-import org.eclipse.smarthome.core.items.GenericItem;
-import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
-import org.eclipse.smarthome.core.library.items.ColorItem;
-import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
-import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.CommonTriggerEvents;
-import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
+import org.eclipse.smarthome.core.thing.profiles.ProfileCallback;
 import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 /**
@@ -39,53 +29,34 @@ import org.mockito.Mock;
  */
 public class RawButtonToggleProfileTest {
 
-    @NonNull
-    private static final String TEST_ITEM = "testItem";
-
-    @NonNull
-    private static final ThingUID THING_UID = new ThingUID("test", "thing");
-
-    @NonNull
-    private static final ChannelUID CHANNEL_UID = new ChannelUID(THING_UID, "channel");
-
     @Mock
-    private EventPublisher eventPublisher;
+    private ProfileCallback mockCallback;
 
     @Before
     public void setup() {
-        initMocks(this);
+        mockCallback = mock(ProfileCallback.class);
     }
 
     @Test
     public void testSwitchItem() {
-        TriggerProfile profile = new RawButtonToggleProfile();
-        SwitchItem item = new SwitchItem(TEST_ITEM);
-        verifyAction(profile, item, UnDefType.NULL, OnOffType.ON);
-        verifyAction(profile, item, OnOffType.ON, OnOffType.OFF);
-        verifyAction(profile, item, OnOffType.OFF, OnOffType.ON);
+        TriggerProfile profile = new RawButtonToggleSwitchProfile(mockCallback);
+        verifyAction(profile, UnDefType.NULL, OnOffType.ON);
+        verifyAction(profile, OnOffType.ON, OnOffType.OFF);
+        verifyAction(profile, OnOffType.OFF, OnOffType.ON);
     }
 
     @Test
     public void testColorItem() {
-        TriggerProfile profile = new RawButtonToggleProfile();
-        ColorItem item = new ColorItem(TEST_ITEM);
-        verifyAction(profile, item, UnDefType.NULL, OnOffType.ON);
-        verifyAction(profile, item, HSBType.WHITE, OnOffType.OFF);
-        verifyAction(profile, item, HSBType.BLACK, OnOffType.ON);
+        TriggerProfile profile = new RawButtonToggleSwitchProfile(mockCallback);
+        verifyAction(profile, UnDefType.NULL, OnOffType.ON);
+        verifyAction(profile, HSBType.WHITE, OnOffType.OFF);
+        verifyAction(profile, HSBType.BLACK, OnOffType.ON);
     }
 
-    private void verifyAction(TriggerProfile profile, GenericItem item, State preCondition, Command expectation) {
-        ItemChannelLink link = new ItemChannelLink(TEST_ITEM, CHANNEL_UID);
-        ArgumentCaptor<ItemCommandEvent> eventCaptor = ArgumentCaptor.forClass(ItemCommandEvent.class);
-        item.setState(preCondition);
-
-        reset(eventPublisher);
-
-        profile.onTrigger(eventPublisher, link, CommonTriggerEvents.PRESSED, item);
-
-        verify(eventPublisher, times(1)).post(eventCaptor.capture());
-        assertEquals(TEST_ITEM, eventCaptor.getValue().getItemName());
-        assertEquals(expectation, eventCaptor.getValue().getItemCommand());
+    private void verifyAction(TriggerProfile profile, State preCondition, Command expectation) {
+        reset(mockCallback);
+        profile.onTrigger(CommonTriggerEvents.PRESSED);
+        verify(mockCallback, times(1)).sendCommandEvent(eq(expectation));
     }
 
 }
