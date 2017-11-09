@@ -74,25 +74,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>wagon-maven-plugin</artifactId>
-        <version>1.0</version>
-        <executions>
-          <execution>
-            <id>download-eea-zip</id>
-            <phase>initialize</phase>
-            <goals>
-              <goal>download-single</goal>
-            </goals>
-            <configuration>
-              <url>${eea-url}</url>
-              <fromFile>${eea-dir}/${eea-file}</fromFile>
-              <toDir>${basedirRoot}/targetplatform/eea/</toDir>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>org.commonjava.maven.plugins</groupId>
         <artifactId>directory-maven-plugin</artifactId>
         <version>0.2</version>
@@ -221,12 +202,18 @@
                 <artifactId>org.eclipse.jdt.annotation</artifactId>
                 <version>${jdt-annotations.version}</version>
               </extraClasspathElement>
+              <extraClasspathElement>
+                <!-- TODO: insert one project that contains ALL annotations here-->
+                <groupId>org.lastnpe.eea</groupId>
+                <artifactId>jdk-eea</artifactId>
+                <version>0.0.1</version>
+              </extraClasspathElement>
             </extraClasspathElements>
             <compilerArgs>
               <arg>-err:+nullAnnot(org.eclipse.jdt.annotation.Nullable|org.eclipse.jdt.annotation.NonNull|org.eclipse.jdt.annotation.NonNullByDefault),+inheritNullAnnot</arg>
               <arg>-warn:+null,+inheritNullAnnot,+nullAnnotConflict,+nullUncheckedConversion,+nullAnnotRedundant,+nullDereference</arg>
               <arg>-annotationpath</arg>
-              <arg>${basedirRoot}/targetplatform/eea/${eea-file}</arg>
+              <arg>CLASSPATH</arg>
             </compilerArgs>
           </configuration>
         </plugin>
@@ -606,5 +593,15 @@
       </snapshots>
     </repository>
   </repositories>
+
+  <dependencies>
+    <dependency>
+      <!-- TODO: insert one project that contains ALL annotations here-->
+      <groupId>org.lastnpe.eea</groupId>
+      <artifactId>jdk-eea</artifactId>
+      <version>0.0.1</version>
+      <scope>provided</scope>
+    </dependency>
+ </dependencies>
 
 </project>
