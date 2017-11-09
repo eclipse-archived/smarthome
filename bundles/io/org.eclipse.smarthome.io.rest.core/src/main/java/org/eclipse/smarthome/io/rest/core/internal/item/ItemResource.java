@@ -63,6 +63,10 @@ import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTO;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,6 +101,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(ItemResource.PATH_ITEMS)
 @Api(value = ItemResource.PATH_ITEMS)
+@Component
 public class ItemResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ItemResource.class);
@@ -112,6 +117,7 @@ public class ItemResource implements RESTResource {
     private ManagedItemProvider managedItemProvider;
     private Set<ItemFactory> itemFactories = new HashSet<>();
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
     }
@@ -120,6 +126,7 @@ public class ItemResource implements RESTResource {
         this.itemRegistry = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
@@ -128,6 +135,7 @@ public class ItemResource implements RESTResource {
         this.eventPublisher = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setManagedItemProvider(ManagedItemProvider managedItemProvider) {
         this.managedItemProvider = managedItemProvider;
     }
@@ -136,6 +144,7 @@ public class ItemResource implements RESTResource {
         this.managedItemProvider = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addItemFactory(ItemFactory itemFactory) {
         this.itemFactories.add(itemFactory);
     }

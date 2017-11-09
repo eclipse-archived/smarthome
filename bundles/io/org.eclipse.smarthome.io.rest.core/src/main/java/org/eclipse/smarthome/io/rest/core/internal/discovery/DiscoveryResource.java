@@ -25,6 +25,10 @@ import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.config.discovery.ScanListener;
 import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +51,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(DiscoveryResource.PATH_DISCOVERY)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = DiscoveryResource.PATH_DISCOVERY)
+@Component
 public class DiscoveryResource implements RESTResource {
 
     /** The URI path to this resource */
@@ -56,6 +61,7 @@ public class DiscoveryResource implements RESTResource {
 
     private DiscoveryServiceRegistry discoveryServiceRegistry;
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
         this.discoveryServiceRegistry = discoveryServiceRegistry;
     }

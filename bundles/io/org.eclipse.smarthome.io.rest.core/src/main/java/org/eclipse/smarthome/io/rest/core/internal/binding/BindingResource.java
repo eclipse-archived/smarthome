@@ -42,6 +42,10 @@ import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 import org.eclipse.smarthome.io.rest.core.config.ConfigurationService;
 import org.eclipse.smarthome.io.rest.core.internal.service.ConfigurableServiceResource;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +67,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(BindingResource.PATH_BINDINGS)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = BindingResource.PATH_BINDINGS)
+@Component
 public class BindingResource implements RESTResource {
 
     /** The URI path to this resource */
@@ -75,6 +80,7 @@ public class BindingResource implements RESTResource {
 
     private BindingInfoRegistry bindingInfoRegistry;
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setBindingInfoRegistry(BindingInfoRegistry bindingInfoRegistry) {
         this.bindingInfoRegistry = bindingInfoRegistry;
     }
@@ -185,6 +191,7 @@ public class BindingResource implements RESTResource {
                 bindingInfo.getDescription(), configDescriptionURI != null ? configDescriptionURI.toString() : null);
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setConfigurationService(ConfigurationService configurationService) {
         this.configurationService = configurationService;
     }
@@ -193,6 +200,7 @@ public class BindingResource implements RESTResource {
         this.configurationService = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescRegistry = configDescriptionRegistry;
     }

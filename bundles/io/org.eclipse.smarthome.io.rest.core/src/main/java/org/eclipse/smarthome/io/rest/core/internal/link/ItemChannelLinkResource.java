@@ -33,6 +33,10 @@ import org.eclipse.smarthome.core.thing.link.dto.ItemChannelLinkDTO;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -51,6 +55,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(ItemChannelLinkResource.PATH_LINKS)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ItemChannelLinkResource.PATH_LINKS)
+@Component
 public class ItemChannelLinkResource implements RESTResource {
 
     /** The URI path to this resource */
@@ -133,6 +138,7 @@ public class ItemChannelLinkResource implements RESTResource {
         }
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setThingLinkManager(ThingLinkManager thingLinkManager) {
         this.thingLinkManager = thingLinkManager;
     }
@@ -141,6 +147,7 @@ public class ItemChannelLinkResource implements RESTResource {
         this.thingLinkManager = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
         this.itemChannelLinkRegistry = itemChannelLinkRegistry;
     }

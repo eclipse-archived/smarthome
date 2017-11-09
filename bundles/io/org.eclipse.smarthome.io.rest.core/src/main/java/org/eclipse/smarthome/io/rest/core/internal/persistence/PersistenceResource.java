@@ -49,6 +49,10 @@ import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +73,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(PersistenceResource.PATH)
 @Api(value = PersistenceResource.PATH)
+@Component
 public class PersistenceResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceResource.class);
@@ -84,6 +89,7 @@ public class PersistenceResource implements RESTResource {
     private ItemRegistry itemRegistry;
     private PersistenceServiceRegistry persistenceServiceRegistry;
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setPersistenceServiceRegistry(PersistenceServiceRegistry persistenceServiceRegistry) {
         this.persistenceServiceRegistry = persistenceServiceRegistry;
     }
@@ -92,6 +98,7 @@ public class PersistenceResource implements RESTResource {
         this.persistenceServiceRegistry = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
     }
@@ -425,7 +432,8 @@ public class PersistenceResource implements RESTResource {
 
         if (service == null) {
             logger.warn("Persistence service not found '{}'.", effectiveServiceId);
-            return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "Persistence service not found: " + effectiveServiceId);
+            return JSONResponse.createErrorResponse(Status.BAD_REQUEST,
+                    "Persistence service not found: " + effectiveServiceId);
         }
 
         Item item;

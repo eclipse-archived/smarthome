@@ -20,6 +20,8 @@ import java.util.Set;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * {@link ConfigurationService} manages configurations in the {@link ConfigurationAdmin}. The config id is the
@@ -28,6 +30,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
  * @author Dennis Nobel - Initial contribution
  *
  */
+@Component
 public class ConfigurationService {
 
     private ConfigurationAdmin configurationAdmin;
@@ -128,6 +131,7 @@ public class ConfigurationService {
         return properties != null ? properties : new Hashtable<String, Object>();
     }
 
+    @Reference
     protected void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
         this.configurationAdmin = configurationAdmin;
     }

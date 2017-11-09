@@ -35,6 +35,10 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -55,6 +59,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(InboxResource.PATH_INBOX)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = InboxResource.PATH_INBOX)
+@Component
 public class InboxResource implements RESTResource {
 
     /** The URI path to this resource */
@@ -62,6 +67,7 @@ public class InboxResource implements RESTResource {
 
     private Inbox inbox;
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setInbox(Inbox inbox) {
         this.inbox = inbox;
     }

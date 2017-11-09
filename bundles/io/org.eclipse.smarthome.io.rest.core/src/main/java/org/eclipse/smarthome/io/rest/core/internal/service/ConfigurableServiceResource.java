@@ -41,6 +41,10 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentConstants;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +65,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(ConfigurableServiceResource.PATH_SERVICES)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ConfigurableServiceResource.PATH_SERVICES)
+@Component
 public class ConfigurableServiceResource implements RESTResource {
 
     /** The URI path to this resource */
@@ -225,6 +230,7 @@ public class ConfigurableServiceResource implements RESTResource {
         }
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setConfigurationService(ConfigurationService configurationService) {
         this.configurationService = configurationService;
     }
@@ -233,6 +239,7 @@ public class ConfigurableServiceResource implements RESTResource {
         this.configurationService = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescRegistry = configDescriptionRegistry;
     }

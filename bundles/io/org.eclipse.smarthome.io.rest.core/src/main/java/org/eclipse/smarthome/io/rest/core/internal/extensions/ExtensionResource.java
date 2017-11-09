@@ -43,6 +43,10 @@ import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +65,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(ExtensionResource.PATH_EXTENSIONS)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ExtensionResource.PATH_EXTENSIONS)
+@Component
 public class ExtensionResource implements RESTResource {
 
     private static final String THREAD_POOL_NAME = "extensionService";
@@ -69,10 +74,11 @@ public class ExtensionResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ExtensionResource.class);
 
-    private Set<ExtensionService> extensionServices = new CopyOnWriteArraySet<>();
+    private final Set<ExtensionService> extensionServices = new CopyOnWriteArraySet<>();
 
     private EventPublisher eventPublisher;
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addExtensionService(ExtensionService featureService) {
         this.extensionServices.add(featureService);
     }
@@ -81,6 +87,7 @@ public class ExtensionResource implements RESTResource {
         this.extensionServices.remove(featureService);
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }

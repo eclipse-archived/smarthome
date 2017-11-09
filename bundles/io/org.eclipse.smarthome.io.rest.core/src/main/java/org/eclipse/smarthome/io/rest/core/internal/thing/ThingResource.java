@@ -81,6 +81,10 @@ import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 import org.eclipse.smarthome.io.rest.core.thing.EnrichedThingDTO;
 import org.eclipse.smarthome.io.rest.core.thing.EnrichedThingDTOMapper;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,6 +111,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(ThingResource.PATH_THINGS)
 @Api(value = ThingResource.PATH_THINGS)
+@Component
 public class ThingResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ThingResource.class);
@@ -557,30 +562,37 @@ public class ThingResource implements RESTResource {
         return JSONResponse.createResponse(status, enrichedThingDTO, errormessage);
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
         this.itemChannelLinkRegistry = itemChannelLinkRegistry;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setItemFactory(ItemFactory itemFactory) {
         this.itemFactory = itemFactory;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setManagedItemChannelLinkProvider(ManagedItemChannelLinkProvider managedItemChannelLinkProvider) {
         this.managedItemChannelLinkProvider = managedItemChannelLinkProvider;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setManagedItemProvider(ManagedItemProvider managedItemProvider) {
         this.managedItemProvider = managedItemProvider;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setManagedThingProvider(ManagedThingProvider managedThingProvider) {
         this.managedThingProvider = managedThingProvider;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = thingRegistry;
     }
@@ -613,6 +625,7 @@ public class ThingResource implements RESTResource {
         this.thingRegistry = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setConfigStatusService(ConfigStatusService configStatusService) {
         this.configStatusService = configStatusService;
     }
@@ -621,6 +634,7 @@ public class ThingResource implements RESTResource {
         this.configStatusService = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setThingStatusInfoI18nLocalizationService(
             ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService) {
         this.thingStatusInfoI18nLocalizationService = thingStatusInfoI18nLocalizationService;
@@ -675,6 +689,7 @@ public class ThingResource implements RESTResource {
         }
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescRegistry = configDescriptionRegistry;
     }
@@ -683,6 +698,7 @@ public class ThingResource implements RESTResource {
         this.configDescRegistry = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = thingTypeRegistry;
     }
@@ -691,6 +707,7 @@ public class ThingResource implements RESTResource {
         this.thingTypeRegistry = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setFirmwareUpdateService(FirmwareUpdateService firmwareUpdateService) {
         this.firmwareUpdateService = firmwareUpdateService;
     }

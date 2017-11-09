@@ -51,6 +51,10 @@ import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,6 +78,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(ThingTypeResource.PATH_THINGS_TYPES)
 @Api(value = ThingTypeResource.PATH_THINGS_TYPES)
+@Component
 public class ThingTypeResource implements RESTResource {
 
     /** The URI path to this resource */
@@ -85,6 +90,7 @@ public class ThingTypeResource implements RESTResource {
     private ConfigDescriptionRegistry configDescriptionRegistry;
     private FirmwareRegistry firmwareRegistry;
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = thingTypeRegistry;
     }
@@ -93,6 +99,7 @@ public class ThingTypeResource implements RESTResource {
         this.thingTypeRegistry = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescriptionRegistry = configDescriptionRegistry;
     }
@@ -101,6 +108,7 @@ public class ThingTypeResource implements RESTResource {
         this.configDescriptionRegistry = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setFirmwareRegistry(FirmwareRegistry firmwareRegistry) {
         this.firmwareRegistry = firmwareRegistry;
     }
