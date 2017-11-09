@@ -64,7 +64,7 @@ public interface SystemProfiles {
     public static final TriggerProfileType RAWBUTTON_TOGGLE_SWITCH_TYPE = new TriggerProfileType() {
         @Override
         public ProfileTypeUID getUID() {
-            return SLAVE;
+            return RAWBUTTON_TOGGLE_SWITCH;
         }
 
         @Override

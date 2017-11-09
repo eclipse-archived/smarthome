@@ -115,11 +115,11 @@ public class ItemChannelLinkConfigDescriptionProvider implements ConfigDescripti
     }
 
     @Reference
-    public void addProfileAdvisor(ProfileTypeRegistry profileTypeRegistry) {
+    public void setProfileTypeRegistry(ProfileTypeRegistry profileTypeRegistry) {
         this.profileTypeRegistry = profileTypeRegistry;
     }
 
-    public void removeProfileAdvisor(ProfileTypeRegistry profileTypeRegistry) {
+    public void unsetProfileTypeRegistry(ProfileTypeRegistry profileTypeRegistry) {
         this.profileTypeRegistry = null;
     }
 
