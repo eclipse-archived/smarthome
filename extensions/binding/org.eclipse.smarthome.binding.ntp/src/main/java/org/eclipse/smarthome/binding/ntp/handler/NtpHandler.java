@@ -107,7 +107,7 @@ public class NtpHandler extends BaseThingHandler {
     public void initialize() {
 
         try {
-            logger.debug("Initializing NTP handler for '{}'.", getThing().getUID().toString());
+            logger.debug("Initializing NTP handler for '{}'.", getThing().getUID());
 
             Configuration config = getThing().getConfiguration();
             hostname = (String) config.get(PROPERTY_NTP_SERVER_HOST);
@@ -120,7 +120,7 @@ public class NtpHandler extends BaseThingHandler {
                 timeZone = TimeZone.getTimeZone((String) config.get(PROPERTY_TIMEZONE));
             } catch (Exception e) {
                 timeZone = TimeZone.getDefault();
-                logger.debug("{} using default TZ: {}", getThing().getUID().toString(), timeZone);
+                logger.debug("{} using default TZ: {}", getThing().getUID(), timeZone);
             }
 
             try {
@@ -128,7 +128,7 @@ public class NtpHandler extends BaseThingHandler {
                 locale = new Locale(localeString);
             } catch (Exception e) {
                 locale = localeProvider.getLocale();
-                logger.debug("{} using default locale: {}", getThing().getUID().toString(), locale);
+                logger.debug("{} using default locale: {}", getThing().getUID(), locale);
             }
             dateTimeChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_DATE_TIME);
             stringChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_STRING);
@@ -156,12 +156,11 @@ public class NtpHandler extends BaseThingHandler {
 
             logger.debug(
                     "Initialized NTP handler '{}' with configuration: host '{}', refresh interval {}, timezone {}, locale {}.",
-                    getThing().getUID().toString(), hostname, refreshInterval, timeZone, locale);
+                    getThing().getUID(), hostname, refreshInterval, timeZone, locale);
             startAutomaticRefresh();
 
         } catch (Exception ex) {
-            String msg = "Error occurred while initializing NTP handler: " + ex.getMessage();
-            logger.error("{}", msg, ex);
+            logger.error("Error occurred while initializing NTP handler: {}", ex.getMessage(), ex);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                     "@text/offline.conf-error-init-handler");
         }
@@ -174,19 +173,13 @@ public class NtpHandler extends BaseThingHandler {
     }
 
     private void startAutomaticRefresh() {
-
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    refreshTimeDate();
-                } catch (Exception e) {
-                    logger.debug("Exception occurred during execution: {}", e.getMessage(), e);
-                }
+        refreshJob = scheduler.scheduleWithFixedDelay(() -> {
+            try {
+                refreshTimeDate();
+            } catch (Exception e) {
+                logger.debug("Exception occurred during refresh: {}", e.getMessage(), e);
             }
-        };
-
-        refreshJob = scheduler.scheduleWithFixedDelay(runnable, 0, refreshInterval.intValue(), TimeUnit.SECONDS);
+        }, 0, refreshInterval.intValue(), TimeUnit.SECONDS);
     }
 
     private synchronized void refreshTimeDate() {
@@ -195,7 +188,7 @@ public class NtpHandler extends BaseThingHandler {
             if (refreshNtpCount <= 0) {
                 networkTimeInMillis = getTime(hostname);
                 timeOffset = networkTimeInMillis - System.currentTimeMillis();
-                logger.debug("{} delta system time: {}", getThing().getUID().toString(), timeOffset);
+                logger.debug("{} delta system time: {}", getThing().getUID(), timeOffset);
                 refreshNtpCount = refreshNtp.intValue();
             } else {
                 networkTimeInMillis = System.currentTimeMillis() + timeOffset;
@@ -228,20 +221,20 @@ public class NtpHandler extends BaseThingHandler {
             InetAddress inetAddress = InetAddress.getByName(hostname);
             TimeInfo timeInfo = timeClient.getTime(inetAddress, port.intValue());
 
-            logger.debug("{} Got time update from: {} : {}", getThing().getUID().toString(), hostname,
+            logger.debug("{} Got time update from host '{}': {}.", getThing().getUID(), hostname,
                     SDF.format(new Date(timeInfo.getReturnTime())));
             updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE);
             return timeInfo.getReturnTime();
         } catch (UnknownHostException uhe) {
-            String msg = getThing().getUID().toString() + " the given hostname '" + hostname
-                    + "' of the timeserver is unknown -> returning current sytem time instead.";
-            logger.debug("{}", msg);
+            logger.debug(
+                    "{} The given hostname '{}' of the timeserver is unknown -> returning current sytem time instead. ({})",
+                    getThing().getUID(), hostname, uhe.getMessage());
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
                     "@text/offline.comm-error-unknown-host [\"" + (hostname == null ? "null" : hostname) + "\"]");
         } catch (IOException ioe) {
-            String msg = getThing().getUID().toString() + " couldn't establish network connection [host '" + hostname
-                    + "'] -> returning current sytem time instead.";
-            logger.debug("{}", msg);
+            logger.debug(
+                    "{} Couldn't establish network connection to host '{}' -> returning current sytem time instead. ({})",
+                    getThing().getUID(), hostname, ioe.getMessage());
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
                     "@text/offline.comm-error-connection [\"" + (hostname == null ? "null" : hostname) + "\"]");
         }
