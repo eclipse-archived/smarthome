@@ -14,6 +14,7 @@ import java.util.List;
 import javax.measure.Unit;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -38,7 +39,6 @@ public class NumberItem extends GenericItem {
     private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
     private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
     private Dimension dimension;
-    private String unit;
 
     static {
         acceptedDataTypes.add(DecimalType.class);
@@ -89,6 +89,24 @@ public class NumberItem extends GenericItem {
 
     @Override
     public void setState(State state) {
+        // DecimalType update for a NumberItem with dimension, convert to QuantityType:
+        if (state instanceof DecimalType && dimension != null) {
+            Unit<?> unit = getUnit();
+            if (unit != null) {
+                super.setState(new QuantityType(((DecimalType) state).doubleValue(), unit));
+                return;
+            }
+        }
+
+        // QuantityType update, check unit and convert if necessary:
+        if (state instanceof QuantityType) {
+            Unit<?> unit = getUnit();
+            if (unit != null && !((QuantityType) state).getUnit().equals(unit)) {
+                super.setState(((QuantityType) state).toUnit(unit));
+                return;
+            }
+        }
+
         if (isAcceptedState(acceptedDataTypes, state)) {
             super.setState(state);
         } else {
@@ -97,22 +115,42 @@ public class NumberItem extends GenericItem {
     }
 
     /**
-     * Returns the optional unit string configured for this {@link NumberItem}.
+     * Returns the optional unit symbol for this {@link NumberItem}.
      *
-     * @return the optional unit string configured for this {@link NumberItem}.
+     * @return the optional unit symbol for this {@link NumberItem}.
      */
-    public String getUnit() {
-        return unit;
+    public String getUnitSymbol() {
+        Unit<?> unit = getUnit();
+        return unit != null ? unit.toString() : null;
     }
 
     /**
-     * Sets the optional unit string configured for this {@link NumberItem}. The unit string will be used to convert a
-     * {@link QuantityType} to the corresponding {@link Unit}.
+     * Derive the unit for this item by the following priority:
+     * <ul>
+     * <li>the unit from the current item state</li>
+     * <li>the unit parsed from the state description</li>
+     * <li>the default system unit</li>
+     * </ul>
      *
-     * @param unit the optional unit string configured for this {@link NumberItem}.
+     * @return the {@link Unit} for this item if available, {@code null} otherwise.
      */
-    public void setUnit(String unit) {
-        this.unit = unit;
+    private @Nullable Unit<?> getUnit() {
+        if (getState() instanceof QuantityType) {
+            return ((QuantityType) getState()).getUnit();
+        }
+
+        if (getStateDescription() != null) {
+            Unit<?> stateDescriptionUnit = unitProvider.parseUnit(getStateDescription().getPattern());
+            if (stateDescriptionUnit != null) {
+                return stateDescriptionUnit;
+            }
+        }
+
+        if (dimension != null) {
+            return unitProvider.getUnit(dimension);
+        }
+
+        return null;
     }
 
 }

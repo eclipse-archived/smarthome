@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
@@ -49,6 +50,8 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     private final List<StateDescriptionProvider> stateDescriptionProviders = Collections
             .synchronizedList(new ArrayList<StateDescriptionProvider>());
+
+    private UnitProvider unitProvider;
 
     public ItemRegistryImpl() {
         super(ItemProvider.class);
@@ -174,6 +177,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
             GenericItem genericItem = (GenericItem) item;
             genericItem.setEventPublisher(eventPublisher);
             genericItem.setStateDescriptionProviders(stateDescriptionProviders);
+            genericItem.setUnitProvider(unitProvider);
         }
     }
 
@@ -182,6 +186,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
             GenericItem genericItem = (GenericItem) item;
             genericItem.setEventPublisher(null);
             genericItem.setStateDescriptionProviders(null);
+            genericItem.setUnitProvider(null);
         }
     }
 
@@ -250,6 +255,21 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         super.unsetEventPublisher(eventPublisher);
         for (Item item : getItems()) {
             ((GenericItem) item).setEventPublisher(null);
+        }
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setUnitProvider(UnitProvider unitProvider) {
+        this.unitProvider = unitProvider;
+        for (Item item : getItems()) {
+            ((GenericItem) item).setUnitProvider(unitProvider);
+        }
+    }
+
+    protected void unsetUnitProvider(UnitProvider unitProvider) {
+        this.unitProvider = null;
+        for (Item item : getItems()) {
+            ((GenericItem) item).setUnitProvider(null);
         }
     }
 

@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
@@ -75,6 +76,8 @@ abstract public class GenericItem implements ActiveItem {
     protected String category;
 
     private List<StateDescriptionProvider> stateDescriptionProviders;
+
+    protected UnitProvider unitProvider;
 
     public GenericItem(@NonNull String type, @NonNull String name) {
         this.name = name;
@@ -165,6 +168,10 @@ abstract public class GenericItem implements ActiveItem {
 
     public void setStateDescriptionProviders(List<StateDescriptionProvider> stateDescriptionProviders) {
         this.stateDescriptionProviders = stateDescriptionProviders;
+    }
+
+    public void setUnitProvider(UnitProvider unitProvider) {
+        this.unitProvider = unitProvider;
     }
 
     protected void internalSend(Command command) {
