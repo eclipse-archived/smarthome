@@ -80,7 +80,7 @@ public class TradfriCoapHandler implements CoapHandler {
 
     @Override
     public void onError() {
-        logger.debug("CoAP error");
+        logger.debug("CoAP onError");
         if (callback != null) {
             callback.setStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
         }
