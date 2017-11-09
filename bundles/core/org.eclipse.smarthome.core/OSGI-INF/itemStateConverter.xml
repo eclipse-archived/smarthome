@@ -3,7 +3,6 @@
    <service>
       <provide interface="org.eclipse.smarthome.core.items.ItemStateConverter"/>
    </service>
-   <reference bind="setLocaleProvider" interface="org.eclipse.smarthome.core.i18n.LocaleProvider" name="LocaleProvider" unbind="unsetLocaleProvider"/>
-   <reference bind="setUnitProvider" interface="org.eclipse.smarthome.core.types.UnitProvider" name="UnitProvider" unbind="unsetUnitProvider"/>
+   <reference bind="setUnitProvider" interface="org.eclipse.smarthome.core.i18n.UnitProvider" name="UnitProvider" unbind="unsetUnitProvider"/>
    <implementation class="org.eclipse.smarthome.core.internal.items.ItemStateConverterImpl"/>
 </scr:component>
