@@ -93,7 +93,7 @@ public class ItemChannelLinkConfigDescriptionProvider implements ConfigDescripti
                     return profileType instanceof StateProfileType && isSupportedItemType(profileType, item);
                 case TRIGGER:
                     return profileType instanceof TriggerProfileType && isSupportedItemType(profileType, item)
-                            && isSupportedChannelType(profileType, channel);
+                            && isSupportedChannelType((TriggerProfileType) profileType, channel);
                 default:
                     throw new IllegalArgumentException("Unknown channel kind: " + channel.getKind());
             }
@@ -106,12 +106,9 @@ public class ItemChannelLinkConfigDescriptionProvider implements ConfigDescripti
                 || profileType.getSupportedItemTypes().contains(item.getType());
     }
 
-    private boolean isSupportedChannelType(ProfileType profileType, Channel channel) {
-        return profileType instanceof TriggerProfileType
-                || ((TriggerProfileType) profileType)
-                        .getSupportedChannelTypeUIDs() == TriggerProfileType.ANY_CHANNEL_TYPE
-                || ((TriggerProfileType) profileType).getSupportedChannelTypeUIDs()
-                        .contains(channel.getChannelTypeUID());
+    private boolean isSupportedChannelType(TriggerProfileType profileType, Channel channel) {
+        return profileType.getSupportedChannelTypeUIDs() == TriggerProfileType.ANY_CHANNEL_TYPE
+                || profileType.getSupportedChannelTypeUIDs().contains(channel.getChannelTypeUID());
     }
 
     @Reference
