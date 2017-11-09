@@ -16,6 +16,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
+import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.DefaultSystemChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.profiles.Profile;
@@ -70,7 +71,7 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
                 return SystemProfiles.DEFAULT;
             case TRIGGER:
                 if (DefaultSystemChannelTypeProvider.SYSTEM_RAWBUTTON.getUID().equals(channel.getChannelTypeUID())) {
-                    if ("Switch".equalsIgnoreCase(itemType)) {
+                    if (CoreItemFactory.SWITCH.equalsIgnoreCase(itemType)) {
                         return SystemProfiles.RAWBUTTON_TOGGLE_SWITCH;
                     }
                 }
