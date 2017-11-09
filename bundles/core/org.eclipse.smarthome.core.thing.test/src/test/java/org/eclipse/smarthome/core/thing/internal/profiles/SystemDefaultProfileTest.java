@@ -22,7 +22,7 @@ import org.mockito.Mock;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
-public class DefaultSlaveProfileTest {
+public class SystemDefaultProfileTest {
 
     @Mock
     private ProfileCallback mockCallback;
@@ -34,33 +34,35 @@ public class DefaultSlaveProfileTest {
 
     @Test
     public void testOnCommand() {
-        DefaultSlaveProfile profile = new DefaultSlaveProfile(mockCallback);
+        SystemDefaultProfile profile = new SystemDefaultProfile(mockCallback);
 
         profile.onCommand(OnOffType.ON);
-
-        verifyNoMoreInteractions(mockCallback);
-    }
-
-    @Test
-    public void testOnUpdate() {
-        DefaultSlaveProfile profile = new DefaultSlaveProfile(mockCallback);
-        profile.onUpdate(OnOffType.ON);
 
         verify(mockCallback).handleCommand(eq(OnOffType.ON));
         verifyNoMoreInteractions(mockCallback);
     }
 
     @Test
+    public void testOnUpdate() {
+        SystemDefaultProfile profile = new SystemDefaultProfile(mockCallback);
+        profile.onUpdate(OnOffType.ON);
+
+        verify(mockCallback).handleUpdate(eq(OnOffType.ON));
+        verifyNoMoreInteractions(mockCallback);
+    }
+
+    @Test
     public void testStateUpdated() {
-        DefaultSlaveProfile profile = new DefaultSlaveProfile(mockCallback);
+        SystemDefaultProfile profile = new SystemDefaultProfile(mockCallback);
         profile.stateUpdated(OnOffType.ON);
 
+        verify(mockCallback).sendStateEvent(eq(OnOffType.ON));
         verifyNoMoreInteractions(mockCallback);
     }
 
     @Test
     public void testPostCommand() {
-        DefaultSlaveProfile profile = new DefaultSlaveProfile(mockCallback);
+        SystemDefaultProfile profile = new SystemDefaultProfile(mockCallback);
         profile.postCommand(OnOffType.ON);
 
         verify(mockCallback).sendCommandEvent(eq(OnOffType.ON));

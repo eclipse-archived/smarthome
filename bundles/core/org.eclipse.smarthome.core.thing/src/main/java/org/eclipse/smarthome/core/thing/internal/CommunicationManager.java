@@ -34,7 +34,7 @@ import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.internal.link.ItemChannelLinkConfigDescriptionProvider;
-import org.eclipse.smarthome.core.thing.internal.profiles.DefaultProfileFactory;
+import org.eclipse.smarthome.core.thing.internal.profiles.SystemProfileFactory;
 import org.eclipse.smarthome.core.thing.internal.profiles.ProfileCallbackImpl;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
@@ -70,7 +70,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
 
     private final Logger logger = LoggerFactory.getLogger(CommunicationManager.class);
 
-    private DefaultProfileFactory defaultProfileFactory;
+    private SystemProfileFactory defaultProfileFactory;
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private ThingRegistry thingRegistry;
     private ItemRegistry itemRegistry;
@@ -411,11 +411,11 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     }
 
     @Reference
-    protected void setDefaultProfileFactory(DefaultProfileFactory defaultProfileFactory) {
+    protected void setDefaultProfileFactory(SystemProfileFactory defaultProfileFactory) {
         this.defaultProfileFactory = defaultProfileFactory;
     }
 
-    protected void unsetDefaultProfileFactory(DefaultProfileFactory defaultProfileFactory) {
+    protected void unsetDefaultProfileFactory(SystemProfileFactory defaultProfileFactory) {
         this.defaultProfileFactory = null;
     }
 

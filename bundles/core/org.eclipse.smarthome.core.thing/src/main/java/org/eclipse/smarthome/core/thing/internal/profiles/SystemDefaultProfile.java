@@ -22,11 +22,11 @@ import org.eclipse.smarthome.core.types.State;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
-public class DefaultMasterProfile implements StateProfile {
+public class SystemDefaultProfile implements StateProfile {
 
     private final ProfileCallback callback;
 
-    public DefaultMasterProfile(ProfileCallback callback) {
+    public SystemDefaultProfile(ProfileCallback callback) {
         this.callback = callback;
     }
 

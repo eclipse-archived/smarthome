@@ -39,23 +39,23 @@ import org.osgi.service.component.annotations.Component;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
-@Component(service = DefaultProfileFactory.class)
-public class DefaultProfileFactory implements ProfileFactory, ProfileAdvisor, ProfileTypeProvider {
+@Component(service = SystemProfileFactory.class)
+public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, ProfileTypeProvider {
 
     private static final Set<ProfileType> SUPPORTED_PROFILE_TYPES = Stream
-            .of(SystemProfiles.MASTER_TYPE, SystemProfiles.SLAVE_TYPE, SystemProfiles.RAWBUTTON_TOGGLE_SWITCH_TYPE)
+            .of(SystemProfiles.DEFAULT_TYPE, SystemProfiles.FOLLOW_TYPE, SystemProfiles.RAWBUTTON_TOGGLE_SWITCH_TYPE)
             .collect(Collectors.toSet());
 
     private static final Set<ProfileTypeUID> SUPPORTED_PROFILE_TYPE_UIDS = Stream
-            .of(SystemProfiles.MASTER, SystemProfiles.SLAVE, SystemProfiles.RAWBUTTON_TOGGLE_SWITCH)
+            .of(SystemProfiles.DEFAULT, SystemProfiles.FOLLOW, SystemProfiles.RAWBUTTON_TOGGLE_SWITCH)
             .collect(Collectors.toSet());
 
     @Override
     public Profile createProfile(ProfileTypeUID profileTypeUID, ProfileCallback callback) {
-        if (SystemProfiles.MASTER.equals(profileTypeUID)) {
-            return new DefaultMasterProfile(callback);
-        } else if (SystemProfiles.SLAVE.equals(profileTypeUID)) {
-            return new DefaultSlaveProfile(callback);
+        if (SystemProfiles.DEFAULT.equals(profileTypeUID)) {
+            return new SystemDefaultProfile(callback);
+        } else if (SystemProfiles.FOLLOW.equals(profileTypeUID)) {
+            return new SystemFollowProfile(callback);
         } else if (SystemProfiles.RAWBUTTON_TOGGLE_SWITCH.equals(profileTypeUID)) {
             return new RawButtonToggleSwitchProfile(callback);
         } else {
@@ -67,7 +67,7 @@ public class DefaultProfileFactory implements ProfileFactory, ProfileAdvisor, Pr
     public ProfileTypeUID getSuggestedProfileTypeUID(Channel channel, @Nullable String itemType) {
         switch (channel.getKind()) {
             case STATE:
-                return SystemProfiles.MASTER;
+                return SystemProfiles.DEFAULT;
             case TRIGGER:
                 if (DefaultSystemChannelTypeProvider.SYSTEM_RAWBUTTON.getUID().equals(channel.getChannelTypeUID())) {
                     if ("Switch".equalsIgnoreCase(itemType)) {

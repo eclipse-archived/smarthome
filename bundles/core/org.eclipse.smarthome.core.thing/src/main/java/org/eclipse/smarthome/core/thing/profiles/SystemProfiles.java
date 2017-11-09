@@ -22,14 +22,14 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
  */
 public interface SystemProfiles {
 
-    ProfileTypeUID MASTER = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "master");
-    ProfileTypeUID SLAVE = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "slave");
+    ProfileTypeUID DEFAULT = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "default");
+    ProfileTypeUID FOLLOW = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "follow");
     ProfileTypeUID RAWBUTTON_TOGGLE_SWITCH = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "rawbutton-toggle-switch");
 
-    StateProfileType MASTER_TYPE = new StateProfileType() {
+    StateProfileType DEFAULT_TYPE = new StateProfileType() {
         @Override
         public ProfileTypeUID getUID() {
-            return MASTER;
+            return DEFAULT;
         }
 
         @Override
@@ -39,14 +39,14 @@ public interface SystemProfiles {
 
         @Override
         public String getLabel() {
-            return "Master";
+            return "Default";
         }
     };
 
-    StateProfileType SLAVE_TYPE = new StateProfileType() {
+    StateProfileType FOLLOW_TYPE = new StateProfileType() {
         @Override
         public ProfileTypeUID getUID() {
-            return SLAVE;
+            return FOLLOW;
         }
 
         @Override
@@ -56,7 +56,7 @@ public interface SystemProfiles {
 
         @Override
         public String getLabel() {
-            return "Slave";
+            return "Follow";
         }
     };
 

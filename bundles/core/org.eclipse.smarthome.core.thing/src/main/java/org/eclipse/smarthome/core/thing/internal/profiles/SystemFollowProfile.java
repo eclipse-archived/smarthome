@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This is the default implementation for a slave profile.
  *
- * In contrast to the {@link DefaultMasterProfile} it does not forward any commands to the ThingHandler. Instead, it
+ * In contrast to the {@link SystemDefaultProfile} it does not forward any commands to the ThingHandler. Instead, it
  * turn {@link State} updates into {@link Command}s (if possible) and then forwards those to the {@link ThingHandler}.
  * <p>
  * This allows devices to be operated as "slaves" of another one directly, without the need to write any rules.
@@ -28,12 +28,12 @@ import org.slf4j.LoggerFactory;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
-public class DefaultSlaveProfile implements StateProfile {
+public class SystemFollowProfile implements StateProfile {
 
-    private final Logger logger = LoggerFactory.getLogger(DefaultSlaveProfile.class);
+    private final Logger logger = LoggerFactory.getLogger(SystemFollowProfile.class);
     private final ProfileCallback callback;
 
-    public DefaultSlaveProfile(ProfileCallback callback) {
+    public SystemFollowProfile(ProfileCallback callback) {
         this.callback = callback;
     }
 

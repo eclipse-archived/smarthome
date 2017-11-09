@@ -22,7 +22,7 @@ import org.mockito.Mock;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
-public class DefaultMasterProfileTest {
+public class SystemFollowProfileTest {
 
     @Mock
     private ProfileCallback mockCallback;
@@ -34,35 +34,33 @@ public class DefaultMasterProfileTest {
 
     @Test
     public void testOnCommand() {
-        DefaultMasterProfile profile = new DefaultMasterProfile(mockCallback);
+        SystemFollowProfile profile = new SystemFollowProfile(mockCallback);
 
         profile.onCommand(OnOffType.ON);
+
+        verifyNoMoreInteractions(mockCallback);
+    }
+
+    @Test
+    public void testOnUpdate() {
+        SystemFollowProfile profile = new SystemFollowProfile(mockCallback);
+        profile.onUpdate(OnOffType.ON);
 
         verify(mockCallback).handleCommand(eq(OnOffType.ON));
         verifyNoMoreInteractions(mockCallback);
     }
 
     @Test
-    public void testOnUpdate() {
-        DefaultMasterProfile profile = new DefaultMasterProfile(mockCallback);
-        profile.onUpdate(OnOffType.ON);
-
-        verify(mockCallback).handleUpdate(eq(OnOffType.ON));
-        verifyNoMoreInteractions(mockCallback);
-    }
-
-    @Test
     public void testStateUpdated() {
-        DefaultMasterProfile profile = new DefaultMasterProfile(mockCallback);
+        SystemFollowProfile profile = new SystemFollowProfile(mockCallback);
         profile.stateUpdated(OnOffType.ON);
 
-        verify(mockCallback).sendStateEvent(eq(OnOffType.ON));
         verifyNoMoreInteractions(mockCallback);
     }
 
     @Test
     public void testPostCommand() {
-        DefaultMasterProfile profile = new DefaultMasterProfile(mockCallback);
+        SystemFollowProfile profile = new SystemFollowProfile(mockCallback);
         profile.postCommand(OnOffType.ON);
 
         verify(mockCallback).sendCommandEvent(eq(OnOffType.ON));

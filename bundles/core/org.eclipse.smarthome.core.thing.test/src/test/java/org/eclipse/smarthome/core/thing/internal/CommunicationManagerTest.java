@@ -29,7 +29,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
-import org.eclipse.smarthome.core.thing.internal.profiles.DefaultProfileFactory;
+import org.eclipse.smarthome.core.thing.internal.profiles.SystemProfileFactory;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.profiles.ProfileAdvisor;
@@ -97,7 +97,7 @@ public class CommunicationManagerTest {
 
         manager = new CommunicationManager();
         manager.setEventPublisher(eventPublisher);
-        manager.setDefaultProfileFactory(new DefaultProfileFactory());
+        manager.setDefaultProfileFactory(new SystemProfileFactory());
 
         doAnswer(invocation -> {
             switch (((Channel) invocation.getArguments()[0]).getKind()) {
