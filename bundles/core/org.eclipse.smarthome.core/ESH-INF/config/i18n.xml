@@ -62,6 +62,19 @@
 		]]>
 			</description>
 		</parameter>
+		
+		<parameter name="measurementSystem" type="text" required="false">
+            <label>Measurement System</label>
+            <description><![CDATA[
+                 <p>The measurement system is used for unit conversion.</p>
+        ]]>
+            </description>
+            <advanced>true</advanced>
+            <options>
+                <option value="SI">Metric</option>
+                <option value="US">Imperial (US)</option>
+            </options>
+        </parameter>
 	</config-description>
 
 </config-description:config-descriptions>
