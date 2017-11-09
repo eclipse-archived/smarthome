@@ -107,7 +107,7 @@ public class ItemChannelLinkConfigDescriptionProvider implements ConfigDescripti
     }
 
     private boolean isSupportedChannelType(ProfileType profileType, Channel channel) {
-        return profileType instanceof StateProfileType
+        return profileType instanceof TriggerProfileType
                 || ((TriggerProfileType) profileType)
                         .getSupportedChannelTypeUIDs() == TriggerProfileType.ANY_CHANNEL_TYPE
                 || ((TriggerProfileType) profileType).getSupportedChannelTypeUIDs()

@@ -22,12 +22,11 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
  */
 public interface SystemProfiles {
 
-    public static final ProfileTypeUID MASTER = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "master");
-    public static final ProfileTypeUID SLAVE = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "slave");
-    public static final ProfileTypeUID RAWBUTTON_TOGGLE_SWITCH = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE,
-            "rawbutton-toggle-switch");
+    ProfileTypeUID MASTER = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "master");
+    ProfileTypeUID SLAVE = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "slave");
+    ProfileTypeUID RAWBUTTON_TOGGLE_SWITCH = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "rawbutton-toggle-switch");
 
-    public static final StateProfileType MASTER_TYPE = new StateProfileType() {
+    StateProfileType MASTER_TYPE = new StateProfileType() {
         @Override
         public ProfileTypeUID getUID() {
             return MASTER;
@@ -44,7 +43,7 @@ public interface SystemProfiles {
         }
     };
 
-    public static final StateProfileType SLAVE_TYPE = new StateProfileType() {
+    StateProfileType SLAVE_TYPE = new StateProfileType() {
         @Override
         public ProfileTypeUID getUID() {
             return SLAVE;
@@ -61,7 +60,7 @@ public interface SystemProfiles {
         }
     };
 
-    public static final TriggerProfileType RAWBUTTON_TOGGLE_SWITCH_TYPE = new TriggerProfileType() {
+    TriggerProfileType RAWBUTTON_TOGGLE_SWITCH_TYPE = new TriggerProfileType() {
         @Override
         public ProfileTypeUID getUID() {
             return RAWBUTTON_TOGGLE_SWITCH;

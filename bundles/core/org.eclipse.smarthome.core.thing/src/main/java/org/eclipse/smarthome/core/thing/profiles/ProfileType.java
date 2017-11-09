@@ -25,7 +25,7 @@ public interface ProfileType extends Identifiable<ProfileTypeUID> {
     /**
      * Constant for mathing *ANY* item type.
      */
-    public static final Collection<String> ANY_ITEM_TYPE = new ArrayList<>(0);
+    Collection<String> ANY_ITEM_TYPE = new ArrayList<>(0);
 
     /**
      *

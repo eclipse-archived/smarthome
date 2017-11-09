@@ -23,9 +23,9 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 public interface TriggerProfileType extends ProfileType {
 
     /**
-     * Constant for mathing *ANY* channel type.
+     * Constant for matching *ANY* channel type.
      */
-    public static final Collection<ChannelTypeUID> ANY_CHANNEL_TYPE = new ArrayList<>(0);
+    Collection<ChannelTypeUID> ANY_CHANNEL_TYPE = new ArrayList<>(0);
 
     /**
      *
