@@ -48,8 +48,8 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
     // Regular expression to split unit from value
     private static final String UNIT_PATTERN = "(?<=\\d)\\s*(?=[a-zA-Z°µ%])";
 
-    private Quantity<?> quantity;
-    private Map<MeasurementSystem, Unit<?>> conversionUnits = new HashMap<MeasurementSystem, Unit<?>>(2);
+    private @Nullable Quantity<?> quantity;
+    private final Map<MeasurementSystem, Unit<?>> conversionUnits = new HashMap<MeasurementSystem, Unit<?>>(2);
 
     /**
      * Creates a new {@link QuantityType} with the given value. The value may contain a unit. The specific
