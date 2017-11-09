@@ -26,6 +26,7 @@ public class ItemDTO {
     public String unit;
     public Set<String> tags;
     public List<String> groupNames;
+    public String dimension;
 
     public ItemDTO() {
     }
