@@ -295,12 +295,22 @@ public class ChartServlet extends HttpServlet {
             BufferedImage chart = provider.createChart(serviceName, req.getParameter("theme"), timeBegin, timeEnd,
                     height, width, req.getParameter("items"), req.getParameter("groups"), dpi, legend);
             ImageIO.write(chart, provider.getChartType().toString(), imageOutputStream);
+            logger.debug("Chart successfully generated and written to the response.");
         } catch (ItemNotFoundException e) {
             logger.debug("{}", e.getMessage());
+            res.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } catch (IllegalArgumentException e) {
             logger.warn("Illegal argument in chart: {}", e.getMessage());
+            res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Illegal argument in chart: " + e.getMessage());
+        } catch (RuntimeException e) {
+            if (logger.isDebugEnabled()) {
+                // we also attach the stack trace
+                logger.warn("Chart generation failed: {}", e.getMessage(), e);
+            } else {
+                logger.warn("Chart generation failed: {}", e.getMessage());
+            }
+            res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
-        logger.debug("chart built");
     }
 
     /**
