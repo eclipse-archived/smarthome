@@ -15,4 +15,5 @@
    </service>
    <reference bind="addItemUIProvider" cardinality="0..n" interface="org.eclipse.smarthome.ui.items.ItemUIProvider" name="ItemUIProvider" policy="dynamic" unbind="removeItemUIProvider"/>
    <reference bind="setItemRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="dynamic" unbind="unsetItemRegistry"/>
+   <reference bind="setUnitProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.i18n.UnitProvider" name="UnitProvider" policy="dynamic" unbind="unsetUnitProvider"/>
 </scr:component>

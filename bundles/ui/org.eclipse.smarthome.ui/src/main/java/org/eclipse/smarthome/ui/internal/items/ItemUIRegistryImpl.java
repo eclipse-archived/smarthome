@@ -19,7 +19,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import javax.measure.Quantity;
 import javax.measure.Unit;
 
 import org.apache.commons.lang.StringUtils;
@@ -29,6 +28,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
+import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
@@ -80,8 +80,6 @@ import org.eclipse.smarthome.ui.items.ItemUIRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import tec.uom.se.quantity.Quantities;
-
 /**
  * This class provides a simple way to ask different item providers by a
  * single method call, i.e. the consumer does not need to iterate over all
@@ -109,6 +107,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
     protected ItemRegistry itemRegistry;
 
+    private UnitProvider unitProvider;
+
     private final Map<Widget, Widget> defaultWidgets = Collections.synchronizedMap(new WeakHashMap<Widget, Widget>());
 
     public ItemUIRegistryImpl() {
@@ -128,6 +128,14 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
     public void removeItemUIProvider(ItemUIProvider itemUIProvider) {
         itemUIProviders.remove(itemUIProvider);
+    }
+
+    public void setUnitProvider(UnitProvider unitProvider) {
+        this.unitProvider = unitProvider;
+    }
+
+    public void unsetUnitProvider(UnitProvider unitProvider) {
+        this.unitProvider = null;
     }
 
     @Override
@@ -388,40 +396,13 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     }
 
     private State convertStateToWidgetUnit(QuantityType quantityState, @NonNull Widget w) {
-        String widgetUnitPattern = parseUnit(getFormatPattern(w.getLabel()));
-        if (StringUtils.isNotBlank(widgetUnitPattern)) {
-            Quantity<?> quantity = null;
-            try {
-                widgetUnitPattern = widgetUnitPattern.trim();
-                quantity = Quantities.getQuantity("1 " + widgetUnitPattern);
-            } catch (IllegalArgumentException e) {
-                // we expect this exception in case the extracted string does not match any known unit
-                logger.warn("Unknown unit from state description pattern: {}", widgetUnitPattern);
-            }
-            if (quantity != null) {
-                Unit<?> widgetUnit = quantity.getUnit();
-                if (!widgetUnit.equals(quantityState.getUnit())) {
-                    return quantityState.toUnit(widgetUnit);
-                }
-            }
+        Unit<?> widgetUnit = unitProvider.parseUnit(getFormatPattern(w.getLabel()));
+        if (widgetUnit != null && !widgetUnit.equals(quantityState.getUnit())) {
+            return quantityState.toUnit(widgetUnit);
         }
 
         return quantityState;
-    }
 
-    /**
-     * Extracts the unit from the {@link StateDescription} pattern. We assume the unit is always the last part of the
-     * pattern separated by " ".
-     *
-     * @param numberItem the {@link NumberItem} from which the unit is to be extracted.
-     * @return the unit or null.
-     */
-    private String parseUnit(String label) {
-        if (StringUtils.isBlank(label)) {
-            return null;
-        }
-
-        return label.substring(label.lastIndexOf(" "));
     }
 
     private String getFormatPattern(String label) {
@@ -567,26 +548,31 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     private State convertState(Widget w, Item i) {
         State returnState = null;
 
+        State itemState = i.getState();
+        if (itemState instanceof QuantityType) {
+            itemState = convertStateToWidgetUnit((QuantityType) itemState, w);
+        }
+
         if (w instanceof Switch && i instanceof RollershutterItem) {
             // RollerShutter are represented as Switch in a Sitemap but need a PercentType state
-            returnState = i.getStateAs(PercentType.class);
+            returnState = itemState.as(PercentType.class);
         } else if (w instanceof Slider) {
             if (i.getAcceptedDataTypes().contains(PercentType.class)) {
-                returnState = i.getStateAs(PercentType.class);
+                returnState = itemState.as(PercentType.class);
             } else {
-                returnState = i.getStateAs(DecimalType.class);
+                returnState = itemState.as(DecimalType.class);
             }
         } else if (w instanceof Switch) {
             Switch sw = (Switch) w;
             if (sw.getMappings().size() == 0) {
-                returnState = i.getStateAs(OnOffType.class);
+                returnState = itemState.as(OnOffType.class);
             }
         }
 
         // if returnState is null, a conversion was not possible
         if (returnState == null) {
             // we return the original state to not break anything
-            returnState = i.getState();
+            returnState = itemState;
         }
         return returnState;
     }
