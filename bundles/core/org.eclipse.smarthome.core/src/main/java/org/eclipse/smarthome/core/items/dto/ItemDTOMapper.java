@@ -17,8 +17,8 @@ import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
+import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction;
-import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
@@ -204,9 +204,9 @@ public class ItemDTOMapper {
                 groupItemDTO.function = mapFunction(groupItem.getFunction());
             }
         }
-        if (item.getState() instanceof QuantityType) {
-            itemDTO.unit = ((QuantityType) item.getState()).getUnit().toString();
-        }
+
+        itemDTO.unit = item instanceof NumberItem ? ((NumberItem) item).getUnitSymbol() : null;
+
         itemDTO.name = item.getName();
         itemDTO.type = item.getType();
         itemDTO.label = item.getLabel();
