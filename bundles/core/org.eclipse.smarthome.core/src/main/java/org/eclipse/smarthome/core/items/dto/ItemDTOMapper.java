@@ -123,11 +123,8 @@ public class ItemDTOMapper {
                 }
                 break;
             case "COUNT":
-                State countParam = null;
                 if (function.params != null && function.params.length == 1) {
-                    countParam = new StringType(function.params[0]);
-                }
-                if (countParam != null) {
+                    State countParam = new StringType(function.params[0]);
                     groupFunction = new ArithmeticGroupFunction.Count(countParam);
                 } else {
                     LoggerFactory.getLogger(ItemDTOMapper.class)
