@@ -246,7 +246,7 @@ public class CommunicationManagerTest {
             manager.receive(ThingEventFactory.createTriggerEvent(EVENT, TRIGGER_CHANNEL_UID_2));
         }
 
-        verify(mockProfileFactory).createProfile(isA(ProfileTypeUID.class), isA(ProfileCallback.class));
+        verify(mockProfileFactory, times(2)).createProfile(isA(ProfileTypeUID.class), isA(ProfileCallback.class));
         verify(mockProfileFactory, atLeast(0)).getSupportedProfileTypeUIDs();
         verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(), any());
         verifyNoMoreInteractions(mockProfileFactory);
@@ -258,6 +258,7 @@ public class CommunicationManagerTest {
         for (int i = 0; i < 3; i++) {
             manager.receive(ThingEventFactory.createTriggerEvent(EVENT, TRIGGER_CHANNEL_UID_2));
         }
+        verify(mockProfileFactory, times(2)).createProfile(isA(ProfileTypeUID.class), isA(ProfileCallback.class));
 
         manager.removeProfileFactory(mockProfileFactory);
         manager.addProfileFactory(mockProfileFactory);
@@ -266,7 +267,7 @@ public class CommunicationManagerTest {
             manager.receive(ThingEventFactory.createTriggerEvent(EVENT, TRIGGER_CHANNEL_UID_2));
         }
 
-        verify(mockProfileFactory, times(2)).createProfile(isA(ProfileTypeUID.class), isA(ProfileCallback.class));
+        verify(mockProfileFactory, times(4)).createProfile(isA(ProfileTypeUID.class), isA(ProfileCallback.class));
         verify(mockProfileFactory, atLeast(0)).getSupportedProfileTypeUIDs();
         verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(), any());
         verifyNoMoreInteractions(mockProfileFactory);
@@ -278,6 +279,7 @@ public class CommunicationManagerTest {
         for (int i = 0; i < 3; i++) {
             manager.receive(ThingEventFactory.createTriggerEvent(EVENT, TRIGGER_CHANNEL_UID_2));
         }
+        verify(mockProfileFactory, times(2)).createProfile(isA(ProfileTypeUID.class), isA(ProfileCallback.class));
 
         manager.removed(LINK_2_T2);
         manager.added(LINK_2_T2);
@@ -286,7 +288,7 @@ public class CommunicationManagerTest {
             manager.receive(ThingEventFactory.createTriggerEvent(EVENT, TRIGGER_CHANNEL_UID_2));
         }
 
-        verify(mockProfileFactory, times(2)).createProfile(isA(ProfileTypeUID.class), isA(ProfileCallback.class));
+        verify(mockProfileFactory, times(3)).createProfile(isA(ProfileTypeUID.class), isA(ProfileCallback.class));
         verify(mockProfileFactory, atLeast(0)).getSupportedProfileTypeUIDs();
         verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(), any());
         verifyNoMoreInteractions(mockProfileFactory);
@@ -306,7 +308,7 @@ public class CommunicationManagerTest {
             manager.receive(ThingEventFactory.createTriggerEvent(EVENT, TRIGGER_CHANNEL_UID_2));
         }
 
-        verify(mockProfileFactory).createProfile(isA(ProfileTypeUID.class), isA(ProfileCallback.class));
+        verify(mockProfileFactory, times(2)).createProfile(isA(ProfileTypeUID.class), isA(ProfileCallback.class));
         verify(mockProfileFactory, atLeast(0)).getSupportedProfileTypeUIDs();
         verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(), any());
         verifyNoMoreInteractions(mockProfileFactory);
@@ -318,6 +320,7 @@ public class CommunicationManagerTest {
         for (int i = 0; i < 3; i++) {
             manager.receive(ThingEventFactory.createTriggerEvent(EVENT, TRIGGER_CHANNEL_UID_2));
         }
+        verify(mockProfileFactory, times(2)).createProfile(isA(ProfileTypeUID.class), isA(ProfileCallback.class));
 
         manager.updated(LINK_2_T2, LINK_2_T2);
 
@@ -325,7 +328,7 @@ public class CommunicationManagerTest {
             manager.receive(ThingEventFactory.createTriggerEvent(EVENT, TRIGGER_CHANNEL_UID_2));
         }
 
-        verify(mockProfileFactory, times(2)).createProfile(isA(ProfileTypeUID.class), isA(ProfileCallback.class));
+        verify(mockProfileFactory, times(3)).createProfile(isA(ProfileTypeUID.class), isA(ProfileCallback.class));
         verify(mockProfileFactory, atLeast(0)).getSupportedProfileTypeUIDs();
         verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(), any());
         verifyNoMoreInteractions(mockProfileFactory);

@@ -75,8 +75,13 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     private ThingRegistry thingRegistry;
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
-    private final Map<ChannelUID, Profile> profiles = new ConcurrentHashMap<>();
-    private final Map<ProfileFactory, Set<ChannelUID>> profileFactories = new ConcurrentHashMap<>();
+
+    // link UID -> profile
+    private final Map<String, Profile> profiles = new ConcurrentHashMap<>();
+
+    // factory instance -> link UIDs which the factory has created profiles for
+    private final Map<ProfileFactory, Set<String>> profileFactories = new ConcurrentHashMap<>();
+
     private final Set<ProfileAdvisor> profileAdvisors = new CopyOnWriteArraySet<>();
 
     @Override
@@ -115,11 +120,11 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         if (profileTypeUID != null) {
             logger.trace("Going to use profile {} for link {}", profileTypeUID, link);
             synchronized (profiles) {
-                profile = profiles.get(link.getLinkedUID());
+                profile = profiles.get(link.getUID());
                 if (profile == null) {
-                    profile = getProfileFromFactories(profileTypeUID, link.getLinkedUID(), createCallback(link));
+                    profile = getProfileFromFactories(profileTypeUID, link, createCallback(link));
                     if (profile != null) {
-                        profiles.put(link.getLinkedUID(), profile);
+                        profiles.put(link.getUID(), profile);
                     }
                 }
             }
@@ -188,13 +193,13 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         return profileName;
     }
 
-    private Profile getProfileFromFactories(ProfileTypeUID profileTypeUID, ChannelUID channelUID,
+    private Profile getProfileFromFactories(ProfileTypeUID profileTypeUID, ItemChannelLink link,
             ProfileCallback callback) {
         if (supportsProfileTypeUID(defaultProfileFactory, profileTypeUID)) {
             logger.trace("using the default ProfileFactory to create profile '{}'", profileTypeUID);
             return defaultProfileFactory.createProfile(profileTypeUID, callback);
         }
-        for (Entry<ProfileFactory, Set<ChannelUID>> entry : profileFactories.entrySet()) {
+        for (Entry<ProfileFactory, Set<String>> entry : profileFactories.entrySet()) {
             ProfileFactory factory = entry.getKey();
             if (supportsProfileTypeUID(factory, profileTypeUID)) {
                 logger.trace("using ProfileFactory '{}' to create profile '{}'", factory, profileTypeUID);
@@ -203,7 +208,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
                     logger.error("ProfileFactory {} returned 'null' although it claimed it supports {}", factory,
                             profileTypeUID);
                 } else {
-                    entry.getValue().add(channelUID);
+                    entry.getValue().add(link.getUID());
                     return profile;
                 }
             }
@@ -323,11 +328,11 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         eventPublisher.post(ThingEventFactory.createTriggerEvent(event, channelUID));
     }
 
-    private void cleanup(ChannelUID channelUID) {
+    private void cleanup(ItemChannelLink link) {
         synchronized (profiles) {
-            profiles.remove(channelUID);
+            profiles.remove(link.getUID());
         }
-        profileFactories.values().forEach(list -> list.remove(channelUID));
+        profileFactories.values().forEach(list -> list.remove(link.getUID()));
     }
 
     @Override
@@ -337,12 +342,12 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
 
     @Override
     public void removed(ItemChannelLink element) {
-        cleanup(element.getLinkedUID());
+        cleanup(element);
     }
 
     @Override
     public void updated(ItemChannelLink oldElement, ItemChannelLink element) {
-        cleanup(oldElement.getLinkedUID());
+        cleanup(oldElement);
     }
 
     @Reference
@@ -388,9 +393,11 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     }
 
     protected void removeProfileFactory(ProfileFactory profileFactory) {
-        Set<ChannelUID> channelUIDs = this.profileFactories.remove(profileFactory);
+        Set<String> links = this.profileFactories.remove(profileFactory);
         synchronized (profiles) {
-            channelUIDs.forEach(channelUID -> profiles.remove(channelUID));
+            links.forEach(link -> {
+                profiles.remove(link);
+            });
         }
     }
 
