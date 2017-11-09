@@ -17,7 +17,7 @@ public enum ProgressStep {
 
     /**
      * The {@link FirmwareUpdateHandler} is going to download / read the firmware image by reading the input stream from
-     * {@link Firmware#getContent()}.
+     * {@link Firmware#getBytes()}.
      */
     DOWNLOADING,
 
