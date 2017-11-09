@@ -68,12 +68,9 @@ public class NtpDiscovery extends AbstractDiscoveryService {
         Map<String, Object> properties = new HashMap<>(4);
         properties.put(PROPERTY_TIMEZONE, TimeZone.getDefault().getID());
         ThingUID uid = new ThingUID(THING_TYPE_NTP, "local");
-        if (uid != null) {
-            DiscoveryResult result = DiscoveryResultBuilder.create(uid).withProperties(properties)
-                    .withLabel("Local Time").build();
-            thingDiscovered(result);
-        }
-
+        DiscoveryResult result = DiscoveryResultBuilder.create(uid).withProperties(properties).withLabel("Local Time")
+                .build();
+        thingDiscovered(result);
     }
 
     @Reference
