@@ -39,13 +39,13 @@ public interface ProfileCallback {
      *
      * @param command
      */
-    void sendCommandEvent(Command command);
+    void sendCommand(Command command);
 
     /**
      * Send a state update to the framework.
      *
      * @param state
      */
-    void sendStateEvent(State state);
+    void sendUpdate(State state);
 
 }

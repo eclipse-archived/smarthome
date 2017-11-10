@@ -7,11 +7,16 @@
  */
 package org.eclipse.smarthome.core.thing.internal.profiles;
 
-import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.eclipse.smarthome.core.thing.profiles.ProfileType;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeProvider;
-import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * {@link ProfileTypeRegistry} implementation.
@@ -20,11 +25,31 @@ import org.osgi.service.component.annotations.Component;
  *
  */
 @Component(service = ProfileTypeRegistry.class)
-public class ProfileTypeRegistryImpl extends AbstractRegistry<ProfileType, ProfileTypeUID, ProfileTypeProvider>
-        implements ProfileTypeRegistry {
+public class ProfileTypeRegistryImpl implements ProfileTypeRegistry {
 
-    public ProfileTypeRegistryImpl() {
-        super(ProfileTypeProvider.class);
+    private final List<ProfileTypeProvider> profileTypeProviders = new CopyOnWriteArrayList<>();
+
+    @Override
+    public List<ProfileType> getProfileTypes() {
+        return getProfileTypes(null);
+    }
+
+    @Override
+    public List<ProfileType> getProfileTypes(Locale locale) {
+        List<ProfileType> profileTypes = new ArrayList<>();
+        for (ProfileTypeProvider profileTypeProvider : profileTypeProviders) {
+            profileTypes.addAll(profileTypeProvider.getProfileTypes(locale));
+        }
+        return Collections.unmodifiableList(profileTypes);
+    }
+
+    @Reference
+    protected void addProfileTypeProvider(ProfileTypeProvider profileTypeProvider) {
+        profileTypeProviders.add(profileTypeProvider);
+    }
+
+    protected void removeProfileTypeProvider(ProfileTypeProvider profileTypeProvider) {
+        profileTypeProviders.remove(profileTypeProvider);
     }
 
 }

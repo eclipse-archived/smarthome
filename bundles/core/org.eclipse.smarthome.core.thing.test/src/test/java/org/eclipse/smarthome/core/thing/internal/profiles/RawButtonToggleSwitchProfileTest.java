@@ -27,7 +27,7 @@ import org.mockito.Mock;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
-public class RawButtonToggleProfileTest {
+public class RawButtonToggleSwitchProfileTest {
 
     @Mock
     private ProfileCallback mockCallback;
@@ -55,8 +55,8 @@ public class RawButtonToggleProfileTest {
 
     private void verifyAction(TriggerProfile profile, State preCondition, Command expectation) {
         reset(mockCallback);
-        profile.onTrigger(CommonTriggerEvents.PRESSED);
-        verify(mockCallback, times(1)).sendCommandEvent(eq(expectation));
+        profile.onTriggerFromHandler(CommonTriggerEvents.PRESSED);
+        verify(mockCallback, times(1)).sendCommand(eq(expectation));
     }
 
 }

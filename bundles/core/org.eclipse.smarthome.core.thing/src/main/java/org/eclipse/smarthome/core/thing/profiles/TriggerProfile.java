@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.core.thing.profiles;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.core.types.State;
 
 /**
  * A {@link TriggerProfile} specifies the communication between the framework and the handler for trigger channels.
@@ -30,13 +29,6 @@ public interface TriggerProfile extends Profile {
      *
      * @param event the event payload
      */
-    void onTrigger(String event);
-
-    /**
-     * Will be called if the linked item's state is updated.
-     *
-     * @param state the new {@link State}
-     */
-    void onUpdate(State state);
+    void onTriggerFromHandler(String event);
 
 }

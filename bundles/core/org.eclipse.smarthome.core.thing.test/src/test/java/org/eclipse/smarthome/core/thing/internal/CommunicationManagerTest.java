@@ -147,7 +147,7 @@ public class CommunicationManagerTest {
     @Test
     public void testStateUpdated_singleLink() {
         manager.stateUpdated(STATE_CHANNEL_UID_1, OnOffType.ON);
-        verify(stateProfile).stateUpdated(eq(OnOffType.ON));
+        verify(stateProfile).onStateUpdateFromHandler(eq(OnOffType.ON));
         verifyNoMoreInteractions(stateProfile);
         verifyNoMoreInteractions(triggerProfile);
     }
@@ -155,7 +155,7 @@ public class CommunicationManagerTest {
     @Test
     public void testStateUpdated_multiLink() {
         manager.stateUpdated(STATE_CHANNEL_UID_2, OnOffType.ON);
-        verify(stateProfile, times(2)).stateUpdated(eq(OnOffType.ON));
+        verify(stateProfile, times(2)).onStateUpdateFromHandler(eq(OnOffType.ON));
         verifyNoMoreInteractions(stateProfile);
         verifyNoMoreInteractions(triggerProfile);
     }
@@ -163,7 +163,7 @@ public class CommunicationManagerTest {
     @Test
     public void testPostCommand_singleLink() {
         manager.postCommand(STATE_CHANNEL_UID_1, OnOffType.ON);
-        verify(stateProfile).postCommand(eq(OnOffType.ON));
+        verify(stateProfile).onCommandFromHandler(eq(OnOffType.ON));
         verifyNoMoreInteractions(stateProfile);
         verifyNoMoreInteractions(triggerProfile);
     }
@@ -171,7 +171,7 @@ public class CommunicationManagerTest {
     @Test
     public void testPostCommand_multiLink() {
         manager.postCommand(STATE_CHANNEL_UID_2, OnOffType.ON);
-        verify(stateProfile, times(2)).postCommand(eq(OnOffType.ON));
+        verify(stateProfile, times(2)).onCommandFromHandler(eq(OnOffType.ON));
         verifyNoMoreInteractions(stateProfile);
         verifyNoMoreInteractions(triggerProfile);
     }
@@ -179,7 +179,7 @@ public class CommunicationManagerTest {
     @Test
     public void testItemCommandEvent_singleLink() {
         manager.receive(ItemEventFactory.createCommandEvent(ITEM_NAME_2, OnOffType.ON));
-        verify(stateProfile).onCommand(eq(OnOffType.ON));
+        verify(stateProfile).onCommandFromItem(eq(OnOffType.ON));
         verifyNoMoreInteractions(stateProfile);
         verifyNoMoreInteractions(triggerProfile);
     }
@@ -187,7 +187,7 @@ public class CommunicationManagerTest {
     @Test
     public void testItemCommandEvent_multiLink() {
         manager.receive(ItemEventFactory.createCommandEvent(ITEM_NAME_1, OnOffType.ON));
-        verify(stateProfile, times(2)).onCommand(eq(OnOffType.ON));
+        verify(stateProfile, times(2)).onCommandFromItem(eq(OnOffType.ON));
         verifyNoMoreInteractions(stateProfile);
         verifyNoMoreInteractions(triggerProfile);
     }
@@ -196,7 +196,7 @@ public class CommunicationManagerTest {
     public void testItemCommandEvent_notToSource() {
         manager.receive(
                 ItemEventFactory.createCommandEvent(ITEM_NAME_1, OnOffType.ON, STATE_CHANNEL_UID_2.getAsString()));
-        verify(stateProfile).onCommand(eq(OnOffType.ON));
+        verify(stateProfile).onCommandFromItem(eq(OnOffType.ON));
         verifyNoMoreInteractions(stateProfile);
         verifyNoMoreInteractions(triggerProfile);
     }
@@ -204,7 +204,8 @@ public class CommunicationManagerTest {
     @Test
     public void testItemStateEvent_singleLink() {
         manager.receive(ItemEventFactory.createStateEvent(ITEM_NAME_2, OnOffType.ON));
-        verify(stateProfile).onUpdate(eq(OnOffType.ON));
+        verify(stateProfile).onStateUpdateFromItem(eq(OnOffType.ON));
+        verify(triggerProfile).onStateUpdateFromItem(eq(OnOffType.ON));
         verifyNoMoreInteractions(stateProfile);
         verifyNoMoreInteractions(triggerProfile);
     }
@@ -212,7 +213,8 @@ public class CommunicationManagerTest {
     @Test
     public void testItemStateEvent_multiLink() {
         manager.receive(ItemEventFactory.createStateEvent(ITEM_NAME_1, OnOffType.ON));
-        verify(stateProfile, times(2)).onUpdate(eq(OnOffType.ON));
+        verify(stateProfile, times(2)).onStateUpdateFromItem(eq(OnOffType.ON));
+        verify(triggerProfile, times(2)).onStateUpdateFromItem(eq(OnOffType.ON));
         verifyNoMoreInteractions(stateProfile);
         verifyNoMoreInteractions(triggerProfile);
     }
@@ -221,7 +223,8 @@ public class CommunicationManagerTest {
     public void testItemStateEvent_notToSource() {
         manager.receive(
                 ItemEventFactory.createStateEvent(ITEM_NAME_1, OnOffType.ON, STATE_CHANNEL_UID_2.getAsString()));
-        verify(stateProfile).onUpdate(eq(OnOffType.ON));
+        verify(stateProfile).onStateUpdateFromItem(eq(OnOffType.ON));
+        verify(triggerProfile, times(2)).onStateUpdateFromItem(eq(OnOffType.ON));
         verifyNoMoreInteractions(stateProfile);
         verifyNoMoreInteractions(triggerProfile);
     }
@@ -229,7 +232,7 @@ public class CommunicationManagerTest {
     @Test
     public void testChannelTriggeredEvent_singleLink() {
         manager.receive(ThingEventFactory.createTriggerEvent(EVENT, TRIGGER_CHANNEL_UID_1));
-        verify(triggerProfile).onTrigger(eq(EVENT));
+        verify(triggerProfile).onTriggerFromHandler(eq(EVENT));
         verifyNoMoreInteractions(stateProfile);
         verifyNoMoreInteractions(triggerProfile);
     }
@@ -237,7 +240,7 @@ public class CommunicationManagerTest {
     @Test
     public void testChannelTriggeredEvent_multiLink() {
         manager.receive(ThingEventFactory.createTriggerEvent(EVENT, TRIGGER_CHANNEL_UID_2));
-        verify(triggerProfile, times(2)).onTrigger(eq(EVENT));
+        verify(triggerProfile, times(2)).onTriggerFromHandler(eq(EVENT));
         verifyNoMoreInteractions(stateProfile);
         verifyNoMoreInteractions(triggerProfile);
     }

@@ -86,7 +86,7 @@ public class ItemChannelLinkConfigDescriptionProvider implements ConfigDescripti
     }
 
     private List<ParameterOption> getOptions(ItemChannelLink link, Item item, Channel channel, Locale locale) {
-        Collection<ProfileType> profileTypes = profileTypeRegistry.getAll();
+        Collection<ProfileType> profileTypes = profileTypeRegistry.getProfileTypes(locale);
         return profileTypes.stream().filter(profileType -> {
             switch (channel.getKind()) {
                 case STATE:

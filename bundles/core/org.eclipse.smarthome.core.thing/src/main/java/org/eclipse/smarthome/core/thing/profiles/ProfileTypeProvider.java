@@ -7,8 +7,11 @@
  */
 package org.eclipse.smarthome.core.thing.profiles;
 
+import java.util.Collection;
+import java.util.Locale;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.core.common.registry.Provider;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * A {@link ProfileTypeProvider} is responsible for providing {@link ProfileType}s.
@@ -17,6 +20,8 @@ import org.eclipse.smarthome.core.common.registry.Provider;
  *
  */
 @NonNullByDefault
-public interface ProfileTypeProvider extends Provider<ProfileType> {
+public interface ProfileTypeProvider {
+
+    Collection<ProfileType> getProfileTypes(@Nullable Locale locale);
 
 }

@@ -36,7 +36,7 @@ public class SystemDefaultProfileTest {
     public void testOnCommand() {
         SystemDefaultProfile profile = new SystemDefaultProfile(mockCallback);
 
-        profile.onCommand(OnOffType.ON);
+        profile.onCommandFromItem(OnOffType.ON);
 
         verify(mockCallback).handleCommand(eq(OnOffType.ON));
         verifyNoMoreInteractions(mockCallback);
@@ -45,7 +45,7 @@ public class SystemDefaultProfileTest {
     @Test
     public void testOnUpdate() {
         SystemDefaultProfile profile = new SystemDefaultProfile(mockCallback);
-        profile.onUpdate(OnOffType.ON);
+        profile.onStateUpdateFromItem(OnOffType.ON);
 
         verify(mockCallback).handleUpdate(eq(OnOffType.ON));
         verifyNoMoreInteractions(mockCallback);
@@ -54,18 +54,18 @@ public class SystemDefaultProfileTest {
     @Test
     public void testStateUpdated() {
         SystemDefaultProfile profile = new SystemDefaultProfile(mockCallback);
-        profile.stateUpdated(OnOffType.ON);
+        profile.onStateUpdateFromHandler(OnOffType.ON);
 
-        verify(mockCallback).sendStateEvent(eq(OnOffType.ON));
+        verify(mockCallback).sendUpdate(eq(OnOffType.ON));
         verifyNoMoreInteractions(mockCallback);
     }
 
     @Test
     public void testPostCommand() {
         SystemDefaultProfile profile = new SystemDefaultProfile(mockCallback);
-        profile.postCommand(OnOffType.ON);
+        profile.onCommandFromHandler(OnOffType.ON);
 
-        verify(mockCallback).sendCommandEvent(eq(OnOffType.ON));
+        verify(mockCallback).sendCommand(eq(OnOffType.ON));
         verifyNoMoreInteractions(mockCallback);
     }
 

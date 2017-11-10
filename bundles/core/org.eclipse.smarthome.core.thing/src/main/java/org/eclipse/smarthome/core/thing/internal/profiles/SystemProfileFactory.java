@@ -8,15 +8,15 @@
 package org.eclipse.smarthome.core.thing.internal.profiles;
 
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.DefaultSystemChannelTypeProvider;
@@ -41,6 +41,7 @@ import org.osgi.service.component.annotations.Component;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
+@NonNullByDefault
 @Component(service = SystemProfileFactory.class)
 public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, ProfileTypeProvider {
 
@@ -52,6 +53,7 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
             .of(SystemProfiles.DEFAULT, SystemProfiles.FOLLOW, SystemProfiles.RAWBUTTON_TOGGLE_SWITCH)
             .collect(Collectors.toSet());
 
+    @Nullable
     @Override
     public Profile createProfile(ProfileTypeUID profileTypeUID, ProfileCallback callback, Configuration configuration) {
         if (SystemProfiles.DEFAULT.equals(profileTypeUID)) {
@@ -65,6 +67,7 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
         }
     }
 
+    @Nullable
     @Override
     public ProfileTypeUID getSuggestedProfileTypeUID(Channel channel, @Nullable String itemType) {
         switch (channel.getKind()) {
@@ -78,29 +81,19 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
                 }
                 break;
             default:
-                throw new NotImplementedException();
+                throw new IllegalArgumentException("Unsupported channel kind: " + channel.getKind());
         }
         return null;
     }
 
     @Override
-    public Collection<@NonNull ProfileType> getAll() {
+    public Collection<ProfileType> getProfileTypes(@Nullable Locale locale) {
         return SUPPORTED_PROFILE_TYPES;
     }
 
     @Override
     public @NonNull Collection<@NonNull ProfileTypeUID> getSupportedProfileTypeUIDs() {
         return SUPPORTED_PROFILE_TYPE_UIDS;
-    }
-
-    @Override
-    public void addProviderChangeListener(ProviderChangeListener<@NonNull ProfileType> listener) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void removeProviderChangeListener(ProviderChangeListener<@NonNull ProfileType> listener) {
-        // TODO Auto-generated method stub
     }
 
 }

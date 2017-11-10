@@ -25,27 +25,20 @@ public interface StateProfile extends Profile {
      *
      * @param command
      */
-    void onCommand(Command command);
-
-    /**
-     * Will be called if an item has changed its state and this information should be forwarded to the binding.
-     *
-     * @param state
-     */
-    void onUpdate(State state);
-
-    /**
-     * If the binding indicated a state update on a channel, then this method will be called for each linked item.
-     *
-     * @param state
-     */
-    void stateUpdated(State state);
+    void onCommandFromItem(Command command);
 
     /**
      * If a binding issued a command to a channel, this method will be called for each linked item.
      *
      * @param command
      */
-    void postCommand(Command command);
+    void onCommandFromHandler(Command command);
+
+    /**
+     * If the binding indicated a state update on a channel, then this method will be called for each linked item.
+     *
+     * @param state
+     */
+    void onStateUpdateFromHandler(State state);
 
 }

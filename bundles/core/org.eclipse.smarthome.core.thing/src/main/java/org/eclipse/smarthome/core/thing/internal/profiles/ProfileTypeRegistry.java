@@ -7,10 +7,11 @@
  */
 package org.eclipse.smarthome.core.thing.internal.profiles;
 
-import org.eclipse.smarthome.core.common.registry.Registry;
+import java.util.List;
+import java.util.Locale;
+
 import org.eclipse.smarthome.core.thing.profiles.ProfileType;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeProvider;
-import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
 
 /**
  * The {@link ProfileTypeRegistry} allows access to the {@link ProfileType}s provided by all
@@ -19,6 +20,10 @@ import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
-public interface ProfileTypeRegistry extends Registry<ProfileType, ProfileTypeUID> {
+public interface ProfileTypeRegistry {
+
+    public List<ProfileType> getProfileTypes();
+
+    public List<ProfileType> getProfileTypes(Locale locale);
 
 }

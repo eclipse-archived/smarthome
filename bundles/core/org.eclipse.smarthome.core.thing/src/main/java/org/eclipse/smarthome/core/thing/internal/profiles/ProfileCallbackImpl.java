@@ -127,13 +127,13 @@ public class ProfileCallbackImpl implements ProfileCallback {
     }
 
     @Override
-    public void sendCommandEvent(Command command) {
+    public void sendCommand(Command command) {
         eventPublisher
                 .post(ItemEventFactory.createCommandEvent(link.getItemName(), command, link.getLinkedUID().toString()));
     }
 
     @Override
-    public void sendStateEvent(State state) {
+    public void sendUpdate(State state) {
         State acceptedState = ItemUtil.convertToAcceptedState(state, item);
         eventPublisher.post(
                 ItemEventFactory.createStateEvent(link.getItemName(), acceptedState, link.getLinkedUID().toString()));

@@ -7,9 +7,12 @@
  */
 package org.eclipse.smarthome.core.thing.internal.profiles;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.profiles.ProfileCallback;
+import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
 import org.eclipse.smarthome.core.thing.profiles.StateProfile;
+import org.eclipse.smarthome.core.thing.profiles.SystemProfiles;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 
@@ -22,6 +25,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
+@NonNullByDefault
 public class SystemDefaultProfile implements StateProfile {
 
     private final ProfileCallback callback;
@@ -31,22 +35,27 @@ public class SystemDefaultProfile implements StateProfile {
     }
 
     @Override
-    public void onCommand(Command command) {
+    public ProfileTypeUID getProfileTypeUID() {
+        return SystemProfiles.DEFAULT;
+    }
+
+    @Override
+    public void onCommandFromItem(Command command) {
         callback.handleCommand(command);
     }
 
     @Override
-    public void stateUpdated(State state) {
-        callback.sendStateEvent(state);
+    public void onStateUpdateFromHandler(State state) {
+        callback.sendUpdate(state);
     }
 
     @Override
-    public void postCommand(Command command) {
-        callback.sendCommandEvent(command);
+    public void onCommandFromHandler(Command command) {
+        callback.sendCommand(command);
     }
 
     @Override
-    public void onUpdate(State state) {
+    public void onStateUpdateFromItem(State state) {
         callback.handleUpdate(state);
     }
 

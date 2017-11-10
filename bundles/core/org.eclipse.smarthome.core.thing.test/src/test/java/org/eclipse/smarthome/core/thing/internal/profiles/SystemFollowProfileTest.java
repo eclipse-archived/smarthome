@@ -36,7 +36,7 @@ public class SystemFollowProfileTest {
     public void testOnCommand() {
         SystemFollowProfile profile = new SystemFollowProfile(mockCallback);
 
-        profile.onCommand(OnOffType.ON);
+        profile.onCommandFromItem(OnOffType.ON);
 
         verifyNoMoreInteractions(mockCallback);
     }
@@ -44,7 +44,7 @@ public class SystemFollowProfileTest {
     @Test
     public void testOnUpdate() {
         SystemFollowProfile profile = new SystemFollowProfile(mockCallback);
-        profile.onUpdate(OnOffType.ON);
+        profile.onStateUpdateFromItem(OnOffType.ON);
 
         verify(mockCallback).handleCommand(eq(OnOffType.ON));
         verifyNoMoreInteractions(mockCallback);
@@ -53,7 +53,7 @@ public class SystemFollowProfileTest {
     @Test
     public void testStateUpdated() {
         SystemFollowProfile profile = new SystemFollowProfile(mockCallback);
-        profile.stateUpdated(OnOffType.ON);
+        profile.onStateUpdateFromHandler(OnOffType.ON);
 
         verifyNoMoreInteractions(mockCallback);
     }
@@ -61,9 +61,9 @@ public class SystemFollowProfileTest {
     @Test
     public void testPostCommand() {
         SystemFollowProfile profile = new SystemFollowProfile(mockCallback);
-        profile.postCommand(OnOffType.ON);
+        profile.onCommandFromHandler(OnOffType.ON);
 
-        verify(mockCallback).sendCommandEvent(eq(OnOffType.ON));
+        verify(mockCallback).sendCommand(eq(OnOffType.ON));
         verifyNoMoreInteractions(mockCallback);
     }
 

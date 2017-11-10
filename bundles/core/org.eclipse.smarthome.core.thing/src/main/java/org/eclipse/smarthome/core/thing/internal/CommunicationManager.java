@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
@@ -110,26 +111,21 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     }
 
     private Profile getProfile(ItemChannelLink link, Item item, Thing thing) {
-        ProfileTypeUID profileTypeUID = determineProfileTypeUID(link, item, thing);
-        Profile profile = getProfile(link, profileTypeUID);
-        return profile != null ? profile : new NoOpProfile();
-    }
-
-    private Profile getProfile(ItemChannelLink link, ProfileTypeUID profileTypeUID) {
-        Profile profile = null;
-        if (profileTypeUID != null) {
-            logger.trace("Going to use profile {} for link {}", profileTypeUID, link);
-            synchronized (profiles) {
-                profile = profiles.get(link.getUID());
-                if (profile == null) {
-                    profile = getProfileFromFactories(profileTypeUID, link, createCallback(link));
-                    if (profile != null) {
-                        profiles.put(link.getUID(), profile);
-                    }
+        synchronized (profiles) {
+            Profile profile = profiles.get(link.getUID());
+            if (profile != null) {
+                return profile;
+            }
+            ProfileTypeUID profileTypeUID = determineProfileTypeUID(link, item, thing);
+            if (profileTypeUID != null) {
+                profile = getProfileFromFactories(profileTypeUID, link, createCallback(link));
+                if (profile != null) {
+                    profiles.put(link.getUID(), profile);
+                    return profile;
                 }
             }
+            return new NoOpProfile();
         }
-        return profile;
     }
 
     private ProfileCallback createCallback(ItemChannelLink link) {
@@ -241,7 +237,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
             Thing thing = getThing(channelUID.getThingUID());
             Profile profile = getProfile(link, item, thing);
             if (profile instanceof StateProfile) {
-                ((StateProfile) profile).onCommand(command);
+                ((StateProfile) profile).onCommandFromItem(command);
             }
         });
     }
@@ -265,9 +261,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
             ChannelUID channelUID = link.getLinkedUID();
             Thing thing = getThing(channelUID.getThingUID());
             Profile profile = getProfile(link, item, thing);
-            if (profile instanceof StateProfile) {
-                ((StateProfile) profile).onUpdate(newState);
-            }
+            profile.onStateUpdateFromItem(newState);
         });
     }
 
@@ -284,7 +278,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
             if (item != null) {
                 Profile profile = getProfile(link, item, thing);
                 if (profile instanceof TriggerProfile) {
-                    ((TriggerProfile) profile).onTrigger(event);
+                    ((TriggerProfile) profile).onTriggerFromHandler(event);
                 }
             }
         });
@@ -301,7 +295,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
             if (item != null) {
                 Profile profile = getProfile(link, item, thing);
                 if (profile instanceof StateProfile) {
-                    ((StateProfile) profile).stateUpdated(state);
+                    ((StateProfile) profile).onStateUpdateFromHandler(state);
                 }
             }
         });
@@ -318,7 +312,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
             if (item != null) {
                 Profile profile = getProfile(link, item, thing);
                 if (profile instanceof StateProfile) {
-                    ((StateProfile) profile).postCommand(command);
+                    ((StateProfile) profile).onCommandFromHandler(command);
                 }
             }
         });
@@ -420,6 +414,15 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     }
 
     private static class NoOpProfile implements Profile {
+        @Override
+        public @NonNull ProfileTypeUID getProfileTypeUID() {
+            return new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "noop");
+        }
+
+        @Override
+        public void onStateUpdateFromItem(@NonNull State state) {
+            // no-op
+        }
     }
 
 }
