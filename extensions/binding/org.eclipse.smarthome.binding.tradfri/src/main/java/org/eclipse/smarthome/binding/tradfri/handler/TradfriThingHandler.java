@@ -7,14 +7,13 @@
  */
 package org.eclipse.smarthome.binding.tradfri.handler;
 
-import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_FIRMWARE_VERSION;
-import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_MODEL_ID;
-import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_VENDOR;
+import static org.eclipse.smarthome.core.thing.Thing.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.binding.tradfri.internal.CoapCallback;
 import org.eclipse.smarthome.binding.tradfri.internal.TradfriCoapClient;
 import org.eclipse.smarthome.binding.tradfri.internal.config.TradfriDeviceConfig;
@@ -46,45 +45,40 @@ public abstract class TradfriThingHandler extends BaseThingHandler implements Co
 
     protected TradfriCoapClient coapClient;
 
-    public TradfriThingHandler(Thing thing) {
+    public TradfriThingHandler(@NonNull Thing thing) {
         super(thing);
     }
 
     @Override
     public synchronized void initialize() {
         Bridge tradfriGateway = getBridge();
+        this.id = getConfigAs(TradfriDeviceConfig.class).id;
+        TradfriGatewayHandler handler = (TradfriGatewayHandler) tradfriGateway.getHandler();
+
+        String uriString = handler.getGatewayURI() + "/" + id;
+        try {
+            URI uri = new URI(uriString);
+            coapClient = new TradfriCoapClient(uri);
+            coapClient.setEndpoint(handler.getEndpoint());
+        } catch (URISyntaxException e) {
+            logger.debug("Illegal device URI `{}`: {}", uriString, e.getMessage());
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
+            return;
+        }
+        active = true;
+        updateStatus(ThingStatus.UNKNOWN);
         switch (tradfriGateway.getStatus()) {
             case ONLINE:
-                this.id = getConfigAs(TradfriDeviceConfig.class).id;
-                TradfriGatewayHandler handler = (TradfriGatewayHandler) tradfriGateway.getHandler();
-
-                String uriString = handler.getGatewayURI() + "/" + id;
-                try {
-                    URI uri = new URI(uriString);
-                    coapClient = new TradfriCoapClient(uri);
-                    coapClient.setEndpoint(handler.getEndpoint());
-                } catch (URISyntaxException e) {
-                    logger.debug("Illegal device URI `{}`: {}", uriString, e.getMessage());
-                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
-                    return;
-                }
-                updateStatus(ThingStatus.UNKNOWN);
-                active = true;
-
                 scheduler.schedule(() -> {
                     coapClient.startObserve(this);
                 }, 3, TimeUnit.SECONDS);
                 break;
-            case INITIALIZING:
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_UNINITIALIZED, "Tradfri gateway uninitialized");
-                break;
             case OFFLINE:
             default:
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE,
-                        String.format("Tradfri gateway offline '%s'", tradfriGateway.getStatusInfo()));
+                        String.format("Gateway offline '%s'", tradfriGateway.getStatusInfo()));
                 break;
         }
-
     }
 
     @Override
@@ -110,7 +104,10 @@ public abstract class TradfriThingHandler extends BaseThingHandler implements Co
         super.bridgeStatusChanged(bridgeStatusInfo);
 
         if (bridgeStatusInfo.getStatus() == ThingStatus.ONLINE) {
-            scheduler.submit(() -> coapClient.startObserve(this));
+            // the status might have changed because the bridge is completely reconfigured - so we need to re-establish
+            // our CoAP connection as well
+            dispose();
+            initialize();
         }
     }
 

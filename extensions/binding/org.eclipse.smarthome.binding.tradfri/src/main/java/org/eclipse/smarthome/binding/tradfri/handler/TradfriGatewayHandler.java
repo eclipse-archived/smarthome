@@ -26,6 +26,7 @@ import org.eclipse.californium.core.network.config.NetworkConfig;
 import org.eclipse.californium.scandium.DTLSConnector;
 import org.eclipse.californium.scandium.config.DtlsConnectorConfig;
 import org.eclipse.californium.scandium.dtls.pskstore.StaticPskStore;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants;
 import org.eclipse.smarthome.binding.tradfri.internal.CoapCallback;
 import org.eclipse.smarthome.binding.tradfri.internal.DeviceUpdateListener;
@@ -73,7 +74,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
 
     private ScheduledFuture<?> scanJob;
 
-    public TradfriGatewayHandler(Bridge bridge) {
+    public TradfriGatewayHandler(@NonNull Bridge bridge) {
         super(bridge);
     }
 
@@ -97,7 +98,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
                         "Either security code or identity and pre-shared key must be provided in the configuration!");
                 return;
             } else {
-                setupCoapClient();
+                establishConnection();
             }
         } else {
             if (isOldFirmware()) {
@@ -112,21 +113,26 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
                 editedConfig.put(TradfriBindingConstants.GATEWAY_CONFIG_PRE_SHARED_KEY, configuration.code);
                 updateConfiguration(editedConfig);
 
-                setupCoapClient();
+                establishConnection();
             } else {
-                /*
-                 * Running async operation to retrieve new <'identity','key'> pair
-                 */
-                scheduler.execute(this::obtainIdentityAndPreSharedKey);
+                updateStatus(ThingStatus.UNKNOWN);
+                // Running async operation to retrieve new <'identity','key'> pair
+                scheduler.execute(() -> {
+                    boolean success = obtainIdentityAndPreSharedKey();
+                    if (success) {
+                        establishConnection();
+                    }
+                });
             }
         }
     }
 
-    private void setupCoapClient() {
+    private void establishConnection() {
         TradfriGatewayConfig configuration = getConfigAs(TradfriGatewayConfig.class);
 
         this.gatewayURI = "coaps://" + configuration.host + ":" + configuration.port + "/" + DEVICES;
-        this.gatewayInfoURI = "coaps://" + configuration.host + ":" + configuration.port + "/" + GATEWAY + "/" + GATEWAY_DETAILS;
+        this.gatewayInfoURI = "coaps://" + configuration.host + ":" + configuration.port + "/" + GATEWAY + "/"
+                + GATEWAY_DETAILS;
         try {
             URI uri = new URI(gatewayURI);
             deviceClient = new TradfriCoapClient(uri);
@@ -147,7 +153,14 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
         scanJob = scheduler.scheduleWithFixedDelay(this::startScan, 0, 1, TimeUnit.MINUTES);
     }
 
-    protected void obtainIdentityAndPreSharedKey() {
+    /**
+     * Authenticates against the gateway with the security code in order to receive a pre-shared key for a newly
+     * generated identity.
+     * As this requires a remote request, this method might be long-running.
+     *
+     * @return true, if credentials were successfully obtained, false otherwise
+     */
+    protected boolean obtainIdentityAndPreSharedKey() {
         TradfriGatewayConfig configuration = getConfigAs(TradfriGatewayConfig.class);
 
         String identity = UUID.randomUUID().toString().replace("-", "");
@@ -165,6 +178,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
             authUrl = "coaps://" + configuration.host + ":" + configuration.port + "/15011/9063";
 
             CoapClient deviceClient = new CoapClient(new URI(authUrl));
+            deviceClient.setTimeout(TimeUnit.SECONDS.toMillis(10));
             deviceClient.setEndpoint(authEndpoint);
 
             JsonObject json = new JsonObject();
@@ -175,17 +189,27 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
             authEndpoint.destroy();
             deviceClient.shutdown();
 
+            if (gatewayResponse == null) {
+                // seems we ran in a timeout, which potentially also happens
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                        "No response from gateway. Might be due to an invalid security code.");
+                return false;
+            }
+
             if (gatewayResponse.isSuccess()) {
                 responseText = gatewayResponse.getResponseText();
                 json = new JsonParser().parse(responseText).getAsJsonObject();
                 preSharedKey = json.get(NEW_PSK_BY_GW).getAsString();
 
                 if (isNullOrEmpty(preSharedKey)) {
-                    logger.error("Pre-shared key was not obtain successfully");
-                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, "Pre-shared key was not obtain successfully");
+                    logger.error("Received pre-shared key is empty for thing {} on gateway at {}", getThing().getUID(),
+                            configuration.host);
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                            "Pre-shared key was not obtain successfully");
+                    return false;
                 } else {
-                    logger.info("Recieved pre-shared key for gateway '{}'", configuration.host);
-                    logger.debug("Using identity '{}' with pre-shared key '{}'. Code can be discarded now", identity, preSharedKey);
+                    logger.info("Received pre-shared key for gateway '{}'", configuration.host);
+                    logger.debug("Using identity '{}' with pre-shared key '{}'.", identity, preSharedKey);
 
                     Configuration editedConfig = editConfiguration();
                     editedConfig.put(TradfriBindingConstants.GATEWAY_CONFIG_CODE, null);
@@ -193,14 +217,16 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
                     editedConfig.put(TradfriBindingConstants.GATEWAY_CONFIG_PRE_SHARED_KEY, preSharedKey);
                     updateConfiguration(editedConfig);
 
-                    setupCoapClient();
+                    return true;
                 }
             } else {
-                logger.warn("Failed obtaining pre-shared key for identity '{}' (response code '{}', response text '{}')",
+                logger.warn(
+                        "Failed obtaining pre-shared key for identity '{}' (response code '{}', response text '{}')",
                         identity, gatewayResponse.getCode(),
-                        isNullOrEmpty(gatewayResponse.getResponseText()) ? "<empty>" : gatewayResponse.getResponseText());
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                        String.format("Failed obtaining pre-shared key with status code '%s'", gatewayResponse.getCode()));
+                        isNullOrEmpty(gatewayResponse.getResponseText()) ? "<empty>"
+                                : gatewayResponse.getResponseText());
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, String
+                        .format("Failed obtaining pre-shared key with status code '%s'", gatewayResponse.getCode()));
             }
         } catch (URISyntaxException e) {
             logger.error("Illegal gateway URI '{}'", authUrl, e);
@@ -210,6 +236,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
                     String.format("Invalid response recieved from gateway '%s'", responseText));
         }
+        return false;
     }
 
     @Override
@@ -339,7 +366,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
 
     /**
      * Checks current firmware in the thing properties and compares it with the value of {@link #MIN_SUPPORTED_VERSION}
-     * 
+     *
      * @return true if current firmware is older than {@value #MIN_SUPPORTED_VERSION}
      */
     private boolean isOldFirmware() {
