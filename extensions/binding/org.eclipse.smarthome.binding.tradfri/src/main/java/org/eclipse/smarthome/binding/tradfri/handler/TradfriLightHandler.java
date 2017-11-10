@@ -114,24 +114,26 @@ public class TradfriLightHandler extends TradfriThingHandler {
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        if (command instanceof RefreshType) {
-            logger.debug("Refreshing channel {}", channelUID);
-            coapClient.asyncGet(this);
-            return;
-        }
+        if (active) {
+            if (command instanceof RefreshType) {
+                logger.debug("Refreshing channel {}", channelUID);
+                coapClient.asyncGet(this);
+                return;
+            }
 
-        switch (channelUID.getId()) {
-            case CHANNEL_BRIGHTNESS:
-                handleBrightnessCommand(command);
-                break;
-            case CHANNEL_COLOR_TEMPERATURE:
-                handleColorTemperatureCommand(command);
-                break;
-            case CHANNEL_COLOR:
-                handleColorCommand(command);
-                break;
-            default:
-                logger.error("Unknown channel UID {}", channelUID);
+            switch (channelUID.getId()) {
+                case CHANNEL_BRIGHTNESS:
+                    handleBrightnessCommand(command);
+                    break;
+                case CHANNEL_COLOR_TEMPERATURE:
+                    handleColorTemperatureCommand(command);
+                    break;
+                case CHANNEL_COLOR:
+                    handleColorCommand(command);
+                    break;
+                default:
+                    logger.error("Unknown channel UID {}", channelUID);
+            }
         }
     }
 
