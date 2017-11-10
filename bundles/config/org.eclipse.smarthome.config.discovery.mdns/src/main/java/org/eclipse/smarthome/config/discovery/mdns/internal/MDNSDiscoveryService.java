@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Improved startup behavior and background discovery
  * @author Andre Fuechsel - make {@link #startScan()} asynchronous
  */
-@Component(immediate = true)
+@Component(immediate = true, service = DiscoveryService.class, configurationPid = "discovery.mdns")
 public class MDNSDiscoveryService extends AbstractDiscoveryService implements ServiceListener {
     private final Logger logger = LoggerFactory.getLogger(MDNSDiscoveryService.class);
 
