@@ -508,7 +508,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         registerConfigDescriptionProvider(true)
 
         def thingUID = new ThingUID("bindingId:type:thingId")
-        def thing = ThingBuilder.create(thingUID).build()
+        def thing = ThingBuilder.create(thingUID).withConfiguration(new Configuration([parameter: "someValue"] as Map)).build()
 
         managedThingProvider.add(thing)
 
