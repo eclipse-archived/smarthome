@@ -36,7 +36,11 @@ The following matrix lists the capabilities (channels) for each of the supported
 
 ## Thing Configuration
 
-The gateway requires a `host` parameter for the hostname or IP address and a `code`, which is the security code that is printed on the bottom of the gateway. Optionally, a `port` can be configured, but any standard gateway uses the default port 5684.
+For first pairing - the gateway requires a `host` parameter for the hostname or IP address and a `code`, which is the security code that is printed on the bottom of the gateway.
+Optionally, a `port` can be configured, but any standard gateway uses the default port 5684.
+
+The `code` is used during the initialization for retrieving unique identity and pre-shared key from the gateway (fw version 1.2.0042 onwards) and then it's discarded from the configuration. The newly created authentication data is stored in advanced parameters `identity` and `preSharedKey`.
+On each initialization if the code is present in the thing configuration - the `identity` and `preSharedKey` are recreated and the `code` is again discarded.
 
 The devices require only a single (integer) parameter, which is their instance id. Unfortunately, this is not displayed anywhere in the IKEA app, but it seems that they are sequentially numbered starting with 65537 for the first device. If in doubt, use the auto-discovered things to find out the correct instance ids.
 
