@@ -17,8 +17,7 @@ import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
-import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
-import org.eclipse.smarthome.core.thing.profiles.StateProfile;
+import org.eclipse.smarthome.core.thing.profiles.ProfileCallback;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -26,21 +25,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is the default profile for stateful channels.
- *
- * It forwards commands to the {@link ThingHandler}. In the other direction it posts events to the event bus
- * for state updates.
+ * {@link ProfileCallback} implementation.
  *
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
-public class DefaultMasterProfile implements StateProfile {
+public class ProfileCallbackImpl implements ProfileCallback {
 
-    private final Logger logger = LoggerFactory.getLogger(DefaultMasterProfile.class);
-    public static final ProfileTypeUID UID = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "master", "Master");
+    private final Logger logger = LoggerFactory.getLogger(ProfileCallbackImpl.class);
+
+    private final EventPublisher eventPublisher;
+    private final Thing thing;
+    private final ItemChannelLink link;
+    private final Item item;
+
+    public ProfileCallbackImpl(EventPublisher eventPublisher, ItemChannelLink link, Thing thing, Item item) {
+        this.eventPublisher = eventPublisher;
+        this.link = link;
+        this.thing = thing;
+        this.item = item;
+    }
 
     @Override
-    public void onCommand(ItemChannelLink link, Thing thing, Command command) {
+    public void handleCommand(Command command) {
         if (thing != null) {
             final ThingHandler handler = thing.getHandler();
             if (handler != null) {
@@ -80,20 +87,56 @@ public class DefaultMasterProfile implements StateProfile {
     }
 
     @Override
-    public void stateUpdated(EventPublisher eventPublisher, ItemChannelLink link, State state, Item item) {
+    public void handleUpdate(State state) {
+        if (thing != null) {
+            final ThingHandler handler = thing.getHandler();
+            if (handler != null) {
+                if (ThingHandlerHelper.isHandlerInitialized(thing)) {
+                    logger.debug("Delegating update '{}' for item '{}' to handler for channel '{}'", state,
+                            link.getItemName(), link.getLinkedUID());
+                    try {
+                        SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
+                            @Override
+                            public Void call() throws Exception {
+                                handler.handleUpdate(link.getLinkedUID(), state);
+                                return null;
+                            }
+                        });
+                    } catch (TimeoutException ex) {
+                        logger.warn("Handler for thing '{}' takes more than {}ms for handling an update",
+                                handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
+                    } catch (Exception ex) {
+                        logger.error("Exception occurred while calling handler: {}", ex.getMessage(), ex);
+                    }
+                } else {
+                    logger.debug("Not delegating update '{}' for item '{}' to handler for channel '{}', "
+                            + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE but was {}).",
+                            state, link.getItemName(), link.getLinkedUID(), thing.getStatus());
+                }
+            } else {
+                logger.warn("Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
+                        + "because no handler is assigned. Maybe the binding is not installed or not "
+                        + "propertly initialized.", state, link.getItemName(), link.getLinkedUID());
+            }
+        } else {
+            logger.warn(
+                    "Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
+                            + "because no thing with the UID '{}' could be found.",
+                    state, link.getItemName(), link.getLinkedUID(), link.getLinkedUID().getThingUID());
+        }
+    }
+
+    @Override
+    public void sendCommand(Command command) {
+        eventPublisher
+                .post(ItemEventFactory.createCommandEvent(link.getItemName(), command, link.getLinkedUID().toString()));
+    }
+
+    @Override
+    public void sendUpdate(State state) {
         State acceptedState = ItemUtil.convertToAcceptedState(state, item);
         eventPublisher.post(
                 ItemEventFactory.createStateEvent(link.getItemName(), acceptedState, link.getLinkedUID().toString()));
-    }
-
-    @Override
-    public void postCommand(EventPublisher eventPublisher, ItemChannelLink link, Command command, Item item) {
-        // no-op
-    }
-
-    @Override
-    public void onUpdate(ItemChannelLink link, Thing thing, State state) {
-        // no-op
     }
 
 }

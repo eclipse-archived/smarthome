@@ -7,13 +7,9 @@
  */
 package org.eclipse.smarthome.core.thing.profiles;
 
-import java.util.Collection;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.Channel;
-import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 
 /**
  * Implementors can give advice which {@link Profile}s can/should be used for a given link.
@@ -25,19 +21,7 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 public interface ProfileAdvisor {
 
     /**
-     * Return all custom profiles which can be applied to the given link.
-     *
-     * Please note: The default profiles must not returned here.
-     *
-     * @param link the Link
-     * @param item the linked item (for convenience)
-     * @param channel the linked channel (for convenience)
-     * @return a collection of profile type IDs.
-     */
-    Collection<ProfileTypeUID> getApplicableProfileTypeUIDs(ItemChannelLink link, Item item, Channel channel);
-
-    /**
-     * Suggest a custom profile for the given link, if applicable at all.
+     * Suggest a custom profile for the given channel (and potentially also the itemType).
      *
      * Please note:
      * <ul>
@@ -45,12 +29,11 @@ public interface ProfileAdvisor {
      * <li>A "profile" configuration on the link will override this suggestion
      * </ul>
      *
-     * @param link the Link
-     * @param item the linked item (for convenience)
-     * @param channel the linked channel (for convenience)
+     * @param channel the linked channel
+     * @param itemType the linked itemType (not applicable for trigger channels)
      * @return the profile identifier or {@code null} if this advisor
      */
     @Nullable
-    ProfileTypeUID getSuggestedProfileTypeUID(ItemChannelLink link, Item item, Channel channel);
+    ProfileTypeUID getSuggestedProfileTypeUID(Channel channel, @Nullable String itemType);
 
 }
