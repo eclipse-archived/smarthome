@@ -34,8 +34,8 @@ import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.internal.link.ItemChannelLinkConfigDescriptionProvider;
-import org.eclipse.smarthome.core.thing.internal.profiles.SystemProfileFactory;
 import org.eclipse.smarthome.core.thing.internal.profiles.ProfileCallbackImpl;
+import org.eclipse.smarthome.core.thing.internal.profiles.SystemProfileFactory;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.profiles.Profile;
@@ -197,13 +197,13 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
             ProfileCallback callback) {
         if (supportsProfileTypeUID(defaultProfileFactory, profileTypeUID)) {
             logger.trace("using the default ProfileFactory to create profile '{}'", profileTypeUID);
-            return defaultProfileFactory.createProfile(profileTypeUID, callback);
+            return defaultProfileFactory.createProfile(profileTypeUID, callback, link.getConfiguration());
         }
         for (Entry<ProfileFactory, Set<String>> entry : profileFactories.entrySet()) {
             ProfileFactory factory = entry.getKey();
             if (supportsProfileTypeUID(factory, profileTypeUID)) {
                 logger.trace("using ProfileFactory '{}' to create profile '{}'", factory, profileTypeUID);
-                Profile profile = factory.createProfile(profileTypeUID, callback);
+                Profile profile = factory.createProfile(profileTypeUID, callback, link.getConfiguration());
                 if (profile == null) {
                     logger.error("ProfileFactory {} returned 'null' although it claimed it supports {}", factory,
                             profileTypeUID);

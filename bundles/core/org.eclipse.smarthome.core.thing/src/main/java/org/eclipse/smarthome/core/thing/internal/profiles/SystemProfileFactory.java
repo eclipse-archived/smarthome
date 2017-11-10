@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang.NotImplementedException;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -52,7 +53,7 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
             .collect(Collectors.toSet());
 
     @Override
-    public Profile createProfile(ProfileTypeUID profileTypeUID, ProfileCallback callback) {
+    public Profile createProfile(ProfileTypeUID profileTypeUID, ProfileCallback callback, Configuration configuration) {
         if (SystemProfiles.DEFAULT.equals(profileTypeUID)) {
             return new SystemDefaultProfile(callback);
         } else if (SystemProfiles.FOLLOW.equals(profileTypeUID)) {
