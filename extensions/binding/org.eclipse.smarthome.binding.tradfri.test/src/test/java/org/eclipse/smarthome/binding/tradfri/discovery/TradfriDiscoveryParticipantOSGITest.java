@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.binding.tradfri.discovery;
 
 import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
-import static org.eclipse.smarthome.binding.tradfri.internal.config.TradfriGatewayConfig.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
