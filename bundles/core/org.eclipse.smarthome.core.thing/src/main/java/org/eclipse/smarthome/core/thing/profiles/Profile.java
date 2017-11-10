@@ -7,6 +7,9 @@
  */
 package org.eclipse.smarthome.core.thing.profiles;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.smarthome.core.types.State;
+
 /**
  * Common ancestor of all profile types.
  *
@@ -19,6 +22,16 @@ package org.eclipse.smarthome.core.thing.profiles;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
+@NonNullByDefault
 public interface Profile {
+
+    ProfileTypeUID getProfileTypeUID();
+
+    /**
+     * Will be called if an item has changed its state and this information should be forwarded to the binding.
+     *
+     * @param state
+     */
+    void onStateUpdateFromItem(State state);
 
 }
