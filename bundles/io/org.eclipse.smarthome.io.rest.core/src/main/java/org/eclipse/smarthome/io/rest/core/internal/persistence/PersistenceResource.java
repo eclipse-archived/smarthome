@@ -73,7 +73,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(PersistenceResource.PATH)
 @Api(value = PersistenceResource.PATH)
-@Component
+@Component(service = { RESTResource.class, PersistenceResource.class })
 public class PersistenceResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceResource.class);

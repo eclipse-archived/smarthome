@@ -51,7 +51,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(DiscoveryResource.PATH_DISCOVERY)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = DiscoveryResource.PATH_DISCOVERY)
-@Component
+@Component(service = { RESTResource.class, DiscoveryResource.class })
 public class DiscoveryResource implements RESTResource {
 
     /** The URI path to this resource */

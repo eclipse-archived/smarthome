@@ -52,7 +52,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(ConfigDescriptionResource.PATH_CONFIG_DESCRIPTIONS)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ConfigDescriptionResource.PATH_CONFIG_DESCRIPTIONS)
-@Component
+@Component(service = { RESTResource.class, ConfigDescriptionResource.class })
 public class ConfigDescriptionResource implements RESTResource {
 
     /** The URI path to this resource */

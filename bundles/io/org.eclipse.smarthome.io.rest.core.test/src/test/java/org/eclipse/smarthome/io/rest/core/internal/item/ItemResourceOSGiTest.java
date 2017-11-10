@@ -10,7 +10,7 @@ package org.eclipse.smarthome.io.rest.core.internal.item;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -31,13 +31,14 @@ import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.items.dto.GroupItemDTO;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
-import org.eclipse.smarthome.io.rest.core.internal.item.ItemResource;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import com.google.common.collect.Lists;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.jayway.jsonpath.JsonPath;
 
 public class ItemResourceOSGiTest extends JavaOSGiTest {
@@ -81,25 +82,25 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
         item2.addTag("Tag2");
         item3.addTag("Tag2");
 
-        Response response = itemResource.getItems(null, null, "Tag1", false);
+        Response response = itemResource.getItems(null, null, "Tag1", false, null);
         assertThat(readItemNamesFromResponse(response), hasItems(ITEM_NAME1, ITEM_NAME2));
 
-        response = itemResource.getItems(null, null, "Tag2", false);
+        response = itemResource.getItems(null, null, "Tag2", false, null);
         assertThat(readItemNamesFromResponse(response), hasItems(ITEM_NAME2, ITEM_NAME3));
 
-        response = itemResource.getItems(null, null, "NotExistingTag", false);
+        response = itemResource.getItems(null, null, "NotExistingTag", false, null);
         assertThat(readItemNamesFromResponse(response), hasSize(0));
     }
 
     @Test
     public void shouldFilterItemsByType() throws Exception {
-        Response response = itemResource.getItems(null, "Switch", null, false);
+        Response response = itemResource.getItems(null, "Switch", null, false, null);
         assertThat(readItemNamesFromResponse(response), hasItems(ITEM_NAME1, ITEM_NAME2));
 
-        response = itemResource.getItems(null, "Dimmer", null, false);
+        response = itemResource.getItems(null, "Dimmer", null, false, null);
         assertThat(readItemNamesFromResponse(response), hasItems(ITEM_NAME3));
 
-        response = itemResource.getItems(null, "Color", null, false);
+        response = itemResource.getItems(null, "Color", null, false, null);
         assertThat(readItemNamesFromResponse(response), hasSize(0));
     }
 
@@ -107,16 +108,28 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
     public void shouldAddAndRemoveTags() throws Exception {
         managedItemProvider.add(new SwitchItem("Switch"));
 
-        Response response = itemResource.getItems(null, null, "MyTag", false);
+        Response response = itemResource.getItems(null, null, "MyTag", false, null);
         assertThat(readItemNamesFromResponse(response), hasSize(0));
 
         itemResource.addTag("Switch", "MyTag");
-        response = itemResource.getItems(null, null, "MyTag", false);
+        response = itemResource.getItems(null, null, "MyTag", false, null);
         assertThat(readItemNamesFromResponse(response), hasSize(1));
 
         itemResource.removeTag("Switch", "MyTag");
-        response = itemResource.getItems(null, null, "MyTag", false);
+        response = itemResource.getItems(null, null, "MyTag", false, null);
         assertThat(readItemNamesFromResponse(response), hasSize(0));
+    }
+
+    @Test
+    public void shouldIncludeRequestedFieldsOnly() throws Exception {
+        JsonParser parser = new JsonParser();
+        managedItemProvider.add(new SwitchItem("Switch"));
+        itemResource.addTag("Switch", "MyTag");
+        Response response = itemResource.getItems(null, null, "MyTag", false, "type,name");
+
+        JsonElement result = parser.parse(IOUtils.toString((InputStream) response.getEntity()));
+        JsonElement expected = parser.parse("[{type: \"Switch\", name: \"Switch\"}]");
+        assertEquals(expected, result);
     }
 
     @Test

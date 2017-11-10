@@ -67,7 +67,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(BindingResource.PATH_BINDINGS)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = BindingResource.PATH_BINDINGS)
-@Component
+@Component(service = { RESTResource.class, BindingResource.class })
 public class BindingResource implements RESTResource {
 
     /** The URI path to this resource */

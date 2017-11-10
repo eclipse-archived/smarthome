@@ -65,7 +65,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(ExtensionResource.PATH_EXTENSIONS)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ExtensionResource.PATH_EXTENSIONS)
-@Component
+@Component(service = { RESTResource.class, ExtensionResource.class })
 public class ExtensionResource implements RESTResource {
 
     private static final String THREAD_POOL_NAME = "extensionService";

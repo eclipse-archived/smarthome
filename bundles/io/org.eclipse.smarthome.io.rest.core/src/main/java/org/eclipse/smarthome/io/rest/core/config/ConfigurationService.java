@@ -30,7 +30,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Dennis Nobel - Initial contribution
  *
  */
-@Component
+@Component(service = ConfigurationService.class)
 public class ConfigurationService {
 
     private ConfigurationAdmin configurationAdmin;

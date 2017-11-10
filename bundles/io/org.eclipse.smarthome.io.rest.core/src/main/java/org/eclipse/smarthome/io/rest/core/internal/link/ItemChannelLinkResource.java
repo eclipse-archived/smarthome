@@ -55,7 +55,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(ItemChannelLinkResource.PATH_LINKS)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ItemChannelLinkResource.PATH_LINKS)
-@Component
+@Component(service = { RESTResource.class, ItemChannelLinkResource.class })
 public class ItemChannelLinkResource implements RESTResource {
 
     /** The URI path to this resource */

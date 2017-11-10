@@ -56,7 +56,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(ChannelTypeResource.PATH_CHANNEL_TYPES)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ChannelTypeResource.PATH_CHANNEL_TYPES)
-@Component
+@Component(service = { RESTResource.class, ChannelTypeResource.class })
 public class ChannelTypeResource implements RESTResource {
 
     /** The URI path to this resource */

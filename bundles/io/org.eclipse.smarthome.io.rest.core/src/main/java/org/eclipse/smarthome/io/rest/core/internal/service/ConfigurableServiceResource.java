@@ -65,7 +65,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(ConfigurableServiceResource.PATH_SERVICES)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ConfigurableServiceResource.PATH_SERVICES)
-@Component
+@Component(service = { RESTResource.class, ConfigurableServiceResource.class })
 public class ConfigurableServiceResource implements RESTResource {
 
     /** The URI path to this resource */

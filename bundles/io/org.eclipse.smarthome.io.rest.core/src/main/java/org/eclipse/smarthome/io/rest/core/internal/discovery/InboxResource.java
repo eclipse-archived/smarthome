@@ -59,7 +59,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(InboxResource.PATH_INBOX)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = InboxResource.PATH_INBOX)
-@Component
+@Component(service = { RESTResource.class, InboxResource.class })
 public class InboxResource implements RESTResource {
 
     /** The URI path to this resource */

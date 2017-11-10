@@ -102,7 +102,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(ItemResource.PATH_ITEMS)
 @Api(value = ItemResource.PATH_ITEMS)
-@Component
+@Component(service = { RESTResource.class, ItemResource.class })
 public class ItemResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ItemResource.class);

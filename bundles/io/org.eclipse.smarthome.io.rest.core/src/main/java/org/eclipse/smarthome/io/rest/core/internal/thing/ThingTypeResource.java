@@ -78,7 +78,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(ThingTypeResource.PATH_THINGS_TYPES)
 @Api(value = ThingTypeResource.PATH_THINGS_TYPES)
-@Component
+@Component(service = { RESTResource.class, ThingTypeResource.class })
 public class ThingTypeResource implements RESTResource {
 
     /** The URI path to this resource */
