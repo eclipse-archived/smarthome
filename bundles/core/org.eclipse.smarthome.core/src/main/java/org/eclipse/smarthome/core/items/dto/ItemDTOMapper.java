@@ -18,6 +18,7 @@ import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction;
+import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.slf4j.LoggerFactory;
@@ -82,24 +83,11 @@ public class ItemDTOMapper {
 
     public static GroupFunction mapFunction(Item baseItem, GroupFunctionDTO function) {
         List<State> args = new ArrayList<State>();
-        if (function.params != null) {
-            for (String arg : function.params) {
-                State state = TypeParser.parseState(baseItem.getAcceptedDataTypes(), arg);
-                if (state == null) {
-                    LoggerFactory.getLogger(ItemDTOMapper.class).warn(
-                            "State '{}' is not valid for a group item with base type '{}'",
-                            new Object[] { arg, baseItem.getType() });
-                    args.clear();
-                    break;
-                } else {
-                    args.add(state);
-                }
-            }
-        }
 
         GroupFunction groupFunction = null;
         switch (function.name.toUpperCase()) {
             case "AND":
+                args = parseStates(baseItem, function.params);
                 if (args.size() == 2) {
                     groupFunction = new ArithmeticGroupFunction.And(args.get(0), args.get(1));
                 } else {
@@ -108,6 +96,7 @@ public class ItemDTOMapper {
                 }
                 break;
             case "OR":
+                args = parseStates(baseItem, function.params);
                 if (args.size() == 2) {
                     groupFunction = new ArithmeticGroupFunction.Or(args.get(0), args.get(1));
                 } else {
@@ -116,6 +105,7 @@ public class ItemDTOMapper {
                 }
                 break;
             case "NAND":
+                args = parseStates(baseItem, function.params);
                 if (args.size() == 2) {
                     groupFunction = new ArithmeticGroupFunction.NAnd(args.get(0), args.get(1));
                 } else {
@@ -124,6 +114,7 @@ public class ItemDTOMapper {
                 }
                 break;
             case "NOR":
+                args = parseStates(baseItem, function.params);
                 if (args.size() == 2) {
                     groupFunction = new ArithmeticGroupFunction.NOr(args.get(0), args.get(1));
                 } else {
@@ -132,8 +123,9 @@ public class ItemDTOMapper {
                 }
                 break;
             case "COUNT":
-                if (args.size() == 1) {
-                    groupFunction = new ArithmeticGroupFunction.Count(args.get(0));
+                if (function.params != null && function.params.length == 1) {
+                    State countParam = new StringType(function.params[0]);
+                    groupFunction = new ArithmeticGroupFunction.Count(countParam);
                 } else {
                     LoggerFactory.getLogger(ItemDTOMapper.class)
                             .error("Group function 'COUNT' requires one argument. Using Equality instead.");
@@ -164,6 +156,28 @@ public class ItemDTOMapper {
         }
 
         return groupFunction;
+    }
+
+    private static List<State> parseStates(Item baseItem, String[] params) {
+        List<State> states = new ArrayList<State>();
+
+        if (params == null) {
+            return states;
+        }
+
+        for (String param : params) {
+            State state = TypeParser.parseState(baseItem.getAcceptedDataTypes(), param);
+            if (state == null) {
+                LoggerFactory.getLogger(ItemDTOMapper.class).warn(
+                        "State '{}' is not valid for a group item with base type '{}'",
+                        new Object[] { param, baseItem.getType() });
+                states.clear();
+                break;
+            } else {
+                states.add(state);
+            }
+        }
+        return states;
     }
 
     /**
