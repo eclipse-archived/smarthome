@@ -39,6 +39,13 @@ public class TradfriBindingConstants {
             .unmodifiableSet(Stream.of(THING_TYPE_DIMMABLE_LIGHT, THING_TYPE_COLOR_TEMP_LIGHT, THING_TYPE_COLOR_LIGHT)
                     .collect(Collectors.toSet()));
 
+    // List of all Gateway Configuration Properties
+    public static final String GATEWAY_CONFIG_HOST = "host";
+    public static final String GATEWAY_CONFIG_PORT = "port";
+    public static final String GATEWAY_CONFIG_CODE = "code";
+    public static final String GATEWAY_CONFIG_IDENTITY = "identity";
+    public static final String GATEWAY_CONFIG_PRE_SHARED_KEY = "preSharedKey";
+    
     // Not yet used - included for future support
     public static final Set<ThingTypeUID> SUPPORTED_CONTROLLER_TYPES_UIDS = Collections.unmodifiableSet(Stream
             .of(THING_TYPE_DIMMER, THING_TYPE_REMOTE_CONTROL, THING_TYPE_MOTION_SENSOR).collect(Collectors.toSet()));

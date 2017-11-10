@@ -14,11 +14,9 @@ package org.eclipse.smarthome.binding.tradfri.internal.config;
  */
 public class TradfriGatewayConfig {
 
-    public static final String CONFIG_HOST = "host";
-    public static final String CONFIG_PORT = "port";
-    public static final String CONFIG_CODE = "code";
-
     public String host;
     public int port = 5684; // default port
     public String code;
+    public String identity;
+    public String preSharedKey;
 }

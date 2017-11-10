@@ -7,14 +7,18 @@
  */
 package org.eclipse.smarthome.binding.tradfri.internal.discovery;
 
+import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.GATEWAY_CONFIG_HOST;
+import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.GATEWAY_CONFIG_PORT;
 import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.GATEWAY_TYPE_UID;
-import static org.eclipse.smarthome.binding.tradfri.internal.config.TradfriGatewayConfig.*;
-import static org.eclipse.smarthome.core.thing.Thing.*;
+import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_FIRMWARE_VERSION;
+import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_VENDOR;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.jmdns.ServiceInfo;
 
@@ -37,6 +41,14 @@ public class TradfriDiscoveryParticipant implements MDNSDiscoveryParticipant {
 
     private static final String SERVICE_TYPE = "_coap._udp.local.";
 
+    /**
+     * RegEx patter to match the gateway name announced by mDNS
+     * Possible values:
+     * gw:001122334455, gw-001122334455, gw:00-11-22-33-44-55, gw-001122334455ServiceName
+     * 
+     */
+    private final Pattern GATEWAY_NAME_REGEX_PATTERN = Pattern.compile("(gw[:-]{1}([a-f0-9]{2}[-]?){6}){1}");
+
     @Override
     public Set<ThingTypeUID> getSupportedThingTypeUIDs() {
         return Collections.singleton(GATEWAY_TYPE_UID);
@@ -50,10 +62,9 @@ public class TradfriDiscoveryParticipant implements MDNSDiscoveryParticipant {
     @Override
     public ThingUID getThingUID(ServiceInfo service) {
         if (service != null) {
-            String name = service.getName();
-            if ((service.getType() != null) && service.getType().equals(getServiceType())
-                    && (name.matches("gw:([a-f0-9]{2}[-]?){6}"))) {
-                return new ThingUID(GATEWAY_TYPE_UID, name.replaceAll("[^A-Za-z0-9_]", ""));
+            Matcher m = GATEWAY_NAME_REGEX_PATTERN.matcher(service.getName());
+            if (m.find()) {
+                return new ThingUID(GATEWAY_TYPE_UID, m.group(1).replaceAll("[^A-Za-z0-9_]", ""));
             }
         }
         return null;
@@ -62,23 +73,22 @@ public class TradfriDiscoveryParticipant implements MDNSDiscoveryParticipant {
     @Override
     public DiscoveryResult createResult(ServiceInfo service) {
 
-        if (service.getHostAddresses() != null && service.getHostAddresses().length > 0
-                && !service.getHostAddresses()[0].isEmpty()) {
-            String ip = service.getHostAddresses()[0];
-
-            ThingUID thingUID = getThingUID(service);
-            if (thingUID != null) {
+        ThingUID thingUID = getThingUID(service);
+        if (thingUID != null) {
+            if (service.getHostAddresses() != null && service.getHostAddresses().length > 0 && !service.getHostAddresses()[0].isEmpty()) {
                 logger.debug("Discovered Tradfri gateway: {}", service);
                 Map<String, Object> properties = new HashMap<>(4);
                 properties.put(PROPERTY_VENDOR, "IKEA of Sweden");
-                properties.put(CONFIG_HOST, ip);
-                properties.put(CONFIG_PORT, service.getPort());
+                properties.put(GATEWAY_CONFIG_HOST, service.getHostAddresses()[0]);
+                properties.put(GATEWAY_CONFIG_PORT, service.getPort());
                 String fwVersion = service.getPropertyString("version");
                 if (fwVersion != null) {
                     properties.put(PROPERTY_FIRMWARE_VERSION, fwVersion);
                 }
                 return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel("TRÅDFRI Gateway")
-                        .withRepresentationProperty(CONFIG_HOST).build();
+                        .withRepresentationProperty(GATEWAY_CONFIG_HOST).build();
+            } else {
+                logger.warn("Discovered Tradfri gateway doesn't have an IP address: {}", service);
             }
         }
         return null;

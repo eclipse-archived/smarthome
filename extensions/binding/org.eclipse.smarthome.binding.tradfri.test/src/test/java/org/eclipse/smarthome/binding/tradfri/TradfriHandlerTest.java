@@ -9,7 +9,7 @@ package org.eclipse.smarthome.binding.tradfri;
 
 import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
 import static org.eclipse.smarthome.binding.tradfri.internal.config.TradfriDeviceConfig.*;
-import static org.eclipse.smarthome.binding.tradfri.internal.config.TradfriGatewayConfig.*;
+
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -49,8 +49,9 @@ public class TradfriHandlerTest extends JavaOSGiTest {
         managedThingProvider = getService(ThingProvider.class, ManagedThingProvider.class);
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put(CONFIG_HOST, "1.2.3.4");
-        properties.put(CONFIG_CODE, "abc");
+        properties.put(GATEWAY_CONFIG_HOST, "1.2.3.4");
+        properties.put(GATEWAY_CONFIG_IDENTITY, "identity");
+        properties.put(GATEWAY_CONFIG_PRE_SHARED_KEY, "pre-shared-secret-key");
         bridge = BridgeBuilder.create(GATEWAY_TYPE_UID, "1").withLabel("My Gateway")
                 .withConfiguration(new Configuration(properties)).build();
 
@@ -80,8 +81,9 @@ public class TradfriHandlerTest extends JavaOSGiTest {
         Configuration configuration = bridge.getConfiguration();
         assertThat(configuration, is(notNullValue()));
 
-        assertThat(configuration.get(CONFIG_HOST), is("1.2.3.4"));
-        assertThat(configuration.get(CONFIG_CODE), is("abc"));
+        assertThat(configuration.get(GATEWAY_CONFIG_HOST), is("1.2.3.4"));
+        assertThat(configuration.get(GATEWAY_CONFIG_IDENTITY), is("identity"));
+        assertThat(configuration.get(GATEWAY_CONFIG_PRE_SHARED_KEY), is("pre-shared-secret-key"));
     }
 
     @Test
