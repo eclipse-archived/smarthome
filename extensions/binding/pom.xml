@@ -18,6 +18,9 @@
   <modules>
     <module>org.eclipse.smarthome.binding.astro</module>
     <module>org.eclipse.smarthome.binding.astro.test</module>
+    <module>org.eclipse.smarthome.binding.ble</module>
+    <module>org.eclipse.smarthome.binding.ble.bluegiga</module>
+    <module>org.eclipse.smarthome.binding.ble.yeelightblue</module>
     <module>org.eclipse.smarthome.binding.digitalstrom</module>
     <module>org.eclipse.smarthome.binding.dmx</module>
     <module>org.eclipse.smarthome.binding.dmx.test</module>

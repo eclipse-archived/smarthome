@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name:  Ble Binding Tests
+Bundle-SymbolicName: org.eclipse.smarthome.binding.ble.test;singleton:=true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Fragment-Host: org.eclipse.smarthome.binding.ble
+Import-Package: org.eclipse.smarthome.binding.ble,
+ org.eclipse.smarthome.binding.ble.handler,
+ org.slf4j,
+ org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.thing.util,
+ org.eclipse.smarthome.test.storage,
+ org.eclipse.smarthome.test.java,
+ org.hamcrest;core=split,
+ org.mockito,
+ org.junit;version="4.0.0",
+ org.osgi.service.device,
+ org.osgi.framework
+Require-Bundle: org.junit,org.mockito,org.hamcrest
+Export-Package: org.eclipse.smarthome.binding.ble.internal;x-internal:=true,
+ org.eclipse.smarthome.binding.ble;uses:="org.eclipse.smarthome.test"
+
