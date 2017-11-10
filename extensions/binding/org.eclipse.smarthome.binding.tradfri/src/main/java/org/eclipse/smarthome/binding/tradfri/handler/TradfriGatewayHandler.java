@@ -141,6 +141,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
         dtlsConnector = new DTLSConnector(builder.build());
         endPoint = new TradfriCoapEndpoint(dtlsConnector, NetworkConfig.getStandard());
         deviceClient.setEndpoint(endPoint);
+        updateStatus(ThingStatus.UNKNOWN);
 
         // schedule a new scan every minute
         scanJob = scheduler.scheduleWithFixedDelay(this::startScan, 0, 1, TimeUnit.MINUTES);
@@ -180,7 +181,8 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
                 preSharedKey = json.get(NEW_PSK_BY_GW).getAsString();
 
                 if (isNullOrEmpty(preSharedKey)) {
-                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Pre-shared key was not obtain successfully");
+                    logger.error("Pre-shared key was not obtain successfully");
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, "Pre-shared key was not obtain successfully");
                 } else {
                     logger.info("Recieved pre-shared key for gateway '{}'", configuration.host);
                     logger.debug("Using identity '{}' with pre-shared key '{}'. Code can be discarded now", identity, preSharedKey);
@@ -205,7 +207,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
         } catch (JsonParseException e) {
             logger.warn("Invalid response recieved from gateway '{}'", responseText, e);
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
                     String.format("Invalid response recieved from gateway '%s'", responseText));
         }
     }
@@ -343,5 +345,15 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
     private boolean isOldFirmware() {
         String currentFirmware = thing.getProperties().get(Thing.PROPERTY_FIRMWARE_VERSION);
         return currentFirmware == null || MIN_SUPPORTED_VERSION.compareTo(currentFirmware) > 0;
+    }
+
+    @Override
+    public void thingUpdated(Thing thing) {
+        super.thingUpdated(thing);
+
+        logger.info("Bridge configuration updated. Updating paired things (if any).");
+        for (Thing t : ((Bridge) thing).getThings()) {
+            t.getHandler().thingUpdated(t);
+        }
     }
 }
