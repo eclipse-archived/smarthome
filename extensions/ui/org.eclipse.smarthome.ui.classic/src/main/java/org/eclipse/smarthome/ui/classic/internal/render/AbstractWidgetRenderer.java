@@ -13,14 +13,18 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
+import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.PercentType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.classic.internal.WebAppActivator;
@@ -43,6 +47,8 @@ import org.slf4j.LoggerFactory;
 abstract public class AbstractWidgetRenderer implements WidgetRenderer {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractWidgetRenderer.class);
+
+    private static final Pattern LABEL_PATTERN = Pattern.compile(".*?\\[.*? (.*?)\\]");
 
     protected WebAppConfig config;
 
@@ -241,6 +247,46 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
     @Override
     public void setConfig(WebAppConfig config) {
         this.config = config;
+    }
+
+    protected String getUnitForWidget(Widget w) {
+        String unit = getUnitFromLabel(w.getLabel());
+        if (StringUtils.isNotBlank(unit) && !"%unit%".equals(unit)) {
+            return unit;
+        }
+
+        try {
+            Item item = itemUIRegistry.getItem(w.getItem());
+            if (item instanceof NumberItem && ((NumberItem) item).getDimension() != null) {
+                return ((NumberItem) item).getUnitSymbol();
+            }
+        } catch (ItemNotFoundException e) {
+            logger.debug("Failed to retrieve item during widget rendering: {}", e.getMessage());
+        }
+
+        return "";
+    }
+
+    protected State convertStateToLabelUnit(QuantityType state, String label) {
+        String labelUnit = label.lastIndexOf(" ") > 0 ? label.substring(label.lastIndexOf(" ")) : null;
+        if (labelUnit != null && !state.getUnit().toString().equals(labelUnit)) {
+            return state.toUnit(labelUnit);
+        }
+
+        return state;
+    }
+
+    private String getUnitFromLabel(String label) {
+        if (StringUtils.isBlank(label)) {
+            return null;
+        }
+
+        Matcher m = LABEL_PATTERN.matcher(label);
+        if (m.matches()) {
+            return m.group(1);
+        }
+
+        return null;
     }
 
 }
