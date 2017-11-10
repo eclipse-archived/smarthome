@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.thing.binding;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -138,6 +139,11 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     @Override
     public void handleConfigurationUpdate(Map<String, Object> configurationParameters) {
+
+        if (!isModifyingCurrentConfig(configurationParameters)) {
+            return;
+        }
+
         validateConfigurationParameters(configurationParameters);
 
         // can be overridden by subclasses
@@ -156,6 +162,24 @@ public abstract class BaseThingHandler implements ThingHandler {
             updateConfiguration(configuration);
             callback.configurationUpdated(getThing());
         }
+    }
+
+    /**
+     * Checks whether a given list of parameters would mean any change to the existing Thing configuration if applied to
+     * it.
+     * Note that the passed parameters might be a subset of the existing configuration.
+     *
+     * @param configurationParameters the parameters to check against the current configuration
+     * @return true if the parameters would result in a modified configuration, false otherwise
+     */
+    protected boolean isModifyingCurrentConfig(@NonNull Map<String, Object> configurationParameters) {
+        Configuration currentConfig = getConfig();
+        for (Entry<String, Object> entry : configurationParameters.entrySet()) {
+            if (!Objects.equals(currentConfig.get(entry.getKey()), entry.getValue())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
