@@ -54,9 +54,10 @@
     <build.helper.maven.plugin.version>1.8</build.helper.maven.plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <sat.version>0.4.1</sat.version>
-    <eea-url>http://www.TODO.tld</eea-url>
-    <eea-dir>path/to/file/on/server</eea-dir>
-    <eea-file>jdk.zip</eea-file>
+    <!-- TODO: insert one project that contains ALL annotations here-->
+    <eea-groupId>org.lastnpe.eea</eea-groupId>
+    <eea-artifactId>jdk-eea</eea-artifactId>
+    <eea-version>0.0.1</eea-version>
   </properties>
 
   <packaging>pom</packaging>
@@ -204,9 +205,9 @@
               </extraClasspathElement>
               <extraClasspathElement>
                 <!-- TODO: insert one project that contains ALL annotations here-->
-                <groupId>org.lastnpe.eea</groupId>
-                <artifactId>jdk-eea</artifactId>
-                <version>0.0.1</version>
+                <groupId>${eea-groupId}</groupId>
+                <artifactId>${eea-artifactId}</artifactId>
+                <version>${eea-version}</version>
               </extraClasspathElement>
             </extraClasspathElements>
             <compilerArgs>
@@ -596,10 +597,9 @@
 
   <dependencies>
     <dependency>
-      <!-- TODO: insert one project that contains ALL annotations here-->
-      <groupId>org.lastnpe.eea</groupId>
-      <artifactId>jdk-eea</artifactId>
-      <version>0.0.1</version>
+      <groupId>${eea-groupId}</groupId>
+      <artifactId>${eea-artifactId}</artifactId>
+      <version>${eea-version}</version>
       <scope>provided</scope>
     </dependency>
  </dependencies>
