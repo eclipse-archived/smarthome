@@ -11,12 +11,13 @@
  */
 package org.eclipse.smarthome.core.items.dto;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction;
+import org.eclipse.smarthome.core.library.types.StringType;
 import org.junit.Test;
 
 public class ItemDTOMapperTest {
@@ -34,6 +35,9 @@ public class ItemDTOMapperTest {
         GroupFunction gFunc = ItemDTOMapper.mapFunction(item1, gFuncDTO);
 
         assertThat(gFunc, instanceOf(ArithmeticGroupFunction.Count.class));
+        assertThat(gFunc.getParameters().length, is(1));
+        assertThat(gFunc.getParameters()[0], instanceOf(StringType.class));
+
     }
 
 }
