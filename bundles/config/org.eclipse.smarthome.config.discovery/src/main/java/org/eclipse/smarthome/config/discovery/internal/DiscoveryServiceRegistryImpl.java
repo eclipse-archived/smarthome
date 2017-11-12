@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
-import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.withFlag;
+import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.*;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -154,7 +154,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                 return null;
             }
             List<DiscoveryResult> ret = new ArrayList<>();
-            ret = inboxReference.stream().filter(withFlag((DiscoveryResultFlag.NEW))).collect(Collectors.toList());
+            ret = inboxReference.stream().filter(withFlag(DiscoveryResultFlag.NEW).and(forThingUID(thingUID)))
+                    .collect(Collectors.toList());
             if (ret.size() > 0) {
                 return ret.get(0);
             } else {
