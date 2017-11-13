@@ -43,7 +43,7 @@ public class TradfriHandlerFactory extends BaseThingHandlerFactory {
                     Stream.concat(SUPPORTED_LIGHT_TYPES_UIDS.stream(), SUPPORTED_CONTROLLER_TYPES_UIDS.stream()))
             .collect(Collectors.toSet());
 
-    private Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
+    private final Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -79,14 +79,14 @@ public class TradfriHandlerFactory extends BaseThingHandlerFactory {
     private void registerDiscoveryService(TradfriGatewayHandler bridgeHandler) {
         TradfriDiscoveryService discoveryService = new TradfriDiscoveryService(bridgeHandler);
         discoveryService.activate();
-        this.discoveryServiceRegs.put(bridgeHandler.getThing().getUID(), bundleContext
+        this.discoveryServiceRegs.put(bridgeHandler.getThing().getUID(), getBundleContext()
                 .registerService(DiscoveryService.class.getName(), discoveryService, new Hashtable<String, Object>()));
     }
 
     private void unregisterDiscoveryService(TradfriGatewayHandler bridgeHandler) {
         ServiceRegistration<?> serviceReg = this.discoveryServiceRegs.get(bridgeHandler.getThing().getUID());
         if (serviceReg != null) {
-            TradfriDiscoveryService service = (TradfriDiscoveryService) bundleContext
+            TradfriDiscoveryService service = (TradfriDiscoveryService) getBundleContext()
                     .getService(serviceReg.getReference());
             if (service != null) {
                 service.deactivate();
