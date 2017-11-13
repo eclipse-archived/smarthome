@@ -69,7 +69,7 @@
 	<channel-type id="temperature">
 	   <item-type>Number</item-type>
 	   <dimension>Temperature</dimension>
-	   <label>Set Point</label>
+	   <label>Current Temperature</label>
 	   <state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 
