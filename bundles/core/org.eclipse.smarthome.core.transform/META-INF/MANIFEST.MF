@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-Activator: org.eclipse.smarthome.core.transform.internal.Transfor
  mationActivator
 Bundle-ClassPath: .
-Bundle-License: http://www.eclipse.org/legal/epl-v10.html
+Bundle-License: https://www.eclipse.org/legal/epl-2.0/
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Transformation Service
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
