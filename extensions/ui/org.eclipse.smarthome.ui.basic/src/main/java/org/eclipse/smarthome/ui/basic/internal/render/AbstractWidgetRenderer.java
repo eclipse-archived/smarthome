@@ -25,6 +25,7 @@ import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.library.items.NumberItem;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.basic.internal.WebAppActivator;
@@ -331,6 +332,15 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
         }
 
         return "";
+    }
+
+    protected State convertStateToLabelUnit(QuantityType state, String label) {
+        String labelUnit = label.lastIndexOf(" ") > 0 ? label.substring(label.lastIndexOf(" ")) : null;
+        if (labelUnit != null && !state.getUnit().toString().equals(labelUnit)) {
+            return state.toUnit(labelUnit);
+        }
+
+        return state;
     }
 
     private String getUnitFromLabel(String label) {

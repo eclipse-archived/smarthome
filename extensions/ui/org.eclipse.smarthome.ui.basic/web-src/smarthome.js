@@ -518,9 +518,9 @@
 			_t.reset();
 			if (
 				(_t.valueMap !== undefined) &&
-				(_t.valueMap[itemState] !== undefined)
+				(_t.valueMap[value] !== undefined)
 			) {
-				_t.valueMap[itemState].classList.add(o.buttonActiveClass);
+				_t.valueMap[value].classList.add(o.buttonActiveClass);
 			}
 		};
 
