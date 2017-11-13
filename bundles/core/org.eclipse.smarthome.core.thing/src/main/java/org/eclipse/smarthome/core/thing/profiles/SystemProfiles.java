@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.thing.profiles;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.thing.DefaultSystemChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
@@ -20,6 +21,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
+@NonNullByDefault
 public interface SystemProfiles {
 
     ProfileTypeUID DEFAULT = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "default");
