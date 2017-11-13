@@ -41,6 +41,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -379,8 +380,11 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
         super.thingUpdated(thing);
 
         logger.info("Bridge configuration updated. Updating paired things (if any).");
-        for (Thing t : ((Bridge) thing).getThings()) {
-            t.getHandler().thingUpdated(t);
+        for (Thing t : getThing().getThings()) {
+            final ThingHandler thingHandler = t.getHandler();
+            if (thingHandler != null) {
+                thingHandler.thingUpdated(t);
+            }
         }
     }
 }
