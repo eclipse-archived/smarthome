@@ -438,6 +438,10 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
 
         // verify that the existing DiscoveryResult can be accessed
         assertNotNull extendedDiscoveryServiceMock.discoveryServiceCallback.getExistingDiscoveryResult(thingUID)
+
+        // verify that a non-existing DiscoveryResult can not be accessed
+        thingUID = new ThingUID(EXTENDED_BINDING_ID, EXTENDED_THING_TYPE, "bar")
+        assertNull extendedDiscoveryServiceMock.discoveryServiceCallback.getExistingDiscoveryResult(thingUID)
     }
 
     @Test
