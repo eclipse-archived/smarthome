@@ -45,8 +45,8 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
     protected @Nullable BundleContext bundleContext;
 
-    private Map<String, ServiceRegistration<ConfigStatusProvider>> configStatusProviders = new ConcurrentHashMap<>();
-    private Map<String, ServiceRegistration<FirmwareUpdateHandler>> firmwareUpdateHandlers = new ConcurrentHashMap<>();
+    private final Map<String, ServiceRegistration<ConfigStatusProvider>> configStatusProviders = new ConcurrentHashMap<>();
+    private final Map<String, ServiceRegistration<FirmwareUpdateHandler>> firmwareUpdateHandlers = new ConcurrentHashMap<>();
 
     private @Nullable ServiceTracker<ThingTypeRegistry, ThingTypeRegistry> thingTypeRegistryServiceTracker;
     private @Nullable ServiceTracker<ConfigDescriptionRegistry, ConfigDescriptionRegistry> configDescriptionRegistryServiceTracker;
@@ -90,6 +90,22 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         configStatusProviders.clear();
         firmwareUpdateHandlers.clear();
         bundleContext = null;
+    }
+
+    /**
+     * Get the bundle context.
+     *
+     * @return the bundle context
+     * @throws IllegalArgumentException if the bundle thing handler is not active
+     */
+    protected BundleContext getBundleContext() {
+        final BundleContext bundleContext = this.bundleContext;
+        if (bundleContext != null) {
+            return bundleContext;
+        } else {
+            throw new IllegalStateException(
+                    "The bundle context is missing (it seems your thing handler is used but not active).");
+        }
     }
 
     @Override
