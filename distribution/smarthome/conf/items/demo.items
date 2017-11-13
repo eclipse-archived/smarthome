@@ -9,4 +9,5 @@ Location DemoLocation
 String DemoString
 Contact DemoContact
 
-Number Weather_Temperature "Outside Temperature [%.1f °C]" <temperature> (Weather_Chart) { channel="yahooweather:weather:berlin:temperature", dimension="Temperature" }
+Number:Temperature Weather_Temperature "Outside Temperature [%.1f °C]" <temperature> (Weather_Chart) { channel="yahooweather:weather:berlin:temperature" }
+Number:Pressure Weather_Pressure "Pressure [%.1f %unit%]" (Weather_Chart) { channel="yahooweather:weather:berlin:pressure" }
