@@ -104,7 +104,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
             return bundleContext;
         } else {
             throw new IllegalStateException(
-                    "The bundle context is missing (it seems your thing handler is used but not active).");
+                    "The bundle context is missing (it seems your thing handler factory is used but not active).");
         }
     }
 
