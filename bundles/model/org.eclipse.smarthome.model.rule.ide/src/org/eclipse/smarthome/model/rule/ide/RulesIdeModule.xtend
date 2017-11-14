@@ -3,9 +3,16 @@
  */
 package org.eclipse.smarthome.model.rule.ide
 
+import org.eclipse.xtext.xbase.typesystem.internal.IFeatureScopeTracker
+import org.eclipse.smarthome.model.script.OptimizingFeatureScopeTrackerProvider2
 
 /**
  * Use this class to register ide components.
  */
 class RulesIdeModule extends AbstractRulesIdeModule {
+    
+    override Class<? extends IFeatureScopeTracker.Provider> bindIFeatureScopeTrackerProvider() {
+        return OptimizingFeatureScopeTrackerProvider2
+    }    
+    
 }
