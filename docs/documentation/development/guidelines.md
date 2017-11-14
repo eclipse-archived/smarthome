@@ -11,7 +11,17 @@ Exceptions can certainly be made, but they should be discussed and approved by a
 
 Note that this list also serves as a checklist for code reviews on pull requests. To speed up the contribution process, we therefore advice to go through this checklist yourself before creating a pull request.
 
-## A. Code Style
+## A. General
+
+1. Every contributor needs to create an account on http://www.eclipse.org and sign the **Eclipse Contributor Agreement** (ECA).
+1. A pull-request (PR) to our repository should have a `Signed-off-by: Firstname Lastname <name@provider.tld>` as the last line in all commit messages (prepended by a blank line).
+The email address has to match the one used in the account that signed the ECA.
+1. Never `merge` changes from the `master` branch into your branch. Always use the `rebase` command to apply your changes on top of the current `master`.
+1. Once you have received review comments on your PR, please address them in **additional** commits, do not amend your previous commit and squeeze it in there.
+Several commits help to speed up reviews because it is easier to see the differences.
+Thus, there is no need to squash any commits because that will be done by a commiter of the project once the PR will finally be merged.
+
+## B. Code Style
 
 1. The [Java naming conventions](http://java.about.com/od/javasyntax/a/nameconventions.htm) should be used.
 1. Every Java file must have a license header. You can run ```mvn license:format``` on the root of the repo to automatically add missing headers.
@@ -26,13 +36,22 @@ Note that this list also serves as a checklist for code reviews on pull requests
 1. Packages that contain classes that are not meant to be used by other bundles should have "internal" in their package name.
 1. We are using [null annotations](https://wiki.eclipse.org/JDT_Core/Null_Analysis) from the Eclipse JDT project. Therefore every bundle should have an **optional** `Import-Package` dependency to `org.eclipse.jdt.annotation`.
 Classes should be annotated by `@NonNullByDefault` and return types, parameter types, generic types etc. are annotated with `@Nullable` only.
+We allow one exception for classes that store an injected OSGI service in a field.
+Those classes should be annotated with
+
+```java
+@NonNullByDefault({ DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.ARRAY_CONTENTS,
+        DefaultLocation.TYPE_ARGUMENT, DefaultLocation.TYPE_BOUND, DefaultLocation.TYPE_PARAMETER })
+```
+
+to skip the `null` evaluation of fields.
 There is **no need** for a `@NonNull` annotation because it is set as default.
 The transition of existing classes could be a longer process but if you want to use nullness annotation in a class / interface you need to set the default for the whole class and annotate all types that differ from the default.
 Test classes do not have to be annotated.
 
-## B. OSGi Bundles
+## C. OSGi Bundles
 
-7. Every bundle must contain a Maven pom.xml with a version and artifact name that is in sync with the manifest entry. The pom.xml must reference the correct parent pom (which is usually in the parent folder).
+1. Every bundle must contain a Maven pom.xml with a version and artifact name that is in sync with the manifest entry. The pom.xml must reference the correct parent pom (which is usually in the parent folder).
 1. Every bundle must contain an [about.html](https://eclipse.org/legal/epl/about.php) file, providing license information.
 1. Every bundle must contain a build.properties file, which lists all resources that should end up in the binary under ```bin.includes```.
 1. The manifest must not contain any "Require-Bundle" entries (except for test fragment bundles, see below). Instead, "Import-Package" must be used.
@@ -42,7 +61,7 @@ Test classes do not have to be annotated.
 1. Every exported package of a bundle must be imported by the bundle itself again.
 1. Test fragments may have the bundles `org.junit`, `org.hamcrest` and `org.mockito` in the "Require-Bundle" section. This is the only exception to not having "Require-Bundle" at all.
 
-## C. Language Levels and Libraries
+## D. Language Levels and Libraries
 
 1. Eclipse SmartHome generally targets JavaSE 8 with the following restrictions:
  * To allow optimized JavaSE 8 runtimes, the set of Java packages to be used is furthermore restricted to [Compact Profile 2](http://www.oracle.com/technetwork/java/embedded/resources/tech/compact-profiles-overview-2157132.html)
@@ -54,14 +73,14 @@ Test classes do not have to be annotated.
  - Apache Commons Lang (v2.6)
  - Google Guava (v10.0.1)
 
-## D. Runtime Behavior
+## E. Runtime Behavior
 
 1. Overridden methods from abstract classes or interfaces are expected to return fast unless otherwise stated in their JavaDoc. Expensive operations should therefore rather be scheduled as a job.
 1. Creation of threads must be avoided. Instead, resort into using existing schedulers which use pre-configured thread pools. If there is no suitable scheduler available, start a discussion in the forum about it rather than creating a thread by yourself. For periodically executed jobs that do not require a fixed rate [scheduleWithFixedDelay](http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ScheduledExecutorService.html#scheduleWithFixedDelay(java.lang.Runnable,%20long,%20long,%20java.util.concurrent.TimeUnit)) should be preferred over [scheduleAtFixedRate](http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ScheduledExecutorService.html#scheduleAtFixedRate(java.lang.Runnable,%20long,%20long,%20java.util.concurrent.TimeUnit)).
 1. Bundles need to cleanly start and stop without throwing exceptions or malfunctioning. This can be tested by manually starting and stopping the bundle from the console (```stop <bundle-id>``` resp. ```start <bundle-id>```).
 1. Bundles must not require any substantial CPU time. Test this e.g. using "top" or VisualVM and compare CPU utilization with your bundle stopped vs. started.
 
-## E. Logging
+## F. Logging
 
 1. As we are in a dynamic OSGi environment, loggers should be [non-static](http://slf4j.org/faq.html#declared_static), when ever possible and have the name ```logger```.
 1. Parametrized logging must be used (instead of string concatenation).
