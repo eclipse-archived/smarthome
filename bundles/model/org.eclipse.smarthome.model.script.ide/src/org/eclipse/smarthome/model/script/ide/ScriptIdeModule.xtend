@@ -3,9 +3,16 @@
  */
 package org.eclipse.smarthome.model.script.ide
 
+import org.eclipse.smarthome.model.script.OptimizingFeatureScopeTrackerProvider2
+import org.eclipse.xtext.xbase.typesystem.internal.IFeatureScopeTracker
 
 /**
  * Use this class to register ide components.
  */
 class ScriptIdeModule extends AbstractScriptIdeModule {
+    
+    override Class<? extends IFeatureScopeTracker.Provider> bindIFeatureScopeTrackerProvider() {
+        return OptimizingFeatureScopeTrackerProvider2
+    }    
+    
 }
