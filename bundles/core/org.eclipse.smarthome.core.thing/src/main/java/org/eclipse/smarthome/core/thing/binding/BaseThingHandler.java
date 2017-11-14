@@ -270,7 +270,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     /**
      *
      * Updates the state of the thing. Will use the thing UID to infer the
-     * unique channel UID.
+     * unique channel UID from the given ID.
      *
      * @param channel
      *            ID id of the channel, which was updated
@@ -302,13 +302,13 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     /**
      * Emits an event for the given channel. Will use the thing UID to infer the
-     * unique channel UID.
+     * unique channel UID from the given ID.
      *
-     * @param channelUID UID of the channel over which the event will be emitted
+     * @param channelID ID of the channel over which the event will be emitted
      * @param event Event to emit
      */
-    protected void triggerChannel(String channelUID, String event) {
-        triggerChannel(new ChannelUID(this.getThing().getUID(), channelUID), event);
+    protected void triggerChannel(String channelID, String event) {
+        triggerChannel(new ChannelUID(this.getThing().getUID(), channelID), event);
     }
 
     /**
