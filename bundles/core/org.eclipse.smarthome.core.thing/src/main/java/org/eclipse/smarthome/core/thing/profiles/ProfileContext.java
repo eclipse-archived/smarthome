@@ -7,37 +7,34 @@
  */
 package org.eclipse.smarthome.core.thing.profiles;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.concurrent.ExecutorService;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.core.common.registry.Identifiable;
+import org.eclipse.smarthome.config.core.Configuration;
 
 /**
- * Describes a profile type.
+ * The profile's context
+ *
+ * It gives access to related information like the profile's configuration or a scheduler.
  *
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
 @NonNullByDefault
-public interface ProfileType extends Identifiable<ProfileTypeUID> {
+public interface ProfileContext {
 
     /**
-     * Constant for matching *ANY* item type.
-     */
-    Collection<String> ANY_ITEM_TYPE = new ArrayList<>(0);
-
-    /**
+     * Get the profile's configuration object
      *
-     * @return a collection of item types or {@link #ANY_ITEM_TYPE}.
+     * @return the configuration
      */
-    Collection<String> getSupportedItemTypes();
+    Configuration getConfiguration();
 
     /**
-     * Get a human readable description.
+     * Get a scheduler to be used within profiles (if needed at all)
      *
-     * @return the label
+     * @return the scheduler
      */
-    String getLabel();
+    ExecutorService getExecutorService();
 
 }
