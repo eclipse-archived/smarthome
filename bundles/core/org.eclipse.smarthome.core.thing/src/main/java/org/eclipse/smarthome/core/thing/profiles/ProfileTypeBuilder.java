@@ -15,7 +15,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.internal.profiles.StateProfileTypeImpl;
 import org.eclipse.smarthome.core.thing.internal.profiles.TriggerProfileTypeImpl;
-import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 
 /**
@@ -30,7 +29,13 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 @NonNullByDefault
 public final class ProfileTypeBuilder<T extends ProfileType> {
 
-    private final ChannelKind channelKind;
+    @FunctionalInterface
+    private interface ProfileTypeFactory<T extends ProfileType> {
+        T create(ProfileTypeUID profileTypeUID, String label, Collection<String> supportedItemTypes,
+                Collection<ChannelTypeUID> supportedChannelTypeUIDs);
+    }
+
+    private final ProfileTypeFactory<T> profileTypeFactory;
     private final ProfileTypeUID profileTypeUID;
     private final Collection<String> supportedItemTypes = new HashSet<>();
     private final Collection<ChannelTypeUID> supportedChannelTypeUIDs = new HashSet<>();
@@ -38,9 +43,9 @@ public final class ProfileTypeBuilder<T extends ProfileType> {
     @Nullable
     private String label;
 
-    private ProfileTypeBuilder(ProfileTypeUID profileTypeUID, ChannelKind channelKind) {
+    private ProfileTypeBuilder(ProfileTypeUID profileTypeUID, ProfileTypeFactory<T> profileTypeFactory) {
+        this.profileTypeFactory = profileTypeFactory;
         this.profileTypeUID = profileTypeUID;
-        this.channelKind = channelKind;
     }
 
     /**
@@ -50,8 +55,10 @@ public final class ProfileTypeBuilder<T extends ProfileType> {
      * @return the new builder instance
      */
     public static ProfileTypeBuilder<StateProfileType> newState(ProfileTypeUID profileTypeUID) {
-        ProfileTypeBuilder<StateProfileType> ret = new ProfileTypeBuilder<>(profileTypeUID, ChannelKind.STATE);
-        return ret;
+        return new ProfileTypeBuilder<>(profileTypeUID,
+                (leProfileTypeUID, leLabel, leSupportedItemTypes,
+                        leSupportedChannelTypeUIDs) -> new StateProfileTypeImpl(leProfileTypeUID, leLabel,
+                                leSupportedItemTypes));
     }
 
     /**
@@ -61,8 +68,10 @@ public final class ProfileTypeBuilder<T extends ProfileType> {
      * @return the new builder instance
      */
     public static ProfileTypeBuilder<TriggerProfileType> newTrigger(ProfileTypeUID profileTypeUID) {
-        ProfileTypeBuilder<TriggerProfileType> ret = new ProfileTypeBuilder<>(profileTypeUID, ChannelKind.TRIGGER);
-        return ret;
+        return new ProfileTypeBuilder<>(profileTypeUID,
+                (leProfileTypeUID, leLabel, leSupportedItemTypes,
+                        leSupportedChannelTypeUIDs) -> new TriggerProfileTypeImpl(leProfileTypeUID, leLabel,
+                                leSupportedItemTypes, leSupportedChannelTypeUIDs));
     }
 
     /**
@@ -125,21 +134,12 @@ public final class ProfileTypeBuilder<T extends ProfileType> {
      *
      * @return the according subtype of
      */
-    @SuppressWarnings("unchecked")
     public T build() {
         final String lbl = label;
         if (lbl == null) {
             throw new IllegalStateException("The label has not been set yet");
         }
-        switch (channelKind) {
-            case STATE:
-                return (T) new StateProfileTypeImpl(profileTypeUID, lbl, supportedItemTypes);
-            case TRIGGER:
-                return (T) new TriggerProfileTypeImpl(profileTypeUID, lbl, supportedItemTypes,
-                        supportedChannelTypeUIDs);
-            default:
-                throw new IllegalArgumentException("Unknown type " + channelKind);
-        }
+        return profileTypeFactory.create(profileTypeUID, lbl, supportedItemTypes, supportedChannelTypeUIDs);
     }
 
 }
