@@ -9,7 +9,9 @@ package org.eclipse.smarthome.core.thing.binding;
 
 import java.util.List;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.DefaultLocation;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -25,12 +27,14 @@ import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
  * @author Dennis Nobel - Initial contribution
  * @author Stefan Bußweiler - Added implementation of BridgeHandler interface
  */
+@NonNullByDefault({ DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.ARRAY_CONTENTS,
+        DefaultLocation.TYPE_ARGUMENT, DefaultLocation.TYPE_BOUND, DefaultLocation.TYPE_PARAMETER })
 public abstract class BaseBridgeHandler extends BaseThingHandler implements BridgeHandler {
 
     /**
      * @see BaseThingHandler
      */
-    public BaseBridgeHandler(@NonNull Bridge bridge) {
+    public BaseBridgeHandler(Bridge bridge) {
         super(bridge);
     }
 
@@ -40,7 +44,7 @@ public abstract class BaseBridgeHandler extends BaseThingHandler implements Brid
      * @param uid uid of the child thing
      * @return child thing with the given uid or null if thing was not found
      */
-    public Thing getThingByUID(ThingUID uid) {
+    public @Nullable Thing getThingByUID(ThingUID uid) {
 
         Bridge bridge = getThing();
 

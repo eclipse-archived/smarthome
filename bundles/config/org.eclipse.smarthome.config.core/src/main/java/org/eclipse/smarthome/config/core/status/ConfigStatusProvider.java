@@ -10,6 +10,8 @@ package org.eclipse.smarthome.config.core.status;
 import java.util.Collection;
 import java.util.Locale;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
@@ -20,6 +22,7 @@ import org.eclipse.smarthome.config.core.Configuration;
  *
  * @author Thomas Höfer - Initial contribution
  */
+@NonNullByDefault
 public interface ConfigStatusProvider {
 
     /**
@@ -45,6 +48,6 @@ public interface ConfigStatusProvider {
      *
      * @param configStatusCallback the configuration status callback to be set
      */
-    void setConfigStatusCallback(ConfigStatusCallback configStatusCallback);
+    void setConfigStatusCallback(@Nullable ConfigStatusCallback configStatusCallback);
 
 }

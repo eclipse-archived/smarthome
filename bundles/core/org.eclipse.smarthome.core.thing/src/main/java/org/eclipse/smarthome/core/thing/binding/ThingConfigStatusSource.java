@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.binding;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.config.core.status.ConfigStatusSource;
 import org.eclipse.smarthome.core.thing.Thing;
 
@@ -16,6 +16,7 @@ import org.eclipse.smarthome.core.thing.Thing;
  *
  * @author Thomas Höfer - Initial contribution
  */
+@NonNullByDefault
 public final class ThingConfigStatusSource extends ConfigStatusSource {
 
     private static final String TOPIC = "smarthome/things/{thingUID}/config/status";
@@ -25,7 +26,7 @@ public final class ThingConfigStatusSource extends ConfigStatusSource {
      *
      * @param thingUID the UID of the thing
      */
-    public ThingConfigStatusSource(@NonNull String thingUID) {
+    public ThingConfigStatusSource(String thingUID) {
         super(thingUID);
     }
 
