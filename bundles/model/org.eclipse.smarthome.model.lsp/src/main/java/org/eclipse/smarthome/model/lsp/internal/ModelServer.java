@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 /**
  * A service component exposing a Language Server via sockets.
@@ -43,9 +44,11 @@ public class ModelServer {
 
     private ScriptServiceUtil scriptServiceUtil;
     private ScriptEngine scriptEngine;
+    private Injector injector;
 
     @Activate
     public void activate() {
+        injector = Guice.createInjector(new RuntimeServerModule(scriptServiceUtil, scriptEngine));
         new Thread(() -> {
             listen();
         }, "Language Server").start();
@@ -85,10 +88,7 @@ public class ModelServer {
     private void handleConnection(final Socket client) {
         logger.debug("Client {} connected", client.getRemoteSocketAddress());
         try {
-            LanguageServerImpl languageServer = Guice
-                    .createInjector(new RuntimeServerModule(scriptServiceUtil, scriptEngine))
-                    .getInstance(LanguageServerImpl.class);
-
+            LanguageServerImpl languageServer = injector.getInstance(LanguageServerImpl.class);
             Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(languageServer,
                     client.getInputStream(), client.getOutputStream());
             languageServer.connect(launcher.getRemoteProxy());
