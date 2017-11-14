@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -56,7 +56,7 @@ public class NtpHandler extends BaseThingHandler {
     private Logger logger = LoggerFactory.getLogger(NtpHandler.class);
 
     /** timeout for requests to the NTP server */
-    private static final int NTP_TIMEOUT = 10000;
+    private static final int NTP_TIMEOUT = 30000;
 
     public static final String DATE_PATTERN_WITH_TZ = "yyyy-MM-dd HH:mm:ss z";
 
@@ -72,6 +72,8 @@ public class NtpHandler extends BaseThingHandler {
 
     /** NTP host */
     private String hostname;
+    /** NTP server port */
+    private BigDecimal port;
     /** refresh interval */
     private BigDecimal refreshInterval;
     /** NTP refresh frequency */
@@ -105,10 +107,11 @@ public class NtpHandler extends BaseThingHandler {
     public void initialize() {
 
         try {
-            logger.debug("Initializing NTP handler for '{}'.", getThing().getUID().toString());
+            logger.debug("Initializing NTP handler for '{}'.", getThing().getUID());
 
             Configuration config = getThing().getConfiguration();
-            hostname = (String) config.get(PROPERTY_NTP_SERVER);
+            hostname = (String) config.get(PROPERTY_NTP_SERVER_HOST);
+            port = (BigDecimal) config.get(PROPERTY_NTP_SERVER_PORT);
             refreshInterval = (BigDecimal) config.get(PROPERTY_REFRESH_INTERVAL);
             refreshNtp = (BigDecimal) config.get(PROPERTY_REFRESH_NTP);
             refreshNtpCount = 0;
@@ -117,7 +120,7 @@ public class NtpHandler extends BaseThingHandler {
                 timeZone = TimeZone.getTimeZone((String) config.get(PROPERTY_TIMEZONE));
             } catch (Exception e) {
                 timeZone = TimeZone.getDefault();
-                logger.debug("{} using default TZ: {}", getThing().getUID().toString(), timeZone);
+                logger.debug("{} using default TZ: {}", getThing().getUID(), timeZone);
             }
 
             try {
@@ -125,20 +128,25 @@ public class NtpHandler extends BaseThingHandler {
                 locale = new Locale(localeString);
             } catch (Exception e) {
                 locale = localeProvider.getLocale();
-                logger.debug("{} using default locale: {}", getThing().getUID().toString(), locale);
+                logger.debug("{} using default locale: {}", getThing().getUID(), locale);
             }
             dateTimeChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_DATE_TIME);
             stringChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_STRING);
             try {
                 Channel stringChannel = getThing().getChannel(stringChannelUID.getId());
-                Configuration cfg = stringChannel.getConfiguration();
-                String dateTimeFormatString = (String) cfg.get(PROPERTY_DATE_TIME_FORMAT);
-                if (!(dateTimeFormatString == null || dateTimeFormatString.isEmpty())) {
-                    dateTimeFormat = new SimpleDateFormat(dateTimeFormatString);
-                    logger.debug("Could not format {} with DateFormat '{}', using default format.",
-                            getThing().getUID().toString(), dateTimeFormatString);
+                if (stringChannel != null) {
+                    Configuration cfg = stringChannel.getConfiguration();
+                    String dateTimeFormatString = (String) cfg.get(PROPERTY_DATE_TIME_FORMAT);
+                    if (!(dateTimeFormatString == null || dateTimeFormatString.isEmpty())) {
+                        dateTimeFormat = new SimpleDateFormat(dateTimeFormatString);
+                    } else {
+                        logger.debug("No format set in channel config for {}. Using default format.", stringChannelUID);
+                        dateTimeFormat = new SimpleDateFormat(DATE_PATTERN_WITH_TZ);
+                    }
+                } else {
+                    logger.debug("Missing channel: '{}'", stringChannelUID.getId());
                 }
-            } catch (Exception ex) {
+            } catch (RuntimeException ex) {
                 logger.debug("No channel config or invalid format for {}. Using default format. ({})", stringChannelUID,
                         ex.getMessage());
                 dateTimeFormat = new SimpleDateFormat(DATE_PATTERN_WITH_TZ);
@@ -148,13 +156,13 @@ public class NtpHandler extends BaseThingHandler {
 
             logger.debug(
                     "Initialized NTP handler '{}' with configuration: host '{}', refresh interval {}, timezone {}, locale {}.",
-                    getThing().getUID().toString(), hostname, refreshInterval, timeZone, locale);
+                    getThing().getUID(), hostname, refreshInterval, timeZone, locale);
             startAutomaticRefresh();
 
         } catch (Exception ex) {
-            String msg = "Error occured while initializing NTP handler: " + ex.getMessage();
-            logger.error(msg, ex);
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, msg);
+            logger.error("Error occurred while initializing NTP handler: {}", ex.getMessage(), ex);
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                    "@text/offline.conf-error-init-handler");
         }
     }
 
@@ -165,19 +173,13 @@ public class NtpHandler extends BaseThingHandler {
     }
 
     private void startAutomaticRefresh() {
-
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    refreshTimeDate();
-                } catch (Exception e) {
-                    logger.debug("Exception occurred during execution: {}", e.getMessage(), e);
-                }
+        refreshJob = scheduler.scheduleWithFixedDelay(() -> {
+            try {
+                refreshTimeDate();
+            } catch (Exception e) {
+                logger.debug("Exception occurred during refresh: {}", e.getMessage(), e);
             }
-        };
-
-        refreshJob = scheduler.scheduleAtFixedRate(runnable, 0, refreshInterval.intValue(), TimeUnit.SECONDS);
+        }, 0, refreshInterval.intValue(), TimeUnit.SECONDS);
     }
 
     private synchronized void refreshTimeDate() {
@@ -186,7 +188,7 @@ public class NtpHandler extends BaseThingHandler {
             if (refreshNtpCount <= 0) {
                 networkTimeInMillis = getTime(hostname);
                 timeOffset = networkTimeInMillis - System.currentTimeMillis();
-                logger.debug("{} delta system time: {}", getThing().getUID().toString(), timeOffset);
+                logger.debug("{} delta system time: {}", getThing().getUID(), timeOffset);
                 refreshNtpCount = refreshNtp.intValue();
             } else {
                 networkTimeInMillis = System.currentTimeMillis() + timeOffset;
@@ -207,8 +209,7 @@ public class NtpHandler extends BaseThingHandler {
      * Queries the given timeserver <code>hostname</code> and returns the time
      * in milliseconds.
      *
-     * @param hostname
-     *            the timeserver to query
+     * @param hostname - the timeserver to query
      * @return the time in milliseconds or the current time of the system if an
      *         error occurs.
      */
@@ -218,22 +219,24 @@ public class NtpHandler extends BaseThingHandler {
             NTPUDPClient timeClient = new NTPUDPClient();
             timeClient.setDefaultTimeout(NTP_TIMEOUT);
             InetAddress inetAddress = InetAddress.getByName(hostname);
-            TimeInfo timeInfo = timeClient.getTime(inetAddress);
+            TimeInfo timeInfo = timeClient.getTime(inetAddress, port.intValue());
 
-            logger.debug("{} Got time update from: {} : {}", getThing().getUID().toString(), hostname,
+            logger.debug("{} Got time update from host '{}': {}.", getThing().getUID(), hostname,
                     SDF.format(new Date(timeInfo.getReturnTime())));
             updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE);
             return timeInfo.getReturnTime();
         } catch (UnknownHostException uhe) {
-            String msg = getThing().getUID().toString() + " the given hostname '" + hostname
-                    + "' of the timeserver is unknown -> returning current sytem time instead.";
-            logger.warn(msg);
-            updateStatus(ThingStatus.ONLINE, ThingStatusDetail.COMMUNICATION_ERROR, msg);
+            logger.debug(
+                    "{} The given hostname '{}' of the timeserver is unknown -> returning current sytem time instead. ({})",
+                    getThing().getUID(), hostname, uhe.getMessage());
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                    "@text/offline.comm-error-unknown-host [\"" + (hostname == null ? "null" : hostname) + "\"]");
         } catch (IOException ioe) {
-            String msg = getThing().getUID().toString() + " couldn't establish network connection [host '" + hostname
-                    + "'] -> returning current sytem time instead.";
-            logger.warn(msg);
-            updateStatus(ThingStatus.ONLINE, ThingStatusDetail.COMMUNICATION_ERROR, msg);
+            logger.debug(
+                    "{} Couldn't establish network connection to host '{}' -> returning current sytem time instead. ({})",
+                    getThing().getUID(), hostname, ioe.getMessage());
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                    "@text/offline.comm-error-connection [\"" + (hostname == null ? "null" : hostname) + "\"]");
         }
 
         return System.currentTimeMillis();

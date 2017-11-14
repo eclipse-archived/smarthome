@@ -16,7 +16,7 @@ import java.util.Map;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
-import org.eclipse.smarthome.automation.module.core.handler.exception.UncomparableException;
+import org.eclipse.smarthome.automation.module.core.internal.exception.UncomparableException;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.slf4j.Logger;
@@ -44,7 +44,7 @@ public class CompareConditionHandler extends BaseModuleHandler<Condition> implem
     }
 
     @Override
-    public boolean isSatisfied(Map<String, ?> context) {
+    public boolean isSatisfied(Map<String, Object> context) {
         Object operatorObj = this.module.getConfiguration().get(OPERATOR);
         String operator = (operatorObj != null && operatorObj instanceof String) ? (String) operatorObj : null;
         Object rightObj = this.module.getConfiguration().get(RIGHT_OP);
@@ -60,10 +60,10 @@ public class CompareConditionHandler extends BaseModuleHandler<Condition> implem
             Object rightValue = getRightOperandValue(rightOperandString, toCompare);
             if (rightValue == null) {
                 if (leftObj != null) {
-                    logger.info("unsupported type for compare condition: " + leftObj.getClass());
+                    logger.info("unsupported type for compare condition: {}", leftObj.getClass());
                 } else {
-                    logger.info("unsupported type for compare condition: null ("
-                            + module.getInputs().get(INPUT_LEFT_FIELD) + ")");
+                    logger.info("unsupported type for compare condition: null ({})",
+                            module.getInputs().get(INPUT_LEFT_FIELD));
                 }
                 return false;
             }

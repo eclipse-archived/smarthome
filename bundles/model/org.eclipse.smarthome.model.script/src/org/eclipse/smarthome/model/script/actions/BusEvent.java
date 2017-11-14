@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,8 +7,10 @@
  */
 package org.eclipse.smarthome.model.script.actions;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -77,12 +79,23 @@ public class BusEvent {
             try {
                 Item item = registry.getItem(itemName);
                 Command command = TypeParser.parseCommand(item.getAcceptedCommandTypes(), commandString);
-                publisher.post(ItemEventFactory.createCommandEvent(itemName, command));
+                if (command != null) {
+                    publisher.post(ItemEventFactory.createCommandEvent(itemName, command));
+                } else {
+                    LoggerFactory.getLogger(BusEvent.class).warn(
+                            "Cannot convert '{}' to a command type which item '{}' accepts: {}.", commandString,
+                            itemName, getAcceptedCommandNames(item));
+                }
+
             } catch (ItemNotFoundException e) {
-                LoggerFactory.getLogger(BusEvent.class).warn("Item '" + itemName + "' does not exist.");
+                LoggerFactory.getLogger(BusEvent.class).warn("Item '{}' does not exist.", itemName);
             }
         }
         return null;
+    }
+
+    private static <T extends State> List<String> getAcceptedCommandNames(Item item) {
+        return item.getAcceptedCommandTypes().stream().map(t -> t.getSimpleName()).collect(Collectors.toList());
     }
 
     /**
@@ -140,12 +153,22 @@ public class BusEvent {
             try {
                 Item item = registry.getItem(itemName);
                 State state = TypeParser.parseState(item.getAcceptedDataTypes(), stateString);
-                publisher.post(ItemEventFactory.createStateEvent(itemName, state));
+                if (state != null) {
+                    publisher.post(ItemEventFactory.createStateEvent(itemName, state));
+                } else {
+                    LoggerFactory.getLogger(BusEvent.class).warn(
+                            "Cannot convert '{}' to a state type which item '{}' accepts: {}.", stateString, itemName,
+                            getAcceptedDataTypeNames(item));
+                }
             } catch (ItemNotFoundException e) {
-                LoggerFactory.getLogger(BusEvent.class).warn("Item '" + itemName + "' does not exist.");
+                LoggerFactory.getLogger(BusEvent.class).warn("Item '{}' does not exist.", itemName);
             }
         }
         return null;
+    }
+
+    private static <T extends State> List<String> getAcceptedDataTypeNames(Item item) {
+        return item.getAcceptedDataTypes().stream().map(t -> t.getSimpleName()).collect(Collectors.toList());
     }
 
     /**

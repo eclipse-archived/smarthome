@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,7 +28,6 @@ import com.google.common.base.Preconditions;
  * <li>config-status.error.any-suffix</li>
  * <li>config-status.pending.any-suffix</li>
  * </ul>
- * </p>
  *
  * @author Thomas Höfer - Initial contribution
  * @author Chris Jackson - Add withMessageKey and remove message from other methods

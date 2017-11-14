@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -68,7 +68,7 @@ public class EventListener {
      * Stops this {@link EventListener}.
      */
     public synchronized void stop() {
-        if (pollingScheduler != null || !pollingScheduler.isCancelled()) {
+        if (pollingScheduler != null && !pollingScheduler.isCancelled()) {
             pollingScheduler.cancel(true);
             pollingScheduler = null;
             unsubscribe();
@@ -81,7 +81,7 @@ public class EventListener {
      */
     public synchronized void start() {
         if (subscribe() && (pollingScheduler == null || pollingScheduler.isCancelled())) {
-            pollingScheduler = scheduler.scheduleAtFixedRate(runableListener, 0,
+            pollingScheduler = scheduler.scheduleWithFixedDelay(runableListener, 0,
                     config.getEventListenerRefreshinterval(), TimeUnit.MICROSECONDS);
             logger.debug("Start EventListener");
         }
@@ -137,7 +137,7 @@ public class EventListener {
                         subscribe();
                     } else if (errorStr != null) {
                         pollingScheduler.cancel(true);
-                        logger.error("Unknown error message at event response: " + errorStr);
+                        logger.error("Unknown error message at event response: {}", errorStr);
                     }
                 }
             }
@@ -169,7 +169,7 @@ public class EventListener {
         if (array.size() > 0) {
             Event event = new JSONEventImpl(array);
             for (EventItem item : event.getEventItems()) {
-                logger.info(item.getProperties().toString());
+                logger.info("{}", item.getProperties());
                 this.sceneManager.handleEvent(item);
             }
         }

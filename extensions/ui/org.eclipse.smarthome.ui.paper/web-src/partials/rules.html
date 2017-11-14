@@ -6,7 +6,7 @@
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-menu md-offset="60 -25"> <md-button class="md-fab" ng-click="$mdOpenMenu(ev);" aria-label="Add"> <i class="material-icons">add</i></md-button> <md-menu-content width="2" ng-init="ruleOptions=['New rule','Rule from template']"> <md-menu-item ng-repeat="item in ruleOptions"> <md-button ng-click="ruleOptionSelected($event,$index)"> {{item}} </md-button> </md-menu-item> </md-menu-content> </md-menu>
+					<md-menu md-offset="60 -25"> <md-button class="md-fab" ng-click="$mdOpenMenu(ev);" aria-label="Add"> <i class="material-icons">add</i></md-button> <md-menu-content width="2"> <md-menu-item ng-repeat="item in ruleOptions"> <md-button ng-click="ruleOptionSelected($event,$index)"> {{item}} </md-button> </md-menu-item> </md-menu-content> </md-menu>
 				</div>
 			</div>
 		</div>
@@ -25,14 +25,40 @@
 								<p>{{rule.uid}}</p>
 							</div>
 							<div class="actions" flex="40">
-							<i class="material-icons" aria-label="Run rule" ng-click="runRule(rule.uid,$event)">play_arrow</i>
-								<i class="material-icons" aria-label="Toggle Enable" ng-click="toggleEnabled(rule, $event)">{{rule.enabled ? "alarm_on" : "alarm_off"}}</i> <i class="material-icons" aria-label="Remove" ng-click="remove(rule, $event)">delete</i>
+								<i class="material-icons" aria-label="Run rule" ng-click="runRule(rule.uid,$event)">play_arrow</i> <i class="material-icons" aria-label="Toggle Enable" ng-click="toggleEnabled(rule, $event)">{{rule.enabled ? "alarm_on" : "alarm_off"}}</i> <i class="material-icons" aria-label="Remove" ng-click="remove(rule, $event)">delete</i>
 							</div>
 						</div>
 						<hr class="border-line" ng-show="!$last" />
 					</div>
 				</div>
 			</div>
+		</div>
+	</div>
+	<div class="container extensions" ng-if="page === 'catalog'" ng-controller="RulesPageController">
+		<div class="showCards">
+			<div ng-repeat="extensionType in extensionTypes | filter: {'typeId':'ruletemplate'}" id="extensions-0">
+				<div class="extension fab-item text-left col-lg-4 col-sm-6 col-xs-12" ng-repeat="extension in extensionType.extensions" on-finish-render>
+					<div class="card item pointer" style="background-color: {{extension.backgroundColor}}" ng-click="installRuleExtenstion(extension.id,extension.installed)">
+						<div class="imageAlign">
+							<img ng-show="extension.imageLink" vertical-align class="rectangle" ng-src="{{extension.imageLink}}" onerror="this.style.display='none';" />
+						</div>
+						<div class="item-content">
+							<div class="pull-left" ng-class="{'extension-label':extension.link}">
+								<div class="md-title">{{extension.label}}</div>
+								<p>{{extension.id}} - {{extension.version}}</p>
+							</div>
+							<div style="position: absolute; right: 8px;" ng-if="extension.link">
+								<i ng-click="openExternalLink(extension.link)" class="material-icons cursor-pointer col-xs-3 launch-icon">launch</i>
+							</div>
+						</div>
+						<div ng-bind-html="extension.description" class="description rule-ext-desc"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="backdrop" ng-show="inProgress"></div>
+		<div class="progressbar">
+			<md-progress-circular md-mode="indeterminate" ng-show="inProgress"></md-progress-circular>
 		</div>
 	</div>
 
@@ -106,7 +132,7 @@
 				</div>
 			</div>
 			<div>
-				<div class="row" style="margin-top:15px">
+				<div class="row" style="margin-top: 15px">
 					<div class="col-md-10 item-wrapper noPadding">
 						<h3 class="md-title md-title-nospace">
 							but only if...
@@ -131,6 +157,31 @@
 					</div>
 				</div>
 			</div>
-
 		</div>
+	</div>
+	<div ng-show="page=='template'" ng-init="form={}" class="white-bg">
+		<div class="header-toolbar">
+			<md-button ng-click="navigateTo('')" aria-label="Refresh"> <i class="material-icons">close</i></md-button>
+		</div>
+		<div class="section-header">
+			<div class="container">
+				<div class="toolbar">
+					<md-button ng-disabled="form.configForm.$invalid" title="Save" ng-click="saveRule()" class="md-fab" aria-label="Save"> <i class="material-icons">check</i></md-button>
+				</div>
+			</div>
+		</div>
+		<div class="container rules-container">
+			<div class="bindings row">
+				<div class="row">
+					<div class="ruleNameDesc">
+						<md-input-container class="rules-input col-xs-12" md-no-float> <input placeholder="Name" ng-model="name" /> </md-input-container>
+						<md-input-container class="rules-input col-xs-12" md-no-float> <textarea placeholder="Description" ng-model="description"></textarea> </md-input-container>
+						<input type="hidden" ng-value="id" />
+						<h3 class="md-title-nospace">Configurations</h3>
+						<config-description configuration="configuration" parameters="parameters" />
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </section>

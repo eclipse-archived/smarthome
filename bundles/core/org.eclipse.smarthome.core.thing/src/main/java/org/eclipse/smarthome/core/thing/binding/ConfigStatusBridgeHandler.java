@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.thing.binding;
 
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusCallback;
 import org.eclipse.smarthome.config.core.status.ConfigStatusProvider;
@@ -37,7 +38,7 @@ public abstract class ConfigStatusBridgeHandler extends BaseBridgeHandler implem
      *
      * @param bridge the bridge for this handler
      */
-    public ConfigStatusBridgeHandler(Bridge bridge) {
+    public ConfigStatusBridgeHandler(@NonNull Bridge bridge) {
         super(bridge);
     }
 

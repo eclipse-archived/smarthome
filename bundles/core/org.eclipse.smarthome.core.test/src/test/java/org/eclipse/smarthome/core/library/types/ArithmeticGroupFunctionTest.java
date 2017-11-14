@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,10 +9,12 @@ package org.eclipse.smarthome.core.library.types;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.Item;
@@ -201,6 +203,18 @@ public class ArithmeticGroupFunctionTest {
         assertEquals(new DecimalType("234.95"), state);
     }
 
+    @Test
+    public void testCountFunction() {
+        items.add(new TestItem("TestItem1", new StringType("hello world")));
+        items.add(new TestItem("TestItem2", new StringType("world")));
+        items.add(new TestItem("TestItem3", new StringType("foo bar")));
+
+        function = new ArithmeticGroupFunction.Count(new StringType(".*world.*"));
+        State state = function.calculate(items);
+
+        assertEquals(new DecimalType("2"), state);
+    }
+
     class TestItem extends GenericItem {
 
         public TestItem(String name, State state) {
@@ -209,13 +223,13 @@ public class ArithmeticGroupFunctionTest {
         }
 
         @Override
-        public List<Class<? extends State>> getAcceptedDataTypes() {
-            return null;
+        public @NonNull List<@NonNull Class<? extends State>> getAcceptedDataTypes() {
+            return Collections.emptyList();
         }
 
         @Override
-        public List<Class<? extends Command>> getAcceptedCommandTypes() {
-            return null;
+        public @NonNull List<@NonNull Class<? extends Command>> getAcceptedCommandTypes() {
+            return Collections.emptyList();
         }
 
     }

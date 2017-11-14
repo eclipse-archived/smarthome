@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,7 @@ import org.eclipse.smarthome.config.core.status.ConfigStatusMessage
 import org.eclipse.smarthome.config.core.status.ConfigStatusProvider
 import org.eclipse.smarthome.config.core.status.ConfigStatusService
 import org.eclipse.smarthome.core.events.EventPublisher
-import org.eclipse.smarthome.core.i18n.I18nProvider
+import org.eclipse.smarthome.core.i18n.TranslationProvider
 import org.eclipse.smarthome.core.i18n.LocaleProvider
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Before
@@ -92,7 +92,7 @@ class ConfigStatusServiceOSGiTest extends OSGiTest {
         registerService([getLocale: {
                 return new Locale("en", "US")
             }] as LocaleProvider)
-        registerI18nProvider()
+        registerTranslationProvider()
 
         configStatusService = getService(ConfigStatusService)
         assertThat configStatusService, is(notNullValue())
@@ -138,7 +138,7 @@ class ConfigStatusServiceOSGiTest extends OSGiTest {
         ]  as ConfigStatusProvider)
     }
 
-    private void registerI18nProvider() {
+    private void registerTranslationProvider() {
         registerService([
             getText: { bundle, key, defaultText, locale, args ->
                 if(locale.equals(LOCALE_DE)) {
@@ -159,6 +159,6 @@ class ConfigStatusServiceOSGiTest extends OSGiTest {
                     }
                 }
             }
-        ]  as I18nProvider)
+        ]  as TranslationProvider)
     }
 }

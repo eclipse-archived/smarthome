@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,6 @@ package org.eclipse.smarthome.binding.wemo.test
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
-import groovy.xml.Namespace
 
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
@@ -36,6 +35,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
+import org.eclipse.smarthome.core.thing.link.ThingLinkManager
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOService
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOServiceImpl
 import org.eclipse.smarthome.test.OSGiTest
@@ -52,21 +52,22 @@ import org.jupnp.model.types.DeviceType
 import org.jupnp.model.types.ServiceId
 import org.jupnp.model.types.ServiceType
 import org.jupnp.model.types.UDN
+import org.osgi.service.cm.ConfigurationAdmin
 import org.osgi.service.http.HttpService
 
-import com.google.common.collect.ImmutableSet
+import groovy.xml.Namespace
 
 /**
  * Generic test class for all Wemo related tests that contains methods and constants used across the different test classes
  *
  * @author Svilen Valkanov - Initial contribution
  */
-public abstract class GenericWemoOSGiTest extends OSGiTest{
+public abstract class GenericWemoOSGiTest extends OSGiTest {
 
     static final def DEVICE_MANUFACTURER = "Belkin"
 
     //This port is included in the run configuration
-    def ORG_OSGI_SERVICE_HTTP_PORT = 8080
+    def ORG_OSGI_SERVICE_HTTP_PORT = 9090
 
     //Thing information
     def TEST_THING_ID = "TestThing"
@@ -112,7 +113,29 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
         //UPnP IO Service is required from the WemoDiscoveryService and WemoHandlerFactory
         upnpIOService = getService(UpnpIOService.class)
         assertThat(UpnpIOService, is(notNullValue()))
+
+        setSimpleMode(false)
     }
+
+    protected void setSimpleMode(boolean enabled) {
+        // Deactivate simple mode that create items and links automatically
+        ConfigurationAdmin configAdmin
+        configAdmin = getService(ConfigurationAdmin)
+        assertThat configAdmin, is(notNullValue())
+        def config = configAdmin.getConfiguration("org.eclipse.smarthome.links")
+        def properties = config.getProperties()
+        if (properties == null) {
+            properties = new Properties()
+        }
+        properties.put("autoLinks", enabled)
+        config.update(properties)
+
+        // Wait until simple mode is deactivated.
+        ThingLinkManager thinkLinkManager = getService(ThingLinkManager.class)
+        assertThat thinkLinkManager, is(notNullValue())
+        waitFor { return thinkLinkManager.isAutoLinksEnabled() == enabled }
+    }
+
 
     protected registerServlet(String ServletURL, HttpServlet servlet) {
         HttpService httpService = getService(HttpService.class)
@@ -205,7 +228,7 @@ public abstract class GenericWemoOSGiTest extends OSGiTest{
     private Set<ThingHandler> getThingHandlers(ThingHandlerFactory factory) {
         def thingManager = getService(ThingTypeMigrationService.class, { "org.eclipse.smarthome.core.thing.internal.ThingManager" } )
         assertThat thingManager, not(null)
-        ImmutableSet.copyOf(thingManager.thingHandlersByFactory.get(factory))
+        Collections.unmodifiableSet(new HashSet<>(thingManager.thingHandlersByFactory.get(factory)))
     }
 }
 

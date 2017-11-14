@@ -21,6 +21,32 @@
       <type>kar</type>
       <scope>provided</scope>
     </dependency>
+
+    <!-- Descriptors -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>esh-tp</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+      <classifier>features</classifier>
+      <type>xml</type>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>esh-core</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+      <classifier>features</classifier>
+      <type>xml</type>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>esh-ext</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+      <classifier>features</classifier>
+      <type>xml</type>
+    </dependency>
   </dependencies>
 
   <build>
@@ -33,7 +59,7 @@
         <executions>
           <execution>
             <id>verify-esh</id>
-            <!--<phase>process-resources</phase>-->
+            <phase>process-resources</phase>
             <goals>
               <goal>verify</goal>
             </goals>
@@ -61,5 +87,29 @@
       </plugin>
     </plugins>
   </build>
+
+  <repositories>
+    <repository>
+      <id>bintray-maggu2810-maven</id>
+      <url>https://dl.bintray.com/maggu2810/maven/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+
+    <repository>
+      <id>jupnp-bintray</id>
+      <url>https://dl.bintray.com/jupnp/mvn/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
 </project>

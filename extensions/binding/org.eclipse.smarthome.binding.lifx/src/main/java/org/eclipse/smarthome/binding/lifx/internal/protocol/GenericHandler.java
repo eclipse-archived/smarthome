@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,9 @@ import java.nio.ByteBuffer;
  * <p>
  * Packet types must have an empty constructor and cannot require any
  * additional logic (other than parsing).
- * </p>
  *
  * @param <T> the packet subtype this handler constructs
- * 
+ *
  * @author Tim Buckley - Initial Contribution
  * @author Karel Goderis - Enhancement for the V2 LIFX Firmware and LAN Protocol Specification
  */
@@ -54,7 +53,6 @@ public class GenericHandler<T extends Packet> implements PacketHandler<T> {
             // silently ignore
             typeFound = false;
         }
-
     }
 
     @Override

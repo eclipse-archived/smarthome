@@ -1,9 +1,3 @@
----
-layout: documentation
----
-
-{% include base.html %}
-
 # NTP Binding
  
 The NTP binding is used for displaying the local date and time based update from an NTP server.
@@ -36,6 +30,7 @@ The thing has a few configuration options:
 ## Channels
  
 The ntp binding has two channels:
+
 * `dateTime` which provides the data in a dateTime type
 * `string` which provides the data in a string type. The string channel can be configured with the formatting of the date & time. This also allows proper representation of timezones other than the java machine default one.
 See the [java documentation](http://docs.oracle.com/javase/6/docs/api/java/text/SimpleDateFormat.html) for the detailed information on the formatting
@@ -49,6 +44,7 @@ Things:
 ```
 ntp:ntp:demo  [ hostname="nl.pool.ntp.org", refreshInterval=60, refreshNtp=30 ]
 ```
+
 Items:
 
 ```

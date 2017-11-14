@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,7 +30,7 @@ import org.xml.sax.SAXException;
  *
  * <pre>
  * <xmp>
- * 	<fsapiResponse> <status>FS_OK</status> <value><u8>1</u8></value> </fsapiResponse>
+ *   <fsapiResponse> <status>FS_OK</status> <value><u8>1</u8></value> </fsapiResponse>
  * </xmp>
  * </pre>
  *
@@ -61,9 +61,9 @@ public class FrontierSiliconRadioApiResult {
         try {
             xml = getXmlDocFromString(requestResultString);
         } catch (Exception e) {
-            logger.trace("converting to XML failed: '" + requestResultString + "' with " + e.getClass().getName() + ": "
-                    + e.getMessage());
-            logger.debug("converting to XML failed with " + e.getClass().getName() + ": " + e.getMessage());
+            logger.trace("converting to XML failed: '{}' with {}: {}", requestResultString, e.getClass().getName(),
+                    e.getMessage());
+            logger.debug("converting to XML failed with {}: {}", e.getClass().getName(), e.getMessage());
             if (e instanceof IOException) {
                 throw (IOException) e;
             }
@@ -82,7 +82,7 @@ public class FrontierSiliconRadioApiResult {
         final Element statusNode = (Element) fsApiResult.getElementsByTagName("status").item(0);
 
         final String status = getCharacterDataFromElement(statusNode);
-        logger.trace("status is: " + status);
+        logger.trace("status is: {}", status);
 
         return status;
     }
@@ -108,11 +108,11 @@ public class FrontierSiliconRadioApiResult {
             final Element u8Node = (Element) valueNode.getElementsByTagName("u8").item(0);
 
             final String value = getCharacterDataFromElement(u8Node);
-            logger.trace("value is: " + value);
+            logger.trace("value is: {}", value);
 
             return "1".equals(value);
         } catch (Exception e) {
-            logger.error("getting Value.U8 failed with " + e.getClass().getName() + ": " + e.getMessage());
+            logger.error("getting Value.U8 failed with {}: {}", e.getClass().getName(), e.getMessage());
             return false;
         }
     }
@@ -129,11 +129,11 @@ public class FrontierSiliconRadioApiResult {
             final Element u8Node = (Element) valueNode.getElementsByTagName("u8").item(0);
 
             final String value = getCharacterDataFromElement(u8Node);
-            logger.trace("value is: " + value);
+            logger.trace("value is: {}", value);
 
             return Integer.parseInt(value);
         } catch (Exception e) {
-            logger.error("getting Value.U8 failed with " + e.getClass().getName() + ": " + e.getMessage());
+            logger.error("getting Value.U8 failed with {}: {}", e.getClass().getName(), e.getMessage());
             return 0;
         }
     }
@@ -150,11 +150,11 @@ public class FrontierSiliconRadioApiResult {
             final Element u32Node = (Element) valueNode.getElementsByTagName("u32").item(0);
 
             final String value = getCharacterDataFromElement(u32Node);
-            logger.trace("value is: " + value);
+            logger.trace("value is: {}", value);
 
             return Integer.parseInt(value);
         } catch (Exception e) {
-            logger.error("getting Value.U32 failed with " + e.getClass().getName() + ": " + e.getMessage());
+            logger.error("getting Value.U32 failed with {}: {}", e.getClass().getName(), e.getMessage());
             return 0;
         }
     }
@@ -171,11 +171,11 @@ public class FrontierSiliconRadioApiResult {
             final Element c8Array = (Element) valueNode.getElementsByTagName("c8_array").item(0);
 
             final String value = getCharacterDataFromElement(c8Array);
-            logger.trace("value is: " + value);
+            logger.trace("value is: {}", value);
 
             return value;
         } catch (Exception e) {
-            logger.error("getting Value.c8array failed with " + e.getClass().getName() + ": " + e.getMessage());
+            logger.error("getting Value.c8array failed with {}: {}", e.getClass().getName(), e.getMessage());
             return "";
         }
     }

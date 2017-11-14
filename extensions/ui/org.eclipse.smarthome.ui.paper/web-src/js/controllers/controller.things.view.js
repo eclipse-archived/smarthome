@@ -1,0 +1,417 @@
+angular.module('PaperUI.controllers.things') //
+.controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeRepository, configService, thingConfigService, util, itemRepository) {
+    $scope.setSubtitle([ 'Things' ]);
+
+    var thingUID = $scope.path[4];
+    $scope.thingTypeUID = null;
+    $scope.advancedMode;
+    $scope.thing;
+    $scope.thingType;
+    $scope.thingChannels = [];
+    $scope.showAdvanced = false;
+    $scope.channelTypes;
+    $scope.items;
+
+    channelTypeRepository.getAll(function(channels) {
+        $scope.channelTypes = channels;
+        $scope.refreshChannels(false);
+    });
+
+    itemRepository.getAll(function(items) {
+        $scope.items = items;
+    });
+
+    $scope.remove = function(thing, event) {
+        event.stopImmediatePropagation();
+        $mdDialog.show({
+            controller : 'RemoveThingDialogController',
+            templateUrl : 'partials/dialog.removething.html',
+            targetEvent : event,
+            hasBackdrop : true,
+            locals : {
+                thing : thing
+            }
+        }).then(function() {
+            $scope.navigateTo('');
+        });
+    }
+
+    $scope.enableChannel = function(thingUID, channelID, event, longPress) {
+        var channel = $scope.getChannelById(channelID);
+        event.stopImmediatePropagation();
+        if ($scope.advancedMode) {
+            if (channel.linkedItems.length > 0) {
+                $scope.getLinkedItems(channel, event);
+            } else {
+                $scope.linkChannel(channelID, event, longPress);
+            }
+        } else if (channel.linkedItems.length == 0) {
+            linkService.link({
+                itemName : $scope.thing.UID.replace(/[^a-zA-Z0-9_]/g, "_") + '_' + channelID.replace(/[^a-zA-Z0-9_]/g, "_"),
+                channelUID : $scope.thing.UID + ':' + channelID
+            }, function(newItem) {
+                $scope.getThing(true);
+                toastService.showDefaultToast('Channel linked');
+            });
+        }
+    };
+
+    $scope.disableChannel = function(thingUID, channelID, itemName, event) {
+        var channel = $scope.getChannelById(channelID);
+        event.stopImmediatePropagation();
+        var linkedItem = channel.linkedItems[0];
+        if ($scope.advancedMode) {
+            $scope.unlinkChannel(channelID, itemName, event);
+        } else {
+            linkService.unlink({
+                itemName : $scope.thing.UID.replace(/[^a-zA-Z0-9_]/g, "_") + '_' + channelID.replace(/[^a-zA-Z0-9_]/g, "_"),
+                channelUID : $scope.thing.UID + ':' + channelID
+            }, function() {
+                $scope.getThing(true);
+                toastService.showDefaultToast('Channel unlinked');
+            });
+        }
+    };
+
+    $scope.linkChannel = function(channelID, event, preSelect) {
+        var channel = $scope.getChannelById(channelID);
+        var channelType = $scope.getChannelTypeByUID(channel.channelTypeUID);
+        var params = {
+            linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
+            acceptedItemType : channel.itemType,
+            category : channelType.category ? channelType.category : '',
+            suggestedName : getItemNameSuggestion(channelID, channelType.label),
+            suggestedLabel : channelType.label,
+            suggestedCategory : channelType.category ? channelType.category : '',
+            preSelectCreate : preSelect
+        }
+        $mdDialog.show({
+            controller : 'LinkChannelDialogController',
+            templateUrl : 'partials/dialog.linkchannel.html',
+            targetEvent : event,
+            hasBackdrop : true,
+            params : params
+        }).then(function(newItem) {
+            if (newItem) {
+                linkService.link({
+                    itemName : newItem.itemName,
+                    channelUID : $scope.thing.UID + ':' + channelID
+                }, function() {
+                    $scope.getThing(true);
+                    var item = $.grep($scope.items, function(item) {
+                        return item.name == newItem.itemName;
+                    });
+                    channel.items = channel.items ? channel.items : [];
+                    if (item.length > 0) {
+                        channel.items.push(item[0]);
+                    } else {
+                        channel.items.push({
+                            name : newItem.itemName,
+                            label : newItem.label
+                        });
+                    }
+                    toastService.showDefaultToast('Channel linked');
+                });
+            }
+        });
+    }
+
+    function getItemNameSuggestion(channelID, label) {
+        var itemName = getInCamelCase($scope.thing.label);
+        if (channelID) {
+            var id = channelID.split('#');
+            if (id.length > 1 && id[0].length > 0) {
+                itemName += ('_' + getInCamelCase(id[0]));
+            }
+            itemName += ('_' + getInCamelCase(label));
+        }
+        return itemName;
+    }
+
+    function getInCamelCase(str) {
+        var camelStr = "";
+        if (str) {
+            var arr = str.split(/[^a-zA-Z0-9_]/g);
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i] && arr[i].length > 0) {
+                    camelStr += (arr[i][0].toUpperCase() + (arr[i].length > 1 ? arr[i].substring(1, arr[i].length) : ''));
+                }
+            }
+        }
+        return camelStr;
+    }
+
+    $scope.unlinkChannel = function(channelID, itemName, event) {
+        var channel = $scope.getChannelById(channelID);
+        $mdDialog.show({
+            controller : 'UnlinkChannelDialogController',
+            templateUrl : 'partials/dialog.unlinkchannel.html',
+            targetEvent : event,
+            hasBackdrop : true,
+            locals : {
+                itemName : itemName
+            }
+        }).then(function() {
+            if (itemName) {
+                linkService.unlink({
+                    itemName : itemName,
+                    channelUID : $scope.thing.UID + ':' + channelID
+                }, function() {
+                    $scope.getThing(true);
+                    var item = $.grep(channel.items, function(item) {
+                        return item.name == itemName;
+                    });
+                    if (item.length > 0) {
+                        channel.items.splice(channel.items.indexOf(item[0]), 1);
+                    }
+                    toastService.showDefaultToast('Channel unlinked');
+                });
+            }
+        });
+    }
+    $scope.getChannelById = function(channelId) {
+        if (!$scope.thing) {
+            return;
+        }
+        return $.grep($scope.thing.channels, function(channel, i) {
+            return channelId == channel.id;
+        })[0];
+    }
+
+    $scope.getChannelTypeByUID = function(channelUID) {
+        return thingConfigService.getChannelTypeByUID($scope.thingType, $scope.channelTypes, channelUID);
+    };
+
+    $scope.getChannelFromChannelTypes = function(channelUID) {
+        if (!$scope.channelTypes) {
+            return;
+        }
+        return thingConfigService.getChannelFromChannelTypes($scope.channelTypes, channelUID);
+    };
+
+    var getChannels = function(advanced) {
+
+        if (!$scope.thingType || !$scope.thing || !$scope.channelTypes) {
+            return;
+        }
+        $scope.isAdvanced = checkAdvance($scope.thing.channels);
+        return thingConfigService.getThingChannels($scope.thing, $scope.thingType, $scope.channelTypes, advanced);
+    };
+    $scope.refreshChannels = function(showAdvanced) {
+        $scope.thingChannels = getChannels(showAdvanced);
+    }
+
+    function checkAdvance(channels) {
+        var advancedChannels = channels.filter(function(channel) {
+            var channelType = $scope.getChannelTypeByUID(channel.channelTypeUID);
+            return channelType && channelType.advanced
+        })
+
+        return advancedChannels.length > 0
+    }
+
+    $scope.getThing = function(refresh) {
+        thingRepository.getOne(function(thing) {
+            return thing.UID === thingUID;
+        }, function(thing) {
+            angular.forEach(thing.channels, function(value, i) {
+                value.showItems = $scope.thing ? $scope.thing.channels[i].showItems : false;
+                value.items = $scope.thing ? $scope.thing.channels[i].items : null;
+            });
+            $scope.thing = thing;
+            checkThingProperties(thing);
+            $scope.thingTypeUID = thing.thingTypeUID;
+            getThingType();
+            $scope.setSubtitle([ 'Things', thing.label ]);
+        }, refresh);
+    }
+
+    function checkThingProperties(thing) {
+        if (thing.properties) {
+            var hasFirmwareVersion = thing.properties['firmwareVersion'];
+            if ((Object.keys(thing.properties).length > 0 && !hasFirmwareVersion) || (Object.keys(thing.properties).length > 1 && hasFirmwareVersion)) {
+                $scope.thing.hasProperties = true;
+            } else {
+                $scope.thing.hasProperties = false;
+            }
+        } else {
+            $scope.thing.hasProperties = false;
+        }
+    }
+    $scope.getThing(true);
+
+    function getThingType() {
+        thingTypeService.getByUid({
+            thingTypeUID : $scope.thingTypeUID
+        }, function(thingType) {
+            $scope.thingType = thingType;
+            if (thingType) {
+                $scope.thingTypeChannels = thingType.channels && thingType.channels.length > 0 ? thingType.channels : thingType.channelGroups;
+                $scope.setHeaderText(thingType.description);
+            }
+            $scope.refreshChannels($scope.showAdvanced);
+        });
+    }
+
+    $scope.configChannel = function(channel, thing, event) {
+        var channelType = this.getChannelFromChannelTypes(channel.channelTypeUID);
+
+        $mdDialog.show({
+            controller : 'ChannelConfigController',
+            templateUrl : 'partials/dialog.channelconfig.html',
+            targetEvent : event,
+            hasBackdrop : true,
+            locals : {
+                channelType : channelType,
+                channel : channel,
+                thing : thing
+            }
+        });
+    };
+
+    $scope.getLinkedItems = function(channel) {
+        channel.showItems = !channel.showItems;
+        if (channel.showItems && channel.items === null || channel.items === undefined) {
+            channel.items = $.grep($scope.items, function(item) {
+                return $.grep(channel.linkedItems, function(linkedItemName) {
+                    return linkedItemName == item.name;
+                }).length > 0;
+            });
+        }
+    }
+
+    $scope.showDescription = function(channel, channelType) {
+        var description = channel.description ? channel.description : channel.channelType ? channel.channelType.description : null;
+        if (description) {
+            popup = $mdDialog.alert({
+                title : channel.label ? channel.label : channel.channelType ? channel.channelType.label : channel.id,
+                textContent : description,
+                ok : 'Close'
+            });
+            $mdDialog.show(popup);
+        }
+    }
+
+    $scope.$watch('thing.channels', function() {
+        $scope.refreshChannels($scope.showAdvanced);
+    });
+
+    $scope.isExtensible = function() {
+        var thingType = $scope.thingType
+        return thingType && thingType.extensibleChannelTypeIds && thingType.extensibleChannelTypeIds.length > 0
+    }
+
+    $scope.isExtensibleChannel = function(channelTypeUID) {
+        if (!channelTypeUID || !$scope.isExtensible()) {
+            return false
+        }
+
+        var channelTypeId = channelTypeUID.split(':')[1]
+        return $scope.thingType.extensibleChannelTypeIds.indexOf(channelTypeId) >= 0
+    }
+
+    $scope.addChannel = function(event) {
+        $mdDialog.show({
+            controller : 'AddChannelController',
+            templateUrl : 'partials/dialog.addchannel.html',
+            targetEvent : event,
+            hasBackdrop : true,
+            locals : {
+                thing : $scope.thing,
+                thingType : $scope.thingType,
+            }
+        });
+    }
+
+    $scope.removeChannel = function(channel, event) {
+        event.stopImmediatePropagation();
+        $mdDialog.show({
+            controller : 'RemoveChannelDialogController',
+            templateUrl : 'partials/dialog.removechannel.html',
+            targetEvent : event,
+            hasBackdrop : true,
+            locals : {
+                thing : $scope.thing,
+                channel : channel
+            }
+        }).then(function() {
+            $scope.getThing(false);
+        });
+    }
+}).controller('AddChannelController', function($scope, $mdDialog, toastService, channelTypeRepository, configService, thingService, thingType, thing) {
+    $scope.channelTypes = []
+    $scope.parameters = undefined
+
+    // values filled form the dialog
+    $scope.channelType = undefined
+    $scope.channelId = undefined
+    $scope.channelLabel = undefined
+    $scope.configuration = {}
+
+    var refreshChannelTypes = function() {
+        angular.forEach(thingType.extensibleChannelTypeIds, function(channelTypeId) {
+            var channelTypeUID = thing.UID.split(":")[0] + ':' + channelTypeId;
+            channelTypeRepository.getOne(function filter(element) {
+                return element.UID === channelTypeUID
+            }, function callback(channelType) {
+                $scope.channelTypes.push(channelType)
+            })
+        })
+    }
+
+    $scope.$watch('channelType', function() {
+        if ($scope.channelType) {
+            $scope.parameters = configService.getRenderingModel($scope.channelType.parameters, $scope.channelType.parameterGroups);
+        }
+    })
+
+    $scope.close = function() {
+        $mdDialog.cancel();
+    }
+
+    $scope.save = function() {
+        var channel = {
+            uid : thing.UID + ':' + $scope.channelId,
+            id : $scope.channelId,
+            channelTypeUID : $scope.channelType.UID,
+            itemType : $scope.channelType.itemType,
+            label : $scope.channelLabel,
+            configuration : $scope.configuration,
+            defaultTags : $scope.channelType.tags
+        }
+
+        thing.channels.push(channel);
+
+        thingService.update({
+            thingUID : thing.UID
+        }, thing, function() {
+            $mdDialog.hide();
+            toastService.showSuccessToast('Channel added.');
+        }, function() {
+            $mdDialog.hide();
+            toastService.showErrorToast('Error adding channel.');
+        });
+    }
+
+    refreshChannelTypes();
+}).controller('RemoveChannelDialogController', function($scope, $mdDialog, toastService, thingService, thing, channel) {
+    $scope.channel = channel;
+
+    $scope.close = function() {
+        $mdDialog.cancel();
+    }
+
+    $scope.remove = function() {
+        var index = thing.channels.indexOf(channel);
+        thing.channels.splice(index, 1);
+        thingService.update({
+            thingUID : thing.UID
+        }, thing, function() {
+            $mdDialog.hide();
+            toastService.showSuccessToast('Channel removed.');
+        }, function() {
+            $mdDialog.hide();
+            toastService.showErrorToast('Error removing channel.');
+        });
+    }
+});

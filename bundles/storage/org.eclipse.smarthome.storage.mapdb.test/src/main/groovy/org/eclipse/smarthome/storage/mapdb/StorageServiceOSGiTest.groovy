@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,8 @@ import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.library.items.StringItem
 import org.eclipse.smarthome.core.storage.Storage;
 import org.eclipse.smarthome.core.storage.StorageService
+import org.eclipse.smarthome.storage.mapdb.internal.MapDbStorage
+import org.eclipse.smarthome.storage.mapdb.internal.MapDbStorageService
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before

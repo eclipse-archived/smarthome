@@ -296,9 +296,9 @@ There are several ways to add new rules:
 * http://<host:port>/rest/templates" - lists rule templates. 
 * http://<host:port>/rest/rules - lists rule instances.
 
-#### /rest/ruletemplates
- - GET /rest/ruletemplates - returns all registered rule templates.
- - GET /rest/ruletemplates/{templateUID} - returned response includes only the content of the specified template.
+#### /rest/templates
+ - GET /rest/templates - returns all registered rule templates.
+ - GET /rest/templates/{templateUID} - returned response includes only the content of the specified template.
 
 #### /rest/module-types
  - GET /rest/module-types - returns all registered module types.

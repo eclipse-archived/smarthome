@@ -17,6 +17,7 @@ import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
+import org.eclipse.smarthome.automation.module.core.handler.ChannelEventTriggerHandler;
 import org.eclipse.smarthome.automation.module.core.handler.CompareConditionHandler;
 import org.eclipse.smarthome.automation.module.core.handler.GenericEventConditionHandler;
 import org.eclipse.smarthome.automation.module.core.handler.GenericEventTriggerHandler;
@@ -24,7 +25,8 @@ import org.eclipse.smarthome.automation.module.core.handler.ItemCommandActionHan
 import org.eclipse.smarthome.automation.module.core.handler.ItemCommandTriggerHandler;
 import org.eclipse.smarthome.automation.module.core.handler.ItemStateConditionHandler;
 import org.eclipse.smarthome.automation.module.core.handler.ItemStateTriggerHandler;
-import org.eclipse.smarthome.automation.module.core.handler.RuleEnableHandler;
+import org.eclipse.smarthome.automation.module.core.handler.RuleEnablementActionHandler;
+import org.eclipse.smarthome.automation.module.core.handler.RunRuleActionHandler;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.osgi.service.component.ComponentContext;
@@ -43,12 +45,12 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
 
     private Logger logger = LoggerFactory.getLogger(CoreModuleHandlerFactory.class);
 
-    private static final Collection<String> types = Arrays.asList(
-            new String[] { ItemCommandTriggerHandler.MODULE_TYPE_ID, ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID,
-                    ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID, ItemStateConditionHandler.ITEM_STATE_CONDITION,
-                    ItemCommandActionHandler.ITEM_COMMAND_ACTION, GenericEventTriggerHandler.MODULE_TYPE_ID,
-                    GenericEventConditionHandler.MODULETYPE_ID, GenericEventConditionHandler.MODULETYPE_ID,
-                    CompareConditionHandler.MODULE_TYPE, RuleEnableHandler.UID });
+    private static final Collection<String> types = Arrays.asList(ItemCommandTriggerHandler.MODULE_TYPE_ID,
+            ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID, ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID,
+            ItemStateConditionHandler.ITEM_STATE_CONDITION, ItemCommandActionHandler.ITEM_COMMAND_ACTION,
+            GenericEventTriggerHandler.MODULE_TYPE_ID, ChannelEventTriggerHandler.MODULE_TYPE_ID,
+            GenericEventConditionHandler.MODULETYPE_ID, GenericEventConditionHandler.MODULETYPE_ID,
+            CompareConditionHandler.MODULE_TYPE, RuleEnablementActionHandler.UID, RunRuleActionHandler.UID);
 
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
@@ -135,12 +137,6 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.eclipse.smarthome.automation.handler.
-     * BaseCustomizedModuleHandlerFactory#dispose ()
-     */
     @Override
     public void dispose() {
         super.dispose();
@@ -154,25 +150,23 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
             // Handle triggers
 
             if (GenericEventTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
-                return new GenericEventTriggerHandler((Trigger) module,
-                        this.bundleContext);
+                return new GenericEventTriggerHandler((Trigger) module, this.bundleContext);
+            } else if (ChannelEventTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
+                return new ChannelEventTriggerHandler((Trigger) module, this.bundleContext);
             } else if (ItemCommandTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
-                return new ItemCommandTriggerHandler((Trigger) module,
-                        this.bundleContext);
+                return new ItemCommandTriggerHandler((Trigger) module, this.bundleContext);
             } else if (ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID.equals(moduleTypeUID)
                     || ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID.equals(moduleTypeUID)) {
-                return new ItemStateTriggerHandler((Trigger) module,
-                        this.bundleContext);
+                return new ItemStateTriggerHandler((Trigger) module, this.bundleContext);
             }
         } else if (module instanceof Condition) {
             // Handle conditions
-
             if (ItemStateConditionHandler.ITEM_STATE_CONDITION.equals(moduleTypeUID)) {
-                new ItemStateConditionHandler((Condition) module).setItemRegistry(itemRegistry);
-                return new ItemStateConditionHandler((Condition) module);
+                ItemStateConditionHandler handler = new ItemStateConditionHandler((Condition) module);
+                handler.setItemRegistry(itemRegistry);
+                return handler;
             } else if (GenericEventConditionHandler.MODULETYPE_ID.equals(moduleTypeUID)) {
-                return new GenericEventConditionHandler(
-                        (Condition) module);
+                return new GenericEventConditionHandler((Condition) module);
             } else if (CompareConditionHandler.MODULE_TYPE.equals(moduleTypeUID)) {
                 return new CompareConditionHandler((Condition) module);
             }
@@ -184,12 +178,14 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
                 postCommandActionHandler.setEventPublisher(eventPublisher);
                 postCommandActionHandler.setItemRegistry(itemRegistry);
                 return postCommandActionHandler;
-            } else if (RuleEnableHandler.UID.equals(moduleTypeUID)) {
-                return new RuleEnableHandler((Action) module, ruleRegistry);
+            } else if (RuleEnablementActionHandler.UID.equals(moduleTypeUID)) {
+                return new RuleEnablementActionHandler((Action) module, ruleRegistry);
+            } else if (RunRuleActionHandler.UID.equals(moduleTypeUID)) {
+                return new RunRuleActionHandler((Action) module, ruleRegistry);
             }
         }
 
-        logger.error("The ModuleHandler is not supported:" + moduleTypeUID);
+        logger.error("The ModuleHandler is not supported:{}", moduleTypeUID);
         return null;
     }
 }

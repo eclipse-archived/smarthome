@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -101,7 +101,6 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
      * Transforms the input <code>source</code> by the according method defined in subclass to another string.
      * It expects the transformation to be read from a file which is stored
      * under the 'conf/transform'
-     * </p>
      *
      * @param filename
      *            the name of the file which contains the transformation definition.
@@ -110,9 +109,6 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
      * @param source
      *            the input to transform
      * @throws TransformationException
-     *
-     * @{inheritDoc
-     *
      */
     @Override
     public String transform(String filename, String source) throws TransformationException {
@@ -147,7 +143,6 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
      * <p>
      * Abstract method defined by subclasses to effectively operate the
      * transformation according to its rules
-     * </p>
      *
      * @param transform
      *            transformation held by the file provided to <code>transform</code> method
@@ -165,7 +160,6 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
      * <p>
      * Abstract method defined by subclasses to effectively read the transformation
      * source file according to their own needs.
-     * </p>
      *
      * @param filename
      *            Name of the file to be read. This filename may have been transposed

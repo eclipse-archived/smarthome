@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -91,7 +91,7 @@ public interface VoiceManager {
      * @throws IllegalStateException if required services are not available
      */
     void startDialog(KSService ks, STTService stt, TTSService tts, HumanLanguageInterpreter hli, AudioSource source,
-            AudioSink sink, Locale locale, String keyword);
+            AudioSink sink, Locale locale, String keyword, String listeningItem);
 
     /**
      * Retrieves a TTS service.

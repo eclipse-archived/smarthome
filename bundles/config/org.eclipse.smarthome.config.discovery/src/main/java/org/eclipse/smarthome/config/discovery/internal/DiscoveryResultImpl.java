@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,10 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
+/**
+ *
+ * @author Kai Kreuzer - Initial contribution
+ */
 public class DiscoveryResultImpl implements DiscoveryResult {
 
     private ThingUID bridgeUID;
@@ -79,7 +83,7 @@ public class DiscoveryResultImpl implements DiscoveryResult {
      */
     public DiscoveryResultImpl(ThingTypeUID thingTypeUID, ThingUID thingUID, ThingUID bridgeUID,
             Map<String, Object> properties, String representationProperty, String label, long timeToLive)
-                    throws IllegalArgumentException {
+            throws IllegalArgumentException {
         if (thingUID == null) {
             throw new IllegalArgumentException("The thing UID must not be null!");
         }
@@ -196,25 +200,31 @@ public class DiscoveryResultImpl implements DiscoveryResult {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         DiscoveryResultImpl other = (DiscoveryResultImpl) obj;
         if (thingUID == null) {
-            if (other.thingUID != null)
+            if (other.thingUID != null) {
                 return false;
-        } else if (!thingUID.equals(other.thingUID))
+            }
+        } else if (!thingUID.equals(other.thingUID)) {
             return false;
+        }
         return true;
     }
 
     @Override
     public String toString() {
-        return "DiscoveryResult [thingUID=" + thingUID + ", properties=" + properties + ", flag=" + flag + ", label="
-                + label + ", bridgeUID=" + bridgeUID + ", ttl=" + timeToLive + ", timestamp=" + timestamp + "]";
+        return "DiscoveryResult [thingUID=" + thingUID + ", properties=" + properties + ", representationProperty="
+                + representationProperty + ", flag=" + flag + ", label=" + label + ", bridgeUID=" + bridgeUID + ", ttl="
+                + timeToLive + ", timestamp=" + timestamp + "]";
     }
 
     @Override

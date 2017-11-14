@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.ui.items;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.model.sitemap.Widget;
 
@@ -25,7 +27,7 @@ public interface ItemUIProvider {
      * @param itemName the name of the item to return the icon for
      * @return the name of the category to use or null if undefined.
      */
-    public String getCategory(String itemName);
+    public @Nullable String getCategory(@NonNull String itemName);
 
     /**
      * Returns the label text to be used for an item in the UI.
@@ -33,32 +35,32 @@ public interface ItemUIProvider {
      * @param item the name of the item to return the label text for
      * @return the label text to be used in the UI or null if undefined.
      */
-    public String getLabel(String itemName);
+    public @Nullable String getLabel(@NonNull String itemName);
 
     /**
      * Provides a default widget for a given item (class). This is used whenever
      * the UI needs to be created dynamically and there is no other source
      * of information about the widgets.
      *
-     * @param itemType the class of the item
+     * @param itemType the class of the item or null, if unknown
      * @param itemName the item name to get the default widget for
      *
-     * @return a widget implementation that can be used for the given item
+     * @return a widget implementation that can be used for the given item or null, if no default is available for the
+     *         type
      */
-    public Widget getDefaultWidget(Class<? extends Item> itemType, String itemName);
+    public @Nullable Widget getDefaultWidget(@Nullable Class<? extends Item> itemType, @NonNull String itemName);
 
     /**
      * <p>
      * Provides a widget for a given item. This can be used to overwrite the widget listed in the sitemap. A use case
      * for this is that the sitemap defines merely the parent-child-relation of widgets, but the concrete widget to be
      * used for rendering might be selected dynamically at runtime.
-     * </p>
+     *
      * <p>
      * If the sitemap widget should not be overridden, this method must return <code>null</code>.
-     * </p>
      *
      * @param itemName the item name to get the widget for
      * @return a widget to use for the given item or <code>null</code> if sitemap should not be overridden.
      */
-    public Widget getWidget(String itemName);
+    public @Nullable Widget getWidget(@NonNull String itemName);
 }

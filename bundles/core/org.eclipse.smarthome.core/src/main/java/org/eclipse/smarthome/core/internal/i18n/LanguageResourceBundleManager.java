@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -132,15 +132,14 @@ public class LanguageResourceBundleManager {
      */
     public String getText(String resource, String key, Locale locale) {
         if ((key != null) && (!key.isEmpty())) {
-            if (locale == null) {
-                locale = localeProvider.getLocale();
-            }
+
+            Locale effectiveLocale = locale != null ? locale : localeProvider.getLocale();
 
             if (resource != null) {
-                return getTranslatedText(resource, key, locale);
+                return getTranslatedText(resource, key, effectiveLocale);
             } else {
                 for (String resourceName : this.resourceNames) {
-                    String text = getTranslatedText(resourceName, key, locale);
+                    String text = getTranslatedText(resourceName, key, effectiveLocale);
 
                     if (text != null) {
                         return text;

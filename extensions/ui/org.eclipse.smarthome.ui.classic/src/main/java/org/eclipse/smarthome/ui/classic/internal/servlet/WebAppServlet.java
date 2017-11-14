@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,8 +19,10 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.core.items.GenericItem;
+import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.StateChangeListener;
@@ -29,10 +31,12 @@ import org.eclipse.smarthome.model.sitemap.Frame;
 import org.eclipse.smarthome.model.sitemap.LinkableWidget;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapProvider;
+import org.eclipse.smarthome.model.sitemap.VisibilityRule;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.classic.internal.WebAppConfig;
 import org.eclipse.smarthome.ui.classic.internal.render.PageRenderer;
 import org.eclipse.smarthome.ui.classic.render.RenderException;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.http.NamespaceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +64,7 @@ public class WebAppServlet extends BaseServlet {
     private PageRenderer renderer;
     protected Set<SitemapProvider> sitemapProviders = new CopyOnWriteArraySet<>();
 
-    private WebAppConfig config = new WebAppConfig();
+    private final WebAppConfig config = new WebAppConfig();
 
     public void addSitemapProvider(SitemapProvider sitemapProvider) {
         this.sitemapProviders.add(sitemapProvider);
@@ -75,11 +79,12 @@ public class WebAppServlet extends BaseServlet {
         this.renderer = renderer;
     }
 
-    protected void activate(Map<String, Object> configProps) {
+    protected void activate(Map<String, Object> configProps, BundleContext bundleContext) {
         config.applyConfig(configProps);
         try {
             Hashtable<String, String> props = new Hashtable<String, String>();
-            httpService.registerServlet(WEBAPP_ALIAS + "/" + SERVLET_NAME, this, props, createHttpContext());
+            httpService.registerServlet(WEBAPP_ALIAS + "/" + SERVLET_NAME, this, props,
+                    createHttpContext(bundleContext.getBundle()));
             httpService.registerResources(WEBAPP_ALIAS, "web", null);
             logger.info("Started Classic UI at " + WEBAPP_ALIAS + "/" + SERVLET_NAME);
         } catch (NamespaceException e) {
@@ -99,9 +104,6 @@ public class WebAppServlet extends BaseServlet {
         logger.info("Stopped Classic UI");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
         logger.debug("Servlet request received!");
@@ -129,33 +131,37 @@ public class WebAppServlet extends BaseServlet {
             if (sitemap == null) {
                 throw new RenderException("Sitemap '" + sitemapName + "' could not be found");
             }
-            logger.debug("reading sitemap {}", sitemap.getName());
+            logger.debug("reading sitemap {} widgetId {} async {} poll {}", sitemap.getName(), widgetId, async, poll);
             if (widgetId == null || widgetId.isEmpty() || widgetId.equals("Home")) {
                 // we are at the homepage, so we render the children of the sitemap root node
                 String label = sitemap.getLabel() != null ? sitemap.getLabel() : sitemapName;
-                EList<Widget> children = sitemap.getChildren();
+                EList<Widget> children = renderer.getItemUIRegistry().getChildren(sitemap);
                 if (poll && waitForChanges(children) == false) {
                     // we have reached the timeout, so we do not return any content as nothing has changed
                     res.getWriter().append(getTimeoutResponse()).close();
                     return;
                 }
-                result.append(renderer.processPage("Home", sitemapName, label, sitemap.getChildren(), async));
+                result.append(renderer.processPage("Home", sitemapName, label, children, async));
             } else if (!widgetId.equals("Colorpicker")) {
                 // we are on some subpage, so we have to render the children of the widget that has been selected
                 Widget w = renderer.getItemUIRegistry().getWidget(sitemap, widgetId);
                 if (w != null) {
-                    String label = renderer.getItemUIRegistry().getLabel(w);
-                    if (label == null) {
-                        label = "undefined";
-                    }
                     if (!(w instanceof LinkableWidget)) {
                         throw new RenderException("Widget '" + w + "' can not have any content");
                     }
-                    EList<Widget> children = renderer.getItemUIRegistry().getChildren((LinkableWidget) w);
-                    if (poll && waitForChanges(children) == false) {
+                    LinkableWidget lw = (LinkableWidget) w;
+                    EList<Widget> children = renderer.getItemUIRegistry().getChildren(lw);
+                    EList<Widget> parentAndChildren = new BasicEList<Widget>();
+                    parentAndChildren.add(lw);
+                    parentAndChildren.addAll(children);
+                    if (poll && waitForChanges(parentAndChildren) == false) {
                         // we have reached the timeout, so we do not return any content as nothing has changed
                         res.getWriter().append(getTimeoutResponse()).close();
                         return;
+                    }
+                    String label = renderer.getItemUIRegistry().getLabel(w);
+                    if (label == null) {
+                        label = "undefined";
                     }
                     result.append(renderer.processPage(renderer.getItemUIRegistry().getWidgetId(w), sitemapName, label,
                             children, async));
@@ -219,27 +225,32 @@ public class WebAppServlet extends BaseServlet {
      */
     private Set<GenericItem> getAllItems(EList<Widget> widgets) {
         Set<GenericItem> items = new HashSet<GenericItem>();
-        if (itemRegistry != null) {
+        if (renderer.getItemUIRegistry() != null) {
             for (Widget widget : widgets) {
-                String itemName = widget.getItem();
-                if (itemName != null) {
-                    try {
-                        Item item = itemRegistry.getItem(itemName);
-                        if (item instanceof GenericItem) {
-                            final GenericItem gItem = (GenericItem) item;
-                            items.add(gItem);
-                        }
-                    } catch (ItemNotFoundException e) {
-                        // ignore
-                    }
-                } else {
-                    if (widget instanceof Frame) {
-                        items.addAll(getAllItems(((Frame) widget).getChildren()));
-                    }
+                addItemWithName(items, widget.getItem());
+                if (widget instanceof Frame) {
+                    items.addAll(getAllItems(((Frame) widget).getChildren()));
+                }
+                for (VisibilityRule vr : widget.getVisibility()) {
+                    addItemWithName(items, vr.getItem());
                 }
             }
         }
         return items;
+    }
+
+    private void addItemWithName(Set<GenericItem> items, String itemName) {
+        if (itemName != null) {
+            try {
+                Item item = renderer.getItemUIRegistry().getItem(itemName);
+                if (item instanceof GenericItem) {
+                    final GenericItem gItem = (GenericItem) item;
+                    items.add(gItem);
+                }
+            } catch (ItemNotFoundException e) {
+                // ignore
+            }
+        }
     }
 
     /**
@@ -253,12 +264,11 @@ public class WebAppServlet extends BaseServlet {
 
         private boolean changed = false;
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public void stateChanged(Item item, State oldState, State newState) {
-            changed = true;
+            if (!(item instanceof GroupItem)) {
+                changed = true;
+            }
         }
 
         /**
@@ -270,12 +280,11 @@ public class WebAppServlet extends BaseServlet {
             return changed;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public void stateUpdated(Item item, State state) {
-            // ignore if the state did not change
+            if (item instanceof GroupItem) {
+                changed = true;
+            }
         }
     }
 

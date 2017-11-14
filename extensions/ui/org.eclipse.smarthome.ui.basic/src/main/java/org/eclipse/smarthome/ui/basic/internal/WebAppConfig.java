@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,8 +22,13 @@ public class WebAppConfig {
     private final static String DEFAULT_SITEMAP = "default";
     private final static String DEFAULT_ICON_TYPE = "png";
 
+    public final static String THEME_NAME_DEFAULT = "default";
+    public final static String THEME_NAME_DARK = "dark";
+    private final static String DEFAULT_THEME = THEME_NAME_DEFAULT;
+
     private String defaultSitemap = DEFAULT_SITEMAP;
     private String iconType = DEFAULT_ICON_TYPE;
+    private String theme = DEFAULT_THEME;
 
     private List<String> cssClassList = new ArrayList<String>();
 
@@ -61,8 +66,9 @@ public class WebAppConfig {
     }
 
     public void applyConfig(Map<String, Object> configProps) {
-        String configIconType = (String) configProps.get("iconType");
         String configDefaultSitemap = (String) configProps.get("defaultSitemap");
+        String configIconType = (String) configProps.get("iconType");
+        String configTheme = (String) configProps.get("theme");
 
         if (configDefaultSitemap == null) {
             configDefaultSitemap = DEFAULT_SITEMAP;
@@ -74,8 +80,13 @@ public class WebAppConfig {
             configIconType = DEFAULT_ICON_TYPE;
         }
 
-        iconType = configIconType;
+        if (configTheme == null) {
+            configTheme = DEFAULT_THEME;
+        }
+
         defaultSitemap = configDefaultSitemap;
+        iconType = configIconType;
+        theme = configTheme;
 
         applyCssClasses(configProps);
     }
@@ -86,6 +97,10 @@ public class WebAppConfig {
 
     public String getIconType() {
         return iconType;
+    }
+
+    public String getTheme() {
+        return theme;
     }
 
     public String getCssClassList() {

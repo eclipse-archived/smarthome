@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation.core.internal.composite;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,13 +57,13 @@ public class CompositeActionHandler extends AbstractCompositeModuleHandler<Actio
      * @see org.eclipse.smarthome.automation.handler.ActionHandler#execute(java.util.Map)
      */
     @Override
-    public Map<String, Object> execute(Map<String, ?> context) {
+    public Map<String, Object> execute(Map<String, Object> context) {
         final Map<String, Object> result = new HashMap<String, Object>();
         final List<Action> children = getChildren();
         final Map<String, Object> compositeContext = getCompositeContext(context);
         for (Action child : children) {
             ActionHandler childHandler = moduleHandlerMap.get(child);
-            Map<String, Object> childContext = getChildContext(child, compositeContext);
+            Map<String, Object> childContext = Collections.unmodifiableMap(getChildContext(child, compositeContext));
             Map<String, Object> childResults = childHandler.execute(childContext);
             if (childResults != null) {
                 for (Entry<String, Object> childResult : childResults.entrySet()) {

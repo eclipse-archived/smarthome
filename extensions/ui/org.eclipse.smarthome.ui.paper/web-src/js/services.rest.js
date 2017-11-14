@@ -1,4 +1,4 @@
-angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function($httpProvider) {
+angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).config(function($httpProvider) {
     var accessToken = function getAccessToken() {
         return $('#authentication').data('access-token')
     }();
@@ -49,6 +49,19 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
                 itemName : '@itemName'
             },
             url : restConfig.restPath + '/items/:itemName/state',
+            headers : {
+                'Content-Type' : 'text/plain'
+            }
+        },
+        getItemState : {
+            method : 'GET',
+            params : {
+                itemName : '@itemName'
+            },
+            url : restConfig.restPath + '/items/:itemName/state',
+            transformResponse : function(data) {
+                return data;
+            },
             headers : {
                 'Content-Type' : 'text/plain'
             }
@@ -201,6 +214,14 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
                 thingTypeUID : '@thingTypeUID'
             },
             url : restConfig.restPath + '/thing-types/:thingTypeUID'
+        },
+        getFirmwares : {
+            method : 'GET',
+            isArray : true,
+            params : {
+                thingTypeUID : '@thingTypeUID'
+            },
+            url : restConfig.restPath + '/thing-types/:thingTypeUID/firmwares'
         }
     });
 }).factory('linkService', function($resource, restConfig) {
@@ -273,24 +294,20 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
                 'Content-Type' : 'application/json'
             }
         },
-        link : {
-            method : 'POST',
+        getFirmwareStatus : {
+            method : 'GET',
             params : {
-                thingUID : '@thingUID',
-                channelId : '@channelId'
+                thingUID : '@thingUID'
             },
-            url : restConfig.restPath + '/things/:thingUID/channels/:channelId/link',
-            headers : {
-                'Content-Type' : 'text/plain'
-            }
+            url : restConfig.restPath + '/things/:thingUID/firmware/status',
         },
-        unlink : {
-            method : 'DELETE',
+        installFirmware : {
+            method : 'PUT',
             params : {
                 thingUID : '@thingUID',
-                channelId : '@channelId'
+                firmwareVersion : '@firmwareVersion'
             },
-            url : restConfig.restPath + '/things/:thingUID/channels/:channelId/link',
+            url : restConfig.restPath + '/things/:thingUID/firmware/:firmwareVersion'
         }
     });
 }).factory('serviceConfigService', function($resource, restConfig) {
@@ -357,11 +374,19 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
             url : restConfig.restPath + '/config-descriptions/:uri'
         },
     });
-}).factory('extensionService', function($resource, restConfig) {
-    return $resource(restConfig.restPath + '/extensions', {}, {
+}).factory('extensionService', function($resource, restConfig, $http) {
+    var extensionService = $resource(restConfig.restPath + '/extensions', {}, {
         getAll : {
             method : 'GET',
-            isArray : true
+            isArray : true,
+            transformResponse : function(response, headerGetter, status) {
+                if (status == 503) {
+                    return {
+                        showError : false
+                    };
+                }
+                return angular.fromJson(response);
+            }
         },
         getByUri : {
             method : 'GET',
@@ -382,6 +407,13 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
             },
             url : restConfig.restPath + '/extensions/:id/install'
         },
+        installFromURL : {
+            method : 'POST',
+            params : {
+                url : '@url'
+            },
+            url : restConfig.restPath + '/extensions/url/:url/install'
+        },
         uninstall : {
             method : 'POST',
             params : {
@@ -390,6 +422,24 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
             url : restConfig.restPath + '/extensions/:id/uninstall'
         }
     });
+
+    var suppressUnavailableError = function(response, headersGetter, status) {
+        return status != 503 ? response : {
+            showError : false
+        };
+    }
+
+    extensionService.isAvailable = function(callback) {
+        $http.head(restConfig.restPath + '/extensions', {
+            transformResponse : suppressUnavailableError
+        }).then(function() {
+            callback(true);
+        }, function() {
+            callback(false);
+        });
+    }
+
+    return extensionService;
 }).factory('ruleService', function($resource, restConfig) {
     return $resource(restConfig.restPath + '/rules', {}, {
         getAll : {
@@ -457,11 +507,6 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
             headers : {
                 'Content-Type' : 'text/plain'
             }
-        },
-        getRuleTemplates : {
-            method : 'GET',
-            url : restConfig.restPath + '/templates',
-            isArray : true
         },
         runRule : {
             method : 'POST',
@@ -555,4 +600,50 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
             url : restConfig.restPath + '/channel-types/:channelTypeUID'
         },
     });
+}).factory('templateService', function($resource, restConfig) {
+    return $resource(restConfig.restPath + '/channel-types', {}, {
+        getAll : {
+            method : 'GET',
+            url : restConfig.restPath + '/templates',
+            isArray : true
+        },
+        getByUid : {
+            method : 'GET',
+            params : {
+                templateUID : '@templateUID'
+            },
+            url : restConfig.restPath + '/templates/:templateUID'
+        },
+    });
+}).factory('imageService', function(restConfig, $http) {
+    return {
+        getItemState : function(itemName) {
+            var promise = $http.get(restConfig.restPath + "/items/" + itemName + "/state").then(function(response) {
+                return response.data;
+            });
+            return promise;
+        }
+    }
+}).factory('firmwareService', function($resource, restConfig) {
+    return $resource(restConfig.restPath + '/firmware', {}, {
+        getStatus : {
+            method : 'GET',
+            isArray : true
+        },
+        getByUid : {
+            method : 'GET',
+            params : {
+                thingUID : '@thingUID'
+            },
+            url : restConfig.restPath + '/:thingUID'
+        },
+        update : {
+            method : 'GET',
+            params : {
+                thingUID : '@thingUID'
+            },
+            url : restConfig.restPath + '/update/:thingUID'
+        }
+    });
 });
+;

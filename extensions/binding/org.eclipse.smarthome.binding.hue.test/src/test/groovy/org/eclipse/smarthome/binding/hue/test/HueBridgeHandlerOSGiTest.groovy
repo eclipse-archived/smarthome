@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,13 +10,13 @@ package org.eclipse.smarthome.binding.hue.test
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
-import nl.q42.jue.HueBridge
-import nl.q42.jue.exceptions.ApiException
-import nl.q42.jue.exceptions.LinkButtonException
-import nl.q42.jue.exceptions.UnauthorizedException
 
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
+import org.eclipse.smarthome.binding.hue.internal.HueBridge
 import org.eclipse.smarthome.binding.hue.internal.HueConfigStatusMessage
+import org.eclipse.smarthome.binding.hue.internal.exceptions.ApiException
+import org.eclipse.smarthome.binding.hue.internal.exceptions.LinkButtonException
+import org.eclipse.smarthome.binding.hue.internal.exceptions.UnauthorizedException
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.config.core.status.ConfigStatusMessage
 import org.eclipse.smarthome.core.thing.Bridge
@@ -34,6 +34,7 @@ import org.junit.Test
  *
  * @author Oliver Libutzki - Initial contribution
  * @author Michael Grammling - Initial contribution
+ * @author Denis Dudnik - switched to internally integrated source of Jue library
  */
 class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
 
@@ -61,16 +62,16 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         }
         Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
+        HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge)
 
-        HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
+        hueBridgeHandler.hueBridge = new HueBridge(DUMMY_HOST) {
                     String link(String deviceType) throws IOException, ApiException {
                         return TEST_USER_NAME;
                     };
                 }
 
-        hueBridgeHandler.onNotAuthenticated(hueBridge)
+        hueBridgeHandler.onNotAuthenticated()
 
         assertThat(bridge.getConfiguration().get(USER_NAME), equalTo(TEST_USER_NAME))
     }
@@ -86,14 +87,14 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         }
         Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
+        HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge)
 
-        HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
+        hueBridgeHandler.hueBridge = new HueBridge(DUMMY_HOST) {
                     void authenticate(String userName) throws IOException, ApiException {};
                 }
 
-        hueBridgeHandler.onNotAuthenticated(hueBridge)
+        hueBridgeHandler.onNotAuthenticated()
 
         assertThat(bridge.getConfiguration().get(USER_NAME), equalTo(TEST_USER_NAME))
     }
@@ -109,16 +110,16 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         }
         Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
+        HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge)
 
-        HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
+        hueBridgeHandler.hueBridge = new HueBridge(DUMMY_HOST) {
                     void authenticate(String userName) throws IOException, ApiException {
                         throw new UnauthorizedException()
                     };
                 }
 
-        hueBridgeHandler.onNotAuthenticated(hueBridge)
+        hueBridgeHandler.onNotAuthenticated()
 
         assertThat(bridge.getConfiguration().get(USER_NAME), equalTo("notAuthenticatedUser"))
         assertThat(bridge.getStatus(), equalTo(ThingStatus.OFFLINE))
@@ -135,16 +136,16 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         }
         Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
+        HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge)
 
-        HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
+        hueBridgeHandler.hueBridge = new HueBridge(DUMMY_HOST) {
                     String link(String deviceType) throws IOException, ApiException {
                         throw new LinkButtonException()
                     };
                 }
 
-        hueBridgeHandler.onNotAuthenticated(hueBridge)
+        hueBridgeHandler.onNotAuthenticated()
 
         assertThat(bridge.getConfiguration().get(USER_NAME), is(nullValue()))
         assertThat(bridge.getStatus(), equalTo(ThingStatus.OFFLINE))
@@ -161,16 +162,16 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         }
         Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
+        HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge)
 
-        HueBridge hueBridge = new HueBridge(DUMMY_HOST) {
+        hueBridgeHandler.hueBridge = new HueBridge(DUMMY_HOST) {
                     String link(String deviceType) throws IOException, ApiException {
                         throw new ApiException()
                     };
                 }
 
-        hueBridgeHandler.onNotAuthenticated(hueBridge)
+        hueBridgeHandler.onNotAuthenticated()
 
         assertThat(bridge.getConfiguration().get(USER_NAME), is(nullValue()))
         assertThat(bridge.getStatus(), equalTo(ThingStatus.OFFLINE))
@@ -186,29 +187,29 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         }
         Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
+        HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge)
 
-        hueBridgeHandler.onConnectionLost(hueBridgeHandler.bridge)
+        hueBridgeHandler.onConnectionLost()
 
         assertThat(bridge.getStatus(), is(ThingStatus.OFFLINE))
         assertThat(bridge.getStatusInfo().getStatusDetail(), is(not(ThingStatusDetail.BRIDGE_OFFLINE)))
     }
 
     @Test
-    void 'assert that a status configuration message for missing bridge IP is properly returned (IP is null)'() {
+    void 'assert that a status configuration message for missing bridge IP is properly returned - IP is null'() {
         Configuration configuration = new Configuration().with {
             put(HOST, null)
             put(SERIAL_NUMBER, "testSerialNumber")
             it
         }
 
-        createBridgeThing(configuration)
+        Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
+        HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
 
         def expected = ConfigStatusMessage.Builder.error(HOST)
-                .withMessageKeySuffix(HueConfigStatusMessage.IP_ADDRESS_MISSING.getMessageKey()).withArguments(HOST)
+                .withMessageKeySuffix(HueConfigStatusMessage.IP_ADDRESS_MISSING).withArguments(HOST)
                 .build()
 
         waitForAssert {
@@ -217,19 +218,19 @@ class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
     }
 
     @Test
-    void 'assert that a status configuration message for missing bridge IP is properly returned (IP is an empty string)'() {
+    void 'assert that a status configuration message for missing bridge IP is properly returned - IP is an empty string'() {
         Configuration configuration = new Configuration().with {
             put(HOST, "")
             put(SERIAL_NUMBER, "testSerialNumber")
             it
         }
 
-        createBridgeThing(configuration)
+        Bridge bridge = createBridgeThing(configuration)
 
-        HueBridgeHandler hueBridgeHandler = getThingHandler(HueBridgeHandler)
+        HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
 
         def expected = ConfigStatusMessage.Builder.error(HOST)
-                .withMessageKeySuffix(HueConfigStatusMessage.IP_ADDRESS_MISSING.getMessageKey()).withArguments(HOST)
+                .withMessageKeySuffix(HueConfigStatusMessage.IP_ADDRESS_MISSING).withArguments(HOST)
                 .build()
 
         waitForAssert {

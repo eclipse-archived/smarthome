@@ -88,6 +88,7 @@ md-tabs {
 md-tabs md-tabs-wrapper {
 	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
 	background-color: #01324D;
+	z-index: 1;
 }
 
 md-tabs section {
@@ -280,9 +281,18 @@ md-slider.md-default-theme.hue .md-thumb:after {
 	margin-top: -80px;
 }
 
+.card .extension-label {
+	max-width: 90%;
+}
+
 /* Fab Item / List Item */
-.fab-item, .list-item {
+.list-item {
 	position: relative;
+}
+
+.fab-item {
+	margin-top: 15px;
+    margin-bottom: 15px;
 }
 
 .fab-item h3, .list-item h3 {
@@ -300,17 +310,17 @@ md-slider.md-default-theme.hue .md-thumb:after {
 }
 
 .fab-item button.md-fab {
-	position: absolute;
-	left: 0px;
-	top: 0px;
+	float: left;
+	margin: 0;
 }
 
 .fab-item .item-content {
-	margin-left: 75px;
 	min-height: 60px;
+    padding-left: 20px;
+    display: flex;
 }
 
-.fab-item .item-content .actions, .list-item .actions, .item-content .actions
+.list-item .actions
 	{
 	position: absolute;
 	top: 7px;
@@ -318,15 +328,88 @@ md-slider.md-default-theme.hue .md-thumb:after {
 	background: white;
 }
 
+.fab-item .item-content .actions {
+	flex-wrap: nowrap;
+	display: flex;
+}
+
+.fab-item .item-content .actions i:last-child {
+	float: right;
+}
+
+.extensions .card .item-content {
+	padding-top: 5px;
+}
+
+.extensions .card.item {
+	padding: 7px 7px 0px 7px;
+}
+
+.extensions .card .description {
+    padding: 2px;
+}
+
+.extensions .header-toolbar button {
+	margin:8px 0px 8px 0px;
+}
+
+.extensions .container.showCards {
+	margin-top: 10px;
+}
+
+.item-content .description {
+	width: 100%;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+.item-content .description h3 {
+    width: 100%;
+}
+
+.showCards .fab-item .item-content {
+    margin-left: 100px;
+    min-height: 60px;
+}
+
+.showCards .fab-item .actions {
+	text-align: right;
+	text-align: -webkit-right;
+	text-align: -moz-right;
+}
+
+.showCards .verticalAlign {
+	display: inline-block;
+	height: 100%;
+	vertical-align: middle;
+}
+
+.showCards .imageAlign {
+	width: 83px;
+	height: 56px;
+	float: left;
+	text-align: center
+}
+
 .fab-item .circle {
 	border-radius: 50%;
 	width: 56px;
 	height: 56px;
 	background-color: #CCC;
-	position: absolute;
 	text-align: center;
 	font-size: 30px;
 	line-height: 54px;
+	float: left;
+}
+
+.fab-item .rectangle {
+    max-width: 83px;
+    max-height: 56px;
+    background-color: transparent;
+    text-align: center;
+    font-size: 30px;
+    line-height: 54px;
 }
 
 .fab-item .circle.green {
@@ -339,10 +422,6 @@ md-slider.md-default-theme.hue .md-thumb:after {
 	height: 28px;
 	line-height: 28px;
 	font-size: 15px;
-}
-
-.fab-item hr.border-line {
-	margin: 10px 0px;
 }
 
 /* Input */
@@ -456,7 +535,7 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	position: relative;
 }
 
-.selection-list>div:hover {
+.selection-list>div:hover, .pointer {
 	cursor: pointer;
 }
 
@@ -553,8 +632,12 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	margin-top: 0px;
 }
 
-.parameter>div {
-	min-height: 80px;
+.parameter {
+    min-height: 110px;
+}
+
+.parameter md-switch {
+	margin-bottom: 9px;
 }
 
 .parameter>div md-select-value>span:first-child, .parameter>div md-select-value .md-text>span:first-child{
@@ -563,10 +646,6 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 
 .parameter md-input-container {
 	padding-bottom: 5px;
-}
-
-.parameter>div p.hint {
-	margin-top: 0px;
 }
 
 .includeConfig legend {
@@ -608,10 +687,6 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 
 .channels {
 	margin-top: 5px;
-}
-
-.channel .circle {
-	margin-left: 8px;
 }
 
 .channels .channelGroup {
@@ -702,6 +777,7 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 
 .cursor-pointer {
 	cursor: pointer;
+	outline: none;
 }
 
 textarea.scriptArea {
@@ -718,8 +794,9 @@ textarea.scriptArea {
 }
 
 .configContainer {
-    margin-top: 0px;
-    padding-left: 0px;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
 }
 
 .ruleNameDesc {
@@ -790,7 +867,7 @@ md-input-container .md-errors-spacer {
 	font-style:italic;
 }
 
-.item-edit, .inboxContainer {
+.item-edit {
 	margin-top: 20px;
 }
 
@@ -803,12 +880,59 @@ md-input-container .md-errors-spacer {
 }
 
 .thing-properties {
-	margin-left: -5px;
+	margin-left: 20px;
 	padding-left: 5px;
 }
 
-.thing-properties+table {
-	width: 0%;
+.thing-properties-table {
+    border-bottom: solid 1px #ddd;
+}
+
+.thing-properties-table td:nth-child(1) {
+    white-space: nowrap;
+	width: 25%;
+}
+
+.thing-properties-table td:nth-child(2) {
+    width: 75%;
+}
+
+.current-firmware {
+	margin-left: 5px;
+}
+
+.firmware-status {
+    margin-left: 10px;
+}
+
+.firmware-progressbar {
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+
+.firmware-table {
+    border-bottom: solid 1px #ddd;
+}
+
+.firmware-table td:nth-child(1) {
+    white-space: nowrap;
+    width: 12%;
+}
+
+.firmware-table td:nth-child(2) {
+    width: 15%;
+}
+
+.firmware-table .firmware-detail-data {
+	vertical-align: middle;
+}
+
+.firmware-table .firmware-detail-button {
+    width: 100px;
+}
+
+button.extensible-thing {
+	margin-top: 0;
 }
 
 md-chips .md-chip-remove-container {
@@ -883,14 +1007,6 @@ md-chips strong {
 	outline: 0;
 }
 
-.thing .cbody {
-	margin-bottom: 10px;
-}
-
-.fab-item hr.border-line {
-	margin: 0px;
-}
-
 .material-icons.color-remove {
 	font-size: 12px;
 	margin-top: 10px;
@@ -947,6 +1063,10 @@ md-dialog-content .dayParameter {
 
 .dayParameter>div {
 	min-height: 48px;
+}
+
+.item-container {
+    padding-left: 0px;
 }
 
 .container.itemConfig .md-select-value, .container .includeConfig .md-select-value {
@@ -1043,16 +1163,18 @@ background-color: green;
     .rule .actions i,.item-content .actions i{
         margin:1px;
     }
-    .container {
-    padding-left:8px;
-    padding-right:4px;
-    }   
 }
 
 .item-content p, .item-content h3 {
     word-wrap: normal;
     text-overflow:ellipsis;
     overflow:hidden;
+    margin-top: 0px;
+}
+
+.item-content p {
+	margin: 0;
+	width: 100%;
 }
 
 .item-content h3:focus {
@@ -1068,13 +1190,12 @@ background-color: green;
 	margin-right: 20px;
 }
 
-.linkedItems {
-	
-/*     background-color:#e6e6e6 */
+.linkedItems.item-content {
+	margin-left: 56px;
+	display: block;
 }
 
 .linkedItems>div{
-	border-bottom: 1px solid #ddd;
     margin: 5px;
 }
 
@@ -1085,12 +1206,12 @@ background-color: green;
 	font-size:15px;
 }
 
-.fab-item .linkedItems button.md-fab {
-	position:relative;
+.linkedItems button.md-fab {
+	float: none;
+	margin: 0 0 4px 6px;
 }
 
 .linkedItems>.row {
-	padding-bottom: 10px;
 	margin-top: 10px;
 }
 
@@ -1268,4 +1389,95 @@ input[type=number].multiSel::-webkit-outer-spin-button {
 .multiSelect ul li {
 	outline: none;
 	cursor: pointer;
+}
+
+.material-icons.launch-icon {
+	color: black;
+	background-color: transparent;
+	font-size: 16px;
+}
+
+.extensions .card .description.rule-ext-desc {
+	padding-bottom: 10px;
+	padding-top:4px;
+}
+
+.backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	background: #a8a8a8;
+	opacity: 0.8;
+	z-index: 998;
+	height: 100%;
+	width: 100%;
+}
+
+.progressbar {
+	 position:fixed;
+	 top: 50%;
+	 left: 50%;
+     z-index:999;
+}
+.inboxSearch {
+	margin-bottom: 10px;
+}
+
+md-progress-circular.firmware {
+    margin: 5px 12px 5px 12px;
+    display: inline-block;
+}
+
+.middle-aligned.table-bordered>tbody>tr>td{
+	vertical-align: middle;
+}
+.no-animation * {
+   -webkit-transition: none !important;
+   transition: none !important;
+}
+
+.bindings.white-bg {
+    padding-top: 30px;
+}
+
+.bindings.white-bg.has-section-header {
+    padding-top: 80px;
+}
+
+.binding.white-bg {
+    padding-top: 30px;
+}
+
+.binding .item-content .actions {
+	width: 60px;
+}
+
+.binding.white-bg.has-section-header {
+    padding-top: 80px;
+}
+
+.fab-item hr.border-line {
+	margin: 10px 0 0 76px;
+}
+
+.binding :not(md-expansion-panel) .md-title {
+	padding-bottom: 10px;
+	flex-grow: 2;
+	max-width: none;
+}
+.binding .things .search {
+	padding: 0 0 10px 0;
+}
+
+.binding .things md-expansion-panel .md-title.ng-binding {
+    padding-bottom: 0;
+}
+
+search-field {
+	display: flex;
+	width: 100%;
+}
+
+search-field i {
+	margin-top: 4px;
 }

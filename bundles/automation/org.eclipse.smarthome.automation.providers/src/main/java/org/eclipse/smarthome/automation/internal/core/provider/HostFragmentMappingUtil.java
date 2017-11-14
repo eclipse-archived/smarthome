@@ -14,7 +14,7 @@
 package org.eclipse.smarthome.automation.internal.core.provider;
 
 import java.util.ArrayList;
-import java.util.Dictionary;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,10 +53,8 @@ public class HostFragmentMappingUtil {
     static List<Bundle> returnHostBundles(Bundle fragment) {
         List<Bundle> hosts = new ArrayList<Bundle>();
         Bundle[] bundles = pkgAdmin.getHosts(fragment);
-        if (bundles != null && bundles.length > 0) {
-            for (int i = 0; i < bundles.length; i++) {
-                hosts.add(bundles[i]);
-            }
+        if (bundles != null) {
+            hosts = Arrays.asList(bundles);
         } else {
             for (Bundle host : hostFragmentMapping.keySet()) {
                 if (hostFragmentMapping.get(host).contains(fragment)) {
@@ -67,17 +65,16 @@ public class HostFragmentMappingUtil {
         return hosts;
     }
 
-    static void fillHostFragmentMapping(Bundle host) {
+    static List<Bundle> fillHostFragmentMapping(Bundle host) {
         List<Bundle> fragments = new ArrayList<Bundle>();
         Bundle[] bundles = pkgAdmin.getFragments(host);
         if (bundles != null) {
-            for (int i = 0; i < bundles.length; i++) {
-                fragments.add(bundles[i]);
-            }
+            fragments = Arrays.asList(bundles);
         }
         synchronized (hostFragmentMapping) {
             hostFragmentMapping.put(host, fragments);
         }
+        return fragments;
     }
 
     static void fillHostFragmentMapping(List<Bundle> hosts) {
@@ -102,8 +99,11 @@ public class HostFragmentMappingUtil {
     }
 
     static boolean isFragmentBundle(Bundle bundle) {
-        Dictionary<String, String> h = bundle.getHeaders();
-        return h.get("Fragment-Host") != null;
+        PackageAdmin pkgAdmin = HostFragmentMappingUtil.pkgAdmin;
+        if (pkgAdmin == null) {
+            throw new IllegalStateException();
+        }
+        return pkgAdmin.getBundleType(bundle) == PackageAdmin.BUNDLE_TYPE_FRAGMENT;
     }
 
 }

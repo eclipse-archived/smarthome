@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,12 +8,13 @@
 package org.eclipse.smarthome.binding.hue.internal;
 
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.LIGHT_ID;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.SERIAL_NUMBER;
 
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler;
 import org.eclipse.smarthome.binding.hue.handler.HueLightHandler;
@@ -28,8 +29,6 @@ import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.osgi.framework.ServiceRegistration;
 
-import com.google.common.collect.Sets;
-
 /**
  * {@link HueThingHandlerFactory} is a factory for {@link HueBridgeHandler}s.
  *
@@ -40,8 +39,9 @@ import com.google.common.collect.Sets;
  */
 public class HueThingHandlerFactory extends BaseThingHandlerFactory {
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.union(HueBridgeHandler.SUPPORTED_THING_TYPES,
-            HueLightHandler.SUPPORTED_THING_TYPES);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream
+            .concat(HueBridgeHandler.SUPPORTED_THING_TYPES.stream(), HueLightHandler.SUPPORTED_THING_TYPES.stream())
+            .collect(Collectors.toSet());
 
     private Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
 
@@ -49,8 +49,7 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
     public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID,
             ThingUID bridgeUID) {
         if (HueBridgeHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
-            ThingUID hueBridgeUID = getBridgeThingUID(thingTypeUID, thingUID, configuration);
-            return super.createThing(thingTypeUID, configuration, hueBridgeUID, null);
+            return super.createThing(thingTypeUID, configuration, thingUID, null);
         }
         if (HueLightHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             ThingUID hueLightUID = getLightUID(thingTypeUID, thingUID, configuration, bridgeUID);
@@ -64,22 +63,14 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
         return SUPPORTED_THING_TYPES.contains(thingTypeUID);
     }
 
-    private ThingUID getBridgeThingUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration) {
-        if (thingUID == null) {
-            String serialNumber = (String) configuration.get(SERIAL_NUMBER);
-            thingUID = new ThingUID(thingTypeUID, serialNumber);
-        }
-        return thingUID;
-    }
-
     private ThingUID getLightUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration,
             ThingUID bridgeUID) {
-        String lightId = (String) configuration.get(LIGHT_ID);
-
-        if (thingUID == null) {
-            thingUID = new ThingUID(thingTypeUID, lightId, bridgeUID.getId());
+        if (thingUID != null) {
+            return thingUID;
+        } else {
+            String lightId = (String) configuration.get(LIGHT_ID);
+            return new ThingUID(thingTypeUID, lightId, bridgeUID.getId());
         }
-        return thingUID;
     }
 
     @Override
@@ -98,8 +89,8 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
     private synchronized void registerLightDiscoveryService(HueBridgeHandler bridgeHandler) {
         HueLightDiscoveryService discoveryService = new HueLightDiscoveryService(bridgeHandler);
         discoveryService.activate();
-        this.discoveryServiceRegs.put(bridgeHandler.getThing().getUID(), bundleContext.registerService(
-                DiscoveryService.class.getName(), discoveryService, new Hashtable<String, Object>()));
+        this.discoveryServiceRegs.put(bridgeHandler.getThing().getUID(), bundleContext
+                .registerService(DiscoveryService.class.getName(), discoveryService, new Hashtable<String, Object>()));
     }
 
     @Override
@@ -108,9 +99,11 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
             ServiceRegistration<?> serviceReg = this.discoveryServiceRegs.get(thingHandler.getThing().getUID());
             if (serviceReg != null) {
                 // remove discovery service, if bridge handler is removed
-                HueLightDiscoveryService service = (HueLightDiscoveryService) bundleContext.getService(serviceReg
-                        .getReference());
-                service.deactivate();
+                HueLightDiscoveryService service = (HueLightDiscoveryService) bundleContext
+                        .getService(serviceReg.getReference());
+                if (service != null) {
+                    service.deactivate();
+                }
                 serviceReg.unregister();
                 discoveryServiceRegs.remove(thingHandler.getThing().getUID());
             }

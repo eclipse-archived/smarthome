@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2014-2016 by the respective copyright holders.
+    Copyright (c) 2014-2017 by the respective copyright holders.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -9,9 +9,9 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.io.rest.core.item">
-   <implementation class="org.eclipse.smarthome.io.rest.core.item.ItemResource"/>
+   <implementation class="org.eclipse.smarthome.io.rest.core.internal.item.ItemResource"/>
    <service>
-      <provide interface="org.eclipse.smarthome.io.rest.core.item.ItemResource"/>
+      <provide interface="org.eclipse.smarthome.io.rest.core.internal.item.ItemResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
    <reference bind="setItemRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="dynamic" unbind="unsetItemRegistry"/>

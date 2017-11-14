@@ -1,9 +1,3 @@
----
-layout: documentation
----
-
-{% include base.html %}
-
 # Philips Hue Binding
 
 This binding integrates the [Philips Hue Lighting system](http://www.meethue.com).
@@ -16,7 +10,7 @@ The integration happens through the Hue bridge, which acts as an IP gateway to t
 
 The Hue bridge is required as a "bridge" for accessing any other Hue devices.
 
-Almost all available Hue devices are supported by this binding. This includes not only the "friends of Hue", but also products like the LivingWhites adapter. Additionally, it is possible to use Osram Lightify devices as well as other ZigBee LightLink compatible products like e.g. the [GE bulb](http://gelinkbulbs.com/). Please note that the devices need to be registered with the Hue bridge before it is possible for this binding to use them.
+Almost all available Hue devices are supported by this binding. This includes not only the "friends of Hue", but also products like the LivingWhites adapter. Additionally, it is possible to use Osram Lightify devices as well as other ZigBee LightLink compatible products. Please note that the devices need to be registered with the Hue bridge before it is possible for this binding to use them.
 
 The Hue binding supports all seven types of lighting devices defined for ZigBee LightLink ([see page 24, table 2](https://www.nxp.com/documents/user_manual/JN-UG-3091.pdf). These are:
 
@@ -108,14 +102,16 @@ Bridge hue:bridge:1 [ ipAddress="192.168.0.64" ] {
 ```
 // Bulb1
 Switch	Light1_Toggle		{ channel="hue:0210:1:bulb1:color" }
-Dimmer  Light1_Dimmer		{ channel="hue:0210:1:bulb1:color" }
-Color 	Light1_Color		{ channel="hue:0210:1:bulb1:color" }
-Dimmer 	Light1_ColorTemp	{ channel="hue:0210:1:bulb1:color_temperature" }
+Dimmer	Light1_Dimmer		{ channel="hue:0210:1:bulb1:color" }
+Color	Light1_Color		{ channel="hue:0210:1:bulb1:color" }
+Dimmer	Light1_ColorTemp	{ channel="hue:0210:1:bulb1:color_temperature" }
+String	Light1_Alert		{ channel="hue:0210:1:bulb1:alert" }
+Switch	Light1_Effect		{ channel="hue:0210:1:bulb1:effect" }
 
 // Bulb2
-Switch	Light2_Toggle		{channel="hue:0220:1:bulb2:brightness"}				
-Dimmer	Light2_Dimm		{channel="hue:0220:1:bulb2:brightness"}
-Dimmer	Light2_ColorTemp	{channel="hue:0220:1:bulb2:color_temperature"}
+Switch	Light2_Toggle		{ channel="hue:0220:1:bulb2:brightness" }
+Dimmer	Light2_Dimm		{ channel="hue:0220:1:bulb2:brightness" }
+Dimmer	Light2_ColorTemp	{ channel="hue:0220:1:bulb2:color_temperature" }
 ```
 
 Note: The bridge ID is in this example **1** but can be different in each system.
@@ -127,15 +123,17 @@ sitemap demo label="Main Menu"
 {
 	Frame {
 		// Bulb1
-		Switch item=		Light1_Toggle
-		Slider item=		Light1_Dimmer
-		Colorpicker item=	Light1_Color
-		Slider item=		Light1_ColorTemp
+		Switch		item=		Light1_Toggle
+		Slider		item=		Light1_Dimmer
+		Colorpicker	item=		Light1_Color
+		Slider		item=		Light1_ColorTemp
+		Switch		item=		Light1_Alert		mappings=[NONE="None", SELECT="Alert", LSELECT="Long Alert"]
+		Switch		item=		Light1_Effect
 
 		// Bulb2
-		Switch item=		Light2_Toggle
-		Slider item=		Light2_Dimmer
-		Slider item=		Light2_ColorTemp
+		Switch		item=		Light2_Toggle
+		Slider		item=		Light2_Dimmer
+		Slider		item=		Light2_ColorTemp
 	}
 }
 ```

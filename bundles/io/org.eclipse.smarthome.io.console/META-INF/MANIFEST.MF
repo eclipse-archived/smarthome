@@ -1,10 +1,18 @@
 Manifest-Version: 1.0
+Bundle-ActivationPolicy: lazy
+Bundle-License: http://www.eclipse.org/legal/epl-v10.html
+Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Console
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.io.console
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-ManifestVersion: 2
-Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: org.apache.commons.lang,
+Export-Package: 
+ org.eclipse.smarthome.io.console,
+ org.eclipse.smarthome.io.console.extensions
+Import-Package: 
+ org.apache.commons.lang,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.items,
@@ -15,10 +23,5 @@ Import-Package: org.apache.commons.lang,
  org.osgi.framework,
  org.osgi.util.tracker,
  org.slf4j
-Bundle-SymbolicName: org.eclipse.smarthome.io.console
 Originally-Created-By: Apache Maven Bundle Plugin
 Service-Component: OSGI-INF/*.xml
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.eclipse.smarthome.io.console,
- org.eclipse.smarthome.io.console.extensions
-Bundle-ActivationPolicy: lazy

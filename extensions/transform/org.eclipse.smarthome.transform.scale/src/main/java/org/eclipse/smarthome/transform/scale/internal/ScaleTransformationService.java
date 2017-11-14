@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,10 +10,14 @@ package org.eclipse.smarthome.transform.scale.internal;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,17 +42,45 @@ public class ScaleTransformationService extends AbstractFileTransformationServic
     private static final Pattern LIMITS_PATTERN = Pattern.compile("(\\[|\\])(.*)\\.\\.(.*)(\\[|\\])");
 
     /**
-     * <p>
-     * Transforms the input <code>source</code> by matching searching the range where it fits
-     * i.e. [min..max]=value or ]min..max]=value
-     * </p>
+     * The implementation of {@link OrderedProperties} that let access
+     * properties in the same order than presented in the source file
+     * by using the orderedKeys function.
+     *
+     * This implementation is limited to the sole purpose of the class
+     * (e.g. it does not handle removing elements)
+     *
+     * @author Gaël L'hopital
+     */
+    static class OrderedProperties extends Properties {
+        private static final long serialVersionUID = 3860553217028220119L;
+        private final HashSet<Object> keys = new LinkedHashSet<>();
+
+        Set<Object> orderedKeys() {
+            return keys;
+        }
+
+        @Override
+        public Enumeration<Object> keys() {
+            return Collections.<Object> enumeration(keys);
+        }
+
+        @Override
+        public Object put(Object key, Object value) {
+            keys.add(key);
+            return super.put(key, value);
+        }
+    }
+
+    /**
+     * Performs transformation of the input <code>source</code>
+     *
+     * The method transforms the input <code>source</code> by matching searching
+     * the range where it fits i.e. [min..max]=value or ]min..max]=value
      *
      * @param properties
      *            the list of properties defining all the available ranges
      * @param source
      *            the input to transform
-     *
-     * @{inheritDoc
      *
      */
     @Override
@@ -57,13 +89,9 @@ public class ScaleTransformationService extends AbstractFileTransformationServic
         try {
             final BigDecimal value = new BigDecimal(source);
 
-            for (final Range range : data.keySet()) {
-                if (range.contains(value)) {
-                    return data.get(range);
-                }
-            }
+            return data.entrySet().stream().filter(e -> e.getKey().contains(value)).findFirst().map(Map.Entry::getValue)
+                    .orElseThrow(() -> new TransformationException("No matching range for '" + source + "'"));
 
-            throw new TransformationException("No matching range for '" + source + "'");
         } catch (NumberFormatException e) {
             throw new TransformationException("Scale can only be used with numeric inputs");
         }
@@ -72,14 +100,14 @@ public class ScaleTransformationService extends AbstractFileTransformationServic
     @Override
     protected Map<Range, String> internalLoadTransform(String filename) throws TransformationException {
         try (FileReader reader = new FileReader(filename)) {
-            final Properties properties = new Properties();
+            final Map<Range, String> data = new LinkedHashMap<>();
+            final OrderedProperties properties = new OrderedProperties();
             properties.load(reader);
-            final Map<Range, String> data = new HashMap<>();
 
-            for (Entry<Object, Object> f : properties.entrySet()) {
-                final String key = (String) f.getKey();
-                final String value = properties.getProperty(key);
-                final Matcher matcher = LIMITS_PATTERN.matcher(key);
+            for (Object orderedKey : properties.orderedKeys()) {
+                final String entry = (String) orderedKey;
+                final String value = properties.getProperty(entry);
+                final Matcher matcher = LIMITS_PATTERN.matcher(entry);
                 if (matcher.matches() && (matcher.groupCount() == 4)) {
 
                     final boolean lowerInclusive = matcher.group(1).equals("]") ? false : true;
@@ -88,35 +116,26 @@ public class ScaleTransformationService extends AbstractFileTransformationServic
                     final String lowLimit = matcher.group(2);
                     final String highLimit = matcher.group(3);
 
-                    final BigDecimal lowValue;
-                    final BigDecimal highValue;
-
                     try {
-                        if (lowLimit.isEmpty()) {
-                            lowValue = null;
-                        } else {
-                            lowValue = new BigDecimal(lowLimit);
-                        }
-                        if (highLimit.isEmpty()) {
-                            highValue = null;
-                        } else {
-                            highValue = new BigDecimal(highLimit);
-                        }
-                    } catch (final NumberFormatException ex) {
+                        final BigDecimal lowValue = lowLimit.isEmpty() ? null : new BigDecimal(lowLimit);
+                        final BigDecimal highValue = highLimit.isEmpty() ? null : new BigDecimal(highLimit);
+                        final Range range = Range.range(lowValue, lowerInclusive, highValue, upperInclusive);
+
+                        data.put(range, value);
+
+                    } catch (NumberFormatException ex) {
                         throw new TransformationException("Error parsing bounds: " + lowLimit + ".." + highLimit);
                     }
 
-                    final Range range = Range.range(lowValue, lowerInclusive, highValue, upperInclusive);
-
-                    data.put(range, value);
-
                 } else {
-                    logger.warn("Scale transform entry does not comply with syntax : '{}', '{}'", key, value);
+                    logger.warn("Scale transform file '{}' does not comply with syntax for entry : '{}', '{}'",
+                            filename, entry, value);
                 }
             }
+
             return data;
         } catch (final IOException ex) {
-            throw new TransformationException("An error occured while opening file.", ex);
+            throw new TransformationException("An error occurred while opening file.", ex);
         }
     }
 

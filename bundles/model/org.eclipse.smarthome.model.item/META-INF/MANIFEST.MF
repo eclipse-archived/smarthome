@@ -1,25 +1,12 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Item Model
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.model.item;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-SymbolicName: org.eclipse.smarthome.model.item;singleton:=true
-Require-Bundle: org.eclipse.xtext,
- org.eclipse.xtext.generator;resolution:=optional,
- org.apache.commons.logging;resolution:=optional,
- org.eclipse.emf.codegen.ecore;resolution:=optional,
- org.eclipse.emf.mwe.utils;resolution:=optional,
- org.eclipse.emf.mwe2.launch;resolution:=optional,
- com.ibm.icu;resolution:=optional,
- org.eclipse.xtext.util,
- org.eclipse.emf.ecore;visibility:=reexport,
- org.eclipse.emf.common,
- org.antlr.runtime,
- org.eclipse.xtext.common.types,
- org.eclipse.smarthome.model.lazygen;resolution:=optional,
- org.eclipse.xtext.xbase.lib
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.eclipse.smarthome.model,
+Export-Package: 
+ org.eclipse.smarthome.model,
  org.eclipse.smarthome.model.formatting,
  org.eclipse.smarthome.model.generator,
  org.eclipse.smarthome.model.item,
@@ -32,8 +19,11 @@ Export-Package: org.eclipse.smarthome.model,
  org.eclipse.smarthome.model.serializer,
  org.eclipse.smarthome.model.services,
  org.eclipse.smarthome.model.validation
-Import-Package: org.apache.commons.lang,
+Import-Package: 
+ org.apache.commons.lang,
  org.apache.log4j,
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.autoupdate,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.items,
@@ -42,7 +32,24 @@ Import-Package: org.apache.commons.lang,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.model.core,
+ org.eclipse.smarthome.model.core.valueconverter,
  org.eclipse.xtext.xbase.lib,
  org.osgi.framework,
  org.slf4j
+Require-Bundle: 
+ com.ibm.icu;resolution:=optional,
+ org.antlr.runtime,
+ org.apache.commons.logging;resolution:=optional,
+ org.eclipse.emf.codegen.ecore;resolution:=optional,
+ org.eclipse.emf.common,
+ org.eclipse.emf.ecore;visibility:=reexport,
+ org.eclipse.emf.mwe.utils;resolution:=optional,
+ org.eclipse.emf.mwe2.launch;resolution:=optional,
+ org.eclipse.smarthome.model.lazygen;resolution:=optional,
+ org.eclipse.xtend.lib;resolution:=optional,
+ org.eclipse.xtext,
+ org.eclipse.xtext.common.types,
+ org.eclipse.xtext.generator;resolution:=optional,
+ org.eclipse.xtext.util,
+ org.eclipse.xtext.xbase.lib
 Service-Component: OSGI-INF/*.xml

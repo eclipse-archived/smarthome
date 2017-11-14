@@ -28,12 +28,15 @@ import org.eclipse.smarthome.automation.dto.ConditionTypeDTOMapper;
 import org.eclipse.smarthome.automation.dto.ModuleTypeDTO;
 import org.eclipse.smarthome.automation.dto.TriggerTypeDTOMapper;
 import org.eclipse.smarthome.automation.type.ActionType;
+import org.eclipse.smarthome.automation.type.CompositeActionType;
+import org.eclipse.smarthome.automation.type.CompositeConditionType;
+import org.eclipse.smarthome.automation.type.CompositeTriggerType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
+import org.eclipse.smarthome.io.rest.RESTResource;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -46,10 +49,11 @@ import io.swagger.annotations.ApiResponses;
  *
  * @author Kai Kreuzer - Initial contribution
  * @author Markus Rathgeb - Use DTOs
+ * @author Ana Dimova - extends Module type DTOs with composites
  */
 @Path("module-types")
 @Api("module-types")
-public class ModuleTypeResource implements SatisfiableRESTResource {
+public class ModuleTypeResource implements RESTResource {
 
     private ModuleTypeRegistry moduleTypeRegistry;
 
@@ -67,7 +71,8 @@ public class ModuleTypeResource implements SatisfiableRESTResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all available module types.", response = ModuleTypeDTO.class, responseContainer = "List")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ModuleTypeDTO.class, responseContainer = "List") })
     public Response getAll(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language,
             @QueryParam("tags") @ApiParam(value = "tags for filtering", required = false) String tagList,
             @QueryParam("type") @ApiParam(value = "filtering by action, condition or trigger", required = false) String type) {
@@ -76,25 +81,13 @@ public class ModuleTypeResource implements SatisfiableRESTResource {
         final List<ModuleTypeDTO> modules = new ArrayList<ModuleTypeDTO>();
 
         if (type == null || type.equals("trigger")) {
-            if (tags == null) {
-                modules.addAll(TriggerTypeDTOMapper.map(moduleTypeRegistry.getTriggers(locale)));
-            } else {
-                modules.addAll(TriggerTypeDTOMapper.map(moduleTypeRegistry.<TriggerType> getByTags(locale, tags)));
-            }
+            modules.addAll(TriggerTypeDTOMapper.map(moduleTypeRegistry.getTriggers(locale, tags)));
         }
         if (type == null || type.equals("condition")) {
-            if (tags == null) {
-                modules.addAll(ConditionTypeDTOMapper.map(moduleTypeRegistry.getConditions(locale)));
-            } else {
-                modules.addAll(ConditionTypeDTOMapper.map(moduleTypeRegistry.<ConditionType> getByTags(locale, tags)));
-            }
+            modules.addAll(ConditionTypeDTOMapper.map(moduleTypeRegistry.getConditions(locale, tags)));
         }
         if (type == null || type.equals("action")) {
-            if (tags == null) {
-                modules.addAll(ActionTypeDTOMapper.map(moduleTypeRegistry.getActions(locale)));
-            } else {
-                modules.addAll(ActionTypeDTOMapper.map(moduleTypeRegistry.<ActionType> getByTags(locale, tags)));
-            }
+            modules.addAll(ActionTypeDTOMapper.map(moduleTypeRegistry.getActions(locale, tags)));
         }
         return Response.ok(modules).build();
     }
@@ -103,7 +96,7 @@ public class ModuleTypeResource implements SatisfiableRESTResource {
     @Path("/{moduleTypeUID}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets a module type corresponding to the given UID.", response = ModuleTypeDTO.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ModuleTypeDTO.class),
             @ApiResponse(code = 404, message = "Module Type corresponding to the given UID does not found.") })
     public Response getByUID(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language,
             @PathParam("moduleTypeUID") @ApiParam(value = "moduleTypeUID", required = true) String moduleTypeUID) {
@@ -118,10 +111,19 @@ public class ModuleTypeResource implements SatisfiableRESTResource {
 
     private ModuleTypeDTO getModuleTypeDTO(final ModuleType moduleType) {
         if (moduleType instanceof ActionType) {
+            if (moduleType instanceof CompositeActionType) {
+                return ActionTypeDTOMapper.map((CompositeActionType) moduleType);
+            }
             return ActionTypeDTOMapper.map((ActionType) moduleType);
         } else if (moduleType instanceof ConditionType) {
+            if (moduleType instanceof CompositeConditionType) {
+                return ConditionTypeDTOMapper.map((CompositeConditionType) moduleType);
+            }
             return ConditionTypeDTOMapper.map((ConditionType) moduleType);
         } else if (moduleType instanceof TriggerType) {
+            if (moduleType instanceof CompositeTriggerType) {
+                return TriggerTypeDTOMapper.map((CompositeTriggerType) moduleType);
+            }
             return TriggerTypeDTOMapper.map((TriggerType) moduleType);
         } else {
             throw new IllegalArgumentException(

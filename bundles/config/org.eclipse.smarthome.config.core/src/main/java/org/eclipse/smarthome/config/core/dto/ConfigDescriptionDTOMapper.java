@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.config.core.dto;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,7 +37,12 @@ public class ConfigDescriptionDTOMapper {
         List<ConfigDescriptionParameterGroupDTO> parameterGroups = mapParameterGroups(
                 configDescription.getParameterGroups());
         List<ConfigDescriptionParameterDTO> parameters = mapParameters(configDescription.getParameters());
-        return new ConfigDescriptionDTO(configDescription.getURI().toString(), parameters, parameterGroups);
+        return new ConfigDescriptionDTO(toDecodedString(configDescription.getUID()), parameters, parameterGroups);
+    }
+
+    private static String toDecodedString(URI uri) {
+        // combine these partials because URI.toString() does not decode
+        return uri.getScheme() + ":" + uri.getSchemeSpecificPart();
     }
 
     /**
@@ -61,7 +67,8 @@ public class ConfigDescriptionDTOMapper {
                     mapFilterCriteria(configDescriptionParameter.getFilterCriteria()),
                     configDescriptionParameter.getGroupName(), configDescriptionParameter.isAdvanced(),
                     configDescriptionParameter.getLimitToOptions(), configDescriptionParameter.getMultipleLimit(),
-                    configDescriptionParameter.getUnit(), configDescriptionParameter.getUnitLabel());
+                    configDescriptionParameter.getUnit(), configDescriptionParameter.getUnitLabel(),
+                    configDescriptionParameter.isVerifyable());
             configDescriptionParameterBeans.add(configDescriptionParameterBean);
         }
         return configDescriptionParameterBeans;

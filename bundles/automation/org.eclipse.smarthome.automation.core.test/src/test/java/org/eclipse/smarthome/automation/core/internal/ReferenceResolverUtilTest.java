@@ -1,5 +1,6 @@
 package org.eclipse.smarthome.automation.core.internal;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +31,7 @@ public class ReferenceResolverUtilTest {
         context.put(CONTEXT_PROPERTY1, "value1");
         context.put(CONTEXT_PROPERTY2, "value2");
         context.put(CONTEXT_PROPERTY3, "value3");
-        context.put(CONTEXT_PROPERTY4, 12345);
+        context.put(CONTEXT_PROPERTY4, new BigDecimal(12345));
 
         // module configuration with references
         moduleConfiguration.put("simpleReference", String.format("${%s}", CONTEXT_PROPERTY4));
@@ -104,9 +105,9 @@ public class ReferenceResolverUtilTest {
 
     @Test
     public void testBeanMapAccess() {
-        Map map = new HashMap();
-        Map map1 = new HashMap();
-        Map map2 = new HashMap();
+        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map1 = new HashMap<>();
+        Map<String, Object> map2 = new HashMap<>();
         map2.put("b", "bValue");
         map1.put("a", map2);
         B1 bean1 = new B1();
@@ -129,7 +130,7 @@ public class ReferenceResolverUtilTest {
 
     class B1 {
         public Object getA() {
-            Map map2 = new HashMap();
+            Map<String, Object> map2 = new HashMap<>();
             map2.put("b", "bValue");
             return map2;
         }
@@ -141,7 +142,7 @@ public class ReferenceResolverUtilTest {
 
     class B2 {
         public Object getE() {
-            Map map2 = new HashMap();
+            Map<String, Object> map2 = new HashMap<>();
             map2.put("f", "fValue");
             return map2;
         }

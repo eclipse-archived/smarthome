@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,14 +30,14 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.I
  * configurations of the physically device will be synchronized to the internally managed model and updated as required.
  * The {@link DeviceStatusManager} also initializes {@link SensorJob}'s with the {@link SensorJobExecutor} and
  * {@link SceneReadingJobExecutor} to update required sensor and scene data.
- * </p>
+ * 
  * <p>
  * Therefore the {@link DeviceStatusManager} uses the {@link StructureManager} for the internal management of the
  * structure of the digitalSTROM-system, {@link ConnectionManager} to check the connectivity,
  * {@link ScenesManager} to identify externally called scenes and to update the affected devices of these
  * called scenes to the internal model. The most methods of the above-named managers will be directly called over the
  * {@link DeviceStatusManager}, because they are linked to the affected managers.
- * </P>
+ * 
  * <p>
  * To get informed by all relevant information you can register some useful listeners. Here the list of all listeners
  * which can registered or unregistered:
@@ -55,7 +55,6 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.I
  * {@link #unregisterDeviceListener(DeviceStatusListener)}</li>
  * </ul>
  * For what the listener can be used please have a look at the listener.
- * </p>
  *
  * @author Michael Ochel - Initial contribution
  * @author Matthias Siegele - Initial contribution

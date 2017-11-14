@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.config.core;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,12 +61,16 @@ public class Configuration {
             try {
                 configuration = configurationClass.newInstance();
             } catch (InstantiationException | IllegalAccessException ex) {
-                logger.error("Could not create configuration instance: " + ex.getMessage(), ex);
+                logger.error("Could not create configuration instance: {}", ex.getMessage(), ex);
                 return null;
             }
 
             List<Field> fields = getAllFields(configurationClass);
             for (Field field : fields) {
+                // Don't try to write to final fields
+                if (Modifier.isFinal(field.getModifiers())) {
+                    continue;
+                }
                 String fieldName = field.getName();
                 String typeName = field.getType().getSimpleName();
                 Object value = properties.get(fieldName);
@@ -96,7 +101,7 @@ public class Configuration {
                         FieldUtils.writeField(configuration, fieldName, value, true);
                     }
                 } catch (Exception ex) {
-                    logger.warn("Could not set field value for field '" + fieldName + "': " + ex.getMessage(), ex);
+                    logger.warn("Could not set field value for field '{}': {}", fieldName, ex.getMessage(), ex);
                 }
             }
 
@@ -107,9 +112,10 @@ public class Configuration {
     private List<Field> getAllFields(Class<?> clazz) {
         List<Field> fields = new ArrayList<Field>();
 
-        while (clazz != null) {
-            fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
-            clazz = clazz.getSuperclass();
+        Class<?> currentClass = clazz;
+        while (currentClass != null) {
+            fields.addAll(Arrays.asList(currentClass.getDeclaredFields()));
+            currentClass = currentClass.getSuperclass();
         }
 
         return fields;
@@ -143,7 +149,7 @@ public class Configuration {
 
     public Object put(String key, Object value) {
         synchronized (this) {
-            return properties.put(key, value);
+            return properties.put(key, ConfigUtil.normalizeType(value));
         }
     }
 
@@ -181,7 +187,7 @@ public class Configuration {
 
     public void setProperties(Map<String, Object> properties) {
         for (Entry<String, Object> entrySet : properties.entrySet()) {
-            this.put(entrySet.getKey(), ConfigUtil.normalizeType(entrySet.getValue()));
+            this.put(entrySet.getKey(), entrySet.getValue());
         }
         for (Iterator<String> it = this.properties.keySet().iterator(); it.hasNext();) {
             String entry = it.next();
@@ -220,8 +226,9 @@ public class Configuration {
             } else {
                 sb.append(", ");
             }
+            Object value = prop.getValue();
             sb.append(String.format("{key=%s; type=%s; value=%s}", prop.getKey(),
-                    prop.getValue().getClass().getSimpleName(), prop.getValue()));
+                    value != null ? value.getClass().getSimpleName() : "?", value));
         }
         sb.append("]");
         return sb.toString();

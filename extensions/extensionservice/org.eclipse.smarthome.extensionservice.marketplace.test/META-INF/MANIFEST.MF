@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ClassPath: .
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome IoT Marketplace Extension Service Test
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.extensionservice.marketplace.
+ test;singleton:=true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Fragment-Host: org.eclipse.smarthome.extensionservice.marketplace
+Import-Package: 
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.extensionservice.marketplace,
+ org.hamcrest;core=split,
+ org.mockito
+Require-Bundle: 
+ org.hamcrest,
+ org.junit,
+ org.mockito

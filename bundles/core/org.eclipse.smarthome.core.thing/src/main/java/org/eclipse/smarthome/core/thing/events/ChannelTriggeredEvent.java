@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,11 +9,12 @@ package org.eclipse.smarthome.core.thing.events;
 
 import org.eclipse.smarthome.core.events.AbstractEvent;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.types.Type;
 
 /**
  * {@link ChannelTriggeredEvent}s can be used to deliver triggers through the Eclipse SmartHome event bus.
  * Trigger events must be created with the {@link ThingEventFactory}.
+ *
+ * @author Moritz Kammerer - Initial contribution
  */
 public class ChannelTriggeredEvent extends AbstractEvent {
 

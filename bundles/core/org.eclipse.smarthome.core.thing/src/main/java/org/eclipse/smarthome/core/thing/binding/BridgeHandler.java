@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.binding;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 
@@ -28,7 +29,7 @@ public interface BridgeHandler extends ThingHandler {
      * @param childHandler the initialized child handler
      * @param childThing the thing of the initialized child handler
      */
-    void childHandlerInitialized(ThingHandler childHandler, Thing childThing);
+    void childHandlerInitialized(@NonNull ThingHandler childHandler, @NonNull Thing childThing);
 
     /**
      * Informs the bridge handler that a child handler has been disposed.
@@ -36,6 +37,6 @@ public interface BridgeHandler extends ThingHandler {
      * @param childHandler the disposed child handler
      * @param childThing the thing of the disposed child handler
      */
-    void childHandlerDisposed(ThingHandler childHandler, Thing childThing);
+    void childHandlerDisposed(@NonNull ThingHandler childHandler, @NonNull Thing childThing);
 
 }

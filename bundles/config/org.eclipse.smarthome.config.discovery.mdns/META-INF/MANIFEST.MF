@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Configuration mDNS Discovery
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.config.discovery.mdns
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Export-Package: 
+ org.eclipse.smarthome.config.discovery.mdns
+Import-Package: 
+ javax.jmdns,
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.config.discovery,
+ org.eclipse.smarthome.config.discovery.mdns,
+ org.eclipse.smarthome.core.thing,
+ org.eclipse.smarthome.io.transport.mdns,
+ org.eclipse.smarthome.io.transport.mdns.discovery,
+ org.osgi.framework,
+ org.osgi.service.component,
+ org.osgi.service.component.annotations;resolution:=optional,
+ org.slf4j
+Service-Component: OSGI-INF/*.xml

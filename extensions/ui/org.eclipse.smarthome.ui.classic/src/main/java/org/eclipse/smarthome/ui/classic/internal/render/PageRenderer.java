@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,11 +10,11 @@ package org.eclipse.smarthome.ui.classic.internal.render;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.smarthome.model.sitemap.Frame;
-import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.classic.internal.WebAppConfig;
 import org.eclipse.smarthome.ui.classic.internal.servlet.WebAppServlet;
@@ -70,10 +70,12 @@ public class PageRenderer extends AbstractWidgetRenderer {
         // Note: we can have a span here, if the parent widget had a label
         // with some value defined (e.g. "Windows [%d]"), which getLabel()
         // will convert into a "Windows <span>5</span>".
-        if (label.contains("[") && label.endsWith("]")) {
-            label = label.replace("[", "").replace("]", "");
+        String labelPlain = label;
+        if (labelPlain.contains("[") && labelPlain.endsWith("]")) {
+            labelPlain = labelPlain.replace("[", "").replace("]", "");
         }
-        snippet = StringUtils.replace(snippet, "%label%", label);
+        snippet = StringUtils.replace(snippet, "%labelstyle%", "");
+        snippet = StringUtils.replace(snippet, "%label%", StringEscapeUtils.escapeHtml(labelPlain));
         snippet = StringUtils.replace(snippet, "%servletname%", WebAppServlet.SERVLET_NAME);
         snippet = StringUtils.replace(snippet, "%sitemap%", sitemap);
 
@@ -96,10 +98,14 @@ public class PageRenderer extends AbstractWidgetRenderer {
 
         // put a single frame around all children widgets, if there are no explicit frames
         if (!children.isEmpty()) {
-            EObject firstChild = children.get(0);
-            EObject parent = firstChild.eContainer();
-            if (!(firstChild instanceof Frame || parent instanceof Frame || parent instanceof Sitemap
-                    || parent instanceof List)) {
+            boolean frameRequired = false;
+            for (Widget w : children) {
+                EObject parent = itemUIRegistry.getParent(w);
+                if (!(w instanceof Frame || parent instanceof Frame || parent instanceof List)) {
+                    frameRequired = true;
+                }
+            }
+            if (frameRequired) {
                 String frameSnippet = getSnippet("frame");
                 frameSnippet = StringUtils.replace(frameSnippet, "%label%", "");
 
@@ -151,9 +157,6 @@ public class PageRenderer extends AbstractWidgetRenderer {
 
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         // Check if this widget is visible
@@ -169,17 +172,11 @@ public class PageRenderer extends AbstractWidgetRenderer {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean canRender(Widget w) {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setConfig(WebAppConfig config) {
         this.config = config;

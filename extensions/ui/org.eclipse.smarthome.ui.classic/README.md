@@ -1,9 +1,3 @@
----
-layout: documentation
----
-
-{% include base.html %}
-
 ## Classic UI
 
 The Classic UI is the original web user interface of openHAB 1 and thus is the most stable and widely used UI as of today.

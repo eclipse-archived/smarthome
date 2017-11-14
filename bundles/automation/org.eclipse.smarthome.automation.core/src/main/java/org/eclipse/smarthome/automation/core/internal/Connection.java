@@ -144,7 +144,7 @@ public class Connection {
                         connections.add(connection);
 
                     } else {
-                        log.error("Wrong format of Output : " + inputName + ": " + output);
+                        log.error("Wrong format of Output : {}: {}", inputName, output);
                         continue;
                     }
                 }

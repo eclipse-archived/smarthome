@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@ import org.junit.Test
 /**
  * The {@link DiscoveryResultTest} checks if any invalid input parameters
  * and the synchronization of {@link DiscoveryResult}s work in a correct way.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  * @author Thomas Höfer - Added representation
  */

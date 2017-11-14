@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.link;
 
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 
@@ -15,10 +16,12 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
  *
  * @author Dennis Nobel - Initial contribution, Added getIDFor method
  * @author Jochen Hiller - Bugfix 455434: added default constructor, object is now mutable
+ * @author Simon Kaufmann - added configuration
  */
 public class ItemChannelLink extends AbstractLink {
 
-    private ChannelUID channelUID;
+    private final ChannelUID channelUID;
+    private final Configuration configuration;
 
     /**
      * Default constructor in package scope only. Will allow to instantiate this
@@ -27,16 +30,26 @@ public class ItemChannelLink extends AbstractLink {
     ItemChannelLink() {
         super();
         this.channelUID = null;
+        this.configuration = new Configuration();
     }
 
     public ItemChannelLink(String itemName, ChannelUID channelUID) {
+        this(itemName, channelUID, new Configuration());
+    }
+
+    public ItemChannelLink(String itemName, ChannelUID channelUID, Configuration configuration) {
         super(itemName);
         this.channelUID = channelUID;
+        this.configuration = configuration;
     }
 
     @Override
-    public ChannelUID getUID() {
+    public ChannelUID getLinkedUID() {
         return this.channelUID;
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
     }
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.wemo.internal.http.WemoHttpCall;
@@ -45,8 +47,6 @@ import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
-
 /**
  * The {@link WemoHandler} is responsible for handling commands, which are
  * sent to one of the channels and to update their states.
@@ -60,8 +60,9 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
 
     private final Logger logger = LoggerFactory.getLogger(WemoHandler.class);
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_SOCKET, THING_TYPE_INSIGHT,
-            THING_TYPE_LIGHTSWITCH, THING_TYPE_MOTION);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream
+            .of(THING_TYPE_SOCKET, THING_TYPE_INSIGHT, THING_TYPE_LIGHTSWITCH, THING_TYPE_MOTION)
+            .collect(Collectors.toSet());
 
     private Map<String, Boolean> subscriptionState = new HashMap<String, Boolean>();
 
@@ -119,7 +120,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
             logger.debug("Initializing WemoHandler for UDN '{}'", configuration.get("udn"));
             onSubscription();
             onUpdate();
-            super.initialize();
+            updateStatus(ThingStatus.ONLINE);
         } else {
             logger.debug("Cannot initalize WemoHandler. UDN not set.");
         }
@@ -352,13 +353,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
             logger.debug("Checking WeMo GENA subscription for '{}'", this);
 
             ThingTypeUID thingTypeUID = thing.getThingTypeUID();
-            String subscription = null;
-
-            if (thingTypeUID.equals(THING_TYPE_INSIGHT)) {
-                subscription = "insight1";
-            } else {
-                subscription = "basicevent1";
-            }
+            String subscription = "basicevent1";
 
             if ((subscriptionState.get(subscription) == null) || !subscriptionState.get(subscription).booleanValue()) {
                 logger.debug("Setting up GENA subscription {}: Subscribing to service {}...", getUDN(), subscription);
@@ -366,6 +361,16 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
                 subscriptionState.put(subscription, true);
             }
 
+            if (thingTypeUID.equals(THING_TYPE_INSIGHT)) {
+                subscription = "insight1";
+                if ((subscriptionState.get(subscription) == null)
+                        || !subscriptionState.get(subscription).booleanValue()) {
+                    logger.debug("Setting up GENA subscription {}: Subscribing to service {}...", getUDN(),
+                            subscription);
+                    service.addSubscription(this, subscription, SUBSCRIPTION_DURATION);
+                    subscriptionState.put(subscription, true);
+                }
+            }
         } else {
             logger.debug("Setting up WeMo GENA subscription for '{}' FAILED - service.isRegistered(this) is FALSE",
                     this);
@@ -377,19 +382,21 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
 
         if (service.isRegistered(this)) {
             ThingTypeUID thingTypeUID = thing.getThingTypeUID();
-            String subscription = null;
-
-            if (thingTypeUID.equals(THING_TYPE_INSIGHT)) {
-                subscription = "insight1";
-            } else {
-                subscription = "basicevent1";
-            }
+            String subscription = "basicevent1";
 
             if ((subscriptionState.get(subscription) != null) && subscriptionState.get(subscription).booleanValue()) {
                 logger.debug("WeMo {}: Unsubscribing from service {}...", getUDN(), subscription);
                 service.removeSubscription(this, subscription);
             }
 
+            if (thingTypeUID.equals(THING_TYPE_INSIGHT)) {
+                subscription = "insight1";
+                if ((subscriptionState.get(subscription) != null)
+                        && subscriptionState.get(subscription).booleanValue()) {
+                    logger.debug("WeMo {}: Unsubscribing from service {}...", getUDN(), subscription);
+                    service.removeSubscription(this, subscription);
+                }
+            }
             subscriptionState = new HashMap<String, Boolean>();
             service.unregisterParticipant(this);
         }
@@ -403,7 +410,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
             if (refreshConfig != null) {
                 refreshInterval = ((BigDecimal) refreshConfig).intValue();
             }
-            refreshJob = scheduler.scheduleAtFixedRate(refreshRunnable, 0, refreshInterval, TimeUnit.SECONDS);
+            refreshJob = scheduler.scheduleWithFixedDelay(refreshRunnable, 0, refreshInterval, TimeUnit.SECONDS);
         }
     }
 

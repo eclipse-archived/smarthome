@@ -10,13 +10,13 @@ package org.eclipse.smarthome.automation.internal.core.provider.i18n;
 import java.util.Locale;
 
 import org.eclipse.smarthome.automation.template.RuleTemplate;
-import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.i18n.I18nUtil;
 import org.osgi.framework.Bundle;
 
 /**
  * This class is used as utility for resolving the localized {@link RuleTemplate}s. It automatically infers the key if
- * the default text is not a constant with the assistance of {@link I18nProvider}.
+ * the default text is not a constant with the assistance of {@link TranslationProvider}.
  *
  * @author Ana Dimova - Initial Contribution
  *
@@ -25,14 +25,14 @@ public class RuleTemplateI18nUtil {
 
     public static final String RULE_TEMPLATE = "rule-template";
 
-    public static String getLocalizedRuleTemplateLabel(I18nProvider i18nProvider, Bundle bundle, String ruleTemplateUID,
+    public static String getLocalizedRuleTemplateLabel(TranslationProvider i18nProvider, Bundle bundle, String ruleTemplateUID,
             String defaultLabel, Locale locale) {
         String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel)
                 : inferRuleTemplateKey(ruleTemplateUID, "label");
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 
-    public static String getLocalizedRuleTemplateDescription(I18nProvider i18nProvider, Bundle bundle,
+    public static String getLocalizedRuleTemplateDescription(TranslationProvider i18nProvider, Bundle bundle,
             String ruleTemplateUID, String defaultDescription, Locale locale) {
         String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription)
                 : inferRuleTemplateKey(ruleTemplateUID, "description");

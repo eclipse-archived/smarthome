@@ -1,5 +1,4 @@
-<archetype-descriptor
-	xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
+<archetype-descriptor xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0 http://maven.apache.org/xsd/archetype-descriptor-1.0.0.xsd"
 	name="Eclipse SmartHome Binding Archetype" partial="false">
@@ -11,65 +10,39 @@
 		<requiredProperty key="namespace">
 			<defaultValue>org.eclipse.smarthome</defaultValue>
 		</requiredProperty>
-        <requiredProperty key="author">
+		<requiredProperty key="author">
 		</requiredProperty>
-        <requiredProperty key="bindingId">
+		<requiredProperty key="bindingId">
 		</requiredProperty>
-        <requiredProperty key="bindingIdCamelCase">
-		</requiredProperty>        
+		<requiredProperty key="bindingIdCamelCase">
+		</requiredProperty>
 	</requiredProperties>
 
 	<fileSets>
-		<!-- General files -->
 		<fileSet filtered="true" packaged="false" encoding="UTF-8">
 			<directory></directory>
 			<includes>
+				<include>cfg/*.*</include>
+				<include>META-INF/*.*</include>
+				<include>OSGI-INF/*.*</include>
+				<include>about.html</include>
 				<include>build.properties</include>
 				<include>pom.xml</include>
 				<include>.project</include>
 				<include>.classpath</include>
 			</includes>
-			<excludes />
 		</fileSet>
-		<!-- META-INF files -->
-		<fileSet filtered="true" packaged="false" encoding="UTF-8">
-			<directory>META-INF</directory>
+		<fileSet filtered="false" packaged="false" encoding="UTF-8">
+			<directory></directory>
 			<includes>
-				<include>MANIFEST.MF</include>
+				<include>README.md</include>
 			</includes>
-			<excludes />
 		</fileSet>
-		<!-- ESH-INF/binding files -->
 		<fileSet filtered="true" packaged="false" encoding="UTF-8">
-			<directory>ESH-INF/binding</directory>
+			<directory>ESH-INF</directory>
 			<includes>
-				<include>binding.xml</include>
+				<include>**/*.*</include>
 			</includes>
-			<excludes />
-		</fileSet>
-		<!-- ESH-INF/thing files -->
-		<fileSet filtered="true" packaged="false" encoding="UTF-8">
-			<directory>ESH-INF/thing</directory>
-			<includes>
-				<include>thing-types.xml</include>
-			</includes>
-			<excludes />
-		</fileSet>
-		<!-- ESH-INF/i18n files -->
-		<fileSet filtered="true" packaged="false" encoding="UTF-8">
-			<directory>ESH-INF/i18n</directory>
-			<includes>
-				<include>*</include>
-			</includes>
-			<excludes />
-		</fileSet>		
-		<!-- OSGI-INF files -->
-		<fileSet filtered="true" packaged="false" encoding="UTF-8">
-			<directory>OSGI-INF</directory>
-			<includes>
-				<include>*.xml</include>
-			</includes>
-			<excludes />
 		</fileSet>
 		<!-- Java files -->
 		<fileSet filtered="true" packaged="true" encoding="UTF-8">
@@ -77,7 +50,6 @@
 			<includes>
 				<include>**/*.java</include>
 			</includes>
-			<excludes />
 		</fileSet>
 	</fileSets>
 </archetype-descriptor>

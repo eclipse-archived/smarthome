@@ -130,6 +130,37 @@
          </config-description>
     </thing-type>
 
+     <thing-type id="CoffeeMaker">
+        <label>Mr. Coffee WeMo Enabled Coffeemaker</label>
+        <description>This is a WeMo enabled coffee maker</description>
+
+        <channels>
+            <channel id="state" typeId="state" />
+            <channel id="coffeeMode" typeId="coffeeMode"/>
+            <channel id="modeTime" typeId="modeTime"/>
+            <channel id="timeRemaining" typeId="timeRemaining"/>
+            <channel id="waterLevelReached" typeId="waterLevelReached"/>
+            <channel id="cleanAdvise" typeId="cleanAdvise"/>
+            <channel id="filterAdvise" typeId="filterAdvise"/>
+            <channel id="brewed" typeId="brewed"/>
+            <channel id="lastCleaned" typeId="lastCleaned"/>
+        </channels>
+
+        <config-description>
+            <parameter name="udn" type="text">
+                <label>Unique Device Name</label>
+                <description>The UDN identifies the WeMo Device</description>
+                <required>true</required>
+            </parameter>
+            <parameter name="pollingInterval" type="integer" required="false" min="15" max="180">
+                <label>Polling Interval</label>
+                <description>Interval polling the WeMo Coffee Maker.
+                </description>
+                <default>60</default>
+            </parameter>
+         </config-description>
+    </thing-type>
+
      <channel-type id="state">
         <item-type>Switch</item-type>
         <label>Switch</label>
@@ -247,6 +278,70 @@
         <label>Sensor</label>
         <description>Shows the state of the integrated sensor</description>
         <category>Switch</category>
+    </channel-type>
+
+     <channel-type id="coffeeMode">
+        <item-type>String</item-type>
+        <label>Mode</label>
+        <description>Shows the operation mode of a WeMo Coffee Maker</description>
+        <state readOnly="true">
+           <options>
+              <option value="Refill">Not Ready: Refill Water and Replace Carafe</option>
+              <option value="PlaceCarafe">Not Ready: Replace Carafe</option>
+              <option value="RefillWater">Not Ready: Refill Water</option>
+              <option value="Ready">Ready</option>
+              <option value="Brewing">Brewing</option>
+              <option value="Brewed">Brewing Finished</option>
+              <option value="CleaningBrewing">Cleaning Coffee Maker</option>
+              <option value="CleaningSoaking">Cleaning Filter</option>
+              <option value="BrewFailCarafeRemoved">Brewing Failed: Carafe Removed</option>
+          </options>
+        </state>
+    </channel-type>
+
+     <channel-type id="modeTime">
+        <item-type>Number</item-type>
+        <label>ModeTime</label>
+        <description>Shows the current amount of time, in minutes, that the Coffee Maker has been in the current mode</description>
+    </channel-type>
+
+     <channel-type id="timeRemaining">
+        <item-type>Number</item-type>
+        <label>TimeRemaining</label>
+        <description>Shows the remaining brewing time of a WeMo Coffee Maker</description>
+    </channel-type>
+
+     <channel-type id="waterLevelReached" advanced="true">
+        <item-type>Switch</item-type>
+        <label>WaterLevelReached</label>
+        <description>Indicates if the WeMo Coffee Maker needs to be refilled</description>
+        <state readOnly="true"></state>
+    </channel-type>
+
+     <channel-type id="cleanAdvise" advanced="true">
+        <item-type>Switch</item-type>
+        <label>CleanAdvise</label>
+        <description>Indicates if a WeMo Coffee Maker needs to be cleaned</description>
+        <state readOnly="true"></state>
+    </channel-type>
+
+     <channel-type id="filterAdvise" advanced="true">
+        <item-type>Switch</item-type>
+        <label>FilterAdvise</label>
+        <description>Indicates if a WeMo Coffee Maker needs to have the filter changed</description>
+        <state readOnly="true"></state>
+    </channel-type>
+
+     <channel-type id="brewed" advanced="true">
+        <item-type>DateTime</item-type>
+        <label>Brewed</label>
+        <description>Date/time the coffee maker last completed brewing coffee</description>
+    </channel-type>
+
+     <channel-type id="lastCleaned" advanced="true">
+        <item-type>DateTime</item-type>
+        <label>LastCleaned</label>
+        <description>Date/time the coffee maker last completed cleaning</description>
     </channel-type>
  
 </thing:thing-descriptions>

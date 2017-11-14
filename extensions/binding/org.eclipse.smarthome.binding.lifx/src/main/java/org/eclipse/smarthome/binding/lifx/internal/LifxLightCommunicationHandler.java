@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,14 +7,11 @@
  */
 package org.eclipse.smarthome.binding.lifx.internal;
 
-import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.PACKET_INTERVAL;
+import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.*;
+import static org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress.BROADCAST_ADDRESS;
 
 import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.InterfaceAddress;
-import java.net.NetworkInterface;
 import java.net.StandardProtocolFamily;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
@@ -23,9 +20,7 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -36,8 +31,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.IntUnaryOperator;
 
-import org.eclipse.smarthome.binding.lifx.LifxBindingConstants;
 import org.eclipse.smarthome.binding.lifx.handler.LifxLightHandler.CurrentLightState;
 import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
 import org.eclipse.smarthome.binding.lifx.internal.listener.LifxResponsePacketListener;
@@ -46,7 +41,8 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PacketFactory;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PacketHandler;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateServiceResponse;
-import org.eclipse.smarthome.core.common.ThreadPoolManager;
+import org.eclipse.smarthome.binding.lifx.internal.util.LifxNetworkUtil;
+import org.eclipse.smarthome.binding.lifx.internal.util.LifxThrottlingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,43 +53,40 @@ import org.slf4j.LoggerFactory;
  */
 public class LifxLightCommunicationHandler {
 
-    private Logger logger = LoggerFactory.getLogger(LifxLightCommunicationHandler.class);
+    private static final AtomicInteger LIGHT_COUNTER = new AtomicInteger(1);
+    private static final IntUnaryOperator INC_SEQUENCE_NUMBER = (value) -> {
+        return ++value > 255 ? 1 : value;
+    };
 
-    private final int BROADCAST_PORT = 56700;
+    private final Logger logger = LoggerFactory.getLogger(LifxLightCommunicationHandler.class);
 
-    private CurrentLightState currentLightState;
+    private final String logId;
+    private final CurrentLightState currentLightState;
+    private final ScheduledExecutorService scheduler;
 
-    private static AtomicInteger lightCounter = new AtomicInteger(1);
+    private final ReentrantLock lock = new ReentrantLock();
+    private final AtomicInteger sequenceNumber = new AtomicInteger(1);
 
     private long source;
     private int service;
     private int port;
 
-    private MACAddress macAddress = null;
-    private String macAsHex = null;
-
-    private MACAddress broadcastAddress = new MACAddress("000000000000", true);
-    private AtomicInteger sequenceNumber = new AtomicInteger(1);
-
-    private Selector selector;
     private ScheduledFuture<?> networkJob;
-    private ReentrantLock lock = new ReentrantLock();
+    private Selector selector;
 
-    private InetSocketAddress ipAddress = null;
-    private DatagramChannel unicastChannel = null;
-    private SelectionKey unicastKey = null;
-    private SelectionKey broadcastKey = null;
-    private List<InetSocketAddress> broadcastAddresses;
-    private List<InetAddress> interfaceAddresses;
-    private int bufferSize = 0;
+    private MACAddress macAddress;
+    private InetSocketAddress ipAddress;
+    private boolean broadcastEnabled;
+    private SelectionKey broadcastKey;
+    private SelectionKey unicastKey;
 
-    private final ScheduledExecutorService scheduler = ThreadPoolManager
-            .getScheduledPool(LifxBindingConstants.THREADPOOL_NAME);
-
-    public LifxLightCommunicationHandler(MACAddress macAddress, CurrentLightState currentLightState) {
-        this.macAddress = macAddress;
-        this.macAsHex = macAddress.getHex();
-        this.currentLightState = currentLightState;
+    public LifxLightCommunicationHandler(LifxLightContext context) {
+        this.logId = context.getLogId();
+        this.macAddress = context.getConfiguration().getMACAddress();
+        this.ipAddress = context.getConfiguration().getHost();
+        this.currentLightState = context.getCurrentLightState();
+        this.scheduler = context.getScheduler();
+        this.broadcastEnabled = context.getConfiguration().getHost() == null;
     }
 
     private List<LifxResponsePacketListener> responsePacketListeners = new CopyOnWriteArrayList<>();
@@ -108,63 +101,33 @@ public class LifxLightCommunicationHandler {
 
     public void start() {
         try {
-
             lock.lock();
 
-            logger.debug("Starting LIFX communication handler for light '{}'.", macAsHex);
+            logger.debug("{} : Starting communication handler", logId);
 
             if (networkJob == null || networkJob.isCancelled()) {
-                networkJob = scheduler.scheduleWithFixedDelay(networkRunnable, 0, PACKET_INTERVAL,
+                networkJob = scheduler.scheduleWithFixedDelay(this::receiveAndHandlePackets, 0, PACKET_INTERVAL,
                         TimeUnit.MILLISECONDS);
             }
 
             source = UUID.randomUUID().getLeastSignificantBits() & (-1L >>> 32);
-            logger.debug("The LIFX handler will use '{}' as source identifier", Long.toString(source, 16));
-            broadcastAddresses = new ArrayList<InetSocketAddress>();
-            interfaceAddresses = new ArrayList<InetAddress>();
-
-            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-            while (networkInterfaces.hasMoreElements()) {
-                NetworkInterface iface = networkInterfaces.nextElement();
-                if (iface.isUp() && !iface.isLoopback()) {
-                    for (InterfaceAddress ifaceAddr : iface.getInterfaceAddresses()) {
-                        if (ifaceAddr.getAddress() instanceof Inet4Address) {
-                            logger.debug("Adding '{}' as interface address with MTU {}", ifaceAddr.getAddress(),
-                                    iface.getMTU());
-                            if (iface.getMTU() > bufferSize) {
-                                bufferSize = iface.getMTU();
-                            }
-                            interfaceAddresses.add(ifaceAddr.getAddress());
-                            if (ifaceAddr.getBroadcast() != null) {
-                                logger.debug("Adding '{}' as broadcast address", ifaceAddr.getBroadcast());
-                                broadcastAddresses.add(new InetSocketAddress(ifaceAddr.getBroadcast(), BROADCAST_PORT));
-                            }
-                        }
-                    }
-                }
-            }
-
-            selector = Selector.open();
-
-            DatagramChannel broadcastChannel = DatagramChannel.open(StandardProtocolFamily.INET)
-                    .setOption(StandardSocketOptions.SO_REUSEADDR, true)
-                    .setOption(StandardSocketOptions.SO_BROADCAST, true);
-            broadcastChannel.configureBlocking(false);
-
-            int offset = lightCounter.getAndIncrement();
-            logger.debug("Binding the broadcast channel on port {}", BROADCAST_PORT + offset);
-            broadcastChannel.bind(new InetSocketAddress(BROADCAST_PORT + offset));
-
-            broadcastKey = broadcastChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+            logger.debug("{} : Using '{}' as source identifier", logId, Long.toString(source, 16));
 
             currentLightState.setOffline();
 
-            // look for lights on the network
-            GetServiceRequest packet = new GetServiceRequest();
-            broadcastPacket(packet);
+            selector = Selector.open();
 
-        } catch (Exception ex) {
-            logger.error("Error occured while initializing LIFX handler: " + ex.getMessage(), ex);
+            if (isBroadcastEnabled()) {
+                openBroadcastChannel();
+                // look for lights on the network
+                broadcastPacket(new GetServiceRequest());
+            } else {
+                openUnicastChannel();
+                sendPacket(new GetServiceRequest());
+            }
+        } catch (IOException e) {
+            logger.error("Error occurred while starting LIFX communication handler for light '{}' : {}", logId,
+                    e.getMessage(), e);
         } finally {
             lock.unlock();
         }
@@ -179,45 +142,9 @@ public class LifxLightCommunicationHandler {
                 networkJob = null;
             }
 
-            try {
-                if (selector != null) {
-
-                    selector.wakeup();
-
-                    boolean isContinue = true;
-                    while (isContinue) {
-                        try {
-                            for (SelectionKey selectionKey : selector.keys()) {
-                                selectionKey.channel().close();
-                                selectionKey.cancel();
-                            }
-                            isContinue = false; // continue till all keys are cancelled
-                        } catch (ConcurrentModificationException e) {
-                            logger.warn("An exception occurred while closing a selector key : '{}'", e.getMessage());
-                        }
-                    }
-
-                    selector.close();
-                }
-            } catch (IOException e) {
-                logger.warn("An exception occurred while closing the selector : '{}'", e.getMessage());
-            }
-
-            if (broadcastKey != null) {
-                try {
-                    broadcastKey.channel().close();
-                } catch (IOException e) {
-                    logger.warn("An exception occurred while closing the broadcast channel : '{}'", e.getMessage());
-                }
-            }
-
-            if (unicastKey != null) {
-                try {
-                    unicastKey.channel().close();
-                } catch (IOException e) {
-                    logger.warn("An exception occurred while closing the unicast channel : '{}'", e.getMessage());
-                }
-            }
+            closeSelector();
+            closeBroadcastChannel();
+            closeUnicastChannel();
 
             ipAddress = null;
         } finally {
@@ -225,158 +152,208 @@ public class LifxLightCommunicationHandler {
         }
     }
 
-    private Runnable networkRunnable = new Runnable() {
-
-        @Override
-        public void run() {
+    private void closeBroadcastChannel() {
+        if (broadcastKey != null) {
             try {
-                lock.lock();
+                broadcastKey.channel().close();
+            } catch (IOException e) {
+                logger.warn("An exception occurred while closing the broadcast channel of the light ({}) : '{}'", logId,
+                        e.getMessage());
+            }
+            broadcastKey.cancel();
+            broadcastKey = null;
+        }
+    }
 
-                if (selector != null) {
+    private void closeUnicastChannel() {
+        if (unicastKey != null) {
+            try {
+                unicastKey.channel().close();
+            } catch (IOException e) {
+                logger.error("An exception occurred while closing the unicast channel of the light ({}) : '{}'", logId,
+                        e.getMessage());
+            }
+            unicastKey.cancel();
+            unicastKey = null;
+        }
+    }
+
+    private void closeSelector() {
+        if (selector != null) {
+            try {
+                selector.wakeup();
+
+                boolean isContinue = true;
+                while (isContinue) {
                     try {
-                        selector.selectNow();
-                    } catch (IOException e) {
-                        logger.error("An exception occurred while selecting: {}", e.getMessage());
+                        for (SelectionKey selectionKey : selector.keys()) {
+                            selectionKey.channel().close();
+                            selectionKey.cancel();
+                        }
+                        isContinue = false; // continue till all keys are cancelled
+                    } catch (ConcurrentModificationException e) {
+                        logger.warn("An exception occurred while closing a selector key of the light ({}) : '{}'",
+                                logId, e.getMessage());
+                    }
+                }
+
+                selector.close();
+                selector = null;
+            } catch (IOException e) {
+                logger.warn("An exception occurred while closing the selector of the light ({}) : '{}'", logId,
+                        e.getMessage());
+            }
+        }
+    }
+
+    public InetSocketAddress getIpAddress() {
+        return ipAddress;
+    }
+
+    public MACAddress getMACAddress() {
+        return macAddress;
+    }
+
+    public void receiveAndHandlePackets() {
+        try {
+            lock.lock();
+
+            if (selector != null) {
+                try {
+                    selector.selectNow();
+                } catch (IOException e) {
+                    logger.error("An exception occurred while selecting keys for the light ({}) : {}", logId,
+                            e.getMessage());
+                }
+
+                Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
+
+                while (keyIterator.hasNext()) {
+                    SelectionKey key;
+
+                    try {
+                        key = keyIterator.next();
+                    } catch (ConcurrentModificationException e) {
+                        // when a StateServiceResponse packet is handled a new unicastChannel may be registered
+                        // in the selector which causes this exception, recover from it by restarting the iteration
+                        logger.debug("{} : Restarting iteration after ConcurrentModificationException", logId);
+                        keyIterator = selector.selectedKeys().iterator();
+                        continue;
                     }
 
-                    Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
+                    if (key.isValid() && key.isAcceptable()) {
+                        // block of code only for completeness purposes
+                        logger.trace("{} : Connection was accepted by a ServerSocketChannel", logId);
+                    } else if (key.isValid() && key.isConnectable()) {
+                        // block of code only for completeness purposes
+                        logger.trace("{} : Connection was established with a remote server", logId);
+                    } else if (key.isValid() && key.isReadable()) {
+                        logger.trace("{} : Channel is ready for reading", logId);
+                        SelectableChannel channel = key.channel();
+                        InetSocketAddress address = null;
+                        int messageLength = 0;
 
-                    while (keyIterator.hasNext()) {
-
-                        SelectionKey key;
-
+                        ByteBuffer readBuffer = ByteBuffer.allocate(LifxNetworkUtil.getBufferSize());
                         try {
-                            key = keyIterator.next();
-                        } catch (ConcurrentModificationException e) {
-                            // when a StateServiceResponse packet is handled a new unicastChannel may be registered
-                            // in the selector which causes this exception, recover from it by restarting the iteration
-                            logger.debug("{} : Restarting iteration after ConcurrentModificationException", macAsHex);
-                            keyIterator = selector.selectedKeys().iterator();
-                            continue;
-                        }
-
-                        if (key.isValid() && key.isAcceptable()) {
-                            // a connection was accepted by a ServerSocketChannel.
-                            // block of code only for completeness purposes
-
-                        } else if (key.isValid() && key.isConnectable()) {
-                            // a connection was established with a remote server.
-                            // block of code only for completeness purposes
-
-                        } else if (key.isValid() && key.isReadable()) {
-                            // a channel is ready for reading
-                            SelectableChannel channel = key.channel();
-                            InetSocketAddress address = null;
-                            int messageLength = 0;
-
-                            ByteBuffer readBuffer = ByteBuffer.allocate(bufferSize);
-                            try {
-                                if (channel instanceof DatagramChannel) {
-                                    address = (InetSocketAddress) ((DatagramChannel) channel).receive(readBuffer);
-                                } else if (channel instanceof SocketChannel) {
-                                    address = (InetSocketAddress) ((SocketChannel) channel).getRemoteAddress();
-                                    ((SocketChannel) channel).read(readBuffer);
-                                }
-                                messageLength = readBuffer.position();
-                            } catch (Exception e) {
-                                logger.warn("An exception occurred while reading data : '{}'", e.getMessage());
+                            if (channel instanceof DatagramChannel) {
+                                address = (InetSocketAddress) ((DatagramChannel) channel).receive(readBuffer);
+                            } else if (channel instanceof SocketChannel) {
+                                address = (InetSocketAddress) ((SocketChannel) channel).getRemoteAddress();
+                                ((SocketChannel) channel).read(readBuffer);
                             }
-                            if (address != null) {
-                                if (!interfaceAddresses.contains(address.getAddress())) {
+                            messageLength = readBuffer.position();
+                        } catch (Exception e) {
+                            logger.warn("An exception occurred while reading data for the light ({}) : '{}'", logId,
+                                    e.getMessage());
+                        }
+                        if (address != null) {
+                            if (!LifxNetworkUtil.getInterfaceAddresses().contains(address.getAddress())) {
+                                readBuffer.rewind();
 
-                                    readBuffer.rewind();
+                                ByteBuffer packetSize = readBuffer.slice();
+                                packetSize.position(0);
+                                packetSize.limit(2);
+                                int size = Packet.FIELD_SIZE.value(packetSize);
 
-                                    ByteBuffer packetSize = readBuffer.slice();
-                                    packetSize.position(0);
-                                    packetSize.limit(2);
-                                    int size = Packet.FIELD_SIZE.value(packetSize);
+                                if (messageLength == size) {
+                                    ByteBuffer packetType = readBuffer.slice();
+                                    packetType.position(32);
+                                    packetType.limit(34);
+                                    int type = Packet.FIELD_PACKET_TYPE.value(packetType);
 
-                                    if (messageLength == size) {
+                                    PacketHandler<?> handler = PacketFactory.createHandler(type);
 
-                                        ByteBuffer packetType = readBuffer.slice();
-                                        packetType.position(32);
-                                        packetType.limit(34);
-                                        int type = Packet.FIELD_PACKET_TYPE.value(packetType);
+                                    if (handler == null) {
+                                        logger.trace("{} : Unknown packet type: {} (source: {})", logId,
+                                                String.format("0x%02X", type), address.toString());
+                                        continue;
+                                    }
 
-                                        PacketHandler<?> handler = PacketFactory.createHandler(type);
-
-                                        if (handler == null) {
-                                            logger.trace("Unknown packet type: {} (source: {})",
-                                                    String.format("0x%02X", type), address.toString());
-                                            continue;
-                                        }
-
-                                        Packet packet = handler.handle(readBuffer);
-                                        if (packet == null) {
-                                            logger.warn("Handler {} was unable to handle packet",
-                                                    handler.getClass().getName());
-                                        } else {
-                                            handlePacket(packet, address);
-                                        }
+                                    Packet packet = handler.handle(readBuffer);
+                                    if (packet == null) {
+                                        logger.warn(
+                                                "Packet handler '{}' was unable to handle packet for the light ({})",
+                                                handler.getClass().getName(), logId);
+                                    } else {
+                                        handlePacket(packet, address);
                                     }
                                 }
                             }
-                        } else if (key.isValid() && key.isWritable()) {
-                            // a channel is ready for writing
-                            // block of code only for completeness purposes
                         }
-
+                    } else if (key.isValid() && key.isWritable()) {
+                        // block of code only for completeness purposes
+                        logger.trace("{} : Channel is ready for writing", logId);
                     }
                 }
-            } catch (Exception e) {
-                logger.error("An exception occurred while receiving a packet from the light : '{}'", e.getMessage());
-            } finally {
-                lock.unlock();
             }
+        } catch (Exception e) {
+            logger.error("An exception occurred while receiving a packet from the light ({}) : '{}'", logId,
+                    e.getMessage());
+        } finally {
+            lock.unlock();
         }
-    };
+    }
 
     private void handlePacket(final Packet packet, InetSocketAddress address) {
+        boolean packetFromConfiguredMAC = macAddress != null && (packet.getTarget().equals(macAddress));
+        boolean packetFromConfiguredHost = ipAddress != null && (address.equals(ipAddress));
+        boolean broadcastPacket = packet.getTarget().equals(BROADCAST_ADDRESS);
+        boolean packetSourceIsHandler = (packet.getSource() == source || packet.getSource() == 0);
 
-        if ((packet.getTarget().equals(macAddress) || packet.getTarget().equals(broadcastAddress))
-                && (packet.getSource() == source || packet.getSource() == 0)) {
-
+        if ((packetFromConfiguredMAC || packetFromConfiguredHost || broadcastPacket) && packetSourceIsHandler) {
             logger.trace("{} : Packet type '{}' received from '{}' for '{}' with sequence '{}' and source '{}'",
-                    new Object[] { macAsHex, packet.getClass().getSimpleName(), address.toString(),
+                    new Object[] { logId, packet.getClass().getSimpleName(), address.toString(),
                             packet.getTarget().getHex(), packet.getSequence(), Long.toString(packet.getSource(), 16) });
 
             if (packet instanceof StateServiceResponse) {
                 MACAddress discoveredAddress = ((StateServiceResponse) packet).getTarget();
-                if (macAddress.equals(discoveredAddress)) {
-                    if (!address.equals(ipAddress) && port != (int) ((StateServiceResponse) packet).getPort()
-                            && service != ((StateServiceResponse) packet).getService()
-                            || currentLightState.isOffline()) {
+                if (packetFromConfiguredHost && macAddress == null) {
+                    macAddress = discoveredAddress;
+                    currentLightState.setOnline(discoveredAddress);
+                    return;
+                } else if (macAddress != null && macAddress.equals(discoveredAddress)) {
+                    boolean newIpAddress = ipAddress == null || !address.equals(ipAddress);
+                    boolean newPort = port != (int) ((StateServiceResponse) packet).getPort();
+                    boolean newService = service != ((StateServiceResponse) packet).getService();
+
+                    if (newIpAddress || newPort || newService || currentLightState.isOffline()) {
                         this.port = (int) ((StateServiceResponse) packet).getPort();
                         this.service = ((StateServiceResponse) packet).getService();
 
                         if (port == 0) {
-                            logger.warn("The service with ID '{}' is currently not available", service);
+                            logger.warn("Light ({}) service with ID '{}' is currently not available", logId, service);
                             currentLightState.setOfflineByCommunicationError();
                         } else {
+                            this.ipAddress = new InetSocketAddress(address.getAddress(), port);
 
-                            if (unicastChannel != null && unicastKey != null) {
-                                try {
-                                    unicastChannel.close();
-                                } catch (IOException e) {
-                                    logger.error("An exception occurred while closing the channel : '{}'",
-                                            e.getMessage());
-                                }
-                                unicastKey.cancel();
-                            }
+                            closeUnicastChannel();
 
                             try {
-                                ipAddress = new InetSocketAddress(address.getAddress(), port);
-                                unicastChannel = DatagramChannel.open(StandardProtocolFamily.INET)
-                                        .setOption(StandardSocketOptions.SO_REUSEADDR, true);
-                                unicastChannel.configureBlocking(false);
-                                unicastKey = unicastChannel.register(selector,
-                                        SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-                                unicastChannel.connect(ipAddress);
-                                logger.trace("Connected to a light via {}",
-                                        unicastChannel.getLocalAddress().toString());
+                                openUnicastChannel();
                             } catch (Exception e) {
-                                logger.warn("An exception occurred while connecting to the light's IP address : '{}'",
-                                        e.getMessage());
+                                logger.warn(
+                                        "An exception occurred while opening the unicast channel of the light ({}) : '{}'",
+                                        logId, e.getMessage());
                                 currentLightState.setOfflineByCommunicationError();
                                 return;
                             }
@@ -388,39 +365,43 @@ public class LifxLightCommunicationHandler {
             }
 
             // Listeners are notified in a separate thread for better concurrency and to prevent deadlock.
-            Runnable notifyListenersRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    for (LifxResponsePacketListener listener : responsePacketListeners) {
-                        listener.handleResponsePacket(packet);
-                    }
-                }
-            };
-            scheduler.schedule(notifyListenersRunnable, 0, TimeUnit.MILLISECONDS);
+            scheduler.schedule(() -> {
+                responsePacketListeners.forEach(listener -> listener.handleResponsePacket(packet));
+            }, 0, TimeUnit.MILLISECONDS);
         }
     }
 
-    /**
-     * Atomically increases the sequence number. When Java 8 is available this can be replaced by using the
-     * {@code getAndUpdate} method.
-     */
-    private int getAndIncreaseSequenceNumber() {
-        int prev, next;
-        do {
-            prev = sequenceNumber.get();
-            next = prev + 1;
-            if (next > 255) {
-                next = 1;
-            }
-        } while (!sequenceNumber.compareAndSet(prev, next));
-        return prev;
+    private void openBroadcastChannel() throws IOException {
+        DatagramChannel broadcastChannel = DatagramChannel.open(StandardProtocolFamily.INET)
+                .setOption(StandardSocketOptions.SO_REUSEADDR, true)
+                .setOption(StandardSocketOptions.SO_BROADCAST, true);
+        broadcastChannel.configureBlocking(false);
+
+        int offset = LIGHT_COUNTER.getAndIncrement();
+        logger.debug("{} : Binding the broadcast channel on port {}", logId, BROADCAST_PORT + offset);
+        broadcastChannel.bind(new InetSocketAddress(BROADCAST_PORT + offset));
+
+        broadcastKey = broadcastChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+    }
+
+    private void openUnicastChannel() throws IOException {
+        DatagramChannel unicastChannel = DatagramChannel.open(StandardProtocolFamily.INET)
+                .setOption(StandardSocketOptions.SO_REUSEADDR, true);
+        unicastChannel.configureBlocking(false);
+        unicastKey = unicastChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+        unicastChannel.connect(ipAddress);
+        logger.trace("{} : Connected to light via {}", logId, unicastChannel.getLocalAddress().toString());
+    }
+
+    public boolean isBroadcastEnabled() {
+        return broadcastEnabled;
     }
 
     public void sendPacket(Packet packet) {
         if (ipAddress != null) {
             packet.setSource(source);
             packet.setTarget(macAddress);
-            packet.setSequence(getAndIncreaseSequenceNumber());
+            packet.setSequence(sequenceNumber.getAndUpdate(INC_SEQUENCE_NUMBER));
             sendPacket(packet, ipAddress, unicastKey);
         }
     }
@@ -434,84 +415,62 @@ public class LifxLightCommunicationHandler {
     }
 
     public void broadcastPacket(Packet packet) {
-
         packet.setSource(source);
-        packet.setSequence(getAndIncreaseSequenceNumber());
+        packet.setSequence(sequenceNumber.getAndUpdate(INC_SEQUENCE_NUMBER));
 
-        for (InetSocketAddress address : broadcastAddresses) {
-            boolean result = false;
-            while (!result) {
-                result = sendPacket(packet, address, broadcastKey);
-                if (!result) {
-                    try {
-                        Thread.sleep(PACKET_INTERVAL);
-                    } catch (InterruptedException e) {
-                    }
-                }
-            }
+        for (InetSocketAddress address : LifxNetworkUtil.getBroadcastAddresses()) {
+            sendPacket(packet, address, broadcastKey);
         }
     }
 
     private boolean sendPacket(Packet packet, InetSocketAddress address, SelectionKey selectedKey) {
-
         boolean result = false;
 
         try {
             lock.lock();
 
-            if (selectedKey == unicastKey) {
-                LifxNetworkThrottler.lock(macAddress);
+            if (selectedKey.equals(unicastKey)) {
+                LifxThrottlingUtil.lock(macAddress);
             } else {
-                LifxNetworkThrottler.lock();
+                LifxThrottlingUtil.lock();
             }
 
-            boolean sent = false;
-
-            while (!sent && selector.isOpen()) {
-                try {
-                    selector.selectNow();
-                } catch (IOException e) {
-                    logger.error("An exception occurred while selecting: {}", e.getMessage());
-                }
-
+            while (!result) {
+                selector.selectNow();
                 Set<SelectionKey> selectedKeys = selector.selectedKeys();
                 Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
 
-                while (keyIterator.hasNext()) {
+                while (!result && keyIterator.hasNext()) {
                     SelectionKey key = keyIterator.next();
 
                     if (key.isValid() && key.isWritable() && key.equals(selectedKey)) {
                         SelectableChannel channel = key.channel();
-                        try {
-                            if (channel instanceof DatagramChannel) {
-                                logger.trace(
-                                        "{} : Sending packet type '{}' from '{}' to '{}' for '{}' with sequence '{}' and source '{}'",
-                                        new Object[] { macAsHex, packet.getClass().getSimpleName(),
-                                                ((InetSocketAddress) ((DatagramChannel) channel).getLocalAddress())
-                                                        .toString(),
-                                                address.toString(), packet.getTarget().getHex(), packet.getSequence(),
-                                                Long.toString(packet.getSource(), 16) });
-                                ((DatagramChannel) channel).send(packet.bytes(), address);
-                                sent = true;
-                                result = true;
-                            } else if (channel instanceof SocketChannel) {
-                                ((SocketChannel) channel).write(packet.bytes());
-                            }
-                        } catch (Exception e) {
-                            logger.error("An exception occurred while writing data : '{}'", e.getMessage());
-                            break;
+                        if (channel instanceof DatagramChannel) {
+                            logger.trace(
+                                    "{} : Sending packet type '{}' from '{}' to '{}' for '{}' with sequence '{}' and source '{}'",
+                                    new Object[] { logId, packet.getClass().getSimpleName(),
+                                            ((InetSocketAddress) ((DatagramChannel) channel).getLocalAddress())
+                                                    .toString(),
+                                            address.toString(), packet.getTarget().getHex(), packet.getSequence(),
+                                            Long.toString(packet.getSource(), 16) });
+                            ((DatagramChannel) channel).send(packet.bytes(), address);
+                            result = true;
+                        } else if (channel instanceof SocketChannel) {
+                            ((SocketChannel) channel).write(packet.bytes());
+                            result = true;
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error("An exception occurred while sending a packet to the light : '{}'", e.getMessage());
+            logger.debug("An exception occurred while sending a packet to the light ({}) : '{}'", logId,
+                    e.getMessage());
+            currentLightState.setOfflineByCommunicationError();
         } finally {
-
-            if (selectedKey == unicastKey) {
-                LifxNetworkThrottler.unlock(macAddress);
+            if (selectedKey.equals(unicastKey)) {
+                LifxThrottlingUtil.unlock(macAddress);
             } else {
-                LifxNetworkThrottler.unlock();
+                LifxThrottlingUtil.unlock();
             }
 
             lock.unlock();
@@ -519,4 +478,5 @@ public class LifxLightCommunicationHandler {
 
         return result;
     }
+
 }

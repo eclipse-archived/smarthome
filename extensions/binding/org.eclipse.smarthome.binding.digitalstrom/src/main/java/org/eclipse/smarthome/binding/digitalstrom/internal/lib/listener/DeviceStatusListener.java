@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,6 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices
  * For that the {@link DeviceStatusListener} has to be registered on the
  * {@link DeviceStatusManager#registerDeviceListener(DeviceStatusListener)}. Then the {@link DeviceStatusListener} gets
  * informed by the methods {@link #onDeviceAdded(Device)} and {@link #onDeviceRemoved(Device)}.
- * </p>
  *
  * @author Michael Ochel - Initial contribution
  * @author Matthias Siegele - Initial contribution

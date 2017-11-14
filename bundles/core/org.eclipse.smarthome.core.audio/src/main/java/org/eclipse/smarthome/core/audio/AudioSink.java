@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,8 @@ import org.eclipse.smarthome.core.library.types.PercentType;
  *
  * @author Harald Kuhn - Initial API
  * @author Kelly Davis - Modified to match discussion in #584
+ * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
+ * 
  */
 public interface AudioSink {
 
@@ -40,6 +42,9 @@ public interface AudioSink {
     /**
      * Processes the passed {@link AudioStream}
      *
+     * If the passed {@link AudioStream} is not supported by this instance, an {@link UnsupportedAudioStreamException}
+     * is thrown.
+     *
      * If the passed {@link AudioStream} has a {@link AudioFormat} not supported by this instance,
      * an {@link UnsupportedAudioFormatException} is thrown. In case the audioStream is null, this should be interpreted
      * as a request to end any currently playing stream.
@@ -47,8 +52,9 @@ public interface AudioSink {
      * @param audioStream the audio stream to play or null to keep quiet
      *
      * @throws UnsupportedAudioFormatException If audioStream format is not supported
+     * @throws UnsupportedAudioStreamException If audioStream is not supported
      */
-    void process(AudioStream audioStream) throws UnsupportedAudioFormatException;
+    void process(AudioStream audioStream) throws UnsupportedAudioFormatException, UnsupportedAudioStreamException;
 
     /**
      * Gets a set containing all supported audio formats
@@ -56,6 +62,13 @@ public interface AudioSink {
      * @return A Set containing all supported audio formats
      */
     public Set<AudioFormat> getSupportedFormats();
+
+    /**
+     * Gets a set containing all supported audio stream formats
+     * 
+     * @return A Set containing all supported audio stream formats
+     */
+    public Set<Class<? extends AudioStream>> getSupportedStreams();
 
     /**
      * Gets the volume

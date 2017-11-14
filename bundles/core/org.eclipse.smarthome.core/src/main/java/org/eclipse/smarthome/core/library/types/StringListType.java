@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,8 +12,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Formatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 
@@ -37,11 +37,12 @@ public class StringListType implements Command, State {
         typeDetails = Collections.emptyList();
     }
 
+    public StringListType(List<String> rows) {
+        typeDetails = new ArrayList<>(rows);
+    }
+
     public StringListType(StringType... rows) {
-        typeDetails = new ArrayList<String>(rows.length);
-        for (StringType row : rows) {
-            typeDetails.add(row.toString());
-        }
+        typeDetails = Arrays.stream(rows).map(StringType::toString).collect(Collectors.toList());
     }
 
     public StringListType(String... rows) {
@@ -49,15 +50,11 @@ public class StringListType implements Command, State {
     }
 
     /**
-     * Deserialize the input string,
-     * splitting it on every delimiter not preceeded by a backslash
+     * Deserialize the input string, splitting it on every delimiter not preceded by a backslash.
      */
     public StringListType(String serialized) {
-        String[] rows = serialized.split(REGEX_SPLITTER);
-        typeDetails = new ArrayList<String>(rows.length);
-        for (String row : rows) {
-            typeDetails.add(row.replace(ESCAPED_DELIMITER, DELIMITER));
-        }
+        typeDetails = Arrays.stream(serialized.split(REGEX_SPLITTER)).map(s -> s.replace(ESCAPED_DELIMITER, DELIMITER))
+                .collect(Collectors.toList());
     }
 
     public String getValue(final int index) {
@@ -73,7 +70,6 @@ public class StringListType implements Command, State {
      * {@link Formatter}). One single value of this type can be referenced
      * by the pattern using an index. The item order is defined by the natural
      * (alphabetical) order of their keys.
-     * </p>
      *
      * @param pattern the pattern to use containing indexes to reference the
      *            single elements of this type.
@@ -90,11 +86,8 @@ public class StringListType implements Command, State {
 
     @Override
     public String toFullString() {
-        List<String> parts = new ArrayList<>(typeDetails.size());
-        for (String row : typeDetails) {
-            parts.add(row.replace(DELIMITER, ESCAPED_DELIMITER));
-        }
-        return StringUtils.join(parts, DELIMITER);
+        return typeDetails.stream().map(s -> s.replace(DELIMITER, ESCAPED_DELIMITER))
+                .collect(Collectors.joining(DELIMITER));
     }
 
     public static StringListType valueOf(String value) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Initial contribution
  */
 public class SafeMethodCaller {
+
+    private static final String SAFE_CALL_POOL_NAME = "safeCall";
 
     /**
      * Executable Action. See {@link SafeMethodCaller#call(Action)}
@@ -117,18 +119,18 @@ public class SafeMethodCaller {
                 String className = stackTraceElement.getClassName();
                 String methodName = stackTraceElement.getMethodName();
 
-                getLogger().error("Exception occured while calling '" + methodName + "' at '" + className + "'", ex);
+                getLogger().error("Exception occurred while calling '{}' at '{}'", methodName, className, ex);
             } else {
-                getLogger().error("Exception occured while calling action", ex);
+                getLogger().error("Exception occurred while calling action", ex);
             }
             return null;
         } catch (TimeoutException ex) {
             getLogger().error(
-                    "Timeout occured while calling method. Execution took longer than " + timeout + " milliseconds.",
+                    "Timeout occurred while calling method. Execution took longer than {} milliseconds.", timeout, 
                     ex);
             return null;
         } catch (Throwable throwable) {
-            getLogger().error("Unkown Exception or Error occured while calling action", throwable);
+            getLogger().error("Unkown Exception or Error occurred while calling action", throwable);
             return null;
         }
     }
@@ -182,9 +184,13 @@ public class SafeMethodCaller {
 
     private static <V> V callAsynchronous(final Callable<V> callable, int timeout)
             throws InterruptedException, ExecutionException, TimeoutException {
+        if (Thread.currentThread().getName().startsWith(SAFE_CALL_POOL_NAME + "-")) {
+            getLogger().trace("Already in a SafeMethodCaller context, executing {} directly.", callable);
+            return executeDirectly(callable);
+        }
         CallableWrapper<V> wrapper = new CallableWrapper<>(callable);
         try {
-            Future<V> future = ThreadPoolManager.getPool("safeCall").submit(wrapper);
+            Future<V> future = ThreadPoolManager.getPool(SAFE_CALL_POOL_NAME).submit(wrapper);
             return future.get(timeout, TimeUnit.MILLISECONDS);
         } catch (TimeoutException e) {
             if (wrapper.getThread() != null) {
@@ -199,10 +205,19 @@ public class SafeMethodCaller {
                 getLogger().debug("Timeout of {}ms exceeded, thread {} ({}) in state {} is at {}.{}({}:{}).", timeout,
                         thread.getName(), thread.getId(), thread.getState().toString(), element.getClassName(),
                         element.getMethodName(), element.getFileName(), element.getLineNumber());
+                throw e;
             } else {
-                getLogger().debug("Timeout of {}ms exceeded with no thread info available.", timeout);
+                getLogger().debug("Timeout of {}ms exceeded but the task was still queued.", timeout);
             }
-            throw e;
+            return null;
+        }
+    }
+
+    private static <V> V executeDirectly(final Callable<V> callable) throws ExecutionException {
+        try {
+            return callable.call();
+        } catch (Exception e) {
+            throw new ExecutionException(e);
         }
     }
 

@@ -15,9 +15,10 @@ package org.eclipse.smarthome.automation;
  */
 public enum RuleStatus {
     DISABLED(0),
-    NOT_INITIALIZED(1),
-    IDLE(2),
-    RUNNING(3);
+    UNINITIALIZED(1),
+    INITIALIZING(2),
+    IDLE(3),
+    RUNNING(4);
 
     private final int value;
 

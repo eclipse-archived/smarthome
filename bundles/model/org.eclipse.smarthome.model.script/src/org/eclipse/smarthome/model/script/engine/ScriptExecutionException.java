@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,10 @@ public class ScriptExecutionException extends ScriptException {
 
     public ScriptExecutionException(final String message, final int line, final int column, final int length) {
         super(message, null, line, column, length);
+    }
+
+    public ScriptExecutionException(final ScriptError scriptError) {
+        super(scriptError);
     }
 
     public ScriptExecutionException(final String message, final Throwable cause, final int line, final int column,

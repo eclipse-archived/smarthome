@@ -1,12 +1,15 @@
 Manifest-Version: 1.0
+Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
-Bundle-Name: Eclipse SmartHome Console for OSGi framework Eclipse Equinox
+Bundle-Name: Eclipse SmartHome Console for OSGi framework Eclipse Equino
+ x
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.io.console.eclipse
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ClassPath: .
-Import-Package: org.apache.commons.lang,
+Import-Package: 
+ org.apache.commons.lang,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.osgi.framework.console,
  org.eclipse.smarthome.io.console,
  org.eclipse.smarthome.io.console.extensions,

@@ -6,12 +6,12 @@
   <parent>
     <groupId>${namespace}.binding</groupId>
     <artifactId>pom</artifactId>
-    <version>${version}</version>
+    <version>@${version}</version>
   </parent>
 
-  <groupId>${groupId}</groupId>
+  <groupId>@${groupId}</groupId>
   <artifactId>${rootArtifactId}</artifactId>
-  <version>${version}</version>
+  <version>@${version}</version>
   <packaging>eclipse-test-plugin</packaging>
 
   <name>${bindingIdCamelCase} Binding Tests</name>
@@ -66,18 +66,18 @@
         <configuration>
           <dependencies>
             <dependency>
-              <groupId>org.slf4j</groupId>
-              <artifactId>slf4j-api</artifactId>
+              <type>eclipse-plugin</type>
+              <artifactId>ch.qos.logback.classic</artifactId>
               <version>0.0.0</version>
             </dependency>
             <dependency>
-              <groupId>org.slf4j</groupId>
-              <artifactId>slf4j-simple</artifactId>
+              <type>eclipse-plugin</type>
+              <artifactId>ch.qos.logback.core</artifactId>
               <version>0.0.0</version>
             </dependency>
             <dependency>
-              <groupId>org.slf4j</groupId>
-              <artifactId>slf4j-log4j12</artifactId>
+              <type>eclipse-plugin</type>
+              <artifactId>ch.qos.logback.slf4j</artifactId>
               <version>0.0.0</version>
             </dependency>
           </dependencies>

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,10 @@ import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import com.google.common.collect.Lists;
 
@@ -26,6 +30,7 @@ import com.google.common.collect.Lists;
  * @author Oliver Libutzki - Initial contribution
  * @author Dennis Nobel - Added locale support
  */
+@Component(immediate = true, service = ThingTypeRegistry.class)
 public class ThingTypeRegistry {
 
     private List<ThingTypeProvider> thingTypeProviders = new CopyOnWriteArrayList<>();
@@ -127,7 +132,6 @@ public class ThingTypeRegistry {
      * fetch the thing type first using
      * {@link ThingTypeRegistry#getThingType(ThingTypeUID)} and use
      * {@link ThingType#getChannelType(ChannelUID)} afterwards.
-     * </p>
      *
      * @param channel channel
      * @return channel type or null if no channel type was found
@@ -144,7 +148,6 @@ public class ThingTypeRegistry {
      * fetch the thing type first using
      * {@link ThingTypeRegistry#getThingType(ThingTypeUID)} and use
      * {@link ThingType#getChannelType(ChannelUID)} afterwards.
-     * </p>
      *
      * @param channel channel
      * @param locale locale (can be null)
@@ -158,6 +161,7 @@ public class ThingTypeRegistry {
         return null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addThingTypeProvider(ThingTypeProvider thingTypeProvider) {
         if (thingTypeProvider != null) {
             this.thingTypeProviders.add(thingTypeProvider);

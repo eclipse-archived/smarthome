@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -62,8 +62,8 @@ public class SceneDiscoveryService extends AbstractDiscoveryService {
      */
     @Override
     public void deactivate() {
-        logger.debug("deactivate discovery service for scene type " + sceneType + " remove thing tyspes "
-                + super.getSupportedThingTypes().toString());
+        logger.debug("deactivate discovery service for scene type {} remove thing tyspes {}", sceneType,
+                super.getSupportedThingTypes());
         removeOlderResults(new Date().getTime());
     }
 

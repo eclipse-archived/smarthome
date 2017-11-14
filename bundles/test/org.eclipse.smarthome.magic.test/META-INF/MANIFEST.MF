@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Magic Bundle Tests
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.magic.test
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Export-Package: org.eclipse.smarthome.magic.binding
+Fragment-Host: org.eclipse.smarthome.magic
+Import-Package: 
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.thing.util,
+ org.eclipse.smarthome.magic.binding,
+ org.eclipse.smarthome.magic.binding.handler,
+ org.eclipse.smarthome.test.java,
+ org.eclipse.smarthome.test.storage,
+ org.hamcrest;core=split,
+ org.junit;version="4.0.0",
+ org.mockito,
+ org.osgi.framework,
+ org.osgi.service.device,
+ org.slf4j
+Require-Bundle: 
+ org.hamcrest,
+ org.junit,
+ org.mockito

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.eclipse.smarthome.core.common.registry.Identifiable;
 
 /**
  * The {@link ConfigDescription} class contains a description for a concrete
@@ -36,7 +38,7 @@ import java.util.Map;
  * @author Chris Jackson - Added parameter groups
  * @author Thomas Höfer - Added convenient operation to get config description parameters in a map
  */
-public class ConfigDescription {
+public class ConfigDescription implements Identifiable<URI> {
 
     private URI uri;
     private List<ConfigDescriptionParameter> parameters;
@@ -113,7 +115,8 @@ public class ConfigDescription {
      *
      * @return the URI of this description (not null)
      */
-    public URI getURI() {
+    @Override
+    public URI getUID() {
         return this.uri;
     }
 

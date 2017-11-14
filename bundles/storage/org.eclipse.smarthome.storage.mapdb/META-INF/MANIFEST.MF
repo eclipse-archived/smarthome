@@ -1,15 +1,20 @@
 Manifest-Version: 1.0
+Bundle-ClassPath: .
+Bundle-License: http://www.eclipse.org/legal/epl-v10.html
+Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome MapDB Storage Service
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.storage.mapdb;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-ManifestVersion: 2
-Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: com.google.gson,
+Import-Package: 
+ com.google.gson,
  com.google.gson.annotations,
  com.google.gson.internal,
  com.google.gson.internal.bind,
  com.google.gson.reflect,
  com.google.gson.stream,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.storage,
  org.mapdb,
@@ -17,7 +22,4 @@ Import-Package: com.google.gson,
  org.osgi.service.cm,
  org.osgi.service.event,
  org.slf4j
-Bundle-SymbolicName: org.eclipse.smarthome.storage.mapdb;singleton:=true
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ClassPath: .
 Service-Component: OSGI-INF/*.xml

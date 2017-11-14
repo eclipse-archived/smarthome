@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ import org.eclipse.smarthome.core.events.EventFactory;
 import org.eclipse.smarthome.core.thing.link.AbstractLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.dto.ItemChannelLinkDTO;
+import org.osgi.service.component.annotations.Component;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
@@ -26,6 +27,7 @@ import com.google.common.collect.Sets;
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - Removed Thing link events
  */
+@Component(immediate = true, service = EventFactory.class)
 public class LinkEventFactory extends AbstractEventFactory {
 
     private static final String LINK_ADDED_EVENT_TOPIC = "smarthome/links/{linkID}/added";
@@ -99,12 +101,13 @@ public class LinkEventFactory extends AbstractEventFactory {
     }
 
     private static String buildTopic(String topic, AbstractLink itemChannelLink) {
-        String targetEntity = itemChannelLink.getItemName() + "-" + itemChannelLink.getUID().toString();
+        String targetEntity = itemChannelLink.getItemName() + "-" + itemChannelLink.getLinkedUID().toString();
         return topic.replace("{linkID}", targetEntity);
     }
 
     private static ItemChannelLinkDTO map(ItemChannelLink itemChannelLink) {
-        return new ItemChannelLinkDTO(itemChannelLink.getItemName(), itemChannelLink.getUID().toString());
+        return new ItemChannelLinkDTO(itemChannelLink.getItemName(), itemChannelLink.getLinkedUID().toString(),
+                itemChannelLink.getConfiguration().getProperties());
     }
 
 }

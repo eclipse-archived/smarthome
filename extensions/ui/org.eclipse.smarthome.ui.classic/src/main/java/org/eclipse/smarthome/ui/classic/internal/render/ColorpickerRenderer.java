@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,29 +21,21 @@ import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
  * <p>
  * This is an implementation of the {@link WidgetRenderer} interface, which can produce HTML code for Colorpicker
  * widgets.
- * </p>
  *
  * <p>
  * Note: This renderer requires the files "jquery.miniColors.css" and "jquery.miniColors.js" in the web folder of this
  * bundle
- * </p>
  *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public class ColorpickerRenderer extends AbstractWidgetRenderer {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean canRender(Widget w) {
         return w instanceof Colorpicker;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         Colorpicker cp = (Colorpicker) w;
@@ -67,7 +59,7 @@ public class ColorpickerRenderer extends AbstractWidgetRenderer {
         purelabel = purelabel.replaceAll("\\\"", "\\\\'");
 
         snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(cp));
-        snippet = StringUtils.replace(snippet, "%category%", escapeURLPath(itemUIRegistry.getCategory(cp)));
+        snippet = StringUtils.replace(snippet, "%category%", getCategory(cp));
         snippet = StringUtils.replace(snippet, "%item%", w.getItem());
         snippet = StringUtils.replace(snippet, "%label%", label);
         snippet = StringUtils.replace(snippet, "%format%", getFormat());

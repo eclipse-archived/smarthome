@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" configuration-policy="optional" immediate="true" name="binding.dmx.test">
+   <service>
+      <provide interface="org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory"/>
+   </service>
+   <implementation class="org.eclipse.smarthome.binding.dmx.test.DmxTestHandlerFactory"/>
+</scr:component>

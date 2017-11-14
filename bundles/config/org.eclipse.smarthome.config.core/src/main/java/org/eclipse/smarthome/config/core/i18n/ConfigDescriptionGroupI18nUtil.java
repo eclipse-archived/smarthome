@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,12 +10,12 @@ package org.eclipse.smarthome.config.core.i18n;
 import java.net.URI;
 import java.util.Locale;
 
-import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.i18n.I18nUtil;
 import org.osgi.framework.Bundle;
 
 /**
- * The {@link ConfigDescriptionGroupI18nUtil} uses the {@link I18nProvider} to
+ * The {@link ConfigDescriptionGroupI18nUtil} uses the {@link TranslationProvider} to
  * resolve the localized texts in the configuration parameter groups. It automatically infers the key if the default
  * text is not a constant.
  *
@@ -23,9 +23,9 @@ import org.osgi.framework.Bundle;
  */
 public class ConfigDescriptionGroupI18nUtil {
 
-    private I18nProvider i18nProvider;
+    private TranslationProvider i18nProvider;
 
-    public ConfigDescriptionGroupI18nUtil(I18nProvider i18nProvider) {
+    public ConfigDescriptionGroupI18nUtil(TranslationProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
     }
 

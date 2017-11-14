@@ -15,3 +15,16 @@ markdown: kramdown
 
 kramdown:
   input: GFM
+
+defaults:
+  -
+    scope:
+      type: pages
+    values:
+      permalink: /:path/:basename:output_ext
+  -
+    scope:
+      type: posts
+    values:
+      excerpt_separator: <!--more-->
+      permalink: /smarthome/blog/:year/:month/:day/:title.html

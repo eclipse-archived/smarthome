@@ -1,16 +1,16 @@
----
-layout: documentation
----
-
-{% include base.html %}
-
 # FS Internet Radio Binding
 
 This binding integrates internet radios based on the [Frontier Silicon chipset](http://www.frontier-silicon.com/).
 
 ## Supported Things
 
-Successfully tested are internet radios [Hama IR100](https://de.hama.com/00054823/hama-internetradio-ir110), [Medion MD87180](http://internetradio.medion.com/), and [MEDION MD86988](http://internetradio.medion.com/).
+Successfully tested are internet radios 
+ * [Hama IR100](https://de.hama.com/00054823/hama-internetradio-ir110)
+ * [Medion MD87180](http://internetradio.medion.com/)
+ * [MEDION MD86988](http://internetradio.medion.com/)
+ * [Roberts Stream 93i](https://www.robertsradio.com/uk/products/radio/smart-radio/stream-93i)
+ * [auna Connect 150](http://www.auna.de/HiFi-Geraete/Radios/Internetradios/auna-Connect-150-BK-2-1-Internetradio-Mediaplayer-schwarz.html)
+ * [TechniSat DIGITRADIO 350 IR](https://www.technisat.com/de_DE/DIGITRADIO-350-IR/352-10996-10329/)
 
 But in principle, all internet radios based on the [Frontier Silicon chipset](http://www.frontier-silicon.com/) should be supported because they share the same API.
 

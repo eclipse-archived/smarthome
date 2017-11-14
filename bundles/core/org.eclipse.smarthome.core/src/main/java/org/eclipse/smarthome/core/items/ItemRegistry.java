@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,8 @@ package org.eclipse.smarthome.core.items;
 
 import java.util.Collection;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.common.registry.Registry;
 
 /**
@@ -31,7 +33,7 @@ public interface ItemRegistry extends Registry<Item, String> {
      * @return the uniquely identified item
      * @throws ItemNotFoundException if no item matches the input
      */
-    public Item getItem(String name) throws ItemNotFoundException;
+    public @NonNull Item getItem(String name) throws ItemNotFoundException;
 
     /**
      * This method retrieves a single item from the registry.
@@ -42,14 +44,14 @@ public interface ItemRegistry extends Registry<Item, String> {
      * @throws ItemNotFoundException if no item matches the input
      * @throws ItemNotUniqueException if multiply items match the input
      */
-    public Item getItemByPattern(String name) throws ItemNotFoundException, ItemNotUniqueException;
+    public @NonNull Item getItemByPattern(@NonNull String name) throws ItemNotFoundException, ItemNotUniqueException;
 
     /**
      * This method retrieves all items that are currently available in the registry
      *
      * @return a collection of all available items
      */
-    public Collection<Item> getItems();
+    public @NonNull Collection<@NonNull Item> getItems();
 
     /**
      * This method retrieves all items with the given type
@@ -58,14 +60,14 @@ public interface ItemRegistry extends Registry<Item, String> {
      *            - item type as defined by {@link ItemFactory}s
      * @return a collection of all items of the given type
      */
-    public Collection<Item> getItemsOfType(String type);
+    public @NonNull Collection<Item> getItemsOfType(@NonNull String type);
 
     /**
      * This method retrieves all items that match a given search pattern
      *
      * @return a collection of all items matching the search pattern
      */
-    public Collection<Item> getItems(String pattern);
+    public @NonNull Collection<@NonNull Item> getItems(@NonNull String pattern);
 
     /**
      * Returns list of items which contains all of the given tags.
@@ -74,7 +76,7 @@ public interface ItemRegistry extends Registry<Item, String> {
      *            - array of tags to be present on the returned items.
      * @return list of items which contains all of the given tags.
      */
-    public Collection<Item> getItemsByTag(String... tags);
+    public @NonNull Collection<Item> getItemsByTag(@NonNull String... tags);
 
     /**
      * Returns list of items with a certain type containing all of the given tags.
@@ -85,7 +87,7 @@ public interface ItemRegistry extends Registry<Item, String> {
      *            - array of tags to be present on the returned items.
      * @return list of items which contains all of the given tags.
      */
-    public Collection<Item> getItemsByTagAndType(String type, String... tags);
+    public @NonNull Collection<Item> getItemsByTagAndType(@NonNull String type, @NonNull String... tags);
 
     /**
      * Returns list of items which contains all of the given tags.
@@ -98,11 +100,12 @@ public interface ItemRegistry extends Registry<Item, String> {
      * @return list of items which contains all of the given tags, which is
      *         filtered by the given type filter.
      */
-    public <T extends GenericItem> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags);
+    public @NonNull <T extends GenericItem> Collection<T> getItemsByTag(@NonNull Class<T> typeFilter,
+            @NonNull String... tags);
 
     /**
      * @see ManagedItemProvider#remove(String, boolean)
      */
-    public Item remove(String itemName, boolean recursive);
+    public @Nullable Item remove(@NonNull String itemName, boolean recursive);
 
 }

@@ -34,7 +34,7 @@ If you have found a bug or if you would like to propose a new feature, please fe
  
 # Code Contributions
 
-If you want to become a contributor to the project, please check our guidelines first:
+If you want to become a contributor to the project, please check our guidelines first. If you can't wait to get your hands dirty have a look at the open issues where we [need your help](https://github.com/eclipse/smarthome/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) or one of the [open bugs](https://github.com/eclipse/smarthome/issues?q=is%3Aissue+is%3Aopen+label%3Abug).
 
 ## Pull requests are always welcome
 

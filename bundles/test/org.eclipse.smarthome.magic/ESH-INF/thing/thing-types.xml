@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="magic" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 /Users/henning/work/smarthome-master2/git/smarthome/bundles/core/org.eclipse.smarthome.core.thing.xml/thing-description-1.0.0.xsd">
+    
+    <thing-type id="extensible-thing" extensible="brightness,color,alert">
+        <label>Magic Light - Extensible</label>
+        <description>A generic light thing with extension channels</description>
+        <config-description>
+        </config-description>
+    </thing-type>
+
+	<thing-type id="onoff-light" extensible="alert">
+		<label>Magic Light - On/Off</label>
+		<description>A on/off light</description>
+
+		<channels>
+			<channel id="switch" typeId="switch" />
+		</channels>
+
+		<config-description>
+		</config-description>
+	</thing-type>
+
+	<thing-type id="dimmable-light" extensible="alert,color">
+		<label>Magic Light - Dimmable</label>
+		<description>A dimmable light</description>
+
+		<channels>
+			<channel id="brightness" typeId="brightness" />
+		</channels>
+
+		<config-description>
+		</config-description>
+	</thing-type>
+
+	<thing-type id="color-light">
+		<label>Magic Light - Color</label>
+		<description>A dimmable light with changeable colors.</description>
+
+		<channels>
+			<channel id="color" typeId="color" />
+			<channel id="alert" typeId="alert" />
+		</channels>
+
+		<config-description>
+		</config-description>
+	</thing-type>
+
+	<thing-type id="contact-sensor">
+		<label>Magic Sensor - Door/Window Contact</label>
+		<description>A door/window sensor indicating an open/close status.</description>
+
+		<channels>
+			<channel id="contact" typeId="contact" />
+		</channels>
+	</thing-type>
+
+	<thing-type id="configurable-thing">
+		<label>Magic Configurable Thing</label>
+		<description>A thing that can be configured.</description>
+
+		<channels>
+			<channel id="switch" typeId="switch" />
+		</channels>
+
+		<config-description uri="thing-type:magic:config">
+			<parameter name="interval" type="integer" min="1" max="100">
+				<label>Integer</label>
+				<description>Integer value between 1 and 100.</description>
+				<default>23</default>
+			</parameter>
+		</config-description>
+	</thing-type>
+
+</thing:thing-descriptions>

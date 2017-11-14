@@ -39,7 +39,7 @@ public class PlayActionHandler extends BaseModuleHandler<Action> implements Acti
     }
 
     @Override
-    public Map<String, Object> execute(Map<String, ?> context) {
+    public Map<String, Object> execute(Map<String, Object> context) {
         String sound = module.getConfiguration().get(PARAM_SOUND).toString();
         String sink = (String) module.getConfiguration().get(PARAM_SINK);
         try {

@@ -9,7 +9,6 @@ package org.eclipse.smarthome.automation;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.Input;
@@ -47,11 +46,11 @@ public class Condition extends Module {
     }
 
     /**
-     * This method is used to get input connections of the Condition. The
-     * connections are links between {@link Input}s of the current {@link Module} and {@link Output}s of other
+     * This method is used to get input connections of the Condition. The connections
+     * are links between {@link Input}s of the current {@link Module} and {@link Output}s of other
      * {@link Module}s.
      *
-     * @return a {@link Map} of input connections.
+     * @return map that contains the inputs of this condition.
      */
     public Map<String, String> getInputs() {
         return inputs != null ? inputs : Collections.<String, String> emptyMap();
@@ -60,7 +59,7 @@ public class Condition extends Module {
     /**
      * This method is used to connect {@link Input}s of the Condition to {@link Output}s of other {@link Module}s.
      *
-     * @param connections a {@link Set} of input {@link Input}s.
+     * @param inputs map that contains the inputs for this condition.
      */
     public void setInputs(Map<String, String> inputs) {
         if (inputs != null) {

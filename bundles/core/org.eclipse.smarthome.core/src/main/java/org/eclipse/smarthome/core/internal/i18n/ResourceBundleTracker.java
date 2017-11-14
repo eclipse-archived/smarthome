@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,16 +9,16 @@ package org.eclipse.smarthome.core.internal.i18n;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Dictionary;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.smarthome.core.common.osgi.ResolvedBundleTracker;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
 import org.osgi.service.packageadmin.PackageAdmin;
+import org.osgi.util.tracker.BundleTracker;
 
 /**
  * The {@link ResourceBundleTracker} class tracks all <i>OSGi</i> bundles which are in the {@link Bundle#RESOLVED} state
@@ -31,16 +31,16 @@ import org.osgi.service.packageadmin.PackageAdmin;
  * @author Markus Rathgeb - Add locale provider support
  * @author Ana Dimova - fragments support
  */
-@SuppressWarnings("deprecation")
-public class ResourceBundleTracker extends ResolvedBundleTracker {
+@SuppressWarnings({ "deprecation", "rawtypes" })
+public class ResourceBundleTracker extends BundleTracker {
 
     private LocaleProvider localeProvider;
     private Map<Bundle, LanguageResourceBundleManager> bundleLanguageResourceMap;
     private PackageAdmin pkgAdmin;
 
-    public ResourceBundleTracker(BundleContext bundleContext, LocaleProvider localeProvider)
-            throws IllegalArgumentException {
-        super(bundleContext); // can throw an IllegalArgumentException
+    @SuppressWarnings("unchecked")
+    public ResourceBundleTracker(BundleContext bundleContext, LocaleProvider localeProvider) {
+        super(bundleContext, Bundle.RESOLVED | Bundle.STARTING | Bundle.STOPPING | Bundle.ACTIVE, null);
         this.localeProvider = localeProvider;
         pkgAdmin = (PackageAdmin) bundleContext
                 .getService(bundleContext.getServiceReference(PackageAdmin.class.getName()));
@@ -59,7 +59,7 @@ public class ResourceBundleTracker extends ResolvedBundleTracker {
     }
 
     @Override
-    public synchronized boolean addingBundle(Bundle bundle) {
+    public synchronized Object addingBundle(Bundle bundle, BundleEvent event) {
         if (isFragmentBundle(bundle)) {
             List<Bundle> hosts = returnHostBundles(bundle);
             for (Bundle host : hosts) {
@@ -68,11 +68,11 @@ public class ResourceBundleTracker extends ResolvedBundleTracker {
         } else {
             addResourceBundle(bundle);
         }
-        return true;
+        return bundle;
     }
 
     @Override
-    public synchronized void removedBundle(Bundle bundle) {
+    public synchronized void removedBundle(Bundle bundle, BundleEvent event, Object object) {
         LanguageResourceBundleManager languageResource = this.bundleLanguageResourceMap.remove(bundle);
         if (languageResource != null) {
             languageResource.clearCache();
@@ -136,20 +136,21 @@ public class ResourceBundleTracker extends ResolvedBundleTracker {
      * @return <code>true</code> if the bundle is a fragment and <code>false</code> if it is a host.
      */
     private boolean isFragmentBundle(Bundle bundle) {
-        Dictionary<String, String> h = bundle.getHeaders();
-        return h.get("Fragment-Host") != null;
+        return pkgAdmin.getBundleType(bundle) == PackageAdmin.BUNDLE_TYPE_FRAGMENT;
     }
 
     /**
-     * This method adds the localization resources provided by this <i>OSGi</i> bundle parameter, accordingly
-     * of that the resource bundle is detected.
+     * This method adds the localization resources provided by this <i>OSGi</i> bundle parameter if the bundle is not in
+     * UNINSTALLED state.
      *
      * @param bundle the <i>OSGi</i> bundle that was detected
      */
     private void addResourceBundle(Bundle bundle) {
-        LanguageResourceBundleManager languageResource = new LanguageResourceBundleManager(localeProvider, bundle);
-        if (languageResource.containsResources()) {
-            this.bundleLanguageResourceMap.put(bundle, languageResource);
+        if (bundle.getState() != Bundle.UNINSTALLED) {
+            LanguageResourceBundleManager languageResource = new LanguageResourceBundleManager(localeProvider, bundle);
+            if (languageResource.containsResources()) {
+                this.bundleLanguageResourceMap.put(bundle, languageResource);
+            }
         }
     }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,12 @@ import org.eclipse.smarthome.config.core.ConfigOptionProvider;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.core.persistence.PersistenceService;
 import org.eclipse.smarthome.core.persistence.PersistenceServiceRegistry;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * This is a central service for accessing {@link PersistenceService}s. It is registered through DS and also provides
@@ -27,14 +33,19 @@ import org.eclipse.smarthome.core.persistence.PersistenceServiceRegistry;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@Component(immediate = true, configurationPid = "org.eclipse.smarthome.persistence", property = {
+        "service.pid:String=org.eclipse.smarthome.persistence",
+        "service.config.description.uri:String=system:persistence", "service.config.label:String=Persistence",
+        "service.config.category:String=system" })
 public class PersistenceServiceRegistryImpl implements ConfigOptionProvider, PersistenceServiceRegistry {
 
-    private Map<String, PersistenceService> services = new HashMap<String, PersistenceService>();
+    private final Map<String, PersistenceService> services = new HashMap<String, PersistenceService>();
     private String defaultServiceId = null;
 
     public PersistenceServiceRegistryImpl() {
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addPersistenceService(PersistenceService service) {
         services.put(service.getId(), service);
     }
@@ -43,10 +54,12 @@ public class PersistenceServiceRegistryImpl implements ConfigOptionProvider, Per
         services.remove(service.getId());
     }
 
+    @Activate
     protected void activate(Map<String, Object> config) {
         modified(config);
     }
 
+    @Modified
     protected void modified(Map<String, Object> config) {
         if (config != null) {
             defaultServiceId = (String) config.get("default");
@@ -89,13 +102,14 @@ public class PersistenceServiceRegistryImpl implements ConfigOptionProvider, Per
 
     @Override
     public Collection<ParameterOption> getParameterOptions(URI uri, String param, Locale locale) {
-        Set<ParameterOption> options = new HashSet<>();
         if (uri.toString().equals("system:persistence") && param.equals("default")) {
+            Set<ParameterOption> options = new HashSet<>();
             for (PersistenceService service : getAll()) {
                 options.add(new ParameterOption(service.getId(), service.getLabel(locale)));
             }
+            return options;
         }
-        return options;
+        return null;
     }
 
 }

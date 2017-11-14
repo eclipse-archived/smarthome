@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,8 +10,10 @@ package org.eclipse.smarthome.core.thing.binding;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
@@ -41,8 +43,6 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
 /**
  * {@link BaseThingHandler} provides a base implementation for the {@link ThingHandler} interface.
  * <p>
@@ -71,7 +71,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected ItemChannelLinkRegistry linkRegistry;
     protected BundleContext bundleContext;
 
-    protected Thing thing;
+    protected @NonNull Thing thing;
 
     @SuppressWarnings("rawtypes")
     private ServiceTracker thingRegistryServiceTracker;
@@ -84,11 +84,8 @@ public abstract class BaseThingHandler implements ThingHandler {
      * Creates a new instance of this class for the {@link Thing}.
      *
      * @param thing the thing that should be handled, not null
-     *
-     * @throws IllegalArgumentException if thing argument is null
      */
-    public BaseThingHandler(Thing thing) {
-        Preconditions.checkArgument(thing != null, "The argument 'thing' must not be null.");
+    public BaseThingHandler(@NonNull Thing thing) {
         this.thing = thing;
     }
 
@@ -142,12 +139,17 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     @Override
     public void handleConfigurationUpdate(Map<String, Object> configurationParameters) {
+
+        if (!isModifyingCurrentConfig(configurationParameters)) {
+            return;
+        }
+
         validateConfigurationParameters(configurationParameters);
 
         // can be overridden by subclasses
         Configuration configuration = editConfiguration();
-        for (Entry<String, Object> configurationParmeter : configurationParameters.entrySet()) {
-            configuration.put(configurationParmeter.getKey(), configurationParmeter.getValue());
+        for (Entry<String, Object> configurationParameter : configurationParameters.entrySet()) {
+            configuration.put(configurationParameter.getKey(), configurationParameter.getValue());
         }
 
         if (isInitialized()) {
@@ -162,27 +164,47 @@ public abstract class BaseThingHandler implements ThingHandler {
         }
     }
 
+    /**
+     * Checks whether a given list of parameters would mean any change to the existing Thing configuration if applied to
+     * it.
+     * Note that the passed parameters might be a subset of the existing configuration.
+     *
+     * @param configurationParameters the parameters to check against the current configuration
+     * @return true if the parameters would result in a modified configuration, false otherwise
+     */
+    protected boolean isModifyingCurrentConfig(@NonNull Map<String, Object> configurationParameters) {
+        Configuration currentConfig = getConfig();
+        for (Entry<String, Object> entry : configurationParameters.entrySet()) {
+            if (!Objects.equals(currentConfig.get(entry.getKey()), entry.getValue())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void dispose() {
         // can be overridden by subclasses
     }
 
     @Override
-    public Thing getThing() {
+    public @NonNull Thing getThing() {
         return this.thing;
     }
 
     @Override
+    @Deprecated
     public void handleUpdate(ChannelUID channelUID, State newState) {
         // can be overridden by subclasses
     }
 
     @Override
+    @Deprecated
     public void initialize() {
-        // can be overridden by subclasses
-        // standard behavior is to set the thing to ONLINE,
-        // assuming no further initialization is necessary.
+        // should be overridden by subclasses!
         updateStatus(ThingStatus.ONLINE);
+        logger.warn(
+                "BaseThingHandler.initialize() will be removed soon, ThingStatus can be set manually via updateStatus(ThingStatus.ONLINE)");
     }
 
     @Override
@@ -297,7 +319,7 @@ public abstract class BaseThingHandler implements ThingHandler {
             if (this.callback != null) {
                 this.callback.channelTriggered(this.getThing(), channelUID, event);
             } else {
-                throw new IllegalStateException("Could not update state, because callback is missing");
+                throw new IllegalStateException("Could not trigger channel, because callback is missing");
             }
         }
     }
@@ -438,7 +460,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      * @throws IllegalStateException
      *             if handler is not initialized correctly, because no callback is present
      */
-    protected void updateThing(Thing thing) {
+    protected void updateThing(@NonNull Thing thing) {
         synchronized (this) {
             if (this.callback != null) {
                 this.thing = thing;
@@ -525,7 +547,6 @@ public abstract class BaseThingHandler implements ThingHandler {
      * Updates the given property value for the thing that is handled by this thing handler instance. The value is only
      * set for the given property name if there has not been set any value yet or if the value has been changed. If the
      * value of the property to be set is null then the property is removed.
-     * </p>
      *
      * If multiple properties should be changed at the same time, the {@link BaseThingHandler#editProperties()} method
      * should be used.
@@ -533,7 +554,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      * @param name the name of the property to be set
      * @param value the value of the property
      */
-    protected void updateProperty(String name, String value) {
+    protected void updateProperty(@NonNull String name, String value) {
         String existingPropertyValue = thing.getProperties().get(name);
         if (existingPropertyValue == null || !existingPropertyValue.equals(value)) {
             thing.setProperty(name, value);

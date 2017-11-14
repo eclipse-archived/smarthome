@@ -28,12 +28,6 @@ public class Activator implements BundleActivator {
     @SuppressWarnings("rawtypes")
     private ServiceRegistration factoryRegistration;
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.
-     * BundleContext)
-     */
     @Override
     public void start(BundleContext bundleContext) throws Exception {
         this.moduleHandlerFactory = new TimerModuleHandlerFactory();
@@ -43,12 +37,6 @@ public class Activator implements BundleActivator {
         logger.debug("started bundle timer.module");
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-     */
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
         this.moduleHandlerFactory.dispose();

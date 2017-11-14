@@ -10,13 +10,11 @@ package org.eclipse.smarthome.automation.module.script.internal.handler;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
-import org.eclipse.smarthome.automation.module.script.internal.ScriptModuleActivator;
+import org.eclipse.smarthome.automation.module.script.ScriptEngineManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,21 +22,23 @@ import org.slf4j.LoggerFactory;
  * This handler can execute script actions.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Simon Merschjohann
  *
  */
 public class ScriptActionHandler extends AbstractScriptModuleHandler<Action> implements ActionHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(ScriptActionHandler.class);
-
     public static final String SCRIPT_ACTION_ID = "script.ScriptAction";
+
+    private final Logger logger = LoggerFactory.getLogger(ScriptActionHandler.class);
 
     /**
      * constructs a new ScriptActionHandler
      *
      * @param module
+     * @param ruleUid the UID of the rule this handler is used for
      */
-    public ScriptActionHandler(Action module) {
-        super(module);
+    public ScriptActionHandler(Action module, String ruleUID, ScriptEngineManager scriptEngineManager) {
+        super(module, ruleUID, scriptEngineManager);
     }
 
     @Override
@@ -46,33 +46,19 @@ public class ScriptActionHandler extends AbstractScriptModuleHandler<Action> imp
     }
 
     @Override
-    public Map<String, Object> execute(Map<String, ?> context) {
-        Object type = module.getConfiguration().get(SCRIPT_TYPE);
-        Object script = module.getConfiguration().get(SCRIPT);
-        if (type instanceof String) {
-            if (script instanceof String) {
-                ScriptEngine engine = ScriptModuleActivator.getScriptEngine((String) type);
-                if (engine != null) {
-                    ScriptContext executionContext = getExecutionContext(engine, context);
-                    try {
-                        Object result = engine.eval((String) script, executionContext);
-                        HashMap<String, Object> resultMap = new HashMap<String, Object>();
-                        resultMap.put("result", result);
-                        return resultMap;
-                    } catch (ScriptException e) {
-                        logger.error("Script execution failed: {}", e.getMessage());
-                    }
-                } else {
-                    logger.debug("No engine available for script type '{}' in action '{}'.",
-                            new Object[] { type, module.getId() });
-                }
-            } else {
-                logger.debug("Script is missing in the configuration of action '{}'.", module.getId());
-            }
-        } else {
-            logger.debug("Script type is missing in the configuration of action '{}'.", module.getId());
-        }
-        return null;
-    }
+    public Map<String, Object> execute(final Map<String, Object> context) {
+        HashMap<String, Object> resultMap = new HashMap<String, Object>();
 
+        getScriptEngine().ifPresent(scriptEngine -> {
+            setExecutionContext(scriptEngine, context);
+            try {
+                Object result = scriptEngine.eval(script);
+                resultMap.put("result", result);
+            } catch (ScriptException e) {
+                logger.error("Script execution failed: {}", e.getMessage());
+            }
+        });
+
+        return resultMap;
+    }
 }

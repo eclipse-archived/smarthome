@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,32 +40,19 @@ public class DumbThingTypeProvider implements ThingTypeProvider {
             List<ChannelDefinition> channelDefinitions = Collections.singletonList(channel1);
 
             thingTypes.put(DumbThingHandlerFactory.THING_TYPE_TEST,
-                    new ThingType(DumbThingHandlerFactory.THING_TYPE_TEST, null, "DUMB", "Funky Thing", false,
-                            channelDefinitions, null, null, new URI("dumb:DUMB")));
+                    ThingTypeBuilder.instance(DumbThingHandlerFactory.THING_TYPE_TEST, "DUMB").withDescription("Funky Thing")
+                            .isListed(false).withChannelDefinitions(channelDefinitions)
+                            .withConfigDescriptionURI(new URI("dumb:DUMB")).build());
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("{}", e.getMessage());
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.eclipse.smarthome.core.thing.binding.ThingTypeProvider#getThingTypes
-     * (java.util.Locale)
-     */
     @Override
     public Collection<ThingType> getThingTypes(Locale locale) {
         return thingTypes.values();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.eclipse.smarthome.core.thing.binding.ThingTypeProvider#getThingType
-     * (org.eclipse.smarthome.core.thing.ThingTypeUID, java.util.Locale)
-     */
     @Override
     public ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale) {
         return thingTypes.get(thingTypeUID);

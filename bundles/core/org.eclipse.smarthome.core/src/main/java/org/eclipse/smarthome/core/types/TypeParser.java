@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -51,11 +51,10 @@ public final class TypeParser {
      * <p>
      * Determines a state from a string. Possible state types are passed as a parameter. Note that the order matters
      * here; the first type that accepts the string as a valid value, will be used for the state.
-     * </p>
+     * 
      * <p>
      * Example: The type list is OnOffType.class,StringType.class. The string "ON" is now accepted by the OnOffType and
      * thus OnOffType.ON will be returned (and not a StringType with value "ON").
-     * </p>
      *
      * @param types possible types of the state to consider
      * @param s the string to parse
@@ -82,11 +81,10 @@ public final class TypeParser {
      * <p>
      * Determines a command from a string. Possible command types are passed as a parameter. Note that the order matters
      * here; the first type that accepts the string as a valid value, will be used for the command.
-     * </p>
+     * 
      * <p>
      * Example: The type list is OnOffType.class,StringType.class. The string "ON" is now accepted by the OnOffType and
      * thus OnOffType.ON will be returned (and not a StringType with value "ON").
-     * </p>
      *
      * @param types possible types of the command to consider
      * @param s the string to parse

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -105,6 +105,7 @@ class ConfigDescriptionsTest extends OSGiTest {
             assertThat min, is(8 as BigDecimal)
             assertThat max, is(16 as BigDecimal)
             assertThat required, is(true)
+            assertThat verify, is(true)
             assertThat multiple, is(false)
             assertThat readOnly, is(false)
             assertThat context, is("password")
@@ -133,6 +134,7 @@ class ConfigDescriptionsTest extends OSGiTest {
             assertThat max, is(3 as BigDecimal)
             assertThat options, is(notNullValue())
             assertThat advanced, is(false)
+            assertThat verify, is(false)
             assertThat limitToOptions, is(true)
             assertThat multipleLimit, is(null)
             assertThat options.join(", "), is("ParameterOption [value=\"key1\", label=\"label1\"], ParameterOption [value=\"key2\", label=\"label2\"]")

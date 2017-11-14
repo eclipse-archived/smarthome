@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * <li><b>Background discovery:</b> If this mode is enabled, the discovery process should run in the background as long
  * as this mode is not disabled again. Background discovery can be enabled and disabled and is configured through the
  * configuration admin. The implementation class that registers an OSGi service must define a PID and has to react on
- * configuration changes for it. See also {@link DiscoveryService#CONFIG_PROPERTY_BACKGROUND_DISCOVERY_ENABLED}.</li>
+ * configuration changes for it. See also {@link DiscoveryService#CONFIG_PROPERTY_BACKGROUND_DISCOVERY}.</li>
  * <li><b>Active scan:</b> If an active scan is triggered, the the service should try to actively query for new devices
  * and should report new results within the defined scan timeout. An active scan can be aborted.</li>
  * </ul>
@@ -42,7 +42,7 @@ public interface DiscoveryService {
      * Configuration property for enabling the auto discovery feature of a
      * DiscoveryService.
      */
-    static final String CONFIG_PROPERTY_BACKGROUND_DISCOVERY_ENABLED = "backgroundDiscovery.enabled";
+    static final String CONFIG_PROPERTY_BACKGROUND_DISCOVERY = "background";
 
     /**
      * Returns the list of {@code Thing} types which are supported by the {@link DiscoveryService}.

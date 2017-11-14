@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,6 +30,7 @@ import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.FileAudioStream;
 import org.eclipse.smarthome.core.audio.URLAudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
+import org.eclipse.smarthome.core.audio.UnsupportedAudioStreamException;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Karel Goderis - Initial contribution and API
  * @author Kai Kreuzer - removed unwanted dependencies
+ * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
+ * 
  */
 public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
 
@@ -88,7 +91,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             if (sink != null) {
                 try {
                     sink.process(audioStream);
-                } catch (UnsupportedAudioFormatException e) {
+                } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
                     logger.error("Error playing '{}': {}", audioStream.toString(), e.getMessage());
                 }
             } else {
@@ -123,7 +126,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
         if (sink != null) {
             try {
                 sink.process(audioStream);
-            } catch (UnsupportedAudioFormatException e) {
+            } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
                 logger.error("Error playing '{}': {}", url, e.getMessage());
             }
         }
@@ -137,7 +140,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             try {
                 return sink.getVolume();
             } catch (IOException e) {
-                logger.error("An exception occured while getting the volume of sink {} : '{}'", sink.getId(),
+                logger.error("An exception occurred while getting the volume of sink {} : '{}'", sink.getId(),
                         e.getMessage());
             }
         }
@@ -153,7 +156,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             try {
                 sink.setVolume(volume);
             } catch (IOException e) {
-                logger.error("An exception occured while setting the volume of sink {} : '{}'", sink.getId(),
+                logger.error("An exception occurred while setting the volume of sink {} : '{}'", sink.getId(),
                         e.getMessage());
             }
         }
@@ -206,7 +209,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
         String regex = pattern.replace("?", ".?").replace("*", ".*?");
         Set<String> matchedSources = new HashSet<String>();
 
-        for (String aSource : audioSinks.keySet()) {
+        for (String aSource : audioSources.keySet()) {
             if (aSource.matches(regex)) {
                 matchedSources.add(aSource);
             }

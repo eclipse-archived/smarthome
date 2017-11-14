@@ -14,13 +14,21 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
+import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.module.media.handler.PlayActionHandler;
 import org.eclipse.smarthome.automation.module.media.handler.SayActionHandler;
 import org.eclipse.smarthome.core.audio.AudioManager;
 import org.eclipse.smarthome.core.voice.VoiceManager;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.ImmutableList;
 
+/**
+ *
+ * @author Kai Kreuzer - Initial contribution
+ */
+@Component(service = ModuleHandlerFactory.class)
 public class MediaModuleHandlerFactory extends BaseModuleHandlerFactory {
 
     private static final Collection<String> types = ImmutableList.of(SayActionHandler.TYPE_ID,
@@ -48,6 +56,7 @@ public class MediaModuleHandlerFactory extends BaseModuleHandlerFactory {
         return null;
     }
 
+    @Reference
     protected void setAudioManager(AudioManager audioManager) {
         this.audioManager = audioManager;
     }
@@ -56,6 +65,7 @@ public class MediaModuleHandlerFactory extends BaseModuleHandlerFactory {
         this.audioManager = null;
     }
 
+    @Reference
     protected void setVoiceManager(VoiceManager voiceManager) {
         this.voiceManager = voiceManager;
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,10 @@ import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.firmware.Firmware;
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +41,7 @@ import com.google.common.collect.Iterables;
  *
  * @author Thomas Höfer - Initial contribution
  */
+@Component(immediate = true, service = FirmwareRegistry.class)
 public final class FirmwareRegistry {
 
     private final Logger logger = LoggerFactory.getLogger(FirmwareRegistry.class);
@@ -80,9 +85,9 @@ public final class FirmwareRegistry {
                     return firmware;
                 }
             } catch (Exception e) {
-                logger.warn(String.format(
-                        "Unexpected exception occurred for firmware provider %s while getting firmware for firmware UID %s.",
-                        firmwareProvider.getClass().getSimpleName(), firmwareUID), e);
+                logger.warn(
+                        "Unexpected exception occurred for firmware provider {} while getting firmware for firmware UID {}.",
+                        firmwareProvider.getClass().getSimpleName(), firmwareUID, e);
             }
         }
 
@@ -156,15 +161,16 @@ public final class FirmwareRegistry {
                     firmwares.addAll(result);
                 }
             } catch (Exception e) {
-                logger.warn(String.format(
-                        "Unexpected exception occurred for firmware provider %s while getting firmwares for thing type UID %s.",
-                        firmwareProvider.getClass().getSimpleName(), thingTypeUID), e);
+                logger.warn(
+                        "Unexpected exception occurred for firmware provider {} while getting firmwares for thing type UID {}.",
+                        firmwareProvider.getClass().getSimpleName(), thingTypeUID, e);
             }
         }
 
         return Collections.unmodifiableCollection(firmwares);
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addFirmwareProvider(FirmwareProvider firmwareProvider) {
         firmwareProviders.add(firmwareProvider);
     }
@@ -173,6 +179,7 @@ public final class FirmwareRegistry {
         firmwareProviders.remove(firmwareProvider);
     }
 
+    @Reference
     protected void setLocaleProvider(final LocaleProvider localeProvider) {
         this.localeProvider = localeProvider;
     }

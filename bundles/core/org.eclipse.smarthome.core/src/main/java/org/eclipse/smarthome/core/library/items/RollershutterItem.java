@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,13 +11,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StopMoveType;
 import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.Convertible;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -47,7 +47,7 @@ public class RollershutterItem extends GenericItem {
         acceptedCommandTypes.add(RefreshType.class);
     }
 
-    public RollershutterItem(String name) {
+    public RollershutterItem(@NonNull String name) {
         super(CoreItemFactory.ROLLERSHUTTER, name);
     }
 
@@ -73,15 +73,19 @@ public class RollershutterItem extends GenericItem {
         internalSend(command);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setState(State state) {
-        if (state instanceof Convertible) {
-            state = ((Convertible) state).as(PercentType.class);
+        if (isAcceptedState(acceptedDataTypes, state)) {
+            // try conversion
+            State convertedState = state.as(PercentType.class);
+            if (convertedState != null) {
+                applyState(convertedState);
+            } else {
+                applyState(state);
+            }
+        } else {
+            logSetTypeError(state);
         }
-        applyState(state);
     }
 
 }

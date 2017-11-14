@@ -7,7 +7,11 @@
  */
 package org.eclipse.smarthome.automation.module.core.handler;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
@@ -21,9 +25,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 
 /**
  * This is an ModuleHandler implementation for Triggers which trigger the rule
@@ -60,7 +61,8 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
         super(module);
         this.source = (String) module.getConfiguration().get(CFG_EVENT_SOURCE);
         this.topic = (String) module.getConfiguration().get(CFG_EVENT_TOPIC);
-        this.types = ImmutableSet.copyOf(((String) module.getConfiguration().get(CFG_EVENT_TYPES)).split(","));
+        this.types = Collections.unmodifiableSet(
+                new HashSet<>(Arrays.asList(((String) module.getConfiguration().get(CFG_EVENT_TYPES)).split(","))));
         this.bundleContext = bundleContext;
         Dictionary<String, Object> properties = new Hashtable<String, Object>();
         properties.put("event.topics", topic);
@@ -87,7 +89,7 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
             if (!event.getTopic().contains(source)) {
                 return;
             }
-            Map<String, Object> values = Maps.newHashMap();
+            Map<String, Object> values = new HashMap<>();
             values.put("event", event);
 
             ruleEngineCallback.triggered(this.module, values);

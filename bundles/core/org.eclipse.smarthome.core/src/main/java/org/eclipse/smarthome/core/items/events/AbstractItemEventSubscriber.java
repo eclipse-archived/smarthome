@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,8 +16,9 @@ import org.eclipse.smarthome.core.events.EventSubscriber;
 import com.google.common.collect.ImmutableSet;
 
 /**
+ * <p>
  * The {@link AbstractItemEventSubscriber} defines an abstract implementation of the {@link EventSubscriber} interface
- * for receiving {@link ItemStateEvent}s and {@link ItemCommandEvent}s from the Eclipse SmartHome event bus. </p>
+ * for receiving {@link ItemStateEvent}s and {@link ItemCommandEvent}s from the Eclipse SmartHome event bus.
  * 
  * A subclass can implement the methods {@link #receiveUpdate(ItemStateEvent)} and
  * {@link #receiveCommand(ItemCommandEvent)} in order to receive and handle such events.

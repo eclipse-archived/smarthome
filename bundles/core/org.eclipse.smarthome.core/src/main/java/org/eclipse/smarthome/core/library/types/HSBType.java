@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,10 +12,8 @@ import java.math.RoundingMode;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.eclipse.smarthome.core.library.internal.StateConverterUtil;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.ComplexType;
-import org.eclipse.smarthome.core.types.Convertible;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
 
@@ -27,7 +25,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author Chris Jackson - Added fromRGB
  *
  */
-public class HSBType extends PercentType implements ComplexType, State, Command, Convertible {
+public class HSBType extends PercentType implements ComplexType, State, Command {
 
     private static final long serialVersionUID = 322902950356613226L;
 
@@ -269,7 +267,7 @@ public class HSBType extends PercentType implements ComplexType, State, Command,
         } else if (target == PercentType.class) {
             return new PercentType(getBrightness().toBigDecimal());
         } else {
-            return StateConverterUtil.defaultConversion(this, target);
+            return defaultConversion(target);
         }
     }
 }

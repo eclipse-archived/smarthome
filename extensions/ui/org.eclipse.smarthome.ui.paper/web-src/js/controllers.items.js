@@ -1,10 +1,15 @@
-angular.module('PaperUI.controllers.configuration').controller('ItemSetupController', function($scope, $timeout, $mdDialog, $filter, itemService, toastService, sharedProperties) {
+angular.module('PaperUI.controllers.configuration')//
+.controller('ItemSetupController', function($scope, $timeout, $location, $mdDialog, $filter, itemRepository, toastService, sharedProperties) {
+    $scope.navigateTo = function(path) {
+        $location.path('configuration/' + path);
+    }
+
     $scope.setSubtitle([ 'Items' ]);
     $scope.setHeaderText('Shows all configured Items.');
     $scope.items = [], $scope.groups = [], $scope.types = [];
 
     $scope.refresh = function() {
-        itemService.getAll(function(items) {
+        itemRepository.getAll(function(items) {
             $scope.items = items;
             var groups = [], types = [];
             for (var i = 0; i < items.length; i++) {
@@ -17,7 +22,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             }
             $scope.groups = groups;
             $scope.types = types;
-        });
+        }, true);
 
     };
     $scope.remove = function(item, event) {
@@ -248,10 +253,18 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
         if (!$scope.item) {
             return;
         }
-        if ($scope.item.groupType === 'Number' || $scope.item.groupType === 'Dimmer') {
-            $scope.functions = itemConfig.arithmeticFunctions;
-        } else {
-            $scope.functions = itemConfig.logicalFunctions;
+        var groupType = $scope.item.groupType;
+        switch (groupType) {
+            case 'Number':
+            case 'Dimmer':
+            case 'Rollershutter':
+                $scope.functions = itemConfig.arithmeticFunctions;
+                break;
+            case 'Contact':
+                $scope.functions = itemConfig.logicalOpenClosedFunctions;
+                break;
+            default:
+                $scope.functions = itemConfig.logicalOnOffFunctions;
         }
     });
 

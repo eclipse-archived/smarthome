@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.transform.TransformationHelper;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.io.rest.core.internal.RESTCoreActivator;
+import org.eclipse.smarthome.io.rest.core.internal.item.ItemResource;
 
 /**
  * The {@link EnrichedItemDTOMapper} is a utility class to map items into enriched item data transform objects (DTOs).
@@ -43,7 +44,11 @@ public class EnrichedItemDTOMapper {
 
     private static EnrichedItemDTO map(Item item, ItemDTO itemDTO, URI uri, boolean drillDown, Locale locale) {
 
-        String state = considerTransformation(item.getState().toString(), item.getStateDescription(locale));
+        String state = item.getState().toFullString();
+        String transformedState = considerTransformation(state, item.getStateDescription(locale));
+        if (transformedState != null && transformedState.equals(state)) {
+            transformedState = null;
+        }
         StateDescription stateDescription = considerTransformation(item.getStateDescription(locale));
         String link = null != uri ? uri.toASCIIString() + ItemResource.PATH_ITEMS + "/" + itemDTO.name : null;
 
@@ -61,9 +66,10 @@ public class EnrichedItemDTOMapper {
             } else {
                 memberDTOs = new EnrichedItemDTO[0];
             }
-            enrichedItemDTO = new EnrichedGroupItemDTO(itemDTO, memberDTOs, link, state, stateDescription);
+            enrichedItemDTO = new EnrichedGroupItemDTO(itemDTO, memberDTOs, link, state, transformedState,
+                    stateDescription);
         } else {
-            enrichedItemDTO = new EnrichedItemDTO(itemDTO, link, state, stateDescription);
+            enrichedItemDTO = new EnrichedItemDTO(itemDTO, link, state, transformedState, stateDescription);
         }
 
         return enrichedItemDTO;
@@ -85,7 +91,7 @@ public class EnrichedItemDTOMapper {
     }
 
     private static String considerTransformation(String state, StateDescription stateDescription) {
-        if (stateDescription != null && stateDescription.getPattern() != null) {
+        if (stateDescription != null && stateDescription.getPattern() != null && state != null) {
             try {
                 return TransformationHelper.transform(RESTCoreActivator.getBundleContext(),
                         stateDescription.getPattern(), state.toString());

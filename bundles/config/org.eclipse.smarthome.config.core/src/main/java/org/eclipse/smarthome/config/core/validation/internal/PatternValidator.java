@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,13 +19,6 @@ import org.eclipse.smarthome.config.core.validation.ConfigValidationMessage;
  */
 final class PatternValidator implements ConfigDescriptionParameterValidator {
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.eclipse.smarthome.config.core.validation.internal.ConfigDescriptionParameterValidator#validate(org.eclipse.
-     * smarthome.config.core.ConfigDescriptionParameter, java.lang.Object)
-     */
     @Override
     public ConfigValidationMessage validate(ConfigDescriptionParameter parameter, Object value) {
         if (value == null || parameter.getType() != Type.TEXT || parameter.getPattern() == null) {
@@ -34,7 +27,7 @@ final class PatternValidator implements ConfigDescriptionParameterValidator {
 
         if (!((String) value).matches(parameter.getPattern())) {
             MessageKey messageKey = MessageKey.PATTERN_VIOLATED;
-            return new ConfigValidationMessage(parameter.getName(), messageKey.defaultMessage, messageKey.key, value,
+            return new ConfigValidationMessage(parameter.getName(), messageKey.defaultMessage, messageKey.key, String.valueOf(value),
                     parameter.getPattern());
         }
 

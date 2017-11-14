@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import org.eclipse.smarthome.model.script.internal.actions.TimerExecutionJob;
 import org.eclipse.smarthome.model.script.internal.actions.TimerImpl;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure0;
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 import org.joda.time.base.AbstractInstant;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
@@ -81,14 +82,44 @@ public class ScriptExecution {
      * @throws ScriptExecutionException if an error occurs during the execution
      */
     public static Timer createTimer(AbstractInstant instant, Procedure0 closure) {
+        JobDataMap dataMap = new JobDataMap();
+        dataMap.put("procedure", closure);
+        return makeTimer(instant, closure.toString(), dataMap);
+    }
+
+    /**
+     * Schedules a block of code (with argument) for later execution
+     *
+     * @param instant the point in time when the code should be executed
+     * @param arg1 the argument to pass to the code block
+     * @param closure the code block to execute
+     *
+     * @return a handle to the created timer, so that it can be canceled or rescheduled
+     * @throws ScriptExecutionException if an error occurs during the execution
+     */
+    public static Timer createTimerWithArgument(AbstractInstant instant, Object arg1, Procedure1<Object> closure) {
+        JobDataMap dataMap = new JobDataMap();
+        dataMap.put("procedure1", closure);
+        dataMap.put("argument1", arg1);
+        return makeTimer(instant, closure.toString(), dataMap);
+    }
+
+    /**
+     * helper function to create the timer
+     * 
+     * @param instant the point in time when the code should be executed
+     * @param closure string for job id
+     * @param dataMap job data map, preconfigured with arguments
+     * @return
+     */
+    private static Timer makeTimer(AbstractInstant instant, String closure, JobDataMap dataMap) {
+
         Logger logger = LoggerFactory.getLogger(ScriptExecution.class);
         JobKey jobKey = new JobKey(instant.toString() + ": " + closure.toString());
         Trigger trigger = newTrigger().startAt(instant.toDate()).build();
         Timer timer = new TimerImpl(jobKey, trigger.getKey(), instant);
+        dataMap.put("timer", timer);
         try {
-            JobDataMap dataMap = new JobDataMap();
-            dataMap.put("procedure", closure);
-            dataMap.put("timer", timer);
             JobDetail job = newJob(TimerExecutionJob.class).withIdentity(jobKey).usingJobData(dataMap).build();
             if (TimerImpl.scheduler.checkExists(job.getKey())) {
                 TimerImpl.scheduler.deleteJob(job.getKey());

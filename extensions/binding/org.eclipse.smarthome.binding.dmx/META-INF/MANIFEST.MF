@@ -1,0 +1,29 @@
+Manifest-Version: 1.0
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
+Bundle-ManifestVersion: 2
+Bundle-Name: DMX Binding
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.binding.dmx;singleton:=true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Export-Package: 
+ org.eclipse.smarthome.binding.dmx,
+ org.eclipse.smarthome.binding.dmx.handler
+Import-Package: 
+ com.google.common.collect,
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.binding.dmx,
+ org.eclipse.smarthome.binding.dmx.handler,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.common,
+ org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.thing,
+ org.eclipse.smarthome.core.thing.binding,
+ org.eclipse.smarthome.core.thing.binding.builder,
+ org.eclipse.smarthome.core.thing.type,
+ org.eclipse.smarthome.core.types,
+ org.osgi.service.component,
+ org.osgi.service.component.annotations;resolution:=optional,
+ org.slf4j
+Service-Component: OSGI-INF/*.xml

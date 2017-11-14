@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,8 @@ package org.eclipse.smarthome.test
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
+
+import java.util.concurrent.TimeUnit
 
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider
 import org.eclipse.smarthome.test.storage.VolatileStorageService
@@ -91,8 +93,8 @@ abstract class OSGiTest {
      * @param filter
      * @return OSGi service or null if no service can be found for the given class
      */
-    protected <T> T getService(Class<T> clazz, Class<? extends T> implementationClass){
-        getService(clazz, { ServiceReference<?> serviceReference ->
+    protected <T,I extends T> I getService(Class<T> clazz, Class<I> implementationClass){
+        (I) getService(clazz, { ServiceReference<?> serviceReference ->
             implementationClass.isAssignableFrom(bundleContext.getService(serviceReference).getClass())
         })
     }
@@ -181,20 +183,39 @@ abstract class OSGiTest {
      * After this time the condition is checked again. By a default the specified sleep time is 50 ms.
      * The default timeout is 10000 ms.
      *
-     * @param condition closure that must not have an argument
+     * @param assertion closure that must not have an argument
      * @param timeout timeout, default is 10000ms
      * @param sleepTime interval for checking the condition, default is 50ms
      */
     protected void waitForAssert(Closure<?> assertion, int timeout = 10000, int sleepTime = 50) {
-        def waitingTime = 0
-        while(waitingTime < timeout) {
+        waitForAssert(assertion, null, timeout, sleepTime)
+    }
+
+    /**
+     * When this method is called it waits until the assertion is fulfilled or the timeout is reached.
+     * The assertion is specified by a closure, that must throw an Exception, if the assertion is not fulfilled.
+     * When the assertion is not fulfilled Thread.sleep is called at the current Thread for a specified time.
+     * After this time the condition is checked again. By a default the specified sleep time is 50 ms.
+     * The default timeout is 10000 ms.
+     *
+     * @param assertion closure that must not have an argument
+     * @param beforeLastCall close that must not have an arugment and should be executed in front of the last call to ${code assertion}.
+     * @param timeout timeout, default is 10000ms
+     * @param sleepTime interval for checking the condition, default is 50ms
+     */
+    protected void waitForAssert(Closure<?> assertion, Closure<?> beforeLastCall, long timeout = 10000, int sleepTime = 50) {
+        final long timeoutNs = TimeUnit.MILLISECONDS.toNanos(timeout);
+        final long startingTime = System.nanoTime();
+        while((System.nanoTime() - startingTime) < timeoutNs) {
             try {
                 assertion()
                 return
             } catch(Error | NullPointerException error) {
-                waitingTime += sleepTime
                 sleep sleepTime
             }
+        }
+        if (beforeLastCall != null) {
+            beforeLastCall()
         }
         assertion()
     }
@@ -224,11 +245,40 @@ abstract class OSGiTest {
         registeredServices.clear()
     }
 
-    protected void enableItemAutoUpdate(){
+    protected void disableItemAutoUpdate(){
         def autoupdateConfig = [
-            autoUpdate: { String itemName -> return true }
+            autoUpdate: { String itemName -> return false }
 
         ] as AutoUpdateBindingConfigProvider
         registerService(autoupdateConfig)
+    }
+
+    protected void setDefaultLocale(Locale locale) {
+        assertThat locale, is(notNullValue())
+
+        def configAdmin = getService(Class.forName("org.osgi.service.cm.ConfigurationAdmin"))
+        assertThat configAdmin, is(notNullValue())
+
+        def localeProvider = getService(Class.forName("org.eclipse.smarthome.core.i18n.LocaleProvider"))
+        assertThat localeProvider, is(notNullValue())
+
+        def config = configAdmin.getConfiguration("org.eclipse.smarthome.core.i18nprovider", null)
+        assertThat config, is(notNullValue())
+
+        def properties = config.getProperties()
+        if (properties == null) {
+            properties = new Hashtable()
+        }
+
+        properties.put("language", locale.getLanguage())
+        properties.put("script", locale.getScript())
+        properties.put("region", locale.getCountry())
+        properties.put("variant", locale.getVariant())
+
+        config.update(properties)
+
+        waitForAssert {
+            assertThat localeProvider.getLocale(), is(locale)
+        }
     }
 }

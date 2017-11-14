@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,18 +31,18 @@ import org.slf4j.LoggerFactory;
  * The created thread pools have named threads, so that it is easy to find them in the debugger. Additionally, it is
  * possible to configure the pool sizes through the configuration admin service, so that solutions have the chance to
  * tweak the pool sizes according to their needs.
- * </p>
+ *
  * <p>
  * The configuration can be done as
  * <br/>
  * {@code org.eclipse.smarthome.threadpool:<poolName>=<poolSize>}
  * <br/>
  * All threads will time out after {@link THREAD_TIMEOUT}.
- * </p>
  *
  * @author Kai Kreuzer - Initial contribution
  *
  */
+@Component(configurationPid = "org.eclipse.smarthome.threadpool")
 public class ThreadPoolManager {
 
     private final static Logger logger = LoggerFactory.getLogger(ThreadPoolManager.class);

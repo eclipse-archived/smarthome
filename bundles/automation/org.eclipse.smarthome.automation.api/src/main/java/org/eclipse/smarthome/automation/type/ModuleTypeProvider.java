@@ -29,6 +29,7 @@ public interface ModuleTypeProvider extends Provider<ModuleType> {
      *
      * @param UID unique id of module type.
      * @param locale defines localization of label and description of the {@link ModuleType} or null.
+     * @param <T> the type of the required object.
      * @return localized module type.
      */
     <T extends ModuleType> T getModuleType(String UID, Locale locale);
@@ -39,6 +40,7 @@ public interface ModuleTypeProvider extends Provider<ModuleType> {
      * with default localization is returned.
      *
      * @param locale defines localization of label and description of the {@link ModuleType}s or null.
+     * @param <T> the type of the required object.
      * @return collection of localized {@link ModuleType} provided by this
      *         provider
      */

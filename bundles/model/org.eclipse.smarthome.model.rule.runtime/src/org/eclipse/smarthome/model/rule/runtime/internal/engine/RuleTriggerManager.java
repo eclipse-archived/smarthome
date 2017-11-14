@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.Type;
@@ -34,6 +35,8 @@ import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
 import org.eclipse.smarthome.model.rule.rules.SystemOnShutdownTrigger;
 import org.eclipse.smarthome.model.rule.rules.SystemOnStartupTrigger;
+import org.eclipse.smarthome.model.rule.rules.ThingStateChangedEventTrigger;
+import org.eclipse.smarthome.model.rule.rules.ThingStateUpdateEventTrigger;
 import org.eclipse.smarthome.model.rule.rules.TimerTrigger;
 import org.eclipse.smarthome.model.rule.rules.UpdateEventTrigger;
 import org.quartz.CronScheduleBuilder;
@@ -74,13 +77,17 @@ public class RuleTriggerManager {
         TRIGGER, // fires whenever a trigger is emitted on a channel
         STARTUP, // fires when the rule engine bundle starts and once as soon as all required items are available
         SHUTDOWN, // fires when the rule engine bundle is stopped
-        TIMER // fires at a given time
+        TIMER, // fires at a given time
+        THINGUPDATE, // fires whenever the thing state is updated.
+        THINGCHANGE, // fires if the thing state is changed by the update
     }
 
     // lookup maps for different triggering conditions
     private Map<String, Set<Rule>> updateEventTriggeredRules = Maps.newHashMap();
     private Map<String, Set<Rule>> changedEventTriggeredRules = Maps.newHashMap();
     private Map<String, Set<Rule>> commandEventTriggeredRules = Maps.newHashMap();
+    private Map<String, Set<Rule>> thingUpdateEventTriggeredRules = Maps.newHashMap();
+    private Map<String, Set<Rule>> thingChangedEventTriggeredRules = Maps.newHashMap();
     // Maps from channelName -> Rules
     private Map<String, Set<Rule>> triggerEventTriggeredRules = Maps.newHashMap();
     private Set<Rule> systemStartupTriggeredRules = new CopyOnWriteArraySet<>();
@@ -132,6 +139,12 @@ public class RuleTriggerManager {
                 break;
             case TRIGGER:
                 result = Iterables.concat(triggerEventTriggeredRules.values());
+                break;
+            case THINGUPDATE:
+                result = Iterables.concat(thingUpdateEventTriggeredRules.values());
+                break;
+            case THINGCHANGE:
+                result = Iterables.concat(thingChangedEventTriggeredRules.values());
                 break;
             default:
                 result = Sets.newHashSet();
@@ -198,41 +211,54 @@ public class RuleTriggerManager {
             case TRIGGER:
                 Set<Rule> rules = triggerEventTriggeredRules.get(channel);
                 if (rules == null) {
-                    return Sets.newHashSet();
+                    return Collections.emptyList();
                 }
                 for (Rule rule : rules) {
                     for (EventTrigger t : rule.getEventtrigger()) {
                         if (t instanceof EventEmittedTrigger) {
                             EventEmittedTrigger et = (EventEmittedTrigger) t;
-                            if (et.getTrigger() != null) {
-                                if (!et.getTrigger().equals(event)) {
-                                    continue;
-                                }
+
+                            if (et.getChannel().equals(channel)
+                                    && (et.getTrigger() == null || et.getTrigger().equals(event))) {
+                                // if the rule does not have a specific event , execute it on any event
+                                result.add(rule);
                             }
-                            result.add(rule);
                         }
                     }
                 }
                 break;
             default:
-                return Sets.newHashSet();
+                return Collections.emptyList();
         }
 
         return result;
     }
 
-    private Iterable<Rule> getAllRules(TriggerTypes type, String itemName) {
+    public Iterable<Rule> getRules(TriggerTypes triggerType, String thingUid, ThingStatus state) {
+        return internalGetThingRules(triggerType, thingUid, null, state);
+    }
+
+    public Iterable<Rule> getRules(TriggerTypes triggerType, String thingUid, ThingStatus oldState,
+            ThingStatus newState) {
+        return internalGetThingRules(triggerType, thingUid, oldState, newState);
+    }
+
+    private Iterable<Rule> getAllRules(TriggerTypes type, String name) {
         switch (type) {
             case STARTUP:
                 return systemStartupTriggeredRules;
             case SHUTDOWN:
                 return systemShutdownTriggeredRules;
             case UPDATE:
-                return updateEventTriggeredRules.get(itemName);
+                return updateEventTriggeredRules.get(name);
             case CHANGE:
-                return changedEventTriggeredRules.get(itemName);
+                return changedEventTriggeredRules.get(name);
             case COMMAND:
-                return commandEventTriggeredRules.get(itemName);
+                return commandEventTriggeredRules.get(name);
+            case THINGUPDATE:
+                return thingUpdateEventTriggeredRules.get(name);
+            case THINGCHANGE:
+                return thingChangedEventTriggeredRules.get(name);
             default:
                 return Sets.newHashSet();
         }
@@ -331,6 +357,67 @@ public class RuleTriggerManager {
         return result;
     }
 
+    private Iterable<Rule> internalGetThingRules(TriggerTypes triggerType, String thingUid, ThingStatus oldStatus,
+            ThingStatus newStatus) {
+        List<Rule> result = Lists.newArrayList();
+        Iterable<Rule> rules = getAllRules(triggerType, thingUid);
+        if (rules == null) {
+            rules = Lists.newArrayList();
+        }
+
+        switch (triggerType) {
+            case THINGUPDATE:
+                for (Rule rule : rules) {
+                    for (EventTrigger t : rule.getEventtrigger()) {
+                        if (t instanceof ThingStateUpdateEventTrigger) {
+                            ThingStateUpdateEventTrigger tt = (ThingStateUpdateEventTrigger) t;
+                            if (tt.getThing().equals(thingUid)) {
+                                String stateString = tt.getState();
+                                if (stateString != null) {
+                                    ThingStatus triggerState = ThingStatus.valueOf(stateString);
+                                    if (!newStatus.equals(triggerState)) {
+                                        continue;
+                                    }
+                                }
+                                result.add(rule);
+                            }
+                        }
+                    }
+                }
+                break;
+            case THINGCHANGE:
+                for (Rule rule : rules) {
+                    for (EventTrigger t : rule.getEventtrigger()) {
+                        if (t instanceof ThingStateChangedEventTrigger) {
+                            ThingStateChangedEventTrigger ct = (ThingStateChangedEventTrigger) t;
+                            if (ct.getThing().equals(thingUid)) {
+                                String oldStatusString = ct.getOldState();
+                                if (oldStatusString != null) {
+                                    ThingStatus triggerOldState = ThingStatus.valueOf(oldStatusString);
+                                    if (!oldStatus.equals(triggerOldState)) {
+                                        continue;
+                                    }
+                                }
+
+                                String newStatusString = ct.getNewState();
+                                if (newStatusString != null) {
+                                    ThingStatus triggerNewState = ThingStatus.valueOf(newStatusString);
+                                    if (!newStatus.equals(triggerNewState)) {
+                                        continue;
+                                    }
+                                }
+                                result.add(rule);
+                            }
+                        }
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+        return result;
+    }
+
     /**
      * Removes all rules with a given trigger type from the mapping tables.
      *
@@ -362,6 +449,12 @@ public class RuleTriggerManager {
                 }
                 timerEventTriggeredRules.clear();
                 break;
+            case THINGUPDATE:
+                thingUpdateEventTriggeredRules.clear();
+                break;
+            case THINGCHANGE:
+                thingChangedEventTriggeredRules.clear();
+                break;
         }
     }
 
@@ -376,6 +469,8 @@ public class RuleTriggerManager {
         clear(COMMAND);
         clear(TIMER);
         clear(TRIGGER);
+        clear(THINGUPDATE);
+        clear(THINGCHANGE);
     }
 
     /**
@@ -415,12 +510,11 @@ public class RuleTriggerManager {
                 }
                 rules.add(rule);
             } else if (t instanceof TimerTrigger) {
-                if (timerEventTriggeredRules.add(rule)) {
-                    try {
-                        createTimer(rule, (TimerTrigger) t);
-                    } catch (SchedulerException e) {
-                        logger.error("Cannot create timer for rule '{}': {}", rule.getName(), e.getMessage());
-                    }
+                try {
+                    createTimer(rule, (TimerTrigger) t);
+                    timerEventTriggeredRules.add(rule);
+                } catch (SchedulerException e) {
+                    logger.error("Cannot create timer for rule '{}': {}", rule.getName(), e.getMessage());
                 }
             } else if (t instanceof EventEmittedTrigger) {
                 EventEmittedTrigger eeTrigger = (EventEmittedTrigger) t;
@@ -428,6 +522,22 @@ public class RuleTriggerManager {
                 if (rules == null) {
                     rules = new HashSet<Rule>();
                     triggerEventTriggeredRules.put(eeTrigger.getChannel(), rules);
+                }
+                rules.add(rule);
+            } else if (t instanceof ThingStateUpdateEventTrigger) {
+                ThingStateUpdateEventTrigger tsuTrigger = (ThingStateUpdateEventTrigger) t;
+                Set<Rule> rules = thingUpdateEventTriggeredRules.get(tsuTrigger.getThing());
+                if (rules == null) {
+                    rules = new HashSet<Rule>();
+                    thingUpdateEventTriggeredRules.put(tsuTrigger.getThing(), rules);
+                }
+                rules.add(rule);
+            } else if (t instanceof ThingStateChangedEventTrigger) {
+                ThingStateChangedEventTrigger tscTrigger = (ThingStateChangedEventTrigger) t;
+                Set<Rule> rules = thingChangedEventTriggeredRules.get(tscTrigger.getThing());
+                if (rules == null) {
+                    rules = new HashSet<Rule>();
+                    thingChangedEventTriggeredRules.put(tscTrigger.getThing(), rules);
                 }
                 rules.add(rule);
             }
@@ -464,11 +574,23 @@ public class RuleTriggerManager {
                 }
                 break;
             case TRIGGER:
-                triggerEventTriggeredRules.remove(rule);
+                for (Set<Rule> rules : triggerEventTriggeredRules.values()) {
+                    rules.remove(rule);
+                }
                 break;
             case TIMER:
                 timerEventTriggeredRules.remove(rule);
                 removeTimerRule(rule);
+                break;
+            case THINGUPDATE:
+                for (Set<Rule> rules : thingUpdateEventTriggeredRules.values()) {
+                    rules.remove(rule);
+                }
+                break;
+            case THINGCHANGE:
+                for (Set<Rule> rules : thingChangedEventTriggeredRules.values()) {
+                    rules.remove(rule);
+                }
                 break;
         }
     }
@@ -497,6 +619,8 @@ public class RuleTriggerManager {
         removeRules(STARTUP, Collections.singletonList(systemStartupTriggeredRules), ruleModel);
         removeRules(SHUTDOWN, Collections.singletonList(systemShutdownTriggeredRules), ruleModel);
         removeRules(TIMER, Collections.singletonList(timerEventTriggeredRules), ruleModel);
+        removeRules(THINGUPDATE, thingUpdateEventTriggeredRules.values(), ruleModel);
+        removeRules(THINGCHANGE, thingChangedEventTriggeredRules.values(), ruleModel);
     }
 
     private void removeRules(TriggerTypes type, Collection<? extends Collection<Rule>> ruleSets, RuleModel model) {

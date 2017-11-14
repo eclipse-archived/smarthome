@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,7 +30,6 @@ import org.eclipse.smarthome.binding.lifx.internal.fields.UInt8Field;
  * in each subtype, followed by a listing of fields contained in the packet.
  * Field definitions should remain accessible to outside classes in the event
  * they need to worked with directly elsewhere.
- * </p>
  *
  * @author Tim Buckley - Initial Contribution
  * @author Karel Goderis - Enhancement for the V2 LIFX Firmware and LAN Protocol Specification
@@ -81,7 +80,7 @@ public abstract class Packet {
     }
 
     public void setOrigin(int origin) {
-        protocol = protocol | (origin << 14);
+        protocol = (protocol & ~(1 << 14)) | (origin << 14);
     }
 
     public boolean getTagged() {
@@ -89,7 +88,7 @@ public abstract class Packet {
     }
 
     public void setTagged(boolean flag) {
-        protocol = protocol | ((flag ? 1 : 0) << 13);
+        protocol = (protocol & ~(1 << 13)) | ((flag ? 1 : 0) << 13);
     }
 
     public boolean getAddressable() {
@@ -97,7 +96,7 @@ public abstract class Packet {
     }
 
     public void setAddressable(boolean flag) {
-        this.protocol = protocol | ((flag ? 1 : 0) << 12);
+        this.protocol = (protocol & ~(1 << 12)) | ((flag ? 1 : 0) << 12);
     }
 
     public int getProtocol() {
@@ -121,7 +120,7 @@ public abstract class Packet {
     }
 
     public void setTarget(MACAddress lightAddress) {
-        this.target = lightAddress;
+        this.target = lightAddress != null ? lightAddress : MACAddress.BROADCAST_ADDRESS;
     }
 
     public ByteBuffer getReserved1() {
@@ -137,7 +136,7 @@ public abstract class Packet {
     }
 
     public void setAckRequired(boolean flag) {
-        this.ackbyte = ackbyte | ((flag ? 1 : 0) << 1);
+        this.ackbyte = (ackbyte & ~(1 << 1)) | ((flag ? 1 : 0) << 1);
     }
 
     public boolean getResponseRequired() {
@@ -145,7 +144,7 @@ public abstract class Packet {
     }
 
     public void setResponseRequired(boolean flag) {
-        this.ackbyte = ackbyte | ((flag ? 1 : 0) << 0);
+        this.ackbyte = (ackbyte & ~(1 << 0)) | ((flag ? 1 : 0) << 0);
     }
 
     public int getSequence() {
@@ -241,7 +240,6 @@ public abstract class Packet {
      * The length of the buffer is the sum of the lengths of the defined
      * preamble fields (see {@link #PREAMBLE_FIELDS} for an ordered list), which
      * may also be accessed via {@link #preambleLength()}.
-     * </p>
      *
      * <p>
      * Certain fields are set to default values based on other class methods.
@@ -348,7 +346,6 @@ public abstract class Packet {
      * Note that returned ByteBuffers will have {@link ByteBuffer#rewind()}
      * called automatically before they are appended to the final packet
      * buffer.
-     * </p>
      *
      * @return the packet payload
      */

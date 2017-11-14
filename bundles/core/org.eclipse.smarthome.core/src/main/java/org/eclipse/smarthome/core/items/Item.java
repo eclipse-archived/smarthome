@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.smarthome.core.common.registry.Identifiable;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.types.Command;
@@ -21,22 +23,21 @@ import org.eclipse.smarthome.core.types.UnDefType;
 /**
  * <p>
  * This interface defines the core features of an Eclipse SmartHome item.
- * </p>
+ *
  * <p>
  * Item instances are used for all stateful services and are especially important for the {@link ItemRegistry}.
- * </p>
  *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public interface Item {
+public interface Item extends Identifiable<String> {
 
     /**
      * returns the current state of the item
      *
      * @return the current state
      */
-    public State getState();
+    public @NonNull State getState();
 
     /**
      * returns the current state of the item as a specific type
@@ -51,47 +52,45 @@ public interface Item {
      *
      * @return the name of the item
      */
-    public String getName();
+    public @NonNull String getName();
 
     /**
      * returns the item type as defined by {@link ItemFactory}s
      *
      * @return the item type
      */
-    public String getType();
+    public @NonNull String getType();
 
     /**
      * <p>
      * This method provides a list of all data types that can be used to update the item state
-     * </p>
+     *
      * <p>
      * Imagine e.g. a dimmer device: It's status could be 0%, 10%, 50%, 100%, but also OFF or ON and maybe UNDEFINED. So
      * the accepted data types would be in this case {@link PercentType}, {@link OnOffType} and {@link UnDefType}
-     * </p>
      *
      * <p>
      * The order of data types denotes the order of preference. So in case a state needs to be converted
      * in order to be accepted, it will be attempted to convert it to a type from top to bottom. Therefore
      * the type with the least information loss should be on top of the list - in the example above the
      * {@link PercentType} carries more information than the {@link OnOffType}, hence it is listed first.
-     * </p>
-     * 
+     *
      * @return a list of data types that can be used to update the item state
      */
-    public List<Class<? extends State>> getAcceptedDataTypes();
+    public @NonNull List<@NonNull Class<? extends State>> getAcceptedDataTypes();
 
     /**
      * <p>
      * This method provides a list of all command types that can be used for this item
-     * </p>
+     *
      * <p>
      * Imagine e.g. a dimmer device: You could ask it to dim to 0%, 10%, 50%, 100%, but also to turn OFF or ON. So the
      * accepted command types would be in this case {@link PercentType}, {@link OnOffType}
-     * </p>
+     *
      *
      * @return a list of all command types that can be used for this item
      */
-    public List<Class<? extends Command>> getAcceptedCommandTypes();
+    public @NonNull List<@NonNull Class<? extends Command>> getAcceptedCommandTypes();
 
     /**
      * Returns a list of the names of the groups this item belongs to.
@@ -130,14 +129,16 @@ public interface Item {
     public String getCategory();
 
     /**
-     * Returns the state description (uses the default locale).
+     * Returns the first provided state description (uses the default locale).
+     * If options are defined on the channel, they are included in the returned state description.
      *
      * @return state description (can be null)
      */
     public StateDescription getStateDescription();
 
     /**
-     * Returns the state description for a given locale.
+     * Returns the first provided state description for a given locale.
+     * If options are defined on the channel, they are included in the returned state description.
      *
      * @param locale
      *            locale (can be null)

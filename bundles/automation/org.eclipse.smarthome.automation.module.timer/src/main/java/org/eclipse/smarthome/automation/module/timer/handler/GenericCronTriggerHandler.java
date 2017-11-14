@@ -7,19 +7,16 @@
  */
 package org.eclipse.smarthome.automation.module.timer.handler;
 
-import java.util.UUID;
+import java.text.ParseException;
 
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
 import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
-import org.quartz.CronScheduleBuilder;
-import org.quartz.CronTrigger;
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.TriggerBuilder;
-import org.quartz.impl.StdSchedulerFactory;
+import org.eclipse.smarthome.automation.module.timer.factory.TimerModuleHandlerFactory;
+import org.eclipse.smarthome.core.scheduler.CronExpression;
+import org.eclipse.smarthome.core.scheduler.Expression;
+import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager;
+import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager.ExpressionThreadPoolExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,61 +26,60 @@ import org.slf4j.LoggerFactory;
  * configuration.
  *
  * @author Christoph Knauf - Initial Contribution
+ * @author Yordan Mihaylov - Remove Quarz lib dependency
  *
  */
-public class GenericCronTriggerHandler extends BaseTriggerModuleHandler {
+public class GenericCronTriggerHandler extends BaseTriggerModuleHandler implements Runnable {
 
     private final Logger logger = LoggerFactory.getLogger(GenericCronTriggerHandler.class);
-
-    private JobDetail job;
-    private CronTrigger trigger;
-    private Scheduler scheduler;
 
     public static final String MODULE_TYPE_ID = "timer.GenericCronTrigger";
     public static final String CALLBACK_CONTEXT_NAME = "CALLBACK";
     public static final String MODULE_CONTEXT_NAME = "MODULE";
 
     private static final String CFG_CRON_EXPRESSION = "cronExpression";
+    private final ExpressionThreadPoolExecutor scheduler;
+    private Expression expression;
 
     public GenericCronTriggerHandler(Trigger module) {
         super(module);
-        String cronExpression = (String) module.getConfiguration().get(CFG_CRON_EXPRESSION);
-        this.trigger = TriggerBuilder.newTrigger().withIdentity(MODULE_TYPE_ID + UUID.randomUUID().toString())
-                .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression)).build();
+        String cronExpressionString = (String) module.getConfiguration().get(CFG_CRON_EXPRESSION);
+
+        try {
+            expression = new CronExpression(cronExpressionString);
+        } catch (ParseException e) {
+            throw new IllegalArgumentException(
+                    "'" + cronExpressionString + "' parameter is not in valid cron expression.", e);
+        }
+        scheduler = ExpressionThreadPoolManager.getExpressionScheduledPool(TimerModuleHandlerFactory.THREADPOOLNAME);
+
     }
 
     @Override
     public synchronized void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
         super.setRuleEngineCallback(ruleCallback);
-        initalizeTimer();
+        scheduleJob();
     }
 
-    private void initalizeTimer() {
-        this.job = JobBuilder.newJob(CallbackJob.class).withIdentity(MODULE_TYPE_ID + UUID.randomUUID().toString())
-                .build();
-        this.job.getJobDataMap().put(CALLBACK_CONTEXT_NAME, this.ruleEngineCallback);
-        this.job.getJobDataMap().put(MODULE_CONTEXT_NAME, this.module);
-        try {
-            this.scheduler = new StdSchedulerFactory().getScheduler();
-            scheduler.start();
-            scheduler.scheduleJob(job, trigger);
-        } catch (SchedulerException e) {
-            logger.error("Error while scheduling Job: {}", e.getMessage());
-        }
+    private void scheduleJob() {
+        scheduler.schedule(this, expression);
+        logger.debug("Scheduled cron job '{}' for trigger '{}'.", module.getConfiguration().get(CFG_CRON_EXPRESSION),
+                module.getId());
     }
 
     @Override
     public synchronized void dispose() {
         super.dispose();
-        try {
-            if (scheduler != null) {
-                scheduler.clear();
-            }
-            scheduler = null;
-            trigger = null;
-            job = null;
-        } catch (SchedulerException e) {
-            logger.error("Error while disposing Job: {}", e.getMessage());
+        if (scheduler.remove(this)) {
+            logger.debug("cancelled job for trigger '{}'.", module.getId());
+        } else {
+            logger.debug("Failed cancelling job for trigger '{}' - maybe it was never scheduled?", module.getId());
         }
+
+    }
+
+    @Override
+    public void run() {
+        ruleEngineCallback.triggered(module, null);
     }
 }

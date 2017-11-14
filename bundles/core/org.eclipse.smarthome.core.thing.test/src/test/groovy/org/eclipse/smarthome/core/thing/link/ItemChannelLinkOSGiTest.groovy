@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -51,7 +51,7 @@ class ItemChannelLinkOSGiTest extends OSGiTest {
 
     @After
     void teardown() {
-        managedItemChannelLinkProvider.getAll().each { managedItemChannelLinkProvider.remove(it.getID()) }
+        managedItemChannelLinkProvider.getAll().each { managedItemChannelLinkProvider.remove(it.getUID()) }
         managedThingProvider.getAll().each { managedThingProvider.remove(it.getUID()) }
         thingLinkManager.activate(null)
     }
@@ -66,7 +66,7 @@ class ItemChannelLinkOSGiTest extends OSGiTest {
         assertThat  itemChannelLinkRegistry.getAll().size(), is(1)
         assertThat  managedItemChannelLinkProvider.getAll().size(), is(1)
 
-        managedItemChannelLinkProvider.remove(ITEM_CHANNEL_LINK.getID())
+        managedItemChannelLinkProvider.remove(ITEM_CHANNEL_LINK.getUID())
 
         assertThat itemChannelLinkRegistry.getAll().size(), is(0)
         assertThat managedItemChannelLinkProvider.getAll().size(), is(0)
@@ -88,7 +88,7 @@ class ItemChannelLinkOSGiTest extends OSGiTest {
         managedItemChannelLinkProvider.add ITEM_CHANNEL_LINK
         def boundChannels = itemChannelLinkRegistry.getBoundChannels("item")
         assertThat boundChannels.size(), is(1)
-        assertThat boundChannels.first(), is(equalTo(ITEM_CHANNEL_LINK.getUID()))
+        assertThat boundChannels.first(), is(equalTo(ITEM_CHANNEL_LINK.getLinkedUID()))
     }
 
     @Test

@@ -8,6 +8,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="theme-color" content="#354497">
 
 		<link rel="icon" href="favicon.ico">
 		<link href="images/touch-icon-57.png" sizes="57x57" rel="apple-touch-icon-precomposed">
@@ -52,8 +53,15 @@
 				</div>
 			</div>
 		</script>
+		<script type="text/html" id="template-offline-notify">
+			<div class="mdl-notify">
+				<div class="mdl-notify__text">
+					%main.offline-msg%
+				</div>
+			</div>
+		</script>
 	</head>
-	<body class="mdl-color--grey-100 mdl-color-text--grey-700" data-sitemap="%sitemap%" data-page-id="%id%" data-icon-type="%icon_type%">
+	<body class="mdl-color-text--grey-700" data-sitemap="%sitemap%" data-page-id="%id%" data-theme="%theme%" data-icon-type="%icon_type%">
 	<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
 		<header class="mdl-layout__header mdl-layout__header--scroll navigation navigation-home">
 			<div class="mdl-layout__header-row">
@@ -70,11 +78,12 @@
 			</div>
 			<div class="ui__loading mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
 		</header>
-		<main class="mdl-layout__content mdl-color--grey-100">
+		<main class="mdl-layout__content">
 			<div class="page-content mdl-grid">
 				%children%
 			</div>
 		</main>
 	</div>
+	<div class="mdl-notify__container mdl-notify--hidden"></div>
 	</body>
 </html>

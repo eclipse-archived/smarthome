@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.persistence;
 
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.Item;
 
 /**
@@ -26,7 +27,8 @@ public interface QueryablePersistenceService extends PersistenceService {
      * @param filter the filter to apply to the query
      * @return a time series of items
      */
-    Iterable<HistoricItem> query(FilterCriteria filter);
+    @NonNull
+    Iterable<@NonNull HistoricItem> query(@NonNull FilterCriteria filter);
 
     /**
      * Returns a list of items that are stored in the persistence service
@@ -36,5 +38,6 @@ public interface QueryablePersistenceService extends PersistenceService {
      *
      * @return list of strings of item names contained in the store. Not null.
      */
-    Set<PersistenceItemInfo> getItemInfo();
+    @NonNull
+    Set<@NonNull PersistenceItemInfo> getItemInfo();
 }

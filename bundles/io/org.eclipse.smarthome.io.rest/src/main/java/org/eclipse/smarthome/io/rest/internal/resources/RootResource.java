@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,29 +24,32 @@ import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.smarthome.io.rest.RESTConstants;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
 import org.eclipse.smarthome.io.rest.internal.Constants;
 import org.eclipse.smarthome.io.rest.internal.resources.beans.RootBean;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * <p>
  * This class acts as an entry point / root resource for the REST API.
- * </p>
+ *
  * <p>
  * In good HATEOAS manner, it provides links to other offered resources.
- * </p>
  *
  * <p>
  * The result is returned as JSON
- * </p>
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
 @Path("/")
+@Component(service = RootResource.class, configurationPid = "org.eclipse.smarthome.io.rest.root")
 public class RootResource {
 
     private final transient Logger logger = LoggerFactory.getLogger(RootResource.class);
@@ -68,8 +71,8 @@ public class RootResource {
         RootBean bean = new RootBean();
 
         for (RESTResource resource : restResources) {
-            // we will include all RESTResources and only the SatisfiableRESTResources that are currently satisfied
-            if (!(resource instanceof SatisfiableRESTResource) || ((SatisfiableRESTResource) resource).isSatisfied()) {
+            // we will include all RESTResources that are currently satisfied
+            if (resource.isSatisfied()) {
                 String path = resource.getClass().getAnnotation(Path.class).value();
                 bean.links
                         .add(new RootBean.Links(path, uriInfo.getBaseUriBuilder().path(path).build().toASCIIString()));
@@ -79,6 +82,7 @@ public class RootResource {
         return bean;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addRESTResource(RESTResource resource) {
         restResources.add(resource);
     }
@@ -88,6 +92,7 @@ public class RootResource {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Activate
     public void activate() {
         Configuration configuration;
         try {
@@ -112,6 +117,7 @@ public class RootResource {
         }
     }
 
+    @Reference
     protected void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
         this.configurationAdmin = configurationAdmin;
     }

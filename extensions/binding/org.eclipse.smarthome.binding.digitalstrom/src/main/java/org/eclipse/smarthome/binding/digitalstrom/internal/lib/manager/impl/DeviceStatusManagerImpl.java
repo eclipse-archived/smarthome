@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -198,8 +198,8 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
                         if (trashDevices.isEmpty()) {
                             currentDevice.setConfig(config);
                             strucMan.addDeviceToStructure(currentDevice);
-                            logger.debug("trashDevices are empty, add Device with dSID "
-                                    + currentDevice.getDSID().toString() + " to the deviceMap!");
+                            logger.debug("trashDevices are empty, add Device with dSID {} to the deviceMap!",
+                                    currentDevice.getDSID());
                         } else {
                             logger.debug("Search device in trashDevices.");
                             TrashDevice foundTrashDevice = null;
@@ -246,7 +246,7 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
 
                 if (!sceneMan.scenesGenerated()
                         && !sceneMan.getManagerState().equals(ManagerStates.GENERATING_SCENES)) {
-                    logger.debug(sceneMan.getManagerState().toString());
+                    logger.debug("{}", sceneMan.getManagerState());
                     sceneMan.generateScenes();
                 }
 
@@ -276,7 +276,7 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
                         if (trashDevice.isTimeToDelete(Calendar.getInstance().get(Calendar.DAY_OF_YEAR))) {
                             logger.debug("Found trashDevice that have to delete!");
                             trashDevices.remove(trashDevice);
-                            logger.debug("Delete trashDevice: " + trashDevice.getDevice().getDSID().getValue());
+                            logger.debug("Delete trashDevice: {}", trashDevice.getDevice().getDSID().getValue());
                         }
                     }
                     lastBinCheck = System.currentTimeMillis();
@@ -359,7 +359,7 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
     public synchronized void start() {
         logger.debug("start pollingScheduler");
         if (pollingScheduler == null || pollingScheduler.isCancelled()) {
-            pollingScheduler = scheduler.scheduleAtFixedRate(new PollingRunnable(), 0, config.getPollingFrequency(),
+            pollingScheduler = scheduler.scheduleWithFixedDelay(new PollingRunnable(), 0, config.getPollingFrequency(),
                     TimeUnit.MILLISECONDS);
             sceneMan.start();
         }
@@ -485,8 +485,8 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
                 boolean requestSuccsessfull = false;
                 if (scene.getZoneID() == 0) {
                     if (call_undo) {
-                        logger.debug(scene.getGroupID() + " " + scene.getSceneID() + " "
-                                + ApartmentSceneEnum.getApartmentScene(scene.getSceneID()));
+                        logger.debug("{} {} {}", scene.getGroupID(), scene.getSceneID(),
+                                ApartmentSceneEnum.getApartmentScene(scene.getSceneID()));
                         requestSuccsessfull = this.digitalSTROMClient.callApartmentScene(connMan.getSessionToken(),
                                 scene.getGroupID(), null, ApartmentSceneEnum.getApartmentScene(scene.getSceneID()),
                                 false);
@@ -506,7 +506,7 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
                     }
                 }
 
-                logger.debug("Was the scene call succsessful?: " + requestSuccsessfull);
+                logger.debug("Was the scene call succsessful?: {}", requestSuccsessfull);
                 if (requestSuccsessfull) {
                     this.sceneMan.addEcho(scene.getID());
                     if (call_undo) {
@@ -866,7 +866,7 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
             } else if (priority.contains(Config.REFRESH_PRIORITY_LOW)) {
                 sensorJobExecutor.addLowPriorityJob(sensorJob);
             } else {
-                System.err.println("Sensor data update priority do not exist! Please check the input!");
+                logger.debug("Sensor data update priority do {}  not exist! Please check the input!", priority);
                 return;
             }
             logger.debug("Add new sensorJob {} with priority: {} to sensorJobExecuter", sensorJob.toString(), priority);
@@ -909,7 +909,8 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
                             new SceneConfigReadingJob(device, (short) (deviceStateUpdate.getValue() - 2000)));
                 }
             } else {
-                System.err.println("Sensor data update priority do not exist! Please check the input!");
+                logger.debug("Device state update value {} is out of range. Please check the input!",
+                        deviceStateUpdate.getValue());
                 return;
             }
             logger.debug("Add new sceneReadingJob with priority: {} to SceneReadingJobExecuter",
@@ -921,7 +922,7 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
     public void registerDeviceListener(DeviceStatusListener deviceListener) {
         if (deviceListener != null) {
             String id = deviceListener.getDeviceStatusListenerID();
-            logger.debug("register DeviceListener with id: " + id);
+            logger.debug("register DeviceListener with id: {}", id);
             if (id.equals(DeviceStatusListener.DEVICE_DISCOVERY)) {
                 this.deviceDiscovery = deviceListener;
                 for (Device device : strucMan.getDeviceMap().values()) {

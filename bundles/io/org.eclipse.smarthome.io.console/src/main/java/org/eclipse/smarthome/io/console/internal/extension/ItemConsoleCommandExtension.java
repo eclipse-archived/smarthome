@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,9 +11,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
+import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
 
@@ -24,6 +27,7 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  * @author Markus Rathgeb - Create DS for command extension
  * @author Dennis Nobel - Changed service references to be injected via DS
  * @author Simon Kaufmann - Added commands to clear and remove items
+ * @author Stefan Triller - Added commands for adding and removing tags
  *
  */
 public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension {
@@ -31,8 +35,11 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
     private static final String SUBCMD_LIST = "list";
     private static final String SUBCMD_CLEAR = "clear";
     private static final String SUBCMD_REMOVE = "remove";
+    private static final String SUBCMD_ADDTAG = "addTag";
+    private static final String SUBCMD_RMTAG = "rmTag";
 
     private ItemRegistry itemRegistry;
+    private ManagedItemProvider managedItemProvider;
 
     public ItemConsoleCommandExtension() {
         super("items", "Access the item registry.");
@@ -44,7 +51,9 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
                 buildCommandUsage(SUBCMD_LIST + " [<pattern>]",
                         "lists names and types of all items (matching the pattern, if given)"),
                 buildCommandUsage(SUBCMD_CLEAR, "removes all items"),
-                buildCommandUsage(SUBCMD_REMOVE + " <itemName>", "removes the given item") });
+                buildCommandUsage(SUBCMD_REMOVE + " <itemName>", "removes the given item"),
+                buildCommandUsage(SUBCMD_ADDTAG + " <itemName> <tag>", "adds a tag to the given item"),
+                buildCommandUsage(SUBCMD_RMTAG + " <itemName> <tag>", "removes a tag from the given item") });
     }
 
     @Override
@@ -68,13 +77,53 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
                                 + SUBCMD_REMOVE + " <itemName>");
                     }
                     break;
+                case SUBCMD_ADDTAG:
+                    if (args.length > 2) {
+                        Item item = itemRegistry.get(args[1]);
+                        if (item instanceof GenericItem) {
+                            GenericItem gItem = (GenericItem) item;
+                            handleTags(gItem::addTag, args[2], gItem, console);
+                        }
+                    } else {
+                        console.println("Specify the name of the item and the tag: " + this.getCommand() + " "
+                                + SUBCMD_ADDTAG + " <itemName> <tag>");
+                    }
+                    break;
+                case SUBCMD_RMTAG:
+                    if (args.length > 2) {
+                        Item item = itemRegistry.get(args[1]);
+                        if (item instanceof GenericItem) {
+                            GenericItem gItem = (GenericItem) item;
+                            handleTags(gItem::removeTag, args[2], gItem, console);
+                        }
+                    } else {
+                        console.println("Specify the name of the item and the tag: " + this.getCommand() + " "
+                                + SUBCMD_RMTAG + " <itemName> <tag>");
+                    }
+                    break;
                 default:
                     console.println("Unknown command '" + subCommand + "'");
                     printUsage(console);
                     break;
             }
         } else {
-            listItems(console, "*");
+            printUsage(console);
+        }
+    }
+
+    private <T> void handleTags(final Consumer<T> func, final T tag, GenericItem gItem, Console console) {
+        // allow adding/removing of tags only for managed items
+        if (managedItemProvider.get(gItem.getName()) != null) {
+            // add or remove tag method is passed here
+            func.accept(tag);
+
+            Item oldItem = itemRegistry.update(gItem);
+            if (oldItem != null) {
+                console.println("Successfully changed tag " + tag + " on item " + gItem.getName());
+            }
+        } else {
+            console.println("Error: Cannot change tag " + tag + " on item " + gItem.getName()
+                    + " because this item does not belong to a ManagedProvider");
         }
     }
 
@@ -103,6 +152,14 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
 
     protected void unsetItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = null;
+    }
+
+    protected void setManagedItemProvider(ManagedItemProvider managedItemProvider) {
+        this.managedItemProvider = managedItemProvider;
+    }
+
+    protected void unsetManagedItemProvider(ManagedItemProvider managedItemProvider) {
+        this.managedItemProvider = null;
     }
 
 }

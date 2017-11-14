@@ -119,7 +119,7 @@ public void initialize() {
             // execute some binding specific polling code
         }
     };
-    pollingJob = scheduler.scheduleAtFixedRate(runnable, 0, 30, TimeUnit.SECONDS);
+    pollingJob = scheduler.scheduleAtFixedDelay(runnable, 0, 30, TimeUnit.SECONDS);
 }
 ```
 
@@ -168,7 +168,17 @@ updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR,
 
 After the thing is created, the framework calls the `initialize` method of the handler. At this time the state of the thing is *INTIALIZING* as long as the binding sets it to something else. Because of this the default implementation of the `initialize()` method in the `BaseThingHandler` just changes the status to *ONLINE*.
 
-*Note:* A binding should not set any other state than ONLINE, OFFLINE and REMOVED. All other states are managed by the framework.
+*Note:* A binding should not set any other state than ONLINE, OFFLINE and UNKNOWN. Additionally, REMOVED must be set after `handleRemoval()` has completed the removal process. All other states are managed by the framework.
+
+Furthermore bindings can specify a localized description of the thing status by providing the reference of the localization string, e.g &#64;text/rate_limit. The corresponding handler is able to provide placeholder values as a JSON-serialized array of strings:
+
+```
+&#64;text/rate_limit ["60", "10", "@text/hour"]
+```
+
+```
+rate_limit=Device is blocked by remote service for {0} minutes. Maximum limit of {1} configuration changes per {2} has been exceeded. For further info please refer to device vendor.
+```
 
 ## Channel Links
 
@@ -215,7 +225,7 @@ public void handleConfigurationUpdate(Map<String, Object> configurationParmeters
 }
 ```
 
-If configuration needs to be sent to devices, this method should be overridden and some binding-specific logic should be performed. The binding is also responsible for updating the thing, so as in the default implementation `updateConfiguration` should be called, if the configuration was successfully updated. In some radio protocols configuration can not directly be transmitted to devices, because the communication is done in specific intervals only. The binding could indicate a not yet transmitted configuration change for a device by setting the thing status detail to `CONFIGURATION_PENDING` (see [Thing Status Section](../../concepts/things.html#status-details)).
+If configuration needs to be sent to devices, this method should be overridden and some binding-specific logic should be performed. The binding is also responsible for updating the thing, so as in the default implementation `updateConfiguration` should be called, if the configuration was successfully updated. In some radio protocols configuration cannot directly be transmitted to devices, because the communication is done in specific intervals only. The binding could indicate a not yet transmitted configuration change for a device by setting the thing status detail to `CONFIGURATION_PENDING` (see [Thing Status Section](../../concepts/things.html#status-details)).
 
 
 ## Updating the Thing from a Binding
@@ -273,11 +283,11 @@ protected void thingStructureChanged() {
 
 ## Handling Thing Removal
 
-If a thing should be removed, the framework informs the binding about the removal request by calling `handleRemoval` at the thing handler. The thing will not be removed from the runtime, before the binding confirms the deletion by setting the thing status to `REMOVED`. If no special removal handling is required by the binding, you do not have to care about removal, because the default implementation of this method in the `BaseThingHandler` class just calls `updateStatus(ThingStatus.REMOVED)`.
+If a thing should be removed, the framework informs the binding about the removal request by calling `handleRemoval` at the thing handler. The thing will not be removed from the runtime until the binding confirms the deletion by setting the thing status to `REMOVED`. If no special removal handling is required by the binding, you do not have to care about removal because the default implementation of this method in the `BaseThingHandler` class just calls `updateStatus(ThingStatus.REMOVED)`.
 
-But for some radio-based devices it is needed to communicate with the device in order to unpair it safely. After the device was successfully unpaired, the binding can inform the framework that the thing was removed by setting the thing status to `REMOVED`.
+However, for some radio-based devices it is needed to communicate with the device in order to unpair it safely. After the device was successfully unpaired, the binding must inform the framework that the thing was removed by setting the thing status to `REMOVED`.
 
-After the removal was requested the status of the thing is `REMOVING` and can not be changed back to `ONLINE` or `OFFLINE` by the binding. The binding can only initiate the status transition to `REMOVED`.
+After the removal was requested (i.e. the thing is in  `REMOVING` state), it cannot be changed back anymore to `ONLINE`/`OFFLINE`/`UNKNOWN` by the binding. The binding may only initiate the status transition to `REMOVED`.
 
 ## Providing the Configuration Status
 As on the [XML Reference](xml-reference.html) page explained the *ThingHandler* as handler for the thing entity can provide the configuration status of the thing by implementing the `org.eclipse.smarthome.config.core.status.ConfigStatusProvider` interface. For things that are created by sub-classes of the `BaseThingHandlerFactory` the provider is already automatically registered as an OSGi service if the concrete thing handler implements the configuration status provider interface. Currently the framework provides two base thing handler implementations for the configuration status provider interface:

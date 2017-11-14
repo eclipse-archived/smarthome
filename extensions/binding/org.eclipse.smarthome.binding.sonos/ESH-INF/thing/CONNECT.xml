@@ -15,6 +15,8 @@
 			<channel id="alarmrunning" typeId="alarmrunning" />
 			<channel id="control" typeId="control" />
 			<channel id="currentalbum" typeId="currentalbum" />
+			<channel id="currentalbumart" typeId="currentalbumart" />
+			<channel id="currentalbumarturl" typeId="currentalbumarturl" />
 			<channel id="currentartist" typeId="currentartist" />
 			<channel id="currenttitle" typeId="currenttitle" />
 			<channel id="currenttrack" typeId="currenttrack" />
@@ -27,6 +29,7 @@
 			<channel id="notificationsound" typeId="notificationsound" />
 			<channel id="notificationvolume" typeId="notificationvolume" />
 			<channel id="playlist" typeId="playlist" />
+			<channel id="clearqueue" typeId="clearqueue" />
 			<channel id="playqueue" typeId="playqueue" />
 			<channel id="playtrack" typeId="playtrack" />
 			<channel id="playuri" typeId="playuri" />
@@ -41,36 +44,27 @@
 			<channel id="standalone" typeId="standalone" />
 			<channel id="state" typeId="state" />
 			<channel id="stop" typeId="stop" />
+			<channel id="tuneinstationid" typeId="tuneinstationid" />
 			<channel id="volume" typeId="volume" />
 			<channel id="zonegroup" typeId="zonegroup" />
 			<channel id="zonegroupid" typeId="zonegroupid" />
 			<channel id="zonename" typeId="zonename" />
 			<channel id="coordinator" typeId="coordinator" />
-			<!-- Extended SONOS channels (PLAY5, CONNECT & CONNECT:AMP only) -->
-			<channel id="linein" typeId="linein" />
-			<channel id="playlinein" typeId="playlinein" />
 			<channel id="sleeptimer" typeId="sleeptimer" />
 			<channel id="currenttransporturi" typeId="currenttransporturi" />
 			<channel id="currenttrackuri" typeId="currenttrackuri" />
+			<!-- Extended SONOS channels -->
+			<channel id="linein" typeId="linein" />
+			<channel id="playlinein" typeId="playlinein" />
 		</channels>
 
 		<properties>
 			<property name="vendor">SONOS</property>
-			<property name="modelId"></property>
+			<property name="modelId">CONNECT</property>
 		</properties>
 
-		<config-description>
-			<parameter name="udn" type="text">
-				<label>Unique Device Name</label>
-				<description>The UDN identifies the Zone Player.</description>
-				<required>true</required>
-			</parameter>
+		<representation-property>udn</representation-property>
 
-			<parameter name="refresh" type="integer">
-				<label>Refresh interval</label>
-				<description>Specifies the refresh interval in seconds</description>
-				<default>60</default>
-			</parameter>
-		</config-description>
+		<config-description-ref uri="thing-type:sonos:zoneplayer" />
 	</thing-type>
 </thing:thing-descriptions>

@@ -18,9 +18,9 @@
  *******************************************************************************/
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate"
-               immediate="true" name="org.eclipse.smarthome.sample.moduletype.demo.factory">
+               immediate="true" name="org.eclipse.smarthome.sample.moduletype.demo.internal.factory">
 
-    <implementation class="org.eclipse.smarthome.automation.sample.moduletype.factory.HandlerFactory"/>
+    <implementation class="org.eclipse.smarthome.automation.sample.moduletype.demo.internal.factory.HandlerFactory"/>
 
     <service>
         <provide interface="org.eclipse.smarthome.automation.handler.ModuleHandlerFactory"/>

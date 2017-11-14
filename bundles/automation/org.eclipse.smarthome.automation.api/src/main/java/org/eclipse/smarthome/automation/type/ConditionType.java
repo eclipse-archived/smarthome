@@ -11,16 +11,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Visibility;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
 /**
- * This class provides common functionality for creating {@link Condition} instances by supplying types with their
- * meta-information. The {@link Condition}s are part of "IF" section of the Rule. Each {@link ConditionType} is defined
- * by unique id in scope of the RuleEngine and defines {@link ConfigDescriptionParameter}s that are meta-information for
- * configuration and meta-information for {@link Input}s used for creation of {@link Condition} instances.
+ * This class provides common functionality for creating {@link Condition} instances by supplying their
+ * meta-information. Each {@link ConditionType} is uniquely identifiable in scope of the {@link ModuleTypeRegistry} and
+ * defines {@link ConfigDescriptionParameter}s that are meta-information for configuration of the future
+ * {@link Condition} instances and meta-information for {@link Input}s used from these {@link Condition} instances.
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Initial Contribution
@@ -28,26 +28,21 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  */
 public class ConditionType extends ModuleType {
 
-    private List<Input> inputs;
-
-    /**
-     * Default constructor for deserialization e.g. by Gson.
-     */
-    protected ConditionType() {
-    }
+    private final List<Input> inputs;
 
     /**
      * This constructor is responsible to create an instance of {@link ConditionType} with base properties - UID, a
      * {@link List} of configuration descriptions and a {@link List} of {@link Input} descriptions.
      *
-     * @param UID is an unique id of the {@link ActionType}, used as reference from the {@link Module}s, to find their
-     *            meta-information.
-     * @param configDescriptions is a {@link List} of meta-information configuration descriptions.
-     * @param inputs is a {@link List} of {@link Input} meta-information descriptions.
+     * @param UID the {@link ConditionType}'s identifier, or {@code null} if a random identifier should be generated.
+     * @param configDescriptions describing metadata for the configuration of the future {@link Condition} instances.
+     * @param inputs a {@link List} with {@link Input} meta-information descriptions of the future {@link Condition}
+     *            instances.
      */
-    public ConditionType(String UID, List<ConfigDescriptionParameter> configDescriptions, List<Input> inputs) {
+    public ConditionType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
+            @Nullable List<Input> inputs) {
         super(UID, configDescriptions);
-        this.inputs = inputs;
+        this.inputs = inputs != null ? Collections.unmodifiableList(inputs) : Collections.emptyList();
     }
 
     /**
@@ -55,29 +50,31 @@ public class ConditionType extends ModuleType {
      * {@link Set} of tags, visibility, a {@link List} of configuration descriptions and a {@link List} of {@link Input}
      * descriptions.
      *
-     * @param UID unique id of the {@link ConditionType}.
-     * @param configDescriptions is a {@link List} of meta-information configuration descriptions.
-     * @param label is a short and accurate name of the {@link ConditionType}.
-     * @param description is a short and understandable description of which can be used the {@link ConditionType}.
+     * @param UID the {@link ConditionType}'s identifier, or {@code null} if a random identifier should be generated.
+     * @param configDescriptions describing metadata for the configuration of the future {@link Condition} instances.
+     * @param label a short and accurate, human-readable label of the {@link ConditionType}.
+     * @param description a detailed, human-readable description of usage of {@link ConditionType} and its benefits.
      * @param tags defines categories that fit the {@link ConditionType} and which can serve as criteria for searching
      *            or filtering it.
      * @param visibility determines whether the {@link ConditionType} can be used by anyone if it is
      *            {@link Visibility#VISIBLE} or only by its creator if it is {@link Visibility#HIDDEN}.
-     * @param inputs is a {@link List} of {@link Input} meta-information descriptions.
+     * @param inputs a {@link List} with {@link Input} meta-information descriptions of the future {@link Condition}
+     *            instances.
      */
-    public ConditionType(String UID, List<ConfigDescriptionParameter> configDescriptions, String label,
-            String description, Set<String> tags, Visibility visibility, List<Input> inputs) {
+    public ConditionType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
+            @Nullable String label, @Nullable String description, @Nullable Set<String> tags,
+            @Nullable Visibility visibility, @Nullable List<Input> inputs) {
         super(UID, configDescriptions, label, description, tags, visibility);
-        this.inputs = inputs;
+        this.inputs = inputs != null ? Collections.unmodifiableList(inputs) : Collections.emptyList();
     }
 
     /**
-     * This method is used for getting the meta-information descriptions of {@link Input}s defined by this
+     * This method is used to obtain the meta-information descriptions of {@link Input}s defined by this
      * {@link ConditionType}.
      *
      * @return a {@link List} of {@link Input} meta-information descriptions.
      */
     public List<Input> getInputs() {
-        return inputs != null ? inputs : Collections.<Input> emptyList();
+        return inputs;
     }
 }

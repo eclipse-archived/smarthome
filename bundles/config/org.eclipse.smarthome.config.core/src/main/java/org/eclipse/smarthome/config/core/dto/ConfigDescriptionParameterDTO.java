@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,8 +18,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Alex Tugarev - Extended for options and filter criteria
- * @author Chris Jackson - Added group, advanced, limitToOptions, multipleLimit
- *         attributes
+ * @author Chris Jackson - Added group, advanced, limitToOptions, multipleLimit, verify attributes
  * @author Thomas Höfer - Added unit
  */
 public class ConfigDescriptionParameterDTO {
@@ -40,6 +39,7 @@ public class ConfigDescriptionParameterDTO {
     public Integer multipleLimit;
     public String groupName;
     public Boolean advanced;
+    public Boolean verify;
     public Boolean limitToOptions;
     public String unit;
     public String unitLabel;
@@ -54,7 +54,7 @@ public class ConfigDescriptionParameterDTO {
             BigDecimal stepsize, String pattern, Boolean required, Boolean readOnly, Boolean multiple, String context,
             String defaultValue, String label, String description, List<ParameterOptionDTO> options,
             List<FilterCriteriaDTO> filterCriteria, String groupName, Boolean advanced, Boolean limitToOptions,
-            Integer multipleLimit, String unit, String unitLabel) {
+            Integer multipleLimit, String unit, String unitLabel, Boolean verify) {
         this.name = name;
         this.type = type;
         this.min = minimum;
@@ -76,6 +76,7 @@ public class ConfigDescriptionParameterDTO {
         this.multipleLimit = multipleLimit;
         this.unit = unit;
         this.unitLabel = unitLabel;
+        this.verify = verify;
     }
 
 }

@@ -1,19 +1,31 @@
 Manifest-Version: 1.0
+Automation-ResourceType: json
+Bundle-ActivationPolicy: lazy
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Automation Module Script
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.automation.module.script
+Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-Activator: org.eclipse.smarthome.automation.module.script.internal.ScriptModuleActivator
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: com.google.common.base,
+DynamicImport-Package: *
+Export-Package: org.eclipse.smarthome.automation.module.script
+Import-Package: 
+ com.google.common.base,
  javax.script,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.automation,
  org.eclipse.smarthome.automation.handler,
  org.eclipse.smarthome.automation.module.script,
+ org.eclipse.smarthome.automation.parser,
  org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.common.registry,
+ org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.service,
+ org.eclipse.smarthome.core.thing,
+ org.eclipse.smarthome.core.types,
  org.osgi.framework,
  org.osgi.util.tracker,
  org.slf4j
-Automation-ResourceType: json
-Bundle-Vendor: Eclipse.org/SmartHome
-Export-Package: org.eclipse.smarthome.automation.module.script
+Service-Component: OSGI-INF/*.xml

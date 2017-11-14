@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,8 @@ package org.eclipse.smarthome.binding.lifx.internal.protocol;
 import java.nio.ByteBuffer;
 
 import org.eclipse.smarthome.binding.lifx.internal.fields.Field;
+import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
+import org.eclipse.smarthome.binding.lifx.internal.fields.HSBKField;
 import org.eclipse.smarthome.binding.lifx.internal.fields.StringField;
 import org.eclipse.smarthome.binding.lifx.internal.fields.UInt16Field;
 import org.eclipse.smarthome.binding.lifx.internal.fields.UInt64Field;
@@ -22,19 +24,13 @@ public class StateResponse extends Packet {
 
     public static final int TYPE = 0x6B;
 
-    public static final Field<Integer> FIELD_HUE = new UInt16Field().little();
-    public static final Field<Integer> FIELD_SATURATION = new UInt16Field().little();
-    public static final Field<Integer> FIELD_BRIGHTNESS = new UInt16Field().little();
-    public static final Field<Integer> FIELD_KELVIN = new UInt16Field().little();
+    public static final HSBKField FIELD_COLOR = new HSBKField();
     public static final Field<Integer> FIELD_DIM = new UInt16Field().little();
     public static final Field<Integer> FIELD_POWER = new UInt16Field();
     public static final Field<String> FIELD_LABEL = new StringField(32);
     public static final Field<Long> FIELD_TAGS = new UInt64Field();
 
-    private int hue;
-    private int saturation;
-    private int brightness;
-    private int kelvin;
+    private HSBK color;
     private int dim;
     private PowerState power;
     private String label;
@@ -42,24 +38,11 @@ public class StateResponse extends Packet {
 
     @Override
     public String toString() {
-        return "hue=" + hue + ", saturation=" + saturation + ", brightness=" + brightness + ", kelvin=" + kelvin
-                + ", dim=" + dim + ", power=" + power + ", label=" + label;
+        return color.toString("color") + ", dim=" + dim + ", power=" + power + ", label=" + label;
     }
 
-    public int getHue() {
-        return hue;
-    }
-
-    public int getSaturation() {
-        return saturation;
-    }
-
-    public int getBrightness() {
-        return brightness;
-    }
-
-    public int getKelvin() {
-        return kelvin;
+    public HSBK getColor() {
+        return color;
     }
 
     public int getDim() {
@@ -90,10 +73,7 @@ public class StateResponse extends Packet {
 
     @Override
     protected void parsePacket(ByteBuffer bytes) {
-        hue = FIELD_HUE.value(bytes);
-        saturation = FIELD_SATURATION.value(bytes);
-        brightness = FIELD_BRIGHTNESS.value(bytes);
-        kelvin = FIELD_KELVIN.value(bytes);
+        color = FIELD_COLOR.value(bytes);
         dim = FIELD_DIM.value(bytes);
         power = PowerState.fromValue(FIELD_POWER.value(bytes));
         label = FIELD_LABEL.value(bytes);
@@ -102,8 +82,7 @@ public class StateResponse extends Packet {
 
     @Override
     protected ByteBuffer packetBytes() {
-        return ByteBuffer.allocate(packetLength()).put(FIELD_HUE.bytes(hue)).put(FIELD_SATURATION.bytes(saturation))
-                .put(FIELD_BRIGHTNESS.bytes(brightness)).put(FIELD_KELVIN.bytes(kelvin)).put(FIELD_DIM.bytes(dim))
+        return ByteBuffer.allocate(packetLength()).put(FIELD_COLOR.bytes(color)).put(FIELD_DIM.bytes(dim))
                 .put(FIELD_POWER.bytes(power.getValue())).put(FIELD_LABEL.bytes(label)).put(FIELD_TAGS.bytes(tags));
     }
 

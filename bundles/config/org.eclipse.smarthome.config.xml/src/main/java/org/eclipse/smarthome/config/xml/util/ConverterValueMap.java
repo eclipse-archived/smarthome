@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,14 +52,9 @@ public class ConverterValueMap {
      */
     public ConverterValueMap(HierarchicalStreamReader reader, int numberOfValues, UnmarshallingContext context)
             throws ConversionException {
-
-        if (numberOfValues < -1) {
-            numberOfValues = -1;
-        }
-
         this.reader = reader;
         this.context = context;
-        this.valueMap = readValueMap(this.reader, numberOfValues, this.context);
+        this.valueMap = readValueMap(this.reader, numberOfValues >= -1 ? numberOfValues : -1, this.context);
     }
 
     /**

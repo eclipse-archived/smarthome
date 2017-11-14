@@ -15,6 +15,7 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
+import org.eclipse.smarthome.automation.module.script.ScriptEngineManager;
 import org.eclipse.smarthome.automation.module.script.internal.handler.ScriptActionHandler;
 import org.eclipse.smarthome.automation.module.script.internal.handler.ScriptConditionHandler;
 import org.osgi.framework.BundleContext;
@@ -31,6 +32,8 @@ public class ScriptModuleHandlerFactory extends BaseModuleHandlerFactory {
 
     private Logger logger = LoggerFactory.getLogger(ScriptModuleHandlerFactory.class);
 
+    private ScriptEngineManager scriptEngineManager;
+
     private static final Collection<String> types = Arrays
             .asList(new String[] { ScriptActionHandler.SCRIPT_ACTION_ID, ScriptConditionHandler.SCRIPT_CONDITION });
 
@@ -44,16 +47,25 @@ public class ScriptModuleHandlerFactory extends BaseModuleHandlerFactory {
         return types;
     }
 
+    public void setScriptEngineManager(ScriptEngineManager scriptEngineManager) {
+        this.scriptEngineManager = scriptEngineManager;
+    }
+
+    public void unsetScriptEngineManager(ScriptEngineManager scriptEngineManager) {
+        this.scriptEngineManager = null;
+    }
+
     @Override
     protected ModuleHandler internalCreate(Module module, String ruleUID) {
         logger.trace("create {} -> {}", module.getId(), module.getTypeUID());
         String moduleTypeUID = module.getTypeUID();
         if (moduleTypeUID != null) {
             if (ScriptConditionHandler.SCRIPT_CONDITION.equals(moduleTypeUID) && module instanceof Condition) {
-                ScriptConditionHandler handler = new ScriptConditionHandler((Condition) module);
+                ScriptConditionHandler handler = new ScriptConditionHandler((Condition) module, ruleUID,
+                        scriptEngineManager);
                 return handler;
             } else if (ScriptActionHandler.SCRIPT_ACTION_ID.equals(moduleTypeUID) && module instanceof Action) {
-                ScriptActionHandler handler = new ScriptActionHandler((Action) module);
+                ScriptActionHandler handler = new ScriptActionHandler((Action) module, ruleUID, scriptEngineManager);
                 return handler;
             } else {
                 logger.error("The ModuleHandler is not supported: {}", moduleTypeUID);

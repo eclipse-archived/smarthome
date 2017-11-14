@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
     <groupId>org.eclipse.smarthome.extension</groupId>
@@ -16,15 +16,24 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>org.eclipse.smarthome.binding.astro</module>
+    <module>org.eclipse.smarthome.binding.astro.test</module>
     <module>org.eclipse.smarthome.binding.digitalstrom</module>
+    <module>org.eclipse.smarthome.binding.dmx</module>
+    <module>org.eclipse.smarthome.binding.dmx.test</module>
+
     <module>org.eclipse.smarthome.binding.hue</module>
     <module>org.eclipse.smarthome.binding.hue.test</module>
     <module>org.eclipse.smarthome.binding.fsinternetradio</module>
     <module>org.eclipse.smarthome.binding.fsinternetradio.test</module>
     <module>org.eclipse.smarthome.binding.lifx</module>
+    <module>org.eclipse.smarthome.binding.lirc</module>
     <module>org.eclipse.smarthome.binding.ntp</module>
     <module>org.eclipse.smarthome.binding.ntp.test</module>
     <module>org.eclipse.smarthome.binding.sonos</module>
+    <module>org.eclipse.smarthome.binding.tradfri</module>
+    <module>org.eclipse.smarthome.binding.tradfri.test</module>
+    <module>org.eclipse.smarthome.binding.weatherunderground</module>
     <module>org.eclipse.smarthome.binding.wemo</module>
     <module>org.eclipse.smarthome.binding.wemo.test</module>
     <module>org.eclipse.smarthome.binding.yahooweather</module>

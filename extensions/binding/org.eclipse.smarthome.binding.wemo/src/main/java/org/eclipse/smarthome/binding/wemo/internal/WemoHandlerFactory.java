@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,11 +15,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.binding.wemo.WemoBindingConstants;
-import org.eclipse.smarthome.binding.wemo.discovery.WemoLinkDiscoveryService;
 import org.eclipse.smarthome.binding.wemo.handler.WemoBridgeHandler;
+import org.eclipse.smarthome.binding.wemo.handler.WemoCoffeeHandler;
 import org.eclipse.smarthome.binding.wemo.handler.WemoHandler;
 import org.eclipse.smarthome.binding.wemo.handler.WemoLightHandler;
 import org.eclipse.smarthome.binding.wemo.handler.WemoMakerHandler;
+import org.eclipse.smarthome.binding.wemo.internal.discovery.WemoLinkDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -31,8 +32,6 @@ import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Sets;
 
 /**
  * The {@link WemoHandlerFactory} is responsible for creating things and thing
@@ -47,8 +46,7 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
 
     private UpnpIOService upnpIOService;
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets
-            .newHashSet(WemoBindingConstants.SUPPORTED_THING_TYPES);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = WemoBindingConstants.SUPPORTED_THING_TYPES;
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -79,6 +77,10 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
                 logger.debug("Creating a WemoHandler for thing '{}' with UDN '{}'", thing.getUID(),
                         thing.getConfiguration().get(UDN));
                 return new WemoHandler(thing, upnpIOService);
+            } else if (thingTypeUID.equals(WemoBindingConstants.THING_TYPE_COFFEE)) {
+                logger.debug("Creating a WemoCoffeeHandler for thing '{}' with UDN '{}'", thing.getUID(),
+                        thing.getConfiguration().get(UDN));
+                return new WemoCoffeeHandler(thing, upnpIOService);
             } else if (thingTypeUID.equals(WemoBindingConstants.THING_TYPE_MZ100)) {
                 return new WemoLightHandler(thing, upnpIOService);
             } else {

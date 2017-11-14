@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,9 +10,11 @@ package org.eclipse.smarthome.ui.icon;
 import java.io.InputStream;
 import java.util.Set;
 
-import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.ui.icon.IconSet.Format;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is an abstract base class for implementing icon providers that serve icons from file resources.
@@ -33,15 +35,17 @@ import org.osgi.framework.BundleContext;
  */
 abstract public class AbstractResourceIconProvider implements IconProvider {
 
+    private final Logger logger = LoggerFactory.getLogger(AbstractResourceIconProvider.class);
+
     /**
      * The OSGi bundle context
      */
     protected BundleContext context;
 
     /**
-     * An I18nProvider service
+     * An TranslationProvider service
      */
-    protected I18nProvider i18nProvider;
+    protected TranslationProvider i18nProvider;
 
     /**
      * When activating the service, we need to keep the bundle context.
@@ -52,11 +56,11 @@ abstract public class AbstractResourceIconProvider implements IconProvider {
         this.context = context;
     }
 
-    protected void setI18nProvider(I18nProvider i18nProvider) {
+    protected void setTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
     }
 
-    protected void unsetI18nProvider(I18nProvider i18nProvider) {
+    protected void unsetTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = null;
     }
 
@@ -73,7 +77,12 @@ abstract public class AbstractResourceIconProvider implements IconProvider {
 
     @Override
     public InputStream getIcon(String category, String iconSetId, String state, Format format) {
-        String resourceWithState = category + ((state != null) ? "-" + state.toLowerCase() : "") + "."
+        String resourceWithoutState = category.toLowerCase() + "." + format.toString().toLowerCase();
+        if (state == null) {
+            return getResource(iconSetId, resourceWithoutState);
+        }
+
+        String resourceWithState = category.toLowerCase() + "-" + state.toLowerCase() + "."
                 + format.toString().toLowerCase();
         if (hasResource(iconSetId, resourceWithState)) {
             return getResource(iconSetId, resourceWithState);
@@ -83,7 +92,8 @@ abstract public class AbstractResourceIconProvider implements IconProvider {
                 Double stateAsDouble = Double.valueOf(state);
                 if (stateAsDouble >= 0 && stateAsDouble <= 100) {
                     for (int i = stateAsDouble.intValue(); i >= 0; i--) {
-                        String resourceWithNumberState = category + "-" + i + "." + format.toString().toLowerCase();
+                        String resourceWithNumberState = category.toLowerCase() + "-" + i + "."
+                                + format.toString().toLowerCase();
                         if (hasResource(iconSetId, resourceWithNumberState)) {
                             return getResource(iconSetId, resourceWithNumberState);
                         }
@@ -92,7 +102,8 @@ abstract public class AbstractResourceIconProvider implements IconProvider {
             } catch (NumberFormatException e) {
                 // does not seem to be a number, so ignore it
             }
-            return getResource(iconSetId, category + "." + format.toString().toLowerCase());
+            logger.debug("Use icon {} as {} is not found", resourceWithoutState, resourceWithState);
+            return getResource(iconSetId, resourceWithoutState);
         }
     }
 

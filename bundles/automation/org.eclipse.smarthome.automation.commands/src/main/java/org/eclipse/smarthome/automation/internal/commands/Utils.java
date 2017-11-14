@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * This class contains methods for facilitating sorting and filtering lists stored in {@link Hashtable}s.
@@ -53,8 +54,9 @@ public class Utils {
      */
     static Map<String, String> filterList(Map<String, ?> listObjects, Map<String, String> listUIDs) {
         Hashtable<String, String> filtered = new Hashtable<String, String>();
-        for (String id : listUIDs.keySet()) {
-            String uid = listUIDs.get(id);
+        for (final Entry<String, String> entry : listUIDs.entrySet()) {
+            final String id = entry.getKey();
+            final String uid = entry.getValue();
             Object obj = listObjects.get(uid);
             if (obj != null) {
                 filtered.put(id, uid);

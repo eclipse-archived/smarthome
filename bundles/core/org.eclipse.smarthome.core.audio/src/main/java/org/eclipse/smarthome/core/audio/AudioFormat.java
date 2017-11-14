@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,14 @@ public class AudioFormat {
     // generic wav format without any further constraints
     public static AudioFormat WAV = new AudioFormat(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED, null,
             null, null, null);
+
+    // generic OGG format without any further constraints
+    public static AudioFormat OGG = new AudioFormat(AudioFormat.CONTAINER_OGG, AudioFormat.CODEC_VORBIS, null, null,
+            null, null);
+
+    // generic AAC format without any further constraints
+    public static AudioFormat AAC = new AudioFormat(AudioFormat.CONTAINER_NONE, AudioFormat.CODEC_AAC, null, null, null,
+            null);
 
     /**
      * {@link AudioCodec} encoded data without any container header or footer,
@@ -89,6 +97,11 @@ public class AudioFormat {
      * @see <a href="http://xiph.org/vorbis/doc/">Vorbis</a>
      */
     public static final String CODEC_VORBIS = "VORBIS";
+
+    /**
+     * AAC Codec
+     */
+    public static final String CODEC_AAC = "AAC";
 
     /**
      * Codec
@@ -395,6 +408,19 @@ public class AudioFormat {
             return true;
         }
         return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((bigEndian == null) ? 0 : bigEndian.hashCode());
+        result = prime * result + ((bitDepth == null) ? 0 : bitDepth.hashCode());
+        result = prime * result + ((bitRate == null) ? 0 : bitRate.hashCode());
+        result = prime * result + ((codec == null) ? 0 : codec.hashCode());
+        result = prime * result + ((container == null) ? 0 : container.hashCode());
+        result = prime * result + ((frequency == null) ? 0 : frequency.hashCode());
+        return result;
     }
 
     @Override

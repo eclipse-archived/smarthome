@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,7 +9,11 @@ package org.eclipse.smarthome.model.rule.runtime.internal;
 
 import org.eclipse.smarthome.model.core.ModelParser;
 import org.eclipse.smarthome.model.rule.RulesStandaloneSetup;
+import org.eclipse.smarthome.model.script.ScriptServiceUtil;
+import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,21 +22,43 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
+@Component(immediate = true, service = { ModelParser.class, RuleRuntimeActivator.class })
 public class RuleRuntimeActivator implements ModelParser {
 
     private final Logger logger = LoggerFactory.getLogger(RuleRuntimeActivator.class);
+    private ScriptServiceUtil scriptServiceUtil;
+    private ScriptEngine scriptEngine;
 
     public void activate(BundleContext bc) throws Exception {
-        RulesStandaloneSetup.doSetup();
+        RulesStandaloneSetup.doSetup(scriptServiceUtil, scriptEngine);
         logger.debug("Registered 'rule' configuration parser");
     }
 
     public void deactivate() throws Exception {
+        RulesStandaloneSetup.unregister();
     }
 
     @Override
     public String getExtension() {
         return "rules";
+    }
+
+    @Reference
+    protected void setScriptServiceUtil(ScriptServiceUtil scriptServiceUtil) {
+        this.scriptServiceUtil = scriptServiceUtil;
+    }
+
+    protected void unsetScriptServiceUtil(ScriptServiceUtil scriptServiceUtil) {
+        this.scriptServiceUtil = null;
+    }
+
+    @Reference
+    public void setScriptEngine(ScriptEngine scriptEngine) {
+        this.scriptEngine = scriptEngine;
+    }
+
+    public void unsetScriptEngine(ScriptEngine scriptEngine) {
+        this.scriptEngine = null;
     }
 
 }

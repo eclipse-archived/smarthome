@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,17 +28,11 @@ import org.eclipse.smarthome.ui.basic.render.WidgetRenderer;
  */
 public class SetpointRenderer extends AbstractWidgetRenderer {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean canRender(Widget w) {
         return w instanceof Setpoint;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         Setpoint sp = (Setpoint) w;

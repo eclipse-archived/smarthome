@@ -1,10 +1,14 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome UPnP Transport Bundle
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.io.transport.upnp
+Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: org.eclipse.smarthome.io.transport.upnp,
+Export-Package: org.eclipse.smarthome.io.transport.upnp
+Import-Package: 
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.io.transport.upnp,
  org.jupnp,
  org.jupnp.controlpoint,
  org.jupnp.model,
@@ -15,8 +19,6 @@ Import-Package: org.eclipse.smarthome.io.transport.upnp,
  org.jupnp.model.state,
  org.jupnp.model.types,
  org.jupnp.registry,
- org.osgi.framework;version="1.3.0",
+ org.osgi.framework,
  org.slf4j
-Export-Package: org.eclipse.smarthome.io.transport.upnp
-Service-Component: OSGI-INF/UpnpIOService.xml
-Bundle-Vendor: Eclipse.org/SmartHome
+Service-Component: OSGI-INF/*.xml

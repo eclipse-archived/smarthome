@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,24 +7,34 @@
  */
 package org.eclipse.smarthome.ui.internal.items;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.library.items.ColorItem;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
+import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.StateDescription;
+import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.eclipse.smarthome.model.sitemap.Mapping;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapFactory;
+import org.eclipse.smarthome.model.sitemap.Slider;
+import org.eclipse.smarthome.model.sitemap.Switch;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.items.ItemUIProvider;
 import org.junit.Before;
@@ -127,7 +137,7 @@ public class ItemUIRegistryImplTest {
         when(item.getState()).thenReturn(new DecimalType(10f / 3f));
         when(item.getStateAs(DecimalType.class)).thenReturn(new DecimalType(10f / 3f));
         String label = uiRegistry.getLabel(w);
-        assertEquals("Label [3" + sep + ".333]", label);
+        assertEquals("Label [3" + sep + "333]", label);
     }
 
     @Test
@@ -309,6 +319,172 @@ public class ItemUIRegistryImplTest {
         assertEquals("Zeit [-.-.- -]", uiRegistry.formatUndefined("Zeit [%1$td.%1$tm.%1$tY %1$tT]"));
         assertEquals("Temperatur [- °C]", uiRegistry.formatUndefined("Temperatur [%.1f °C]"));
         assertEquals("Luftfeuchte [- %]", uiRegistry.formatUndefined("Luftfeuchte [%.1f %%]"));
+    }
+
+    @Test
+    public void testStateConversionForSwitchWidgetThroughGetState() throws ItemNotFoundException {
+        State colorState = new HSBType("23,42,50");
+
+        ColorItem colorItem = new ColorItem("myItem");
+        colorItem.setLabel("myItem");
+        colorItem.setState(colorState);
+
+        when(registry.getItem("myItem")).thenReturn(colorItem);
+
+        Switch switchWidget = mock(Switch.class);
+        when(switchWidget.getItem()).thenReturn("myItem");
+        when(switchWidget.getMappings()).thenReturn(new BasicEList<Mapping>());
+
+        State stateForSwitch = uiRegistry.getState(switchWidget);
+
+        assertEquals(OnOffType.ON, stateForSwitch);
+    }
+
+    @Test
+    public void testStateConversionForSwitchWidgetWithMappingThroughGetState() throws ItemNotFoundException {
+        State colorState = new HSBType("23,42,50");
+
+        ColorItem colorItem = new ColorItem("myItem");
+        colorItem.setLabel("myItem");
+        colorItem.setState(colorState);
+
+        when(registry.getItem("myItem")).thenReturn(colorItem);
+
+        Switch switchWidget = mock(Switch.class);
+        when(switchWidget.getItem()).thenReturn("myItem");
+
+        Mapping mapping = mock(Mapping.class);
+        BasicEList<Mapping> mappings = new BasicEList<Mapping>();
+        mappings.add(mapping);
+        when(switchWidget.getMappings()).thenReturn(mappings);
+
+        State stateForSwitch = uiRegistry.getState(switchWidget);
+
+        assertEquals(colorState, stateForSwitch);
+    }
+
+    @Test
+    public void testStateConversionForSliderWidgetThroughGetState() throws ItemNotFoundException {
+        State colorState = new HSBType("23,42,75");
+
+        ColorItem colorItem = new ColorItem("myItem");
+        colorItem.setLabel("myItem");
+        colorItem.setState(colorState);
+
+        when(registry.getItem("myItem")).thenReturn(colorItem);
+
+        Slider sliderWidget = mock(Slider.class);
+        when(sliderWidget.getItem()).thenReturn("myItem");
+
+        State stateForSlider = uiRegistry.getState(sliderWidget);
+
+        assertTrue(stateForSlider instanceof PercentType);
+
+        PercentType pt = (PercentType) stateForSlider;
+
+        assertEquals(75, pt.longValue());
+    }
+
+    @Test
+    public void getLabel_labelWithoutStateDescription() throws ItemNotFoundException {
+        String testLabel = "Label";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getStateDescription()).thenReturn(null);
+        when(item.getState()).thenReturn(new StringType("State"));
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Label", label);
+    }
+
+    @Test
+    public void getLabel_labelWithoutPatternInStateDescription() throws ItemNotFoundException {
+        String testLabel = "Label";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        StateDescription stateDescription = mock(StateDescription.class);
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getStateDescription()).thenReturn(stateDescription);
+        when(stateDescription.getPattern()).thenReturn(null);
+        when(item.getState()).thenReturn(new StringType("State"));
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Label", label);
+    }
+
+    @Test
+    public void getLabel_labelWithPatternInStateDescription() throws ItemNotFoundException {
+        String testLabel = "Label";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        StateDescription stateDescription = mock(StateDescription.class);
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getStateDescription()).thenReturn(stateDescription);
+        when(stateDescription.getPattern()).thenReturn("%s");
+        when(item.getState()).thenReturn(new StringType("State"));
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Label [State]", label);
+    }
+
+    @Test
+    public void getLabel_labelWithEmptyPattern() throws ItemNotFoundException {
+        String testLabel = "Label []";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        StateDescription stateDescription = mock(StateDescription.class);
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getStateDescription()).thenReturn(stateDescription);
+        when(stateDescription.getPattern()).thenReturn("%s");
+        when(item.getState()).thenReturn(new StringType("State"));
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Label", label);
+    }
+
+    @Test
+    public void getLabel_labelWithMappedOption() throws ItemNotFoundException {
+        String testLabel = "Label";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        StateDescription stateDescription = mock(StateDescription.class);
+        List<StateOption> options = new ArrayList<>();
+        options.add(new StateOption("State0", "This is the state 0"));
+        options.add(new StateOption("State1", "This is the state 1"));
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getStateDescription()).thenReturn(stateDescription);
+        when(stateDescription.getPattern()).thenReturn("%s");
+        when(stateDescription.getOptions()).thenReturn(options);
+        when(item.getState()).thenReturn(new StringType("State1"));
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Label [This is the state 1]", label);
+    }
+
+    @Test
+    public void getLabel_labelWithUnmappedOption() throws ItemNotFoundException {
+        String testLabel = "Label";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        StateDescription stateDescription = mock(StateDescription.class);
+        List<StateOption> options = new ArrayList<>();
+        options.add(new StateOption("State0", "This is the state 0"));
+        options.add(new StateOption("State1", "This is the state 1"));
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getStateDescription()).thenReturn(stateDescription);
+        when(stateDescription.getPattern()).thenReturn("%s");
+        when(stateDescription.getOptions()).thenReturn(options);
+        when(item.getState()).thenReturn(new StringType("State"));
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Label [State]", label);
     }
 
 }

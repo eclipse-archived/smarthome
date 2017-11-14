@@ -1,16 +1,19 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Automation Event Test
-Bundle-SymbolicName: org.eclipse.smarthome.automation.event.test;singleton:=true
-Bundle-Version: 0.9.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.automation.event.test;singlet
+ on:=true
 Bundle-Vendor: Eclipse/SmartHome
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: com.google.common.collect,
+Bundle-Version: 0.9.0.qualifier
+Import-Package: 
+ com.google.common.collect,
  groovy.lang,
  org.codehaus.groovy.reflection,
  org.codehaus.groovy.runtime,
  org.codehaus.groovy.runtime.callsite,
  org.codehaus.groovy.runtime.typehandling,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.automation,
  org.eclipse.smarthome.automation.events,
  org.eclipse.smarthome.automation.handler,
@@ -20,10 +23,10 @@ Import-Package: com.google.common.collect,
  org.eclipse.smarthome.core.autoupdate,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.items,
- org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.core.items.events,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
@@ -31,9 +34,10 @@ Import-Package: com.google.common.collect,
  org.osgi.service.event,
  org.osgi.util.tracker,
  org.slf4j;version="1.7.2"
-Require-Bundle: org.junit;bundle-version="4.0.0",
+Require-Bundle: 
  org.eclipse.smarthome.automation.api,
  org.eclipse.smarthome.automation.core,
  org.eclipse.smarthome.automation.module.core,
  org.eclipse.smarthome.automation.parser.gson,
- org.eclipse.smarthome.automation.providers
+ org.eclipse.smarthome.automation.providers,
+ org.junit;bundle-version="4.0.0"

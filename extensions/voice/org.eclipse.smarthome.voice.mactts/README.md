@@ -1,9 +1,3 @@
----
-layout: documentation
----
-
-{% include base.html %}
-
 # MacOS Text-to-Speech
 
 ## Overview

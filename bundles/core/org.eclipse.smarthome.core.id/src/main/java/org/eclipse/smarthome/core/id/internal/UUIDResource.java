@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,7 +38,7 @@ public class UUIDResource implements RESTResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "A unified unique id.", response = String.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class) })
     public Response getInstanceUUID() {
         return Response.ok(InstanceUUID.get()).build();
     }

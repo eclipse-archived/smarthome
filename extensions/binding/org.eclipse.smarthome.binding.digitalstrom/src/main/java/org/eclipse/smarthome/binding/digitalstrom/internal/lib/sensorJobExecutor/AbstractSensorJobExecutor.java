@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
  * <li>{@link #addMediumPriorityJob(SensorJob)}</li>
  * <li>{@link #addHighPriorityJob(SensorJob)}</li>
  * </ul>
- * </p>
  *
  * @author Michael Ochel - Initial contribution
  * @author Matthias Siegele - Initial contribution
@@ -68,7 +67,7 @@ public abstract class AbstractSensorJobExecutor {
                 sensorJob.execute(dSAPI, connectionManager.getSessionToken());
             }
             if (circuit.noMoreJobs()) {
-                logger.debug("no more jobs... stop circuit schedduler with id = " + circuit.getMeterDSID().toString());
+                logger.debug("no more jobs... stop circuit schedduler with id = {}", circuit.getMeterDSID());
                 pollingSchedulers.get(circuit.getMeterDSID()).cancel(true);
             }
         }
@@ -113,7 +112,7 @@ public abstract class AbstractSensorJobExecutor {
             if (pollingSchedulers.get(circuit.getMeterDSID()) == null
                     || pollingSchedulers.get(circuit.getMeterDSID()).isCancelled()) {
                 pollingSchedulers.put(circuit.getMeterDSID(),
-                        scheduler.scheduleAtFixedRate(new ExecutorRunnable(circuit), circuit.getNextExecutionDelay(),
+                        scheduler.scheduleWithFixedDelay(new ExecutorRunnable(circuit), circuit.getNextExecutionDelay(),
                                 config.getSensorReadingWaitTime(), TimeUnit.MILLISECONDS));
             }
         }

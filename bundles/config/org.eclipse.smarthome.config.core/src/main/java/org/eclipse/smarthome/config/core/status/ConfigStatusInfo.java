@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -152,11 +152,6 @@ public final class ConfigStatusInfo {
         return Collections.unmodifiableCollection(Collections2.filter(configStatusMessages, predicate));
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -165,11 +160,6 @@ public final class ConfigStatusInfo {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -187,11 +177,6 @@ public final class ConfigStatusInfo {
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return "ConfigStatusInfo [configStatusMessages=" + configStatusMessages + "]";

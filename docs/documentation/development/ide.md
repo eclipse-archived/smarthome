@@ -10,7 +10,7 @@ Please ensure that you have the following prerequisites installed on your machin
 
 1. [Git](https://git-scm.com/downloads)
 1. [Maven 3.x](https://maven.apache.org/download.cgi)
-1. [Oracle JDK 7 or 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+1. [Oracle JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 
 The Eclipse IDE is used for Eclipse SmartHome developments. The Eclipse Installer automatically prepares the IDE so that it comes with all required plug-ins, the correct workspace encoding settings, pre-configured code formatters and more. Simply follow these steps:
 
@@ -33,6 +33,7 @@ The Eclipse IDE is used for Eclipse SmartHome developments. The Eclipse Installe
 ![Step 7](images/ide7.png)
 10. Your workspace should now fully compile and you can start the runtime by launching the "SmartHome Runtime" launch configuration:
 ![Step 8](images/ide8.png)
+11. Note: The Paper UI and Basic UI do not work at this point yet. You should run a "mvn clean install" from the root of your repository first. Afterwards, access the Paper UI at [http://localhost:8080/paperui/index.html](http://localhost:8080/paperui/index.html). For more information about Paper UI see [Paper UI Development](notes.html#paperui-development-jshtml). 
 
 Note that you will find the sources in a subfolder called "git" within your selected installation folder. You can use any kind of git client here, if you do not want to use the git support from within the Eclipse IDE.
 If you want to push changes, you need to do so to [your personal fork of the Eclipse SmartHome repository](https://github.com/eclipse/smarthome/fork) in order to create a pull request. You will find more details in the ["How to contribute"](../community/contributing.html) documentation.

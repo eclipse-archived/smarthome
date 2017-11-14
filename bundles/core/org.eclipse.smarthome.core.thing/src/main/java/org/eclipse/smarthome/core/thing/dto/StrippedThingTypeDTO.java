@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ public class StrippedThingTypeDTO {
     public String UID;
     public String label;
     public String description;
+    public String category;
     public boolean listed;
     public List<String> supportedBridgeTypeUIDs;
     public boolean bridge;
@@ -28,11 +29,12 @@ public class StrippedThingTypeDTO {
     public StrippedThingTypeDTO() {
     }
 
-    public StrippedThingTypeDTO(String UID, String label, String description, boolean listed,
+    public StrippedThingTypeDTO(String UID, String label, String description, String category, boolean listed,
             List<String> supportedBridgeTypeUIDs, boolean bridge) {
         this.UID = UID;
         this.label = label;
         this.description = description;
+        this.category = category;
         this.listed = listed;
         this.supportedBridgeTypeUIDs = supportedBridgeTypeUIDs;
         this.bridge = bridge;

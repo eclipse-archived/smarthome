@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2014-2017 by the respective copyright holders.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 
 /**
  * Copyright (c) 2014-2016 by the respective copyright holders.
@@ -8,20 +15,12 @@
  */
 package org.eclipse.smarthome.core.service;
 
-import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitOption;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -35,6 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Fabio Marini
  * @author Dimitar Ivanov - added javadoc; introduced WatchKey to directory mapping for the queue reader
+ * @author Ana Dimova - reduce to a single watch thread for all class instances of {@link AbstractWatchService}
  *
  */
 public abstract class AbstractWatchService {
@@ -44,113 +44,49 @@ public abstract class AbstractWatchService {
      */
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /**
-     * The WatchService
-     */
-    protected WatchService watchService;
+    protected String pathToWatch;
+
+    protected AbstractWatchService(String pathToWatch) {
+        this.pathToWatch = pathToWatch;
+    }
 
     /**
      * The queue reader
      */
-    protected AbstractWatchQueueReader watchQueueReader;
+    protected WatchQueueReader watchQueueReader;
 
     /**
      * Method to call on service activation
      */
     public void activate() {
-        initializeWatchService();
+        Path pathToWatch = getSourcePath();
+        if (pathToWatch != null) {
+            watchQueueReader = WatchQueueReader.getInstance();
+            watchQueueReader.customizeWatchQueueReader(this, pathToWatch, watchSubDirectories());
+        }
     }
 
     /**
      * Method to call on service deactivation
      */
     public void deactivate() {
-        stopWatchService();
-    }
-
-    protected void initializeWatchService() {
-        if (watchService != null) {
-            try {
-                watchService.close();
-            } catch (IOException e) {
-                logger.warn("Cannot deactivate folder watcher", e);
-            }
+        WatchQueueReader watchQueueReader = this.watchQueueReader;
+        if (watchQueueReader != null) {
+            watchQueueReader.stopWatchService(this);
         }
-
-        String pathToWatch = getSourcePath();
-        if (StringUtils.isNotBlank(pathToWatch)) {
-            Path toWatch = Paths.get(pathToWatch);
-            try {
-                final Map<WatchKey, Path> registeredWatchKeys = new HashMap<>();
-                if (watchSubDirectories()) {
-                    watchService = FileSystems.getDefault().newWatchService();
-
-                    // walk through all folders and follow symlinks
-                    Files.walkFileTree(toWatch, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
-                            new SimpleFileVisitor<Path>() {
-                                @Override
-                                public FileVisitResult preVisitDirectory(Path subDir, BasicFileAttributes attrs)
-                                        throws IOException {
-                                    registerDirectoryInternal(subDir, registeredWatchKeys);
-                                    return FileVisitResult.CONTINUE;
-                                }
-                            });
-                } else {
-                    watchService = toWatch.getFileSystem().newWatchService();
-                    registerDirectoryInternal(toWatch, registeredWatchKeys);
-                }
-
-                AbstractWatchQueueReader reader = buildWatchQueueReader(watchService, toWatch, registeredWatchKeys);
-
-                Thread qr = new Thread(reader, "Dir Watcher");
-                qr.start();
-            } catch (IOException e) {
-                logger.error("Cannot activate folder watcher for folder '{}': {}", toWatch, e.getMessage());
-            }
-        }
+        this.watchQueueReader = null;
     }
-
-    private void registerDirectoryInternal(Path directory, Map<WatchKey, Path> registredWatchKeys) throws IOException {
-        WatchKey registrationKey = registerDirectory(directory);
-        if (registrationKey != null) {
-            registredWatchKeys.put(registrationKey, directory);
-        } else {
-            logger.debug("The directory '{}' was not registered in the watch service", directory);
-        }
-    }
-
-    /**
-     * This method will close the {@link #watchService}.
-     */
-    protected void stopWatchService() {
-        if (watchService != null) {
-            try {
-                watchService.close();
-            } catch (IOException e) {
-                logger.warn("Cannot deactivate folder watcher", e);
-            }
-
-            watchService = null;
-        }
-    }
-
-    /**
-     * Build a queue reader to process the watch events, provided by the watch service for the given directory
-     *
-     * @param watchService the watch service, providing the watch events for the watched directory
-     * @param toWatch the directory being watched by the watch service
-     * @param registredWatchKeys a mapping between the registered directories and their {@link WatchKey registration
-     *            keys}.
-     * @return the concrete queue reader
-     */
-    protected abstract AbstractWatchQueueReader buildWatchQueueReader(WatchService watchService, Path toWatch,
-            Map<WatchKey, Path> registredWatchKeys);
 
     /**
      * @return the path to be watched as a {@link String}. The returned path should be applicable for creating a
      *         {@link Path} with the {@link Paths#get(String, String...)} method.
      */
-    protected abstract String getSourcePath();
+    public Path getSourcePath() {
+        if (StringUtils.isNotBlank(pathToWatch)) {
+            return Paths.get(pathToWatch);
+        }
+        return null;
+    }
 
     /**
      * Determines whether the subdirectories of the source path (determined by the {@link #getSourcePath()}) will be
@@ -162,12 +98,38 @@ public abstract class AbstractWatchService {
     protected abstract boolean watchSubDirectories();
 
     /**
-     * Registers a directory to be watched by the watch service. The {@link WatchKey} of the registration should be
-     * provided.
+     * Provides the {@link WatchKey}s for the registration of the directory, which will be registered in the watch
+     * service.
      *
      * @param directory the directory, which will be registered in the watch service
-     * @return The {@link WatchKey} of the registration or <code>null</code> if no registration has been done.
-     * @throws IOException if an error occurs while processing the given path
+     * @return The array of {@link WatchKey}s for the registration or <code>null</code> if no registration has been
+     *         done.
      */
-    protected abstract WatchKey registerDirectory(Path directory) throws IOException;
+    protected abstract Kind<?>[] getWatchEventKinds(Path directory);
+
+    /**
+     * If the queue reader is watching the directory changes, all the watch events will be processed. Otherwise the
+     * events for changed directories will be skipped. For example, on some platforms an event for modified directory is
+     * generated when a new file is created within the directory. However, this behavior could vary a lot, depending on
+     * the platform (for more information see "Platform dependencies" section in the {@link WatchService} documentation)
+     *
+     * @param directory
+     *
+     * @param watchDirectoryChanges set to <code>true</code> if the directory events have to be processed and
+     *            <code>false</code> otherwise
+     */
+    protected boolean getWatchingDirectoryChanges(Path directory) {
+        return true;
+    }
+
+    /**
+     * Processes the given watch event. Note that the kind and the number of the events for the watched directory is a
+     * platform dependent (see the "Platform dependencies" sections of {@link WatchService}).
+     *
+     * @param event the watch event to be handled
+     * @param kind the event's kind
+     * @param path the path of the event (resolved to the {@link #baseWatchedDir})
+     */
+    protected abstract void processWatchEvent(WatchEvent<?> event, Kind<?> kind, Path path);
+
 }

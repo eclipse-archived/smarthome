@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,15 +8,20 @@
 package org.eclipse.smarthome.model.script.internal.engine;
 
 import com.google.inject.Singleton
-import java.util.List
-import org.eclipse.smarthome.model.script.engine.action.ActionService
 import org.eclipse.smarthome.model.script.ScriptServiceUtil
+import org.eclipse.smarthome.model.script.engine.IActionServiceProvider
 
 @Singleton
-class ServiceTrackerActionServiceProvider implements org.eclipse.smarthome.model.script.engine.IActionServiceProvider {
+class ServiceTrackerActionServiceProvider implements IActionServiceProvider {
+
+    private val ScriptServiceUtil scriptServiceUtil
+    
+    new(ScriptServiceUtil scriptServiceUtil) {
+        this.scriptServiceUtil = scriptServiceUtil;
+    }
 
 	override get() {
-		ScriptServiceUtil.getActionServices
+		return scriptServiceUtil.getActionServiceInstances();
 	}
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,8 @@ package org.eclipse.smarthome.core.thing.binding;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusProvider;
@@ -25,8 +27,6 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.util.tracker.ServiceTracker;
 
-import com.google.common.base.Preconditions;
-
 /**
  * The {@link BaseThingHandlerFactory} provides a base implementation for the {@link ThingHandlerFactory} interface.
  * <p>
@@ -40,15 +40,16 @@ import com.google.common.base.Preconditions;
  * @author Stefan Bußweiler - API changes due to bridge/thing life cycle refactoring, removed OSGi service registration
  *         for thing handlers
  */
+@NonNullByDefault
 public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
-    protected BundleContext bundleContext;
+    protected @Nullable BundleContext bundleContext;
 
-    private Map<String, ServiceRegistration<ConfigStatusProvider>> configStatusProviders = new ConcurrentHashMap<>();
-    private Map<String, ServiceRegistration<FirmwareUpdateHandler>> firmwareUpdateHandlers = new ConcurrentHashMap<>();
+    private final Map<String, ServiceRegistration<ConfigStatusProvider>> configStatusProviders = new ConcurrentHashMap<>();
+    private final Map<String, ServiceRegistration<FirmwareUpdateHandler>> firmwareUpdateHandlers = new ConcurrentHashMap<>();
 
-    private ServiceTracker<ThingTypeRegistry, ThingTypeRegistry> thingTypeRegistryServiceTracker;
-    private ServiceTracker<ConfigDescriptionRegistry, ConfigDescriptionRegistry> configDescriptionRegistryServiceTracker;
+    private @Nullable ServiceTracker<ThingTypeRegistry, ThingTypeRegistry> thingTypeRegistryServiceTracker;
+    private @Nullable ServiceTracker<ConfigDescriptionRegistry, ConfigDescriptionRegistry> configDescriptionRegistryServiceTracker;
 
     /**
      * Initializes the {@link BaseThingHandlerFactory}. If this method is overridden by a sub class, the implementing
@@ -91,10 +92,24 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         bundleContext = null;
     }
 
+    /**
+     * Get the bundle context.
+     *
+     * @return the bundle context
+     * @throws IllegalArgumentException if the bundle thing handler is not active
+     */
+    protected BundleContext getBundleContext() {
+        final BundleContext bundleContext = this.bundleContext;
+        if (bundleContext != null) {
+            return bundleContext;
+        } else {
+            throw new IllegalStateException(
+                    "The bundle context is missing (it seems your thing handler factory is used but not active).");
+        }
+    }
+
     @Override
     public ThingHandler registerHandler(Thing thing) {
-        Preconditions.checkArgument(thing != null, "The argument 'thing' must not be null.");
-
         ThingHandler thingHandler = createHandler(thing);
         if (thingHandler == null) {
             throw new IllegalStateException(this.getClass().getSimpleName()
@@ -116,7 +131,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
      * @param thing the thing
      * @return thing the created handler
      */
-    protected abstract ThingHandler createHandler(Thing thing);
+    protected abstract @Nullable ThingHandler createHandler(Thing thing);
 
     private void setHandlerContext(ThingHandler thingHandler) {
         if (thingHandler instanceof BaseThingHandler) {
@@ -153,8 +168,6 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
     @Override
     public void unregisterHandler(Thing thing) {
-        Preconditions.checkArgument(thing != null, "The argument 'thing' must not be null.");
-
         ThingHandler thingHandler = thing.getHandler();
         if (thingHandler != null) {
             removeHandler(thingHandler);
@@ -209,7 +222,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
      * @param thingTypeUID the unique id of the thing type
      * @return the thing type represented by the given unique id
      */
-    protected ThingType getThingTypeByUID(ThingTypeUID thingTypeUID) {
+    protected @Nullable ThingType getThingTypeByUID(ThingTypeUID thingTypeUID) {
         if (thingTypeRegistryServiceTracker == null) {
             throw new IllegalStateException(
                     "Base thing handler factory has not been properly initialized. Did you forget to call super.activate()?");
@@ -226,13 +239,13 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
      *
      * @param thingTypeUID
      *            thing type uid (can not be null)
-     * @param thingUID
-     *            thingUID (can not be null)
      * @param configuration
      *            (can not be null)
+     * @param thingUID
+     *            thingUID (can not be null)
      * @return thing (can be null, if thing type is unknown)
      */
-    protected Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID) {
+    protected @Nullable Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID) {
         return createThing(thingTypeUID, configuration, thingUID, null);
     }
 
@@ -250,17 +263,12 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
      * @return thing (can be null, if thing type is unknown)
      */
     @Override
-    public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID,
-            ThingUID bridgeUID) {
-        if (thingTypeUID == null) {
-            throw new IllegalArgumentException("Thing Type UID must not be null");
-        }
-        if (thingUID == null) {
-            thingUID = ThingFactory.generateRandomThingUID(thingTypeUID);
-        }
+    public @Nullable Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration,
+            @Nullable ThingUID thingUID, @Nullable ThingUID bridgeUID) {
+        ThingUID effectiveUID = thingUID != null ? thingUID : ThingFactory.generateRandomThingUID(thingTypeUID);
         ThingType thingType = getThingTypeByUID(thingTypeUID);
         if (thingType != null) {
-            Thing thing = ThingFactory.createThing(thingType, thingUID, configuration, bridgeUID,
+            Thing thing = ThingFactory.createThing(thingType, effectiveUID, configuration, bridgeUID,
                     getConfigDescriptionRegistry());
             return thing;
         } else {

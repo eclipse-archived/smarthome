@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.NextPreviousType;
@@ -42,11 +43,11 @@ public class PlayerItem extends GenericItem {
         acceptedCommandTypes.add(RefreshType.class);
     }
 
-    public PlayerItem(String name) {
+    public PlayerItem(@NonNull String name) {
         super(CoreItemFactory.PLAYER, name);
     }
 
-    /* package */PlayerItem(String type, String name) {
+    /* package */ PlayerItem(@NonNull String type, @NonNull String name) {
         super(type, name);
     }
 
@@ -70,6 +71,15 @@ public class PlayerItem extends GenericItem {
 
     public void send(NextPreviousType command) {
         internalSend(command);
+    }
+
+    @Override
+    public void setState(State state) {
+        if (isAcceptedState(acceptedDataTypes, state)) {
+            super.setState(state);
+        } else {
+            logSetTypeError(state);
+        }
     }
 
 }

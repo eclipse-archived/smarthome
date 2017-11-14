@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
@@ -31,21 +32,22 @@ import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 
 /**
- * The {@link HueBridgeNupnpDiscovery} is responsible for discovering new hue
- * bridges. It uses the 'NUPnP service provided by Philips'.
+ * The {@link HueBridgeNupnpDiscovery} is responsible for discovering new hue bridges. It uses the 'NUPnP service
+ * provided by Philips'.
  *
  * @author Awelkiyar Wehabrebi - Initial contribution
  * @author Christoph Knauf - Refactorings
+ * @author Andre Fuechsel - make {@link #startScan()} asynchronous
  */
 public class HueBridgeNupnpDiscovery extends AbstractDiscoveryService {
 
     private static final String MODEL_NAME_PHILIPS_HUE = "<modelName>Philips hue";
 
-    private static final String BRIDGE_INDICATOR = "fffe";
+    protected static final String BRIDGE_INDICATOR = "fffe";
 
     private static final String DISCOVERY_URL = "https://www.meethue.com/api/nupnp";
 
-    private static final String LABEL_PATTERN = "Philips hue (IP)";
+    protected static final String LABEL_PATTERN = "Philips hue (IP)";
 
     private static final String DESC_URL_PATTERN = "http://HOST/description.xml";
 
@@ -63,7 +65,12 @@ public class HueBridgeNupnpDiscovery extends AbstractDiscoveryService {
 
     @Override
     protected void startScan() {
-        discoverHueBridges();
+        scheduler.schedule(new Runnable() {
+            @Override
+            public void run() {
+                discoverHueBridges();
+            }
+        }, 0, TimeUnit.SECONDS);
     }
 
     /**
@@ -85,7 +92,7 @@ public class HueBridgeNupnpDiscovery extends AbstractDiscoveryService {
 
     /**
      * Builds the bridge properties.
-     * 
+     *
      * @param host the ip of the bridge
      * @param serialNumber the id of the bridge
      * @return the bridge properties
@@ -155,12 +162,12 @@ public class HueBridgeNupnpDiscovery extends AbstractDiscoveryService {
         } catch (JsonParseException je) {
             logger.debug("Invalid json respone from Hue NUPnP service. Can't discover bridges");
         }
-        return new ArrayList<BridgeJsonParameters>();
+        return new ArrayList<>();
     }
 
     /**
      * Introduced in order to enable testing.
-     * 
+     *
      * @param url the url
      * @return the http request result as String
      * @throws IOException if request failed

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@ class ConfigDescriptionParameterBuilderTest {
         def max = new BigDecimal(4.0);
         def stepSize = new BigDecimal(1.0);
         def pattern = "pattern"
+        def verify = true;
         def required = false
         def readOnly = true
         def multiple = false
@@ -67,6 +68,7 @@ class ConfigDescriptionParameterBuilderTest {
                 .withMultipleLimit(multipleLimit)
                 .withUnit(unit)
                 .withUnitLabel(unitLabel)
+                .withVerify(verify)
                 .build();
         assertThat param.getMinimum(), is(min)
         assertThat param.getMaximum(), is(max)
@@ -85,6 +87,7 @@ class ConfigDescriptionParameterBuilderTest {
         assertFalse param.isRequired()
         assertTrue param.isReadOnly()
         assertFalse param.isMultiple()
+        assertTrue param.isVerifyable()
         assertFalse param.isAdvanced()
         assertTrue param.getLimitToOptions()
 
@@ -102,6 +105,7 @@ class ConfigDescriptionParameterBuilderTest {
                 .withRequired(null)
                 .withReadOnly(null)
                 .withMultiple(null)
+                .withVerify(null)
                 .withContext(null)
                 .withDefault(null)
                 .withLabel(null)
@@ -141,7 +145,7 @@ class ConfigDescriptionParameterBuilderTest {
                 null, null, null, null, null, null,
                 null, null, null, null,
                 null, null, null,null,
-                null, null, null)
+                null, null, null, null)
         assertFalse param2.isRequired()
         assertFalse param2.isReadOnly()
         assertFalse param2.isMultiple()

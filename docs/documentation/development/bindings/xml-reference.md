@@ -48,8 +48,8 @@ The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4
       <advanced>{true|false}</advanced>
     </parameter-group>
 
-    <parameter name="String" type="{text|integer|decimal|boolean}" min="Decimal" max="Decimal" step="Decimal" pattern="String" required="{true|false}" readOnly="{true|false}" multiple="{true|false}" groupName="String" unit="A|cd|K|kgv|m|mol|s|g|rad|sr|Hz|N|Pa|J|W|C|V|F|Ω|S|Wb|T|H|Cel|lm|lx|Bq|Gy|Sv|kat|m/s2|m2v|m3|kph|%|l|min|h|d|week|y">
-      <context>{network-address|password|password-create|color|date|datetime|email|month|week|time|tel|url|item|thing|group|tag|service}</context>
+    <parameter name="String" type="{text|integer|decimal|boolean}" min="Decimal" max="Decimal" step="Decimal" pattern="String" required="{true|false}" readOnly="{true|false}" multiple="{true|false}" groupName="String" unit="A|cd|K|kg|m|mol|s|g|rad|sr|Hz|N|Pa|J|W|C|V|F|Ω|S|Wb|T|H|Cel|lm|lx|Bq|Gy|Sv|kat|m/s2|m2v|m3|kph|%|l|ms|min|h|d|week|y">
+      <context>{network-address|password|password-create|color|date|datetime|email|month|week|dayOfWeek|time|tel|url|item|thing|group|tag|service|channel|rule|location}</context>
       <required>{true|false}</required>
       <default>String</default>
       <label>String</label>
@@ -87,7 +87,8 @@ The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4
   <tr><td>parameter.groupName</td><td>Sets a group name for this parameter (optional).</td></tr>
   <tr><td>parameter.unit</td><td>Specifies the unit of measurements. The unit declaration in the parameter definition shown above contains the set of valid units. The unit must only be set if the type of the parameter is either integer or decimal (optional).</td></tr>
   <tr><td>advanced</td><td>Specifies that this is an advanced parameter. Advanced parameters may be hidden by a UI (optional).</td></tr>
-  <tr><td>context</td><td>The context of the configuration parameter (optional). <a href='#supported-contexts'>Supported contexts</a></td></tr>
+  <tr><td>verify</td><td>Specifies that this is parameter requires a verification stage with the user before sending. Parameters flagged with *verify=true* could be considered dangerous and should be protected from accidental use by a UI - eg by adding an "Are you sure" prompt (optional).</td></tr>
+  <tr><td>context</td><td>The context of the configuration parameter (optional).</td></tr>
   <tr><td>required</td><td>The flag indicating if the configuration parameter has to be set or not (deprecated, optional, default: false).</td></tr>
   <tr><td>default</td><td>The default value of the configuration parameter (optional).</td></tr>
   <tr><td>label</td><td>A human-readable label for the configuration parameter (optional).</td></tr>
@@ -103,17 +104,32 @@ The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4
 
 ### Supported Contexts
 
-Context is used to provide some semantic details about the parameter. The UI use it to render different kind of input widgets. The following contexts require a specific format of the content:
+Context is used to provide some semantic details about the parameter. The UIs use it to render different kind of input widgets. The following contexts require a specific format of the content:
 
-<table><tr><th>Name</th><th>Type</th><th>Format</th></tr>
-  <tr><td>Date</td><td>Text</td><td>DD:MM:YYYY</td></tr>
-  <tr><td>Time</td><td>Text/Integer</td><td>hh:mm/number</td></tr>
-  <tr><td>Color</td><td>Text</td><td>#000000 - #ffffff (hex color)</td></tr>
-  <tr><td>Item</td><td>Text</td><td>Item name</td></tr>
-  <tr><td>Thing</td><td>Text</td><td>UID of a thing</td></tr>
-  <tr><td>Day of week</td><td>Text</td><td>MON, TUE, WED, THU, FRI, SAT, SUN <br></td></tr>
-  <tr><td>Channel</td><td>Text</td><td>UID of a channel<br></td></tr>
-  <tr><td>Rule</td><td>Text</td><td>UID of a rule<br></td></tr>
+<table><tr><th>Name</th><th>Type</th><th>Format</th><th>Sample implementation</th></tr>
+  <tr><td>network-addess</td><td>text</td><td>IPv4,IPv6, domain name</td>
+  <td><code>&lt;input type="text"/></code></td></tr>
+  <tr><td>password</td><td>text</td><td>alphanumeric characters</td><td><code>&lt;input type="password"/></code></td></tr>
+  <tr><td>password-create</td><td>text</td><td>alphanumeric characters</td><td>custom password input</td></tr>
+  <tr><td>color</td><td>text</td><td>#000000 - #ffffff (hex color)</td><td><code>&lt;input type="color"/></code></td></tr>
+  <tr><td>date</td><td>text</td><td>YYYY-MM-DD</td><td><code>&lt;input type="date"/></code></td></tr>
+  <tr><td>datetime</td><td>text</td><td>YYYY-MM-DD hh:mm</td><td>custom input field</td></tr>
+  <tr><td>email</td><td>text</td><td>username@domain.com</td><td><code>&lt;input type="email"/></code></td></tr>
+  <tr><td>month</td><td>text</td><td>month of year</td><td>custom input field</td></tr>
+  <tr><td>week</td><td>integer</td><td>week of year</td><td>custom input field</td></tr>
+  <tr><td>dayOfWeek</td><td>text</td><td>MON, TUE, WED, THU, FRI, SAT, SUN <br></td><td>custom input field</td></tr>
+  <tr><td>time</td><td>text/integer</td><td>hh:mm:ss/milliseconds since epoch</td><td><code>&lt;input type="time"/></code></td></tr>
+  <tr><td>telephone</td><td>text</td><td>telephone number</td><td>custom input field</td></tr>
+  <tr><td>url</td><td>text</td><td>web url</td><td><code>&lt;input type="url"/></code></td></tr>
+  <tr><td>item</td><td>text</td><td>Item name</td><td>custom input field</td></tr>
+  <tr><td>thing</td><td>text</td><td>UID of a thing</td><td>custom input field</td></tr>
+  <tr><td>group</td><td>text</td><td>group name to which this parameter belongs</td><td></td></tr>
+  <tr><td>tag</td><td>text</td><td>tag name</td><td>custom input field</td></tr>
+  <tr><td>service</td><td>text</td><td>service name</td><td>custom input field</td></tr>
+  <tr><td>channel</td><td>text</td><td>UID of a channel<br></td><td>custom input field</td></tr>
+  <tr><td>rule</td><td>text</td><td>UID of a rule<br></td><td>custom input field</td></tr>
+  <tr><td>location</td><td>text</td><td>latitude,longitude[,altitude]<br></td><td>custom input field</td></tr>
+  
 </table>
 
 Further, the <strong>item</strong> context can contain criteria to filter the list of items. For example:
@@ -125,7 +141,7 @@ Further, the <strong>item</strong> context can contain criteria to filter the li
 </filter>
 ```
 
-In the case of above filter only those items will be shown that satisfy the filter's coniditions. The above filter is evaluated as follows: 
+In the case of above filter only those items will be shown that satisfy the filter's conditions. The above filter is evaluated as follows: 
 
 ```
 (type=Switch OR type=Dimmer) AND (tag=Light OR tag=Heating) 
@@ -278,7 +294,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
     xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0
         http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-  <bridge-type id="bridgeTypeID" listed="{true|false}">
+  <bridge-type id="bridgeTypeID" listed="{true|false}" extensible="channelTypeId1,channelTypeId2,...">
     <supported-bridge-type-refs>
       <bridge-type-ref id="bridgeTypeID" />
       ...
@@ -286,6 +302,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
 
     <label>String</label>
     <description>String</description>
+    <category>String</category>
 
     <channels>
       <channel id="channelID" typeId="channelTypeID" />
@@ -299,8 +316,19 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
     OR
     <channel-groups>
       <channel-group id="channelGroupID" typeId="channelGroupTypeID" />
+      OR
+      <channel-group id="channelGroupID" typeId="channelGroupTypeID">
+        <label>String</label>
+        <description>String</description>
+      </channel-group>
       ...
     </channel-groups>
+
+    <properties>
+        <property name="propertyName">propertyValue</property>
+        ...
+    </properties>
+    <representation-property>propertyName</representation-property>
 
     <config-description>
       ...
@@ -309,7 +337,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
     <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}:bindingID:..." />
   </bridge-type>
 
-  <thing-type id="thingTypeID" listed="{true|false}">
+  <thing-type id="thingTypeID" listed="{true|false}" extensible="channelTypeId1,channelTypeId2,...">
     <supported-bridge-type-refs>
       <bridge-type-ref id="bridgeTypeID" />
       ...
@@ -317,6 +345,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
 
     <label>String</label>
     <description>String</description>
+    <category>String</category>
 
     <channels>
       <channel id="channelID" typeId="channelTypeID" />
@@ -330,8 +359,19 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
     OR
     <channel-groups>
       <channel-group id="channelGroupID" typeId="channelGroupTypeID" />
+      OR
+      <channel-group id="channelGroupID" typeId="channelGroupTypeID">
+        <label>String</label>
+        <description>String</description>
+      </channel-group>
       ...
     </channel-groups>
+
+    <properties>
+        <property name="propertyName">propertyValue</property>
+        ...
+    </properties>
+    <representation-property>propertyName</representation-property>
 
     <config-description>
       ...
@@ -381,6 +421,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <channel-group-type id="channelGroupTypeID" advanced="{true|false}">
     <label>String</label>
     <description>String</description>
+    <category>String</category>
 
     <channels>
       <channel id="channelID" typeId="channelTypeID" />
@@ -403,10 +444,12 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
   <tr><td>bridge-type.id | thing-type.id</td><td>An identifier for the bridge/<i>Thing</i> type (mandatory).</td></tr>
   <tr><td>bridge-type.listed | thing-type.listed</td><td>Denotes if user interfaces should list the bridge/<i>Thing</i>, e.g. for pairing (optional, defaults to true).</td></tr>
+  <tr><td>bridge-type.extensible | thing-type.extensible</td><td>If the bridge/<i>Thing</i> supports a generic number of channels the allowed channelTypeIds can be listed here (optional). This provides a hint for UIs to support adding/removing channels. Channel groups are not supported.</td></tr>
   <tr><td>supported-bridge-type-refs</td><td>The identifiers of the bridges this bridge/<i>Thing</i> can connect to (optional).</td></tr>
   <tr><td>bridge-type-ref.id</td><td>The identifier of a bridge this bridge/<i>Thing</i> can connect to (mandatory).</td></tr>
   <tr><td>label</td><td>A human-readable label for the bridge/<i>Thing</i> (mandatory).</td></tr>
   <tr><td>description</td><td>A human-readable description for the bridge/<i>Thing</i> (optional).</td></tr>
+  <tr><td>category</td><td>Category this bridge/<i>Thing</i> belongs to, see <a href="../../concepts/categories.html">categories</a>) (optional).</td></tr>
   <tr><td>channels</td><td>The channels the bridge/<i>Thing</i> provides (optional).</td></tr>
   <tr><td>channel.id</td><td>An identifier of the channel the bridge/<i>Thing</i> provides (mandatory).</td></tr>
   <tr><td>channel.typeId</td><td>An identifier of the channel type definition the bridge/<i>Thing</i> provides (mandatory).</td></tr>
@@ -415,6 +458,8 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <tr><td>channel-groups</td><td>The channel groups defining the channels the bridge/<i>Thing</i> provides (optional).</td></tr>
   <tr><td>channel-group.id</td><td>An identifier of the channel group the bridge/<i>Thing</i> provides (mandatory).</td></tr>
   <tr><td>channel-group.typeId</td><td>An identifier of the channel group type definition the bridge/<i>Thing</i> provides (mandatory).</td></tr>
+  <tr><td>properties</td><td>Name/value pairs for properties to be set to the thing (optional).</td></tr>
+  <tr><td>representation-property</td><td>The name of the property that contains a unique identifier of the thing (optional).</td></tr>
   <tr><td>config-description</td><td>The configuration description for the bridge/<i>Thing</i> within the ConfigDescriptionRegistry (optional).</td></tr>
   <tr><td>config-description-ref</td><td>The reference to a configuration description for the bridge/<i>Thing</i> within the ConfigDescriptionRegistry (optional).</td></tr>
   <tr><td>config-description-ref.uri</td><td>The URI of the configuration description for the bridge/<i>Thing</i> within the ConfigDescriptionRegistry (mandatory).</td></tr>
@@ -457,6 +502,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <tr><td>channel-group-type.advanced</td><td>The flag indicating if this channel group contains advanced functionalities which should be typically not shown in the basic view of user interfaces (optional, default: false).</td></tr>
   <tr><td>label</td><td>A human-readable label for the channel group (mandatory).</td></tr>
   <tr><td>description</td><td>A human-readable description for the channel group (optional).</td></tr>
+  <tr><td>category</td><td>The category for the channel group, e.g. <code>TEMPERATURE</code> (optional).</td></tr>
   <tr><td>channels</td><td>The channels the bridge/<i>Thing</i> provides (mandatory).</td></tr>
   <tr><td>channel.id</td><td>An identifier of the channel the bridge/<i>Thing</i> provides (mandatory).</td></tr>
   <tr><td>channel.typeId</td><td>An identifier of the channel type definition the bridge/<i>Thing</i> provides (mandatory).</td></tr>

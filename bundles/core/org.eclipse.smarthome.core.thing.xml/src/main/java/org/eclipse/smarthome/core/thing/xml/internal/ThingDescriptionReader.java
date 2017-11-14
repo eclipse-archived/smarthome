@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.thing.xml.internal;
 
 import java.util.List;
+
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup;
@@ -25,6 +26,7 @@ import org.eclipse.smarthome.config.xml.util.NodeValueConverter;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
 import org.eclipse.smarthome.core.types.EventDescription;
 import org.eclipse.smarthome.core.types.StateDescription;
+
 import com.thoughtworks.xstream.XStream;
 
 /**
@@ -101,6 +103,7 @@ public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
         xstream.alias("criteria", FilterCriteria.class);
         xstream.alias("properties", NodeList.class);
         xstream.alias("property", NodeValue.class);
+        xstream.alias("representation-property", NodeValue.class);
     }
 
 }

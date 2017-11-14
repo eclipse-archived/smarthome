@@ -1,10 +1,10 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
+* Copyright (c) 2015, 2017 by Bosch Software Innovations and others.
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*/
 package org.eclipse.smarthome.automation.core.internal;
 
 import java.util.Arrays;
@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleProvider;
@@ -65,11 +66,11 @@ import org.slf4j.LoggerFactory;
  * <ul>
  * <li>To check a Rule's status info, use the {@link #getStatusInfo(String)} method.</li>
  * <li>The status of a newly added Rule, or a Rule enabled with {@link #setEnabled(String, boolean)}, or an updated
- * Rule, is first set to {@link RuleStatus#NOT_INITIALIZED}.</li>
+ * Rule, is first set to {@link RuleStatus#UNINITIALIZED}.</li>
  * <li>After a Rule is added or enabled, or updated, a verification procedure is initiated. If the verification of the
  * modules IDs, connections between modules and configuration values of the modules is successful, and the module
  * handlers are correctly set, the status is set to {@link RuleStatus#IDLE}.</li>
- * <li>If some of the module handlers disappear, the Rule will become {@link RuleStatus#NOT_INITIALIZED} again.</li>
+ * <li>If some of the module handlers disappear, the Rule will become {@link RuleStatus#UNINITIALIZED} again.</li>
  * <li>If one of the Rule's Triggers is triggered, the Rule becomes {@link RuleStatus#RUNNING}.
  * When the execution is complete, it will become {@link RuleStatus#IDLE} again.</li>
  * <li>If a Rule is disabled with {@link #setEnabled(String, boolean)}, it's status is set to
@@ -80,6 +81,7 @@ import org.slf4j.LoggerFactory;
  * @author Ana Dimova - Persistence implementation & updating rules from providers
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation and other fixes
  * @author Benedikt Niehues - added events for rules
+ * @author Victor Toni - return only copies of {@link Rule}s
  */
 public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvider>
         implements RuleRegistry, StatusInfoCallback, RegistryChangeListener<RuleTemplate> {
@@ -88,7 +90,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     private static final String SOURCE = RuleRegistryImpl.class.getSimpleName();
     private static final Logger logger = LoggerFactory.getLogger(RuleRegistryImpl.class.getName());
 
-    private RuleEngine ruleEngine = new RuleEngine();
+    private final RuleEngine ruleEngine = new RuleEngine();
     private Storage<Boolean> disabledRulesStorage;
     private ModuleTypeRegistry moduleTypeRegistry;
     private RuleTemplateRegistry templateRegistry;
@@ -96,7 +98,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     /**
      * {@link Map} of template UIDs to rules where these templates participated.
      */
-    private Map<String, Set<String>> mapTemplateToRules = new HashMap<String, Set<String>>();
+    private final Map<String, Set<String>> mapTemplateToRules = new HashMap<String, Set<String>>();
 
     public RuleRegistryImpl() {
         super(RuleProvider.class);
@@ -207,19 +209,15 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         ruleEngine.addModuleHandlerFactory(moduleHandlerFactory);
     }
 
-    protected void updatedModuleHandlerFactory(ModuleHandlerFactory moduleHandlerFactory) {
-        ruleEngine.updateModuleHandlerFactory(moduleHandlerFactory);
-    }
-
     protected void removeModuleHandlerFactory(ModuleHandlerFactory moduleHandlerFactory) {
         ruleEngine.removeModuleHandlerFactory(moduleHandlerFactory);
     }
 
     /**
      * This method is used to register a {@link Rule} into the {@link RuleEngine}. First the {@link Rule} become
-     * {@link RuleStatus#NOT_INITIALIZED}.
+     * {@link RuleStatus#UNINITIALIZED}.
      * Then verification procedure will be done and the Rule become {@link RuleStatus#IDLE}.
-     * If the verification fails, the Rule will stay {@link RuleStatus#NOT_INITIALIZED}.
+     * If the verification fails, the Rule will stay {@link RuleStatus#UNINITIALIZED}.
      *
      * @param rule a {@link Rule} instance which have to be added into the {@link RuleEngine}.
      * @return a copy of the added {@link Rule}
@@ -232,42 +230,19 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      */
     @Override
     public Rule add(Rule rule) {
-        if (rule == null) {
-            throw new IllegalArgumentException("The added rule must not be null!");
-        }
-        String rUID = rule.getUID();
-        if (rUID == null) {
-            rUID = ruleEngine.getUniqueId();
-            super.add(initRuleId(rUID, rule));
+        super.add(rule);
+        Rule ruleCopy = get(rule.getUID());
+        if (ruleCopy != null) {
+            return ruleCopy;
         } else {
-            super.add(rule);
+            throw new IllegalStateException();
         }
-        return get(rUID);
     }
 
     /**
-     * Sets a unique ID on the rule that should be added in the registry. If the rule already has an ID the method will
-     * not be invoked.
-     *
-     * @param rUID the unique Rule ID that should be set to the rule
-     * @param rule candidate for unique ID
-     * @return a rule with UID
-     */
-    protected Rule initRuleId(String rUID, Rule rule) {
-        Rule ruleWithUID = new Rule(rUID, rule.getTriggers(), rule.getConditions(), rule.getActions(),
-                rule.getConfigurationDescriptions(), rule.getConfiguration(), rule.getTemplateUID(),
-                rule.getVisibility());
-        ruleWithUID.setName(rule.getName());
-        ruleWithUID.setTags(rule.getTags());
-        ruleWithUID.setDescription(rule.getDescription());
-        return ruleWithUID;
-    }
-
-    /**
-     * This method is used to register a {@link Rule} into the RuleEngine. The {@link Rule} comes from Rule provider.
-     * First the Rule become {@link RuleStatus#NOT_INITIALIZED}.
-     * Then verification procedure will be done and the Rule become {@link RuleStatus#IDLE}.
-     * If the verification fails, the Rule will stay {@link RuleStatus#NOT_INITIALIZED}.
+     * This method is used to add {@link Rule} into the RuleEngine.
+     * When the rule is resolved it becomes into {@link RuleStatus#IDLE} state.
+     * If the verification fails, the rule goes into {@link RuleStatus#UNINITIALIZED} state.
      *
      * @param provider a provider of the {@link Rule}.
      * @param element a {@link Rule} instance which have to be added into the RuleEngine.
@@ -279,19 +254,25 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      *             when a module id contains dot or when the rule with the same UID already exists.
      */
     @Override
-    protected void onAddElement(Rule rule) throws IllegalArgumentException {
-        String uid = rule.getUID();
-        ruleEngine.addRule(rule, (disabledRulesStorage != null && disabledRulesStorage.get(uid) == null));
-        String templateUID = rule.getTemplateUID();
-        if (templateUID != null) {
-            synchronized (this) {
-                Set<String> ruleUIDs = mapTemplateToRules.get(templateUID);
-                if (ruleUIDs == null) {
-                    ruleUIDs = new HashSet<String>(11);
-                    mapTemplateToRules.put(templateUID, ruleUIDs);
+    protected void notifyListenersAboutAddedElement(Rule rule) {
+        try {
+            super.notifyListenersAboutAddedElement(rule);
+            postRuleAddedEvent(rule);
+            String uid = rule.getUID();
+            ruleEngine.addRule(rule, (disabledRulesStorage != null && disabledRulesStorage.get(uid) == null));
+            String templateUID = rule.getTemplateUID();
+            if (templateUID != null) {
+                synchronized (this) {
+                    Set<String> ruleUIDs = mapTemplateToRules.get(templateUID);
+                    if (ruleUIDs == null) {
+                        ruleUIDs = new HashSet<String>(11);
+                        mapTemplateToRules.put(templateUID, ruleUIDs);
+                    }
+                    ruleUIDs.add(uid);
                 }
-                ruleUIDs.add(uid);
             }
+        } catch (RuntimeException re) {
+            throw re;
         }
     }
 
@@ -327,10 +308,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     }
 
     /**
-     * This method is used to update an existing {@link Rule} in the {@link RuleEngine}. First the {@link Rule} become
-     * {@link RuleStatus#NOT_INITIALIZED}.
-     * Then verification procedure will be done and the {@link Rule} become {@link RuleStatus#IDLE}.
-     * If the verification fails, the {@link Rule} will stay {@link RuleStatus#NOT_INITIALIZED}.
+     * This method is used to update an existing {@link Rule} in the {@link RuleEngine}.
+     * When the {@link Rule} is resolved it becomes into {@link RuleStatus#IDLE} state.
+     * If the verifications are failed, the {@link Rule} goes into {@link RuleStatus#UNINITIALIZED} state.
      *
      * @param oldElement a {@link Rule} instance that have to be replaced with value of the parameter
      *            <code>element</code>.
@@ -344,7 +324,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      *             when module id contains dot.
      */
     @Override
-    protected void onUpdateElement(Rule oldElement, Rule element) throws IllegalArgumentException {
+    protected void notifyListenersAboutUpdatedElement(Rule oldElement, Rule element) {
+        super.notifyListenersAboutUpdatedElement(oldElement, element);
+        postRuleUpdatedEvent(element, oldElement);
         String uid = element.getUID();
         ruleEngine.updateRule(element, (disabledRulesStorage != null && disabledRulesStorage.get(uid) == null));
         String templateUID = element.getTemplateUID();
@@ -356,6 +338,12 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
                 }
             }
         }
+    }
+
+    @Override
+    protected void notifyListenersAboutRemovedElement(Rule element) {
+        super.notifyListenersAboutRemovedElement(element);
+        postRuleRemovedEvent(element);
     }
 
     @Override
@@ -371,13 +359,18 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     }
 
     @Override
+    public Stream<Rule> stream() {
+        // create copies for consumers
+        return super.stream().map(r -> RuleUtils.getRuleCopy(r));
+    }
+
+    @Override
     public Collection<Rule> getByTag(String tag) {
         Collection<Rule> result = new LinkedList<Rule>();
         if (tag != null) {
             for (Collection<Rule> rules : elementMap.values()) {
                 for (Rule rule : rules) {
-                    Set<String> tags = rule.getTags();
-                    if (tags != null && tags.contains(tag)) {
+                    if (rule.getTags().contains(tag)) {
                         result.add(RuleUtils.getRuleCopy(rule));
                     }
                 }
@@ -396,19 +389,18 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     public Collection<Rule> getByTags(String... tags) {
         Set<String> tagSet = tags != null ? new HashSet<String>(Arrays.asList(tags)) : null;
         Collection<Rule> result = new LinkedList<Rule>();
-        if (tagSet != null) {
+        if (tagSet == null || tagSet.isEmpty()) {
             for (Collection<Rule> rules : elementMap.values()) {
                 for (Rule rule : rules) {
-                    Set<String> rTags = rule.getTags();
-                    if (rTags != null && rTags.containsAll(tagSet)) {
-                        result.add(RuleUtils.getRuleCopy(rule));
-                    }
+                    result.add(RuleUtils.getRuleCopy(rule));
                 }
             }
         } else {
             for (Collection<Rule> rules : elementMap.values()) {
                 for (Rule rule : rules) {
-                    result.add(RuleUtils.getRuleCopy(rule));
+                    if (rule.getTags().containsAll(tagSet)) {
+                        result.add(RuleUtils.getRuleCopy(rule));
+                    }
                 }
             }
         }
@@ -479,9 +471,18 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
                         RuleUtils.getConditionsCopy(template.getConditions()),
                         RuleUtils.getActionsCopy(template.getActions()), template.getConfigurationDescriptions(),
                         rule.getConfiguration(), null, rule.getVisibility());
-                resolvedRule.setName(rule.getName());
+                String name = rule.getName();
+                if (name != null) {
+                    resolvedRule.setName(name);
+                }
                 resolvedRule.setTags(rule.getTags());
-                resolvedRule.setDescription(rule.getDescription());
+                String description = rule.getDescription();
+                if (description != null) {
+                    resolvedRule.setDescription(description);
+                }
+
+                ruleEngine.resolveConfiguration(resolvedRule);
+
                 return resolvedRule;
             }
         }
@@ -499,14 +500,8 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
 
     @Override
     public void added(Provider<Rule> provider, Rule element) {
-        Rule ruleWithUID = element;
-        if (element.getUID() == null) {
-            String rUID = ruleEngine.getUniqueId();
-            ruleWithUID = initRuleId(rUID, element);
-        }
-        super.added(provider, ruleWithUID);
-        postRuleAddedEvent(ruleWithUID);
-        updateRuleByTemplate(provider, ruleWithUID);
+        super.added(provider, element);
+        updateRuleByTemplate(provider, element);
     }
 
     private void updateRuleByTemplate(Provider<Rule> provider, Rule rule) {
@@ -514,27 +509,14 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         if (rule != resolvedRule) {
             if (update(resolvedRule) == null) {
                 super.updated(provider, rule, resolvedRule);
-                postRuleUpdatedEvent(resolvedRule, rule);
             }
         }
     }
 
     @Override
     public void updated(Provider<Rule> provider, Rule oldElement, Rule element) {
-        Rule ruleWithUID = element;
-        String rUID = oldElement.getUID();
-        if (element.getUID() == null) {
-            ruleWithUID = initRuleId(rUID, element);
-        }
-        Rule resolvedRule = resolveRuleByTemplate(ruleWithUID);
+        Rule resolvedRule = resolveRuleByTemplate(element);
         super.updated(provider, oldElement, resolvedRule);
-        postRuleUpdatedEvent(resolvedRule, oldElement);
-    }
-
-    @Override
-    public void removed(Provider<Rule> provider, Rule element) {
-        super.removed(provider, element);
-        postRuleRemovedEvent(element);
     }
 
     @Override
@@ -547,11 +529,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
                 rules.addAll(rulesForResolving);
             }
         }
-        if (rules != null) {
-            for (String rUID : rules) {
-                Rule rule = get(rUID);
-                updateRuleByTemplate(getProvider(rule), rule);
-            }
+        for (String rUID : rules) {
+            Rule rule = get(rUID);
+            updateRuleByTemplate(getProvider(rule), rule);
         }
     }
 
@@ -577,6 +557,11 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     @Override
     public void runNow(String ruleUID) {
         ruleEngine.runNow(ruleUID);
+    }
+
+    @Override
+    public void runNow(String ruleUID, boolean considerConditions, Map<String, Object> context) {
+        ruleEngine.runNow(ruleUID, considerConditions, context);
     }
 
 }

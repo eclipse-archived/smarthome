@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,17 +32,11 @@ public class ChartRenderer extends AbstractWidgetRenderer {
 
     private final Logger logger = LoggerFactory.getLogger(ChartRenderer.class);
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean canRender(Widget w) {
         return w instanceof Chart;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         Chart chart = (Chart) w;
@@ -59,6 +53,13 @@ public class ChartRenderer extends AbstractWidgetRenderer {
             String url = "/chart?" + itemParam + "&period=" + chart.getPeriod() + "&t=" + (new Date()).getTime();
             if (chart.getService() != null) {
                 url += "&service=" + chart.getService();
+            }
+            if (chart.getLegend() != null) {
+                if (chart.getLegend()) {
+                    url += "&legend=true";
+                } else {
+                    url += "&legend=false";
+                }
             }
 
             String snippet = getSnippet("image");

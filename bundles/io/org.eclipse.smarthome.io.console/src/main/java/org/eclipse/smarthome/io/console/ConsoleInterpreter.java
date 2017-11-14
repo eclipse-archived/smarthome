@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,8 +52,8 @@ public class ConsoleInterpreter {
             extension.execute(args, console);
         } catch (final Exception ex) {
             final Logger logger = LoggerFactory.getLogger(ConsoleInterpreter.class);
-            logger.error("An error occured while executing the console command.", ex);
-            console.println("An unexpected error occured during execution.");
+            logger.error("An error occurred while executing the console command.", ex);
+            console.println("An unexpected error occurred during execution.");
         }
     }
 

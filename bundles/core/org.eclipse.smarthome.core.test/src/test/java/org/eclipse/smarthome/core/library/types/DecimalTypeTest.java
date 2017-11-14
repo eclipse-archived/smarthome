@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import org.junit.Test;
 
 /**
  * @author Thomas.Eichstaedt-Engelen
+ * @author Stefan Triller - more tests for type conversions
  */
 public class DecimalTypeTest {
 
@@ -112,4 +113,14 @@ public class DecimalTypeTest {
         assertEquals(new HSBType("0,0,50"), new DecimalType("0.5").as(HSBType.class));
     }
 
+    @Test
+    public void testConversionToPercentType() {
+        assertEquals(new PercentType(70), new DecimalType("0.7").as(PercentType.class));
+    }
+
+    @Test
+    public void testConversionToPointType() {
+        // should not be possible => null
+        assertEquals(null, new DecimalType("0.23").as(PointType.class));
+    }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -235,7 +235,7 @@ public class SceneDiscovery {
             final StructureManager structureManager) {
         if (generateReachableScenesScheduledFuture == null || generateReachableScenesScheduledFuture.isCancelled()) {
             generateReachableScenesScheduledFuture = ThreadPoolManager.getScheduledPool(Config.THREADPOOL_NAME)
-                    .scheduleAtFixedRate(new Runnable() {
+                    .scheduleWithFixedDelay(new Runnable() {
 
                         HashMap<Integer, List<Short>> reachableGroups = getReachableGroups(connectionManager);
                         Iterator<Integer> zoneIdInter = null;
@@ -391,15 +391,16 @@ public class SceneDiscovery {
                 if (!isStandardScene(scene.getSceneID())) {
                     if (this.discovery != null) {
                         this.discovery.onSceneAdded(scene);
-                        logger.debug("Inform scene discovery about added scene with id: " + scene.getID());
+                        logger.debug("Inform scene discovery about added scene with id: {}", scene.getID());
                     } else {
-                        logger.debug("Can't inform scene discovery about added scene with id: " + scene.getID()
-                                + " because scene discovery is disabled");
+                        logger.debug(
+                                "Can't inform scene discovery about added scene with id: {} because scene discovery is disabled",
+                                scene.getID());
                     }
                 }
                 this.sceneManager.addInternalScene(scene);
             } else {
-                logger.error("Added scene with id: " + scene.getID() + " is a not usage scene!");
+                logger.error("Added scene with id: {} is a not usage scene!", scene.getID());
             }
         }
     }

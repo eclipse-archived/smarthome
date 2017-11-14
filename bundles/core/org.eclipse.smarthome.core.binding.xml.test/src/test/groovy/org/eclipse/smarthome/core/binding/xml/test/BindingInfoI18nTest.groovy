@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.core.binding.BindingInfo
 import org.eclipse.smarthome.core.binding.BindingInfoRegistry
+import org.eclipse.smarthome.core.i18n.LocaleProvider
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.SyntheticBundleInstaller
 import org.junit.After
@@ -103,11 +104,17 @@ class BindingInfoI18nTest extends OSGiTest {
     void 'assert using default locale'() {
         // Set german locale
         ConfigurationAdmin configAdmin = getService(ConfigurationAdmin.class);
-        Configuration config = configAdmin.getConfiguration("org.eclipse.smarthome.core.localeprovider");
+        Configuration config = configAdmin.getConfiguration("org.eclipse.smarthome.core.i18nprovider", null);
         Dictionary<String, String> localeCfg = new Hashtable<String, String>();
         localeCfg.put("language", "de");
         localeCfg.put("country", "DE");
         config.update(localeCfg);
+
+        //before running the test with a default locale make sure the locale has been set
+        LocaleProvider localeProvider = getService(LocaleProvider.class);
+        waitForAssert {
+            assertThat localeProvider.getLocale().toString(), is("de")
+        }
 
         def bundleContext = getBundleContext()
         def initialNumberOfBindingInfos = bindingInfoRegistry.getBindingInfos().size()

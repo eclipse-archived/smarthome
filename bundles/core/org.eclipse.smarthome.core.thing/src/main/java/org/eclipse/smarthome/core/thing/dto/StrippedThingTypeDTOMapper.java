@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,7 @@ public class StrippedThingTypeDTOMapper {
      */
     public static StrippedThingTypeDTO map(ThingType thingType, Locale locale) {
         return new StrippedThingTypeDTO(thingType.getUID().toString(), thingType.getLabel(), thingType.getDescription(),
-                thingType.isListed(), thingType.getSupportedBridgeTypeUIDs(), thingType instanceof BridgeType);
+                thingType.getCategory(), thingType.isListed(), thingType.getSupportedBridgeTypeUIDs(),
+                thingType instanceof BridgeType);
     }
 }

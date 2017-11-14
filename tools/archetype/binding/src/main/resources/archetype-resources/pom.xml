@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>${namespace}.binding</groupId>
-    <artifactId>pom</artifactId>
-    <version>@${version}</version>
-  </parent>
+	<parent>
+		<groupId>${namespace}.binding</groupId>
+		<artifactId>pom</artifactId>
+		<version>@${version}</version>
+	</parent>
 
-  <groupId>@${groupId}</groupId>
-  <artifactId>${rootArtifactId}</artifactId>
-  <version>@${version}</version>
+	<artifactId>${rootArtifactId}</artifactId>
+	<version>@${version}</version>
 
-  <name>${bindingIdCamelCase} Binding</name>
-  <packaging>eclipse-plugin</packaging>
+	<name>${bindingIdCamelCase} Binding</name>
+	<packaging>eclipse-plugin</packaging>
 
 </project>

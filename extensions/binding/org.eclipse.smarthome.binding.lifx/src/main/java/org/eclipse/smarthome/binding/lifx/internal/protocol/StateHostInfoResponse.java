@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@ import org.eclipse.smarthome.binding.lifx.internal.fields.UInt32Field;
  */
 public class StateHostInfoResponse extends Packet {
 
-    public static final int TYPE = 0x0C;
+    public static final int TYPE = 0x0D;
 
     public static final Field<Float> FIELD_SIGNAL = new FloatField().little();
     public static final Field<Long> FIELD_TX = new UInt32Field().little();
@@ -31,28 +31,16 @@ public class StateHostInfoResponse extends Packet {
     private long tx;
     private long rx;
 
-    public float getSignal() {
-        return signal;
-    }
-
-    public void setSignal(float signal) {
-        this.signal = signal;
+    public SignalStrength getSignalStrength() {
+        return new SignalStrength(signal);
     }
 
     public long getTx() {
         return tx;
     }
 
-    public void setTx(long tx) {
-        this.tx = tx;
-    }
-
     public long getRx() {
         return rx;
-    }
-
-    public void setRx(long rx) {
-        this.rx = rx;
     }
 
     public StateHostInfoResponse() {

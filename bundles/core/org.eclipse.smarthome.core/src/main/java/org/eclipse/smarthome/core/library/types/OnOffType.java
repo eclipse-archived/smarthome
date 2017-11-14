@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,13 +7,15 @@
  */
 package org.eclipse.smarthome.core.library.types;
 
-import org.eclipse.smarthome.core.library.internal.StateConverterUtil;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.Convertible;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
 
-public enum OnOffType implements PrimitiveType, State, Command, Convertible {
+/**
+ *
+ * @author Kai Kreuzer - Initial contribution
+ */
+public enum OnOffType implements PrimitiveType, State, Command {
     ON,
     OFF;
 
@@ -41,7 +43,7 @@ public enum OnOffType implements PrimitiveType, State, Command, Convertible {
         } else if (target == HSBType.class) {
             return this == ON ? HSBType.WHITE : HSBType.BLACK;
         } else {
-            return StateConverterUtil.defaultConversion(this, target);
+            return State.super.as(target);
         }
     }
 

@@ -326,7 +326,7 @@
 					"/icon/" +
 					_t.iconName +
 					"?state=" +
-					state +
+					encodeURIComponent(state) +
 					"&format=" +
 					smarthome.UI.iconType
 				);
@@ -354,12 +354,16 @@
 
 		_t.setValuePrivate = function() {};
 
+		_t.setLabel = function() {};
+
 		_t.suppressUpdate = function() {
 			suppress = true;
 		};
 
 		_t.setLabelColor = function(color) {
-			_t.label.style.color = color;
+			if (_t.label !== null) {
+				_t.label.style.color = color;
+			}
 		};
 
 		_t.setValueColor = function(color) {
@@ -376,6 +380,7 @@
 		_t.parentNode = parentNode;
 		_t.id = _t.parentNode.getAttribute(o.idAttribute);
 		_t.visible = !_t.parentNode.classList.contains(o.formHidden);
+		_t.title = _t.parentNode.querySelector(o.formTitle);
 
 		_t.setVisible = function(state) {
 			if (state) {
@@ -385,6 +390,10 @@
 			}
 
 			_t.visible = state;
+		};
+
+		_t.setLabel = function(label) {
+			_t.title.innerHTML = label;
 		};
 
 		_t.setValue = function() {};
@@ -405,14 +414,29 @@
 		_t.image = parentNode.querySelector("img");
 		_t.updateInterval = parseInt(parentNode.getAttribute("data-update-interval"), 10);
 
-		_t.url = _t.image.getAttribute("src").replace(/&t=\d+/g, "");
+		_t.url = parentNode.getAttribute("data-proxied-url");
+		_t.validUrl = parentNode.getAttribute("data-valid-url") === "true";
 
-		_t.setValuePrivate = function() {
-			_t.image.setAttribute("src", _t.url + "&t=" + Date.now());
+		_t.setValuePrivate = function(value, itemState) {
+			if (itemState.startsWith("data:")) {
+				// Image element associated to an item of type ImageItem
+				_t.image.setAttribute("src", itemState);
+			} else if ((itemState !== "UNDEF") || (_t.validUrl)) {
+				// Image element associated to an item of type StringItem (URL)
+				// Or no associated item but url is set and valid in the image element
+				_t.image.setAttribute("src", _t.url + "&t=" + Date.now());
+			} else {
+				// No associated item and url is not set or not valid in the image element
+				_t.image.setAttribute("src", "images/none.png");
+			}
 		};
 
 		if (_t.updateInterval === 0) {
 			return;
+		}
+		// Limit the refresh interval to 100 ms
+		if (_t.updateInterval < 100) {
+			_t.updateInterval = 100;
 		}
 
 		var
@@ -422,7 +446,7 @@
 					return;
 				}
 				_t.image.setAttribute("src", _t.url + "&t=" + Date.now());
-			}, _t.updateInterval * 1000);
+			}, _t.updateInterval);
 	}
 
 	/* class ControlText extends Control */
@@ -432,8 +456,12 @@
 		var
 			_t = this;
 
+		_t.hasValue = _t.parentNode.getAttribute("data-has-value") === "true";
+
 		_t.setValuePrivate = function(value) {
-			parentNode.innerHTML = value;
+			if (_t.hasValue) {
+				parentNode.innerHTML = value;
+			}
 		};
 	}
 
@@ -444,8 +472,10 @@
 		var
 			_t = this;
 
-		_t.value = _t.parentNode.querySelector(o.formValue);
+		_t.hasValue = _t.parentNode.getAttribute("data-has-value") === "true";
+		_t.value = _t.parentNode.parentNode.querySelector(o.formValue);
 		_t.count = _t.parentNode.getAttribute("data-count") * 1;
+		_t.suppressUpdateButtons = false;
 		_t.reset = function() {
 			_t.buttons.forEach(function(button) {
 				button.classList.remove(o.buttonActiveClass);
@@ -467,12 +497,12 @@
 					item: _t.item,
 					value: value
 			}));
-			_t.suppressUpdate();
+			_t.suppressUpdateButtons = true;
 		};
 		_t.valueMap = {};
 		_t.buttons = [].slice.call(_t.parentNode.querySelectorAll(o.controlButton));
-		_t.setValuePrivate = function(value) {
-			if (_t.value !== null) {
+		_t.setValuePrivate = function(value, itemState) {
+			if (_t.hasValue) {
 				_t.value.innerHTML = value;
 			}
 
@@ -480,13 +510,22 @@
 				return;
 			}
 
+			if (_t.suppressUpdateButtons) {
+				_t.suppressUpdateButtons = false;
+				return;
+			}
+
 			_t.reset();
 			if (
 				(_t.valueMap !== undefined) &&
-				(_t.valueMap[value] !== undefined)
+				(_t.valueMap[itemState] !== undefined)
 			) {
-				_t.valueMap[value].classList.add(o.buttonActiveClass);
+				_t.valueMap[itemState].classList.add(o.buttonActiveClass);
 			}
+		};
+
+		_t.setValueColor = function(color) {
+			_t.value.style.color = color;
 		};
 
 		_t.buttons.forEach.call(_t.buttons, function(button) {
@@ -564,13 +603,17 @@
 			});
 		};
 
-		_t.setValuePrivate = function(value) {
-			_t.value = "" + value;
-			if (_t.valueMap[value] !== undefined) {
-				_t.valueNode.innerHTML = _t.valueMap[value];
+		_t.setValuePrivate = function(value, itemState) {
+			_t.value = "" + itemState;
+			if (_t.valueMap[itemState] !== undefined) {
+				_t.valueNode.innerHTML = smarthome.UI.escapeHtml(_t.valueMap[itemState]);
 			} else {
 				_t.valueNode.innerHTML = "";
 			}
+		};
+
+		_t.setValueColor = function(color) {
+			_t.valueNode.style.color = color;
 		};
 
 		_t.parentNode.parentNode.addEventListener("click", _t.showModal);
@@ -827,17 +870,10 @@
 					y: event.touches[0].pageY - _t.colorpicker.offsetTop
 				};
 			} else {
-				if (featureSupport.eventLayerXY && featureSupport.pointerEvents) {
-					pos = {
-						x: event.layerX,
-						y: event.layerY
-					};
-				} else {
-					pos = {
-						x: event.pageX - _t.colorpicker.offsetLeft,
-						y: event.pageY - _t.colorpicker.offsetTop
-					};
-				}
+				pos = {
+					x: event.pageX - _t.colorpicker.offsetLeft,
+					y: event.pageY - _t.colorpicker.offsetTop
+				};
 			}
 			var
 				maxR = _t.image.clientWidth / 2,
@@ -1076,6 +1112,8 @@
 		_t.buttonUp = _t.parentNode.querySelector(o.colorpicker.up);
 		_t.buttonDown = _t.parentNode.querySelector(o.colorpicker.down);
 		_t.buttonPick = _t.parentNode.querySelector(o.colorpicker.pick);
+		_t.longPress = false;
+		_t.pressed = false;
 
 		_t.setValue = function(value) {
 			var
@@ -1101,12 +1139,27 @@
 		}
 
 		function onMouseDown(command) {
+			_t.pressed = true;
+			_t.longPress = false;
+
 			interval = setInterval(function() {
+				_t.longPress = true;
 				emitEvent(command);
 			}, repeatInterval);
 		}
 
-		function onMouseUp() {
+		function onMouseUp(command) {
+			if (!_t.pressed) {
+				return;
+			}
+
+			if (!_t.longPress) {
+				emitEvent(command);
+			}
+
+			_t.pressed = false;
+			_t.longPress = false;
+
 			clearInterval(interval);
 		}
 
@@ -1135,23 +1188,25 @@
 
 		var
 			upButtonMouseDown = onMouseDown.bind(null, "INCREASE"),
-			downButtonMouseDown = onMouseDown.bind(null, "DECREASE");
+			downButtonMouseDown = onMouseDown.bind(null, "DECREASE"),
+			upButtonMouseUp = onMouseUp.bind(null, "ON"),
+			downButtonMouseUp = onMouseUp.bind(null, "OFF");
 
 		// Up button
 		_t.buttonUp.addEventListener("touchstart", upButtonMouseDown);
 		_t.buttonUp.addEventListener("mousedown", upButtonMouseDown);
-		_t.buttonUp.addEventListener("mouseleave", onMouseUp);
 
-		_t.buttonUp.addEventListener("touchend", onMouseUp);
-		_t.buttonUp.addEventListener("mouseup", onMouseUp);
+		_t.buttonUp.addEventListener("mouseleave", upButtonMouseUp);
+		_t.buttonUp.addEventListener("touchend", upButtonMouseUp);
+		_t.buttonUp.addEventListener("mouseup", upButtonMouseUp);
 
 		// Down button
 		_t.buttonDown.addEventListener("touchstart", downButtonMouseDown);
 		_t.buttonDown.addEventListener("mousedown", downButtonMouseDown);
 
-		_t.buttonDown.addEventListener("touchend", onMouseUp);
-		_t.buttonDown.addEventListener("mouseup", onMouseUp);
-		_t.buttonDown.addEventListener("mouseleave", onMouseUp);
+		_t.buttonDown.addEventListener("touchend", downButtonMouseUp);
+		_t.buttonDown.addEventListener("mouseup", downButtonMouseUp);
+		_t.buttonDown.addEventListener("mouseleave", downButtonMouseUp);
 
 		// Stop button
 		_t.buttonPick.addEventListener("click", onPick);
@@ -1169,20 +1224,31 @@
 				item: _t.item,
 				value: _t.input.checked ? "ON" : "OFF"
 			}));
-			_t.suppressUpdate();
 		});
 
-		_t.setValuePrivate = function(v) {
+		_t.hasValue = _t.parentNode.getAttribute("data-has-value") === "true";
+		_t.valueNode = _t.parentNode.parentNode.querySelector(o.formValue);
+
+		_t.setValuePrivate = function(value, itemState) {
 			var
-				value = v === "ON";
+				val = itemState === "ON";
 
-			_t.input.checked = value;
-
-			if (value) {
-				_t.parentNode.MaterialSwitch.on();
-			} else {
-				_t.parentNode.MaterialSwitch.off();
+			if (_t.input.checked !== val) {
+				_t.input.checked = val;
+				if (val) {
+					_t.parentNode.MaterialSwitch.on();
+				} else {
+					_t.parentNode.MaterialSwitch.off();
+				}
 			}
+
+			if (_t.hasValue) {
+				_t.valueNode.innerHTML = value;
+			}
+		};
+
+		_t.setValueColor = function(color) {
+			_t.valueNode.style.color = color;
 		};
 	}
 
@@ -1194,6 +1260,8 @@
 			_t = this;
 
 		_t.input = _t.parentNode.querySelector("input[type=range]");
+		_t.hasValue = _t.parentNode.getAttribute("data-has-value") === "true";
+		_t.valueNode = _t.parentNode.parentNode.querySelector(o.formValue);
 		_t.locked = false;
 
 		(function() {
@@ -1216,7 +1284,6 @@
 				item: _t.item,
 				value: _t.input.value
 			}));
-			_t.suppressUpdate();
 		}
 
 		_t.debounceProxy = new DebounceProxy(function() {
@@ -1228,12 +1295,19 @@
 		});
 
 		_t.setValuePrivate = function(value, itemState) {
+			if (_t.hasValue) {
+				_t.valueNode.innerHTML = value;
+			}
 			if (_t.locked) {
 				_t.reloadIcon(itemState);
 				return;
 			}
 			_t.input.value = itemState;
 			_t.input.MaterialSlider.change();
+		};
+
+		_t.setValueColor = function(color) {
+			_t.valueNode.style.color = color;
 		};
 
 		var
@@ -1257,6 +1331,7 @@
 			unlockTimeout = setTimeout(function() {
 				_t.locked = false;
 			}, 300);
+			_t.debounceProxy.finish();
 		}
 
 		_t.input.addEventListener("touchstart", onChangeStart);
@@ -1274,10 +1349,11 @@
 			_t = this;
 
 		_t.target = parentNode.getAttribute("data-target");
+		_t.hasValue = _t.parentNode.getAttribute("data-has-value") === "true";
 		_t.container = parentNode.parentNode.querySelector(o.formValue);
 
 		_t.setValuePrivate = function(value) {
-			if (_t.container !== null) {
+			if (_t.hasValue) {
 				_t.container.innerHTML = value;
 			}
 		};
@@ -1320,11 +1396,28 @@
 		_t.loading = _t.root.querySelector(o.uiLoadingBar);
 		_t.layoutTitle = document.querySelector(o.layoutTitle);
 		_t.iconType = document.body.getAttribute(o.iconTypeAttribute);
+		_t.notification = document.querySelector(o.notify);
 
-		function setTitle(title) {
+		_t.escapeHtml = function(text) {
+			var
+				escapedText = text,
+				escapeTable = [
+					[ /&/g, "&amp;" ],
+					[ /</g, "&lt;"  ],
+					[ />/g, "&gt;"  ]
+				];
+
+			for (var i = 0; i < escapeTable.length; i++) {
+				escapedText = escapedText.replace(escapeTable[i][0], escapeTable[i][1]);
+			}
+
+			return escapedText;
+		};
+
+		_t.setTitle = function(title) {
 			document.querySelector("title").innerHTML = title;
 			_t.layoutTitle.innerHTML = title;
-		}
+		};
 
 		function replaceContent(xmlResponse) {
 			var
@@ -1341,7 +1434,8 @@
 				}
 			});
 
-			setTitle(nodeArray[0].textContent);
+			// HTML entities are already escaped on server
+			_t.setTitle(nodeArray[0].textContent);
 
 			var
 				contentElement = document.querySelector(".page-content");
@@ -1523,6 +1617,15 @@
 			});
 		};
 
+		_t.showNotification = function(text) {
+			_t.notification.innerHTML = text;
+			_t.notification.classList.remove(o.notifyHidden);
+		};
+
+		_t.hideNotification = function() {
+			_t.notification.classList.add(o.notifyHidden);
+		};
+
 		historyStack.replace(_t.page, document.location.href);
 
 		(function() {
@@ -1552,6 +1655,39 @@
 		this.resume = function() {
 			this.paused = false;
 		};
+
+		this.extractValueFromLabel = function(label) {
+			var
+				value = null;
+
+			if (
+				(typeof(label) === "string") &&
+				(label.indexOf("[") !== -1) &&
+				(label.indexOf("]") !== -1)
+			) {
+				var
+					pos = label.indexOf("[") + 1;
+
+				value = label.substr(
+					pos,
+					label.lastIndexOf("]") - pos
+				);
+			}
+
+			return value;
+		};
+
+		this.getTitleFromLabel = function(label) {
+			var
+				value = this.extractValueFromLabel(label),
+				title = null;
+
+			if (value  !== null) {
+				title = label.substr(0, label.indexOf("[")) + value;
+			}
+
+			return title;
+		};
 	}
 
 	function ChangeListenerEventsource(subscribeLocation) {
@@ -1562,6 +1698,7 @@
 
 		_t.navigate = function(){};
 		_t.source = new EventSource(subscribeLocation);
+
 		_t.source.addEventListener("event", function(payload) {
 			if (_t.paused) {
 				return;
@@ -1569,29 +1706,34 @@
 
 			var
 				data = JSON.parse(payload.data),
-				value;
+				value,
+				title;
 
-			if (!(data.widgetId in smarthome.dataModel)) {
+			if (data.TYPE === "SITEMAP_CHANGED") {
+				var oldLocation = window.location.href;
+				var parts = oldLocation.split("?");
+				if (parts.length > 1) {
+					window.location.href = parts[0] + "?sitemap=" + data.sitemapName;
+				} else {
+					window.location.reload(true);
+				}
+				_t.pause();
 				return;
 			}
 
-			if (
-				(typeof(data.label) === "string") &&
-				(data.label.indexOf("[") !== -1) &&
-				(data.label.indexOf("]") !== -1)
-			) {
-				var
-					pos = data.label.indexOf("[");
-
-				value = data.label.substr(
-					pos + 1,
-					data.label.lastIndexOf("]") - (pos + 1)
-				);
-			} else {
-				value = data.item.state;
+			if (!(data.widgetId in smarthome.dataModel) && (data.widgetId !== smarthome.UI.page)) {
+				return;
 			}
 
-			if (smarthome.dataModel[data.widgetId] !== undefined) {
+			value = _t.extractValueFromLabel(data.label);
+			if (value === null) {
+				value = data.item.state;
+			}
+			title = _t.getTitleFromLabel(data.label);
+
+			if ((data.widgetId === smarthome.UI.page) && (title !== null)) {
+				smarthome.UI.setTitle(smarthome.UI.escapeHtml(title));
+			} else if (smarthome.dataModel[data.widgetId] !== undefined) {
 				var
 					widget = smarthome.dataModel[data.widgetId];
 
@@ -1600,17 +1742,36 @@
 						widget: widget,
 						visibility: data.visibility
 					});
-				} else {
-					widget.setValue(value, data.item.state);
-					if (data.labelcolor !== undefined) {
-						widget.setLabelColor(data.labelcolor);
-					}
-					if (data.valuecolor !== undefined) {
-						widget.setValueColor(data.valuecolor);
-					}
 				}
+
+				widget.setValue(smarthome.UI.escapeHtml(value), data.item.state);
+
+				[{
+					apply: widget.setLabel,
+					data: data.label,
+					fallback: null
+				}, {
+					apply: widget.setLabelColor,
+					data: data.labelcolor,
+					fallback: ""
+				}, {
+					apply: widget.setValueColor,
+					data: data.valuecolor,
+					fallback: ""
+				}].forEach(function(e) {
+					if (e.data !== undefined) {
+						e.apply(e.data);
+					} else if (e.fallback !== null) {
+						e.apply(e.fallback);
+					}
+				});
 			}
 		});
+
+		_t.source.onerror = function() {
+			_t.source.close();
+			_t.connectionError();
+		};
 	}
 
 	function ChangeListenerLongpolling() {
@@ -1623,10 +1784,18 @@
 		_t.page = document.body.getAttribute("data-page-id");
 
 		function applyChanges(response) {
+			var
+				title;
+
 			try {
 				response = JSON.parse(response);
 			} catch (e) {
 				return;
+			}
+
+			title = _t.getTitleFromLabel(response.title);
+			if (title !== null) {
+				smarthome.UI.setTitle(smarthome.UI.escapeHtml(title));
 			}
 
 			function walkWidgets(widgets) {
@@ -1637,20 +1806,33 @@
 
 					var
 						item = widget.item.name,
-						value = widget.item.state,
+						state = widget.item.state,
+						label = widget.label,
+						value = _t.extractValueFromLabel(widget.label),
 						labelcolor = widget.labelcolor,
 						valuecolor = widget.valuecolor;
 
+					if (value === null) {
+						value = state;
+					}
+
 					if (smarthome.dataModelLegacy[item] !== undefined) {
 						smarthome.dataModelLegacy[item].widgets.forEach(function(w) {
-							if (value !== "NULL") {
-								w.setValue(value, value);
+							if (state !== "NULL") {
+								w.setValue(smarthome.UI.escapeHtml(value), state);
+							}
+							if (label !== undefined) {
+								w.setLabel(label);
 							}
 							if (labelcolor !== undefined) {
 								w.setLabelColor(labelcolor);
+							} else {
+								w.setLabelColor("");
 							}
 							if (valuecolor !== undefined) {
 								w.setValueColor(valuecolor);
+							} else {
+								w.setValueColor("");
 							}
 						});
 					}
@@ -1713,6 +1895,64 @@
 		var
 			_t = this;
 
+		_t.subscribeRequestURL = "/rest/sitemaps/events/subscribe";
+		_t.reconnectInterval = null;
+		_t.subscribeResponse = null;
+		_t.suppressErrorsState = false;
+
+		function initSubscription(address) {
+			if (featureSupport.eventSource) {
+				ChangeListenerEventsource.call(_t, address);
+			} else {
+				ChangeListenerLongpolling.call(_t);
+			}
+		}
+
+		function connectionRestoredNavigateCallback() {
+			// This will override _t.navigate back to
+			// its normal state
+			_t.startSubscriber(_t.subscribeResponse);
+			_t.subscribeResponse = null;
+		}
+
+		_t.connectionRestored = function(response) {
+			clearInterval(_t.reconnectInterval);
+
+			// Temporarily replace navigation callback
+			_t.navigate = connectionRestoredNavigateCallback;
+
+			// Once navigation is completed, this will be used
+			// to restart SSE subscription
+			_t.subscribeResponse = response;
+
+			smarthome.UI.hideNotification();
+			// Reload current page without affecting the history
+			smarthome.UI.navigate(smarthome.UI.page, false);
+		};
+
+		_t.connectionError = function() {
+			if (_t.suppressErrorsState) {
+				return;
+			}
+
+			var
+				notify = renderTemplate(o.notifyTemplateOffline, {});
+
+			smarthome.UI.showNotification(notify);
+
+			_t.reconnectInterval = setInterval(function() {
+				ajax({
+					url: _t.subscribeRequestURL,
+					type: "POST",
+					callback: _t.connectionRestored
+				});
+			}, 10000);
+		};
+
+		_t.suppressErrors = function() {
+			_t.suppressErrorsState = true;
+		};
+
 		_t.startSubscriber = function(response) {
 			var
 				responseJSON,
@@ -1746,17 +1986,13 @@
 
 			smarthome.subscriptionId = subscriptionId;
 
-			if (featureSupport.eventSource) {
-				ChangeListenerEventsource.call(_t, subscribeLocation +
-					"?sitemap=" + sitemap +
-					"&pageid=" + page);
-			} else {
-				ChangeListenerLongpolling.call(_t);
-			}
+			initSubscription(subscribeLocation +
+				"?sitemap=" + sitemap +
+				"&pageid=" + page);
 		};
 
 		ajax({
-			url: "/rest/sitemaps/events/subscribe",
+			url: _t.subscribeRequestURL,
 			type: "POST",
 			callback: _t.startSubscriber
 		});
@@ -1767,6 +2003,10 @@
 		smarthome.UI.layoutChangeProxy = new VisibilityChangeProxy(100, 50);
 		smarthome.UI.initControls();
 		smarthome.changeListener = new ChangeListener();
+
+		window.addEventListener("beforeunload", function() {
+			smarthome.changeListener.suppressErrors();
+		});
 	});
 })({
 	itemAttribute: "data-item",
@@ -1779,6 +2019,7 @@
 	modalContainer: ".mdl-modal__content",
 	selectionRows: ".mdl-form__selection-rows",
 	form: ".mdl-form",
+	formTitle: ".mdl-form__title",
 	formHidden: "mdl-form--hidden",
 	formControls: ".mdl-form__control",
 	formRowHidden: "mdl-form__row--hidden",
@@ -1811,5 +2052,8 @@
 		background: ".colorpicker__background",
 		colorpicker: ".colorpicker",
 		button: ".colorpicker__buttons > button"
-	}
+	},
+	notify: ".mdl-notify__container",
+	notifyHidden: "mdl-notify--hidden",
+	notifyTemplateOffline: "template-offline-notify"
 });

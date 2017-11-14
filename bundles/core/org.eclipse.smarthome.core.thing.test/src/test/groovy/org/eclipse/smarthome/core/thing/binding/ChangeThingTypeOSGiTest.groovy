@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,6 +37,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelType
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.test.OSGiTest
@@ -170,7 +171,7 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
         }
 
         getService(ManagedItemChannelLinkProvider).getAll().each {
-            getService(ManagedItemChannelLinkProvider).remove(it.getUID().toString())
+            getService(ManagedItemChannelLinkProvider).remove(it.getLinkedUID().toString())
         }
     }
 
@@ -209,7 +210,7 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
         @Override
         public void initialize() {
             println "[ChangeThingTypeOSGiTest] GenericThingHandler.initialize"
-            super.initialize()
+            updateStatus(ThingStatus.ONLINE)
             genericInits++;
             if (selfChanging) {
                 changeThingType(THING_TYPE_SPECIFIC_UID, new Configuration(['providedspecific':'there']))
@@ -233,7 +234,7 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
         public void initialize() {
             println "[ChangeThingTypeOSGiTest] SpecificThingHandler.initialize"
             specificInits++;
-            super.initialize();
+            updateStatus(ThingStatus.ONLINE);
         }
 
         @Override
@@ -393,7 +394,7 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
 
     private ThingType registerThingTypeAndConfigDescription(ThingTypeUID thingTypeUID) {
         def URI configDescriptionUri = new URI("test:" + thingTypeUID.getId());
-        def thingType = new ThingType(thingTypeUID, null, "label", null, getChannelDefinitions(thingTypeUID), null, null, configDescriptionUri)
+        def thingType = ThingTypeBuilder.instance(thingTypeUID, "label").withChannelDefinitions(getChannelDefinitions(thingTypeUID)).withConfigDescriptionURI(configDescriptionUri).build();
         def configDescription = new ConfigDescription(configDescriptionUri, [
             ConfigDescriptionParameterBuilder.create("parameter"+thingTypeUID.getId(), ConfigDescriptionParameter.Type.TEXT).withRequired(false).withDefault("default"+thingTypeUID.getId()).build(),
             ConfigDescriptionParameterBuilder.create("provided"+thingTypeUID.getId(), ConfigDescriptionParameter.Type.TEXT).withRequired(false).build()

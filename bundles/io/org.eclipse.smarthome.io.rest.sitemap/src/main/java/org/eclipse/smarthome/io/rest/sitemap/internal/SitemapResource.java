@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,7 +46,7 @@ import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
+import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
 import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService;
 import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService.SitemapSubscriptionCallback;
@@ -88,7 +88,6 @@ import io.swagger.annotations.ApiResponses;
  * <p>
  * This class acts as a REST resource for sitemaps and provides different methods to interact with them, like retrieving
  * a list of all available sitemaps or just getting the widgets of a single page.
- * </p>
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Chris Jackson
@@ -97,8 +96,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(SitemapResource.PATH_SITEMAPS)
 @RolesAllowed({ Role.USER, Role.ADMIN })
 @Api(value = SitemapResource.PATH_SITEMAPS)
-public class SitemapResource
-        implements SatisfiableRESTResource, SitemapSubscriptionCallback, BroadcasterListener<OutboundEvent> {
+public class SitemapResource implements RESTResource, SitemapSubscriptionCallback, BroadcasterListener<OutboundEvent> {
 
     private final Logger logger = LoggerFactory.getLogger(SitemapResource.class);
 
@@ -272,8 +270,9 @@ public class SitemapResource
         Sitemap sitemap = getSitemap(sitemapName);
         if (sitemap != null) {
             if (pageId.equals(sitemap.getName())) {
-                return createPageBean(sitemapName, sitemap.getLabel(), sitemap.getIcon(), sitemap.getName(),
-                        sitemap.getChildren(), false, isLeaf(sitemap.getChildren()), uri, locale);
+                EList<Widget> children = itemUIRegistry.getChildren(sitemap);
+                return createPageBean(sitemapName, sitemap.getLabel(), sitemap.getIcon(), sitemap.getName(), children,
+                        false, isLeaf(children), uri, locale);
             } else {
                 Widget pageWidget = itemUIRegistry.getWidget(sitemap, pageId);
                 if (pageWidget instanceof LinkableWidget) {
@@ -357,7 +356,7 @@ public class SitemapResource
 
         bean.link = UriBuilder.fromUri(uri).path(SitemapResource.PATH_SITEMAPS).path(bean.name).build().toASCIIString();
         bean.homepage = createPageBean(sitemap.getName(), sitemap.getLabel(), sitemap.getIcon(), sitemap.getName(),
-                sitemap.getChildren(), true, false, uri, locale);
+                itemUIRegistry.getChildren(sitemap), true, false, uri, locale);
         return bean;
     }
 
@@ -400,7 +399,7 @@ public class SitemapResource
                     bean.item = EnrichedItemDTOMapper.map(item, false, UriBuilder.fromUri(uri).build(), locale);
                 }
             } catch (ItemNotFoundException e) {
-                logger.debug(e.getMessage());
+                logger.debug("{}", e.getMessage());
             }
         }
         bean.widgetId = widgetId;
@@ -414,9 +413,10 @@ public class SitemapResource
             EList<Widget> children = itemUIRegistry.getChildren(linkableWidget);
             if (widget instanceof Frame) {
                 int cntWidget = 0;
+                String wID = widgetId;
                 for (Widget child : children) {
-                    widgetId += "_" + cntWidget;
-                    WidgetDTO subWidget = createWidgetBean(sitemapName, child, drillDown, uri, widgetId, locale);
+                    wID += "_" + cntWidget;
+                    WidgetDTO subWidget = createWidgetBean(sitemapName, child, drillDown, uri, wID, locale);
                     if (subWidget != null) {
                         bean.widgets.add(subWidget);
                         cntWidget++;
@@ -457,31 +457,21 @@ public class SitemapResource
             bean.separator = listWidget.getSeparator();
         }
         if (widget instanceof Image) {
+            bean.url = buildProxyUrl(sitemapName, widget, uri);
             Image imageWidget = (Image) widget;
-            String wId = itemUIRegistry.getWidgetId(widget);
-            if (uri.getPort() < 0 || uri.getPort() == 80) {
-                bean.url = uri.getScheme() + "://" + uri.getHost() + "/proxy?sitemap=" + sitemapName
-                        + ".sitemap&widgetId=" + wId;
-            } else {
-                bean.url = uri.getScheme() + "://" + uri.getHost() + ":" + uri.getPort() + "/proxy?sitemap="
-                        + sitemapName + ".sitemap&widgetId=" + wId;
-            }
             if (imageWidget.getRefresh() > 0) {
                 bean.refresh = imageWidget.getRefresh();
             }
         }
         if (widget instanceof Video) {
             Video videoWidget = (Video) widget;
-            String wId = itemUIRegistry.getWidgetId(widget);
             if (videoWidget.getEncoding() != null) {
                 bean.encoding = videoWidget.getEncoding();
             }
-            if (uri.getPort() < 0 || uri.getPort() == 80) {
-                bean.url = uri.getScheme() + "://" + uri.getHost() + "/proxy?sitemap=" + sitemapName
-                        + ".sitemap&widgetId=" + wId;
+            if (videoWidget.getEncoding() != null && videoWidget.getEncoding().toLowerCase().contains("hls")) {
+                bean.url = videoWidget.getUrl();
             } else {
-                bean.url = uri.getScheme() + "://" + uri.getHost() + ":" + uri.getPort() + "/proxy?sitemap="
-                        + sitemapName + ".sitemap&widgetId=" + wId;
+                bean.url = buildProxyUrl(sitemapName, videoWidget, uri);
             }
         }
         if (widget instanceof Webview) {
@@ -497,6 +487,7 @@ public class SitemapResource
             Chart chartWidget = (Chart) widget;
             bean.service = chartWidget.getService();
             bean.period = chartWidget.getPeriod();
+            bean.legend = chartWidget.getLegend();
             if (chartWidget.getRefresh() > 0) {
                 bean.refresh = chartWidget.getRefresh();
             }
@@ -508,6 +499,17 @@ public class SitemapResource
             bean.step = setpointWidget.getStep();
         }
         return bean;
+    }
+
+    private String buildProxyUrl(String sitemapName, Widget widget, URI uri) {
+        String wId = itemUIRegistry.getWidgetId(widget);
+        StringBuilder sb = new StringBuilder();
+        sb.append(uri.getScheme()).append("://").append(uri.getHost());
+        if (uri.getPort() >= 0) {
+            sb.append(":").append(uri.getPort());
+        }
+        sb.append("/proxy?sitemap=").append(sitemapName).append(".sitemap&widgetId=").append(wId);
+        return sb.toString();
     }
 
     private boolean isLeaf(EList<Widget> children) {
@@ -541,7 +543,8 @@ public class SitemapResource
         Sitemap sitemap = getSitemap(sitemapname);
         if (sitemap != null) {
             if (pageId.equals(sitemap.getName())) {
-                waitForChanges(sitemap.getChildren());
+                EList<Widget> children = itemUIRegistry.getChildren(sitemap);
+                waitForChanges(children);
             } else {
                 Widget pageWidget = itemUIRegistry.getWidget(sitemap, pageId);
                 if (pageWidget instanceof LinkableWidget) {
@@ -626,9 +629,6 @@ public class SitemapResource
 
         private boolean changed = false;
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public void stateChanged(Item item, State oldState, State newState) {
             changed = true;
@@ -643,9 +643,6 @@ public class SitemapResource
             return changed;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public void stateUpdated(Item item, State state) {
             // ignore if the state did not change

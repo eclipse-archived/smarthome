@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,4 +14,19 @@ package org.eclipse.smarthome.core.types;
  *
  */
 public interface State extends Type {
+
+    /**
+     * Convert this {@link State}'s value into another type
+     *
+     * @param target the desired {@link State} type
+     * @return the {@link State}'s value in the given type's representation, or <code>null</code> if the conversion was
+     *         not possible
+     */
+    default State as(Class<? extends State> target) {
+        if (target != null && target.isInstance(this)) {
+            return this;
+        } else {
+            return null;
+        }
+    }
 }

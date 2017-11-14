@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Rule Model IDE
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.model.rule.ide
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Export-Package: 
+ org.eclipse.smarthome.model.rule.ide,
+ org.eclipse.smarthome.model.rule.ide.contentassist.antlr,
+ org.eclipse.smarthome.model.rule.ide.contentassist.antlr.internal
+Import-Package: org.eclipse.jdt.annotation;resolution:=optional
+Require-Bundle: 
+ org.antlr.runtime,
+ org.eclipse.smarthome.model.rule,
+ org.eclipse.smarthome.model.script,
+ org.eclipse.xtext.ide,
+ org.eclipse.xtext.xbase.ide,
+ org.eclipse.xtext.xbase.lib

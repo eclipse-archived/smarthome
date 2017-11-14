@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,10 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.osgi.framework.BundleContext;
@@ -20,20 +23,19 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-
 /**
  * The {@link AbstractRegistry} is an abstract implementation of the {@link Registry} interface, that can be used as
  * base class for {@link Registry} implementations.
  *
  * @author Dennis Nobel - Initial contribution
  * @author Stefan Bußweiler - Migration to new event mechanism
+ * @author Victor Toni - provide elements as {@link Stream}
+ * @author Kai Kreuzer - switched to parameterized logging
  *
  * @param <E>
  *            type of the element
  */
-public abstract class AbstractRegistry<E, K, P extends Provider<E>>
+public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends Provider<E>>
         implements ProviderChangeListener<E>, Registry<E, K> {
 
     private enum EventType {
@@ -44,7 +46,7 @@ public abstract class AbstractRegistry<E, K, P extends Provider<E>>
 
     private final Logger logger = LoggerFactory.getLogger(AbstractRegistry.class);
 
-    private Class<P> providerClazz;
+    private final Class<P> providerClazz;
     private ServiceTracker<P, P> providerTracker;
 
     protected Map<Provider<E>, Collection<E>> elementMap = new ConcurrentHashMap<Provider<E>, Collection<E>>();
@@ -118,11 +120,17 @@ public abstract class AbstractRegistry<E, K, P extends Provider<E>>
         Collection<E> elements = elementMap.get(provider);
         if (elements != null) {
             try {
+                K uid = element.getUID();
+                if (uid != null && get(uid) != null) {
+                    logger.warn("{} with key '{}' already exists! Failed to add a second with the same UID!",
+                            element.getClass().getName(), uid);
+                    return;
+                }
                 onAddElement(element);
                 elements.add(element);
                 notifyListenersAboutAddedElement(element);
             } catch (Exception ex) {
-                logger.warn("Could not add element: " + ex.getMessage(), ex);
+                logger.warn("Could not add element: {}", ex.getMessage(), ex);
             }
         }
     }
@@ -132,9 +140,17 @@ public abstract class AbstractRegistry<E, K, P extends Provider<E>>
         listeners.add(listener);
     }
 
+    @SuppressWarnings("null")
     @Override
-    public Collection<E> getAll() {
-        return ImmutableList.copyOf(Iterables.concat(elementMap.values()));
+    public Collection<@NonNull E> getAll() {
+        return stream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<E> stream() {
+        return elementMap.values() // gets a Collection<Collection<E>>
+                .stream() // creates a Stream<Collection<E>>
+                .flatMap(collection -> collection.stream()); // flattens the stream to Stream<E>
     }
 
     @Override
@@ -146,7 +162,7 @@ public abstract class AbstractRegistry<E, K, P extends Provider<E>>
                 elements.remove(element);
                 notifyListenersAboutRemovedElement(element);
             } catch (Exception ex) {
-                logger.warn("Could not remove element: " + ex.getMessage(), ex);
+                logger.warn("Could not remove element: {}", ex.getMessage(), ex);
             }
         }
     }
@@ -159,16 +175,28 @@ public abstract class AbstractRegistry<E, K, P extends Provider<E>>
     @Override
     public void updated(Provider<E> provider, E oldElement, E element) {
         Collection<E> elements = elementMap.get(provider);
-        if (elements != null) {
+        if (elements != null && elements.contains(oldElement) && oldElement.getUID().equals(element.getUID())) {
             try {
                 onUpdateElement(oldElement, element);
                 elements.remove(oldElement);
                 elements.add(element);
                 notifyListenersAboutUpdatedElement(oldElement, element);
             } catch (Exception ex) {
-                logger.warn("Could not update element: " + ex.getMessage(), ex);
+                logger.warn("Could not update element: {}", ex.getMessage(), ex);
             }
         }
+    }
+
+    @Override
+    public E get(K key) {
+        for (final Map.Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
+            for (final E element : entry.getValue()) {
+                if (key.equals(element.getUID())) {
+                    return element;
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -216,8 +244,8 @@ public abstract class AbstractRegistry<E, K, P extends Provider<E>>
                         break;
                 }
             } catch (Throwable throwable) {
-                logger.error("Could not inform the listener '" + listener + "' about the '" + eventType.name()
-                        + "' event!: " + throwable.getMessage(), throwable);
+                logger.error("Could not inform the listener '{}' about the '{}' event: {}", listener, eventType.name(),
+                        throwable.getMessage(), throwable);
             }
         }
     }
@@ -247,11 +275,17 @@ public abstract class AbstractRegistry<E, K, P extends Provider<E>>
             elementMap.put(provider, elements);
             for (E element : elementsOfProvider) {
                 try {
+                    K uid = element.getUID();
+                    if (uid != null && get(uid) != null) {
+                        logger.warn("{} with key'{}' already exists! Failed to add a second with the same UID!",
+                                element.getClass().getName(), uid);
+                        continue;
+                    }
                     onAddElement(element);
                     elements.add(element);
                     notifyListenersAboutAddedElement(element);
                 } catch (Exception ex) {
-                    logger.warn("Could not add element: " + ex.getMessage(), ex);
+                    logger.warn("Could not add element: {}", ex.getMessage(), ex);
                 }
             }
             logger.debug("Provider '{}' has been added.", provider.getClass().getName());
@@ -260,6 +294,10 @@ public abstract class AbstractRegistry<E, K, P extends Provider<E>>
 
     protected void setManagedProvider(ManagedProvider<E, K> provider) {
         managedProvider = provider;
+    }
+
+    protected void unsetManagedProvider(ManagedProvider<E, K> provider) {
+        managedProvider = null;
     }
 
     /**
@@ -320,7 +358,7 @@ public abstract class AbstractRegistry<E, K, P extends Provider<E>>
                     onRemoveElement(element);
                     notifyListenersAboutRemovedElement(element);
                 } catch (Exception ex) {
-                    logger.warn("Could not remove element: " + ex.getMessage(), ex);
+                    logger.warn("Could not remove element: {}", ex.getMessage(), ex);
                 }
             }
 
@@ -355,7 +393,7 @@ public abstract class AbstractRegistry<E, K, P extends Provider<E>>
             try {
                 eventPublisher.post(event);
             } catch (Exception ex) {
-                logger.error("Could not post event of type '" + event.getType() + "'.", ex);
+                logger.error("Could not post event of type '{}'.", event.getType(), ex);
             }
         }
     }

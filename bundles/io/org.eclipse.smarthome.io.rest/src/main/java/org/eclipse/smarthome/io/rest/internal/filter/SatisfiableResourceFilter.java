@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,8 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Provider;
 
-import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
+import org.eclipse.smarthome.io.rest.RESTResource;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * A filter that only affects resources implementing the {@link SatisfiableRESTResource} interface.
@@ -36,6 +37,7 @@ import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
  *
  */
 @Provider
+@Component(immediate = true, service = SatisfiableResourceFilter.class)
 public class SatisfiableResourceFilter implements ContainerRequestFilter {
 
     @Override
@@ -50,8 +52,7 @@ public class SatisfiableResourceFilter implements ContainerRequestFilter {
                 // current resource is always first as per documentation
                 Object matchedResource = matchedResources.get(0);
 
-                if (matchedResource instanceof SatisfiableRESTResource
-                        && !((SatisfiableRESTResource) matchedResource).isSatisfied()) {
+                if (matchedResource instanceof RESTResource && !((RESTResource) matchedResource).isSatisfied()) {
                     ctx.abortWith(Response.status(Status.SERVICE_UNAVAILABLE).build());
                 }
             }

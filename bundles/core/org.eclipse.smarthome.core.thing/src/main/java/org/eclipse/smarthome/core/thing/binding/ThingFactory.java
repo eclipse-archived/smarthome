@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -102,8 +103,9 @@ public class ThingFactory {
                 .withProperties(thingType.getProperties()).withBridge(bridgeUID).build();
     }
 
-    public static Thing createThing(ThingUID thingUID, Configuration configuration, Map<String, String> properties,
-            ThingUID bridgeUID, ThingTypeUID thingTypeUID, List<ThingHandlerFactory> thingHandlerFactories) {
+    public static Thing createThing(ThingUID thingUID, Configuration configuration,
+            Map<@NonNull String, String> properties, ThingUID bridgeUID, ThingTypeUID thingTypeUID,
+            List<ThingHandlerFactory> thingHandlerFactories) {
         for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
             if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
                 Thing thing = thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID, bridgeUID);

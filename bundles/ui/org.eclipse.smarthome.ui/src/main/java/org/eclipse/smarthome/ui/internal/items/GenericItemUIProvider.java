@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,10 @@ import org.eclipse.smarthome.model.items.ModelItem;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.items.ItemUIProvider;
 
+/**
+ *
+ * @author Kai Kreuzer - Initial contribution
+ */
 public class GenericItemUIProvider implements ItemUIProvider {
 
     private ModelRepository modelRepository = null;
@@ -65,9 +69,12 @@ public class GenericItemUIProvider implements ItemUIProvider {
         if (itemName != null && modelRepository != null) {
             for (String modelName : modelRepository.getAllModelNamesOfType("items")) {
                 ItemModel model = (ItemModel) modelRepository.getModel(modelName);
-                for (ModelItem item : model.getItems()) {
-                    if (itemName.equals(item.getName()))
-                        return item;
+                if (model != null) {
+                    for (ModelItem item : model.getItems()) {
+                        if (itemName.equals(item.getName())) {
+                            return item;
+                        }
+                    }
                 }
             }
         }

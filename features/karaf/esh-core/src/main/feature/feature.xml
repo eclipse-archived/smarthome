@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2014-2016 by the respective copyright holders.
+    Copyright (c) 2014-2017 by the respective copyright holders.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -13,41 +13,92 @@
   <feature name="esh-base" description="ESH" version="${project.version}">
     <details>ESH base bundles</details>
     <feature dependency="true">esh-tp</feature>
-    <requirement>esh.tp;filter:="(&amp;(feature=xtext)(version&gt;=2.9.2)(!(version&gt;=2.9.3)))"</requirement>
+    <requirement>esh.tp;filter:="(&amp;(feature=xtext)(version&gt;=2.12.0)(!(version&gt;=2.13.0)))"</requirement>
     <requirement>esh.tp;filter:="(feature=jax-rs)"</requirement>
 
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.core/${project.version}</bundle>
     <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
+    </capability>
+    <capability>
       osgi.service;objectClass=org.eclipse.smarthome.config.core.i18n.ConfigI18nLocalizationService
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.config.core.status.ConfigStatusService
     </capability>
 
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.discovery/${project.version}</bundle>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.config.discovery.inbox.Inbox
+    </capability>
+
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.dispatch/${project.version}</bundle>
     <bundle start-level="75">mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.xml/${project.version}</bundle>
 
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core/${project.version}</bundle>
     <capability>
-      osgi.service;objectClass=org.eclipse.smarthome.core.i18n.I18nProvider
+      osgi.service;objectClass=org.eclipse.smarthome.core.binding.BindingInfoRegistry
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.i18n.TranslationProvider
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.items.ItemFactory
     </capability>
     <capability>
       osgi.service;objectClass=org.eclipse.smarthome.core.items.ItemRegistry
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.items.ManagedItemProvider
     </capability>
 
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.autoupdate/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.binding.xml/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.id/${project.version}</bundle>
+
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.persistence/${project.version}</bundle>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.persistence.PersistenceServiceRegistry
+    </capability>
+
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.scheduler/${project.version}</bundle>
 
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.thing/${project.version}</bundle>
     <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.thing.ManagedThingProvider
+    </capability>
+    <capability>
       osgi.service;objectClass=org.eclipse.smarthome.core.thing.ThingRegistry
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.thing.firmware.FirmwareRegistry
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.thing.firmware.FirmwareUpdateService
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.thing.i18n.ThingStatusInfoI18nLocalizationService
     </capability>
     <capability>
       osgi.service;objectClass=org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nLocalizationService
     </capability>
     <capability>
       osgi.service;objectClass=org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.thing.link.ThingLinkManager
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry
+    </capability>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
     </capability>
 
     <bundle start-level="75">mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.thing.xml/${project.version}</bundle>
@@ -63,7 +114,13 @@
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.monitor/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.net/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.optimize/${project.version}</bundle>
+
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.core/${project.version}</bundle>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.io.rest.core.config.ConfigurationService
+    </capability>
+
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.sse/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.core/${project.version}</bundle>
   </feature>
@@ -78,6 +135,9 @@
   <feature name="esh-automation-api" version="${project.version}">
     <feature>esh-base</feature>
     <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.api/${project.version}</bundle>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.automation.RuleRegistry
+    </capability>
   </feature>
 
   <feature name="esh-automation-commands" version="${project.version}">
@@ -112,9 +172,17 @@
     <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.module.script.defaultscope/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-automation-module-script-rulesupport" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature dependency="true">esh-automation-api</feature>
+    <feature dependency="true">esh-automation-module-script</feature>
+    <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.module.script.rulesupport/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-automation-module-media" version="${project.version}">
     <feature>esh-base</feature>
     <feature dependency="true">esh-automation-api</feature>
+    <feature dependency="true">esh-automation-module-script</feature>
     <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.module.media/${project.version}</bundle>
   </feature>
 
@@ -183,6 +251,11 @@
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.mdns/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-io-transport-coap" version="${project.version}">
+    <feature>esh-base</feature>
+    <requirement>esh.tp;filter:="(feature=coap)"</requirement>
+  </feature>
+
   <feature name="esh-io-transport-dbus" version="${project.version}">
     <feature>esh-base</feature>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.dbus/${project.version}</bundle>
@@ -193,6 +266,7 @@
     <requirement>esh.tp;filter:="(feature=jmdns)"</requirement>
 
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.mdns/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.discovery.mdns/${project.version}</bundle>
     <capability>
       osgi.service;objectClass=org.eclipse.smarthome.io.transport.mdns.MDNSService
     </capability>
@@ -208,10 +282,16 @@
     </capability>
   </feature>
 
+  <feature name="esh-io-transport-http" version="${project.version}">
+    <feature>esh-base</feature>
+    <requirement>esh.tp;filter:="(feature=httpclient)"</requirement>
+  </feature>
+
   <feature name="esh-io-transport-upnp" version="${project.version}">
     <feature>esh-base</feature>
     <requirement>esh.tp;filter:="(feature=jupnp)"</requirement>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.upnp/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.discovery.upnp/${project.version}</bundle>
   </feature>
 
   <feature name="esh-model-item" version="${project.version}">
@@ -225,6 +305,11 @@
     <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.item.runtime/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-model-item-ide" version="${project.version}">
+    <feature dependency="true">esh-model-item</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.item.ide/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-model-persistence" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-model-item</feature>
@@ -235,6 +320,11 @@
     <feature>esh-base</feature>
     <feature>esh-model-persistence</feature>
     <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.persistence.runtime/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-persistence-ide" version="${project.version}">
+    <feature dependency="true">esh-model-persistence</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.persistence.ide/${project.version}</bundle>
   </feature>
 
   <feature name="esh-model-rule" version="${project.version}">
@@ -251,6 +341,11 @@
     <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.rule.runtime/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-model-rule-ide" version="${project.version}">
+    <feature dependency="true">esh-model-rule</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.rule.ide/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-model-script" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-model-persistence</feature>
@@ -261,6 +356,11 @@
     <feature>esh-base</feature>
     <feature>esh-model-script</feature>
     <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.script.runtime/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-script-ide" version="${project.version}">
+    <feature dependency="true">esh-model-script</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.script.ide/${project.version}</bundle>
   </feature>
 
   <feature name="esh-model-sitemap" version="${project.version}">
@@ -274,6 +374,11 @@
     <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.sitemap.runtime/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-model-sitemap-ide" version="${project.version}">
+    <feature dependency="true">esh-model-sitemap</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.sitemap.ide/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-model-thing" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-model-item</feature>
@@ -284,6 +389,23 @@
     <feature>esh-base</feature>
     <feature>esh-model-thing</feature>
     <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.thing.runtime/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-thing-ide" version="${project.version}">
+    <feature dependency="true">esh-model-thing</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.thing.ide/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-lsp" version="${project.version}">
+    <requirement>esh.tp;filter:="(&amp;(feature=xtext-ide)(version&gt;=2.12.0)(!(version&gt;=2.13.0)))"</requirement>
+    <requirement>esh.tp;filter:="(&amp;(feature=lsp4j)(version&gt;=0.2.0)(!(version&gt;=0.3.0)))"</requirement>
+    <feature>esh-model-item-ide</feature>
+    <feature>esh-model-persistence-ide</feature>
+    <feature>esh-model-rule-ide</feature>
+    <feature>esh-model-script-ide</feature>
+    <feature>esh-model-sitemap-ide</feature>
+    <feature>esh-model-thing-ide</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.lsp/${project.version}</bundle>
   </feature>
 
   <feature name="esh-storage-mapdb" version="${project.version}">

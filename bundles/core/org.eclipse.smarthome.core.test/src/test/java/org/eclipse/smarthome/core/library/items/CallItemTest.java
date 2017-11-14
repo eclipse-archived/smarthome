@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,10 +12,16 @@ import static org.junit.Assert.assertEquals;
 import org.eclipse.smarthome.core.library.types.StringListType;
 import org.junit.Test;
 
+/**
+ *
+ * @author Gaël L'hopital - Initial version
+ * @author Stefan Triller - Added state tests
+ *
+ */
 public class CallItemTest {
 
     @Test
-    public void testError() {
+    public void testSetStringListType() {
 
         StringListType callType1 = new StringListType("0699222222", "0179999998");
         CallItem callItem1 = new CallItem("testItem");
@@ -28,5 +34,17 @@ public class CallItemTest {
         callItem1.setState(callType1);
         assertEquals(callItem1.toString(),
                 "testItem (Type=CallItem, State=0699222222,0179999998, Label=null, Category=null)");
+    }
+
+    @Test
+    public void testSetUndefType() {
+        CallItem callItem = new CallItem("testItem");
+        StateUtil.testUndefStates(callItem);
+    }
+
+    @Test
+    public void testAcceptedStates() {
+        CallItem item = new CallItem("testItem");
+        StateUtil.testAcceptedStates(item);
     }
 }

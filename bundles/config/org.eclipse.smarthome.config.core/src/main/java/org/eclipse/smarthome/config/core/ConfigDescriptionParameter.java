@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,7 @@ import java.util.Set;
  * @author Alex Tugarev - Added options, filter criteria, and more parameter
  *         attributes
  * @author Chris Jackson - Added groupId, limitToOptions, advanced,
- *         multipleLimit attributes
+ *         multipleLimit, verify attributes
  * @author Christoph Knauf - Added default constructor, changed Boolean
  *         getter to return primitive types
  * @author Thomas Höfer - Added unit
@@ -90,11 +90,12 @@ public class ConfigDescriptionParameter {
 
     private boolean limitToOptions = false;
     private boolean advanced = false;
+    private boolean verify = false;
 
     private static final Set<String> UNITS = Collections
             .unmodifiableSet(new HashSet<String>(Arrays.asList("A", "cd", "K", "kg", "m", "mol", "s", "g", "rad", "sr",
                     "Hz", "N", "Pa", "J", "W", "C", "V", "F", "Ω", "S", "Wb", "T", "H", "Cel", "lm", "lx", "Bq", "Gy",
-                    "Sv", "kat", "m/s2", "m2v", "m3", "kph", "%", "l", "min", "h", "d", "week", "y")));
+                    "Sv", "kat", "m/s2", "m2v", "m3", "kph", "%", "l", "ms", "min", "h", "d", "week", "y")));
 
     /**
      * Default constructor.
@@ -118,7 +119,7 @@ public class ConfigDescriptionParameter {
      */
     public ConfigDescriptionParameter(String name, Type type) throws IllegalArgumentException {
         this(name, type, null, null, null, null, false, false, false, null, null, null, null, null, null, null, false,
-                true, null, null, null);
+                true, null, null, null, false);
     }
 
     /**
@@ -197,7 +198,7 @@ public class ConfigDescriptionParameter {
             String pattern, Boolean required, Boolean readOnly, Boolean multiple, String context, String defaultValue,
             String label, String description, List<ParameterOption> options, List<FilterCriteria> filterCriteria,
             String groupName, Boolean advanced, Boolean limitToOptions, Integer multipleLimit, String unit,
-            String unitLabel) throws IllegalArgumentException {
+            String unitLabel, Boolean verify) throws IllegalArgumentException {
 
         if ((name == null) || (name.isEmpty())) {
             throw new IllegalArgumentException("The name must neither be null nor empty!");
@@ -230,6 +231,9 @@ public class ConfigDescriptionParameter {
         this.unit = unit;
         this.unitLabel = unitLabel;
 
+        if (verify != null) {
+            this.verify = verify;
+        }
         if (readOnly != null) {
             this.readOnly = readOnly;
         }
@@ -456,6 +460,16 @@ public class ConfigDescriptionParameter {
         return unitLabel;
     }
 
+    /**
+     * Returns the verify flag for this parameter. Verify parameters are considered dangerous and the user should be
+     * alerted with an "Are you sure" flag in the UI.
+     *
+     * @return true if the parameter requires verification in the UI
+     */
+    public Boolean isVerifyable() {
+        return verify;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -499,6 +513,10 @@ public class ConfigDescriptionParameter {
         sb.append(required);
 
         sb.append(", ");
+        sb.append("verify=");
+        sb.append(verify);
+
+        sb.append(", ");
         sb.append("multiple=");
         sb.append(multiple);
         sb.append(", ");
@@ -537,5 +555,4 @@ public class ConfigDescriptionParameter {
         sb.append("]");
         return sb.toString();
     }
-
 }

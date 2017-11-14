@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,9 @@
  */
 package org.eclipse.smarthome.core.thing.type;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.common.registry.Identifiable;
 import org.eclipse.smarthome.core.thing.UID;
 
 /**
@@ -18,11 +21,12 @@ import org.eclipse.smarthome.core.thing.UID;
  *
  * @author Michael Grammling - Initial Contribution
  */
-public abstract class AbstractDescriptionType {
+@NonNullByDefault
+public abstract class AbstractDescriptionType implements Identifiable<UID> {
 
     private UID uid;
     private String label;
-    private String description;
+    private @Nullable String description;
 
     /**
      * Creates a new instance of this class with the specified parameters.
@@ -38,12 +42,8 @@ public abstract class AbstractDescriptionType {
      *
      * @throws IllegalArgumentException if the UID is null, or the label is null or empty
      */
-    public AbstractDescriptionType(UID uid, String label, String description) throws IllegalArgumentException {
-
-        if (uid == null) {
-            throw new IllegalArgumentException("The UID must not be null");
-        }
-
+    public AbstractDescriptionType(UID uid, String label, @Nullable String description)
+            throws IllegalArgumentException {
         if ((label == null) || (label.isEmpty())) {
             throw new IllegalArgumentException("The label must neither be null nor empty!");
         }
@@ -59,6 +59,7 @@ public abstract class AbstractDescriptionType {
      * @return the unique identifier which identifies the according type within
      *         the overall system (neither null, nor empty)
      */
+    @Override
     public UID getUID() {
         return this.uid;
     }
@@ -77,7 +78,7 @@ public abstract class AbstractDescriptionType {
      *
      * @return the human readable description for the according type (could be null or empty)
      */
-    public String getDescription() {
+    public @Nullable String getDescription() {
         return this.description;
     }
 

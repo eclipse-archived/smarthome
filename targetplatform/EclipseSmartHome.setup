@@ -67,6 +67,14 @@
           value="enabled"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.annotation.nonnull"
+          value="org.eclipse.jdt.annotation.NonNull"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.annotation.nullable"
+          value="org.eclipse.jdt.annotation.Nullable"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.annotation.nullanalysis"
           value="enabled"/>
       <setupTask
@@ -76,11 +84,11 @@
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.codegen.targetPlatform"
-          value="1.7"/>
+          value="1.8"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.compliance"
-          value="1.7"/>
+          value="1.8"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.assertIdentifier"
@@ -99,8 +107,32 @@
           value="enabled"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.nonnullTypeVariableFromLegacyInvocation"
+          value="ignore"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.nullAnnotationInferenceConflict"
+          value="error"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.nullReference"
           value="error"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.nullSpecViolation"
+          value="error"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.nullUncheckedConversion"
+          value="ignore"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.parameterAssignment"
+          value="warning"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.pessimisticNullAnalysisForFreeTypeVariables"
+          value="ignore"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment"
@@ -111,12 +143,16 @@
           value="warning"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.redundantNullCheck"
+          value="warning"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.syntacticNullAnalysisForFields"
           value="enabled"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.source"
-          value="1.7"/>
+          value="1.8"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.taskCaseSensitive"
@@ -403,6 +439,10 @@
           value="2"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.jdt.ui/content_assist_favorite_static_members"
+          value="org.junit.Assert.*;org.mockito.Mockito.*;org.mockito.MockitoAnnotations.*;org.hamcrest.CoreMatchers.*"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.ui/editor_save_participant_org.eclipse.jdt.ui.postsavelistener.cleanup"
           value="true"/>
       <setupTask
@@ -413,6 +453,10 @@
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.ui/formatter_settings_version"
           value="12"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.abbreviatepackagenames"
+          value="true"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.cleanupprofiles"
@@ -449,6 +493,10 @@
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.overrideannotation"
           value="true"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.pkgNameAbbreviationPatternForPackagesView"
+          value="org.eclipse.smarthome=o.e.sh"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.staticondemandthreshold"
@@ -544,7 +592,7 @@
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.ui/sp_cleanup.make_private_fields_final"
-          value="false"/>
+          value="true"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.ui/sp_cleanup.make_type_abstract_if_missing_method"
@@ -552,7 +600,7 @@
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.ui/sp_cleanup.make_variable_declarations_final"
-          value="false"/>
+          value="true"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.ui/sp_cleanup.never_use_blocks"
@@ -689,6 +737,18 @@
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.ui/sp_cleanup.use_type_arguments"
           value="false"/>
+    </setupTask>
+    <setupTask
+        xsi:type="setup:CompoundTask"
+        name="org.eclipse.pde.ds.annotations">
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.pde.ds.annotations/enabled"
+          value="true"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.pde.ds.annotations/generateBundleActivationPolicyLazy"
+          value="true"/>
     </setupTask>
     <setupTask
         xsi:type="setup:CompoundTask"
@@ -2222,8 +2282,8 @@
       value="Full"/>
   <setupTask
       xsi:type="jdt:JRETask"
-      version="JavaSE-1.7"
-      location="${jre.location-1.7}"/>
+      version="JavaSE-1.8"
+      location="${jre.location-1.8}"/>
   <project name="core"
       label="Runtime and Designer">
     <setupTask
@@ -2283,26 +2343,20 @@
           name="org.eclipse.m2e.logback.feature.feature.group"/>
       <requirement
           name="org.eclipse.xtend.sdk.feature.group"
-          versionRange="[2.9.2,2.9.3)"/>
+          versionRange="[2.12.0,2.13.0)"/>
       <requirement
           name="org.eclipse.xtext.sdk.feature.group"
-          versionRange="[2.9.2,2.9.3)"/>
+          versionRange="[2.12.0,2.13.0)"/>
       <requirement
           name="org.eclipse.emf.mwe2.language.sdk.feature.group"
-          versionRange="[2.8.3,2.8.4)"/>
+          versionRange="[2.9.1,2.10.0)"/>
       <requirement
           name="org.eclipse.emf.mwe2.runtime.sdk.feature.group"
-          versionRange="[2.8.3,2.8.4)"/>
-      <requirement
-          name="org.eclipse.emf.mwe.core.feature.group"
-          versionRange="[1.3.13,1.3.14)"/>
-      <requirement
-          name="org.eclipse.emf.mwe.sdk.feature.group"
-          versionRange="[1.3.13,1.3.14)"/>
+          versionRange="[2.9.1,2.10.0)"/>
       <requirement
           name="org.codehaus.groovy.eclipse.feature.feature.group"/>
       <requirement
-          name="org.sonatype.tycho.m2e.feature.feature.group"/>
+          name="org.eclipse.m2e.feature.feature.group"/>
       <requirement
           name="org.eclipse.emf.sdk.feature.group"/>
       <requirement
@@ -2320,13 +2374,9 @@
       <requirement
           name="org.eclipse.wst.web_ui.feature.feature.group"/>
       <repository
-          url="http://repo1.maven.org/maven2/.m2e/connectors/m2eclipse-tycho/0.7.0/N/0.7.0.201309291400/"/>
-      <repository
           url="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/"/>
       <repository
-          url="http://download.eclipse.org/modeling/emf/emf/updates/milestones/"/>
-      <repository
-          url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.6/"/>
+          url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.7/"/>
     </setupTask>
     <setupTask
         xsi:type="projects:ProjectsImportTask">

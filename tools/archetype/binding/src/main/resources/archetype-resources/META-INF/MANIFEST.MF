@@ -1,14 +1,19 @@
 Manifest-Version: 1.0
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
 Bundle-Name: ${bindingIdCamelCase} Binding
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: ${artifactId};singleton:=true
 Bundle-Vendor: ${vendorName}
 Bundle-Version: ${version.replaceAll("-SNAPSHOT", ".qualifier")}
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ClassPath: .
+Export-Package: 
+ ${package},
+ ${package}.handler
 Import-Package: 
  ${package},
  ${package}.handler,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.thing,
@@ -16,7 +21,6 @@ Import-Package:
  org.eclipse.smarthome.core.thing.binding.builder,
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.types,
+ org.osgi.service.component.annotations;resolution:=optional,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
-Export-Package: ${package},
- ${package}.handler

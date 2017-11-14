@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -64,13 +64,15 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
      */
     private static final int DIM_STEPSIZE = 5;
 
+    protected final static String SUBSCRIPTION = "bridge1";
+
     protected final static int SUBSCRIPTION_DURATION = 600;
 
     /**
      * The default refresh interval in Seconds.
      */
     private int DEFAULT_REFRESH_INTERVAL = 60;
-    
+
     /**
      * The default refresh initial delay in Seconds.
      */
@@ -128,7 +130,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
 
     @Override
     public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
-        if (bridgeStatusInfo.equals(ThingStatus.ONLINE)) {
+        if (bridgeStatusInfo.getStatus().equals(ThingStatus.ONLINE)) {
             updateStatus(ThingStatus.ONLINE);
             onSubscription();
             onUpdate();
@@ -378,12 +380,10 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
         if (service.isRegistered(this)) {
             logger.debug("Checking WeMo GENA subscription for '{}'", this);
 
-            String subscription = "bridge1";
-
-            if ((subscriptionState.get(subscription) == null) || !subscriptionState.get(subscription).booleanValue()) {
-                logger.debug("Setting up GENA subscription {}: Subscribing to service {}...", getUDN(), subscription);
-                service.addSubscription(this, subscription, SUBSCRIPTION_DURATION);
-                subscriptionState.put(subscription, true);
+            if ((subscriptionState.get(SUBSCRIPTION) == null) || !subscriptionState.get(SUBSCRIPTION).booleanValue()) {
+                logger.debug("Setting up GENA subscription {}: Subscribing to service {}...", getUDN(), SUBSCRIPTION);
+                service.addSubscription(this, SUBSCRIPTION, SUBSCRIPTION_DURATION);
+                subscriptionState.put(SUBSCRIPTION, true);
             }
 
         } else {
@@ -393,13 +393,12 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
     }
 
     private synchronized void removeSubscription() {
-        logger.debug("Removing WeMo GENA subscription for '{}'", this);
         if (service.isRegistered(this)) {
-            String subscription = null;
+            logger.debug("Removing WeMo GENA subscription for '{}'", this);
 
-            if ((subscriptionState.get(subscription) != null) && subscriptionState.get(subscription).booleanValue()) {
-                logger.debug("WeMo {}: Unsubscribing from service {}...", getUDN(), subscription);
-                service.removeSubscription(this, "bridge1");
+            if ((subscriptionState.get(SUBSCRIPTION) != null) && subscriptionState.get(SUBSCRIPTION).booleanValue()) {
+                logger.debug("WeMo {}: Unsubscribing from service {}...", getUDN(), SUBSCRIPTION);
+                service.removeSubscription(this, SUBSCRIPTION);
             }
 
             subscriptionState = new HashMap<String, Boolean>();
@@ -417,7 +416,8 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                 refreshInterval = ((BigDecimal) refreshConfig).intValue();
             }
             logger.trace("Start polling job for LightID '{}'", wemoLightID);
-            refreshJob = scheduler.scheduleAtFixedRate(refreshRunnable, DEFAULT_REFRESH_INITIAL_DELAY, refreshInterval, TimeUnit.SECONDS);
+            refreshJob = scheduler.scheduleWithFixedDelay(refreshRunnable, DEFAULT_REFRESH_INITIAL_DELAY,
+                    refreshInterval, TimeUnit.SECONDS);
         }
     }
 

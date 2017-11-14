@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,6 +81,16 @@ public class BridgeDiscoveryService extends AbstractDiscoveryService {
      */
     public BridgeDiscoveryService() {
         super(Sets.newHashSet(DigitalSTROMBindingConstants.THING_TYPE_DSS_BRIDGE), 10, false);
+    }
+
+    @Override
+    protected void activate(Map<String, Object> configProperties) {
+        super.activate(configProperties);
+    }
+
+    @Override
+    protected void modified(Map<String, Object> configProperties) {
+        super.modified(configProperties);
     }
 
     @Override

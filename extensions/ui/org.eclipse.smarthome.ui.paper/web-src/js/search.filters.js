@@ -60,8 +60,14 @@ angular.module('PaperUI').directive('searchFilters', function() {
             }
 
             $scope.setSelectedOption = function(index, item) {
-                $scope.selectedOptions[index].value = item;
-                $scope.showMore = true;
+                if (item instanceof Object && item.type == "Group") {
+                    $scope.searchType = "";
+                    $scope.selectedOptions[index].value = item;
+                    $scope.showMore = true;
+                } else if (!(item instanceof Object)) {
+                    $scope.selectedOptions[index].value = item;
+                    $scope.showMore = true;
+                }
             }
 
             $scope.searchInOptions = function(arr, properties, value) {

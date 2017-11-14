@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.model.script.internal.actions;
 
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure0;
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -27,15 +28,21 @@ public class TimerExecutionJob implements Job {
 
     /**
      * Runs the configured closure of this job
-     * 
+     *
      * @param context the execution context of the job
      */
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         logger.debug("Executing timer '{}'", context.getJobDetail().getKey().toString());
         Procedure0 procedure = (Procedure0) context.getJobDetail().getJobDataMap().get("procedure");
+        Procedure1<Object> procedure1 = (Procedure1<Object>) context.getJobDetail().getJobDataMap().get("procedure1");
         TimerImpl timer = (TimerImpl) context.getJobDetail().getJobDataMap().get("timer");
-        procedure.apply();
+        Object argument1 = context.getJobDetail().getJobDataMap().get("argument1");
+        if (argument1 != null) {
+            procedure1.apply(argument1);
+        } else {
+            procedure.apply();
+        }
         timer.setTerminated(true);
     }
 

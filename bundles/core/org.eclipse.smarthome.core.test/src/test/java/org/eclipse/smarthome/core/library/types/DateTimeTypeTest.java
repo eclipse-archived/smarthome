@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,11 +14,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -161,11 +159,6 @@ public class DateTimeTypeTest {
         this.parameterSet = parameterSet;
     }
 
-    @After
-    public void afterTest() {
-        System.out.println("");
-    }
-
     @Test
     public void serializationTest() {
         DateTimeType dt = new DateTimeType(Calendar.getInstance());
@@ -204,19 +197,6 @@ public class DateTimeTypeTest {
         }
 
         DateTimeType dt = DateTimeType.valueOf(inputTimeString);
-
-        // create debug output to reproduce
-        System.out.println("createDate (Default TimeZone: expected="
-                + parameterSet.defaultTimeZone.getDisplayName(false, TimeZone.SHORT, Locale.ROOT) + "|current="
-                + TimeZone.getDefault().getDisplayName() + "):");
-        if (parameterSet.inputTimeZone == null) {
-            System.out.println("\tInput: " + inputTimeString);
-        } else {
-            System.out.println("\tInput: " + inputTimeString
-                    + parameterSet.inputTimeZone.getDisplayName(false, TimeZone.SHORT, Locale.ROOT));
-        }
-        System.out.println("\tExpected: " + parameterSet.expectedResult);
-        System.out.println("\tResult  : " + dt.toString());
 
         // Test
         assertEquals(parameterSet.expectedResult, dt.toString());

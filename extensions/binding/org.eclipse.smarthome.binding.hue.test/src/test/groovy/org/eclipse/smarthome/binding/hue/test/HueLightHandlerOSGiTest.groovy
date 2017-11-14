@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,12 +10,11 @@ package org.eclipse.smarthome.binding.hue.test
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
-import static org.junit.matchers.JUnitMatchers.*
-import nl.q42.jue.MockedHttpClient
-import nl.q42.jue.HttpClient.Result
 
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
 import org.eclipse.smarthome.binding.hue.handler.HueLightHandler
+import org.eclipse.smarthome.binding.hue.internal.MockedHttpClient
+import org.eclipse.smarthome.binding.hue.internal.HttpClient.Result
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.items.ItemRegistry
@@ -33,7 +32,6 @@ import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingStatusDetail
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
-import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
@@ -51,6 +49,7 @@ import org.junit.Test
  * @author Michael Grammling - Initial contribution
  * @author Markus Mazurczak - Added test for OSRAM Par16 50 TW bulbs
  * @author Andre Fuechsel - modified tests after introducing the generic thing types
+ * @author Denis Dudnik - switched to internally integrated source of Jue library
  */
 class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
 
@@ -64,6 +63,8 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
     final ThingTypeUID OSRAM_PAR16_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "0220")
     final String OSRAM_MODEL_TYPE = "PAR16 50 TW"
     final String OSRAM_MODEL_TYPE_ID = "PAR16_50_TW"
+
+    def UNIQUE_ID = "00:17:88:01:00:e1:88:29-0b"
 
     ThingRegistry thingRegistry
     ItemChannelLinkRegistry linkRegistry
@@ -127,34 +128,17 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
     @Test
     void 'assert that HueLightHandler status detail is set to bridge offline when the bridge is offline'() {
         Bridge hueBridge = createBridge()
-        simulateBridgeInitialization()
+        simulateBridgeInitialization(hueBridge)
         Thing hueLight = createLight(hueBridge, COLOR_LIGHT_THING_TYPE_UID)
 
         try {
             HueLightHandler hueLightHandler
             waitForAssert {
-                hueLightHandler = getThingHandler(HueLightHandler)
+                hueLightHandler = getThingHandler(hueLight, HueLightHandler.class);
                 assertThat hueLightHandler, is(notNullValue())
             }
 
-            def AsyncResultWrapper<String> addressWrapper = new AsyncResultWrapper<String>()
-            def AsyncResultWrapper<String> bodyWrapper = new AsyncResultWrapper<String>()
-
-            MockedHttpClient mockedHttpClient =  [
-                put: { String address, String body ->
-                    addressWrapper.set(address)
-                    bodyWrapper.set(body)
-                    new Result("", 200)
-                },
-                get: { String address ->
-                    if (address.endsWith("testUserName/")) {
-                        new Result(new HueLightState().toString(), 200)
-                    }
-                }
-            ] as MockedHttpClient
-
             HueBridgeHandler hueBridgeHandler = hueLightHandler.getHueBridgeHandler()
-            installHttpClientMock(hueBridgeHandler, mockedHttpClient)
 
             assertBridgeOnline(hueLightHandler.getBridge())
             hueLightHandler.initialize()
@@ -163,7 +147,7 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
                 assertThat(hueLight.getStatus(), is(ThingStatus.ONLINE))
             }, 10000)
 
-            hueBridgeHandler.onConnectionLost(hueBridgeHandler.bridge)
+            hueBridgeHandler.onConnectionLost()
 
             assertThat(hueBridge.getStatus(), is(ThingStatus.OFFLINE))
             assertThat(hueBridge.getStatusInfo().getStatusDetail(), is(not(ThingStatusDetail.BRIDGE_OFFLINE)))
@@ -476,14 +460,14 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
 
     private void assertSendCommand(String channel, Command command, ThingTypeUID hueLightUID, HueLightState currentState, String expectedReply, String expectedModel = "LCT001", String expectedVendor = "Philips") {
         Bridge hueBridge = createBridge()
-        simulateBridgeInitialization()
+        simulateBridgeInitialization(hueBridge)
 
         Thing hueLight = createLight(hueBridge, hueLightUID)
 
         try {
             HueLightHandler hueLightHandler
             waitForAssert {
-                hueLightHandler = getThingHandler(HueLightHandler)
+                hueLightHandler = getThingHandler(hueLight, HueLightHandler.class);
                 assertThat hueLightHandler, is(notNullValue())
             }
 
@@ -497,7 +481,7 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
                     new Result("", 200)
                 },
                 get: { String address ->
-                    if (address.endsWith("testUserName/")) {
+                    if (address.endsWith("testUserName")) {
                         new Result(currentState.toString(), 200)
                     }
                 }
@@ -517,8 +501,8 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
 
             postCommand(hueLight, channel, command)
 
-            waitForAssert({assertTrue addressWrapper.isSet}, 10000)
-            waitForAssert({assertTrue bodyWrapper.isSet}, 10000)
+            waitForAssert({ assertTrue addressWrapper.isSet }, 10000)
+            waitForAssert({ assertTrue bodyWrapper.isSet }, 10000)
 
             assertThat addressWrapper.wrappedObject, is("http://1.2.3.4/api/testUserName/lights/1/state")
             assertJson(expectedReply, bodyWrapper.wrappedObject)
@@ -532,11 +516,11 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
         }
     }
 
-    private void simulateBridgeInitialization() {
+    private void simulateBridgeInitialization(Bridge bridge) {
         HueBridgeHandler.metaClass.initialize = { updateStatus(ThingStatus.ONLINE) }
         HueBridgeHandler bridgeHandler
         waitForAssert {
-            bridgeHandler = getThingHandler(HueBridgeHandler)
+            bridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
             assertThat bridgeHandler, is(notNullValue())
         }
         bridgeHandler.metaClass.initialize = { updateStatus(ThingStatus.ONLINE) }
@@ -576,7 +560,7 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
             MockedHttpClient mockedHttpClient) {
 
         // mock HttpClient
-        def hueBridgeField = hueBridgeHandler.getClass().getDeclaredField("bridge")
+        def hueBridgeField = hueBridgeHandler.getClass().getDeclaredField("hueBridge")
         hueBridgeField.accessible = true
         def hueBridgeValue = null
 

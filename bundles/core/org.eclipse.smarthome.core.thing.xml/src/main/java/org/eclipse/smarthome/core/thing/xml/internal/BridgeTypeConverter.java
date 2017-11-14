@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  *
  * @author Michael Grammling - Initial Contribution
  * @author Thomas Höfer - Added thing and thing type properties
+ * @author Andre Fuechsel - Added representationProperty
  */
 public class BridgeTypeConverter extends ThingTypeConverter {
 
@@ -38,12 +39,12 @@ public class BridgeTypeConverter extends ThingTypeConverter {
     protected BridgeTypeXmlResult unmarshalType(HierarchicalStreamReader reader, UnmarshallingContext context,
             Map<String, String> attributes, NodeIterator nodeIterator) throws ConversionException {
 
-        BridgeTypeXmlResult bridgeTypeXmlResult = new BridgeTypeXmlResult(
-                new ThingTypeUID(super.getUID(attributes, context)),
-                super.readSupportedBridgeTypeUIDs(nodeIterator, context), super.readLabel(nodeIterator),
-                super.readDescription(nodeIterator), super.getListed(attributes),
-                super.getChannelTypeReferenceObjects(nodeIterator), getProperties(nodeIterator),
-                super.getConfigDescriptionObjects(nodeIterator));
+        BridgeTypeXmlResult bridgeTypeXmlResult = new BridgeTypeXmlResult(new ThingTypeUID(getUID(attributes, context)),
+                readSupportedBridgeTypeUIDs(nodeIterator, context), readLabel(nodeIterator),
+                readDescription(nodeIterator), readCategory(nodeIterator), getListed(attributes),
+                getExtensibleChannelTypeIds(attributes), getChannelTypeReferenceObjects(nodeIterator),
+                getProperties(nodeIterator), getRepresentationProperty(nodeIterator),
+                getConfigDescriptionObjects(nodeIterator));
 
         return bridgeTypeXmlResult;
     }

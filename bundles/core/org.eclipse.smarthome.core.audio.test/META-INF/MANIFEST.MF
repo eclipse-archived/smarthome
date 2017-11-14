@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse Smarthome Audio Test
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.core.audio.test
+Bundle-Version: 0.9.0.qualifier
+Fragment-Host: org.eclipse.smarthome.core.audio
+Import-Package: 
+ groovy.lang,
+ org.codehaus.groovy.reflection,
+ org.codehaus.groovy.runtime,
+ org.codehaus.groovy.runtime.callsite,
+ org.codehaus.groovy.runtime.typehandling,
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.jetty.client,
+ org.eclipse.jetty.client.api,
+ org.eclipse.jetty.http,
+ org.eclipse.jetty.io,
+ org.eclipse.jetty.util.component,
+ org.eclipse.smarthome.test,
+ org.hamcrest;core=split,
+ org.junit,
+ org.osgi.framework

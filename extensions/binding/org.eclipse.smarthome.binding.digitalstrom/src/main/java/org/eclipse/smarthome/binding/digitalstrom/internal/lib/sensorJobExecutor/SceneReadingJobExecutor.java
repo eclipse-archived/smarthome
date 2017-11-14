@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,12 +21,11 @@ import org.slf4j.LoggerFactory;
  * <p>
  * In addition priorities can be assigned to jobs therefore the {@link SceneReadingJobExecutor} offers the methods
  * {@link #addHighPriorityJob()}, {@link #addLowPriorityJob()} and {@link #addLowPriorityJob()}.
- * </p>
+ * 
  * <p>
  * <b>NOTE:</b><br>
  * In contrast to the {@link SensorJobExecutor} the {@link SceneReadingJobExecutor} will execute {@link SensorJob}'s
  * with high priority always before medium priority {@link SensorJob}s and so on.
- * </p>
  *
  * @author Michael Ochel - Initial contribution
  * @author Matthias Siegele - Initial contribution

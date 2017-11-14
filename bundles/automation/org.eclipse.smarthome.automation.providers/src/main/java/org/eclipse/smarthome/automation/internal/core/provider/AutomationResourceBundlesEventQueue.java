@@ -114,9 +114,17 @@ public class AutomationResourceBundlesEventQueue<E> implements Runnable {
                 BundleEvent event = events.next();
                 try {
                     processBundleChanged(event);
+                    synchronized (this) {
+                        if (closed) {
+                            notifyAll();
+                            return;
+                        }
+                    }
                 } catch (Throwable t) {
-                    logger.warn("Processing bundle event {}, for automation resource bundle '{}' failed",
-                            event.getType(), event.getBundle().getSymbolicName(), t);
+                    if (!closed && !(t instanceof IllegalStateException)) {
+                        logger.warn("Processing bundle event {}, for automation resource bundle '{}' failed",
+                                event.getType(), event.getBundle().getSymbolicName(), t);
+                    }
                 }
             }
             synchronized (this) {
@@ -219,7 +227,7 @@ public class AutomationResourceBundlesEventQueue<E> implements Runnable {
             return;
         }
         if (shared) {
-            queue = new LinkedList<BundleEvent>();
+            this.queue = new LinkedList<BundleEvent>();
             shared = false;
         }
         if (this.queue.addAll(queue)) {

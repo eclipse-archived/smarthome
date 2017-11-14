@@ -24,10 +24,24 @@
     <module>org.eclipse.smarthome.feature.runtime.console.equinox</module>
     <module>org.eclipse.smarthome.feature.runtime.console.rfc147</module>
     <module>org.eclipse.smarthome.feature.runtime.binding</module>
-    <module>org.eclipse.smarthome.feature.dependencies.designer</module>
-    <module>org.eclipse.smarthome.feature.designer</module>
     <module>org.eclipse.smarthome.feature.test</module>
     <module>karaf</module>
   </modules>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-p2-plugin</artifactId>
+          <version>${tycho-version}</version>
+          <configuration>
+            <!-- fix to prevent double upload of p2metadata artifacts  -->
+            <defaultP2Metadata>false</defaultP2Metadata>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 
 </project>

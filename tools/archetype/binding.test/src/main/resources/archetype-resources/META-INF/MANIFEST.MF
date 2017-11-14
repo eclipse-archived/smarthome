@@ -1,29 +1,31 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name:  ${bindingIdCamelCase} Binding Tests
+Bundle-Name: ${bindingIdCamelCase} Binding Tests
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: ${artifactId};singleton:=true
 Bundle-Vendor: ${vendorName}
 Bundle-Version: ${version.replaceAll("-SNAPSHOT", ".qualifier")}
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: ${package};uses:="org.eclipse.smarthome.test"
 Fragment-Host: ${package}
-Import-Package: ${package},
- ${package}.internal,
- org.slf4j,
- groovy.json,
- groovy.lang,
- org.codehaus.groovy.reflection,
- org.codehaus.groovy.runtime,
- org.codehaus.groovy.runtime.callsite,
- org.codehaus.groovy.runtime.typehandling,
+Import-Package: 
+ ${package},
+ ${package}.handler,
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.events,
- org.eclipse.smarthome.core.thing.setup,
+ org.eclipse.smarthome.core.thing,
+ org.eclipse.smarthome.core.thing.binding,
+ org.eclipse.smarthome.core.thing.binding.builder,
  org.eclipse.smarthome.core.thing.util,
- org.eclipse.smarthome.test,
+ org.eclipse.smarthome.test.java,
  org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
  org.junit;version="4.0.0",
+ org.mockito,
+ org.osgi.framework,
  org.osgi.service.device,
- org.osgi.framework
-Export-Package: ${package}.internal;x-internal:=true,
- ${package};uses:="org.eclipse.smarthome.test"
-
+ org.slf4j
+Require-Bundle: 
+ org.hamcrest,
+ org.junit,
+ org.mockito

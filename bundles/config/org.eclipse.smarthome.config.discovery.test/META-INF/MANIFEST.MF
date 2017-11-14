@@ -1,22 +1,33 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Configuration Discovery Tests
-Bundle-SymbolicName: org.eclipse.smarthome.config.discovery.test;singleton:=true
-Bundle-Version: 0.9.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.config.discovery.test;singlet
+ on:=true
 Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
 Fragment-Host: org.eclipse.smarthome.config.discovery
-Import-Package: com.google.gson,
+Import-Package: 
+ com.google.gson,
  groovy.lang,
  org.codehaus.groovy.reflection,
  org.codehaus.groovy.runtime,
  org.codehaus.groovy.runtime.callsite,
  org.codehaus.groovy.runtime.typehandling,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.storage,
  org.eclipse.smarthome.core.thing.binding,
  org.eclipse.smarthome.core.thing.binding.builder,
+ org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.test,
+ org.eclipse.smarthome.test.java,
+ org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
- org.junit;version="4.0.0"
+ org.junit;version="4.0.0",
+ org.mockito,
+ org.mockito.invocation,
+ org.mockito.stubbing,
+ org.mockito.verification
+Require-Bundle: org.hamcrest

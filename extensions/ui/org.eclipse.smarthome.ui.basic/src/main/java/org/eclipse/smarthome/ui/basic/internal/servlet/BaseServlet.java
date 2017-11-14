@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,8 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.io.net.http.HttpContextFactoryService;
+import org.osgi.framework.Bundle;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 
@@ -26,6 +28,7 @@ public abstract class BaseServlet implements Servlet {
     public static final String WEBAPP_ALIAS = "/basicui";
 
     protected HttpService httpService;
+    private HttpContextFactoryService httpContextFactoryService;
     protected ItemRegistry itemRegistry;
 
     public void setItemRegistry(ItemRegistry itemRegistry) {
@@ -44,42 +47,37 @@ public abstract class BaseServlet implements Servlet {
         this.httpService = null;
     }
 
+    public void setHttpContextFactoryService(HttpContextFactoryService httpContextFactoryService) {
+        this.httpContextFactoryService = httpContextFactoryService;
+    }
+
+    public void unsetHttpContextFactoryService(HttpContextFactoryService httpContextFactoryService) {
+        this.httpContextFactoryService = null;
+    }
+
     /**
      * Creates a {@link HttpContext}
      *
      * @return a {@link HttpContext}
      */
-    protected HttpContext createHttpContext() {
-        HttpContext defaultHttpContext = httpService.createDefaultHttpContext();
-        return defaultHttpContext;
+    protected HttpContext createHttpContext(Bundle bundle) {
+        return httpContextFactoryService.createDefaultHttpContext(bundle);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void init(ServletConfig config) throws ServletException {
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ServletConfig getServletConfig() {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getServletInfo() {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void destroy() {
     }

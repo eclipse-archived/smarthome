@@ -1,0 +1,46 @@
+Manifest-Version: 1.0
+Automation-ResourceType: json
+Bundle-ActivationPolicy: lazy
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Automation Script RuleSupport
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.automation.module.script.rule
+ support
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
+Export-Package: 
+ org.eclipse.smarthome.automation.module.script.rulesupport.shared,
+ org.eclipse.smarthome.automation.module.script.rulesupport.shared.facto
+ ries,
+ org.eclipse.smarthome.automation.module.script.rulesupport.shared.simpl
+ e
+Import-Package: 
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.automation,
+ org.eclipse.smarthome.automation.handler,
+ org.eclipse.smarthome.automation.module.script,
+ org.eclipse.smarthome.automation.module.script.rulesupport.shared,
+ org.eclipse.smarthome.automation.module.script.rulesupport.shared.facto
+ ries,
+ org.eclipse.smarthome.automation.module.script.rulesupport.shared.simpl
+ e,
+ org.eclipse.smarthome.automation.parser,
+ org.eclipse.smarthome.automation.template,
+ org.eclipse.smarthome.automation.type,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.common,
+ org.eclipse.smarthome.core.common.registry,
+ org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.core.items.events,
+ org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.scheduler,
+ org.eclipse.smarthome.core.service,
+ org.eclipse.smarthome.core.thing,
+ org.eclipse.smarthome.core.types,
+ org.osgi.framework,
+ org.osgi.service.cm,
+ org.osgi.service.component,
+ org.osgi.util.tracker,
+ org.slf4j
+Service-Component: OSGI-INF/*.xml

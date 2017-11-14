@@ -171,7 +171,7 @@ public class AutomationCommandExport extends AutomationCommand {
                 }
                 parserType = parameterValues[i];
             } else if (parameterValues[i].charAt(0) == '-') {
-                return String.format("Unsupported option: {1}", parameterValues[i]);
+                return String.format("Unsupported option: %s", parameterValues[i]);
             } else if (getFile) {
                 file = initFile(parameterValues[i]);
                 if (file != null) {

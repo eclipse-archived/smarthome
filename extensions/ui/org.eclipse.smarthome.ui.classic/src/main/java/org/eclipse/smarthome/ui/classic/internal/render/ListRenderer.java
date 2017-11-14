@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.ui.classic.internal.render;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.model.sitemap.List;
@@ -23,17 +24,11 @@ import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
  */
 public class ListRenderer extends AbstractWidgetRenderer {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean canRender(Widget w) {
         return w instanceof List;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         String snippet = getSnippet("list");
@@ -44,7 +39,7 @@ public class ListRenderer extends AbstractWidgetRenderer {
         String[] rowContents = state.split(((List) w).getSeparator());
         StringBuilder rowSB = new StringBuilder();
         for (String row : rowContents) {
-            rowSB.append(StringUtils.replace(rowSnippet, "%title%", row));
+            rowSB.append(StringUtils.replace(rowSnippet, "%title%", StringEscapeUtils.escapeHtml(row)));
         }
         snippet = StringUtils.replace(snippet, "%rows%", rowSB.toString());
 

@@ -24,10 +24,10 @@ public abstract class AbstractRuleRegistryEvent extends AbstractEvent {
     /**
      * Must be called in subclass constructor to create a new rule registry event.
      *
-     * @param topic
-     * @param payload
-     * @param source
-     * @param ruleDTO
+     * @param topic the topic of the event
+     * @param payload the payload of the event
+     * @param source the source of the event
+     * @param ruleDTO the ruleDTO for which this event is created
      */
     public AbstractRuleRegistryEvent(String topic, String payload, String source, RuleDTO rule) {
         super(topic, payload, source);
@@ -35,9 +35,7 @@ public abstract class AbstractRuleRegistryEvent extends AbstractEvent {
     }
 
     /**
-     * returns the RuleDTO which caused the Event
-     *
-     * @return
+     * @return the RuleDTO which caused the Event
      */
     public RuleDTO getRule() {
         return this.rule;

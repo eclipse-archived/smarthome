@@ -52,7 +52,7 @@ public class WatchServiceUtil {
         }
         if (aws != null) {
             aws.deactivate();
-            provider.removeResources(new File(aws.getSourcePath()));
+            provider.removeResources(aws.getSourcePath().toFile());
         }
     }
 }

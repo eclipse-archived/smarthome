@@ -1,5 +1,5 @@
 <div ng-controller="InboxEntryController" ng-init="getThingTypes()">
-	<div class="search itemSearch" ng-show="!path[4]" layout="row" layout-align="center center">
+	<div class="search itemSearch inboxSearch" ng-show="!path[4]" layout="row" layout-align="center center">
 		<div layout="row" flex="85" class="searchControl" layout-align="start center">
 			<i ng-style="{'font-size': '24px'}" class="material-icons">search</i>
 			<md-input-container flex="90" md-no-float class="md-block searchBox"> <input ng-model="searchText" type="text" placeholder="Search"> </md-input-container>
@@ -16,11 +16,13 @@
 	<div class="fab-item" ng-class="{'container':!path[4],'inboxContainer':!path[4]}" ng-repeat="discoveryResult in data.discoveryResults | filter:filter | filter:filterItems(['label','thingUID']) | orderBy:['label','flag']">
 		<md-button title="Add" class="md-fab green" ng-click="approve(discoveryResult.thingUID,discoveryResult.thingTypeUID, $event)" aria-label="Approve"> <i class="material-icons">done</i></md-button>
 		<div class="item-content">
-			<h3>
-				{{discoveryResult.label}} <small ng-show="discoveryResult.flag === 'IGNORED'" class="badge">IGNORED</small>
-			</h3>
-			<p>{{getThingTypeLabel(discoveryResult.thingTypeUID)}}</p>
-			<p>{{discoveryResult.thingUID}}</p>
+			<div class="description">
+				<h3>
+					{{discoveryResult.label}} <small ng-show="discoveryResult.flag === 'IGNORED'" class="badge">IGNORED</small>
+				</h3>
+				<p>{{getThingTypeLabel(discoveryResult.thingTypeUID)}}</p>
+				<p>{{discoveryResult.thingUID}}</p>
+			</div>
 			<div class="actions">
 				<i class="material-icons" ng-show="discoveryResult.flag === 'IGNORED'" ng-click="unignore(discoveryResult.thingUID)" aria-label="Unignore">visibility</i> <i class="material-icons" ng-show="discoveryResult.flag !== 'IGNORED'" ng-click="ignore(discoveryResult.thingUID)" aria-label="Ignore">visibility_off</i> <i class="material-icons" ng-click="remove(discoveryResult.thingUID, $event)" aria-label="Delete">delete</i>
 			</div>

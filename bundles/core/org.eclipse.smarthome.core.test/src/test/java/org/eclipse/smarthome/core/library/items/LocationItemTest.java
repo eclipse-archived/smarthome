@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,8 @@ import org.eclipse.smarthome.core.library.types.PointType;
 import org.junit.Test;
 
 /**
- * @author Gaël L'hopital
+ * @author Gaël L'hopital - Initial version
+ * @author Stefan Triller - tests for undef and illegal states
  */
 public class LocationItemTest {
 
@@ -33,6 +34,18 @@ public class LocationItemTest {
 
         double parisBerlin = locationParis.distanceFrom(locationBerlin).doubleValue();
         assertEquals(parisBerlin, 878400, 50);
+    }
+
+    @Test
+    public void testUndefType() {
+        ImageItem item = new ImageItem("test");
+        StateUtil.testUndefStates(item);
+    }
+
+    @Test
+    public void testAcceptedStates() {
+        DateTimeItem item = new DateTimeItem("test");
+        StateUtil.testAcceptedStates(item);
     }
 
 }

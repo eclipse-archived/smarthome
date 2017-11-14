@@ -2,13 +2,17 @@
 	<span class="mdl-form__icon">
 		<img data-icon="%category%" src="../icon/%category%?state=%state%&format=%icon_type%" />
 	</span>
-	<div class="mdl-form__label">
+	<span %labelstyle% class="mdl-form__label">
 		%label%
-	</div>
+	</span>
+	<span %valuestyle% class="mdl-form__value mdl-form__value--switch">
+		%value%
+	</span>
 	<label
 		class="mdl-form__control mdl-switch mdl-js-switch mdl-js-ripple-effect"
 		data-control-type="checkbox"
 		data-item="%item%"
+		data-has-value="%has_value%"
 		data-widget-id="%widget_id%"
 		for="oh-checkbox-%item%"
 	>

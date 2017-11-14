@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,7 +41,7 @@ public class AutoUpdateBinding extends AbstractItemEventSubscriber {
 
     private final Logger logger = LoggerFactory.getLogger(AutoUpdateBinding.class);
 
-    protected ItemRegistry itemRegistry;
+    protected volatile ItemRegistry itemRegistry;
 
     /** to keep track of all binding config providers */
     protected Collection<AutoUpdateBindingConfigProvider> providers = new CopyOnWriteArraySet<>();
@@ -73,46 +73,71 @@ public class AutoUpdateBinding extends AbstractItemEventSubscriber {
     }
 
     /**
-     * <p>
-     * Iterates through all registered {@link AutoUpdateBindingConfigProvider}s and checks whether an autoupdate
-     * configuration is available for <code>itemName</code>.
-     * </p>
+     * Handle the received command event.
      *
      * <p>
-     * If there are more then one {@link AutoUpdateBindingConfigProvider}s providing a configuration the results are
-     * combined by a logical <em>OR</em>. If no configuration is provided at all the autoupdate defaults to
-     * <code>true</code> and an update is posted for the corresponding {@link State}.
-     * </p>
+     * If the command could be converted to a {@link State} the auto-update configurations are inspected.
+     * If there is at least one configuration that enable the auto-update, auto-update is applied.
+     * If there is no configuration provided at all the autoupdate defaults to {@code true} and an update is posted for
+     * the corresponding {@link State}.
      *
-     * @param itemName the item for which to find an autoupdate configuration
-     * @param command the command being received and posted as {@link State} update if <code>command</code> is instance
-     *            of {@link State} as well.
+     * @param commandEvent the command event
      */
     @Override
     protected void receiveCommand(ItemCommandEvent commandEvent) {
+        final Command command = commandEvent.getItemCommand();
+        if (command instanceof State) {
+            final State state = (State) command;
+
+            final String itemName = commandEvent.getItemName();
+
+            Boolean autoUpdate = autoUpdate(itemName);
+
+            // we didn't find any autoupdate configuration, so apply the default now
+            if (autoUpdate == null) {
+                autoUpdate = Boolean.TRUE;
+            }
+
+            if (autoUpdate) {
+                postUpdate(itemName, state);
+            } else {
+                logger.trace("Won't update item '{}' as it is not configured to update its state automatically.",
+                        itemName);
+            }
+        }
+    }
+
+    /**
+     * Check auto update configuration(s) for given item name.
+     *
+     * @param itemName the name of the item
+     * @return true if auto-update is enabled, false if auto-update is disabled, null if there is no explicit
+     *         configuration
+     */
+    private Boolean autoUpdate(final String itemName) {
         Boolean autoUpdate = null;
-        String itemName = commandEvent.getItemName();
-        Command command = commandEvent.getItemCommand();
+
+        // Check auto update by configuration for item name
         for (AutoUpdateBindingConfigProvider provider : providers) {
             Boolean au = provider.autoUpdate(itemName);
-            if (au != null) {
-                autoUpdate = au;
-                if (Boolean.TRUE.equals(autoUpdate)) {
-                    break;
+            if (au == null) {
+                // There is no setting for the item, keep value unchanged.
+                continue;
+            } else {
+                // There is an entry for the item.
+                if (au) {
+                    // setting is true, we could stop.
+                    return true;
+                } else {
+                    // setting is false, set it if autoupdate is not set
+                    if (autoUpdate == null) {
+                        autoUpdate = false;
+                    }
                 }
             }
         }
 
-        // we didn't find any autoupdate configuration, so apply the default now
-        if (autoUpdate == null) {
-            autoUpdate = Boolean.TRUE;
-        }
-
-        if (autoUpdate && command instanceof State) {
-            postUpdate(itemName, (State) command);
-        } else {
-            logger.trace("Won't update item '{}' as it is not configured to update its state automatically.", itemName);
-        }
+        return autoUpdate;
     }
 
     private void postUpdate(String itemName, State newState) {
@@ -132,9 +157,9 @@ public class AutoUpdateBinding extends AbstractItemEventSubscriber {
                                 break;
                             }
                         } catch (InstantiationException e) {
-                            logger.warn("InstantiationException on ", e.getMessage()); // Should never happen
+                            logger.warn("InstantiationException on {}", e.getMessage(), e); // Should never happen
                         } catch (IllegalAccessException e) {
-                            logger.warn("IllegalAccessException on ", e.getMessage()); // Should never happen
+                            logger.warn("IllegalAccessException on {}", e.getMessage(), e); // Should never happen
                         }
                     }
                 }
@@ -142,8 +167,8 @@ public class AutoUpdateBinding extends AbstractItemEventSubscriber {
                     eventPublisher.post(ItemEventFactory.createStateEvent(itemName, newState,
                             "org.eclipse.smarthome.core.autoupdate"));
                 } else {
-                    logger.debug("Received update of a not accepted type (" + newState.getClass().getSimpleName()
-                            + ") for item " + itemName);
+                    logger.debug("Received update of a not accepted type ({}) for item {}",
+                            newState.getClass().getSimpleName(), itemName);
                 }
             } catch (ItemNotFoundException e) {
                 logger.debug("Received update for non-existing item: {}", e.getMessage());

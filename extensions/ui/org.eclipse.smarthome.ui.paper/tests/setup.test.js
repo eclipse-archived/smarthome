@@ -159,7 +159,9 @@ describe('module PaperUI.controllers.setup', function() {
             var bindings = [ 'astro' ];
             spyOn(scope, 'navigateTo');
             $httpBackend.when('GET', restConfig.restPath + "/discovery").respond(bindings);
-            $httpBackend.whenGET(/^((?!rest\/discovery).)*$/).respond(200);
+            $httpBackend.whenGET(/^((?!rest\/discovery).)*$/).respond(200, [ {
+                thingTypeUID : 'A:B'
+            } ]);
             scope.selectBinding('astro');
             $httpBackend.flush();
             expect(scope.navigateTo).toHaveBeenCalled();
@@ -207,7 +209,9 @@ describe('module PaperUI.controllers.setup', function() {
             var response = '0', bindingId = 1;
             $httpBackend.when('POST', restConfig.restPath + "/discovery/bindings/" + bindingId + "/scan").respond(response);
             var path = "/discovery/bindings/" + bindingId + "/scan";
-            $httpBackend.whenGET(/^((?!path).)*$/).respond(200);
+            $httpBackend.whenGET(/^((?!path).)*$/).respond(200, [ {
+                thingTypeUID : 'A:B'
+            } ]);
             scope.scan(bindingId);
             $httpBackend.flush();
             jasmine.clock().tick(1);
@@ -290,16 +294,22 @@ describe('module PaperUI.controllers.setup', function() {
             $httpBackend = $injector.get('$httpBackend');
             mdDialog = $injector.get('$mdDialog');
             thingTypeRepository = $injector.get('thingTypeRepository');
-            spyOn(thingTypeRepository, "getOne").and.callThrough();
+            thingTypeRepository.singleElements = {
+                'A:B' : {
+                    UID : 'A:B',
+                    label : 'LABEL'
+                }
+            }
+            spyOn(thingTypeRepository, 'getOne').and.callThrough();
             rootScope.data.thingTypes = [ {
-                UID : "A:B",
+                UID : 'A:B',
                 label : 'LABEL'
             } ];
             approveInboxEntryDialogController = $controller('ApproveInboxEntryDialogController', {
                 '$scope' : scope,
                 'discoveryResult' : {
                     label : 'LABEL',
-                    thingTypeUID : "A:B"
+                    thingTypeUID : 'A:B'
                 }
             });
             discoveryService = $injector.get('discoveryService');
@@ -342,8 +352,8 @@ describe('module PaperUI.controllers.setup', function() {
                 '$scope' : scope
             });
             manualSetupConfigureController = $controller('ManualSetupConfigureController', {
-                $scope : scope,
-                $routeParams : {
+                '$scope' : scope,
+                '$routeParams' : {
                     thingTypeUID : "A:B"
                 }
             });
@@ -351,16 +361,8 @@ describe('module PaperUI.controllers.setup', function() {
         it('should require ManualSetupConfigureController', function() {
             expect(manualSetupConfigureController).toBeDefined();
         });
-        it('should require bridges', function() {
-            var things = [ {
-                thingTypeUID : "A:B",
-                label : "THING"
-            } ];
-            $httpBackend.when('GET', restConfig.restPath + "/things").respond(things);
-            $httpBackend.whenGET(/^((?!rest\/things).)*$/).respond(200, '');
-            $httpBackend.flush();
-            expect(scope.needsBridge).toBeTruthy();
-            expect(scope.bridges.length).toBe(1);
+        it('should set thingTypeUID to thing', function() {
+            expect(scope.thing.thingTypeUID).toBe('A:B');
         });
         it('should add thing', function() {
             spyOn(thingService, "add");

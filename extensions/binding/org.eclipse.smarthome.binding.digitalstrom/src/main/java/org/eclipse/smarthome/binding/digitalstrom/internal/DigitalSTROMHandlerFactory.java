@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -59,13 +59,13 @@ public class DigitalSTROMHandlerFactory extends BaseThingHandlerFactory {
         if (BridgeHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             ThingUID dSSUID = getBridgeThingUID(thingTypeUID, thingUID, configuration);
             if (dSSUID != null) {
-                logger.info(dSSUID.toString());
+                logger.info("{}", dSSUID);
                 return super.createThing(thingTypeUID, configuration, dSSUID, null);
             } else {
-                logger.error("Can't generate thing UID for thing type " + thingTypeUID
+                logger.error("Can't generate thing UID for thing type {}"
                         + ", because digitalSTROM-Server is not reachable. Please check these points:\n"
                         + "Are the server address and portnumber correct?\n" + "Is the server turned on?\n"
-                        + "Is the network configured correctly?");
+                        + "Is the network configured correctly?", thingTypeUID);
                 return null;
             }
         }
@@ -130,16 +130,17 @@ public class DigitalSTROMHandlerFactory extends BaseThingHandlerFactory {
         String sceneID = SceneHandler.getSceneID(configuration, bridgeHandlers.get(bridgeUID));
         switch (sceneID) {
             case SceneHandler.SCENE_WRONG:
-                logger.error("Configured scene '" + configuration.get(DigitalSTROMBindingConstants.SCENE_ID)
-                        + "' does not exist or can not be used, please check your configuration.");
+                logger.error(
+                        "Configured scene '{}' does not exist or can not be used, please check your configuration.",
+                        configuration.get(DigitalSTROMBindingConstants.SCENE_ID));
                 break;
             case SceneHandler.ZONE_WRONG:
-                logger.error("Configured zone '" + configuration.get(DigitalSTROMBindingConstants.SCENE_ZONE_ID)
-                        + "' does not exist, please check your configuration.");
+                logger.error("Configured zone '{}' does not exist, please check your configuration.",
+                        configuration.get(DigitalSTROMBindingConstants.SCENE_ZONE_ID));
                 break;
             case SceneHandler.GROUP_WRONG:
-                logger.error("Configured group '" + configuration.get(DigitalSTROMBindingConstants.SCENE_GROUP_ID)
-                        + "' does not exist, please check your configuration.");
+                logger.error("Configured group '{}' does not exist, please check your configuration.",
+                        configuration.get(DigitalSTROMBindingConstants.SCENE_GROUP_ID));
                 break;
             case SceneHandler.NO_STRUC_MAN:
                 logger.error("Waiting for building digitalSTROM model.");

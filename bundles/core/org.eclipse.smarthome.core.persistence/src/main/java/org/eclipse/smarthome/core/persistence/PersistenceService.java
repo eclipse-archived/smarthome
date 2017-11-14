@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.persistence;
 
 import java.util.Locale;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.Item;
 
 /**
@@ -27,6 +28,7 @@ public interface PersistenceService {
      *
      * @return the id to uniquely identify the {@link PersistenceService}.
      */
+    @NonNull
     String getId();
 
     /**
@@ -37,6 +39,7 @@ public interface PersistenceService {
      *
      * @return the label of the {@link PersistenceService}.
      */
+    @NonNull
     String getLabel(Locale locale);
 
     /**
@@ -45,24 +48,22 @@ public interface PersistenceService {
      * Implementors should keep in mind that all registered {@link PersistenceService}s are called synchronously. Hence
      * long running operations should be processed asynchronously. E.g. <code>store</code> adds things to a queue which
      * is processed by some asynchronous workers (Quartz Job, Thread, etc.).
-     * </p>
      *
      * @param item the item which state should be persisted.
      */
-    void store(Item item);
+    void store(@NonNull Item item);
 
     /**
      * <p>
      * Stores the current value of the given item under a specified alias.
-     * </p>
+     *
      * <p>
      * Implementors should keep in mind that all registered {@link PersistenceService}s are called synchronously. Hence
      * long running operations should be processed asynchronously. E.g. <code>store</code> adds things to a queue which
      * is processed by some asynchronous workers (Quartz Job, Thread, etc.).
-     * </p>
      *
      * @param item the item which state should be persisted.
      * @param alias the alias under which the item should be persisted.
      */
-    void store(Item item, String alias);
+    void store(@NonNull Item item, @NonNull String alias);
 }

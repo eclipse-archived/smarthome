@@ -1,4 +1,4 @@
-angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyController', function($rootScope, $scope, $http, $location, eventService, toastService, discoveryResultRepository, thingTypeRepository, bindingRepository, restConfig) {
+angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyController', function($rootScope, $scope, $http, $location, eventService, toastService, discoveryResultRepository, thingTypeRepository, bindingRepository, restConfig, util) {
     $scope.scrollTop = 0;
     $(window).scroll(function() {
         $scope.$apply(function(scope) {
@@ -97,21 +97,19 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
                 }
                 if (item.type === "Number" || item.groupType === "Number") {
                     var parsedValue = Number(state);
-                    if (isNaN(parsedValue)) {
-                        state = null;
-                    } else {
+                    if (!isNaN(parsedValue)) {
                         state = parsedValue;
                     }
                 }
                 if (item.type === "Rollershutter") {
-                    if (stateObject.type == "PercentType" || stateObject.type == "DecimalType") {
+                    if (stateObject.type == "Percent" || stateObject.type == "Decimal") {
                         state = parseInt(stateObject.value);
                     }
                 }
-
                 if (updateState) {
                     $scope.$apply(function(scope) {
                         item.state = state;
+                        item.stateText = util.getItemStateText(item);
                     });
                 } else {
                     console.log('Ignoring state ' + state + ' for ' + itemName)
@@ -131,11 +129,12 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
 
     eventService.onEvent('smarthome/items/*/statechanged', function(topic, stateObject) {
         var itemName = topic.split('/')[2];
-        if (itemName && (stateObject.type == "PercentType" || stateObject.type == "DecimalType")) {
+        if (itemName && (stateObject.type == "Percent" || stateObject.type == "Decimal")) {
             var index = getItemIndex(itemName);
             if (index !== -1) {
                 $scope.$apply(function(scope) {
-                    $rootScope.data.items[index].state = parseInt(stateObject.value);
+                    $rootScope.data.items[index].state = parseFloat(stateObject.value);
+                    $rootScope.data.items[index].stateText = util.getItemStateText($rootScope.data.items[index]);
                 });
             }
         }

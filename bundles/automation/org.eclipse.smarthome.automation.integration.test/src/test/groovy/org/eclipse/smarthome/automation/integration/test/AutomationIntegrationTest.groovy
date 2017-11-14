@@ -44,14 +44,11 @@ import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.items.ItemProvider
 import org.eclipse.smarthome.core.items.ItemRegistry
+import org.eclipse.smarthome.core.items.events.ItemCommandEvent
 import org.eclipse.smarthome.core.items.events.ItemEventFactory
-import org.eclipse.smarthome.core.items.events.ItemStateEvent
-import org.eclipse.smarthome.core.items.events.ItemUpdatedEvent
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.storage.StorageService
-import org.eclipse.smarthome.core.types.Command
-import org.eclipse.smarthome.core.types.TypeParser
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
@@ -113,8 +110,6 @@ class AutomationIntegrationTest extends OSGiTest{
             allItemsChanged: {}] as ItemProvider
         registerService(itemProvider)
         registerVolatileStorageService()
-
-        enableItemAutoUpdate()
 
         def StorageService storageService = getService(StorageService)
         eventPublisher = getService(EventPublisher)
@@ -266,8 +261,8 @@ class AutomationIntegrationTest extends OSGiTest{
         })
     }
     @Test
-    public void 'assert that a rule with non existing moduleTypeHandler is added to the ruleRegistry in state NOT_INITIALIZED' () {
-        logger.info('assert that a rule with non existing moduleTypeHandler is added to the ruleRegistry in state NOT_INITIALIZED')
+    public void 'assert that a rule with non existing moduleTypeHandler is added to the ruleRegistry in state UNINITIALIZED' () {
+        logger.info('assert that a rule with non existing moduleTypeHandler is added to the ruleRegistry in state UNINITIALIZED')
         def triggerConfig = new Configuration([eventSource:"myMotionItem", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"])
         def condition1Config = new Configuration([topic:"smarthome/*"])
         def actionConfig = new Configuration([itemName:"myLampItem3", command:"ON"])
@@ -293,12 +288,12 @@ class AutomationIntegrationTest extends OSGiTest{
 
         ruleRegistry.add(rule)
 
-        assertThat ruleRegistry.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.NOT_INITIALIZED)
+        assertThat ruleRegistry.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.UNINITIALIZED)
     }
 
     @Test
-    public void 'assert that a rule switches from IDLE to NOT_INITIALIZED if a moduleHanlder disappears and back to IDLE if it appears again' (){
-        logger.info('assert that a rule switches from IDLE to NOT_INITIALIZED if a moduleHanlder disappears and back to IDLE if it appears again')
+    public void 'assert that a rule switches from IDLE to UNINITIALIZED if a moduleHanlder disappears and back to IDLE if it appears again' (){
+        logger.info('assert that a rule switches from IDLE to UNINITIALIZED if a moduleHanlder disappears and back to IDLE if it appears again')
         def Rule rule = createSimpleRule()
         ruleRegistry.add(rule)
         assertThat ruleRegistry.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.IDLE)
@@ -307,7 +302,7 @@ class AutomationIntegrationTest extends OSGiTest{
         moduleBundle.stop()
         waitForAssert({
             logger.info("RuleStatus: {}", ruleRegistry.getStatusInfo(rule.UID).getStatus())
-            assertThat ruleRegistry.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.NOT_INITIALIZED)
+            assertThat ruleRegistry.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.UNINITIALIZED)
         },3000,100)
 
 
@@ -378,10 +373,7 @@ class AutomationIntegrationTest extends OSGiTest{
         })
 
         def EventPublisher eventPublisher = getService(EventPublisher)
-        def ItemRegistry itemRegistry = getService(ItemRegistry)
-        SwitchItem myMotionItem3 = itemRegistry.getItem("myMotionItem3")
-        SwitchItem myPresenceItem3 = itemRegistry.getItem("myPresenceItem3")
-        myPresenceItem3.send(OnOffType.ON)
+        eventPublisher.post(ItemEventFactory.createStateEvent("myPresenceItem3", OnOffType.ON))
 
         Event itemEvent = null
 
@@ -394,7 +386,7 @@ class AutomationIntegrationTest extends OSGiTest{
             },
 
             getSubscribedEventTypes: {
-                Sets.newHashSet(ItemUpdatedEvent.TYPE, ItemStateEvent.TYPE)
+                Sets.newHashSet(ItemCommandEvent.TYPE)
             },
 
             getEventFilter:{ null }
@@ -402,14 +394,10 @@ class AutomationIntegrationTest extends OSGiTest{
         ] as EventSubscriber
 
         registerService(itemEventHandler)
-        myMotionItem3.send(OnOffType.ON)
+        eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem3", OnOffType.ON))
         waitForAssert ({ assertThat itemEvent, is(notNullValue())} , 3000, 100)
-        assertThat itemEvent.topic, is(equalTo("smarthome/items/myLampItem3/state"))
-        assertThat (((ItemStateEvent)itemEvent).itemState, is(OnOffType.ON))
-        def myLampItem3 = itemRegistry.getItem("myLampItem3")
-        assertThat myLampItem3, is(notNullValue())
-        logger.info("myLampItem3 State: " + myLampItem3.state)
-        assertThat myLampItem3.state, is(OnOffType.ON)
+        assertThat itemEvent.topic, is(equalTo("smarthome/items/myLampItem3/command"))
+        assertThat (((ItemCommandEvent)itemEvent).itemCommand, is(OnOffType.ON))
     }
 
 
@@ -452,7 +440,7 @@ class AutomationIntegrationTest extends OSGiTest{
             },
 
             getSubscribedEventTypes: {
-                Sets.newHashSet(ItemUpdatedEvent.TYPE, ItemStateEvent.TYPE)
+                Sets.newHashSet(ItemCommandEvent.TYPE)
             },
 
             getEventFilter:{ null }
@@ -460,14 +448,10 @@ class AutomationIntegrationTest extends OSGiTest{
         ] as EventSubscriber
 
         registerService(itemEventHandler)
-        myLampItem3.state = OnOffType.OFF
-        logger.info("myLampItem3 State: " + myLampItem3.state)
-        waitForAssert ({ assertThat myLampItem3.state, is(OnOffType.OFF)} , 3000, 100)
 
         ruleRegistry.runNow(rule.getUID());
         waitForAssert ({ assertThat itemEvent, is(notNullValue())} , 3000, 100)
-        logger.info("myLampItem3 State: " + myLampItem3.state)
-        waitForAssert ({ assertThat myLampItem3.state, is(OnOffType.ON)} , 3000, 100)
+        waitForAssert ({ assertThat itemEvent.itemCommand, is(OnOffType.ON)} , 3000, 100)
 
         ruleRegistry.remove(rule.getUID())
     }
@@ -501,11 +485,9 @@ class AutomationIntegrationTest extends OSGiTest{
         })
 
         def EventPublisher eventPublisher = getService(EventPublisher)
-        def ItemRegistry itemRegistry = getService(ItemRegistry)
-        SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem4")
         SwitchItem myPresenceItem = itemRegistry.getItem("myPresenceItem4")
         //prepare the presenceItems state to be on to match the second condition of the rule
-        myPresenceItem.send(OnOffType.ON)
+        eventPublisher.post(ItemEventFactory.createStateEvent("myPresenceItem4", OnOffType.ON))
 
         Event itemEvent = null
 
@@ -518,7 +500,7 @@ class AutomationIntegrationTest extends OSGiTest{
             },
 
             getSubscribedEventTypes: {
-                Sets.newHashSet(ItemUpdatedEvent.TYPE, ItemStateEvent.TYPE)
+                Sets.newHashSet(ItemCommandEvent.TYPE)
             },
 
             getEventFilter:{ null }
@@ -527,14 +509,10 @@ class AutomationIntegrationTest extends OSGiTest{
 
         registerService(itemEventHandler)
         //causing the event to trigger the rule
-        myMotionItem.send(OnOffType.ON)
+        eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem4", OnOffType.ON))
         waitForAssert ({ assertThat itemEvent, is(notNullValue())} , 5000, 100)
-        assertThat itemEvent.topic, is(equalTo("smarthome/items/myLampItem4/state"))
-        assertThat (((ItemStateEvent)itemEvent).itemState, is(OnOffType.ON))
-        def myLampItem4 = itemRegistry.getItem("myLampItem4")
-        assertThat myLampItem4, is(notNullValue())
-        logger.info("myLampItem4 State: " + myLampItem4.state)
-        assertThat myLampItem4.state, is(OnOffType.ON)
+        assertThat itemEvent.topic, is(equalTo("smarthome/items/myLampItem4/command"))
+        assertThat (((ItemCommandEvent)itemEvent).itemCommand, is(OnOffType.ON))
     }
 
     @Test
@@ -608,16 +586,28 @@ class AutomationIntegrationTest extends OSGiTest{
         ruleRegistry.add(templateRule)
         assertThat ruleRegistry.getAll().find{it.UID==templateRule.UID}, is(notNullValue())
 
-        //bring the rule to execution:
-        def ItemRegistry itemRegistry = getService(ItemRegistry)
-        SwitchItem myMotionItem = itemRegistry.getItem("templ_MotionItem")
-        myMotionItem.send(OnOffType.ON)
+        Event itemEvent = null
+        def itemEventHandler = [
+            receive: {  Event e ->
+                logger.info("Event: " + e.topic)
+                if (e.topic.contains("templ_LampItem")){
+                    itemEvent=e
+                }
+            },
 
-        waitForAssert({
-            def lamp = itemRegistry.getItem("templ_LampItem") as SwitchItem
-            assertThat lamp.state, is(OnOffType.ON)
-        })
+            getSubscribedEventTypes: {
+                Sets.newHashSet(ItemCommandEvent.TYPE)
+            },
 
+            getEventFilter:{ null }
+        ] as EventSubscriber
+        registerService(itemEventHandler)
+
+        //causing the event to trigger the rule
+        eventPublisher.post(ItemEventFactory.createStateEvent("templ_MotionItem", OnOffType.ON))
+        waitForAssert ({ assertThat itemEvent, is(notNullValue())})
+        assertThat itemEvent.topic, is(equalTo("smarthome/items/templ_LampItem/command"))
+        assertThat (((ItemCommandEvent)itemEvent).itemCommand, is(OnOffType.ON))
     }
 
     @Test
@@ -645,15 +635,29 @@ class AutomationIntegrationTest extends OSGiTest{
             assertThat ruleRegistry.getStatus(templateRule.UID), is(RuleStatus.IDLE)
         }
 
+        Event itemEvent = null
+        def itemEventHandler = [
+            receive: {  Event e ->
+                logger.info("Event: " + e.topic)
+                if (e.topic.contains("xtempl_LampItem")){
+                    itemEvent=e
+                }
+            },
+
+            getSubscribedEventTypes: {
+                Sets.newHashSet(ItemCommandEvent.TYPE)
+            },
+
+            getEventFilter:{ null }
+        ] as EventSubscriber
+        registerService(itemEventHandler)
+
         //bring the rule to execution:
-        def commandObj = TypeParser.parseCommand(itemRegistry.getItem("xtempl_MotionItem").getAcceptedCommandTypes(),"ON")
-        eventPublisher.post(ItemEventFactory.createCommandEvent("xtempl_MotionItem", commandObj))
+        eventPublisher.post(ItemEventFactory.createStateEvent("xtempl_MotionItem", OnOffType.ON))
 
-        waitForAssert({
-            def lamp = itemRegistry.getItem("xtempl_LampItem") as SwitchItem
-            assertThat lamp.state, is(OnOffType.ON)
-        }, 3000, 50)
-
+        waitForAssert ({ assertThat itemEvent, is(notNullValue())})
+        assertThat itemEvent.topic, is(equalTo("smarthome/items/xtempl_LampItem/command"))
+        assertThat (((ItemCommandEvent)itemEvent).itemCommand, is(OnOffType.ON))
     }
 
     @Test
@@ -803,9 +807,8 @@ class AutomationIntegrationTest extends OSGiTest{
 
         def EventPublisher eventPublisher = getService(EventPublisher)
         def ItemRegistry itemRegistry = getService(ItemRegistry)
-        SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem5")
-        Command commandObj = TypeParser.parseCommand(myMotionItem.getAcceptedCommandTypes(), "ON")
-        eventPublisher.post(ItemEventFactory.createCommandEvent("myPresenceItem5", commandObj))
+        SwitchItem myMotionItem = itemRegistry.getItem("myPresenceItem5")
+        myMotionItem.setState(OnOffType.ON)
 
         Event itemEvent = null
 
@@ -818,7 +821,7 @@ class AutomationIntegrationTest extends OSGiTest{
             },
 
             getSubscribedEventTypes: {
-                Sets.newHashSet(ItemUpdatedEvent.TYPE, ItemStateEvent.TYPE)
+                Sets.newHashSet(ItemCommandEvent.TYPE)
             },
 
             getEventFilter:{ null }
@@ -826,15 +829,10 @@ class AutomationIntegrationTest extends OSGiTest{
         ] as EventSubscriber
 
         registerService(itemEventHandler)
-        commandObj = TypeParser.parseCommand(itemRegistry.getItem("myMotionItem5").getAcceptedCommandTypes(),"ON")
-        eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem5", commandObj))
+        eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem5", OnOffType.ON))
         waitForAssert ({ assertThat itemEvent, is(notNullValue())} , 3000, 100)
-        assertThat itemEvent.topic, is(equalTo("smarthome/items/myLampItem5/state"))
-        assertThat (((ItemStateEvent)itemEvent).itemState, is(OnOffType.ON))
-        def myLampItem2 = itemRegistry.getItem("myLampItem5")
-        assertThat myLampItem2, is(notNullValue())
-        logger.info("myLampItem5 State: " + myLampItem2.state)
-        assertThat myLampItem2.state, is(OnOffType.ON)
+        assertThat itemEvent.topic, is(equalTo("smarthome/items/myLampItem5/command"))
+        assertThat (((ItemCommandEvent)itemEvent).itemCommand, is(OnOffType.ON))
     }
 
 }

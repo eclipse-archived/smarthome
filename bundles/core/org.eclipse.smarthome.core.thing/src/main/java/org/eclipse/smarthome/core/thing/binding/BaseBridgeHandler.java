@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.thing.binding;
 
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -29,7 +30,7 @@ public abstract class BaseBridgeHandler extends BaseThingHandler implements Brid
     /**
      * @see BaseThingHandler
      */
-    public BaseBridgeHandler(Bridge bridge) {
+    public BaseBridgeHandler(@NonNull Bridge bridge) {
         super(bridge);
     }
 

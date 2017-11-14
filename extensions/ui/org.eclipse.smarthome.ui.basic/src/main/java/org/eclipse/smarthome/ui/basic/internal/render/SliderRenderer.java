@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,12 +17,10 @@ import org.eclipse.smarthome.ui.basic.render.WidgetRenderer;
 /**
  * <p>
  * This is an implementation of the {@link WidgetRenderer} interface, which can produce HTML code for Slider widgets.
- * </p>
  *
  * <p>
  * Note: As the WebApp.Net framework cannot render real sliders in the UI, we instead show buttons to increase or
  * decrease the value.
- * </p>
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Vlad Ivanov - BasicUI changes
@@ -30,17 +28,11 @@ import org.eclipse.smarthome.ui.basic.render.WidgetRenderer;
  */
 public class SliderRenderer extends AbstractWidgetRenderer {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean canRender(Widget w) {
         return w instanceof Slider;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         Slider s = (Slider) w;

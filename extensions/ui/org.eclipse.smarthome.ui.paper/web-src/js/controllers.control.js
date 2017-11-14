@@ -1,239 +1,168 @@
-angular.module('PaperUI.controllers.control', []).controller('ControlPageController', function($scope, $routeParams, $location, $timeout, itemRepository, thingTypeRepository, thingService, thingTypeService, channelTypeService, thingConfigService) {
-    $scope.items = [];
-    $scope.selectedIndex = 0;
+angular.module('PaperUI.controllers.control', []) //
+.controller('ControlPageController', function($scope, $routeParams, $location, $timeout, $filter, itemRepository, thingTypeRepository, util, thingRepository, channelTypeRepository) {
     $scope.tabs = [];
-    $scope.things = [];
-    var thingTypes = [];
 
     $scope.navigateTo = function(path) {
         $location.path(path);
     }
-    $scope.next = function() {
-        var newIndex = $scope.selectedIndex + 1;
-        if (newIndex > ($scope.tabs.length - 1)) {
-            newIndex = 0;
-        }
-        $scope.selectedIndex = newIndex;
-    }
-    $scope.prev = function() {
-        var newIndex = $scope.selectedIndex - 1;
-        if (newIndex < 0) {
-            newIndex = $scope.tabs.length - 1;
-        }
-        $scope.selectedIndex = newIndex;
-    }
 
     $scope.refresh = function() {
-        itemRepository.getAll(function(items) {
-            $scope.items = items;
-        }, true);
-        getThings();
-    }
-    $scope.channelTypes = [];
-    $scope.thingTypes = [];
-    $scope.thingChannels = [];
-    $scope.isLoadComplete = false;
-    var thingList, thingCounter;
-    function getThings() {
-        $scope.things = [];
-        thingService.getAll().$promise.then(function(things) {
-            thingList = things;
-            thingCounter = 0;
-            $scope.isLoadComplete = false;
-            thingTypeService.getAll().$promise.then(function(thingTypes) {
-                $scope.thingTypes = thingTypes;
-                channelTypeService.getAll().$promise.then(function(channels) {
-                    $scope.channelTypes = channels;
-                    for (var i = 0; i < thingList.length; i++) {
-                        var thingTypeUIDs = thingList[i].thingTypeUID;
-                        var enclosed = (function() {
-                            var thingTypeUID = thingTypeUIDs;
-                            var index = i;
-                            return function() {
-                                var thingTypeComplete = getThingTypeLocal(thingTypeUID);
-                                if (!thingTypeComplete) {
-                                    thingTypeService.getByUid({
-                                        thingTypeUID : thingTypeUID
-                                    }, function(thingType) {
-                                        thingTypes.push(thingType);
-                                        renderThing(thingList[index], thingType, $scope.channelTypes);
-                                    });
-                                } else {
-                                    renderThing(thingList[index], thingTypeComplete, $scope.channelTypes);
-                                }
-                            }
-                        })();
-                        enclosed();
-                    }
-                });
-            });
-
+        itemRepository.getAll(function() {
+            channelTypeRepository.getAll(function() {
+                thingTypeRepository.getAll(function() {
+                    renderTabs();
+                })
+            })
         });
     }
+
+    function renderTabs() {
+        thingRepository.getAll(function(things) {
+            $scope.tabs = getTabs(things);
+        })
+    }
+
+    function getTabs(things) {
+        if (!things) {
+            return [];
+        }
+
+        var locations = new Set();
+        angular.forEach(things, function(thing) {
+            var location = thing.location ? thing.location.toUpperCase() : 'OTHER'
+            thing.location = location
+            locations.add(location)
+        })
+
+        var renderedTabs = Array.from(locations)
+        renderedTabs = renderedTabs.sort(function(a, b) {
+            if (a === 'OTHER') {
+                return 1;
+            }
+            if (b === 'OTHER') {
+                return -1;
+            }
+
+            return a < b ? -1 : a > b ? 1 : 0
+        })
+
+        return renderedTabs.map(function(location) {
+            return {
+                name : location,
+                thingCount : 1
+            }
+        });
+    }
+
+    $scope.refresh();
+
+}).controller('ControlController', function($scope, $timeout, $filter, itemService, util, $attrs, thingRepository, channelTypeRepository, thingTypeRepository, thingConfigService, imageService) {
+
+    var tabName = $scope.$parent.tab.name
+    var tabIndex = $scope.$parent.$index
+
+    $scope.things = [];
+    var renderedThings = []
+
+    var renderItems = function() {
+        var redraw;
+        thingRepository.getAll(function(things) {
+            var thingsForTab = things.filter(function(thing) {
+                var thingLocation = thing.location ? thing.location.toUpperCase() : 'OTHER'
+                return thingLocation === tabName;
+            })
+            channelTypeRepository.getAll(function(channelTypes) {
+                angular.forEach(thingsForTab, function(thing) {
+                    thingTypeRepository.getOne(function(thingType) {
+                        return thingType.UID === thing.thingTypeUID
+                    }, function(thingType) {
+                        var renderedThing = renderThing(thing, thingType, channelTypes);
+                        if (renderedThing) {
+                            renderedThings.push(renderedThing);
+                            renderedThings = renderedThings.sort(function(a, b) {
+                                return a.label < b.label ? -1 : a.label > b.label ? 1 : 0
+                            })
+                            $timeout.cancel(redraw)
+                            redraw = $timeout(function() {
+                                $scope.things = renderedThings;
+                                masonry()
+                            }, 0, true)
+                        }
+                    }, false)
+                })
+            }, false)
+        }, false)
+    }
+
+    var masonry = function() {
+        $timeout(function() {
+            new Masonry('#items-' + tabIndex, {});
+        }, 100, false);
+    }
+
     function renderThing(thing, thingType, channelTypes) {
         thing.thingChannels = thingConfigService.getThingChannels(thing, thingType, channelTypes, true);
-        angular.forEach(thing.thingChannels, function(value, key) {
-            thing.thingChannels[key].channels = $.grep(thing.thingChannels[key].channels, function(channel, i) {
+        angular.forEach(thing.thingChannels, function(thingChannel) {
+            thingChannel.channels = thingChannel.channels.filter(function(channel) {
                 return channel.linkedItems.length > 0;
             });
         });
-        thingCounter++;
-        if (thingHasChannels(thing) && $scope.things.indexOf(thing) == -1) {
-            $scope.things.push(thing);
+
+        var hasChannels = false;
+        angular.forEach(thing.thingChannels, function(channelGroup) {
+            angular.forEach(channelGroup.channels, function(channel) {
+                channel.items = getItems(channel.linkedItems)
+                hasChannels = true;
+            })
+        })
+
+        if (hasChannels) {
+            return thing;
         }
-        getTabs();
-    }
-    function thingHasChannels(thing) {
-        for (var i = 0; i < thing.thingChannels.length; i++) {
-            if (thing.thingChannels[i].channels && thing.thingChannels[i].channels.length > 0) {
-                return true;
-            }
-        }
-        return false;
     }
 
-    function getTabs() {
-        if (!$scope.things || (thingList.length != thingCounter)) {
-            return;
-        }
-        var arr = [], otherTab = false;
-        for (var i = 0; i < $scope.things.length; i++) {
-            if ($scope.things[i].location && $scope.things[i].location.toUpperCase() != "OTHER") {
-                $scope.things[i].location = $scope.things[i].location.toUpperCase();
-                arr[$scope.things[i].location] = $scope.things[i].location;
-            } else {
-                $scope.things[i].location = "OTHER";
-                otherTab = true;
+    var getItems = function(itemNames) {
+        var items = $scope.data.items.filter(function(item) {
+            return itemNames.indexOf(item.name) >= 0
+        })
+        angular.forEach(items, function(item) {
+
+            if (item.type && (item.type == "Number" || item.groupType == "Number" || item.type == "Rollershutter")) {
+                var parsedValue = Number(item.state);
+                if (isNaN(parsedValue)) {
+                    item.state = null;
+                } else {
+                    item.state = parsedValue;
+                }
             }
-        }
-        for ( var value in arr) {
-            if (!hasTab(value)) {
-                $scope.tabs.push({
-                    name : value
+            if (item.type && item.type == "Image") {
+                imageService.getItemState(item.name).then(function(state) {
+                    item.state = state;
+                    item.imageLoaded = true;
                 });
+                item.imageLoaded = false;
             }
-        }
-        if (otherTab && !hasTab("OTHER")) {
-            $scope.tabs.push({
-                name : "OTHER"
-            });
-        }
-        $scope.isLoadComplete = true;
+            item.stateText = util.getItemStateText(item);
+
+            item.readOnly = isReadOnly(item);
+        })
+
+        return items;
     }
 
-    function hasTab(name) {
-        return $.grep($scope.tabs, function(tab) {
-            return tab.name == name;
-        }).length > 0;
+    var isReadOnly = function(item) {
+        return item.stateDescription ? item.stateDescription.readOnly : false;
     }
-
-    function getThingTypeLocal(thingTypeUID) {
-        var thingTypeComplete = $.grep(thingTypes, function(thingType) {
-            return thingType.UID == thingTypeUID;
-        });
-        return thingTypeComplete.length > 0 ? thingTypeComplete : null;
-    }
-
-    $scope.tabComparator = function(actual, expected) {
-        return actual == expected;
-    }
-
-    $scope.getItem = function(itemName) {
-        for (var int = 0; int < $scope.data.items.length; int++) {
-            var item = $scope.data.items[int];
-            if (item.name === itemName) {
-                if (item.type && (item.type == "Number" || item.groupType == "Number" || item.type == "Rollershutter")) {
-                    var parsedValue = Number(item.state);
-                    if (isNaN(parsedValue)) {
-                        item.state = null;
-                    } else {
-                        item.state = parsedValue;
-                    }
-                }
-                return item;
-            }
-        }
-        return null;
-    }
-
-    $scope.getThingsForTab = function(tabName) {
-        // todo: filter things for tabs here
-    }
-
-    $scope.getItemsForTab = function(tabName) {
-        var items = []
-        if (tabName === 'all') {
-            for (var int = 0; int < $scope.data.items.length; int++) {
-                var item = $scope.data.items[int];
-                if (item.tags.indexOf('thing') > -1) {
-                    items.push(item);
-                }
-            }
-            return items;
-        } else {
-            return this.getItem(tabName).members;
-        }
-    }
-
-    $scope.masonry = function() {
-        if ($scope.data.items) {
-            $timeout(function() {
-                var itemContainer = '#items-' + $scope.selectedIndex;
-                new Masonry(itemContainer, {});
-            }, 100, true);
-        }
-    }
-    $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
-        $scope.masonry();
-    });
-    $scope.refresh();
-
-}).controller('ControlController', function($scope, $timeout, $filter, itemService, util) {
 
     $scope.getItemName = function(itemName) {
         return itemName.replace(/_/g, ' ');
-    }
-
-    $scope.getStateText = function(item) {
-        if (item.state === 'NULL' || item.state === 'UNDEF') {
-            return '-';
-        }
-        if ($scope.isOptionList(item)) {
-            for (var i = 0; i < item.stateDescription.options.length; i++) {
-                var option = item.stateDescription.options[i]
-                if (option.value === item.state) {
-                    return option.label
-                }
-            }
-        }
-        var state = item.type === 'Number' ? parseFloat(item.state) : item.state;
-
-        if (item.type === 'DateTime') {
-            var dateArr = item.state.split(/[^0-9]/);
-            var date;
-            if (dateArr.length > 5) {
-                date = new Date(dateArr[0], dateArr[1] - 1, dateArr[2], dateArr[3], dateArr[4], dateArr[5]);
-            }
-            if (!date) {
-                return '-';
-            }
-            if (item.stateDescription && item.stateDescription.pattern) {
-                return util.timePrint(item.stateDescription.pattern, date);
-            } else {
-                return $filter('date')(date, "dd.MM.yyyy HH:mm:ss");
-            }
-        } else if (!item.stateDescription || !item.stateDescription.pattern) {
-            return state;
-        } else {
-            return sprintf(item.stateDescription.pattern, state);
-        }
     }
 
     $scope.getMinText = function(item) {
         if (!item.stateDescription || isNaN(item.stateDescription.minimum)) {
             return '';
         } else if (!item.stateDescription.pattern) {
-            return item.stateDescription.minimum;
+            return '' + item.stateDescription.minimum;
         } else {
             return sprintf(item.stateDescription.pattern, item.stateDescription.minimum);
         }
@@ -243,7 +172,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         if (!item.stateDescription || isNaN(item.stateDescription.maximum)) {
             return '';
         } else if (!item.stateDescription.pattern) {
-            return item.stateDescription.maximum;
+            return '' + item.stateDescription.maximum;
         } else {
             return sprintf(item.stateDescription.pattern, item.stateDescription.maximum);
         }
@@ -299,34 +228,31 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         'Zoom' : {},
     }
 
-    $scope.getLabel = function(itemCategory, label, defaultLabel) {
-        if (label) {
-            return label;
+    $scope.getLabel = function(item, defaultLabel) {
+        if (item.name) {
+            return item.label;
         }
 
-        if (itemCategory) {
-            var category = categories[itemCategory];
+        if (item.category) {
+            var category = categories[item.category];
             if (category) {
-                return category.label ? category.label : itemCategory;
+                return category.label ? category.label : item.category;
             } else {
                 return defaultLabel;
             }
-        } else {
-            return defaultLabel;
         }
+
+        return defaultLabel;
     }
+
     $scope.getIcon = function(itemCategory, fallbackIcon) {
         var defaultIcon = fallbackIcon ? fallbackIcon : 'radio_button_unchecked';
-        if (itemCategory) {
-            var category = categories[itemCategory];
-            if (category) {
-                return category.icon ? category.icon : defaultIcon;
-            } else {
-                return defaultIcon;
-            }
-        } else {
-            return defaultIcon;
+
+        if (itemCategory && categories[itemCategory] && categories[itemCategory].icon) {
+            return categories[itemCategory].icon
         }
+
+        return defaultIcon;
     }
     $scope.showSwitch = function(itemCategory) {
         if (itemCategory) {
@@ -336,9 +262,6 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
             }
         }
         return false;
-    }
-    $scope.isReadOnly = function(item) {
-        return item.stateDescription ? item.stateDescription.readOnly : false;
     }
 
     /**
@@ -350,7 +273,10 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     $scope.isOptionList = function(item) {
         return (item.stateDescription != null && item.stateDescription.options.length > 0)
     }
-}).controller('ItemController', function($rootScope, $scope, itemService) {
+
+    renderItems()
+
+}).controller('ItemController', function($rootScope, $scope, itemService, util) {
     $scope.editMode = false;
     $scope.sendCommand = function(command, updateState) {
         $rootScope.itemUpdates[$scope.item.name] = new Date().getTime();
@@ -360,6 +286,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         if (updateState) {
             $scope.item.state = command;
         }
+        $scope.item.stateText = util.getItemStateText($scope.item);
     };
     $scope.editState = function() {
         $scope.editMode = true;
@@ -404,46 +331,39 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     $scope.setOn = function(state) {
         $scope.sendCommand(state);
     }
-}).controller('DimmerItemController', function($scope, $timeout, itemService) {
+}).controller('DimmerItemController', function($scope, $timeout) {
     if ($scope.item.state === 'UNDEF' || $scope.item.state === 'NULL') {
         $scope.item.state = '-';
     }
-    $scope.on = parseInt($scope.item.state) > 0 ? 'ON' : 'OFF';
 
-    $scope.setOn = function(on) {
-        $scope.on = on === 'ON' ? 'ON' : 'OFF';
-
-        $scope.sendCommand(on);
-
-        var brightness = parseInt($scope.item.state);
-        if (on === 'ON' && brightness === 0) {
-            $scope.item.state = 100;
-        }
-        if (on === 'OFF' && brightness > 0) {
-            $scope.item.state = 0;
-        }
+    // state.switchState overcomes the new $scope from ng-if directive
+    $scope.state = {
+        switchState : parseInt($scope.item.state) > 0
     }
-    $scope.pending = false;
+
+    $scope.setSwitch = function(state) {
+        sendCommand(state ? 'ON' : 'OFF');
+    }
+
     $scope.setBrightness = function(brightness) {
-        // send updates every 300 ms only
-        if (!$scope.pending) {
-            $timeout(function() {
-                var command = $scope.item.state === 0 ? '0' : $scope.item.state;
-                $scope.sendCommand(command);
-                $scope.pending = false;
-            }, 300);
-            $scope.pending = true;
-        }
+        $scope.state.switchState = brightness > 0;
+        sendCommand(brightness);
     }
-    $scope.$watch('item.state', function() {
-        var brightness = parseInt($scope.item.state);
-        if (brightness > 0 && $scope.on === 'OFF') {
-            $scope.on = 'ON';
+
+    var commandTimeout = undefined;
+
+    var sendCommand = function(command) {
+        if (commandTimeout) {
+            $timeout.cancel(commandTimeout);
         }
-        if (brightness === 0 && $scope.on === 'ON') {
-            $scope.on = 'OFF';
-        }
-    });
+
+        // send updates every 300 ms only
+        commandTimeout = $timeout(function() {
+            $scope.sendCommand(command);
+            commandTimeout = undefined;
+        }, 300);
+    }
+
 }).controller('ColorItemController', function($scope, $timeout, $element, itemService) {
 
     if ($scope.item.state === 'UNDEF' || $scope.item.state === 'NULL') {
@@ -474,7 +394,14 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
 
     $scope.setBrightness = function(brightness) {
         $scope.brightness = brightness;
-        setColor();
+        if (!$scope.pending) {
+            $timeout(function() {
+                var command = isNaN($scope.brightness) ? '0' : $scope.brightness;
+                $scope.sendCommand(command);
+                $scope.pending = false;
+            }, 300);
+            $scope.pending = true;
+        }
     }
 
     $scope.setHue = function(hue) {
@@ -542,22 +469,6 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
 
     var hexColor = $scope.getHexColor();
     $($element).find('.hue .md-thumb').css('background-color', hexColor);
-}).controller('NumberItemController', function($scope) {
-    $scope.shouldRenderSlider = function(item) {
-        if (item.stateDescription) {
-            var stateDescription = item.stateDescription;
-            if (stateDescription.readOnly) {
-                return false;
-            } else {
-                if (isNaN(stateDescription.minimum) || isNaN(stateDescription.maximum)) {
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 }).controller('RollershutterItemController', function($scope) {
     if ($scope.item.state === 'UNDEF' || $scope.item.state === 'NULL') {
         $scope.item.state = '-';

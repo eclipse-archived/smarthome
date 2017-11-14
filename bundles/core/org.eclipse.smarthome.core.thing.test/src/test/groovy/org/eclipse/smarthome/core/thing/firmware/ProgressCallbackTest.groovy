@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,7 @@ import java.util.Locale
 
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
-import org.eclipse.smarthome.core.i18n.I18nProvider
+import org.eclipse.smarthome.core.i18n.TranslationProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
@@ -57,7 +57,7 @@ public final class ProgressCallbackTest {
                 usedMessagedKey = key
                 return "Dummy Message"
             }
-        ] as I18nProvider
+        ] as TranslationProvider
         sut = new ProgressCallbackImpl(new DummyFirmwareHandler(),publisher, i18nProvider, expectedThingUID, expectedFirmwareUID, null)
     }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ import org.eclipse.smarthome.core.voice.text.HumanLanguageInterpreter;
 import org.eclipse.smarthome.core.voice.text.InterpretationException;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
-import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
+import org.eclipse.smarthome.io.rest.RESTResource;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -49,7 +49,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(VoiceResource.PATH_SITEMAPS)
 @RolesAllowed({ Role.USER, Role.ADMIN })
 @Api(value = VoiceResource.PATH_SITEMAPS)
-public class VoiceResource implements SatisfiableRESTResource {
+public class VoiceResource implements RESTResource {
 
     static final String PATH_SITEMAPS = "voice";
 

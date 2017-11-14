@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+
 /**
  * The {@link ChannelTypeRegistry} tracks all {@link ChannelType}s and {@link ChannelGroupType}s provided by registered
  * {@link ChannelTypeProvider}s.
@@ -20,6 +25,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Dennis Nobel - Initial contribution
  *
  */
+@Component(immediate = true, service = ChannelTypeRegistry.class)
 public class ChannelTypeRegistry {
 
     private List<ChannelTypeProvider> channelTypeProviders = new CopyOnWriteArrayList<>();
@@ -120,6 +126,7 @@ public class ChannelTypeRegistry {
         return null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addChannelTypeProvider(ChannelTypeProvider channelTypeProviders) {
         this.channelTypeProviders.add(channelTypeProviders);
     }

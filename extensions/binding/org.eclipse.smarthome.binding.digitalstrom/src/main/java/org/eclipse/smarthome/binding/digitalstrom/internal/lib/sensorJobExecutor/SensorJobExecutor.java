@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
  * <li>medium priority: read cycles before execution is set in {@link Config.MEDIUM_PRIORITY_FACTOR}</li>
  * <li>high priority: read cycles before execution 0</li>
  * </ul>
- * </p>
  *
  * @author Michael Ochel - Initial contribution
  * @author Matthias Siegele - Initial contribution

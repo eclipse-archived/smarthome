@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -53,8 +53,8 @@ public class SceneOutputValueReadingJob implements SensorJob {
             } else {
                 device.setSceneOutputValue(this.sceneID, sceneValue[0]);
             }
-            logger.debug("UPDATED sceneOutputValue for dsid: " + this.device.getDSID() + ", sceneID: " + sceneID
-                    + ", value: " + sceneValue[0] + ", angle: " + sceneValue[1]);
+            logger.debug("UPDATED sceneOutputValue for dsid: {}, sceneID: {}, value: {}, angle: {}",
+                    this.device.getDSID(), sceneID, sceneValue[0], sceneValue[1]);
         }
     }
 
@@ -93,11 +93,6 @@ public class SceneOutputValueReadingJob implements SensorJob {
         this.initalisationTime = time;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return "SceneOutputValueReadingJob [sceneID: " + sceneID + ", deviceDSID : " + device.getDSID().getValue()

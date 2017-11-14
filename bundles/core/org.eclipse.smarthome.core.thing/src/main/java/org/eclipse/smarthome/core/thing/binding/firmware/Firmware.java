@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,12 +7,17 @@
  */
 package org.eclipse.smarthome.core.thing.binding.firmware;
 
+import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_MODEL_ID;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -27,19 +32,23 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 
 /**
+ * <p>
  * The {@link Firmware} is the description of a firmware to be installed on the physical device of a {@link Thing}. A
  * firmware relates always to exactly one {@link ThingType}. By its {@link FirmwareUID} it is ensured that there is only
  * one firmware in a specific version for a thing type available. Firmwares can be easily created by the
  * {@link Firmware.Builder}.
- * </p>
+ *
+ * <p>
  * Firmwares are made available to the system by {@link FirmwareProvider}s that are tracked by the
  * {@link FirmwareRegistry}. The registry can be used to get a dedicated firmware or to get all available firmwares for
  * a specific {@link ThingType}.
- * </p>
+ *
+ * <p>
  * The {@link FirmwareUpdateService} is responsible to provide the current {@link FirmwareStatusInfo} of a thing.
  * Furthermore this service is the central instance to start a firmware update process. In order that the firmware of a
  * thing can be updated the hander of the thing has to implement the {@link FirmwareUpdateHandler} interface.
- * </p>
+ *
+ * <p>
  * The {@link Firmware} implements the {@link Comparable} interface in order to be able to sort firmwares based on their
  * versions. Firmwares are sorted in a descending sequence, i.e. that the latest firmware will be the first
  * element in a sorted result set. The implementation of {@link Firmware#compareTo(Firmware)} splits the firmware
@@ -49,15 +58,24 @@ import com.google.common.base.Preconditions;
  * Furthermore firmware version <i>xyz_1</i> is newer than firmware version <i>abc.2</i> which again is newer than
  * firmware version <i>2-0-1</i>.
  *
+ * <p>
+ * A {@link Firmware} consists of various meta information like a version, a vendor or a description. Additionally
+ * {@link FirmwareProvider}s can specify further meta information in form of properties (e.g. a factory reset of the
+ * device is required afterwards) so that {@link FirmwareUpdateHandler}s can handle this information accordingly.
+ *
  * @author Thomas Höfer - Initial contribution
  */
 public final class Firmware implements Comparable<Firmware> {
+
+    /** The key for the requires a factory reset property. */
+    public static final String PROPERTY_REQUIRES_FACTORY_RESET = "requiresFactoryReset";
 
     private static final Logger logger = LoggerFactory.getLogger(Firmware.class);
 
     private final FirmwareUID uid;
     private final String vendor;
     private final String model;
+    private final boolean modelRestricted;
     private final String description;
     private final String version;
     private final String prerequisiteVersion;
@@ -65,6 +83,7 @@ public final class Firmware implements Comparable<Firmware> {
     private final URL onlineChangelog;
     private final transient InputStream inputStream;
     private final String md5Hash;
+    private final Map<String, String> properties;
 
     private transient byte[] bytes;
 
@@ -76,12 +95,15 @@ public final class Firmware implements Comparable<Firmware> {
         this.version = builder.uid.getFirmwareVersion();
         this.vendor = builder.vendor;
         this.model = builder.model;
+        this.modelRestricted = builder.modelRestricted;
         this.description = builder.description;
         this.prerequisiteVersion = builder.prerequisiteVersion;
         this.changelog = builder.changelog;
         this.onlineChangelog = builder.onlineChangelog;
         this.inputStream = builder.inputStream;
         this.md5Hash = builder.md5Hash;
+        this.properties = Collections
+                .unmodifiableMap(builder.properties != null ? builder.properties : Collections.emptyMap());
 
         this.internalVersion = new Version(this.version);
         this.internalPrerequisiteVersion = this.prerequisiteVersion != null ? new Version(this.prerequisiteVersion)
@@ -113,6 +135,15 @@ public final class Firmware implements Comparable<Firmware> {
      */
     public String getModel() {
         return model;
+    }
+
+    /**
+     * Returns whether this firmware is restricted to things with the model provided by the {@link #getModel()} method.
+     *
+     * @return whether the firmware is restricted to a particular model
+     */
+    public boolean isModelRestricted() {
+        return modelRestricted;
     }
 
     /**
@@ -172,7 +203,7 @@ public final class Firmware implements Comparable<Firmware> {
     /**
      * Returns the MD5 hash value of the firmware.
      *
-     * @return MD5 hash value of the firmware (can be null)
+     * @return the MD5 hash value of the firmware (can be null)
      */
     public String getMd5Hash() {
         return md5Hash;
@@ -198,7 +229,7 @@ public final class Firmware implements Comparable<Firmware> {
                 try (DigestInputStream dis = new DigestInputStream(inputStream, md)) {
                     bytes = IOUtils.toByteArray(dis);
                 } catch (IOException ioEx) {
-                    logger.error(String.format("Cannot read firmware with UID %s.", uid), ioEx);
+                    logger.error("Cannot read firmware with UID {}.", uid, ioEx);
                     return null;
                 }
 
@@ -224,6 +255,15 @@ public final class Firmware implements Comparable<Firmware> {
         }
 
         return bytes;
+    }
+
+    /**
+     * Returns the immutable properties of the firmware.
+     *
+     * @return the immutable properties of the firmware (not null)
+     */
+    public Map<String, String> getProperties() {
+        return properties;
     }
 
     /**
@@ -259,9 +299,25 @@ public final class Firmware implements Comparable<Firmware> {
         return new Version(firmwareVersion).compare(internalPrerequisiteVersion) >= 0;
     }
 
+    public boolean isSuitableFor(Thing thing) {
+        return hasSameThingType(thing) && hasRequiredModel(thing);
+    }
+
     @Override
     public int compareTo(Firmware firmware) {
         return -internalVersion.compare(new Version(firmware.getVersion()));
+    }
+
+    private boolean hasSameThingType(Thing thing) {
+        return Objects.equals(this.getUID().getThingTypeUID(), thing.getThingTypeUID());
+    }
+
+    private boolean hasRequiredModel(Thing thing) {
+        if (isModelRestricted()) {
+            return Objects.equals(this.getModel(), thing.getProperties().get(PROPERTY_MODEL_ID));
+        } else {
+            return true;
+        }
     }
 
     private static class Version {
@@ -323,12 +379,14 @@ public final class Firmware implements Comparable<Firmware> {
         private final FirmwareUID uid;
         private String vendor;
         private String model;
+        private boolean modelRestricted;
         private String description;
         private String prerequisiteVersion;
         private String changelog;
         private URL onlineChangelog;
         private transient InputStream inputStream;
         private String md5Hash;
+        private Map<String, String> properties;
 
         /**
          * Creates a new builder.
@@ -363,6 +421,18 @@ public final class Firmware implements Comparable<Firmware> {
          */
         public Builder withModel(String model) {
             this.model = model;
+            return this;
+        }
+
+        /**
+         * Sets the modelRestricted flag in the builder.
+         *
+         * @param modelRestricted the modelRestricted flag to be added to the builder
+         *
+         * @return the updated builder
+         */
+        public Builder withModelRestricted(boolean modelRestricted) {
+            this.modelRestricted = modelRestricted;
             return this;
         }
 
@@ -427,6 +497,18 @@ public final class Firmware implements Comparable<Firmware> {
         }
 
         /**
+         * Adds the properties to the builder.
+         *
+         * @param properties the properties to be added to the builder
+         *
+         * @return the updated builder
+         */
+        public Builder withProperties(Map<String, String> properties) {
+            this.properties = properties;
+            return this;
+        }
+
+        /**
          * Adds the given md5 hash value to the builder.
          *
          * @param md5Hash the md5 hash value to be added to the builder
@@ -457,11 +539,13 @@ public final class Firmware implements Comparable<Firmware> {
         result = prime * result + ((description == null) ? 0 : description.hashCode());
         result = prime * result + ((md5Hash == null) ? 0 : md5Hash.hashCode());
         result = prime * result + ((model == null) ? 0 : model.hashCode());
+        result = prime * result + Boolean.hashCode(modelRestricted);
         result = prime * result + ((onlineChangelog == null) ? 0 : onlineChangelog.hashCode());
         result = prime * result + ((prerequisiteVersion == null) ? 0 : prerequisiteVersion.hashCode());
         result = prime * result + ((uid == null) ? 0 : uid.hashCode());
         result = prime * result + ((vendor == null) ? 0 : vendor.hashCode());
         result = prime * result + ((version == null) ? 0 : version.hashCode());
+        result = prime * result + ((properties == null) ? 0 : properties.hashCode());
         return result;
     }
 
@@ -505,6 +589,9 @@ public final class Firmware implements Comparable<Firmware> {
         } else if (!model.equals(other.model)) {
             return false;
         }
+        if (modelRestricted != other.modelRestricted) {
+            return false;
+        }
         if (onlineChangelog == null) {
             if (other.onlineChangelog != null) {
                 return false;
@@ -540,14 +627,22 @@ public final class Firmware implements Comparable<Firmware> {
         } else if (!version.equals(other.version)) {
             return false;
         }
+        if (properties == null) {
+            if (other.properties != null) {
+                return false;
+            }
+        } else if (!properties.equals(other.properties)) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public String toString() {
-        return "Firmware [uid=" + uid + ", vendor=" + vendor + ", model=" + model + ", description=" + description
-                + ", version=" + version + ", prerequisiteVersion=" + prerequisiteVersion + ", changelog=" + changelog
-                + ", onlineChangelog=" + onlineChangelog + ", md5Hash=" + md5Hash + "]";
+        return "Firmware [uid=" + uid + ", vendor=" + vendor + ", model=" + model + ", isModelRestricted="
+                + modelRestricted + ", description=" + description + ", version=" + version + ", prerequisiteVersion="
+                + prerequisiteVersion + ", changelog=" + changelog + ", onlineChangelog=" + onlineChangelog
+                + ", md5Hash=" + md5Hash + ", properties=" + properties + "]";
     }
 
 }

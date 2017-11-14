@@ -1,10 +1,15 @@
+Manifest-Version: 1.0
+Bundle-Activator: org.eclipse.smarthome.automation.internal.sample.json.
+ handler.Activator
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: org.eclipse.smarthome.automation.sample.extension.json
-Bundle-Version: 0.9.0.qualifier
-Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Name: Automation Sample JSON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.automation.sample.extension.j
+ son
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.9.0.qualifier
 Import-Package: 
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.automation,
  org.eclipse.smarthome.automation.handler,
  org.eclipse.smarthome.automation.parser,
@@ -13,8 +18,7 @@ Import-Package:
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.io.console,
  org.eclipse.smarthome.io.console.extensions,
- org.slf4j,
  org.osgi.framework,
  org.osgi.service.event,
- org.osgi.util.tracker;version="1.4.0"
-Bundle-Activator: org.eclipse.smarthome.automation.internal.sample.json.handler.Activator
+ org.osgi.util.tracker;version="1.4.0",
+ org.slf4j

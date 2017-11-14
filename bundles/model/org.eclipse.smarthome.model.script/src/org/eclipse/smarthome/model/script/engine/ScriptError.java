@@ -1,11 +1,16 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
 package org.eclipse.smarthome.model.script.engine;
+
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.nodemodel.INode;
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
+import org.eclipse.xtext.util.LineAndColumn;
 
 /**
  * A detailed error information for a script
@@ -28,7 +33,7 @@ public final class ScriptError {
 
     /**
      * Creates new ScriptError.
-     * 
+     *
      * @param message Error Message
      * @param line Line number, or -1 if unknown
      * @param column Column number, or -1 if unknown
@@ -42,9 +47,27 @@ public final class ScriptError {
     }
 
     /**
+     * Creates new ScriptError.
+     *
+     * This constructor uses the given EObject instance to calculate the exact position.
+     *
+     * @param message Error Message
+     * @param atEObject the EObject instance to use for calculating the position
+     *
+     */
+    public ScriptError(final String message, final EObject atEObject) {
+        this.message = message;
+        INode node = NodeModelUtils.getNode(atEObject);
+        LineAndColumn lac = NodeModelUtils.getLineAndColumn(node, node.getOffset());
+        this.line = lac.getLine();
+        this.column = lac.getColumn();
+        this.length = node.getEndOffset() - node.getOffset();
+    }
+
+    /**
      * Returns a message containing the String passed to a constructor as well as line and column numbers if any of
      * these are known.
-     * 
+     *
      * @return The error message.
      */
     public String getMessage() {
@@ -66,7 +89,7 @@ public final class ScriptError {
 
     /**
      * Get the line number on which an error occurred.
-     * 
+     *
      * @return The line number. Returns -1 if a line number is unavailable.
      */
     public int getLineNumber() {
@@ -75,7 +98,7 @@ public final class ScriptError {
 
     /**
      * Get the column number on which an error occurred.
-     * 
+     *
      * @return The column number. Returns -1 if a column number is unavailable.
      */
     public int getColumnNumber() {
@@ -84,7 +107,7 @@ public final class ScriptError {
 
     /**
      * Get the number of columns affected by the error.
-     * 
+     *
      * @return The number of columns. Returns -1 if unavailable.
      */
     public int getLength() {

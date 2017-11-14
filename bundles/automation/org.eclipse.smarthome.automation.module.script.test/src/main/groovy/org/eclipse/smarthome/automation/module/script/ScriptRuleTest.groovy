@@ -33,8 +33,6 @@ import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import com.google.common.collect.Sets
-
 
 /**
  * This tests the script modules
@@ -65,7 +63,6 @@ class ScriptRuleTest extends OSGiTest {
         registerService(itemProvider)
         registerService(volatileStorageService)
 
-        enableItemAutoUpdate()
 
         def eventSubscriber = [
             receive: {  event ->
@@ -73,13 +70,11 @@ class ScriptRuleTest extends OSGiTest {
                 logger.info("received event from item {}, command {}", receivedEvent.itemName, receivedEvent.itemCommand)
             },
             getSubscribedEventTypes: {
-                Sets.newHashSet(ItemCommandEvent.TYPE)
+                Collections.singleton(ItemCommandEvent.TYPE)
             },
             getEventFilter: { null },
         ] as EventSubscriber
         registerService(eventSubscriber)
-        def scriptScopeProvider = getService(ScriptScopeProvider)
-        assertThat ScriptScopeProvider, is(notNullValue())
     }
 
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,6 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.I
  * For that the {@link SceneStatusListener} has to be registered on the
  * {@link SceneManager#registerSceneListener(SceneStatusListener)}. Then the {@link SceneStatusListener} gets
  * informed by the methods {@link #onSceneAdded(InternalScene)} and {@link #onSceneRemoved(InternalScene)}.
- * </p>
  *
  * @author Michael Ochel - Initial contribution
  * @author Matthias Siegele - Initial contribution

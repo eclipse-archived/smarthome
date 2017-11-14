@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation.module.script.defaultscope.internal;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -20,8 +21,6 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Maps;
 
 /**
  * The static methods of this class are made available as functions in the scripts.
@@ -90,7 +89,7 @@ public class ScriptBusEvent {
                 Command command = TypeParser.parseCommand(item.getAcceptedCommandTypes(), commandString);
                 eventPublisher.post(ItemEventFactory.createCommandEvent(itemName, command));
             } catch (ItemNotFoundException e) {
-                LoggerFactory.getLogger(ScriptBusEvent.class).warn("Item '" + itemName + "' does not exist.");
+                LoggerFactory.getLogger(ScriptBusEvent.class).warn("Item '{}' does not exist.", itemName);
             }
         }
         return null;
@@ -150,7 +149,7 @@ public class ScriptBusEvent {
                 State state = TypeParser.parseState(item.getAcceptedDataTypes(), stateString);
                 eventPublisher.post(ItemEventFactory.createStateEvent(itemName, state));
             } catch (ItemNotFoundException e) {
-                LoggerFactory.getLogger(ScriptBusEvent.class).warn("Item '" + itemName + "' does not exist.");
+                LoggerFactory.getLogger(ScriptBusEvent.class).warn("Item '{}' does not exist.", itemName);
             }
         }
         return null;
@@ -178,7 +177,7 @@ public class ScriptBusEvent {
      * @return the map of items with their states
      */
     public Map<Item, State> storeStates(Item... items) {
-        Map<Item, State> statesMap = Maps.newHashMap();
+        Map<Item, State> statesMap = new HashMap<>();
         if (items != null) {
             for (Item item : items) {
                 if (item instanceof GroupItem) {

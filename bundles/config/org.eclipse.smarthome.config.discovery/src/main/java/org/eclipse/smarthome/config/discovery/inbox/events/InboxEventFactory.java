@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,8 @@ import org.eclipse.smarthome.config.discovery.dto.DiscoveryResultDTO;
 import org.eclipse.smarthome.config.discovery.dto.DiscoveryResultDTOMapper;
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.events.EventFactory;
+import org.osgi.service.component.annotations.Component;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
@@ -21,6 +23,7 @@ import com.google.common.collect.Sets;
  *
  * @author Stefan Bußweiler - Initial contribution
  */
+@Component(immediate = true, service = EventFactory.class)
 public class InboxEventFactory extends AbstractEventFactory {
 
     private static final String INBOX_ADDED_EVENT_TOPIC = "smarthome/inbox/{thingUID}/added";
@@ -66,11 +69,11 @@ public class InboxEventFactory extends AbstractEventFactory {
 
     /**
      * Creates an inbox added event.
-     * 
+     *
      * @param discoveryResult the discovery result
-     * 
+     *
      * @return the created inbox added event
-     * 
+     *
      * @throws IllegalArgumentException if discoveryResult is null
      */
     public static InboxAddedEvent createAddedEvent(DiscoveryResult discoveryResult) {
@@ -83,11 +86,11 @@ public class InboxEventFactory extends AbstractEventFactory {
 
     /**
      * Creates an inbox removed event.
-     * 
+     *
      * @param discoveryResult the discovery result
-     * 
+     *
      * @return the created inbox removed event
-     * 
+     *
      * @throws IllegalArgumentException if discoveryResult is null
      */
     public static InboxRemovedEvent createRemovedEvent(DiscoveryResult discoveryResult) {
@@ -100,11 +103,11 @@ public class InboxEventFactory extends AbstractEventFactory {
 
     /**
      * Creates an inbox updated event.
-     * 
+     *
      * @param discoveryResult the discovery result
-     * 
+     *
      * @return the created inbox updated event
-     * 
+     *
      * @throws IllegalArgumentException if discoveryResult is null
      */
     public static InboxUpdatedEvent createUpdatedEvent(DiscoveryResult discoveryResult) {

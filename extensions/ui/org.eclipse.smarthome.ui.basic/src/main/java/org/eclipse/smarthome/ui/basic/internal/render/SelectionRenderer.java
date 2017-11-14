@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2014-2017 by the respective copyright holders.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,9 +28,6 @@ import com.google.gson.JsonObject;
  */
 public class SelectionRenderer extends AbstractWidgetRenderer {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean canRender(Widget w) {
         return w instanceof Selection;
@@ -51,9 +48,6 @@ public class SelectionRenderer extends AbstractWidgetRenderer {
         return result;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         String snippet = getSnippet("selection");
@@ -73,7 +67,7 @@ public class SelectionRenderer extends AbstractWidgetRenderer {
             rowSnippet = StringUtils.replace(rowSnippet, "%item%", w.getItem() != null ? w.getItem() : "");
             rowSnippet = StringUtils.replace(rowSnippet, "%cmd%", escapeHtml(command));
             rowSnippet = StringUtils.replace(rowSnippet, "%label%",
-                    mapping.getLabel() != null ? mapping.getLabel() : "");
+                    mapping.getLabel() != null ? escapeHtml(mapping.getLabel()) : "");
             if (state.equals(mapping.getCmd())) {
                 mappingLabel = mapping.getLabel();
                 rowSnippet = StringUtils.replace(rowSnippet, "%checked%", "checked=\"true\"");
