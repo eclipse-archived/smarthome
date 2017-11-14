@@ -7,7 +7,7 @@
 	<config-description uri="system:network">
 		<parameter name="primaryAddress" type="text">
 			<label>Primary Address</label>
-			<description>A subnet (e.g. 192.168.1.0/24) <!-- or an IP address (e.g. 192.168.1.5) --></description>
+			<description>An IPv4/IPv6 CIDR notation (e.g. 192.168.1.0/24 or 192.168.1.12 or fe80:0:0:0:0:0:c0a8:11%eth0/120)</description>
 			<limitToOptions>true</limitToOptions>
 		</parameter>
 	</config-description>
