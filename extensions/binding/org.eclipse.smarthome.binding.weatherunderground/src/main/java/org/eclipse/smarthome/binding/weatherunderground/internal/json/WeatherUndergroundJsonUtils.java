@@ -35,16 +35,15 @@ public class WeatherUndergroundJsonUtils {
     /**
      * Iterates through the fields and returns the getter value.
      */
-    @SuppressWarnings("all")
     private static Object getValue(Object data, String[] fields, int index) throws Exception {
         if (data == null) {
             return null;
         }
         String fieldName = fields[index];
-        Method method = data.getClass().getMethod(toGetterString(fieldName), null);
-        Object result = method.invoke(data, (Object[]) null);
-        if (index + 1 < fields.length) {
-            result = getValue(result, fields, index + 1);
+        Method method = data.getClass().getMethod(toGetterString(fieldName));
+        Object result = method.invoke(data);
+        if (++index < fields.length) {
+            result = getValue(result, fields, index);
         }
         return result;
     }

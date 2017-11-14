@@ -12,6 +12,7 @@ Bundle-Version: 0.9.0.qualifier
 Export-Package: org.eclipse.smarthome.ui.basic.render
 Import-Package: 
  com.google.gson,
+ javax.measure;version="1.0.0",
  javax.servlet,
  org.apache.commons.io,
  org.apache.commons.lang,

@@ -1,7 +1,7 @@
 angular.module('PaperUI.services').factory('util', function($filter, dateTime) {
     return {
         getItemStateText : function(item) {
-            if (item.state === 'NULL' || item.state === 'UNDEF') {
+            if (item.state === 'NULL' || item.state === 'UNDEF' || item.state === null) {
                 return '-';
             }
             if (item.stateDescription != null && item.stateDescription.options.length > 0) {
@@ -34,7 +34,8 @@ angular.module('PaperUI.services').factory('util', function($filter, dateTime) {
                 }
                 return state;
             } else {
-                return sprintf(item.stateDescription.pattern, state);
+                var pattern = item.stateDescription.pattern.replace('%unit%', item.unit)
+                return sprintf(pattern, state);
             }
         }
     }

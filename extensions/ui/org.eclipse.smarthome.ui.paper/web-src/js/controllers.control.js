@@ -316,6 +316,12 @@ angular.module('PaperUI.controllers.control', []) //
         }
     };
 
+}).controller('NumberItemController', function($scope) {
+    $scope.updateState = function() {
+        var state = $scope.item.unit ? $scope.item.state + ' ' + $scope.item.unit : $scope.item.state;
+        $scope.sendCommand(state, false);
+        $scope.editMode = false;
+    };
 }).controller('ImageItemController', function($scope, itemService) {
 
     $scope.refreshCameraImage = function() {

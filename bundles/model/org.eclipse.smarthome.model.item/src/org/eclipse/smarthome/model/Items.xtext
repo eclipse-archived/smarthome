@@ -31,8 +31,10 @@ enum ModelGroupFunction :
 ;
 
 ModelNormalItem :
-	type=ModelItemType
+	type=ModelItemType (':' dimension=ModelDimension)?
 ;
+
+ModelDimension : ID;
 
 ModelItemType :
 	'Switch' | 'Rollershutter' | 'Number' | 'String' | 'Dimmer' | 'Contact' | 'DateTime' | 'Color' | 'Player' | 'Location' | 'Call' | ID

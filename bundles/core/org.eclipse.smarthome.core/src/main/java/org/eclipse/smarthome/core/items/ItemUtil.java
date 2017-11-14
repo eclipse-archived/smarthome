@@ -9,9 +9,9 @@ package org.eclipse.smarthome.core.items;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.types.State;
-import org.eclipse.smarthome.core.types.UnDefType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 
 /**
  * The {@link ItemUtil} class contains utility methods for {@link Item} objects.
@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
  * @author Martin van Wingerden - when converting types convert null to UnDefType.NULL
  */
 public class ItemUtil {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ItemUtil.class);
 
     /**
      * The constructor is private.
@@ -77,26 +76,18 @@ public class ItemUtil {
     }
 
     public static State convertToAcceptedState(State state, Item item) {
-        if (state == null) {
-            LOGGER.error("A conversion of null was requested", new NullPointerException("state should not be null")); // NOPMD
-            return UnDefType.NULL;
+        BundleContext bundleContext = FrameworkUtil.getBundle(ItemUtil.class).getBundleContext();
+        ServiceReference<ItemStateConverter> service = bundleContext.getServiceReference(ItemStateConverter.class);
+        if (service == null) {
+            return null;
         }
 
-        if (item != null && !isAccepted(item, state)) {
-            for (Class<? extends State> acceptedType : item.getAcceptedDataTypes()) {
-                State convertedState = state.as(acceptedType);
-                if (convertedState != null) {
-                    LOGGER.debug("Converting {} '{}' to {} '{}' for item '{}'", state.getClass().getSimpleName(), state,
-                            convertedState.getClass().getSimpleName(), convertedState, item.getName());
-                    return convertedState;
-                }
-            }
+        ItemStateConverter itemStateConverter = bundleContext.getService(service);
+        if (itemStateConverter == null) {
+            return null;
         }
-        return state;
-    }
 
-    private static boolean isAccepted(Item item, State state) {
-        return item.getAcceptedDataTypes().contains(state.getClass());
+        return itemStateConverter.convertToAcceptedState(state, item);
     }
 
 }

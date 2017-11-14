@@ -22,6 +22,7 @@ import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.PlayPauseType;
 import org.eclipse.smarthome.core.library.types.PointType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.types.RawType;
 import org.eclipse.smarthome.core.library.types.RewindFastforwardType;
 import org.eclipse.smarthome.core.library.types.StringListType;
@@ -82,6 +83,9 @@ public class StateUtil {
 
         states.add(UpDownType.UP);
         states.add(UpDownType.DOWN);
+
+        QuantityType quantityType = new QuantityType("12 °C");
+        states.add(quantityType);
 
         return states;
     }

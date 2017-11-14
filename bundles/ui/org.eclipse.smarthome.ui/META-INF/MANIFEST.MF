@@ -14,6 +14,7 @@ Export-Package:
 Ignore-Package: org.eclipse.smarthome.ui.internal
 Import-Package: 
  javax.imageio,
+ javax.measure,
  javax.servlet,
  javax.servlet.http,
  org.apache.commons.io,
@@ -31,6 +32,7 @@ Import-Package:
  org.eclipse.jetty.util.component,
  org.eclipse.jetty.util.ssl,
  org.eclipse.smarthome.core.common.registry,
+ org.eclipse.smarthome.core.i18n,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types,
@@ -45,6 +47,7 @@ Import-Package:
  org.osgi.framework,
  org.osgi.service.cm,
  org.osgi.service.http,
- org.slf4j
+ org.slf4j,
+ tec.uom.se.quantity
 Private-Package: org.eclipse.smarthome.ui.internal
 Service-Component: OSGI-INF/*.xml

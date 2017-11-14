@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * <p>
@@ -38,6 +39,7 @@ import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
  * @author Kai Kreuzer - made it independent from parent abstract classes
  *
  */
+@Component(service = { BindingConfigReader.class, AutoUpdateBindingConfigProvider.class })
 public class AutoUpdateGenericBindingConfigProvider implements AutoUpdateBindingConfigProvider, BindingConfigReader {
 
     /** caches binding configurations. maps itemNames to {@link BindingConfig}s */

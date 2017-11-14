@@ -32,6 +32,7 @@ public class EnrichedItemDTO extends ItemDTO {
         this.category = itemDTO.category;
         this.tags = itemDTO.tags;
         this.groupNames = itemDTO.groupNames;
+        this.unit = itemDTO.unit;
         this.link = link;
         this.state = state;
         this.transformedState = transformedState;

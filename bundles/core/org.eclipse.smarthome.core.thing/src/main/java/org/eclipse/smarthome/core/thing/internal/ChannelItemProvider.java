@@ -26,6 +26,7 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -34,6 +35,8 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -64,6 +67,7 @@ public class ChannelItemProvider implements ItemProvider {
     private ThingRegistry thingRegistry;
     private ItemChannelLinkRegistry linkRegistry;
     private ItemRegistry itemRegistry;
+    private ChannelTypeRegistry channelTypeRegistry;
     private Set<ItemFactory> itemFactories = new HashSet<>();
     private Map<String, Item> items = null;
 
@@ -144,6 +148,15 @@ public class ChannelItemProvider implements ItemProvider {
 
     protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry linkRegistry) {
         this.linkRegistry = null;
+    }
+
+    @Reference
+    protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry;
+    }
+
+    protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null;
     }
 
     @Activate
@@ -242,13 +255,14 @@ public class ChannelItemProvider implements ItemProvider {
                     }
                 }
             }
-            if (item != null) {
-                if (item instanceof GenericItem) {
-                    GenericItem gItem = (GenericItem) item;
-                    gItem.setLabel(getLabel(channel));
-                    gItem.setCategory(getCategory(channel));
-                    gItem.addTags(channel.getDefaultTags());
-                }
+            if (item instanceof GenericItem) {
+                GenericItem gItem = (GenericItem) item;
+                gItem.setLabel(getLabel(channel));
+                gItem.setCategory(getCategory(channel));
+                gItem.addTags(channel.getDefaultTags());
+            }
+            if (item instanceof NumberItem && getChannelType(channel).getDimension() != null) {
+                ((NumberItem) item).setDimension(getChannelType(channel).getDimension());
             }
             if (item != null) {
                 items.put(item.getName(), item);
@@ -257,6 +271,11 @@ public class ChannelItemProvider implements ItemProvider {
                 }
             }
         }
+    }
+
+    private ChannelType getChannelType(Channel channel) {
+        ChannelTypeUID channelTypeUID = channel.getChannelTypeUID();
+        return channelTypeRegistry.getChannelType(channelTypeUID);
     }
 
     private String getCategory(Channel channel) {

@@ -56,6 +56,7 @@
     <xs:complexType name="channelType">
         <xs:sequence>
             <xs:element name="item-type" type="xs:string" minOccurs="0"/>
+            <xs:element name="dimension" type="xs:string" minOccurs="0"/>
             <xs:element name="kind" type="xs:string" minOccurs="0"/>
             <xs:element name="label" type="xs:string"/>
             <xs:element name="description" type="xs:string" minOccurs="0"/>

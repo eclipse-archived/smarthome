@@ -145,4 +145,5 @@ public interface Item extends Identifiable<String> {
      * @return state description (can be null)
      */
     public StateDescription getStateDescription(Locale locale);
+
 }
