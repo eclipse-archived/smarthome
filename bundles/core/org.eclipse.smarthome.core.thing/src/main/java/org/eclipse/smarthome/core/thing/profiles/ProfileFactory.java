@@ -11,7 +11,6 @@ import java.util.Collection;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.config.core.Configuration;
 
 /**
  * Implementors are capable of creating a {@link Profile} instances.
@@ -27,11 +26,11 @@ public interface ProfileFactory {
      *
      * @param profileTypeUID the profile identifier
      * @param callback the ProfileCallback instance to be used by the {@link Profile} instance
-     * @param configuration the configuration
+     * @param profileContext giving access to the profile's context like configuration, scheduler, etc.
      * @return the profile instance or {@code null} if this factory cannot handle the given link
      */
     @Nullable
-    Profile createProfile(ProfileTypeUID profileTypeUID, ProfileCallback callback, Configuration configuration);
+    Profile createProfile(ProfileTypeUID profileTypeUID, ProfileCallback callback, ProfileContext profileContext);
 
     /**
      * Return the identifiers of all supported profile types

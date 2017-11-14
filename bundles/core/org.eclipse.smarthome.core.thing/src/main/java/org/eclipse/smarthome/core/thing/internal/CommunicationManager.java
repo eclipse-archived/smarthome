@@ -191,15 +191,16 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
 
     private Profile getProfileFromFactories(ProfileTypeUID profileTypeUID, ItemChannelLink link,
             ProfileCallback callback) {
+        ProfileContextImpl context = new ProfileContextImpl(link.getConfiguration());
         if (supportsProfileTypeUID(defaultProfileFactory, profileTypeUID)) {
             logger.trace("using the default ProfileFactory to create profile '{}'", profileTypeUID);
-            return defaultProfileFactory.createProfile(profileTypeUID, callback, link.getConfiguration());
+            return defaultProfileFactory.createProfile(profileTypeUID, callback, context);
         }
         for (Entry<ProfileFactory, Set<String>> entry : profileFactories.entrySet()) {
             ProfileFactory factory = entry.getKey();
             if (supportsProfileTypeUID(factory, profileTypeUID)) {
                 logger.trace("using ProfileFactory '{}' to create profile '{}'", factory, profileTypeUID);
-                Profile profile = factory.createProfile(profileTypeUID, callback, link.getConfiguration());
+                Profile profile = factory.createProfile(profileTypeUID, callback, context);
                 if (profile == null) {
                     logger.error("ProfileFactory {} returned 'null' although it claimed it supports {}", factory,
                             profileTypeUID);
