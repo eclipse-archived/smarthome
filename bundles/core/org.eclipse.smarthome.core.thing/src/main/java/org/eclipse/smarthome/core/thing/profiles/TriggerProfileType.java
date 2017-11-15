@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.core.thing.profiles;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -23,13 +22,8 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 public interface TriggerProfileType extends ProfileType {
 
     /**
-     * Constant for matching *ANY* channel type.
-     */
-    Collection<ChannelTypeUID> ANY_CHANNEL_TYPE = new ArrayList<>(0);
-
-    /**
      *
-     * @return a collection of ChannelTypeUIDs or {@link #ANY_CHANNEL_TYPE}.
+     * @return a collection of ChannelTypeUIDs (may be empty if all are supported).
      */
     Collection<ChannelTypeUID> getSupportedChannelTypeUIDs();
 

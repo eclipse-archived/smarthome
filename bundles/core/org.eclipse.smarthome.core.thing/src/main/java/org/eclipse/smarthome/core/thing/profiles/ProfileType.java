@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.core.thing.profiles;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -23,13 +22,8 @@ import org.eclipse.smarthome.core.common.registry.Identifiable;
 public interface ProfileType extends Identifiable<ProfileTypeUID> {
 
     /**
-     * Constant for matching *ANY* item type.
-     */
-    Collection<String> ANY_ITEM_TYPE = new ArrayList<>(0);
-
-    /**
      *
-     * @return a collection of item types or {@link #ANY_ITEM_TYPE}.
+     * @return a collection of item types (may be empty if all are supported)
      */
     Collection<String> getSupportedItemTypes();
 
