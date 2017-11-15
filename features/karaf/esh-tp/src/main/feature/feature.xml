@@ -173,6 +173,12 @@
     <bundle>mvn:org.eclipse.paho/org.eclipse.paho.client.mqttv3/1.0.2</bundle>
   </feature>
 
+  <feature name="esh-tp-serial" version="${project.version}">
+    <capability>esh.tp;feature=serial;version=3.12.0</capability>
+
+    <bundle>mvn:org.openhab/nrjavaserial/3.12.0.OH</bundle>
+  </feature>
+
   <feature name="esh-tp-xtext" description="Xtext - Language Engineering Made Easy" version="${project.version}">
     <capability>esh.tp;feature=xtext;version=2.12.0</capability>
 

@@ -210,7 +210,7 @@ public class ConfigDescriptionRegistry {
         boolean found = false;
         for (ConfigOptionProvider configOptionProvider : this.configOptionProviders) {
             Collection<ParameterOption> newOptions = configOptionProvider.getParameterOptions(uri, parameter.getName(),
-                    locale);
+                    parameter.getContext(), locale);
 
             if (newOptions != null) {
                 found = true;
