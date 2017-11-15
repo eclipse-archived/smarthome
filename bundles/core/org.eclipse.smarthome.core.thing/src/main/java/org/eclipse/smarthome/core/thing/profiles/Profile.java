@@ -25,12 +25,17 @@ import org.eclipse.smarthome.core.types.State;
 @NonNullByDefault
 public interface Profile {
 
+    /**
+     * Get the {@link ProfileTypeUID} of this profile.
+     *
+     * @return the UID of the profile type
+     */
     ProfileTypeUID getProfileTypeUID();
 
     /**
      * Will be called if an item has changed its state and this information should be forwarded to the binding.
      *
-     * @param state
+     * @param state the new state
      */
     void onStateUpdateFromItem(State state);
 

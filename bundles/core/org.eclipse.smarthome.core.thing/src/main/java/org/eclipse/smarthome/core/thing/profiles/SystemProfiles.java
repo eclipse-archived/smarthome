@@ -7,13 +7,9 @@
  */
 package org.eclipse.smarthome.core.thing.profiles;
 
-import java.util.Collection;
-import java.util.Collections;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.thing.DefaultSystemChannelTypeProvider;
-import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 
 /**
  * System profile constants.
@@ -28,60 +24,12 @@ public interface SystemProfiles {
     ProfileTypeUID FOLLOW = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "follow");
     ProfileTypeUID RAWBUTTON_TOGGLE_SWITCH = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "rawbutton-toggle-switch");
 
-    StateProfileType DEFAULT_TYPE = new StateProfileType() {
-        @Override
-        public ProfileTypeUID getUID() {
-            return DEFAULT;
-        }
+    StateProfileType DEFAULT_TYPE = ProfileTypeBuilder.newState(DEFAULT, "Default").build();
 
-        @Override
-        public Collection<String> getSupportedItemTypes() {
-            return ANY_ITEM_TYPE;
-        }
+    StateProfileType FOLLOW_TYPE = ProfileTypeBuilder.newState(FOLLOW, "Follow").build();
 
-        @Override
-        public String getLabel() {
-            return "Default";
-        }
-    };
-
-    StateProfileType FOLLOW_TYPE = new StateProfileType() {
-        @Override
-        public ProfileTypeUID getUID() {
-            return FOLLOW;
-        }
-
-        @Override
-        public Collection<String> getSupportedItemTypes() {
-            return ANY_ITEM_TYPE;
-        }
-
-        @Override
-        public String getLabel() {
-            return "Follow";
-        }
-    };
-
-    TriggerProfileType RAWBUTTON_TOGGLE_SWITCH_TYPE = new TriggerProfileType() {
-        @Override
-        public ProfileTypeUID getUID() {
-            return RAWBUTTON_TOGGLE_SWITCH;
-        }
-
-        @Override
-        public Collection<String> getSupportedItemTypes() {
-            return Collections.singleton(CoreItemFactory.SWITCH);
-        }
-
-        @Override
-        public Collection<ChannelTypeUID> getSupportedChannelTypeUIDs() {
-            return Collections.singleton(DefaultSystemChannelTypeProvider.SYSTEM_RAWBUTTON.getUID());
-        }
-
-        @Override
-        public String getLabel() {
-            return "Raw Button Toggle";
-        }
-    };
+    TriggerProfileType RAWBUTTON_TOGGLE_SWITCH_TYPE = ProfileTypeBuilder
+            .newTrigger(RAWBUTTON_TOGGLE_SWITCH, "Raw Button Toggle").withSupportedItemTypes(CoreItemFactory.SWITCH)
+            .withSupportedChannelTypeUIDs(DefaultSystemChannelTypeProvider.SYSTEM_RAWBUTTON.getUID()).build();
 
 }
