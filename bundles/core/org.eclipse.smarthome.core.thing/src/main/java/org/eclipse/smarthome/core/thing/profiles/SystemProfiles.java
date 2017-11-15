@@ -24,12 +24,12 @@ public interface SystemProfiles {
     ProfileTypeUID FOLLOW = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "follow");
     ProfileTypeUID RAWBUTTON_TOGGLE_SWITCH = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "rawbutton-toggle-switch");
 
-    StateProfileType DEFAULT_TYPE = ProfileTypeBuilder.newState(DEFAULT).withLabel("Default").build();
+    StateProfileType DEFAULT_TYPE = ProfileTypeBuilder.newState(DEFAULT, "Default").build();
 
-    StateProfileType FOLLOW_TYPE = ProfileTypeBuilder.newState(FOLLOW).withLabel("Follow").build();
+    StateProfileType FOLLOW_TYPE = ProfileTypeBuilder.newState(FOLLOW, "Follow").build();
 
-    TriggerProfileType RAWBUTTON_TOGGLE_SWITCH_TYPE = ProfileTypeBuilder.newTrigger(RAWBUTTON_TOGGLE_SWITCH)
-            .withLabel("Raw Button Toggle").withSupportedItemTypes(CoreItemFactory.SWITCH)
+    TriggerProfileType RAWBUTTON_TOGGLE_SWITCH_TYPE = ProfileTypeBuilder
+            .newTrigger(RAWBUTTON_TOGGLE_SWITCH, "Raw Button Toggle").withSupportedItemTypes(CoreItemFactory.SWITCH)
             .withSupportedChannelTypeUIDs(DefaultSystemChannelTypeProvider.SYSTEM_RAWBUTTON.getUID()).build();
 
 }

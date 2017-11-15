@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.internal.profiles.StateProfileTypeImpl;
 import org.eclipse.smarthome.core.thing.internal.profiles.TriggerProfileTypeImpl;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
@@ -39,23 +38,23 @@ public final class ProfileTypeBuilder<T extends ProfileType> {
     private final ProfileTypeUID profileTypeUID;
     private final Collection<String> supportedItemTypes = new HashSet<>();
     private final Collection<ChannelTypeUID> supportedChannelTypeUIDs = new HashSet<>();
+    private final String label;
 
-    @Nullable
-    private String label;
-
-    private ProfileTypeBuilder(ProfileTypeUID profileTypeUID, ProfileTypeFactory<T> profileTypeFactory) {
+    private ProfileTypeBuilder(ProfileTypeUID profileTypeUID, String label, ProfileTypeFactory<T> profileTypeFactory) {
         this.profileTypeFactory = profileTypeFactory;
         this.profileTypeUID = profileTypeUID;
+        this.label = label;
     }
 
     /**
      * Obtain a new builder for a {@link StateProfileType} instance.
      *
      * @param profileTypeUID the {@link ProfileTypeUID}
+     * @param label a human-readable label
      * @return the new builder instance
      */
-    public static ProfileTypeBuilder<StateProfileType> newState(ProfileTypeUID profileTypeUID) {
-        return new ProfileTypeBuilder<>(profileTypeUID,
+    public static ProfileTypeBuilder<StateProfileType> newState(ProfileTypeUID profileTypeUID, String label) {
+        return new ProfileTypeBuilder<>(profileTypeUID, label,
                 (leProfileTypeUID, leLabel, leSupportedItemTypes,
                         leSupportedChannelTypeUIDs) -> new StateProfileTypeImpl(leProfileTypeUID, leLabel,
                                 leSupportedItemTypes));
@@ -65,24 +64,14 @@ public final class ProfileTypeBuilder<T extends ProfileType> {
      * Obtain a new builder for a {@link TriggerProfileType} instance.
      *
      * @param profileTypeUID the {@link ProfileTypeUID}
+     * @param label a human-readable label
      * @return the new builder instance
      */
-    public static ProfileTypeBuilder<TriggerProfileType> newTrigger(ProfileTypeUID profileTypeUID) {
-        return new ProfileTypeBuilder<>(profileTypeUID,
+    public static ProfileTypeBuilder<TriggerProfileType> newTrigger(ProfileTypeUID profileTypeUID, String label) {
+        return new ProfileTypeBuilder<>(profileTypeUID, label,
                 (leProfileTypeUID, leLabel, leSupportedItemTypes,
                         leSupportedChannelTypeUIDs) -> new TriggerProfileTypeImpl(leProfileTypeUID, leLabel,
                                 leSupportedItemTypes, leSupportedChannelTypeUIDs));
-    }
-
-    /**
-     * Define the human-readable label
-     *
-     * @param label
-     * @return the builder itself
-     */
-    public ProfileTypeBuilder<T> withLabel(String label) {
-        this.label = label;
-        return this;
     }
 
     /**
@@ -135,11 +124,7 @@ public final class ProfileTypeBuilder<T extends ProfileType> {
      * @return the according subtype of
      */
     public T build() {
-        final String lbl = label;
-        if (lbl == null) {
-            throw new IllegalStateException("The label has not been set yet");
-        }
-        return profileTypeFactory.create(profileTypeUID, lbl, supportedItemTypes, supportedChannelTypeUIDs);
+        return profileTypeFactory.create(profileTypeUID, label, supportedItemTypes, supportedChannelTypeUIDs);
     }
 
 }
