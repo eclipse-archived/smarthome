@@ -17,6 +17,8 @@ import org.eclipse.smarthome.core.thing.profiles.ProfileType;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeProvider;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * {@link ProfileTypeRegistry} implementation.
@@ -43,7 +45,7 @@ public class ProfileTypeRegistryImpl implements ProfileTypeRegistry {
         return Collections.unmodifiableList(profileTypes);
     }
 
-    @Reference
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addProfileTypeProvider(ProfileTypeProvider profileTypeProvider) {
         profileTypeProviders.add(profileTypeProvider);
     }
