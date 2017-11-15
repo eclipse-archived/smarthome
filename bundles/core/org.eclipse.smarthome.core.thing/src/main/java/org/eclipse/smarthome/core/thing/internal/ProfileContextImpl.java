@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -36,8 +36,8 @@ public class ProfileContextImpl implements ProfileContext {
     }
 
     @Override
-    public ExecutorService getExecutorService() {
-        return ThreadPoolManager.getPool(THREAD_POOL_NAME);
+    public ScheduledExecutorService getExecutorService() {
+        return ThreadPoolManager.getScheduledPool(THREAD_POOL_NAME);
     }
 
 }

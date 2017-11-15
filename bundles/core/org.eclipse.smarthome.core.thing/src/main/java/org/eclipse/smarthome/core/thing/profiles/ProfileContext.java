@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.profiles;
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -35,6 +35,6 @@ public interface ProfileContext {
      *
      * @return the scheduler
      */
-    ExecutorService getExecutorService();
+    ScheduledExecutorService getExecutorService();
 
 }
