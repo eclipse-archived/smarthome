@@ -54,6 +54,15 @@
 			<label>Default Sitemap</label>
 			<description>The sitemap to show if no parameter is passed.</description>
 		</parameter>
+        <parameter name=useBrowserLang type="text" required="false">
+            <label>Use Browser Language</label>
+            <description>Use the browser language rather than the server language.</description>
+            <options>
+                <option value="true">Enable</option>
+                <option value="false">Disable</option>
+            </options>
+            <default>false</default>
+        </parameter>
 	</config-description>
 
 </config-description:config-descriptions>

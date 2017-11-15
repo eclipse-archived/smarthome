@@ -10,6 +10,7 @@ package org.eclipse.smarthome.ui.basic.internal.render;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -60,14 +61,15 @@ public class PageRenderer extends AbstractWidgetRenderer {
      * @param label the title of this page
      * @param children a list of widgets that should appear on this page
      * @param async true, if this is an asynchronous request. This will use a different HTML skeleton
+     * @param locale the locale provided by the browser
      * @return a string builder with the produced HTML code
      * @throws RenderException if an error occurs during the processing
      */
-    public StringBuilder processPage(String id, String sitemap, String label, EList<Widget> children, boolean async)
-            throws RenderException {
+    public StringBuilder processPage(String id, String sitemap, String label, EList<Widget> children, boolean async,
+            Locale locale) throws RenderException {
 
         String snippet = getSnippet(async ? "layer" : "main");
-        snippet = snippet.replaceAll("%main.offline-msg%", localizeText("@text/main.offline-msg"));
+        snippet = snippet.replaceAll("%main.offline-msg%", localizeText("@text/main.offline-msg", locale));
         snippet = snippet.replaceAll("%id%", id);
 
         // if the label contains a value span, we remove this span as
@@ -183,7 +185,7 @@ public class PageRenderer extends AbstractWidgetRenderer {
         }
     }
 
-    public CharSequence renderSitemapList(Set<SitemapProvider> sitemapProviders) throws RenderException {
+    public CharSequence renderSitemapList(Set<SitemapProvider> sitemapProviders, Locale locale) throws RenderException {
         List<String> sitemapList = new LinkedList<String>();
 
         for (SitemapProvider sitemapProvider : sitemapProviders) {
@@ -203,7 +205,7 @@ public class PageRenderer extends AbstractWidgetRenderer {
         if (sitemapList.isEmpty()) {
             String listEmptySnippet = getSnippet("sitemaps_list_empty");
             listEmptySnippet = StringUtils.replace(listEmptySnippet, "%sitemaps-list-empty.info%",
-                    localizeText("@text/sitemaps-list-empty.info"));
+                    localizeText("@text/sitemaps-list-empty.info", locale));
             sb.append(listEmptySnippet);
         } else {
             for (String sitemap : sitemapList) {
@@ -212,9 +214,9 @@ public class PageRenderer extends AbstractWidgetRenderer {
         }
 
         listSnippet = StringUtils.replace(listSnippet, "%sitemaps-list.welcome%",
-                localizeText("@text/sitemaps-list.welcome"));
+                localizeText("@text/sitemaps-list.welcome", locale));
         listSnippet = StringUtils.replace(listSnippet, "%sitemaps-list.available-sitemaps%",
-                localizeText("@text/sitemaps-list.available-sitemaps"));
+                localizeText("@text/sitemaps-list.available-sitemaps", locale));
         listSnippet = StringUtils.replace(listSnippet, "%items%", sb.toString());
 
         pageSnippet = StringUtils.replace(pageSnippet, "%title%", "BasicUI");

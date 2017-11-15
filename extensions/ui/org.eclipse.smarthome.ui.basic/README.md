@@ -17,6 +17,9 @@ org.eclipse.smarthome.basicui:enableIcons=true
 # Icons can be shown as PNG or SVG images
 # Default: PNG
 org.eclipse.smarthome.basicui:iconType=svg
+# Use the browser language rather than the server language
+# Default: false
+org.eclipse.smarthome.basicui:useBrowserLang=true
 ```
 
 ### Accessing Sitemaps

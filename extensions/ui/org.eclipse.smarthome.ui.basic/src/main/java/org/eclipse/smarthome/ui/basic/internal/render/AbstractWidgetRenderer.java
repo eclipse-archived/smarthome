@@ -12,6 +12,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -299,11 +300,13 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
         this.config = config;
     }
 
-    protected String localizeText(String key) {
+    protected String localizeText(String key, Locale locale) {
+        Locale useLocale = locale == null ? localeProvider.getLocale() : locale;
+
         String result = "";
         if (I18nUtil.isConstant(key)) {
             result = this.i18nProvider.getText(this.bundleContext.getBundle(), I18nUtil.stripConstant(key), "",
-                    this.localeProvider.getLocale());
+                    useLocale);
         }
         return result;
     }

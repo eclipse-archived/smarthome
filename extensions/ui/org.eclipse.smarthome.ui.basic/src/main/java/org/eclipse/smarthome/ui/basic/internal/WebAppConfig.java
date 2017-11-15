@@ -21,6 +21,7 @@ import java.util.Map;
 public class WebAppConfig {
     private final static String DEFAULT_SITEMAP = "default";
     private final static String DEFAULT_ICON_TYPE = "png";
+    private final static String DEFAULT_USE_BROWSER_LANG = "false";
 
     public final static String THEME_NAME_DEFAULT = "default";
     public final static String THEME_NAME_DARK = "dark";
@@ -29,6 +30,7 @@ public class WebAppConfig {
     private String defaultSitemap = DEFAULT_SITEMAP;
     private String iconType = DEFAULT_ICON_TYPE;
     private String theme = DEFAULT_THEME;
+    private String useBrowserLang = DEFAULT_USE_BROWSER_LANG;
 
     private List<String> cssClassList = new ArrayList<String>();
 
@@ -69,9 +71,13 @@ public class WebAppConfig {
         String configDefaultSitemap = (String) configProps.get("defaultSitemap");
         String configIconType = (String) configProps.get("iconType");
         String configTheme = (String) configProps.get("theme");
+        String configUseBrowserLang = (String) configProps.get("useBrowserLang");
 
         if (configDefaultSitemap == null) {
             configDefaultSitemap = DEFAULT_SITEMAP;
+        }
+        if (configUseBrowserLang == null) {
+            configUseBrowserLang = DEFAULT_USE_BROWSER_LANG;
         }
 
         if (configIconType == null) {
@@ -87,6 +93,7 @@ public class WebAppConfig {
         defaultSitemap = configDefaultSitemap;
         iconType = configIconType;
         theme = configTheme;
+        useBrowserLang = configUseBrowserLang;
 
         applyCssClasses(configProps);
     }
@@ -101,6 +108,10 @@ public class WebAppConfig {
 
     public String getTheme() {
         return theme;
+    }
+
+    public String getUseBrowserLang() {
+        return useBrowserLang;
     }
 
     public String getCssClassList() {
