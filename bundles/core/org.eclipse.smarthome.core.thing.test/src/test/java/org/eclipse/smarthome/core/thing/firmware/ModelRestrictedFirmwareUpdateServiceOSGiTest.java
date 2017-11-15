@@ -15,6 +15,7 @@ import static org.junit.Assert.assertThat;
 import java.util.Locale;
 import java.util.Set;
 
+import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -57,6 +58,7 @@ public class ModelRestrictedFirmwareUpdateServiceOSGiTest extends JavaOSGiTest {
 
     private ThingRegistry thingRegistry;
     private FirmwareUpdateService firmwareUpdateService;
+    private ManagedThingProvider managedThingProvider;
 
     @Before
     public void setup() {
@@ -64,6 +66,9 @@ public class ModelRestrictedFirmwareUpdateServiceOSGiTest extends JavaOSGiTest {
 
         thingRegistry = getService(ThingRegistry.class);
         assertThat(thingRegistry, is(notNullValue()));
+
+        managedThingProvider = getService(ManagedThingProvider.class);
+        assertThat(managedThingProvider, is(notNullValue()));
 
         firmwareUpdateService = getService(FirmwareUpdateService.class);
         assertThat(firmwareUpdateService, is(notNullValue()));
@@ -160,9 +165,9 @@ public class ModelRestrictedFirmwareUpdateServiceOSGiTest extends JavaOSGiTest {
         thing.setProperty(PROPERTY_MODEL_ID, modelId);
         thing.setProperty(PROPERTY_FIRMWARE_VERSION, firmwareVersion);
 
-        thingRegistry.add(thing);
+        managedThingProvider.add(thing);
 
-        registerService(createFirmwareUpdateHandler(thing.getUID()));
+        registerService(createFirmwareUpdateHandler(thing));
 
         return thing;
     }
@@ -170,14 +175,12 @@ public class ModelRestrictedFirmwareUpdateServiceOSGiTest extends JavaOSGiTest {
     /**
      * Create a firmware update handler for the given thing that sets the thing's firmware property upon update.
      */
-    private FirmwareUpdateHandler createFirmwareUpdateHandler(ThingUID thingUID) {
+    private FirmwareUpdateHandler createFirmwareUpdateHandler(final Thing thing) {
         return new FirmwareUpdateHandler() {
 
-            @SuppressWarnings("null")
             @Override
             public void updateFirmware(Firmware firmware, ProgressCallback progressCallback) {
-                thingRegistry.get(thingUID).setProperty(Thing.PROPERTY_FIRMWARE_VERSION,
-                        firmware.getUID().getFirmwareVersion());
+                getThing().setProperty(Thing.PROPERTY_FIRMWARE_VERSION, firmware.getUID().getFirmwareVersion());
             }
 
             @Override
@@ -187,7 +190,11 @@ public class ModelRestrictedFirmwareUpdateServiceOSGiTest extends JavaOSGiTest {
 
             @Override
             public Thing getThing() {
-                return thingRegistry.get(thingUID);
+                Thing ret = thingRegistry.get(thing.getUID());
+                if (ret == null) {
+                    ret = thing;
+                }
+                return ret;
             }
 
             @Override
