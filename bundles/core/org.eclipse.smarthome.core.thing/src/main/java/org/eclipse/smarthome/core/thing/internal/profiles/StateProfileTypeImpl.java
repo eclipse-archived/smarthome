@@ -9,7 +9,6 @@ package org.eclipse.smarthome.core.thing.internal.profiles;
 
 import java.util.Collection;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
 import org.eclipse.smarthome.core.thing.profiles.StateProfileType;
@@ -34,17 +33,17 @@ public class StateProfileTypeImpl implements StateProfileType {
     }
 
     @Override
-    public @NonNull ProfileTypeUID getUID() {
+    public ProfileTypeUID getUID() {
         return profileTypeUID;
     }
 
     @Override
-    public @NonNull Collection<@NonNull String> getSupportedItemTypes() {
+    public Collection<String> getSupportedItemTypes() {
         return supportedItemTypes;
     }
 
     @Override
-    public @NonNull String getLabel() {
+    public String getLabel() {
         return label;
     }
 
