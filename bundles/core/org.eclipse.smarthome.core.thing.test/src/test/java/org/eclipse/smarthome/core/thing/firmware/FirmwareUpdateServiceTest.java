@@ -592,20 +592,20 @@ public class FirmwareUpdateServiceTest extends JavaTest {
         firmwareUpdateService.updateFirmware(THING1_UID, FW112_EN.getUID(), null);
 
         AtomicReference<List<Event>> events = new AtomicReference<>(new ArrayList<>());
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
         waitForAssert(() -> {
-            ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
             verify(mockPublisher, atLeast(SEQUENCE.length)).post(eventCaptor.capture());
-            events.get().addAll(eventCaptor.getAllValues());
-            List<Event> list = events.get().stream().filter(event -> event instanceof FirmwareUpdateProgressInfoEvent)
-                    .collect(Collectors.toList());
-            assertEquals(SEQUENCE.length, list.size());
-            for (int i = 0; i < SEQUENCE.length; i++) {
-                FirmwareUpdateProgressInfoEvent event = (FirmwareUpdateProgressInfoEvent) list.get(i);
-                assertThat(event.getTopic(), containsString(THING1_UID.getAsString()));
-                assertThat(event.getThingUID(), is(THING1_UID));
-                assertThat(event.getProgressInfo().getProgressStep(), is(SEQUENCE[i]));
-            }
         });
+        events.get().addAll(eventCaptor.getAllValues());
+        List<Event> list = events.get().stream().filter(event -> event instanceof FirmwareUpdateProgressInfoEvent)
+                .collect(Collectors.toList());
+        assertTrue(list.size() >= SEQUENCE.length);
+        for (int i = 0; i < SEQUENCE.length; i++) {
+            FirmwareUpdateProgressInfoEvent event = (FirmwareUpdateProgressInfoEvent) list.get(i);
+            assertThat(event.getTopic(), containsString(THING1_UID.getAsString()));
+            assertThat(event.getThingUID(), is(THING1_UID));
+            assertThat(event.getProgressInfo().getProgressStep(), is(SEQUENCE[i]));
+        }
     }
 
     @Test
