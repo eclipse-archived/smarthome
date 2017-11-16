@@ -96,7 +96,7 @@ public class Configuration {
                     }
 
                     if (value != null) {
-                        logger.debug("Setting value ({}) {} to field '{}' in configuration class {}", typeName, value,
+                        logger.trace("Setting value ({}) {} to field '{}' in configuration class {}", typeName, value,
                                 fieldName, configurationClass.getName());
                         FieldUtils.writeField(configuration, fieldName, value, true);
                     }

@@ -37,7 +37,6 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
 import org.eclipse.smarthome.core.thing.link.ThingLinkManager
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOService
-import org.eclipse.smarthome.io.transport.upnp.UpnpIOServiceImpl
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.storage.VolatileStorageService
 import org.jupnp.UpnpService
@@ -83,7 +82,6 @@ public abstract class GenericWemoOSGiTest extends OSGiTest {
 
     ManagedThingProvider managedThingProvider
     static MockUpnpService mockUpnpService
-    UpnpIOServiceImpl upnpIOService
     ThingRegistry thingRegistry
     ItemRegistry itemRegistry
 
