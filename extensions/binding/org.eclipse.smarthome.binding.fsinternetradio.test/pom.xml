@@ -31,14 +31,14 @@
 							<type>eclipse-plugin</type>
 							<id>org.eclipse.jetty.server</id>
 							<restrictTo>
-								<version>9.3.14.v20161028</version>
+								<version>9.3.15.v20161220</version>
 							</restrictTo>
 						</filter>
 						<filter>
 							<type>eclipse-plugin</type>
 							<id>org.eclipse.jetty.servlet</id>
 							<restrictTo>
-								<version>9.3.14.v20161028</version>
+								<version>9.3.15.v20161220</version>
 							</restrictTo>
 						</filter>
 					</filters>
