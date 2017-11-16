@@ -102,6 +102,18 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
                     new EventOption(CommonTriggerEvents.LONG_PRESSED, null))),
             null);
 
+    /**
+     * System wide trigger {@link ChannelType} which triggers "DIR1_PRESSED", "DIR1_RELEASED", "DIR2_PRESSED" and
+     * "DIR2_RELEASED" events.
+     */
+    public static final ChannelType SYSTEM_RAWROCKER = new ChannelType(new ChannelTypeUID("system:rawrocker"), false,
+            null, ChannelKind.TRIGGER, "Raw rocker switch", null, null, null, null,
+            new EventDescription(Arrays.asList(new EventOption(CommonTriggerEvents.DIR1_PRESSED, null),
+                    new EventOption(CommonTriggerEvents.DIR1_RELEASED, null),
+                    new EventOption(CommonTriggerEvents.DIR2_PRESSED, null),
+                    new EventOption(CommonTriggerEvents.DIR2_RELEASED, null))),
+            null);
+
     private static class LocalizedChannelTypeKey {
         public final String locale;
         public final UID uid;
@@ -160,9 +172,9 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
 
     public DefaultSystemChannelTypeProvider() {
         channelGroupTypes = Collections.emptyList();
-        channelTypes = Collections.unmodifiableCollection(
-                Arrays.asList(new ChannelType[] { SYSTEM_CHANNEL_SIGNAL_STRENGTH, SYSTEM_CHANNEL_LOW_BATTERY,
-                        SYSTEM_CHANNEL_BATTERY_LEVEL, SYSTEM_TRIGGER, SYSTEM_RAWBUTTON, SYSTEM_BUTTON }));
+        channelTypes = Collections.unmodifiableCollection(Arrays.asList(new ChannelType[] {
+                SYSTEM_CHANNEL_SIGNAL_STRENGTH, SYSTEM_CHANNEL_LOW_BATTERY, SYSTEM_CHANNEL_BATTERY_LEVEL,
+                SYSTEM_TRIGGER, SYSTEM_RAWBUTTON, SYSTEM_BUTTON, SYSTEM_RAWROCKER }));
 
     }
 
@@ -194,6 +206,8 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
             return createLocalizedChannelType(bundle, SYSTEM_RAWBUTTON, locale);
         } else if (channelTypeUID.equals(SYSTEM_BUTTON.getUID())) {
             return createLocalizedChannelType(bundle, SYSTEM_BUTTON, locale);
+        } else if (channelTypeUID.equals(SYSTEM_RAWROCKER.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_RAWROCKER, locale);
         }
         return null;
     }
