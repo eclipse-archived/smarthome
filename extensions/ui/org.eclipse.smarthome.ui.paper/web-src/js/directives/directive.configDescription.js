@@ -1,5 +1,12 @@
 angular.module('PaperUI.directive.configDescription', []) //
 .directive('configDescription', function() {
+
+    var controller = function($scope) {
+        $scope.getName = function(parameter, option) {
+            return option.name ? option.name : parameter.context == 'thing' ? option.UID : parameter.context == 'channel' ? option.id : undefined;
+        }
+    }
+
     return {
         restrict : 'E',
         scope : {
@@ -9,6 +16,7 @@ angular.module('PaperUI.directive.configDescription', []) //
             configArray : '=?',
             form : '=?'
         },
-        templateUrl : 'partials/directive.configDescription.html'
+        templateUrl : 'partials/directive.configDescription.html',
+        controller : controller
     }
 });
