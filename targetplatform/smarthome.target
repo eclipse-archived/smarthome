@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="SmartHome" sequenceNumber="119">
+<?pde version="3.8"?><target name="SmartHome" sequenceNumber="120">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.google.inject" version="3.0.0.v201312141243"/>
@@ -185,6 +185,10 @@
 <unit id="org.eclipse.jetty.webapp" version="0.0.0"/>
 <unit id="org.eclipse.jetty.xml" version="0.0.0"/>
 <repository location="http://download.eclipse.org/jetty/updates/jetty-bundles-9.x/9.3.14.v20161028"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="nrjavaserial.feature.group" version="3.12.0"/>
+<repository location="https://dl.bintray.com/openhab/p2/nrjavaserial/3.12.0/"/>
 </location>
 <location path="${project_loc:targetplatform}/third-party" type="Directory"/>
 </locations>

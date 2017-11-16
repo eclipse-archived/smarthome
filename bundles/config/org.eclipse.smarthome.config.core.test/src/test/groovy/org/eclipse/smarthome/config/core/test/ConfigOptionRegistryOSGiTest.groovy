@@ -52,7 +52,8 @@ class ConfigOptionRegistryOSGiTest extends OSGiTest {
         oList1.add(parameterOption);
 
         configOptionsProviderMock = [
-            getParameterOptions: {p1, p2, p3 -> oList1}
+            getParameterOptions: {p1, p2, p3, p4 ->
+                oList1}
         ] as ConfigOptionProvider
 
         configDescriptionProviderMock = [

@@ -16,19 +16,33 @@ import java.util.Locale;
  * service to provide {@link ConfigDescription}s options.
  *
  * @author Chris Jackson - Initial contribution
+ * @author Kai Kreuzer - added support for contexts
  */
 public interface ConfigOptionProvider {
 
     /**
      * Provides a collection of {@link ParameterOptions}s.
      *
-     * @param uri
-     *            the uri of the config description
-     * @param param
-     *            the parameter name for which the requested options shall be returned
-     * @param locale
-     *            locale
+     * @deprecated Use {@link getParameterOptions} with context instead.
+     *
+     * @param uri the uri of the config description
+     * @param param the parameter name for which the requested options shall be returned
+     * @param locale the locale in which the result is expected
      * @return the configuration options provided by this provider if any or {@code null} otherwise
      */
+    @Deprecated
     Collection<ParameterOption> getParameterOptions(URI uri, String param, Locale locale);
+
+    /**
+     * Provides a collection of {@link ParameterOptions}s.
+     *
+     * @param uri the uri of the config description
+     * @param param the parameter name for which the requested options shall be returned
+     * @param context the defined context of the parameter
+     * @param locale the locale in which the result is expected
+     * @return the configuration options provided by this provider if any or {@code null} otherwise
+     */
+    default Collection<ParameterOption> getParameterOptions(URI uri, String param, String context, Locale locale) {
+        return getParameterOptions(uri, param, locale);
+    }
 }
