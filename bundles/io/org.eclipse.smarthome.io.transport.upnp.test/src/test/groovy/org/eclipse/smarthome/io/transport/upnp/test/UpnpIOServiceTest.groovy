@@ -12,7 +12,6 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOParticipant
-import org.eclipse.smarthome.io.transport.upnp.UpnpIOService
 import org.eclipse.smarthome.io.transport.upnp.internal.UpnpIOServiceImpl
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
@@ -81,8 +80,8 @@ class UpnpIOServiceTest extends OSGiTest {
             getRegistry: { upnpRegistry },
             getControlPoint: { controlPoint }
         ] as UpnpService
-        registerService(upnpServiceMock)
-        upnpIoService = getService(UpnpIOService.class)
+        upnpIoService = new UpnpIOServiceImpl()
+        upnpIoService.setUpnpService(upnpServiceMock)
     }
 
     @After
