@@ -35,13 +35,7 @@ Designer downloads (platform-specific):
 
 You can find nightly snapshot builds of the Eclipse SmartHome features and bundles at [http://download.eclipse.org/smarthome/updates-nightly/](http://download.eclipse.org/smarthome/updates-nightly/). Every couple of days, we also provide a stable build, so if you want use snapshot builds, but a lower update frequency, go for [http://download.eclipse.org/smarthome/updates-stable/](http://download.eclipse.org/smarthome/updates-stable/).
 
-Designer downloads (platform-specific):
-
- - [Eclipse SmartHome Designer (Windows 32bit)](http://eclipse.org/downloads/download.php?file=/smarthome/nightly-snapshots/eclipsesmarthome-incubation-0.9.0-SNAPSHOT-designer-win.zip)
- - [Eclipse SmartHome Designer (Windows 64bit)](http://eclipse.org/downloads/download.php?file=/smarthome/nightly-snapshots/eclipsesmarthome-incubation-0.9.0-SNAPSHOT-designer-win64.zip)
- - [Eclipse SmartHome Designer (Mac OSX 64bit)](http://eclipse.org/downloads/download.php?file=/smarthome/nightly-snapshots/eclipsesmarthome-incubation-0.9.0-SNAPSHOT-designer-macosx64.zip)
- - [Eclipse SmartHome Designer (Linux 32bit)](http://eclipse.org/downloads/download.php?file=/smarthome/nightly-snapshots/eclipsesmarthome-incubation-0.9.0-SNAPSHOT-designer-linux.zip)
- - [Eclipse SmartHome Designer (Linux 64bit)](http://eclipse.org/downloads/download.php?file=/smarthome/nightly-snapshots/eclipsesmarthome-incubation-0.9.0-SNAPSHOT-designer-linux64.zip)
+Please note that the Designer has been deprecated and won't be delivered with upcoming releases anymore.
 
 ### Archive
 
