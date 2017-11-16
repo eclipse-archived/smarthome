@@ -23,6 +23,7 @@
     <feature dependency="true">esh-tp-jupnp</feature>
     <feature dependency="true">esh-tp-jmdns</feature>
     <feature dependency="true">esh-tp-paho</feature>
+    <feature dependency="true">esh-tp-serial</feature>
     <feature dependency="true">esh-tp-xtext</feature>
     <feature dependency="true">esh-tp-xtext-ide</feature>
     <feature dependency="true">esh-tp-lsp4j</feature>
