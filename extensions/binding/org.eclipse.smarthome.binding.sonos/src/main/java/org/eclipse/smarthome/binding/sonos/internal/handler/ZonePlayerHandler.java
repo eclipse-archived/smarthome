@@ -39,7 +39,6 @@ import org.eclipse.smarthome.binding.sonos.internal.SonosXMLParser;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZoneGroup;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZonePlayerState;
 import org.eclipse.smarthome.binding.sonos.internal.config.ZonePlayerConfiguration;
-import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.NextPreviousType;
@@ -78,7 +77,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOParticipant {
 
-    private Logger logger = LoggerFactory.getLogger(ZonePlayerHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(ZonePlayerHandler.class);
 
     private final static String ANALOG_LINE_IN_URI = "x-rincon-stream:";
     private final static String OPTICAL_LINE_IN_URI = "x-sonos-htastream:";
@@ -91,7 +90,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private final static String TUNEIN_URI = "x-sonosapi-stream:s%s?sid=%s&flags=32";
 
     private UpnpIOService service;
-    private DiscoveryServiceRegistry discoveryServiceRegistry;
     private ScheduledFuture<?> pollingJob;
     private SonosZonePlayerState savedState = null;
 
@@ -131,7 +129,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      */
     private static final int DEFAULT_REFRESH_INTERVAL = 60;
 
-    private Map<String, String> stateMap = Collections.synchronizedMap(new HashMap<String, String>());
+    private final Map<String, String> stateMap = Collections.synchronizedMap(new HashMap<String, String>());
 
     private List<SonosMusicService> musicServices;
 
@@ -139,7 +137,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     private final Object stateLock = new Object();
 
-    private Runnable pollingRunnable = new Runnable() {
+    private final Runnable pollingRunnable = new Runnable() {
 
         @Override
         public void run() {
@@ -177,20 +175,15 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
     };
 
-    private String opmlUrl;
+    private final String opmlUrl;
 
-    public ZonePlayerHandler(Thing thing, UpnpIOService upnpIOService,
-            DiscoveryServiceRegistry discoveryServiceRegistry, String opmlUrl) {
+    public ZonePlayerHandler(Thing thing, UpnpIOService upnpIOService, String opmlUrl) {
         super(thing);
         this.opmlUrl = opmlUrl;
         logger.debug("Creating a ZonePlayerHandler for thing '{}'", getThing().getUID());
         if (upnpIOService != null) {
             this.service = upnpIOService;
         }
-        if (discoveryServiceRegistry != null) {
-            this.discoveryServiceRegistry = discoveryServiceRegistry;
-        }
-
     }
 
     @Override
@@ -538,8 +531,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             for (String member : getOtherZoneGroupMembers()) {
                 try {
                     ZonePlayerHandler memberHandler = getHandlerByName(member);
-                    if (memberHandler != null && memberHandler.getThing() != null
-                            && ThingStatus.ONLINE.equals(memberHandler.getThing().getStatus())) {
+                    if (memberHandler != null && ThingStatus.ONLINE.equals(memberHandler.getThing().getStatus())) {
                         memberHandler.onValueReceived(variable, value, service);
                     }
                 } catch (IllegalStateException e) {
@@ -564,7 +556,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     }
                 } catch (MalformedURLException e) {
                     logger.debug("Failed to build a valid album art URL from {}: {}", albumArtURI, e.getMessage());
-                    url = null;
                 }
             }
         }
@@ -733,8 +724,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             for (String member : getZoneGroupMembers()) {
                 try {
                     ZonePlayerHandler memberHandler = getHandlerByName(member);
-                    if (memberHandler != null && memberHandler.getThing() != null
-                            && ThingStatus.ONLINE.equals(memberHandler.getThing().getStatus())
+                    if (memberHandler != null && ThingStatus.ONLINE.equals(memberHandler.getThing().getStatus())
                             && memberHandler.isLinked(channeldD)) {
                         memberHandler.updateState(channeldD, state);
                     }
@@ -1087,8 +1077,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         for (String member : getZoneGroupMembers()) {
             try {
                 ZonePlayerHandler memberHandler = getHandlerByName(member);
-                if (memberHandler != null && memberHandler.getThing() != null
-                        && ThingStatus.ONLINE.equals(memberHandler.getThing().getStatus())) {
+                if (memberHandler != null && ThingStatus.ONLINE.equals(memberHandler.getThing().getStatus())) {
                     if (memberHandler.isLinked(CURRENTALBUMART)
                             && hasValueChanged(albumArtURI, memberHandler.stateMap.get("CurrentAlbumArtURI"))) {
                         handlerForImageUpdate = memberHandler;
@@ -1801,7 +1790,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     public Boolean isShuffleActive() {
         return ((stateMap.get("CurrentPlayMode") != null) && stateMap.get("CurrentPlayMode").startsWith("SHUFFLE"))
-                ? true : false;
+                ? true
+                : false;
     }
 
     public String getRepeatMode() {
