@@ -10,7 +10,6 @@ package org.eclipse.smarthome.binding.wemo.handler.test
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
-import groovy.xml.XmlUtil
 
 import javax.servlet.http.HttpServlet
 
@@ -29,6 +28,8 @@ import org.eclipse.smarthome.core.types.UnDefType
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+
+import groovy.xml.XmlUtil
 
 /**
  * Tests for {@link WemoMakerHandler}.
@@ -173,7 +174,7 @@ class WemoMakerHandlerOSGiTest extends GenericWemoOSGiTest {
         }
 
         waitForAssert {
-            assertThat "UPnP registry is not clear", upnpIOService.participants.keySet().size(), is(0)
+            assertThat "UPnP registry is not clear", upnpIOService.participants.size(), is(0)
         }
 
         itemRegistry.remove(DEFAULT_TEST_ITEM_NAME)

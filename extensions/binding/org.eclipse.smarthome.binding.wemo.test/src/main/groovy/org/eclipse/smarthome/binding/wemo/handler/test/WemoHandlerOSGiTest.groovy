@@ -169,7 +169,7 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
         }
 
         waitForAssert {
-            assertThat upnpIOService.participants.keySet().size(), is(0)
+            assertThat upnpIOService.participants.size(), is(0)
         }
 
         itemRegistry.remove(DEFAULT_TEST_ITEM_NAME)

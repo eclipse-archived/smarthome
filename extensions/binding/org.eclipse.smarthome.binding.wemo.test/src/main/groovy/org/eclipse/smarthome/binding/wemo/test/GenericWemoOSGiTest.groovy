@@ -82,6 +82,7 @@ public abstract class GenericWemoOSGiTest extends OSGiTest {
 
     ManagedThingProvider managedThingProvider
     static MockUpnpService mockUpnpService
+    UpnpIOService upnpIOService
     ThingRegistry thingRegistry
     ItemRegistry itemRegistry
 
