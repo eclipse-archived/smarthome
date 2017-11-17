@@ -372,7 +372,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     @Override
     public void removeRegistryHook(RegistryHook<Item> hook) {
-        registryHooks.add(hook);
+        registryHooks.remove(hook);
     }
 
     protected void activate(final ComponentContext componentContext) {
