@@ -34,7 +34,17 @@ ModelNormalItem :
 	type=ModelItemType (':' dimension=ModelDimension)?
 ;
 
-ModelDimension : ID;
+enum ModelDimension : 
+    Acceleration='Acceleration' | AmountOfSubstance='AmountOfSubstance' | Angle='Angle' | Area='Area' | 
+    CataliyticActivity='CataliyticActivity' | Dimensionless='Dimensionless' | ElectricCapacitance='ElectricCapacitance' |
+    ElectricCharge='ElectricCharge' | ElectricConductance='ElectricConductance' | ElectricCurrent='ElectricCurrent' |
+    ElectricInductance='ElectricInductance' | ElectricPotential='ElectricPotential' | ElectricResistance='ElectricResistance' |
+    Energy='Energy' | Force='Force' | Frequency='Frequency' | Illuminance='Illuminance' | Length='Length' | LuminousFlux='LuminousFlux' |
+    LuminousIntensity='LuminousIntensity' | MagneticFlux='MagneticFlux' | MagneticFluxDensity='MagneticFluxDensity' |
+    Mass='Mass' | Power='Power' | Pressure='Pressure' | RadiationDoseAbsorbed='RadiationDoseAbsorbed' | 
+    RadiationDoseEffective='RadiationDoseEffective' | RadioActvity='RadioActvity' | SolidAngle='SolidAngle' | Speed='Speed' |
+    Temperature='Temperature' | Time='Time' | Volume='Volume'
+;
 
 ModelItemType :
 	'Switch' | 'Rollershutter' | 'Number' | 'String' | 'Dimmer' | 'Contact' | 'DateTime' | 'Color' | 'Player' | 'Location' | 'Call' | ID
