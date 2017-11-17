@@ -24,6 +24,8 @@ import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
+import org.osgi.service.component.annotations.Component;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -37,9 +39,10 @@ import com.google.gson.GsonBuilder;
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Component(immediate = true)
 public class GsonProvider<T> implements MessageBodyReader<T>, MessageBodyWriter<T> {
 
-    private Gson gson;
+    private final Gson gson;
 
     public GsonProvider() {
         gson = new GsonBuilder().create();
