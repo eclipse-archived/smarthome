@@ -192,6 +192,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
 
         removeSubscription();
+        service.unregisterParticipant(this);
     }
 
     @Override
@@ -204,6 +205,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
 
         if (getUDN() != null) {
+            service.registerParticipant(this);
             onUpdate();
 
             this.notificationTimeout = getConfigAs(ZonePlayerConfiguration.class).notificationTimeout;
@@ -795,7 +797,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 }
             }
             subscriptionState = new HashMap<String, Boolean>();
-            service.unregisterParticipant(this);
         }
     }
 
@@ -834,18 +835,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             logger.debug("Sonos player {} has been found in local network", getUDN());
             updateStatus(ThingStatus.ONLINE);
         }
-    }
-
-    protected void updateMediaInfo() {
-        Map<String, String> inputs = new HashMap<String, String>();
-        inputs.put("InstanceID", "0");
-
-        Map<String, String> result = service.invokeAction(this, "AVTransport", "GetMediaInfo", inputs);
-
-        for (String variable : result.keySet()) {
-            this.onValueReceived(variable, result.get(variable), "AVTransport");
-        }
-        updateMediaInformation();
     }
 
     protected void updateCurrentZoneName() {
@@ -2889,7 +2878,10 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     @Override
     public void onStatusChanged(boolean status) {
         if (status) {
-            updateStatus(ThingStatus.ONLINE);
+            if (getThing().getStatus() != ThingStatus.ONLINE) {
+                updateStatus(ThingStatus.ONLINE);
+                scheduler.execute(pollingRunnable);
+            }
         } else {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR);
         }

@@ -190,6 +190,7 @@ public class UpnpIOServiceImpl implements UpnpIOService, RegistryListener {
 
     public void activate() {
         logger.debug("Starting UPnP IO service...");
+        upnpService.getRegistry().getRemoteDevices().forEach(device -> informParticipants(device, true));
         upnpService.getRegistry().addListener(this);
     }
 
@@ -357,14 +358,7 @@ public class UpnpIOServiceImpl implements UpnpIOService, RegistryListener {
     @Override
     public void registerParticipant(UpnpIOParticipant participant) {
         if (participant != null) {
-            if (!participants.contains(participant)) {
-                Device device = getDevice(participant);
-                if (device != null) {
-                    logger.debug("Registering device '{}' for participant '{}'", device.getIdentity(),
-                            participant.getUDN());
-                    participants.add(participant);
-                }
-            }
+            participants.add(participant);
         }
     }
 
@@ -400,8 +394,22 @@ public class UpnpIOServiceImpl implements UpnpIOService, RegistryListener {
         return service;
     }
 
+    /**
+     * Propagates a device status change to all participants
+     *
+     * @param device the device that has changed its status
+     * @param status true, if device is reachable, false otherwise
+     */
+    private void informParticipants(RemoteDevice device, boolean status) {
+        for (UpnpIOParticipant participant : participants) {
+            if (participant.getUDN().equals(device.getIdentity().getUdn().getIdentifierString())) {
+                setDeviceStatus(participant, status);
+            }
+        }
+    }
+
     private void setDeviceStatus(UpnpIOParticipant participant, boolean newStatus) {
-        if (currentStates.get(participant) != newStatus) {
+        if (!Objects.equals(currentStates.get(participant), newStatus)) {
             currentStates.put(participant, newStatus);
             logger.debug("Device '{}' reachability status changed to '{}'", participant.getUDN(), newStatus);
             participant.onStatusChanged(newStatus);
@@ -497,29 +505,16 @@ public class UpnpIOServiceImpl implements UpnpIOService, RegistryListener {
 
     @Override
     public void remoteDeviceAdded(Registry registry, RemoteDevice device) {
-        for (UpnpIOParticipant participant : participants) {
-            if (participant.getUDN().equals(device.getIdentity().getUdn().toString())) {
-                setDeviceStatus(participant, true);
-            }
-        }
+        informParticipants(device, true);
     }
 
     @Override
     public void remoteDeviceUpdated(Registry registry, RemoteDevice device) {
-        for (UpnpIOParticipant participant : participants) {
-            if (participant.getUDN().equals(device.getIdentity().getUdn().toString())) {
-                setDeviceStatus(participant, true);
-            }
-        }
     }
 
     @Override
     public void remoteDeviceRemoved(Registry registry, RemoteDevice device) {
-        for (UpnpIOParticipant participant : participants) {
-            if (participant.getUDN().equals(device.getIdentity().getUdn().toString())) {
-                setDeviceStatus(participant, false);
-            }
-        }
+        informParticipants(device, false);
     }
 
     @Override
