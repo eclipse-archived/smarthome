@@ -154,6 +154,7 @@ There exist systemwide trigger channels that are available by default:
 | trigger         | system.trigger         | Can only trigger, no event payload |
 | rawbutton       | system.rawbutton       | Can trigger `PRESSED` and `RELEASED` |
 | button          | system.button          | Can trigger `SHORT_PRESSED`, `DOUBLE_PRESSED` and `LONG_PRESSED` |
+| rawrocker       | system.rawrocker       | Can trigger `DIR1_PRESSED`, `DIR1_RELEASED`, `DIR2_PRESSED` and `DIR2_RELEASED` |
 
 In the following sections the declaration and semantics of tags, state descriptions and channel categories will be explained in more detail. 
 For a complete sample of the thing types XML file and a full list of possible configuration options please see the [XML Configuration Guide](xml-reference.html).
