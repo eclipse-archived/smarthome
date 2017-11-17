@@ -16,7 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.smarthome.binding.sonos.internal.handler.ZonePlayerHandler;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.core.audio.AudioHTTPServer;
 import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.net.HttpServiceUtil;
@@ -45,14 +44,13 @@ import org.slf4j.LoggerFactory;
 @Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.sonos", configurationPolicy = ConfigurationPolicy.OPTIONAL)
 public class SonosHandlerFactory extends BaseThingHandlerFactory {
 
-    private Logger logger = LoggerFactory.getLogger(SonosHandlerFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(SonosHandlerFactory.class);
 
     private UpnpIOService upnpIOService;
-    private DiscoveryServiceRegistry discoveryServiceRegistry;
     private AudioHTTPServer audioHTTPServer;
     private NetworkAddressService networkAddressService;
 
-    private Map<String, ServiceRegistration<AudioSink>> audioSinkRegistrations = new ConcurrentHashMap<>();
+    private final Map<String, ServiceRegistration<AudioSink>> audioSinkRegistrations = new ConcurrentHashMap<>();
 
     // optional OPML URL that can be configured through configuration admin
     private String opmlUrl = null;
@@ -96,13 +94,13 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
             logger.debug("Creating a ZonePlayerHandler for thing '{}' with UDN '{}'", thing.getUID(),
                     thing.getConfiguration().get(UDN));
 
-            ZonePlayerHandler handler = new ZonePlayerHandler(thing, upnpIOService, discoveryServiceRegistry, opmlUrl);
+            ZonePlayerHandler handler = new ZonePlayerHandler(thing, upnpIOService, opmlUrl);
 
             // register the speaker as an audio sink
             String callbackUrl = createCallbackUrl();
             SonosAudioSink audioSink = new SonosAudioSink(handler, audioHTTPServer, callbackUrl);
             @SuppressWarnings("unchecked")
-            ServiceRegistration<AudioSink> reg = (ServiceRegistration<AudioSink>) bundleContext
+            ServiceRegistration<AudioSink> reg = (ServiceRegistration<AudioSink>) getBundleContext()
                     .registerService(AudioSink.class.getName(), audioSink, new Hashtable<String, Object>());
             audioSinkRegistrations.put(thing.getUID().toString(), reg);
 
@@ -157,15 +155,6 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
 
     protected void unsetUpnpIOService(UpnpIOService upnpIOService) {
         this.upnpIOService = null;
-    }
-
-    @Reference
-    protected void setDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
-        this.discoveryServiceRegistry = discoveryServiceRegistry;
-    }
-
-    protected void unsetDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
-        this.discoveryServiceRegistry = null;
     }
 
     @Reference

@@ -211,6 +211,12 @@
     <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.rest/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-config-serial" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-io-transport-serial</feature>
+    <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.serial/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-io-console-karaf" description="Karaf Console support for SmartHome stuff" version="${project.version}">
     <feature>esh-base</feature>
     <feature>shell</feature>
@@ -285,6 +291,11 @@
   <feature name="esh-io-transport-http" version="${project.version}">
     <feature>esh-base</feature>
     <requirement>esh.tp;filter:="(feature=httpclient)"</requirement>
+  </feature>
+
+  <feature name="esh-io-transport-serial" version="${project.version}">
+    <feature>esh-base</feature>
+    <requirement>esh.tp;filter:="(feature=serial)"</requirement>
   </feature>
 
   <feature name="esh-io-transport-upnp" version="${project.version}">

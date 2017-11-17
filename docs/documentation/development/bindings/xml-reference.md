@@ -49,7 +49,7 @@ The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4
     </parameter-group>
 
     <parameter name="String" type="{text|integer|decimal|boolean}" min="Decimal" max="Decimal" step="Decimal" pattern="String" required="{true|false}" readOnly="{true|false}" multiple="{true|false}" groupName="String" unit="A|cd|K|kg|m|mol|s|g|rad|sr|Hz|N|Pa|J|W|C|V|F|Ω|S|Wb|T|H|Cel|lm|lx|Bq|Gy|Sv|kat|m/s2|m2v|m3|kph|%|l|ms|min|h|d|week|y">
-      <context>{network-address|password|password-create|color|date|datetime|email|month|week|dayOfWeek|time|tel|url|item|thing|group|tag|service|channel|rule|location}</context>
+      <context>{network-address|serial-port|password|password-create|color|date|datetime|email|month|week|dayOfWeek|time|tel|url|item|thing|group|tag|service|channel|rule|location}</context>
       <required>{true|false}</required>
       <default>String</default>
       <label>String</label>
@@ -107,8 +107,8 @@ The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4
 Context is used to provide some semantic details about the parameter. The UIs use it to render different kind of input widgets. The following contexts require a specific format of the content:
 
 <table><tr><th>Name</th><th>Type</th><th>Format</th><th>Sample implementation</th></tr>
-  <tr><td>network-addess</td><td>text</td><td>IPv4,IPv6, domain name</td>
-  <td><code>&lt;input type="text"/></code></td></tr>
+  <tr><td>network-addess</td><td>text</td><td>IPv4,IPv6, domain name</td><td><code>&lt;input type="text"/></code></td></tr>
+  <tr><td>serial-port</td><td>text</td><td>Serial port name, e.g. COM1</td>custom input field</td></tr>
   <tr><td>password</td><td>text</td><td>alphanumeric characters</td><td><code>&lt;input type="password"/></code></td></tr>
   <tr><td>password-create</td><td>text</td><td>alphanumeric characters</td><td>custom password input</td></tr>
   <tr><td>color</td><td>text</td><td>#000000 - #ffffff (hex color)</td><td><code>&lt;input type="color"/></code></td></tr>

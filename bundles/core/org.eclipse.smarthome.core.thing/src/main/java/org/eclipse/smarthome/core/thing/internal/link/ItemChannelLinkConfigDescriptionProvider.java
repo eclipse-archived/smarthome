@@ -102,12 +102,12 @@ public class ItemChannelLinkConfigDescriptionProvider implements ConfigDescripti
     }
 
     private boolean isSupportedItemType(ProfileType profileType, Item item) {
-        return profileType.getSupportedItemTypes() == ProfileType.ANY_ITEM_TYPE
+        return profileType.getSupportedItemTypes().isEmpty()
                 || profileType.getSupportedItemTypes().contains(item.getType());
     }
 
     private boolean isSupportedChannelType(TriggerProfileType profileType, Channel channel) {
-        return profileType.getSupportedChannelTypeUIDs() == TriggerProfileType.ANY_CHANNEL_TYPE
+        return profileType.getSupportedChannelTypeUIDs().isEmpty()
                 || profileType.getSupportedChannelTypeUIDs().contains(channel.getChannelTypeUID());
     }
 
