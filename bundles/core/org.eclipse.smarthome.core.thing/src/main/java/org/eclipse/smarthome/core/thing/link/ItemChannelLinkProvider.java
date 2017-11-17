@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.link;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.common.registry.Provider;
 
 /**
@@ -16,6 +17,7 @@ import org.eclipse.smarthome.core.common.registry.Provider;
  * @author Dennis Nobel - Initial contribution
  *
  */
+@NonNullByDefault
 public interface ItemChannelLinkProvider extends Provider<ItemChannelLink> {
 
 }
