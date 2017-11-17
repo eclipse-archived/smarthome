@@ -31,6 +31,7 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.RegistryHook;
 import org.eclipse.smarthome.core.library.items.CallItem;
 import org.eclipse.smarthome.core.library.items.ColorItem;
 import org.eclipse.smarthome.core.library.items.ContactItem;
@@ -1180,6 +1181,16 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             return null;
         }
 
+    }
+
+    @Override
+    public void addRegistryHook(RegistryHook<Item> hook) {
+        throw new UnsupportedOperationException("This registry does not support hooks");
+    }
+
+    @Override
+    public void removeRegistryHook(RegistryHook<Item> hook) {
+        throw new UnsupportedOperationException("This registry does not support hooks");
     }
 
 }
