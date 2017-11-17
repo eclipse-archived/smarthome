@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.items;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.common.registry.Provider;
 
 /**
@@ -17,6 +18,7 @@ import org.eclipse.smarthome.core.common.registry.Provider;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@NonNullByDefault
 public interface ItemProvider extends Provider<Item> {
 
 }

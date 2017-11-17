@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.common.registry.Provider;
 
 /**
@@ -15,6 +16,7 @@ import org.eclipse.smarthome.core.common.registry.Provider;
  * @author Oliver Libutzki - Initial contribution
  * @author Dennis Nobel - Changed interface to extend {@link Provider} interface
  */
+@NonNullByDefault
 public interface ThingProvider extends Provider<Thing> {
 
 }
