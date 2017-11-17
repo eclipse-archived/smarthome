@@ -58,7 +58,7 @@ public class SerialButtonHandler extends BaseThingHandler implements SerialPortE
             return;
         }
 
-        // parse ports and if the default port is found, initialized the reader
+        // parse ports and if the port is found, initialize the reader
         @SuppressWarnings("unchecked")
         Enumeration<CommPortIdentifier> portList = CommPortIdentifier.getPortIdentifiers();
         while (portList.hasMoreElements()) {
