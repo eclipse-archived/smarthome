@@ -57,12 +57,17 @@ import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
+import org.eclipse.smarthome.io.rest.DTOMapper;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTO;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,6 +102,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(ItemResource.PATH_ITEMS)
 @Api(value = ItemResource.PATH_ITEMS)
+@Component(service = { RESTResource.class, ItemResource.class })
 public class ItemResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ItemResource.class);
@@ -110,8 +116,10 @@ public class ItemResource implements RESTResource {
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
     private ManagedItemProvider managedItemProvider;
-    private Set<ItemFactory> itemFactories = new HashSet<>();
+    private DTOMapper dtoMapper;
+    private final Set<ItemFactory> itemFactories = new HashSet<>();
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
     }
@@ -120,6 +128,7 @@ public class ItemResource implements RESTResource {
         this.itemRegistry = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
@@ -128,6 +137,7 @@ public class ItemResource implements RESTResource {
         this.eventPublisher = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setManagedItemProvider(ManagedItemProvider managedItemProvider) {
         this.managedItemProvider = managedItemProvider;
     }
@@ -136,12 +146,22 @@ public class ItemResource implements RESTResource {
         this.managedItemProvider = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addItemFactory(ItemFactory itemFactory) {
         this.itemFactories.add(itemFactory);
     }
 
     protected void removeItemFactory(ItemFactory itemFactory) {
         this.itemFactories.remove(itemFactory);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setDTOMapper(DTOMapper dtoMapper) {
+        this.dtoMapper = dtoMapper;
+    }
+
+    protected void unsetDTOMapper(DTOMapper dtoMapper) {
+        this.dtoMapper = dtoMapper;
     }
 
     @GET
@@ -153,12 +173,14 @@ public class ItemResource implements RESTResource {
     public Response getItems(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @QueryParam("type") @ApiParam(value = "item type filter", required = false) String type,
             @QueryParam("tags") @ApiParam(value = "item tag filter", required = false) String tags,
-            @DefaultValue("false") @QueryParam("recursive") @ApiParam(value = "get member items recursivly", required = false) boolean recursive) {
+            @DefaultValue("false") @QueryParam("recursive") @ApiParam(value = "get member items recursivly", required = false) boolean recursive,
+            @QueryParam("fields") @ApiParam(value = "limit output to the given fields (comma separated)", required = false) String fields) {
         final Locale locale = LocaleUtil.getLocale(language);
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
         Stream<EnrichedItemDTO> itemStream = getItems(type, tags).stream()
                 .map(item -> EnrichedItemDTOMapper.map(item, recursive, uriInfo.getBaseUri(), locale));
+        itemStream = dtoMapper.limitToFields(itemStream, fields);
         return Response.ok(new Stream2JSONInputStream(itemStream)).build();
     }
 
@@ -662,7 +684,7 @@ public class ItemResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return itemRegistry != null && managedItemProvider != null && eventPublisher != null
-                && !itemFactories.isEmpty();
+        return itemRegistry != null && managedItemProvider != null && eventPublisher != null && !itemFactories.isEmpty()
+                && dtoMapper != null;
     }
 }

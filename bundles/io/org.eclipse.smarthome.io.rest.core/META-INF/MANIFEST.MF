@@ -10,6 +10,7 @@ Bundle-Version: 0.9.0.qualifier
 Export-Package: 
  org.eclipse.smarthome.io.rest.core.config,
  org.eclipse.smarthome.io.rest.core.item,
+ org.eclipse.smarthome.io.rest.core.persistence,
  org.eclipse.smarthome.io.rest.core.service,
  org.eclipse.smarthome.io.rest.core.thing
 Import-Package: 
@@ -64,9 +65,4 @@ Import-Package:
  org.osgi.service.cm,
  org.osgi.service.component,
  org.slf4j
-Export-Package: org.eclipse.smarthome.io.rest.core.config,
- org.eclipse.smarthome.io.rest.core.persistence,
- org.eclipse.smarthome.io.rest.core.service,
- org.eclipse.smarthome.io.rest.core.item,
- org.eclipse.smarthome.io.rest.core.thing
 Service-Component: OSGI-INF/*.xml
