@@ -107,7 +107,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      * "DIR2_RELEASED" events.
      */
     public static final ChannelType SYSTEM_RAWROCKER = new ChannelType(new ChannelTypeUID("system:rawrocker"), false,
-            null, ChannelKind.TRIGGER, "Raw rocker switch", null, null, null, null,
+            null, ChannelKind.TRIGGER, "Raw rocker button", null, null, null, null,
             new EventDescription(Arrays.asList(new EventOption(CommonTriggerEvents.DIR1_PRESSED, null),
                     new EventOption(CommonTriggerEvents.DIR1_RELEASED, null),
                     new EventOption(CommonTriggerEvents.DIR2_PRESSED, null),
