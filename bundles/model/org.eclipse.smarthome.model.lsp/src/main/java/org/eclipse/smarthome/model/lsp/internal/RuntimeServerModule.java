@@ -10,6 +10,7 @@ package org.eclipse.smarthome.model.lsp.internal;
 import java.util.concurrent.ExecutorService;
 
 import org.eclipse.lsp4j.services.LanguageServer;
+import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.model.script.ScriptServiceUtil;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.xtext.ide.ExecutorServiceProvider;
@@ -18,6 +19,7 @@ import org.eclipse.xtext.ide.server.IProjectDescriptionFactory;
 import org.eclipse.xtext.ide.server.IWorkspaceConfigFactory;
 import org.eclipse.xtext.ide.server.LanguageServerImpl;
 import org.eclipse.xtext.ide.server.ProjectWorkspaceConfigFactory;
+import org.eclipse.xtext.ide.server.UriExtensions;
 import org.eclipse.xtext.resource.IContainer;
 import org.eclipse.xtext.resource.IResourceServiceProvider;
 import org.eclipse.xtext.resource.containers.ProjectDescriptionBasedContainerManager;
@@ -44,6 +46,7 @@ public class RuntimeServerModule extends AbstractModule {
     protected void configure() {
         binder().bind(ExecutorService.class).toProvider(ExecutorServiceProvider.class);
 
+        bind(UriExtensions.class).toInstance(new MappingUriExtensions(ConfigConstants.getConfigFolder()));
         bind(LanguageServer.class).to(LanguageServerImpl.class);
         bind(IResourceServiceProvider.Registry.class).toProvider(new RegistryProvider(scriptServiceUtil, scriptEngine));
         bind(IWorkspaceConfigFactory.class).to(ProjectWorkspaceConfigFactory.class);
