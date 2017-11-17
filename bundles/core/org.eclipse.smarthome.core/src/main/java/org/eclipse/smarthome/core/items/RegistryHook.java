@@ -17,14 +17,14 @@ import org.eclipse.smarthome.core.common.registry.Identifiable;
 public interface RegistryHook<E extends Identifiable<?>> {
 
     /**
-     * Notifies the listener that a single element is going to be added by another provider.
+     * Notifies the listener that an element is going to be added to the registry.
      *
      * @param element the element to be added
      */
     void beforeAdding(E element);
 
     /**
-     * Notifies the listener that a single element was removed by another provider.
+     * Notifies the listener that an element was removed from the registry.
      *
      * @param element the element that was removed
      */
