@@ -12,8 +12,7 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOParticipant
-import org.eclipse.smarthome.io.transport.upnp.UpnpIOService
-import org.eclipse.smarthome.io.transport.upnp.UpnpIOServiceImpl
+import org.eclipse.smarthome.io.transport.upnp.internal.UpnpIOServiceImpl
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
@@ -81,8 +80,8 @@ class UpnpIOServiceTest extends OSGiTest {
             getRegistry: { upnpRegistry },
             getControlPoint: { controlPoint }
         ] as UpnpService
-        registerService(upnpServiceMock)
-        upnpIoService = getService(UpnpIOService.class)
+        upnpIoService = new UpnpIOServiceImpl()
+        upnpIoService.setUpnpService(upnpServiceMock)
     }
 
     @After
@@ -104,8 +103,8 @@ class UpnpIOServiceTest extends OSGiTest {
     @Test
     void 'test that participant is registered'() {
         upnpIoService.registerParticipant(upnpIoParticipant)
-        assertThat upnpIoService.participants.keySet().size(), is(1)
-        assertThat upnpIoService.participants.containsKey(upnpIoParticipant), is(true)
+        assertThat upnpIoService.participants.size(), is(1)
+        assertThat upnpIoService.participants.contains(upnpIoParticipant), is(true)
         assertThat upnpIoService.pollingJobs.keySet().isEmpty(), is(true)
         assertThat upnpIoService.currentStates.keySet().isEmpty(), is(true)
         assertThat upnpIoService.subscriptionCallbacks.keySet().isEmpty(), is(true)
@@ -114,8 +113,8 @@ class UpnpIOServiceTest extends OSGiTest {
     @Test
     void 'test that a status listener is added'() {
         upnpIoService.addStatusListener(upnpIoParticipant, SERVICE_ID, ACTION_ID, 60)
-        assertThat upnpIoService.participants.keySet().size(), is(1)
-        assertThat upnpIoService.participants.containsKey(upnpIoParticipant), is(true)
+        assertThat upnpIoService.participants.size(), is(1)
+        assertThat upnpIoService.participants.contains(upnpIoParticipant), is(true)
         assertThat upnpIoService.pollingJobs.keySet().size(), is(1)
         assertThat upnpIoService.pollingJobs.containsKey(upnpIoParticipant), is(true)
         assertThat upnpIoService.currentStates.keySet().size(), is(1)
@@ -129,23 +128,23 @@ class UpnpIOServiceTest extends OSGiTest {
     @Test
     void 'test that Subscriptions are added'() {
         upnpIoService.addSubscription(upnpIoParticipant, SERVICE_ID, 60)
-        assertThat upnpIoService.participants.keySet().size(), is(1)
-        assertThat upnpIoService.participants.containsKey(upnpIoParticipant), is(true)
+        assertThat upnpIoService.participants.size(), is(1)
+        assertThat upnpIoService.participants.contains(upnpIoParticipant), is(true)
         assertThat upnpIoService.pollingJobs.keySet().isEmpty(), is(true)
         assertThat upnpIoService.currentStates.keySet().isEmpty(), is(true)
         assertThat upnpIoService.subscriptionCallbacks.size(), is(1)
 
         upnpIoService.addSubscription(upnpIoParticipant2, SERVICE_ID_2, 60)
-        assertThat upnpIoService.participants.keySet().size(), is(2)
-        assertThat upnpIoService.participants.containsKey(upnpIoParticipant), is(true)
+        assertThat upnpIoService.participants.size(), is(2)
+        assertThat upnpIoService.participants.contains(upnpIoParticipant), is(true)
         assertThat upnpIoService.pollingJobs.keySet().isEmpty(), is(true)
         assertThat upnpIoService.currentStates.keySet().isEmpty(), is(true)
         assertThat upnpIoService.subscriptionCallbacks.size(), is(2)
 
         upnpIoService.removeSubscription(upnpIoParticipant, SERVICE_ID)
         upnpIoService.unregisterParticipant(upnpIoParticipant)
-        assertThat upnpIoService.participants.keySet().size(), is(1)
-        assertThat upnpIoService.participants.containsKey(upnpIoParticipant2), is(true)
+        assertThat upnpIoService.participants.size(), is(1)
+        assertThat upnpIoService.participants.contains(upnpIoParticipant2), is(true)
         assertThat upnpIoService.pollingJobs.keySet().isEmpty(), is(true)
         assertThat upnpIoService.currentStates.keySet().isEmpty(), is(true)
         assertThat upnpIoService.subscriptionCallbacks.size(), is(1)
@@ -156,7 +155,7 @@ class UpnpIOServiceTest extends OSGiTest {
     }
 
     private assertThatEveryThingIsEmpty() {
-        assertThat upnpIoService.participants.keySet().isEmpty(), is(true)
+        assertThat upnpIoService.participants.isEmpty(), is(true)
         assertThat upnpIoService.pollingJobs.keySet().isEmpty(), is(true)
         assertThat upnpIoService.currentStates.keySet().isEmpty(), is(true)
         assertThat upnpIoService.subscriptionCallbacks.keySet().isEmpty(), is(true)
