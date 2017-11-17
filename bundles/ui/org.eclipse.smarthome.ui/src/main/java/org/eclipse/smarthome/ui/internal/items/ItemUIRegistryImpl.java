@@ -1185,12 +1185,16 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
     @Override
     public void addRegistryHook(RegistryHook<Item> hook) {
-        throw new UnsupportedOperationException("This registry does not support hooks");
+        if (itemRegistry != null) {
+            itemRegistry.addRegistryHook(hook);
+        }
     }
 
     @Override
     public void removeRegistryHook(RegistryHook<Item> hook) {
-        throw new UnsupportedOperationException("This registry does not support hooks");
+        if (itemRegistry != null) {
+            itemRegistry.removeRegistryHook(hook);
+        }
     }
 
 }
