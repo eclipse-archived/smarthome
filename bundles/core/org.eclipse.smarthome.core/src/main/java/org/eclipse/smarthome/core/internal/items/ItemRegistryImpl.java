@@ -14,8 +14,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
+import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -26,6 +28,7 @@ import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
+import org.eclipse.smarthome.core.items.RegistryHook;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.osgi.service.component.ComponentContext;
@@ -49,6 +52,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     private final List<StateDescriptionProvider> stateDescriptionProviders = Collections
             .synchronizedList(new ArrayList<StateDescriptionProvider>());
+    private final List<RegistryHook<Item>> registryHooks = new CopyOnWriteArrayList<>();
 
     public ItemRegistryImpl() {
         super(ItemProvider.class);
@@ -323,6 +327,52 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     protected void notifyListenersAboutUpdatedElement(Item oldElement, Item element) {
         super.notifyListenersAboutUpdatedElement(oldElement, element);
         postEvent(ItemEventFactory.createUpdateEvent(element, oldElement));
+    }
+
+    @Override
+    public void added(Provider<Item> provider, Item element) {
+        for (RegistryHook<Item> registryHook : registryHooks) {
+            registryHook.beforeAdding(element);
+        }
+        super.added(provider, element);
+    }
+
+    @Override
+    protected void addProvider(Provider<Item> provider) {
+        for (Item element : provider.getAll()) {
+            for (RegistryHook<Item> registryHook : registryHooks) {
+                registryHook.beforeAdding(element);
+            }
+        }
+        super.addProvider(provider);
+    }
+
+    @Override
+    public void removed(Provider<Item> provider, Item element) {
+        super.removed(provider, element);
+        for (RegistryHook<Item> registryHook : registryHooks) {
+            registryHook.afterRemoving(element);
+        }
+    }
+
+    @Override
+    protected void removeProvider(Provider<Item> provider) {
+        super.removeProvider(provider);
+        for (Item element : provider.getAll()) {
+            for (RegistryHook<Item> registryHook : registryHooks) {
+                registryHook.afterRemoving(element);
+            }
+        }
+    }
+
+    @Override
+    public void addRegistryHook(RegistryHook<Item> hook) {
+        registryHooks.add(hook);
+    }
+
+    @Override
+    public void removeRegistryHook(RegistryHook<Item> hook) {
+        registryHooks.remove(hook);
     }
 
     protected void activate(final ComponentContext componentContext) {
