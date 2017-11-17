@@ -20,7 +20,7 @@ import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
-import org.eclipse.smarthome.core.types.Dimension;
+import org.eclipse.smarthome.core.thing.util.DimensionClassParser;
 import org.eclipse.smarthome.core.types.EventDescription;
 import org.eclipse.smarthome.core.types.StateDescription;
 
@@ -157,9 +157,9 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
             kind = "state";
         }
 
-        ChannelType channelType = new ChannelType(channelTypeUID, advanced, itemType, Dimension.parse(dimension),
-                ChannelKind.parse(kind), label, description, category, tags, stateDescription, eventDescription,
-                (URI) configDescriptionObjects[0]);
+        ChannelType channelType = new ChannelType(channelTypeUID, advanced, itemType,
+                DimensionClassParser.parseDimension(dimension), ChannelKind.parse(kind), label, description, category,
+                tags, stateDescription, eventDescription, (URI) configDescriptionObjects[0]);
 
         ChannelTypeXmlResult channelTypeXmlResult = new ChannelTypeXmlResult(channelType,
                 (ConfigDescription) configDescriptionObjects[1], system);

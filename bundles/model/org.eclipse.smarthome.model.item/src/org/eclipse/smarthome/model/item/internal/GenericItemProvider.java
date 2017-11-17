@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.measure.Quantity;
+
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -31,7 +33,7 @@ import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.dto.GroupFunctionDTO;
 import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.library.items.NumberItem;
-import org.eclipse.smarthome.core.types.Dimension;
+import org.eclipse.smarthome.core.thing.util.DimensionClassParser;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.eclipse.smarthome.model.core.EventType;
@@ -228,7 +230,8 @@ public class GenericItemProvider extends AbstractProvider<Item>
             item = createItemOfType(normalItem.getType(), itemName);
 
             if (item instanceof NumberItem) {
-                ((NumberItem) item).setDimension(Dimension.parse(normalItem.getDimension()));
+                Class<Quantity<?>> dimension = DimensionClassParser.parseDimension(normalItem.getDimension());
+                ((NumberItem) item).setDimension(dimension);
             }
         }
         if (item != null) {

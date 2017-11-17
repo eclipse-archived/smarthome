@@ -18,6 +18,10 @@ import java.util.TimeZone;
 
 import javax.measure.Quantity;
 import javax.measure.Unit;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.Pressure;
+import javax.measure.quantity.Speed;
+import javax.measure.quantity.Temperature;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
@@ -28,8 +32,8 @@ import org.eclipse.smarthome.core.i18n.TimeZoneProvider;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.library.types.PointType;
-import org.eclipse.smarthome.core.types.Dimension;
 import org.eclipse.smarthome.core.types.ESHUnits;
+import org.eclipse.smarthome.core.types.Intensity;
 import org.eclipse.smarthome.core.types.MeasurementSystem;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
@@ -93,7 +97,7 @@ public class I18nProviderImpl
     // UnitProvider
     private static final String MEASUREMENT_SYSTEM = "measurementSystem";
     private MeasurementSystem measurementSystem;
-    private Map<Dimension, Map<MeasurementSystem, Unit<?>>> dimensionMap;
+    private Map<Class<? extends Quantity<?>>, Map<MeasurementSystem, Unit<?>>> dimensionMap;
 
     @Activate
     @SuppressWarnings("unchecked")
@@ -255,7 +259,7 @@ public class I18nProviderImpl
     }
 
     @Override
-    public @NonNull Unit<?> getUnit(Dimension dimension) {
+    public @NonNull Unit<?> getUnit(Class<Quantity<?>> dimension) {
         return dimensionMap.get(dimension).get(getMeasurementSystem());
     }
 
@@ -278,27 +282,27 @@ public class I18nProviderImpl
         Map<MeasurementSystem, Unit<?>> temperatureMap = new HashMap<>();
         temperatureMap.put(MeasurementSystem.SI, Units.CELSIUS);
         temperatureMap.put(MeasurementSystem.US, ESHUnits.FAHRENHEIT);
-        dimensionMap.put(Dimension.TEMPERATURE, temperatureMap);
+        dimensionMap.put(Temperature.class, temperatureMap);
 
         Map<MeasurementSystem, Unit<?>> pressureMap = new HashMap<>();
         pressureMap.put(MeasurementSystem.SI, ESHUnits.HECTO_PASCAL);
         pressureMap.put(MeasurementSystem.US, ESHUnits.INCH_OF_MERCURY);
-        dimensionMap.put(Dimension.PRESSURE, pressureMap);
+        dimensionMap.put(Pressure.class, pressureMap);
 
         Map<MeasurementSystem, Unit<?>> speedMap = new HashMap<>();
         speedMap.put(MeasurementSystem.SI, Units.KILOMETRE_PER_HOUR);
         speedMap.put(MeasurementSystem.US, ESHUnits.MILES_PER_HOUR);
-        dimensionMap.put(Dimension.SPEED, speedMap);
+        dimensionMap.put(Speed.class, speedMap);
 
         Map<MeasurementSystem, Unit<?>> lengthMap = new HashMap<>();
         lengthMap.put(MeasurementSystem.SI, Units.METRE);
         lengthMap.put(MeasurementSystem.US, ESHUnits.INCH);
-        dimensionMap.put(Dimension.LENGTH, lengthMap);
+        dimensionMap.put(Length.class, lengthMap);
 
         Map<MeasurementSystem, Unit<?>> intensityMap = new HashMap<>();
         intensityMap.put(MeasurementSystem.SI, ESHUnits.IRRADIANCE);
         intensityMap.put(MeasurementSystem.US, ESHUnits.IRRADIANCE);
-        dimensionMap.put(Dimension.INTENSITY, intensityMap);
+        dimensionMap.put(Intensity.class, intensityMap);
     }
 
     @Override

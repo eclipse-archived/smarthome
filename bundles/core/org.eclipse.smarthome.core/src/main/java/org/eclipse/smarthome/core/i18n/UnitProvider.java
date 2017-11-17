@@ -1,10 +1,10 @@
 package org.eclipse.smarthome.core.i18n;
 
+import javax.measure.Quantity;
 import javax.measure.Unit;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.core.types.Dimension;
 import org.eclipse.smarthome.core.types.MeasurementSystem;
 
 public interface UnitProvider {
@@ -17,7 +17,7 @@ public interface UnitProvider {
      * @return The {@link Unit} matching the given {@link Dimension}.
      */
     @NonNull
-    Unit<?> getUnit(@NonNull Dimension dimension);
+    Unit<?> getUnit(@NonNull Class<Quantity<?>> dimension);
 
     /**
      *

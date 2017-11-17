@@ -1,6 +1,8 @@
 package org.eclipse.smarthome.core.internal.items;
 
+import javax.measure.Quantity;
 import javax.measure.Unit;
+import javax.measure.quantity.Dimensionless;
 
 import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.items.Item;
@@ -8,7 +10,6 @@ import org.eclipse.smarthome.core.items.ItemStateConverter;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
-import org.eclipse.smarthome.core.types.Dimension;
 import org.eclipse.smarthome.core.types.MeasurementSystem;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
@@ -28,7 +29,8 @@ public class ItemStateConverterImpl implements ItemStateConverter {
     @Override
     public State convertToAcceptedState(State state, Item item) {
         if (state == null) {
-            logger.error("A conversion of null was requested", new NullPointerException("state should not be null"));
+            logger.error("A conversion of null was requested",
+                    new IllegalArgumentException("state should not be null"));
             return UnDefType.NULL;
         }
 
@@ -59,14 +61,13 @@ public class ItemStateConverterImpl implements ItemStateConverter {
 
             MeasurementSystem ms = unitProvider.getMeasurementSystem();
             if (quantityState.needsConversion(ms)) {
-                Dimension dimension = numberItem.getDimension();
+                Class<Quantity<?>> dimension = numberItem.getDimension();
 
                 Unit<?> conversionUnit = quantityState.getConversionUnit(ms);
                 if (conversionUnit != null) {
                     // the quantity state knows for itself which unit to convert too.
                     return quantityState.toUnit(conversionUnit);
-                } else if (dimension != Dimension.DIMENSIONLESS
-                        && dimension.getDefaultUnit().isCompatible(quantityState.getUnit())) {
+                } else if (!dimension.equals(Dimensionless.class)) {
                     // we do default conversion to the system provided unit for the specific dimension & locale
                     return quantityState.toUnit(unitProvider.getUnit(dimension));
                 }
