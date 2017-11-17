@@ -45,7 +45,7 @@ public class ESHUnits extends Units {
     public static final Unit<Length> INCH = new TransformedUnit<>("in", Units.METRE,
             new RationalConverter(254l, 10000l));
 
-    public static final Unit<Length> MILE = new TransformedUnit<>("ml", Units.METRE,
+    public static final Unit<Length> MILE = new TransformedUnit<>("mi", Units.METRE,
             new RationalConverter(1609344l, 1000l));
 
     /**
@@ -60,7 +60,7 @@ public class ESHUnits extends Units {
         SimpleUnitFormat.getInstance().label(IRRADIANCE, "W/m2");
         SimpleUnitFormat.getInstance().label(MILES_PER_HOUR, "mph");
         SimpleUnitFormat.getInstance().label(INCH, "in");
-        SimpleUnitFormat.getInstance().label(MILE, "ml");
+        SimpleUnitFormat.getInstance().label(MILE, "mi");
     }
 
 }
