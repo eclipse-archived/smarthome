@@ -116,7 +116,7 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
         }
 
         waitForAssert {
-            Set<UpnpIOParticipant> participants  = upnpIOService.participants.keySet();
+            Set<UpnpIOParticipant> participants  = upnpIOService.participants;
             assertThat "UPnP Registry is not clear: ${participants}", participants.size(), is(0)
         }
 

@@ -137,41 +137,37 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     private final Object stateLock = new Object();
 
-    private final Runnable pollingRunnable = new Runnable() {
+    private final Runnable pollingRunnable = () -> {
+        try {
+            logger.debug("Polling job");
 
-        @Override
-        public void run() {
-            try {
-                logger.debug("Polling job");
-
-                // First check if the Sonos zone is set in the UPnP service registry
-                // If not, set the thing state to OFFLINE and wait for the next poll
-                if (!isUpnpDeviceRegistered()) {
-                    logger.debug("UPnP device {} not yet registered", getUDN());
-                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
-                            "@text/offline.upnp-device-not-registered [\"" + getUDN() + "\"]");
-                    synchronized (upnpLock) {
-                        subscriptionState = new HashMap<String, Boolean>();
-                    }
-                    return;
+            // First check if the Sonos zone is set in the UPnP service registry
+            // If not, set the thing state to OFFLINE and wait for the next poll
+            if (!isUpnpDeviceRegistered()) {
+                logger.debug("UPnP device {} not yet registered", getUDN());
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                        "@text/offline.upnp-device-not-registered [\"" + getUDN() + "\"]");
+                synchronized (upnpLock) {
+                    subscriptionState = new HashMap<String, Boolean>();
                 }
-
-                // Check if the Sonos zone can be joined
-                // If not, set the thing state to OFFLINE and do nothing else
-                updatePlayerState();
-                if (getThing().getStatus() != ThingStatus.ONLINE) {
-                    return;
-                }
-
-                addSubscription();
-
-                updateZoneInfo();
-                updateRunningAlarmProperties();
-                updateLed();
-                updateSleepTimerDuration();
-            } catch (Exception e) {
-                logger.debug("Exception during poll : {}", e);
+                return;
             }
+
+            // Check if the Sonos zone can be joined
+            // If not, set the thing state to OFFLINE and do nothing else
+            updatePlayerState();
+            if (getThing().getStatus() != ThingStatus.ONLINE) {
+                return;
+            }
+
+            addSubscription();
+
+            updateZoneInfo();
+            updateRunningAlarmProperties();
+            updateLed();
+            updateSleepTimerDuration();
+        } catch (Exception e) {
+            logger.debug("Exception during poll: {}", e.getMessage(), e);
         }
     };
 
@@ -196,6 +192,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
 
         removeSubscription();
+        service.unregisterParticipant(this);
     }
 
     @Override
@@ -208,6 +205,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
 
         if (getUDN() != null) {
+            service.registerParticipant(this);
             onUpdate();
 
             this.notificationTimeout = getConfigAs(ZonePlayerConfiguration.class).notificationTimeout;
@@ -799,7 +797,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 }
             }
             subscriptionState = new HashMap<String, Boolean>();
-            service.unregisterParticipant(this);
         }
     }
 
@@ -838,18 +835,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             logger.debug("Sonos player {} has been found in local network", getUDN());
             updateStatus(ThingStatus.ONLINE);
         }
-    }
-
-    protected void updateMediaInfo() {
-        Map<String, String> inputs = new HashMap<String, String>();
-        inputs.put("InstanceID", "0");
-
-        Map<String, String> result = service.invokeAction(this, "AVTransport", "GetMediaInfo", inputs);
-
-        for (String variable : result.keySet()) {
-            this.onValueReceived(variable, result.get(variable), "AVTransport");
-        }
-        updateMediaInformation();
     }
 
     protected void updateCurrentZoneName() {
@@ -2892,8 +2877,14 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     @Override
     public void onStatusChanged(boolean status) {
-        // TODO Auto-generated method stub
-
+        if (status) {
+            if (getThing().getStatus() != ThingStatus.ONLINE) {
+                updateStatus(ThingStatus.ONLINE);
+                scheduler.execute(pollingRunnable);
+            }
+        } else {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR);
+        }
     }
 
     private String getModelNameFromDescriptor() {

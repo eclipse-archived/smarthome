@@ -51,16 +51,16 @@
   </feature>
 
   <feature name="esh-tp-httpclient" version="${project.version}">
-    <capability>esh.tp;feature=httpclient;version=9.3.14.v20161028</capability>
+    <capability>esh.tp;feature=httpclient;version=9.3.15.v20161220</capability>
     <bundle dependency="true">mvn:javax.servlet/javax.servlet-api/3.1.0</bundle>
-    <bundle dependency="true">mvn:org.eclipse.jetty/jetty-client/9.3.14.v20161028</bundle>
-    <bundle dependency="true">mvn:org.eclipse.jetty/jetty-http/9.3.14.v20161028</bundle>
-    <bundle dependency="true">mvn:org.eclipse.jetty/jetty-util/9.3.14.v20161028</bundle>
-    <bundle dependency="true">mvn:org.eclipse.jetty/jetty-io/9.3.14.v20161028</bundle>
-    <bundle dependency="true">mvn:org.eclipse.jetty/jetty-proxy/9.3.14.v20161028</bundle>
-    <bundle dependency="true">mvn:org.eclipse.jetty.websocket/websocket-api/9.3.14.v20161028</bundle>
-    <bundle dependency="true">mvn:org.eclipse.jetty.websocket/websocket-common/9.3.14.v20161028</bundle>
-    <bundle dependency="true">mvn:org.eclipse.jetty.websocket/websocket-client/9.3.14.v20161028</bundle>
+    <bundle dependency="true">mvn:org.eclipse.jetty/jetty-client/9.3.15.v20161220</bundle>
+    <bundle dependency="true">mvn:org.eclipse.jetty/jetty-http/9.3.15.v20161220</bundle>
+    <bundle dependency="true">mvn:org.eclipse.jetty/jetty-util/9.3.15.v20161220</bundle>
+    <bundle dependency="true">mvn:org.eclipse.jetty/jetty-io/9.3.15.v20161220</bundle>
+    <bundle dependency="true">mvn:org.eclipse.jetty/jetty-proxy/9.3.15.v20161220</bundle>
+    <bundle dependency="true">mvn:org.eclipse.jetty.websocket/websocket-api/9.3.15.v20161220</bundle>
+    <bundle dependency="true">mvn:org.eclipse.jetty.websocket/websocket-common/9.3.15.v20161220</bundle>
+    <bundle dependency="true">mvn:org.eclipse.jetty.websocket/websocket-client/9.3.15.v20161220</bundle>
   </feature>
 
   <feature name="esh-tp-jax-rs" version="${project.version}">
