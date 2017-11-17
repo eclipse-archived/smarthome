@@ -53,6 +53,12 @@
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.ntp/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-binding-serialbutton" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-io-transport-serial</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.serialbutton/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-binding-sonos" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-io-transport-upnp</feature>
