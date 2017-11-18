@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.core.net;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
@@ -16,21 +15,14 @@ import org.eclipse.jdt.annotation.Nullable;
  * @author Stefan Triller - initial contribution
  *
  */
-@NonNullByDefault
 public interface NetworkAddressService {
 
     /**
-     * Deprecated, please use {@link NetworkAddressService#getPrimaryHostAddress()}
+     * Returns the user configured primary IPv4 address of the system
+     *
+     * @return IPv4 address as a String in format xxx.xxx.xxx.xxx or
+     *         <code>null</code> if there is no interface or an error occurred
      */
-    @Deprecated
     @Nullable
     String getPrimaryIpv4HostAddress();
-
-    /**
-     * Returns the user configured primary IP address of the system
-     *
-     * @return IP address as a String or <code>null</code> if there is no interface or an error occurred
-     */
-    @Nullable
-    String getPrimaryHostAddress();
 }
