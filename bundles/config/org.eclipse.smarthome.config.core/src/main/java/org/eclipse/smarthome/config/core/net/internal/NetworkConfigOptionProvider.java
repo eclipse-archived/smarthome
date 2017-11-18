@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.config.core.net.internal;
 
+import java.net.Inet4Address;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Locale;
@@ -37,8 +38,9 @@ public class NetworkConfigOptionProvider implements ConfigOptionProvider {
         }
 
         if (param.equals(PARAM_PRIMARY_ADDRESS)) {
-            Stream<CidrAddress> ips = NetUtil.getAllInterfaceAddresses().stream();
-            return ips.map(a -> new ParameterOption(a.toString(), a.toString())).collect(Collectors.toList());
+            Stream<CidrAddress> ipv4Addresses = NetUtil.getAllInterfaceAddresses().stream()
+                    .filter(a -> a.getAddress() instanceof Inet4Address);
+            return ipv4Addresses.map(a -> new ParameterOption(a.toString(), a.toString())).collect(Collectors.toList());
         }
         return null;
     }
