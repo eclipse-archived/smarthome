@@ -122,7 +122,9 @@ public class TradfriLightHandler extends TradfriThingHandler {
         if (active) {
             if (command instanceof RefreshType) {
                 logger.debug("Refreshing channel {}", channelUID);
-                coapClient.asyncGet(this);
+                if (coapClient != null) {
+                    coapClient.asyncGet(this);
+                }
                 return;
             }
 
