@@ -10,6 +10,7 @@ package org.eclipse.smarthome.ui.basic.internal.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Hashtable;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -101,10 +102,10 @@ public class WebAppServlet extends BaseServlet {
         logger.info("Stopped Basic UI");
     }
 
-    private void showSitemapList(ServletResponse res) throws IOException, RenderException {
+    private void showSitemapList(Locale locale, ServletResponse res) throws IOException, RenderException {
         PrintWriter resWriter;
         resWriter = res.getWriter();
-        resWriter.append(renderer.renderSitemapList(sitemapProviders));
+        resWriter.append(renderer.renderSitemapList(sitemapProviders, locale));
 
         res.setContentType(CONTENT_TYPE);
     }
@@ -118,6 +119,7 @@ public class WebAppServlet extends BaseServlet {
         String widgetId = req.getParameter("w");
         String subscriptionId = req.getParameter("subscriptionId");
         boolean async = "true".equalsIgnoreCase(req.getParameter("__async"));
+        Locale locale = config.getUseBrowserLang().equalsIgnoreCase("true") ? req.getLocale() : null;
 
         if (sitemapName == null) {
             sitemapName = config.getDefaultSitemap();
@@ -135,7 +137,7 @@ public class WebAppServlet extends BaseServlet {
 
         try {
             if (sitemap == null) {
-                showSitemapList(res);
+                showSitemapList(locale, res);
                 return;
             }
 
@@ -151,7 +153,7 @@ public class WebAppServlet extends BaseServlet {
                 }
                 String label = sitemap.getLabel() != null ? sitemap.getLabel() : sitemapName;
                 EList<Widget> children = renderer.getItemUIRegistry().getChildren(sitemap);
-                result.append(renderer.processPage(sitemapName, sitemapName, label, children, async));
+                result.append(renderer.processPage(sitemapName, sitemapName, label, children, async, locale));
             } else if (!widgetId.equals("Colorpicker")) {
                 // we are on some subpage, so we have to render the children of the widget that has been selected
                 if (subscriptionId != null) {
@@ -172,7 +174,7 @@ public class WebAppServlet extends BaseServlet {
                     }
                     EList<Widget> children = renderer.getItemUIRegistry().getChildren((LinkableWidget) w);
                     result.append(renderer.processPage(renderer.getItemUIRegistry().getWidgetId(w), sitemapName, label,
-                            children, async));
+                            children, async, locale));
                 }
             }
         } catch (RenderException e) {
