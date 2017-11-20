@@ -38,7 +38,7 @@ public class CoAPConnectedLightingDiscovery extends AbstractDiscoveryService {
 
     private DatagramSocket serverSocket = null;
 
-    public CoAPConnectedLightingDiscovery() throws IllegalArgumentException {
+    public CoAPConnectedLightingDiscovery() {
         super(SUPPORTED_THING_TYPES_UIDS, 10);
     }
 
