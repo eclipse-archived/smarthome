@@ -99,7 +99,6 @@
       <plugin>
         <groupId>${tycho-groupid}</groupId>
         <artifactId>tycho-surefire-plugin</artifactId>
-        <version>${tycho-version}</version>
         <configuration>
           <bundleStartLevel>
             <bundle>

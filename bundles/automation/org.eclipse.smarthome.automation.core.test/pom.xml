@@ -25,7 +25,6 @@
       <plugin>
         <groupId>${tycho-groupid}</groupId>
         <artifactId>tycho-surefire-plugin</artifactId>
-        <version>${tycho-version}</version>
       </plugin>
     </plugins>
   </build>
