@@ -3,6 +3,9 @@ angular.module('PaperUI.directive.configDescription', []) //
 
     var controller = function($scope) {
         $scope.getName = function(parameter, option) {
+            if (!option) {
+                return undefined;
+            }
             return option.name ? option.name : parameter.context == 'thing' ? option.UID : parameter.context == 'channel' ? option.id : undefined;
         }
     }
