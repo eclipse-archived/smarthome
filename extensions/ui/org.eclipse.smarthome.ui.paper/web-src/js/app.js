@@ -333,21 +333,35 @@ angular.module('PaperUI', [//
             }
         }
     };
-}).directive('overflown', function() {
+}).directive('overflown', function($timeout) {
     return {
         restrict : 'A',
         link : function(scope, element, attrs) {
+            var tabIndex = scope.$parent.$index;
             setTimeout(function() {
-                if (element.innerWidth() < element[0].children[0].scrollWidth) {
-                    $(element[0].children[0]).addClass('reducedWidth');
-                } else {
-                    $(element[0].children[1]).addClass('hidden');
+                var stateText = element.find("p"), redraw;
+                if (stateText && stateText.innerHeight() > 30) {
+                    element.addClass("multi-line-state");
+                    $timeout.cancel(redraw)
+                    redraw = $timeout(function() {
+                        masonry();
+                    }, 0, true)
                 }
             });
-            element[0].children[1].addEventListener('click', function(event) {
-                element.toggleClass('nowrap');
-                element[0].children[1].innerText = event.target.innerText == "more" ? "less" : "more";
-            });
+            scope.showMore = function(event) {
+                if (event.target === event.currentTarget) {
+                    element.addClass('show-more');
+                    masonry();
+                }
+            }
+            scope.showLess = function() {
+                element.removeClass('show-more');
+            }
+            var masonry = function() {
+                $timeout(function() {
+                    new Masonry('#items-' + tabIndex, {});
+                }, 100, false);
+            }
         }
     };
 }).run([ '$location', '$rootScope', 'globalConfig', function($location, $rootScope, globalConfig) {
