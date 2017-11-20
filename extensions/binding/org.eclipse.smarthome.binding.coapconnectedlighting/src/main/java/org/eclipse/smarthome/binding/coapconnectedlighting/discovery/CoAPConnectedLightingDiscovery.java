@@ -38,13 +38,12 @@ public class CoAPConnectedLightingDiscovery extends AbstractDiscoveryService {
 
     private DatagramSocket serverSocket = null;
 
+    private final UDPServerThread udpListenServer = new UDPServerThread();
+    private ScheduledFuture<?> udpListenServerTask;
+
     public CoAPConnectedLightingDiscovery() {
         super(SUPPORTED_THING_TYPES_UIDS, 10);
     }
-
-    UDPServerThread udpListenServer = new UDPServerThread();
-
-    ScheduledFuture<?> udpListenServerTask;
 
     @Override
     protected void startBackgroundDiscovery() {
