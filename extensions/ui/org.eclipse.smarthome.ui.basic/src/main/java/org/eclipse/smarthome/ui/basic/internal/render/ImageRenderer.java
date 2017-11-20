@@ -30,6 +30,8 @@ import org.eclipse.smarthome.ui.basic.render.WidgetRenderer;
  */
 public class ImageRenderer extends AbstractWidgetRenderer {
 
+    private final static String URL_NONE_ICON = "images/none.png";
+
     @Override
     public boolean canRender(Widget w) {
         return w instanceof Image;
@@ -65,15 +67,23 @@ public class ImageRenderer extends AbstractWidgetRenderer {
         String proxiedUrl = "../proxy?sitemap=" + sitemap + "&amp;widgetId=" + widgetId;
         State state = itemUIRegistry.getState(w);
         String url;
-        if (state instanceof RawType) {
+        boolean ignoreRefresh;
+        if (!itemUIRegistry.getVisiblity(w)) {
+            url = URL_NONE_ICON;
+            ignoreRefresh = true;
+        } else if (state instanceof RawType) {
             url = state.toFullString();
+            ignoreRefresh = true;
         } else if ((sitemap != null) && ((state instanceof StringType) || validUrl)) {
             url = proxiedUrl + "&amp;t=" + (new Date()).getTime();
+            ignoreRefresh = false;
         } else {
-            url = "images/none.png";
+            url = URL_NONE_ICON;
+            ignoreRefresh = true;
         }
         snippet = StringUtils.replace(snippet, "%valid_url%", validUrl ? "true" : "false");
         snippet = StringUtils.replace(snippet, "%proxied_url%", proxiedUrl);
+        snippet = StringUtils.replace(snippet, "%ignore_refresh%", ignoreRefresh ? "true" : "false");
         snippet = StringUtils.replace(snippet, "%url%", url);
 
         sb.append(snippet);
