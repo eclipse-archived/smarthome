@@ -123,9 +123,8 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.eclipse.tycho</groupId>
+        <groupId>${tycho-groupid}</groupId>
         <artifactId>tycho-surefire-plugin</artifactId>
-        <version>${tycho-version}</version>
         <configuration>
           <bundleStartLevel>
             <bundle>

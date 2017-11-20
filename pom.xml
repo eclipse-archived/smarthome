@@ -90,7 +90,6 @@
       <plugin>
         <groupId>${tycho-groupid}</groupId>
         <artifactId>tycho-maven-plugin</artifactId>
-        <version>${tycho-version}</version>
         <extensions>true</extensions>
       </plugin>
       <plugin>
@@ -166,6 +165,26 @@
       <plugins>
         <plugin>
           <groupId>${tycho-groupid}</groupId>
+          <artifactId>target-platform-configuration</artifactId>
+          <version>${tycho-version}</version>
+          <configuration>
+            <!--
+            <resolver>p2</resolver>
+            <ignoreTychoRepositories>true</ignoreTychoRepositories>
+            -->
+            <pomDependencies>consider</pomDependencies>
+            <target>
+              <artifact>
+                <groupId>org.eclipse.smarthome</groupId>
+                <artifactId>targetplatform</artifactId>
+                <version>${project.version}</version>
+                <classifier>smarthome</classifier>
+              </artifact>
+            </target>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>${tycho-groupid}</groupId>
           <artifactId>tycho-compiler-plugin</artifactId>
           <version>${tycho-version}</version>
           <configuration>
@@ -189,23 +208,18 @@
         </plugin>
         <plugin>
           <groupId>${tycho-groupid}</groupId>
-          <artifactId>target-platform-configuration</artifactId>
+          <artifactId>tycho-maven-plugin</artifactId>
           <version>${tycho-version}</version>
-          <configuration>
-            <!--
-            <resolver>p2</resolver>
-            <ignoreTychoRepositories>true</ignoreTychoRepositories>
-            -->
-            <pomDependencies>consider</pomDependencies>
-            <target>
-              <artifact>
-                <groupId>org.eclipse.smarthome</groupId>
-                <artifactId>targetplatform</artifactId>
-                <version>${project.version}</version>
-                <classifier>smarthome</classifier>
-              </artifact>
-            </target>
-          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>${tycho-groupid}</groupId>
+          <artifactId>tycho-source-plugin</artifactId>
+          <version>${tycho-version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho.extras</groupId>
+          <artifactId>tycho-source-feature-plugin</artifactId>
+          <version>${tycho-version}</version>
         </plugin>
         <plugin>
           <groupId>${tycho-groupid}</groupId>
@@ -214,6 +228,16 @@
           <configuration>
             <failIfNoTests>false</failIfNoTests>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>${tycho-groupid}</groupId>
+          <artifactId>tycho-p2-plugin</artifactId>
+          <version>${tycho-version}</version>
+        </plugin>
+        <plugin>
+          <groupId>${tycho-groupid}</groupId>
+          <artifactId>tycho-versions-plugin</artifactId>
+          <version>${tycho-version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.felix</groupId>
@@ -357,11 +381,6 @@
               </configuration>
             </execution>
           </executions>
-        </plugin>
-        <plugin>
-          <groupId>${tycho-groupid}</groupId>
-          <artifactId>tycho-versions-plugin</artifactId>
-          <version>${tycho-version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
