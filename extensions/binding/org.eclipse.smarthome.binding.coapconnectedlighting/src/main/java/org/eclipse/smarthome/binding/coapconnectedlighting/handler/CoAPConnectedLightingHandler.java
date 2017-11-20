@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CoAPConnectedLightingHandler extends BaseThingHandler {
 
-    private Logger logger = LoggerFactory.getLogger(CoAPConnectedLightingHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(CoAPConnectedLightingHandler.class);
 
     private ChannelUID stringChannelTemperatureUID;
     private ChannelUID stringChannelHumidityUID;
@@ -70,7 +70,6 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
 
     @Override
     public void initialize() {
-
         // Device Configuration Check
         String deviceIPAddress = (String) this.getConfig().get("ipAddress");
         int devicePortNumber = -1;

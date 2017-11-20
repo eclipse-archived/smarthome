@@ -76,7 +76,6 @@ public class CoAPConnectedLightingDiscovery extends AbstractDiscoveryService {
                     .withLabel("Internet Of Tiny: " + address.getHostAddress()).build();
             thingDiscovered(result);
         }
-
     }
 
     // Scan for coap devices
@@ -119,7 +118,6 @@ public class CoAPConnectedLightingDiscovery extends AbstractDiscoveryService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     /**
