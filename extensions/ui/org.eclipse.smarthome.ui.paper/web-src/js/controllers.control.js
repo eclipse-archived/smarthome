@@ -350,6 +350,10 @@ angular.module('PaperUI.controllers.control', []) //
         sendCommand(brightness);
     }
 
+    $scope.$watch("item.state", function(brightness) {
+        $scope.state.switchState = brightness > 0;
+    })
+
     var commandTimeout = undefined;
 
     var sendCommand = function(command) {
