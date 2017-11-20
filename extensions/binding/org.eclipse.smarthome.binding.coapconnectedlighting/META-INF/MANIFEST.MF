@@ -4,7 +4,7 @@ Bundle-Name: CoAP MCHPLights Binding
 Bundle-SymbolicName: org.eclipse.smarthome.binding.coapconnectedlighting;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .,
  lib/californium-core-1.1.0-SNAPSHOT.jar,
  lib/element-connector-1.1.0-SNAPSHOT.jar
