@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CoAPConnectedLightingDiscovery extends AbstractDiscoveryService {
-    private Logger logger = LoggerFactory.getLogger(CoAPConnectedLightingHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(CoAPConnectedLightingHandler.class);
 
     private final String TAG = "UDPService";
     private final int UDP_PORT = 65527;
