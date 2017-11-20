@@ -18,6 +18,8 @@ import java.util.TimeZone;
 
 import javax.measure.Quantity;
 import javax.measure.Unit;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Pressure;
 import javax.measure.quantity.Speed;
@@ -303,6 +305,16 @@ public class I18nProviderImpl
         intensityMap.put(MeasurementSystem.SI, ESHUnits.IRRADIANCE);
         intensityMap.put(MeasurementSystem.US, ESHUnits.IRRADIANCE);
         dimensionMap.put(Intensity.class, intensityMap);
+
+        Map<MeasurementSystem, Unit<?>> percentMap = new HashMap<>();
+        percentMap.put(MeasurementSystem.SI, Units.PERCENT);
+        percentMap.put(MeasurementSystem.US, Units.PERCENT);
+        dimensionMap.put(Dimensionless.class, percentMap);
+
+        Map<MeasurementSystem, Unit<?>> angleMap = new HashMap<>();
+        angleMap.put(MeasurementSystem.SI, ESHUnits.DEGREE_ANGLE);
+        angleMap.put(MeasurementSystem.US, ESHUnits.DEGREE_ANGLE);
+        dimensionMap.put(Angle.class, angleMap);
     }
 
     @Override

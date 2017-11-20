@@ -45,7 +45,7 @@ public class ItemStateConverterImpl implements ItemStateConverter {
             }
         }
 
-        if (item instanceof NumberItem && state instanceof QuantityType) {
+        if (item instanceof NumberItem && state instanceof QuantityType && ((NumberItem) item).getDimension() != null) {
             QuantityType quantityState = (QuantityType) state;
             NumberItem numberItem = (NumberItem) item;
 
