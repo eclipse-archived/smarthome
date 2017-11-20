@@ -8,7 +8,7 @@
 
 package org.eclipse.smarthome.binding.coapconnectedlighting.internal;
 
-import static org.eclipse.smarthome.binding.coapconnectedlighting.CoAPConnectedLightingBindingConstants.THING_TYPE_SAMPLE;
+import static org.eclipse.smarthome.binding.coapconnectedlighting.CoAPConnectedLightingBindingConstants.THING_TYPE;
 
 import java.util.Collections;
 import java.util.Set;
@@ -27,7 +27,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
  */
 public class CoAPConnectedLightingHandlerFactory extends BaseThingHandlerFactory {
 
-    private final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(THING_TYPE_SAMPLE);
+    private final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(THING_TYPE);
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -39,7 +39,7 @@ public class CoAPConnectedLightingHandlerFactory extends BaseThingHandlerFactory
 
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (thingTypeUID.equals(THING_TYPE_SAMPLE)) {
+        if (thingTypeUID.equals(THING_TYPE)) {
             return new CoAPConnectedLightingHandler(thing);
         }
 

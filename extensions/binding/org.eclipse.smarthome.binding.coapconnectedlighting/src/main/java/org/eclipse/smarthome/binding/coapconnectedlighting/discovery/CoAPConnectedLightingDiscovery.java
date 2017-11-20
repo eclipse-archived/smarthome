@@ -70,7 +70,7 @@ public class CoAPConnectedLightingDiscovery extends AbstractDiscoveryService {
     private void discoverCoAP(InetAddress address) {
         Map<String, Object> properties = new HashMap<>(4);
         properties.put(PROPERTY_COAP_SERVER, address.getHostAddress());
-        ThingUID uid = new ThingUID(THING_TYPE_SAMPLE,
+        ThingUID uid = new ThingUID(THING_TYPE,
                 "iotiny-" + address.getHostAddress().substring(address.getHostAddress().lastIndexOf('.') + 1));
         if (uid != null) {
             DiscoveryResult result = DiscoveryResultBuilder.create(uid).withProperties(properties)

@@ -24,20 +24,20 @@ public class CoAPConnectedLightingBindingConstants {
     public static final String BINDING_ID = "coap";
 
     // List of all Thing Type UIDs
-    public final static ThingTypeUID THING_TYPE_SAMPLE = new ThingTypeUID(BINDING_ID, "smarthome");
+    public static final ThingTypeUID THING_TYPE = new ThingTypeUID(BINDING_ID, "smarthome");
 
     // List of all Channel ids
-    public final static String CHANNEL_DimmableLight = "Dimmable_Light";
-    public final static String CHANNEL_LCD = "LCD";
-    public final static String CHANNEL_Temperature = "Temperature";
-    public final static String CHANNEL_Humidity = "Humidity";
-    public final static String CHANNEL_Pressure = "Pressure";
-    public final static String CHANNEL_RGB = "RGB_Sensor";
-    public final static String CHANNEL_WallSwitch = "Wall_Switch";
+    public static final String CHANNEL_DimmableLight = "Dimmable_Light";
+    public static final String CHANNEL_LCD = "LCD";
+    public static final String CHANNEL_Temperature = "Temperature";
+    public static final String CHANNEL_Humidity = "Humidity";
+    public static final String CHANNEL_Pressure = "Pressure";
+    public static final String CHANNEL_RGB = "RGB_Sensor";
+    public static final String CHANNEL_WallSwitch = "Wall_Switch";
 
     // Custom Properties
-    public final static String PROPERTY_COAP_SERVER = "ipAddress";
+    public static final String PROPERTY_COAP_SERVER = "ipAddress";
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(THING_TYPE_SAMPLE);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(THING_TYPE);
 
 }
