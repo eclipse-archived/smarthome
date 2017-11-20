@@ -32,7 +32,7 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <groupId>org.eclipse.tycho</groupId>
+          <groupId>${tycho-groupid}</groupId>
           <artifactId>tycho-p2-plugin</artifactId>
           <version>${tycho-version}</version>
           <configuration>
