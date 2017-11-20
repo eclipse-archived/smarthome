@@ -24,6 +24,12 @@ Like most GitHub hosted projects, we use GitHub Issues as an issue tracking syst
 
 If you have found a bug or if you would like to propose a new feature, please feel free to enter an issue. But before creating a new issue, please first check that it does not already exist.
 
+## Report a Security Vulnerability
+
+Bugs which are crucial for the security of the project should be reported as a security vulnerability to the Eclipse Security Team:
+
+* [Eclipse Security Team](https://eclipse.org/security)
+
 ### Issue Tracker Links
 
 * [Create a new Issue](https://github.com/eclipse/smarthome/issues/new)
