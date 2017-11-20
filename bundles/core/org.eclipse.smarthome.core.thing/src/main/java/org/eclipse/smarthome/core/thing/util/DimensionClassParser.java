@@ -44,7 +44,6 @@ public class DimensionClassParser {
         try {
             @SuppressWarnings("unchecked")
             Class<Quantity<?>> dimensionClass = (Class<Quantity<?>>) Class.forName(JAVAX_MEASURE_QUANTITY + dimension);
-
             return dimensionClass;
         } catch (ClassNotFoundException e) {
             Logger logger = LoggerFactory.getLogger(DimensionClassParser.class);
