@@ -53,7 +53,7 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
     private ScheduledFuture<?> refreshHumidityJob;
     private ScheduledFuture<?> refreshPressureJob;
 
-    private BigDecimal refresh;
+    private final BigDecimal refresh = new BigDecimal(60);
 
     private final CoapClient coapClient = new CoapClient();
 
@@ -96,8 +96,6 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
         stringChannelTemperatureUID = new ChannelUID(getThing().getUID(), CHANNEL_Temperature);
         stringChannelHumidityUID = new ChannelUID(getThing().getUID(), CHANNEL_Humidity);
         stringChannelPressureUID = new ChannelUID(getThing().getUID(), CHANNEL_Pressure);
-
-        refresh = new BigDecimal(60);
 
         // Get the device properties
         Map<String, String> deviceProperties = editProperties();
