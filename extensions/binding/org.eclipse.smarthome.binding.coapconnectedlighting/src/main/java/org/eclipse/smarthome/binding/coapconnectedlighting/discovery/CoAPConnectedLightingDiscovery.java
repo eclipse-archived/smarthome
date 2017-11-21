@@ -87,13 +87,9 @@ public class CoAPConnectedLightingDiscovery extends AbstractDiscoveryService {
         try {
             mClientSock = new DatagramSocket();
             InetAddress hostAddress = InetAddress.getByName("255.255.255.255");
-            logger.info(hostAddress.getHostAddress());
-            logger.info(hostAddress.getHostName());
-            logger.info(hostAddress.getCanonicalHostName());
 
-            logger.debug(hostAddress.getHostAddress());
-            logger.debug(hostAddress.getHostName());
-            logger.debug(hostAddress.getCanonicalHostName());
+            logger.debug("address: {}, name: {}, canonicalName: {}", hostAddress.getHostAddress(),
+                    hostAddress.getHostName(), hostAddress.getCanonicalHostName());
 
             DatagramPacket out = new DatagramPacket(serverIdentifier.getBytes(), serverIdentifier.length(), hostAddress,
                     65525);
