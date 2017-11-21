@@ -155,15 +155,20 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
     private void putLightOnOff(String message) {
         coapClient
                 .setURI("coap://" + coapServerIpAddress + ":" + coapServerPort + "/InternetOfTiny/actuators/actuator1");
-        StringBuilder coapLightSwitch = new StringBuilder();
-        if (message.compareTo("ON") == 0) {
-            coapLightSwitch.append(",1,pp,100,");
-        } else if (message.compareTo("OFF") == 0) {
-            coapLightSwitch.append(",1,pp,0,");
-        }
-        CoapResponse clientResponse = coapClient.put(coapLightSwitch.toString(), TEXT_PLAIN);
+        String coapLightSwitch;
 
-        logger.debug(clientResponse.advanced().getSource().toString());
+        if (message.compareTo("ON") == 0) {
+            coapLightSwitch = new String(",1,pp,100,");
+        } else if (message.compareTo("OFF") == 0) {
+            coapLightSwitch = new String(",1,pp,0,");
+        } else {
+            coapLightSwitch = new String("");
+        }
+
+        if (!coapLightSwitch.isEmpty()) {
+            CoapResponse clientResponse = coapClient.put(coapLightSwitch, TEXT_PLAIN);
+            logger.debug(clientResponse.advanced().getSource().toString());
+        }
     }
 
     private void putlightDimmer(String message) {
