@@ -31,6 +31,10 @@
 	margin-bottom: 0;
 }
 
+.state > .ellipsis p {
+    font-size: 30px;
+}
+
 .ellipsis:after {
 	content: "\02026 more";
 	cursor: pointer; box-sizing : content-box;
@@ -82,11 +86,40 @@
 	cursor: pointer;
 }
 
+.state .ellipsis .less {
+	margin-bottom: 2px;
+	top: 5px;
+    position: relative;
+}
+
+.state .ellipsis.multi-line-state {
+    height: 60px;
+}
+
+.state .ellipsis.show-more:after {
+    top: -20px;
+}
+
+.state .ellipsis.show-more .less {
+    top: 0px;
+}
+
 parameter-description.show-more>.ellipsis, 
-parameter-description.show-more>.ellipsis:before {
+parameter-description.show-more>.ellipsis:before, .state .show-more.ellipsis, .state .show-more.ellipsis:before{
 	height: 100%;
 }
 
 parameter-description:not(.show-more) .less {
 	display: none;
+}
+
+.state > .ellipsis:after {
+	top : 6px;
+}
+
+.items .item .state .ellipsis p {
+    white-space: normal;
+    line-height: 30px;
+    word-wrap: break-word;
+    color: initial;
 }

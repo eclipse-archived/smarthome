@@ -3,9 +3,7 @@
 		<md-button ng-click="refresh()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
 	</div>
 
-	<md-tabs md-stretch-tabs="always" class="section-tabs">
-	<md-tab ng-repeat="tab in tabs track by tab.name" ng-disabled="::tab.disabled" label="{{::tab.name}}" layout-fill> 
-	<md-tab-content layout-fill="">
+	<md-tabs md-stretch-tabs="always" class="section-tabs"> <md-tab ng-repeat="tab in tabs track by tab.name" ng-disabled="::tab.disabled" label="{{::tab.name}}" layout-fill> <md-tab-content layout-fill="">
 	<p class="text-center" ng-if="::tab.thingCount === 0">
 		No Things available.
 		<button class="md-button" ng-click="$location.path('inbox/setup')">Add Thing</button>
@@ -239,10 +237,26 @@
 									</div>
 									<div ng-if="(item.stateText.length>7 || longEditMode) && !shortEditMode" flex="100" layout="row" layout-align="end center" style="height: 100%" ng-show="::(item.readOnly || (!item.readOnly && !isOptionList(item)))">
 										<div ng-if="::item.readOnly">
-											<span class="state">{{item.stateText}}</span>
+											<span class="state">
+												<div overflown class="ellipsis" ng-click="showMore($event)">
+													<div>
+														<p>{{item.stateText}}</p>
+														<div class="less" ng-click="showLess()">less</div>
+													</div>
+												</div>
+											</span>
 										</div>
 										<div ng-if="::!item.readOnly" layout="row" layout-align="end center" flex="100">
-											<span class="state editable text-right" ng-if="!longEditMode" ng-click="editState(false)" flex>{{item.stateText}}</span>
+											<div class="state editable text-right" ng-if="!longEditMode" flex>
+												<span class="state">
+													<div overflown class="ellipsis" ng-click="showMore($event)">
+														<div>
+															<p ng-click="editState(false)">{{item.stateText}}</p>
+															<div class="less" ng-click="showLess()">less</div>
+														</div>
+													</div>
+												</span>
+											</div>
 											<md-input-container ng-show="longEditMode" flex="80"> <input ng-if="::(item.groupType=='Number')" type="number" ng-model="item.state" aria-label={{::item.label}}></input> <input ng-if="::(item.groupType!='Number')" ng-model="item.state" aria-label={{::item.label}}></input> </md-input-container>
 											<i class="md-button control-button material-icons" ng-show="longEditMode" ng-click="updateState(false)">check</i>
 										</div>
