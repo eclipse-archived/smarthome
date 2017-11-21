@@ -13,6 +13,9 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import java.util.concurrent.Semaphore;
+
+import org.eclipse.smarthome.core.common.SafeMethodCaller;
 import org.eclipse.smarthome.core.events.AbstractEvent;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFactory;
@@ -280,6 +283,34 @@ public class OSGiEventManagerOSGiTest extends JavaOSGiTest {
     @Test(expected = IllegalArgumentException.class)
     public void testEventValidation_nullTpic() {
         eventPublisher.post(createEvent(EVENT_TYPE_A, "{a: 'A', b: 'B'}", null));
+    }
+
+    @Test
+    public void testDispatching_blacklisting() throws Exception {
+        Event event = createEvent(EVENT_TYPE_A);
+        Semaphore semaphore = new Semaphore(0);
+        doAnswer(answer -> {
+            Thread.sleep(SafeMethodCaller.DEFAULT_TIMEOUT + 1000);
+            semaphore.release(1);
+            return null;
+        }).when(typeBasedSubscriber1).receive(isA(Event.class));
+
+        eventPublisher.post(event);
+
+        waitForAssert(() -> {
+            verify(typeBasedSubscriber1, times(1)).receive(isA(Event.class));
+            verify(typeBasedSubscriber2, times(1)).receive(isA(Event.class));
+        });
+
+        // wait until the timeout was detected and then verify it's blacklisted
+        semaphore.acquire(1);
+
+        eventPublisher.post(event);
+
+        waitForAssert(() -> {
+            verify(typeBasedSubscriber1, times(1)).receive(isA(Event.class));
+            verify(typeBasedSubscriber2, times(2)).receive(isA(Event.class));
+        });
     }
 
     private Event createEvent(String eventType) {
