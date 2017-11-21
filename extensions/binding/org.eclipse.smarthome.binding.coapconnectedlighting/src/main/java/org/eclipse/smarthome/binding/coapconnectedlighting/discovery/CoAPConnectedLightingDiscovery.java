@@ -41,6 +41,8 @@ public class CoAPConnectedLightingDiscovery extends AbstractDiscoveryService {
     private final UDPServerThread udpListenServer = new UDPServerThread();
     private ScheduledFuture<?> udpListenServerTask;
 
+    private final String serverIdentifier = "mchp_coap";
+
     public CoAPConnectedLightingDiscovery() {
         super(SUPPORTED_THING_TYPES_UIDS, 10);
     }
@@ -93,8 +95,8 @@ public class CoAPConnectedLightingDiscovery extends AbstractDiscoveryService {
             logger.debug(hostAddress.getHostName());
             logger.debug(hostAddress.getCanonicalHostName());
 
-            String mMsg = "mchp_coap";
-            DatagramPacket out = new DatagramPacket(mMsg.getBytes(), mMsg.length(), hostAddress, 65525);
+            DatagramPacket out = new DatagramPacket(serverIdentifier.getBytes(), serverIdentifier.length(), hostAddress,
+                    65525);
             mClientSock.send(out); // send to the server
             mClientSock.setSoTimeout(5000); // set the timeout in millisecounds.
             while (true) {
@@ -104,7 +106,7 @@ public class CoAPConnectedLightingDiscovery extends AbstractDiscoveryService {
                     mClientSock.receive(in);
                     String payload = new String(in.getData());
                     logger.debug(TAG + ": Get reply from bcast from:" + in.getAddress().getHostAddress());
-                    if (payload.substring(0, 9).equals("mchp_coap")) {
+                    if (payload.substring(0, 9).equals(serverIdentifier)) {
                         discoverCoAP(in.getAddress());
                     }
                 } catch (SocketTimeoutException e) {
