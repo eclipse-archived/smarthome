@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapResponse;
 import org.eclipse.californium.core.WebLink;
@@ -74,24 +75,15 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
             devicePortNumber = ((BigDecimal) this.getConfig().get("portNumber")).intValue();
         }
 
-        if ((deviceIPAddress != null) && (devicePortNumber != -1)) {
-            if ((!deviceIPAddress.isEmpty()) && (devicePortNumber != -1)) {
-                coapServerIpAddress = deviceIPAddress;
-                coapServerPort = devicePortNumber;
-            } else {
-                logger.error(this.getThing().getUID() + "-Invalid IP Address or Port Number");
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                        "Can not access device as the ip address or port number is invalid");
-                updateStatus(ThingStatus.OFFLINE);
-                return;
-            }
-        } else {
-            logger.error(this.getThing().getUID() + "-NULL Configuration - IP Address or Port number is missing");
+        if (StringUtils.isBlank(deviceIPAddress) || (devicePortNumber == -1)) {
+            logger.debug(this.getThing().getUID() + "-Invalid IP Address or Port Number");
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                    "Can not access device as the ip address or port number is not set (NULL)");
-            updateStatus(ThingStatus.OFFLINE);
+                    "Can not access device as the ip address or port number is invalid");
             return;
         }
+
+        coapServerIpAddress = deviceIPAddress;
+        coapServerPort = devicePortNumber;
 
         stringChannelTemperatureUID = new ChannelUID(getThing().getUID(), CHANNEL_Temperature);
         stringChannelHumidityUID = new ChannelUID(getThing().getUID(), CHANNEL_Humidity);
