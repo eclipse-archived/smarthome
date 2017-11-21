@@ -233,10 +233,11 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
                 scheduledStop.cancel(false);
                 scheduledStop = null;
             }
+            final ScanListener scanListener = this.scanListener;
             if (scanListener != null) {
                 Exception e = new CancellationException("Scan has been aborted.");
                 scanListener.onErrorOccurred(e);
-                scanListener = null;
+                this.scanListener = null;
             }
         }
     }

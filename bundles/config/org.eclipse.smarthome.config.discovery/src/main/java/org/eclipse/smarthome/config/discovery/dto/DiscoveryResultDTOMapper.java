@@ -33,9 +33,8 @@ public class DiscoveryResultDTOMapper {
         ThingUID bridgeUID = discoveryResult.getBridgeUID();
 
         return new DiscoveryResultDTO(thingUID.toString(), bridgeUID != null ? bridgeUID.toString() : null,
-                discoveryResult.getThingTypeUID() != null ? discoveryResult.getThingTypeUID().toString() : null,
-                discoveryResult.getLabel(), discoveryResult.getFlag(), discoveryResult.getProperties(),
-                discoveryResult.getRepresentationProperty());
+                discoveryResult.getThingTypeUID().toString(), discoveryResult.getLabel(), discoveryResult.getFlag(),
+                discoveryResult.getProperties(), discoveryResult.getRepresentationProperty());
     }
 
     /**
@@ -45,11 +44,13 @@ public class DiscoveryResultDTOMapper {
      * @return the discovery result
      */
     public static DiscoveryResult map(DiscoveryResultDTO discoveryResultDTO) {
-        ThingUID thingUID = new ThingUID(discoveryResultDTO.thingUID);
-        ThingTypeUID thingTypeUID = discoveryResultDTO.thingTypeUID != null
-                ? new ThingTypeUID(discoveryResultDTO.thingTypeUID)
-                : null;
-        ThingUID bridgeUID = discoveryResultDTO.bridgeUID != null ? new ThingUID(discoveryResultDTO.bridgeUID) : null;
+        final ThingUID thingUID = new ThingUID(discoveryResultDTO.thingUID);
+
+        final String dtoThingTypeUID = discoveryResultDTO.thingTypeUID;
+        final ThingTypeUID thingTypeUID = dtoThingTypeUID != null ? new ThingTypeUID(dtoThingTypeUID) : null;
+
+        final String dtoBridgeUID = discoveryResultDTO.bridgeUID;
+        final ThingUID bridgeUID = dtoBridgeUID != null ? new ThingUID(dtoBridgeUID) : null;
 
         return DiscoveryResultBuilder.create(thingUID).withThingType(thingTypeUID).withBridge(bridgeUID)
                 .withLabel(discoveryResultDTO.label)
