@@ -273,7 +273,6 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
                 } else if (command instanceof DecimalType) {
                     IncreaseDecreaseType commandString = ((IncreaseDecreaseType) command);
                     putlightDimmer(commandString.toString());
-                    System.err.println(command.toString());
                 }
             } else if (channelUID.getId().equals(CHANNEL_LCD)) {
                 if (command instanceof StringType) {
