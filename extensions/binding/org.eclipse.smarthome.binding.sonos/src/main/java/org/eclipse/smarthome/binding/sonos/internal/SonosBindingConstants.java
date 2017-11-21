@@ -97,7 +97,6 @@ public class SonosBindingConstants {
     public final static String STOP = "stop";
     public final static String TUNEINSTATIONID = "tuneinstationid";
     public final static String VOLUME = "volume";
-    public final static String ZONEGROUP = "zonegroup";
     public final static String ZONEGROUPID = "zonegroupid";
     public final static String ZONENAME = "zonename";
     public final static String MODELID = "modelId";

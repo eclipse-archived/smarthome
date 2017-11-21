@@ -434,7 +434,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     updateChannel(ZONENAME);
                     break;
                 case "ZoneGroupState":
-                    updateChannel(ZONEGROUP);
                     updateChannel(COORDINATOR);
                     // Update coordinator after a change is made to the grouping of Sonos players
                     updateGroupCoordinator();
@@ -603,11 +602,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             case ZONENAME:
                 if (stateMap.get("CurrentZoneName") != null) {
                     newState = new StringType(stateMap.get("CurrentZoneName"));
-                }
-                break;
-            case ZONEGROUP:
-                if (stateMap.get("ZoneGroupState") != null) {
-                    newState = new StringType(stateMap.get("ZoneGroupState"));
                 }
                 break;
             case ZONEGROUPID:
