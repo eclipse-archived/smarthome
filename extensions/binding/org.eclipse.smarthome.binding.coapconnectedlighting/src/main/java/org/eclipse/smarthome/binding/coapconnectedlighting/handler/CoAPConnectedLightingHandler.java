@@ -119,46 +119,30 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
     }
 
     private void getTemperature() {
-        coapClient
-                .setURI("coap://" + coapServerIpAddress + ":" + coapServerPort + "/InternetOfTiny/sensors/temperature");
-        logger.debug(coapClient.getURI());
-        CoapResponse clientResponseTemperature = coapClient.get(TEXT_PLAIN);
-
-        String temperatureText = clientResponseTemperature.getResponseText();
-        String temperatureFirstHalf = temperatureText.substring(0, temperatureText.lastIndexOf(','));
-        String temperature = temperatureFirstHalf.substring(temperatureFirstHalf.lastIndexOf(',') + 1);
-
-        updateState(stringChannelTemperatureUID, new DecimalType(temperature));
-
-        logger.debug(clientResponseTemperature.advanced().getSource().toString());
+        updateState(stringChannelTemperatureUID, getSensorData("temperature"));
     }
 
     private void getHumidity() {
-        coapClient.setURI("coap://" + coapServerIpAddress + ":" + coapServerPort + "/InternetOfTiny/sensors/humidity");
-
-        logger.debug(coapClient.getURI());
-        CoapResponse clientResponseHumidity = coapClient.get(TEXT_PLAIN);
-        String humidityText = clientResponseHumidity.getResponseText();
-        String humidityFirstHalf = humidityText.substring(0, humidityText.lastIndexOf(','));
-        String humidity = humidityFirstHalf.substring(humidityFirstHalf.lastIndexOf(',') + 1);
-
-        updateState(stringChannelHumidityUID, new DecimalType(humidity));
-
-        logger.debug(clientResponseHumidity.advanced().getSource().toString());
+        updateState(stringChannelHumidityUID, getSensorData("humidity"));
     }
 
     private void getPressure() {
-        coapClient.setURI("coap://" + coapServerIpAddress + ":" + coapServerPort + "/InternetOfTiny/sensors/pressure");
+        updateState(stringChannelPressureUID, getSensorData("pressure"));
+    }
 
+    private DecimalType getSensorData(String sensorType) {
+        coapClient.setURI(
+                "coap://" + coapServerIpAddress + ":" + coapServerPort + "/InternetOfTiny/sensors/" + sensorType);
         logger.debug(coapClient.getURI());
-        CoapResponse clientResponsePressure = coapClient.get(TEXT_PLAIN);
-        String pressureText = clientResponsePressure.getResponseText();
-        String pressureFirstHalf = pressureText.substring(0, pressureText.lastIndexOf(','));
-        String pressure = pressureFirstHalf.substring(pressureFirstHalf.lastIndexOf(',') + 1);
+        CoapResponse clientResponse = coapClient.get(TEXT_PLAIN);
 
-        updateState(stringChannelPressureUID, new DecimalType(pressure));
+        String sensorText = clientResponse.getResponseText();
+        String sensorFirstHalf = sensorText.substring(0, sensorText.lastIndexOf(','));
+        String sensorDataString = sensorFirstHalf.substring(sensorFirstHalf.lastIndexOf(',') + 1);
 
-        logger.debug(clientResponsePressure.advanced().getSource().toString());
+        logger.debug(clientResponse.advanced().getSource().toString());
+
+        return new DecimalType(sensorDataString);
     }
 
     private void putLCD(String message) {
