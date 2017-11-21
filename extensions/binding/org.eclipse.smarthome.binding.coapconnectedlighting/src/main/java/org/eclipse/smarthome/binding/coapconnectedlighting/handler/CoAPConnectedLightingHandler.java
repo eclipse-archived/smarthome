@@ -157,9 +157,9 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
                 .setURI("coap://" + coapServerIpAddress + ":" + coapServerPort + "/InternetOfTiny/actuators/actuator1");
         String coapLightSwitch;
 
-        if (message.compareTo("ON") == 0) {
+        if (message.equals("ON")) {
             coapLightSwitch = new String(",1,pp,100,");
-        } else if (message.compareTo("OFF") == 0) {
+        } else if (message.equals("OFF")) {
             coapLightSwitch = new String(",1,pp,0,");
         } else {
             coapLightSwitch = new String("");
