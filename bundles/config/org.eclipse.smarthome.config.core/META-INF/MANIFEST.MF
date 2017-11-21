@@ -17,6 +17,7 @@ Import-Package:
  com.google.common.base,
  com.google.common.collect,
  com.google.gson,
+ com.google.gson.annotations,
  org.apache.commons.lang.reflect,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,

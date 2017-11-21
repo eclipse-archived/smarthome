@@ -117,6 +117,7 @@ public class RuleResource implements RESTResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Creates a rule.")
+    @Produces(MediaType.APPLICATION_JSON)
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Created", responseHeaders = @ResponseHeader(name = "Location", description = "Newly created Rule", response = String.class)),
             @ApiResponse(code = 409, message = "Creation of the rule is refused. Rule with the same UID already exists."),

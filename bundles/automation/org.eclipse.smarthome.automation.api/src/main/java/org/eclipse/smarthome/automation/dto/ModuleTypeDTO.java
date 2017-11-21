@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Visibility;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.dto.ConfigDescriptionParameterDTO;
 
 /**
  * This is a data transfer object that is used to serialize the respective class.
@@ -26,6 +26,6 @@ public class ModuleTypeDTO {
     public Set<String> tags;
     public String label;
     public String description;
-    public List<ConfigDescriptionParameter> configDescriptions;
+    public List<ConfigDescriptionParameterDTO> configDescriptions;
 
 }

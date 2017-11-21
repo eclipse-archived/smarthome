@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.config.core;
 
+import com.google.gson.annotations.SerializedName;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -81,6 +82,7 @@ public class ConfigDescriptionParameter {
     private String unitLabel;
 
     private String context;
+    @SerializedName("default")
     private String defaultValue;
     private String label;
     private String description;
