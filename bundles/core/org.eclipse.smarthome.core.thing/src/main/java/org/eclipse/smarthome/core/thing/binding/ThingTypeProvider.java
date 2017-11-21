@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.thing.binding;
 import java.util.Collection;
 import java.util.Locale;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
@@ -20,6 +21,7 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
  * @author Dennis Nobel
  *
  */
+@NonNullByDefault
 public interface ThingTypeProvider {
 
     /**
@@ -30,7 +32,7 @@ public interface ThingTypeProvider {
      *
      * @return the thing types provided by the {@link ThingTypeProvider}
      */
-    Collection<ThingType> getThingTypes(Locale locale);
+    Collection<ThingType> getThingTypes(@Nullable Locale locale);
 
     /**
      * Provides a thing type for the given UID or null if no type for the
@@ -42,6 +44,6 @@ public interface ThingTypeProvider {
      *         UID exists
      */
     @Nullable
-    ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale);
+    ThingType getThingType(ThingTypeUID thingTypeUID, @Nullable Locale locale);
 
 }

@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.binding;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 
@@ -21,6 +21,7 @@ import org.eclipse.smarthome.core.thing.Thing;
  *
  * @author Stefan Bußweiler - Initial contribution and API
  */
+@NonNullByDefault
 public interface BridgeHandler extends ThingHandler {
 
     /**
@@ -29,7 +30,7 @@ public interface BridgeHandler extends ThingHandler {
      * @param childHandler the initialized child handler
      * @param childThing the thing of the initialized child handler
      */
-    void childHandlerInitialized(@NonNull ThingHandler childHandler, @NonNull Thing childThing);
+    void childHandlerInitialized(ThingHandler childHandler, Thing childThing);
 
     /**
      * Informs the bridge handler that a child handler has been disposed.
@@ -37,6 +38,6 @@ public interface BridgeHandler extends ThingHandler {
      * @param childHandler the disposed child handler
      * @param childThing the thing of the disposed child handler
      */
-    void childHandlerDisposed(@NonNull ThingHandler childHandler, @NonNull Thing childThing);
+    void childHandlerDisposed(ThingHandler childHandler, Thing childThing);
 
 }

@@ -43,13 +43,16 @@ import org.osgi.util.tracker.ServiceTracker;
 @NonNullByDefault
 public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
-    protected @Nullable BundleContext bundleContext;
+    @NonNullByDefault({})
+    protected BundleContext bundleContext;
 
-    private final Map<String, ServiceRegistration<ConfigStatusProvider>> configStatusProviders = new ConcurrentHashMap<>();
-    private final Map<String, ServiceRegistration<FirmwareUpdateHandler>> firmwareUpdateHandlers = new ConcurrentHashMap<>();
+    private final Map<String, @Nullable ServiceRegistration<ConfigStatusProvider>> configStatusProviders = new ConcurrentHashMap<>();
+    private final Map<String, @Nullable ServiceRegistration<FirmwareUpdateHandler>> firmwareUpdateHandlers = new ConcurrentHashMap<>();
 
-    private @Nullable ServiceTracker<ThingTypeRegistry, ThingTypeRegistry> thingTypeRegistryServiceTracker;
-    private @Nullable ServiceTracker<ConfigDescriptionRegistry, ConfigDescriptionRegistry> configDescriptionRegistryServiceTracker;
+    @NonNullByDefault({})
+    private ServiceTracker<ThingTypeRegistry, ThingTypeRegistry> thingTypeRegistryServiceTracker;
+    @NonNullByDefault({})
+    private ServiceTracker<ConfigDescriptionRegistry, ConfigDescriptionRegistry> configDescriptionRegistryServiceTracker;
 
     /**
      * Initializes the {@link BaseThingHandlerFactory}. If this method is overridden by a sub class, the implementing
@@ -276,7 +279,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         }
     }
 
-    protected ConfigDescriptionRegistry getConfigDescriptionRegistry() {
+    protected @Nullable ConfigDescriptionRegistry getConfigDescriptionRegistry() {
         if (configDescriptionRegistryServiceTracker == null) {
             throw new IllegalStateException(
                     "Config Description Registry has not been properly initialized. Did you forget to call super.activate()?");
