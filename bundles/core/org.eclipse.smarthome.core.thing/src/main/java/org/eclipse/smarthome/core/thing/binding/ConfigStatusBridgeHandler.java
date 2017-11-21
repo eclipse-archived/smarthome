@@ -9,7 +9,8 @@ package org.eclipse.smarthome.core.thing.binding;
 
 import java.util.Map;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusCallback;
 import org.eclipse.smarthome.config.core.status.ConfigStatusProvider;
@@ -29,16 +30,17 @@ import org.eclipse.smarthome.core.thing.Bridge;
  *
  * @author Thomas Höfer - Initial contribution
  */
+@NonNullByDefault
 public abstract class ConfigStatusBridgeHandler extends BaseBridgeHandler implements ConfigStatusProvider {
 
-    private ConfigStatusCallback configStatusCallback;
+    private @Nullable ConfigStatusCallback configStatusCallback;
 
     /**
      * Creates a new instance of this class for the given {@link Bridge}.
      *
      * @param bridge the bridge for this handler
      */
-    public ConfigStatusBridgeHandler(@NonNull Bridge bridge) {
+    public ConfigStatusBridgeHandler(Bridge bridge) {
         super(bridge);
     }
 
@@ -48,7 +50,7 @@ public abstract class ConfigStatusBridgeHandler extends BaseBridgeHandler implem
     }
 
     @Override
-    public void setConfigStatusCallback(ConfigStatusCallback configStatusCallback) {
+    public void setConfigStatusCallback(@Nullable ConfigStatusCallback configStatusCallback) {
         this.configStatusCallback = configStatusCallback;
     }
 
