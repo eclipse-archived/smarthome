@@ -343,12 +343,12 @@
 			_t.visible = state;
 		};
 
-		_t.setValue = function(value, itemState) {
+		_t.setValue = function(value, itemState, visible) {
 			_t.reloadIcon(itemState);
 			if (suppress) {
 				suppress = false;
 			} else {
-				_t.setValuePrivate(value, itemState);
+				_t.setValuePrivate(value, itemState, visible);
 			}
 		};
 
@@ -409,37 +409,67 @@
 		}
 
 		var
-			_t = this;
+			_t = this,
+			interval = null,
+			urlNoneIcon = "images/none.png";
 
 		_t.image = parentNode.querySelector("img");
 		_t.updateInterval = parseInt(parentNode.getAttribute("data-update-interval"), 10);
 
 		_t.url = parentNode.getAttribute("data-proxied-url");
 		_t.validUrl = parentNode.getAttribute("data-valid-url") === "true";
+		_t.ignoreRefresh = parentNode.getAttribute("data-ignore-refresh") === "true";
 
-		_t.setValuePrivate = function(value, itemState) {
-			if (itemState.startsWith("data:")) {
+		_t.setValuePrivate = function(value, itemState, visible) {
+			if (!visible) {
+				_t.ignoreRefresh = true;
+				_t.image.setAttribute("src", urlNoneIcon);
+			} else if (itemState.startsWith("data:")) {
 				// Image element associated to an item of type ImageItem
+				_t.ignoreRefresh = true;
 				_t.image.setAttribute("src", itemState);
 			} else if ((itemState !== "UNDEF") || (_t.validUrl)) {
 				// Image element associated to an item of type StringItem (URL)
 				// Or no associated item but url is set and valid in the image element
+				_t.ignoreRefresh = false;
 				_t.image.setAttribute("src", _t.url + "&t=" + Date.now());
 			} else {
 				// No associated item and url is not set or not valid in the image element
-				_t.image.setAttribute("src", "images/none.png");
+				_t.ignoreRefresh = true;
+				_t.image.setAttribute("src", urlNoneIcon);
 			}
 		};
 
-		if (_t.updateInterval === 0) {
-			return;
-		}
-		// Limit the refresh interval to 100 ms
-		if (_t.updateInterval < 100) {
-			_t.updateInterval = 100;
-		}
+		_t.setVisible = function(state) {
+			if (state) {
+				_t.formRow.classList.remove(o.formRowHidden);
+				_t.activateRefresh();
+			} else {
+				_t.formRow.classList.add(o.formRowHidden);
+				_t.deactivateRefresh();
+			}
 
-		var
+			_t.visible = state;
+		};
+
+		_t.deactivateRefresh = function() {
+			if (interval !== null) {
+				clearInterval(interval);
+				interval = null;
+			}
+		};
+
+		_t.activateRefresh = function() {
+			_t.deactivateRefresh();
+
+			if (_t.updateInterval === 0 || _t.ignoreRefresh) {
+				return;
+			}
+			// Limit the refresh interval to 100 ms
+			if (_t.updateInterval < 100) {
+				_t.updateInterval = 100;
+			}
+
 			interval = setInterval(function() {
 				if (_t.image.clientWidth === 0) {
 					clearInterval(interval);
@@ -447,6 +477,11 @@
 				}
 				_t.image.setAttribute("src", _t.url + "&t=" + Date.now());
 			}, _t.updateInterval);
+		};
+
+		if (_t.visible) {
+			_t.activateRefresh();
+		}
 	}
 
 	/* class ControlText extends Control */
@@ -1744,7 +1779,7 @@
 					});
 				}
 
-				widget.setValue(smarthome.UI.escapeHtml(value), data.item.state);
+				widget.setValue(smarthome.UI.escapeHtml(value), data.item.state, data.visibility);
 
 				[{
 					apply: widget.setLabel,
@@ -1809,6 +1844,7 @@
 						state = widget.item.state,
 						label = widget.label,
 						value = _t.extractValueFromLabel(widget.label),
+						visibility = widget.visibility,
 						labelcolor = widget.labelcolor,
 						valuecolor = widget.valuecolor;
 
@@ -1819,7 +1855,7 @@
 					if (smarthome.dataModelLegacy[item] !== undefined) {
 						smarthome.dataModelLegacy[item].widgets.forEach(function(w) {
 							if (state !== "NULL") {
-								w.setValue(smarthome.UI.escapeHtml(value), state);
+								w.setValue(smarthome.UI.escapeHtml(value), state, visibility);
 							}
 							if (label !== undefined) {
 								w.setLabel(label);

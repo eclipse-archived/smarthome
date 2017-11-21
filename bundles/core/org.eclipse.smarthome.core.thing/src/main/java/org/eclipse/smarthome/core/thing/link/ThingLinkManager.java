@@ -8,7 +8,9 @@
 package org.eclipse.smarthome.core.thing.link;
 
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
@@ -54,11 +56,11 @@ import org.slf4j.LoggerFactory;
                 "service.pid:String=org.eclipse.smarthome.links" })
 public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusInfoChangedEvent> {
 
-    public ThingLinkManager() {
-        super(ThingStatusInfoChangedEvent.TYPE);
-    }
+    private static final String THREADPOOL_NAME = "thingLinkManager";
 
     private Logger logger = LoggerFactory.getLogger(ThingLinkManager.class);
+
+    private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool("thingLinkManager");
 
     private ThingRegistry thingRegistry;
     private ManagedThingProvider managedThingProvider;
@@ -66,6 +68,10 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
 
     private boolean autoLinks = true;
+
+    public ThingLinkManager() {
+        super(ThingStatusInfoChangedEvent.TYPE);
+    }
 
     @Activate
     protected void activate(ComponentContext context) {
@@ -270,42 +276,43 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
     };
 
     private void informHandlerAboutLinkedChannel(Thing thing, Channel channel) {
-        // Don't notify the thing if the thing isn't initialised
-        if (!ThingHandlerHelper.isHandlerInitialized(thing)) {
-            return;
-        }
-
-        ThingHandler handler = thing.getHandler();
-        if (handler != null) {
-            try {
-                handler.channelLinked(channel.getUID());
-            } catch (Exception ex) {
-                logger.error("Exception occurred while informing handler: {}", ex.getMessage(), ex);
+        scheduler.submit(() -> {
+            // Don't notify the thing if the thing isn't initialised
+            if (ThingHandlerHelper.isHandlerInitialized(thing)) {
+                ThingHandler handler = thing.getHandler();
+                if (handler != null) {
+                    try {
+                        handler.channelLinked(channel.getUID());
+                    } catch (Exception ex) {
+                        logger.error("Exception occurred while informing handler: {}", ex.getMessage(), ex);
+                    }
+                } else {
+                    logger.trace(
+                            "Can not inform handler about linked channel, because no handler is assigned to the thing {}.",
+                            thing.getUID());
+                }
             }
-        } else {
-            logger.trace("Can not inform handler about linked channel, because no handler is assigned to the thing {}.",
-                    thing.getUID());
-        }
+        });
     }
 
     private void informHandlerAboutUnlinkedChannel(Thing thing, Channel channel) {
-        // Don't notify the thing if the thing isn't initialised
-        if (!ThingHandlerHelper.isHandlerInitialized(thing)) {
-            return;
-        }
-
-        ThingHandler handler = thing.getHandler();
-        if (handler != null) {
-            try {
-                handler.channelUnlinked(channel.getUID());
-            } catch (Exception ex) {
-                logger.error("Exception occurred while informing handler: {}", ex.getMessage(), ex);
+        scheduler.submit(() -> {
+            // Don't notify the thing if the thing isn't initialised
+            if (ThingHandlerHelper.isHandlerInitialized(thing)) {
+                ThingHandler handler = thing.getHandler();
+                if (handler != null) {
+                    try {
+                        handler.channelUnlinked(channel.getUID());
+                    } catch (Exception ex) {
+                        logger.error("Exception occurred while informing handler: {}", ex.getMessage(), ex);
+                    }
+                } else {
+                    logger.trace(
+                            "Can not inform handler about unlinked channel, because no handler is assigned to the thing {}.",
+                            thing.getUID());
+                }
             }
-        } else {
-            logger.trace(
-                    "Can not inform handler about unlinked channel, because no handler is assigned to the thing {}.",
-                    thing.getUID());
-        }
+        });
     }
 
     @Override

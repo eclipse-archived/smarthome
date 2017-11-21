@@ -110,7 +110,7 @@ public class ChannelItemProviderTest {
 
         resetAndPrepareListener();
 
-        provider.itemRegistryListener.added(new NumberItem(ITEM_NAME));
+        provider.itemRegistryListener.beforeAdding(new NumberItem(ITEM_NAME));
         verify(listener, only()).removed(same(provider), same(ITEM));
         verify(listener, never()).added(same(provider), same(ITEM));
     }
@@ -120,12 +120,12 @@ public class ChannelItemProviderTest {
         reset(listener);
         doAnswer(invocation -> {
             // this is crucial as it mimicks the real ItemRegistry's behavior
-            provider.itemRegistryListener.removed((Item) invocation.getArguments()[1]);
+            provider.itemRegistryListener.afterRemoving((Item) invocation.getArguments()[1]);
             return null;
         }).when(listener).removed(same(provider), any(Item.class));
         doAnswer(invocation -> {
             // this is crucial as it mimicks the real ItemRegistry's behavior
-            provider.itemRegistryListener.added((Item) invocation.getArguments()[1]);
+            provider.itemRegistryListener.beforeAdding((Item) invocation.getArguments()[1]);
             return null;
         }).when(listener).added(same(provider), any(Item.class));
         when(linkRegistry.getBoundChannels(eq(ITEM_NAME))).thenReturn(Collections.singleton(CHANNEL_UID));
