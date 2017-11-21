@@ -112,9 +112,9 @@ public class CoAPConnectedLightingDiscovery extends AbstractDiscoveryService {
                 }
             }
         } catch (SocketException e) {
-            e.printStackTrace();
+            logger.debug("UDP error on the socket", e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.debug("IO error on the socket", e);
         }
     }
 
