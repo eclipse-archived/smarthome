@@ -126,7 +126,7 @@ public class DiscoveryResultImpl implements DiscoveryResult {
         if (thingId != null) {
             return thingId.getBindingId();
         }
-        return null;
+        return "";
     }
 
     @Override

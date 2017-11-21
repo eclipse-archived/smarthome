@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.config.discovery;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * By implementing this interface, a {@link DiscoveryService} implementation may indicate that it requires extended
  * access to the core framework.
@@ -17,6 +19,7 @@ package org.eclipse.smarthome.config.discovery;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
+@NonNullByDefault
 public interface ExtendedDiscoveryService {
 
     /**
