@@ -143,7 +143,7 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
         updateProperties(deviceProperties);
     }
 
-    private void getTemprature() {
+    private void getTemperature() {
         coapClient
                 .setURI("coap://" + coapServerIpAddress + ":" + coapServerPort + "/InternetOfTiny/sensors/temperature");
         logger.debug(coapClient.getURI());
@@ -223,7 +223,7 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
             @Override
             public void run() {
                 try {
-                    getTemprature();
+                    getTemperature();
                 } catch (Exception e) {
                     logger.debug("Exception occurred during execution: {}", e.getMessage(), e);
                 }
