@@ -57,8 +57,8 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
 
     private final CoapClient coapClient = new CoapClient();
 
-    String COAP_SERVER_IP_ADDRESS = "0.0.0.0";
-    int COAP_SERVER_PORT = 5683;
+    private String coapServerIpAddress = "0.0.0.0";
+    private int coapServerPort = 5683;
 
     /*
      * String COAP_SERVER_IP_ADDRESS_LIGHT = "192.168.1.103";
@@ -80,8 +80,8 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
 
         if ((deviceIPAddress != null) && (devicePortNumber != -1)) {
             if ((!deviceIPAddress.isEmpty()) && (devicePortNumber != -1)) {
-                COAP_SERVER_IP_ADDRESS = deviceIPAddress;
-                COAP_SERVER_PORT = devicePortNumber;
+                coapServerIpAddress = deviceIPAddress;
+                coapServerPort = devicePortNumber;
             } else {
                 logger.error(this.getThing().getUID() + "-Invalid IP Address or Port Number");
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
@@ -107,10 +107,10 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
         Map<String, String> deviceProperties = editProperties();
 
         // Add the IP Address property
-        deviceProperties.put("IP Address", COAP_SERVER_IP_ADDRESS);
+        deviceProperties.put("IP Address", coapServerIpAddress);
 
         // Get the device functionality
-        coapClient.setURI("coap://" + COAP_SERVER_IP_ADDRESS + ":" + COAP_SERVER_PORT);
+        coapClient.setURI("coap://" + coapServerIpAddress + ":" + coapServerPort);
         Set<WebLink> weblink = coapClient.discover();
 
         if (weblink != null) {
@@ -150,8 +150,8 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
     }
 
     private void getTemprature() {
-        coapClient.setURI(
-                "coap://" + COAP_SERVER_IP_ADDRESS + ":" + COAP_SERVER_PORT + "/InternetOfTiny/sensors/temperature");
+        coapClient
+                .setURI("coap://" + coapServerIpAddress + ":" + coapServerPort + "/InternetOfTiny/sensors/temperature");
         logger.debug(coapClient.getURI());
         CoapResponse clientResponseTemperature = coapClient.get(TEXT_PLAIN);
 
@@ -165,8 +165,7 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
     }
 
     private void getHumidity() {
-        coapClient.setURI(
-                "coap://" + COAP_SERVER_IP_ADDRESS + ":" + COAP_SERVER_PORT + "/InternetOfTiny/sensors/humidity");
+        coapClient.setURI("coap://" + coapServerIpAddress + ":" + coapServerPort + "/InternetOfTiny/sensors/humidity");
 
         logger.debug(coapClient.getURI());
         CoapResponse clientResponseHumidity = coapClient.get(TEXT_PLAIN);
@@ -180,8 +179,7 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
     }
 
     private void getPressure() {
-        coapClient.setURI(
-                "coap://" + COAP_SERVER_IP_ADDRESS + ":" + COAP_SERVER_PORT + "/InternetOfTiny/sensors/pressure");
+        coapClient.setURI("coap://" + coapServerIpAddress + ":" + coapServerPort + "/InternetOfTiny/sensors/pressure");
 
         logger.debug(coapClient.getURI());
         CoapResponse clientResponsePressure = coapClient.get(TEXT_PLAIN);
@@ -195,15 +193,15 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
     }
 
     private void putLCD(String message) {
-        coapClient.setURI("coap://" + COAP_SERVER_IP_ADDRESS + ":" + COAP_SERVER_PORT + "/COAP/LCDResource");
+        coapClient.setURI("coap://" + coapServerIpAddress + ":" + coapServerPort + "/COAP/LCDResource");
         CoapResponse clientResponseLCD = coapClient.put(message, TEXT_PLAIN);
 
         logger.debug(clientResponseLCD.advanced().getSource().toString());
     }
 
     private void putLightOnOff(String message) {
-        coapClient.setURI(
-                "coap://" + COAP_SERVER_IP_ADDRESS + ":" + COAP_SERVER_PORT + "/InternetOfTiny/actuators/actuator1");
+        coapClient
+                .setURI("coap://" + coapServerIpAddress + ":" + coapServerPort + "/InternetOfTiny/actuators/actuator1");
         StringBuilder coapLightSwitch = new StringBuilder();
         if (message.compareTo("ON") == 0) {
             coapLightSwitch.append(",1,pp,100,");
@@ -216,8 +214,8 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
     }
 
     private void putlightDimmer(String message) {
-        coapClient.setURI(
-                "coap://" + COAP_SERVER_IP_ADDRESS + ":" + COAP_SERVER_PORT + "/InternetOfTiny/actuators/actuator1");
+        coapClient
+                .setURI("coap://" + coapServerIpAddress + ":" + coapServerPort + "/InternetOfTiny/actuators/actuator1");
         StringBuilder coapLightSwitch = new StringBuilder();
         coapLightSwitch.append(",1,pp," + message + ",");
 
