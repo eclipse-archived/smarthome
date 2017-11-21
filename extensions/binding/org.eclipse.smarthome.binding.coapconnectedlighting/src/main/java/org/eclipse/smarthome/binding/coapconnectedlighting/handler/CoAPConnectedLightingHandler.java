@@ -55,7 +55,7 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
 
     private BigDecimal refresh;
 
-    CoapClient coapClient = new CoapClient();
+    private final CoapClient coapClient = new CoapClient();
 
     String COAP_SERVER_IP_ADDRESS = "0.0.0.0";
     int COAP_SERVER_PORT = 5683;
