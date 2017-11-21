@@ -175,7 +175,7 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
         coapClient
                 .setURI("coap://" + coapServerIpAddress + ":" + coapServerPort + "/InternetOfTiny/actuators/actuator1");
         StringBuilder coapLightSwitch = new StringBuilder();
-        coapLightSwitch.append(",1,pp," + message + ",");
+        coapLightSwitch.append(",1,pp,").append(message).append(",");
 
         CoapResponse clientResponse = coapClient.put(coapLightSwitch.toString(), TEXT_PLAIN);
 
