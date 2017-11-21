@@ -7,7 +7,10 @@
  */
 package org.eclipse.smarthome.binding.hue.handler;
 
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.HOST;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.POLLING_INTERVAL;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_BRIDGE;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.USER_NAME;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -321,6 +324,9 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
      */
     public boolean onNotAuthenticated() {
         String userName = (String) getConfig().get(USER_NAME);
+        if (hueBridge == null) {
+            return false;
+        }
         if (userName == null) {
             createUser();
         } else {
