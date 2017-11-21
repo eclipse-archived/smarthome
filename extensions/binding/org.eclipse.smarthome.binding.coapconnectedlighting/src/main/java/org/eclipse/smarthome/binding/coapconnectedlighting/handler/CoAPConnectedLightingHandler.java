@@ -102,28 +102,11 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
         if (weblink != null) {
             Iterator<WebLink> links = weblink.iterator();
 
-            StringBuilder weblinkString = new StringBuilder();
+            boolean isActuator = weblink.stream().map(WebLink::getURI).anyMatch(uri -> uri.contains("actuators"));
+            boolean isSensor = weblink.stream().map(WebLink::getURI).anyMatch(uri -> uri.contains("sensors"));
 
-            while (links.hasNext()) {
-                weblinkString.append(":" + links.next().getURI());
-            }
-
-            String resourcesCombined = weblinkString.toString();
-            if (resourcesCombined.contains("actuators") && resourcesCombined.contains("sensors")) {
-                deviceProperties.put("Is a Sensor ?", "Yes");
-                deviceProperties.put("Is a Light ?", "Yes");
-            } else {
-                if (resourcesCombined.contains("actuators")) {
-                    deviceProperties.put("Is a Light ?", "Yes");
-                    deviceProperties.put("Is a Sensor ?", "No");
-                } else if (resourcesCombined.contains("sensors")) {
-                    deviceProperties.put("Is a Sensor ?", "Yes");
-                    deviceProperties.put("Is a Light ?", "No");
-                } else {
-                    deviceProperties.put("Is a Sensor ?", "No");
-                    deviceProperties.put("Is a Light ?", "No");
-                }
-            }
+            deviceProperties.put("Is a Sensor ?", isSensor ? "Yes" : "No");
+            deviceProperties.put("Is a Light ?", isActuator ? "Yes" : "No");
 
             updateStatus(ThingStatus.ONLINE);
         } else {
