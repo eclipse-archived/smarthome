@@ -13,7 +13,6 @@ import java.util.Locale;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
@@ -38,7 +37,8 @@ import org.osgi.service.component.annotations.Reference;
 @NonNullByDefault
 public class ThingTypeI18nLocalizationService {
 
-    private @Nullable ThingTypeI18nUtil thingTypeI18nUtil;
+    @NonNullByDefault({})
+    private ThingTypeI18nUtil thingTypeI18nUtil;
 
     @Reference
     protected void setTranslationProvider(TranslationProvider i18nProvider) {
