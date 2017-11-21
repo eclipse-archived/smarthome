@@ -107,7 +107,8 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
 
     private Logger logger = LoggerFactory.getLogger(ThingManager.class);
 
-    private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool("thingManager");
+    private final ScheduledExecutorService scheduler = ThreadPoolManager
+            .getScheduledPool(THING_MANAGER_THREADPOOL_NAME);
 
     private EventPublisher eventPublisher;
 
