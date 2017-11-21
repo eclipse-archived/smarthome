@@ -60,10 +60,6 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
     private String coapServerIpAddress = "0.0.0.0";
     private int coapServerPort = 5683;
 
-    /*
-     * String COAP_SERVER_IP_ADDRESS_LIGHT = "192.168.1.103";
-     * String COAP_SERVER_PORT_LIGHT = "5683";
-     */
     public CoAPConnectedLightingHandler(Thing thing) {
         super(thing);
     }
