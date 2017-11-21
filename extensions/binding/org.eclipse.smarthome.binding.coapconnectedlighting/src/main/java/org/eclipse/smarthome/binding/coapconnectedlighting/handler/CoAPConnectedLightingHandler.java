@@ -270,7 +270,7 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
                 startBackgroundPressureRefresh();
                 break;
             default:
-                // do something
+                logger.debug("Linked Channel is of an unknown type");
         }
     }
 
@@ -293,7 +293,7 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
                 }
                 break;
             default:
-                // do something
+                logger.debug("Unlinked Channel is of an unknown type");
         }
     }
 
