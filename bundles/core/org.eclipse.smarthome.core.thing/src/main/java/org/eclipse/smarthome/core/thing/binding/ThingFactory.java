@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
@@ -100,7 +99,7 @@ public class ThingFactory {
     }
 
     public static @Nullable Thing createThing(ThingUID thingUID, Configuration configuration,
-            @Nullable Map<@NonNull String, String> properties, ThingUID bridgeUID, ThingTypeUID thingTypeUID,
+            @Nullable Map<String, String> properties, ThingUID bridgeUID, ThingTypeUID thingTypeUID,
             List<ThingHandlerFactory> thingHandlerFactories) {
         for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
             if (thingHandlerFactory.supportsThingType(thingTypeUID)) {

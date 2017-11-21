@@ -10,7 +10,6 @@ package org.eclipse.smarthome.core.thing.binding;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.jdt.annotation.DefaultLocation;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
@@ -41,16 +40,18 @@ import org.osgi.util.tracker.ServiceTracker;
  * @author Stefan Bußweiler - API changes due to bridge/thing life cycle refactoring, removed OSGi service registration
  *         for thing handlers
  */
-@NonNullByDefault({ DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.ARRAY_CONTENTS,
-        DefaultLocation.TYPE_ARGUMENT, DefaultLocation.TYPE_BOUND, DefaultLocation.TYPE_PARAMETER })
+@NonNullByDefault
 public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
+    @NonNullByDefault({})
     protected BundleContext bundleContext;
 
     private final Map<String, @Nullable ServiceRegistration<ConfigStatusProvider>> configStatusProviders = new ConcurrentHashMap<>();
     private final Map<String, @Nullable ServiceRegistration<FirmwareUpdateHandler>> firmwareUpdateHandlers = new ConcurrentHashMap<>();
 
+    @NonNullByDefault({})
     private ServiceTracker<ThingTypeRegistry, ThingTypeRegistry> thingTypeRegistryServiceTracker;
+    @NonNullByDefault({})
     private ServiceTracker<ConfigDescriptionRegistry, ConfigDescriptionRegistry> configDescriptionRegistryServiceTracker;
 
     /**

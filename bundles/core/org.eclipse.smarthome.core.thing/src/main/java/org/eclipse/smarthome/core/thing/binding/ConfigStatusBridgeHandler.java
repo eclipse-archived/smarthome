@@ -9,7 +9,6 @@ package org.eclipse.smarthome.core.thing.binding;
 
 import java.util.Map;
 
-import org.eclipse.jdt.annotation.DefaultLocation;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -31,11 +30,10 @@ import org.eclipse.smarthome.core.thing.Bridge;
  *
  * @author Thomas Höfer - Initial contribution
  */
-@NonNullByDefault({ DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.ARRAY_CONTENTS,
-        DefaultLocation.TYPE_ARGUMENT, DefaultLocation.TYPE_BOUND, DefaultLocation.TYPE_PARAMETER })
+@NonNullByDefault
 public abstract class ConfigStatusBridgeHandler extends BaseBridgeHandler implements ConfigStatusProvider {
 
-    private ConfigStatusCallback configStatusCallback;
+    private @Nullable ConfigStatusCallback configStatusCallback;
 
     /**
      * Creates a new instance of this class for the given {@link Bridge}.

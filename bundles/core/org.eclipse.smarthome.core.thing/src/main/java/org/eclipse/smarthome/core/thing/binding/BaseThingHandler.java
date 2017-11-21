@@ -13,8 +13,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.eclipse.jdt.annotation.DefaultLocation;
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -62,8 +60,7 @@ import org.slf4j.LoggerFactory;
  * @author Stefan Bußweiler - Added new thing status handling, refactorings thing/bridge life cycle
  * @author Kai Kreuzer - Refactored isLinked method to not use deprecated functions anymore
  */
-@NonNullByDefault({ DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.ARRAY_CONTENTS,
-        DefaultLocation.TYPE_ARGUMENT, DefaultLocation.TYPE_BOUND, DefaultLocation.TYPE_PARAMETER })
+@NonNullByDefault
 public abstract class BaseThingHandler implements ThingHandler {
 
     private static final String THING_HANDLER_THREADPOOL_NAME = "thingHandler";
@@ -72,20 +69,25 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected final ScheduledExecutorService scheduler = ThreadPoolManager
             .getScheduledPool(THING_HANDLER_THREADPOOL_NAME);
 
+    @NonNullByDefault({})
     protected ThingRegistry thingRegistry;
+    @NonNullByDefault({})
     protected ItemChannelLinkRegistry linkRegistry;
 
     @Deprecated // this must not be used by bindings!
+    @NonNullByDefault({})
     protected BundleContext bundleContext;
 
-    protected @NonNull Thing thing;
+    protected Thing thing;
 
     @SuppressWarnings("rawtypes")
+    @NonNullByDefault({})
     private ServiceTracker thingRegistryServiceTracker;
     @SuppressWarnings("rawtypes")
+    @NonNullByDefault({})
     private ServiceTracker linkRegistryServiceTracker;
 
-    private ThingHandlerCallback callback;
+    private @Nullable ThingHandlerCallback callback;
 
     /**
      * Creates a new instance of this class for the {@link Thing}.
@@ -195,7 +197,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     @Override
-    public @NonNull Thing getThing() {
+    public Thing getThing() {
         return this.thing;
     }
 

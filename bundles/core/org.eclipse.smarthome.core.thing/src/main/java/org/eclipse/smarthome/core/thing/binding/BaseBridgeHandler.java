@@ -9,7 +9,6 @@ package org.eclipse.smarthome.core.thing.binding;
 
 import java.util.List;
 
-import org.eclipse.jdt.annotation.DefaultLocation;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -27,8 +26,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
  * @author Dennis Nobel - Initial contribution
  * @author Stefan Bußweiler - Added implementation of BridgeHandler interface
  */
-@NonNullByDefault({ DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.ARRAY_CONTENTS,
-        DefaultLocation.TYPE_ARGUMENT, DefaultLocation.TYPE_BOUND, DefaultLocation.TYPE_PARAMETER })
+@NonNullByDefault
 public abstract class BaseBridgeHandler extends BaseThingHandler implements BridgeHandler {
 
     /**
