@@ -99,7 +99,7 @@ public class ThingFactory {
     }
 
     public static @Nullable Thing createThing(ThingUID thingUID, Configuration configuration,
-            @Nullable Map<String, String> properties, ThingUID bridgeUID, ThingTypeUID thingTypeUID,
+            @Nullable Map<String, String> properties, @Nullable ThingUID bridgeUID, ThingTypeUID thingTypeUID,
             List<ThingHandlerFactory> thingHandlerFactories) {
         for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
             if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
