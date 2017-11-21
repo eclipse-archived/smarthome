@@ -69,6 +69,8 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     protected ThingRegistry thingRegistry;
     protected ItemChannelLinkRegistry linkRegistry;
+
+    @Deprecated // this must not be used by bindings!
     protected BundleContext bundleContext;
 
     protected @NonNull Thing thing;
