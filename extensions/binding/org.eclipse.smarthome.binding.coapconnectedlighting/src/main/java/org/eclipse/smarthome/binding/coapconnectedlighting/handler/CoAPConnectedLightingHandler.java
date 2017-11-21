@@ -49,9 +49,9 @@ public class CoAPConnectedLightingHandler extends BaseThingHandler {
     private ChannelUID stringChannelHumidityUID;
     private ChannelUID stringChannelPressureUID;
 
-    ScheduledFuture<?> refreshTemperatureJob;
-    ScheduledFuture<?> refreshHumidityJob;
-    ScheduledFuture<?> refreshPressureJob;
+    private ScheduledFuture<?> refreshTemperatureJob;
+    private ScheduledFuture<?> refreshHumidityJob;
+    private ScheduledFuture<?> refreshPressureJob;
 
     private BigDecimal refresh;
 
