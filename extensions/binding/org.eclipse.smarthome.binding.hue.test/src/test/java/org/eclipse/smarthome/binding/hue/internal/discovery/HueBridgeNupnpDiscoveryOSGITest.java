@@ -7,12 +7,13 @@
  */
 package org.eclipse.smarthome.binding.hue.internal.discovery;
 
-import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.*;
+import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.forThingTypeUID;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -178,7 +179,7 @@ public class HueBridgeNupnpDiscoveryOSGITest extends JavaOSGiTest {
             @Override
             public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
                     Collection<ThingTypeUID> thingTypeUIDs) {
-                return null;
+                return Collections.emptyList();
             }
         });
 
@@ -226,7 +227,7 @@ public class HueBridgeNupnpDiscoveryOSGITest extends JavaOSGiTest {
             @Override
             public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
                     Collection<ThingTypeUID> thingTypeUIDs) {
-                return null;
+                return Collections.emptyList();
             }
         });
 

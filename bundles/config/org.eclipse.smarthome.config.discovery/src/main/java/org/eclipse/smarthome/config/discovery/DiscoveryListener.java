@@ -68,7 +68,6 @@ public interface DiscoveryListener {
      *            instead
      * @return collection of thing UIDs of all removed things
      */
-    @Nullable
     Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
             @Nullable Collection<ThingTypeUID> thingTypeUIDs);
 }

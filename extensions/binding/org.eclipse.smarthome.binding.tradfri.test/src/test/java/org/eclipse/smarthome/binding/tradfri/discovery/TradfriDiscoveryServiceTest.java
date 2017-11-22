@@ -8,13 +8,14 @@
 package org.eclipse.smarthome.binding.tradfri.discovery;
 
 import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
-import static org.eclipse.smarthome.binding.tradfri.internal.config.TradfriDeviceConfig.*;
+import static org.eclipse.smarthome.binding.tradfri.internal.config.TradfriDeviceConfig.CONFIG_ID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.eclipse.smarthome.binding.tradfri.handler.TradfriGatewayHandler;
 import org.eclipse.smarthome.binding.tradfri.internal.discovery.TradfriDiscoveryService;
@@ -70,7 +71,7 @@ public class TradfriDiscoveryServiceTest {
             @Override
             public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
                     Collection<ThingTypeUID> thingTypeUIDs) {
-                return null;
+                return Collections.emptyList();
             }
         };
         discovery.addDiscoveryListener(listener);
