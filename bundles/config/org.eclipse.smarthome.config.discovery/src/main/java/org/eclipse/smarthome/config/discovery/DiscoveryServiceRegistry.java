@@ -9,6 +9,8 @@ package org.eclipse.smarthome.config.discovery;
 
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 /**
@@ -26,6 +28,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * @see DiscoveryService
  * @see DiscoveryListener
  */
+@NonNullByDefault
 public interface DiscoveryServiceRegistry {
 
     /**
@@ -48,7 +51,7 @@ public interface DiscoveryServiceRegistry {
      * @return true if a t least one discovery service could be found and forced
      *         to start a discovery, otherwise false
      */
-    boolean startScan(ThingTypeUID thingTypeUID, ScanListener listener);
+    boolean startScan(ThingTypeUID thingTypeUID, @Nullable ScanListener listener);
 
     /**
      * Forces the associated {@link DiscoveryService}s to start a discovery for
@@ -72,7 +75,7 @@ public interface DiscoveryServiceRegistry {
      * @return true if a t least one discovery service could be found and forced
      *         to start a discovery, otherwise false
      */
-    boolean startScan(String bindingId, ScanListener listener);
+    boolean startScan(String bindingId, @Nullable ScanListener listener);
 
     /**
      * Aborts a started discovery on all {@link DiscoveryService}s for the given
@@ -133,9 +136,9 @@ public interface DiscoveryServiceRegistry {
      * When a {@link DiscoveryResult} is created by any of the monitored {@link DiscoveryService}s, (e.g. by forcing the
      * startup of the discovery process or while enabling the auto discovery mode), the specified listener is notified.
      * <p>
-     * This method returns silently if the specified listener is {@code null} or has already been registered before.
+     * This method returns silently if the specified listener has already been registered before.
      *
-     * @param listener the listener to be added (could be null)
+     * @param listener the listener to be added
      */
     void addDiscoveryListener(DiscoveryListener listener);
 
@@ -146,9 +149,9 @@ public interface DiscoveryServiceRegistry {
      * any of the monitored {@link DiscoveryService}s (e.g. by forcing the startup of the discovery process or while
      * enabling the auto discovery mode).
      * <p>
-     * This method returns silently if the specified listener is {@code null} or has not been registered before.
+     * This method returns silently if the specified listener has not been registered before.
      *
-     * @param listener the listener to be removed (could be null)
+     * @param listener the listener to be removed
      */
     void removeDiscoveryListener(DiscoveryListener listener);
 
@@ -168,7 +171,7 @@ public interface DiscoveryServiceRegistry {
 
     /**
      * Returns the maximum discovery timeout from all discovery services registered for the specified thingTypeUID
-     * 
+     *
      * @param thingTypeUID
      *            thing type UID
      * @return the maximum amount of seconds which the discovery can take
@@ -177,9 +180,9 @@ public interface DiscoveryServiceRegistry {
 
     /**
      * Returns the maximum discovery timeout from all discovery services registered for the specified binding id
-     * 
+     *
      * @param bindingId
-     *            id of the binding 
+     *            id of the binding
      * @return the maximum amount of seconds which the discovery can take
      */
     int getMaxScanTimeout(String bindingId);

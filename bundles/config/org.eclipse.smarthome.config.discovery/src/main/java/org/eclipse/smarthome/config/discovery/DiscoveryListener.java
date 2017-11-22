@@ -9,6 +9,8 @@ package org.eclipse.smarthome.config.discovery;
 
 import java.util.Collection;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
@@ -23,6 +25,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  *
  * @see DiscoveryService
  */
+@NonNullByDefault
 public interface DiscoveryListener {
 
     /**
@@ -52,7 +55,7 @@ public interface DiscoveryListener {
     /**
      * Removes all results belonging to one of the given types that are older
      * than the given timestamp.
-     * 
+     *
      * @param source
      *            the discovery service which is the source of this event (not
      *            null)
@@ -65,5 +68,6 @@ public interface DiscoveryListener {
      *            instead
      * @return collection of thing UIDs of all removed things
      */
-    Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp, Collection<ThingTypeUID> thingTypeUIDs);
+    Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
+            @Nullable Collection<ThingTypeUID> thingTypeUIDs);
 }

@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.config.discovery.inbox;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 
 /**
@@ -19,6 +20,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResult;
  *
  * @see Inbox
  */
+@NonNullByDefault
 public interface InboxListener {
 
     /**

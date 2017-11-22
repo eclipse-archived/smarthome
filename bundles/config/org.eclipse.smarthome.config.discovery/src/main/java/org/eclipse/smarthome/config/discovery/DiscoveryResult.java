@@ -9,6 +9,8 @@ package org.eclipse.smarthome.config.discovery;
 
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -25,6 +27,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  * @see DiscoveryService
  * @see DiscoveryListener
  */
+@NonNullByDefault
 public interface DiscoveryResult {
 
     /**
@@ -83,7 +86,7 @@ public interface DiscoveryResult {
      *
      * @return the representation property of this result object (could be null)
      */
-    public String getRepresentationProperty();
+    public @Nullable String getRepresentationProperty();
 
     /**
      * Returns the flag of this result object.<br>
@@ -108,7 +111,7 @@ public interface DiscoveryResult {
      *
      * @return the unique bridge ID (could be null)
      */
-    public ThingUID getBridgeUID();
+    public @Nullable ThingUID getBridgeUID();
 
     /**
      * Get the timestamp of this {@link DiscoveryResult}.

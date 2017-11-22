@@ -9,6 +9,8 @@ package org.eclipse.smarthome.config.discovery.inbox;
 
 import java.util.function.Predicate;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -19,17 +21,18 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  *
  * @author Andre Fuechsel - Initial Contribution
  */
+@NonNullByDefault
 public class InboxPredicates {
 
-    public static Predicate<DiscoveryResult> forBinding(String bindingId) {
+    public static Predicate<DiscoveryResult> forBinding(@Nullable String bindingId) {
         return r -> bindingId != null && bindingId.equals(r.getBindingId());
     }
 
-    public static Predicate<DiscoveryResult> forThingTypeUID(ThingTypeUID uid) {
+    public static Predicate<DiscoveryResult> forThingTypeUID(@Nullable ThingTypeUID uid) {
         return r -> uid != null && uid.equals(r.getThingTypeUID());
     }
 
-    public static Predicate<DiscoveryResult> forThingUID(ThingUID thingUID) {
+    public static Predicate<DiscoveryResult> forThingUID(@Nullable ThingUID thingUID) {
         return r -> thingUID != null && thingUID.equals(r.getThingUID());
     }
 
@@ -37,16 +40,16 @@ public class InboxPredicates {
         return r -> flag == r.getFlag();
     }
 
-    public static Predicate<DiscoveryResult> withProperty(String propertyName, String propertyValue) {
+    public static Predicate<DiscoveryResult> withProperty(@Nullable String propertyName, String propertyValue) {
         return r -> r.getProperties().containsKey(propertyName)
                 && r.getProperties().get(propertyName).equals(propertyValue);
     }
 
-    public static Predicate<DiscoveryResult> withRepresentationProperty(String propertyName) {
+    public static Predicate<DiscoveryResult> withRepresentationProperty(@Nullable String propertyName) {
         return r -> propertyName != null && propertyName.equals(r.getRepresentationProperty());
     }
 
-    public static Predicate<DiscoveryResult> withRepresentationPropertyValue(String propertyValue) {
+    public static Predicate<DiscoveryResult> withRepresentationPropertyValue(@Nullable String propertyValue) {
         return r -> propertyValue != null && propertyValue.equals(r.getProperties().get(r.getRepresentationProperty()));
     }
 }
