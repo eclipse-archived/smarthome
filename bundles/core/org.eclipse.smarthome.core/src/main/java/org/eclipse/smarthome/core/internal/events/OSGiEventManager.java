@@ -17,10 +17,12 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeoutException;
 
 import org.eclipse.smarthome.core.common.SafeMethodCaller;
 import org.eclipse.smarthome.core.common.SafeMethodCaller.ActionWithException;
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFactory;
 import org.eclipse.smarthome.core.events.EventFilter;
@@ -61,6 +63,8 @@ import com.google.common.collect.SetMultimap;
 @Component(immediate = true, property = { "event.topics:String=smarthome" })
 public class OSGiEventManager implements EventHandler, EventPublisher {
 
+    private static final String EVENT_MANAGER_THREAD_POOL_NAME = "eventManager";
+
     @SuppressWarnings("rawtypes")
     private class EventSubscriberServiceTracker extends ServiceTracker {
 
@@ -98,6 +102,9 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
             .synchronizedSetMultimap(HashMultimap.<String, EventSubscriber> create());
 
     private EventSubscriberServiceTracker eventSubscriberServiceTracker;
+
+    private final ScheduledExecutorService scheduler = ThreadPoolManager
+            .getScheduledPool(EVENT_MANAGER_THREAD_POOL_NAME);
 
     @Activate
     protected void activate(ComponentContext componentContext) {
@@ -197,24 +204,24 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
 
     private void dispatchESHEvent(final Set<EventSubscriber> eventSubscribers, final Event event) {
         for (final EventSubscriber eventSubscriber : eventSubscribers) {
-            try {
-                EventFilter filter = eventSubscriber.getEventFilter();
-                if (filter == null || filter.apply(event)) {
-                    SafeMethodCaller.call(new ActionWithException<Void>() {
-
-                        @Override
-                        public Void call() throws Exception {
+            EventFilter filter = eventSubscriber.getEventFilter();
+            if (filter == null || filter.apply(event)) {
+                scheduler.submit(() -> {
+                    try {
+                        SafeMethodCaller.call((ActionWithException<Void>) () -> {
                             eventSubscriber.receive(event);
                             return null;
-                        }
-                    });
-                }
-            } catch (TimeoutException timeoutException) {
-                logger.warn("Dispatching event to subscriber '{}' takes more than {}ms.", eventSubscriber.toString(),
-                        SafeMethodCaller.DEFAULT_TIMEOUT);
-            } catch (Throwable t) {
-                logger.error("Dispatching/filtering event for subscriber '{}' failed: {}",
-                        EventSubscriber.class.getName(), t.getMessage(), t);
+                        });
+                    } catch (TimeoutException timeoutException) {
+                        logger.warn(
+                                "Dispatching event to subscriber '{}' takes more than {}ms, therefore blacklisting it!",
+                                eventSubscriber.toString(), SafeMethodCaller.DEFAULT_TIMEOUT);
+                        removeEventSubscriber(eventSubscriber);
+                    } catch (Throwable t) {
+                        logger.error("Dispatching/filtering event for subscriber '{}' failed: {}",
+                                EventSubscriber.class.getName(), t.getMessage(), t);
+                    }
+                });
             }
         }
     }
