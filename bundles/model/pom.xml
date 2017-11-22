@@ -25,6 +25,7 @@
     <module>org.eclipse.smarthome.model.item.ui</module>
     <module>org.eclipse.smarthome.model.item.tests</module>
     <module>org.eclipse.smarthome.model.lsp</module>
+    <module>org.eclipse.smarthome.model.lsp.test</module>
     <module>org.eclipse.smarthome.model.persistence</module>
     <module>org.eclipse.smarthome.model.persistence.ide</module>
     <module>org.eclipse.smarthome.model.persistence.runtime</module>
