@@ -9,13 +9,16 @@ package org.eclipse.smarthome.core.library.types;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.measure.Quantity;
+import javax.measure.quantity.Pressure;
 import javax.measure.quantity.Temperature;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -48,6 +51,7 @@ public class ArithmeticGroupFunctionTest {
 
     @Before
     public void init() {
+        initMocks(this);
         items = new HashSet<Item>();
 
         when(unitProvider.getUnit(Temperature.class)).thenReturn(Units.CELSIUS);
@@ -258,9 +262,10 @@ public class ArithmeticGroupFunctionTest {
 
     @Test
     public void testSumFunctionQuantityTypeIncompatibleUnits() {
+        items = new LinkedHashSet<Item>(); // we need an ordered set to guarantee the Unit of the first entry
         items.add(createNumberItem("TestItem1", Temperature.class, new QuantityType<Temperature>("23.54 °C")));
         items.add(createNumberItem("TestItem2", Temperature.class, UnDefType.NULL));
-        items.add(createNumberItem("TestItem3", Temperature.class, new QuantityType<Temperature>("192.2 hPa")));
+        items.add(createNumberItem("TestItem3", Pressure.class, new QuantityType<Temperature>("192.2 hPa")));
 
         function = new ArithmeticGroupFunction.Sum();
         State state = function.calculate(items);

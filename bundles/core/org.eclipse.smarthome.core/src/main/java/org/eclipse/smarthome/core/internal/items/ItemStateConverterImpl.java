@@ -26,6 +26,7 @@ public class ItemStateConverterImpl implements ItemStateConverter {
 
     private UnitProvider unitProvider;
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public State convertToAcceptedState(State state, Item item) {
         if (state == null) {
@@ -46,7 +47,7 @@ public class ItemStateConverterImpl implements ItemStateConverter {
         }
 
         if (item instanceof NumberItem && state instanceof QuantityType && ((NumberItem) item).getDimension() != null) {
-            QuantityType quantityState = (QuantityType) state;
+            QuantityType<?> quantityState = (QuantityType<?>) state;
             NumberItem numberItem = (NumberItem) item;
 
             // in case the item does define a unit it takes predescense over all other conversions:
@@ -61,15 +62,15 @@ public class ItemStateConverterImpl implements ItemStateConverter {
 
             MeasurementSystem ms = unitProvider.getMeasurementSystem();
             if (quantityState.needsConversion(ms)) {
-                Class<Quantity<?>> dimension = numberItem.getDimension();
+                Class<? extends Quantity<?>> dimension = numberItem.getDimension();
 
                 Unit<?> conversionUnit = quantityState.getConversionUnit(ms);
                 if (conversionUnit != null) {
                     // the quantity state knows for itself which unit to convert too.
                     return quantityState.toUnit(conversionUnit);
                 } else if (!dimension.equals(Dimensionless.class)) {
-                    // we do default conversion to the system provided unit for the specific dimension & locale
-                    return quantityState.toUnit(unitProvider.getUnit(dimension));
+                    // we do default conversion to the system provided unit for the specific dimension
+                    return quantityState.toUnit(unitProvider.getUnit((Class<Quantity>) dimension));
                 }
 
                 return quantityState.as(DecimalType.class);

@@ -17,7 +17,7 @@ public interface UnitProvider {
      * @return The {@link Unit} matching the given {@link Dimension}.
      */
     @NonNull
-    Unit<?> getUnit(@NonNull Class<Quantity<?>> dimension);
+    <T extends Quantity<T>> Unit<T> getUnit(@NonNull Class<? extends T> dimension);
 
     /**
      *

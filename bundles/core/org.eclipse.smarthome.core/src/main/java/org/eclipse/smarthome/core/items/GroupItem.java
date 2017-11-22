@@ -17,8 +17,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import javax.measure.Unit;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
+import org.eclipse.smarthome.core.library.items.NumberItem;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
@@ -339,7 +343,8 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     public void stateUpdated(Item item, State state) {
         State oldState = this.state;
         if (function != null && baseItem != null) {
-            State calculatedState = function.calculate(getMembers());
+            Set<Item> members = getMembersForGroupFunction();
+            State calculatedState = function.calculate(members);
             calculatedState = ItemUtil.convertToAcceptedState(calculatedState, baseItem);
             setState(calculatedState);
         }
@@ -365,6 +370,30 @@ public class GroupItem extends GenericItem implements StateChangeListener {
             eventPublisher.post(
                     ItemEventFactory.createGroupStateChangedEvent(this.getName(), memberName, newState, oldState));
         }
+    }
+
+    private Set<Item> getMembersForGroupFunction() {
+        if (baseItem instanceof NumberItem && ((NumberItem) baseItem).getDimension() != null) {
+            return convertNumberItemsToBaseItemUnit(((NumberItem) baseItem).getUnit());
+        } else {
+            return getMembers();
+        }
+    }
+
+    private Set<Item> convertNumberItemsToBaseItemUnit(Unit<?> baseItemUnit) {
+        Set<Item> groupFunctionMembers = new HashSet<>();
+
+        for (Item item : getMembers()) {
+            if (baseItemUnit != null && item instanceof NumberItem && ((NumberItem) item).getDimension() != null) {
+                NumberItem unitItem = new NumberItem(item.getName());
+                unitItem.setState(((QuantityType<?>) item.getState()).toUnit(baseItemUnit));
+                groupFunctionMembers.add(unitItem);
+            } else {
+                groupFunctionMembers.add(item);
+            }
+        }
+
+        return groupFunctionMembers;
     }
 
 }

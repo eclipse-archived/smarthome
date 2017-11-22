@@ -290,6 +290,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
             return new State[0];
         }
 
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         private State calculateSumQuantityType(Set<Item> items) {
             QuantityType<?> sum = null;
             if (items != null) {

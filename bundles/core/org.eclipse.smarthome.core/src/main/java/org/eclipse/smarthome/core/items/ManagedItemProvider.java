@@ -19,12 +19,16 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.measure.Quantity;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.registry.AbstractManagedProvider;
 import org.eclipse.smarthome.core.items.ManagedItemProvider.PersistedItem;
 import org.eclipse.smarthome.core.items.dto.GroupFunctionDTO;
 import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
+import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.storage.StorageService;
+import org.eclipse.smarthome.core.thing.util.DimensionClassParser;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -68,6 +72,8 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
         public String functionName;
 
         public List<String> functionParams;
+
+        public String dimension;
 
     }
 
@@ -243,6 +249,8 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
             item.setLabel(persistedItem.label);
             item.setCategory(persistedItem.category);
+
+            setDimension(persistedItem, item);
         }
     }
 
@@ -268,8 +276,44 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
         persistedItem.groupNames = new ArrayList<>(item.getGroupNames());
         persistedItem.tags = new HashSet<>(item.getTags());
         persistedItem.category = item.getCategory();
+        persistedItem.dimension = getItemDimension(item);
 
         return persistedItem;
+    }
+
+    private String getItemDimension(Item item) {
+        Item itemToCheck = item;
+        if (itemToCheck instanceof GroupItem) {
+            itemToCheck = ((GroupItem) item).getBaseItem();
+        }
+
+        if (itemToCheck instanceof NumberItem && ((NumberItem) itemToCheck).getDimension() != null) {
+            return ((NumberItem) itemToCheck).getDimension().getSimpleName();
+        }
+
+        return null;
+    }
+
+    private void setDimension(PersistedItem persistedItem, ActiveItem item) {
+        if (persistedItem.dimension == null) {
+            return;
+        }
+
+        NumberItem dimensionItem = null;
+        if (item instanceof NumberItem) {
+            dimensionItem = (NumberItem) item;
+        }
+        if (item instanceof GroupItem) {
+            Item baseItem = ((GroupItem) item).baseItem;
+            if (baseItem instanceof NumberItem) {
+                dimensionItem = (NumberItem) baseItem;
+            }
+        }
+
+        if (dimensionItem != null) {
+            Class<? extends Quantity<?>> dimension = DimensionClassParser.parseDimension(persistedItem.dimension);
+            dimensionItem.setDimension(dimension);
+        }
     }
 
     private void addFunctionToPersisedItem(PersistedItem persistedItem, GroupItem groupItem) {

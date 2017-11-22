@@ -220,6 +220,12 @@ public class GenericItemProvider extends AbstractProvider<Item>
             if (baseItem != null) {
                 // if the user did not specify a function the first value of the enum in xtext (EQUAL) will be used
                 ModelGroupFunction function = modelGroupItem.getFunction();
+
+                if (baseItem instanceof NumberItem) {
+                    Class<Quantity<?>> dimension = DimensionClassParser.parseDimension(normalItem.getDimension());
+                    ((NumberItem) item).setDimension(dimension);
+                }
+
                 item = applyGroupFunction(baseItem, modelGroupItem, function);
             } else {
                 item = new GroupItem(modelGroupItem.getName());

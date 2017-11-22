@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.measure.Dimension;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 
@@ -38,7 +39,7 @@ public class NumberItem extends GenericItem {
 
     private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
     private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
-    private Class<Quantity<?>> dimension;
+    private Class<? extends Quantity<?>> dimension;
 
     static {
         acceptedDataTypes.add(DecimalType.class);
@@ -74,7 +75,7 @@ public class NumberItem extends GenericItem {
      *
      * @return the {@link Dimension} associated with this {@link NumberItem}. May be null.
      */
-    public Class<Quantity<?>> getDimension() {
+    public Class<? extends Quantity<?>> getDimension() {
         return dimension;
     }
 
@@ -83,7 +84,7 @@ public class NumberItem extends GenericItem {
      * {@link QuantityType}s from channel-types with {@link Dimension} support.
      *
      */
-    public void setDimension(Class<Quantity<?>> dimension) {
+    public void setDimension(Class<? extends Quantity<?>> dimension) {
         this.dimension = dimension;
     }
 
@@ -134,9 +135,10 @@ public class NumberItem extends GenericItem {
      *
      * @return the {@link Unit} for this item if available, {@code null} otherwise.
      */
-    private @Nullable Unit<?> getUnit() {
+    @SuppressWarnings("unchecked")
+    public @Nullable Unit<? extends Quantity<?>> getUnit() {
         if (getState() instanceof QuantityType) {
-            return ((QuantityType) getState()).getUnit();
+            return ((QuantityType<?>) getState()).getUnit();
         }
 
         if (getStateDescription() != null) {
@@ -147,7 +149,9 @@ public class NumberItem extends GenericItem {
         }
 
         if (dimension != null) {
-            return unitProvider.getUnit(dimension);
+            @SuppressWarnings("rawtypes")
+            Unit unit = unitProvider.getUnit((Class<Quantity>) dimension);
+            return unit;
         }
 
         return null;
