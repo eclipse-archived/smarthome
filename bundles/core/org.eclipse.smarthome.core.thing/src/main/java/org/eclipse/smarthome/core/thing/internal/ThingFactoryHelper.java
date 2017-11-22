@@ -159,7 +159,7 @@ public class ThingFactoryHelper {
                     return null;
             }
         } catch (NumberFormatException ex) {
-            LoggerFactory.getLogger(ThingFactory.class).warn("Could not parse default value '{}' as type '{}': {}",
+            LoggerFactory.getLogger(ThingFactoryHelper.class).warn("Could not parse default value '{}' as type '{}': {}",
                     defaultValue, parameterType, ex.getMessage(), ex);
             return null;
         }

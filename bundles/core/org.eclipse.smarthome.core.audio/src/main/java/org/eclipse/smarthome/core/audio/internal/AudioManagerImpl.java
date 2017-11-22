@@ -50,7 +50,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     private static final String CONFIG_DEFAULT_SINK = "defaultSink";
     private static final String CONFIG_DEFAULT_SOURCE = "defaultSource";
 
-    private final Logger logger = LoggerFactory.getLogger(AudioManager.class);
+    private final Logger logger = LoggerFactory.getLogger(AudioManagerImpl.class);
 
     // service maps
     private Map<String, AudioSource> audioSources = new ConcurrentHashMap<>();

@@ -52,7 +52,7 @@ import com.eclipsesource.jaxrs.publisher.ResourceFilter;
  */
 public class ResourceFilterImpl implements ResourceFilter {
 
-    private static final Logger logger = LoggerFactory.getLogger(ResourceFilter.class);
+    private static final Logger logger = LoggerFactory.getLogger(ResourceFilterImpl.class);
 
     /**
      * All classes and interfaces which are considered to be relevant for JAX-RS.
