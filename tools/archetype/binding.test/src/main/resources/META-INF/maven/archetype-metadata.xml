@@ -18,6 +18,9 @@
 		</requiredProperty>
 		<requiredProperty key="artifactId">
 		</requiredProperty>
+		<requiredProperty key="startYear">
+			<defaultValue>2014</defaultValue>
+		</requiredProperty>
 	</requiredProperties>
 
 	<fileSets>

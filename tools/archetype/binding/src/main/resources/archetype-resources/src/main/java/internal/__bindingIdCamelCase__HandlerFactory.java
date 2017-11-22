@@ -1,7 +1,12 @@
 #set( $dt = $package.getClass().forName("java.util.Date").newInstance() )
 #set( $year = $dt.getYear() + 1900 )
+#if( $vendorName == "Eclipse.org/SmartHome" )
+    #set( $copyright = "Contributors to the Eclipse Foundation" )
+#else
+    #set( $copyright = "by the respective copyright holders." )
+#end
 /**
- * Copyright (c) 2014,${year} Contributors to the Eclipse Foundation
+ * Copyright (c) ${startYear},${year} ${copyright}
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.

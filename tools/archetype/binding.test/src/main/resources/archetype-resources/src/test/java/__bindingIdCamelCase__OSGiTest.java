@@ -6,7 +6,7 @@
     #set( $copyright = "by the respective copyright holders." )
 #end
 /**
- * Copyright (c) 2014,${year} ${copyright}
+ * Copyright (c) ${startYear},${year} ${copyright}
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
