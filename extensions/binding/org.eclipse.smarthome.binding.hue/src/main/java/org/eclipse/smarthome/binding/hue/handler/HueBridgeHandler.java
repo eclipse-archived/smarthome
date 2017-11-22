@@ -7,10 +7,7 @@
  */
 package org.eclipse.smarthome.binding.hue.handler;
 
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.HOST;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.POLLING_INTERVAL;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_BRIDGE;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.USER_NAME;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -27,6 +24,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.hue.internal.Config;
 import org.eclipse.smarthome.binding.hue.internal.FullConfig;
 import org.eclipse.smarthome.binding.hue.internal.FullLight;
@@ -65,6 +64,7 @@ import org.slf4j.LoggerFactory;
  * @author Jochen Hiller - fixed status updates, use reachable=true/false for state compare
  * @author Denis Dudnik - switched to internally integrated source of Jue library
  */
+@NonNullByDefault
 public class HueBridgeHandler extends ConfigStatusBridgeHandler {
 
     private static final String LIGHT_STATE_ADDED = "added";
@@ -77,21 +77,22 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
 
     private static final String DEVICE_TYPE = "EclipseSmartHome";
 
-    private Logger logger = LoggerFactory.getLogger(HueBridgeHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(HueBridgeHandler.class);
 
-    private Map<String, FullLight> lastLightStates = new ConcurrentHashMap<>();
+    private final Map<String, FullLight> lastLightStates = new ConcurrentHashMap<>();
 
     private boolean lastBridgeConnectionState = false;
 
     private boolean propertiesInitializedSuccessfully = false;
 
-    private List<LightStatusListener> lightStatusListeners = new CopyOnWriteArrayList<>();
+    private final List<LightStatusListener> lightStatusListeners = new CopyOnWriteArrayList<>();
 
-    private ScheduledFuture<?> pollingJob;
+    private @Nullable ScheduledFuture<?> pollingJob;
 
+    @NonNullByDefault({})
     private HueBridge hueBridge = null;
 
-    private Runnable pollingRunnable = new Runnable() {
+    private final Runnable pollingRunnable = new Runnable() {
 
         @Override
         public void run() {
@@ -392,9 +393,6 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
     }
 
     public boolean registerLightStatusListener(LightStatusListener lightStatusListener) {
-        if (lightStatusListener == null) {
-            throw new IllegalArgumentException("It's not allowed to pass a null LightStatusListener.");
-        }
         boolean result = lightStatusListeners.add(lightStatusListener);
         if (result) {
             onUpdate();
@@ -414,7 +412,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
         return result;
     }
 
-    public FullLight getLightById(String lightId) {
+    public @Nullable FullLight getLightById(String lightId) {
         return lastLightStates.get(lightId);
     }
 

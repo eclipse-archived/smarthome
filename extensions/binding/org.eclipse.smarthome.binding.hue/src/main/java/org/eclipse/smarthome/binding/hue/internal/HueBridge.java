@@ -18,6 +18,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.hue.internal.HttpClient.Result;
 import org.eclipse.smarthome.binding.hue.internal.exceptions.ApiException;
 import org.eclipse.smarthome.binding.hue.internal.exceptions.DeviceOffException;
@@ -40,13 +42,14 @@ import com.google.gson.JsonParser;
  * @author Andre Fuechsel - search for lights with given serial number added
  * @author Denis Dudnik - moved Jue library source code inside the smarthome Hue binding, minor code cleanup
  */
+@NonNullByDefault
 public class HueBridge {
     private final static String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
-    private String ip;
-    private String username;
+    private final String ip;
+    private @Nullable String username;
 
-    private Gson gson = new GsonBuilder().setDateFormat(DATE_FORMAT).create();
+    private final Gson gson = new GsonBuilder().setDateFormat(DATE_FORMAT).create();
     private HttpClient http = new HttpClient();
 
     /**
@@ -96,7 +99,7 @@ public class HueBridge {
      *
      * @return username or null
      */
-    public String getUsername() {
+    public @Nullable String getUsername() {
         return username;
     }
 
@@ -143,7 +146,7 @@ public class HueBridge {
      * @return last search time
      * @throws UnauthorizedException thrown if the user no longer exists
      */
-    public Date getLastSearch() throws IOException, ApiException {
+    public @Nullable Date getLastSearch() throws IOException, ApiException {
         requireAuthentication();
 
         Result result = http.get(getRelativeURL("lights/new"));
@@ -567,8 +570,8 @@ public class HueBridge {
      * @throws UnauthorizedException thrown if the user no longer exists
      * @throws InvalidCommandException thrown if the scheduled command is larger than 90 bytes or otherwise invalid
      */
-    public void createSchedule(String name, String description, Date time, ScheduleCallback callback)
-            throws IOException, ApiException {
+    public void createSchedule(@Nullable String name, @Nullable String description, Date time,
+            ScheduleCallback callback) throws IOException, ApiException {
         requireAuthentication();
 
         handleCommandCallback(callback);
@@ -653,14 +656,14 @@ public class HueBridge {
         public void onScheduleCommand(HueBridge bridge) throws IOException, ApiException;
     }
 
-    private ScheduleCommand scheduleCommand = null;
+    private @Nullable ScheduleCommand scheduleCommand = null;
 
-    private ScheduleCommand handleCommandCallback(ScheduleCallback callback) throws ApiException {
+    private @Nullable ScheduleCommand handleCommandCallback(ScheduleCallback callback) throws ApiException {
         // Temporarily reroute requests to a fake HTTP client
         HttpClient realClient = http;
         http = new HttpClient() {
             @Override
-            protected Result doNetwork(String address, String requestMethod, String body) throws IOException {
+            protected Result doNetwork(String address, String requestMethod, @Nullable String body) throws IOException {
                 // GET requests cannot be scheduled, so will continue working normally for convenience
                 if (requestMethod.equals("GET")) {
                     return super.doNetwork(address, requestMethod, body);
@@ -670,7 +673,7 @@ public class HueBridge {
                     scheduleCommand = new ScheduleCommand(extractedAddress, requestMethod, commandBody);
 
                     // Return a fake result that will cause an exception and the callback to end
-                    return new Result(null, 405);
+                    return new Result("", 405);
                 }
             }
         };
@@ -893,9 +896,13 @@ public class HueBridge {
     }
 
     // UTF-8 URL encode
-    private String enc(String str) {
+    private String enc(@Nullable String str) {
         try {
-            return URLEncoder.encode(str, "utf-8");
+            if (str != null) {
+                return URLEncoder.encode(str, "utf-8");
+            } else {
+                return "";
+            }
         } catch (UnsupportedEncodingException e) {
             // throw new EndOfTheWorldException()
             throw new UnsupportedOperationException("UTF-8 not supported");

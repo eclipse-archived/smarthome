@@ -143,6 +143,7 @@ public class HueLightDiscoveryServiceOSGiTest extends AbstractHueOSGiTest {
 
     @Test
     public void startSearchIsCalled() {
+
         final AtomicBoolean searchHasBeenTriggered = new AtomicBoolean(false);
         AsyncResultWrapper<String> addressWrapper = new AsyncResultWrapper<String>();
         AsyncResultWrapper<String> bodyWrapper = new AsyncResultWrapper<String>();
@@ -162,7 +163,7 @@ public class HueLightDiscoveryServiceOSGiTest extends AbstractHueOSGiTest {
                     String body = "{\"lights\":{}}";
                     return new Result(body, 200);
                 } else {
-                    return null;
+                    return new Result("", 404);
                 }
             }
 
@@ -173,7 +174,7 @@ public class HueLightDiscoveryServiceOSGiTest extends AbstractHueOSGiTest {
                     searchHasBeenTriggered.set(true);
                     return new Result(bodyReturn, 200);
                 } else {
-                    return null;
+                    return new Result("", 404);
                 }
             }
         };

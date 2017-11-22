@@ -18,6 +18,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler;
 import org.eclipse.smarthome.binding.hue.handler.HueLightHandler;
 import org.eclipse.smarthome.binding.hue.handler.LightStatusListener;
@@ -41,6 +43,7 @@ import org.slf4j.LoggerFactory;
  * @author Thomas Höfer - Added representation
  * @author Denis Dudnik - switched to internally integrated source of Jue library
  */
+@NonNullByDefault
 public class HueLightDiscoveryService extends AbstractDiscoveryService implements LightStatusListener {
 
     private final Logger logger = LoggerFactory.getLogger(HueLightDiscoveryService.class);
@@ -48,7 +51,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
     private final static int SEARCH_TIME = 60;
 
     // @formatter:off
-    private final static Map<String, String> TYPE_TO_ZIGBEE_ID_MAP = Stream.of(
+    private final static Map<String, @Nullable String> TYPE_TO_ZIGBEE_ID_MAP = Stream.of(
             new SimpleEntry<>("on_off_light", "0000"),
             new SimpleEntry<>("on_off_plug_in_unit", "0010"),
             new SimpleEntry<>("dimmable_light", "0100"),
@@ -59,7 +62,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
         ).collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()));
     // @formatter:on
 
-    private HueBridgeHandler hueBridgeHandler;
+    private final HueBridgeHandler hueBridgeHandler;
 
     public HueLightDiscoveryService(HueBridgeHandler hueBridgeHandler) {
         super(SEARCH_TIME);
@@ -84,10 +87,8 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
     @Override
     public void startScan() {
         List<FullLight> lights = hueBridgeHandler.getFullLights();
-        if (lights != null) {
-            for (FullLight l : lights) {
-                onLightAddedInternal(l);
-            }
+        for (FullLight l : lights) {
+            onLightAddedInternal(l);
         }
         // search for unpaired lights
         hueBridgeHandler.startSearch();
@@ -100,7 +101,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
     }
 
     @Override
-    public void onLightAdded(HueBridge bridge, FullLight light) {
+    public void onLightAdded(@Nullable HueBridge bridge, FullLight light) {
         onLightAddedInternal(light);
     }
 
@@ -129,7 +130,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
     }
 
     @Override
-    public void onLightRemoved(HueBridge bridge, FullLight light) {
+    public void onLightRemoved(@Nullable HueBridge bridge, FullLight light) {
         ThingUID thingUID = getThingUID(light);
 
         if (thingUID != null) {
@@ -138,11 +139,11 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
     }
 
     @Override
-    public void onLightStateChanged(HueBridge bridge, FullLight light) {
+    public void onLightStateChanged(@Nullable HueBridge bridge, FullLight light) {
         // nothing to do
     }
 
-    private ThingUID getThingUID(FullLight light) {
+    private @Nullable ThingUID getThingUID(FullLight light) {
         ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
         ThingTypeUID thingTypeUID = getThingTypeUID(light);
 
@@ -153,7 +154,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
         }
     }
 
-    private ThingTypeUID getThingTypeUID(FullLight light) {
+    private @Nullable ThingTypeUID getThingTypeUID(FullLight light) {
         String thingTypeId = TYPE_TO_ZIGBEE_ID_MAP
                 .get(light.getType().replaceAll(HueLightHandler.NORMALIZE_ID_REGEX, "_").toLowerCase());
         return thingTypeId != null ? new ThingTypeUID(BINDING_ID, thingTypeId) : null;

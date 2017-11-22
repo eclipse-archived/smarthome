@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
@@ -39,6 +40,7 @@ import com.google.gson.reflect.TypeToken;
  * @author Christoph Knauf - Refactorings
  * @author Andre Fuechsel - make {@link #startScan()} asynchronous
  */
+@NonNullByDefault
 public class HueBridgeNupnpDiscovery extends AbstractDiscoveryService {
 
     private static final String MODEL_NAME_PHILIPS_HUE = "<modelName>Philips hue";
