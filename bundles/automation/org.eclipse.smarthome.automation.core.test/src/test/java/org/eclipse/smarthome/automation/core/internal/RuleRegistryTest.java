@@ -1,10 +1,14 @@
-
 /**
- * Copyright (c) 2017 by Deutsche Telekom AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.core.internal;
 
@@ -17,10 +21,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.automation.Rule;
-import org.eclipse.smarthome.automation.core.internal.RuleRegistryImpl;
 import org.junit.Assert;
 import org.junit.Test;
-
 
 /**
  * Testing the {@link Predicate}s for {@link Rule}s.
@@ -79,7 +81,8 @@ public class RuleRegistryTest {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // checking predicates
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasNoTags()).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 1,
+                ruleRegistry.stream().filter(hasNoTags()).collect(Collectors.toList()).size());
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // checking rule with 1 tag
@@ -94,11 +97,11 @@ public class RuleRegistryTest {
 
         addedRule = ruleRegistry.add(rule_with_tag1);
         Assert.assertNotNull("Rule for:" + name, addedRule);
-        Assert.assertNotSame(addedRule, rule_with_tag1);        // we should get only a copy of the rule
+        Assert.assertNotSame(addedRule, rule_with_tag1); // we should get only a copy of the rule
 
         getRule = ruleRegistry.get(name);
         Assert.assertNotNull("Rule for:" + name, getRule);
-        Assert.assertNotSame(getRule, rule_with_tag1);          // we should get only a copy of the rule
+        Assert.assertNotSame(getRule, rule_with_tag1); // we should get only a copy of the rule
 
         Assert.assertEquals("Rule list size", 2, ruleRegistry.getAll().size());
 
@@ -113,13 +116,18 @@ public class RuleRegistryTest {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // checking predicates
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasNoTags()).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 1,
+                ruleRegistry.stream().filter(hasNoTags()).collect(Collectors.toList()).size());
 
-        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasAnyOfTags(tags)).collect(Collectors.toList()).size());
-        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasAnyOfTags(tag1)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 1,
+                ruleRegistry.stream().filter(hasAnyOfTags(tags)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 1,
+                ruleRegistry.stream().filter(hasAnyOfTags(tag1)).collect(Collectors.toList()).size());
 
-        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasAllTags(tags)).collect(Collectors.toList()).size());
-        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasAllTags(tag1)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 1,
+                ruleRegistry.stream().filter(hasAllTags(tags)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 1,
+                ruleRegistry.stream().filter(hasAllTags(tag1)).collect(Collectors.toList()).size());
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // checking rule with 2 tags
@@ -135,11 +143,11 @@ public class RuleRegistryTest {
 
         addedRule = ruleRegistry.add(rule_with_tag1_tag2);
         Assert.assertNotNull("Rule for:" + name, addedRule);
-        Assert.assertNotSame(addedRule, rule_with_tag1_tag2);        // we should get only a copy of the rule
+        Assert.assertNotSame(addedRule, rule_with_tag1_tag2); // we should get only a copy of the rule
 
         getRule = ruleRegistry.get(name);
         Assert.assertNotNull("Rule for:" + name, getRule);
-        Assert.assertNotSame(getRule, rule_with_tag1_tag2);         // we should get only a copy of the rule
+        Assert.assertNotSame(getRule, rule_with_tag1_tag2); // we should get only a copy of the rule
 
         Assert.assertEquals("Rule list size", 3, ruleRegistry.getAll().size());
 
@@ -160,23 +168,34 @@ public class RuleRegistryTest {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // checking predicates
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasNoTags()).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 1,
+                ruleRegistry.stream().filter(hasNoTags()).collect(Collectors.toList()).size());
 
-        Assert.assertEquals("Rule list size", 2, ruleRegistry.stream().filter(hasAnyOfTags(tags)).collect(Collectors.toList()).size());
-        Assert.assertEquals("Rule list size", 2, ruleRegistry.stream().filter(hasAnyOfTags(tag1)).collect(Collectors.toList()).size());
-        Assert.assertEquals("Rule list size", 2, ruleRegistry.stream().filter(hasAnyOfTags(tag1, tag2)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 2,
+                ruleRegistry.stream().filter(hasAnyOfTags(tags)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 2,
+                ruleRegistry.stream().filter(hasAnyOfTags(tag1)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 2,
+                ruleRegistry.stream().filter(hasAnyOfTags(tag1, tag2)).collect(Collectors.toList()).size());
 
-        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasAnyOfTags(tag2)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 1,
+                ruleRegistry.stream().filter(hasAnyOfTags(tag2)).collect(Collectors.toList()).size());
 
-        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasAnyOfTags(tag1).and(hasAnyOfTags(tag2))).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream()
+                .filter(hasAnyOfTags(tag1).and(hasAnyOfTags(tag2))).collect(Collectors.toList()).size());
 
-        Assert.assertEquals("Rule list size", 2, ruleRegistry.stream().filter(hasAllTags(tag1)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 2,
+                ruleRegistry.stream().filter(hasAllTags(tag1)).collect(Collectors.toList()).size());
 
-        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasAllTags(tags)).collect(Collectors.toList()).size());
-        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasAllTags(tag1, tag2)).collect(Collectors.toList()).size());
-        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasAllTags(tag2)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 1,
+                ruleRegistry.stream().filter(hasAllTags(tags)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 1,
+                ruleRegistry.stream().filter(hasAllTags(tag1, tag2)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 1,
+                ruleRegistry.stream().filter(hasAllTags(tag2)).collect(Collectors.toList()).size());
 
-        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasAllTags(tag1).and(hasAllTags(tag2))).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasAllTags(tag1).and(hasAllTags(tag2)))
+                .collect(Collectors.toList()).size());
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // checking rule with 3 tags
@@ -193,11 +212,11 @@ public class RuleRegistryTest {
 
         addedRule = ruleRegistry.add(rule_with_tag1_tag2_tag3);
         Assert.assertNotNull("Rule for:" + name, addedRule);
-        Assert.assertNotSame(addedRule, rule_with_tag1_tag2_tag3);  // we should get only a copy of the rule
+        Assert.assertNotSame(addedRule, rule_with_tag1_tag2_tag3); // we should get only a copy of the rule
 
         getRule = ruleRegistry.get(name);
         Assert.assertNotNull("Rule for:" + name, getRule);
-        Assert.assertNotSame(getRule, rule_with_tag1_tag2_tag3);    // we should get only a copy of the rule
+        Assert.assertNotSame(getRule, rule_with_tag1_tag2_tag3); // we should get only a copy of the rule
 
         Assert.assertEquals("Rule list size", 4, ruleRegistry.getAll().size());
 
@@ -227,30 +246,46 @@ public class RuleRegistryTest {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // checking predicates
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasNoTags()).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 1,
+                ruleRegistry.stream().filter(hasNoTags()).collect(Collectors.toList()).size());
 
-        Assert.assertEquals("Rule list size", 3, ruleRegistry.stream().filter(hasAnyOfTags(tags)).collect(Collectors.toList()).size());
-        Assert.assertEquals("Rule list size", 3, ruleRegistry.stream().filter(hasAnyOfTags(tag1)).collect(Collectors.toList()).size());
-        Assert.assertEquals("Rule list size", 3, ruleRegistry.stream().filter(hasAnyOfTags(tag1, tag2)).collect(Collectors.toList()).size());
-        Assert.assertEquals("Rule list size", 3, ruleRegistry.stream().filter(hasAnyOfTags(tag1, tag2, tag3)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 3,
+                ruleRegistry.stream().filter(hasAnyOfTags(tags)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 3,
+                ruleRegistry.stream().filter(hasAnyOfTags(tag1)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 3,
+                ruleRegistry.stream().filter(hasAnyOfTags(tag1, tag2)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 3,
+                ruleRegistry.stream().filter(hasAnyOfTags(tag1, tag2, tag3)).collect(Collectors.toList()).size());
 
-        Assert.assertEquals("Rule list size", 2, ruleRegistry.stream().filter(hasAnyOfTags(tag2)).collect(Collectors.toList()).size());
-        Assert.assertEquals("Rule list size", 2, ruleRegistry.stream().filter(hasAnyOfTags(tag2, tag3)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 2,
+                ruleRegistry.stream().filter(hasAnyOfTags(tag2)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 2,
+                ruleRegistry.stream().filter(hasAnyOfTags(tag2, tag3)).collect(Collectors.toList()).size());
 
-        Assert.assertEquals("Rule list size", 2, ruleRegistry.stream().filter(hasAnyOfTags(tag1).and(hasAnyOfTags(tag2))).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 2, ruleRegistry.stream()
+                .filter(hasAnyOfTags(tag1).and(hasAnyOfTags(tag2))).collect(Collectors.toList()).size());
 
-        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasAnyOfTags(tag1).and(hasAnyOfTags(tag3))).collect(Collectors.toList()).size());
-        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasAnyOfTags(tag2).and(hasAnyOfTags(tag3))).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream()
+                .filter(hasAnyOfTags(tag1).and(hasAnyOfTags(tag3))).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream()
+                .filter(hasAnyOfTags(tag2).and(hasAnyOfTags(tag3))).collect(Collectors.toList()).size());
 
-        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasAnyOfTags(tag3)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 1,
+                ruleRegistry.stream().filter(hasAnyOfTags(tag3)).collect(Collectors.toList()).size());
 
-        Assert.assertEquals("Rule list size", 3, ruleRegistry.stream().filter(hasAllTags(tag1)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 3,
+                ruleRegistry.stream().filter(hasAllTags(tag1)).collect(Collectors.toList()).size());
 
-        Assert.assertEquals("Rule list size", 2, ruleRegistry.stream().filter(hasAllTags(tag2)).collect(Collectors.toList()).size());
-        Assert.assertEquals("Rule list size", 2, ruleRegistry.stream().filter(hasAllTags(tag1, tag2)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 2,
+                ruleRegistry.stream().filter(hasAllTags(tag2)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 2,
+                ruleRegistry.stream().filter(hasAllTags(tag1, tag2)).collect(Collectors.toList()).size());
 
-        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasAllTags(tags)).collect(Collectors.toList()).size());
-        Assert.assertEquals("Rule list size", 1, ruleRegistry.stream().filter(hasAllTags(tag1, tag2, tag3)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 1,
+                ruleRegistry.stream().filter(hasAllTags(tags)).collect(Collectors.toList()).size());
+        Assert.assertEquals("Rule list size", 1,
+                ruleRegistry.stream().filter(hasAllTags(tag1, tag2, tag3)).collect(Collectors.toList()).size());
 
     }
 

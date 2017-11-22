@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-Activator: org.eclipse.smarthome.ui.classic.internal.WebAppActiva
  tor
 Bundle-ClassPath: patch/,.
-Bundle-License: http://www.eclipse.org/legal/epl-v10.html
+Bundle-License: https://www.eclipse.org/legal/epl-2.0/
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome WebApp UI
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

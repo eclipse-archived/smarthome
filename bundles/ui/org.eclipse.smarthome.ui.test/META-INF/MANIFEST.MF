@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ClassPath: .
-Bundle-License: http://www.eclipse.org/legal/epl-v10.html
+Bundle-License: https://www.eclipse.org/legal/epl-2.0/
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome UI Tests
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
