@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
 @Component(service = PersistenceManager.class, immediate = true)
 public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryChangeListener, StateChangeListener {
 
-    private final Logger logger = LoggerFactory.getLogger(PersistenceManager.class);
+    private final Logger logger = LoggerFactory.getLogger(PersistenceManagerImpl.class);
 
     // the scheduler used for timer events
     private ExpressionThreadPoolExecutor scheduler;

@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SceneConfigReadingJob implements SensorJob {
 
-    private static final Logger logger = LoggerFactory.getLogger(SceneOutputValueReadingJob.class);
+    private static final Logger logger = LoggerFactory.getLogger(SceneConfigReadingJob.class);
 
     private Device device = null;
     private short sceneID = 0;

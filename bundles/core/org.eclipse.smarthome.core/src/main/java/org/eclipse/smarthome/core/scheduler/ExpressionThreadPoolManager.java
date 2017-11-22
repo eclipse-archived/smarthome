@@ -87,7 +87,7 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
         public ExpressionThreadPoolExecutor(final String poolName, int corePoolSize) {
             this(poolName, corePoolSize, new NamedThreadFactory(poolName), new ThreadPoolExecutor.DiscardPolicy() {
 
-                private final Logger logger = LoggerFactory.getLogger(ThreadPoolExecutor.DiscardPolicy.class);
+                private final Logger logger = LoggerFactory.getLogger(ExpressionThreadPoolExecutor.class);
 
                 // The pool is bounded and rejections will happen during shutdown
                 @Override
