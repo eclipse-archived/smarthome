@@ -68,7 +68,7 @@ public class BindingResource implements RESTResource {
     /** The URI path to this resource */
     public static final String PATH_BINDINGS = "bindings";
 
-    private final Logger logger = LoggerFactory.getLogger(ConfigurableServiceResource.class);
+    private final Logger logger = LoggerFactory.getLogger(BindingResource.class);
 
     private ConfigurationService configurationService;
     private ConfigDescriptionRegistry configDescRegistry;
