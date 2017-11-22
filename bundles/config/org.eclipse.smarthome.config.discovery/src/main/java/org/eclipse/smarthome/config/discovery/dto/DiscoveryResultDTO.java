@@ -9,6 +9,8 @@ package org.eclipse.smarthome.config.discovery.dto;
 
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 
 /**
@@ -17,21 +19,22 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
  * @author Dennis Nobel - Initial contribution
  * @author Thomas Höfer - Added representation
  */
+@NonNullByDefault
 public class DiscoveryResultDTO {
 
-    public String bridgeUID;
-    public DiscoveryResultFlag flag;
-    public String label;
-    public Map<String, Object> properties;
-    public String representationProperty;
-    public String thingUID;
-    public String thingTypeUID;
+    public @Nullable String bridgeUID;
+    public @Nullable DiscoveryResultFlag flag;
+    public @Nullable String label;
+    public @Nullable Map<String, Object> properties;
+    public @Nullable String representationProperty;
+    public @Nullable String thingUID;
+    public @Nullable String thingTypeUID;
 
     public DiscoveryResultDTO() {
     }
 
-    public DiscoveryResultDTO(String thingUID, String bridgeUID, String thingTypeUID, String label,
-            DiscoveryResultFlag flag, Map<String, Object> properties, String representationProperty) {
+    public DiscoveryResultDTO(String thingUID, @Nullable String bridgeUID, @Nullable String thingTypeUID, String label,
+            DiscoveryResultFlag flag, Map<String, Object> properties, @Nullable String representationProperty) {
         this.thingUID = thingUID;
         this.thingTypeUID = thingTypeUID;
         this.bridgeUID = bridgeUID;

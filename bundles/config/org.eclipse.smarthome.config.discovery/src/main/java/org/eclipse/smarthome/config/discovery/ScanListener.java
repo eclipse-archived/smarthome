@@ -7,6 +7,9 @@
  */
 package org.eclipse.smarthome.config.discovery;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * The {@link ScanListener} interface for receiving scan operation events.
  * <p>
@@ -16,6 +19,7 @@ package org.eclipse.smarthome.config.discovery;
  *
  * @see DiscoveryService
  */
+@NonNullByDefault
 public interface ScanListener {
 
     /**
@@ -30,6 +34,6 @@ public interface ScanListener {
      *
      * @param exception the error which occurred (could be null)
      */
-    void onErrorOccurred(Exception exception);
+    void onErrorOccurred(@Nullable Exception exception);
 
 }

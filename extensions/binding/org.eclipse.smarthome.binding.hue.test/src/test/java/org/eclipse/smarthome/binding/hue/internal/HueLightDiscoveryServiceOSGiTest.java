@@ -14,6 +14,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler;
@@ -123,7 +124,7 @@ public class HueLightDiscoveryServiceOSGiTest extends AbstractHueOSGiTest {
             @Override
             public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
                     Collection<ThingTypeUID> thingTypeUIDs) {
-                return null;
+                return Collections.emptyList();
             }
         });
 

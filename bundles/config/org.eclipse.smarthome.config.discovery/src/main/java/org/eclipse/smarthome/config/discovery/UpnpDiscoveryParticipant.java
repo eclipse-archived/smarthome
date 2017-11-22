@@ -9,6 +9,8 @@ package org.eclipse.smarthome.config.discovery;
 
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.jupnp.model.meta.RemoteDevice;
@@ -23,6 +25,7 @@ import org.jupnp.model.meta.RemoteDevice;
  *
  */
 @Deprecated
+@NonNullByDefault
 public interface UpnpDiscoveryParticipant {
 
     /**
@@ -45,7 +48,7 @@ public interface UpnpDiscoveryParticipant {
      * @return the according discovery result or <code>null</code>, if device is not
      *         supported by this participant
      */
-    public DiscoveryResult createResult(RemoteDevice device);
+    public @Nullable DiscoveryResult createResult(RemoteDevice device);
 
     /**
      * Returns the thing UID for a upnp device
@@ -55,5 +58,5 @@ public interface UpnpDiscoveryParticipant {
      * @return a thing UID or <code>null</code>, if device is not supported
      *         by this participant
      */
-    public ThingUID getThingUID(RemoteDevice device);
+    public @Nullable ThingUID getThingUID(RemoteDevice device);
 }

@@ -23,6 +23,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
@@ -64,18 +66,19 @@ import com.google.common.collect.HashMultimap;
  * @see DiscoveryListener
  */
 @Component(immediate = true, service = org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry.class)
+@NonNullByDefault
 public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegistry, DiscoveryListener {
 
-    private HashMultimap<DiscoveryService, DiscoveryResult> cachedResults = HashMultimap.create();
+    private final HashMultimap<DiscoveryService, DiscoveryResult> cachedResults = HashMultimap.create();
 
     private final class AggregatingScanListener implements ScanListener {
 
-        private final ScanListener listener;
+        private final @Nullable ScanListener listener;
         private int finishedDiscoveryServices = 0;
         private boolean errorOccurred = false;
         private int numberOfDiscoveryServices;
 
-        private AggregatingScanListener(int numberOfDiscoveryServices, ScanListener listener) {
+        private AggregatingScanListener(int numberOfDiscoveryServices, @Nullable ScanListener listener) {
             this.numberOfDiscoveryServices = numberOfDiscoveryServices;
             this.listener = listener;
         }
@@ -95,7 +98,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         }
 
         @Override
-        public void onErrorOccurred(Exception exception) {
+        public void onErrorOccurred(@Nullable Exception exception) {
             synchronized (this) {
                 if (!errorOccurred) {
                     if (listener != null) {
@@ -105,8 +108,10 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                 } else {
                     // Skip error logging for aborted scans
                     if (!(exception instanceof CancellationException)) {
-                        logger.warn("Error occurred while executing discovery service: {}", exception.getMessage(),
-                                exception);
+                        if (exception != null) {
+                            logger.warn("Error occurred while executing discovery service: {}", exception.getMessage(),
+                                    exception);
+                        }
                     }
                 }
             }
@@ -124,20 +129,21 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         }
     }
 
-    private List<DiscoveryService> discoveryServices = new CopyOnWriteArrayList<>();
+    private final List<DiscoveryService> discoveryServices = new CopyOnWriteArrayList<>();
 
-    private Set<DiscoveryListener> listeners = new CopyOnWriteArraySet<>();
+    private final Set<DiscoveryListener> listeners = new CopyOnWriteArraySet<>();
 
     private final Logger logger = LoggerFactory.getLogger(DiscoveryServiceRegistryImpl.class);
 
-    private Inbox inbox;
+    private @Nullable Inbox inbox;
 
+    @NonNullByDefault({})
     private ThingRegistry thingRegistry;
 
-    private DiscoveryServiceCallback discoveryServiceCallback = new DiscoveryServiceCallback() {
+    private final DiscoveryServiceCallback discoveryServiceCallback = new DiscoveryServiceCallback() {
 
         @Override
-        public Thing getExistingThing(ThingUID thingUID) {
+        public @Nullable Thing getExistingThing(ThingUID thingUID) {
             ThingRegistry thingRegistryReference = thingRegistry;
             if (thingRegistryReference == null) {
                 logger.warn("ThingRegistry not set");
@@ -147,7 +153,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         }
 
         @Override
-        public DiscoveryResult getExistingDiscoveryResult(ThingUID thingUID) {
+        public @Nullable DiscoveryResult getExistingDiscoveryResult(ThingUID thingUID) {
             Inbox inboxReference = inbox;
             if (inboxReference == null) {
                 logger.warn("Inbox not set");
@@ -199,13 +205,11 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                 listener.thingDiscovered(entry.getKey(), entry.getValue());
             }
         }
-        if (listener != null) {
-            this.listeners.add(listener);
-        }
+        this.listeners.add(listener);
     }
 
     @Override
-    public boolean startScan(ThingTypeUID thingTypeUID, ScanListener listener) throws IllegalStateException {
+    public boolean startScan(ThingTypeUID thingTypeUID, @Nullable ScanListener listener) throws IllegalStateException {
         Set<DiscoveryService> discoveryServicesForThingType = getDiscoveryServices(thingTypeUID);
 
         if (discoveryServicesForThingType.isEmpty()) {
@@ -217,7 +221,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     }
 
     @Override
-    public boolean startScan(String bindingId, final ScanListener listener) throws IllegalStateException {
+    public boolean startScan(String bindingId, final @Nullable ScanListener listener) throws IllegalStateException {
 
         final Set<DiscoveryService> discoveryServicesForBinding = getDiscoveryServices(bindingId);
 
@@ -262,10 +266,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     @Override
     public synchronized void removeDiscoveryListener(DiscoveryListener listener) throws IllegalStateException {
-
-        if (listener != null) {
-            this.listeners.remove(listener);
-        }
+        this.listeners.remove(listener);
     }
 
     @Override
@@ -276,9 +277,9 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         }
         for (final DiscoveryListener listener : this.listeners) {
             try {
-                AccessController.doPrivileged(new PrivilegedAction<Void>() {
+                AccessController.doPrivileged(new PrivilegedAction<@Nullable Void>() {
                     @Override
-                    public Void run() {
+                    public @Nullable Void run() {
                         listener.thingDiscovered(source, result);
                         return null;
                     }
@@ -302,9 +303,9 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         }
         for (final DiscoveryListener listener : this.listeners) {
             try {
-                AccessController.doPrivileged(new PrivilegedAction<Void>() {
+                AccessController.doPrivileged(new PrivilegedAction<@Nullable Void>() {
                     @Override
-                    public Void run() {
+                    public @Nullable Void run() {
                         listener.thingRemoved(source, thingUID);
                         return null;
                     }
@@ -318,14 +319,14 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     @Override
     public Collection<ThingUID> removeOlderResults(final DiscoveryService source, final long timestamp,
-            final Collection<ThingTypeUID> thingTypeUIDs) {
+            final @Nullable Collection<ThingTypeUID> thingTypeUIDs) {
         HashSet<ThingUID> removedResults = new HashSet<>();
         for (final DiscoveryListener listener : this.listeners) {
             try {
                 Collection<ThingUID> olderResults = AccessController
-                        .doPrivileged(new PrivilegedAction<Collection<ThingUID>>() {
+                        .doPrivileged(new PrivilegedAction<@Nullable Collection<ThingUID>>() {
                             @Override
-                            public Collection<ThingUID> run() {
+                            public @Nullable Collection<ThingUID> run() {
                                 return listener.removeOlderResults(source, timestamp, thingTypeUIDs);
                             }
                         });
@@ -364,7 +365,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         return allServicesAborted;
     }
 
-    private boolean startScans(Set<DiscoveryService> discoveryServices, ScanListener listener) {
+    private boolean startScans(Set<DiscoveryService> discoveryServices, @Nullable ScanListener listener) {
 
         boolean atLeastOneDiscoveryServiceHasBeenStarted = false;
 
@@ -391,7 +392,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         return atLeastOneDiscoveryServiceHasBeenStarted;
     }
 
-    private boolean startScan(DiscoveryService discoveryService, ScanListener listener) {
+    private boolean startScan(DiscoveryService discoveryService, @Nullable ScanListener listener) {
         Collection<ThingTypeUID> supportedThingTypes = discoveryService.getSupportedThingTypes();
         try {
             logger.debug("Triggering scan for thing types '{}' on '{}'...", supportedThingTypes,
@@ -411,12 +412,10 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
         Set<DiscoveryService> discoveryServices = new HashSet<>();
 
-        if (thingTypeUID != null) {
-            for (DiscoveryService discoveryService : this.discoveryServices) {
-                Collection<ThingTypeUID> discoveryThingTypes = discoveryService.getSupportedThingTypes();
-                if (discoveryThingTypes.contains(thingTypeUID)) {
-                    discoveryServices.add(discoveryService);
-                }
+        for (DiscoveryService discoveryService : this.discoveryServices) {
+            Collection<ThingTypeUID> discoveryThingTypes = discoveryService.getSupportedThingTypes();
+            if (discoveryThingTypes.contains(thingTypeUID)) {
+                discoveryServices.add(discoveryService);
             }
         }
 
@@ -443,9 +442,9 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     protected void addDiscoveryService(final DiscoveryService discoveryService) {
         discoveryService.addDiscoveryListener(this);
         if (discoveryService instanceof ExtendedDiscoveryService) {
-            SafeMethodCaller.call(new SafeMethodCaller.Action<Void>() {
+            SafeMethodCaller.call(new SafeMethodCaller.Action<@Nullable Void>() {
                 @Override
-                public Void call() throws Exception {
+                public @Nullable Void call() throws Exception {
                     ((ExtendedDiscoveryService) discoveryService).setDiscoveryServiceCallback(discoveryServiceCallback);
                     return null;
                 }
