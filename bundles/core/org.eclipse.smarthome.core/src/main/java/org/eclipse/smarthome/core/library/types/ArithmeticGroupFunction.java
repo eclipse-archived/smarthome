@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 
@@ -261,16 +262,17 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 
         @Override
         public State calculate(Set<Item> items) {
-            BigDecimal sum = BigDecimal.ZERO;
-            if (items != null) {
-                for (Item item : items) {
-                    DecimalType itemState = (DecimalType) item.getStateAs(DecimalType.class);
-                    if (itemState != null) {
-                        sum = sum.add(itemState.toBigDecimal());
-                    }
-                }
+            if (items == null) {
+                return UnDefType.UNDEF;
             }
-            return new DecimalType(sum);
+
+            // observe the first item to see if a dimension based calculation is needed:
+            Item firstItem = !items.isEmpty() ? items.iterator().next() : null;
+            if (firstItem instanceof NumberItem && ((NumberItem) firstItem).getDimension() != null) {
+                return calculateSumQuantityType(items);
+            } else {
+                return calculateSumDecimalType(items);
+            }
         }
 
         @Override
@@ -286,6 +288,37 @@ public interface ArithmeticGroupFunction extends GroupFunction {
         @Override
         public State[] getParameters() {
             return new State[0];
+        }
+
+        private State calculateSumQuantityType(Set<Item> items) {
+            QuantityType<?> sum = null;
+            if (items != null) {
+                for (Item item : items) {
+                    QuantityType itemState = (QuantityType) item.getStateAs(QuantityType.class);
+                    if (itemState != null) {
+                        if (sum == null) {
+                            sum = itemState; // initialise the sum from the first item
+                        } else if (sum.getUnit().isCompatible(itemState.getUnit())) {
+                            sum = sum.add(itemState);
+                        }
+                    }
+                }
+            }
+
+            return sum;
+        }
+
+        private State calculateSumDecimalType(Set<Item> items) {
+            BigDecimal sum = BigDecimal.ZERO;
+            if (items != null) {
+                for (Item item : items) {
+                    DecimalType itemState = (DecimalType) item.getStateAs(DecimalType.class);
+                    if (itemState != null) {
+                        sum = sum.add(itemState.toBigDecimal());
+                    }
+                }
+            }
+            return new DecimalType(sum);
         }
     }
 

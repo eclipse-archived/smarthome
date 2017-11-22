@@ -8,23 +8,32 @@
 package org.eclipse.smarthome.core.library.types;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.measure.Quantity;
+import javax.measure.quantity.Temperature;
+
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
+import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+
+import tec.uom.se.unit.Units;
 
 /**
  * @author Thomas.Eichstaedt-Engelen
@@ -34,9 +43,14 @@ public class ArithmeticGroupFunctionTest {
     private GroupFunction function;
     private Set<Item> items;
 
+    @Mock
+    UnitProvider unitProvider;
+
     @Before
     public void init() {
         items = new HashSet<Item>();
+
+        when(unitProvider.getUnit(Temperature.class)).thenReturn(Units.CELSIUS);
     }
 
     @Test
@@ -213,6 +227,54 @@ public class ArithmeticGroupFunctionTest {
         State state = function.calculate(items);
 
         assertEquals(new DecimalType("2"), state);
+    }
+
+    public void testSumFunctionQuantityType() {
+        items.add(createNumberItem("TestItem1", Temperature.class, new QuantityType<Temperature>("23.54 °C")));
+        items.add(createNumberItem("TestItem2", Temperature.class, UnDefType.NULL));
+        items.add(createNumberItem("TestItem3", Temperature.class, new QuantityType<Temperature>("89 °C")));
+        items.add(createNumberItem("TestItem4", Temperature.class, UnDefType.UNDEF));
+        items.add(createNumberItem("TestItem5", Temperature.class, new QuantityType<Temperature>("122.41 °C")));
+
+        function = new ArithmeticGroupFunction.Sum();
+        State state = function.calculate(items);
+
+        assertEquals(new QuantityType<Temperature>("234.95 °C"), state);
+    }
+
+    @Test
+    public void testSumFunctionQuantityTypeDifferentUnits() {
+        items.add(createNumberItem("TestItem1", Temperature.class, new QuantityType<Temperature>("23.54 °C")));
+        items.add(createNumberItem("TestItem2", Temperature.class, UnDefType.NULL));
+        items.add(createNumberItem("TestItem3", Temperature.class, new QuantityType<Temperature>("192.2 °F")));
+        items.add(createNumberItem("TestItem4", Temperature.class, UnDefType.UNDEF));
+        items.add(createNumberItem("TestItem5", Temperature.class, new QuantityType<Temperature>("395.56 K")));
+
+        function = new ArithmeticGroupFunction.Sum();
+        State state = function.calculate(items);
+
+        assertEquals(new QuantityType<Temperature>("234.95 °C"), state);
+    }
+
+    @Test
+    public void testSumFunctionQuantityTypeIncompatibleUnits() {
+        items.add(createNumberItem("TestItem1", Temperature.class, new QuantityType<Temperature>("23.54 °C")));
+        items.add(createNumberItem("TestItem2", Temperature.class, UnDefType.NULL));
+        items.add(createNumberItem("TestItem3", Temperature.class, new QuantityType<Temperature>("192.2 hPa")));
+
+        function = new ArithmeticGroupFunction.Sum();
+        State state = function.calculate(items);
+
+        assertEquals(new QuantityType<Temperature>("23.54 °C"), state);
+    }
+
+    private NumberItem createNumberItem(String name, Class<? extends Quantity<?>> dimension, State state) {
+        NumberItem item = new NumberItem(name);
+        item.setDimension(dimension);
+        item.setUnitProvider(unitProvider);
+        item.setState(state);
+
+        return item;
     }
 
     class TestItem extends GenericItem {
