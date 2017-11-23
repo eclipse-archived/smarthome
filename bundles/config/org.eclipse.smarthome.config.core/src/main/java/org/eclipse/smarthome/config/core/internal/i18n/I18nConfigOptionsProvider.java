@@ -16,10 +16,7 @@ import java.net.URI;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -41,8 +38,8 @@ import org.osgi.service.component.annotations.Component;
 public class I18nConfigOptionsProvider implements ConfigOptionProvider {
 
     private static final String NO_OFFSET_FORMAT = "(GMT) %s";
-    private static final String NEGATIVE_OFFSET_FORMAT = "%s (GMT%d:%02d)";
-    private static final String POSITIVE_OFFSET_FORMAT = "%s (GMT+%d:%02d)";
+    private static final String NEGATIVE_OFFSET_FORMAT = "(GMT%d:%02d) %s";
+    private static final String POSITIVE_OFFSET_FORMAT = "(GMT+%d:%02d) %s";
 
     @Override
     public Collection<ParameterOption> getParameterOptions(URI uri, String param, Locale locale) {
@@ -59,17 +56,20 @@ public class I18nConfigOptionsProvider implements ConfigOptionProvider {
                 return getAvailable(locale,
                         l -> new ParameterOption(l.getLanguage(), l.getDisplayLanguage(translation)));
             case "region":
-                return getAvailable(locale,
-                        l -> new ParameterOption(l.getCountry(), l.getDisplayCountry(translation)));
+                return getAvailable(locale, l -> new ParameterOption(l.getCountry(), l.getDisplayCountry(translation)));
             case "variant":
-                return getAvailable(locale,
-                        l -> new ParameterOption(l.getVariant(), l.getDisplayVariant(translation)));
+                return getAvailable(locale, l -> new ParameterOption(l.getVariant(), l.getDisplayVariant(translation)));
             case "timezone":
-                return ZoneId.getAvailableZoneIds().stream().map(TimeZone::getTimeZone).sorted((tz1, tz2) -> {
-                    return tz2.getRawOffset() - tz2.getRawOffset();
-                }).map(tz -> {
-                    return new ParameterOption(tz.getID(), getTimeZoneRepresentation(tz));
-                }).collect(Collectors.toList());
+                Comparator<TimeZone> byOffset = (t1, t2) -> {
+                    return t1.getRawOffset() - t2.getRawOffset();
+                };
+                Comparator<TimeZone> byID = (t1, t2) -> {
+                    return t1.getID().compareTo(t2.getID());
+                };
+                return ZoneId.getAvailableZoneIds().stream().map(TimeZone::getTimeZone)
+                        .sorted(byOffset.thenComparing(byID)).map(tz -> {
+                            return new ParameterOption(tz.getID(), getTimeZoneRepresentation(tz));
+                        }).collect(Collectors.toList());
             default:
                 return null;
         }
@@ -81,11 +81,11 @@ public class I18nConfigOptionsProvider implements ConfigOptionProvider {
         minutes = Math.abs(minutes);
         final String result;
         if (hours > 0) {
-            result = String.format(POSITIVE_OFFSET_FORMAT, tz.getID(), hours, minutes);
+            result = String.format(POSITIVE_OFFSET_FORMAT, hours, minutes, tz.getID());
         } else if (hours < 0) {
-            result = String.format(NEGATIVE_OFFSET_FORMAT, tz.getID(), hours, minutes);
+            result = String.format(NEGATIVE_OFFSET_FORMAT, hours, minutes, tz.getID());
         } else {
-            result = String.format(NO_OFFSET_FORMAT, tz.getDisplayName(Locale.getDefault()));
+            result = String.format(NO_OFFSET_FORMAT, tz.getID());
         }
         return result;
     }
