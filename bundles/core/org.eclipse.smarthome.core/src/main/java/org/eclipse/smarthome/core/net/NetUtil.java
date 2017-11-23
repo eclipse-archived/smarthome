@@ -278,8 +278,8 @@ public class NetUtil implements NetworkAddressService {
         if (!isValidIPConfig(ipAddressString)) {
             throw new IllegalArgumentException(errorString);
         }
-        if (netMask < 1 || netMask > 31) {
-            throw new IllegalArgumentException("Netmask '" + netMask + "' is out of bounds (1-31)");
+        if (netMask < 1 || netMask > 32) {
+            throw new IllegalArgumentException("Netmask '" + netMask + "' is out of bounds (1-32)");
         }
 
         String subnetMaskString = networkPrefixLengthToNetmask(netMask);
