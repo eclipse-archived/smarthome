@@ -23,6 +23,8 @@ public interface SystemProfiles {
     ProfileTypeUID DEFAULT = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "default");
     ProfileTypeUID FOLLOW = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "follow");
     ProfileTypeUID RAWBUTTON_TOGGLE_SWITCH = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "rawbutton-toggle-switch");
+    ProfileTypeUID RAWROCKER_TO_ON_OFF = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "rawrocker-to-on-off");
+    ProfileTypeUID RAWROCKER_TO_DIMMER = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "rawrocker-to-dimmer");
 
     StateProfileType DEFAULT_TYPE = ProfileTypeBuilder.newState(DEFAULT, "Default").build();
 
@@ -32,4 +34,12 @@ public interface SystemProfiles {
             .newTrigger(RAWBUTTON_TOGGLE_SWITCH, "Raw Button Toggle").withSupportedItemTypes(CoreItemFactory.SWITCH)
             .withSupportedChannelTypeUIDs(DefaultSystemChannelTypeProvider.SYSTEM_RAWBUTTON.getUID()).build();
 
+    TriggerProfileType RAWBROCKER_TO_ON_OFF_TYPE = ProfileTypeBuilder
+            .newTrigger(RAWROCKER_TO_ON_OFF, "Raw Rocker To On Off")
+            .withSupportedItemTypes(CoreItemFactory.SWITCH, CoreItemFactory.DIMMER)
+            .withSupportedChannelTypeUIDs(DefaultSystemChannelTypeProvider.SYSTEM_RAWROCKER.getUID()).build();
+
+    TriggerProfileType RAWROCKER_TO_DIMMER_TYPE = ProfileTypeBuilder
+            .newTrigger(RAWROCKER_TO_DIMMER, "Raw Rocker To Dimmer").withSupportedItemTypes(CoreItemFactory.DIMMER)
+            .withSupportedChannelTypeUIDs(DefaultSystemChannelTypeProvider.SYSTEM_RAWROCKER.getUID()).build();
 }
