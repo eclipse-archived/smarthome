@@ -16,8 +16,8 @@ import javax.measure.Quantity;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.ConfigDescription;
+import org.eclipse.smarthome.core.items.DimensionClassParser;
 import org.eclipse.smarthome.core.thing.Channel;
-import org.eclipse.smarthome.core.thing.util.DimensionClassParser;
 import org.eclipse.smarthome.core.types.EventDescription;
 import org.eclipse.smarthome.core.types.StateDescription;
 
@@ -34,7 +34,7 @@ public class ChannelType extends AbstractDescriptionType {
 
     private final boolean advanced;
     private final String itemType;
-    private final Class<Quantity<?>> dimension;
+    private final Class<? extends Quantity<?>> dimension;
     private final ChannelKind kind;
     private final Set<String> tags;
     private final String category;
@@ -116,7 +116,7 @@ public class ChannelType extends AbstractDescriptionType {
      * @throws IllegalArgumentException if the UID or the item type is null or empty,
      *             or the the meta information is null
      */
-    public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, Class<Quantity<?>> dimension,
+    public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, Class<? extends Quantity<?>> dimension,
             ChannelKind kind, String label, String description, String category, Set<String> tags,
             StateDescription state, EventDescription event, URI configDescriptionURI) throws IllegalArgumentException {
 
@@ -170,7 +170,7 @@ public class ChannelType extends AbstractDescriptionType {
      *
      * @return the item dimension of this Channel type, e.g. {@code Temperature}. Can be null.
      */
-    public Class<Quantity<?>> getDimension() {
+    public Class<? extends Quantity<?>> getDimension() {
         return this.dimension;
     }
 

@@ -5,12 +5,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.thing.util;
+package org.eclipse.smarthome.core.items;
 
 import javax.measure.Quantity;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -36,18 +35,19 @@ public class DimensionClassParser {
      * @return the {@link Class} instance of the interface or {@code null} if the given dimension is blank or parsing
      *         failed due to {@link ClassNotFoundException}.
      */
-    public static Class<Quantity<?>> parseDimension(String dimension) {
+    public static Class<? extends Quantity<?>> parseDimension(String dimension) {
         if (StringUtils.isBlank(dimension)) {
             return null;
         }
 
         try {
             @SuppressWarnings("unchecked")
-            Class<Quantity<?>> dimensionClass = (Class<Quantity<?>>) Class.forName(JAVAX_MEASURE_QUANTITY + dimension);
+            Class<? extends Quantity<?>> dimensionClass = (Class<? extends Quantity<?>>) Class
+                    .forName(JAVAX_MEASURE_QUANTITY + dimension);
             return dimensionClass;
         } catch (ClassNotFoundException e) {
-            Logger logger = LoggerFactory.getLogger(DimensionClassParser.class);
-            logger.error("Error creating a Class instance for name '{}'.", dimension);
+            LoggerFactory.getLogger(DimensionClassParser.class).error("Error creating a Class instance for name '{}'.",
+                    dimension);
         }
 
         return null;

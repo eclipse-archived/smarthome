@@ -20,6 +20,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.measure.Quantity;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Pressure;
 import javax.measure.quantity.Temperature;
 
 import org.eclipse.smarthome.core.events.Event;
@@ -522,6 +524,26 @@ public class GroupItemTest extends JavaOSGiTest {
 
         assertThat(state.getUnit(), is(Units.CELSIUS));
         assertThat(state.doubleValue(), is(closeTo(9.849999999999994d, DEFAULT_ERROR)));
+    }
+
+    @Test
+    public void assertThatNumberGroupItemWithDifferentDimensionsCalculatesCorrectState() {
+        NumberItem baseItem = createNumberItem("baseItem", Temperature.class, UnDefType.NULL);
+        GroupItem groupItem = new GroupItem("number", baseItem, new ArithmeticGroupFunction.Sum());
+
+        NumberItem celsius = createNumberItem("C", Temperature.class, new QuantityType<Temperature>("23 °C"));
+        groupItem.addMember(celsius);
+        NumberItem hectoPascal = createNumberItem("F", Pressure.class, new QuantityType<Pressure>("1010 hPa"));
+        groupItem.addMember(hectoPascal);
+        NumberItem percent = createNumberItem("K", Dimensionless.class, new QuantityType<Dimensionless>("110 %"));
+        groupItem.addMember(percent);
+
+        QuantityType<?> state = (QuantityType<?>) groupItem.getStateAs(QuantityType.class);
+
+        assertThat(state, is(new QuantityType<Temperature>("23 °C")));
+
+        groupItem.stateUpdated(celsius, null);
+        assertThat(groupItem.getState(), is(new QuantityType<Temperature>("23 °C")));
     }
 
     private NumberItem createNumberItem(String name, Class<? extends Quantity<?>> dimension, State state) {

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -281,7 +282,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         // if a group does not have a function it cannot have a state
         State newState = null;
         if (function != null) {
-            newState = function.getStateAs(getAllMembers(), typeClass);
+            newState = function.getStateAs(getMembersForGroupFunction(), typeClass);
         }
 
         if (newState == null && baseItem != null) {
@@ -343,8 +344,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     public void stateUpdated(Item item, State state) {
         State oldState = this.state;
         if (function != null && baseItem != null) {
-            Set<Item> members = getMembersForGroupFunction();
-            State calculatedState = function.calculate(members);
+            State calculatedState = function.calculate(getMembersForGroupFunction());
             calculatedState = ItemUtil.convertToAcceptedState(calculatedState, baseItem);
             setState(calculatedState);
         }
@@ -373,7 +373,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     }
 
     private Set<Item> getMembersForGroupFunction() {
-        if (baseItem instanceof NumberItem && ((NumberItem) baseItem).getDimension() != null) {
+        if (isDimensionalItem(baseItem)) {
             return convertNumberItemsToBaseItemUnit(((NumberItem) baseItem).getUnit());
         } else {
             return getMembers();
@@ -381,19 +381,39 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     }
 
     private Set<Item> convertNumberItemsToBaseItemUnit(Unit<?> baseItemUnit) {
-        Set<Item> groupFunctionMembers = new HashSet<>();
+        Set<Item> groupFunctionMembers = new LinkedHashSet<>(); // retain order of insertions
+
+        Set<Item> compatibleUnitItems = new HashSet<>();
+        Set<Item> otherItems = new HashSet<>();
 
         for (Item item : getMembers()) {
-            if (baseItemUnit != null && item instanceof NumberItem && ((NumberItem) item).getDimension() != null) {
-                NumberItem unitItem = new NumberItem(item.getName());
-                unitItem.setState(((QuantityType<?>) item.getState()).toUnit(baseItemUnit));
-                groupFunctionMembers.add(unitItem);
+            if (baseItemUnit != null && isDimensionalItem(item) && isCompatibleUnit(baseItemUnit, item)) {
+                compatibleUnitItems.add(item);
             } else {
-                groupFunctionMembers.add(item);
+                otherItems.add(item);
             }
         }
 
+        // the unit compatible items with QuantityType state have to be first in
+        // the order retaining set. The ArithmeticGroupFunctions rely on
+        // the ordering to determine the state type and dimension used for calculation.
+        groupFunctionMembers.addAll(compatibleUnitItems);
+        groupFunctionMembers.addAll(otherItems);
+
         return groupFunctionMembers;
+    }
+
+    private boolean isCompatibleUnit(Unit<?> baseItemUnit, Item item) {
+        if (!isDimensionalItem(item) || !(((NumberItem) item).getState() instanceof QuantityType<?>)) {
+            return false;
+        }
+
+        NumberItem numberItem = ((NumberItem) item);
+        return ((QuantityType<?>) numberItem.getState()).getUnit().isCompatible(baseItemUnit);
+    }
+
+    private boolean isDimensionalItem(Item item) {
+        return item instanceof NumberItem && ((NumberItem) item).getDimension() != null;
     }
 
 }

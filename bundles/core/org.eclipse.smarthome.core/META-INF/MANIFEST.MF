@@ -63,7 +63,6 @@ Import-Package:
  org.eclipse.smarthome.core.scheduler,
  org.eclipse.smarthome.core.service,
  org.eclipse.smarthome.core.storage,
- org.eclipse.smarthome.core.thing.util,
  org.eclipse.smarthome.core.types,
  org.osgi.framework,
  org.osgi.service.component,
