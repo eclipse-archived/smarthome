@@ -72,6 +72,10 @@ public class ChartServlet extends HttpServlet {
         PERIODS.put("4h", 14400000L);
         PERIODS.put("8h", 28800000L);
         PERIODS.put("12h", 43200000L);
+        PERIODS.put("H", 3600000L);
+        PERIODS.put("4H", 14400000L);
+        PERIODS.put("8H", 28800000L);
+        PERIODS.put("12H", 43200000L);
         PERIODS.put("D", 86400000L);
         PERIODS.put("3D", 259200000L);
         PERIODS.put("W", 604800000L);
