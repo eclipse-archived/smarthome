@@ -49,9 +49,9 @@ public class NetUtilTest {
         assertThat(network, is("192.168.5.8"));
 
         try {
-            network = NetUtil.getIpv4NetAddress("192.168.5.8", (short) 32);
+            network = NetUtil.getIpv4NetAddress("192.168.5.8", (short) 33);
         } catch (IllegalArgumentException iae) {
-            assertThat(iae.getMessage(), is("Netmask '32' is out of bounds (1-31)"));
+            assertThat(iae.getMessage(), is("Netmask '33' is out of bounds (1-32)"));
         }
         try {
             network = NetUtil.getIpv4NetAddress("192.168.58", (short) 24);
