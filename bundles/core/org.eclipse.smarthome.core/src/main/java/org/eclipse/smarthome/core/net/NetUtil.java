@@ -75,7 +75,7 @@ public class NetUtil implements NetworkAddressService {
 
         String[] addrString = primaryAddress.split("/");
         if (addrString.length > 1) {
-            String ip = getIPv4inSubnet(primaryAddress);
+            String ip = getIPv4inSubnet(addrString[0], addrString[1]);
             if (ip == null) {
                 // an error has occurred, using first interface like nothing has been configured
                 LOGGER.warn("Invalid address '{}', will use first interface instead.", primaryAddress);
@@ -301,7 +301,7 @@ public class NetUtil implements NetworkAddressService {
         return netAddress;
     }
 
-    private String getIPv4inSubnet(String subnet) {
+    private String getIPv4inSubnet(String ipAddress, String subnetMask) {
         try {
             final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {
@@ -317,13 +317,16 @@ public class NetUtil implements NetworkAddressService {
                         continue;
                     }
 
-                    String ipv4Address = addr.getHostAddress();
-                    String subNetString = getIpv4NetAddress(ipv4Address, ifAddr.getNetworkPrefixLength()) + "/"
-                            + String.valueOf(ifAddr.getNetworkPrefixLength());
+                    String ipv4AddressOnInterface = addr.getHostAddress();
+                    String subnetStringOnInterface = getIpv4NetAddress(ipv4AddressOnInterface,
+                            ifAddr.getNetworkPrefixLength()) + "/" + String.valueOf(ifAddr.getNetworkPrefixLength());
+
+                    String configuredSubnetString = getIpv4NetAddress(ipAddress, Short.parseShort(subnetMask)) + "/"
+                            + subnetMask;
 
                     // use first IP within this subnet
-                    if (subNetString.equals(subnet)) {
-                        return ipv4Address;
+                    if (subnetStringOnInterface.equals(configuredSubnetString)) {
+                        return ipv4AddressOnInterface;
                     }
                 }
             }
