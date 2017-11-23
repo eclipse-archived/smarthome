@@ -197,6 +197,41 @@ public class GroupItemTest extends JavaOSGiTest {
     }
 
     @Test
+    public void testGetStateAs_shouldEqualStateUpdate() {
+        // Main group uses AND function
+        GroupItem rootGroupItem = new GroupItem("root", new SwitchItem("baseItem"),
+                new ArithmeticGroupFunction.And(OnOffType.ON, OnOffType.OFF));
+        TestItem member1 = new TestItem("member1");
+        rootGroupItem.addMember(member1);
+        TestItem member2 = new TestItem("member2");
+        rootGroupItem.addMember(member2);
+
+        // Sub-group uses NAND function
+        GroupItem subGroup = new GroupItem("subGroup1", new SwitchItem("baseItem"),
+                new ArithmeticGroupFunction.NAnd(OnOffType.ON, OnOffType.OFF));
+        TestItem subMember = new TestItem("subGroup member 1");
+        subGroup.addMember(subMember);
+        rootGroupItem.addMember(subGroup);
+
+        member1.setState(OnOffType.ON);
+        member2.setState(OnOffType.ON);
+        subMember.setState(OnOffType.OFF);
+
+        // subGroup and subMember state differ
+        assertThat(subGroup.getStateAs(OnOffType.class), is(OnOffType.ON));
+        assertThat(subMember.getStateAs(OnOffType.class), is(OnOffType.OFF));
+
+        // We expect ON here
+        State getStateAsState = rootGroupItem.getStateAs(OnOffType.class);
+
+        rootGroupItem.stateUpdated(member1, null); // recalculate the state
+        State stateUpdatedState = rootGroupItem.getState();
+
+        assertThat(getStateAsState, is(OnOffType.ON));
+        assertThat(stateUpdatedState, is(OnOffType.ON));
+    }
+
+    @Test
     public void assertThatGroupItemPostsEventsForChangesCorrectly() {
         // from ItemEventFactory.GROUPITEM_STATE_CHANGED_EVENT_TOPIC
         String GROUPITEM_STATE_CHANGED_EVENT_TOPIC = "smarthome/items/{itemName}/{memberName}/statechanged";

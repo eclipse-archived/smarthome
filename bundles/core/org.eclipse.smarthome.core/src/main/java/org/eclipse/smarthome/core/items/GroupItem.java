@@ -279,7 +279,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         // if a group does not have a function it cannot have a state
         State newState = null;
         if (function != null) {
-            newState = function.getStateAs(getAllMembers(), typeClass);
+            newState = function.getStateAs(getMembers(), typeClass);
         }
 
         if (newState == null && baseItem != null) {
