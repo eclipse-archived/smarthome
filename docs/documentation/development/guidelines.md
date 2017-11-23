@@ -26,14 +26,14 @@ Note that this list also serves as a checklist for code reviews on pull requests
 1. Packages that contain classes that are not meant to be used by other bundles should have "internal" in their package name.
 1. We are using [null annotations](https://wiki.eclipse.org/JDT_Core/Null_Analysis) from the Eclipse JDT project. Therefore every bundle should have an **optional** `Import-Package` dependency to `org.eclipse.jdt.annotation`.
 Classes should be annotated by `@NonNullByDefault` and return types, parameter types, generic types etc. are annotated with `@Nullable` only.
-For fields that store injected mandatory and static OSGi Declarative Services, i.e. they will never be `null` in an OSGI framework, we annotate them with
+Fields that get a static and mandatory reference injected through OSGi Declarative Services can be annotated with
 
 ```java
 @NonNullByDefault({})
 private MyService injectedService;
 ```
 
-to skip the `null` evaluation for these fields.
+to skip the nullevaluation for these fields.
 Fields within `ThingHandler` classes that are initialized within the `initialize()` method may also be annotated like this, because the framework ensures that `initialize()` will be called before any other method. However please watch the scenario where the initialization of the handler fails, because then fields might not have been initialized and using them should be prepended by a `null` check.
 There is **no need** for a `@NonNull` annotation because it is set as default.
 The transition of existing classes could be a longer process but if you want to use nullness annotation in a class / interface you need to set the default for the whole class and annotate all types that differ from the default.
