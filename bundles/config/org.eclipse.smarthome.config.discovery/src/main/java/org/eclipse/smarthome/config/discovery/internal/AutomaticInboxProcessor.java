@@ -146,14 +146,14 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
         if (thing != null) {
             String representationValue = getRepresentationPropertyValueForThing(thing);
             if (representationValue != null) {
-                ignoreInInbox(representationValue);
+                ignoreInInbox(thing.getUID().getBindingId(), representationValue);
             }
         }
     }
 
-    private void ignoreInInbox(String representationValue) {
+    private void ignoreInInbox(String bindingId, String representationValue) {
         List<DiscoveryResult> results = inbox.stream().filter(withRepresentationPropertyValue(representationValue))
-                .collect(Collectors.toList());
+                .filter(withBindingId(bindingId)).collect(Collectors.toList());
         if (results.size() == 1) {
             logger.debug("Auto-ignoring the inbox entry for the representation value {}", representationValue);
             inbox.setFlag(results.get(0).getThingUID(), DiscoveryResultFlag.IGNORED);
