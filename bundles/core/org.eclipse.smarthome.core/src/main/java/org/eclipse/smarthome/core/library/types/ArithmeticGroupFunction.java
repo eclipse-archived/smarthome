@@ -218,6 +218,48 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 
         @Override
         public State calculate(Set<Item> items) {
+            if (items == null) {
+                return UnDefType.UNDEF;
+            }
+
+            // observe the first item to see if a dimension based calculation is needed.
+            // the order of items is guaranteed from the GroupItem passing the item set.
+            Item firstItem = !items.isEmpty() ? items.iterator().next() : null;
+            if (firstItem instanceof NumberItem && ((NumberItem) firstItem).getDimension() != null) {
+                return calculateAvgQuantityType(items);
+            }
+
+            return calculateAvgDecimalType(items);
+        }
+
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        private State calculateAvgQuantityType(Set<Item> items) {
+            QuantityType<?> sum = null;
+            int count = 0;
+            if (items != null) {
+                for (Item item : items) {
+                    QuantityType itemState = (QuantityType) item.getStateAs(QuantityType.class);
+                    if (itemState != null) {
+                        if (sum == null) {
+                            sum = itemState; // initialise the sum from the first item
+                            count++;
+                        } else if (sum.getUnit().isCompatible(itemState.getUnit())) {
+                            sum = sum.add(itemState);
+                            count++;
+                        }
+                    }
+                }
+
+            }
+            if (sum != null && count > 0) {
+                BigDecimal result = sum.toBigDecimal().divide(BigDecimal.valueOf(count), RoundingMode.HALF_UP);
+                return new QuantityType<>(result.doubleValue(), sum.getUnit());
+            }
+
+            return UnDefType.UNDEF;
+        }
+
+        private State calculateAvgDecimalType(Set<Item> items) {
             BigDecimal sum = BigDecimal.ZERO;
             int count = 0;
             if (items != null) {
@@ -231,9 +273,9 @@ public interface ArithmeticGroupFunction extends GroupFunction {
             }
             if (count > 0) {
                 return new DecimalType(sum.divide(BigDecimal.valueOf(count), RoundingMode.HALF_UP));
-            } else {
-                return UnDefType.UNDEF;
             }
+
+            return UnDefType.UNDEF;
         }
 
         @Override
@@ -266,13 +308,14 @@ public interface ArithmeticGroupFunction extends GroupFunction {
                 return UnDefType.UNDEF;
             }
 
-            // observe the first item to see if a dimension based calculation is needed:
+            // observe the first item to see if a dimension based calculation is needed.
+            // the order of items is guaranteed from the GroupItem passing the item set.
             Item firstItem = !items.isEmpty() ? items.iterator().next() : null;
             if (firstItem instanceof NumberItem && ((NumberItem) firstItem).getDimension() != null) {
                 return calculateSumQuantityType(items);
-            } else {
-                return calculateSumDecimalType(items);
             }
+
+            return calculateSumDecimalType(items);
         }
 
         @Override
@@ -333,19 +376,51 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 
         @Override
         public State calculate(Set<Item> items) {
-            if (items != null && items.size() > 0) {
-                BigDecimal min = null;
-                for (Item item : items) {
-                    DecimalType itemState = (DecimalType) item.getStateAs(DecimalType.class);
-                    if (itemState != null) {
-                        if (min == null || min.compareTo(itemState.toBigDecimal()) > 0) {
-                            min = itemState.toBigDecimal();
-                        }
+            if (items == null || items.size() <= 0) {
+                return UnDefType.UNDEF;
+            }
+
+            // observe the first item to see if a dimension based calculation is needed.
+            // the order of items is guaranteed from the GroupItem passing the item set.
+            Item firstItem = !items.isEmpty() ? items.iterator().next() : null;
+            if (firstItem instanceof NumberItem && ((NumberItem) firstItem).getDimension() != null) {
+                return calculateMinQuantityType(items);
+            }
+
+            return calculateMinDecimalType(items);
+        }
+
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        private State calculateMinQuantityType(Set<Item> items) {
+            QuantityType<?> min = null;
+            for (Item item : items) {
+                QuantityType itemState = (QuantityType) item.getStateAs(QuantityType.class);
+                if (itemState != null) {
+                    if (min == null
+                            || (min.getUnit().isCompatible(itemState.getUnit()) && min.compareTo(itemState) > 0)) {
+                        min = itemState;
                     }
                 }
-                if (min != null) {
-                    return new DecimalType(min);
+            }
+            if (min != null) {
+                return min;
+            }
+
+            return UnDefType.UNDEF;
+        }
+
+        private State calculateMinDecimalType(Set<Item> items) {
+            BigDecimal min = null;
+            for (Item item : items) {
+                DecimalType itemState = (DecimalType) item.getStateAs(DecimalType.class);
+                if (itemState != null) {
+                    if (min == null || min.compareTo(itemState.toBigDecimal()) > 0) {
+                        min = itemState.toBigDecimal();
+                    }
                 }
+            }
+            if (min != null) {
+                return new DecimalType(min);
             }
             return UnDefType.UNDEF;
         }
@@ -376,20 +451,54 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 
         @Override
         public State calculate(Set<Item> items) {
-            if (items != null && items.size() > 0) {
-                BigDecimal max = null;
-                for (Item item : items) {
-                    DecimalType itemState = (DecimalType) item.getStateAs(DecimalType.class);
-                    if (itemState != null) {
-                        if (max == null || max.compareTo(itemState.toBigDecimal()) < 0) {
-                            max = itemState.toBigDecimal();
-                        }
+            if (items == null || items.size() <= 0) {
+                return UnDefType.UNDEF;
+            }
+
+            // observe the first item to see if a dimension based calculation is needed.
+            // the order of items is guaranteed from the GroupItem passing the item set.
+            Item firstItem = !items.isEmpty() ? items.iterator().next() : null;
+            if (firstItem instanceof NumberItem && ((NumberItem) firstItem).getDimension() != null) {
+                return calculateMaxQuantityType(items);
+            } else {
+                return calculateMaxDecimalType(items);
+            }
+        }
+
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        private State calculateMaxQuantityType(Set<Item> items) {
+            QuantityType<?> max = null;
+            for (Item item : items) {
+                QuantityType itemState = (QuantityType) item.getStateAs(QuantityType.class);
+                if (itemState != null) {
+                    if (max == null
+                            || (max.getUnit().isCompatible(itemState.getUnit()) && max.compareTo(itemState) < 0)) {
+                        max = itemState;
                     }
                 }
-                if (max != null) {
-                    return new DecimalType(max);
+            }
+            if (max != null) {
+                return max;
+            }
+
+            return UnDefType.UNDEF;
+
+        }
+
+        private State calculateMaxDecimalType(Set<Item> items) {
+            BigDecimal max = null;
+            for (Item item : items) {
+                DecimalType itemState = (DecimalType) item.getStateAs(DecimalType.class);
+                if (itemState != null) {
+                    if (max == null || max.compareTo(itemState.toBigDecimal()) < 0) {
+                        max = itemState.toBigDecimal();
+                    }
                 }
             }
+            if (max != null) {
+                return new DecimalType(max);
+            }
+
             return UnDefType.UNDEF;
         }
 

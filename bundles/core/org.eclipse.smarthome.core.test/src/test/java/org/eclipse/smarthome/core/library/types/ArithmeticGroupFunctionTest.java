@@ -273,6 +273,129 @@ public class ArithmeticGroupFunctionTest {
         assertEquals(new QuantityType<Temperature>("23.54 °C"), state);
     }
 
+    @Test
+    public void testAvgFunctionQuantityType() {
+        items.add(createNumberItem("TestItem1", Temperature.class, new QuantityType<Temperature>("100 °C")));
+        items.add(createNumberItem("TestItem2", Temperature.class, UnDefType.NULL));
+        items.add(createNumberItem("TestItem3", Temperature.class, new QuantityType<Temperature>("200 °C")));
+        items.add(createNumberItem("TestItem4", Temperature.class, UnDefType.UNDEF));
+        items.add(createNumberItem("TestItem5", Temperature.class, new QuantityType<Temperature>("300 °C")));
+
+        function = new ArithmeticGroupFunction.Avg();
+        State state = function.calculate(items);
+
+        assertEquals(new QuantityType<Temperature>("200 °C"), state);
+    }
+
+    @Test
+    public void testAvgFunctionQuantityTypeDifferentUnits() {
+        items.add(createNumberItem("TestItem1", Temperature.class, new QuantityType<Temperature>("100 °C")));
+        items.add(createNumberItem("TestItem2", Temperature.class, UnDefType.NULL));
+        items.add(createNumberItem("TestItem3", Temperature.class, new QuantityType<Temperature>("113 °F")));
+        items.add(createNumberItem("TestItem4", Temperature.class, UnDefType.UNDEF));
+        items.add(createNumberItem("TestItem5", Temperature.class, new QuantityType<Temperature>("294.15 K")));
+
+        function = new ArithmeticGroupFunction.Avg();
+        State state = function.calculate(items);
+
+        assertEquals(new QuantityType<Temperature>("55 °C"), state);
+    }
+
+    @Test
+    public void testAvgFunctionQuantityTypeIncompatibleUnits() {
+        items = new LinkedHashSet<Item>(); // we need an ordered set to guarantee the Unit of the first entry
+        items.add(createNumberItem("TestItem1", Temperature.class, new QuantityType<Temperature>("23.54 °C")));
+        items.add(createNumberItem("TestItem2", Temperature.class, UnDefType.NULL));
+        items.add(createNumberItem("TestItem3", Pressure.class, new QuantityType<Temperature>("192.2 hPa")));
+
+        function = new ArithmeticGroupFunction.Avg();
+        State state = function.calculate(items);
+
+        assertEquals(new QuantityType<Temperature>("23.54 °C"), state);
+    }
+
+    @Test
+    public void testMaxFunctionQuantityType() {
+        items.add(createNumberItem("TestItem1", Temperature.class, new QuantityType<Temperature>("100 °C")));
+        items.add(createNumberItem("TestItem2", Temperature.class, UnDefType.NULL));
+        items.add(createNumberItem("TestItem3", Temperature.class, new QuantityType<Temperature>("200 °C")));
+        items.add(createNumberItem("TestItem4", Temperature.class, UnDefType.UNDEF));
+        items.add(createNumberItem("TestItem5", Temperature.class, new QuantityType<Temperature>("300 °C")));
+
+        function = new ArithmeticGroupFunction.Max();
+        State state = function.calculate(items);
+
+        assertEquals(new QuantityType<Temperature>("300 °C"), state);
+    }
+
+    @Test
+    public void testMaxFunctionQuantityTypeDifferentUnits() {
+        items.add(createNumberItem("TestItem1", Temperature.class, new QuantityType<Temperature>("100 °C")));
+        items.add(createNumberItem("TestItem2", Temperature.class, UnDefType.NULL));
+        items.add(createNumberItem("TestItem3", Temperature.class, new QuantityType<Temperature>("113 °F")));
+        items.add(createNumberItem("TestItem4", Temperature.class, UnDefType.UNDEF));
+        items.add(createNumberItem("TestItem5", Temperature.class, new QuantityType<Temperature>("294.15 K")));
+
+        function = new ArithmeticGroupFunction.Max();
+        State state = function.calculate(items);
+
+        assertEquals(new QuantityType<Temperature>("100 °C"), state);
+    }
+
+    @Test
+    public void testMaxFunctionQuantityTypeIncompatibleUnits() {
+        items = new LinkedHashSet<Item>(); // we need an ordered set to guarantee the Unit of the first entry
+        items.add(createNumberItem("TestItem1", Temperature.class, new QuantityType<Temperature>("23.54 °C")));
+        items.add(createNumberItem("TestItem2", Temperature.class, UnDefType.NULL));
+        items.add(createNumberItem("TestItem3", Pressure.class, new QuantityType<Temperature>("192.2 hPa")));
+
+        function = new ArithmeticGroupFunction.Max();
+        State state = function.calculate(items);
+
+        assertEquals(new QuantityType<Temperature>("23.54 °C"), state);
+    }
+
+    @Test
+    public void testMinFunctionQuantityType() {
+        items.add(createNumberItem("TestItem1", Temperature.class, new QuantityType<Temperature>("100 °C")));
+        items.add(createNumberItem("TestItem2", Temperature.class, UnDefType.NULL));
+        items.add(createNumberItem("TestItem3", Temperature.class, new QuantityType<Temperature>("200 °C")));
+        items.add(createNumberItem("TestItem4", Temperature.class, UnDefType.UNDEF));
+        items.add(createNumberItem("TestItem5", Temperature.class, new QuantityType<Temperature>("300 °C")));
+
+        function = new ArithmeticGroupFunction.Min();
+        State state = function.calculate(items);
+
+        assertEquals(new QuantityType<Temperature>("100 °C"), state);
+    }
+
+    @Test
+    public void testMinFunctionQuantityTypeDifferentUnits() {
+        items.add(createNumberItem("TestItem1", Temperature.class, new QuantityType<Temperature>("100 °C")));
+        items.add(createNumberItem("TestItem2", Temperature.class, UnDefType.NULL));
+        items.add(createNumberItem("TestItem3", Temperature.class, new QuantityType<Temperature>("113 °F")));
+        items.add(createNumberItem("TestItem4", Temperature.class, UnDefType.UNDEF));
+        items.add(createNumberItem("TestItem5", Temperature.class, new QuantityType<Temperature>("294.15 K")));
+
+        function = new ArithmeticGroupFunction.Min();
+        State state = function.calculate(items);
+
+        assertEquals(new QuantityType<Temperature>("294.15 K"), state);
+    }
+
+    @Test
+    public void testMinFunctionQuantityTypeIncompatibleUnits() {
+        items = new LinkedHashSet<Item>(); // we need an ordered set to guarantee the Unit of the first entry
+        items.add(createNumberItem("TestItem1", Temperature.class, new QuantityType<Temperature>("23.54 °C")));
+        items.add(createNumberItem("TestItem2", Temperature.class, UnDefType.NULL));
+        items.add(createNumberItem("TestItem3", Pressure.class, new QuantityType<Temperature>("192.2 hPa")));
+
+        function = new ArithmeticGroupFunction.Min();
+        State state = function.calculate(items);
+
+        assertEquals(new QuantityType<Temperature>("23.54 °C"), state);
+    }
+
     private NumberItem createNumberItem(String name, Class<? extends Quantity<?>> dimension, State state) {
         NumberItem item = new NumberItem(name);
         item.setDimension(dimension);
