@@ -30,16 +30,16 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 
 /**
- * The {@link RawRockerToDimmerProfile} transforms rocker switch channel events into dimmer commands.
+ * The {@link RawRockerDimmerProfile} transforms rocker switch channel events into dimmer commands.
  *
  * @author Jan Kemmler - Initial contribution
  */
 @NonNullByDefault
-public class RawRockerToDimmerProfile implements TriggerProfile {
+public class RawRockerDimmerProfile implements TriggerProfile {
 
     private final ProfileCallback callback;
 
-    ProfileContext context;
+    private final ProfileContext context;
 
     @Nullable
     private ScheduledFuture<?> dimmFuture;
@@ -48,23 +48,7 @@ public class RawRockerToDimmerProfile implements TriggerProfile {
 
     private long pressedTime = 0;
 
-    final class DimmerIncreaseDecreaseTask implements Runnable {
-        private ProfileCallback callback;
-        private Command command;
-
-        DimmerIncreaseDecreaseTask(ProfileCallback callback, Command command) {
-            this.callback = callback;
-            this.command = command;
-        }
-
-        @Override
-        public void run() {
-            callback.sendCommand(command);
-        }
-    };
-
-    @SuppressWarnings("null")
-    RawRockerToDimmerProfile(ProfileCallback callback, ProfileContext context) {
+    RawRockerDimmerProfile(ProfileCallback callback, ProfileContext context) {
         this.callback = callback;
         this.context = context;
     }
@@ -92,37 +76,35 @@ public class RawRockerToDimmerProfile implements TriggerProfile {
         }
     }
 
-    private void buttonPressed(Command commandToSend) {
+    private synchronized void buttonPressed(Command commandToSend) {
         if (null != timeoutFuture) {
             timeoutFuture.cancel(false);
         }
-        if (null != dimmFuture) {
-            dimmFuture.cancel(false);
-        }
 
-        dimmFuture = context.getExecutorService().scheduleWithFixedDelay(
-                new DimmerIncreaseDecreaseTask(callback, commandToSend), 550, 200, TimeUnit.MILLISECONDS);
-        timeoutFuture = context.getExecutorService().schedule(new Runnable() {
-            @Override
-            public void run() {
-                if (null != dimmFuture) {
-                    dimmFuture.cancel(false);
-                }
-            }
-        }, 10000, TimeUnit.MILLISECONDS);
+        this.cancelDimmFuture();
+
+        dimmFuture = context.getExecutorService().scheduleWithFixedDelay(() -> callback.sendCommand(commandToSend), 550,
+                200, TimeUnit.MILLISECONDS);
+        timeoutFuture = context.getExecutorService().schedule(() -> this.cancelDimmFuture(), 10, TimeUnit.SECONDS);
         pressedTime = System.currentTimeMillis();
+
     }
 
-    private void buttonReleased(Command commandToSend) {
+    private synchronized void buttonReleased(Command commandToSend) {
         if (null != timeoutFuture) {
             timeoutFuture.cancel(false);
         }
-        if (null != dimmFuture) {
-            dimmFuture.cancel(false);
-        }
+
+        this.cancelDimmFuture();
 
         if (System.currentTimeMillis() - pressedTime <= 500) {
             callback.sendCommand(commandToSend);
+        }
+    }
+
+    private synchronized void cancelDimmFuture() {
+        if (null != dimmFuture) {
+            dimmFuture.cancel(false);
         }
     }
 

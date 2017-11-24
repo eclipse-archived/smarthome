@@ -22,15 +22,15 @@ import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
 import org.eclipse.smarthome.core.types.State;
 
 /**
- * The {@link RawRockerToOnOffProfile} transforms rocker switch channel events into ON and OFF commands.
+ * The {@link RawRockerOnOffProfile} transforms rocker switch channel events into ON and OFF commands.
  *
  * @author Jan Kemmler - Initial contribution
  */
-public class RawRockerToOnOffProfile implements TriggerProfile {
+public class RawRockerOnOffProfile implements TriggerProfile {
 
     private final ProfileCallback callback;
 
-    RawRockerToOnOffProfile(ProfileCallback callback) {
+    RawRockerOnOffProfile(ProfileCallback callback) {
         this.callback = callback;
     }
 

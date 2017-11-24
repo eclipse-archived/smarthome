@@ -34,7 +34,7 @@ public interface SystemProfiles {
             .newTrigger(RAWBUTTON_TOGGLE_SWITCH, "Raw Button Toggle").withSupportedItemTypes(CoreItemFactory.SWITCH)
             .withSupportedChannelTypeUIDs(DefaultSystemChannelTypeProvider.SYSTEM_RAWBUTTON.getUID()).build();
 
-    TriggerProfileType RAWBROCKER_TO_ON_OFF_TYPE = ProfileTypeBuilder
+    TriggerProfileType RAWROCKER_TO_ON_OFF_TYPE = ProfileTypeBuilder
             .newTrigger(RAWROCKER_TO_ON_OFF, "Raw Rocker To On Off")
             .withSupportedItemTypes(CoreItemFactory.SWITCH, CoreItemFactory.DIMMER)
             .withSupportedChannelTypeUIDs(DefaultSystemChannelTypeProvider.SYSTEM_RAWROCKER.getUID()).build();

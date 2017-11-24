@@ -47,7 +47,7 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
 
     private static final Set<ProfileType> SUPPORTED_PROFILE_TYPES = Stream
             .of(SystemProfiles.DEFAULT_TYPE, SystemProfiles.FOLLOW_TYPE, SystemProfiles.RAWBUTTON_TOGGLE_SWITCH_TYPE,
-                    SystemProfiles.RAWBROCKER_TO_ON_OFF_TYPE, SystemProfiles.RAWROCKER_TO_DIMMER_TYPE)
+                    SystemProfiles.RAWROCKER_TO_ON_OFF_TYPE, SystemProfiles.RAWROCKER_TO_DIMMER_TYPE)
             .collect(Collectors.toSet());
 
     private static final Set<ProfileTypeUID> SUPPORTED_PROFILE_TYPE_UIDS = Stream
@@ -65,9 +65,9 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
         } else if (SystemProfiles.RAWBUTTON_TOGGLE_SWITCH.equals(profileTypeUID)) {
             return new RawButtonToggleSwitchProfile(callback);
         } else if (SystemProfiles.RAWROCKER_TO_ON_OFF.equals(profileTypeUID)) {
-            return new RawRockerToOnOffProfile(callback);
+            return new RawRockerOnOffProfile(callback);
         } else if (SystemProfiles.RAWROCKER_TO_DIMMER.equals(profileTypeUID)) {
-            return new RawRockerToDimmerProfile(callback, context);
+            return new RawRockerDimmerProfile(callback, context);
         } else {
             return null;
         }
