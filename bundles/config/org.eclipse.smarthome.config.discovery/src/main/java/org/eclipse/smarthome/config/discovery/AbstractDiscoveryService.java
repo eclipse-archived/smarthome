@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.discovery;
 
@@ -19,6 +24,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.discovery.internal.DiscoveryResultImpl;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.i18n.I18nUtil;
@@ -43,6 +50,7 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Added background discovery configuration through Configuration Admin
  * @author Andre Fuechsel - Added removeOlderResults
  */
+@NonNullByDefault
 public abstract class AbstractDiscoveryService implements DiscoveryService {
 
     private static final String DISCOVERY_THREADPOOL_NAME = "discovery";
@@ -52,21 +60,23 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
     static protected final ScheduledExecutorService scheduler = ThreadPoolManager
             .getScheduledPool(DISCOVERY_THREADPOOL_NAME);
 
-    private Set<DiscoveryListener> discoveryListeners = new CopyOnWriteArraySet<>();
-    protected ScanListener scanListener = null;
+    private final Set<DiscoveryListener> discoveryListeners = new CopyOnWriteArraySet<>();
+    protected @Nullable ScanListener scanListener = null;
 
     private boolean backgroundDiscoveryEnabled;
 
-    private Map<ThingUID, DiscoveryResult> cachedResults = new HashMap<>();
+    private final Map<ThingUID, DiscoveryResult> cachedResults = new HashMap<>();
 
     final private Set<ThingTypeUID> supportedThingTypes;
     final private int timeout;
 
     private long timestampOfLastScan = 0L;
 
-    private ScheduledFuture<?> scheduledStop;
+    private @Nullable ScheduledFuture<?> scheduledStop;
 
+    @NonNullByDefault({})
     protected TranslationProvider i18nProvider;
+    @NonNullByDefault({})
     protected LocaleProvider localeProvider;
 
     /**
@@ -87,7 +97,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      * @throws IllegalArgumentException
      *             if the timeout < 0
      */
-    public AbstractDiscoveryService(Set<ThingTypeUID> supportedThingTypes, int timeout,
+    public AbstractDiscoveryService(@Nullable Set<ThingTypeUID> supportedThingTypes, int timeout,
             boolean backgroundDiscoveryEnabledByDefault) throws IllegalArgumentException {
 
         if (supportedThingTypes == null) {
@@ -115,7 +125,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      *
      * @throws IllegalArgumentException if the timeout < 0
      */
-    public AbstractDiscoveryService(Set<ThingTypeUID> supportedThingTypes, int timeout)
+    public AbstractDiscoveryService(@Nullable Set<ThingTypeUID> supportedThingTypes, int timeout)
             throws IllegalArgumentException {
         this(supportedThingTypes, timeout, true);
     }
@@ -160,7 +170,10 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
     }
 
     @Override
-    public void addDiscoveryListener(DiscoveryListener listener) {
+    public void addDiscoveryListener(@Nullable DiscoveryListener listener) {
+        if (listener == null) {
+            return;
+        }
         synchronized (cachedResults) {
             for (DiscoveryResult cachedResult : cachedResults.values()) {
                 listener.thingDiscovered(this, cachedResult);
@@ -170,12 +183,12 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
     }
 
     @Override
-    public void removeDiscoveryListener(DiscoveryListener listener) {
+    public void removeDiscoveryListener(@Nullable DiscoveryListener listener) {
         discoveryListeners.remove(listener);
     }
 
     @Override
-    public synchronized void startScan(ScanListener listener) {
+    public synchronized void startScan(@Nullable ScanListener listener) {
         synchronized (this) {
 
             // we first stop any currently running scan and its scheduled stop
@@ -225,10 +238,11 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
                 scheduledStop.cancel(false);
                 scheduledStop = null;
             }
+            final ScanListener scanListener = this.scanListener;
             if (scanListener != null) {
                 Exception e = new CancellationException("Scan has been aborted.");
                 scanListener.onErrorOccurred(e);
-                scanListener = null;
+                this.scanListener = null;
             }
         }
     }
@@ -331,7 +345,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      *            {@link DiscoveryService#getSupportedThingTypes()} will be used
      *            instead
      */
-    protected void removeOlderResults(long timestamp, Collection<ThingTypeUID> thingTypeUIDs) {
+    protected void removeOlderResults(long timestamp, @Nullable Collection<ThingTypeUID> thingTypeUIDs) {
         Collection<ThingUID> removedThings = null;
 
         Collection<ThingTypeUID> toBeRemoved = thingTypeUIDs != null ? thingTypeUIDs : getSupportedThingTypes();
@@ -360,7 +374,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      *
      * @param configProperties configuration properties
      */
-    protected void activate(Map<String, Object> configProperties) {
+    protected void activate(@Nullable Map<String, @Nullable Object> configProperties) {
         if (configProperties != null) {
             Object property = configProperties.get(DiscoveryService.CONFIG_PROPERTY_BACKGROUND_DISCOVERY);
             if (property != null) {
@@ -384,7 +398,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      * @param configProperties
      *            configuration properties
      */
-    protected void modified(Map<String, Object> configProperties) {
+    protected void modified(@Nullable Map<String, @Nullable Object> configProperties) {
         if (configProperties != null) {
             Object property = configProperties.get(DiscoveryService.CONFIG_PROPERTY_BACKGROUND_DISCOVERY);
             if (property != null) {

@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.net;
 
@@ -70,7 +75,7 @@ public class NetUtil implements NetworkAddressService {
 
         String[] addrString = primaryAddress.split("/");
         if (addrString.length > 1) {
-            String ip = getIPv4inSubnet(primaryAddress);
+            String ip = getIPv4inSubnet(addrString[0], addrString[1]);
             if (ip == null) {
                 // an error has occurred, using first interface like nothing has been configured
                 LOGGER.warn("Invalid address '{}', will use first interface instead.", primaryAddress);
@@ -273,8 +278,8 @@ public class NetUtil implements NetworkAddressService {
         if (!isValidIPConfig(ipAddressString)) {
             throw new IllegalArgumentException(errorString);
         }
-        if (netMask < 1 || netMask > 31) {
-            throw new IllegalArgumentException("Netmask '" + netMask + "' is out of bounds (1-31)");
+        if (netMask < 1 || netMask > 32) {
+            throw new IllegalArgumentException("Netmask '" + netMask + "' is out of bounds (1-32)");
         }
 
         String subnetMaskString = networkPrefixLengthToNetmask(netMask);
@@ -296,7 +301,7 @@ public class NetUtil implements NetworkAddressService {
         return netAddress;
     }
 
-    private String getIPv4inSubnet(String subnet) {
+    private String getIPv4inSubnet(String ipAddress, String subnetMask) {
         try {
             final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {
@@ -312,13 +317,16 @@ public class NetUtil implements NetworkAddressService {
                         continue;
                     }
 
-                    String ipv4Address = addr.getHostAddress();
-                    String subNetString = getIpv4NetAddress(ipv4Address, ifAddr.getNetworkPrefixLength()) + "/"
-                            + String.valueOf(ifAddr.getNetworkPrefixLength());
+                    String ipv4AddressOnInterface = addr.getHostAddress();
+                    String subnetStringOnInterface = getIpv4NetAddress(ipv4AddressOnInterface,
+                            ifAddr.getNetworkPrefixLength()) + "/" + String.valueOf(ifAddr.getNetworkPrefixLength());
+
+                    String configuredSubnetString = getIpv4NetAddress(ipAddress, Short.parseShort(subnetMask)) + "/"
+                            + subnetMask;
 
                     // use first IP within this subnet
-                    if (subNetString.equals(subnet)) {
-                        return ipv4Address;
+                    if (subnetStringOnInterface.equals(configuredSubnetString)) {
+                        return ipv4AddressOnInterface;
                     }
                 }
             }

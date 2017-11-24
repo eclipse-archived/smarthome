@@ -1,15 +1,22 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.discovery.inbox;
 
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
@@ -32,6 +39,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  *
  * @see InboxListener
  */
+@NonNullByDefault
 public interface Inbox {
 
     /**
@@ -48,7 +56,7 @@ public interface Inbox {
      * @param result the discovery result to be added to this inbox (could be null)
      * @return true if the specified discovery result could be added or updated, otherwise false
      */
-    boolean add(DiscoveryResult result);
+    boolean add(@Nullable DiscoveryResult result);
 
     /**
      * Removes the {@link DiscoveryResult} associated with the specified {@code Thing} ID from
@@ -62,7 +70,7 @@ public interface Inbox {
      *
      * @return true if the specified discovery result could be removed, otherwise false
      */
-    boolean remove(ThingUID thingUID);
+    boolean remove(@Nullable ThingUID thingUID);
 
     /**
      * Returns all {@link DiscoveryResult}s in this {@link Inbox} which fit to the specified {@link InboxFilterCriteria}
@@ -76,11 +84,11 @@ public interface Inbox {
      *
      * @return all discovery results in this inbox which fit to the specified filter criteria
      *         (not null, could be empty)
-     * 
+     *
      * @deprecated use {@link InboxPredicates} to filter on streams of {@link DiscoveryResult}s
      */
     @Deprecated
-    List<DiscoveryResult> get(InboxFilterCriteria criteria);
+    List<DiscoveryResult> get(@Nullable InboxFilterCriteria criteria);
 
     /**
      * Returns all {@link DiscoveryResult}s in this {@link Inbox}.
@@ -107,7 +115,7 @@ public interface Inbox {
      *
      * @param flag the flag of the given thingUID result to be set (could be null)
      */
-    public void setFlag(ThingUID thingUID, DiscoveryResultFlag flag);
+    public void setFlag(ThingUID thingUID, @Nullable DiscoveryResultFlag flag);
 
     /**
      * Adds an {@link InboxListener} to the listeners' registry.
@@ -119,7 +127,7 @@ public interface Inbox {
      *
      * @param listener the listener to be added (could be null)
      */
-    void addInboxListener(InboxListener listener);
+    void addInboxListener(@Nullable InboxListener listener);
 
     /**
      * Removes an {@link InboxListener} from the listeners' registry.
@@ -131,7 +139,7 @@ public interface Inbox {
      *
      * @param listener the listener to be removed (could be null)
      */
-    void removeInboxListener(InboxListener listener);
+    void removeInboxListener(@Nullable InboxListener listener);
 
     /**
      * Creates new {@link Thing} and adds it to the {@link ThingRegistry}.
@@ -140,6 +148,7 @@ public interface Inbox {
      * @param label the label of the Thing
      * @return the approved Thing
      */
-    Thing approve(ThingUID thingUID, String label);
+    @Nullable
+    Thing approve(ThingUID thingUID, @Nullable String label);
 
 }

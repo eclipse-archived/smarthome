@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.hue.internal.discovery;
 
@@ -14,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.config.discovery.upnp.UpnpDiscoveryParticipant;
@@ -30,6 +37,7 @@ import org.jupnp.model.meta.RemoteDevice;
  * @author Kai Kreuzer - Initial contribution
  * @author Thomas Höfer - Added representation
  */
+@NonNullByDefault
 public class HueBridgeDiscoveryParticipant implements UpnpDiscoveryParticipant {
 
     @Override
@@ -38,7 +46,7 @@ public class HueBridgeDiscoveryParticipant implements UpnpDiscoveryParticipant {
     }
 
     @Override
-    public DiscoveryResult createResult(RemoteDevice device) {
+    public @Nullable DiscoveryResult createResult(RemoteDevice device) {
         ThingUID uid = getThingUID(device);
         if (uid != null) {
             Map<String, Object> properties = new HashMap<>(2);
@@ -54,7 +62,7 @@ public class HueBridgeDiscoveryParticipant implements UpnpDiscoveryParticipant {
     }
 
     @Override
-    public ThingUID getThingUID(RemoteDevice device) {
+    public @Nullable ThingUID getThingUID(RemoteDevice device) {
         DeviceDetails details = device.getDetails();
         if (details != null) {
             ModelDetails modelDetails = details.getModelDetails();

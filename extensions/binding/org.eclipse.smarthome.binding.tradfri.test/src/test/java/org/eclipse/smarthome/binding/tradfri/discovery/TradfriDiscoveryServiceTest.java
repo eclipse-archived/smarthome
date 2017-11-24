@@ -1,20 +1,26 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.tradfri.discovery;
 
 import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
-import static org.eclipse.smarthome.binding.tradfri.internal.config.TradfriDeviceConfig.*;
+import static org.eclipse.smarthome.binding.tradfri.internal.config.TradfriDeviceConfig.CONFIG_ID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.eclipse.smarthome.binding.tradfri.handler.TradfriGatewayHandler;
 import org.eclipse.smarthome.binding.tradfri.internal.discovery.TradfriDiscoveryService;
@@ -70,7 +76,7 @@ public class TradfriDiscoveryServiceTest {
             @Override
             public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
                     Collection<ThingTypeUID> thingTypeUIDs) {
-                return null;
+                return Collections.emptyList();
             }
         };
         discovery.addDiscoveryListener(listener);

@@ -1,15 +1,21 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.binding;
 
 import java.util.List;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -25,12 +31,13 @@ import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
  * @author Dennis Nobel - Initial contribution
  * @author Stefan Bußweiler - Added implementation of BridgeHandler interface
  */
+@NonNullByDefault
 public abstract class BaseBridgeHandler extends BaseThingHandler implements BridgeHandler {
 
     /**
      * @see BaseThingHandler
      */
-    public BaseBridgeHandler(@NonNull Bridge bridge) {
+    public BaseBridgeHandler(Bridge bridge) {
         super(bridge);
     }
 
@@ -40,7 +47,7 @@ public abstract class BaseBridgeHandler extends BaseThingHandler implements Brid
      * @param uid uid of the child thing
      * @return child thing with the given uid or null if thing was not found
      */
-    public Thing getThingByUID(ThingUID uid) {
+    public @Nullable Thing getThingByUID(ThingUID uid) {
 
         Bridge bridge = getThing();
 

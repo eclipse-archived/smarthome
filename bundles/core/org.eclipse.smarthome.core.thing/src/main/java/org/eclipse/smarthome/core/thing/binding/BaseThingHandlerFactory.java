@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.binding;
 
@@ -43,13 +48,16 @@ import org.osgi.util.tracker.ServiceTracker;
 @NonNullByDefault
 public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
-    protected @Nullable BundleContext bundleContext;
+    @NonNullByDefault({})
+    protected BundleContext bundleContext;
 
-    private final Map<String, ServiceRegistration<ConfigStatusProvider>> configStatusProviders = new ConcurrentHashMap<>();
-    private final Map<String, ServiceRegistration<FirmwareUpdateHandler>> firmwareUpdateHandlers = new ConcurrentHashMap<>();
+    private final Map<String, @Nullable ServiceRegistration<ConfigStatusProvider>> configStatusProviders = new ConcurrentHashMap<>();
+    private final Map<String, @Nullable ServiceRegistration<FirmwareUpdateHandler>> firmwareUpdateHandlers = new ConcurrentHashMap<>();
 
-    private @Nullable ServiceTracker<ThingTypeRegistry, ThingTypeRegistry> thingTypeRegistryServiceTracker;
-    private @Nullable ServiceTracker<ConfigDescriptionRegistry, ConfigDescriptionRegistry> configDescriptionRegistryServiceTracker;
+    @NonNullByDefault({})
+    private ServiceTracker<ThingTypeRegistry, ThingTypeRegistry> thingTypeRegistryServiceTracker;
+    @NonNullByDefault({})
+    private ServiceTracker<ConfigDescriptionRegistry, ConfigDescriptionRegistry> configDescriptionRegistryServiceTracker;
 
     /**
      * Initializes the {@link BaseThingHandlerFactory}. If this method is overridden by a sub class, the implementing
@@ -276,7 +284,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         }
     }
 
-    protected ConfigDescriptionRegistry getConfigDescriptionRegistry() {
+    protected @Nullable ConfigDescriptionRegistry getConfigDescriptionRegistry() {
         if (configDescriptionRegistryServiceTracker == null) {
             throw new IllegalStateException(
                     "Config Description Registry has not been properly initialized. Did you forget to call super.activate()?");

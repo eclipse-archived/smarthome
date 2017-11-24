@@ -1,14 +1,21 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.discovery;
 
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.jupnp.model.meta.RemoteDevice;
@@ -23,6 +30,7 @@ import org.jupnp.model.meta.RemoteDevice;
  *
  */
 @Deprecated
+@NonNullByDefault
 public interface UpnpDiscoveryParticipant {
 
     /**
@@ -45,7 +53,7 @@ public interface UpnpDiscoveryParticipant {
      * @return the according discovery result or <code>null</code>, if device is not
      *         supported by this participant
      */
-    public DiscoveryResult createResult(RemoteDevice device);
+    public @Nullable DiscoveryResult createResult(RemoteDevice device);
 
     /**
      * Returns the thing UID for a upnp device
@@ -55,5 +63,5 @@ public interface UpnpDiscoveryParticipant {
      * @return a thing UID or <code>null</code>, if device is not supported
      *         by this participant
      */
-    public ThingUID getThingUID(RemoteDevice device);
+    public @Nullable ThingUID getThingUID(RemoteDevice device);
 }

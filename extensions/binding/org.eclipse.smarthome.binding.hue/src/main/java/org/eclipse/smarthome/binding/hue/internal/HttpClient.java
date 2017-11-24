@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.hue.internal;
 
@@ -15,12 +20,15 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  *
  * @author Q42, standalone Jue library (https://github.com/Q42/Jue)
  * @author Denis Dudnik - moved Jue library source code inside the smarthome Hue binding
  */
+@NonNullByDefault
 public class HttpClient {
     private int timeout = 1000;
 
@@ -44,7 +52,7 @@ public class HttpClient {
         return doNetwork(address, "DELETE", "");
     }
 
-    protected Result doNetwork(String address, String requestMethod, String body) throws IOException {
+    protected Result doNetwork(String address, String requestMethod, @Nullable String body) throws IOException {
         HttpURLConnection conn = (HttpURLConnection) new URL(address).openConnection();
         try {
             conn.setRequestMethod(requestMethod);
@@ -68,8 +76,8 @@ public class HttpClient {
     }
 
     public static class Result {
-        private String body;
-        private int responseCode;
+        private final String body;
+        private final int responseCode;
 
         public Result(String body, int responseCode) {
             this.body = body;

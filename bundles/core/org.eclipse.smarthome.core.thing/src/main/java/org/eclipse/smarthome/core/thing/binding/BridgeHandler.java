@@ -1,13 +1,18 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.binding;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 
@@ -21,6 +26,7 @@ import org.eclipse.smarthome.core.thing.Thing;
  *
  * @author Stefan Bußweiler - Initial contribution and API
  */
+@NonNullByDefault
 public interface BridgeHandler extends ThingHandler {
 
     /**
@@ -29,7 +35,7 @@ public interface BridgeHandler extends ThingHandler {
      * @param childHandler the initialized child handler
      * @param childThing the thing of the initialized child handler
      */
-    void childHandlerInitialized(@NonNull ThingHandler childHandler, @NonNull Thing childThing);
+    void childHandlerInitialized(ThingHandler childHandler, Thing childThing);
 
     /**
      * Informs the bridge handler that a child handler has been disposed.
@@ -37,6 +43,6 @@ public interface BridgeHandler extends ThingHandler {
      * @param childHandler the disposed child handler
      * @param childThing the thing of the disposed child handler
      */
-    void childHandlerDisposed(@NonNull ThingHandler childHandler, @NonNull Thing childThing);
+    void childHandlerDisposed(ThingHandler childHandler, Thing childThing);
 
 }

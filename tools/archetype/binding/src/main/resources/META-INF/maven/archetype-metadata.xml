@@ -16,6 +16,9 @@
 		</requiredProperty>
 		<requiredProperty key="bindingIdCamelCase">
 		</requiredProperty>
+		<requiredProperty key="startYear">
+			<defaultValue>2014</defaultValue>
+		</requiredProperty>
 	</requiredProperties>
 
 	<fileSets>

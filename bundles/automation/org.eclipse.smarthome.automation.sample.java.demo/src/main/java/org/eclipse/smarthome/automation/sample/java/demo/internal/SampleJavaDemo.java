@@ -1,19 +1,15 @@
-/*******************************************************************************
+/**
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
  *
- * Copyright (c) 2016  Bosch Software Innovations GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v1.0 which accompany this distribution.
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
  *
- * The Eclipse Public License is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * The Eclipse Distribution License is available at
- * http://www.eclipse.org/org/documents/edl-v10.php.
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
  *
- * Contributors:
- * Plamen Peev - Bosch Software Innovations GmbH - Please refer to git log
- *
- *******************************************************************************/
+ * SPDX-License-Identifier: EPL-2.0
+ */
 package org.eclipse.smarthome.automation.sample.java.demo.internal;
 
 import java.util.ArrayList;

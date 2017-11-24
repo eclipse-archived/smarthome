@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.hue.internal;
 
@@ -14,6 +19,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler;
@@ -123,7 +129,7 @@ public class HueLightDiscoveryServiceOSGiTest extends AbstractHueOSGiTest {
             @Override
             public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
                     Collection<ThingTypeUID> thingTypeUIDs) {
-                return null;
+                return Collections.emptyList();
             }
         });
 
@@ -142,6 +148,7 @@ public class HueLightDiscoveryServiceOSGiTest extends AbstractHueOSGiTest {
 
     @Test
     public void startSearchIsCalled() {
+
         final AtomicBoolean searchHasBeenTriggered = new AtomicBoolean(false);
         AsyncResultWrapper<String> addressWrapper = new AsyncResultWrapper<String>();
         AsyncResultWrapper<String> bodyWrapper = new AsyncResultWrapper<String>();
@@ -161,7 +168,7 @@ public class HueLightDiscoveryServiceOSGiTest extends AbstractHueOSGiTest {
                     String body = "{\"lights\":{}}";
                     return new Result(body, 200);
                 } else {
-                    return null;
+                    return new Result("", 404);
                 }
             }
 
@@ -172,7 +179,7 @@ public class HueLightDiscoveryServiceOSGiTest extends AbstractHueOSGiTest {
                     searchHasBeenTriggered.set(true);
                     return new Result(bodyReturn, 200);
                 } else {
-                    return null;
+                    return new Result("", 404);
                 }
             }
         };

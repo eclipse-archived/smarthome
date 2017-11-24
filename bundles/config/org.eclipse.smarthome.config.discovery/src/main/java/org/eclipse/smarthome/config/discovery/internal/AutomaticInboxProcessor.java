@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
@@ -14,6 +19,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
@@ -55,13 +62,17 @@ import org.slf4j.LoggerFactory;
 @Component(immediate = true, configurationPid = "org.eclipse.smarthome.inbox", service = EventSubscriber.class, property = {
         "service.config.description.uri=system:inbox", "service.config.label=Inbox", "service.config.category=system",
         "service.pid=org.eclipse.smarthome.inbox" })
+@NonNullByDefault
 public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingStatusInfoChangedEvent>
         implements InboxListener, RegistryChangeListener<Thing> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @NonNullByDefault({})
     private ThingRegistry thingRegistry;
+    @NonNullByDefault({})
     private ThingTypeRegistry thingTypeRegistry;
+    @NonNullByDefault({})
     private Inbox inbox;
     private boolean autoIgnore = true;
     private boolean autoApprove = false;
@@ -119,19 +130,19 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
     public void updated(Thing oldElement, Thing element) {
     }
 
-    private String getRepresentationValue(DiscoveryResult result) {
+    private @Nullable String getRepresentationValue(DiscoveryResult result) {
         return result.getRepresentationProperty() != null
                 ? Objects.toString(result.getProperties().get(result.getRepresentationProperty()), null)
                 : null;
     }
 
-    private void autoIgnore(Thing thing, ThingStatus thingStatus) {
+    private void autoIgnore(@Nullable Thing thing, ThingStatus thingStatus) {
         if (ThingStatus.ONLINE.equals(thingStatus)) {
             checkAndIgnoreInInbox(thing);
         }
     }
 
-    private void checkAndIgnoreInInbox(Thing thing) {
+    private void checkAndIgnoreInInbox(@Nullable Thing thing) {
         if (thing != null) {
             String representationValue = getRepresentationPropertyValueForThing(thing);
             if (representationValue != null) {
@@ -149,7 +160,7 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
         }
     }
 
-    private void removePossiblyIgnoredResultInInbox(Thing thing) {
+    private void removePossiblyIgnoredResultInInbox(@Nullable Thing thing) {
         if (thing != null) {
             String representationValue = getRepresentationPropertyValueForThing(thing);
             if (representationValue != null) {
@@ -158,7 +169,7 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
         }
     }
 
-    private String getRepresentationPropertyValueForThing(Thing thing) {
+    private @Nullable String getRepresentationPropertyValueForThing(Thing thing) {
         ThingType thingType = thingTypeRegistry.getThingType(thing.getThingTypeUID());
         if (thingType != null) {
             String representationProperty = thingType.getRepresentationProperty();
@@ -195,7 +206,7 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
         }
     }
 
-    protected void activate(Map<String, Object> properties) {
+    protected void activate(@Nullable Map<String, @Nullable Object> properties) {
         if (properties != null) {
             Object value = properties.get("autoIgnore");
             autoIgnore = value == null || !value.toString().equals("false");

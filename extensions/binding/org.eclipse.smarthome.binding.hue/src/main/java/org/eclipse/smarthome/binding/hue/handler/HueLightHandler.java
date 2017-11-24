@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.hue.handler;
 
@@ -19,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.hue.internal.FullLight;
 import org.eclipse.smarthome.binding.hue.internal.HueBridge;
 import org.eclipse.smarthome.binding.hue.internal.State;
@@ -57,6 +64,7 @@ import org.slf4j.LoggerFactory;
  * @author Denis Dudnik - switched to internally integrated source of Jue library
  *
  */
+@NonNullByDefault
 public class HueLightHandler extends BaseThingHandler implements LightStatusListener {
 
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream.of(THING_TYPE_COLOR_LIGHT,
@@ -78,20 +86,22 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
 
     public static final String NORMALIZE_ID_REGEX = "[^a-zA-Z0-9_]";
 
+    @NonNullByDefault({})
     private String lightId;
 
-    private Integer lastSentColorTemp;
-    private Integer lastSentBrightness;
+    private @Nullable Integer lastSentColorTemp;
+    private @Nullable Integer lastSentBrightness;
 
-    private Logger logger = LoggerFactory.getLogger(HueLightHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(HueLightHandler.class);
 
     // Flag to indicate whether the bulb is of type Osram par16 50 TW or not
     private boolean isOsramPar16 = false;
 
     private boolean propertiesInitializedSuccessfully = false;
 
-    private HueBridgeHandler bridgeHandler;
+    private @Nullable HueBridgeHandler bridgeHandler;
 
+    @Nullable
     ScheduledFuture<?> scheduledFuture;
 
     public HueLightHandler(Thing hueLight) {
@@ -101,10 +111,11 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     @Override
     public void initialize() {
         logger.debug("Initializing hue light handler.");
-        initializeThing((getBridge() == null) ? null : getBridge().getStatus());
+        Bridge bridge = getBridge();
+        initializeThing((bridge == null) ? null : bridge.getStatus());
     }
 
-    private void initializeThing(ThingStatus bridgeStatus) {
+    private void initializeThing(@Nullable ThingStatus bridgeStatus) {
         logger.debug("initializeThing thing {} bridge status {}", getThing().getUID(), bridgeStatus);
         final String configLightId = (String) getConfig().get(LIGHT_ID);
         if (configLightId != null) {
@@ -146,7 +157,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         }
     }
 
-    private String getVendor(String modelId) {
+    private @Nullable String getVendor(String modelId) {
         for (String vendor : VENDOR_MODEL_MAP.keySet()) {
             if (VENDOR_MODEL_MAP.get(vendor).contains(modelId)) {
                 return vendor;
@@ -168,7 +179,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         }
     }
 
-    private FullLight getLight() {
+    private @Nullable FullLight getLight() {
         HueBridgeHandler bridgeHandler = getHueBridgeHandler();
         if (bridgeHandler != null) {
             return bridgeHandler.getLightById(lightId);
@@ -285,7 +296,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         return lightState;
     }
 
-    private StateUpdate convertColorTempChangeToStateUpdate(IncreaseDecreaseType command, FullLight light) {
+    private @Nullable StateUpdate convertColorTempChangeToStateUpdate(IncreaseDecreaseType command, FullLight light) {
         StateUpdate stateUpdate = null;
         Integer currentColorTemp = getCurrentColorTemp(light.getState());
         if (currentColorTemp != null) {
@@ -296,7 +307,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         return stateUpdate;
     }
 
-    private Integer getCurrentColorTemp(State lightState) {
+    private @Nullable Integer getCurrentColorTemp(@Nullable State lightState) {
         Integer colorTemp = lastSentColorTemp;
         if (colorTemp == null && lightState != null) {
             colorTemp = lightState.getColorTemperature();
@@ -304,7 +315,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         return colorTemp;
     }
 
-    private StateUpdate convertBrightnessChangeToStateUpdate(IncreaseDecreaseType command, FullLight light) {
+    private @Nullable StateUpdate convertBrightnessChangeToStateUpdate(IncreaseDecreaseType command, FullLight light) {
         StateUpdate stateUpdate = null;
         Integer currentBrightness = getCurrentBrightness(light.getState());
         if (currentBrightness != null) {
@@ -315,7 +326,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         return stateUpdate;
     }
 
-    private Integer getCurrentBrightness(State lightState) {
+    private @Nullable Integer getCurrentBrightness(@Nullable State lightState) {
         Integer brightness = lastSentBrightness;
         if (brightness == null && lightState != null) {
             if (!lightState.isOn()) {
@@ -340,7 +351,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         return lightUpdate;
     }
 
-    private synchronized HueBridgeHandler getHueBridgeHandler() {
+    private synchronized @Nullable HueBridgeHandler getHueBridgeHandler() {
         if (this.bridgeHandler == null) {
             Bridge bridge = getBridge();
             if (bridge == null) {
@@ -358,7 +369,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     }
 
     @Override
-    public void onLightStateChanged(HueBridge bridge, FullLight fullLight) {
+    public void onLightStateChanged(@Nullable HueBridge bridge, FullLight fullLight) {
         logger.trace("onLightStateChanged() was called");
 
         if (!fullLight.getId().equals(lightId)) {
@@ -421,14 +432,14 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     }
 
     @Override
-    public void onLightRemoved(HueBridge bridge, FullLight light) {
+    public void onLightRemoved(@Nullable HueBridge bridge, FullLight light) {
         if (light.getId().equals(lightId)) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "offline.light-removed");
         }
     }
 
     @Override
-    public void onLightAdded(HueBridge bridge, FullLight light) {
+    public void onLightAdded(@Nullable HueBridge bridge, FullLight light) {
         if (light.getId().equals(lightId)) {
             onLightStateChanged(bridge, light);
         }
