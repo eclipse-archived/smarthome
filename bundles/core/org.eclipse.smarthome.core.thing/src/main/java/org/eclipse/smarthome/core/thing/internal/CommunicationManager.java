@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
@@ -81,6 +82,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     private ThingRegistry thingRegistry;
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
+    private SafeCaller safeCaller;
 
     // link UID -> profile
     private final Map<String, Profile> profiles = new ConcurrentHashMap<>();
@@ -134,7 +136,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     }
 
     private ProfileCallback createCallback(ItemChannelLink link) {
-        return new ProfileCallbackImpl(eventPublisher, link, thingUID -> getThing(thingUID),
+        return new ProfileCallbackImpl(eventPublisher, safeCaller, link, thingUID -> getThing(thingUID),
                 itemName -> getItem(itemName));
     }
 
@@ -420,6 +422,15 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
 
     protected void unsetDefaultProfileFactory(SystemProfileFactory defaultProfileFactory) {
         this.defaultProfileFactory = null;
+    }
+
+    @Reference
+    protected void setSafeCaller(SafeCaller safeCaller) {
+        this.safeCaller = safeCaller;
+    }
+
+    protected void unsetSafeCaller(SafeCaller safeCaller) {
+        this.safeCaller = null;
     }
 
     private static class NoOpProfile implements Profile {

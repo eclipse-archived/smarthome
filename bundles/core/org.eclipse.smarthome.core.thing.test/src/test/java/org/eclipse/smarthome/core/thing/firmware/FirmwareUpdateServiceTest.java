@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.eclipse.smarthome.core.common.SafeMethodCaller;
+import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
@@ -348,7 +348,7 @@ public class FirmwareUpdateServiceTest extends JavaTest {
     public void testCancelFirmwareUpdate_takesLong() {
         FirmwareUpdateHandler firmwareUpdateHandler = mock(FirmwareUpdateHandler.class);
         doAnswer(invocation -> {
-            Thread.sleep(SafeMethodCaller.DEFAULT_TIMEOUT + 1000);
+            Thread.sleep(SafeCaller.DEFAULT_TIMEOUT + 1000);
             return null;
         }).when(firmwareUpdateHandler).cancel();
         doReturn(true).when(firmwareUpdateHandler).isUpdateExecutable();

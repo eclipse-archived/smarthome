@@ -39,7 +39,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.config.discovery.ExtendedDiscoveryService;
 import org.eclipse.smarthome.config.discovery.ScanListener;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
-import org.eclipse.smarthome.core.common.SafeMethodCaller;
+import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -144,6 +144,9 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     @NonNullByDefault({})
     private ThingRegistry thingRegistry;
+
+    @NonNullByDefault({})
+    private SafeCaller safeCaller;
 
     private final DiscoveryServiceCallback discoveryServiceCallback = new DiscoveryServiceCallback() {
 
@@ -447,13 +450,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     protected void addDiscoveryService(final DiscoveryService discoveryService) {
         discoveryService.addDiscoveryListener(this);
         if (discoveryService instanceof ExtendedDiscoveryService) {
-            SafeMethodCaller.call(new SafeMethodCaller.Action<@Nullable Void>() {
-                @Override
-                public @Nullable Void call() throws Exception {
-                    ((ExtendedDiscoveryService) discoveryService).setDiscoveryServiceCallback(discoveryServiceCallback);
-                    return null;
-                }
-            });
+            safeCaller.create((ExtendedDiscoveryService) discoveryService).build()
+                    .setDiscoveryServiceCallback(discoveryServiceCallback);
         }
         this.discoveryServices.add(discoveryService);
     }
@@ -510,6 +508,15 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     protected void unsetThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = null;
+    }
+
+    @Reference
+    protected void setSafeCaller(SafeCaller safeCaller) {
+        this.safeCaller = safeCaller;
+    }
+
+    protected void unsetSafeCaller(SafeCaller safeCaller) {
+        this.safeCaller = null;
     }
 
 }
