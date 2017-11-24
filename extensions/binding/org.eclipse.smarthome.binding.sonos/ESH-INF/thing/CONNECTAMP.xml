@@ -47,7 +47,6 @@
 			<channel id="stop" typeId="stop" />
 			<channel id="tuneinstationid" typeId="tuneinstationid" />
 			<channel id="volume" typeId="volume" />
-			<channel id="zonegroup" typeId="zonegroup" />
 			<channel id="zonegroupid" typeId="zonegroupid" />
 			<channel id="zonename" typeId="zonename" />
 			<channel id="coordinator" typeId="coordinator" />
