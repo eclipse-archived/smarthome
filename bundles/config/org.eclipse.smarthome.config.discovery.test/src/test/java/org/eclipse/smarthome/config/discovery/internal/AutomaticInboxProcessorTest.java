@@ -167,13 +167,13 @@ public class AutomaticInboxProcessorTest {
 
     /**
      * This test is just like the test testThingWentOnline in the AutomaticInboxProcessorTest, but in contrast to the
-     * above test (where a thing with the same thing type and the same representation property value went online) here a
-     * thing with another thing type and the same representation property value goes online.
+     * above test (where a thing with the same binding ID and the same representation property value went online) here a
+     * thing with another binding ID and the same representation property value goes online.
      * <p/>
      * In this case, the discovery result should not be ignored, since it has a different thing type.
      */
     @Test
-    public void testThingWithOtherThingTypeButSameRepresentationPropertyWentOnline() {
+    public void testThingWithOtherBindingIDButSameRepresentationPropertyWentOnline() {
         // Add discovery result with thing type THING_TYPE_UID and representation property value DEVICE_ID
         inbox.add(DiscoveryResultBuilder.create(THING_UID).withProperty(DEVICE_ID_KEY, DEVICE_ID)
                 .withRepresentationProperty(DEVICE_ID_KEY).build());
@@ -198,6 +198,27 @@ public class AutomaticInboxProcessorTest {
         assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID)));
         results = inbox.stream().filter(withFlag(DiscoveryResultFlag.IGNORED)).collect(Collectors.toList());
         assertThat(results.size(), is(0));
+    }
+
+    @Test
+    public void testThingWithOtherBindingIDButSameRepresentationPropertyIsDiscovered() {
+        // insert thing with thing type THING_TYPE_UID3 and representation property value DEVICE_ID in registry
+        when(thingRegistry.get(THING_UID)).thenReturn(thing);
+        when(thingRegistry.stream()).thenReturn(Stream.of(thing));
+
+        // Add discovery result with thing type THING_TYPE_UID3 and representation property value DEVICE_ID
+        inbox.add(DiscoveryResultBuilder.create(THING_UID3).withProperty(DEVICE_ID_KEY, DEVICE_ID)
+                .withRepresentationProperty(DEVICE_ID_KEY).build());
+
+        // Do NOT ignore this discovery result because it has a different binding ID
+        List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.IGNORED))
+                .collect(Collectors.toList());
+        assertThat(results.size(), is(0));
+
+        // Then there is a discovery result which is NEW
+        results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW)).collect(Collectors.toList());
+        assertThat(results.size(), is(1));
+        assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID3)));
     }
 
     @Test
