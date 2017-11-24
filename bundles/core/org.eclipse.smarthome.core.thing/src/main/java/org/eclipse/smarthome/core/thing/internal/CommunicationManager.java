@@ -134,9 +134,8 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     }
 
     private ProfileCallback createCallback(ItemChannelLink link) {
-        Item item = itemRegistry.get(link.getItemName());
-        Thing thing = getThing(link.getLinkedUID().getThingUID());
-        return new ProfileCallbackImpl(eventPublisher, link, thing, item);
+        return new ProfileCallbackImpl(eventPublisher, link, thingUID -> getThing(thingUID),
+                itemName -> getItem(itemName));
     }
 
     private ProfileTypeUID determineProfileTypeUID(ItemChannelLink link, Item item, Thing thing) {
@@ -226,7 +225,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     private void receiveCommand(ItemCommandEvent commandEvent) {
         final String itemName = commandEvent.getItemName();
         final Command command = commandEvent.getItemCommand();
-        final Item item = itemRegistry.get(itemName);
+        final Item item = getItem(itemName);
         if (item == null) {
             logger.debug("Received an ItemCommandEvent for item {} which does not exist", itemName);
             return;
@@ -251,7 +250,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     private void receiveUpdate(ItemStateEvent updateEvent) {
         final String itemName = updateEvent.getItemName();
         final State newState = updateEvent.getItemState();
-        final Item item = itemRegistry.get(itemName);
+        final Item item = getItem(itemName);
         if (item == null) {
             logger.debug("Received an ItemStateEvent for item {} which does not exist", itemName);
             return;
@@ -271,6 +270,10 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         });
     }
 
+    private Item getItem(final String itemName) {
+        return itemRegistry.get(itemName);
+    }
+
     private void receiveTrigger(ChannelTriggeredEvent channelTriggeredEvent) {
         final ChannelUID channelUID = channelTriggeredEvent.getChannel();
         final String event = channelTriggeredEvent.getEvent();
@@ -280,7 +283,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
             // all links for the channel
             return link.getLinkedUID().equals(channelUID);
         }).forEach(link -> {
-            Item item = itemRegistry.get(link.getItemName());
+            Item item = getItem(link.getItemName());
             if (item != null) {
                 Profile profile = getProfile(link, item, thing);
                 if (profile instanceof TriggerProfile) {
@@ -297,7 +300,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
             // all links for the channel
             return link.getLinkedUID().equals(channelUID);
         }).forEach(link -> {
-            Item item = itemRegistry.get(link.getItemName());
+            Item item = getItem(link.getItemName());
             if (item != null) {
                 Profile profile = getProfile(link, item, thing);
                 if (profile instanceof StateProfile) {
@@ -314,7 +317,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
             // all links for the channel
             return link.getLinkedUID().equals(channelUID);
         }).forEach(link -> {
-            Item item = itemRegistry.get(link.getItemName());
+            Item item = getItem(link.getItemName());
             if (item != null) {
                 Profile profile = getProfile(link, item, thing);
                 if (profile instanceof StateProfile) {
