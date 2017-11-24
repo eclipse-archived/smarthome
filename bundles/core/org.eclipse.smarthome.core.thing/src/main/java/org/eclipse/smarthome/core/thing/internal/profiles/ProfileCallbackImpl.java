@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.core.thing.internal.profiles;
 
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 
 import org.eclipse.smarthome.core.common.SafeMethodCaller;
 import org.eclipse.smarthome.core.events.EventPublisher;
@@ -20,6 +21,7 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.profiles.ProfileCallback;
@@ -40,19 +42,21 @@ public class ProfileCallbackImpl implements ProfileCallback {
     private final Logger logger = LoggerFactory.getLogger(ProfileCallbackImpl.class);
 
     private final EventPublisher eventPublisher;
-    private final Thing thing;
     private final ItemChannelLink link;
-    private final Item item;
+    private final Function<ThingUID, Thing> thingProvider;
+    private final Function<String, Item> itemProvider;
 
-    public ProfileCallbackImpl(EventPublisher eventPublisher, ItemChannelLink link, Thing thing, Item item) {
+    public ProfileCallbackImpl(EventPublisher eventPublisher, ItemChannelLink link,
+            Function<ThingUID, Thing> thingProvider, Function<String, Item> itemProvider) {
         this.eventPublisher = eventPublisher;
         this.link = link;
-        this.thing = thing;
-        this.item = item;
+        this.thingProvider = thingProvider;
+        this.itemProvider = itemProvider;
     }
 
     @Override
     public void handleCommand(Command command) {
+        Thing thing = thingProvider.apply(link.getLinkedUID().getThingUID());
         if (thing != null) {
             final ThingHandler handler = thing.getHandler();
             if (handler != null) {
@@ -93,6 +97,7 @@ public class ProfileCallbackImpl implements ProfileCallback {
 
     @Override
     public void handleUpdate(State state) {
+        Thing thing = thingProvider.apply(link.getLinkedUID().getThingUID());
         if (thing != null) {
             final ThingHandler handler = thing.getHandler();
             if (handler != null) {
@@ -139,6 +144,7 @@ public class ProfileCallbackImpl implements ProfileCallback {
 
     @Override
     public void sendUpdate(State state) {
+        Item item = itemProvider.apply(link.getItemName());
         State acceptedState = ItemUtil.convertToAcceptedState(state, item);
         eventPublisher.post(
                 ItemEventFactory.createStateEvent(link.getItemName(), acceptedState, link.getLinkedUID().toString()));
