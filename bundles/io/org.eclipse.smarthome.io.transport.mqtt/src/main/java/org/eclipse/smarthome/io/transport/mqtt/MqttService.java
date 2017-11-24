@@ -46,8 +46,9 @@ import org.slf4j.LoggerFactory;
  * @author Davy Vanherbergen
  * @author Markus Rathgeb - Synchronize access to broker connections
  */
-@Component(immediate = true, service = { MqttService.class }, configurationPid = {
-        "org.eclipse.smarthome.mqtt" }, property = { "service.pid=org.eclipse.smarthome.mqtt" })
+@Component(immediate = true, service = {
+        MqttService.class }, configurationPid = "org.eclipse.smarthome.mqtt", property = {
+                "service.pid=org.eclipse.smarthome.mqtt" })
 @NonNullByDefault
 public class MqttService {
     private static final String NAME_PROPERTY = "name";
