@@ -10,7 +10,7 @@ Bundle-ClassPath: .,
  lib/element-connector-1.1.0-SNAPSHOT.jar
 Import-Package: 
  org.apache.commons.lang;version="2.6.0",
- org.eclipse.jdt.annotation,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.binding.coapconnectedlighting,
  org.eclipse.smarthome.binding.coapconnectedlighting.handler,
  org.eclipse.smarthome.config.core,
