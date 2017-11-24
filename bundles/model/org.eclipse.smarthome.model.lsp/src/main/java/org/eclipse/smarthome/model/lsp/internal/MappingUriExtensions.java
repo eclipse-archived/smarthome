@@ -13,6 +13,10 @@
 package org.eclipse.smarthome.model.lsp.internal;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,17 +37,25 @@ import org.slf4j.LoggerFactory;
  */
 public class MappingUriExtensions extends UriExtensions {
 
+    private static final Charset PATH_ENCODING = StandardCharsets.UTF_8;
+
     private final Logger logger = LoggerFactory.getLogger(MappingUriExtensions.class);
 
     private final String serverLocation;
     private String clientLocation = null;
+    private final String rawConfigFolder;
 
     public MappingUriExtensions(String configFolder) {
+        this.rawConfigFolder = configFolder;
+        serverLocation = calcServerLocation(configFolder);
+        logger.debug("The language server is using '{}' as its workspace", serverLocation);
+    }
+
+    protected String calcServerLocation(String configFolder) {
         Path configPath = Paths.get(configFolder);
         Path absoluteConfigPath = configPath.toAbsolutePath();
         java.net.URI configPathURI = absoluteConfigPath.toUri();
-        serverLocation = configPathURI.toString();
-        logger.debug("The language server is using '{}' as its workspace", serverLocation);
+        return removeTrailingSlash(configPathURI.toString());
     }
 
     @Override
@@ -59,30 +71,44 @@ public class MappingUriExtensions extends UriExtensions {
         } catch (FileSystemNotFoundException e) {
             // fall-back to the argument
         }
-        return ret.toString().replace(serverLocation, clientLocation);
+        String clientPath = removeTrailingSlash(ret.toASCIIString());
+        if (clientLocation != null) {
+            clientPath = clientPath.replace(serverLocation, clientLocation);
+        }
+        return clientPath;
     }
 
     @Override
     public URI toUri(String pathWithScheme) {
-        if (clientLocation != null && pathWithScheme.startsWith(clientLocation)) {
-            return map(pathWithScheme, clientLocation);
-        }
+        try {
+            String decodedPathWithScheme = URLDecoder.decode(pathWithScheme, PATH_ENCODING.toString());
 
-        clientLocation = guessClientPath(pathWithScheme);
-        if (clientLocation != null) {
-            logger.debug("Identified client workspace as '{}'", clientLocation);
-            return map(pathWithScheme, clientLocation);
-        }
+            if (clientLocation != null && decodedPathWithScheme.startsWith(clientLocation)) {
+                return map(decodedPathWithScheme);
+            }
 
-        logger.info("Path mapping could not be done for '{}', leaving it untouched", pathWithScheme);
+            clientLocation = guessClientPath(decodedPathWithScheme);
+            if (clientLocation != null) {
+                logger.debug("Identified client workspace as '{}'", clientLocation);
+                return map(decodedPathWithScheme);
+            }
+
+            clientLocation = pathWithScheme;
+
+        } catch (UnsupportedEncodingException e) {
+            logger.error("Charset {} is not supported. You're seriously in trouble.", PATH_ENCODING);
+        }
+        logger.debug("Path mapping could not be done for '{}', leaving it untouched", pathWithScheme);
         java.net.URI javaNetUri = java.net.URI.create(pathWithScheme);
         return URI.createURI(super.toPath(javaNetUri));
     }
 
-    private String toURIString(String filename) {
-        Path path = Paths.get(filename);
-        java.net.URI pathURI = path.toUri();
-        return pathURI.toString();
+    private String removeTrailingSlash(String path) {
+        if (path.endsWith("/")) {
+            return path.substring(0, path.length() - 1);
+        } else {
+            return path;
+        }
     }
 
     /**
@@ -96,23 +122,50 @@ public class MappingUriExtensions extends UriExtensions {
      * @return the substring which needs to be replaced with the runtime's config folder path
      */
     protected String guessClientPath(String pathWithScheme) {
-        File file = Paths.get(java.net.URI.create(pathWithScheme)).toFile().getParentFile();
-        File realFile;
-        while (file.getParentFile() != null) {
-            String toReplace = toURIString(file.toString()) + File.separator;
-            String path = pathWithScheme.replace(toReplace, serverLocation);
-            realFile = new File(java.net.URI.create(path));
-            if (realFile.exists()) {
-                return toReplace;
-            }
-            file = file.getParentFile();
+        if (isPointingToConfigFolder(pathWithScheme)) {
+            return removeTrailingSlash(pathWithScheme);
+        } else if (isFolder(pathWithScheme)) {
+            return removeTrailingSlash(pathWithScheme);
         }
+
+        String currentPath = pathWithScheme;
+        int nextIndex = getLastPathSegmentIndex(currentPath);
+        while (nextIndex > -1) {
+            currentPath = currentPath.substring(0, nextIndex);
+            java.net.URI uri = toURI(pathWithScheme, currentPath);
+            File realFile = new File(uri);
+            if (realFile.exists()) {
+                return currentPath;
+            }
+
+            nextIndex = getLastPathSegmentIndex(currentPath);
+        }
+
         return null;
     }
 
-    private URI map(String pathWithScheme, String clientLocation) {
-        java.net.URI javaNetUri = java.net.URI.create(pathWithScheme.replace(clientLocation, serverLocation));
-        return URI.createURI(super.toPath(javaNetUri));
+    private boolean isFolder(String currentPath) {
+        return !currentPath.substring(getLastPathSegmentIndex(currentPath)).contains(".");
+    }
+
+    private boolean isPointingToConfigFolder(String currentPath) {
+        return currentPath.endsWith("/" + rawConfigFolder);
+    }
+
+    private int getLastPathSegmentIndex(String currentPath) {
+        return removeTrailingSlash(currentPath).lastIndexOf("/");
+    }
+
+    private URI map(String pathWithScheme) {
+        java.net.URI javaNetUri = toURI(pathWithScheme, clientLocation);
+        logger.trace("Going to map path {}", javaNetUri);
+        URI ret = URI.createURI(super.toPath(javaNetUri));
+        logger.trace("Mapped path {} to {}", pathWithScheme, ret);
+        return ret;
+    }
+
+    private java.net.URI toURI(String pathWithScheme, String currentPath) {
+        return java.net.URI.create(pathWithScheme.replace(currentPath, serverLocation));
     }
 
 }
