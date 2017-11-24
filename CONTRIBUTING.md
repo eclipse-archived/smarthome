@@ -42,6 +42,12 @@ Here is a sample _good_ Git commit log message:
     Also-By: Somebody who also contributed parts of this code <foo@bar.com>
     Signed-off-by: Yourself <baz@foobar.org>
 
+Never `merge` changes from the `master` branch into your topic branch. Always use the `rebase` command to apply your changes on top of the current `master`.
+
 Finally, a contribution is not a good contribution unless it comes with unit tests, integration tests and
 documentation.
+
+Once you have received review comments on your pull request, please address them in **additional** commits, do not amend your previous commits and squeeze it in there.
+Several commits help to speed up reviews because it is easier to see the differences.
+Thus, there is no need to squash any commits because that will be done by a commiter of the project once the pull request will finally be merged.
 
