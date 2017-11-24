@@ -685,7 +685,8 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
             setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR));
             thingHandlers.remove(thing.getUID());
             thingHandlersByFactory.remove(thingHandlerFactory, thingHandler);
-        }).build();
+        }).build().run();
+        ;
     }
 
     private void disposeHandler(Thing thing, ThingHandler thingHandler) {
