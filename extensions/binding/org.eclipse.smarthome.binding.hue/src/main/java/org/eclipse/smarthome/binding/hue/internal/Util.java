@@ -18,11 +18,15 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  *
  * @author Q42, standalone Jue library (https://github.com/Q42/Jue)
  * @author Denis Dudnik - moved Jue library source code inside the smarthome Hue binding
  */
+@NonNullByDefault
 class Util {
     private Util() {
     }
@@ -58,7 +62,7 @@ class Util {
         return ids;
     }
 
-    public static String quickMatch(String needle, String haystack) {
+    public static @Nullable String quickMatch(String needle, String haystack) {
         Matcher m = Pattern.compile(needle).matcher(haystack);
         m.find();
         return m.group(1);

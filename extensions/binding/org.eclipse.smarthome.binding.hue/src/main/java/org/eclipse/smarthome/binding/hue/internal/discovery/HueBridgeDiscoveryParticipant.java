@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.config.discovery.upnp.UpnpDiscoveryParticipant;
@@ -35,6 +37,7 @@ import org.jupnp.model.meta.RemoteDevice;
  * @author Kai Kreuzer - Initial contribution
  * @author Thomas Höfer - Added representation
  */
+@NonNullByDefault
 public class HueBridgeDiscoveryParticipant implements UpnpDiscoveryParticipant {
 
     @Override
@@ -43,7 +46,7 @@ public class HueBridgeDiscoveryParticipant implements UpnpDiscoveryParticipant {
     }
 
     @Override
-    public DiscoveryResult createResult(RemoteDevice device) {
+    public @Nullable DiscoveryResult createResult(RemoteDevice device) {
         ThingUID uid = getThingUID(device);
         if (uid != null) {
             Map<String, Object> properties = new HashMap<>(2);
@@ -59,7 +62,7 @@ public class HueBridgeDiscoveryParticipant implements UpnpDiscoveryParticipant {
     }
 
     @Override
-    public ThingUID getThingUID(RemoteDevice device) {
+    public @Nullable ThingUID getThingUID(RemoteDevice device) {
         DeviceDetails details = device.getDetails();
         if (details != null) {
             ModelDetails modelDetails = details.getModelDetails();

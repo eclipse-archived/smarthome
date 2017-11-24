@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.binding.hue.handler;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.hue.internal.State;
 import org.eclipse.smarthome.binding.hue.internal.State.AlertMode;
 import org.eclipse.smarthome.binding.hue.internal.State.Effect;
@@ -35,6 +37,7 @@ import org.eclipse.smarthome.core.library.types.StringType;
  * @author Denis Dudnik - switched to internally integrated source of Jue library, minor code cleanup
  *
  */
+@NonNullByDefault
 public class LightStateConverter {
 
     private static final int HUE_FACTOR = 182;
@@ -237,7 +240,7 @@ public class LightStateConverter {
      * @return light state containing the {@link AlertMode} or <b><code>null </code></b> if the provided
      *         {@link StringType} represents unsupported mode.
      */
-    public static StateUpdate toAlertState(StringType alertType) {
+    public static @Nullable StateUpdate toAlertState(StringType alertType) {
         AlertMode alertMode;
 
         switch (alertType.toString()) {
