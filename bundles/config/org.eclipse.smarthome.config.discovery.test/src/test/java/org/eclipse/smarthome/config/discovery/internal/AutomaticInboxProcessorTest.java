@@ -306,6 +306,27 @@ public class AutomaticInboxProcessorTest {
     }
 
     @Test
+    public void testOneThingOutOfTwoWithSameRepresentationPropertyButDifferentBindingIdIsBeingRemoved() {
+        inbox.add(DiscoveryResultBuilder.create(THING_UID).withProperty(DEVICE_ID_KEY, DEVICE_ID)
+                .withRepresentationProperty(DEVICE_ID_KEY).build());
+        inbox.setFlag(THING_UID, DiscoveryResultFlag.IGNORED);
+
+        inbox.add(DiscoveryResultBuilder.create(THING_UID3).withProperty(DEVICE_ID_KEY, DEVICE_ID)
+                .withRepresentationProperty(DEVICE_ID_KEY).build());
+        inbox.setFlag(THING_UID3, DiscoveryResultFlag.IGNORED);
+
+        List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.IGNORED))
+                .collect(Collectors.toList());
+        assertThat(results.size(), is(2));
+
+        inboxAutoIgnore.removed(thing);
+
+        results = inbox.getAll();
+        assertThat(results.size(), is(1));
+        assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID3)));
+    }
+
+    @Test
     public void testThingWithConfigWentOnline() {
         inbox.add(DiscoveryResultBuilder.create(THING_UID2).withProperty(CONFIG_KEY, CONFIG_VALUE)
                 .withRepresentationProperty(CONFIG_KEY).build());
