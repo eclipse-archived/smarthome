@@ -96,7 +96,8 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
             String value = getRepresentationValue(result);
             if (value != null) {
                 Thing thing = thingRegistry.stream()
-                        .filter(t -> Objects.equals(value, getRepresentationPropertyValueForThing(t))).findFirst()
+                        .filter(t -> Objects.equals(value, getRepresentationPropertyValueForThing(t)))
+                        .filter(t -> Objects.equals(t.getUID().getBindingId(), result.getBindingId())).findFirst()
                         .orElse(null);
                 if (thing != null) {
                     logger.debug("Auto-ignoring the inbox entry for the representation value {}", value);
