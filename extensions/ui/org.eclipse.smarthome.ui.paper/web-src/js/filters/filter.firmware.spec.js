@@ -49,6 +49,7 @@ describe('module PaperUI.filters.firmware', function() {
 
         it('should map firmware update step to readable text', function() {
             expect(firmwareUpdateStep(updateStep.DOWNLOADING)).toBe('Downloading');
+            expect(firmwareUpdateStep(updateStep.WAITING)).toBe('Waiting');
             expect(firmwareUpdateStep(updateStep.TRANSFERRING)).toBe('Transfering');
             expect(firmwareUpdateStep(updateStep.UPDATING)).toBe('Updating');
             expect(firmwareUpdateStep(updateStep.REBOOTING)).toBe('Rebooting');
