@@ -47,12 +47,12 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
 
     private static final Set<ProfileType> SUPPORTED_PROFILE_TYPES = Stream
             .of(SystemProfiles.DEFAULT_TYPE, SystemProfiles.FOLLOW_TYPE, SystemProfiles.RAWBUTTON_TOGGLE_SWITCH_TYPE,
-                    SystemProfiles.RAWROCKER_TO_ON_OFF_TYPE, SystemProfiles.RAWROCKER_TO_DIMMER_TYPE)
+                    SystemProfiles.RAWROCKER_ON_OFF_TYPE, SystemProfiles.RAWROCKER_DIMMER_TYPE)
             .collect(Collectors.toSet());
 
     private static final Set<ProfileTypeUID> SUPPORTED_PROFILE_TYPE_UIDS = Stream
             .of(SystemProfiles.DEFAULT, SystemProfiles.FOLLOW, SystemProfiles.RAWBUTTON_TOGGLE_SWITCH,
-                    SystemProfiles.RAWROCKER_TO_ON_OFF, SystemProfiles.RAWROCKER_TO_DIMMER)
+                    SystemProfiles.RAWROCKER_ON_OFF, SystemProfiles.RAWROCKER_DIMMER)
             .collect(Collectors.toSet());
 
     @Nullable
@@ -64,9 +64,9 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
             return new SystemFollowProfile(callback);
         } else if (SystemProfiles.RAWBUTTON_TOGGLE_SWITCH.equals(profileTypeUID)) {
             return new RawButtonToggleSwitchProfile(callback);
-        } else if (SystemProfiles.RAWROCKER_TO_ON_OFF.equals(profileTypeUID)) {
+        } else if (SystemProfiles.RAWROCKER_ON_OFF.equals(profileTypeUID)) {
             return new RawRockerOnOffProfile(callback);
-        } else if (SystemProfiles.RAWROCKER_TO_DIMMER.equals(profileTypeUID)) {
+        } else if (SystemProfiles.RAWROCKER_DIMMER.equals(profileTypeUID)) {
             return new RawRockerDimmerProfile(callback, context);
         } else {
             return null;
@@ -87,9 +87,9 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
                 } else if (DefaultSystemChannelTypeProvider.SYSTEM_RAWROCKER.getUID()
                         .equals(channel.getChannelTypeUID())) {
                     if (CoreItemFactory.SWITCH.equalsIgnoreCase(itemType)) {
-                        return SystemProfiles.RAWROCKER_TO_ON_OFF;
+                        return SystemProfiles.RAWROCKER_ON_OFF;
                     } else if (CoreItemFactory.DIMMER.equalsIgnoreCase(itemType)) {
-                        return SystemProfiles.RAWROCKER_TO_DIMMER;
+                        return SystemProfiles.RAWROCKER_DIMMER;
                     }
                 }
                 break;

@@ -10,7 +10,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.eclipse.smarthome.core.thing.internal.profiles;
 
 import java.util.concurrent.ScheduledFuture;
@@ -55,7 +54,7 @@ public class RawRockerDimmerProfile implements TriggerProfile {
 
     @Override
     public ProfileTypeUID getProfileTypeUID() {
-        return SystemProfiles.RAWROCKER_TO_DIMMER;
+        return SystemProfiles.RAWROCKER_DIMMER;
     }
 
     @Override

@@ -10,7 +10,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.eclipse.smarthome.core.thing.internal.profiles;
 
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -36,7 +35,7 @@ public class RawRockerOnOffProfile implements TriggerProfile {
 
     @Override
     public ProfileTypeUID getProfileTypeUID() {
-        return SystemProfiles.RAWROCKER_TO_ON_OFF;
+        return SystemProfiles.RAWROCKER_ON_OFF;
     }
 
     /**
