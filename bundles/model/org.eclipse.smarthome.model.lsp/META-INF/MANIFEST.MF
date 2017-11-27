@@ -19,7 +19,6 @@ Import-Package: com.google.inject,
  org.eclipse.xtext.resource.impl,
  org.eclipse.xtext.util,
  org.eclipse.xtext.workspace,
- org.osgi.service.component.annotations;resolution:=optional,
  org.slf4j
 Require-Bundle: org.eclipse.smarthome.model.item.ide,
  org.eclipse.smarthome.model.persistence.ide,
