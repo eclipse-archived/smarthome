@@ -10,6 +10,8 @@ package org.eclipse.smarthome.core.library.types;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
+import javax.measure.quantity.Dimensionless;
+
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.junit.Test;
 
@@ -25,33 +27,29 @@ public class QuantityTypeTest {
     @Test
     public void testDimensionless() {
         // Dimensionless value that works
-        new QuantityType("57%");
+        new QuantityType<Dimensionless>("57%");
 
-        QuantityType dt0 = new QuantityType("12");
+        QuantityType<Dimensionless> dt0 = new QuantityType<>("12");
         assertTrue(dt0.getUnit().getDimension() == QuantityDimension.NONE);
-        dt0 = new QuantityType("2rad");
+        dt0 = new QuantityType<>("2rad");
         assertTrue(dt0.getUnit().getDimension() == QuantityDimension.NONE);
 
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testKnownInvalidConstructors1() throws Exception {
-        new QuantityType("2°");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testKnownInvalidConstructors2() throws Exception {
-        new QuantityType("57° 17' 44\"");
+    public void testKnownInvalidConstructors() throws Exception {
+        new QuantityType<>("57° 17' 44\"");
     }
 
     @Test
     public void testValidConstructors() throws Exception {
         // Testing various quantities in order to ensure split and parsing is working
         // as expected
-        new QuantityType("2°C");
-        new QuantityType("3 µs");
-        new QuantityType("3km/h");
-        new QuantityType("1084 hPa");
+        new QuantityType<>("2°");
+        new QuantityType<>("2°C");
+        new QuantityType<>("3 µs");
+        new QuantityType<>("3km/h");
+        new QuantityType<>("1084 hPa");
         QuantityType.valueOf("2m");
     }
 
