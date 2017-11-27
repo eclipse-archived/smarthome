@@ -222,8 +222,9 @@ public class GenericItemProvider extends AbstractProvider<Item>
                 ModelGroupFunction function = modelGroupItem.getFunction();
 
                 if (baseItem instanceof NumberItem) {
-                    Class<Quantity<?>> dimension = DimensionClassParser.parseDimension(modelGroupItem.getDimension());
-                    ((NumberItem) item).setDimension(dimension);
+                    Class<? extends Quantity<?>> dimension = DimensionClassParser
+                            .parseDimension(modelGroupItem.getDimension());
+                    ((NumberItem) baseItem).setDimension(dimension);
                 }
 
                 item = applyGroupFunction(baseItem, modelGroupItem, function);
