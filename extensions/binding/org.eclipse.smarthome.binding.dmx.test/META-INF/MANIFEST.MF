@@ -27,7 +27,6 @@ Import-Package:
  org.junit;version="4.0.0",
  org.osgi.framework,
  org.osgi.service.component,
- org.osgi.service.component.annotations;resolution:=optional,
  org.osgi.service.device,
  org.slf4j
 Require-Bundle: 

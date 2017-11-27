@@ -26,6 +26,5 @@ Import-Package:
  org.eclipse.smarthome.io.transport.mqtt,
  org.osgi.service.cm,
  org.osgi.service.component,
- org.osgi.service.component.annotations;resolution:=optional,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
