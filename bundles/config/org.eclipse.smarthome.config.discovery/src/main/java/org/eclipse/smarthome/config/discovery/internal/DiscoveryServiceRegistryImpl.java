@@ -348,7 +348,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     }
 
     @Override
-    public Collection<ThingUID> removeOlderResults(final DiscoveryService source, final long timestamp,
+    public @Nullable Collection<ThingUID> removeOlderResults(final DiscoveryService source, final long timestamp,
             final @Nullable Collection<ThingTypeUID> thingTypeUIDs, @Nullable ThingUID bridgeUID) {
         HashSet<ThingUID> removedResults = new HashSet<>();
         for (final DiscoveryListener listener : this.listeners) {
