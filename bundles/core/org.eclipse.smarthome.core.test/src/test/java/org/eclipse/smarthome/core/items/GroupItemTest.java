@@ -13,6 +13,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,6 +43,7 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.types.RawType;
+import org.eclipse.smarthome.core.library.types.util.GroupFunctionFactoryProvider;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -67,6 +69,8 @@ public class GroupItemTest extends JavaOSGiTest {
 
     @Mock
     private UnitProvider unitProvider;
+
+    private GroupFunctionFactoryProvider groupFunctionFactoryProvider;
 
     @Before
     public void setUp() {
@@ -98,6 +102,8 @@ public class GroupItemTest extends JavaOSGiTest {
         });
 
         when(unitProvider.getUnit(Temperature.class)).thenReturn(Units.CELSIUS);
+
+        groupFunctionFactoryProvider = new GroupFunctionFactoryProvider();
     }
 
     @Ignore
@@ -504,7 +510,10 @@ public class GroupItemTest extends JavaOSGiTest {
     @Test
     public void assertThatNumberGroupItemWithDimensionCalculatesCorrectState() {
         NumberItem baseItem = createNumberItem("baseItem", Temperature.class, UnDefType.NULL);
-        GroupItem groupItem = new GroupItem("number", baseItem, new ArithmeticGroupFunction.Sum());
+        GroupFunction function = groupFunctionFactoryProvider.provideGroupFunctionFactory(baseItem)
+                .createGroupFunction("sum", Collections.emptyList());
+        GroupItem groupItem = new GroupItem("number", baseItem, function);
+        groupItem.setUnitProvider(unitProvider);
 
         NumberItem celsius = createNumberItem("C", Temperature.class, new QuantityType<Temperature>("23 °C"));
         groupItem.addMember(celsius);
@@ -529,7 +538,10 @@ public class GroupItemTest extends JavaOSGiTest {
     @Test
     public void assertThatNumberGroupItemWithDifferentDimensionsCalculatesCorrectState() {
         NumberItem baseItem = createNumberItem("baseItem", Temperature.class, UnDefType.NULL);
-        GroupItem groupItem = new GroupItem("number", baseItem, new ArithmeticGroupFunction.Sum());
+        GroupFunction function = groupFunctionFactoryProvider.provideGroupFunctionFactory(baseItem)
+                .createGroupFunction("sum", Collections.emptyList());
+        GroupItem groupItem = new GroupItem("number", baseItem, function);
+        groupItem.setUnitProvider(unitProvider);
 
         NumberItem celsius = createNumberItem("C", Temperature.class, new QuantityType<Temperature>("23 °C"));
         groupItem.addMember(celsius);
@@ -548,8 +560,8 @@ public class GroupItemTest extends JavaOSGiTest {
 
     private NumberItem createNumberItem(String name, Class<? extends Quantity<?>> dimension, State state) {
         NumberItem item = new NumberItem(name);
-        item.setDimension(dimension);
         item.setUnitProvider(unitProvider);
+        item.setDimension(dimension);
         item.setState(state);
 
         return item;

@@ -11,19 +11,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import javax.measure.Unit;
-
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
-import org.eclipse.smarthome.core.library.items.NumberItem;
-import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
@@ -204,6 +200,14 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         unregisterStateListener(item);
     }
 
+    @Override
+    public void setUnitProvider(UnitProvider unitProvider) {
+        super.setUnitProvider(unitProvider);
+        if (baseItem != null) {
+            baseItem.setUnitProvider(unitProvider);
+        }
+    }
+
     /**
      * The accepted data types of a group item is the same as of the underlying base item.
      * If none is defined, the intersection of all sets of accepted data types of all group
@@ -282,7 +286,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         // if a group does not have a function it cannot have a state
         State newState = null;
         if (function != null) {
-            newState = function.getStateAs(getMembersForGroupFunction(), typeClass);
+            newState = function.getStateAs(getMembers(), typeClass);
         }
 
         if (newState == null && baseItem != null) {
@@ -344,7 +348,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     public void stateUpdated(Item item, State state) {
         State oldState = this.state;
         if (function != null && baseItem != null) {
-            State calculatedState = function.calculate(getMembersForGroupFunction());
+            State calculatedState = function.calculate(getMembers());
             calculatedState = ItemUtil.convertToAcceptedState(calculatedState, baseItem);
             setState(calculatedState);
         }
@@ -370,50 +374,6 @@ public class GroupItem extends GenericItem implements StateChangeListener {
             eventPublisher.post(
                     ItemEventFactory.createGroupStateChangedEvent(this.getName(), memberName, newState, oldState));
         }
-    }
-
-    private Set<Item> getMembersForGroupFunction() {
-        if (isDimensionalItem(baseItem)) {
-            return convertNumberItemsToBaseItemUnit(((NumberItem) baseItem).getUnit());
-        } else {
-            return getMembers();
-        }
-    }
-
-    private Set<Item> convertNumberItemsToBaseItemUnit(Unit<?> baseItemUnit) {
-        Set<Item> groupFunctionMembers = new LinkedHashSet<>(); // retain order of insertions
-
-        Set<Item> compatibleUnitItems = new HashSet<>();
-        Set<Item> otherItems = new HashSet<>();
-
-        for (Item item : getMembers()) {
-            if (baseItemUnit != null && isDimensionalItem(item) && isCompatibleUnit(baseItemUnit, item)) {
-                compatibleUnitItems.add(item);
-            } else {
-                otherItems.add(item);
-            }
-        }
-
-        // the unit compatible items with QuantityType state have to be first in
-        // the order retaining set. The ArithmeticGroupFunctions rely on
-        // the ordering to determine the state type and dimension used for calculation.
-        groupFunctionMembers.addAll(compatibleUnitItems);
-        groupFunctionMembers.addAll(otherItems);
-
-        return groupFunctionMembers;
-    }
-
-    private boolean isCompatibleUnit(Unit<?> baseItemUnit, Item item) {
-        if (!isDimensionalItem(item) || !(((NumberItem) item).getState() instanceof QuantityType<?>)) {
-            return false;
-        }
-
-        NumberItem numberItem = ((NumberItem) item);
-        return ((QuantityType<?>) numberItem.getState()).getUnit().isCompatible(baseItemUnit);
-    }
-
-    private boolean isDimensionalItem(Item item) {
-        return item instanceof NumberItem && ((NumberItem) item).getDimension() != null;
     }
 
 }
