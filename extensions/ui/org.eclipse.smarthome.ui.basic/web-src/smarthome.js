@@ -501,7 +501,7 @@
 		};
 		_t.valueMap = {};
 		_t.buttons = [].slice.call(_t.parentNode.querySelectorAll(o.controlButton));
-		_t.setValuePrivate = function(value, itemState) {
+		_t.setValuePrivate = function(value) {
 			if (_t.hasValue) {
 				_t.value.innerHTML = value;
 			}
@@ -742,13 +742,13 @@
 		_t.unit = _t.parentNode.getAttribute("data-unit");
 
 		_t.setValuePrivate = function(value, itemState) {
-		    if (itemState.indexOf(" ") > 0) {
-		        var stateAndUnit = itemState.split(" ");
-		        _t.value = stateAndUnit[0] * 1;
-		        _t.unit = stateAndUnit[1];
-		    } else {
-		        _t.value = itemState * 1;
-		    }
+			if (itemState.indexOf(" ") > 0) {
+				var stateAndUnit = itemState.split(" ");
+				_t.value = stateAndUnit[0] * 1;
+				_t.unit = stateAndUnit[1];
+				} else {
+					_t.value = itemState * 1;
+					}
 			_t.valueNode.innerHTML = value;
 		};
 
@@ -761,7 +761,7 @@
 
 			var command = value;
 			if (_t.unit) {
-			    command = value + " " + _t.unit;
+				command = value + " " + _t.unit;
 			}
 
 			_t.parentNode.dispatchEvent(createEvent(
@@ -1277,7 +1277,7 @@
 		_t.valueNode = _t.parentNode.parentNode.querySelector(o.formValue);
 		_t.locked = false;
 
-	    _t.unit = _t.parentNode.getAttribute("data-unit");
+		_t.unit = _t.parentNode.getAttribute("data-unit");
 
 		(function() {
 			var
@@ -1295,10 +1295,10 @@
 		})();
 
 		function emitEvent() {
-		    var command = _t.input.value;
-            if (_t.unit) {
-                  command = command + " " + _t.unit;
-            }
+			var command = _t.input.value;
+			if (_t.unit) {
+				command = command + " " + _t.unit;
+			}
 			_t.parentNode.dispatchEvent(createEvent("control-change", {
 				item: _t.item,
 				value: command
