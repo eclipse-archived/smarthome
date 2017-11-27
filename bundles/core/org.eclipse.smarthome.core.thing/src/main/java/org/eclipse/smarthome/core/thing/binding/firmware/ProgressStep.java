@@ -17,6 +17,7 @@ package org.eclipse.smarthome.core.thing.binding.firmware;
  * of the firmware update is defined by the operation {@link ProgressCallback#defineSequence(ProgressStep...)}.
  *
  * @author Thomas Höfer - Initial contribution
+ * @author Chris Jackson - Add WAITING
  */
 public enum ProgressStep {
 
@@ -25,6 +26,12 @@ public enum ProgressStep {
      * {@link Firmware#getBytes()}.
      */
     DOWNLOADING,
+
+    /**
+     * The {@link FirmwareUpdateHandler} is waiting for the device to initiate the transfer. For battery devices that
+     * may wake up periodically, this may take some time. For mains devices this step may be very short or omitted.
+     */
+    WAITING,
 
     /** The {@link FirmwareUpdateHandler} is going to transfer the firmware to the actual device. */
     TRANSFERRING,
