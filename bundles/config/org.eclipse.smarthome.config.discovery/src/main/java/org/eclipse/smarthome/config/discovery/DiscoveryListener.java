@@ -98,6 +98,7 @@ public interface DiscoveryListener {
      *            if not {@code null} only results of that bridge are being removed
      * @return collection of thing UIDs of all removed things
      */
+    @Nullable
     Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
             @Nullable Collection<ThingTypeUID> thingTypeUIDs, @Nullable ThingUID bridgeUID);
 
