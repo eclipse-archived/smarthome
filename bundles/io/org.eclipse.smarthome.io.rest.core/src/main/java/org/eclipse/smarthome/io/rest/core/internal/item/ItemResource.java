@@ -55,9 +55,8 @@ import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.items.dto.GroupItemDTO;
 import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
-import org.eclipse.smarthome.core.library.items.RollershutterItem;
-import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.PlayPauseType;
 import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -303,21 +302,24 @@ public class ItemResource implements RESTResource {
         Item item = getItem(itemname);
         Command command = null;
         if (item != null) {
-            if ("toggle".equalsIgnoreCase(value) && (item instanceof SwitchItem || item instanceof RollershutterItem)) {
+            List<Class<? extends Command>> acceptedCommands = item.getAcceptedCommandTypes();
+            if ("toggle".equalsIgnoreCase(value) && (acceptedCommands.contains(OnOffType.class)
+                    || acceptedCommands.contains(UpDownType.class) || acceptedCommands.contains(PlayPauseType.class))) {
                 if (OnOffType.ON.equals(item.getStateAs(OnOffType.class))) {
                     command = OnOffType.OFF;
-                }
-                if (OnOffType.OFF.equals(item.getStateAs(OnOffType.class))) {
+                } else if (OnOffType.OFF.equals(item.getStateAs(OnOffType.class))) {
                     command = OnOffType.ON;
-                }
-                if (UpDownType.UP.equals(item.getStateAs(UpDownType.class))) {
+                } else if (UpDownType.UP.equals(item.getStateAs(UpDownType.class))) {
                     command = UpDownType.DOWN;
-                }
-                if (UpDownType.DOWN.equals(item.getStateAs(UpDownType.class))) {
+                } else if (UpDownType.DOWN.equals(item.getStateAs(UpDownType.class))) {
                     command = UpDownType.UP;
+                } else if (PlayPauseType.PAUSE.equals(item.getStateAs(PlayPauseType.class))) {
+                    command = PlayPauseType.PLAY;
+                } else if (PlayPauseType.PLAY.equals(item.getStateAs(PlayPauseType.class))) {
+                    command = PlayPauseType.PAUSE;
                 }
             } else {
-                command = TypeParser.parseCommand(item.getAcceptedCommandTypes(), value);
+                command = TypeParser.parseCommand(acceptedCommands, value);
             }
             if (command != null) {
                 logger.debug("Received HTTP POST request at '{}' with value '{}'.", uriInfo.getPath(), value);
