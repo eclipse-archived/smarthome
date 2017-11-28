@@ -17,7 +17,10 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 import org.eclipse.smarthome.binding.astro.AstroBindingConstants
 import org.eclipse.smarthome.binding.astro.internal.calc.MoonCalc
@@ -27,6 +30,8 @@ import org.eclipse.smarthome.binding.astro.internal.model.Planet
 import org.eclipse.smarthome.binding.astro.internal.util.PropertyUtils
 import org.eclipse.smarthome.binding.astro.test.cases.AstroBindingTestsData;
 import org.eclipse.smarthome.binding.astro.test.cases.AstroParametrizedTestCases
+import org.eclipse.smarthome.core.i18n.TimeZoneProvider
+import org.eclipse.smarthome.core.scheduler.CronExpression.DayOfMonthExpressionPart
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.types.State
@@ -41,13 +46,16 @@ import org.junit.runners.Parameterized.Parameters
  * @See {@link AstroParametrizedTestCases}
  * @author Petar Valchev - Initial implementation
  * @author Svilen Valkanov -  Reworked to plain unit tests
- *
+ * @author Erdoan Hadzhiyusein - Adapted the class to work with the new DateTimeType
  */
 @RunWith(Parameterized.class)
 class AstroStateTest {
     private String thingID
     private String channelId
     private State expectedState
+    
+    // These test result timestamps are adapted for the +03:00 time zone 
+    private static final ZoneId zone = ZoneId.of("+03:00")
 
     public AstroStateTest(String thingID, String channelId, State expectedState){
         this.thingID = thingID
@@ -63,14 +71,24 @@ class AstroStateTest {
 
     @Test
     public void testParametrized(){
+
+        PropertyUtils.unsetTimeZone();
+        
+        // Anonymous implementation of the service to adapt the time zone to the tested longtitude and latitude
+        PropertyUtils.setTimeZone(new TimeZoneProvider() {
+                    @Override
+                    ZoneId getTimeZone() {
+                        return ZoneId.of("+03:00");
+                    }
+                })
         assertStateUpdate(thingID, channelId, expectedState)
     }
 
     private void assertStateUpdate(String thingID, String channelId, State expectedState){
         LocalDateTime time = LocalDateTime.of(TEST_YEAR, TEST_MONTH, TEST_DAY,0,0)
-        ZonedDateTime zonedTime = ZonedDateTime.ofLocal(time,TEST_ZONE_OFSET,null)
+        ZonedDateTime zonedTime = ZonedDateTime.ofLocal(time, zone, null)
         Calendar calendar = GregorianCalendar.from(zonedTime)
-        
+
         Planet planet
         ThingUID thingUID
         switch(thingID) {

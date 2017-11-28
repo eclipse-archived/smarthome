@@ -74,6 +74,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Chris Jackson - Initial Contribution and add support for ModifiablePersistenceService
  * @author Kai Kreuzer - Refactored to use PersistenceServiceRegistryImpl
  * @author Franck Dechavanne - Added DTOs to ApiResponses
+ * @author Erdoan Hadzhiyusein - Adapted the convertTime() method to work with the new DateTimeType
  *
  */
 @Path(PersistenceResource.PATH)
@@ -200,7 +201,7 @@ public class PersistenceResource implements RESTResource {
 
     private Date convertTime(String sTime) {
         DateTimeType dateTime = new DateTimeType(sTime);
-        return dateTime.getCalendar().getTime();
+        return Date.from(dateTime.getZonedDateTime().toInstant());
     }
 
     private Response getItemHistoryDTO(String serviceId, String itemName, String timeBegin, String timeEnd,
