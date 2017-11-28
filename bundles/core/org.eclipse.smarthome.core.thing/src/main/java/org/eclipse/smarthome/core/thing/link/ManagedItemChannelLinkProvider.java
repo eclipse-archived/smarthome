@@ -51,7 +51,7 @@ public class ManagedItemChannelLinkProvider extends DefaultAbstractManagedProvid
         }
     }
 
-    @Reference(policy = ReferencePolicy.DYNAMIC)
+    @Reference(policy = ReferencePolicy.STATIC)
     @Override
     protected void setStorageService(StorageService storageService) {
         super.setStorageService(storageService);
