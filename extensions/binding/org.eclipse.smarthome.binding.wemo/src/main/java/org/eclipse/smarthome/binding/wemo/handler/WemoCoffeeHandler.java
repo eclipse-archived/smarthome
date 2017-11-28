@@ -17,12 +17,14 @@ import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.*;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -66,6 +68,7 @@ import org.xml.sax.InputSource;
  * sent to one of the channels and to update their states.
  *
  * @author Hans-Jörg Merk - Initial contribution
+ * @author Erdoan Hadzhiyusein - Adapted the class to work with the new DateTimeType
  */
 
 public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOParticipant, DiscoveryListener {
@@ -469,9 +472,8 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                         getThing().getUID());
                 return null;
             }
-            GregorianCalendar brewCal = new GregorianCalendar();
-            brewCal.setTimeInMillis(value);
-            State dateTimeState = new DateTimeType(brewCal);
+            ZonedDateTime zoned = ZonedDateTime.ofInstant(Instant.ofEpochMilli(value), TimeZone.getDefault().toZoneId());
+            State dateTimeState = new DateTimeType(zoned);
             if (dateTimeState != null) {
                 logger.trace("New attribute brewed '{}' received", dateTimeState);
                 return dateTimeState;
