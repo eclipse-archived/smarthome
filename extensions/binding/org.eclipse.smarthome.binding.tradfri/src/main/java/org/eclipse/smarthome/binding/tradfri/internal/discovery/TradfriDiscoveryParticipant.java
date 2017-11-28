@@ -16,6 +16,7 @@ import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.GATE
 import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.GATEWAY_CONFIG_PORT;
 import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.GATEWAY_TYPE_UID;
 import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_FIRMWARE_VERSION;
+import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_SERIAL_NUMBER;
 import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_VENDOR;
 
 import java.util.Collections;
@@ -86,6 +87,7 @@ public class TradfriDiscoveryParticipant implements MDNSDiscoveryParticipant {
                 properties.put(PROPERTY_VENDOR, "IKEA of Sweden");
                 properties.put(GATEWAY_CONFIG_HOST, service.getHostAddresses()[0]);
                 properties.put(GATEWAY_CONFIG_PORT, service.getPort());
+                properties.put(PROPERTY_SERIAL_NUMBER, service.getName());
                 String fwVersion = service.getPropertyString("version");
                 if (fwVersion != null) {
                     properties.put(PROPERTY_FIRMWARE_VERSION, fwVersion);
