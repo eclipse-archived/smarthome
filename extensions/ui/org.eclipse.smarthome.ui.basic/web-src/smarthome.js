@@ -305,7 +305,8 @@
 	function Control(parentNode) {
 		var
 			_t = this,
-			suppress = false;
+			suppress = false,
+			noneImageSrc = "/icon/none.png";
 
 		_t.parentNode = parentNode;
 		_t.formRow = parentNode.parentNode;
@@ -315,13 +316,22 @@
 		_t.visible = !_t.formRow.classList.contains(o.formRowHidden);
 		_t.label = _t.parentNode.parentNode.querySelector(o.formLabel);
 
+		function replaceImageWithNone() {
+			this.removeEventListener("error", replaceImageWithNone);
+			this.src = noneImageSrc;
+		}
+
 		if (_t.icon !== null) {
 			_t.iconName = _t.icon.getAttribute(o.iconAttribute);
+			if (_t.icon.src !== noneImageSrc) {
+				_t.icon.addEventListener("error", replaceImageWithNone);
+			}
 		}
 
 		_t.reloadIcon = function(state) {
 			// Some widgets don't have icons
 			if (_t.icon !== null) {
+				_t.icon.addEventListener("error", replaceImageWithNone);
 				_t.icon.setAttribute("src",
 					"/icon/" +
 					_t.iconName +

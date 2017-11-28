@@ -60,6 +60,11 @@
 	        function ChangeState(request) {
 	            WA.Request(request, null, null, true);
 	        }
+			
+			function ImageOnErrorHandler(origin) {
+				origin.onerror = "";
+				origin.src = "/icon/none.png";
+			}
 
 			// Functions for image and chart support
 

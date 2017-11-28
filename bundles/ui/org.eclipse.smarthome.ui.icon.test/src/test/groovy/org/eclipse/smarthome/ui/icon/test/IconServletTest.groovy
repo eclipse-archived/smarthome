@@ -36,9 +36,11 @@ class IconServletTest {
     def provider2
     def calledProvider
     def response
+    def errorCode
 
     @Before
     void setUp() {
+        errorCode = null;
         servlet = new IconServlet();
 
         provider1 = [
@@ -73,7 +75,7 @@ class IconServletTest {
             setContentType : { s -> null },
             getOutputStream : { null },
             flushBuffer : {},
-            sendError : { i -> null }
+            sendError : { i -> errorCode = i }
         ] as HttpServletResponse
 
         calledProvider = null
@@ -113,5 +115,36 @@ class IconServletTest {
         servlet.addIconProvider(provider2)
         servlet.doGet(request, response)
         assertThat calledProvider, equalTo(2)
+    }
+
+    @Test
+    void testMissingIcon() {
+        def request = [
+            getParameter : { p -> null },
+            getRequestURI : { "/icon/missing_for_test.png" },
+            getDateHeader : { s -> 0L },
+        ] as HttpServletRequest
+        servlet.addIconProvider(provider1)
+        servlet.doGet(request, response)
+        assertEquals(404, errorCode)
+    }
+
+    @Test
+    void testExistingIcon() {
+        def request = [
+            getParameter : { p ->
+                switch(p) {
+                    case "format": return "svg"
+                    case "iconset": return "test"
+                    case "state": return "34"
+                }
+                null
+            },
+            getRequestURI : { "/x" },
+            getDateHeader : { s -> 0L },
+        ] as HttpServletRequest
+        servlet.addIconProvider(provider1)
+        servlet.doGet(request, response)
+        assertEquals(null, errorCode)
     }
 }
