@@ -23,6 +23,7 @@ Import-Package:
  org.eclipse.smarthome.automation.template,
  org.eclipse.smarthome.automation.type,
  org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.config.core.dto,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.events,
  org.osgi.framework,

@@ -145,7 +145,7 @@
 									"title":"Configuration Parameter Context",
 									"description":"Serves to determine how to treat the value of the Configuration Parameter."
 								},
-								"defaultValue":{
+								"default":{
 									"type":"string",
 									"title":"Configuration Parameter Default Value",
 									"description":"Declaring a default value for the Configuration Parameter if missing."
@@ -461,7 +461,7 @@
 									"title":"Configuration Parameter Context",
 									"description":"Serves to determine how to treat the value of the Configuration Parameter."
 								},
-								"defaultValue":{
+								"default":{
 									"type":"string",
 									"title":"Configuration Parameter Default Value",
 									"description":"Declaring a default value for the Configuration Parameter if missing."
@@ -784,7 +784,7 @@
 									"title":"Configuration Parameter Context",
 									"description":"Serves to determine how to treat the value of the Configuration Parameter."
 								},
-								"defaultValue":{
+								"default":{
 									"type":"string",
 									"title":"Configuration Parameter Default Value",
 									"description":"Declaring a default value for the Configuration Parameter if missing."
