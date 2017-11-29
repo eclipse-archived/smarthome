@@ -10,9 +10,13 @@ package org.eclipse.smarthome.core.library.types;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
+import javax.measure.Unit;
 import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Temperature;
 
+import org.eclipse.smarthome.core.types.ESHUnits;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.junit.Before;
 import org.junit.Test;
 
 import tec.uom.se.quantity.QuantityDimension;
@@ -23,6 +27,12 @@ import tec.uom.se.unit.Units;
  */
 
 public class QuantityTypeTest {
+
+    @Before
+    public void setup() {
+        @SuppressWarnings("unused")
+        Unit<Temperature> fahrenheit = ESHUnits.FAHRENHEIT;
+    }
 
     @Test
     public void testDimensionless() {
@@ -38,7 +48,7 @@ public class QuantityTypeTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testKnownInvalidConstructors() throws Exception {
-        new QuantityType<>("57° 17' 44\"");
+        new QuantityType<>("123 Hello World");
     }
 
     @Test
