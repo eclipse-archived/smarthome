@@ -51,7 +51,7 @@ public class QuantityType<T extends Quantity<T>> extends Number
     private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
     // Regular expression to split unit from value
-    private static final String UNIT_PATTERN = "(?<=\\d)\\s*(?=[a-zA-Z°µ%])";
+    private static final String UNIT_PATTERN = "(?<=\\d)\\s*(?=[a-zA-Z°µ%'])";
 
     private Quantity<T> quantity;
     private final Map<MeasurementSystem, Unit<T>> conversionUnits = new HashMap<MeasurementSystem, Unit<T>>(2);
@@ -128,8 +128,9 @@ public class QuantityType<T extends Quantity<T>> extends Number
         return quantity.toString();
     }
 
-    public static <T extends Quantity<T>> QuantityType<T> valueOf(String value) {
-        return new QuantityType<T>(value);
+    @SuppressWarnings("rawtypes")
+    public static QuantityType<?> valueOf(String value) {
+        return new QuantityType(value);
     }
 
     @SuppressWarnings("unchecked")

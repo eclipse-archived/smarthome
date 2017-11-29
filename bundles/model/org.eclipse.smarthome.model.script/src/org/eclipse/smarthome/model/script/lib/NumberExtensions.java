@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.Type;
 
 /**
@@ -221,7 +222,15 @@ public class NumberExtensions {
      *            the number to convert
      * @return the given number as BigDecimal or null if number is null
      */
+    @SuppressWarnings("unchecked")
     public static BigDecimal numberToBigDecimal(Number number) {
+        if (number instanceof QuantityType) {
+            QuantityType state = ((QuantityType) number).toUnit(((QuantityType) number).getUnit().getSystemUnit());
+            if (state != null) {
+                return new BigDecimal(state.doubleValue());
+            }
+            return null;
+        }
         if (number != null) {
             return new BigDecimal(number.toString());
         } else {

@@ -29,6 +29,7 @@ Export-Package:
 Import-Package: 
  com.google.common.base,
  com.google.common.collect,
+ javax.measure,
  org.apache.commons.io,
  org.apache.commons.lang,
  org.apache.commons.logging,

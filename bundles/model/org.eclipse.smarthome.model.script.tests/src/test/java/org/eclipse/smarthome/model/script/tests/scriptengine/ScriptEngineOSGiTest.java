@@ -12,6 +12,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
@@ -25,11 +26,9 @@ import org.eclipse.smarthome.model.script.engine.Script;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
 import org.eclipse.smarthome.model.script.engine.ScriptParsingException;
-import org.eclipse.smarthome.test.java.FailureReportRule;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -45,6 +44,7 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
 
     private ScriptEngine scriptEngine;
 
+    private UnitProvider unitProvider;
     private ItemRegistry itemRegistry;
 
     @Before
@@ -76,6 +76,26 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
             }
         };
 
+        unitProvider = new UnitProvider() {
+
+            @Override
+            public @Nullable Unit<?> parseUnit(@Nullable String pattern) {
+                return null;
+            }
+
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            @Override
+            public <T extends Quantity<T>> @NonNull Unit<T> getUnit(@NonNull Class<? extends T> dimension) {
+                return (Unit) Units.CELSIUS;
+            }
+
+            @Override
+            public @NonNull MeasurementSystem getMeasurementSystem() {
+                return MeasurementSystem.SI;
+            }
+        };
+
+        registerService(unitProvider);
         registerService(itemProvider);
 
         ScriptServiceUtil scriptServiceUtil = getService(ScriptServiceUtil.class);
@@ -97,6 +117,68 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
         assertNotNull(switch1State);
         assertEquals("org.eclipse.smarthome.core.library.types.OnOffType", switch1State.getClass().getName());
         assertEquals("ON", switch1State.toString());
+    }
+
+    @Test
+    public void testAssignQuantityType() throws ScriptParsingException, ScriptExecutionException {
+        String parsedScript = "NumberA.state = 20.0 [°C] as org.eclipse.smarthome.core.types.State";
+        Script script = scriptEngine.newScriptFromString(parsedScript);
+        script.execute();
+
+        State numberState = itemRegistry.get(NUMBER_ITEM_NAME).getState();
+        assertNotNull(numberState);
+        assertEquals("org.eclipse.smarthome.core.library.types.QuantityType", numberState.getClass().getName());
+        assertEquals("20.0 ℃", numberState.toString());
+    }
+
+    @Test
+    public void testCompareQuantityType() throws ScriptParsingException, ScriptExecutionException {
+        String parsedScript = "20.0 [°C] > 20 [°F]";
+        Script script = scriptEngine.newScriptFromString(parsedScript);
+        Object result = script.execute();
+
+        assertTrue((Boolean) result);
+    }
+
+    @Test
+    public void testCompareLessThenQuantityType() throws ScriptParsingException, ScriptExecutionException {
+        String parsedScript = "20.0 [°C] < 20 [°F]";
+        Script script = scriptEngine.newScriptFromString(parsedScript);
+        Object result = script.execute();
+
+        assertFalse((Boolean) result);
+    }
+
+    @Test
+    public void testpostUpdateQuantityType() throws ScriptParsingException, ScriptExecutionException {
+        scriptEngine.newScriptFromString("postUpdate(NumberA, 20.0 [°C])").execute();
+        scriptEngine.newScriptFromString("sendCommand(NumberA, 20.0 [°C])").execute();
+    }
+
+    @Test
+    public void testAssignAndCompareQuantityType() throws ScriptParsingException, ScriptExecutionException {
+        String parsedScript = "NumberA.state = 20.0 [°C] as org.eclipse.smarthome.core.types.State; NumberA.state < 20 [°F]";
+        Script script = scriptEngine.newScriptFromString(parsedScript);
+        Object result = script.execute();
+
+        assertFalse((Boolean) result);
+    }
+
+    // @Test
+    // public void testSubtractQuantityType() throws ScriptParsingException, ScriptExecutionException {
+    // String parsedScript = "1 [m] + 20 [cm]";
+    // Script script = scriptEngine.newScriptFromString(parsedScript);
+    // Object result = script.execute();
+    //
+    // assertEquals("1.2 m", result.toString());
+    // }
+
+    private Item createNumberItem(String numberItemName, Class<@NonNull Temperature> dimension, UnDefType state) {
+        NumberItem item = new NumberItem(numberItemName);
+        item.setDimension(dimension);
+        item.setUnitProvider(unitProvider);
+
+        return item;
     }
 
 }
