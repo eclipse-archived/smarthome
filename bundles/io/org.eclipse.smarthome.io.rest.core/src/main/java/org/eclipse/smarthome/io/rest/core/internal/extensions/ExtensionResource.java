@@ -151,18 +151,14 @@ public class ExtensionResource implements RESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
     public Response installExtension(
             final @PathParam("extensionId") @ApiParam(value = "extension ID", required = true) String extensionId) {
-        ThreadPoolManager.getPool(THREAD_POOL_NAME).submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    ExtensionService extensionService = getExtensionService(extensionId);
-                    extensionService.install(extensionId);
-                } catch (Exception e) {
-                    logger.error("Exception while installing extension: {}", e.getMessage());
-                    postFailureEvent(extensionId, e.getMessage());
-                }
+        ThreadPoolManager.getPool(THREAD_POOL_NAME).submit(() -> {
+            try {
+                ExtensionService extensionService = getExtensionService(extensionId);
+                extensionService.install(extensionId);
+            } catch (Exception e) {
+                logger.error("Exception while installing extension: {}", e.getMessage());
+                postFailureEvent(extensionId, e.getMessage());
             }
-
         });
         return Response.ok().build();
     }
@@ -191,16 +187,13 @@ public class ExtensionResource implements RESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
     public Response uninstallExtension(
             final @PathParam("extensionId") @ApiParam(value = "extension ID", required = true) String extensionId) {
-        ThreadPoolManager.getPool(THREAD_POOL_NAME).submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    ExtensionService extensionService = getExtensionService(extensionId);
-                    extensionService.uninstall(extensionId);
-                } catch (Exception e) {
-                    logger.error("Exception while uninstalling extension: {}", e.getMessage());
-                    postFailureEvent(extensionId, e.getMessage());
-                }
+        ThreadPoolManager.getPool(THREAD_POOL_NAME).submit(() -> {
+            try {
+                ExtensionService extensionService = getExtensionService(extensionId);
+                extensionService.uninstall(extensionId);
+            } catch (Exception e) {
+                logger.error("Exception while uninstalling extension: {}", e.getMessage());
+                postFailureEvent(extensionId, e.getMessage());
             }
         });
         return Response.ok().build();
