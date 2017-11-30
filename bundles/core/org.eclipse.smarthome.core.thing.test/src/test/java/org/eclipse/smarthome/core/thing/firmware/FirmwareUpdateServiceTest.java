@@ -51,7 +51,7 @@ import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateBackgroun
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler;
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressCallback;
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressStep;
-import org.eclipse.smarthome.test.java.JavaTest;
+import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -68,7 +68,7 @@ import org.osgi.framework.Bundle;
  * @author Thomas Höfer - Initial contribution
  * @author Simon Kaufmann - converted to standalone Java tests
  */
-public class FirmwareUpdateServiceTest extends JavaTest {
+public class FirmwareUpdateServiceTest extends JavaOSGiTest {
 
     public static final ProgressStep[] SEQUENCE = new ProgressStep[] { ProgressStep.REBOOTING, ProgressStep.DOWNLOADING,
             ProgressStep.TRANSFERRING, ProgressStep.UPDATING };
@@ -112,6 +112,8 @@ public class FirmwareUpdateServiceTest extends JavaTest {
     @Mock
     private TranslationProvider mockTranslationProvider;
 
+    private SafeCaller safeCaller;
+
     @Before
     public void setup() {
         initMocks(this);
@@ -128,6 +130,11 @@ public class FirmwareUpdateServiceTest extends JavaTest {
         thing3 = ThingBuilder.create(THING_TYPE_UID2, THING3_ID).withProperties(props3).build();
 
         firmwareUpdateService = new FirmwareUpdateService();
+
+        safeCaller = getService(SafeCaller.class);
+        assertNotNull(safeCaller);
+
+        firmwareUpdateService.setSafeCaller(safeCaller);
 
         handler1 = addHandler(thing1);
         handler2 = addHandler(thing2);
