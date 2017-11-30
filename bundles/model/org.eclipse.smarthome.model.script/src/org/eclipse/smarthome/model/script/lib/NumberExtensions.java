@@ -45,6 +45,10 @@ public class NumberExtensions {
         }
     }
 
+    public static QuantityType<?> operator_plus(QuantityType<?> x, QuantityType<?> y) {
+        return x == null ? y : y == null ? x : x.add((QuantityType) y);
+    }
+
     public static BigDecimal operator_minus(Number x) {
         BigDecimal xValue = numberToBigDecimal(x);
         if (xValue == null) {

@@ -23,6 +23,7 @@ Import-Package:
  org.eclipse.smarthome.model.script,
  org.eclipse.smarthome.model.script.engine,
  org.eclipse.smarthome.model.script.engine.action,
+ org.eclipse.smarthome.model.script.lib,
  org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.java,
  org.eclipse.xtext.xbase,

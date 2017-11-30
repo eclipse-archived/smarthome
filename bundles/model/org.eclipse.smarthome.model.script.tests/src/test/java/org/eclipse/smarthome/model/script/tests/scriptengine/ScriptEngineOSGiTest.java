@@ -152,7 +152,7 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
     @Test
     public void testpostUpdateQuantityType() throws ScriptParsingException, ScriptExecutionException {
         scriptEngine.newScriptFromString("postUpdate(NumberA, 20.0 [°C])").execute();
-        scriptEngine.newScriptFromString("sendCommand(NumberA, 20.0 [°C])").execute();
+        scriptEngine.newScriptFromString("sendCommand(NumberA, 20.0 [°F])").execute();
     }
 
     @Test
@@ -164,14 +164,14 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
         assertFalse((Boolean) result);
     }
 
-    // @Test
-    // public void testSubtractQuantityType() throws ScriptParsingException, ScriptExecutionException {
-    // String parsedScript = "1 [m] + 20 [cm]";
-    // Script script = scriptEngine.newScriptFromString(parsedScript);
-    // Object result = script.execute();
-    //
-    // assertEquals("1.2 m", result.toString());
-    // }
+    @Test
+    public void testAddQuantityType() throws ScriptParsingException, ScriptExecutionException {
+        String parsedScript = "1 [m] + 20 [cm]";
+        Script script = scriptEngine.newScriptFromString(parsedScript);
+        Object result = script.execute();
+
+        assertEquals("1.2 m", result.toString());
+    }
 
     private Item createNumberItem(String numberItemName, Class<@NonNull Temperature> dimension, UnDefType state) {
         NumberItem item = new NumberItem(numberItemName);
