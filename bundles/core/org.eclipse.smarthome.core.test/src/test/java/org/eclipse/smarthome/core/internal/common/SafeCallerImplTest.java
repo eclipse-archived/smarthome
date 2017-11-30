@@ -451,8 +451,7 @@ public class SafeCallerImplTest extends JavaTest {
     }
 
     @Test
-    public void testAsyncExecutionOrder_singleThread() throws Exception {
-        configureSingleThread();
+    public void testAsyncExecutionOrder() throws Exception {
         Queue<Integer> q = new ConcurrentLinkedQueue<>();
         final Random r = new Random();
 
