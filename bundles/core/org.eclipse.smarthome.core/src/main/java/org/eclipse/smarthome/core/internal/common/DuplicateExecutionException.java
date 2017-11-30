@@ -13,7 +13,7 @@
 package org.eclipse.smarthome.core.internal.common;
 
 /**
- * Denotes that under there already is a thread occupied by the same context.
+ * Denotes that there already is a thread occupied by the same context.
  *
  * @author Simon Kaufmann - initial contribution and API.
  *

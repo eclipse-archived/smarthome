@@ -18,7 +18,7 @@ import java.util.concurrent.Callable;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * Wraps a {@link Callable} and tracks the start timestamp as well as the executing thread.
+ * Wraps a {@link Callable} and tracks the executing thread.
  *
  * @author Simon Kaufmann - initial contribution and API.
  *

@@ -184,13 +184,7 @@ public class SafeCallerImplTest extends JavaTest {
     public void testSingleThread_sync_parallel() throws Exception {
         Runnable mock = mock(Runnable.class);
         doAnswer(a -> sleep(500)).when(mock).run();
-
-        safeCaller.modified(new HashMap<String, Object>() {
-            private static final long serialVersionUID = 1L;
-            {
-                put("singleThread", "true");
-            }
-        });
+        configureSingleThread();
 
         spawn(() -> {
             assertDurationBetween(50, 450, () -> {
@@ -229,14 +223,7 @@ public class SafeCallerImplTest extends JavaTest {
     public void testSingleThread_async() throws Exception {
         Runnable mock = mock(Runnable.class);
         doAnswer(a -> sleep(500)).when(mock).run();
-
-        safeCaller.modified(new HashMap<String, Object>() {
-            private static final long serialVersionUID = 1L;
-
-            {
-                put("singleThread", "true");
-            }
-        });
+        configureSingleThread();
 
         assertDurationBelow(20, () -> {
             safeCaller.create(mock).withTimeout(100).withAsync().build().run();

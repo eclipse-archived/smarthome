@@ -25,7 +25,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 public interface SafeCallManager {
 
     /**
-     * Track that a the call to the target method starts.
+     * Track that the call to the target method starts.
      *
      * @param invocation
      * @param wrapper

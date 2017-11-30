@@ -60,6 +60,9 @@ public class SafeCallManagerImpl implements SafeCallManager {
         synchronized (activeIdentifiers) {
             TrackingCallable otherWrapper = activeIdentifiers.get(invocation.getIdentifier());
             if (enforceSingleThreadPerIdentifier && otherWrapper != null) {
+                // another call to the same identifier is (still) running,
+                // therefore queue it instead for async execution later on.
+                // Inform the caller about the timeout by means of the exception.
                 enqueue(invocation);
                 throw new DuplicateExecutionException(otherWrapper);
             }
