@@ -12,7 +12,7 @@ Hence, data-flow analysis where written that show potential accesses to nullpoin
 <!--more-->
 
 Two popular projects that offer such an analysis are the [Checker Framework](https://checkerframework.org) and the [Eclipse JDT compiler](https://wiki.eclipse.org/JDT_Core/Null_Analysis).
-In order to obtain better results from these anylyses, developers can make use of `annotations` in the code.
+In order to obtain better results from these analyses, developers can make use of `annotations` in the code.
 In the current snapshots and in our next release we support such annotations in our provided Eclipse IDE setup and maven configuration.
 We decided to use the implementation offered by the Eclipse JDT compiler.
 
