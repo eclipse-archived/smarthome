@@ -417,13 +417,30 @@ public class SafeCallerImplTest extends JavaTest {
     }
 
     @Test
-    public void testAsyncExceedingThreadPool() throws Exception {
+    public void testAsyncSequential_sameIdentifier() throws Exception {
+        Runnable mock = mock(Runnable.class);
+        doAnswer(a -> sleep(500)).when(mock).run();
+
+        for (int i = 0; i < THREAD_POOL_SIZE; i++) {
+            assertDurationBelow(20, () -> {
+                safeCaller.create(mock).withTimeout(100).withAsync().build().run();
+            });
+        }
+        assertDurationBetween(500 * (THREAD_POOL_SIZE - 1) - 50, 550 * (THREAD_POOL_SIZE), () -> {
+            waitForAssert(() -> {
+                verify(mock, times(THREAD_POOL_SIZE)).run();
+            });
+        });
+    }
+
+    @Test
+    public void testAsyncExceedingThreadPool_differentIdentifier() throws Exception {
         Runnable mock = mock(Runnable.class);
         doAnswer(a -> sleep(500)).when(mock).run();
 
         for (int i = 0; i < THREAD_POOL_SIZE * 2; i++) {
             assertDurationBelow(20, () -> {
-                safeCaller.create(mock).withTimeout(100).withAsync().build().run();
+                safeCaller.create(mock).withTimeout(100).withIdentifier(new Object()).withAsync().build().run();
             });
         }
         assertDurationBetween(450, 600, () -> {

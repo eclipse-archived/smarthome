@@ -104,7 +104,7 @@ public class SafeCallManagerImpl implements SafeCallManager {
             }
         }
         synchronized (activeAsyncInvocations) {
-            if (enforceSingleThreadPerIdentifier && activeAsyncInvocations.containsKey(identifier)) {
+            if (activeAsyncInvocations.containsKey(identifier)) {
                 logger.trace("Identifier '{}' is already scheduled for asynchronous execution", identifier);
                 return;
             }
