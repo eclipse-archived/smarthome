@@ -63,11 +63,8 @@ public abstract class TradfriThingHandler extends BaseThingHandler implements Co
         String uriString = handler.getGatewayURI() + "/" + id;
         try {
             URI uri = new URI(uriString);
-            logger.debug("Creating 'coapClient'...");
             coapClient = new TradfriCoapClient(uri);
-            logger.debug("'coapClient' created. Setting endpoint ...");
             coapClient.setEndpoint(handler.getEndpoint());
-            logger.debug("'coapClient' endpoint set.");
         } catch (URISyntaxException e) {
             logger.debug("Illegal device URI `{}`: {}", uriString, e.getMessage());
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
@@ -78,9 +75,7 @@ public abstract class TradfriThingHandler extends BaseThingHandler implements Co
         switch (tradfriGateway.getStatus()) {
             case ONLINE:
                 scheduler.schedule(() -> {
-                    logger.debug("'coapClient' starting observe ...");
                     coapClient.startObserve(this);
-                    logger.debug("'coapClient' observe started.");
                 }, 3, TimeUnit.SECONDS);
                 break;
             case OFFLINE:
@@ -95,9 +90,7 @@ public abstract class TradfriThingHandler extends BaseThingHandler implements Co
     public synchronized void dispose() {
         active = false;
         if (coapClient != null) {
-            logger.debug("Shutting down 'coapClient'.");
             coapClient.shutdown();
-            logger.debug("'coapClient' shut down.");
         }
         super.dispose();
     }
