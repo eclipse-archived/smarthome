@@ -27,4 +27,4 @@ defaults:
       type: posts
     values:
       excerpt_separator: <!--more-->
-      permalink: /smarthome/blog/:year/:month/:day/:title.html
+      permalink: /blog/:year/:month/:day/:title.html
