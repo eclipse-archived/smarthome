@@ -173,6 +173,60 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
         assertEquals("1.2 m", result.toString());
     }
 
+    @Test
+    public void testSubtractQuantityType() throws ScriptParsingException, ScriptExecutionException {
+        String parsedScript = "1 [m] - 20 [cm]";
+        Script script = scriptEngine.newScriptFromString(parsedScript);
+        Object result = script.execute();
+
+        assertEquals("0.8 m", result.toString());
+    }
+
+    @Test
+    public void testMultiplyQuantityType() throws ScriptParsingException, ScriptExecutionException {
+        String parsedScript = "1 [m] * 20 [cm]";
+        Script script = scriptEngine.newScriptFromString(parsedScript);
+        Object result = script.execute();
+
+        assertEquals("20 m·cm", result.toString());
+    }
+
+    @Test
+    public void testMultiplyQuantityType_Number() throws ScriptParsingException, ScriptExecutionException {
+        String parsedScript = "1 [m] * 20";
+        Script script = scriptEngine.newScriptFromString(parsedScript);
+        Object result = script.execute();
+
+        assertEquals("20 m", result.toString());
+    }
+
+    @Test
+    public void testDivideQuantityType() throws ScriptParsingException, ScriptExecutionException {
+        String parsedScript = "1 [m] / 2 [cm]";
+        Script script = scriptEngine.newScriptFromString(parsedScript);
+        Object result = script.execute();
+
+        assertEquals("0.5 m/cm", result.toString());
+    }
+
+    @Test
+    public void testDivideQuantityType_Number() throws ScriptParsingException, ScriptExecutionException {
+        String parsedScript = "1 [m] / 2";
+        Script script = scriptEngine.newScriptFromString(parsedScript);
+        Object result = script.execute();
+
+        assertEquals("0.5 m", result.toString());
+    }
+
+    @Test
+    public void testDivide_Number_QuantityType() throws ScriptParsingException, ScriptExecutionException {
+        String parsedScript = "1 / 2 [m]";
+        Script script = scriptEngine.newScriptFromString(parsedScript);
+        Object result = script.execute();
+
+        assertEquals("0.5 1/m", result.toString());
+    }
+
     private Item createNumberItem(String numberItemName, Class<@NonNull Temperature> dimension, UnDefType state) {
         NumberItem item = new NumberItem(numberItemName);
         item.setDimension(dimension);

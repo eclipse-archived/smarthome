@@ -129,7 +129,7 @@ public class QuantityType<T extends Quantity<T>> extends Number
     }
 
     @SuppressWarnings("rawtypes")
-    public static QuantityType<?> valueOf(String value) {
+    public static QuantityType<? extends Quantity<?>> valueOf(String value) {
         return new QuantityType(value);
     }
 
@@ -327,9 +327,44 @@ public class QuantityType<T extends Quantity<T>> extends Number
         }
     }
 
-    public QuantityType<T> add(QuantityType<T> itemState) {
+    /**
+     * Returns the sum of the given {@link QuantityType} with this QuantityType.
+     *
+     * @param state
+     * @return the sum of the given {@link QuantityType} with this QuantityType.
+     */
+    public QuantityType<T> add(QuantityType<T> state) {
         // TODO: should the conversion map be added here? Should it be merged?
-        return new QuantityType<T>(this.quantity.add(itemState.quantity));
+        return new QuantityType<T>(this.quantity.add(state.quantity));
+    }
+
+    /**
+     * Negates the value of this QuantityType leaving its unit untouched.
+     *
+     * @return the negated value of this QuantityType.
+     */
+    public QuantityType<?> negate() {
+        return new QuantityType<>(quantity.multiply(-1));
+    }
+
+    public QuantityType<T> subtract(QuantityType<T> state) {
+        return new QuantityType<T>(this.quantity.subtract(state.quantity));
+    }
+
+    public QuantityType<?> multiply(BigDecimal value) {
+        return new QuantityType<>(this.quantity.multiply(value));
+    }
+
+    public QuantityType<?> multiply(QuantityType<?> state) {
+        return new QuantityType<>(this.quantity.multiply(state.quantity));
+    }
+
+    public QuantityType<?> divide(BigDecimal value) {
+        return new QuantityType<>(this.quantity.divide(value));
+    }
+
+    public QuantityType<?> divide(QuantityType<?> state) {
+        return new QuantityType<>(this.quantity.divide(state.quantity));
     }
 
 }
