@@ -209,7 +209,7 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         return eshEvent;
     }
 
-    private void dispatchESHEvent(final Set<EventSubscriber> eventSubscribers, final Event event) {
+    private synchronized void dispatchESHEvent(final Set<EventSubscriber> eventSubscribers, final Event event) {
         for (final EventSubscriber eventSubscriber : eventSubscribers) {
             EventFilter filter = eventSubscriber.getEventFilter();
             if (filter == null || filter.apply(event)) {
