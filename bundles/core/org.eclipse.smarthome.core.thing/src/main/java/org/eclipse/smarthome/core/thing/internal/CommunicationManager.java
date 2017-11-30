@@ -38,6 +38,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.UID;
+import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.internal.link.ItemChannelLinkConfigDescriptionProvider;
@@ -153,10 +154,8 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
                 return null;
             }
 
-            if (profileTypeUID == null) {
-                // ask advisors
-                profileTypeUID = getAdvice(link, item, channel);
-            }
+            // ask advisors
+            profileTypeUID = getAdvice(link, item, channel);
 
             if (profileTypeUID == null) {
                 // ask default advisor
@@ -242,9 +241,15 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         }).forEach(link -> {
             ChannelUID channelUID = link.getLinkedUID();
             Thing thing = getThing(channelUID.getThingUID());
-            Profile profile = getProfile(link, item, thing);
-            if (profile instanceof StateProfile) {
-                ((StateProfile) profile).onCommandFromItem(command);
+            if (thing != null) {
+                ThingHandler handler = thing.getHandler();
+                if (handler != null) {
+                    Profile profile = getProfile(link, item, thing);
+                    if (profile instanceof StateProfile) {
+                        safeCaller.create(((StateProfile) profile)).withAsync().withIdentifier(thing).build()
+                                .onCommandFromItem(command);
+                    }
+                }
             }
         });
     }
@@ -267,8 +272,14 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         }).forEach(link -> {
             ChannelUID channelUID = link.getLinkedUID();
             Thing thing = getThing(channelUID.getThingUID());
-            Profile profile = getProfile(link, item, thing);
-            profile.onStateUpdateFromItem(newState);
+            if (thing != null) {
+                ThingHandler handler = thing.getHandler();
+                if (handler != null) {
+                    Profile profile = getProfile(link, item, thing);
+                    safeCaller.create(profile).withAsync().withIdentifier(handler).build()
+                            .onStateUpdateFromItem(newState);
+                }
+            }
         });
     }
 
