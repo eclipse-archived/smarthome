@@ -64,7 +64,7 @@ public class ProfileCallbackImpl implements ProfileCallback {
                 if (ThingHandlerHelper.isHandlerInitialized(thing)) {
                     logger.debug("Delegating command '{}' for item '{}' to handler for channel '{}'", command,
                             link.getItemName(), link.getLinkedUID());
-                    safeCaller.create(handler).onTimeout(e -> {
+                    safeCaller.create(handler).onTimeout(() -> {
                         logger.warn("Handler for thing '{}' takes more than {}ms for handling a command",
                                 handler.getThing().getUID(), SafeCaller.DEFAULT_TIMEOUT);
                     }).build().handleCommand(link.getLinkedUID(), command);
@@ -95,7 +95,7 @@ public class ProfileCallbackImpl implements ProfileCallback {
                 if (ThingHandlerHelper.isHandlerInitialized(thing)) {
                     logger.debug("Delegating update '{}' for item '{}' to handler for channel '{}'", state,
                             link.getItemName(), link.getLinkedUID());
-                    safeCaller.create(handler).onTimeout(e -> {
+                    safeCaller.create(handler).onTimeout(() -> {
                         logger.warn("Handler for thing '{}' takes more than {}ms for handling an update",
                                 handler.getThing().getUID(), SafeCaller.DEFAULT_TIMEOUT);
                     }).build().handleUpdate(link.getLinkedUID(), state);

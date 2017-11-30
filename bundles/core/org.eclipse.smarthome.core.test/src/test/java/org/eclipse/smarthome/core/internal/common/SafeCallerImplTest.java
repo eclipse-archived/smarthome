@@ -27,7 +27,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -54,7 +53,7 @@ public class SafeCallerImplTest extends JavaTest {
     private Runnable mockRunnable;
 
     @Mock
-    private Consumer<TimeoutException> mockTimeoutHandler;
+    private Runnable mockTimeoutHandler;
 
     @Mock
     private Consumer<Throwable> mockErrorHandler;
@@ -128,7 +127,7 @@ public class SafeCallerImplTest extends JavaTest {
 
         safeCaller.create(mock).withTimeout(100).onTimeout(mockTimeoutHandler).build().run();
         waitForAssert(() -> {
-            verify(mockTimeoutHandler).accept(isA(TimeoutException.class));
+            verify(mockTimeoutHandler).run();
         });
     }
 
@@ -346,7 +345,7 @@ public class SafeCallerImplTest extends JavaTest {
                     .onTimeout(mockTimeoutHandler).onException(mockErrorHandler).build().run();
         });
         waitForAssert(() -> verify(mock1, times(1)).run());
-        waitForAssert(() -> verify(mockTimeoutHandler, times(1)).accept(isA(TimeoutException.class)));
+        waitForAssert(() -> verify(mockTimeoutHandler, times(1)).run());
         verifyNoMoreInteractions(mockErrorHandler);
     }
 

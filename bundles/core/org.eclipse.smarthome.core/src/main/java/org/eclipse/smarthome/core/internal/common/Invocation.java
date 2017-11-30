@@ -13,7 +13,6 @@
 package org.eclipse.smarthome.core.internal.common;
 
 import java.lang.reflect.Method;
-import java.util.concurrent.TimeoutException;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
@@ -52,8 +51,8 @@ class Invocation {
         return invocationHandler.getTimeout();
     }
 
-    void handleTimeout(TrackingCallable wrapper, TimeoutException e) {
-        invocationHandler.handleTimeout(method, wrapper, e);
+    void handleTimeout(TrackingCallable wrapper) {
+        invocationHandler.handleTimeout(method, wrapper);
     }
 
     public AbstractInvocationHandler<?> getInvocationHandler() {

@@ -232,9 +232,9 @@ public final class FirmwareUpdateService implements EventSubscriber {
 
         logger.debug("Starting firmware update for thing with UID {} and firmware with UID {}", thingUID, firmwareUID);
 
-        safeCaller.create(firmwareUpdateHandler).withTimeout(timeout).withAsync().onTimeout(e -> {
+        safeCaller.create(firmwareUpdateHandler).withTimeout(timeout).withAsync().onTimeout(() -> {
             logger.error("Timeout occurred for firmware update of thing with UID {} and firmware with UID {}.",
-                    thingUID, firmwareUID, e);
+                    thingUID, firmwareUID);
             progressCallback.failedInternal("timeout-error");
         }).onException(e -> {
             logger.error(
@@ -260,8 +260,8 @@ public final class FirmwareUpdateService implements EventSubscriber {
         final ProgressCallbackImpl progressCallback = getProgressCallback(thingUID);
 
         logger.debug("Cancelling firmware update for thing with UID {}.", thingUID);
-        safeCaller.create(firmwareUpdateHandler).withTimeout(timeout).withAsync().onTimeout(e -> {
-            logger.error("Timeout occurred while cancelling firmware update of thing with UID {}.", thingUID, e);
+        safeCaller.create(firmwareUpdateHandler).withTimeout(timeout).withAsync().onTimeout(() -> {
+            logger.error("Timeout occurred while cancelling firmware update of thing with UID {}.", thingUID);
             progressCallback.failedInternal("timeout-error-during-cancel");
         }).onException(e -> {
             logger.error("Unexpected exception occurred while cancelling firmware update of thing with UID {}.",

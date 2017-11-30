@@ -14,7 +14,6 @@ package org.eclipse.smarthome.core.internal.common;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import org.eclipse.jdt.annotation.Nullable;
@@ -32,7 +31,7 @@ import org.eclipse.jdt.annotation.Nullable;
 class InvocationHandlerAsync<T> extends AbstractInvocationHandler<T> implements InvocationHandler {
 
     InvocationHandlerAsync(SafeCallManager manager, T target, Object identifier, long timeout,
-            @Nullable Consumer<Throwable> exceptionHandler, @Nullable Consumer<TimeoutException> timeoutHandler) {
+            @Nullable Consumer<Throwable> exceptionHandler, @Nullable Runnable timeoutHandler) {
         super(manager, target, identifier, timeout, exceptionHandler, timeoutHandler);
     }
 

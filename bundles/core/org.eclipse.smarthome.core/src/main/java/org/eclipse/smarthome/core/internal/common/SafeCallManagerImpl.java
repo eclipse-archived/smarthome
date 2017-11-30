@@ -19,7 +19,6 @@ import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -112,14 +111,10 @@ public class SafeCallManagerImpl implements SafeCallManager {
             Invocation next = dequeue(identifier);
             if (next != null) {
                 logger.trace("Scheduling {} for asynchronous execution", next);
-                try {
-                    activeAsyncInvocations.put(identifier, next);
-                    TrackingCallable wrapper = new TrackingCallable(next);
-                    getScheduler().submit(wrapper);
-                    logger.trace("Submitted {} for asynchronous execution", next);
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                }
+                activeAsyncInvocations.put(identifier, next);
+                TrackingCallable wrapper = new TrackingCallable(next);
+                getScheduler().submit(wrapper);
+                logger.trace("Submitted {} for asynchronous execution", next);
             }
         }
     }
@@ -130,15 +125,9 @@ public class SafeCallManagerImpl implements SafeCallManager {
         if (currentInvocation != null && currentInvocation == invocation) {
             TrackingCallable currentWrapper = activeIdentifiers.get(identifier);
             if (currentWrapper != null) {
-                timeoutRunning(invocation, currentWrapper);
+                invocation.handleTimeout(currentWrapper);
             }
         }
-    }
-
-    private TimeoutException timeoutRunning(Invocation invocation, TrackingCallable wrapper) {
-        TimeoutException timeoutException = new TimeoutException();
-        invocation.handleTimeout(wrapper, timeoutException);
-        return timeoutException;
     }
 
     @Nullable

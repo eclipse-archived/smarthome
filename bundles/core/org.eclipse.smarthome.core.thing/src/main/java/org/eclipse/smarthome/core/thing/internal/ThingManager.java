@@ -618,25 +618,16 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     private void doInitializeHandler(final ThingHandler thingHandler) {
         logger.debug("Calling initialize handler for thing '{}' at '{}'.", thingHandler.getThing().getUID(),
                 thingHandler);
-        Object proxy = safeCaller.create(thingHandler).onTimeout(e -> {
+        safeCaller.create(thingHandler).onTimeout(() -> {
             logger.warn("Initializing handler for thing '{}' takes more than {}ms.", thingHandler.getThing().getUID(),
                     SafeCaller.DEFAULT_TIMEOUT);
         }).onException(e -> {
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
-                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR,
-                    e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR, e.getMessage());
             setThingStatus(thingHandler.getThing(), statusInfo);
             logger.error("Exception occurred while initializing handler of thing '{}': {}",
                     thingHandler.getThing().getUID(), e.getMessage(), e);
-        }).build();
-        try {
-            ((ThingHandler) proxy).initialize();
-        } catch (ClassCastException e) {
-            System.err.println(thingHandler.getClass().getInterfaces());
-            e.printStackTrace();
-            throw e;
-        }
-
+        }).build().initialize();
     }
 
     private boolean isInitializing(Thing thing) {
@@ -686,7 +677,6 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
             thingHandlers.remove(thing.getUID());
             thingHandlersByFactory.remove(thingHandlerFactory, thingHandler);
         }).build().run();
-        ;
     }
 
     private void disposeHandler(Thing thing, ThingHandler thingHandler) {
@@ -705,7 +695,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     private void doDisposeHandler(final ThingHandler thingHandler) {
         logger.debug("Calling dispose handler for thing '{}' at '{}'.", thingHandler.getThing().getUID(), thingHandler);
         setThingStatus(thingHandler.getThing(), buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE));
-        safeCaller.create(thingHandler).onTimeout(e -> {
+        safeCaller.create(thingHandler).onTimeout(() -> {
             logger.warn("Disposing handler for thing '{}' takes more than {}ms.", thingHandler.getThing().getUID(),
                     SafeCaller.DEFAULT_TIMEOUT);
         }).onException(e -> {

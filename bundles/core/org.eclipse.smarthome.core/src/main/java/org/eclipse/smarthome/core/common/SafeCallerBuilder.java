@@ -12,7 +12,6 @@
  */
 package org.eclipse.smarthome.core.common;
 
-import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -60,7 +59,7 @@ public interface SafeCallerBuilder<T> {
      * @param timeoutHandler
      * @return the SafeCallerBuilder itself
      */
-    public SafeCallerBuilder<T> onTimeout(Consumer<TimeoutException> timeoutHandler);
+    public SafeCallerBuilder<T> onTimeout(Runnable timeoutHandler);
 
     /**
      * Denotes that the calls should be executed asynchronously, i.e. that they should return immediately and not even

@@ -21,8 +21,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * messages to detect and identify such hanging code.
  *
  * @author Simon Kaufmann - initial contribution and API.
- *
- * @param <T>
  */
 @NonNullByDefault
 public interface SafeCaller {

@@ -30,9 +30,6 @@ class TrackingCallable implements Callable<Object> {
     @Nullable
     private Thread thread;
 
-    @Nullable
-    private Long startNanos;
-
     TrackingCallable(Invocation invocation) {
         this.invocation = invocation;
     }
@@ -44,16 +41,11 @@ class TrackingCallable implements Callable<Object> {
     @Override
     public Object call() throws Exception {
         thread = Thread.currentThread();
-        startNanos = System.nanoTime();
         return invocation.getInvocationHandler().invokeDirect(invocation, this);
     }
 
     Method getMethod() {
         return invocation.getMethod();
-    }
-
-    Long getStartNanos() {
-        return startNanos;
     }
 
     long getTimeout() {

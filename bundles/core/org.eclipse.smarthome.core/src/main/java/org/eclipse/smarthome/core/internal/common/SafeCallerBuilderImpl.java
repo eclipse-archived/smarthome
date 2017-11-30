@@ -14,7 +14,6 @@ package org.eclipse.smarthome.core.internal.common;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -39,7 +38,7 @@ public class SafeCallerBuilderImpl<T> implements SafeCallerBuilder<T> {
     @Nullable
     private Consumer<Throwable> exceptionHandler;
     @Nullable
-    private Consumer<TimeoutException> timeoutHandler;
+    private Runnable timeoutHandler;
     private boolean async;
     private final SafeCallManager manager;
 
@@ -85,7 +84,7 @@ public class SafeCallerBuilderImpl<T> implements SafeCallerBuilder<T> {
     }
 
     @Override
-    public SafeCallerBuilder<T> onTimeout(Consumer<TimeoutException> timeoutHandler) {
+    public SafeCallerBuilder<T> onTimeout(Runnable timeoutHandler) {
         this.timeoutHandler = timeoutHandler;
         return this;
     }

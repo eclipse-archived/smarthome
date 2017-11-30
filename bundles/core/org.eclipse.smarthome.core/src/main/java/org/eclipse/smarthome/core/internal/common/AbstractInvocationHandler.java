@@ -17,7 +17,6 @@ import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -49,10 +48,10 @@ abstract class AbstractInvocationHandler<T> {
     @Nullable
     private final Consumer<Throwable> exceptionHandler;
     @Nullable
-    private final Consumer<TimeoutException> timeoutHandler;
+    private final Runnable timeoutHandler;
 
     AbstractInvocationHandler(SafeCallManager manager, T target, Object identifier, long timeout,
-            @Nullable Consumer<Throwable> exceptionHandler, @Nullable Consumer<TimeoutException> timeoutHandler) {
+            @Nullable Consumer<Throwable> exceptionHandler, @Nullable Runnable timeoutHandler) {
         super();
         this.manager = manager;
         this.target = target;
@@ -84,7 +83,7 @@ abstract class AbstractInvocationHandler<T> {
     }
 
     @Nullable
-    Consumer<TimeoutException> getTimeoutHandler() {
+    Runnable getTimeoutHandler() {
         return timeoutHandler;
     }
 
@@ -109,7 +108,7 @@ abstract class AbstractInvocationHandler<T> {
                 thread.getId(), thread.getState().toString(), getStacktrace(thread));
     }
 
-    void handleTimeout(Method method, TrackingCallable wrapper, TimeoutException e) {
+    void handleTimeout(Method method, TrackingCallable wrapper) {
         if (wrapper.getThread() != null) {
             final Thread thread = wrapper.getThread();
             logger.warn(MSG_TIMEOUT_R, timeout, toString(method), target, thread.getName(), thread.getId(),
@@ -118,7 +117,7 @@ abstract class AbstractInvocationHandler<T> {
             logger.warn(MSG_TIMEOUT_Q, timeout, toString(method), target);
         }
         if (timeoutHandler != null) {
-            timeoutHandler.accept(e);
+            timeoutHandler.run();
         }
     }
 

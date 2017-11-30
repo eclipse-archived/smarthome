@@ -213,7 +213,7 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         for (final EventSubscriber eventSubscriber : eventSubscribers) {
             EventFilter filter = eventSubscriber.getEventFilter();
             if (filter == null || filter.apply(event)) {
-                safeCaller.create(eventSubscriber).withAsync().onTimeout(e -> {
+                safeCaller.create(eventSubscriber).withAsync().onTimeout(() -> {
                     logger.warn("Dispatching event to subscriber '{}' takes more than {}ms.",
                             eventSubscriber.toString(), SafeCaller.DEFAULT_TIMEOUT);
                 }).onException(e -> {

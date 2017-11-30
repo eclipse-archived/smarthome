@@ -38,7 +38,7 @@ public class InvocationHandlerSync<T> extends AbstractInvocationHandler<T> imple
     private final Logger logger = LoggerFactory.getLogger(InvocationHandlerSync.class);
 
     public InvocationHandlerSync(SafeCallManager manager, T target, Object identifier, long timeout,
-            @Nullable Consumer<Throwable> exceptionHandler, @Nullable Consumer<TimeoutException> timeoutHandler) {
+            @Nullable Consumer<Throwable> exceptionHandler, @Nullable Runnable timeoutHandler) {
         super(manager, target, identifier, timeout, exceptionHandler, timeoutHandler);
     }
 
@@ -53,7 +53,7 @@ public class InvocationHandlerSync<T> extends AbstractInvocationHandler<T> imple
             Future<Object> future = getManager().getScheduler().submit(wrapper);
             return future.get(getTimeout(), TimeUnit.MILLISECONDS);
         } catch (TimeoutException e) {
-            handleTimeout(method, wrapper, e);
+            handleTimeout(method, wrapper);
         } catch (ExecutionException e) {
             handleExecutionException(method, e);
         }
