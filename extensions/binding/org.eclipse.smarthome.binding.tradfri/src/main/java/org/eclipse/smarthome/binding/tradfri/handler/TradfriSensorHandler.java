@@ -72,9 +72,7 @@ public class TradfriSensorHandler extends TradfriThingHandler {
     public void handleCommand(ChannelUID channelUID, Command command) {
         if (command instanceof RefreshType) {
             logger.debug("Refreshing channel {}", channelUID);
-            if (coapClient != null) {
-                coapClient.asyncGet(this);
-            }
+            coapClient.asyncGet(this);
             return;
         }
 
