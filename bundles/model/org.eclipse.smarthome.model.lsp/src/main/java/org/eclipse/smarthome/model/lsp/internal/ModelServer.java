@@ -73,7 +73,7 @@ public class ModelServer {
     private void listen() {
         try {
             socket = new ServerSocket(PORT);
-            logger.info("Language Server started on port {}", PORT);
+            logger.info("Started Language Server Protocol (LSP) service on port {}", PORT);
             while (!socket.isClosed()) {
                 logger.debug("Going to wait for a client to connect");
                 try {
