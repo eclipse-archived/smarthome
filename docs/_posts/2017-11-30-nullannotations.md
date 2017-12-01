@@ -23,7 +23,7 @@ In these Javadoc comments the project states that a method will never return `nu
 Maintaining these comments by hand is error-prone and they can be easily overseen by developers.
 Therefore ESH has decided to provide these comments in a machine readable way so the IDE can support developers in showing them errors or warnings in case they violate them.
 
-As described in the [Coding Guidelines](https://www.eclipse.org/smarthome/documentation/development/guidelines.html#a-code-style), classes are annotated with the `@NonNullByDefault` annotation which declares that every field, return value, parameter defined in this class will always have other values than `null`.
+As described in the [Coding Guidelines]({{ site.url }}/documentation/development/guidelines.html#a-code-style), classes are annotated with the `@NonNullByDefault` annotation which declares that every field, return value, parameter defined in this class will always have other values than `null`.
 If a specific field, return value, or parameter in the class should be allowed to become `null` is is annotated with `@Nullable`.
 Basically what these annotations are doing is translating the contract written in the Javadoc comment into something that can automatically be checked by the compiler.
 
@@ -36,25 +36,25 @@ It guarantees to binding developers that both arguments are **not** `null`.
 Therefore they can safely implement their logic by going through the IDs via `switch (channelUID.getId())` without the risk of running into a NPE.
 
 {:.center}
-![NonNull annotation]({{ "/img/blog/2017-11-30-nullannotations_handleCommand.png" | absolute_url }})
+![NonNull annotation]({{ site.url }}/img/blog/2017-11-30-nullannotations_handleCommand.png)
 
 For bindings which use bridge things and call [BaseThingHandler:getBridge()](https://github.com/eclipse/smarthome/blob/master/bundles/core/org.eclipse.smarthome.core.thing/src/main/java/org/eclipse/smarthome/core/thing/binding/BaseThingHandler.java#L584) there now is the `@Nullable` annotation in place that reminds developers to do a proper `null` check before using the return value of this method.
 Without the `null` check, implementors will get a warning as shown below.
 
 {:.center}
-![Nullable annotation with warning]({{ "/img/blog/2017-11-30-nullannotations_bridgeNullable.png" | absolute_url }})
+![Nullable annotation with warning]({{ site.url }}/img/blog/2017-11-30-nullannotations_bridgeNullable.png)
 
 After the `null` check has been implemented, the warning is gone:
 
 {:.center}
-![Nullable annotation without warning]({{ "/img/blog/2017-11-30-nullannotations_bridgeNullableCorrected.png" | absolute_url }})
+![Nullable annotation without warning]({{ site.url }}/img/blog/2017-11-30-nullannotations_bridgeNullableCorrected.png)
 
 If developers violate the `null` specifications, the IDE will immediately show an error.
 In the example below, the `BaseThingHandler:updateState(String channelID, State state)` method requires both parameters to be non-`null`.
 Since in the `else` branch the variable used as a second argument is set to `null`, the IDE infers that `null` is passed as an argument to the method and shows an error.
 
 {:.center}
-![Null violation]({{ "/img/blog/2017-11-30-nullannotations_error.png" | absolute_url }})
+![Null violation]({{ site.url }}/img/blog/2017-11-30-nullannotations_error.png)
 
 If you are interested to see a fully annotated binding, please have a look at the [Philips Hue binding](https://github.com/eclipse/smarthome/tree/master/extensions/binding/org.eclipse.smarthome.binding.hue).
 
