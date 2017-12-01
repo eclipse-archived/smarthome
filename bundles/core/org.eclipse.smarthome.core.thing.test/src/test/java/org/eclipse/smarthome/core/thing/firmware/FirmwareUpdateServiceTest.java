@@ -353,9 +353,10 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
 
     @Test
     public void testCancelFirmwareUpdate_takesLong() {
+        firmwareUpdateService.timeout = 50;
         FirmwareUpdateHandler firmwareUpdateHandler = mock(FirmwareUpdateHandler.class);
         doAnswer(invocation -> {
-            Thread.sleep(SafeCaller.DEFAULT_TIMEOUT + 1000);
+            Thread.sleep(200);
             return null;
         }).when(firmwareUpdateHandler).cancel();
         doReturn(true).when(firmwareUpdateHandler).isUpdateExecutable();
@@ -631,7 +632,7 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
         });
 
         doAnswer(invocation -> {
-            Thread.sleep(10000);
+            Thread.sleep(200);
             return null;
         }).when(handler1).updateFirmware(any(Firmware.class), any(ProgressCallback.class));
 
