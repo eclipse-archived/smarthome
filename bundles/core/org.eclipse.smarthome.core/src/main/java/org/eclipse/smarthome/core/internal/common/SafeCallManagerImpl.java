@@ -125,7 +125,7 @@ public class SafeCallManagerImpl implements SafeCallManager {
     private void handlePotentialTimeout(Invocation invocation) {
         Object identifier = invocation.getIdentifier();
         Invocation currentInvocation = activeAsyncInvocations.get(identifier);
-        if (currentInvocation != null && currentInvocation == invocation) {
+        if (currentInvocation == invocation) {
             TrackingCallable currentWrapper = activeIdentifiers.get(identifier);
             if (currentWrapper != null) {
                 invocation.handleTimeout(currentWrapper);

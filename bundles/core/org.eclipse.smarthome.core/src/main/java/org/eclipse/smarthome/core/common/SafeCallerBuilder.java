@@ -26,7 +26,13 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 @NonNullByDefault
 public interface SafeCallerBuilder<T> {
 
-    public T build();
+    /**
+     * Creates a dynamic proxy with the according properties which guards the caller from hanging implementations in the
+     * target object.
+     *
+     * @return the dynamic proxy wrapping the target object
+     */
+    T build();
 
     /**
      * Sets the timeout
@@ -34,7 +40,7 @@ public interface SafeCallerBuilder<T> {
      * @param timeout the timeout in milliseconds.
      * @return the SafeCallerBuilder itself
      */
-    public SafeCallerBuilder<T> withTimeout(int timeout);
+    SafeCallerBuilder<T> withTimeout(int timeout);
 
     /**
      * Specifies the identifier for the context in which only one thread may be occupied at the same time.
@@ -43,7 +49,7 @@ public interface SafeCallerBuilder<T> {
      *            distinguish different contexts.
      * @return the SafeCallerBuilder itself
      */
-    public SafeCallerBuilder<T> withIdentifier(Object identifier);
+    SafeCallerBuilder<T> withIdentifier(Object identifier);
 
     /**
      * Specifies a callback in case of execution errors.
@@ -51,7 +57,7 @@ public interface SafeCallerBuilder<T> {
      * @param exceptionHandler
      * @return the SafeCallerBuilder itself
      */
-    public SafeCallerBuilder<T> onException(Consumer<Throwable> exceptionHandler);
+    SafeCallerBuilder<T> onException(Consumer<Throwable> exceptionHandler);
 
     /**
      * Specifies a callback in case of timeouts.
@@ -59,7 +65,7 @@ public interface SafeCallerBuilder<T> {
      * @param timeoutHandler
      * @return the SafeCallerBuilder itself
      */
-    public SafeCallerBuilder<T> onTimeout(Runnable timeoutHandler);
+    SafeCallerBuilder<T> onTimeout(Runnable timeoutHandler);
 
     /**
      * Denotes that the calls should be executed asynchronously, i.e. that they should return immediately and not even
@@ -69,6 +75,6 @@ public interface SafeCallerBuilder<T> {
      *
      * @return the SafeCallerBuilder itself
      */
-    public SafeCallerBuilder<T> withAsync();
+    SafeCallerBuilder<T> withAsync();
 
 }

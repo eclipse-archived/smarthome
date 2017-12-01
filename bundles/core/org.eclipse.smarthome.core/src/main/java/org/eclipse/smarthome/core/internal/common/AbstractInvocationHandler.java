@@ -52,7 +52,6 @@ abstract class AbstractInvocationHandler<T> {
 
     AbstractInvocationHandler(SafeCallManager manager, T target, Object identifier, long timeout,
             @Nullable Consumer<Throwable> exceptionHandler, @Nullable Runnable timeoutHandler) {
-        super();
         this.manager = manager;
         this.target = target;
         this.identifier = identifier;

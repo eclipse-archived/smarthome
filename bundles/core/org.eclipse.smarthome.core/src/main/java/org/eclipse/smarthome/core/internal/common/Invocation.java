@@ -15,6 +15,7 @@ package org.eclipse.smarthome.core.internal.common;
 import java.lang.reflect.Method;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Represents a call to the dynamic proxy.
@@ -26,16 +27,17 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 class Invocation {
 
     private final Method method;
-    private final Object[] args;
+    private final @Nullable Object @Nullable [] args;
     private final AbstractInvocationHandler<?> invocationHandler;
 
-    Invocation(AbstractInvocationHandler<?> invocationHandler, Method method, Object[] args) {
+    Invocation(AbstractInvocationHandler<?> invocationHandler, Method method, @Nullable Object @Nullable [] args) {
         this.method = method;
         this.args = args;
         this.invocationHandler = invocationHandler;
     }
 
-    Object[] getArgs() {
+    @Nullable
+    Object @Nullable [] getArgs() {
         return args;
     }
 

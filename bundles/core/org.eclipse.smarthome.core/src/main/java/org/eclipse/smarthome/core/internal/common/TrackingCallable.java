@@ -34,6 +34,7 @@ class TrackingCallable implements Callable<Object> {
         this.invocation = invocation;
     }
 
+    @Nullable
     Thread getThread() {
         return thread;
     }

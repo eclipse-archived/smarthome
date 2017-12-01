@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T>
  */
+@NonNullByDefault
 public class InvocationHandlerSync<T> extends AbstractInvocationHandler<T> implements InvocationHandler {
 
     private static final String MSG_CONTEXT = "Already in a safe-call context, executing '{}' directly on '{}'.";
@@ -43,19 +45,24 @@ public class InvocationHandlerSync<T> extends AbstractInvocationHandler<T> imple
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        TrackingCallable wrapper = new TrackingCallable(new Invocation(this, method, args));
-        if (getManager().isSafeContext()) {
-            logger.debug(MSG_CONTEXT, toString(method), getTarget());
-            return invokeDirect(new Invocation(this, method, args), wrapper);
-        }
-        try {
-            Future<Object> future = getManager().getScheduler().submit(wrapper);
-            return future.get(getTimeout(), TimeUnit.MILLISECONDS);
-        } catch (TimeoutException e) {
-            handleTimeout(method, wrapper);
-        } catch (ExecutionException e) {
-            handleExecutionException(method, e);
+    @Nullable
+    public Object invoke(@Nullable Object proxy, @Nullable Method method, Object @Nullable [] args) throws Throwable {
+        if (method != null) {
+            TrackingCallable wrapper = new TrackingCallable(new Invocation(this, method, args));
+            if (getManager().isSafeContext()) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(MSG_CONTEXT, toString(method), getTarget());
+                }
+                return invokeDirect(new Invocation(this, method, args), wrapper);
+            }
+            try {
+                Future<Object> future = getManager().getScheduler().submit(wrapper);
+                return future.get(getTimeout(), TimeUnit.MILLISECONDS);
+            } catch (TimeoutException e) {
+                handleTimeout(method, wrapper);
+            } catch (ExecutionException e) {
+                handleExecutionException(method, e);
+            }
         }
         return null;
     }

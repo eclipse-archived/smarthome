@@ -16,6 +16,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
@@ -28,6 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
  *
  * @param <T>
  */
+@NonNullByDefault
 class InvocationHandlerAsync<T> extends AbstractInvocationHandler<T> implements InvocationHandler {
 
     InvocationHandlerAsync(SafeCallManager manager, T target, Object identifier, long timeout,
@@ -36,11 +38,14 @@ class InvocationHandlerAsync<T> extends AbstractInvocationHandler<T> implements 
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        try {
-            getManager().enqueue(new Invocation(this, method, args));
-        } catch (DuplicateExecutionException e) {
-            handleDuplicate(method, e);
+    @Nullable
+    public Object invoke(@Nullable Object proxy, @Nullable Method method, Object @Nullable [] args) throws Throwable {
+        if (method != null) {
+            try {
+                getManager().enqueue(new Invocation(this, method, args));
+            } catch (DuplicateExecutionException e) {
+                handleDuplicate(method, e);
+            }
         }
         return null;
     }

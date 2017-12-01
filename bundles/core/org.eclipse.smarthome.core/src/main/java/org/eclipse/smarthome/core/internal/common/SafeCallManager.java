@@ -17,6 +17,7 @@ import java.util.concurrent.ExecutorService;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
+ * Interface to the safe call manager which handles queuing and tracking of safe-call executions.
  *
  * @author Simon Kaufmann - initial contribution and API.
  *
@@ -27,37 +28,37 @@ public interface SafeCallManager {
     /**
      * Track that the call to the target method starts.
      *
-     * @param invocation
-     * @param wrapper
+     * @param invocation the call to the proxy
+     * @param wrapper the wrapper around the actual call
      */
     void recordCallStart(Invocation invocation, TrackingCallable wrapper);
 
     /**
      * Track that the call to the target method finished.
      *
-     * @param invocation
-     * @param wrapper
+     * @param invocation the call to the proxy
+     * @param wrapper the wrapper around the actual call
      */
     void recordCallEnd(Invocation invocation, TrackingCallable wrapper);
 
     /**
      * Queue the given invocation for asynchronous execution.
      *
-     * @param call
+     * @param invocation the call to the proxy
      */
-    void enqueue(Invocation call);
+    void enqueue(Invocation invocation);
 
     /**
      * Get the safe-caller's executor service instance
      *
-     * @return
+     * @return the safe-caller's executor service
      */
     ExecutorService getScheduler();
 
     /**
      * Determine if the current thread is one of the safe-caller's thread pool.
      *
-     * @return
+     * @return {@code true} if the current thread a member of the safe-caller thread pool
      */
     boolean isSafeContext();
 

@@ -28,10 +28,26 @@ public interface SafeCaller {
     /**
      * Default timeout for actions in milliseconds.
      */
-    public final int DEFAULT_TIMEOUT = 5000 /* milliseconds */;
+    int DEFAULT_TIMEOUT = 5000 /* milliseconds */;
 
-    public <T> SafeCallerBuilder<T> create(T target, Class<T> interfaceType);
+    /**
+     * Create a safe call builder for the given object.
+     *
+     * @param target the object on which calls should be protected by the safe caller
+     * @param interfaceType the interface which defines the relevant methods
+     * @return a safe call builder instance.
+     */
+    <T> SafeCallerBuilder<T> create(T target, Class<T> interfaceType);
 
-    public <T> SafeCallerBuilder<T> create(T target);
+    /**
+     * Create a safe call builder for the given object.
+     *
+     * It's a short variant of {@link #create(Object, Class)} where the interface(s) are inferred automatically. It work
+     * only if the static type of {@code target} is an interface.
+     *
+     * @param target the object on which calls should be protected by the safe caller
+     * @return a safe call builder instance.
+     */
+    <T> SafeCallerBuilder<T> create(T target);
 
 }
