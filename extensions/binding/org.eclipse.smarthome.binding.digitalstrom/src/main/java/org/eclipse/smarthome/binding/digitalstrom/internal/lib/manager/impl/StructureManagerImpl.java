@@ -37,12 +37,30 @@ import com.google.gson.JsonObject;
  */
 public class StructureManagerImpl implements StructureManager {
 
+    private static class ZoneIdNameGroups {
+        public final String zoneName;
+        public final Map<Short, String> groupIdNames = new HashMap<>();
+
+        public ZoneIdNameGroups(final String zoneName) {
+            this.zoneName = zoneName;
+        }
+    }
+
+    private static class ZoneNameIdGroups {
+        public final int zoneId;
+        public final Map<String, Short> groupNameIds = new HashMap<>();
+
+        public ZoneNameIdGroups(final int zoneId) {
+            this.zoneId = zoneId;
+        }
+    }
+
     private Map<Integer, HashMap<Short, List<Device>>> zoneGroupDeviceMap;
     private Map<DSID, Device> deviceMap;
     private Map<String, DSID> dSUIDToDSIDMap;
 
-    private Map<Integer, Object[]> zoneGroupIdNameMap = null;
-    private Map<String, Object[]> zoneGroupNameIdMap = null;
+    private Map<Integer, ZoneIdNameGroups> zoneGroupIdNameMap = null;
+    private Map<String, ZoneNameIdGroups> zoneGroupNameIdMap = null;
 
     /**
      * Creates a new {@link StructureManagerImpl} with the {@link Device}s of the given referenceDeviceList.
@@ -64,6 +82,7 @@ public class StructureManagerImpl implements StructureManager {
 
     @Override
     public boolean generateZoneGroupNames(ConnectionManager connectionManager) {
+
         if (connectionManager.checkConnection()) {
             String response = connectionManager.getHttpTransport()
                     .execute(this.ZONE_GROUP_NAMES + "&token=" + connectionManager.getSessionToken());
@@ -76,30 +95,26 @@ public class StructureManagerImpl implements StructureManager {
                     if (resultJsonObj.get("zones") instanceof JsonArray) {
                         JsonArray zones = (JsonArray) resultJsonObj.get("zones");
                         if (this.zoneGroupIdNameMap == null) {
-                            this.zoneGroupIdNameMap = new HashMap<Integer, Object[]>(zones.size());
-                            this.zoneGroupNameIdMap = new HashMap<String, Object[]>(zones.size());
+                            this.zoneGroupIdNameMap = new HashMap<Integer, ZoneIdNameGroups>(zones.size());
+                            this.zoneGroupNameIdMap = new HashMap<String, ZoneNameIdGroups>(zones.size());
                         }
                         if (zones != null) {
                             for (int i = 0; i < zones.size(); i++) {
                                 if (((JsonObject) zones.get(i)).get("groups") instanceof JsonArray) {
                                     JsonArray groups = (JsonArray) ((JsonObject) zones.get(i)).get("groups");
                                     if (groups.size() != 0) {
-                                        Object[] zoneIdNameGroups = new Object[2];
-                                        Object[] zoneNameIdGroups = new Object[2];
-                                        int zoneID = ((JsonObject) zones.get(i)).get("ZoneID").getAsInt();
-                                        String zoneName = ((JsonObject) zones.get(i)).get("name").getAsString();
-                                        zoneIdNameGroups[0] = zoneName;
-                                        zoneNameIdGroups[0] = zoneID;
-                                        HashMap<Short, String> groupIdNames = new HashMap<Short, String>();
-                                        HashMap<String, Short> groupNameIds = new HashMap<String, Short>();
+                                        final int zoneID = ((JsonObject) zones.get(i)).get("ZoneID").getAsInt();
+                                        final String zoneName = ((JsonObject) zones.get(i)).get("name").getAsString();
+                                        final ZoneIdNameGroups zoneIdNameGroups = new ZoneIdNameGroups(zoneName);
+                                        final ZoneNameIdGroups zoneNameIdGroups = new ZoneNameIdGroups(zoneID);
                                         for (int k = 0; k < groups.size(); k++) {
-                                            short groupID = ((JsonObject) groups.get(k)).get("group").getAsShort();
-                                            String groupName = ((JsonObject) groups.get(k)).get("name").getAsString();
-                                            groupIdNames.put(groupID, groupName);
-                                            groupNameIds.put(groupName, groupID);
+                                            final short groupID = ((JsonObject) groups.get(k)).get("group")
+                                                    .getAsShort();
+                                            final String groupName = ((JsonObject) groups.get(k)).get("name")
+                                                    .getAsString();
+                                            zoneIdNameGroups.groupIdNames.put(groupID, groupName);
+                                            zoneNameIdGroups.groupNameIds.put(groupName, groupID);
                                         }
-                                        zoneIdNameGroups[1] = groupIdNames;
-                                        zoneNameIdGroups[1] = groupNameIds;
                                         this.zoneGroupIdNameMap.put(zoneID, zoneIdNameGroups);
                                         this.zoneGroupNameIdMap.put(zoneName, zoneNameIdGroups);
                                     }
@@ -115,34 +130,39 @@ public class StructureManagerImpl implements StructureManager {
 
     @Override
     public String getZoneName(int zoneID) {
-        if (this.zoneGroupIdNameMap == null) {
+        if (zoneGroupIdNameMap == null) {
             return null;
         }
-        return this.zoneGroupIdNameMap.get(zoneID) != null ? (String) this.zoneGroupIdNameMap.get(zoneID)[0] : null;
+        final ZoneIdNameGroups zoneIdNameGroups = zoneGroupIdNameMap.get(zoneID);
+        if (zoneIdNameGroups == null) {
+            return null;
+        }
+
+        return zoneIdNameGroups.zoneName;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public String getZoneGroupName(int zoneID, short groupID) {
-        if (this.zoneGroupIdNameMap == null) {
+        if (zoneGroupIdNameMap == null) {
             return null;
         }
-        if (this.zoneGroupIdNameMap.get(zoneID) != null) {
-            if (this.zoneGroupIdNameMap.get(zoneID)[1] != null) {
-                if (((HashMap<Short, String>) this.zoneGroupIdNameMap.get(zoneID)[1]).get(groupID) != null) {
-                    return ((HashMap<Short, String>) this.zoneGroupIdNameMap.get(zoneID)[1]).get(groupID);
-                }
-            }
+        final ZoneIdNameGroups zoneNameIdGroups = zoneGroupIdNameMap.get(zoneID);
+        if (zoneNameIdGroups == null) {
+            return null;
         }
-        return null;
+        return zoneNameIdGroups.groupIdNames.get(groupID);
     }
 
     @Override
     public int getZoneId(String zoneName) {
-        if (this.zoneGroupNameIdMap == null) {
+        if (zoneGroupNameIdMap == null) {
             return -1;
         }
-        return this.zoneGroupNameIdMap.get(zoneName) != null ? (int) this.zoneGroupNameIdMap.get(zoneName)[0] : -1;
+        final ZoneNameIdGroups zoneNameIdGroups = zoneGroupNameIdMap.get(zoneName);
+        if (zoneNameIdGroups == null) {
+            return -1;
+        }
+        return zoneNameIdGroups.zoneId;
     }
 
     @Override
@@ -156,19 +176,19 @@ public class StructureManagerImpl implements StructureManager {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public short getZoneGroupId(String zoneName, String groupName) {
-        if (this.zoneGroupNameIdMap == null) {
+        if (zoneGroupNameIdMap == null) {
             return -1;
         }
-        if (this.zoneGroupNameIdMap.get(zoneName) != null) {
-            if (this.zoneGroupNameIdMap.get(zoneName)[1] != null) {
-                if (((HashMap<Short, String>) this.zoneGroupNameIdMap.get(zoneName)[1]).get(groupName) != null) {
-                    return ((HashMap<String, Short>) this.zoneGroupNameIdMap.get(zoneName)[1]).get(groupName);
-                }
-            }
+        final ZoneNameIdGroups zoneNameIdGroups = zoneGroupNameIdMap.get(zoneName);
+        if (zoneNameIdGroups == null) {
+            return -1;
         }
-        return -1;
+        final Short id = zoneNameIdGroups.groupNameIds.get(groupName);
+        if (id == null) {
+            return -1;
+        }
+        return id;
     }
 
     @Override
