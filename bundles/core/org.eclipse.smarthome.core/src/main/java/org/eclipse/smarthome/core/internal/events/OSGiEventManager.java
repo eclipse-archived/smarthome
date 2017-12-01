@@ -22,10 +22,8 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeoutException;
 
-import org.eclipse.smarthome.core.common.SafeMethodCaller;
-import org.eclipse.smarthome.core.common.SafeMethodCaller.ActionWithException;
+import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFactory;
 import org.eclipse.smarthome.core.events.EventFilter;
@@ -104,6 +102,8 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
 
     private EventSubscriberServiceTracker eventSubscriberServiceTracker;
 
+    private SafeCaller safeCaller;
+
     @Activate
     protected void activate(ComponentContext componentContext) {
         eventSubscriberServiceTracker = new EventSubscriberServiceTracker(componentContext.getBundleContext());
@@ -145,6 +145,15 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         for (String supportedEventType : supportedEventTypes) {
             typedEventFactories.remove(supportedEventType);
         }
+    }
+
+    @Reference
+    protected void setSafeCaller(SafeCaller safeCaller) {
+        this.safeCaller = safeCaller;
+    }
+
+    protected void unsetSafeCaller(SafeCaller safeCaller) {
+        this.safeCaller = null;
     }
 
     @Override
@@ -200,26 +209,17 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         return eshEvent;
     }
 
-    private void dispatchESHEvent(final Set<EventSubscriber> eventSubscribers, final Event event) {
+    private synchronized void dispatchESHEvent(final Set<EventSubscriber> eventSubscribers, final Event event) {
         for (final EventSubscriber eventSubscriber : eventSubscribers) {
-            try {
-                EventFilter filter = eventSubscriber.getEventFilter();
-                if (filter == null || filter.apply(event)) {
-                    SafeMethodCaller.call(new ActionWithException<Void>() {
-
-                        @Override
-                        public Void call() throws Exception {
-                            eventSubscriber.receive(event);
-                            return null;
-                        }
-                    });
-                }
-            } catch (TimeoutException timeoutException) {
-                logger.warn("Dispatching event to subscriber '{}' takes more than {}ms.", eventSubscriber.toString(),
-                        SafeMethodCaller.DEFAULT_TIMEOUT);
-            } catch (Throwable t) {
-                logger.error("Dispatching/filtering event for subscriber '{}' failed: {}",
-                        EventSubscriber.class.getName(), t.getMessage(), t);
+            EventFilter filter = eventSubscriber.getEventFilter();
+            if (filter == null || filter.apply(event)) {
+                safeCaller.create(eventSubscriber).withAsync().onTimeout(() -> {
+                    logger.warn("Dispatching event to subscriber '{}' takes more than {}ms.",
+                            eventSubscriber.toString(), SafeCaller.DEFAULT_TIMEOUT);
+                }).onException(e -> {
+                    logger.error("Dispatching/filtering event for subscriber '{}' failed: {}",
+                            EventSubscriber.class.getName(), e.getMessage(), e);
+                }).build().receive(event);
             }
         }
     }

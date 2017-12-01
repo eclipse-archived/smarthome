@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
@@ -37,6 +38,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.UID;
+import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.internal.link.ItemChannelLinkConfigDescriptionProvider;
@@ -81,6 +83,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     private ThingRegistry thingRegistry;
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
+    private SafeCaller safeCaller;
 
     // link UID -> profile
     private final Map<String, Profile> profiles = new ConcurrentHashMap<>();
@@ -134,7 +137,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     }
 
     private ProfileCallback createCallback(ItemChannelLink link) {
-        return new ProfileCallbackImpl(eventPublisher, link, thingUID -> getThing(thingUID),
+        return new ProfileCallbackImpl(eventPublisher, safeCaller, link, thingUID -> getThing(thingUID),
                 itemName -> getItem(itemName));
     }
 
@@ -151,10 +154,8 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
                 return null;
             }
 
-            if (profileTypeUID == null) {
-                // ask advisors
-                profileTypeUID = getAdvice(link, item, channel);
-            }
+            // ask advisors
+            profileTypeUID = getAdvice(link, item, channel);
 
             if (profileTypeUID == null) {
                 // ask default advisor
@@ -240,9 +241,15 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         }).forEach(link -> {
             ChannelUID channelUID = link.getLinkedUID();
             Thing thing = getThing(channelUID.getThingUID());
-            Profile profile = getProfile(link, item, thing);
-            if (profile instanceof StateProfile) {
-                ((StateProfile) profile).onCommandFromItem(command);
+            if (thing != null) {
+                ThingHandler handler = thing.getHandler();
+                if (handler != null) {
+                    Profile profile = getProfile(link, item, thing);
+                    if (profile instanceof StateProfile) {
+                        safeCaller.create(((StateProfile) profile)).withAsync().withIdentifier(thing).build()
+                                .onCommandFromItem(command);
+                    }
+                }
             }
         });
     }
@@ -265,8 +272,14 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         }).forEach(link -> {
             ChannelUID channelUID = link.getLinkedUID();
             Thing thing = getThing(channelUID.getThingUID());
-            Profile profile = getProfile(link, item, thing);
-            profile.onStateUpdateFromItem(newState);
+            if (thing != null) {
+                ThingHandler handler = thing.getHandler();
+                if (handler != null) {
+                    Profile profile = getProfile(link, item, thing);
+                    safeCaller.create(profile).withAsync().withIdentifier(handler).build()
+                            .onStateUpdateFromItem(newState);
+                }
+            }
         });
     }
 
@@ -420,6 +433,15 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
 
     protected void unsetDefaultProfileFactory(SystemProfileFactory defaultProfileFactory) {
         this.defaultProfileFactory = null;
+    }
+
+    @Reference
+    protected void setSafeCaller(SafeCaller safeCaller) {
+        this.safeCaller = safeCaller;
+    }
+
+    protected void unsetSafeCaller(SafeCaller safeCaller) {
+        this.safeCaller = null;
     }
 
     private static class NoOpProfile implements Profile {
