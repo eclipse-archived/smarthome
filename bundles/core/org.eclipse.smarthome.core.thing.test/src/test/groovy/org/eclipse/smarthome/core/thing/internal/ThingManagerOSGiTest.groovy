@@ -123,6 +123,9 @@ class ThingManagerOSGiTest extends OSGiTest {
         waitForAssert {
             assertThat getBundleContext().getServiceReferences(ReadyMarker, "(" + ThingManager.XML_THING_TYPE + "=" + getBundleContext().getBundle().getSymbolicName() + ")"), is(notNullValue())
         }
+        waitForAssert {
+            assertThat getBundleContext().getServiceReferences(ChannelItemProvider, null), is(notNullValue())
+        }
     }
 
     @After
@@ -684,6 +687,7 @@ class ThingManagerOSGiTest extends OSGiTest {
             }
         ] as ThingHandlerFactory
         registerService(thingHandlerFactory)
+        waitForAssert { assertThat itemRegistry.get(itemName), is(notNullValue()) }
 
         callback.statusUpdated(THING, ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build())
 
@@ -1568,6 +1572,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         registerService(thingHandlerFactory)
 
         itemChannelLinkRegistry.add(new ItemChannelLink("testItem", new ChannelUID(THING.getUID(), "channel")))
+        waitForAssert { assertThat itemRegistry.get("testItem"), is(notNullValue()) }
 
         eventPublisher.post(ItemEventFactory.createCommandEvent("testItem", new StringType("TEST")))
 
