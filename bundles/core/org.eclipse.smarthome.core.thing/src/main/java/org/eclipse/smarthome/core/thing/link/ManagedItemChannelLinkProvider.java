@@ -19,7 +19,6 @@ import org.eclipse.smarthome.core.storage.StorageService;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  *
@@ -51,7 +50,7 @@ public class ManagedItemChannelLinkProvider extends DefaultAbstractManagedProvid
         }
     }
 
-    @Reference(policy = ReferencePolicy.STATIC)
+    @Reference
     @Override
     protected void setStorageService(StorageService storageService) {
         super.setStorageService(storageService);
