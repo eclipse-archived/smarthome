@@ -63,9 +63,9 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
 
     private static final String THREADPOOL_NAME = "thingLinkManager";
 
-    private Logger logger = LoggerFactory.getLogger(ThingLinkManager.class);
+    private final Logger logger = LoggerFactory.getLogger(ThingLinkManager.class);
 
-    private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool("thingLinkManager");
+    private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(THREADPOOL_NAME);
 
     private ThingRegistry thingRegistry;
     private ManagedThingProvider managedThingProvider;
