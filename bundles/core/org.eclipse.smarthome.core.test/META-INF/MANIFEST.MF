@@ -26,4 +26,5 @@ Import-Package:
 Require-Bundle: 
  org.hamcrest,
  org.junit,
- org.mockito
+ org.mockito,
+ org.objenesis
