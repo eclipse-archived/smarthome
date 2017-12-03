@@ -25,26 +25,31 @@ import org.eclipse.smarthome.core.thing.DefaultSystemChannelTypeProvider;
 @NonNullByDefault
 public interface SystemProfiles {
 
+    ProfileTypeUID COMMAND = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "command");
     ProfileTypeUID DEFAULT = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "default");
     ProfileTypeUID FOLLOW = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "follow");
+    ProfileTypeUID PASSIVE = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "passive");
     ProfileTypeUID RAWBUTTON_TOGGLE_SWITCH = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "rawbutton-toggle-switch");
     ProfileTypeUID RAWROCKER_ON_OFF = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "rawrocker-to-on-off");
     ProfileTypeUID RAWROCKER_DIMMER = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "rawrocker-to-dimmer");
+
+    StateProfileType COMMAND_TYPE = ProfileTypeBuilder.newState(COMMAND, "Command").build();
 
     StateProfileType DEFAULT_TYPE = ProfileTypeBuilder.newState(DEFAULT, "Default").build();
 
     StateProfileType FOLLOW_TYPE = ProfileTypeBuilder.newState(FOLLOW, "Follow").build();
 
+    StateProfileType PASSIVE_TYPE = ProfileTypeBuilder.newState(PASSIVE, "Passive").build();
+
     TriggerProfileType RAWBUTTON_TOGGLE_SWITCH_TYPE = ProfileTypeBuilder
             .newTrigger(RAWBUTTON_TOGGLE_SWITCH, "Raw Button Toggle").withSupportedItemTypes(CoreItemFactory.SWITCH)
             .withSupportedChannelTypeUIDs(DefaultSystemChannelTypeProvider.SYSTEM_RAWBUTTON.getUID()).build();
 
-    TriggerProfileType RAWROCKER_ON_OFF_TYPE = ProfileTypeBuilder
-            .newTrigger(RAWROCKER_ON_OFF, "Raw Rocker To On Off")
+    TriggerProfileType RAWROCKER_ON_OFF_TYPE = ProfileTypeBuilder.newTrigger(RAWROCKER_ON_OFF, "Raw Rocker To On Off")
             .withSupportedItemTypes(CoreItemFactory.SWITCH, CoreItemFactory.DIMMER)
             .withSupportedChannelTypeUIDs(DefaultSystemChannelTypeProvider.SYSTEM_RAWROCKER.getUID()).build();
 
-    TriggerProfileType RAWROCKER_DIMMER_TYPE = ProfileTypeBuilder
-            .newTrigger(RAWROCKER_DIMMER, "Raw Rocker To Dimmer").withSupportedItemTypes(CoreItemFactory.DIMMER)
+    TriggerProfileType RAWROCKER_DIMMER_TYPE = ProfileTypeBuilder.newTrigger(RAWROCKER_DIMMER, "Raw Rocker To Dimmer")
+            .withSupportedItemTypes(CoreItemFactory.DIMMER)
             .withSupportedChannelTypeUIDs(DefaultSystemChannelTypeProvider.SYSTEM_RAWROCKER.getUID()).build();
 }

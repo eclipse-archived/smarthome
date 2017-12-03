@@ -51,22 +51,27 @@ import org.osgi.service.component.annotations.Component;
 public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, ProfileTypeProvider {
 
     private static final Set<ProfileType> SUPPORTED_PROFILE_TYPES = Stream
-            .of(SystemProfiles.DEFAULT_TYPE, SystemProfiles.FOLLOW_TYPE, SystemProfiles.RAWBUTTON_TOGGLE_SWITCH_TYPE,
+            .of(SystemProfiles.COMMAND_TYPE, SystemProfiles.DEFAULT_TYPE, SystemProfiles.FOLLOW_TYPE,
+                    SystemProfiles.PASSIVE_TYPE, SystemProfiles.RAWBUTTON_TOGGLE_SWITCH_TYPE,
                     SystemProfiles.RAWROCKER_ON_OFF_TYPE, SystemProfiles.RAWROCKER_DIMMER_TYPE)
             .collect(Collectors.toSet());
 
-    private static final Set<ProfileTypeUID> SUPPORTED_PROFILE_TYPE_UIDS = Stream
-            .of(SystemProfiles.DEFAULT, SystemProfiles.FOLLOW, SystemProfiles.RAWBUTTON_TOGGLE_SWITCH,
-                    SystemProfiles.RAWROCKER_ON_OFF, SystemProfiles.RAWROCKER_DIMMER)
+    private static final Set<ProfileTypeUID> SUPPORTED_PROFILE_TYPE_UIDS = Stream.of(SystemProfiles.COMMAND,
+            SystemProfiles.DEFAULT, SystemProfiles.FOLLOW, SystemProfiles.PASSIVE,
+            SystemProfiles.RAWBUTTON_TOGGLE_SWITCH, SystemProfiles.RAWROCKER_ON_OFF, SystemProfiles.RAWROCKER_DIMMER)
             .collect(Collectors.toSet());
 
     @Nullable
     @Override
     public Profile createProfile(ProfileTypeUID profileTypeUID, ProfileCallback callback, ProfileContext context) {
-        if (SystemProfiles.DEFAULT.equals(profileTypeUID)) {
+        if (SystemProfiles.COMMAND.equals(profileTypeUID)) {
+            return new SystemCommandProfile(callback);
+        } else if (SystemProfiles.DEFAULT.equals(profileTypeUID)) {
             return new SystemDefaultProfile(callback);
         } else if (SystemProfiles.FOLLOW.equals(profileTypeUID)) {
             return new SystemFollowProfile(callback);
+        } else if (SystemProfiles.PASSIVE.equals(profileTypeUID)) {
+            return new SystemPassiveProfile(callback);
         } else if (SystemProfiles.RAWBUTTON_TOGGLE_SWITCH.equals(profileTypeUID)) {
             return new RawButtonToggleSwitchProfile(callback);
         } else if (SystemProfiles.RAWROCKER_ON_OFF.equals(profileTypeUID)) {
