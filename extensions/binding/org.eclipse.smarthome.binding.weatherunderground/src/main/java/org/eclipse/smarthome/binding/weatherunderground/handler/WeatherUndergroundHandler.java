@@ -67,6 +67,7 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
             .collect(Collectors.toSet());
 
     private static final int DEFAULT_REFRESH_PERIOD = 30;
+    private static final int FETCH_TIMEOUT_MS = 30000;
 
     private LocaleProvider localeProvider;
 
@@ -217,7 +218,7 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
             } else if (value instanceof String) {
                 state = new StringType(value.toString());
             } else if (value instanceof URL) {
-                state = HttpUtil.downloadImage(((URL) value).toExternalForm());
+                state = HttpUtil.downloadImage(((URL) value).toExternalForm(), FETCH_TIMEOUT_MS);
                 if (state == null) {
                     logger.debug("Failed to download the content of URL {}", ((URL) value).toExternalForm());
                     state = UnDefType.UNDEF;
@@ -304,7 +305,7 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
             // Run the HTTP request and get the JSON response from Weather Underground
             String response = null;
             try {
-                response = HttpUtil.executeUrl("GET", urlStr, 30 * 1000);
+                response = HttpUtil.executeUrl("GET", urlStr, FETCH_TIMEOUT_MS);
                 logger.debug("weatherData = {}", response);
             } catch (IllegalArgumentException e) {
                 // catch Illegal character in path at index XX: http://api.wunderground.com/...
