@@ -157,8 +157,10 @@ public abstract class Packet {
     }
 
     public void setSequence(int sequence) {
-        if (sequence < 255) {
+        if (0 <= sequence && sequence < 256) {
             this.sequence = sequence;
+        } else {
+            throw new IllegalArgumentException("Sequence number '" + sequence + "' is not in range [0, 255]");
         }
     }
 

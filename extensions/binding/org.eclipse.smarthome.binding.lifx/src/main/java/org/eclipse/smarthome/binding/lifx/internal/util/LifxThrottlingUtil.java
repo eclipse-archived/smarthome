@@ -20,6 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,7 @@ import org.slf4j.LoggerFactory;
  * @author Karel Goderis - Initial Contribution
  * @author Wouter Born - Deadlock fix
  */
+@NonNullByDefault
 public final class LifxThrottlingUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LifxThrottlingUtil.class);
@@ -76,9 +79,9 @@ public final class LifxThrottlingUtil {
      */
     private static List<LifxLightCommunicationTracker> trackers = new CopyOnWriteArrayList<>();
 
-    private static Map<MACAddress, LifxLightCommunicationTracker> macTrackerMapping = new ConcurrentHashMap<MACAddress, LifxLightCommunicationTracker>();
+    private static Map<MACAddress, @Nullable LifxLightCommunicationTracker> macTrackerMapping = new ConcurrentHashMap<>();
 
-    public static void lock(MACAddress mac) {
+    public static void lock(@Nullable MACAddress mac) {
         if (mac != null) {
             LifxLightCommunicationTracker tracker = getOrCreateTracker(mac);
             tracker.lock();
@@ -116,10 +119,11 @@ public final class LifxThrottlingUtil {
         }
     }
 
-    public static void unlock(MACAddress mac) {
+    public static void unlock(@Nullable MACAddress mac) {
         if (mac != null) {
-            if (macTrackerMapping.containsKey(mac)) {
-                macTrackerMapping.get(mac).unlock();
+            LifxLightCommunicationTracker tracker = macTrackerMapping.get(mac);
+            if (tracker != null) {
+                tracker.unlock();
             }
         } else {
             unlock();
