@@ -74,6 +74,9 @@ import org.slf4j.LoggerFactory;
 @Component(service = { EventSubscriber.class, CommunicationManager.class }, immediate = true)
 public class CommunicationManager implements EventSubscriber, RegistryChangeListener<ItemChannelLink> {
 
+    // the timeout to use for any item event processing
+    public static final long THINGHANDLER_EVENT_TIMEOUT = TimeUnit.SECONDS.toMillis(30);
+
     private static final Set<String> SUBSCRIBED_EVENT_TYPES = Collections.unmodifiableSet(
             new HashSet<>(Arrays.asList(ItemStateEvent.TYPE, ItemCommandEvent.TYPE, ChannelTriggeredEvent.TYPE)));
 
@@ -248,7 +251,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
                     Profile profile = getProfile(link, item, thing);
                     if (profile instanceof StateProfile) {
                         safeCaller.create(((StateProfile) profile)).withAsync().withIdentifier(thing)
-                                .withTimeout(TimeUnit.SECONDS.toMillis(30)).build().onCommandFromItem(command);
+                                .withTimeout(THINGHANDLER_EVENT_TIMEOUT).build().onCommandFromItem(command);
                     }
                 }
             }
@@ -278,7 +281,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
                 if (handler != null) {
                     Profile profile = getProfile(link, item, thing);
                     safeCaller.create(profile).withAsync().withIdentifier(handler)
-                            .withTimeout(TimeUnit.SECONDS.toMillis(30)).build().onStateUpdateFromItem(newState);
+                            .withTimeout(THINGHANDLER_EVENT_TIMEOUT).build().onStateUpdateFromItem(newState);
                 }
             }
         });
