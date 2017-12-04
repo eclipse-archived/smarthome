@@ -59,5 +59,4 @@ If you want your binding to rely on a custom library that might not even be an O
       lib/library.jar```
 	  
 Keep in mind that if you want to use third party libraries they have to be compatible with the [list of licenses approved for use by third-party code redistributed by Eclipse projects](https://eclipse.org/legal/eplfaq.php#3RDPARTY).  
-Every bundle must contain an [about.html](https://eclipse.org/legal/epl/about.php) file, listing the 3rd party libraries and their licenses.
-For additional information check the [Guide to the Legal Documentation](https://www.eclipse.org/legal/guidetolegaldoc2.php).  
+Every bundle must contain an [NOTICE](https://www.eclipse.org/projects/handbook/#legaldoc) file, listing the 3rd party libraries and their licenses.

@@ -19,4 +19,7 @@
     <!-- Some source files have different headers -->
     <suppress files=".+org.eclipse.smarthome.automation.+" checks="HeaderCheck"/>
     <suppress files=".+org.eclipse.smarthome.config.dispatch.test.+" checks="ServiceComponentManifestCheck"/>
+    
+    <!--remove me after EPL-2.0 PRs are done -->
+    <suppress files="build.properties" checks="AboutHtmlCheck" />
 </suppressions>
