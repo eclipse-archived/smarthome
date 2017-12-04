@@ -66,7 +66,7 @@ public class ChannelTypeResourceTest {
 
         when(profileTypeRegistry.getProfileTypes()).thenReturn(Lists.newArrayList(profileType));
 
-        Response response = channelTypeResource.getAdvicedProfile(uid);
+        Response response = channelTypeResource.getAdvicedProfile(uid.getAsString());
 
         verify(channelTypeRegistry).getChannelType(uid);
         verify(profileAdvisor).getSuggestedProfileTypeUID(channelType, null);

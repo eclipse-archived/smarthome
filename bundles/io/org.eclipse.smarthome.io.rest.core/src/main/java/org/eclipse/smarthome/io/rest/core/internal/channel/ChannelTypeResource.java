@@ -15,6 +15,8 @@ package org.eclipse.smarthome.io.rest.core.internal.channel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Stream;
 
 import javax.annotation.security.RolesAllowed;
@@ -76,7 +78,7 @@ public class ChannelTypeResource implements RESTResource {
     private ChannelTypeRegistry channelTypeRegistry;
     private ConfigDescriptionRegistry configDescriptionRegistry;
 
-    private final List<ProfileAdvisor> profileAdvisors = new ArrayList<>();
+    private final Set<ProfileAdvisor> profileAdvisors = new CopyOnWriteArraySet<>();
 
     private ProfileTypeRegistry profileTypeRegistry;
 
@@ -107,7 +109,7 @@ public class ChannelTypeResource implements RESTResource {
         profileAdvisors.remove(profileAdvisor);
     }
 
-    @Reference
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setProfileTypeRegistry(ProfileTypeRegistry profileTypeRegistry) {
         this.profileTypeRegistry = profileTypeRegistry;
     }
@@ -153,8 +155,9 @@ public class ChannelTypeResource implements RESTResource {
     @ApiOperation(value = "Gets the adviced profile type for the given channel type UID.", response = ProfileTypeDTO.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ProfileTypeDTO.class),
             @ApiResponse(code = 404, message = "No content") })
-    public Response getAdvicedProfile(ChannelTypeUID channelTypeUID) {
-        ChannelType channelType = channelTypeRegistry.getChannelType(channelTypeUID);
+    public Response getAdvicedProfile(
+            @PathParam("channelTypeUID") @ApiParam(value = "channelTypeUID") String channelTypeUID) {
+        ChannelType channelType = channelTypeRegistry.getChannelType(new ChannelTypeUID(channelTypeUID));
         if (channelType == null) {
             return Response.noContent().build();
         }
