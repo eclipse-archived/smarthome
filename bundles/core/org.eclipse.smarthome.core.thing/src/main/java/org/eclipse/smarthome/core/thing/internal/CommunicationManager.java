@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.SafeCaller;
@@ -246,8 +247,8 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
                 if (handler != null) {
                     Profile profile = getProfile(link, item, thing);
                     if (profile instanceof StateProfile) {
-                        safeCaller.create(((StateProfile) profile)).withAsync().withIdentifier(thing).build()
-                                .onCommandFromItem(command);
+                        safeCaller.create(((StateProfile) profile)).withAsync().withIdentifier(thing)
+                                .withTimeout(TimeUnit.SECONDS.toMillis(30)).build().onCommandFromItem(command);
                     }
                 }
             }
@@ -276,8 +277,8 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
                 ThingHandler handler = thing.getHandler();
                 if (handler != null) {
                     Profile profile = getProfile(link, item, thing);
-                    safeCaller.create(profile).withAsync().withIdentifier(handler).build()
-                            .onStateUpdateFromItem(newState);
+                    safeCaller.create(profile).withAsync().withIdentifier(handler)
+                            .withTimeout(TimeUnit.SECONDS.toMillis(30)).build().onStateUpdateFromItem(newState);
                 }
             }
         });

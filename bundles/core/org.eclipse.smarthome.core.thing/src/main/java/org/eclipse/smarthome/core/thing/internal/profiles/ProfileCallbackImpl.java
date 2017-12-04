@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.core.thing.internal.profiles;
 
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import org.eclipse.smarthome.core.common.SafeCaller;
@@ -64,7 +65,7 @@ public class ProfileCallbackImpl implements ProfileCallback {
                 if (ThingHandlerHelper.isHandlerInitialized(thing)) {
                     logger.debug("Delegating command '{}' for item '{}' to handler for channel '{}'", command,
                             link.getItemName(), link.getLinkedUID());
-                    safeCaller.create(handler).onTimeout(() -> {
+                    safeCaller.create(handler).withTimeout(TimeUnit.SECONDS.toMillis(30)).onTimeout(() -> {
                         logger.warn("Handler for thing '{}' takes more than {}ms for handling a command",
                                 handler.getThing().getUID(), SafeCaller.DEFAULT_TIMEOUT);
                     }).build().handleCommand(link.getLinkedUID(), command);
@@ -95,7 +96,7 @@ public class ProfileCallbackImpl implements ProfileCallback {
                 if (ThingHandlerHelper.isHandlerInitialized(thing)) {
                     logger.debug("Delegating update '{}' for item '{}' to handler for channel '{}'", state,
                             link.getItemName(), link.getLinkedUID());
-                    safeCaller.create(handler).onTimeout(() -> {
+                    safeCaller.create(handler).withTimeout(TimeUnit.SECONDS.toMillis(30)).onTimeout(() -> {
                         logger.warn("Handler for thing '{}' takes more than {}ms for handling an update",
                                 handler.getThing().getUID(), SafeCaller.DEFAULT_TIMEOUT);
                     }).build().handleUpdate(link.getLinkedUID(), state);
