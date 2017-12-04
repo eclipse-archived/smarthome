@@ -26,13 +26,22 @@ Note that this list also serves as a checklist for code reviews on pull requests
 1. Packages that contain classes that are not meant to be used by other bundles should have "internal" in their package name.
 1. We are using [null annotations](https://wiki.eclipse.org/JDT_Core/Null_Analysis) from the Eclipse JDT project. Therefore every bundle should have an **optional** `Import-Package` dependency to `org.eclipse.jdt.annotation`.
 Classes should be annotated by `@NonNullByDefault` and return types, parameter types, generic types etc. are annotated with `@Nullable` only.
+Fields that get a static and mandatory reference injected through OSGi Declarative Services can be annotated with
+
+```java
+@NonNullByDefault({})
+private MyService injectedService;
+```
+
+to skip the nullevaluation for these fields.
+Fields within `ThingHandler` classes that are initialized within the `initialize()` method may also be annotated like this, because the framework ensures that `initialize()` will be called before any other method. However please watch the scenario where the initialization of the handler fails, because then fields might not have been initialized and using them should be prepended by a `null` check.
 There is **no need** for a `@NonNull` annotation because it is set as default.
 The transition of existing classes could be a longer process but if you want to use nullness annotation in a class / interface you need to set the default for the whole class and annotate all types that differ from the default.
 Test classes do not have to be annotated.
 
 ## B. OSGi Bundles
 
-7. Every bundle must contain a Maven pom.xml with a version and artifact name that is in sync with the manifest entry. The pom.xml must reference the correct parent pom (which is usually in the parent folder).
+1. Every bundle must contain a Maven pom.xml with a version and artifact name that is in sync with the manifest entry. The pom.xml must reference the correct parent pom (which is usually in the parent folder).
 1. Every bundle must contain an [about.html](https://eclipse.org/legal/epl/about.php) file, providing license information.
 1. Every bundle must contain a build.properties file, which lists all resources that should end up in the binary under ```bin.includes```.
 1. The manifest must not contain any "Require-Bundle" entries (except for test fragment bundles, see below). Instead, "Import-Package" must be used.

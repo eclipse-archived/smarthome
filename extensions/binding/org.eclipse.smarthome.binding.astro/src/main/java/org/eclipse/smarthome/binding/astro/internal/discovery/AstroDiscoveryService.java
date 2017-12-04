@@ -117,9 +117,9 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
             propGeolocation = String.format("%s,%s", location.getLatitude(), location.getLongitude());
         }
         thingDiscovered(DiscoveryResultBuilder.create(sunThing).withLabel("Local Sun")
-                .withProperty("geolocation", propGeolocation).build());
+                .withProperty("geolocation", propGeolocation).withRepresentationProperty("geolocation").build());
         thingDiscovered(DiscoveryResultBuilder.create(moonThing).withLabel("Local Moon")
-                .withProperty("geolocation", propGeolocation).build());
+                .withProperty("geolocation", propGeolocation).withRepresentationProperty("geolocation").build());
     }
 
     @Reference

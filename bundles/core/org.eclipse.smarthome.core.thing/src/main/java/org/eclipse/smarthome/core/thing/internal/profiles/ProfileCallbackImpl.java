@@ -12,14 +12,15 @@
  */
 package org.eclipse.smarthome.core.thing.internal.profiles;
 
-import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 
-import org.eclipse.smarthome.core.common.SafeMethodCaller;
+import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.profiles.ProfileCallback;
@@ -40,39 +41,33 @@ public class ProfileCallbackImpl implements ProfileCallback {
     private final Logger logger = LoggerFactory.getLogger(ProfileCallbackImpl.class);
 
     private final EventPublisher eventPublisher;
-    private final Thing thing;
     private final ItemChannelLink link;
-    private final Item item;
+    private final Function<ThingUID, Thing> thingProvider;
+    private final Function<String, Item> itemProvider;
+    private final SafeCaller safeCaller;
 
-    public ProfileCallbackImpl(EventPublisher eventPublisher, ItemChannelLink link, Thing thing, Item item) {
+    public ProfileCallbackImpl(EventPublisher eventPublisher, SafeCaller safeCaller, ItemChannelLink link,
+            Function<ThingUID, Thing> thingProvider, Function<String, Item> itemProvider) {
         this.eventPublisher = eventPublisher;
+        this.safeCaller = safeCaller;
         this.link = link;
-        this.thing = thing;
-        this.item = item;
+        this.thingProvider = thingProvider;
+        this.itemProvider = itemProvider;
     }
 
     @Override
     public void handleCommand(Command command) {
+        Thing thing = thingProvider.apply(link.getLinkedUID().getThingUID());
         if (thing != null) {
             final ThingHandler handler = thing.getHandler();
             if (handler != null) {
                 if (ThingHandlerHelper.isHandlerInitialized(thing)) {
                     logger.debug("Delegating command '{}' for item '{}' to handler for channel '{}'", command,
                             link.getItemName(), link.getLinkedUID());
-                    try {
-                        SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                handler.handleCommand(link.getLinkedUID(), command);
-                                return null;
-                            }
-                        });
-                    } catch (TimeoutException ex) {
+                    safeCaller.create(handler).onTimeout(() -> {
                         logger.warn("Handler for thing '{}' takes more than {}ms for handling a command",
-                                handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
-                    } catch (Exception ex) {
-                        logger.error("Exception occurred while calling handler: {}", ex.getMessage(), ex);
-                    }
+                                handler.getThing().getUID(), SafeCaller.DEFAULT_TIMEOUT);
+                    }).build().handleCommand(link.getLinkedUID(), command);
                 } else {
                     logger.debug("Not delegating command '{}' for item '{}' to handler for channel '{}', "
                             + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE but was {}).",
@@ -93,26 +88,17 @@ public class ProfileCallbackImpl implements ProfileCallback {
 
     @Override
     public void handleUpdate(State state) {
+        Thing thing = thingProvider.apply(link.getLinkedUID().getThingUID());
         if (thing != null) {
             final ThingHandler handler = thing.getHandler();
             if (handler != null) {
                 if (ThingHandlerHelper.isHandlerInitialized(thing)) {
                     logger.debug("Delegating update '{}' for item '{}' to handler for channel '{}'", state,
                             link.getItemName(), link.getLinkedUID());
-                    try {
-                        SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                handler.handleUpdate(link.getLinkedUID(), state);
-                                return null;
-                            }
-                        });
-                    } catch (TimeoutException ex) {
+                    safeCaller.create(handler).onTimeout(() -> {
                         logger.warn("Handler for thing '{}' takes more than {}ms for handling an update",
-                                handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
-                    } catch (Exception ex) {
-                        logger.error("Exception occurred while calling handler: {}", ex.getMessage(), ex);
-                    }
+                                handler.getThing().getUID(), SafeCaller.DEFAULT_TIMEOUT);
+                    }).build().handleUpdate(link.getLinkedUID(), state);
                 } else {
                     logger.debug("Not delegating update '{}' for item '{}' to handler for channel '{}', "
                             + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE but was {}).",
@@ -139,6 +125,7 @@ public class ProfileCallbackImpl implements ProfileCallback {
 
     @Override
     public void sendUpdate(State state) {
+        Item item = itemProvider.apply(link.getItemName());
         State acceptedState = ItemUtil.convertToAcceptedState(state, item);
         eventPublisher.post(
                 ItemEventFactory.createStateEvent(link.getItemName(), acceptedState, link.getLinkedUID().toString()));

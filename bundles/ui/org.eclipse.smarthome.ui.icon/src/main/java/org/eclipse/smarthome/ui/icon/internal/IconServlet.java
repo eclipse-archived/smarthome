@@ -124,30 +124,24 @@ public class IconServlet extends HttpServlet {
 
         IconProvider topProvider = getIconProvider(category, iconSetId, format);
         if (topProvider == null) {
-            logger.debug(
-                    "Requested icon category {} provided by no icon provider; try to failback to category \"none\"",
-                    category);
-            // Try to failback to category "none"
-            category = "none";
-            topProvider = getIconProvider(category, iconSetId, format);
-        }
-        if (topProvider != null) {
-            if (format.equals(Format.SVG)) {
-                resp.setContentType("image/svg+xml");
-            } else {
-                resp.setContentType("image/png");
-            }
-            resp.setDateHeader("Last-Modified", new Date().getTime());
-            ServletOutputStream os = resp.getOutputStream();
-            try (InputStream is = topProvider.getIcon(category, iconSetId, state, format)) {
-                IOUtils.copy(is, os);
-                resp.flushBuffer();
-            } catch (IOException e) {
-                logger.error("Failed sending the icon byte stream as a response: {}", e.getMessage());
-                resp.sendError(500, e.getMessage());
-            }
-        } else {
+            logger.debug("Requested icon category {} provided by no icon provider;", category);
             resp.sendError(404);
+            return;
+        }
+
+        if (format.equals(Format.SVG)) {
+            resp.setContentType("image/svg+xml");
+        } else {
+            resp.setContentType("image/png");
+        }
+        resp.setDateHeader("Last-Modified", new Date().getTime());
+        ServletOutputStream os = resp.getOutputStream();
+        try (InputStream is = topProvider.getIcon(category, iconSetId, state, format)) {
+            IOUtils.copy(is, os);
+            resp.flushBuffer();
+        } catch (IOException e) {
+            logger.error("Failed sending the icon byte stream as a response: {}", e.getMessage());
+            resp.sendError(500, e.getMessage());
         }
     }
 

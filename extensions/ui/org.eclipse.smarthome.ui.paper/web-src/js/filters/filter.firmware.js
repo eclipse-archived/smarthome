@@ -9,6 +9,7 @@ firmwareFilterModule.constant('FIRMWARE_STATUS', {
 
 firmwareFilterModule.constant('UPDATE_STEP', {
     DOWNLOADING : 'DOWNLOADING',
+    WAITING : 'WAITING',
     TRANSFERRING : 'TRANSFERRING',
     UPDATING : 'UPDATING',
     REBOOTING : 'REBOOTING'
@@ -45,6 +46,8 @@ firmwareFilterModule.filter('firmwareStatusFormat', [ 'FIRMWARE_STATUS', functio
         switch (updateStep) {
             case UPDATE_STEP.DOWNLOADING:
                 return 'Downloading';
+            case UPDATE_STEP.WAITING:
+                return 'Waiting';
             case UPDATE_STEP.TRANSFERRING:
                 return 'Transfering';
             case UPDATE_STEP.UPDATING:

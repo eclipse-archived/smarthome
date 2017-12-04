@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.automation.dto;
 
 import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTOMapper;
 
 /**
  * This is a utility class to convert between the respective object and its DTO.
@@ -27,7 +28,6 @@ public class ModuleTypeDTOMapper {
         to.tags = from.getTags();
         to.label = from.getLabel();
         to.description = from.getDescription();
-        to.configDescriptions = from.getConfigurationDescriptions();
+        to.configDescriptions = ConfigDescriptionDTOMapper.mapParameters(from.getConfigurationDescriptions());
     }
-
 }

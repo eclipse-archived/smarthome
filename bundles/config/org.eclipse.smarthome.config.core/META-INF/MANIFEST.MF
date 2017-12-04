@@ -17,6 +17,7 @@ Import-Package:
  com.google.common.base,
  com.google.common.collect,
  com.google.gson,
+ com.google.gson.annotations,
  org.apache.commons.lang.reflect,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
@@ -33,6 +34,5 @@ Import-Package:
  org.eclipse.smarthome.core.net,
  org.osgi.framework,
  org.osgi.service.component,
- org.osgi.service.component.annotations;resolution:=optional,
  org.slf4j
 Service-Component: OSGI-INF/*.xml

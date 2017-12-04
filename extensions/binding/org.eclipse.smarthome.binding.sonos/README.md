@@ -81,7 +81,6 @@ The devices support the following channels:
 | stop                | Switch    | W      | Stop the Zone Player | all |
 | tuneinstationid     | String    | RW     | Provide the current TuneIn station id or play the TuneIn radio given by its station id | all |
 | volume              | Dimmer    | RW     | Set or get the master volume of the Zone Player | all |
-| zonegroup           | String    | R      | XML formatted string with the current zonegroup configuration | all |
 | zonegroupid         | String    | R      | Id of the Zone Group the Zone Player belongs to | all |
 | zonename            | String    | R      | Name of the Zone associated to the Zone Player | all |
 

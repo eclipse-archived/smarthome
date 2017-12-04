@@ -130,7 +130,7 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
         this.itemRegistry = null;
     }
 
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, name = "ManagedItemChannelLinkProvider")
+    @Reference
     protected void setManagedProvider(ManagedItemChannelLinkProvider provider) {
         super.setManagedProvider(provider);
     }

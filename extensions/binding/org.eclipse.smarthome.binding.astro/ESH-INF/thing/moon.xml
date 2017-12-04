@@ -26,6 +26,9 @@
 			<channel-group id="position" typeId="position" />
 			<channel-group id="zodiac" typeId="moonZodiac" />
 		</channel-groups>
+
+		<representation-property>geolocation</representation-property>
+
 		<config-description-ref uri="thing-type:astro:config" />
 	</thing-type>
 

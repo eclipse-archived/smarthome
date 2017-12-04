@@ -185,7 +185,7 @@
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="nrjavaserial.feature.group" version="3.12.0"/>
-<repository location="https://dl.bintray.com/openhab/p2/nrjavaserial/3.12.0/"/>
+<repository location="http://dl.bintray.com/openhab/p2/nrjavaserial/3.12.0/"/>
 </location>
 <location path="${project_loc:targetplatform}/third-party" type="Directory"/>
 </locations>

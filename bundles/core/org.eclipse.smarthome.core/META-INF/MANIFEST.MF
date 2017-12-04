@@ -64,7 +64,6 @@ Import-Package:
  org.eclipse.smarthome.core.types,
  org.osgi.framework,
  org.osgi.service.component,
- org.osgi.service.component.annotations;resolution:=optional,
  org.osgi.service.event,
  org.osgi.service.packageadmin,
  org.osgi.util.tracker,

@@ -20,6 +20,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -54,6 +56,7 @@ import org.slf4j.LoggerFactory;
  * @author Marcel Verpaalen - Initial contribution OH2 ntp binding
  * @author Thomas.Eichstaedt-Engelen OH1 ntp binding (getTime routine)
  * @author Markus Rathgeb - Add locale provider
+ * @author Erdoan Hadzhiyusein - Adapted the class to work with the new DateTimeType
  */
 
 public class NtpHandler extends BaseThingHandler {
@@ -202,8 +205,9 @@ public class NtpHandler extends BaseThingHandler {
 
             Calendar calendar = Calendar.getInstance(timeZone, locale);
             calendar.setTimeInMillis(networkTimeInMillis);
+            ZonedDateTime zoned = ZonedDateTime.of(LocalDateTime.now(), timeZone.toZoneId());
 
-            updateState(dateTimeChannelUID, new DateTimeType(calendar));
+            updateState(dateTimeChannelUID, new DateTimeType(zoned));
             updateState(stringChannelUID, new StringType(dateTimeFormat.format(calendar.getTime())));
         } else {
             logger.debug("Not refreshing, since we do not seem to be initialized yet");

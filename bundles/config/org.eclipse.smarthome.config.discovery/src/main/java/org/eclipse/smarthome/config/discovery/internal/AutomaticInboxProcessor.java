@@ -96,7 +96,8 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
             String value = getRepresentationValue(result);
             if (value != null) {
                 Thing thing = thingRegistry.stream()
-                        .filter(t -> Objects.equals(value, getRepresentationPropertyValueForThing(t))).findFirst()
+                        .filter(t -> Objects.equals(value, getRepresentationPropertyValueForThing(t)))
+                        .filter(t -> Objects.equals(t.getUID().getBindingId(), result.getBindingId())).findFirst()
                         .orElse(null);
                 if (thing != null) {
                     logger.debug("Auto-ignoring the inbox entry for the representation value {}", value);
@@ -146,14 +147,14 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
         if (thing != null) {
             String representationValue = getRepresentationPropertyValueForThing(thing);
             if (representationValue != null) {
-                ignoreInInbox(representationValue);
+                ignoreInInbox(thing.getUID().getBindingId(), representationValue);
             }
         }
     }
 
-    private void ignoreInInbox(String representationValue) {
+    private void ignoreInInbox(String bindingId, String representationValue) {
         List<DiscoveryResult> results = inbox.stream().filter(withRepresentationPropertyValue(representationValue))
-                .collect(Collectors.toList());
+                .filter(withBindingId(bindingId)).collect(Collectors.toList());
         if (results.size() == 1) {
             logger.debug("Auto-ignoring the inbox entry for the representation value {}", representationValue);
             inbox.setFlag(results.get(0).getThingUID(), DiscoveryResultFlag.IGNORED);
@@ -164,7 +165,7 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
         if (thing != null) {
             String representationValue = getRepresentationPropertyValueForThing(thing);
             if (representationValue != null) {
-                removeFromInbox(representationValue);
+                removeFromInbox(thing.getUID().getBindingId(), representationValue);
             }
         }
     }
@@ -188,9 +189,10 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
         return null;
     }
 
-    private void removeFromInbox(String representationValue) {
+    private void removeFromInbox(String bindingId, String representationValue) {
         List<DiscoveryResult> results = inbox.stream().filter(withRepresentationPropertyValue(representationValue))
-                .filter(withFlag(DiscoveryResultFlag.IGNORED)).collect(Collectors.toList());
+                .filter(withBindingId(bindingId)).filter(withFlag(DiscoveryResultFlag.IGNORED))
+                .collect(Collectors.toList());
         if (results.size() == 1) {
             logger.debug("Removing the ignored result from the inbox for the representation value {}",
                     representationValue);

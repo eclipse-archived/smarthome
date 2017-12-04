@@ -14,6 +14,7 @@ package org.eclipse.smarthome.model.rule.jvmmodel
 
 import com.google.inject.Inject
 import java.util.Set
+import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent
@@ -26,6 +27,7 @@ import org.eclipse.smarthome.model.rule.rules.EventTrigger
 import org.eclipse.smarthome.model.rule.rules.Rule
 import org.eclipse.smarthome.model.rule.rules.RuleModel
 import org.eclipse.smarthome.model.rule.rules.ThingStateChangedEventTrigger
+import org.eclipse.smarthome.model.rule.rules.UpdateEventTrigger
 import org.eclipse.smarthome.model.script.jvmmodel.ScriptJvmModelInferrer
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider
 import org.eclipse.xtext.naming.IQualifiedNameProvider
@@ -46,6 +48,9 @@ import org.slf4j.LoggerFactory
 class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 
     private final Logger logger = LoggerFactory.getLogger(RulesJvmModelInferrer)
+
+    /** Variable name for the item in a "state triggered" or "command triggered" rule */
+    public static final String VAR_TRIGGERING_ITEM = "triggeringItem";
 
     /** Variable name for the previous state of an item in a "changed state triggered" rule */
     public static final String VAR_PREVIOUS_STATE = "previousState";
@@ -131,6 +136,10 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
             members += ruleModel.rules.map [ rule |
                 rule.toMethod("_" + rule.name, ruleModel.newTypeRef(Void.TYPE)) [
                     static = true
+                    if ((containsCommandTrigger(rule)) || (containsStateChangeTrigger(rule)) || (containsStateUpdateTrigger(rule))) {
+                        val itemTypeRef = ruleModel.newTypeRef(Item)
+                        parameters += rule.toParameter(VAR_TRIGGERING_ITEM, itemTypeRef)
+                    }
                     if (containsCommandTrigger(rule)) {
                         val commandTypeRef = ruleModel.newTypeRef(Command)
                         parameters += rule.toParameter(VAR_RECEIVED_COMMAND, commandTypeRef)
@@ -166,6 +175,15 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
     def private boolean containsStateChangeTrigger(Rule rule) {
         for (EventTrigger trigger : rule.getEventtrigger()) {
             if (trigger instanceof ChangedEventTrigger) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    def private boolean containsStateUpdateTrigger(Rule rule) {
+        for (EventTrigger trigger : rule.getEventtrigger()) {
+            if (trigger instanceof UpdateEventTrigger) {
                 return true;
             }
         }

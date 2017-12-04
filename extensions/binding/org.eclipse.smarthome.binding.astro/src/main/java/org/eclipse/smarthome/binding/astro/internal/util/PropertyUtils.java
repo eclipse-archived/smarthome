@@ -15,10 +15,14 @@ package org.eclipse.smarthome.binding.astro.internal.util;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.astro.internal.config.AstroChannelConfig;
+import org.eclipse.smarthome.core.i18n.TimeZoneProvider;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.StringType;
@@ -30,6 +34,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * Methods to get the value from a property of an object.
  *
  * @author Gerhard Riegler - Initial contribution
+ * @author Erdoan Hadzhiyusein - Adapted the class to work with the new DateTimeType
  */
 public class PropertyUtils {
 
@@ -38,6 +43,8 @@ public class PropertyUtils {
         throw new IllegalAccessError("Non-instantiable");
     }
 
+    private static TimeZoneProvider timeZoneProvider;
+    
     /**
      * Returns the state of the channel.
      */
@@ -47,7 +54,10 @@ public class PropertyUtils {
             return UnDefType.UNDEF;
         } else if (value instanceof Calendar) {
             Calendar cal = (Calendar) value;
-            return new DateTimeType(DateTimeUtils.applyConfig(cal, config));
+            GregorianCalendar gregorianCal = (GregorianCalendar) DateTimeUtils.applyConfig(cal, config);
+            cal.setTimeZone(TimeZone.getTimeZone(timeZoneProvider.getTimeZone()));
+            ZonedDateTime zoned = gregorianCal.toZonedDateTime().withFixedOffsetZone();
+            return new DateTimeType(zoned);
         } else if (value instanceof Number) {
             BigDecimal decimalValue = new BigDecimal(value.toString()).setScale(2, RoundingMode.HALF_UP);
             return new DecimalType(decimalValue);
@@ -57,7 +67,15 @@ public class PropertyUtils {
             throw new RuntimeException("Unsupported value type " + value.getClass().getSimpleName());
         }
     }
+    
+    public static void setTimeZone (TimeZoneProvider zone) {
+        PropertyUtils.timeZoneProvider=zone;
+    }
 
+    public static void unsetTimeZone() {
+        PropertyUtils.timeZoneProvider=null;
+    }
+    
     /**
      * Returns the property value from the object instance, nested properties are possible. If the propertyName is for
      * example rise.start, the methods getRise().getStart() are called.

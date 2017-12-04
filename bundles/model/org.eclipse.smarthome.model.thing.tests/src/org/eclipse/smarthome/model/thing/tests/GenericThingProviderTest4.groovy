@@ -107,6 +107,8 @@ class GenericThingProviderTest4 extends OSGiTest{
 
     @Before
     public void setUp() {
+        registerVolatileStorageService();
+
         readyService = getService ReadyService
         assertThat readyService, is(notNullValue())
         thingRegistry = getService ThingRegistry

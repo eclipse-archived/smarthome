@@ -269,13 +269,6 @@
 		<category>SoundVolume</category>
 	</channel-type>
 
-	<channel-type id="zonegroup" advanced="true">
-		<item-type>String</item-type>
-		<label>Zone Group</label>
-		<description>XML formatted string with the current zonegroup configuration</description>
-		<state readOnly="true" />
-	</channel-type>
-
 	<channel-type id="zonegroupid" advanced="true">
 		<item-type>String</item-type>
 		<label>Zone Group ID</label>

@@ -64,6 +64,8 @@ public class GenericItemChannelLinkProviderJavaTest extends JavaOSGiTest {
 
     @Before
     public void setUp() {
+        registerVolatileStorageService();
+
         initMocks(this);
 
         thingRegistry = getService(ThingRegistry.class);

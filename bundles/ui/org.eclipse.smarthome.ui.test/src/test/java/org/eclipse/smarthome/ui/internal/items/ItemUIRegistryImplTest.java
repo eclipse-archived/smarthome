@@ -173,6 +173,19 @@ public class ItemUIRegistryImplTest {
     }
 
     @Test
+    public void getLabel_labelWithZonedDate() throws ItemNotFoundException {
+        String testLabel = "Label [%1$td.%1$tm.%1$tY]";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getState()).thenReturn(new DateTimeType("2011-06-01T00:00:00Z"));
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Label [01.06.2011]", label);
+    }
+    
+    @Test
     public void getLabel_labelWithTime() throws ItemNotFoundException {
         String testLabel = "Label [%1$tT]";
         Widget w = mock(Widget.class);
@@ -181,10 +194,25 @@ public class ItemUIRegistryImplTest {
         when(w.getItem()).thenReturn("Item");
         when(registry.getItem("Item")).thenReturn(item);
         when(item.getState()).thenReturn(new DateTimeType("2011-06-01T15:30:59"));
+        
         String label = uiRegistry.getLabel(w);
         assertEquals("Label [15:30:59]", label);
     }
 
+    @Test
+    public void getLabel_labelWithZonedTime() throws ItemNotFoundException {
+        String testLabel = "Label [%1$tT]";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getState()).thenReturn(new DateTimeType("2011-06-01T15:30:59Z"));
+        
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Label [15:30:59]", label);
+    }
+    
     @Test
     public void getLabel_widgetWithoutLabelAndItem() throws ItemNotFoundException {
         Widget w = mock(Widget.class);
