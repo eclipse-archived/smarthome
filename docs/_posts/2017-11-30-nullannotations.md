@@ -64,4 +64,4 @@ If you are interested to see a fully annotated binding, please have a look at th
 If ESH integrates external libraries and use their return values in the framework code, the compiler cannot decide whether these values are always non-`null` or might become `null` at some point.
 This will generate a warning that is currently switched off by the IDE and Maven setup.
 In the future, the plan is to support *external annotations* which are files that contain information about the method signatures of external libraries.
-The [Last NPE project](http://last-npe.org) has started a crowd-sourcing initative to create these external annotations and ESH is planing to use them.
+The [Last NPE project](http://www.lastnpe.org) has started a crowd-sourcing initative to create these external annotations and ESH is planing to use them.
