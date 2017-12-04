@@ -19,6 +19,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -38,6 +39,10 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
+import org.eclipse.smarthome.core.thing.profiles.ProfileAdvisor;
+import org.eclipse.smarthome.core.thing.profiles.ProfileType;
+import org.eclipse.smarthome.core.thing.profiles.ProfileTypeRegistry;
+import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
@@ -65,6 +70,10 @@ public class ChannelItemProvider implements ItemProvider {
     private final Logger logger = LoggerFactory.getLogger(ChannelItemProvider.class);
 
     private final Set<ProviderChangeListener<Item>> listeners = new HashSet<>();
+
+    private final Set<ProfileAdvisor> profileAdvisors = new CopyOnWriteArraySet<>();
+
+    private ProfileTypeRegistry profileTypeRegistry;
 
     private LocaleProvider localeProvider;
     private ThingRegistry thingRegistry;
@@ -150,6 +159,24 @@ public class ChannelItemProvider implements ItemProvider {
 
     protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry linkRegistry) {
         this.linkRegistry = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    protected void addProfileAdvisor(ProfileAdvisor profileAdvisor) {
+        profileAdvisors.add(profileAdvisor);
+    }
+
+    protected void removeProfileAdvisor(ProfileAdvisor profileAdvisor) {
+        profileAdvisors.remove(profileAdvisor);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setProfileTypeRegistry(ProfileTypeRegistry profileTypeRegistry) {
+        this.profileTypeRegistry = profileTypeRegistry;
+    }
+
+    protected void unsetProfileTypeRegistry(ProfileTypeRegistry profileTypeRegistry) {
+        this.profileTypeRegistry = null;
     }
 
     @Activate
@@ -239,13 +266,22 @@ public class ChannelItemProvider implements ItemProvider {
         Channel channel = thingRegistry.getChannel(link.getLinkedUID());
         if (channel != null) {
             Item item = null;
-            // Only create an item for state channels
-            if (channel.getKind() == ChannelKind.STATE) {
-                for (ItemFactory itemFactory : itemFactories) {
-                    item = itemFactory.createItem(channel.getAcceptedItemType(), link.getItemName());
-                    if (item != null) {
-                        break;
-                    }
+            String acceptedItemType = null;
+            if (channel.getKind() == ChannelKind.TRIGGER) {
+                Collection<String> itemTypes = getItemType(channel);
+                if (itemTypes.size() > 0) {
+                    acceptedItemType = itemTypes.iterator().next();
+                } else {
+                    throw new IllegalStateException(
+                            "Error finding acceptable item type for trigger channel " + channel + ".");
+                }
+            } else {
+                acceptedItemType = channel.getAcceptedItemType();
+            }
+            for (ItemFactory itemFactory : itemFactories) {
+                item = itemFactory.createItem(acceptedItemType, link.getItemName());
+                if (item != null) {
+                    break;
                 }
             }
             if (item != null) {
@@ -263,6 +299,29 @@ public class ChannelItemProvider implements ItemProvider {
                 }
             }
         }
+    }
+
+    private Collection<String> getItemType(Channel channel) {
+        ProfileTypeUID profileTypeUID = getAdvice(channel);
+        for (ProfileType profileType : profileTypeRegistry.getProfileTypes()) {
+            if (profileType.getUID().equals(profileTypeUID)) {
+                return profileType.getSupportedItemTypes();
+            }
+        }
+
+        return Collections.emptyList();
+
+    }
+
+    private ProfileTypeUID getAdvice(Channel channel) {
+        ProfileTypeUID ret;
+        for (ProfileAdvisor advisor : profileAdvisors) {
+            ret = advisor.getSuggestedProfileTypeUID(channel, null);
+            if (ret != null) {
+                return ret;
+            }
+        }
+        return null;
     }
 
     private String getCategory(Channel channel) {
