@@ -21,12 +21,12 @@ for detailed information regarding copyright ownership.
 == Third-party Content
 
 dbus-java Version: 2.7 
-* License: Expat License (MIT Style)
+* License: The copyright holders have granted the Eclipse Foundation the explicit permission to distribute the binary under the MIT License (Expat).
 * Project: http://dbus.freedesktop.org/doc/dbus-java/
 * Source: http://dbus.freedesktop.org/releases/dbus-java/dbus-java-2.7.tar.gz
 
 unix-0.5.jar
-* License: Expat License (MIT Style)
+* License: MIT License (Expat)
 * Source: http://javadoc.matthew.ath.cx/projects/java/libmatthew-java-0.8.tar.gz
 
 == Third-party license(s)
