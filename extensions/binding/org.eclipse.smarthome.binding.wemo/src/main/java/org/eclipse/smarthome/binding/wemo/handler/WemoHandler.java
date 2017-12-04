@@ -74,7 +74,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
 
     private Map<String, Boolean> subscriptionState = new HashMap<String, Boolean>();
 
-    private Map<String, String> stateMap = Collections.synchronizedMap(new HashMap<String, String>());
+    private final Map<String, String> stateMap = Collections.synchronizedMap(new HashMap<String, String>());
 
     protected final static int SUBSCRIPTION_DURATION = 600;
 
@@ -83,11 +83,11 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
     /**
      * The default refresh interval in Seconds.
      */
-    private int DEFAULT_REFRESH_INTERVAL = 120;
+    private final int DEFAULT_REFRESH_INTERVAL = 120;
 
     private ScheduledFuture<?> refreshJob;
 
-    private Runnable refreshRunnable = new Runnable() {
+    private final Runnable refreshRunnable = new Runnable() {
 
         @Override
         public void run() {
@@ -254,8 +254,9 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
                     logger.error("Unable to parse lastChangedAt value '{}' for device '{}'; expected long",
                             splitInsightParams[1], getThing().getUID());
                 }
-                ZonedDateTime zoned= ZonedDateTime.ofInstant(Instant.ofEpochMilli(lastChangedAt), TimeZone.getDefault().toZoneId());
-                
+                ZonedDateTime zoned = ZonedDateTime.ofInstant(Instant.ofEpochMilli(lastChangedAt),
+                        TimeZone.getDefault().toZoneId());
+
                 State lastChangedAtState = new DateTimeType(zoned);
                 if (lastChangedAt != 0) {
                     logger.trace("New InsightParam lastChangedAt '{}' for device '{}' received", lastChangedAtState,
@@ -494,7 +495,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
 
     @Override
     public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
-            Collection<ThingTypeUID> thingTypeUIDs) {
+            Collection<ThingTypeUID> thingTypeUIDs, ThingUID bridgeUID) {
         return Collections.emptyList();
     }
 

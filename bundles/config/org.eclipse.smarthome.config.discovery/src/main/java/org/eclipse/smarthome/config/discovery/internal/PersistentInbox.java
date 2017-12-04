@@ -101,7 +101,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
 
     private class TimeToLiveCheckingThread implements Runnable {
 
-        private PersistentInbox inbox;
+        private final PersistentInbox inbox;
 
         public TimeToLiveCheckingThread(PersistentInbox inbox) {
             this.inbox = inbox;
@@ -128,7 +128,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
 
     private final Logger logger = LoggerFactory.getLogger(PersistentInbox.class);
 
-    private Set<InboxListener> listeners = new CopyOnWriteArraySet<>();
+    private final Set<InboxListener> listeners = new CopyOnWriteArraySet<>();
     private DiscoveryServiceRegistry discoveryServiceRegistry;
     private ThingRegistry thingRegistry;
     private ManagedThingProvider managedThingProvider;
@@ -136,10 +136,10 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     private ConfigDescriptionRegistry configDescRegistry;
     private StorageService storageService;
     private volatile Storage<DiscoveryResult> discoveryResultStorage;
-    private Map<DiscoveryResult, Class<?>> resultDiscovererMap = new ConcurrentHashMap<>();
+    private final Map<DiscoveryResult, Class<?>> resultDiscovererMap = new ConcurrentHashMap<>();
     private ScheduledFuture<?> timeToLiveChecker;
     private EventPublisher eventPublisher;
-    private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
+    private final List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
 
     @Override
     public Thing approve(ThingUID thingUID, String label) {
@@ -331,16 +331,19 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
 
     @Override
     public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
-            Collection<ThingTypeUID> thingTypeUIDs) {
+            Collection<ThingTypeUID> thingTypeUIDs, ThingUID bridgeUID) {
         HashSet<ThingUID> removedThings = new HashSet<>();
         for (DiscoveryResult discoveryResult : getAll()) {
             Class<?> discoverer = resultDiscovererMap.get(discoveryResult);
-            if (thingTypeUIDs.contains(discoveryResult.getThingTypeUID()) && discoveryResult.getTimestamp() < timestamp
+            if (thingTypeUIDs != null && thingTypeUIDs.contains(discoveryResult.getThingTypeUID())
+                    && discoveryResult.getTimestamp() < timestamp
                     && (discoverer == null || source.getClass() == discoverer)) {
                 ThingUID thingUID = discoveryResult.getThingUID();
-                removedThings.add(thingUID);
-                remove(thingUID);
-                logger.debug("Removed {} from inbox because it was older than {}", thingUID, new Date(timestamp));
+                if (bridgeUID == null || bridgeUID.equals(discoveryResult.getBridgeUID())) {
+                    removedThings.add(thingUID);
+                    remove(thingUID);
+                    logger.debug("Removed {} from inbox because it was older than {}", thingUID, new Date(timestamp));
+                }
             }
         }
         return removedThings;

@@ -79,7 +79,7 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
 
     private Map<String, Boolean> subscriptionState = new HashMap<String, Boolean>();
 
-    private Map<String, String> stateMap = Collections.synchronizedMap(new HashMap<String, String>());
+    private final Map<String, String> stateMap = Collections.synchronizedMap(new HashMap<String, String>());
 
     protected final static int SUBSCRIPTION_DURATION = 600;
 
@@ -88,11 +88,11 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
     /**
      * The default refresh interval in Seconds.
      */
-    private int REFRESH_INTERVAL = 60;
+    private final int REFRESH_INTERVAL = 60;
 
     private ScheduledFuture<?> refreshJob;
 
-    private Runnable refreshRunnable = new Runnable() {
+    private final Runnable refreshRunnable = new Runnable() {
 
         @Override
         public void run() {
@@ -472,7 +472,8 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                         getThing().getUID());
                 return null;
             }
-            ZonedDateTime zoned = ZonedDateTime.ofInstant(Instant.ofEpochMilli(value), TimeZone.getDefault().toZoneId());
+            ZonedDateTime zoned = ZonedDateTime.ofInstant(Instant.ofEpochMilli(value),
+                    TimeZone.getDefault().toZoneId());
             State dateTimeState = new DateTimeType(zoned);
             if (dateTimeState != null) {
                 logger.trace("New attribute brewed '{}' received", dateTimeState);
@@ -508,7 +509,7 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
 
     @Override
     public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
-            Collection<ThingTypeUID> thingTypeUIDs) {
+            Collection<ThingTypeUID> thingTypeUIDs, ThingUID bridgeUID) {
         return Collections.emptyList();
     }
 

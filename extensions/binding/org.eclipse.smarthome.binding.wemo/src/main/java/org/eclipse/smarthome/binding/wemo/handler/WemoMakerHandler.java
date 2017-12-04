@@ -72,11 +72,11 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
     /**
      * The default refresh interval in Seconds.
      */
-    private int DEFAULT_REFRESH_INTERVAL = 15;
+    private final int DEFAULT_REFRESH_INTERVAL = 15;
 
     private ScheduledFuture<?> refreshJob;
 
-    private Runnable refreshRunnable = new Runnable() {
+    private final Runnable refreshRunnable = new Runnable() {
 
         @Override
         public void run() {
@@ -326,7 +326,7 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
 
     @Override
     public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
-            Collection<ThingTypeUID> thingTypeUIDs) {
+            Collection<ThingTypeUID> thingTypeUIDs, ThingUID bridgeUID) {
         return Collections.emptyList();
     }
 
