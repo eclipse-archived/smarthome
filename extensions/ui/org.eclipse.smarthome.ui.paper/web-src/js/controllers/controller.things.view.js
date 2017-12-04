@@ -1,5 +1,5 @@
 angular.module('PaperUI.controllers.things') //
-.controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeRepository, configService, thingConfigService, util, itemRepository) {
+.controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeRepository, configService, thingConfigService, util, itemRepository, channelTypeService) {
     $scope.setSubtitle([ 'Things' ]);
 
     var thingUID = $scope.path[4];
@@ -76,43 +76,50 @@ angular.module('PaperUI.controllers.things') //
     $scope.linkChannel = function(channelID, event, preSelect) {
         var channel = $scope.getChannelById(channelID);
         var channelType = $scope.getChannelTypeByUID(channel.channelTypeUID);
-        var params = {
-            linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
-            acceptedItemType : channel.itemType,
-            category : channelType.category ? channelType.category : '',
-            suggestedName : getItemNameSuggestion(channelID, channelType.label),
-            suggestedLabel : channelType.label,
-            suggestedCategory : channelType.category ? channelType.category : '',
-            preSelectCreate : preSelect
-        }
-        $mdDialog.show({
-            controller : 'LinkChannelDialogController',
-            templateUrl : 'partials/dialog.linkchannel.html',
-            targetEvent : event,
-            hasBackdrop : true,
-            params : params
-        }).then(function(newItem) {
-            if (newItem) {
-                linkService.link({
-                    itemName : newItem.itemName,
-                    channelUID : $scope.thing.UID + ':' + channelID
-                }, function() {
-                    $scope.getThing(true);
-                    var item = $.grep($scope.items, function(item) {
-                        return item.name == newItem.itemName;
-                    });
-                    channel.items = channel.items ? channel.items : [];
-                    if (item.length > 0) {
-                        channel.items.push(item[0]);
-                    } else {
-                        channel.items.push({
-                            name : newItem.itemName,
-                            label : newItem.label
-                        });
-                    }
-                    toastService.showDefaultToast('Channel linked');
-                });
+
+        channelTypeService.getAdvisedProfile({
+            channelTypeUID : channel.channelTypeUID
+        }, function(profileType) {
+            var acceptedItemType = profileType.supportedItemTypes ? profileType.supportedItemTypes[0] : channel.itemType;
+
+            var params = {
+                linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
+                acceptedItemType : acceptedItemType,
+                category : channelType.category ? channelType.category : '',
+                suggestedName : getItemNameSuggestion(channelID, channelType.label),
+                suggestedLabel : channelType.label,
+                suggestedCategory : channelType.category ? channelType.category : '',
+                preSelectCreate : preSelect
             }
+            $mdDialog.show({
+                controller : 'LinkChannelDialogController',
+                templateUrl : 'partials/dialog.linkchannel.html',
+                targetEvent : event,
+                hasBackdrop : true,
+                params : params
+            }).then(function(newItem) {
+                if (newItem) {
+                    linkService.link({
+                        itemName : newItem.itemName,
+                        channelUID : $scope.thing.UID + ':' + channelID
+                    }, function() {
+                        $scope.getThing(true);
+                        var item = $.grep($scope.items, function(item) {
+                            return item.name == newItem.itemName;
+                        });
+                        channel.items = channel.items ? channel.items : [];
+                        if (item.length > 0) {
+                            channel.items.push(item[0]);
+                        } else {
+                            channel.items.push({
+                                name : newItem.itemName,
+                                label : newItem.label
+                            });
+                        }
+                        toastService.showDefaultToast('Channel linked');
+                    });
+                }
+            });
         });
     }
 
