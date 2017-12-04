@@ -5,11 +5,11 @@ Bundle-SymbolicName: org.eclipse.smarthome.binding.coapconnectedlighting;singlet
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-ClassPath: .,
- lib/californium-core-1.1.0-SNAPSHOT.jar,
- lib/element-connector-1.1.0-SNAPSHOT.jar
+Bundle-ClassPath: .
 Import-Package: 
  org.apache.commons.lang;version="2.6.0",
+ org.eclipse.californium.core;version="1.0.6",
+ org.eclipse.californium.core.coap;version="1.0.6",
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.binding.coapconnectedlighting,
  org.eclipse.smarthome.binding.coapconnectedlighting.handler,
@@ -24,4 +24,6 @@ Import-Package:
  org.slf4j
 Service-Component: OSGI-INF/*.xml
 Export-Package: org.eclipse.smarthome.binding.coapconnectedlighting,
- org.eclipse.smarthome.binding.coapconnectedlighting.handler
+ org.eclipse.smarthome.binding.coapconnectedlighting.discovery,
+ org.eclipse.smarthome.binding.coapconnectedlighting.handler,
+ org.eclipse.smarthome.binding.coapconnectedlighting.internal
