@@ -34,6 +34,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -518,6 +519,53 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
     }
 
     @Test
+    public void whenContextExistsInExlusivePIDCreateMultipleServices() throws IOException {
+        String configDirectory = configBaseDirectory + SEP + "multiple_service_contexts";
+        String servicesDirectory = "multiple_contexts";
+
+        initialize(configDirectory, servicesDirectory, null);
+        verifyValueOfConfigurationPropertyWithContext("service.pid#ctx1", "property1", "value1");
+        verifyValueOfConfigurationPropertyWithContext("service.pid#ctx2", "property1", "value2");
+    }
+
+    @Test
+    public void whenContextExistsInExlusivePIDCreateMultipleServicesUpdateWithDuplicate() throws IOException {
+        String configDirectory = configBaseDirectory + SEP + "multiple_service_contexts_duplicates";
+        String servicesDirectory = "multiple_contexts";
+
+        initialize(configDirectory, servicesDirectory, null);
+        // ctx1 is overwritten by service-ctx1duplicate.cfg
+        verifyValueOfConfigurationPropertyWithContext("service.pid#ctx1", "property1", "valueDup");
+        // ctx2 is parsed as is
+        verifyValueOfConfigurationPropertyWithContext("service.pid#ctx2", "property1", "value2");
+    }
+
+    @Test
+    public void whenContextExistsInExlusivePIDCreateMultipleServicesAndDeleteOneOfThem() throws IOException {
+        String configDirectory = configBaseDirectory + SEP + "multiple_service_contexts";
+        String servicesDirectory = "multiple_contexts";
+
+        initialize(configDirectory, servicesDirectory, null);
+        verifyValueOfConfigurationPropertyWithContext("service.pid#ctx1", "property1", "value1");
+        verifyValueOfConfigurationPropertyWithContext("service.pid#ctx2", "property1", "value2");
+
+        File serviceConfigFile = new File(configDirectory + SEP + servicesDirectory, "service-ctx1.cfg");
+        serviceConfigFile.delete();
+
+        waitForAssert(() -> {
+            Configuration c1 = getConfigurationWithContext("service.pid#ctx1");
+            // test if configuration with context ctx1 was deleted
+            assertThat("Configuration 1 is not deleted", c1, is(nullValue()));
+
+            // configuration with context ctx2 should still exist
+            Configuration c2 = getConfigurationWithContext("service.pid#ctx2");
+            assertThat("Configuration 2 should still exist but was removed", c2.getProperties().get("property1"),
+                    is("value2"));
+        });
+
+    }
+
+    @Test
     public void whenExclusivePIDFileIsDeleted_DeleteTheConfiguration() throws IOException {
         String configDirectory = configBaseDirectory + SEP + "exclusive_pid_file_removed_during_runtime";
         String servicesDirectory = "exclusive_pid_file_removed_during_runtime_services";
@@ -735,6 +783,48 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
         setSystemProperty(ConfigConstants.CONFIG_DIR_PROG_ARGUMENT, configDirectory);
         setSystemProperty(ConfigDispatcher.SERVICEDIR_PROG_ARGUMENT, serviceDirectory);
         setSystemProperty(ConfigDispatcher.SERVICECFG_PROG_ARGUMENT, defaultConfigFile);
+    }
+
+    private Configuration getConfigurationWithContext(String pidWithContext) {
+        String pid = null;
+        String configContext = null;
+        if (pidWithContext.contains(ConfigDispatcher.SERVICE_CONTEXT_MARKER)) {
+            pid = pidWithContext.split(ConfigDispatcher.SERVICE_CONTEXT_MARKER)[0];
+            configContext = pidWithContext.split(ConfigDispatcher.SERVICE_CONTEXT_MARKER)[1];
+        } else {
+            fail("PID does not have a context");
+        }
+        Configuration[] configs = null;
+        try {
+            configs = configAdmin.listConfigurations("(&(service.factoryPid=" + pid + ")("
+                    + ConfigDispatcher.SERVICE_CONTEXT + "=" + configContext + "))");
+        } catch (IOException e) {
+            fail("IOException occured while retrieving configuration for pid " + pidWithContext);
+        } catch (InvalidSyntaxException e) {
+            fail("InvalidSyntaxException occured while retrieving configuration for pid " + pidWithContext);
+        }
+
+        if (configs == null) {
+            return null;
+        }
+        // otherwise we should have exactly one configuration
+        assertThat(configs.length, is(1));
+
+        return configs[0];
+    }
+
+    private void verifyValueOfConfigurationPropertyWithContext(String pidWithContext, String property, String value) {
+        waitForAssert(() -> {
+            Configuration configuration = getConfigurationWithContext(pidWithContext);
+
+            assertThat("The configuration for the given pid cannot be found", configuration, is(notNullValue()));
+            assertThat("There are no properties for the configuration", configuration.getProperties(),
+                    is(notNullValue()));
+            assertThat("There is no such " + property + " in the configuration properties",
+                    configuration.getProperties().get(property), is(notNullValue()));
+            assertThat("The value of the property " + property + " for pid " + pidWithContext + " is not as expected",
+                    configuration.getProperties().get(property), is(equalTo(value)));
+        });
     }
 
     private void verifyValueOfConfigurationProperty(String pid, String property, String value) {

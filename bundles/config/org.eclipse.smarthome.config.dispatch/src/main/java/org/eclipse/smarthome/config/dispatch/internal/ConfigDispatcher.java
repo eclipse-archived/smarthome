@@ -39,6 +39,7 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.service.AbstractWatchService;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
@@ -87,6 +88,7 @@ import com.google.gson.JsonSyntaxException;
  * @author Petar Valchev - Added sort by modification time, when configuration files are read
  * @author Ana Dimova - Reduce to a single watch thread for all class instances
  * @author Henning Treu - Delete orphan exclusive configuration from configAdmin
+ * @author Stefan Triller - Add support for service contexts
  */
 @Component(immediate = true)
 public class ConfigDispatcher extends AbstractWatchService {
@@ -100,6 +102,12 @@ public class ConfigDispatcher extends AbstractWatchService {
 
     /** The program argument name for setting the service pid namespace */
     final static public String SERVICEPID_PROG_ARGUMENT = "smarthome.servicepid";
+
+    /** The property to recognize a service instance created by a service factory */
+    public static final String SERVICE_CONTEXT = "service.context";
+
+    /** The property to separate service PIDs from their contexts */
+    public static final String SERVICE_CONTEXT_MARKER = "#";
 
     /**
      * The program argument name for setting the default services config file
@@ -221,13 +229,42 @@ public class ConfigDispatcher extends AbstractWatchService {
         }
     }
 
+    private Configuration getConfigurationWithContext(String pidWithContext)
+            throws IOException, InvalidSyntaxException {
+
+        if (!pidWithContext.contains(SERVICE_CONTEXT_MARKER)) {
+            throw new IllegalArgumentException("Given PID should be followed by a context");
+        }
+        String pid = pidWithContext.split(SERVICE_CONTEXT_MARKER)[0];
+        String context = pidWithContext.split(SERVICE_CONTEXT_MARKER)[1];
+
+        Configuration[] configs = configAdmin
+                .listConfigurations("(&(service.factoryPid=" + pid + ")(" + SERVICE_CONTEXT + "=" + context + "))");
+
+        if (configs == null) {
+            return null;
+        }
+        if (configs.length > 1) {
+            throw new IllegalStateException("More than one configuration with PID " + pidWithContext + " exists");
+        }
+
+        return configs[0];
+    }
+
     private void processOrphanExclusivePIDs() {
         for (String orphanPID : exclusivePIDMap.getOrphanPIDs()) {
             try {
-                Configuration configuration = configAdmin.getConfiguration(orphanPID, null);
-                configuration.delete();
+                Configuration configuration = null;
+                if (orphanPID.contains(SERVICE_CONTEXT_MARKER)) {
+                    configuration = getConfigurationWithContext(orphanPID);
+                } else {
+                    configuration = configAdmin.getConfiguration(orphanPID, null);
+                }
+                if (configuration != null) {
+                    configuration.delete();
+                }
                 logger.debug("Deleting configuration for orphan pid {}", orphanPID);
-            } catch (IOException e) {
+            } catch (IOException | InvalidSyntaxException e) {
                 logger.error("Error deleting configuration for orphan pid {}.", orphanPID);
             }
         }
@@ -326,6 +363,7 @@ public class ConfigDispatcher extends AbstractWatchService {
         Map<Configuration, Dictionary> configMap = new HashMap<Configuration, Dictionary>();
 
         String pid = pidFromFilename(configFile);
+        String context = null;
 
         // configuration file contains a PID Marker
         List<String> lines = IOUtils.readLines(new FileInputStream(configFile));
@@ -335,16 +373,49 @@ public class ConfigDispatcher extends AbstractWatchService {
                 logger.warn("The file {} subsequently defines the exclusive PID '{}'.", configFile.getAbsolutePath(),
                         exclusivePID);
             }
+
             pid = exclusivePID;
+
+            if (exclusivePID.contains(SERVICE_CONTEXT_MARKER)) {
+                // split pid and context
+                pid = exclusivePID.split(SERVICE_CONTEXT_MARKER)[0];
+                context = exclusivePID.split(SERVICE_CONTEXT_MARKER)[1];
+            }
+
             lines = lines.subList(1, lines.size());
-            exclusivePIDMap.setProcessedPID(pid, configFile.getAbsolutePath());
+            exclusivePIDMap.setProcessedPID(exclusivePID, configFile.getAbsolutePath());
+
         } else if (exclusivePIDMap.contains(pid)) {
             // the pid was once from an exclusive file but there is either a second non-exclusive-file with config
             // entries or the `pid:` marker was removed.
             exclusivePIDMap.removeExclusivePID(pid);
         }
 
-        Configuration configuration = configAdmin.getConfiguration(pid, null);
+        Configuration configuration = null;
+        // if we have a context we need to create a service factory
+        if (context != null) {
+            try {
+                // try to find configuration using our context property
+                configuration = getConfigurationWithContext(exclusivePID);
+            } catch (InvalidSyntaxException e) {
+                logger.error("Failed to lookup config for file '{}' for PID '{}' with context '{}'",
+                        configFile.getName(), pid, context);
+            }
+
+            if (configuration == null) {
+                logger.debug("Creating factory configuration for PID '{}' with context '{}'", pid, context);
+
+                configuration = configAdmin.createFactoryConfiguration(pid, null);
+                Dictionary p = new Properties();
+                p.put(SERVICE_CONTEXT, context);
+                configuration.update(p);
+            } else {
+                logger.warn("Configuration for '{}' already exists, updating it with file '{}'.", exclusivePID,
+                        configFile.getName());
+            }
+        } else {
+            configuration = configAdmin.getConfiguration(pid, null);
+        }
 
         // this file does only contain entries for this PID and no other files do contain further entries for this PID.
         if (exclusivePIDMap.contains(pid)) {
