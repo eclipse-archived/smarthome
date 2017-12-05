@@ -24,7 +24,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,10 +36,13 @@ import org.slf4j.LoggerFactory;
  *
  * @author Wouter Born - Periodically update available interface information
  */
+@NonNullByDefault
 public final class LifxNetworkUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LifxNetworkUtil.class);
+    private static final AtomicInteger BROADCAST_PORT_COUNTER = new AtomicInteger(1);
     private static final long UPDATE_INTERVAL_MILLIS = Duration.ofSeconds(15).toMillis();
+    private static final int PORT_MAX = 65535;
 
     private static List<InetSocketAddress> broadcastAddresses = new ArrayList<>();
     private static List<InetAddress> interfaceAddresses = new ArrayList<>();
@@ -115,6 +120,21 @@ public final class LifxNetworkUtil {
     public static int getBufferSize() {
         updateOutdatedNetworkInformation();
         return bufferSize;
+    }
+
+    public static boolean isLocalAddress(InetAddress address) {
+        return getInterfaceAddresses().contains(address);
+    }
+
+    public static boolean isRemoteAddress(InetAddress address) {
+        return !isLocalAddress(address);
+    }
+
+    public static int getNewBroadcastPort() {
+        int offset = BROADCAST_PORT_COUNTER.getAndUpdate((value) -> {
+            return (value + 1) % Integer.MAX_VALUE;
+        });
+        return BROADCAST_PORT + (offset % (PORT_MAX - BROADCAST_PORT));
     }
 
 }

@@ -14,7 +14,9 @@ package org.eclipse.smarthome.binding.lifx.internal.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.UUID;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
@@ -25,6 +27,7 @@ import org.eclipse.smarthome.core.library.types.PercentType;
  *
  * @author Wouter Born - Extracted methods from LifxLightHandler
  */
+@NonNullByDefault
 public final class LifxMessageUtil {
 
     private static final BigDecimal INCREASE_DECREASE_STEP = new BigDecimal(10);
@@ -116,6 +119,10 @@ public final class LifxMessageUtil {
             }
         }
         return true;
+    }
+
+    public static long randomSourceId() {
+        return UUID.randomUUID().getLeastSignificantBits() & (-1L >>> 32);
     }
 
 }
