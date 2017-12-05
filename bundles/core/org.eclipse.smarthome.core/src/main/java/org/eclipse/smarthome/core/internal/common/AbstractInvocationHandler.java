@@ -16,6 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
@@ -105,17 +106,17 @@ abstract class AbstractInvocationHandler<T> {
 
     void handleDuplicate(Method method, DuplicateExecutionException e) {
         Thread thread = e.getCallable().getThread();
-        logger.warn(MSG_DUPLICATE, toString(method), target, toString(e.getCallable().getMethod()), thread.getName(),
+        logger.debug(MSG_DUPLICATE, toString(method), target, toString(e.getCallable().getMethod()), thread.getName(),
                 thread.getId(), thread.getState().toString(), getStacktrace(thread));
     }
 
     void handleTimeout(Method method, Invocation invocation) {
         final Thread thread = invocation.getThread();
         if (thread != null) {
-            logger.warn(MSG_TIMEOUT_R, timeout, toString(invocation.getInvocationStack()), thread.getName(),
+            logger.debug(MSG_TIMEOUT_R, timeout, toString(invocation.getInvocationStack()), thread.getName(),
                     thread.getId(), thread.getState().toString(), getStacktrace(thread));
         } else {
-            logger.warn(MSG_TIMEOUT_Q, timeout, toString(invocation.getInvocationStack()));
+            logger.debug(MSG_TIMEOUT_Q, timeout, toString(invocation.getInvocationStack()));
         }
         if (timeoutHandler != null) {
             timeoutHandler.run();
@@ -134,11 +135,7 @@ abstract class AbstractInvocationHandler<T> {
                 return thread.getStackTrace();
             }
         });
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < elements.length; i++) {
-            sb.append("\tat " + elements[i].toString() + "\n");
-        }
-        return sb.toString();
+        return Arrays.stream(elements).map(element -> "\tat " + element.toString()).collect(Collectors.joining("\n"));
     }
 
     String toString(Method method) {
