@@ -107,9 +107,9 @@ abstract class AbstractInvocationHandler<T> {
                 thread.getId(), thread.getState().toString(), getStacktrace(thread));
     }
 
-    void handleTimeout(Method method, TrackingCallable wrapper) {
-        if (wrapper.getThread() != null) {
-            final Thread thread = wrapper.getThread();
+    void handleTimeout(Method method, Invocation invocation) {
+        if (invocation.getThread() != null) {
+            final Thread thread = invocation.getThread();
             logger.warn(MSG_TIMEOUT_R, timeout, toString(method), target, thread.getName(), thread.getId(),
                     thread.getState().toString(), getStacktrace(thread));
         } else {
@@ -146,10 +146,9 @@ abstract class AbstractInvocationHandler<T> {
     }
 
     @Nullable
-    Object invokeDirect(Invocation invocation, TrackingCallable wrapper)
-            throws IllegalAccessException, IllegalArgumentException {
+    Object invokeDirect(Invocation invocation) throws IllegalAccessException, IllegalArgumentException {
         try {
-            manager.recordCallStart(invocation, wrapper);
+            manager.recordCallStart(invocation);
         } catch (DuplicateExecutionException e) {
             return null;
         }
@@ -159,7 +158,7 @@ abstract class AbstractInvocationHandler<T> {
             handleException(invocation.getMethod(), e);
             return null;
         } finally {
-            manager.recordCallEnd(invocation, wrapper);
+            manager.recordCallEnd(invocation);
         }
     }
 

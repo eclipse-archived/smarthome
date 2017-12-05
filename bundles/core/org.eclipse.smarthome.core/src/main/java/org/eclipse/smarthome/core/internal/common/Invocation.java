@@ -13,22 +13,24 @@
 package org.eclipse.smarthome.core.internal.common;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * Represents a call to the dynamic proxy.
+ * Represents a call to the dynamic proxy which wraps a {@link Callable} and tracks the executing thread.
  *
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
-@NonNullByDefault
-class Invocation {
+class Invocation implements Callable<Object> {
 
     private final Method method;
     private final @Nullable Object @Nullable [] args;
     private final AbstractInvocationHandler<?> invocationHandler;
+
+    @Nullable
+    private Thread thread;
 
     Invocation(AbstractInvocationHandler<?> invocationHandler, Method method, @Nullable Object @Nullable [] args) {
         this.method = method;
@@ -37,27 +39,33 @@ class Invocation {
     }
 
     @Nullable
-    Object @Nullable [] getArgs() {
-        return args;
+    Thread getThread() {
+        return thread;
     }
 
-    Object getIdentifier() {
-        return invocationHandler.getIdentifier();
+    @Override
+    public Object call() throws Exception {
+        thread = Thread.currentThread();
+        return invocationHandler.invokeDirect(this);
     }
 
     Method getMethod() {
         return method;
     }
 
+    Object[] getArgs() {
+        return args;
+    }
+
     long getTimeout() {
         return invocationHandler.getTimeout();
     }
 
-    void handleTimeout(TrackingCallable wrapper) {
-        invocationHandler.handleTimeout(method, wrapper);
+    Object getIdentifier() {
+        return invocationHandler.getIdentifier();
     }
 
-    public AbstractInvocationHandler<?> getInvocationHandler() {
+    AbstractInvocationHandler<?> getInvocationHandler() {
         return invocationHandler;
     }
 

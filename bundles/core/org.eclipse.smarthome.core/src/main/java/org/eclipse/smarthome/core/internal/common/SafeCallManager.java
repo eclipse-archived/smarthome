@@ -28,18 +28,16 @@ public interface SafeCallManager {
     /**
      * Track that the call to the target method starts.
      *
-     * @param invocation the call to the proxy
-     * @param wrapper the wrapper around the actual call
+     * @param invocation the wrapper around the actual call
      */
-    void recordCallStart(Invocation invocation, TrackingCallable wrapper);
+    void recordCallStart(Invocation invocation);
 
     /**
      * Track that the call to the target method finished.
      *
-     * @param invocation the call to the proxy
-     * @param wrapper the wrapper around the actual call
+     * @param invocation the wrapper around the actual call
      */
-    void recordCallEnd(Invocation invocation, TrackingCallable wrapper);
+    void recordCallEnd(Invocation invocation);
 
     /**
      * Queue the given invocation for asynchronous execution.
