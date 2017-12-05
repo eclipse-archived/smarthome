@@ -16,8 +16,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -34,8 +36,8 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 abstract class AbstractInvocationHandler<T> {
 
-    private static final String MSG_TIMEOUT_R = "Timeout of {}ms exceeded while calling method '{}' on '{}'. Thread '{}' ({}) is in state '{}'\n{}";
-    private static final String MSG_TIMEOUT_Q = "Timeout of {}ms exceeded while calling method '{}' on '{}'. The task was still queued.";
+    private static final String MSG_TIMEOUT_R = "Timeout of {}ms exceeded while calling\n{}\nThread '{}' ({}) is in state '{}'\n{}";
+    private static final String MSG_TIMEOUT_Q = "Timeout of {}ms exceeded while calling\n{}\nThe task was still queued.";
     private static final String MSG_DUPLICATE = "Thread occupied while calling method '{}' on '{}' because of another blocking call.\n\tThe other call was to '{}'.\n\tIt's thread '{}' ({}) is in state '{}'\n{}";
     private static final String MSG_ERROR = "An error occurred while calling method '{}' on '{}': {}";
 
@@ -108,16 +110,21 @@ abstract class AbstractInvocationHandler<T> {
     }
 
     void handleTimeout(Method method, Invocation invocation) {
-        if (invocation.getThread() != null) {
-            final Thread thread = invocation.getThread();
-            logger.warn(MSG_TIMEOUT_R, timeout, toString(method), target, thread.getName(), thread.getId(),
-                    thread.getState().toString(), getStacktrace(thread));
+        final Thread thread = invocation.getThread();
+        if (thread != null) {
+            logger.warn(MSG_TIMEOUT_R, timeout, toString(invocation.getInvocationStack()), thread.getName(),
+                    thread.getId(), thread.getState().toString(), getStacktrace(thread));
         } else {
-            logger.warn(MSG_TIMEOUT_Q, timeout, toString(method), target);
+            logger.warn(MSG_TIMEOUT_Q, timeout, toString(invocation.getInvocationStack()));
         }
         if (timeoutHandler != null) {
             timeoutHandler.run();
         }
+    }
+
+    private String toString(Collection<Invocation> invocationStack) {
+        return invocationStack.stream().map(invocation -> "\t'" + toString(invocation.getMethod()) + "' on '"
+                + invocation.getInvocationHandler().getTarget() + "'").collect(Collectors.joining(" via\n"));
     }
 
     private String getStacktrace(final Thread thread) {

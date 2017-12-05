@@ -13,6 +13,8 @@
 package org.eclipse.smarthome.core.internal.common;
 
 import java.lang.reflect.Method;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.concurrent.Callable;
 
 import org.eclipse.jdt.annotation.Nullable;
@@ -28,6 +30,7 @@ class Invocation implements Callable<Object> {
     private final Method method;
     private final @Nullable Object @Nullable [] args;
     private final AbstractInvocationHandler<?> invocationHandler;
+    private final Deque<Invocation> invocationStack = new LinkedList<>();
 
     @Nullable
     private Thread thread;
@@ -36,6 +39,7 @@ class Invocation implements Callable<Object> {
         this.method = method;
         this.args = args;
         this.invocationHandler = invocationHandler;
+        this.invocationStack.push(this);
     }
 
     @Nullable
@@ -72,6 +76,10 @@ class Invocation implements Callable<Object> {
     @Override
     public String toString() {
         return "invocation of '" + method.getName() + "()' on '" + invocationHandler.getTarget() + "'";
+    }
+
+    Deque<Invocation> getInvocationStack() {
+        return invocationStack;
     }
 
 }

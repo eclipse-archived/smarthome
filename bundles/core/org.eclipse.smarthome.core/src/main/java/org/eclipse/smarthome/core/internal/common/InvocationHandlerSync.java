@@ -49,11 +49,17 @@ public class InvocationHandlerSync<T> extends AbstractInvocationHandler<T> imple
     public Object invoke(@Nullable Object proxy, @Nullable Method method, Object @Nullable [] args) throws Throwable {
         if (method != null) {
             Invocation invocation = new Invocation(this, method, args);
-            if (getManager().isSafeContext()) {
+            Invocation activeInvocation = getManager().getActiveInvocation();
+            if (activeInvocation != null) {
                 if (logger.isDebugEnabled()) {
                     logger.debug(MSG_CONTEXT, toString(method), getTarget());
                 }
-                return invokeDirect(invocation);
+                try {
+                    activeInvocation.getInvocationStack().push(invocation);
+                    return invokeDirect(invocation);
+                } finally {
+                    activeInvocation.getInvocationStack().poll();
+                }
             }
             try {
                 Future<Object> future = getManager().getScheduler().submit(invocation);

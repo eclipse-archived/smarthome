@@ -15,6 +15,7 @@ package org.eclipse.smarthome.core.internal.common;
 import java.util.concurrent.ExecutorService;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Interface to the safe call manager which handles queuing and tracking of safe-call executions.
@@ -54,10 +55,11 @@ public interface SafeCallManager {
     ExecutorService getScheduler();
 
     /**
-     * Determine if the current thread is one of the safe-caller's thread pool.
+     * Get the active invocation if the current thread already is a safe-call thread.
      *
-     * @return {@code true} if the current thread a member of the safe-caller thread pool
+     * @return the active invocation or {@code null}
      */
-    boolean isSafeContext();
+    @Nullable
+    Invocation getActiveInvocation();
 
 }

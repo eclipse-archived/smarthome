@@ -144,8 +144,16 @@ public class SafeCallManagerImpl implements SafeCallManager {
     }
 
     @Override
-    public boolean isSafeContext() {
-        return Thread.currentThread().getName().startsWith(threadPoolName + "-");
+    @Nullable
+    public Invocation getActiveInvocation() {
+        synchronized (activeIdentifiers) {
+            for (Invocation invocation : activeIdentifiers.values()) {
+                if (invocation.getThread() == Thread.currentThread()) {
+                    return invocation;
+                }
+            }
+        }
+        return null;
     }
 
     @Override
