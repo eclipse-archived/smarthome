@@ -68,7 +68,7 @@ public class ProfileCallbackImpl implements ProfileCallback {
                     safeCaller.create(handler).withTimeout(CommunicationManager.THINGHANDLER_EVENT_TIMEOUT)
                             .onTimeout(() -> {
                                 logger.warn("Handler for thing '{}' takes more than {}ms for handling a command",
-                                        handler.getThing().getUID(), SafeCaller.DEFAULT_TIMEOUT);
+                                        handler.getThing().getUID(), CommunicationManager.THINGHANDLER_EVENT_TIMEOUT);
                             }).build().handleCommand(link.getLinkedUID(), command);
                 } else {
                     logger.debug("Not delegating command '{}' for item '{}' to handler for channel '{}', "
@@ -100,7 +100,7 @@ public class ProfileCallbackImpl implements ProfileCallback {
                     safeCaller.create(handler).withTimeout(CommunicationManager.THINGHANDLER_EVENT_TIMEOUT)
                             .onTimeout(() -> {
                                 logger.warn("Handler for thing '{}' takes more than {}ms for handling an update",
-                                        handler.getThing().getUID(), SafeCaller.DEFAULT_TIMEOUT);
+                                        handler.getThing().getUID(), CommunicationManager.THINGHANDLER_EVENT_TIMEOUT);
                             }).build().handleUpdate(link.getLinkedUID(), state);
                 } else {
                     logger.debug("Not delegating update '{}' for item '{}' to handler for channel '{}', "
