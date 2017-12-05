@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.core.common;
 
+import java.util.concurrent.TimeUnit;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
@@ -28,7 +30,7 @@ public interface SafeCaller {
     /**
      * Default timeout for actions in milliseconds.
      */
-    int DEFAULT_TIMEOUT = 5000 /* milliseconds */;
+    long DEFAULT_TIMEOUT = TimeUnit.SECONDS.toMillis(5);
 
     /**
      * Create a safe call builder for the given object.

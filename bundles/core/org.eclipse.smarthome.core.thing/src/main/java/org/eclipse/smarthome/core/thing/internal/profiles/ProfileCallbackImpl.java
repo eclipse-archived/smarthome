@@ -22,6 +22,7 @@ import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.internal.CommunicationManager;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.profiles.ProfileCallback;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
@@ -64,10 +65,11 @@ public class ProfileCallbackImpl implements ProfileCallback {
                 if (ThingHandlerHelper.isHandlerInitialized(thing)) {
                     logger.debug("Delegating command '{}' for item '{}' to handler for channel '{}'", command,
                             link.getItemName(), link.getLinkedUID());
-                    safeCaller.create(handler).onTimeout(() -> {
-                        logger.warn("Handler for thing '{}' takes more than {}ms for handling a command",
-                                handler.getThing().getUID(), SafeCaller.DEFAULT_TIMEOUT);
-                    }).build().handleCommand(link.getLinkedUID(), command);
+                    safeCaller.create(handler).withTimeout(CommunicationManager.THINGHANDLER_EVENT_TIMEOUT)
+                            .onTimeout(() -> {
+                                logger.warn("Handler for thing '{}' takes more than {}ms for handling a command",
+                                        handler.getThing().getUID(), CommunicationManager.THINGHANDLER_EVENT_TIMEOUT);
+                            }).build().handleCommand(link.getLinkedUID(), command);
                 } else {
                     logger.debug("Not delegating command '{}' for item '{}' to handler for channel '{}', "
                             + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE but was {}).",
@@ -95,10 +97,11 @@ public class ProfileCallbackImpl implements ProfileCallback {
                 if (ThingHandlerHelper.isHandlerInitialized(thing)) {
                     logger.debug("Delegating update '{}' for item '{}' to handler for channel '{}'", state,
                             link.getItemName(), link.getLinkedUID());
-                    safeCaller.create(handler).onTimeout(() -> {
-                        logger.warn("Handler for thing '{}' takes more than {}ms for handling an update",
-                                handler.getThing().getUID(), SafeCaller.DEFAULT_TIMEOUT);
-                    }).build().handleUpdate(link.getLinkedUID(), state);
+                    safeCaller.create(handler).withTimeout(CommunicationManager.THINGHANDLER_EVENT_TIMEOUT)
+                            .onTimeout(() -> {
+                                logger.warn("Handler for thing '{}' takes more than {}ms for handling an update",
+                                        handler.getThing().getUID(), CommunicationManager.THINGHANDLER_EVENT_TIMEOUT);
+                            }).build().handleUpdate(link.getLinkedUID(), state);
                 } else {
                     logger.debug("Not delegating update '{}' for item '{}' to handler for channel '{}', "
                             + "because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE but was {}).",

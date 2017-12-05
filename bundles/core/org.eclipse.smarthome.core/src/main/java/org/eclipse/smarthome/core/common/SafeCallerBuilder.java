@@ -40,7 +40,7 @@ public interface SafeCallerBuilder<T> {
      * @param timeout the timeout in milliseconds.
      * @return the SafeCallerBuilder itself
      */
-    SafeCallerBuilder<T> withTimeout(int timeout);
+    SafeCallerBuilder<T> withTimeout(long timeout);
 
     /**
      * Specifies the identifier for the context in which only one thread may be occupied at the same time.
