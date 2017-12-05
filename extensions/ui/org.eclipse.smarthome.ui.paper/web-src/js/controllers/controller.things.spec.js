@@ -39,7 +39,12 @@ describe('module PaperUI.controllers.things', function() {
     });
 
     describe('tests for ViewThingController', function() {
-        var ViewThingController, scope, injector, deferred, channelTypeService, itemRepository;
+        var ViewThingController;
+        var scope;
+        var injector;
+        var deferred;
+        var channelTypeService;
+        var itemRepository;
         beforeEach(inject(function($injector, $rootScope, $controller, $mdDialog, $q) {
             scope = $rootScope.$new();
             scope.path = [];
@@ -49,6 +54,10 @@ describe('module PaperUI.controllers.things', function() {
             itemRepository = $injector.get('itemRepository');
             spyOn(channelTypeService, 'getAll').and.callThrough();
             spyOn(itemRepository, 'getAll');
+
+            var thingRepository = $injector.get('thingRepository');
+            spyOn(thingRepository, "getOne");
+
             $controller('BodyController', {
                 '$scope' : scope
             });
@@ -75,7 +84,6 @@ describe('module PaperUI.controllers.things', function() {
             expect(mdDialog.show).toHaveBeenCalled();
         });
         it('should link channel advance mode', function() {
-            spyOn(mdDialog, 'show').and.returnValue(deferred.promise);
             var event = {
                 stopImmediatePropagation : function() {
                 }
@@ -90,8 +98,29 @@ describe('module PaperUI.controllers.things', function() {
                 UID : 'C:T',
                 category : ''
             } ];
+
+            restConfig = injector.get('restConfig');
+            $httpBackend = injector.get('$httpBackend');
+            $httpBackend.when('GET', restConfig.restPath + "/channel-types/C:T/advicedProfile").respond({
+                supportedItemTypes : [ "Switch", "Dimmer" ]
+            });
+            $httpBackend.expect('GET', restConfig.restPath + "/links/auto").respond();
+            $httpBackend.expect('GET', restConfig.restPath + "/inbox").respond([]);
+            $httpBackend.expect('GET', restConfig.restPath + "/bindings").respond();
+            $httpBackend.expect('GET', restConfig.restPath + "/channel-types").respond();
+
             scope.advancedMode = true;
+
+            spyOn(channelTypeService, 'getAdvicedProfile').and.callThrough();
+            spyOn(mdDialog, 'show').and.returnValue(deferred.promise);
+
             scope.enableChannel(0, 'T', event, true);
+            $httpBackend.flush();
+
+            expect(channelTypeService.getAdvicedProfile).toHaveBeenCalledWith({
+                channelTypeUID : "C:T"
+            }, jasmine.any(Function));
+
             expect(mdDialog.show).toHaveBeenCalled();
         });
         it('should link channel simple mode', function() {
@@ -114,6 +143,7 @@ describe('module PaperUI.controllers.things', function() {
         });
         it('should unlink channel advance mode', function() {
             spyOn(mdDialog, 'show').and.returnValue(deferred.promise);
+
             var event = {
                 stopImmediatePropagation : function() {
                 }

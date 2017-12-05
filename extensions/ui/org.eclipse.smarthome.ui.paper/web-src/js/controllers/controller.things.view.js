@@ -77,7 +77,7 @@ angular.module('PaperUI.controllers.things') //
         var channel = $scope.getChannelById(channelID);
         var channelType = $scope.getChannelTypeByUID(channel.channelTypeUID);
 
-        channelTypeService.getAdvisedProfile({
+        channelTypeService.getAdvicedProfile({
             channelTypeUID : channel.channelTypeUID
         }, function(profileType) {
             var acceptedItemType = profileType.supportedItemTypes ? profileType.supportedItemTypes[0] : channel.itemType;

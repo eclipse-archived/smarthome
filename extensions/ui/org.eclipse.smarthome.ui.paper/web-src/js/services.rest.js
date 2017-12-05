@@ -599,7 +599,7 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
             },
             url : restConfig.restPath + '/channel-types/:channelTypeUID'
         },
-        getAdvisedProfile : {
+        getAdvicedProfile : {
             method : 'GET',
             params : {
                 channelTypeUID : '@channelTypeUID'
