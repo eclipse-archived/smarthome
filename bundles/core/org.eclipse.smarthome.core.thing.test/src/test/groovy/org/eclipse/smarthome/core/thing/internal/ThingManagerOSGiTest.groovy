@@ -61,10 +61,15 @@ import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoEvent
+import org.eclipse.smarthome.core.thing.internal.profiles.SystemProfileFactory
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
 import org.eclipse.smarthome.core.thing.link.ThingLinkManager
+import org.eclipse.smarthome.core.thing.type.ChannelKind
+import org.eclipse.smarthome.core.thing.type.ChannelType
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.core.types.State
@@ -98,13 +103,28 @@ class ThingManagerOSGiTest extends OSGiTest {
 
     EventPublisher eventPublisher
     ItemChannelLinkRegistry itemChannelLinkRegistry
+    ChannelTypeRegistry channelTypeRegistry;
 
     @Before
     void setUp() {
         THING = ThingBuilder.create(THING_UID).withChannels([
-            new Channel(CHANNEL_UID, "Switch")
+            new Channel(CHANNEL_UID, new ChannelTypeUID("binding:channelType"), "Switch", ChannelKind.STATE,
+            null, Collections.emptySet(), null, null, null)
         ]).build()
         registerVolatileStorageService()
+
+        channelTypeRegistry = [
+            getChannelType: { ChannelTypeUID channelTypeUID ->
+                new ChannelType(new ChannelTypeUID("binding:channelType"), false, "Switch",
+                        "label", null, null, null, null, null)
+            }
+        ] as ChannelTypeRegistry
+
+        registerService(channelTypeRegistry)
+
+        SystemProfileFactory spf = getService(SystemProfileFactory)
+        spf.setChannelTypeRegistry(channelTypeRegistry)
+
         thingLinkManager = getService ThingLinkManager
         thingLinkManager.deactivate()
         managedItemChannelLinkProvider = getService(ManagedItemChannelLinkProvider)
