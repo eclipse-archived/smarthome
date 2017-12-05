@@ -33,7 +33,7 @@ public class SafeCallerBuilderImpl<T> implements SafeCallerBuilder<T> {
 
     private final T target;
     private final Class<?>[] interfaceTypes;
-    private int timeout;
+    private long timeout;
     private Object identifier;
     @Nullable
     private Consumer<Throwable> exceptionHandler;
@@ -66,7 +66,7 @@ public class SafeCallerBuilderImpl<T> implements SafeCallerBuilder<T> {
     }
 
     @Override
-    public SafeCallerBuilder<T> withTimeout(int timeout) {
+    public SafeCallerBuilder<T> withTimeout(long timeout) {
         this.timeout = timeout;
         return this;
     }
