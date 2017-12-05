@@ -35,6 +35,7 @@ import org.eclipse.smarthome.core.common.QueueingThreadPoolExecutor;
 import org.eclipse.smarthome.test.java.JavaTest;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -279,16 +280,51 @@ public class SafeCallerImplTest extends JavaTest {
     @Test
     public void testCall_wrapped() throws Exception {
         AtomicReference<String> outerThreadName = new AtomicReference<>();
+        AtomicReference<String> middleThreadName = new AtomicReference<>();
         AtomicReference<String> innerThreadName = new AtomicReference<>();
 
-        safeCaller.create((Runnable) () -> {
-            outerThreadName.set(Thread.currentThread().getName());
-            safeCaller.create((Runnable) () -> {
-                innerThreadName.set(Thread.currentThread().getName());
-            }).build().run();
-        }).build().run();
+        safeCaller.create(new Runnable() {
+            @Override
+            public void run() {
+                outerThreadName.set(Thread.currentThread().getName());
+                safeCaller.create((Runnable) () -> {
+                }, Runnable.class).build().run();
+                safeCaller.create(new Runnable() {
+                    @Override
+                    public void run() {
+                        middleThreadName.set(Thread.currentThread().getName());
+                        safeCaller.create((Runnable) () -> {
+                        }, Runnable.class).build().run();
+                        safeCaller.create(new Runnable() {
+                            @Override
+                            public void run() {
+                                innerThreadName.set(Thread.currentThread().getName());
+                                sleep(500);
+                            }
+
+                            @Override
+                            public String toString() {
+                                return "inner";
+                            }
+                        }, Runnable.class).build().run();
+                    }
+
+                    @Override
+                    public String toString() {
+                        return "middle";
+                    }
+                }, Runnable.class).build().run();
+            }
+
+            @Override
+            public String toString() {
+                return "outer";
+            }
+        }, Runnable.class).withTimeout(100).build().run();
         assertThat(innerThreadName.get(), is(notNullValue()));
+        assertThat(middleThreadName.get(), is(notNullValue()));
         assertThat(outerThreadName.get(), is(notNullValue()));
+        assertThat(middleThreadName.get(), is(outerThreadName.get()));
         assertThat(innerThreadName.get(), is(outerThreadName.get()));
     }
 

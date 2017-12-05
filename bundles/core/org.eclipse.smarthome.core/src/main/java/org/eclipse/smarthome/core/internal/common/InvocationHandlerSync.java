@@ -48,18 +48,24 @@ public class InvocationHandlerSync<T> extends AbstractInvocationHandler<T> imple
     @Nullable
     public Object invoke(@Nullable Object proxy, @Nullable Method method, Object @Nullable [] args) throws Throwable {
         if (method != null) {
-            TrackingCallable wrapper = new TrackingCallable(new Invocation(this, method, args));
-            if (getManager().isSafeContext()) {
+            Invocation invocation = new Invocation(this, method, args);
+            Invocation activeInvocation = getManager().getActiveInvocation();
+            if (activeInvocation != null) {
                 if (logger.isDebugEnabled()) {
                     logger.debug(MSG_CONTEXT, toString(method), getTarget());
                 }
-                return invokeDirect(new Invocation(this, method, args), wrapper);
+                try {
+                    activeInvocation.getInvocationStack().push(invocation);
+                    return invokeDirect(invocation);
+                } finally {
+                    activeInvocation.getInvocationStack().poll();
+                }
             }
             try {
-                Future<Object> future = getManager().getScheduler().submit(wrapper);
+                Future<Object> future = getManager().getScheduler().submit(invocation);
                 return future.get(getTimeout(), TimeUnit.MILLISECONDS);
             } catch (TimeoutException e) {
-                handleTimeout(method, wrapper);
+                handleTimeout(method, invocation);
             } catch (ExecutionException e) {
                 handleExecutionException(method, e);
             }

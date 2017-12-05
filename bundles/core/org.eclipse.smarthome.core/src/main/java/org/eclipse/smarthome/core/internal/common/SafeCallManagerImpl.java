@@ -41,7 +41,7 @@ public class SafeCallManagerImpl implements SafeCallManager {
     private final Logger logger = LoggerFactory.getLogger(SafeCallManagerImpl.class);
 
     private final Map<Object, @Nullable Queue<Invocation>> queues = new HashMap<>();
-    private final Map<Object, @Nullable TrackingCallable> activeIdentifiers = new HashMap<>();
+    private final Map<Object, @Nullable Invocation> activeIdentifiers = new HashMap<>();
     private final Map<Object, @Nullable Invocation> activeAsyncInvocations = new HashMap<>();
 
     private final ScheduledExecutorService watcher;
@@ -56,17 +56,17 @@ public class SafeCallManagerImpl implements SafeCallManager {
     }
 
     @Override
-    public void recordCallStart(Invocation invocation, TrackingCallable wrapper) {
+    public void recordCallStart(Invocation invocation) {
         synchronized (activeIdentifiers) {
-            TrackingCallable otherWrapper = activeIdentifiers.get(invocation.getIdentifier());
-            if (enforceSingleThreadPerIdentifier && otherWrapper != null) {
+            Invocation otherInvocation = activeIdentifiers.get(invocation.getIdentifier());
+            if (enforceSingleThreadPerIdentifier && otherInvocation != null) {
                 // another call to the same identifier is (still) running,
                 // therefore queue it instead for async execution later on.
                 // Inform the caller about the timeout by means of the exception.
                 enqueue(invocation);
-                throw new DuplicateExecutionException(otherWrapper);
+                throw new DuplicateExecutionException(otherInvocation);
             }
-            activeIdentifiers.put(invocation.getIdentifier(), wrapper);
+            activeIdentifiers.put(invocation.getIdentifier(), invocation);
         }
         if (invocation.getInvocationHandler() instanceof InvocationHandlerAsync) {
             watch(invocation);
@@ -74,7 +74,7 @@ public class SafeCallManagerImpl implements SafeCallManager {
     }
 
     @Override
-    public void recordCallEnd(Invocation invocation, TrackingCallable wrapper) {
+    public void recordCallEnd(Invocation invocation) {
         synchronized (activeIdentifiers) {
             activeIdentifiers.remove(invocation.getIdentifier());
         }
@@ -86,16 +86,16 @@ public class SafeCallManagerImpl implements SafeCallManager {
     }
 
     @Override
-    public void enqueue(Invocation call) {
+    public void enqueue(Invocation invocation) {
         synchronized (queues) {
-            Queue<Invocation> queue = queues.get(call.getIdentifier());
+            Queue<Invocation> queue = queues.get(invocation.getIdentifier());
             if (queue == null) {
                 queue = new LinkedList<>();
-                queues.put(call.getIdentifier(), queue);
+                queues.put(invocation.getIdentifier(), queue);
             }
-            queue.add(call);
+            queue.add(invocation);
         }
-        trigger(call.getIdentifier());
+        trigger(invocation.getIdentifier());
     }
 
     private void trigger(Object identifier) {
@@ -115,8 +115,7 @@ public class SafeCallManagerImpl implements SafeCallManager {
             if (next != null) {
                 logger.trace("Scheduling {} for asynchronous execution", next);
                 activeAsyncInvocations.put(identifier, next);
-                TrackingCallable wrapper = new TrackingCallable(next);
-                getScheduler().submit(wrapper);
+                getScheduler().submit(next);
                 logger.trace("Submitted {} for asynchronous execution", next);
             }
         }
@@ -124,11 +123,11 @@ public class SafeCallManagerImpl implements SafeCallManager {
 
     private void handlePotentialTimeout(Invocation invocation) {
         Object identifier = invocation.getIdentifier();
-        Invocation currentInvocation = activeAsyncInvocations.get(identifier);
-        if (currentInvocation == invocation) {
-            TrackingCallable currentWrapper = activeIdentifiers.get(identifier);
-            if (currentWrapper != null) {
-                invocation.handleTimeout(currentWrapper);
+        Invocation activeAsyncInvocation = activeAsyncInvocations.get(identifier);
+        if (activeAsyncInvocation == invocation) {
+            Invocation activeInvocation = activeIdentifiers.get(identifier);
+            if (activeInvocation != null) {
+                invocation.getInvocationHandler().handleTimeout(invocation.getMethod(), activeInvocation);
             }
         }
     }
@@ -145,8 +144,16 @@ public class SafeCallManagerImpl implements SafeCallManager {
     }
 
     @Override
-    public boolean isSafeContext() {
-        return Thread.currentThread().getName().startsWith(threadPoolName + "-");
+    @Nullable
+    public Invocation getActiveInvocation() {
+        synchronized (activeIdentifiers) {
+            for (Invocation invocation : activeIdentifiers.values()) {
+                if (invocation.getThread() == Thread.currentThread()) {
+                    return invocation;
+                }
+            }
+        }
+        return null;
     }
 
     @Override

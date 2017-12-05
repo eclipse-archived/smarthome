@@ -21,13 +21,13 @@ package org.eclipse.smarthome.core.internal.common;
 class DuplicateExecutionException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
-    private final TrackingCallable callable;
+    private final Invocation callable;
 
-    DuplicateExecutionException(TrackingCallable callable) {
-        this.callable = callable;
+    DuplicateExecutionException(Invocation invocation) {
+        this.callable = invocation;
     }
 
-    public TrackingCallable getCallable() {
+    public Invocation getCallable() {
         return callable;
     }
 
