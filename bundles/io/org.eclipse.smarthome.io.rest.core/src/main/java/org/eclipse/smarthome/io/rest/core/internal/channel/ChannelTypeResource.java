@@ -13,10 +13,10 @@
 package org.eclipse.smarthome.io.rest.core.internal.channel;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Stream;
 
 import javax.annotation.security.RolesAllowed;
@@ -37,12 +37,10 @@ import org.eclipse.smarthome.config.core.dto.ConfigDescriptionParameterDTO;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionParameterGroupDTO;
 import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.core.thing.dto.ChannelTypeDTO;
-import org.eclipse.smarthome.core.thing.profiles.ProfileAdvisor;
 import org.eclipse.smarthome.core.thing.profiles.ProfileType;
-import org.eclipse.smarthome.core.thing.profiles.ProfileTypeDTO;
-import org.eclipse.smarthome.core.thing.profiles.ProfileTypeMapper;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeRegistry;
-import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
+import org.eclipse.smarthome.core.thing.profiles.TriggerProfileType;
+import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
@@ -78,8 +76,6 @@ public class ChannelTypeResource implements RESTResource {
     private ChannelTypeRegistry channelTypeRegistry;
     private ConfigDescriptionRegistry configDescriptionRegistry;
 
-    private final Set<ProfileAdvisor> profileAdvisors = new CopyOnWriteArraySet<>();
-
     private ProfileTypeRegistry profileTypeRegistry;
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
@@ -98,15 +94,6 @@ public class ChannelTypeResource implements RESTResource {
 
     protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescriptionRegistry = null;
-    }
-
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    protected void addProfileAdvisor(ProfileAdvisor profileAdvisor) {
-        profileAdvisors.add(profileAdvisor);
-    }
-
-    protected void removeProfileAdvisor(ProfileAdvisor profileAdvisor) {
-        profileAdvisors.remove(profileAdvisor);
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
@@ -150,27 +137,35 @@ public class ChannelTypeResource implements RESTResource {
     }
 
     @GET
-    @Path("/{channelTypeUID}/advicedProfile")
+    @Path("/{channelTypeUID}/linkableItemTypes")
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Gets the adviced profile type for the given channel type UID.", response = ProfileTypeDTO.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ProfileTypeDTO.class),
+    @ApiOperation(value = "Gets the itemn types the given channel type UID can be linked to.", response = String.class, responseContainer = "Set")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "Set"),
             @ApiResponse(code = 404, message = "No content") })
-    public Response getAdvicedProfile(
+    public Response getLinkableItemTypes(
             @PathParam("channelTypeUID") @ApiParam(value = "channelTypeUID") String channelTypeUID) {
-        ChannelType channelType = channelTypeRegistry.getChannelType(new ChannelTypeUID(channelTypeUID));
+        ChannelTypeUID ctUID = new ChannelTypeUID(channelTypeUID);
+        ChannelType channelType = channelTypeRegistry.getChannelType(ctUID);
         if (channelType == null) {
             return Response.noContent().build();
         }
 
-        ProfileTypeUID profileTypeUID = getAdvice(channelType);
+        Set<String> result = new HashSet<>();
         for (ProfileType profileType : profileTypeRegistry.getProfileTypes()) {
-            if (profileType.getUID().equals(profileTypeUID)) {
-                ProfileTypeDTO profileTypeDTO = new ProfileTypeMapper().map(profileType);
-                return Response.ok(profileTypeDTO).build();
+            if (profileType instanceof TriggerProfileType && channelType.getKind() == ChannelKind.TRIGGER) {
+                if (((TriggerProfileType) profileType).getSupportedChannelTypeUIDs().contains(ctUID)) {
+                    for (String itemType : profileType.getSupportedItemTypes()) {
+                        result.add(itemType);
+                    }
+                }
             }
         }
+        if (result.isEmpty()) {
+            return Response.noContent().build();
+        }
 
-        return Response.noContent().build();
+        return Response.ok(result).build();
     }
 
     private ChannelTypeDTO convertToChannelTypeDTO(ChannelType channelType, Locale locale) {
@@ -202,17 +197,6 @@ public class ChannelTypeResource implements RESTResource {
     @Override
     public boolean isSatisfied() {
         return channelTypeRegistry != null && configDescriptionRegistry != null && profileTypeRegistry != null;
-    }
-
-    private ProfileTypeUID getAdvice(ChannelType channelType) {
-        ProfileTypeUID ret;
-        for (ProfileAdvisor advisor : profileAdvisors) {
-            ret = advisor.getSuggestedProfileTypeUID(channelType, null);
-            if (ret != null) {
-                return ret;
-            }
-        }
-        return null;
     }
 
 }

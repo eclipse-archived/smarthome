@@ -39,11 +39,13 @@ angular.module('PaperUI.controllers.things') //
     $scope.enableChannel = function(thingUID, channelID, event, longPress) {
         var channel = $scope.getChannelById(channelID);
         event.stopImmediatePropagation();
-        if ($scope.advancedMode) {
+        if ($scope.advancedMode || channel.kind === 'TRIGGER') {
             if (channel.linkedItems.length > 0) {
                 $scope.getLinkedItems(channel, event);
             } else {
-                $scope.linkChannel(channelID, event, longPress);
+                // allow "Create new Item" in advanced mode only, disable for normalMode or trigger channel
+                var allowNewItemCreation = $scope.advancedMode && channel.kind !== 'TRIGGER';
+                $scope.linkChannel(channelID, event, longPress, allowNewItemCreation);
             }
         } else if (channel.linkedItems.length == 0) {
             linkService.link({
@@ -60,7 +62,10 @@ angular.module('PaperUI.controllers.things') //
         var channel = $scope.getChannelById(channelID);
         event.stopImmediatePropagation();
         var linkedItem = channel.linkedItems[0];
-        if ($scope.advancedMode) {
+        if (!itemName || itemName === '') {
+            itemName = linkedItem;
+        }
+        if ($scope.advancedMode || channel.kind === 'TRIGGER') {
             $scope.unlinkChannel(channelID, itemName, event);
         } else {
             linkService.unlink({
@@ -73,23 +78,32 @@ angular.module('PaperUI.controllers.things') //
         }
     };
 
-    $scope.linkChannel = function(channelID, event, preSelect) {
+    $scope.linkChannel = function(channelID, event, preSelect, allowNewItemCreation) {
         var channel = $scope.getChannelById(channelID);
         var channelType = $scope.getChannelTypeByUID(channel.channelTypeUID);
 
-        channelTypeService.getAdvicedProfile({
+        channelTypeService.getLinkableItemTypes({
             channelTypeUID : channel.channelTypeUID
-        }, function(profileType) {
-            var acceptedItemType = profileType.supportedItemTypes ? profileType.supportedItemTypes[0] : channel.itemType;
+        }, function(linkableItemTypes) {
+            var acceptedItemTypes = [];
+
+            if (linkableItemTypes && linkableItemTypes.length > 0) {
+                angular.forEach(linkableItemTypes, function(itemType) {
+                    acceptedItemTypes.push(itemType);
+                });
+            } else {
+                acceptedItemTypes.push(channel.itemType);
+            }
 
             var params = {
                 linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
-                acceptedItemType : acceptedItemType,
+                acceptedItemTypes : acceptedItemTypes,
                 category : channelType.category ? channelType.category : '',
                 suggestedName : getItemNameSuggestion(channelID, channelType.label),
                 suggestedLabel : channelType.label,
                 suggestedCategory : channelType.category ? channelType.category : '',
-                preSelectCreate : preSelect
+                preSelectCreate : preSelect,
+                allowNewItemCreation : allowNewItemCreation && channel.kind != 'TRIGGER'
             }
             $mdDialog.show({
                 controller : 'LinkChannelDialogController',

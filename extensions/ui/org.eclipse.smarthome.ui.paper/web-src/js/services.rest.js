@@ -599,12 +599,13 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
             },
             url : restConfig.restPath + '/channel-types/:channelTypeUID'
         },
-        getAdvicedProfile : {
+        getLinkableItemTypes : {
             method : 'GET',
+            isArray : true,
             params : {
                 channelTypeUID : '@channelTypeUID'
             },
-            url : restConfig.restPath + '/channel-types/:channelTypeUID/advicedProfile'
+            url : restConfig.restPath + '/channel-types/:channelTypeUID/linkableItemTypes'
         },
     });
 }).factory('templateService', function($resource, restConfig) {

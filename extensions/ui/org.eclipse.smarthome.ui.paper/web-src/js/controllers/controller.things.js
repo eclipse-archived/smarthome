@@ -103,29 +103,42 @@ angular.module('PaperUI.controllers.things') //
 }).controller('LinkChannelDialogController', function($rootScope, $scope, $mdDialog, $filter, toastService, itemRepository, itemService, sharedProperties, params) {
     $scope.itemName;
     $scope.linkedItems = params.linkedItems;
-    $scope.acceptedItemType = [ params.acceptedItemType ];
     $scope.advancedMode = $rootScope.advancedMode;
-    if (params.acceptedItemType == "Color") {
-        $scope.acceptedItemType.push("Switch");
-        $scope.acceptedItemType.push("Dimmer");
-    } else if (params.acceptedItemType == "Dimmer") {
-        $scope.acceptedItemType.push("Switch");
-    }
     $scope.category = params.category;
     $scope.itemFormVisible = false;
     $scope.itemsList = [];
+
+    var createAcceptedItemTypes = function(paramItemTypes) {
+        var acceptedItemTypes = new Set();
+        angular.forEach(paramItemTypes, function(itemType) {
+            acceptedItemTypes.add(itemType);
+            if (itemType == "Color") {
+                acceptedItemTypes.add("Switch");
+                acceptedItemTypes.add("Dimmer");
+            } else if (itemType == "Dimmer") {
+                acceptedItemTypes.add("Switch");
+            }
+
+        })
+
+        return Array.from(acceptedItemTypes);
+    }
+    $scope.acceptedItemTypes = createAcceptedItemTypes(params.acceptedItemTypes);
+
     itemRepository.getAll(function(items) {
         $scope.items = items;
         $scope.itemsList = $.grep($scope.items, function(item) {
-            return $scope.acceptedItemType.indexOf(item.type) != -1;
+            return $scope.acceptedItemTypes.indexOf(item.type) != -1;
         });
         $scope.itemsList = $.grep($scope.itemsList, function(item) {
             return $scope.linkedItems.indexOf(item.name) == -1;
         });
-        $scope.itemsList.push({
-            name : "_createNew",
-            type : $scope.acceptedItemType
-        });
+        if (params.allowNewItemCreation) {
+            $scope.itemsList.push({
+                name : "_createNew",
+                type : $scope.acceptedItemType
+            });
+        }
         $scope.itemsList = $filter('orderBy')($scope.itemsList, "name");
     });
     $scope.checkCreateOption = function() {
@@ -134,7 +147,7 @@ angular.module('PaperUI.controllers.things') //
             sharedProperties.resetParams();
             sharedProperties.updateParams({
                 linking : true,
-                acceptedItemType : $scope.acceptedItemType,
+                acceptedItemType : $scope.acceptedItemTypes,
                 suggestedName : params.suggestedName,
                 suggestedLabel : params.suggestedLabel,
                 suggestedCategory : params.suggestedCategory

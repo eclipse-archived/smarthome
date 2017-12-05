@@ -10,7 +10,6 @@ import java.util.Locale;
 
 import javax.ws.rs.core.Response;
 
-import org.eclipse.smarthome.core.thing.profiles.ProfileAdvisor;
 import org.eclipse.smarthome.core.thing.profiles.ProfileType;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeRegistry;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
@@ -33,9 +32,6 @@ public class ChannelTypeResourceTest {
     @Mock
     private ProfileTypeRegistry profileTypeRegistry;
 
-    @Mock
-    private ProfileAdvisor profileAdvisor;
-
     @Before
     public void setup() {
         initMocks(this);
@@ -43,7 +39,6 @@ public class ChannelTypeResourceTest {
 
         channelTypeResource.setChannelTypeRegistry(channelTypeRegistry);
         channelTypeResource.setProfileTypeRegistry(profileTypeRegistry);
-        channelTypeResource.addProfileAdvisor(profileAdvisor);
     }
 
     @Test
@@ -59,17 +54,15 @@ public class ChannelTypeResourceTest {
         ProfileTypeUID profileTypeUID = new ProfileTypeUID("system:profileType");
 
         when(channelTypeRegistry.getChannelType(uid)).thenReturn(channelType);
-        when(profileAdvisor.getSuggestedProfileTypeUID(channelType, null)).thenReturn(profileTypeUID);
 
         ProfileType profileType = mock(ProfileType.class);
         when(profileType.getUID()).thenReturn(profileTypeUID);
 
         when(profileTypeRegistry.getProfileTypes()).thenReturn(Lists.newArrayList(profileType));
 
-        Response response = channelTypeResource.getAdvicedProfile(uid.getAsString());
+        Response response = channelTypeResource.getLinkableItemTypes(uid.getAsString());
 
         verify(channelTypeRegistry).getChannelType(uid);
-        verify(profileAdvisor).getSuggestedProfileTypeUID(channelType, null);
         verify(profileTypeRegistry).getProfileTypes();
         assertThat(response.getStatus(), is(200));
     }
