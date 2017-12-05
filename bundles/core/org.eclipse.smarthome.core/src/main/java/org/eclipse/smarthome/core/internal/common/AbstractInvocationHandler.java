@@ -128,15 +128,8 @@ abstract class AbstractInvocationHandler<T> {
             }
         });
         StringBuilder sb = new StringBuilder();
-        String previous = "";
         for (int i = 0; i < elements.length; i++) {
-            String current = elements[i].toString();
-            sb.append("\tat " + current + "\n");
-            if (previous.startsWith("org.eclipse.smarthome.") && !current.startsWith("org.eclipse.smarthome.")) {
-                sb.append("\t...");
-                break;
-            }
-            previous = current;
+            sb.append("\tat " + elements[i].toString() + "\n");
         }
         return sb.toString();
     }
