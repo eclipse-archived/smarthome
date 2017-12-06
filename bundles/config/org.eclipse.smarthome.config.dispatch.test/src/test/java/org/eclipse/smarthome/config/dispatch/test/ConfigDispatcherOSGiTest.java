@@ -534,6 +534,11 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
         String servicesDirectory = "multiple_contexts";
 
         initialize(configDirectory, servicesDirectory, null);
+
+        File srcDupFile = new File(configDirectory + SEP + "duplicate" + SEP + "service-ctx1duplicate.cfg");
+        File dir = new File(configDirectory + SEP + servicesDirectory);
+        FileUtils.copyFileToDirectory(srcDupFile, dir);
+
         // ctx1 is overwritten by service-ctx1duplicate.cfg
         verifyValueOfConfigurationPropertyWithContext("service.pid#ctx1", "property1", "valueDup");
         // ctx2 is parsed as is
