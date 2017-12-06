@@ -93,6 +93,9 @@ public class HueLightDiscoveryServiceOSGiTest extends AbstractHueOSGiTest {
     @After
     public void cleanUp() {
         thingRegistry.remove(BRIDGE_THING_UID);
+        waitForAssert(() -> {
+            assertNull(getService(DiscoveryService.class, HueLightDiscoveryService.class));
+        });
     }
 
     private void registerDiscoveryListener(DiscoveryListener discoveryListener) {
