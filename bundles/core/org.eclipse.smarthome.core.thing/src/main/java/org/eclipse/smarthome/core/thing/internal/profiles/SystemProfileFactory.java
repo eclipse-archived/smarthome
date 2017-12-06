@@ -52,7 +52,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
  *
  */
 @NonNullByDefault
-@Component(service = { ProfileFactory.class, ProfileAdvisor.class, ProfileTypeProvider.class })
+@Component(service = SystemProfileFactory.class)
 public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, ProfileTypeProvider {
 
     @NonNullByDefault({})
