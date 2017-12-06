@@ -43,9 +43,7 @@ angular.module('PaperUI.controllers.things') //
             if (channel.linkedItems.length > 0) {
                 $scope.getLinkedItems(channel, event);
             } else {
-                // allow "Create new Item" in advanced mode only, disable for normalMode or trigger channel
-                var allowNewItemCreation = $scope.advancedMode && channel.kind !== 'TRIGGER';
-                $scope.linkChannel(channelID, event, longPress, allowNewItemCreation);
+                $scope.linkChannel(channelID, event, longPress);
             }
         } else if (channel.linkedItems.length == 0) {
             linkService.link({
@@ -78,7 +76,7 @@ angular.module('PaperUI.controllers.things') //
         }
     };
 
-    $scope.linkChannel = function(channelID, event, preSelect, allowNewItemCreation) {
+    $scope.linkChannel = function(channelID, event, preSelect) {
         var channel = $scope.getChannelById(channelID);
         var channelType = $scope.getChannelTypeByUID(channel.channelTypeUID);
 
@@ -103,7 +101,10 @@ angular.module('PaperUI.controllers.things') //
                 suggestedLabel : channelType.label,
                 suggestedCategory : channelType.category ? channelType.category : '',
                 preSelectCreate : preSelect,
-                allowNewItemCreation : allowNewItemCreation && channel.kind != 'TRIGGER'
+                allowNewItemCreation : $scope.advancedMode && channel.kind !== 'TRIGGER' // allow "Create new Item"
+                                                                                            // in advanced mode only,
+                                                                                            // disable for normalMode or
+                                                                                            // trigger channel
             }
             $mdDialog.show({
                 controller : 'LinkChannelDialogController',
