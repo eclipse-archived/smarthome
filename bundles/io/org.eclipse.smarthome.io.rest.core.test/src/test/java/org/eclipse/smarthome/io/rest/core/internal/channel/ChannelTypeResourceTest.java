@@ -6,16 +6,20 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import java.io.IOException;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.ws.rs.core.Response;
 
-import org.eclipse.smarthome.core.thing.profiles.ProfileType;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeRegistry;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
+import org.eclipse.smarthome.core.thing.profiles.TriggerProfileType;
+import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
+import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -47,16 +51,19 @@ public class ChannelTypeResourceTest {
         verify(channelTypeRegistry).getChannelTypes(any(Locale.class));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
-    public void getProfileType_shouldGetProfileForChannelType() {
+    public void returnLinkableItemTypesForTriggerChannelType() throws IOException {
         ChannelType channelType = mockChannelType("ct");
         ChannelTypeUID uid = channelType.getUID();
         ProfileTypeUID profileTypeUID = new ProfileTypeUID("system:profileType");
 
         when(channelTypeRegistry.getChannelType(uid)).thenReturn(channelType);
 
-        ProfileType profileType = mock(ProfileType.class);
+        TriggerProfileType profileType = mock(TriggerProfileType.class);
         when(profileType.getUID()).thenReturn(profileTypeUID);
+        when(profileType.getSupportedChannelTypeUIDs()).thenReturn(Lists.newArrayList(uid));
+        when(profileType.getSupportedItemTypes()).thenReturn(Lists.newArrayList("Switch", "Dimmer"));
 
         when(profileTypeRegistry.getProfileTypes()).thenReturn(Lists.newArrayList(profileType));
 
@@ -65,11 +72,12 @@ public class ChannelTypeResourceTest {
         verify(channelTypeRegistry).getChannelType(uid);
         verify(profileTypeRegistry).getProfileTypes();
         assertThat(response.getStatus(), is(200));
+        assertThat((Set<String>) response.getEntity(), IsCollectionContaining.hasItems("Switch", "Dimmer"));
     }
 
     private ChannelType mockChannelType(String channelId) {
-        return new ChannelType(new ChannelTypeUID("binding", channelId), false, "Number", "Label", null, null, null,
-                null, null);
+        return new ChannelType(new ChannelTypeUID("binding", channelId), false, null, ChannelKind.TRIGGER, "Label",
+                null, null, null, null, null, null);
     }
 
 }

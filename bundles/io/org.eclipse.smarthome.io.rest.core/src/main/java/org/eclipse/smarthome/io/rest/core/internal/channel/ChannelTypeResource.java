@@ -28,6 +28,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
@@ -139,21 +140,22 @@ public class ChannelTypeResource implements RESTResource {
     @GET
     @Path("/{channelTypeUID}/linkableItemTypes")
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Gets the itemn types the given channel type UID can be linked to.", response = String.class, responseContainer = "Set")
+    @ApiOperation(value = "Gets the item types the given trigger channel type UID can be linked to.", response = String.class, responseContainer = "Set")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "Set"),
-            @ApiResponse(code = 404, message = "No content") })
+            @ApiResponse(code = 204, message = "No content"),
+            @ApiResponse(code = 404, message = "Given channel type UID not found or no trigger channel type.") })
     public Response getLinkableItemTypes(
             @PathParam("channelTypeUID") @ApiParam(value = "channelTypeUID") String channelTypeUID) {
         ChannelTypeUID ctUID = new ChannelTypeUID(channelTypeUID);
         ChannelType channelType = channelTypeRegistry.getChannelType(ctUID);
-        if (channelType == null) {
-            return Response.noContent().build();
+        if (channelType == null || channelType.getKind() != ChannelKind.TRIGGER) {
+            return Response.status(Status.NOT_FOUND).build();
         }
 
         Set<String> result = new HashSet<>();
         for (ProfileType profileType : profileTypeRegistry.getProfileTypes()) {
-            if (profileType instanceof TriggerProfileType && channelType.getKind() == ChannelKind.TRIGGER) {
+            if (profileType instanceof TriggerProfileType) {
                 if (((TriggerProfileType) profileType).getSupportedChannelTypeUIDs().contains(ctUID)) {
                     for (String itemType : profileType.getSupportedItemTypes()) {
                         result.add(itemType);
