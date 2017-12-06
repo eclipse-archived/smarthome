@@ -539,6 +539,12 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
         File dir = new File(configDirectory + SEP + servicesDirectory);
         FileUtils.copyFileToDirectory(srcDupFile, dir);
 
+        // ensure that the file was copied before verifying the properties
+        File tgtFile = new File(configDirectory + SEP + servicesDirectory + SEP + "service-ctx1duplicate.cfg");
+        waitForAssert(() -> {
+            assertThat(tgtFile.exists(), is(true));
+        });
+
         // ctx1 is overwritten by service-ctx1duplicate.cfg
         verifyValueOfConfigurationPropertyWithContext("service.pid#ctx1", "property1", "valueDup");
         // ctx2 is parsed as is
