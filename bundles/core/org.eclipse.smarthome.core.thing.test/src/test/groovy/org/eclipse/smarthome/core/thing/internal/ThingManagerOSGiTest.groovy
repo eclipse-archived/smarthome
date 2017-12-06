@@ -70,7 +70,6 @@ import org.eclipse.smarthome.core.thing.link.ThingLinkManager
 import org.eclipse.smarthome.core.thing.type.ChannelKind
 import org.eclipse.smarthome.core.thing.type.ChannelType
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
-import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
@@ -105,7 +104,6 @@ class ThingManagerOSGiTest extends OSGiTest {
 
     EventPublisher eventPublisher
     ItemChannelLinkRegistry itemChannelLinkRegistry
-    ChannelTypeRegistry channelTypeRegistry;
     ChannelTypeProvider channelTypeProvider;
 
     @Before
