@@ -38,9 +38,6 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
-import org.eclipse.smarthome.core.thing.profiles.ProfileType;
-import org.eclipse.smarthome.core.thing.profiles.ProfileTypeRegistry;
-import org.eclipse.smarthome.core.thing.profiles.TriggerProfileType;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
@@ -68,8 +65,6 @@ public class ChannelItemProvider implements ItemProvider {
     private final Logger logger = LoggerFactory.getLogger(ChannelItemProvider.class);
 
     private final Set<ProviderChangeListener<Item>> listeners = new HashSet<>();
-
-    private ProfileTypeRegistry profileTypeRegistry;
 
     private LocaleProvider localeProvider;
     private ThingRegistry thingRegistry;
@@ -155,15 +150,6 @@ public class ChannelItemProvider implements ItemProvider {
 
     protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry linkRegistry) {
         this.linkRegistry = null;
-    }
-
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    protected void setProfileTypeRegistry(ProfileTypeRegistry profileTypeRegistry) {
-        this.profileTypeRegistry = profileTypeRegistry;
-    }
-
-    protected void unsetProfileTypeRegistry(ProfileTypeRegistry profileTypeRegistry) {
-        this.profileTypeRegistry = null;
     }
 
     @Activate
@@ -253,21 +239,13 @@ public class ChannelItemProvider implements ItemProvider {
         Channel channel = thingRegistry.getChannel(link.getLinkedUID());
         if (channel != null) {
             Item item = null;
-            String acceptedItemType = null;
-            if (channel.getKind() == ChannelKind.TRIGGER) {
-                Collection<String> itemTypes = getProfileItemTypesForTriggerChannel(channel);
-                if (itemTypes.size() > 0) {
-                    acceptedItemType = itemTypes.iterator().next();
-                } else {
-                    return;
-                }
-            } else {
-                acceptedItemType = channel.getAcceptedItemType();
-            }
-            for (ItemFactory itemFactory : itemFactories) {
-                item = itemFactory.createItem(acceptedItemType, link.getItemName());
-                if (item != null) {
-                    break;
+            // Only create an item for state channels
+            if (channel.getKind() == ChannelKind.STATE) {
+                for (ItemFactory itemFactory : itemFactories) {
+                    item = itemFactory.createItem(channel.getAcceptedItemType(), link.getItemName());
+                    if (item != null) {
+                        break;
+                    }
                 }
             }
             if (item != null) {
@@ -285,22 +263,6 @@ public class ChannelItemProvider implements ItemProvider {
                 }
             }
         }
-    }
-
-    private Collection<String> getProfileItemTypesForTriggerChannel(Channel channel) {
-        Set<String> result = new HashSet<>();
-        for (ProfileType profileType : profileTypeRegistry.getProfileTypes()) {
-            if (profileType instanceof TriggerProfileType && channel.getKind() == ChannelKind.TRIGGER) {
-                if (((TriggerProfileType) profileType).getSupportedChannelTypeUIDs()
-                        .contains(channel.getChannelTypeUID())) {
-                    for (String itemType : profileType.getSupportedItemTypes()) {
-                        result.add(itemType);
-                    }
-                }
-            }
-        }
-
-        return result;
     }
 
     private String getCategory(Channel channel) {
