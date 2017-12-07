@@ -89,7 +89,7 @@ public class ConfigDispatcher {
     final static public String SERVICEPID_PROG_ARGUMENT = "smarthome.servicepid";
 
     /** The property to recognize a service instance created by a service factory */
-    public static final String SERVICE_CONTEXT = "service.context";
+    public static final String SERVICE_CONTEXT = "esh.servicecontext";
 
     /** The property to separate service PIDs from their contexts */
     public static final String SERVICE_CONTEXT_MARKER = "#";
