@@ -4,7 +4,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Config Dispatcher Tests
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.config.dispatch.test
-Bundle-Version: 0.9.0.qualifier
+Bundle-Version: 0.10.0.qualifier
 Fragment-Host: org.eclipse.smarthome.config.dispatch
 Import-Package: 
  org.eclipse.jdt.annotation;resolution:=optional,
