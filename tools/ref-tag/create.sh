@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# USAGE:
+# ./tools/ref-tag/create.sh <commitid>
+#
+# Environment variables to set before execution:
+# VERSION_NEW_MMR - the new version (e.g. 1.2.0) to use. Optional, if not set, the current version is kept
+# VERSION_NEW_QUALI - the new version qualifier. Possible values are "RELEASE", "SNAPSHOT", or any other string like "b1" or "alpha2". Optional, defaults to "SNAPSHOT"
+
+
 #
 # Define some functions first
 #
@@ -125,7 +133,7 @@ esac
 # Prepare some version old variables
 #
 VERSION_OLD_MMR=${VERSION_OLD%-SNAPSHOT}
-VERSION_OLD_QUALI="${VERSION_OLD_MMR}.qualifier"
+VERSION_OLD_MMRQ="${VERSION_OLD_MMR}.qualifier"
 
 #
 # Generate new version
@@ -136,22 +144,27 @@ fi
 if [ -n "${VERSION_NEW_QUALI}" ]; then
   case "${VERSION_NEW_QUALI}" in
     SNAPSHOT)
-      VERSION_NEW="${VERSION_NEW_MMR}-${VERSION_NEW_QUALI}"
+      VERSION_NEW="${VERSION_NEW_MMR}-SNAPSHOT"
+      VERSION_NEW_MMRQ="${VERSION_NEW_MMR}.qualifier"
+      ;;
+    RELEASE)
+      VERSION_NEW="${VERSION_NEW_MMR}"
+      VERSION_NEW_MMRQ="${VERSION_NEW_MMR}"
       ;;
     *)
-      VERSION_NEW="${VERSION_NEW_MMR}.${VERSION_NEW_QUALI}"
+      VERSION_NEW="${VERSION_NEW_MMR}-${VERSION_NEW_QUALI}"
+      VERSION_NEW_MMRQ="${VERSION_NEW_MMR}.${VERSION_NEW_QUALI}"
       ;;
   esac
 else
-  VERSION_NEW_QUALI=".qualifier"
-  VERSION_NEW="${VERSION_NEW_MMR}".{VERSION_NEW_QUALI}
+  VERSION_NEW="${VERSION_NEW_MMR}-SNAPSHOT"
 fi
 
 #
 # Print version info
 #
-log "version old: ${VERSION_OLD}, mmr: ${VERSION_OLD_MMR}, quali: ${VERSION_OLD_QUALI}"
-log "version new: ${VERSION_NEW}, mmr: ${VERSION_NEW_MMR}, quali: ${VERSION_NEW_QUALI}"
+log "version old: ${VERSION_OLD}, mmr: ${VERSION_OLD_MMR}, quali: ${VERSION_OLD_MMRQ}"
+log "version new: ${VERSION_NEW}, mmr: ${VERSION_NEW_MMR}, quali: ${VERSION_NEW_MMRQ}"
 log "commit id: ${COMMIT_ID}"
 
 log "Enter 'Y' to proceed"
@@ -176,7 +189,7 @@ for FILE in \
   docs/documentation/development/testing.md \
   products/org.eclipse.smarthome.repo/category.xml
 do
-  sed 's:'"${VERSION_OLD_QUALI}"':'"${VERSION_NEW_QUALI}"':g' -i "${FILE}"
+  sed -e "s:${VERSION_OLD_MMRQ}:${VERSION_NEW_MMRQ}:g" -i "" ${FILE}
 done
 
 for FILE in \
@@ -185,16 +198,15 @@ for FILE in \
   extensions/binding/create_binding_skeleton.cmd \
   extensions/binding/create_binding_skeleton.sh
 do
-  sed 's:'"${VERSION_OLD}"':'"${VERSION_NEW}"':g' -i "${FILE}"
+  sed -e "s:${VERSION_OLD}:${VERSION_NEW}:g" -i "" ${FILE}
 done
 
-#for FILE in \
-#  extensions/ui/org.eclipse.smarthome.ui.basic/package.json \
-#  extensions/ui/org.eclipse.smarthome.ui.paper/package.json \
-#  extensions/ui/org.eclipse.smarthome.ui.paper/bower.json
-#do
-#  sed 's:\("version"\: *"\).*\(".*\):\1'"${VERSION_NEW_MMR}"'\2:g' -i "${FILE}"
-#done
+for FILE in \
+  extensions/ui/org.eclipse.smarthome.ui.basic/package.json \
+  extensions/ui/org.eclipse.smarthome.ui.paper/package.json
+do
+  sed -e "s:\(\"version\"\: *\"\).*\(\".*\):\1${VERSION_NEW_MMR}\2:g" -i "" ${FILE}
+done
 
 #
 # Check if maven could build
