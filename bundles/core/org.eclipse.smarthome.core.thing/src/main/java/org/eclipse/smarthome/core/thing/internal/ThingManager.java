@@ -411,8 +411,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
             Lock lock1 = getLockForThing(thing.getUID());
             try {
                 lock1.lock();
-                replaceThing(getThing(thingUID), thing);
-                ThingHandler thingHandler = thingHandlers.get(thing.getUID());
+                ThingHandler thingHandler = replaceThing(getThing(thingUID), thing);
                 if (thingHandler != null) {
                     if (ThingHandlerHelper.isHandlerInitialized(thing) || isInitializing(thing)) {
                         safeCaller.create(thingHandler).build().thingUpdated(thing);
@@ -432,7 +431,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
         }
     }
 
-    private void replaceThing(Thing oldThing, Thing newThing) {
+    private ThingHandler replaceThing(Thing oldThing, Thing newThing) {
         final ThingHandler thingHandler = thingHandlers.get(newThing.getUID());
         if (oldThing != newThing) {
             this.things.remove(oldThing);
@@ -444,6 +443,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
                 oldThing.setHandler(null);
             }
         }
+        return thingHandler;
     }
 
     private Thing getThing(ThingUID id) {
