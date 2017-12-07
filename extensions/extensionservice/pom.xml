@@ -18,6 +18,7 @@
   <modules>
     <module>org.eclipse.smarthome.extensionservice.marketplace</module>
     <module>org.eclipse.smarthome.extensionservice.marketplace.automation</module>
+    <module>org.eclipse.smarthome.extensionservice.marketplace.test</module>
  </modules>
 
 </project>
