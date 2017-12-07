@@ -7,7 +7,7 @@ Bundle-Name: Eclipse SmartHome AutoUpdate Binding
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.core.autoupdate
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.9.0.qualifier
+Bundle-Version: 0.10.0.qualifier
 Export-Package: org.eclipse.smarthome.core.autoupdate
 Ignore-Package: org.eclipse.smarthome.core.autoupdate.internal
 Import-Package: 
