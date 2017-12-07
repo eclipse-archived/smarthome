@@ -12,8 +12,6 @@
  */
 package org.eclipse.smarthome.config.dispatch.internal;
 
-import static java.nio.file.StandardWatchEventKinds.*;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -21,8 +19,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchEvent.Kind;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -37,18 +33,11 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.ConfigConstants;
-import org.eclipse.smarthome.core.service.AbstractWatchService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,15 +79,11 @@ import com.google.gson.JsonSyntaxException;
  * @author Henning Treu - Delete orphan exclusive configuration from configAdmin
  * @author Stefan Triller - Add support for service contexts
  */
-@Component(immediate = true)
-public class ConfigDispatcher extends AbstractWatchService {
+public class ConfigDispatcher {
 
     private final Logger logger = LoggerFactory.getLogger(ConfigDispatcher.class);
 
     private final Gson gson = new Gson();
-
-    /** The program argument name for setting the service config directory path */
-    final static public String SERVICEDIR_PROG_ARGUMENT = "smarthome.servicedir";
 
     /** The program argument name for setting the service pid namespace */
     final static public String SERVICEPID_PROG_ARGUMENT = "smarthome.servicepid";
@@ -115,9 +100,6 @@ public class ConfigDispatcher extends AbstractWatchService {
      */
     final static public String SERVICECFG_PROG_ARGUMENT = "smarthome.servicecfg";
 
-    /** The default folder name of the configuration folder of services */
-    final static public String SERVICES_FOLDER = "services";
-
     /** The default namespace for service pids */
     final static public String SERVICE_PID_NAMESPACE = "org.eclipse.smarthome";
 
@@ -130,74 +112,17 @@ public class ConfigDispatcher extends AbstractWatchService {
 
     private ExclusivePIDMap exclusivePIDMap;
 
-    private ConfigurationAdmin configAdmin;
+    private final ConfigurationAdmin configAdmin;
 
-    private File exclusivePIDStore;
+    private final File exclusivePIDStore;
 
-    public ConfigDispatcher() {
-        super(getPathToWatch());
-    }
-
-    @Activate
-    public void activate(BundleContext bundleContext) {
-        super.activate();
+    public ConfigDispatcher(BundleContext bundleContext, ConfigurationAdmin configAdmin, Path pathToWatch) {
+        this.configAdmin = configAdmin;
         exclusivePIDStore = bundleContext.getDataFile(EXCLUSIVE_PID_STORE_FILE);
         loadExclusivePIDList();
         readDefaultConfig();
-        readConfigFiles();
+        readConfigFiles(pathToWatch);
         processOrphanExclusivePIDs();
-        storeCurrentExclusivePIDList();
-    }
-
-    @Deactivate
-    @Override
-    public void deactivate() {
-        super.deactivate();
-
-    }
-
-    @Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.STATIC)
-    protected void setConfigurationAdmin(ConfigurationAdmin configAdmin) {
-        this.configAdmin = configAdmin;
-    }
-
-    protected void unsetConfigurationAdmin(ConfigurationAdmin configAdmin) {
-        this.configAdmin = null;
-    }
-
-    @Override
-    protected boolean watchSubDirectories() {
-        return false;
-    }
-
-    @Override
-    protected Kind<?>[] getWatchEventKinds(Path subDir) {
-        return new Kind<?>[] { ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY };
-    }
-
-    @Override
-    protected void processWatchEvent(WatchEvent<?> event, Kind<?> kind, Path path) {
-        if (kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
-            try {
-                File f = path.toFile();
-                if (!f.isHidden()) {
-                    processConfigFile(f);
-                }
-            } catch (IOException e) {
-                logger.warn("Could not process config file '{}': {}", path, e);
-            }
-        } else if (kind == ENTRY_DELETE) {
-            // Detect if a service specific configuration file was removed. We want to
-            // notify the service in this case with an updated empty configuration.
-            File configFile = path.toFile();
-            if (configFile.isHidden() || configFile.isDirectory() || !configFile.getName().endsWith(".cfg")) {
-                return;
-            }
-
-            exclusivePIDMap.setFileRemoved(configFile.getAbsolutePath());
-            processOrphanExclusivePIDs();
-        }
-
         storeCurrentExclusivePIDList();
     }
 
@@ -270,15 +195,6 @@ public class ConfigDispatcher extends AbstractWatchService {
         }
     }
 
-    private static String getPathToWatch() {
-        String progArg = System.getProperty(SERVICEDIR_PROG_ARGUMENT);
-        if (progArg != null) {
-            return ConfigConstants.getConfigFolder() + File.separator + progArg;
-        } else {
-            return ConfigConstants.getConfigFolder() + File.separator + SERVICES_FOLDER;
-        }
-    }
-
     private String getDefaultServiceConfigPath() {
         String progArg = System.getProperty(SERVICECFG_PROG_ARGUMENT);
         if (progArg != null) {
@@ -297,8 +213,8 @@ public class ConfigDispatcher extends AbstractWatchService {
         }
     }
 
-    private void readConfigFiles() {
-        File dir = getSourcePath().toFile();
+    private void readConfigFiles(Path pathToWatch) {
+        File dir = pathToWatch.toFile();
         if (dir.exists()) {
             File[] files = dir.listFiles();
             // Sort the files by modification time,
@@ -348,7 +264,7 @@ public class ConfigDispatcher extends AbstractWatchService {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void processConfigFile(File configFile) throws IOException, FileNotFoundException {
+    public void processConfigFile(File configFile) throws IOException, FileNotFoundException {
         if (configFile.isDirectory() || !configFile.getName().endsWith(".cfg")) {
             logger.debug("Ignoring file '{}'", configFile.getName());
             return;
@@ -465,6 +381,14 @@ public class ConfigDispatcher extends AbstractWatchService {
         for (Entry<Configuration, Dictionary> entry : configsToUpdate.entrySet()) {
             entry.getKey().update(entry.getValue());
         }
+
+        storeCurrentExclusivePIDList();
+    }
+
+    public void fileRemoved(String path) {
+        exclusivePIDMap.setFileRemoved(path);
+        processOrphanExclusivePIDs();
+        storeCurrentExclusivePIDList();
     }
 
     private String getPIDFromLine(String line) {
