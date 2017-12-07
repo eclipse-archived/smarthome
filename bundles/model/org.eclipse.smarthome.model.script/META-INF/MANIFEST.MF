@@ -67,7 +67,7 @@ Import-Package:
  org.quartz.impl.matchers,
  org.quartz.utils,
  org.slf4j,
- tec.uom.se.unit"
+ tec.uom.se.unit
 Require-Bundle: 
  org.antlr.runtime,
  org.eclipse.emf.common,

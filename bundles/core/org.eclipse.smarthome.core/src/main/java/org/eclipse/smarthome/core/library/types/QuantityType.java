@@ -343,7 +343,7 @@ public class QuantityType<T extends Quantity<T>> extends Number
      *
      * @return the negated value of this QuantityType.
      */
-    public QuantityType<?> negate() {
+    public QuantityType<T> negate() {
         return new QuantityType<>(quantity.multiply(-1));
     }
 
