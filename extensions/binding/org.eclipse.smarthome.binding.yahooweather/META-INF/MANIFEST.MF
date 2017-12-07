@@ -6,7 +6,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.binding.yahooweather;singleto
  n:=true
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.9.0.qualifier
+Bundle-Version: 0.9.0
 Export-Package: 
  org.eclipse.smarthome.binding.yahooweather,
  org.eclipse.smarthome.binding.yahooweather.handler

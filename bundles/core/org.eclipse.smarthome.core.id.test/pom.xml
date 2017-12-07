@@ -4,12 +4,12 @@
   <groupId>org.eclipse.smarthome.core</groupId>
   <artifactId>org.eclipse.smarthome.core.id.test</artifactId>
   <packaging>eclipse-test-plugin</packaging>
-  <version>0.9.0-SNAPSHOT</version>
+  <version>0.9.0</version>
   <name>Eclipse SmartHome ID Tests</name>
   <parent>
     <groupId>org.eclipse.smarthome.bundles</groupId>
     <artifactId>core</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.9.0</version>
   </parent>
 
   <build>

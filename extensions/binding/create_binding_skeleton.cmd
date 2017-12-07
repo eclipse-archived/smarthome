@@ -16,9 +16,9 @@ SET BindingIdInLowerCase=%BindingIdInCamelCase%
 
 CALL :LoCase BindingIdInLowerCase
 
-call mvn archetype:generate -N -DinteractiveMode=false -DarchetypeGroupId=org.eclipse.smarthome.archetype -DarchetypeArtifactId=org.eclipse.smarthome.archetype.binding -DarchetypeVersion=0.9.0-SNAPSHOT -DgroupId=org.eclipse.smarthome.binding -DartifactId=org.eclipse.smarthome.binding.%BindingIdInLowerCase% -Dpackage=org.eclipse.smarthome.binding.%BindingIdInLowerCase% -Dversion=0.9.0-SNAPSHOT -DbindingId=%BindingIdInLowerCase% -DbindingIdCamelCase=%BindingIdInCamelCase% -Dauthor=%2
+call mvn archetype:generate -N -DinteractiveMode=false -DarchetypeGroupId=org.eclipse.smarthome.archetype -DarchetypeArtifactId=org.eclipse.smarthome.archetype.binding -DarchetypeVersion=0.9.0 -DgroupId=org.eclipse.smarthome.binding -DartifactId=org.eclipse.smarthome.binding.%BindingIdInLowerCase% -Dpackage=org.eclipse.smarthome.binding.%BindingIdInLowerCase% -Dversion=0.9.0 -DbindingId=%BindingIdInLowerCase% -DbindingIdCamelCase=%BindingIdInCamelCase% -Dauthor=%2
 
-call mvn archetype:generate -N -DinteractiveMode=false -DarchetypeGroupId=org.eclipse.smarthome.archetype -DarchetypeArtifactId=org.eclipse.smarthome.archetype.binding.test -DarchetypeVersion=0.9.0-SNAPSHOT -DgroupId=org.eclipse.smarthome.binding -DartifactId=org.eclipse.smarthome.binding.%BindingIdInLowerCase%.test -Dpackage=org.eclipse.smarthome.binding.%BindingIdInLowerCase% -Dversion=0.9.0-SNAPSHOT -DbindingId=%BindingIdInLowerCase% -DbindingIdCamelCase=%BindingIdInCamelCase% -Dauthor=%2
+call mvn archetype:generate -N -DinteractiveMode=false -DarchetypeGroupId=org.eclipse.smarthome.archetype -DarchetypeArtifactId=org.eclipse.smarthome.archetype.binding.test -DarchetypeVersion=0.9.0 -DgroupId=org.eclipse.smarthome.binding -DartifactId=org.eclipse.smarthome.binding.%BindingIdInLowerCase%.test -Dpackage=org.eclipse.smarthome.binding.%BindingIdInLowerCase% -Dversion=0.9.0 -DbindingId=%BindingIdInLowerCase% -DbindingIdCamelCase=%BindingIdInCamelCase% -Dauthor=%2
 
 
 SET BindingIdInLowerCase=

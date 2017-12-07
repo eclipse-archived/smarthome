@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Automation Core
 Bundle-SymbolicName: org.eclipse.smarthome.automation.core
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.9.0.qualifier
+Bundle-Version: 0.9.0
 Export-Package: org.eclipse.smarthome.automation.core.util
 Import-Package: 
  com.google.gson,

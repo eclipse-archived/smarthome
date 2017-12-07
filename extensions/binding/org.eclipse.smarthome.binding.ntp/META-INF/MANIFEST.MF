@@ -5,7 +5,7 @@ Bundle-Name: ntp Binding
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.binding.ntp;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.9.0.qualifier
+Bundle-Version: 0.9.0
 Export-Package: 
  org.eclipse.smarthome.binding.ntp,
  org.eclipse.smarthome.binding.ntp.handler

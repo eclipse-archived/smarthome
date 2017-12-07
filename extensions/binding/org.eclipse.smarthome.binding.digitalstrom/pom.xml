@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.eclipse.smarthome.binding</groupId>
     <artifactId>pom</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.9.0</version>
   </parent>
 
   <properties>
@@ -16,7 +16,7 @@
 
   <groupId>org.eclipse.smarthome.binding</groupId>
   <artifactId>org.eclipse.smarthome.binding.digitalstrom</artifactId>
-  <version>0.9.0-SNAPSHOT</version>
+  <version>0.9.0</version>
 
   <name>Eclipse SmartHome DigitalSTROM Binding</name>
   <packaging>eclipse-plugin</packaging>
