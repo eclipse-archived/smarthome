@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  * This is a data transfer object that is used to serialize page content.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
@@ -30,6 +30,7 @@ public class PageDTO {
     public String link;
     public PageDTO parent;
     public boolean leaf;
+    public boolean timeout;
 
     public List<WidgetDTO> widgets = new ArrayList<WidgetDTO>();
 
