@@ -475,6 +475,10 @@ public abstract class BaseThingHandler implements ThingHandler {
      *             if handler is not initialized correctly, because no callback is present
      */
     protected void updateThing(Thing thing) {
+        if (thing == this.thing) {
+            throw new IllegalArgumentException(
+                    "Changes must not be done on the current thing - create a copy, e.g. via editThing()");
+        }
         synchronized (this) {
             if (this.callback != null) {
                 this.thing = thing;
