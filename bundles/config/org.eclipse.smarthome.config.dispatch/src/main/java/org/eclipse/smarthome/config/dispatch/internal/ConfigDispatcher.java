@@ -370,8 +370,9 @@ public class ConfigDispatcher extends AbstractWatchService {
         String exclusivePID = lines.size() > 0 ? getPIDFromLine(lines.get(0)) : null;
         if (exclusivePID != null) {
             if (exclusivePIDMap.contains(exclusivePID)) {
-                logger.warn("The file {} subsequently defines the exclusive PID '{}'.", configFile.getAbsolutePath(),
-                        exclusivePID);
+                logger.warn(
+                        "The file {} subsequently defines the exclusive PID '{}'. Overriding existing configuration now.",
+                        configFile.getAbsolutePath(), exclusivePID);
             }
 
             pid = exclusivePID;
@@ -404,11 +405,7 @@ public class ConfigDispatcher extends AbstractWatchService {
 
             if (configuration == null) {
                 logger.debug("Creating factory configuration for PID '{}' with context '{}'", pid, context);
-
                 configuration = configAdmin.createFactoryConfiguration(pid, null);
-                Dictionary p = new Properties();
-                p.put(SERVICE_CONTEXT, context);
-                configuration.update(p);
             } else {
                 logger.warn("Configuration for '{}' already exists, updating it with file '{}'.", exclusivePID,
                         configFile.getName());
@@ -418,8 +415,13 @@ public class ConfigDispatcher extends AbstractWatchService {
         }
 
         // this file does only contain entries for this PID and no other files do contain further entries for this PID.
-        if (exclusivePIDMap.contains(pid)) {
+        if (context == null && exclusivePIDMap.contains(pid)) {
             configMap.put(configuration, new Properties());
+        } else if (context != null && exclusivePIDMap.contains(exclusivePID)) {
+            Dictionary p = new Properties();
+            p.put(SERVICE_CONTEXT, context);
+            configuration.update(p);
+            configMap.put(configuration, p);
         }
 
         for (String line : lines) {
