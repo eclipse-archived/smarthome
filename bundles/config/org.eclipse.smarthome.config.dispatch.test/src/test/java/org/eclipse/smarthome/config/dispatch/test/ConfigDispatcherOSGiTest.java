@@ -506,6 +506,7 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
 
         // Modify this file, so that we are sure it is the last modified file in servicesDirectory.
         File fileToModify = new File(configDirectory + SEP + servicesDirectory + SEP + lastModifiedFileName);
+        FileUtils.touch(fileToModify);
         cd.processConfigFile(fileToModify);
 
         String value = getLastModifiedValueForPoperty(configDirectory + SEP + servicesDirectory, conflictProperty);
@@ -530,6 +531,7 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
 
         // Modify this file, so that we are sure it is the last modified file
         File lastModified = new File(configDirectory + SEP + servicesDirectory + SEP + "global.pid.service.c.file.cfg");
+        FileUtils.touch(lastModified);
         cd.processConfigFile(lastModified);
 
         /*
