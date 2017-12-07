@@ -18,6 +18,7 @@ import javax.measure.quantity.Temperature;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.Type;
+import org.eclipse.smarthome.model.script.lib.NumberExtensions;
 import org.junit.Test;
 
 /**

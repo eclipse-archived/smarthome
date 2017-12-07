@@ -1,4 +1,4 @@
-package org.eclipse.smarthome.model.script.tests.scriptengine;
+package org.eclipse.smarthome.model.script.engine;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;

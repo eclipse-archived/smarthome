@@ -7,9 +7,10 @@ Bundle-SymbolicName: org.eclipse.smarthome.model.script.tests;singleton:
  =true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
+Fragment-Host: org.eclipse.smarthome.model.script
 Import-Package: 
- javax.measure;version="1.0.0",
- javax.measure.quantity;version="1.0.0",
+ javax.measure,
+ javax.measure.quantity,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.events,
@@ -30,16 +31,9 @@ Import-Package:
  org.hamcrest;core=split,
  org.hamcrest.core,
  org.junit;version="4.0.0",
- org.junit.rules;version="4.12.0",
- org.junit.runner;version="4.0.0",
- org.junit.runner.manipulation;version="4.0.0",
- org.junit.runner.notification;version="4.0.0",
- org.junit.runners;version="4.0.0",
- org.junit.runners.model;version="4.0.0",
  org.slf4j,
- tec.uom.se.unit;version="1.0.8"
+ tec.uom.se.unit
 Require-Bundle: 
- com.google.guava,
  org.eclipse.core.runtime,
  org.eclipse.xtend.lib,
  org.eclipse.xtext.xbase.lib
