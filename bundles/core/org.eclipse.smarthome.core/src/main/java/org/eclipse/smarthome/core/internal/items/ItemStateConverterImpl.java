@@ -19,7 +19,13 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component(service = ItemStateConverter.class, name = "itemStateConverter")
+/**
+ * Convert a {@link State} to an {@link Item} accepted {@link State}.
+ *
+ * @author Henning Treu - initial refactoring as OSGi service
+ *
+ */
+@Component(service = ItemStateConverter.class)
 public class ItemStateConverterImpl implements ItemStateConverter {
 
     private final Logger logger = LoggerFactory.getLogger(ItemStateConverterImpl.class);
