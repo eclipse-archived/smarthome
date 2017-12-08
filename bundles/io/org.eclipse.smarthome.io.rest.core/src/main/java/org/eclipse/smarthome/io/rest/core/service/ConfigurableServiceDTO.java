@@ -23,12 +23,15 @@ public class ConfigurableServiceDTO {
     public String label;
     public String category;
     public String configDescriptionURI;
+    public boolean multiple;
 
-    public ConfigurableServiceDTO(String id, String label, String category, String configDescriptionURI) {
+    public ConfigurableServiceDTO(String id, String label, String category, String configDescriptionURI,
+            boolean multiple) {
         this.id = id;
         this.label = label;
         this.category = category;
         this.configDescriptionURI = configDescriptionURI;
+        this.multiple = multiple;
     }
 
 }
