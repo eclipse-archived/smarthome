@@ -15,11 +15,13 @@ package org.eclipse.smarthome.core.internal.events;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.events.Event;
@@ -38,11 +40,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
 import org.osgi.util.tracker.ServiceTracker;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimaps;
-import com.google.common.collect.SetMultimap;
 
 /**
  * The {@link OSGiEventManager} provides an OSGi based default implementation of the Eclipse SmartHome event bus.
@@ -89,8 +86,10 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
 
     private final Map<String, EventFactory> typedEventFactories = new ConcurrentHashMap<String, EventFactory>();
 
-    private final SetMultimap<String, EventSubscriber> typedEventSubscribers = Multimaps
-            .synchronizedSetMultimap(HashMultimap.<String, EventSubscriber> create());
+    private final ConcurrentHashMap<String, CopyOnWriteArraySet<EventSubscriber>> typedEventSubscribers = new ConcurrentHashMap<>();
+
+    // private final SetMultimap<String, EventSubscriber> typedEventSubscribers = Multimaps
+    // .synchronizedSetMultimap(HashMultimap.<String, EventSubscriber> create());
 
     private ThreadedEventHandler eventHandler;
 
@@ -198,36 +197,52 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
 
     private void assertValidArgument(Event event) throws IllegalArgumentException {
         String errorMsg = "The %s of the 'event' argument must not be null or empty.";
-        Preconditions.checkArgument(event != null, "Argument 'event' must not be null.");
-        Preconditions.checkArgument(event.getType() != null && !event.getType().isEmpty(),
-                String.format(errorMsg, "type"));
-        Preconditions.checkArgument(event.getPayload() != null && !event.getPayload().isEmpty(),
-                String.format(errorMsg, "payload"));
-        Preconditions.checkArgument(event.getTopic() != null && !event.getTopic().isEmpty(),
-                String.format(errorMsg, "topic"));
+        String value;
+
+        if (event == null) {
+            throw new IllegalArgumentException("Argument 'event' must not be null.");
+        }
+        if ((value = event.getType()) == null || value.isEmpty()) {
+            throw new IllegalArgumentException(String.format(errorMsg, "type"));
+        }
+        if ((value = event.getPayload()) == null || value.isEmpty()) {
+            throw new IllegalArgumentException(String.format(errorMsg, "payload"));
+        }
+        if ((value = event.getTopic()) == null || value.isEmpty()) {
+            throw new IllegalArgumentException(String.format(errorMsg, "topic"));
+        }
     }
 
     private void assertValidState(EventAdmin eventAdmin) throws IllegalStateException {
-        Preconditions.checkArgument(eventAdmin != null, "The event bus module is not available!");
+        if (eventAdmin == null) {
+            throw new IllegalArgumentException("The event bus module is not available!");
+        }
     }
 
-    private void addEventSubscriber(EventSubscriber eventSubscriber) {
-        Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
-
-        for (String subscribedEventType : subscribedEventTypes) {
-            synchronized (this) {
-                if (!typedEventSubscribers.containsEntry(subscribedEventType, eventSubscriber)) {
-                    typedEventSubscribers.put(subscribedEventType, eventSubscriber);
-                }
+    private void addEventSubscriber(final EventSubscriber eventSubscriber) {
+        final Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
+        for (final String subscribedEventType : subscribedEventTypes) {
+            final Set<EventSubscriber> entries = typedEventSubscribers.get(subscribedEventType);
+            if (entries == null) {
+                typedEventSubscribers.put(subscribedEventType,
+                        new CopyOnWriteArraySet<>(Collections.singleton(eventSubscriber)));
+            } else {
+                entries.add(eventSubscriber);
             }
         }
     }
 
     private void removeEventSubscriber(EventSubscriber eventSubscriber) {
-        Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
+        final Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
 
-        for (String subscribedEventType : subscribedEventTypes) {
-            typedEventSubscribers.remove(subscribedEventType, eventSubscriber);
+        for (final String subscribedEventType : subscribedEventTypes) {
+            final Set<EventSubscriber> entries = typedEventSubscribers.get(subscribedEventType);
+            if (entries != null) {
+                entries.remove(eventSubscriber);
+                if (entries.isEmpty()) {
+                    typedEventSubscribers.remove(subscribedEventType);
+                }
+            }
         }
     }
 

@@ -16,7 +16,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFactory;
@@ -25,18 +29,17 @@ import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.SetMultimap;
-
 /**
  * Handle Eclipse SmartHome events encapsulated by OSGi events.
  *
  * @author Markus Rathgeb - Initial contribution
  */
+@NonNullByDefault
 public class EventHandler {
 
     private final Logger logger = LoggerFactory.getLogger(EventHandler.class);
 
-    private final SetMultimap<String, EventSubscriber> typedEventSubscribers;
+    private final ConcurrentHashMap<String, CopyOnWriteArraySet<EventSubscriber>> typedEventSubscribers;
     private final Map<String, EventFactory> typedEventFactories;
     private final SafeCaller safeCaller;
 
@@ -47,7 +50,7 @@ public class EventHandler {
      * @param typedEventFactories the event factories indexed by the event type
      * @param safeCaller the safe caller to use
      */
-    public EventHandler(final SetMultimap<String, EventSubscriber> typedEventSubscribers,
+    public EventHandler(final ConcurrentHashMap<String, CopyOnWriteArraySet<EventSubscriber>> typedEventSubscribers,
             final Map<String, EventFactory> typedEventFactories, final SafeCaller safeCaller) {
         this.typedEventSubscribers = typedEventSubscribers;
         this.typedEventFactories = typedEventFactories;
@@ -78,7 +81,8 @@ public class EventHandler {
         }
     }
 
-    private void handleEvent(final String type, final String payload, final String topic, final String source) {
+    private void handleEvent(final String type, final String payload, final String topic,
+            final @Nullable String source) {
         final EventFactory eventFactory = typedEventFactories.get(type);
         if (eventFactory == null) {
             logger.warn("Could not find an Event Factory for the event type '{}'.", type);
@@ -112,8 +116,8 @@ public class EventHandler {
         return subscribers;
     }
 
-    private Event createESHEvent(final EventFactory eventFactory, final String type, final String payload,
-            final String topic, final String source) {
+    private @Nullable Event createESHEvent(final EventFactory eventFactory, final String type, final String payload,
+            final String topic, final @Nullable String source) {
         Event eshEvent = null;
         try {
             eshEvent = eventFactory.createEvent(type, topic, payload, source);
