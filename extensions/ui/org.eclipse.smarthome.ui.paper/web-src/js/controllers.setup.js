@@ -2,6 +2,9 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
     $scope.navigateTo = function(path) {
         $location.path('inbox/' + path);
     }
+    $scope.navigateToConfig = function(path) {
+        $location.path('configuration/' + path);
+    }
     $scope.thingTypes = [];
     function getThingTypes() {
         thingTypeRepository.getAll(function(thingTypes) {
@@ -54,15 +57,37 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
                 'enableChannels' : !$scope.advancedMode
             }, result.label).$promise.then(function() {
                 thingRepository.setDirty(true);
-                toastService.showDefaultToast('Thing added.', 'Show Thing', 'configuration/things/view/' + thingUID);
                 var thingType = thingTypeRepository.find(function(thingType) {
                     return thingTypeUID === thingType.UID;
                 });
 
-                if (thingType && thingType.bridge) {
-                    $scope.navigateTo('setup/search/' + thingUID.split(':')[0]);
+                var configRequired = false;
+                var thing = thingRepository.find(function(thing) {
+                    return thing.UID === thingUID;
+                });
+                if (thing && thing.statusInfo.status === 'OFFLINE' && thing.statusInfo.statusDetail === 'CONFIGURATION_ERROR') {
+                    configRequired = true;
+                } else if (thing && thing.statusInfo.status !== 'ONLINE') {
+                    for ( var key in thing.configuration) {
+                        if (thing.configuration.hasOwnProperty(key)) {
+                            if (thing.configuration[key] === '') {
+                                configRequired = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (configRequired) {
+                    $scope.navigateToConfig('things/edit/' + thingUID);
+                    toastService.showDefaultToast('Thing added and must be configured');
                 } else {
-                    discoveryResultRepository.getAll(true);
+                    toastService.showDefaultToast('Thing added.', 'Show Thing', 'configuration/things/view/' + thingUID);
+                    if (thingType && thingType.bridge) {
+                        $scope.navigateTo('setup/search/' + thingUID.split(':')[0]);
+                    } else {
+                        discoveryResultRepository.getAll(true);
+                    }
                 }
             });
         });
