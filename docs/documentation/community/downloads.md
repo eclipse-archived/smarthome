@@ -36,7 +36,7 @@ You can find nightly snapshot builds of the Eclipse SmartHome features and bundl
 The [0.8.0 release](https://projects.eclipse.org/projects/iot.smarthome/releases/0.8.0/plan) can be found here:
 
 | Maven repository | [https://repo.eclipse.org/content/repositories/smarthome-releases](https://repo.eclipse.org/content/repositories/smarthome-releases) |
-| p2 repository | [http://download.eclipse.org/smarthome/updates-release/0.8.0/](http://download.eclipse.org/smarthome/updates-release/0.8.0/) (download as [zip](http://eclipse.org/downloads/download.php?file=/smarthome/releases/0.7.0/eclipsesmarthome-incubation-0.8.0-repo.zip)) |
+| p2 repository | [http://download.eclipse.org/smarthome/updates-release/0.8.0/](http://download.eclipse.org/smarthome/updates-release/0.8.0/) (download as [zip](http://eclipse.org/downloads/download.php?file=/smarthome/releases/0.8.0/eclipsesmarthome-incubation-0.8.0-repo.zip)) |
 
 Designer downloads (platform-specific):
 
