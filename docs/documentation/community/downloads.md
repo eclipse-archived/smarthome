@@ -21,7 +21,7 @@ Besides the runtime bundles, Eclipse SmartHome comes with the "Designer", which 
 The *latest release of Eclipse SmartHome is 0.9*, released on December 6, 2017. For details, please check out the [Release Notes](https://projects.eclipse.org/projects/iot.smarthome/releases/0.9.0/plan). You can download it here:
 
 | Maven repository | [https://repo.eclipse.org/content/repositories/smarthome-releases](https://repo.eclipse.org/content/repositories/smarthome-releases) |
-| p2 repository | [http://download.eclipse.org/smarthome/updates-release/0.9.0/](http://download.eclipse.org/smarthome/updates-release/0.9.0/) (download as [zip](http://eclipse.org/downloads/download.php?file=/smarthome/releases/0.8.0/eclipsesmarthome-incubation-0.9.0-repo.zip)) |
+| p2 repository | [http://download.eclipse.org/smarthome/updates-release/0.9.0/](http://download.eclipse.org/smarthome/updates-release/0.9.0/) (download as [zip](http://eclipse.org/downloads/download.php?file=/smarthome/releases/0.9.0/eclipsesmarthome-incubation-0.9.0-repo.zip)) |
 
 Please note that the Designer has been deprecated is not part of the release anymore.
 
