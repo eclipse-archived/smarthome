@@ -289,7 +289,6 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
                 properties.put(Thing.PROPERTY_SERIAL_NUMBER, config.getMACAddress().replaceAll(":", "").toLowerCase());
                 properties.put(Thing.PROPERTY_FIRMWARE_VERSION, config.getSoftwareVersion());
                 updateProperties(properties);
-                updateThing(thing);
                 propertiesInitializedSuccessfully = true;
             }
         }

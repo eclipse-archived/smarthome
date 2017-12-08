@@ -475,6 +475,10 @@ public abstract class BaseThingHandler implements ThingHandler {
      *             if handler is not initialized correctly, because no callback is present
      */
     protected void updateThing(Thing thing) {
+        if (thing == this.thing) {
+            throw new IllegalArgumentException(
+                    "Changes must not be done on the current thing - create a copy, e.g. via editThing()");
+        }
         synchronized (this) {
             if (this.callback != null) {
                 this.thing = thing;
@@ -527,8 +531,7 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     /**
      * Returns a copy of the properties map, that can be modified. The method {@link
-     * BaseThingHandler#updateProperties(Map<String, String> properties)} must then be called to change the
-     * properties values for the thing that is handled by this thing handler instance.
+     * BaseThingHandler#updateProperties(Map<String, String> properties)} must be called to persist the properties.
      *
      * @return copy of the thing properties (not null)
      */
@@ -538,20 +541,33 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     /**
-     * Updates multiple properties for the thing that is handled by this thing handler instance. Each value is only
-     * set for the given property name if there has not been set any value yet or if the value has been changed. If the
-     * value of the property to be set is null then the property is removed.
+     * Informs the framework, that the given properties map of the thing was updated. This method performs a check, if
+     * the properties were updated. If the properties did not change, the framework is not informed about changes.
      *
      * @param properties
-     *            properties map, that was updated
+     *            properties map, that was updated and should be persisted
+     *
+     * @throws IllegalStateException
+     *             if handler is not initialized correctly, because no callback is present
      */
     protected void updateProperties(Map<String, String> properties) {
+        boolean propertiesUpdated = false;
         for (Entry<String, String> property : properties.entrySet()) {
             String propertyName = property.getKey();
             String propertyValue = property.getValue();
             String existingPropertyValue = thing.getProperties().get(propertyName);
             if (existingPropertyValue == null || !existingPropertyValue.equals(propertyValue)) {
                 this.thing.setProperty(propertyName, propertyValue);
+                propertiesUpdated = true;
+            }
+        }
+        if (propertiesUpdated) {
+            synchronized (this) {
+                if (this.callback != null) {
+                    this.callback.thingUpdated(thing);
+                } else {
+                    throw new IllegalStateException("Could not update properties, because callback is missing");
+                }
             }
         }
     }
@@ -562,7 +578,8 @@ public abstract class BaseThingHandler implements ThingHandler {
      * set for the given property name if there has not been set any value yet or if the value has been changed. If the
      * value of the property to be set is null then the property is removed.
      *
-     * If multiple properties should be changed at the same time, the {@link BaseThingHandler#editProperties()} method
+     * This method also informs the framework about the updated thing, which in fact will persists the changes. So, if
+     * multiple properties should be changed at the same time, the {@link BaseThingHandler#editProperties()} method
      * should be used.
      *
      * @param name the name of the property to be set
@@ -572,6 +589,13 @@ public abstract class BaseThingHandler implements ThingHandler {
         String existingPropertyValue = thing.getProperties().get(name);
         if (existingPropertyValue == null || !existingPropertyValue.equals(value)) {
             thing.setProperty(name, value);
+            synchronized (this) {
+                if (this.callback != null) {
+                    this.callback.thingUpdated(thing);
+                } else {
+                    throw new IllegalStateException("Could not update properties, because callback is missing");
+                }
+            }
         }
     }
 

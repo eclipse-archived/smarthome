@@ -47,7 +47,7 @@ public class JavaTest {
      * @param sleepTime interval for checking the condition
      * @return true on success, false on timeout
      */
-    protected boolean waitFor(BooleanSupplier condition, int timeout, int sleepTime) {
+    protected boolean waitFor(BooleanSupplier condition, long timeout, long sleepTime) {
         int waitingTime = 0;
         boolean rv;
         while (!(rv = condition.getAsBoolean()) && waitingTime < timeout) {
@@ -76,7 +76,7 @@ public class JavaTest {
      * @param timeout timeout
      * @param sleepTime interval for checking the condition
      */
-    protected void waitForAssert(Runnable assertion, int timeout, int sleepTime) {
+    protected void waitForAssert(Runnable assertion, long timeout, long sleepTime) {
         waitForAssert(assertion, null, timeout, sleepTime);
     }
 
@@ -101,7 +101,7 @@ public class JavaTest {
      * @param sleepTime interval for checking the condition
      * @return the return value of the supplied assertion object's function on success
      */
-    protected <T> T waitForAssert(Supplier<T> assertion, int timeout, int sleepTime) {
+    protected <T> T waitForAssert(Supplier<T> assertion, long timeout, long sleepTime) {
         return waitForAssert(assertion, null, timeout, sleepTime);
     }
 
@@ -112,7 +112,7 @@ public class JavaTest {
      * @param beforeLastCall logic to execute in front of the last call to ${code assertion}
      * @param sleepTime interval for checking the condition
      */
-    protected void waitForAssert(Runnable assertion, Runnable beforeLastCall, int timeout, int sleepTime) {
+    protected void waitForAssert(Runnable assertion, Runnable beforeLastCall, long timeout, long sleepTime) {
         waitForAssert(assertion, beforeLastCall, null, timeout, sleepTime);
     }
 
@@ -124,9 +124,9 @@ public class JavaTest {
      * @param afterLastCall logic to execute after the last call to ${code assertion}
      * @param sleepTime interval for checking the condition
      */
-    protected void waitForAssert(Runnable assertion, Runnable beforeLastCall, Runnable afterLastCall, int timeout,
-            int sleepTime) {
-        int waitingTime = 0;
+    protected void waitForAssert(Runnable assertion, Runnable beforeLastCall, Runnable afterLastCall, long timeout,
+            long sleepTime) {
+        long waitingTime = 0;
         while (waitingTime < timeout) {
             try {
                 assertion.run();
@@ -161,7 +161,7 @@ public class JavaTest {
      * @param sleepTime interval for checking the condition
      * @return the return value of the supplied assertion object's function on success
      */
-    private <T> T waitForAssert(Supplier<T> assertion, Runnable beforeLastCall, long timeout, int sleepTime) {
+    private <T> T waitForAssert(Supplier<T> assertion, Runnable beforeLastCall, long timeout, long sleepTime) {
         final long timeoutNs = TimeUnit.MILLISECONDS.toNanos(timeout);
         final long startingTime = System.nanoTime();
         while (System.nanoTime() - startingTime < timeoutNs) {

@@ -401,43 +401,49 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
 
     @Override
     public void thingUpdated(final Thing thing, ThingTrackerEvent thingTrackerEvent) {
-        Lock lock = getLockForThing(thing.getUID());
-        try {
-            lock.lock();
-            ThingUID thingUID = thing.getUID();
-            Thing oldThing = getThing(thingUID);
-
-            if (oldThing != thing) {
-                this.things.remove(oldThing);
-                this.things.add(thing);
-            }
-
-            final ThingHandler thingHandler = thingHandlers.get(thingUID);
-            if (thingHandler != null) {
-                if (oldThing != thing) {
-                    thing.setHandler(thingHandler);
-                }
-                if (ThingHandlerHelper.isHandlerInitialized(thing) || isInitializing(thing)) {
-                    // prevent infinite loops by not informing handler about self-initiated update
-                    if (!thingUpdatedLock.contains(thingUID)) {
+        ThingUID thingUID = thing.getUID();
+        if (thingUpdatedLock.contains(thingUID)) {
+            // called from the thing handler itself, therefore
+            // it exists, is initializing/initialized and
+            // must not be informed (in order to prevent infinite loops)
+            replaceThing(getThing(thingUID), thing);
+        } else {
+            Lock lock1 = getLockForThing(thing.getUID());
+            try {
+                lock1.lock();
+                ThingHandler thingHandler = replaceThing(getThing(thingUID), thing);
+                if (thingHandler != null) {
+                    if (ThingHandlerHelper.isHandlerInitialized(thing) || isInitializing(thing)) {
                         safeCaller.create(thingHandler).build().thingUpdated(thing);
+                    } else {
+                        logger.debug(
+                                "Cannot notify handler about updated thing '{}', because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE). Starting handler initialization instead.",
+                                thing.getThingTypeUID());
+                        initializeHandler(thing);
                     }
                 } else {
-                    logger.debug(
-                            "Cannot notify handler about updated thing '{}', because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE). Starting handler initialization instead.",
-                            thing.getThingTypeUID());
-                    initializeHandler(thing);
+                    registerAndInitializeHandler(thing, getThingHandlerFactory(thing));
                 }
-            } else {
-                registerAndInitializeHandler(thing, getThingHandlerFactory(thing));
-            }
 
-            if (oldThing != thing && oldThing != null) {
+            } finally {
+                lock1.unlock();
+            }
+        }
+    }
+
+    private ThingHandler replaceThing(Thing oldThing, Thing newThing) {
+        final ThingHandler thingHandler = thingHandlers.get(newThing.getUID());
+        if (oldThing != newThing) {
+            this.things.remove(oldThing);
+            this.things.add(newThing);
+            if (thingHandler != null) {
+                newThing.setHandler(thingHandler);
+            }
+            if (oldThing != null) {
                 oldThing.setHandler(null);
             }
-        } finally {
-            lock.unlock();
         }
+        return thingHandler;
     }
 
     private Thing getThing(ThingUID id) {
