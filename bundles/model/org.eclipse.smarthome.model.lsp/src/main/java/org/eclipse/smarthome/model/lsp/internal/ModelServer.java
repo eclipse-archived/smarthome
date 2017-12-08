@@ -15,17 +15,21 @@ package org.eclipse.smarthome.model.lsp.internal;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.smarthome.config.core.ConfigurableService;
 import org.eclipse.smarthome.model.script.ScriptServiceUtil;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.xtext.ide.server.LanguageServerImpl;
+import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -40,11 +44,18 @@ import com.google.inject.Injector;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
-@Component(immediate = true)
+@Component(immediate = true, service = ModelServer.class, configurationPid = ModelServer.CONFIG_PID, configurationPolicy = ConfigurationPolicy.OPTIONAL, property = {
+        Constants.SERVICE_PID + "=" + ModelServer.CONFIG_PID,
+        ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI + "=misc:lsp",
+        ConfigurableService.SERVICE_PROPERTY_LABEL + "=Language Server (LSP)",
+        ConfigurableService.SERVICE_PROPERTY_CATEGORY + "=misc" })
 public class ModelServer {
 
+    static final String CONFIG_PID = "org.eclipse.smarthome.lsp";
+    private static final String KEY_PORT = "port";
+    private static final int DEFAULT_PORT = 5007;
+
     private final Logger logger = LoggerFactory.getLogger(ModelServer.class);
-    private final int PORT = 5007;
     private ServerSocket socket;
 
     private ScriptServiceUtil scriptServiceUtil;
@@ -52,10 +63,18 @@ public class ModelServer {
     private Injector injector;
 
     @Activate
-    public void activate() {
+    public void activate(Map<String, Object> config) {
+        int port = DEFAULT_PORT;
+        try {
+            port = config.containsKey(KEY_PORT) ? Integer.parseInt(config.get(KEY_PORT).toString()) : DEFAULT_PORT;
+        } catch (NumberFormatException e) {
+            logger.warn("Couldn't parse '{}', using default port '{}' for the Language Server instead",
+                    config.get(KEY_PORT), DEFAULT_PORT);
+        }
+        final int serverPort = port;
         injector = Guice.createInjector(new RuntimeServerModule(scriptServiceUtil, scriptEngine));
         new Thread(() -> {
-            listen();
+            listen(serverPort);
         }, "Language Server").start();
     }
 
@@ -70,10 +89,10 @@ public class ModelServer {
         }
     }
 
-    private void listen() {
+    private void listen(int port) {
         try {
-            socket = new ServerSocket(PORT);
-            logger.info("Started Language Server Protocol (LSP) service on port {}", PORT);
+            socket = new ServerSocket(port);
+            logger.info("Started Language Server Protocol (LSP) service on port {}", port);
             while (!socket.isClosed()) {
                 logger.debug("Going to wait for a client to connect");
                 try {
