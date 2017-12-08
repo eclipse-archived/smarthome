@@ -15,7 +15,6 @@ package org.eclipse.smarthome.config.dispatch.internal;
 import static java.nio.file.StandardWatchEventKinds.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
@@ -66,7 +65,8 @@ public class ConfigDispatcherFileWatcher extends AbstractWatchService {
     @Activate
     public void activate(BundleContext bundleContext) {
         super.activate();
-        configDispatcher = new ConfigDispatcher(bundleContext, configAdmin, getSourcePath());
+        configDispatcher = new ConfigDispatcher(bundleContext, configAdmin);
+        configDispatcher.processConfigFile(getSourcePath().toFile());
     }
 
     @Deactivate
@@ -89,13 +89,9 @@ public class ConfigDispatcherFileWatcher extends AbstractWatchService {
     @Override
     protected void processWatchEvent(WatchEvent<?> event, Kind<?> kind, Path path) {
         if (kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
-            try {
-                File f = path.toFile();
-                if (!f.isHidden()) {
-                    configDispatcher.processConfigFile(f);
-                }
-            } catch (IOException e) {
-                logger.warn("Could not process config file '{}': {}", path, e);
+            File f = path.toFile();
+            if (!f.isHidden()) {
+                configDispatcher.processConfigFile(f);
             }
         } else if (kind == ENTRY_DELETE) {
             // Detect if a service specific configuration file was removed. We want to
@@ -104,7 +100,6 @@ public class ConfigDispatcherFileWatcher extends AbstractWatchService {
             if (configFile.isHidden() || configFile.isDirectory() || !configFile.getName().endsWith(".cfg")) {
                 return;
             }
-
             configDispatcher.fileRemoved(configFile.getAbsolutePath());
         }
     }

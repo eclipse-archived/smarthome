@@ -18,7 +18,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -116,14 +115,11 @@ public class ConfigDispatcher {
 
     private final File exclusivePIDStore;
 
-    public ConfigDispatcher(BundleContext bundleContext, ConfigurationAdmin configAdmin, Path pathToWatch) {
+    public ConfigDispatcher(BundleContext bundleContext, ConfigurationAdmin configAdmin) {
         this.configAdmin = configAdmin;
         exclusivePIDStore = bundleContext.getDataFile(EXCLUSIVE_PID_STORE_FILE);
         loadExclusivePIDList();
         readDefaultConfig();
-        readConfigFiles(pathToWatch);
-        processOrphanExclusivePIDs();
-        storeCurrentExclusivePIDList();
     }
 
     private void loadExclusivePIDList() {
@@ -207,15 +203,14 @@ public class ConfigDispatcher {
     private void readDefaultConfig() {
         String defaultCfgPath = getDefaultServiceConfigPath();
         try {
-            processConfigFile(new File(defaultCfgPath));
+            internalProcessConfigFile(new File(defaultCfgPath));
         } catch (IOException e) {
             logger.warn("Could not process default config file '{}': {}", defaultCfgPath, e.getMessage());
         }
     }
 
-    private void readConfigFiles(Path pathToWatch) {
-        File dir = pathToWatch.toFile();
-        if (dir.exists()) {
+    public void processConfigFile(File dir) {
+        if (dir.isDirectory() && dir.exists()) {
             File[] files = dir.listFiles();
             // Sort the files by modification time,
             // so that the last modified file is processed last.
@@ -226,15 +221,17 @@ public class ConfigDispatcher {
                 }
             });
             for (File file : files) {
-                try {
-                    processConfigFile(file);
-                } catch (IOException e) {
-                    logger.warn("Could not process config file '{}': {}", file.getName(), e.getMessage());
-                }
+                processConfigFile(file);
             }
         } else {
-            logger.debug("Configuration folder '{}' does not exist.", dir.toString());
+            try {
+                internalProcessConfigFile(dir);
+            } catch (IOException e) {
+                logger.warn("Could not process config file '{}': {}", dir.getName(), e.getMessage());
+            }
         }
+        processOrphanExclusivePIDs();
+        storeCurrentExclusivePIDList();
     }
 
     private static String getServicePidNamespace() {
@@ -264,7 +261,7 @@ public class ConfigDispatcher {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void processConfigFile(File configFile) throws IOException, FileNotFoundException {
+    private void internalProcessConfigFile(File configFile) throws IOException, FileNotFoundException {
         if (configFile.isDirectory() || !configFile.getName().endsWith(".cfg")) {
             logger.debug("Ignoring file '{}'", configFile.getName());
             return;
@@ -301,7 +298,6 @@ public class ConfigDispatcher {
 
             lines = lines.subList(1, lines.size());
             exclusivePIDMap.setProcessedPID(exclusivePID, configFile.getAbsolutePath());
-
         } else if (exclusivePIDMap.contains(pid)) {
             // the pid was once from an exclusive file but there is either a second non-exclusive-file with config
             // entries or the `pid:` marker was removed.
