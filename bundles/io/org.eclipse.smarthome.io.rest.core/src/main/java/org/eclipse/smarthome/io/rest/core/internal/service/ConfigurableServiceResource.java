@@ -37,6 +37,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.ConfigurableService;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.config.core.MultipleInstanceServiceInfo;
 import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.config.ConfigurationService;
@@ -217,7 +218,20 @@ public class ConfigurableServiceResource implements RESTResource {
                             .getProperty(ConfigurableService.SERVICE_PROPERTY_CATEGORY);
                     String configDescriptionURI = (String) serviceReference
                             .getProperty(ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI);
-                    services.add(new ConfigurableServiceDTO(id, label, category, configDescriptionURI));
+                    services.add(new ConfigurableServiceDTO(id, label, category, configDescriptionURI, false));
+                }
+            }
+
+            // obtain the list of services holding metadata on how to create multiple services with different configs
+            ServiceReference<?>[] multiServiceReferences = RESTCoreActivator.getBundleContext()
+                    .getServiceReferences(MultipleInstanceServiceInfo.class.getName(), null);
+            if (multiServiceReferences != null) {
+                for (ServiceReference<?> serviceReference : multiServiceReferences) {
+                    MultipleInstanceServiceInfo mis = (MultipleInstanceServiceInfo) RESTCoreActivator.getBundleContext()
+                            .getService(serviceReference);
+
+                    services.add(new ConfigurableServiceDTO(mis.getServicePID(), mis.getLabel(), mis.getCategory(),
+                            mis.getDescriptionURI(), true));
                 }
             }
         } catch (InvalidSyntaxException ex) {
