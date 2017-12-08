@@ -14,6 +14,7 @@ import javax.measure.Quantity;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.items.GroupFunction;
+import org.eclipse.smarthome.core.items.dto.GroupFunctionDTO;
 import org.eclipse.smarthome.core.library.types.QuantityTypeArithmeticGroupFunction;
 import org.eclipse.smarthome.core.types.State;
 
@@ -32,7 +33,8 @@ public class DimensionGroupFunctionFactory extends DefaultGroupFunctionFactory {
     }
 
     @Override
-    public @Nullable GroupFunction createGroupFunction(String functionName, List<State> args) {
+    public @Nullable GroupFunction createGroupFunction(GroupFunctionDTO function, List<State> args) {
+        String functionName = function.name;
         switch (functionName.toUpperCase()) {
             case "AVG":
                 return new QuantityTypeArithmeticGroupFunction.Avg(dimension);
@@ -43,7 +45,7 @@ public class DimensionGroupFunctionFactory extends DefaultGroupFunctionFactory {
             case "MAX":
                 return new QuantityTypeArithmeticGroupFunction.Max(dimension);
             default:
-                return super.createGroupFunction(functionName, args);
+                return super.createGroupFunction(function, args);
         }
     }
 

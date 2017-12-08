@@ -12,6 +12,7 @@ import java.util.List;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.items.GroupFunction;
+import org.eclipse.smarthome.core.items.dto.GroupFunctionDTO;
 import org.eclipse.smarthome.core.types.State;
 
 /**
@@ -23,5 +24,5 @@ import org.eclipse.smarthome.core.types.State;
 public interface GroupFunctionFactory {
 
     @Nullable
-    GroupFunction createGroupFunction(String functionName, List<State> args);
+    GroupFunction createGroupFunction(GroupFunctionDTO function, List<State> args);
 }

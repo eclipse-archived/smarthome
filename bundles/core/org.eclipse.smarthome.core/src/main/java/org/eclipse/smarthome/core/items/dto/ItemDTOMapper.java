@@ -88,7 +88,7 @@ public class ItemDTOMapper {
         List<State> args = parseStates(baseItem, function.params);
         GroupFunctionFactory groupFunctionFactory = GFFP.provideGroupFunctionFactory(baseItem);
 
-        return groupFunctionFactory.createGroupFunction(function.name, args);
+        return groupFunctionFactory.createGroupFunction(function, args);
     }
 
     private static List<State> parseStates(Item baseItem, String[] params) {

@@ -6,7 +6,7 @@ Bundle-SymbolicName: org.eclipse.smarthome.core.test
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.9.0.qualifier
 Fragment-Host: org.eclipse.smarthome.core
-Import-Package:  
+Import-Package: 
  groovy.lang,
  javax.measure.quantity,
  org.codehaus.groovy.reflection,
@@ -14,6 +14,7 @@ Import-Package:
  org.codehaus.groovy.runtime.callsite,
  org.codehaus.groovy.runtime.typehandling,
  org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.types,

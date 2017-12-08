@@ -12,6 +12,7 @@ import java.util.List;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.items.GroupFunction;
+import org.eclipse.smarthome.core.items.dto.GroupFunctionDTO;
 import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction;
 import org.eclipse.smarthome.core.library.types.StringType;
@@ -27,7 +28,8 @@ import org.slf4j.LoggerFactory;
 public class DefaultGroupFunctionFactory implements GroupFunctionFactory {
 
     @Override
-    public @Nullable GroupFunction createGroupFunction(String functionName, List<State> args) {
+    public @Nullable GroupFunction createGroupFunction(GroupFunctionDTO function, List<State> args) {
+        String functionName = function.name;
         switch (functionName.toUpperCase()) {
             case "AND":
                 if (args.size() == 2) {
@@ -62,8 +64,8 @@ public class DefaultGroupFunctionFactory implements GroupFunctionFactory {
                 }
                 break;
             case "COUNT":
-                if (args.size() == 1) {
-                    State countParam = args.get(0).as(StringType.class);
+                if (function.params != null && function.params.length == 1) {
+                    State countParam = new StringType(function.params[0]);
                     return new ArithmeticGroupFunction.Count(countParam);
                 } else {
                     LoggerFactory.getLogger(ItemDTOMapper.class)

@@ -30,6 +30,7 @@ import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.i18n.UnitProvider;
+import org.eclipse.smarthome.core.items.dto.GroupFunctionDTO;
 import org.eclipse.smarthome.core.items.events.GroupItemStateChangedEvent;
 import org.eclipse.smarthome.core.items.events.ItemUpdatedEvent;
 import org.eclipse.smarthome.core.library.items.ColorItem;
@@ -510,8 +511,10 @@ public class GroupItemTest extends JavaOSGiTest {
     @Test
     public void assertThatNumberGroupItemWithDimensionCalculatesCorrectState() {
         NumberItem baseItem = createNumberItem("baseItem", Temperature.class, UnDefType.NULL);
+        GroupFunctionDTO gfDTO = new GroupFunctionDTO();
+        gfDTO.name = "sum";
         GroupFunction function = groupFunctionFactoryProvider.provideGroupFunctionFactory(baseItem)
-                .createGroupFunction("sum", Collections.emptyList());
+                .createGroupFunction(gfDTO, Collections.emptyList());
         GroupItem groupItem = new GroupItem("number", baseItem, function);
         groupItem.setUnitProvider(unitProvider);
 
@@ -538,8 +541,10 @@ public class GroupItemTest extends JavaOSGiTest {
     @Test
     public void assertThatNumberGroupItemWithDifferentDimensionsCalculatesCorrectState() {
         NumberItem baseItem = createNumberItem("baseItem", Temperature.class, UnDefType.NULL);
+        GroupFunctionDTO gfDTO = new GroupFunctionDTO();
+        gfDTO.name = "sum";
         GroupFunction function = groupFunctionFactoryProvider.provideGroupFunctionFactory(baseItem)
-                .createGroupFunction("sum", Collections.emptyList());
+                .createGroupFunction(gfDTO, Collections.emptyList());
         GroupItem groupItem = new GroupItem("number", baseItem, function);
         groupItem.setUnitProvider(unitProvider);
 
