@@ -221,7 +221,11 @@ public class ConfigDispatcher {
                 }
             });
             for (File file : files) {
-                processConfigFile(file);
+                try {
+                    internalProcessConfigFile(file);
+                } catch (IOException e) {
+                    logger.warn("Could not process config file '{}': {}", file.getName(), e.getMessage());
+                }
             }
         } else {
             try {
