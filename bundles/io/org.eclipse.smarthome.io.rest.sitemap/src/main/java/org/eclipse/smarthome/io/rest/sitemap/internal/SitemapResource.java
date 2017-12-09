@@ -571,6 +571,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
      *
      * @param widgets
      *            the widgets of the page to observe
+     * @return true if the timeout is reached
      */
     private boolean waitForChanges(EList<Widget> widgets) {
         long startTime = (new Date()).getTime();
@@ -593,7 +594,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
         for (GenericItem item : items) {
             item.removeStateChangeListener(listener);
         }
-        return !timeout;
+        return timeout;
     }
 
     /**
