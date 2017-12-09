@@ -493,14 +493,10 @@ public class HttpUtil {
 
             rawData = new RawType(data, contentType);
 
-        } catch (IOException e) {
-            rawData = null;
-        }
-        if (rawData == null) {
-            logger.debug("Media download failed (URL {})", url);
-        } else {
             logger.debug("Media downloaded: size {} type {} (URL {})", rawData.getBytes().length, rawData.getMimeType(),
                     url);
+        } catch (IOException e) {
+            logger.debug("Media download failed (URL {}) : {}", url, e.getMessage());
         }
         return rawData;
     }
