@@ -72,7 +72,7 @@ public class ThreadedEventHandler implements Closeable {
                     Thread.currentThread().interrupt();
                 }
             }
-        });
+        }, "ESH-OSGiEventManager");
         thread.start();
     }
 
