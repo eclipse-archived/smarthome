@@ -246,11 +246,15 @@ public class LifxLightCommunicationHandler {
     }
 
     public void sendPacket(Packet packet) {
-        wrappedPacketSend((s, p) -> LifxSelectorUtil.sendPacket(s, p), packet);
+        if (host != null) {
+            wrappedPacketSend((s, p) -> LifxSelectorUtil.sendPacket(s, p), packet);
+        }
     }
 
     public void resendPacket(Packet packet) {
-        wrappedPacketSend((s, p) -> LifxSelectorUtil.resendPacket(s, p), packet);
+        if (host != null) {
+            wrappedPacketSend((s, p) -> LifxSelectorUtil.resendPacket(s, p), packet);
+        }
     }
 
     private void wrappedPacketSend(BiFunction<LifxSelectorContext, Packet, Boolean> function, Packet packet) {
