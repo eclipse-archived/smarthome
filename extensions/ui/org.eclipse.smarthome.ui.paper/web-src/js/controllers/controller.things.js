@@ -109,19 +109,25 @@ angular.module('PaperUI.controllers.things') //
     $scope.itemsList = [];
 
     var createAcceptedItemTypes = function(paramItemTypes) {
-        var acceptedItemTypes = new Set();
+        var acceptedItemTypes = [];
+        var addToAcceptedItemTypes = function(itemType) {
+            if (acceptedItemTypes.indexOf(itemType) < 0) {
+                acceptedItemTypes.push(itemType);
+            }
+        }
+
         angular.forEach(paramItemTypes, function(itemType) {
-            acceptedItemTypes.add(itemType);
+            addToAcceptedItemTypes(itemType);
             if (itemType == "Color") {
-                acceptedItemTypes.add("Switch");
-                acceptedItemTypes.add("Dimmer");
+                addToAcceptedItemTypes("Switch");
+                addToAcceptedItemTypes("Dimmer");
             } else if (itemType == "Dimmer") {
-                acceptedItemTypes.add("Switch");
+                addToAcceptedItemTypes("Switch");
             }
 
         })
 
-        return Array.from(acceptedItemTypes);
+        return acceptedItemTypes;
     }
     $scope.acceptedItemTypes = createAcceptedItemTypes(params.acceptedItemTypes);
 
