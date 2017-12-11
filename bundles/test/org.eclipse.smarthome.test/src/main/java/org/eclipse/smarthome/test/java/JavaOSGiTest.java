@@ -257,10 +257,10 @@ public class JavaOSGiTest extends JavaTest {
      */
     protected ServiceRegistration<?> unregisterService(final String interfaceName) {
         ServiceRegistration<?> reg = null;
-        List<ServiceRegistration<?>> regList = registeredServices.remove(interfaceName);
+        List<ServiceRegistration<?>> regList = registeredServices.get(interfaceName);
         if (regList != null) {
             reg = regList.get(0);
-            registeredServices.get(interfaceName).forEach(r -> r.unregister());
+            regList.forEach(r -> r.unregister());
             registeredServices.remove(interfaceName);
         }
         return reg;
