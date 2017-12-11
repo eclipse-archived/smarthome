@@ -102,7 +102,7 @@ public class FSInternetRadioHandlerJavaTest extends JavaTest {
     /**
      * ArrayList of channels which is used to initialize a radioThing in the test cases.
      */
-    private ArrayList<Channel> channels = new ArrayList<Channel>();
+    private final ArrayList<Channel> channels = new ArrayList<Channel>();
 
     private FSInternetRadioHandler radioHandler;
     private Thing radioThing;
@@ -110,7 +110,7 @@ public class FSInternetRadioHandlerJavaTest extends JavaTest {
     // default configuration properties
     private static final String DEFAULT_CONFIG_PROPERTY_IP = "127.0.0.1";
     private static final String DEFAULT_CONFIG_PROPERTY_PIN = "1234";
-    private static final String DEFAULT_CONFIG_PROPERTY_PORT = "9090";
+    private static final int DEFAULT_CONFIG_PROPERTY_PORT = TestPortUtil.findFreePort();
 
     /** The default refresh interval is 60 seconds. For the purposes of the tests it is set to 1 second */
     private static final String DEFAULT_CONFIG_PROPERTY_REFRESH = "1";
@@ -119,8 +119,7 @@ public class FSInternetRadioHandlerJavaTest extends JavaTest {
     @BeforeClass
     public static void setUpClass() throws Exception {
         ServletHolder holder = new ServletHolder(radioServiceDummy);
-        server = new TestServer(DEFAULT_CONFIG_PROPERTY_IP, Integer.parseInt(DEFAULT_CONFIG_PROPERTY_PORT), TIMEOUT,
-                holder);
+        server = new TestServer(DEFAULT_CONFIG_PROPERTY_IP, DEFAULT_CONFIG_PROPERTY_PORT, TIMEOUT, holder);
         setTheChannelsMap();
         server.startServer();
     }
@@ -152,8 +151,8 @@ public class FSInternetRadioHandlerJavaTest extends JavaTest {
      */
     @Test
     public void offlineIfNullIp() {
-        Configuration config = createConfiguration(null, DEFAULT_CONFIG_PROPERTY_PIN, DEFAULT_CONFIG_PROPERTY_PORT,
-                DEFAULT_CONFIG_PROPERTY_REFRESH);
+        Configuration config = createConfiguration(null, DEFAULT_CONFIG_PROPERTY_PIN,
+                String.valueOf(DEFAULT_CONFIG_PROPERTY_PORT), DEFAULT_CONFIG_PROPERTY_REFRESH);
         Thing radioThingWithNullIP = initializeRadioThing(config);
         testRadioThingConsideringConfiguration(radioThingWithNullIP);
     }
@@ -163,8 +162,8 @@ public class FSInternetRadioHandlerJavaTest extends JavaTest {
      */
     @Test
     public void offlineIfEmptyPIN() {
-        Configuration config = createConfiguration(DEFAULT_CONFIG_PROPERTY_IP, "", DEFAULT_CONFIG_PROPERTY_PORT,
-                DEFAULT_CONFIG_PROPERTY_REFRESH);
+        Configuration config = createConfiguration(DEFAULT_CONFIG_PROPERTY_IP, "",
+                String.valueOf(DEFAULT_CONFIG_PROPERTY_PORT), DEFAULT_CONFIG_PROPERTY_REFRESH);
         Thing radioThingWithEmptyPIN = initializeRadioThing(config);
         testRadioThingConsideringConfiguration(radioThingWithEmptyPIN);
     }
@@ -186,8 +185,8 @@ public class FSInternetRadioHandlerJavaTest extends JavaTest {
     @Test
     public void offlineIfWrongPIN() {
         final String wrongPin = "5678";
-        Configuration config = createConfiguration(DEFAULT_CONFIG_PROPERTY_IP, wrongPin, DEFAULT_CONFIG_PROPERTY_PORT,
-                DEFAULT_CONFIG_PROPERTY_REFRESH);
+        Configuration config = createConfiguration(DEFAULT_CONFIG_PROPERTY_IP, wrongPin,
+                String.valueOf(DEFAULT_CONFIG_PROPERTY_PORT), DEFAULT_CONFIG_PROPERTY_REFRESH);
         initializeRadioThing(config);
         waitForAssert(() -> {
             String exceptionMessage = "java.lang.RuntimeException: Radio does not allow connection, maybe wrong pin?";
@@ -571,8 +570,7 @@ public class FSInternetRadioHandlerJavaTest extends JavaTest {
         turnTheRadioOn(radioThing);
 
         ChannelUID absoluteVolumeChannelUID = getChannelUID(radioThing, absoluteVolumeChannelID);
-        Item volumeTestItem = initializeItem(absoluteVolumeChannelUID, DEFAULT_TEST_ITEM_NAME,
-                absoluteAcceptedItemType);
+        initializeItem(absoluteVolumeChannelUID, DEFAULT_TEST_ITEM_NAME, absoluteAcceptedItemType);
 
         ChannelUID percentVolumeChannelUID = getChannelUID(radioThing, percentVolumeChannelID);
 
@@ -736,7 +734,7 @@ public class FSInternetRadioHandlerJavaTest extends JavaTest {
 
     private static Configuration createDefaultConfiguration() {
         return createConfiguration(DEFAULT_CONFIG_PROPERTY_IP, DEFAULT_CONFIG_PROPERTY_PIN,
-                DEFAULT_CONFIG_PROPERTY_PORT, DEFAULT_CONFIG_PROPERTY_REFRESH);
+                String.valueOf(DEFAULT_CONFIG_PROPERTY_PORT), DEFAULT_CONFIG_PROPERTY_REFRESH);
     }
 
     private static Configuration createConfiguration(String ip, String pin, String port, String refresh) {
@@ -823,6 +821,7 @@ public class FSInternetRadioHandlerJavaTest extends JavaTest {
         return true;
     }
 
+    @SuppressWarnings("null")
     private Thing initializeRadioThing(Configuration config) {
         radioThing = ThingBuilder.create(DEFAULT_THING_TYPE_UID, DEFAULT_THING_UID).withConfiguration(config)
                 .withChannels(channels).build();
@@ -837,6 +836,7 @@ public class FSInternetRadioHandlerJavaTest extends JavaTest {
         return radioThing;
     }
 
+    @SuppressWarnings("null")
     private Thing initializeRadioThingWithMockedHandler(Configuration config) {
         radioThing = ThingBuilder.create(DEFAULT_THING_TYPE_UID, DEFAULT_THING_UID).withConfiguration(config)
                 .withChannels(channels).build();
