@@ -100,6 +100,7 @@ public class FSInternetRadioDiscoveryParticipantJavaTest {
      *
      * @throws ValidationException
      */
+    @SuppressWarnings("null")
     @Test
     public void validDiscoveryResultWithComplete() throws ValidationException {
         RemoteDevice completeFSInternetRadioDevice = createDefaultFSInternetRadioDevice(DEFAULT_RADIO_BASE_URL);
@@ -140,6 +141,7 @@ public class FSInternetRadioDiscoveryParticipantJavaTest {
      *
      * @throws ValidationException
      */
+    @SuppressWarnings("null")
     @Test
     public void validDiscoveryResultIfWithoutBaseUrl() throws ValidationException {
         RemoteDevice fsInternetRadioDeviceWithoutUrl = createDefaultFSInternetRadioDevice(null);
