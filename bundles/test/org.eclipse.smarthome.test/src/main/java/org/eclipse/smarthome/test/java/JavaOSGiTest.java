@@ -18,7 +18,6 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -45,7 +44,7 @@ import org.osgi.framework.ServiceRegistration;
  */
 public class JavaOSGiTest extends JavaTest {
 
-    private final Map<String, ServiceRegistration<?>> registeredServices = new HashMap<>();
+    private final Map<String, List<ServiceRegistration<?>>> registeredServices = new HashMap<>();
     protected BundleContext bundleContext;
 
     @Before
@@ -200,8 +199,17 @@ public class JavaOSGiTest extends JavaTest {
             final Dictionary<String, ?> properties) {
         assertThat(interfaceName, is(notNullValue()));
         final ServiceRegistration<?> srvReg = bundleContext.registerService(interfaceName, service, properties);
-        registeredServices.put(interfaceName, srvReg);
+        saveServiceRegistration(interfaceName, srvReg);
         return srvReg;
+    }
+
+    private void saveServiceRegistration(final String interfaceName, final ServiceRegistration<?> srvReg) {
+        List<ServiceRegistration<?>> regs = registeredServices.get(interfaceName);
+        if (regs == null) {
+            regs = new ArrayList<>();
+        }
+        regs.add(srvReg);
+        registeredServices.put(interfaceName, regs);
     }
 
     /**
@@ -222,7 +230,7 @@ public class JavaOSGiTest extends JavaTest {
         final ServiceRegistration<?> srvReg = bundleContext.registerService(interfaceNames, service, properties);
 
         for (final String interfaceName : interfaceNames) {
-            registeredServices.put(interfaceName, srvReg);
+            saveServiceRegistration(interfaceName, srvReg);
         }
 
         return srvReg;
@@ -245,19 +253,15 @@ public class JavaOSGiTest extends JavaTest {
      * Unregister an OSGi service by the given object, that was registered before.
      *
      * @param interfaceName the interface name of the service
-     * @return the service registration that was unregistered or null if no service could be found
+     * @return the first service registration that was unregistered or null if no service could be found
      */
     protected ServiceRegistration<?> unregisterService(final String interfaceName) {
-        final ServiceRegistration<?> reg = registeredServices.remove(interfaceName);
-        if (reg != null) {
-            reg.unregister();
-            Iterator<ServiceRegistration<?>> regs = registeredServices.values().iterator();
-            while (regs.hasNext()) {
-                final ServiceRegistration<?> otherReg = regs.next();
-                if (otherReg == reg) {
-                    regs.remove();
-                }
-            }
+        ServiceRegistration<?> reg = null;
+        List<ServiceRegistration<?>> regList = registeredServices.get(interfaceName);
+        if (regList != null) {
+            reg = regList.get(0);
+            regList.forEach(r -> r.unregister());
+            registeredServices.remove(interfaceName);
         }
         return reg;
     }
@@ -286,7 +290,7 @@ public class JavaOSGiTest extends JavaTest {
 
     @After
     public void unregisterMocks() {
-        registeredServices.forEach((interfaceName, service) -> service.unregister());
+        registeredServices.forEach((interfaceName, services) -> services.forEach(service -> service.unregister()));
         registeredServices.clear();
     }
 
