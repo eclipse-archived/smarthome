@@ -34,26 +34,12 @@ public class TestPortUtil {
      * @throws IllegalStateException if unable to find a free port
      */
     public static int findFreePort() {
-        ServerSocket socket = null;
-        try {
-            socket = new ServerSocket(0);
+        try (final ServerSocket socket = new ServerSocket(0)) {
             socket.setReuseAddress(true);
-            int port = socket.getLocalPort();
-            try {
-                socket.close();
-            } catch (IOException e) {
-                // Ignore IOException on close()
-            }
-            return port;
-        } catch (IOException e) {
-        } finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                }
-            }
+            return socket.getLocalPort();
+        } catch (final IOException ex) {
+            throw new IllegalStateException("Could not find a free TCP/IP port to start embedded Jetty HTTP Server on",
+                    ex);
         }
-        throw new IllegalStateException("Could not find a free TCP/IP port to start embedded Jetty HTTP Server on");
     }
 }
