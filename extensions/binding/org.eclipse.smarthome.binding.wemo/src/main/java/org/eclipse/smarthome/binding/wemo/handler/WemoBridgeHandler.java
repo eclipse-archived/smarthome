@@ -21,6 +21,7 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
@@ -37,7 +38,7 @@ public class WemoBridgeHandler extends BaseBridgeHandler {
 
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
 
-    private Logger logger = LoggerFactory.getLogger(WemoBridgeHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(WemoBridgeHandler.class);
 
     public WemoBridgeHandler(Bridge bridge) {
         super(bridge);
@@ -55,6 +56,7 @@ public class WemoBridgeHandler extends BaseBridgeHandler {
             updateStatus(ThingStatus.ONLINE);
         } else {
             logger.debug("Cannot initalize WemoBridgeHandler. UDN not set.");
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
         }
     }
 
