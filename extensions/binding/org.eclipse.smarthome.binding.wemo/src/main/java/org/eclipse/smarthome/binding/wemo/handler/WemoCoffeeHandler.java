@@ -106,7 +106,7 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
 
             } catch (Exception e) {
                 logger.debug("Exception during poll : {}", e);
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
             }
         }
     };
