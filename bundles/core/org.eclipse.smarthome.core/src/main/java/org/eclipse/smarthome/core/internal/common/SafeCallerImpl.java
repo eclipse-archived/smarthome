@@ -12,10 +12,10 @@
  */
 package org.eclipse.smarthome.core.internal.common;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -86,7 +86,7 @@ public class SafeCallerImpl implements SafeCaller {
     }
 
     private static <T> Class<?>[] getAllInterfaces(T target) {
-        List<Class<?>> ret = new ArrayList<>();
+        Set<Class<?>> ret = new HashSet<>();
         Class<?> clazz = target.getClass();
         while (clazz != null) {
             ret.addAll(Arrays.asList(clazz.getInterfaces()));

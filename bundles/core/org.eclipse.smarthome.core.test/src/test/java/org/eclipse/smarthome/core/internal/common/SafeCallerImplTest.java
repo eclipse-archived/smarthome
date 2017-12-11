@@ -35,7 +35,6 @@ import org.eclipse.smarthome.core.common.QueueingThreadPoolExecutor;
 import org.eclipse.smarthome.test.java.JavaTest;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -75,6 +74,9 @@ public class SafeCallerImplTest extends JavaTest {
         public String method() {
             return "Hello";
         }
+    }
+
+    public static class DerivedTarget extends Target implements ITarget {
     }
 
     @Before
@@ -494,6 +496,12 @@ public class SafeCallerImplTest extends JavaTest {
         for (int actual : q) {
             assertThat(actual, is(expected++));
         }
+    }
+
+    @Test
+    public void testDuplicateInterface() {
+        ITarget target = new DerivedTarget();
+        safeCaller.create(target).build().method();
     }
 
     private void assertDurationBelow(long high, Runnable runnable) {
