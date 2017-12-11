@@ -22,13 +22,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.smarthome.config.discovery.DiscoveryListener;
-import org.eclipse.smarthome.config.discovery.DiscoveryResult;
-import org.eclipse.smarthome.config.discovery.DiscoveryService;
-import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
-import org.eclipse.smarthome.config.discovery.ScanListener;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.setup.test.discovery.DiscoveryServiceMock;
+import org.eclipse.smarthome.config.setup.test.discovery.DiscoveryServiceMockOfBridge;
 import org.eclipse.smarthome.config.setup.test.discovery.ExtendedDiscoveryServiceMock;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -56,6 +52,7 @@ import org.osgi.framework.ServiceRegistration;
  *
  * @author Michael Grammling - Initial Contribution
  * @author Simon Kaufmann - added tests for ExtendedDiscoveryService, ported to Java
+ * @author Andre Fuechsel - added tests for removeOlderResults for a specific bridge only
  */
 public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
 
@@ -64,6 +61,12 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
 
     private final String ANY_BINDING_ID_2 = "any2BindingId2";
     private final String ANY_THING_TYPE_2 = "any2ThingType2";
+
+    private final String ANY_BINDING_ID_3 = "any2BindingId3";
+    private final String ANY_THING_TYPE_3 = "any2ThingType3";
+
+    private final ThingUID BRIDGE_UID_1 = new ThingUID("binding:bridge:1");
+    private final ThingUID BRIDGE_UID_2 = new ThingUID("binding:bridge:2");
 
     private final String FAULTY_BINDING_ID = "faulty2BindingId";
     private final String FAULTY_THING_TYPE = "faulty2ThingType";
@@ -79,6 +82,8 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
 
     private DiscoveryServiceMock discoveryServiceMockForBinding1;
     private ExtendedDiscoveryServiceMock discoveryServiceMockForBinding2;
+    private DiscoveryServiceMockOfBridge discoveryServiceMockForBinding3Bridge1;
+    private DiscoveryServiceMockOfBridge discoveryServiceMockForBinding3Bridge2;
     private DiscoveryServiceMock discoveryServiceFaultyMock;
     private ExtendedDiscoveryServiceMock extendedDiscoveryServiceMock;
     private DiscoveryServiceRegistry discoveryServiceRegistry;
@@ -100,13 +105,18 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
         inbox = getService(Inbox.class);
         assertNotNull(inbox);
 
-        discoveryServiceMockForBinding1 = new DiscoveryServiceMock(
-                new ThingTypeUID(ANY_BINDING_ID_1, ANY_THING_TYPE_1), 1);
+        discoveryServiceMockForBinding1 = new DiscoveryServiceMock(new ThingTypeUID(ANY_BINDING_ID_1, ANY_THING_TYPE_1),
+                1);
         discoveryServiceMockForBinding2 = new ExtendedDiscoveryServiceMock(
                 new ThingTypeUID(ANY_BINDING_ID_2, ANY_THING_TYPE_2), 3);
 
-        discoveryServiceFaultyMock = new DiscoveryServiceMock(new ThingTypeUID(FAULTY_BINDING_ID, FAULTY_THING_TYPE),
-                1, true);
+        discoveryServiceMockForBinding3Bridge1 = new DiscoveryServiceMockOfBridge(
+                new ThingTypeUID(ANY_BINDING_ID_3, ANY_THING_TYPE_3), 1, BRIDGE_UID_1);
+        discoveryServiceMockForBinding3Bridge2 = new DiscoveryServiceMockOfBridge(
+                new ThingTypeUID(ANY_BINDING_ID_3, ANY_THING_TYPE_3), 1, BRIDGE_UID_2);
+
+        discoveryServiceFaultyMock = new DiscoveryServiceMock(new ThingTypeUID(FAULTY_BINDING_ID, FAULTY_THING_TYPE), 1,
+                true);
 
         extendedDiscoveryServiceMock = new ExtendedDiscoveryServiceMock(
                 new ThingTypeUID(EXTENDED_BINDING_ID, EXTENDED_THING_TYPE), 1, true);
@@ -115,6 +125,10 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
                 bundleContext.registerService(DiscoveryService.class.getName(), discoveryServiceMockForBinding1, null));
         serviceRegs.add(
                 bundleContext.registerService(DiscoveryService.class.getName(), discoveryServiceMockForBinding2, null));
+        serviceRegs.add(bundleContext.registerService(DiscoveryService.class.getName(),
+                discoveryServiceMockForBinding3Bridge1, null));
+        serviceRegs.add(bundleContext.registerService(DiscoveryService.class.getName(),
+                discoveryServiceMockForBinding3Bridge2, null));
         serviceRegs
                 .add(bundleContext.registerService(DiscoveryService.class.getName(), discoveryServiceFaultyMock, null));
         serviceRegs.add(
@@ -129,6 +143,8 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
         discoveryServiceFaultyMock.abortScan();
         discoveryServiceMockForBinding1.abortScan();
         discoveryServiceMockForBinding2.abortScan();
+        discoveryServiceMockForBinding3Bridge1.abortScan();
+        discoveryServiceMockForBinding3Bridge2.abortScan();
 
         serviceRegs.forEach(ServiceRegistration::unregister);
 
@@ -189,7 +205,8 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
         discoveryServiceMockForBinding1.removeOlderResults(discoveryServiceMockForBinding1.getTimestampOfLastScan());
 
         waitForAssert(() -> {
-            verify(mockDiscoveryListener, times(1)).removeOlderResults(any(DiscoveryService.class), anyLong(), any());
+            verify(mockDiscoveryListener, times(1)).removeOlderResults(any(DiscoveryService.class), anyLong(), any(),
+                    any());
         });
         verifyNoMoreInteractions(mockDiscoveryListener);
     }
@@ -259,6 +276,63 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
         assertThat(inbox.getAll().size(), is(2));
 
         anotherDiscoveryServiceMockForBinding1.abortScan();
+    }
+
+    @Test
+    public void testRemoveOlderResults_onlyOfSpecificBridge() {
+        mockDiscoveryListener = mock(DiscoveryListener.class);
+        ScanListener mockScanListener1 = mock(ScanListener.class);
+
+        discoveryServiceRegistry.addDiscoveryListener(mockDiscoveryListener);
+        discoveryServiceRegistry.startScan(new ThingTypeUID(ANY_BINDING_ID_3, ANY_THING_TYPE_3), mockScanListener1);
+
+        waitForAssert(() -> verify(mockScanListener1, times(1)).onFinished(), 2000, DFL_SLEEP_TIME);
+        verify(mockDiscoveryListener, times(2)).thingDiscovered(any(), any());
+
+        // 2 discovery services for the same thing type with different bridges - inbox must contain 2 elements
+        assertThat(inbox.getAll().size(), is(2));
+        assertThat(inbox.getAll().stream().filter(r -> BRIDGE_UID_1.equals(r.getBridgeUID())).count(), is(1L));
+        assertThat(inbox.getAll().stream().filter(r -> BRIDGE_UID_2.equals(r.getBridgeUID())).count(), is(1L));
+
+        // should not remove anything
+        discoveryServiceMockForBinding3Bridge1.removeOlderResults(
+                discoveryServiceMockForBinding3Bridge1.getTimestampOfLastScan(),
+                discoveryServiceMockForBinding3Bridge1.getBridge());
+        assertThat(inbox.getAll().size(), is(2));
+
+        // should not remove anything
+        discoveryServiceMockForBinding3Bridge2.removeOlderResults(
+                discoveryServiceMockForBinding3Bridge2.getTimestampOfLastScan(),
+                discoveryServiceMockForBinding3Bridge2.getBridge());
+        assertThat(inbox.getAll().size(), is(2));
+
+        // start discovery again
+        discoveryServiceRegistry.startScan(new ThingTypeUID(ANY_BINDING_ID_3, ANY_THING_TYPE_3), mockScanListener1);
+
+        waitForAssert(() -> verify(mockScanListener1, times(1)).onFinished(), 2000, DFL_SLEEP_TIME);
+        verify(mockDiscoveryListener, times(4)).thingDiscovered(any(), any());
+
+        // 2 discovery services for the same thing type with different bridges - inbox must now contain 4 elements
+        assertThat(inbox.getAll().size(), is(4));
+        assertThat(inbox.getAll().stream().filter(r -> BRIDGE_UID_1.equals(r.getBridgeUID())).count(), is(2L));
+        assertThat(inbox.getAll().stream().filter(r -> BRIDGE_UID_2.equals(r.getBridgeUID())).count(), is(2L));
+
+        // should remove only 1 entry (of bridge1)
+        discoveryServiceMockForBinding3Bridge1.removeOlderResults(
+                discoveryServiceMockForBinding3Bridge1.getTimestampOfLastScan(),
+                discoveryServiceMockForBinding3Bridge1.getBridge());
+        assertThat(inbox.getAll().size(), is(3));
+        assertThat(inbox.getAll().stream().filter(r -> BRIDGE_UID_1.equals(r.getBridgeUID())).count(), is(1L));
+        assertThat(inbox.getAll().stream().filter(r -> BRIDGE_UID_2.equals(r.getBridgeUID())).count(), is(2L));
+
+        // should remove only 1 entry (of bridge2)
+        discoveryServiceMockForBinding3Bridge2.removeOlderResults(
+                discoveryServiceMockForBinding3Bridge2.getTimestampOfLastScan(),
+                discoveryServiceMockForBinding3Bridge2.getBridge());
+        assertThat(inbox.getAll().size(), is(2));
+        assertThat(inbox.getAll().stream().filter(r -> BRIDGE_UID_1.equals(r.getBridgeUID())).count(), is(1L));
+        assertThat(inbox.getAll().stream().filter(r -> BRIDGE_UID_2.equals(r.getBridgeUID())).count(), is(1L));
+
     }
 
     @Test
