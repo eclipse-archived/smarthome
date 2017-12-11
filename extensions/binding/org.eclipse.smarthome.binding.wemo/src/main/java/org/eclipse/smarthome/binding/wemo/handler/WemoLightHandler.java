@@ -76,7 +76,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
     /**
      * The default refresh interval in Seconds.
      */
-    private int DEFAULT_REFRESH_INTERVAL = 60;
+    private final int DEFAULT_REFRESH_INTERVAL = 60;
 
     /**
      * The default refresh initial delay in Seconds.
@@ -85,7 +85,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
 
     private ScheduledFuture<?> refreshJob;
 
-    private Runnable refreshRunnable = new Runnable() {
+    private final Runnable refreshRunnable = new Runnable() {
 
         @Override
         public void run() {
@@ -99,6 +99,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
 
             } catch (Exception e) {
                 logger.debug("Exception during poll : {}", e);
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
             }
         }
     };
