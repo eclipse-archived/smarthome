@@ -29,6 +29,7 @@ Export-Package:
 Import-Package: 
  com.google.common.base,
  com.google.common.collect,
+ javax.measure,
  org.apache.commons.io,
  org.apache.commons.lang,
  org.apache.commons.logging,
@@ -65,7 +66,8 @@ Import-Package:
  org.quartz.impl.calendar,
  org.quartz.impl.matchers,
  org.quartz.utils,
- org.slf4j
+ org.slf4j,
+ tec.uom.se.unit
 Require-Bundle: 
  org.antlr.runtime,
  org.eclipse.emf.common,

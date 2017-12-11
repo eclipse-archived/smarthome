@@ -20,23 +20,26 @@ Export-Package:
  org.eclipse.smarthome.model.services,
  org.eclipse.smarthome.model.validation
 Import-Package: 
+ javax.measure,
+ javax.measure.quantity,
  org.apache.commons.lang,
  org.apache.log4j,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.autoupdate,
  org.eclipse.smarthome.core.common.registry,
+ org.eclipse.smarthome.core.i18n,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.items.dto,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.thing.util,
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.model.core,
  org.eclipse.smarthome.model.core.valueconverter,
  org.eclipse.xtext.xbase.lib,
  org.osgi.framework,
- org.slf4j,
- javax.measure
+ org.slf4j
 Require-Bundle: 
  com.ibm.icu;resolution:=optional,
  org.antlr.runtime,

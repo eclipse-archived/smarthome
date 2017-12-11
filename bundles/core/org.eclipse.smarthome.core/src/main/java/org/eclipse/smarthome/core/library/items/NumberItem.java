@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.measure.Dimension;
+import javax.measure.Quantity;
 import javax.measure.Unit;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -20,7 +22,6 @@ import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.Dimension;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -38,7 +39,7 @@ public class NumberItem extends GenericItem {
 
     private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
     private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
-    private Dimension dimension;
+    private Class<? extends Quantity<?>> dimension;
 
     static {
         acceptedDataTypes.add(DecimalType.class);
@@ -74,7 +75,7 @@ public class NumberItem extends GenericItem {
      *
      * @return the {@link Dimension} associated with this {@link NumberItem}. May be null.
      */
-    public Dimension getDimension() {
+    public Class<? extends Quantity<?>> getDimension() {
         return dimension;
     }
 
@@ -83,7 +84,7 @@ public class NumberItem extends GenericItem {
      * {@link QuantityType}s from channel-types with {@link Dimension} support.
      *
      */
-    public void setDimension(Dimension dimension) {
+    public void setDimension(Class<? extends Quantity<?>> dimension) {
         this.dimension = dimension;
     }
 
@@ -134,9 +135,10 @@ public class NumberItem extends GenericItem {
      *
      * @return the {@link Unit} for this item if available, {@code null} otherwise.
      */
-    private @Nullable Unit<?> getUnit() {
+    @SuppressWarnings("unchecked")
+    public @Nullable Unit<? extends Quantity<?>> getUnit() {
         if (getState() instanceof QuantityType) {
-            return ((QuantityType) getState()).getUnit();
+            return ((QuantityType<?>) getState()).getUnit();
         }
 
         if (getStateDescription() != null) {
@@ -147,7 +149,9 @@ public class NumberItem extends GenericItem {
         }
 
         if (dimension != null) {
-            return unitProvider.getUnit(dimension);
+            @SuppressWarnings("rawtypes")
+            Unit unit = unitProvider.getUnit((Class<Quantity>) dimension);
+            return unit;
         }
 
         return null;

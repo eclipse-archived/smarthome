@@ -27,6 +27,9 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -54,6 +57,8 @@ public class ChannelItemProviderTest {
     private LocaleProvider localeProvider;
     @Mock
     private ItemChannelLinkRegistry linkRegistry;
+    @Mock
+    private ChannelTypeRegistry channelTypeRegistry;
 
     private ChannelItemProvider provider;
 
@@ -68,6 +73,7 @@ public class ChannelItemProviderTest {
         provider.addItemFactory(itemFactory);
         provider.setLocaleProvider(localeProvider);
         provider.addProviderChangeListener(listener);
+        provider.setChannelTypeRegistry(channelTypeRegistry);
 
         Map<String, Object> props = new HashMap<>();
         props.put("enable", "true");
@@ -77,6 +83,9 @@ public class ChannelItemProviderTest {
         when(thingRegistry.getChannel(same(CHANNEL_UID))).thenReturn(new Channel(CHANNEL_UID, "Number"));
         when(itemFactory.createItem("Number", ITEM_NAME)).thenReturn(ITEM);
         when(localeProvider.getLocale()).thenReturn(Locale.ENGLISH);
+        when(channelTypeRegistry.getChannelType(any(ChannelTypeUID.class)))
+                .thenReturn(new ChannelType(new ChannelTypeUID("test:test"), false, "Number", "Temperature", "Label",
+                        null, null, null, null, null));
     }
 
     @Test

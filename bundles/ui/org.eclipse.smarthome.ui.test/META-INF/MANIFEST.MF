@@ -12,7 +12,8 @@ Import-Package:
  org.eclipse.jdt.annotation;resolution:=optional,
  org.hamcrest;core=split,
  org.mockito,
- org.objenesis
+ org.objenesis,
+ tec.uom.se.unit
 Require-Bundle: 
  org.hamcrest,
  org.junit,

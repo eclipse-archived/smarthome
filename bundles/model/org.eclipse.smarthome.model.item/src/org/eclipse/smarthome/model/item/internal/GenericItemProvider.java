@@ -18,10 +18,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.measure.Quantity;
+
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractProvider;
+import org.eclipse.smarthome.core.items.DimensionClassParser;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -31,7 +34,6 @@ import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.dto.GroupFunctionDTO;
 import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.library.items.NumberItem;
-import org.eclipse.smarthome.core.types.Dimension;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.eclipse.smarthome.model.core.EventType;
@@ -218,6 +220,13 @@ public class GenericItemProvider extends AbstractProvider<Item>
             if (baseItem != null) {
                 // if the user did not specify a function the first value of the enum in xtext (EQUAL) will be used
                 ModelGroupFunction function = modelGroupItem.getFunction();
+
+                if (baseItem instanceof NumberItem) {
+                    Class<? extends Quantity<?>> dimension = DimensionClassParser
+                            .parseDimension(modelGroupItem.getDimension());
+                    ((NumberItem) baseItem).setDimension(dimension);
+                }
+
                 item = applyGroupFunction(baseItem, modelGroupItem, function);
             } else {
                 item = new GroupItem(modelGroupItem.getName());
@@ -228,7 +237,8 @@ public class GenericItemProvider extends AbstractProvider<Item>
             item = createItemOfType(normalItem.getType(), itemName);
 
             if (item instanceof NumberItem) {
-                ((NumberItem) item).setDimension(Dimension.parse(normalItem.getDimension()));
+                Class<? extends Quantity<?>> dimension = DimensionClassParser.parseDimension(normalItem.getDimension());
+                ((NumberItem) item).setDimension(dimension);
             }
         }
         if (item != null) {

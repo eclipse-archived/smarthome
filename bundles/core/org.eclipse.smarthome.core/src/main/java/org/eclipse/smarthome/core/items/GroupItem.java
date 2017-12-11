@@ -18,6 +18,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -199,6 +200,14 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         unregisterStateListener(item);
     }
 
+    @Override
+    public void setUnitProvider(UnitProvider unitProvider) {
+        super.setUnitProvider(unitProvider);
+        if (baseItem != null) {
+            baseItem.setUnitProvider(unitProvider);
+        }
+    }
+
     /**
      * The accepted data types of a group item is the same as of the underlying base item.
      * If none is defined, the intersection of all sets of accepted data types of all group
@@ -277,7 +286,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         // if a group does not have a function it cannot have a state
         State newState = null;
         if (function != null) {
-            newState = function.getStateAs(getAllMembers(), typeClass);
+            newState = function.getStateAs(getMembers(), typeClass);
         }
 
         if (newState == null && baseItem != null) {

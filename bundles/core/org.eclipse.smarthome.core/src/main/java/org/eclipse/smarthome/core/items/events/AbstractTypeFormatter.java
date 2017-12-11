@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2014-2017 by the respective copyright holders.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.eclipse.smarthome.core.items.events;
 
 import java.lang.reflect.InvocationTargetException;
@@ -6,9 +13,17 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.types.RefreshType;
+import org.eclipse.smarthome.core.types.Type;
 import org.eclipse.smarthome.core.types.UnDefType;
 
-abstract class AbstractTypeFormatter<T> {
+/**
+ * Abstract behavior to format and parse Type instances.
+ *
+ * @author Henning Treu - initial contribution
+ *
+ * @param <T> the concrete type an implementation handles.
+ */
+abstract class AbstractTypeFormatter<T extends Type> {
 
     private static final String TYPE_POSTFIX = "Type";
 

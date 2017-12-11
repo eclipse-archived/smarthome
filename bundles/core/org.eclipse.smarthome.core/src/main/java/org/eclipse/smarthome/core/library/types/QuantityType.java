@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.library.types;
 
+import static org.eclipse.jdt.annotation.DefaultLocation.*;
+
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.IllegalFormatConversionException;
@@ -38,18 +40,21 @@ import tec.uom.se.quantity.Quantities;
  * @author Gaël L'hopital - Initial contribution
  *
  */
-@NonNullByDefault
-public class QuantityType extends Number implements PrimitiveType, State, Command, Comparable<QuantityType> {
+@NonNullByDefault({ PARAMETER, RETURN_TYPE, FIELD, TYPE_ARGUMENT }) // TYPE_BOUNDS can not be used here since
+                                                                    // javax.measure.quantity.* interfaces are not
+                                                                    // annotated.
+public class QuantityType<T extends Quantity<T>> extends Number
+        implements PrimitiveType, State, Command, Comparable<QuantityType<T>> {
     private final static Logger logger = LoggerFactory.getLogger(QuantityType.class);
 
     private static final long serialVersionUID = 8828949721938234629L;
     private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
     // Regular expression to split unit from value
-    private static final String UNIT_PATTERN = "(?<=\\d)\\s*(?=[a-zA-Z°µ%])";
+    private static final String UNIT_PATTERN = "(?<=\\d)\\s*(?=[a-zA-Z°µ%'])";
 
-    private @Nullable Quantity<?> quantity;
-    private final Map<MeasurementSystem, Unit<?>> conversionUnits = new HashMap<MeasurementSystem, Unit<?>>(2);
+    private Quantity<T> quantity;
+    private final Map<MeasurementSystem, Unit<T>> conversionUnits = new HashMap<MeasurementSystem, Unit<T>>(2);
 
     /**
      * Creates a new {@link QuantityType} with the given value. The value may contain a unit. The specific
@@ -57,17 +62,14 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
      *
      * @param value the non null value representing a quantity with an optional unit.
      */
+    @SuppressWarnings("unchecked")
     public QuantityType(String value) {
-        if (value == null) {
-            throw new IllegalArgumentException("Constructor argument must not be null");
-        }
-
         String[] constituents = value.split(UNIT_PATTERN);
 
         // getQuantity needs a space between numeric value and unit
         String formatted = String.join(" ", constituents);
         try {
-            quantity = Quantities.getQuantity(formatted);
+            quantity = (Quantity<T>) Quantities.getQuantity(formatted);
         } catch (IllegalArgumentException e) {
             logger.debug("Unable to convert {} to QuantityType", value);
             throw e;
@@ -80,7 +82,7 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
      * @param value the non null measurement value.
      * @param unit the non null measurement unit.
      */
-    public QuantityType(double value, Unit<?> unit) {
+    public QuantityType(double value, Unit<T> unit) {
         this(value, unit, null);
     }
 
@@ -92,13 +94,22 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
      * @param conversionUnits the optional unit map which is used to determine the {@link MeasurementSystem} specific
      *            unit for conversion.
      */
-    public QuantityType(double value, Unit<?> unit, @Nullable Map<MeasurementSystem, Unit<?>> conversionUnits) {
+    public QuantityType(double value, Unit<T> unit, @Nullable Map<MeasurementSystem, Unit<T>> conversionUnits) {
         // Avoid scientific notation for double
         BigDecimal bd = new BigDecimal(value);
-        quantity = Quantities.getQuantity(bd, unit);
+        quantity = (Quantity<T>) Quantities.getQuantity(bd, unit);
         if (conversionUnits != null && !conversionUnits.isEmpty()) {
             this.conversionUnits.putAll(conversionUnits);
         }
+    }
+
+    /**
+     * Private constructor for arithmetic operations.
+     *
+     * @param quantity the {@link Quantity} for the new {@link QuantityType}.
+     */
+    private QuantityType(Quantity<T> quantity) {
+        this.quantity = quantity;
     }
 
     /**
@@ -108,8 +119,8 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
      * @param unit the non null measurement unit.
      * @return a new {@link QuantityType}
      */
-    public static QuantityType valueOf(double value, Unit<?> unit) {
-        return new QuantityType(value, unit);
+    public static <T extends Quantity<T>> QuantityType<T> valueOf(double value, Unit<T> unit) {
+        return new QuantityType<T>(value, unit);
     }
 
     @Override
@@ -117,10 +128,12 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
         return quantity.toString();
     }
 
-    public static QuantityType valueOf(String value) {
+    @SuppressWarnings("rawtypes")
+    public static QuantityType<? extends Quantity<?>> valueOf(String value) {
         return new QuantityType(value);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean equals(@Nullable Object obj) {
         if (this == obj) {
@@ -132,14 +145,10 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
         if (!(obj instanceof QuantityType)) {
             return false;
         }
-        QuantityType other = (QuantityType) obj;
-        if (quantity == null) {
-            if (other.quantity != null) {
-                return false;
-            }
-        } else if (quantity.getUnit().getDimension() != other.quantity.getUnit().getDimension()) {
+        QuantityType<?> other = (QuantityType<?>) obj;
+        if (!quantity.getUnit().getDimension().equals(other.quantity.getUnit().getDimension())) {
             return false;
-        } else if (compareTo(other) != 0) {
+        } else if (compareTo((QuantityType<T>) other) != 0) {
             return false;
         }
 
@@ -147,17 +156,21 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
     }
 
     @Override
-    public int compareTo(QuantityType o) {
+    public int compareTo(QuantityType<T> o) {
         if (quantity.getUnit().isCompatible(o.quantity.getUnit())) {
-            QuantityType v1 = this.toUnit(getUnit().getSystemUnit());
-            QuantityType v2 = o.toUnit(o.getUnit().getSystemUnit());
-            return Double.compare(v1.doubleValue(), v2.doubleValue());
+            QuantityType<T> v1 = this.toUnit(getUnit().getSystemUnit());
+            QuantityType<?> v2 = o.toUnit(o.getUnit().getSystemUnit());
+            if (v1 != null && v2 != null) {
+                return Double.compare(v1.doubleValue(), v2.doubleValue());
+            } else {
+                throw new IllegalArgumentException("Unable to convert to system unit during compare.");
+            }
         } else {
-            throw new IllegalArgumentException("Can not compare incompatible units");
+            throw new IllegalArgumentException("Can not compare incompatible units.");
         }
     }
 
-    public Unit<?> getUnit() {
+    public Unit<T> getUnit() {
         return quantity.getUnit();
     }
 
@@ -171,13 +184,14 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
      * @param targetUnit the unit to which this {@link QuantityType} will be converted to.
      * @return the new {@link QuantityType} in the given {@link Unit} or {@code null} in case of a
      */
-    public @Nullable QuantityType toUnit(Unit<?> targetUnit) {
+    @SuppressWarnings("unchecked")
+    public @Nullable QuantityType<T> toUnit(Unit<?> targetUnit) {
         if (!targetUnit.equals(getUnit())) {
             try {
                 UnitConverter uc = getUnit().getConverterToAny(targetUnit);
                 Quantity<?> result = Quantities.getQuantity(uc.convert(quantity.getValue()), targetUnit);
 
-                return new QuantityType(result.getValue().doubleValue(), targetUnit, conversionUnits);
+                return new QuantityType<T>(result.getValue().doubleValue(), (Unit<T>) targetUnit, conversionUnits);
             } catch (UnconvertibleException | IncommensurableException e) {
                 logger.debug("Unable to convert unit from {} to {}",
                         new Object[] { getUnit().toString(), targetUnit.toString() });
@@ -187,8 +201,9 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
         return this;
     }
 
-    public @Nullable QuantityType toUnit(String targetUnit) {
-        Unit<?> unit = AbstractUnit.parse(targetUnit);
+    @SuppressWarnings("unchecked")
+    public @Nullable QuantityType<T> toUnit(String targetUnit) {
+        Unit<T> unit = (Unit<T>) AbstractUnit.parse(targetUnit);
         if (unit != null) {
             return toUnit(unit);
         }
@@ -203,7 +218,7 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
     @Override
     public int hashCode() {
         final int prime = 31;
-        int tmp = prime * (getUnit() == null ? 0 : getUnit().hashCode());
+        int tmp = prime * getUnit().hashCode();
         tmp += prime * (quantity.getValue() == null ? 0 : quantity.getValue().hashCode());
         return tmp;
     }
@@ -255,7 +270,7 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
         return toBigDecimal().toPlainString();
     }
 
-    public @Nullable Unit<?> getConversionUnit(MeasurementSystem ms) {
+    public @Nullable Unit<T> getConversionUnit(MeasurementSystem ms) {
         return conversionUnits.get(ms);
     }
 
@@ -267,7 +282,7 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
      * @return
      */
     public boolean needsConversion(MeasurementSystem ms) {
-        if (quantity != null && conversionUnits.get(ms) != null && conversionUnits.get(ms).equals(quantity.getUnit())) {
+        if (conversionUnits.get(ms) != null && conversionUnits.get(ms).equals(quantity.getUnit())) {
             return false;
         }
 
@@ -310,6 +325,46 @@ public class QuantityType extends Number implements PrimitiveType, State, Comman
         } else {
             return State.super.as(target);
         }
+    }
+
+    /**
+     * Returns the sum of the given {@link QuantityType} with this QuantityType.
+     *
+     * @param state
+     * @return the sum of the given {@link QuantityType} with this QuantityType.
+     */
+    public QuantityType<T> add(QuantityType<T> state) {
+        // TODO: should the conversion map be added here? Should it be merged?
+        return new QuantityType<T>(this.quantity.add(state.quantity));
+    }
+
+    /**
+     * Negates the value of this QuantityType leaving its unit untouched.
+     *
+     * @return the negated value of this QuantityType.
+     */
+    public QuantityType<T> negate() {
+        return new QuantityType<>(quantity.multiply(-1));
+    }
+
+    public QuantityType<T> subtract(QuantityType<T> state) {
+        return new QuantityType<T>(this.quantity.subtract(state.quantity));
+    }
+
+    public QuantityType<?> multiply(BigDecimal value) {
+        return new QuantityType<>(this.quantity.multiply(value));
+    }
+
+    public QuantityType<?> multiply(QuantityType<?> state) {
+        return new QuantityType<>(this.quantity.multiply(state.quantity));
+    }
+
+    public QuantityType<?> divide(BigDecimal value) {
+        return new QuantityType<>(this.quantity.divide(value));
+    }
+
+    public QuantityType<?> divide(QuantityType<?> state) {
+        return new QuantityType<>(this.quantity.divide(state.quantity));
     }
 
 }

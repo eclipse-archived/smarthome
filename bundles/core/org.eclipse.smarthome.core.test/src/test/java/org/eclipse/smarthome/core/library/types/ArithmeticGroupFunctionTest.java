@@ -215,7 +215,7 @@ public class ArithmeticGroupFunctionTest {
         assertEquals(new DecimalType("2"), state);
     }
 
-    class TestItem extends GenericItem {
+    private class TestItem extends GenericItem {
 
         public TestItem(String name, State state) {
             super("Test", name);

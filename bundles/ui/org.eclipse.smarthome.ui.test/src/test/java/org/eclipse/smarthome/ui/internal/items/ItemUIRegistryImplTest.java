@@ -19,6 +19,7 @@ import java.util.List;
 import javax.measure.Unit;
 
 import org.eclipse.emf.common.util.BasicEList;
+import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
@@ -45,6 +46,10 @@ import org.eclipse.smarthome.ui.items.ItemUIProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import tec.uom.se.unit.Units;
 
 public class ItemUIRegistryImplTest {
 
@@ -61,14 +66,35 @@ public class ItemUIRegistryImplTest {
     @Mock
     private Item item;
 
+    @Mock
+    private UnitProvider unitProvider;
+
+    @SuppressWarnings({ "rawtypes" })
     @Before
     public void setup() throws Exception {
         initMocks(this);
         uiRegistry = new ItemUIRegistryImpl();
         uiRegistry.setItemRegistry(registry);
+        uiRegistry.setUnitProvider(unitProvider);
 
         when(widget.getItem()).thenReturn("Item");
         when(registry.getItem("Item")).thenReturn(item);
+
+        when(unitProvider.parseUnit(anyString())).thenAnswer(new Answer<Unit>() {
+
+            @Override
+            public Unit answer(InvocationOnMock invocation) throws Throwable {
+                if (invocation.getArguments()[0].toString().contains("°C")) {
+                    return Units.CELSIUS;
+                }
+                if (invocation.getArguments()[0].toString().contains("°F")) {
+                    return ESHUnits.FAHRENHEIT;
+                }
+                
+                return null;
+            }
+
+        });
     }
 
     @Test

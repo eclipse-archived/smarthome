@@ -23,7 +23,7 @@ ModelItem :
 ;
 
 ModelGroupItem :
-	{ModelGroupItem} 'Group' (':' type=ModelItemType ( ':' function=ModelGroupFunction ('(' args+=(ID|STRING) (',' args+=(ID|STRING))* ')')?)?)?
+	{ModelGroupItem} 'Group' (':' type=ModelItemType ( ':' dimension=ID )? ( ':' function=ModelGroupFunction ('(' args+=(ID|STRING) (',' args+=(ID|STRING))* ')')?)?)?
 ;
 
 enum ModelGroupFunction :
@@ -31,10 +31,8 @@ enum ModelGroupFunction :
 ;
 
 ModelNormalItem :
-	type=ModelItemType (':' dimension=ModelDimension)?
+	type=ModelItemType (':' dimension=ID)?
 ;
-
-ModelDimension : ID;
 
 ModelItemType :
 	'Switch' | 'Rollershutter' | 'Number' | 'String' | 'Dimmer' | 'Contact' | 'DateTime' | 'Color' | 'Player' | 'Location' | 'Call' | ID

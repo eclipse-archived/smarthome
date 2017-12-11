@@ -315,6 +315,7 @@
 
 	<channel-type id="relativeHumidity">
 		<item-type>Number</item-type>
+		<dimension>Dimensionless</dimension>
 		<label>Relative Humidity</label>
 		<description>Relative humidity in %</description>
 		<category>Humidity</category>
@@ -348,6 +349,7 @@
 
 	<channel-type id="windDirection-degrees" advanced="true">
 		<item-type>Number</item-type>
+		<dimension>Angle</dimension>
 		<label>Wind Direction (°)</label>
 		<description>Wind direction in degrees</description>
 		<category>Wind</category>
@@ -357,6 +359,7 @@
 
 	<channel-type id="maxWindDirection-degrees" advanced="true">
 		<item-type>Number</item-type>
+		<dimension>Angle</dimension>
 		<label>Maximum Wind Direction (°)</label>
 		<description>Maximum wind direction in degrees</description>
 		<category>Wind</category>
@@ -366,6 +369,7 @@
 
 	<channel-type id="averageWindDirection-degrees" advanced="true">
 		<item-type>Number</item-type>
+		<dimension>Angle</dimension>
 		<label>Average Wind Direction (°)</label>
 		<description>Average wind direction in degrees</description>
 		<category>Wind</category>
@@ -472,6 +476,7 @@
 
 	<channel-type id="probaPrecipitation">
 		<item-type>Number</item-type>
+		<dimension>Dimensionless</dimension>
 		<label>Precipitation Probability</label>
 		<description>Probability of precipitation in %</description>
 		<state readOnly="true" min="0" max="100" pattern="%d %%">

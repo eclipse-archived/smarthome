@@ -76,7 +76,7 @@ Import-Package:
  tec.uom.se.format,
  tec.uom.se.function,
  tec.uom.se.quantity,
- tec.uom.se.unit 
+ tec.uom.se.unit
 Private-Package: org.eclipse.smarthome.core.internal,org.eclipse.smartho
  me.core.internal.events,org.eclipse.smarthome.core.internal.items,org.e
  clipse.smarthome.core.internal.logging

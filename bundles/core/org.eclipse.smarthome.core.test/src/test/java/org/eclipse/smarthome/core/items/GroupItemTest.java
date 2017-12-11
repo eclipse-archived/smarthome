@@ -8,18 +8,29 @@
 package org.eclipse.smarthome.core.items;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.number.IsCloseTo.closeTo;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.measure.Quantity;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Pressure;
+import javax.measure.quantity.Temperature;
+
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.events.EventSubscriber;
+import org.eclipse.smarthome.core.i18n.UnitProvider;
+import org.eclipse.smarthome.core.items.dto.GroupFunctionDTO;
 import org.eclipse.smarthome.core.items.events.GroupItemStateChangedEvent;
 import org.eclipse.smarthome.core.items.events.ItemUpdatedEvent;
 import org.eclipse.smarthome.core.library.items.ColorItem;
@@ -31,7 +42,9 @@ import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.types.RawType;
+import org.eclipse.smarthome.core.library.types.util.GroupFunctionFactoryProvider;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -39,19 +52,30 @@ import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mock;
+
+import tec.uom.se.unit.Units;
 
 public class GroupItemTest extends JavaOSGiTest {
 
     /** Time to sleep when a file is created/modified/deleted, so the event can be handled */
     private final static int WAIT_EVENT_TO_BE_HANDLED = 1000;
 
+    private static final double DEFAULT_ERROR = 0.0000000000000001d;
+
     List<Event> events = new LinkedList<>();
     EventPublisher publisher;
 
     ItemRegistry itemRegistry;
 
+    @Mock
+    private UnitProvider unitProvider;
+
+    private GroupFunctionFactoryProvider groupFunctionFactoryProvider;
+
     @Before
     public void setUp() {
+        initMocks(this);
         registerVolatileStorageService();
         publisher = event -> events.add(event);
 
@@ -77,6 +101,10 @@ public class GroupItemTest extends JavaOSGiTest {
                 return null;
             }
         });
+
+        when(unitProvider.getUnit(Temperature.class)).thenReturn(Units.CELSIUS);
+
+        groupFunctionFactoryProvider = new GroupFunctionFactoryProvider();
     }
 
     @Ignore
@@ -480,4 +508,67 @@ public class GroupItemTest extends JavaOSGiTest {
         assertThat(((PercentType) newGroupState).intValue(), is(30));
     }
 
+    @Test
+    public void assertThatNumberGroupItemWithDimensionCalculatesCorrectState() {
+        NumberItem baseItem = createNumberItem("baseItem", Temperature.class, UnDefType.NULL);
+        GroupFunctionDTO gfDTO = new GroupFunctionDTO();
+        gfDTO.name = "sum";
+        GroupFunction function = groupFunctionFactoryProvider.provideGroupFunctionFactory(baseItem)
+                .createGroupFunction(gfDTO, Collections.emptyList());
+        GroupItem groupItem = new GroupItem("number", baseItem, function);
+        groupItem.setUnitProvider(unitProvider);
+
+        NumberItem celsius = createNumberItem("C", Temperature.class, new QuantityType<Temperature>("23 °C"));
+        groupItem.addMember(celsius);
+        NumberItem fahrenheit = createNumberItem("F", Temperature.class, new QuantityType<Temperature>("23 °F"));
+        groupItem.addMember(fahrenheit);
+        NumberItem kelvin = createNumberItem("K", Temperature.class, new QuantityType<Temperature>("23 K"));
+        groupItem.addMember(kelvin);
+
+        QuantityType<?> state = (QuantityType<?>) groupItem.getStateAs(QuantityType.class);
+
+        assertThat(state.getUnit(), is(Units.CELSIUS));
+        assertThat(state.doubleValue(), is(closeTo(-232.15d, DEFAULT_ERROR)));
+
+        celsius.setState(new QuantityType<Temperature>("265 °C"));
+
+        state = (QuantityType<?>) groupItem.getStateAs(QuantityType.class);
+
+        assertThat(state.getUnit(), is(Units.CELSIUS));
+        assertThat(state.doubleValue(), is(closeTo(9.849999999999994d, DEFAULT_ERROR)));
+    }
+
+    @Test
+    public void assertThatNumberGroupItemWithDifferentDimensionsCalculatesCorrectState() {
+        NumberItem baseItem = createNumberItem("baseItem", Temperature.class, UnDefType.NULL);
+        GroupFunctionDTO gfDTO = new GroupFunctionDTO();
+        gfDTO.name = "sum";
+        GroupFunction function = groupFunctionFactoryProvider.provideGroupFunctionFactory(baseItem)
+                .createGroupFunction(gfDTO, Collections.emptyList());
+        GroupItem groupItem = new GroupItem("number", baseItem, function);
+        groupItem.setUnitProvider(unitProvider);
+
+        NumberItem celsius = createNumberItem("C", Temperature.class, new QuantityType<Temperature>("23 °C"));
+        groupItem.addMember(celsius);
+        NumberItem hectoPascal = createNumberItem("F", Pressure.class, new QuantityType<Pressure>("1010 hPa"));
+        groupItem.addMember(hectoPascal);
+        NumberItem percent = createNumberItem("K", Dimensionless.class, new QuantityType<Dimensionless>("110 %"));
+        groupItem.addMember(percent);
+
+        QuantityType<?> state = (QuantityType<?>) groupItem.getStateAs(QuantityType.class);
+
+        assertThat(state, is(new QuantityType<Temperature>("23 °C")));
+
+        groupItem.stateUpdated(celsius, null);
+        assertThat(groupItem.getState(), is(new QuantityType<Temperature>("23 °C")));
+    }
+
+    private NumberItem createNumberItem(String name, Class<? extends Quantity<?>> dimension, State state) {
+        NumberItem item = new NumberItem(name);
+        item.setUnitProvider(unitProvider);
+        item.setDimension(dimension);
+        item.setState(state);
+
+        return item;
+    }
 }

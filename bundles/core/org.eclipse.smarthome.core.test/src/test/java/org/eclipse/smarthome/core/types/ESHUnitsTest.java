@@ -123,8 +123,8 @@ public class ESHUnitsTest {
 
     @Test
     public void test_mile_UnitSymbol() {
-        assertThat(ESHUnits.MILE.getSymbol(), is("ml"));
-        assertThat(ESHUnits.MILE.toString(), is("ml"));
+        assertThat(ESHUnits.MILE.getSymbol(), is("mi"));
+        assertThat(ESHUnits.MILE.toString(), is("mi"));
     }
 
 }

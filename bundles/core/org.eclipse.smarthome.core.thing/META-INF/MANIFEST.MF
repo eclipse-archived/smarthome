@@ -27,6 +27,7 @@ Import-Package:
  com.google.common.base,
  com.google.common.collect,
  javax.measure,
+ javax.measure.quantity,
  org.apache.commons.collections.iterators,
  org.apache.commons.io,
  org.apache.commons.lang,

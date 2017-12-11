@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.Type;
 
 /**
@@ -92,6 +93,9 @@ public class NumberExtensions {
     // Comparison operations between numbers
 
     public static boolean operator_equals(Number left, Number right) {
+        if (oneIsQuantity(left, right)) {
+            return false;
+        }
         BigDecimal leftValue = numberToBigDecimal(left);
         BigDecimal rightValue = numberToBigDecimal(right);
         if (leftValue == null) {
@@ -214,6 +218,111 @@ public class NumberExtensions {
         }
     }
 
+    // QuantityType support
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static QuantityType<?> operator_plus(QuantityType<?> x, QuantityType<?> y) {
+        return x == null ? y : y == null ? x : x.add((QuantityType) y);
+    }
+
+    public static QuantityType<?> operator_minus(QuantityType<?> x) {
+        return x == null ? null : x.negate();
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static QuantityType<?> operator_minus(QuantityType<?> x, QuantityType<?> y) {
+        return x == null ? operator_minus(y) : y == null ? x : x.subtract((QuantityType) y);
+    }
+
+    public static QuantityType<?> operator_multiply(Number x, QuantityType<?> y) {
+        BigDecimal xValue = numberToBigDecimal(x);
+        if (xValue == null) {
+            return new QuantityType<>("0");
+        } else if (y == null) {
+            return new QuantityType<>("0");
+        } else {
+            return y.multiply(xValue);
+        }
+    }
+
+    public static QuantityType<?> operator_multiply(QuantityType<?> x, Number y) {
+        return operator_multiply(y, x);
+    }
+
+    public static QuantityType<?> operator_multiply(QuantityType<?> x, QuantityType<?> y) {
+        return x == null || y == null ? new QuantityType<>("0") : x.multiply(y);
+    }
+
+    public static QuantityType<?> operator_divide(QuantityType<?> x, Number y) {
+        BigDecimal yValue = numberToBigDecimal(y);
+        if (x == null) {
+            return new QuantityType<>("0").divide(yValue);
+        } else if (yValue == null) {
+            return x.divide(NULL_DEFINITION); // throws an exception
+        } else {
+            return x.divide(yValue);
+        }
+    }
+
+    public static QuantityType<?> operator_divide(Number x, QuantityType<?> y) {
+        QuantityType<?> xQuantity = new QuantityType<>("" + x.doubleValue());
+        return operator_divide(xQuantity, y);
+    }
+
+    public static QuantityType<?> operator_divide(QuantityType<?> x, QuantityType<?> y) {
+        if (x == null) {
+            return new QuantityType<>("0").divide(y);
+        } else if (y == null) {
+            return x.divide(NULL_DEFINITION); // throws an exception
+        } else {
+            return x.divide(y);
+        }
+    }
+
+    public static boolean operator_equals(QuantityType<?> left, QuantityType<?> right) {
+        return left.equals(right);
+    }
+
+    public static boolean operator_notEquals(QuantityType<?> left, QuantityType<?> right) {
+        return !operator_equals(left, right);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static boolean operator_lessThan(QuantityType<?> x, QuantityType<?> y) {
+        if (x != null && y != null) {
+            return x.compareTo((QuantityType) y) < 0;
+        } else {
+            return false;
+        }
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static boolean operator_lessEqualsThan(QuantityType<?> x, QuantityType<?> y) {
+        if (x != null && y != null) {
+            return x.compareTo((QuantityType) y) <= 0;
+        } else {
+            return false;
+        }
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static boolean operator_greaterThan(QuantityType<?> x, QuantityType<?> y) {
+        if (x != null && y != null) {
+            return x.compareTo((QuantityType) y) > 0;
+        } else {
+            return false;
+        }
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static boolean operator_greaterEqualsThan(QuantityType<?> x, QuantityType<?> y) {
+        if (x != null && y != null) {
+            return x.compareTo((QuantityType) y) >= 0;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Convert the given number into a BigDecimal
      *
@@ -222,10 +331,23 @@ public class NumberExtensions {
      * @return the given number as BigDecimal or null if number is null
      */
     public static BigDecimal numberToBigDecimal(Number number) {
+        if (number instanceof QuantityType) {
+            QuantityType<?> state = ((QuantityType<?>) number)
+                    .toUnit(((QuantityType<?>) number).getUnit().getSystemUnit());
+            if (state != null) {
+                return new BigDecimal(state.doubleValue());
+            }
+            return null;
+        }
         if (number != null) {
             return new BigDecimal(number.toString());
         } else {
             return null;
         }
     }
+
+    private static boolean oneIsQuantity(Number left, Number right) {
+        return left instanceof QuantityType || right instanceof QuantityType;
+    }
+
 }
