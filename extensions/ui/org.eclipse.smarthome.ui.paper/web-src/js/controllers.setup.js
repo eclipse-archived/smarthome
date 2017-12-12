@@ -40,7 +40,7 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
         discoveryResultRepository.getAll(true);
     };
 
-}).controller('InboxEntryController', function($scope, $mdDialog, $q, inboxService, discoveryResultRepository, thingTypeRepository, thingService, toastService, thingRepository) {
+}).controller('InboxEntryController', function($scope, $mdDialog, $q, inboxService, discoveryResultRepository, thingTypeRepository, thingService, toastService, thingRepository, configDescriptionService) {
     $scope.approve = function(thingUID, thingTypeUID, event) {
         $mdDialog.show({
             controller : 'ApproveInboxEntryDialogController',
@@ -61,33 +61,36 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
                     return thingTypeUID === thingType.UID;
                 });
 
-                var configRequired = false;
                 var thing = thingRepository.find(function(thing) {
                     return thing.UID === thingUID;
                 });
-                if (thing && thing.statusInfo.status === 'OFFLINE' && thing.statusInfo.statusDetail === 'CONFIGURATION_ERROR') {
-                    configRequired = true;
-                } else if (thing && thing.statusInfo.status !== 'ONLINE') {
-                    for ( var key in thing.configuration) {
-                        if (thing.configuration.hasOwnProperty(key)) {
-                            if (thing.configuration[key] === '') {
-                                configRequired = true;
-                                break;
+
+                if (thing) {
+                    var configRequired = false;
+                    configDescriptionService.getByUri({
+                        uri : 'thing-type:' + thing.thingTypeUID
+                    }, function(configDescription) {
+                        if (configDescription.parameters) {
+                            for (var i = 0; i < configDescription.parameters.length; i++) {
+                                if (configDescription.parameters[i]['defaultValue'] === '' && configDescription.parameters[i]['required']) {
+                                    configRequired = true;
+                                    break;
+                                }
                             }
                         }
-                    }
-                }
-
-                if (configRequired) {
-                    $scope.navigateToConfig('things/edit/' + thingUID);
-                    toastService.showDefaultToast('Thing added and must be configured');
-                } else {
-                    toastService.showDefaultToast('Thing added.', 'Show Thing', 'configuration/things/view/' + thingUID);
-                    if (thingType && thingType.bridge) {
-                        $scope.navigateTo('setup/search/' + thingUID.split(':')[0]);
-                    } else {
-                        discoveryResultRepository.getAll(true);
-                    }
+                    }).$promise.finally(function() {
+                        if (configRequired) {
+                            $scope.navigateToConfig('things/edit/' + thingUID);
+                            toastService.showDefaultToast('Thing added and must be configured');
+                        } else {
+                            toastService.showDefaultToast('Thing added.', 'Show Thing', 'configuration/things/view/' + thingUID);
+                            if (thingType && thingType.bridge) {
+                                $scope.navigateTo('setup/search/' + thingUID.split(':')[0]);
+                            } else {
+                                discoveryResultRepository.getAll(true);
+                            }
+                        }
+                    });
                 }
             });
         });
