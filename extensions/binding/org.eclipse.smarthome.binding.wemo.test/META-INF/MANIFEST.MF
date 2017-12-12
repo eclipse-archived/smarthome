@@ -36,3 +36,8 @@ Import-Package:
  org.jupnp.mock,
  org.osgi.service.cm,
  org.osgi.service.http
+Require-Bundle: 
+ org.hamcrest,
+ org.junit,
+ org.mockito,
+ org.objenesis

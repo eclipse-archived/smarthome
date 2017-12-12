@@ -12,17 +12,16 @@
  */
 package org.eclipse.smarthome.binding.ntp.test;
 
-import static org.hamcrest.CoreMatchers.anyOf;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -54,6 +53,10 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
+import org.eclipse.smarthome.core.thing.type.ChannelKind;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.eclipse.smarthome.test.storage.VolatileStorageService;
@@ -83,6 +86,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
     private ManagedThingProvider managedThingProvider;
     private ThingRegistry thingRegistry;
     private ItemRegistry itemRegistry;
+    private ChannelTypeProvider channelTypeProvider;
 
     private static final ZoneId DEFAULT_TIME_ZONE_ID = ZoneId.of("Europe/Bucharest");
     private static final String TEST_TIME_ZONE_ID = "America/Los_Angeles";
@@ -99,12 +103,13 @@ public class NtpOSGiTest extends JavaOSGiTest {
     private static final String TEST_HOSTNAME = "127.0.0.1";
     private static final int TEST_PORT = 9002;
     static SimpleNTPServer timeServer;
+    private ChannelTypeUID channelTypeUID;
 
     enum UpdateEventType {
         HANDLE_COMMAND("handleCommand"),
         CHANNEL_LINKED("channelLinked");
 
-        private String updateEventType;
+        private final String updateEventType;
 
         private UpdateEventType(String updateEventType) {
             this.updateEventType = updateEventType;
@@ -150,6 +155,13 @@ public class NtpOSGiTest extends JavaOSGiTest {
 
         itemRegistry = getService(ItemRegistry.class);
         assertThat("Could not get ItemRegistry", itemRegistry, is(notNullValue()));
+
+        channelTypeUID = new ChannelTypeUID(NtpBindingConstants.BINDING_ID + ":channelType");
+        channelTypeProvider = mock(ChannelTypeProvider.class);
+        when(channelTypeProvider.getChannelType(any(ChannelTypeUID.class), any(Locale.class)))
+                .thenReturn(new ChannelType(channelTypeUID, false, "Switch", ChannelKind.STATE, "label", null, null,
+                        null, null, null, null));
+        registerService(channelTypeProvider);
     }
 
     @After
@@ -398,12 +410,9 @@ public class NtpOSGiTest extends JavaOSGiTest {
         ThingUID ntpUid = new ThingUID(NtpBindingConstants.THING_TYPE_NTP, TEST_THING_ID);
 
         ChannelUID channelUID = new ChannelUID(ntpUid, channelID);
-        Channel channel;
-        if (channelConfiguration != null) {
-            channel = new Channel(channelUID, acceptedItemType, channelConfiguration);
-        } else {
-            channel = new Channel(channelUID, acceptedItemType);
-        }
+        Channel channel = new Channel(channelUID, channelTypeUID, acceptedItemType, ChannelKind.STATE,
+                channelConfiguration, Collections.emptySet(), null, "label", null);
+
         ntpThing = ThingBuilder.create(NtpBindingConstants.THING_TYPE_NTP, ntpUid).withConfiguration(configuration)
                 .withChannel(channel).build();
 

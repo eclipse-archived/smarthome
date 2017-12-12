@@ -20,6 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.thing.profiles.ProfileType;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeProvider;
+import org.eclipse.smarthome.core.thing.profiles.ProfileTypeRegistry;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;

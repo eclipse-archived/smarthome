@@ -33,7 +33,10 @@ import org.eclipse.smarthome.core.thing.profiles.ProfileType;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeProvider;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
 import org.eclipse.smarthome.core.thing.profiles.SystemProfiles;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * A factory and advisor for default profiles.
@@ -47,8 +50,11 @@ import org.osgi.service.component.annotations.Component;
  *
  */
 @NonNullByDefault
-@Component(service = SystemProfileFactory.class)
+@Component(service = { SystemProfileFactory.class, ProfileTypeProvider.class })
 public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, ProfileTypeProvider {
+
+    @NonNullByDefault({})
+    private ChannelTypeRegistry channelTypeRegistry;
 
     private static final Set<ProfileType> SUPPORTED_PROFILE_TYPES = Stream
             .of(SystemProfiles.DEFAULT_TYPE, SystemProfiles.FOLLOW_TYPE, SystemProfiles.RAWBUTTON_TOGGLE_SWITCH_TYPE,
@@ -80,17 +86,16 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
 
     @Nullable
     @Override
-    public ProfileTypeUID getSuggestedProfileTypeUID(Channel channel, @Nullable String itemType) {
-        switch (channel.getKind()) {
+    public ProfileTypeUID getSuggestedProfileTypeUID(ChannelType channelType, @Nullable String itemType) {
+        switch (channelType.getKind()) {
             case STATE:
                 return SystemProfiles.DEFAULT;
             case TRIGGER:
-                if (DefaultSystemChannelTypeProvider.SYSTEM_RAWBUTTON.getUID().equals(channel.getChannelTypeUID())) {
+                if (DefaultSystemChannelTypeProvider.SYSTEM_RAWBUTTON.getUID().equals(channelType.getUID())) {
                     if (CoreItemFactory.SWITCH.equalsIgnoreCase(itemType)) {
                         return SystemProfiles.RAWBUTTON_TOGGLE_SWITCH;
                     }
-                } else if (DefaultSystemChannelTypeProvider.SYSTEM_RAWROCKER.getUID()
-                        .equals(channel.getChannelTypeUID())) {
+                } else if (DefaultSystemChannelTypeProvider.SYSTEM_RAWROCKER.getUID().equals(channelType.getUID())) {
                     if (CoreItemFactory.SWITCH.equalsIgnoreCase(itemType)) {
                         return SystemProfiles.RAWROCKER_ON_OFF;
                     } else if (CoreItemFactory.DIMMER.equalsIgnoreCase(itemType)) {
@@ -99,9 +104,16 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
                 }
                 break;
             default:
-                throw new IllegalArgumentException("Unsupported channel kind: " + channel.getKind());
+                throw new IllegalArgumentException("Unsupported channel kind: " + channelType.getKind());
         }
         return null;
+    }
+
+    @Nullable
+    @Override
+    public ProfileTypeUID getSuggestedProfileTypeUID(Channel channel, @Nullable String itemType) {
+        ChannelType channelType = channelTypeRegistry.getChannelType(channel.getChannelTypeUID());
+        return getSuggestedProfileTypeUID(channelType, itemType);
     }
 
     @Override
@@ -112,6 +124,15 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
     @Override
     public @NonNull Collection<@NonNull ProfileTypeUID> getSupportedProfileTypeUIDs() {
         return SUPPORTED_PROFILE_TYPE_UIDS;
+    }
+
+    @Reference
+    protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry;
+    }
+
+    protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null;
     }
 
 }

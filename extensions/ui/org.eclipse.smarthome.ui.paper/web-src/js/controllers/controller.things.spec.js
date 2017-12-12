@@ -39,7 +39,12 @@ describe('module PaperUI.controllers.things', function() {
     });
 
     describe('tests for ViewThingController', function() {
-        var ViewThingController, scope, injector, deferred, channelTypeService, itemRepository;
+        var ViewThingController;
+        var scope;
+        var injector;
+        var deferred;
+        var channelTypeService;
+        var itemRepository;
         beforeEach(inject(function($injector, $rootScope, $controller, $mdDialog, $q) {
             scope = $rootScope.$new();
             scope.path = [];
@@ -49,6 +54,10 @@ describe('module PaperUI.controllers.things', function() {
             itemRepository = $injector.get('itemRepository');
             spyOn(channelTypeService, 'getAll').and.callThrough();
             spyOn(itemRepository, 'getAll');
+
+            var thingRepository = $injector.get('thingRepository');
+            spyOn(thingRepository, "getOne");
+
             $controller('BodyController', {
                 '$scope' : scope
             });
@@ -75,7 +84,6 @@ describe('module PaperUI.controllers.things', function() {
             expect(mdDialog.show).toHaveBeenCalled();
         });
         it('should link channel advance mode', function() {
-            spyOn(mdDialog, 'show').and.returnValue(deferred.promise);
             var event = {
                 stopImmediatePropagation : function() {
                 }
@@ -90,7 +98,9 @@ describe('module PaperUI.controllers.things', function() {
                 UID : 'C:T',
                 category : ''
             } ];
+
             scope.advancedMode = true;
+            spyOn(mdDialog, 'show').and.returnValue(deferred.promise);
             scope.enableChannel(0, 'T', event, true);
             expect(mdDialog.show).toHaveBeenCalled();
         });
@@ -114,6 +124,7 @@ describe('module PaperUI.controllers.things', function() {
         });
         it('should unlink channel advance mode', function() {
             spyOn(mdDialog, 'show').and.returnValue(deferred.promise);
+
             var event = {
                 stopImmediatePropagation : function() {
                 }
@@ -192,8 +203,9 @@ describe('module PaperUI.controllers.things', function() {
                 '$scope' : scope,
                 'params' : {
                     'linkedItems' : [],
-                    'acceptedItemType' : 'T',
-                    'category' : ''
+                    'acceptedItemTypes' : [ 'T' ],
+                    'category' : '',
+                    allowNewItemCreation : true
                 }
             });
             mdDialog = $mdDialog;
@@ -206,6 +218,17 @@ describe('module PaperUI.controllers.things', function() {
         it('should fetch items', function() {
             expect(scope.items.length).toEqual(1);
             expect(scope.itemsList.length).toEqual(2);
+
+            var createNewItem = {
+                name : '_createNew',
+                type : undefined
+            }
+
+            var itemTypeT = {
+                type : 'T'
+            }
+            expect(scope.itemsList).toContain(jasmine.objectContaining(createNewItem));
+            expect(scope.itemsList).toContain(jasmine.objectContaining(itemTypeT));
         });
         it('should toggle items form', function() {
             scope.checkCreateOption();

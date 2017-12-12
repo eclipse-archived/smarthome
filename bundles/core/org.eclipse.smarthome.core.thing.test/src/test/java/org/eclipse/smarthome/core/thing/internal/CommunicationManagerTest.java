@@ -303,7 +303,7 @@ public class CommunicationManagerTest extends JavaOSGiTest {
             verify(mockProfileFactory, times(2)).createProfile(isA(ProfileTypeUID.class), isA(ProfileCallback.class),
                     isA(ProfileContext.class));
             verify(mockProfileFactory, atLeast(0)).getSupportedProfileTypeUIDs();
-            verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(), any());
+            verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(Channel.class), any());
         });
         verifyNoMoreInteractions(mockProfileFactory);
         verifyNoMoreInteractions(mockProfileAdvisor);
@@ -328,7 +328,7 @@ public class CommunicationManagerTest extends JavaOSGiTest {
             verify(mockProfileFactory, times(4)).createProfile(isA(ProfileTypeUID.class), isA(ProfileCallback.class),
                     isA(ProfileContext.class));
             verify(mockProfileFactory, atLeast(0)).getSupportedProfileTypeUIDs();
-            verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(), any());
+            verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(Channel.class), any());
         });
         verifyNoMoreInteractions(mockProfileFactory);
         verifyNoMoreInteractions(mockProfileAdvisor);
@@ -355,7 +355,7 @@ public class CommunicationManagerTest extends JavaOSGiTest {
             verify(mockProfileFactory, times(3)).createProfile(isA(ProfileTypeUID.class), isA(ProfileCallback.class),
                     isA(ProfileContext.class));
             verify(mockProfileFactory, atLeast(0)).getSupportedProfileTypeUIDs();
-            verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(), any());
+            verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(Channel.class), any());
         });
         verifyNoMoreInteractions(mockProfileFactory);
         verifyNoMoreInteractions(mockProfileAdvisor);
@@ -378,7 +378,7 @@ public class CommunicationManagerTest extends JavaOSGiTest {
             verify(mockProfileFactory, times(2)).createProfile(isA(ProfileTypeUID.class), isA(ProfileCallback.class),
                     isA(ProfileContext.class));
             verify(mockProfileFactory, atLeast(0)).getSupportedProfileTypeUIDs();
-            verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(), any());
+            verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(Channel.class), any());
         });
         verifyNoMoreInteractions(mockProfileFactory);
         verifyNoMoreInteractions(mockProfileAdvisor);
@@ -402,7 +402,7 @@ public class CommunicationManagerTest extends JavaOSGiTest {
             verify(mockProfileFactory, times(3)).createProfile(isA(ProfileTypeUID.class), isA(ProfileCallback.class),
                     isA(ProfileContext.class));
             verify(mockProfileFactory, atLeast(0)).getSupportedProfileTypeUIDs();
-            verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(), any());
+            verify(mockProfileAdvisor, atLeast(0)).getSuggestedProfileTypeUID(any(Channel.class), any());
         });
         verifyNoMoreInteractions(mockProfileFactory);
         verifyNoMoreInteractions(mockProfileAdvisor);

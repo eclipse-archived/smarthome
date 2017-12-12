@@ -13,8 +13,10 @@
 package org.eclipse.smarthome.io.rest.core.internal.channel;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import javax.annotation.security.RolesAllowed;
@@ -26,6 +28,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
@@ -35,6 +38,10 @@ import org.eclipse.smarthome.config.core.dto.ConfigDescriptionParameterDTO;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionParameterGroupDTO;
 import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.core.thing.dto.ChannelTypeDTO;
+import org.eclipse.smarthome.core.thing.profiles.ProfileType;
+import org.eclipse.smarthome.core.thing.profiles.ProfileTypeRegistry;
+import org.eclipse.smarthome.core.thing.profiles.TriggerProfileType;
+import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
@@ -70,6 +77,8 @@ public class ChannelTypeResource implements RESTResource {
     private ChannelTypeRegistry channelTypeRegistry;
     private ConfigDescriptionRegistry configDescriptionRegistry;
 
+    private ProfileTypeRegistry profileTypeRegistry;
+
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
         this.channelTypeRegistry = channelTypeRegistry;
@@ -86,6 +95,15 @@ public class ChannelTypeResource implements RESTResource {
 
     protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescriptionRegistry = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setProfileTypeRegistry(ProfileTypeRegistry profileTypeRegistry) {
+        this.profileTypeRegistry = profileTypeRegistry;
+    }
+
+    protected void unsetProfileTypeRegistry(ProfileTypeRegistry profileTypeRegistry) {
+        this.profileTypeRegistry = null;
     }
 
     @GET
@@ -119,6 +137,42 @@ public class ChannelTypeResource implements RESTResource {
         }
     }
 
+    @GET
+    @Path("/{channelTypeUID}/linkableItemTypes")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Gets the item types the given trigger channel type UID can be linked to.", response = String.class, responseContainer = "Set")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "Set"),
+            @ApiResponse(code = 204, message = "No content: channel type has no linkable items or is no trigger channel."),
+            @ApiResponse(code = 404, message = "Given channel type UID not found.") })
+    public Response getLinkableItemTypes(
+            @PathParam("channelTypeUID") @ApiParam(value = "channelTypeUID") String channelTypeUID) {
+        ChannelTypeUID ctUID = new ChannelTypeUID(channelTypeUID);
+        ChannelType channelType = channelTypeRegistry.getChannelType(ctUID);
+        if (channelType == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+        if (channelType.getKind() != ChannelKind.TRIGGER) {
+            return Response.noContent().build();
+        }
+
+        Set<String> result = new HashSet<>();
+        for (ProfileType profileType : profileTypeRegistry.getProfileTypes()) {
+            if (profileType instanceof TriggerProfileType) {
+                if (((TriggerProfileType) profileType).getSupportedChannelTypeUIDs().contains(ctUID)) {
+                    for (String itemType : profileType.getSupportedItemTypes()) {
+                        result.add(itemType);
+                    }
+                }
+            }
+        }
+        if (result.isEmpty()) {
+            return Response.noContent().build();
+        }
+
+        return Response.ok(result).build();
+    }
+
     private ChannelTypeDTO convertToChannelTypeDTO(ChannelType channelType, Locale locale) {
         final ConfigDescription configDescription;
         if (channelType.getConfigDescriptionURI() != null) {
@@ -147,6 +201,7 @@ public class ChannelTypeResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return channelTypeRegistry != null && configDescriptionRegistry != null;
+        return channelTypeRegistry != null && configDescriptionRegistry != null && profileTypeRegistry != null;
     }
+
 }
