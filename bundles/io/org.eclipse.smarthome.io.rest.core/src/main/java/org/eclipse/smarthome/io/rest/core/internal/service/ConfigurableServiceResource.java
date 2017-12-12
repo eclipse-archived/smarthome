@@ -218,6 +218,7 @@ public class ConfigurableServiceResource implements RESTResource {
                             .getProperty(ConfigurableService.SERVICE_PROPERTY_CATEGORY);
                     String configDescriptionURI = (String) serviceReference
                             .getProperty(ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI);
+
                     services.add(new ConfigurableServiceDTO(id, label, category, configDescriptionURI, false));
                 }
             }
@@ -231,7 +232,7 @@ public class ConfigurableServiceResource implements RESTResource {
                             .getService(serviceReference);
 
                     services.add(new ConfigurableServiceDTO(mis.getServicePID(), mis.getLabel(), mis.getCategory(),
-                            mis.getDescriptionURI(), true));
+                            mis.getConfigDescriptionUri(), true));
                 }
             }
         } catch (InvalidSyntaxException ex) {

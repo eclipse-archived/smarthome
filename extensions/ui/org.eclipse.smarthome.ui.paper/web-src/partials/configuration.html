@@ -37,7 +37,8 @@
 
 							<p class="text-left">{{service.id}}</p>
 							<div class="text-right">
-								<md-button aria-label="Configure" ng-click="configure(service.id, service.configDescriptionURI, $event)">Configure</md-button>
+								<md-button ng-if="!service.multiple" aria-label="Configure" ng-click="configure(service.id, service.configDescriptionURI, $event)">Configure</md-button>
+								<md-button ng-if="service.multiple" aria-label="Manage" ng-click="navigateTo(service.id)">Manage</md-button>
 							</div>
 						</div>
 					</div>

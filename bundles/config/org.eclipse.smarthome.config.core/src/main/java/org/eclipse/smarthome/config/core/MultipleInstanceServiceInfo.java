@@ -50,6 +50,6 @@ public interface MultipleInstanceServiceInfo {
      *
      * @return the URI description of this service
      */
-    String getDescriptionURI();
+    String getConfigDescriptionUri();
 
 }

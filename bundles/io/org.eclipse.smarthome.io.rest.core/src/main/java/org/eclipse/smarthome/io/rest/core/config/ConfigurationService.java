@@ -76,7 +76,16 @@ public class ConfigurationService {
      * @throws IOException if configuration can not be stored
      */
     public Configuration update(String configId, Configuration newConfiguration, boolean override) throws IOException {
+
+        // newConfiguration.containsKey();
+
+        // if(multiple)
+        // configuration = listConfigurations(context= ???)
+        // if(!configuration)
+        // configurationAdmin.createFactoryConfiguration(factoryPid, null)
+        // else
         org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(configId, null);
+
         Configuration oldConfiguration = toConfiguration(configuration.getProperties());
         Dictionary<String, Object> properties = getProperties(configuration);
         Set<Entry<String, Object>> configurationParameters = newConfiguration.getProperties().entrySet();

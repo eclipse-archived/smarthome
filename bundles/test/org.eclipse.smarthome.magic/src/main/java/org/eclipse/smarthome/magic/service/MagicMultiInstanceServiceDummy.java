@@ -27,7 +27,7 @@ public class MagicMultiInstanceServiceDummy implements MultipleInstanceServiceIn
 
     @Override
     public String getLabel() {
-        return "MagicMultiInstanceServiceDummy";
+        return "MagicMultiInstanceService";
     }
 
     @Override
@@ -42,7 +42,7 @@ public class MagicMultiInstanceServiceDummy implements MultipleInstanceServiceIn
     }
 
     @Override
-    public String getDescriptionURI() {
+    public String getConfigDescriptionUri() {
         return "test:multipleMagic";
     }
 

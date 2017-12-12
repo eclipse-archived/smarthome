@@ -1,8 +1,13 @@
 angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'PaperUI.controllers.firmware', 'PaperUI.controllers.configurableServiceDialog' ]) //
-.controller('ServicesController', function($scope, $mdDialog, serviceConfigService, toastService) {
+.controller('ServicesController', function($scope, $mdDialog, $location, serviceConfigService, toastService) {
     $scope.setSubtitle([ 'Services' ]);
     $scope.setHeaderText('Shows all configurable services.');
     $scope.tabs = [];
+
+    $scope.navigateTo = function(path) {
+        $location.path('/configuration/services/' + path);
+    }
+
     $scope.refresh = function() {
         serviceConfigService.getAll(function(services) {
             // $scope.services = services;
@@ -35,4 +40,34 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
     }
 
     $scope.refresh();
+}).controller('MultiServicesController', function($scope, $mdDialog, $location, $routeParams, serviceConfigService, toastService) {
+    $scope.setSubtitle([ 'Services' ]);
+    $scope.setHeaderText('Shows all multiple configurable services.');
+    $scope.servicePID = $routeParams.servicePID;
+
+    $scope.navigateTo = function(path) {
+        $location.path('/configuration/services/' + path);
+    }
+
+    $scope.configure = function(serviceId, configDescriptionURI, event) {
+        $mdDialog.show({
+            controller : 'ConfigurableServiceDialogController',
+            templateUrl : 'partials/dialog.configureservice.html',
+            targetEvent : event,
+            hasBackdrop : true,
+            locals : {
+                serviceId : serviceId,
+                configDescriptionURI : configDescriptionURI
+            }
+        });
+    }
+
+    serviceConfigService.getById({
+        id : $scope.servicePID
+    }, function(service) {
+        $scope.serviceLabel = service.label;
+        $scope.setSubtitle([ 'Services', service.label ]);
+        $scope.serviceConfigDescriptionURI = service.configDescriptionURI;
+    });
+
 });
