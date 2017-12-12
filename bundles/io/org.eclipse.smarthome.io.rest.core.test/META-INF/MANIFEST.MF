@@ -10,7 +10,8 @@ Fragment-Host: org.eclipse.smarthome.io.rest.core
 Import-Package: 
  com.jayway.jsonpath,
  groovy.lang,
- javax.ws.rs.core;version="1.1.1",
+ javax.ws.rs.core,
+ org.apache.commons.collections,
  org.apache.commons.io,
  org.codehaus.groovy.reflection,
  org.codehaus.groovy.runtime,

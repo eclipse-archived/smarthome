@@ -14,6 +14,8 @@ package org.eclipse.smarthome.core.thing.internal
 
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
+import static org.mockito.Matchers.any
+import static org.mockito.Mockito.*
 
 import java.util.concurrent.TimeUnit
 
@@ -65,6 +67,10 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
 import org.eclipse.smarthome.core.thing.link.ThingLinkManager
+import org.eclipse.smarthome.core.thing.type.ChannelKind
+import org.eclipse.smarthome.core.thing.type.ChannelType
+import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.core.types.State
@@ -98,13 +104,25 @@ class ThingManagerOSGiTest extends OSGiTest {
 
     EventPublisher eventPublisher
     ItemChannelLinkRegistry itemChannelLinkRegistry
+    ChannelTypeProvider channelTypeProvider;
 
     @Before
     void setUp() {
+        def channelTypeUID = new ChannelTypeUID("binding:channelType")
+
         THING = ThingBuilder.create(THING_UID).withChannels([
-            new Channel(CHANNEL_UID, "Switch")
+            new Channel(CHANNEL_UID, channelTypeUID, "Switch", ChannelKind.STATE,
+            null, Collections.emptySet(), null, null, null)
         ]).build()
         registerVolatileStorageService()
+
+
+        channelTypeProvider = mock(ChannelTypeProvider.class);
+        when(channelTypeProvider.getChannelType(any(ChannelTypeUID.class), any(Locale.class)))
+                .thenReturn(new ChannelType(channelTypeUID, false, "Switch", ChannelKind.STATE, "label", null, null,
+                null, null, null, null));
+        registerService(channelTypeProvider);
+
         thingLinkManager = getService ThingLinkManager
         thingLinkManager.deactivate()
         managedItemChannelLinkProvider = getService(ManagedItemChannelLinkProvider)

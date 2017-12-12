@@ -15,6 +15,12 @@ package org.eclipse.smarthome.binding.wemo.test
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
+import static org.mockito.Mockito.*
+
+import static org.hamcrest.CoreMatchers.*
+import static org.junit.Assert.*
+import static org.junit.matchers.JUnitMatchers.*
+import static org.mockito.Mockito.*
 
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
@@ -41,6 +47,10 @@ import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
 import org.eclipse.smarthome.core.thing.link.ThingLinkManager
+import org.eclipse.smarthome.core.thing.type.ChannelKind
+import org.eclipse.smarthome.core.thing.type.ChannelType
+import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOService
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.storage.VolatileStorageService
@@ -85,6 +95,8 @@ public abstract class GenericWemoOSGiTest extends OSGiTest {
     def DEVICE_DESCRIPTION_PATH = "/setup.xml"
     def DEVICE_CONTROL_PATH = '/upnp/control/'
 
+    def DEFAULT_CHANNEL_TYPE_UID = new ChannelTypeUID(WemoBindingConstants.BINDING_ID + ":channelType")
+
     ManagedThingProvider managedThingProvider
     static MockUpnpService mockUpnpService
     UpnpIOService upnpIOService
@@ -117,6 +129,12 @@ public abstract class GenericWemoOSGiTest extends OSGiTest {
         //UPnP IO Service is required from the WemoDiscoveryService and WemoHandlerFactory
         upnpIOService = getService(UpnpIOService.class)
         assertThat(UpnpIOService, is(notNullValue()))
+
+        ChannelTypeProvider channelTypeProvider = mock(ChannelTypeProvider.class);
+        when(channelTypeProvider.getChannelType(any(), any()))
+                .thenReturn(new ChannelType(DEFAULT_CHANNEL_TYPE_UID, false, "Switch", ChannelKind.STATE, "label", null, null,
+                null, null, null, null));
+        registerService(channelTypeProvider);
 
         setSimpleMode(false)
     }
@@ -159,7 +177,8 @@ public abstract class GenericWemoOSGiTest extends OSGiTest {
         ThingUID thingUID = new ThingUID(thingTypeUID, TEST_THING_ID);
 
         ChannelUID channelUID = new ChannelUID(thingUID, channelID)
-        Channel channel = new Channel(channelUID, itemAcceptedType)
+        Channel channel = new Channel(channelUID, DEFAULT_CHANNEL_TYPE_UID, itemAcceptedType, ChannelKind.STATE,
+                null, Collections.emptySet(), null, "label", null);
 
         thing = ThingBuilder.create(thingTypeUID, thingUID)
                 .withConfiguration(configuration)

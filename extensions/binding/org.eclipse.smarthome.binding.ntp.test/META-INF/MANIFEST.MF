@@ -28,3 +28,8 @@ Import-Package:
  org.junit,
  org.osgi.framework,
  org.osgi.service.component
+Require-Bundle: 
+ org.hamcrest,
+ org.junit,
+ org.mockito,
+ org.objenesis

@@ -1,5 +1,5 @@
 angular.module('PaperUI.controllers.things') //
-.controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeRepository, configService, thingConfigService, util, itemRepository) {
+.controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeRepository, configService, thingConfigService, util, itemRepository, channelTypeService) {
     $scope.setSubtitle([ 'Things' ]);
 
     var thingUID = $scope.path[4];
@@ -39,7 +39,7 @@ angular.module('PaperUI.controllers.things') //
     $scope.enableChannel = function(thingUID, channelID, event, longPress) {
         var channel = $scope.getChannelById(channelID);
         event.stopImmediatePropagation();
-        if ($scope.advancedMode) {
+        if ($scope.advancedMode || channel.kind === 'TRIGGER') {
             if (channel.linkedItems.length > 0) {
                 $scope.getLinkedItems(channel, event);
             } else {
@@ -60,7 +60,10 @@ angular.module('PaperUI.controllers.things') //
         var channel = $scope.getChannelById(channelID);
         event.stopImmediatePropagation();
         var linkedItem = channel.linkedItems[0];
-        if ($scope.advancedMode) {
+        if (!itemName || itemName === '') {
+            itemName = linkedItem;
+        }
+        if ($scope.advancedMode || channel.kind === 'TRIGGER') {
             $scope.unlinkChannel(channelID, itemName, event);
         } else {
             linkService.unlink({
@@ -76,14 +79,19 @@ angular.module('PaperUI.controllers.things') //
     $scope.linkChannel = function(channelID, event, preSelect) {
         var channel = $scope.getChannelById(channelID);
         var channelType = $scope.getChannelTypeByUID(channel.channelTypeUID);
+
         var params = {
             linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
-            acceptedItemType : channel.itemType,
+            acceptedItemTypes : channel.acceptedItemTypes,
             category : channelType.category ? channelType.category : '',
             suggestedName : getItemNameSuggestion(channelID, channelType.label),
             suggestedLabel : channelType.label,
             suggestedCategory : channelType.category ? channelType.category : '',
-            preSelectCreate : preSelect
+            preSelectCreate : preSelect,
+            allowNewItemCreation : $scope.advancedMode && channel.kind !== 'TRIGGER' // allow "Create new Item" in
+            // advanced mode only, disable
+        // for normalMode or trigger
+        // channel
         }
         $mdDialog.show({
             controller : 'LinkChannelDialogController',
@@ -190,13 +198,45 @@ angular.module('PaperUI.controllers.things') //
     };
 
     var getChannels = function(advanced) {
-
         if (!$scope.thingType || !$scope.thing || !$scope.channelTypes) {
             return;
         }
         $scope.isAdvanced = checkAdvance($scope.thing.channels);
-        return thingConfigService.getThingChannels($scope.thing, $scope.thingType, $scope.channelTypes, advanced);
+        var thingChannels = thingConfigService.getThingChannels($scope.thing, $scope.thingType, $scope.channelTypes, advanced);
+
+        // set the linkable item types for each channel
+        var channelType2ItemTypeCache = [];
+        angular.forEach(thingChannels, function(channelGroup) {
+            angular.forEach(channelGroup.channels, function(channel) {
+                if (channel.kind !== 'TRIGGER') {
+                    channel.acceptedItemTypes = [ channel.itemType ];
+                    return true;
+                }
+                if (channelType2ItemTypeCache[channel.channelTypeUID]) {
+                    channel.acceptedItemTypes = channelType2ItemTypeCache[channel.channelTypeUID];
+                    return true;
+                }
+
+                var acceptedItemTypes = [];
+                channelTypeService.getLinkableItemTypes({
+                    channelTypeUID : channel.channelTypeUID
+                }, function(linkableItemTypes) {
+                    if (linkableItemTypes && linkableItemTypes.length > 0) {
+                        angular.forEach(linkableItemTypes, function(itemType) {
+                            acceptedItemTypes.push(itemType);
+                        });
+                    } else if (channel.itemType) {
+                        acceptedItemTypes.push(channel.itemType);
+                    }
+                });
+                channelType2ItemTypeCache[channel.channelTypeUID] = acceptedItemTypes;
+                channel.acceptedItemTypes = acceptedItemTypes;
+            });
+        });
+
+        return thingChannels;
     };
+
     $scope.refreshChannels = function(showAdvanced) {
         $scope.thingChannels = getChannels(showAdvanced);
     }

@@ -48,12 +48,14 @@
 					</div>
 					<div class="channel fab-item" ng-init="index=1" ng-repeat="channel in group.channels">
 						<div ng-show="!collapsed">
-							<div ng-if="channel.kind!='TRIGGER'">
-								<md-button ng-if="!advancedMode && channel.linkedItems.length == 0" class="md-fab" ng-click="enableChannel(thing.UID, channel.id, $event)" aria-label="Off"> <i class="material-icons">radio_button_unchecked</i></md-button>
-								<md-button ng-if="!advancedMode && channel.linkedItems.length > 0" class="md-fab" ng-click="disableChannel(thing.UID, channel.id,'', $event)" aria-label="On"> <i class="material-icons">radio_button_checked</i></md-button>
-								<md-button ng-if="advancedMode" class="md-fab" long-press on-long-press="enableChannel(thing.UID, channel.id, $event,true)" on-click="enableChannel(thing.UID, channel.id, $event)"> <i class="material-icons">{{channel.linkedItems.length > 0 ? 'radio_button_checked':'radio_button_unchecked'}}</i></md-button>
-							</div>
-							<div ng-if="channel.kind=='TRIGGER'" class="circle" aria-label="Trigger">{{channel.channelType.label?channel.channelType.label.substring(0,1).toUpperCase():'T'}}</div>
+						    <div ng-if="channel.acceptedItemTypes.length > 0">
+							    <md-button ng-if="!advancedMode && channel.linkedItems.length == 0" class="md-fab" ng-click="enableChannel(thing.UID, channel.id, $event)" aria-label="Off"> <i class="material-icons">radio_button_unchecked</i></md-button>
+							    <md-button ng-if="!advancedMode && channel.linkedItems.length > 0" class="md-fab" ng-click="disableChannel(thing.UID, channel.id,'', $event)" aria-label="On"> <i class="material-icons">radio_button_checked</i></md-button>
+							    <md-button ng-if="advancedMode" class="md-fab" long-press on-long-press="enableChannel(thing.UID, channel.id, $event,true)" on-click="enableChannel(thing.UID, channel.id, $event)"> <i class="material-icons">{{channel.linkedItems.length > 0 ? 'radio_button_checked':'radio_button_unchecked'}}</i></md-button>
+                             </div>
+							<div ng-if="channel.acceptedItemTypes.length <= 0" class="circle" aria-label="Trigger">
+							       {{channel.channelType.label?channel.channelType.label.substring(0,1).toUpperCase():'T'}}
+						    </div>
 							<div class="item-content">
 								<div class="description">
 									<h3 long-press on-long-press="showDescription(channel)" ng-if="channel.label || channel.channelType.label">{{channel.label?channel.label:channel.channelType.label}}</h3>
