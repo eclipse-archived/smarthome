@@ -37,8 +37,6 @@ import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * A factory and advisor for default profiles.
@@ -128,7 +126,7 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
         return SUPPORTED_PROFILE_TYPE_UIDS;
     }
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
+    @Reference
     protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
         this.channelTypeRegistry = channelTypeRegistry;
     }

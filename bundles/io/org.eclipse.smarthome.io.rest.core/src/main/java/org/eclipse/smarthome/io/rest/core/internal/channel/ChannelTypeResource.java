@@ -143,14 +143,17 @@ public class ChannelTypeResource implements RESTResource {
     @ApiOperation(value = "Gets the item types the given trigger channel type UID can be linked to.", response = String.class, responseContainer = "Set")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "Set"),
-            @ApiResponse(code = 204, message = "No content"),
-            @ApiResponse(code = 404, message = "Given channel type UID not found or no trigger channel type.") })
+            @ApiResponse(code = 204, message = "No content: channel type has no linkable items or is no trigger channel."),
+            @ApiResponse(code = 404, message = "Given channel type UID not found.") })
     public Response getLinkableItemTypes(
             @PathParam("channelTypeUID") @ApiParam(value = "channelTypeUID") String channelTypeUID) {
         ChannelTypeUID ctUID = new ChannelTypeUID(channelTypeUID);
         ChannelType channelType = channelTypeRegistry.getChannelType(ctUID);
-        if (channelType == null || channelType.getKind() != ChannelKind.TRIGGER) {
+        if (channelType == null) {
             return Response.status(Status.NOT_FOUND).build();
+        }
+        if (channelType.getKind() != ChannelKind.TRIGGER) {
+            return Response.noContent().build();
         }
 
         Set<String> result = new HashSet<>();

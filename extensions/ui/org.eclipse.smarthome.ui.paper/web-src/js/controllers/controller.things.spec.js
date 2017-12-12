@@ -99,26 +99,9 @@ describe('module PaperUI.controllers.things', function() {
                 category : ''
             } ];
 
-            restConfig = injector.get('restConfig');
-            $httpBackend = injector.get('$httpBackend');
-            $httpBackend.when('GET', restConfig.restPath + "/channel-types/C:T/linkableItemTypes").respond([ "Switch", "Dimmer" ]);
-            $httpBackend.expect('GET', restConfig.restPath + "/links/auto").respond();
-            $httpBackend.expect('GET', restConfig.restPath + "/inbox").respond([]);
-            $httpBackend.expect('GET', restConfig.restPath + "/bindings").respond();
-            $httpBackend.expect('GET', restConfig.restPath + "/channel-types").respond();
-
             scope.advancedMode = true;
-
-            spyOn(channelTypeService, 'getLinkableItemTypes').and.callThrough();
             spyOn(mdDialog, 'show').and.returnValue(deferred.promise);
-
             scope.enableChannel(0, 'T', event, true);
-            $httpBackend.flush();
-
-            expect(channelTypeService.getLinkableItemTypes).toHaveBeenCalledWith({
-                channelTypeUID : "C:T"
-            }, jasmine.any(Function));
-
             expect(mdDialog.show).toHaveBeenCalled();
         });
         it('should link channel simple mode', function() {

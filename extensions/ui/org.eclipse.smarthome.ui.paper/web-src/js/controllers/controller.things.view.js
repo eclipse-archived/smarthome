@@ -80,61 +80,47 @@ angular.module('PaperUI.controllers.things') //
         var channel = $scope.getChannelById(channelID);
         var channelType = $scope.getChannelTypeByUID(channel.channelTypeUID);
 
-        channelTypeService.getLinkableItemTypes({
-            channelTypeUID : channel.channelTypeUID
-        }, function(linkableItemTypes) {
-            var acceptedItemTypes = [];
-
-            if (linkableItemTypes && linkableItemTypes.length > 0) {
-                angular.forEach(linkableItemTypes, function(itemType) {
-                    acceptedItemTypes.push(itemType);
-                });
-            } else {
-                acceptedItemTypes.push(channel.itemType);
-            }
-
-            var params = {
-                linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
-                acceptedItemTypes : acceptedItemTypes,
-                category : channelType.category ? channelType.category : '',
-                suggestedName : getItemNameSuggestion(channelID, channelType.label),
-                suggestedLabel : channelType.label,
-                suggestedCategory : channelType.category ? channelType.category : '',
-                preSelectCreate : preSelect,
-                allowNewItemCreation : $scope.advancedMode && channel.kind !== 'TRIGGER' // allow "Create new Item"
-                                                                                            // in advanced mode only,
-                                                                                            // disable for normalMode or
-                                                                                            // trigger channel
-            }
-            $mdDialog.show({
-                controller : 'LinkChannelDialogController',
-                templateUrl : 'partials/dialog.linkchannel.html',
-                targetEvent : event,
-                hasBackdrop : true,
-                params : params
-            }).then(function(newItem) {
-                if (newItem) {
-                    linkService.link({
-                        itemName : newItem.itemName,
-                        channelUID : $scope.thing.UID + ':' + channelID
-                    }, function() {
-                        $scope.getThing(true);
-                        var item = $.grep($scope.items, function(item) {
-                            return item.name == newItem.itemName;
-                        });
-                        channel.items = channel.items ? channel.items : [];
-                        if (item.length > 0) {
-                            channel.items.push(item[0]);
-                        } else {
-                            channel.items.push({
-                                name : newItem.itemName,
-                                label : newItem.label
-                            });
-                        }
-                        toastService.showDefaultToast('Channel linked');
+        var params = {
+            linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
+            acceptedItemTypes : channel.acceptedItemTypes,
+            category : channelType.category ? channelType.category : '',
+            suggestedName : getItemNameSuggestion(channelID, channelType.label),
+            suggestedLabel : channelType.label,
+            suggestedCategory : channelType.category ? channelType.category : '',
+            preSelectCreate : preSelect,
+            allowNewItemCreation : $scope.advancedMode && channel.kind !== 'TRIGGER' // allow "Create new Item" in
+            // advanced mode only, disable
+        // for normalMode or trigger
+        // channel
+        }
+        $mdDialog.show({
+            controller : 'LinkChannelDialogController',
+            templateUrl : 'partials/dialog.linkchannel.html',
+            targetEvent : event,
+            hasBackdrop : true,
+            params : params
+        }).then(function(newItem) {
+            if (newItem) {
+                linkService.link({
+                    itemName : newItem.itemName,
+                    channelUID : $scope.thing.UID + ':' + channelID
+                }, function() {
+                    $scope.getThing(true);
+                    var item = $.grep($scope.items, function(item) {
+                        return item.name == newItem.itemName;
                     });
-                }
-            });
+                    channel.items = channel.items ? channel.items : [];
+                    if (item.length > 0) {
+                        channel.items.push(item[0]);
+                    } else {
+                        channel.items.push({
+                            name : newItem.itemName,
+                            label : newItem.label
+                        });
+                    }
+                    toastService.showDefaultToast('Channel linked');
+                });
+            }
         });
     }
 
@@ -212,13 +198,45 @@ angular.module('PaperUI.controllers.things') //
     };
 
     var getChannels = function(advanced) {
-
         if (!$scope.thingType || !$scope.thing || !$scope.channelTypes) {
             return;
         }
         $scope.isAdvanced = checkAdvance($scope.thing.channels);
-        return thingConfigService.getThingChannels($scope.thing, $scope.thingType, $scope.channelTypes, advanced);
+        var thingChannels = thingConfigService.getThingChannels($scope.thing, $scope.thingType, $scope.channelTypes, advanced);
+
+        // set the linkable item types for each channel
+        var channelType2ItemTypeCache = [];
+        angular.forEach(thingChannels, function(channelGroup) {
+            angular.forEach(channelGroup.channels, function(channel) {
+                if (channel.kind !== 'TRIGGER') {
+                    channel.acceptedItemTypes = [ channel.itemType ];
+                    return true;
+                }
+                if (channelType2ItemTypeCache[channel.channelTypeUID]) {
+                    channel.acceptedItemTypes = channelType2ItemTypeCache[channel.channelTypeUID];
+                    return true;
+                }
+
+                var acceptedItemTypes = [];
+                channelTypeService.getLinkableItemTypes({
+                    channelTypeUID : channel.channelTypeUID
+                }, function(linkableItemTypes) {
+                    if (linkableItemTypes && linkableItemTypes.length > 0) {
+                        angular.forEach(linkableItemTypes, function(itemType) {
+                            acceptedItemTypes.push(itemType);
+                        });
+                    } else if (channel.itemType) {
+                        acceptedItemTypes.push(channel.itemType);
+                    }
+                });
+                channelType2ItemTypeCache[channel.channelTypeUID] = acceptedItemTypes;
+                channel.acceptedItemTypes = acceptedItemTypes;
+            });
+        });
+
+        return thingChannels;
     };
+
     $scope.refreshChannels = function(showAdvanced) {
         $scope.thingChannels = getChannels(showAdvanced);
     }

@@ -37,7 +37,7 @@ public interface ProfileAdvisor {
      *
      * @param channel the linked channel
      * @param itemType the linked itemType (not applicable for trigger channels)
-     * @return the profile identifier or {@code null} if this advisor
+     * @return the profile identifier or {@code null} if this advisor does not have any advice
      */
     @Nullable
     ProfileTypeUID getSuggestedProfileTypeUID(Channel channel, @Nullable String itemType);
@@ -53,7 +53,7 @@ public interface ProfileAdvisor {
      *
      * @param channelType the {@link ChannelType} of the linked channel
      * @param itemType the linked itemType (not applicable for trigger channels)
-     * @return the profile identifier or {@code null} if this advisor
+     * @return the profile identifier or {@code null} if this advisor does not have any advice
      */
     @Nullable
     ProfileTypeUID getSuggestedProfileTypeUID(ChannelType channelType, @Nullable String itemType);
