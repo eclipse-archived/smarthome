@@ -72,7 +72,9 @@ public interface DiscoveryListener {
      *            {@link DiscoveryService#getSupportedThingTypes()} will be used
      *            instead
      * @return collection of thing UIDs of all removed things
+     * @deprecated use {@link #removeOlderResults(DiscoveryService, long, Collection, ThingUID)} instead
      */
+    @Deprecated
     default Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
             @Nullable Collection<ThingTypeUID> thingTypeUIDs) {
         return removeOlderResults(source, timestamp, thingTypeUIDs, null);
