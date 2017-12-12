@@ -59,28 +59,30 @@ public class HttpServiceUtil {
             return -1;
         }
 
-        int candidate = Integer.MIN_VALUE;
-        for (final ServiceReference<?> ref : refs) {
-            value = ref.getProperty(propertyName);
-            if (value == null) {
-                continue;
-            }
-            final int servicePort;
-            try {
-                servicePort = Integer.parseInt(value.toString());
-            } catch (final NumberFormatException ex) {
-                continue;
-            }
-            value = ref.getProperty(Constants.SERVICE_RANKING);
-            final int serviceRanking;
-            if (value == null || !(value instanceof Integer)) {
-                serviceRanking = 0;
-            } else {
-                serviceRanking = (Integer) value;
-            }
-            if (serviceRanking >= candidate) {
-                candidate = serviceRanking;
-                port = servicePort;
+        if (refs != null) {
+            int candidate = Integer.MIN_VALUE;
+            for (final ServiceReference<?> ref : refs) {
+                value = ref.getProperty(propertyName);
+                if (value == null) {
+                    continue;
+                }
+                final int servicePort;
+                try {
+                    servicePort = Integer.parseInt(value.toString());
+                } catch (final NumberFormatException ex) {
+                    continue;
+                }
+                value = ref.getProperty(Constants.SERVICE_RANKING);
+                final int serviceRanking;
+                if (value == null || !(value instanceof Integer)) {
+                    serviceRanking = 0;
+                } else {
+                    serviceRanking = (Integer) value;
+                }
+                if (serviceRanking >= candidate) {
+                    candidate = serviceRanking;
+                    port = servicePort;
+                }
             }
         }
         if (port > 0) {
