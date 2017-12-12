@@ -82,7 +82,9 @@ public class ModelServer {
                         handleConnection(client);
                     }, "Client " + client.getRemoteSocketAddress()).start();
                 } catch (IOException e) {
-                    logger.error("Error accepting the client connection", e);
+                    if (!socket.isClosed()) {
+                        logger.error("Error accepting client connection: {}", e.getMessage());
+                    }
                 }
             }
         } catch (IOException e) {
