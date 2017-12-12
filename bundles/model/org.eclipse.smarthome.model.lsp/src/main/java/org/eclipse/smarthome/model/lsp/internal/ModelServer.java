@@ -51,11 +51,8 @@ public class ModelServer {
     private ScriptEngine scriptEngine;
     private Injector injector;
 
-    private boolean isShuttingDown = false;
-
     @Activate
     public void activate() {
-        isShuttingDown = false;
         injector = Guice.createInjector(new RuntimeServerModule(scriptServiceUtil, scriptEngine));
         new Thread(() -> {
             listen();
@@ -64,7 +61,6 @@ public class ModelServer {
 
     @Deactivate
     public void deactivate() {
-        isShuttingDown = true;
         try {
             if (socket != null && !socket.isClosed()) {
                 socket.close();
@@ -86,8 +82,8 @@ public class ModelServer {
                         handleConnection(client);
                     }, "Client " + client.getRemoteSocketAddress()).start();
                 } catch (IOException e) {
-                    if (!isShuttingDown) {
-                        logger.error("Error opening socket for client connections: {}", e.getMessage());
+                    if (!socket.isClosed()) {
+                        logger.error("Error accepting client connection: {}", e.getMessage());
                     }
                 }
             }
