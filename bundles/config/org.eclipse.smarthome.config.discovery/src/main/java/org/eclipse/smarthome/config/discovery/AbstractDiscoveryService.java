@@ -329,7 +329,22 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      *            timestamp, older results will be removed
      */
     protected void removeOlderResults(long timestamp) {
-        removeOlderResults(timestamp, null);
+        removeOlderResults(timestamp, null, null);
+    }
+
+    /**
+     * Call to remove all results of all {@link #supportedThingTypes} that are
+     * older than the given timestamp. To remove all left over results after a
+     * full scan, this method could be called {@link #getTimestampOfLastScan()}
+     * as timestamp.
+     *
+     * @param timestamp
+     *            timestamp, older results will be removed
+     * @param bridgeUID
+     *            if not {@code null} only results of that bridge are being removed
+     */
+    protected void removeOlderResults(long timestamp, @Nullable ThingUID bridgeUID) {
+        removeOlderResults(timestamp, null, bridgeUID);
     }
 
     /**
@@ -344,14 +359,17 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      *            {@code ThingType}s will be removed; if {@code null} then
      *            {@link DiscoveryService#getSupportedThingTypes()} will be used
      *            instead
+     * @param bridgeUID
+     *            if not {@code null} only results of that bridge are being removed
      */
-    protected void removeOlderResults(long timestamp, @Nullable Collection<ThingTypeUID> thingTypeUIDs) {
+    protected void removeOlderResults(long timestamp, @Nullable Collection<ThingTypeUID> thingTypeUIDs,
+            @Nullable ThingUID bridgeUID) {
         Collection<ThingUID> removedThings = null;
 
         Collection<ThingTypeUID> toBeRemoved = thingTypeUIDs != null ? thingTypeUIDs : getSupportedThingTypes();
         for (DiscoveryListener discoveryListener : discoveryListeners) {
             try {
-                removedThings = discoveryListener.removeOlderResults(this, timestamp, toBeRemoved);
+                removedThings = discoveryListener.removeOlderResults(this, timestamp, toBeRemoved, bridgeUID);
             } catch (Exception e) {
                 logger.error("An error occurred while calling the discovery listener {}.",
                         discoveryListener.getClass().getName(), e);

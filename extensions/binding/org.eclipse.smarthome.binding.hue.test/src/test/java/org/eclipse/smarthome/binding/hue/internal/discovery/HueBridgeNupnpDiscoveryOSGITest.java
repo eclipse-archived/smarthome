@@ -183,7 +183,7 @@ public class HueBridgeNupnpDiscoveryOSGITest extends JavaOSGiTest {
 
             @Override
             public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
-                    Collection<ThingTypeUID> thingTypeUIDs) {
+                    Collection<ThingTypeUID> thingTypeUIDs, ThingUID bridgeUID) {
                 return Collections.emptyList();
             }
         });
@@ -231,7 +231,7 @@ public class HueBridgeNupnpDiscoveryOSGITest extends JavaOSGiTest {
 
             @Override
             public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
-                    Collection<ThingTypeUID> thingTypeUIDs) {
+                    Collection<ThingTypeUID> thingTypeUIDs, ThingUID bridgeUID) {
                 return Collections.emptyList();
             }
         });

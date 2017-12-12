@@ -327,7 +327,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     @Override
     public Collection<ThingUID> removeOlderResults(final DiscoveryService source, final long timestamp,
-            final @Nullable Collection<ThingTypeUID> thingTypeUIDs) {
+            final @Nullable Collection<ThingTypeUID> thingTypeUIDs, @Nullable ThingUID bridgeUID) {
         HashSet<ThingUID> removedResults = new HashSet<>();
         for (final DiscoveryListener listener : this.listeners) {
             try {
@@ -335,7 +335,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                         .doPrivileged(new PrivilegedAction<@Nullable Collection<ThingUID>>() {
                             @Override
                             public @Nullable Collection<ThingUID> run() {
-                                return listener.removeOlderResults(source, timestamp, thingTypeUIDs);
+                                return listener.removeOlderResults(source, timestamp, thingTypeUIDs, bridgeUID);
                             }
                         });
                 if (olderResults != null) {

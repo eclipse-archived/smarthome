@@ -80,7 +80,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 
     @Override
     public void deactivate() {
-        removeOlderResults(new Date().getTime());
+        removeOlderResults(new Date().getTime(), hueBridgeHandler.getThing().getUID());
         hueBridgeHandler.unregisterLightStatusListener(this);
     }
 
