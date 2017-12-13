@@ -79,6 +79,7 @@ public class ConfigI18nLocalizationService {
                     bundle, configDescription, configDescriptionParameterGroup, locale);
             localizedConfigDescriptionGroups.add(localizedConfigDescriptionGroup);
         }
+
         return new ConfigDescription(configDescription.getUID(), localizedConfigDescriptionParameters,
                 localizedConfigDescriptionGroups);
     }

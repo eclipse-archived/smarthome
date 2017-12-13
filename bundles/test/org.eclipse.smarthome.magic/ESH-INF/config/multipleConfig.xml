@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0
         http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
 
-	<config-description uri="test:multipleMagic">
+	<config-description uri="test:multipleMagic" multiple="true">
 		<parameter name="text" type="text">
 			<label>Text</label>
 			<description>A text parameter.</description>

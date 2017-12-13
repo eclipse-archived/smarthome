@@ -18,8 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup;
 import org.eclipse.smarthome.config.xml.util.ConverterAssertion;
 import org.eclipse.smarthome.config.xml.util.ConverterAttributeMapValidator;
@@ -43,12 +45,13 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  */
 public class ConfigDescriptionConverter extends GenericUnmarshaller<ConfigDescription> {
 
-    private ConverterAttributeMapValidator attributeMapValidator;
+    private final ConverterAttributeMapValidator attributeMapValidator;
 
     public ConfigDescriptionConverter() {
         super(ConfigDescription.class);
 
-        this.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "uri", "false" } });
+        this.attributeMapValidator = new ConverterAttributeMapValidator(
+                new String[][] { { "uri", "false" }, { "multiple", "false" } });
     }
 
     @Override
@@ -72,6 +75,8 @@ public class ConfigDescriptionConverter extends GenericUnmarshaller<ConfigDescri
                     "The URI '" + uriText + "' in node '" + reader.getNodeName() + "' is invalid!", ex);
         }
 
+        String multipleText = attributes.get("multiple");
+
         // create the lists to hold parameters and groups
         List<ConfigDescriptionParameter> configDescriptionParams = new ArrayList<ConfigDescriptionParameter>();
         List<ConfigDescriptionParameterGroup> configDescriptionGroups = new ArrayList<ConfigDescriptionParameterGroup>();
@@ -94,10 +99,15 @@ public class ConfigDescriptionConverter extends GenericUnmarshaller<ConfigDescri
 
         ConverterAssertion.assertEndOfType(reader);
 
-        // create object
-        configDescription = new ConfigDescription(uri, configDescriptionParams, configDescriptionGroups);
+        if ("true".equals(multipleText)) {
+            ConfigDescriptionParameter p = ConfigDescriptionParameterBuilder
+                    .create(ConfigConstants.SERVICE_CONTEXT, ConfigDescriptionParameter.Type.TEXT).withRequired(true)
+                    .withLabel("ServiceContext").build();
+            configDescriptionParams.add(0, p);
+        }
 
-        return configDescription;
+        // create object
+        return new ConfigDescription(uri, configDescriptionParams, configDescriptionGroups);
     }
 
 }

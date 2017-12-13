@@ -57,7 +57,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
             hasBackdrop : true,
             locals : {
                 serviceId : serviceId,
-                configDescriptionURI : configDescriptionURI
+                configDescriptionURI : configDescriptionURI,
             }
         });
     }

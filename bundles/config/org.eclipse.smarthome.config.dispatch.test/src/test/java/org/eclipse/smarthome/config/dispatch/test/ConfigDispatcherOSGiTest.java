@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.config.dispatch.internal.ConfigDispatcher;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
@@ -824,16 +825,16 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
     private Configuration getConfigurationWithContext(String pidWithContext) {
         String pid = null;
         String configContext = null;
-        if (pidWithContext.contains(ConfigDispatcher.SERVICE_CONTEXT_MARKER)) {
-            pid = pidWithContext.split(ConfigDispatcher.SERVICE_CONTEXT_MARKER)[0];
-            configContext = pidWithContext.split(ConfigDispatcher.SERVICE_CONTEXT_MARKER)[1];
+        if (pidWithContext.contains(ConfigConstants.SERVICE_CONTEXT_MARKER)) {
+            pid = pidWithContext.split(ConfigConstants.SERVICE_CONTEXT_MARKER)[0];
+            configContext = pidWithContext.split(ConfigConstants.SERVICE_CONTEXT_MARKER)[1];
         } else {
             throw new IllegalArgumentException("PID does not have a context");
         }
         Configuration[] configs = null;
         try {
             configs = configAdmin.listConfigurations("(&(service.factoryPid=" + pid + ")("
-                    + ConfigDispatcher.SERVICE_CONTEXT + "=" + configContext + "))");
+                    + ConfigConstants.SERVICE_CONTEXT + "=" + configContext + "))");
         } catch (IOException e) {
             throw new IllegalArgumentException(
                     "IOException occured while retrieving configuration for pid " + pidWithContext, e);
