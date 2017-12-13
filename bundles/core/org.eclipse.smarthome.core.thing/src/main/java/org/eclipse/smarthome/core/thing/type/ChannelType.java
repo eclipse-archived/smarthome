@@ -16,8 +16,8 @@ import javax.measure.Quantity;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.ConfigDescription;
-import org.eclipse.smarthome.core.items.DimensionClassParser;
 import org.eclipse.smarthome.core.thing.Channel;
+import org.eclipse.smarthome.core.types.DimensionClassParser;
 import org.eclipse.smarthome.core.types.EventDescription;
 import org.eclipse.smarthome.core.types.StateDescription;
 

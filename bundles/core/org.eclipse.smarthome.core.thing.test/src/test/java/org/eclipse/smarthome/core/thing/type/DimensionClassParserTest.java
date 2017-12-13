@@ -12,7 +12,7 @@ import static org.junit.Assert.assertTrue;
 import javax.measure.Quantity;
 import javax.measure.quantity.Temperature;
 
-import org.eclipse.smarthome.core.items.DimensionClassParser;
+import org.eclipse.smarthome.core.types.DimensionClassParser;
 import org.junit.Test;
 
 public class DimensionClassParserTest {
