@@ -619,18 +619,17 @@ public abstract class BaseThingHandler implements ThingHandler {
     /**
      * Returns whether at least on item is linked for the given channel ID.
      *
-     * @param channelId
-     *            channel ID (must not be null)
+     * @param channelId channel ID (must not be null)
      * @return true if at least one item is linked, false otherwise
-     * @throws IllegalArgumentException
-     *             if no channel with the given ID exists
      */
     protected boolean isLinked(String channelId) {
         Channel channel = thing.getChannel(channelId);
         if (channel != null) {
             return linkRegistry != null ? !linkRegistry.getLinks(channel.getUID()).isEmpty() : false;
         } else {
-            throw new IllegalArgumentException("Channel with ID '" + channelId + "' does not exists.");
+            logger.debug("Channel with ID '{},' does not exists in thing '{}' and is therefore not linked.", channelId,
+                    thing.getUID());
+            return false;
         }
     }
 
