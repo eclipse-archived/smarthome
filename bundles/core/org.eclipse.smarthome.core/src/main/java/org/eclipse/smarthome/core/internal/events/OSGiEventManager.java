@@ -191,7 +191,7 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
                 }
             }
         } else {
-            logger.warn("Could not find an Event Factory for the event type '{}'.", type);
+            logger.debug("Could not find an Event Factory for the event type '{}'.", type);
         }
     }
 
