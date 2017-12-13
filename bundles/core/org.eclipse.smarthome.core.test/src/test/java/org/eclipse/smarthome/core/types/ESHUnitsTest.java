@@ -24,58 +24,58 @@ public class ESHUnitsTest {
 
     @Test
     public void testinHg2PascalConversion() {
-        Quantity<Pressure> inHg = Quantities.getQuantity(BigDecimal.ONE, ESHUnits.INCH_OF_MERCURY);
+        Quantity<Pressure> inHg = Quantities.getQuantity(BigDecimal.ONE, SmartHomeUnits.INCH_OF_MERCURY);
 
         assertThat(inHg.to(Units.PASCAL), is(Quantities.getQuantity(new BigDecimal("3386.388"), Units.PASCAL)));
-        assertThat(inHg.to(ESHUnits.HECTO_PASCAL),
-                is(Quantities.getQuantity(new BigDecimal("33.86388"), ESHUnits.HECTO_PASCAL)));
+        assertThat(inHg.to(SmartHomeUnits.HECTO_PASCAL),
+                is(Quantities.getQuantity(new BigDecimal("33.86388"), SmartHomeUnits.HECTO_PASCAL)));
     }
 
     @Test
     public void test_inHg_UnitSymbol() {
-        assertThat(ESHUnits.INCH_OF_MERCURY.getSymbol(), is("inHg"));
-        assertThat(ESHUnits.INCH_OF_MERCURY.toString(), is("inHg"));
+        assertThat(SmartHomeUnits.INCH_OF_MERCURY.getSymbol(), is("inHg"));
+        assertThat(SmartHomeUnits.INCH_OF_MERCURY.toString(), is("inHg"));
     }
 
     @Test
     public void testPascal2inHgConversion() {
         Quantity<Pressure> pascal = Quantities.getQuantity(new BigDecimal("3386.388"), Units.PASCAL);
 
-        assertThat(pascal.to(ESHUnits.INCH_OF_MERCURY),
-                is(Quantities.getQuantity(new BigDecimal("1.000"), ESHUnits.INCH_OF_MERCURY)));
+        assertThat(pascal.to(SmartHomeUnits.INCH_OF_MERCURY),
+                is(Quantities.getQuantity(new BigDecimal("1.000"), SmartHomeUnits.INCH_OF_MERCURY)));
     }
 
     @Test
     public void testHectoPascal2Pascal() {
         Quantity<Pressure> pascal = Quantities.getQuantity(BigDecimal.valueOf(100), Units.PASCAL);
 
-        assertThat(pascal.to(ESHUnits.HECTO_PASCAL), is(Quantities.getQuantity(BigDecimal.ONE, ESHUnits.HECTO_PASCAL)));
+        assertThat(pascal.to(SmartHomeUnits.HECTO_PASCAL), is(Quantities.getQuantity(BigDecimal.ONE, SmartHomeUnits.HECTO_PASCAL)));
     }
 
     @Test
     public void test_hPa_UnitSymbol() {
-        assertThat(ESHUnits.HECTO_PASCAL.toString(), is("hPa"));
+        assertThat(SmartHomeUnits.HECTO_PASCAL.toString(), is("hPa"));
     }
 
     @Test
     public void testKelvin2Fahrenheit() {
         Quantity<Temperature> kelvin = Quantities.getQuantity(BigDecimal.ZERO, Units.KELVIN);
 
-        assertThat(kelvin.to(ESHUnits.FAHRENHEIT),
-                is(Quantities.getQuantity(new BigDecimal("-459.67"), ESHUnits.FAHRENHEIT)));
+        assertThat(kelvin.to(SmartHomeUnits.FAHRENHEIT),
+                is(Quantities.getQuantity(new BigDecimal("-459.67"), SmartHomeUnits.FAHRENHEIT)));
     }
 
     @Test
     public void testKelvin2Fahrenheit2() {
         Quantity<Temperature> kelvin = Quantities.getQuantity(new BigDecimal(300), Units.KELVIN);
 
-        assertThat(kelvin.to(ESHUnits.FAHRENHEIT),
-                is(Quantities.getQuantity(new BigDecimal("80.33"), ESHUnits.FAHRENHEIT)));
+        assertThat(kelvin.to(SmartHomeUnits.FAHRENHEIT),
+                is(Quantities.getQuantity(new BigDecimal("80.33"), SmartHomeUnits.FAHRENHEIT)));
     }
 
     @Test
     public void testFahrenheit2Kelvin() {
-        Quantity<Temperature> fahrenheit = Quantities.getQuantity(new BigDecimal(100), ESHUnits.FAHRENHEIT);
+        Quantity<Temperature> fahrenheit = Quantities.getQuantity(new BigDecimal(100), SmartHomeUnits.FAHRENHEIT);
 
         Quantity<Temperature> kelvin = fahrenheit.to(Units.KELVIN);
         assertThat(kelvin.getUnit(), is(Units.KELVIN));
@@ -86,8 +86,8 @@ public class ESHUnitsTest {
     public void testKmh2Mih() {
         Quantity<Speed> kmh = Quantities.getQuantity(new BigDecimal(10), Units.KILOMETRE_PER_HOUR);
 
-        Quantity<Speed> mph = kmh.to(ESHUnits.MILES_PER_HOUR);
-        assertThat(mph.getUnit(), is(ESHUnits.MILES_PER_HOUR));
+        Quantity<Speed> mph = kmh.to(SmartHomeUnits.MILES_PER_HOUR);
+        assertThat(mph.getUnit(), is(SmartHomeUnits.MILES_PER_HOUR));
         assertThat(mph.getValue().doubleValue(), is(closeTo(6.21371192237333935d, DEFAULT_ERROR)));
     }
 
@@ -95,8 +95,8 @@ public class ESHUnitsTest {
     public void testCm2In() {
         Quantity<Length> cm = Quantities.getQuantity(new BigDecimal(10), MetricPrefix.CENTI(Units.METRE));
 
-        Quantity<Length> in = cm.to(ESHUnits.INCH);
-        assertThat(in.getUnit(), is(ESHUnits.INCH));
+        Quantity<Length> in = cm.to(SmartHomeUnits.INCH);
+        assertThat(in.getUnit(), is(SmartHomeUnits.INCH));
         assertThat(in.getValue().doubleValue(), is(closeTo(3.93700787401574803d, DEFAULT_ERROR)));
     }
 
@@ -104,27 +104,27 @@ public class ESHUnitsTest {
     public void testM2Ml() {
         Quantity<Length> km = Quantities.getQuantity(new BigDecimal(10), MetricPrefix.KILO(Units.METRE));
 
-        Quantity<Length> mile = km.to(ESHUnits.MILE);
-        assertThat(mile.getUnit(), is(ESHUnits.MILE));
+        Quantity<Length> mile = km.to(SmartHomeUnits.MILE);
+        assertThat(mile.getUnit(), is(SmartHomeUnits.MILE));
         assertThat(mile.getValue().doubleValue(), is(closeTo(6.2137119223733395d, DEFAULT_ERROR)));
     }
 
     @Test
     public void test_fahrenheit_UnitSymbol() {
-        assertThat(ESHUnits.FAHRENHEIT.getSymbol(), is("°F"));
-        assertThat(ESHUnits.FAHRENHEIT.toString(), is("°F"));
+        assertThat(SmartHomeUnits.FAHRENHEIT.getSymbol(), is("°F"));
+        assertThat(SmartHomeUnits.FAHRENHEIT.toString(), is("°F"));
     }
 
     @Test
     public void test_inch_UnitSymbol() {
-        assertThat(ESHUnits.INCH.getSymbol(), is("in"));
-        assertThat(ESHUnits.INCH.toString(), is("in"));
+        assertThat(SmartHomeUnits.INCH.getSymbol(), is("in"));
+        assertThat(SmartHomeUnits.INCH.toString(), is("in"));
     }
 
     @Test
     public void test_mile_UnitSymbol() {
-        assertThat(ESHUnits.MILE.getSymbol(), is("mi"));
-        assertThat(ESHUnits.MILE.toString(), is("mi"));
+        assertThat(SmartHomeUnits.MILE.getSymbol(), is("mi"));
+        assertThat(SmartHomeUnits.MILE.toString(), is("mi"));
     }
 
 }

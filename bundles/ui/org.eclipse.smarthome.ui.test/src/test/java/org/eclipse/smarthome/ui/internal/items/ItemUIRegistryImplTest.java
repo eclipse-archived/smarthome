@@ -31,7 +31,7 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.types.StringType;
-import org.eclipse.smarthome.core.types.ESHUnits;
+import org.eclipse.smarthome.core.types.SmartHomeUnits;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
@@ -88,7 +88,7 @@ public class ItemUIRegistryImplTest {
                     return Units.CELSIUS;
                 }
                 if (invocation.getArguments()[0].toString().contains("°F")) {
-                    return ESHUnits.FAHRENHEIT;
+                    return SmartHomeUnits.FAHRENHEIT;
                 }
                 
                 return null;
@@ -182,7 +182,7 @@ public class ItemUIRegistryImplTest {
     @Test
     public void getLabel_labelWithDecimalValueAndUnitConversion() {
         @SuppressWarnings("unused")
-        Unit<?> fahrenheit = ESHUnits.FAHRENHEIT; // only used to initialise ESHUnits for conversion
+        Unit<?> fahrenheit = SmartHomeUnits.FAHRENHEIT; // only used to initialise ESHUnits for conversion
 
         String testLabel = "Label [%.2f °F]";
 
