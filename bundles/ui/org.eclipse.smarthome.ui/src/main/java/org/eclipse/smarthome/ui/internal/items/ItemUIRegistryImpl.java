@@ -683,7 +683,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                 logger.warn("Group does not specify an associated item - ignoring it.");
             }
         } catch (ItemNotFoundException e) {
-            logger.warn("Group '{}' could not be found.", group.getLabel(), e);
+            logger.warn("Dynamic group with label '{}' will be ignored, because its item '{}' does not exist.",
+                    group.getLabel(), itemName);
         }
         return children;
 
