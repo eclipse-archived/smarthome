@@ -46,6 +46,7 @@ import org.osgi.service.component.annotations.Modified;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tec.uom.se.AbstractUnit;
 import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.Units;
 
@@ -309,8 +310,8 @@ public class I18nProviderImpl
         dimensionMap.put(Intensity.class, intensityMap);
 
         Map<MeasurementSystem, Unit<? extends Quantity<?>>> percentMap = new HashMap<>();
-        percentMap.put(MeasurementSystem.SI, Units.PERCENT);
-        percentMap.put(MeasurementSystem.US, Units.PERCENT);
+        percentMap.put(MeasurementSystem.SI, AbstractUnit.ONE);
+        percentMap.put(MeasurementSystem.US, AbstractUnit.ONE);
         dimensionMap.put(Dimensionless.class, percentMap);
 
         Map<MeasurementSystem, Unit<? extends Quantity<?>>> angleMap = new HashMap<>();
