@@ -128,7 +128,7 @@ public class AutomaticInboxProcessorTest {
         when(thing.getUID()).thenReturn(THING_UID);
 
         when(thing2.getConfiguration()).thenReturn(CONFIG);
-        when(thing2.getThingTypeUID()).thenReturn(THING_TYPE_UID2);
+        when(thing2.getThingTypeUID()).thenReturn(THING_TYPE_UID);
         when(thing2.getProperties()).thenReturn(THING_PROPERTIES);
         when(thing2.getStatus()).thenReturn(ThingStatus.ONLINE);
         when(thing2.getUID()).thenReturn(THING_UID2);
@@ -328,8 +328,8 @@ public class AutomaticInboxProcessorTest {
 
     @Test
     public void testThingWithConfigWentOnline() {
-        inbox.add(DiscoveryResultBuilder.create(THING_UID2).withProperty(CONFIG_KEY, CONFIG_VALUE)
-                .withRepresentationProperty(CONFIG_KEY).build());
+        inbox.add(DiscoveryResultBuilder.create(THING_UID2).withProperty(OTHER_KEY, OTHER_VALUE)
+                .withRepresentationProperty(OTHER_KEY).build());
 
         List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW))
                 .collect(Collectors.toList());
@@ -357,8 +357,8 @@ public class AutomaticInboxProcessorTest {
         when(thingRegistry.get(THING_UID2)).thenReturn(thing2);
         when(thingRegistry.stream()).thenReturn(Stream.of(thing2));
 
-        inbox.add(DiscoveryResultBuilder.create(THING_UID).withProperty(CONFIG_KEY, CONFIG_VALUE)
-                .withRepresentationProperty(CONFIG_KEY).build());
+        inbox.add(DiscoveryResultBuilder.create(THING_UID).withProperty(OTHER_KEY, OTHER_VALUE)
+                .withRepresentationProperty(OTHER_KEY).build());
 
         List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW))
                 .collect(Collectors.toList());
@@ -370,8 +370,8 @@ public class AutomaticInboxProcessorTest {
 
     @Test
     public void testThingWithConfigIsBeingRemoved() {
-        inbox.add(DiscoveryResultBuilder.create(THING_UID2).withProperty(CONFIG_KEY, CONFIG_VALUE)
-                .withRepresentationProperty(CONFIG_KEY).build());
+        inbox.add(DiscoveryResultBuilder.create(THING_UID2).withProperty(OTHER_KEY, OTHER_VALUE)
+                .withRepresentationProperty(OTHER_KEY).build());
 
         inbox.setFlag(THING_UID2, DiscoveryResultFlag.IGNORED);
         List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.IGNORED))
