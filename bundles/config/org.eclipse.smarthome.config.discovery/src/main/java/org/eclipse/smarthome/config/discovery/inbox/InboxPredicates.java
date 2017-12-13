@@ -57,8 +57,4 @@ public class InboxPredicates {
     public static Predicate<DiscoveryResult> withRepresentationPropertyValue(@Nullable String propertyValue) {
         return r -> propertyValue != null && propertyValue.equals(r.getProperties().get(r.getRepresentationProperty()));
     }
-
-    public static Predicate<DiscoveryResult> withBindingId(@Nullable String bindingId) {
-        return r -> bindingId != null && bindingId.equals(r.getBindingId());
-    }
 }
