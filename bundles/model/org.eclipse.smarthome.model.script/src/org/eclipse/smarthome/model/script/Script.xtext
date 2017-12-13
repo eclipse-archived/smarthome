@@ -28,6 +28,6 @@ QuantityLiteral returns XExpression :
 
 
 terminal UNIT:
-    '[' ('a' .. 'z'|'A' .. 'Z'|'°'|'/'|'Ω')+ ']'
+    '[' ('a' .. 'z'|'A' .. 'Z'|'°'|'/'|'Ω'|'℃'|'%'|'^'|'0' .. '9')+ ']'
 ;
 

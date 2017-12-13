@@ -20,9 +20,6 @@ import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.model.script.ScriptServiceUtil;
-import org.eclipse.smarthome.model.script.engine.ScriptEngine;
-import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
-import org.eclipse.smarthome.model.script.engine.ScriptParsingException;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
 import org.junit.Before;
@@ -156,7 +153,7 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
 
     @Test
     public void testMultiplyQuantityType() throws ScriptParsingException, ScriptExecutionException {
-        assertThat((QuantityType<?>) runScript("1 [m] * 20 [cm]"), is(QuantityType.valueOf("20 m·cm")));
+        assertThat((QuantityType<?>) runScript("1 [m] * 20 [cm]"), is(QuantityType.valueOf("2000 cm^2")));
     }
 
     @Test
@@ -166,7 +163,7 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
 
     @Test
     public void testDivideQuantityType() throws ScriptParsingException, ScriptExecutionException {
-        assertThat((QuantityType<?>) runScript("1 [m] / 2 [cm]"), is(QuantityType.valueOf("0.5 m/cm")));
+        assertThat((QuantityType<?>) runScript("1 [m] / 2 [cm]"), is(QuantityType.valueOf("50")));
     }
 
     @Test
@@ -177,6 +174,21 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
     @Test
     public void testDivide_Number_QuantityType() throws ScriptParsingException, ScriptExecutionException {
         assertThat((QuantityType<?>) runScript("1 / 2 [m]"), is(new QuantityType<>("0.5 one/m")));
+    }
+
+    @Test
+    public void testDivide_Number_QuantityType_1() throws ScriptParsingException, ScriptExecutionException {
+        assertThat((QuantityType<?>) runScript("0.5 [one/m] + 0.5 [one/m]"), is(new QuantityType<>("1 one/m")));
+    }
+
+    @Test
+    public void testToUnit_QuantityType() throws ScriptParsingException, ScriptExecutionException {
+        assertThat(runScript("20 [°C].toUnit(\"°F\").toString()"), is("68 °F"));
+    }
+
+    @Test
+    public void testEquals_QuantityType_Number() throws ScriptParsingException, ScriptExecutionException {
+        assertThat(runScript("20 [m].equals(20)"), is(false));
     }
 
     private Item createNumberItem(String numberItemName, Class<@NonNull Temperature> dimension, UnDefType state) {
