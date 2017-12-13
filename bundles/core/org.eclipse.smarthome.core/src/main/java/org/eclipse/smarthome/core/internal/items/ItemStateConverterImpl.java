@@ -63,7 +63,7 @@ public class ItemStateConverterImpl implements ItemStateConverter {
             QuantityType<?> quantityState = (QuantityType<?>) state;
             NumberItem numberItem = (NumberItem) item;
 
-            // in case the item does define a unit it takes predescense over all other conversions:
+            // in case the item does define a unit it takes precedence over all other conversions:
             Unit<?> itemUnit = parseItemUnit(numberItem);
             if (itemUnit != null) {
                 if (!itemUnit.equals(quantityState.getUnit())) {
