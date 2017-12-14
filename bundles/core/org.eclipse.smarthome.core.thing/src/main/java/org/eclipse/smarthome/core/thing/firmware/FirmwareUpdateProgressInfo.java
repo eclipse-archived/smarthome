@@ -13,11 +13,10 @@
 package org.eclipse.smarthome.core.thing.firmware;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID;
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressStep;
-
-import com.google.common.base.Preconditions;
 
 /**
  * The {@link FirmwareUpdateProgressInfo} represents the progress indicator for a firmware update.
@@ -59,8 +58,10 @@ public final class FirmwareUpdateProgressInfo {
      */
     FirmwareUpdateProgressInfo(FirmwareUID firmwareUID, ProgressStep progressStep, Collection<ProgressStep> sequence,
             boolean pending, int progress) {
-        Preconditions.checkNotNull(firmwareUID, "Firmware UID must not be null.");
-        Preconditions.checkArgument(progress >= 0 && progress <= 100, "The progress must be between 0 and 100.");
+        Objects.requireNonNull(firmwareUID, "Firmware UID must not be null.");
+        if (progress < 0 || progress > 100) {
+            throw new IllegalArgumentException("The progress must be between 0 and 100.");
+        }
 
         this.firmwareUID = firmwareUID;
         this.progressStep = progressStep;
@@ -84,9 +85,11 @@ public final class FirmwareUpdateProgressInfo {
      */
     FirmwareUpdateProgressInfo(FirmwareUID firmwareUID, ProgressStep progressStep, Collection<ProgressStep> sequence,
             boolean pending) {
-        Preconditions.checkNotNull(firmwareUID, "Firmware UID must not be null.");
-        Preconditions.checkArgument(sequence != null && !sequence.isEmpty(), "Sequence must not be null or empty.");
-        Preconditions.checkNotNull(progressStep, "Progress step must not be null.");
+        Objects.requireNonNull(firmwareUID, "Firmware UID must not be null.");
+        if (sequence == null || sequence.isEmpty()) {
+            throw new IllegalArgumentException("Sequence must not be null or empty.");
+        }
+        Objects.requireNonNull(progressStep, "Progress step must not be null.");
 
         this.firmwareUID = firmwareUID;
         this.progressStep = progressStep;
@@ -124,7 +127,7 @@ public final class FirmwareUpdateProgressInfo {
 
     /**
      * Returns true if the firmware update is pending, false otherwise
-     * 
+     *
      * @return true if pending, false otherwise
      */
     public boolean isPending() {
@@ -133,7 +136,7 @@ public final class FirmwareUpdateProgressInfo {
 
     /**
      * Returns the percentage progress of the firmware update.
-     * 
+     *
      * @return the progress between 0 and 100 or null if no progress was set
      */
     public Integer getProgress() {
