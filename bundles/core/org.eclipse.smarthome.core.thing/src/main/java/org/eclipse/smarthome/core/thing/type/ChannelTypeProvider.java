@@ -31,6 +31,7 @@ public interface ChannelTypeProvider {
     /**
      * @see ChannelTypeRegistry#getChannelTypes(Locale)
      */
+    @Nullable
     Collection<ChannelType> getChannelTypes(@Nullable Locale locale);
 
     /**
@@ -48,5 +49,6 @@ public interface ChannelTypeProvider {
     /**
      * @see ChannelTypeRegistry#getChannelGroupTypes(Locale)
      */
+    @Nullable
     Collection<ChannelGroupType> getChannelGroupTypes(@Nullable Locale locale);
 }

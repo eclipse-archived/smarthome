@@ -12,10 +12,14 @@
  */
 package org.eclipse.smarthome.core.thing.internal.profiles;
 
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertThat;
+
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
+import org.eclipse.smarthome.core.thing.profiles.SystemProfiles;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.junit.Before;
@@ -41,13 +45,13 @@ public class SystemProfileFactoryTest {
 
     @Test
     public void testGetSuggestedProfileTypeUID_nullChannelType1() {
-        factory.getSuggestedProfileTypeUID((ChannelType) null, CoreItemFactory.SWITCH);
+        assertThat(factory.getSuggestedProfileTypeUID((ChannelType) null, CoreItemFactory.SWITCH), is(nullValue()));
     }
 
     @Test
     public void testGetSuggestedProfileTypeUID_nullChannelType2() {
         Channel channel = ChannelBuilder.create(new ChannelUID("test:test:test:test"), CoreItemFactory.SWITCH).build();
-        factory.getSuggestedProfileTypeUID(channel, CoreItemFactory.SWITCH);
+        assertThat(factory.getSuggestedProfileTypeUID(channel, CoreItemFactory.SWITCH), is(SystemProfiles.DEFAULT));
     }
 
 }

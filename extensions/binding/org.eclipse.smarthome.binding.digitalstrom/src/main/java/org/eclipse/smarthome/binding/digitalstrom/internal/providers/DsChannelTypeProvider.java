@@ -14,7 +14,6 @@ package org.eclipse.smarthome.binding.digitalstrom.internal.providers;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -242,6 +241,6 @@ public class DsChannelTypeProvider implements ChannelTypeProvider {
 
     @Override
     public Collection<ChannelGroupType> getChannelGroupTypes(Locale locale) {
-        return Collections.emptyList();
+        return null;
     }
 }

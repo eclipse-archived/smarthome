@@ -116,7 +116,18 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
     @Override
     public ProfileTypeUID getSuggestedProfileTypeUID(Channel channel, @Nullable String itemType) {
         ChannelType channelType = channelTypeRegistry.getChannelType(channel.getChannelTypeUID());
-        return getSuggestedProfileTypeUID(channelType, itemType);
+        if (channelType == null) {
+            switch (channel.getKind()) {
+                case STATE:
+                    return SystemProfiles.DEFAULT;
+                case TRIGGER:
+                    return null;
+                default:
+                    throw new IllegalArgumentException("Unsupported channel kind: " + channel.getKind());
+            }
+        } else {
+            return getSuggestedProfileTypeUID(channelType, itemType);
+        }
     }
 
     @Override
