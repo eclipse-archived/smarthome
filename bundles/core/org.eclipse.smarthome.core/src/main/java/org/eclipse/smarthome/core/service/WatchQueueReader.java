@@ -126,7 +126,7 @@ public class WatchQueueReader implements Runnable {
                     @Override
                     public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
                         if (exc instanceof AccessDeniedException) {
-                            logger.warn("Do not have permission to access directory '{}', skipping it",
+                            logger.warn("Access to folder '{}' was denied, therefore skipping it.",
                                     file.toAbsolutePath().toString());
                         }
                         return FileVisitResult.SKIP_SUBTREE;
