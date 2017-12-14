@@ -32,6 +32,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.ConfigUtil;
@@ -121,6 +122,23 @@ public class ConfigurableServiceResource implements RESTResource {
     }
 
     @GET
+    @Path("/multiconfig/{serviceId}")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @ApiOperation(value = "Get existing multiple context service configurations for the given service ID.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ConfigurableServiceDTO.class, responseContainer = "List") })
+    public List<ConfigurableServiceDTO> getMultiConfigServicesById(
+            @PathParam("serviceId") @ApiParam(value = "service ID", required = true) String serviceId) {
+        List<ConfigurableServiceDTO> services = collectServicesById(serviceId);
+        return services;
+    }
+
+    private List<ConfigurableServiceDTO> collectServicesById(String serviceId) {
+        String filter = "(" + ConfigurableService.SERVICE_PROPERTY_FACTORY_PID + "=" + serviceId + ")";
+        return getServicesByFilter(filter);
+    }
+
+    @GET
     @Path("/{serviceId}/config")
     @Produces({ MediaType.APPLICATION_JSON })
     @ApiOperation(value = "Get service configuration for given service ID.")
@@ -205,23 +223,36 @@ public class ConfigurableServiceResource implements RESTResource {
         }
     }
 
+    private List<ConfigurableServiceDTO> getServicesByFilter(String filter) {
+        List<ConfigurableServiceDTO> services = new ArrayList<>();
+        ServiceReference<?>[] serviceReferences = null;
+        try {
+            serviceReferences = RESTCoreActivator.getBundleContext().getServiceReferences((String) null, filter);
+        } catch (InvalidSyntaxException ex) {
+            logger.error("Cannot get service references, because syntax is invalid: {}", ex.getMessage(), ex);
+        }
+
+        if (serviceReferences != null) {
+            for (ServiceReference<?> serviceReference : serviceReferences) {
+                String id = getServiceId(serviceReference);
+                String label = (String) serviceReference.getProperty(ConfigurableService.SERVICE_PROPERTY_LABEL);
+                if (label == null) {
+                    label = (String) serviceReference.getProperty(ConfigConstants.SERVICE_CONTEXT);
+                }
+                String category = (String) serviceReference.getProperty(ConfigurableService.SERVICE_PROPERTY_CATEGORY);
+                String configDescriptionURI = (String) serviceReference
+                        .getProperty(ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI);
+
+                services.add(new ConfigurableServiceDTO(id, label, category, configDescriptionURI, false));
+            }
+        }
+        return services;
+    }
+
     private List<ConfigurableServiceDTO> getConfigurableServices() {
         List<ConfigurableServiceDTO> services = new ArrayList<>();
         try {
-            ServiceReference<?>[] serviceReferences = RESTCoreActivator.getBundleContext()
-                    .getServiceReferences((String) null, CONFIGURABLE_SERVICE_FILTER);
-            if (serviceReferences != null) {
-                for (ServiceReference<?> serviceReference : serviceReferences) {
-                    String id = getServiceId(serviceReference);
-                    String label = (String) serviceReference.getProperty(ConfigurableService.SERVICE_PROPERTY_LABEL);
-                    String category = (String) serviceReference
-                            .getProperty(ConfigurableService.SERVICE_PROPERTY_CATEGORY);
-                    String configDescriptionURI = (String) serviceReference
-                            .getProperty(ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI);
-
-                    services.add(new ConfigurableServiceDTO(id, label, category, configDescriptionURI, false));
-                }
-            }
+            services.addAll(getServicesByFilter(CONFIGURABLE_SERVICE_FILTER));
 
             // obtain the list of services holding metadata on how to create multiple services with different configs
             ServiceReference<?>[] multiServiceReferences = RESTCoreActivator.getBundleContext()

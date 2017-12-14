@@ -49,4 +49,9 @@ public interface ConfigurableService {
      */
     public static final String SERVICE_PROPERTY_CATEGORY = "service.config.category";
 
+    /**
+     * The factory pid of the service to be configured (for services with multiple contexts).
+     */
+    public static final String SERVICE_PROPERTY_FACTORY_PID = "service.factoryPid";
+
 }
