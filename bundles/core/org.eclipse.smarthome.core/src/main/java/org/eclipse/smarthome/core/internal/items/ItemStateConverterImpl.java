@@ -21,6 +21,7 @@ import org.eclipse.smarthome.core.types.MeasurementSystem;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.eclipse.smarthome.core.types.util.UnitUtils;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -102,7 +103,7 @@ public class ItemStateConverterImpl implements ItemStateConverter {
         }
 
         String pattern = stateDescription.getPattern();
-        return unitProvider.parseUnit(pattern);
+        return UnitUtils.parseUnit(pattern);
     }
 
     private boolean isAccepted(Item item, State state) {

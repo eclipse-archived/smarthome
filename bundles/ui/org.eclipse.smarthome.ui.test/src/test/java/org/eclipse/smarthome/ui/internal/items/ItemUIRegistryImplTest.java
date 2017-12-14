@@ -36,6 +36,7 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.eclipse.smarthome.core.types.util.UnitUtils;
 import org.eclipse.smarthome.model.sitemap.Mapping;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapFactory;
@@ -80,7 +81,7 @@ public class ItemUIRegistryImplTest {
         when(widget.getItem()).thenReturn("Item");
         when(registry.getItem("Item")).thenReturn(item);
 
-        when(unitProvider.parseUnit(anyString())).thenAnswer(new Answer<Unit>() {
+        when(UnitUtils.parseUnit(anyString())).thenAnswer(new Answer<Unit>() {
 
             @Override
             public Unit answer(InvocationOnMock invocation) throws Throwable {

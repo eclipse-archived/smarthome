@@ -17,9 +17,9 @@ import javax.measure.Quantity;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.core.thing.Channel;
-import org.eclipse.smarthome.core.types.DimensionClassParser;
 import org.eclipse.smarthome.core.types.EventDescription;
 import org.eclipse.smarthome.core.types.StateDescription;
+import org.eclipse.smarthome.core.types.util.UnitUtils;
 
 /**
  * The {@link ChannelType} describes a concrete type of a {@link Channel}.
@@ -65,8 +65,8 @@ public class ChannelType extends AbstractDescriptionType {
      */
     public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, String dimension, String label,
             String description, String category, Set<String> tags, StateDescription state, URI configDescriptionURI) {
-        this(uid, advanced, itemType, DimensionClassParser.parseDimension(dimension), ChannelKind.STATE, label,
-                description, category, tags, state, null, configDescriptionURI);
+        this(uid, advanced, itemType, UnitUtils.parseDimension(dimension), ChannelKind.STATE, label, description,
+                category, tags, state, null, configDescriptionURI);
     }
 
     /**

@@ -28,6 +28,7 @@ Import-Package:
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.thing.util,
  org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.core.types.util,
  org.osgi.framework,
  org.osgi.service.component,
  org.osgi.service.component.annotations;resolution:=optional,

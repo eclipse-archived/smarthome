@@ -35,6 +35,7 @@ Import-Package:
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.thing.util,
  org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.core.types.util,
  org.eclipse.smarthome.model.core,
  org.eclipse.smarthome.model.core.valueconverter,
  org.eclipse.xtext.xbase.lib,
