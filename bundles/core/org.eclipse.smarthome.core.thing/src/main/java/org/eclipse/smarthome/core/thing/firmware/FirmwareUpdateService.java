@@ -19,6 +19,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -55,7 +56,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -167,8 +167,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
      * @throws NullPointerException if the given thing UID is null
      */
     public FirmwareStatusInfo getFirmwareStatusInfo(ThingUID thingUID) {
-        Preconditions.checkNotNull(thingUID, "Thing UID must not be null.");
-
+        Objects.requireNonNull(thingUID, "Thing UID must not be null.");
         FirmwareUpdateHandler firmwareUpdateHandler = getFirmwareUpdateHandler(thingUID);
 
         if (firmwareUpdateHandler == null) {
@@ -211,8 +210,8 @@ public final class FirmwareUpdateService implements EventSubscriber {
      *             </ul>
      */
     public void updateFirmware(final ThingUID thingUID, final FirmwareUID firmwareUID, final Locale locale) {
-        Preconditions.checkNotNull(thingUID, "Thing UID must not be null.");
-        Preconditions.checkNotNull(firmwareUID, "Firmware UID must not be null.");
+        Objects.requireNonNull(thingUID, "Thing UID must not be null.");
+        Objects.requireNonNull(firmwareUID, "Firmware UID must not be null.");
 
         final FirmwareUpdateHandler firmwareUpdateHandler = getFirmwareUpdateHandler(thingUID);
 
@@ -252,7 +251,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
      * @param thingUID the thing UID (must not be null)
      */
     public void cancelFirmwareUpdate(final ThingUID thingUID) {
-        Preconditions.checkNotNull(thingUID, "Thing UID must not be null.");
+        Objects.requireNonNull(thingUID, "Thing UID must not be null.");
         final FirmwareUpdateHandler firmwareUpdateHandler = getFirmwareUpdateHandler(thingUID);
         if (firmwareUpdateHandler == null) {
             throw new IllegalArgumentException(
