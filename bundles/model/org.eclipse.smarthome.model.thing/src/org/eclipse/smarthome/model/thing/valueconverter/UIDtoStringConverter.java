@@ -12,13 +12,14 @@
  */
 package org.eclipse.smarthome.model.thing.valueconverter;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.xtext.conversion.IValueConverter;
 import org.eclipse.xtext.conversion.ValueConverterException;
 import org.eclipse.xtext.nodemodel.INode;
 import org.eclipse.xtext.util.Strings;
-
-import com.google.common.base.Joiner;
 
 /**
  * A {@link UIDtoStringConverter} is used to create {@link UID} string
@@ -47,7 +48,7 @@ public class UIDtoStringConverter implements IValueConverter<String> {
                 }
             }
         }
-        return Joiner.on(SEPERATOR).join(ids);
+        return Arrays.stream(ids).collect(Collectors.joining(SEPERATOR));
     }
 
     @Override
@@ -64,7 +65,7 @@ public class UIDtoStringConverter implements IValueConverter<String> {
                 ids[i] = toEscapedString(id);
             }
         }
-        return Joiner.on(SEPERATOR).join(ids);
+        return Arrays.stream(ids).collect(Collectors.joining(SEPERATOR));
     }
 
     protected String toEscapedString(String value) {
