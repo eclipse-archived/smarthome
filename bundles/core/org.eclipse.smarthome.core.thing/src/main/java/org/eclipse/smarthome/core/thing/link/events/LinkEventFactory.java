@@ -20,7 +20,6 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.dto.ItemChannelLinkDTO;
 import org.osgi.service.component.annotations.Component;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
 /**
@@ -102,7 +101,9 @@ public class LinkEventFactory extends AbstractEventFactory {
     }
 
     private static void assertValidArgument(AbstractLink itemChannelLink) {
-        Preconditions.checkArgument(itemChannelLink != null, "The argument 'itemChannelLink' must not be null.");
+        if (itemChannelLink == null) {
+            throw new IllegalArgumentException("The argument 'itemChannelLink' must not be null.");
+        }
     }
 
     private static String buildTopic(String topic, AbstractLink itemChannelLink) {
