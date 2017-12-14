@@ -28,7 +28,6 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
 /**
@@ -48,8 +47,12 @@ public class ItemDTOMapper {
      * @return the item object
      */
     public static ActiveItem map(ItemDTO itemDTO, Set<ItemFactory> itemFactories) {
-        Preconditions.checkArgument(itemDTO != null, "The argument 'itemDTO' must no be null.");
-        Preconditions.checkArgument(itemFactories != null, "The argument 'itemFactories' must no be null.");
+        if (itemDTO == null) {
+            throw new IllegalArgumentException("The argument 'itemDTO' must no be null.");
+        }
+        if (itemFactories == null) {
+            throw new IllegalArgumentException("The argument 'itemFactories' must no be null.");
+        }
 
         GenericItem newItem = null;
         if (itemDTO.type != null) {
