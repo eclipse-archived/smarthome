@@ -57,16 +57,9 @@ public abstract class AbstractEventFactory implements EventFactory {
     }
 
     private void assertValidArguments(String eventType, String topic, String payload) {
-        String errorMsg = "The argument %s must not be null or empty.";
-        if (eventType == null || eventType.isEmpty()) {
-            throw new IllegalArgumentException(String.format(errorMsg, "eventType"));
-        }
-        if (topic == null || topic.isEmpty()) {
-            throw new IllegalArgumentException(String.format(errorMsg, "topic"));
-        }
-        if (payload == null || payload.isEmpty()) {
-            throw new IllegalArgumentException(String.format(errorMsg, "payload"));
-        }
+        checkNotNullOrEmpty(eventType, "eventType");
+        checkNotNullOrEmpty(topic, "topic");
+        checkNotNullOrEmpty(payload, "payload");
     }
 
     /**
@@ -116,6 +109,18 @@ public abstract class AbstractEventFactory implements EventFactory {
      */
     protected String[] getTopicElements(String topic) {
         return topic.split("/");
+    }
+
+    protected static void checkNotNull(Object object, String argumentName) {
+        if (object == null) {
+            throw new IllegalArgumentException("The argument '" + argumentName + "' must not be null");
+        }
+    }
+
+    protected static void checkNotNullOrEmpty(String string, String argumentName) {
+        if (string == null || string.isEmpty()) {
+            throw new IllegalArgumentException("The argument '" + argumentName + "' must not be null or empty");
+        }
     }
 
 }

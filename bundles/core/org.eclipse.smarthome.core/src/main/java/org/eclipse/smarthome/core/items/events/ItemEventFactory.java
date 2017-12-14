@@ -372,30 +372,18 @@ public class ItemEventFactory extends AbstractEventFactory {
     }
 
     private static void assertValidArguments(String itemName, Type type, String typeArgumentName) {
-        if (StringUtils.isEmpty(itemName)) {
-            throw new IllegalArgumentException("The argument 'itemName' must not be null or empty.");
-        }
-        if (type == null) {
-            throw new IllegalArgumentException("The argument '" + typeArgumentName + "' must not be null.");
-        }
+        checkNotNullOrEmpty(itemName, "itemName");
+        checkNotNull(type, typeArgumentName);
     }
 
     private static void assertValidArguments(String itemName, String memberName, Type type, String typeArgumentName) {
-        if (StringUtils.isEmpty(itemName)) {
-            throw new IllegalArgumentException("The argument 'itemName' must not be null or empty.");
-        }
-        if (StringUtils.isEmpty(memberName)) {
-            throw new IllegalArgumentException("The argument 'memberName' must not be null or empty.");
-        }
-        if (type == null) {
-            throw new IllegalArgumentException("The argument '" + typeArgumentName + "' must not be null.");
-        }
+        checkNotNullOrEmpty(itemName, "itemName");
+        checkNotNullOrEmpty(memberName, "memberName");
+        checkNotNull(type, typeArgumentName);
     }
 
     private static void assertValidArgument(Item item, String argumentName) {
-        if (item == null) {
-            throw new IllegalArgumentException("The argument '" + argumentName + "' must not be null.");
-        }
+        checkNotNull(item, argumentName);
     }
 
     /**
