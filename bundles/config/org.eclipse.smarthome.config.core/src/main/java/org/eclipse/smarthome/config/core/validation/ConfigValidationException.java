@@ -16,6 +16,7 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -24,7 +25,6 @@ import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -54,8 +54,8 @@ public final class ConfigValidationException extends RuntimeException {
      */
     public ConfigValidationException(Bundle bundle, TranslationProvider translationProvider,
             Collection<ConfigValidationMessage> configValidationMessages) {
-        Preconditions.checkNotNull(bundle, "Bundle must not be null");
-        Preconditions.checkNotNull(configValidationMessages, "Config validation messages must not be null");
+        Objects.requireNonNull(bundle, "Bundle must not be null");
+        Objects.requireNonNull(configValidationMessages, "Config validation messages must not be null");
         this.bundle = bundle;
         this.translationProvider = translationProvider;
         this.configValidationMessages = configValidationMessages;
