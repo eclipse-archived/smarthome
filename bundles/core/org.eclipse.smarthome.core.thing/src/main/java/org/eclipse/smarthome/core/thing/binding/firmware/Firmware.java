@@ -34,8 +34,6 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
 /**
  * <p>
  * The {@link Firmware} is the description of a firmware to be installed on the physical device of a {@link Thing}. A
@@ -401,7 +399,7 @@ public final class Firmware implements Comparable<Firmware> {
          * @throws NullPointerException if given uid is null
          */
         public Builder(FirmwareUID uid) {
-            Preconditions.checkNotNull(uid, "Firmware UID must not be null.");
+            Objects.requireNonNull(uid, "Firmware UID must not be null.");
             this.uid = uid;
         }
 
