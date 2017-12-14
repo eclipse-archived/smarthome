@@ -14,6 +14,8 @@ import tec.uom.se.quantity.Quantities;
 @NonNullByDefault
 public class UnitUtils {
 
+    public static final String UNIT_PLACEHOLDER = "%unit%";
+
     private static final Logger logger = LoggerFactory.getLogger(UnitUtils.class);
 
     private static final String JAVAX_MEASURE_QUANTITY = "javax.measure.quantity.";
@@ -62,7 +64,7 @@ public class UnitUtils {
         }
 
         String unitSymbol = pattern.substring(lastBlankIndex).trim();
-        if (StringUtils.isNotBlank(unitSymbol) && !unitSymbol.equals("%unit%")) {
+        if (StringUtils.isNotBlank(unitSymbol) && !unitSymbol.equals(UNIT_PLACEHOLDER)) {
             try {
                 Quantity<?> quantity = Quantities.getQuantity("1 " + unitSymbol);
                 return quantity.getUnit();

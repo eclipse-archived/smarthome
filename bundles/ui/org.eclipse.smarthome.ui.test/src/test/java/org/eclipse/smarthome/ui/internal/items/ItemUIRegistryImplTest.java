@@ -172,10 +172,10 @@ public class ItemUIRegistryImplTest {
 
     @Test
     public void getLabel_labelWithDecimalValueAndUnit() {
-        String testLabel = "Label [%.3f %unit%]";
+        String testLabel = "Label [%.3f " + UnitUtils.UNIT_PLACEHOLDER + "]";
 
         when(widget.getLabel()).thenReturn(testLabel);
-        when(item.getState()).thenReturn(new QuantityType("" + 10f / 3f + " °C"));
+        when(item.getState()).thenReturn(new QuantityType<>("" + 10f / 3f + " °C"));
         String label = uiRegistry.getLabel(widget);
         assertEquals("Label [3" + sep + "333 ℃]", label);
     }
@@ -188,7 +188,7 @@ public class ItemUIRegistryImplTest {
         String testLabel = "Label [%.2f °F]";
 
         when(widget.getLabel()).thenReturn(testLabel);
-        when(item.getState()).thenReturn(new QuantityType("22 °C"));
+        when(item.getState()).thenReturn(new QuantityType<>("22 °C"));
         String label = uiRegistry.getLabel(widget);
         assertEquals("Label [71" + sep + "60 °F]", label);
     }

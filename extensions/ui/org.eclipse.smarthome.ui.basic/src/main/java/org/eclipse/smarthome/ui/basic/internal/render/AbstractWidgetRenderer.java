@@ -27,6 +27,7 @@ import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.util.UnitUtils;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.basic.internal.WebAppActivator;
 import org.eclipse.smarthome.ui.basic.internal.WebAppConfig;
@@ -318,7 +319,7 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
 
     protected String getUnitForWidget(Widget w) {
         String unit = getUnitFromLabel(w.getLabel());
-        if (StringUtils.isNotBlank(unit) && !"%unit%".equals(unit)) {
+        if (StringUtils.isNotBlank(unit) && !UnitUtils.UNIT_PLACEHOLDER.equals(unit)) {
             return unit;
         }
 

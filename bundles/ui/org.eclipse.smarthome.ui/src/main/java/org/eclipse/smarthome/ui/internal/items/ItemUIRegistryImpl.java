@@ -370,8 +370,9 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                         QuantityType quantityState = (QuantityType) state;
                         state = convertStateToWidgetUnit(quantityState, w);
 
-                        if (formatPattern.contains("%unit%")) {
-                            formatPattern = formatPattern.replace("%unit%", quantityState.getUnit().toString());
+                        if (formatPattern.contains(UnitUtils.UNIT_PLACEHOLDER)) {
+                            formatPattern = formatPattern.replace(UnitUtils.UNIT_PLACEHOLDER,
+                                    quantityState.getUnit().toString());
                         }
                     }
 
