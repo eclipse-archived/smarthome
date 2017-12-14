@@ -127,7 +127,7 @@ public class MqttBrokerConnection {
         }
     }
 
-    private ClientCallbacks clientCallbacks = new ClientCallbacks();
+    private final ClientCallbacks clientCallbacks = new ClientCallbacks();
 
     /**
      * Create a new connection with the given name.
@@ -360,7 +360,7 @@ public class MqttBrokerConnection {
                 subscriberList = new ArrayList<>();
             }
             subscriberList.add(subscriber);
-            consumers.put(topic, subscriberList);
+            consumers.put(subscriber.getTopic(), subscriberList);
         }
         if (isConnected()) {
             try {
