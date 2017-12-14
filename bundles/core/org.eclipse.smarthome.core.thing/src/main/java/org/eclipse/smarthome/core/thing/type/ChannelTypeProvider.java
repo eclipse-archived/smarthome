@@ -15,6 +15,9 @@ package org.eclipse.smarthome.core.thing.type;
 import java.util.Collection;
 import java.util.Locale;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * The {@link ChannelTypeProvider} is responsible for providing channel types.
  *
@@ -22,25 +25,30 @@ import java.util.Locale;
  *
  * @author Dennis Nobel - Initial contribution
  */
+@NonNullByDefault
 public interface ChannelTypeProvider {
 
     /**
      * @see ChannelTypeRegistry#getChannelTypes(Locale)
      */
-    Collection<ChannelType> getChannelTypes(Locale locale);
+    @Nullable
+    Collection<ChannelType> getChannelTypes(@Nullable Locale locale);
 
     /**
      * @see ChannelTypeRegistry#getChannelType(ChannelTypeUID, Locale)
      */
-    ChannelType getChannelType(ChannelTypeUID channelTypeUID, Locale locale);
+    @Nullable
+    ChannelType getChannelType(ChannelTypeUID channelTypeUID, @Nullable Locale locale);
 
     /**
      * @see ChannelTypeRegistry#getChannelGroupType(ChannelGroupTypeUID, Locale)
      */
-    ChannelGroupType getChannelGroupType(ChannelGroupTypeUID channelGroupTypeUID, Locale locale);
+    @Nullable
+    ChannelGroupType getChannelGroupType(ChannelGroupTypeUID channelGroupTypeUID, @Nullable Locale locale);
 
     /**
      * @see ChannelTypeRegistry#getChannelGroupTypes(Locale)
      */
-    Collection<ChannelGroupType> getChannelGroupTypes(Locale locale);
+    @Nullable
+    Collection<ChannelGroupType> getChannelGroupTypes(@Nullable Locale locale);
 }
