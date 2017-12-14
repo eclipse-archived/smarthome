@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
@@ -38,7 +39,6 @@ import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
@@ -261,13 +261,13 @@ abstract public class GenericItem implements ActiveItem {
         if (!getTags().isEmpty()) {
             sb.append(", ");
             sb.append("Tags=[");
-            sb.append(Joiner.on(", ").join(getTags()));
+            sb.append(getTags().stream().collect(Collectors.joining(", ")));
             sb.append("]");
         }
         if (!getGroupNames().isEmpty()) {
             sb.append(", ");
             sb.append("Groups=[");
-            sb.append(Joiner.on(", ").join(getGroupNames()));
+            sb.append(getGroupNames().stream().collect(Collectors.joining(", ")));
             sb.append("]");
         }
         sb.append(")");
