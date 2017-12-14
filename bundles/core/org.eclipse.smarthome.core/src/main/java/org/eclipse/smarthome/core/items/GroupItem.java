@@ -29,7 +29,6 @@ import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -323,13 +322,13 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         if (!getTags().isEmpty()) {
             sb.append(", ");
             sb.append("Tags=[");
-            sb.append(Joiner.on(", ").join(getTags()));
+            sb.append(getTags().stream().collect(Collectors.joining(", ")));
             sb.append("]");
         }
         if (!getGroupNames().isEmpty()) {
             sb.append(", ");
             sb.append("Groups=[");
-            sb.append(Joiner.on(", ").join(getGroupNames()));
+            sb.append(getGroupNames().stream().collect(Collectors.joining(", ")));
             sb.append("]");
         }
         sb.append(")");
