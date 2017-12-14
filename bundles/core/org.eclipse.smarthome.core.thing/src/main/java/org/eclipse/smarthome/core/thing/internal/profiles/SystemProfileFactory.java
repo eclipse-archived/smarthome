@@ -86,7 +86,10 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
 
     @Nullable
     @Override
-    public ProfileTypeUID getSuggestedProfileTypeUID(ChannelType channelType, @Nullable String itemType) {
+    public ProfileTypeUID getSuggestedProfileTypeUID(@Nullable ChannelType channelType, @Nullable String itemType) {
+        if (channelType == null) {
+            return null;
+        }
         switch (channelType.getKind()) {
             case STATE:
                 return SystemProfiles.DEFAULT;

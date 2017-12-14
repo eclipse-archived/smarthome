@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -30,10 +32,11 @@ import org.osgi.service.component.annotations.ReferencePolicy;
  * @author Dennis Nobel - Initial contribution
  *
  */
+@NonNullByDefault
 @Component(immediate = true, service = ChannelTypeRegistry.class)
 public class ChannelTypeRegistry {
 
-    private List<ChannelTypeProvider> channelTypeProviders = new CopyOnWriteArrayList<>();
+    private final List<ChannelTypeProvider> channelTypeProviders = new CopyOnWriteArrayList<>();
 
     /**
      * Returns all channel types with the default {@link Locale}.
@@ -50,7 +53,7 @@ public class ChannelTypeRegistry {
      * @param locale (can be null)
      * @return all channel types or empty list if no channel type exists
      */
-    public List<ChannelType> getChannelTypes(Locale locale) {
+    public List<ChannelType> getChannelTypes(@Nullable Locale locale) {
         List<ChannelType> channelTypes = new ArrayList<>();
         for (ChannelTypeProvider channelTypeProvider : channelTypeProviders) {
             channelTypes.addAll(channelTypeProvider.getChannelTypes(locale));
@@ -63,7 +66,8 @@ public class ChannelTypeRegistry {
      *
      * @return channel type or null if no channel type for the given UID exists
      */
-    public ChannelType getChannelType(ChannelTypeUID channelTypeUID) {
+    @Nullable
+    public ChannelType getChannelType(@Nullable ChannelTypeUID channelTypeUID) {
         return getChannelType(channelTypeUID, null);
     }
 
@@ -73,7 +77,11 @@ public class ChannelTypeRegistry {
      * @param locale (can be null)
      * @return channel type or null if no channel type for the given UID exists
      */
-    public ChannelType getChannelType(ChannelTypeUID channelTypeUID, Locale locale) {
+    @Nullable
+    public ChannelType getChannelType(@Nullable ChannelTypeUID channelTypeUID, @Nullable Locale locale) {
+        if (channelTypeUID == null) {
+            return null;
+        }
         for (ChannelTypeProvider channelTypeProvider : channelTypeProviders) {
             ChannelType channelType = channelTypeProvider.getChannelType(channelTypeUID, locale);
             if (channelType != null) {
@@ -98,7 +106,7 @@ public class ChannelTypeRegistry {
      * @param locale (can be null)
      * @return all channel group types or empty list if no channel group type exists
      */
-    public List<ChannelGroupType> getChannelGroupTypes(Locale locale) {
+    public List<ChannelGroupType> getChannelGroupTypes(@Nullable Locale locale) {
         List<ChannelGroupType> channelGroupTypes = new ArrayList<>();
         for (ChannelTypeProvider channelTypeProvider : channelTypeProviders) {
             channelGroupTypes.addAll(channelTypeProvider.getChannelGroupTypes(locale));
@@ -111,7 +119,8 @@ public class ChannelTypeRegistry {
      *
      * @return channel group type or null if no channel group type for the given UID exists
      */
-    public ChannelGroupType getChannelGroupType(ChannelGroupTypeUID channelGroupTypeUID) {
+    @Nullable
+    public ChannelGroupType getChannelGroupType(@Nullable ChannelGroupTypeUID channelGroupTypeUID) {
         return getChannelGroupType(channelGroupTypeUID, null);
     }
 
@@ -121,7 +130,12 @@ public class ChannelTypeRegistry {
      * @param locale (can be null)
      * @return channel group type or null if no channel group type for the given UID exists
      */
-    public ChannelGroupType getChannelGroupType(ChannelGroupTypeUID channelGroupTypeUID, Locale locale) {
+    @Nullable
+    public ChannelGroupType getChannelGroupType(@Nullable ChannelGroupTypeUID channelGroupTypeUID,
+            @Nullable Locale locale) {
+        if (channelGroupTypeUID == null) {
+            return null;
+        }
         for (ChannelTypeProvider channelTypeProvider : channelTypeProviders) {
             ChannelGroupType channelGroupType = channelTypeProvider.getChannelGroupType(channelGroupTypeUID, locale);
             if (channelGroupType != null) {
