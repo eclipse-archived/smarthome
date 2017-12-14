@@ -14,7 +14,6 @@ package org.eclipse.smarthome.core.events;
 
 import java.util.Set;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 
@@ -58,12 +57,16 @@ public abstract class AbstractEventFactory implements EventFactory {
     }
 
     private void assertValidArguments(String eventType, String topic, String payload) {
-        Preconditions.checkArgument(eventType != null && !eventType.isEmpty(),
-                "The argument 'eventType' must not be null or empty.");
-        Preconditions.checkArgument(topic != null && !topic.isEmpty(),
-                "The argument 'topic' must not be null or empty.");
-        Preconditions.checkArgument(payload != null && !payload.isEmpty(),
-                "The argument 'payload' must not be null or empty.");
+        String errorMsg = "The argument %s must not be null or empty.";
+        if (eventType == null || eventType.isEmpty()) {
+            throw new IllegalArgumentException(String.format(errorMsg, "eventType"));
+        }
+        if (topic == null || topic.isEmpty()) {
+            throw new IllegalArgumentException(String.format(errorMsg, "topic"));
+        }
+        if (payload == null || payload.isEmpty()) {
+            throw new IllegalArgumentException(String.format(errorMsg, "payload"));
+        }
     }
 
     /**
