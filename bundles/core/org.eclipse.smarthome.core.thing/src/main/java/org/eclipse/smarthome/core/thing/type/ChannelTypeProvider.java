@@ -38,13 +38,13 @@ public interface ChannelTypeProvider {
      * @see ChannelTypeRegistry#getChannelType(ChannelTypeUID, Locale)
      */
     @Nullable
-    ChannelType getChannelType(@Nullable ChannelTypeUID channelTypeUID, @Nullable Locale locale);
+    ChannelType getChannelType(ChannelTypeUID channelTypeUID, @Nullable Locale locale);
 
     /**
      * @see ChannelTypeRegistry#getChannelGroupType(ChannelGroupTypeUID, Locale)
      */
     @Nullable
-    ChannelGroupType getChannelGroupType(@Nullable ChannelGroupTypeUID channelGroupTypeUID, @Nullable Locale locale);
+    ChannelGroupType getChannelGroupType(ChannelGroupTypeUID channelGroupTypeUID, @Nullable Locale locale);
 
     /**
      * @see ChannelTypeRegistry#getChannelGroupTypes(Locale)
