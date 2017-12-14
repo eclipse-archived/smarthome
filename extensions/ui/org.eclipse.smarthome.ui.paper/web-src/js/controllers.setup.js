@@ -60,21 +60,27 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
                 var thingType = thingTypeRepository.find(function(thingType) {
                     return thingTypeUID === thingType.UID;
                 });
-
-                var thing = thingRepository.find(function(thing) {
+                
+                var configRequired = false;
+                thingRepository.getOne(function(thing) {
                     return thing.UID === thingUID;
-                });
-
-                if (thing) {
-                    var configRequired = false;
+                }, function(thing) {
                     configDescriptionService.getByUri({
-                        uri : 'thing-type:' + thing.thingTypeUID
+                        uri : 'thing-type:' + thingType.UID
                     }, function(configDescription) {
                         if (configDescription.parameters) {
                             for (var i = 0; i < configDescription.parameters.length; i++) {
-                                if (configDescription.parameters[i]['defaultValue'] === '' && configDescription.parameters[i]['required']) {
-                                    configRequired = true;
-                                    break;
+                                var parameter = configDescription.parameters[i]; 
+                                if (parameter.required) {
+                                    if (thing.configuration.hasOwnProperty(parameter.name)) {
+                                        if (thing.configuration[parameter.name] === '') {
+                                            configRequired = true;
+                                            break;
+                                        }                                        
+                                    } else {                                        
+                                        configRequired = true;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -91,7 +97,7 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
                             }
                         }
                     });
-                }
+                });
             });
         });
     };
