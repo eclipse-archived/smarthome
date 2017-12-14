@@ -113,13 +113,13 @@ public abstract class AbstractEventFactory implements EventFactory {
 
     protected static void checkNotNull(Object object, String argumentName) {
         if (object == null) {
-            throw new IllegalArgumentException("The argument '" + argumentName + "' must not be null");
+            throw new IllegalArgumentException("The argument '" + argumentName + "' must not be null.");
         }
     }
 
     protected static void checkNotNullOrEmpty(String string, String argumentName) {
         if (string == null || string.isEmpty()) {
-            throw new IllegalArgumentException("The argument '" + argumentName + "' must not be null or empty");
+            throw new IllegalArgumentException("The argument '" + argumentName + "' must not be null or empty.");
         }
     }
 
