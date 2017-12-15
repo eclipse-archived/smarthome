@@ -18,6 +18,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.smarthome.core.library.items.NumberItem;
@@ -31,8 +32,6 @@ import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import com.google.common.collect.Lists;
 
 public class EnrichedItemDTOMapperWithTransformOSGiTest extends JavaOSGiTest {
 
@@ -48,10 +47,10 @@ public class EnrichedItemDTOMapperWithTransformOSGiTest extends JavaOSGiTest {
         initMocks(this);
 
         StateDescription stateDescription = new StateDescription(BigDecimal.ZERO, BigDecimal.valueOf(100),
-                BigDecimal.TEN, "%d °C", true, Lists.newArrayList(new StateOption("SOUND", "My great sound.")));
+                BigDecimal.TEN, "%d °C", true, Collections.singletonList(new StateOption("SOUND", "My great sound.")));
         when(stateDescriptionProvider.getStateDescription(ITEM_NAME, null)).thenReturn(stateDescription);
 
-        stateDescriptionProviders = Lists.newArrayList(stateDescriptionProvider);
+        stateDescriptionProviders = Collections.singletonList(stateDescriptionProvider);
     }
 
     @Test
