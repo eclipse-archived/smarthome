@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.model.persistence.scoping;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.emf.common.util.URI;
@@ -27,7 +28,6 @@ import org.eclipse.xtext.scoping.impl.AbstractGlobalScopeProvider;
 import org.eclipse.xtext.scoping.impl.SimpleScope;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Lists;
 
 public class PersistenceGlobalScopeProvider extends AbstractGlobalScopeProvider {
 
@@ -44,7 +44,7 @@ public class PersistenceGlobalScopeProvider extends AbstractGlobalScopeProvider 
     protected IScope getScope(Resource resource, boolean ignoreCase, EClass type,
             Predicate<IEObjectDescription> predicate) {
         IScope parentScope = super.getScope(resource, ignoreCase, type, predicate);
-        List<IEObjectDescription> descs = Lists.newArrayList();
+        List<IEObjectDescription> descs = new ArrayList<>();
         for (EObject eObj : res.getContents()) {
             if (eObj instanceof Strategy) {
                 Strategy strategy = (Strategy) eObj;
