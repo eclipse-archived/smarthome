@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.core.thing.binding.builder;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -27,8 +29,6 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.internal.ThingImpl;
 import org.eclipse.smarthome.core.thing.util.ThingHelper;
 
-import com.google.common.collect.Lists;
-
 /**
  * This class allows the easy construction of a {@link Thing} instance using the builder pattern.
  *
@@ -38,7 +38,7 @@ import com.google.common.collect.Lists;
  */
 public class ThingBuilder {
 
-    private @NonNull ThingImpl thing;
+    private @NonNull final ThingImpl thing;
 
     protected ThingBuilder(@NonNull ThingImpl thing) {
         this.thing = thing;
@@ -74,13 +74,13 @@ public class ThingBuilder {
 
     public @NonNull ThingBuilder withChannels(Channel... channels) {
         ThingHelper.ensureUniqueChannels(channels);
-        this.thing.setChannels(Lists.newArrayList(channels));
+        this.thing.setChannels(new ArrayList<>(Arrays.asList(channels)));
         return this;
     }
 
     public @NonNull ThingBuilder withChannels(List<Channel> channels) {
         ThingHelper.ensureUniqueChannels(channels);
-        this.thing.setChannels(Lists.newArrayList(channels));
+        this.thing.setChannels(new ArrayList<>(channels));
         return this;
     }
 
