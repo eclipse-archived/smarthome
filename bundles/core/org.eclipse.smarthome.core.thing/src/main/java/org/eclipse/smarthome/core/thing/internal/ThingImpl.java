@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.core.thing.internal;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +29,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 /**
  * The {@link ThingImpl} class is a concrete implementation of the {@link Thing}.
@@ -129,7 +127,7 @@ public class ThingImpl implements Thing {
 
     @Override
     public List<Channel> getChannels() {
-        return ImmutableList.copyOf(this.channels);
+        return Collections.unmodifiableList(new ArrayList<>(this.channels));
     }
 
     @Override
@@ -210,7 +208,7 @@ public class ThingImpl implements Thing {
     @Override
     public Map<String, String> getProperties() {
         synchronized (this) {
-            return ImmutableMap.copyOf(properties);
+            return Collections.unmodifiableMap(new HashMap<>(properties));
         }
     }
 
