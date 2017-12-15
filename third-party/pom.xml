@@ -4,7 +4,7 @@
 
   <groupId>org.eclipse.smarthome.thirdpartyrepo</groupId>
   <artifactId>p2-site</artifactId>
-  <version>0.8.0-SNAPSHOT</version>
+  <version>0.10.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Eclipse SmartHome :: 3rd party reposiory :: p2 site</name>
@@ -62,40 +62,9 @@
                   <source>true</source>
                 </artifact>
 
-                <!-- old versions, to be removed before next release, see https://github.com/eclipse/smarthome/pull/3422#issuecomment-304853696 *** -->
-                <artifact>
-                  <id>com.jayway.jsonpath:json-path:2.0.0</id>
-                  <transitive>false</transitive>
-                  <source>true</source>
-                </artifact>
-                <artifact>
-                  <!-- used by: org.eclipse.smarthome.transform.jsonpath -->
-                  <id>net.minidev:asm:1.0.2</id>
-                  <transitive>false</transitive>
-                  <source>true</source>
-                </artifact>
-                <artifact>
-                  <!-- used by: org.eclipse.smarthome.transform.jsonpath -->
-                  <id>net.minidev:json-smart:2.1.1</id>
-                  <transitive>false</transitive>
-                  <source>true</source>
-                </artifact>
-
                 <artifact>
                   <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=11322 -->
                   <id>org.mapdb:mapdb:1.0.9</id>
-                  <transitive>false</transitive>
-                  <source>true</source>
-                </artifact>
-                <artifact>
-                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=10855 *** not approved, to be removed before next release *** -->
-                  <id>javax.measure:unit-api:0.8</id>
-                  <transitive>false</transitive>
-                  <source>true</source>
-                </artifact>
-                <artifact>
-                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=10854 *** not approved, to be removed before next release *** -->
-                  <id>tec.units:unit-ri:0.8</id>
                   <transitive>false</transitive>
                   <source>true</source>
                 </artifact>
