@@ -13,9 +13,10 @@ describe('module PaperUI.controllers.configurableServiceDialog', function() {
             $rootScope.data = {};
 
             ConfigurableServiceDialogController = $controller('ConfigurableServiceDialogController', {
-                '$scope' : scope,
-                'serviceId' : 'B',
-                'configDescriptionURI' : 'CDURI'
+                $scope : scope,
+                serviceId : 'B',
+                configDescriptionURI : 'CDURI',
+                readOnlyParameters : []
             });
 
             restConfig = $injector.get('restConfig');

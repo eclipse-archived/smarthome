@@ -6,6 +6,12 @@
 {{serviceConfigDescriptionURI}}
 </div>
 
-<md-button aria-label="AddService" ng-click="configure(servicePID, serviceConfigDescriptionURI, $event)">AddService</md-button>
+<md-button aria-label="Add Service Context" ng-click="newConfig(servicePID, $event)">Add Service Context</md-button>
+
+<div ng-repeat="context in serviceContexts">
+    {{context.label}} {{context.id}}
+    <md-button aria-label="Edit" ng-click="editConfig(context.id, $event)">Edit</md-button>
+    <md-button aria-label="Delete" ng-click="delete(context.id, $event)">Delete</md-button>
+</div>
 
 <!-- MultiServicesController-->

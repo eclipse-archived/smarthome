@@ -122,7 +122,7 @@ public class ConfigurableServiceResource implements RESTResource {
     }
 
     @GET
-    @Path("/multiconfig/{serviceId}")
+    @Path("/{serviceId}/contexts")
     @Produces({ MediaType.APPLICATION_JSON })
     @ApiOperation(value = "Get existing multiple context service configurations for the given service ID.")
     @ApiResponses(value = {
@@ -266,6 +266,10 @@ public class ConfigurableServiceResource implements RESTResource {
                             mis.getConfigDescriptionUri(), true));
                 }
             }
+
+            String filter = "(" + ConfigConstants.SERVICE_CONTEXT + "=*)";
+            services.addAll(getServicesByFilter(filter));
+
         } catch (InvalidSyntaxException ex) {
             logger.error("Cannot get service references, because syntax is invalid: {}", ex.getMessage(), ex);
         }

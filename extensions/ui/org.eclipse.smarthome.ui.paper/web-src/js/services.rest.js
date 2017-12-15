@@ -316,6 +316,14 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
             method : 'GET',
             isArray : true
         },
+        getContexts : {
+            method : 'GET',
+            params : {
+                id : '@id'
+            },
+            isArray : true,
+            url : restConfig.restPath + '/services/:id/contexts'
+        },
         getById : {
             method : 'GET',
             params : {

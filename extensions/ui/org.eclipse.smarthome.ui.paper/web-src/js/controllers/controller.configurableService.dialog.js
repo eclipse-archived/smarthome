@@ -1,6 +1,6 @@
 var configurableServiceDialogController = angular.module('PaperUI.controllers.configurableServiceDialog', [ 'PaperUI.services', 'PaperUI.services.rest', 'ngMaterial', 'PaperUI.directive.parameterDescription', 'PaperUI.directive.locationParameter' ]);
 
-configurableServiceDialogController.controller('ConfigurableServiceDialogController', function($scope, $mdDialog, configService, serviceConfigService, configDescriptionService, toastService, serviceId, configDescriptionURI) {
+configurableServiceDialogController.controller('ConfigurableServiceDialogController', function($scope, $mdDialog, configService, serviceConfigService, configDescriptionService, toastService, serviceId, configDescriptionURI, readOnlyParameters) {
 
     var loadService = function(serviceId) {
         serviceConfigService.getById({
@@ -40,6 +40,14 @@ configurableServiceDialogController.controller('ConfigurableServiceDialogControl
             if (configDescription) {
                 $scope.parameters = configService.getRenderingModel(configDescription.parameters, configDescription.parameterGroups);
                 $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
+
+                angular.forEach($scope.parameters, function(parameterGroup) {
+                    angular.forEach(parameterGroup.parameters, function(param) {
+                        if (readOnlyParameters.indexOf(param.name) >= 0) {
+                            param.readOnly = true;
+                        }
+                    })
+                });
             }
         });
     }

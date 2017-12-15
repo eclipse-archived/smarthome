@@ -34,7 +34,8 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
             hasBackdrop : true,
             locals : {
                 serviceId : serviceId,
-                configDescriptionURI : configDescriptionURI
+                configDescriptionURI : configDescriptionURI,
+                readOnlyParameters : []
             }
         });
     }
@@ -44,12 +45,21 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
     $scope.setSubtitle([ 'Services' ]);
     $scope.setHeaderText('Shows all multiple configurable services.');
     $scope.servicePID = $routeParams.servicePID;
+    $scope.serviceContexts = [];
 
     $scope.navigateTo = function(path) {
         $location.path('/configuration/services/' + path);
     }
 
-    $scope.configure = function(serviceId, configDescriptionURI, event) {
+    $scope.newConfig = function(serviceId, event) {
+        configure(serviceId, true, event);
+    }
+
+    $scope.editConfig = function(serviceId, configDescriptionURI, event) {
+        configure(serviceId, false, event);
+    }
+
+    var configure = function(serviceId, newConfig, event) {
         $mdDialog.show({
             controller : 'ConfigurableServiceDialogController',
             templateUrl : 'partials/dialog.configureservice.html',
@@ -57,10 +67,13 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
             hasBackdrop : true,
             locals : {
                 serviceId : serviceId,
-                configDescriptionURI : configDescriptionURI,
+                configDescriptionURI : $scope.serviceConfigDescriptionURI,
+                readOnlyParameters : newConfig ? [] : [ "esh.servicecontext" ]
             }
+        }).then(function() {
+            $scope.refresh();
         });
-    }
+    };
 
     serviceConfigService.getById({
         id : $scope.servicePID
@@ -70,4 +83,13 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
         $scope.serviceConfigDescriptionURI = service.configDescriptionURI;
     });
 
+    $scope.refresh = function() {
+        serviceConfigService.getContexts({
+            id : $scope.servicePID
+        }, function(serviceContexts) {
+            $scope.serviceContexts = serviceContexts;
+        });
+    }
+
+    $scope.refresh();
 });
