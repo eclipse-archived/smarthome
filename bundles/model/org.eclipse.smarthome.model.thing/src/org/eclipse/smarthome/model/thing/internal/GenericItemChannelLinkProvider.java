@@ -15,10 +15,10 @@ package org.eclipse.smarthome.model.thing.internal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractProvider;
@@ -28,8 +28,6 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLinkProvider;
 import org.eclipse.smarthome.model.item.BindingConfigParseException;
 import org.eclipse.smarthome.model.item.BindingConfigReader;
 import org.osgi.service.component.annotations.Component;
-
-import com.google.common.collect.Iterables;
 
 /**
  * {@link GenericItemChannelLinkProvider} link items to channel by reading bindings with type "channel".
@@ -138,9 +136,7 @@ public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannel
 
     @Override
     public Collection<ItemChannelLink> getAll() {
-        Collection<ItemChannelLink> ret = new LinkedList<>();
-        Iterables.addAll(ret, Iterables.concat(itemChannelLinkMap.values()));
-        return ret;
+        return itemChannelLinkMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
     }
 
 }
