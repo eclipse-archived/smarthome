@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.model.script.actions;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,8 +29,6 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.model.script.ScriptServiceUtil;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Maps;
 
 /**
  * The static methods of this class are made available as functions in the scripts.
@@ -199,7 +198,7 @@ public class BusEvent {
      * @return the map of items with their states
      */
     static public Map<Item, State> storeStates(Item... items) {
-        Map<Item, State> statesMap = Maps.newHashMap();
+        Map<Item, State> statesMap = new HashMap<>();
         if (items != null) {
             for (Item item : items) {
                 if (item instanceof GroupItem) {
