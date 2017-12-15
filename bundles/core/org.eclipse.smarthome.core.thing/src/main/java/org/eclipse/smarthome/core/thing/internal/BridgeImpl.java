@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -23,8 +25,6 @@ import org.eclipse.smarthome.core.thing.binding.BridgeHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableList;
 
 /**
  *
@@ -74,7 +74,7 @@ public class BridgeImpl extends ThingImpl implements Bridge {
 
     @Override
     public List<Thing> getThings() {
-        return ImmutableList.copyOf(things);
+        return Collections.unmodifiableList(new ArrayList<>(things));
     }
 
     @Override
