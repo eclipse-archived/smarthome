@@ -30,6 +30,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingProvider;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.BridgeHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
@@ -49,7 +50,7 @@ public class Lib485BridgeHandlerTest extends JavaOSGiTest {
     private static final int TEST_CHANNEL = 100;
 
     private ManagedThingProvider managedThingProvider;
-    private VolatileStorageService volatileStorageService = new VolatileStorageService();
+    private final VolatileStorageService volatileStorageService = new VolatileStorageService();
 
     Map<String, Object> bridgeProperties;
     Map<String, Object> thingProperties;
@@ -94,22 +95,26 @@ public class Lib485BridgeHandlerTest extends JavaOSGiTest {
     public void initializationOfDimmerThing() {
         assertThat(thing.getHandler(), is(nullValue()));
         managedThingProvider.add(bridge);
-        waitForAssert(() -> assertThat(bridge.getHandler(), notNullValue()));
+        waitForAssert(() -> assertThat("bridge handler missing", bridge.getHandler(), notNullValue()));
         managedThingProvider.add(thing);
 
-        waitForAssert(() -> assertThat(thing.getHandler(), notNullValue()));
+        waitForAssert(() -> assertThat("child could not be initialized", thing.getHandler(), notNullValue()));
     }
 
     public void retrievingOfChannels() {
         managedThingProvider.add(bridge);
-        waitForAssert(() -> assertThat(bridge.getHandler(), notNullValue()));
+        DmxBridgeHandler bridgeHandler = (DmxBridgeHandler) waitForAssert(() -> {
+            final ThingHandler thingHandler = bridge.getHandler();
+            assertThat("Bridge handle is null", thingHandler, notNullValue());
+            return thingHandler;
+        });
         managedThingProvider.add(thing);
-        DmxBridgeHandler bridgeHandler = (DmxBridgeHandler) bridge.getHandler();
 
         BaseDmxChannel channel = new BaseDmxChannel(0, TEST_CHANNEL);
         BaseDmxChannel returnedChannel = bridgeHandler.getDmxChannel(channel, thing);
 
         Integer channelId = returnedChannel.getChannelId();
-        assertThat(channelId, is(TEST_CHANNEL));
+        assertThat("channel could not properly created", channelId, is(TEST_CHANNEL));
     }
+
 }

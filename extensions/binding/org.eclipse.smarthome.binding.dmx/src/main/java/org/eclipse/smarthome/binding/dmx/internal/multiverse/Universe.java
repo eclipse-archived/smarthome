@@ -30,20 +30,22 @@ import org.slf4j.LoggerFactory;
 public class Universe {
     public static final int MIN_UNIVERSE_SIZE = 32;
     public static final int MAX_UNIVERSE_SIZE = 512;
+    public static final int DEFAULT_REFRESH_TIME = 1000;
 
     private final Logger logger = LoggerFactory.getLogger(Universe.class);
-    private ReentrantLock universeLock = new ReentrantLock();
+    private final ReentrantLock universeLock = new ReentrantLock();
 
     private int universeId;
     private int bufferSize = MIN_UNIVERSE_SIZE;
 
-    private short[] buffer = new short[MAX_UNIVERSE_SIZE];
-    private short[] cie1931Curve = new short[DmxChannel.MAX_VALUE << 8 + 1];
+    private final short[] buffer = new short[MAX_UNIVERSE_SIZE];
+    private final short[] cie1931Curve = new short[DmxChannel.MAX_VALUE << 8 + 1];
 
     private long bufferChanged;
+    private int refreshTime = DEFAULT_REFRESH_TIME;
 
-    private List<DmxChannel> channels = new ArrayList<DmxChannel>();
-    private List<Integer> applyCurve = new ArrayList<Integer>();
+    private final List<DmxChannel> channels = new ArrayList<DmxChannel>();
+    private final List<Integer> applyCurve = new ArrayList<Integer>();
 
     /**
      * universe constructor
@@ -77,7 +79,7 @@ public class Universe {
                 return channel;
             }
         }
-        DmxChannel channel = new DmxChannel(baseChannel);
+        DmxChannel channel = new DmxChannel(baseChannel, refreshTime);
         addChannel(channel);
         channel.registerThing(thing);
         logger.debug("creating and returning channel {}", channel);
@@ -244,5 +246,14 @@ public class Universe {
                 cie1931Curve[i] = (short) Math.round(DmxChannel.MAX_VALUE * Math.pow((lLn + 0.16) / 1.16, 3));
             }
         }
+    }
+
+    /**
+     * set channel refresh time
+     *
+     * @param refreshTime time in ms between state updates for a DMX channel
+     */
+    public void setRefreshTime(int refreshTime) {
+        this.refreshTime = refreshTime;
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -46,20 +46,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link DimmerThingHandler} is responsible for handling commands, which are
+ * The {@link TunableWhiteThingHandler} is responsible for handling commands, which are
  * sent to the dimmer.
  *
  * @author Jan N. Klug - Initial contribution
  */
 
-public class DimmerThingHandler extends DmxThingHandler {
-    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_DIMMER);
+public class TunableWhiteThingHandler extends DmxThingHandler {
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_TUNABLEWHITE);
 
-    private final Logger logger = LoggerFactory.getLogger(DimmerThingHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(TunableWhiteThingHandler.class);
 
     private final List<DmxChannel> channels = new ArrayList<DmxChannel>();
 
+    private final List<Integer> currentValues = new ArrayList<Integer>();
     private PercentType currentBrightness = PercentType.ZERO;
+    private PercentType currentColorTemperature = new PercentType(50);
 
     private ValueSet turnOnValue = new ValueSet(0, -1, DmxChannel.MAX_VALUE);
     private ValueSet turnOffValue = new ValueSet(0, -1, DmxChannel.MIN_VALUE);
@@ -68,7 +70,7 @@ public class DimmerThingHandler extends DmxThingHandler {
 
     private boolean isDimming = false;
 
-    public DimmerThingHandler(Thing dimmerThing) {
+    public TunableWhiteThingHandler(Thing dimmerThing) {
         super(dimmerThing);
     }
 
@@ -82,7 +84,10 @@ public class DimmerThingHandler extends DmxThingHandler {
                     PercentType brightness = (command instanceof PercentType) ? (PercentType) command
                             : Util.toPercentValue(((DecimalType) command).intValue());
                     logger.trace("adding fade to channels in thing {}", this.thing.getUID());
-                    targetValueSet.addValue(brightness);
+                    targetValueSet.addValue(Util.toDmxValue(
+                            Util.toDmxValue(brightness) * (100 - currentColorTemperature.intValue()) / 100));
+                    targetValueSet.addValue(
+                            Util.toDmxValue(Util.toDmxValue(brightness) * currentColorTemperature.intValue() / 100));
                 } else if (command instanceof OnOffType) {
                     logger.trace("adding {} fade to channels in thing {}", command, this.thing.getUID());
                     targetValueSet = ((OnOffType) command).equals(OnOffType.ON) ? turnOnValue : turnOffValue;
@@ -106,6 +111,44 @@ public class DimmerThingHandler extends DmxThingHandler {
                     return;
                 } else {
                     logger.debug("command {} not supported in channel {}:brightness", command.getClass(),
+                            this.thing.getUID());
+                    return;
+                }
+                break;
+            }
+            case CHANNEL_BRIGHTNESS_CW:
+                if (command instanceof RefreshType) {
+                    logger.trace("sending update on refresh to channel {}:brightness_cw", this.thing.getUID());
+                    updateState(channelUID, Util.toPercentValue(currentValues.get(0)));
+                    return;
+                } else {
+                    logger.debug("command {} not supported in channel {}:brightness_cw", command.getClass(),
+                            this.thing.getUID());
+                    return;
+                }
+            case CHANNEL_BRIGHTNESS_WW:
+                if (command instanceof RefreshType) {
+                    logger.trace("sending update on refresh to channel {}:brightness_ww", this.thing.getUID());
+                    updateState(channelUID, Util.toPercentValue(currentValues.get(1)));
+                    return;
+                } else {
+                    logger.debug("command {} not supported in channel {}:brightness_ww", command.getClass(),
+                            this.thing.getUID());
+                    return;
+                }
+            case CHANNEL_COLOR_TEMPERATURE: {
+                if (command instanceof PercentType) {
+                    PercentType colorTemperature = (PercentType) command;
+                    targetValueSet.addValue(Util.toDmxValue(
+                            Util.toDmxValue(currentBrightness) * (100 - colorTemperature.intValue()) / 100));
+                    targetValueSet.addValue(
+                            Util.toDmxValue(Util.toDmxValue(currentBrightness) * colorTemperature.intValue() / 100));
+                } else if (command instanceof RefreshType) {
+                    logger.trace("sending update on refresh to channel {}:colortemperature", this.thing.getUID());
+                    updateState(channelUID, currentColorTemperature);
+                    return;
+                } else {
+                    logger.debug("command {} not supported in channel {}:colortemperature", command.getClass(),
                             this.thing.getUID());
                     return;
                 }
@@ -159,7 +202,18 @@ public class DimmerThingHandler extends DmxThingHandler {
             return;
         }
 
-        channels.get(0).addListener(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS), this, ListenerType.VALUE);
+        if (channels.size() % 2 != 0) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                    "Tunable white dimmers require an even number of channels");
+            dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
+            return;
+        }
+        channels.get(0).addListener(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS_CW), this,
+                ListenerType.VALUE);
+        channels.get(1).addListener(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS_WW), this,
+                ListenerType.VALUE);
+        currentValues.add(DmxChannel.MIN_VALUE);
+        currentValues.add(DmxChannel.MIN_VALUE);
 
         if (configuration.get(CONFIG_DIMMER_FADE_TIME) != null) {
             fadeTime = ((BigDecimal) configuration.get(CONFIG_DIMMER_FADE_TIME)).intValue();
@@ -175,7 +229,7 @@ public class DimmerThingHandler extends DmxThingHandler {
             String turnOnValueString = String.valueOf(fadeTime) + ":"
                     + ((String) configuration.get(CONFIG_DIMMER_TURNONVALUE)) + ":-1";
             ValueSet turnOnValue = ValueSet.fromString(turnOnValueString);
-            if (!turnOnValue.isEmpty()) {
+            if (turnOnValue.size() % 2 == 0) {
                 this.turnOnValue = turnOnValue;
                 logger.trace("set turnonvalue to {} in {}", turnOnValue, this.thing.getUID());
             } else {
@@ -190,7 +244,7 @@ public class DimmerThingHandler extends DmxThingHandler {
             String turnOffValueString = String.valueOf(fadeTime) + ":"
                     + ((String) configuration.get(CONFIG_DIMMER_TURNOFFVALUE)) + ":-1";
             ValueSet turnOffValue = ValueSet.fromString(turnOffValueString);
-            if (!turnOffValue.isEmpty()) {
+            if (turnOffValue.size() % 2 == 0) {
                 this.turnOffValue = turnOffValue;
                 logger.trace("set turnoffvalue to {} in {}", turnOffValue, this.thing.getUID());
             } else {
@@ -212,30 +266,43 @@ public class DimmerThingHandler extends DmxThingHandler {
     @Override
     public void dispose() {
         if (channels.size() != 0) {
-            channels.get(0).removeListener(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS));
-
-            Bridge bridge = getBridge();
-            if (bridge != null) {
-                DmxBridgeHandler bridgeHandler = (DmxBridgeHandler) bridge.getHandler();
-                if (bridgeHandler != null) {
-                    bridgeHandler.unregisterDmxChannels(this.thing);
-                    logger.debug("removing {} channels from {}", channels.size(), this.thing.getUID());
-                }
-            }
-            channels.clear();
+            channels.get(0).removeListener(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS_CW));
+            channels.get(1).removeListener(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS_WW));
         }
+        Bridge bridge = getBridge();
+        if (bridge != null) {
+            DmxBridgeHandler bridgeHandler = (DmxBridgeHandler) bridge.getHandler();
+            if (bridgeHandler != null) {
+                bridgeHandler.unregisterDmxChannels(this.thing);
+                logger.debug("removing {} channels from {}", channels.size(), this.thing.getUID());
+            }
+        }
+        channels.clear();
+        currentValues.clear();
     }
 
     @Override
     public void updateChannelValue(ChannelUID channelUID, int value) {
         updateState(channelUID, Util.toPercentValue(value));
-        if (channelUID.getId().equals(CHANNEL_BRIGHTNESS)) {
-            currentBrightness = Util.toPercentValue(value);
-        } else {
-            logger.debug("don't know how to handle {}", channelUID.getId());
-            return;
+        switch (channelUID.getId()) {
+            case CHANNEL_BRIGHTNESS_CW:
+                currentValues.set(0, value);
+                break;
+            case CHANNEL_BRIGHTNESS_WW:
+                currentValues.set(1, value);
+                break;
+            default:
+                logger.debug("don't know how to handle {} in tunable white type", channelUID.getId());
+                return;
         }
-        logger.trace("received update {} in channel {}, resulting in brightness={}", value, channelUID,
-                currentBrightness);
+        currentBrightness = Util.toPercentValue(Util.toDmxValue(currentValues.get(0) + currentValues.get(1)));
+        updateState(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS), currentBrightness);
+        if (currentBrightness != PercentType.ZERO) {
+            currentColorTemperature = new PercentType(
+                    100 * currentValues.get(1) / (currentValues.get(0) + currentValues.get(1)));
+            updateState(new ChannelUID(this.thing.getUID(), CHANNEL_COLOR_TEMPERATURE), currentColorTemperature);
+        }
+        logger.trace("received update {} for channel {}, resulting in b={}, ct={}", value, channelUID,
+                currentBrightness, currentColorTemperature);
     }
 }

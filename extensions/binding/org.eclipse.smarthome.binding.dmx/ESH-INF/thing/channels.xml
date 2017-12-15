@@ -17,6 +17,17 @@
         </tags>
     </channel-type>
 
+    <!-- Color Temperature -->
+    <channel-type id="color_temperature">
+        <item-type>Dimmer</item-type>
+        <label>Color temperature</label>
+        <description>Controls the relative intensity of two adjacent DMX channels</description>
+        <category>ColorLight</category>
+        <tags>
+            <tag>Lighting</tag>
+        </tags>
+    </channel-type>
+    
     <!--  Color Channel -->
     <channel-type id="color">
         <item-type>Color</item-type>
@@ -47,6 +58,7 @@
         <category>Light</category>
     </channel-type>
     
+    <!-- Mute Channel for bridges -->
     <channel-type id="mute">
         <item-type>Switch</item-type>
         <label>Mute</label>

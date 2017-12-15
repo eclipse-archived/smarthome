@@ -29,7 +29,7 @@ public class ChannelTest {
 
     @Test
     public void setAndGetValues() {
-        DmxChannel channel = new DmxChannel(0, 1);
+        DmxChannel channel = new DmxChannel(0, 1, 0);
 
         // value is set
         channel.setValue(100);
@@ -45,7 +45,7 @@ public class ChannelTest {
 
     @Test
     public void setAndClearAction() {
-        DmxChannel channel = new DmxChannel(0, 1);
+        DmxChannel channel = new DmxChannel(0, 1, 0);
         BaseAction action = new FadeAction(0, 100, -1);
 
         // has action
@@ -59,7 +59,7 @@ public class ChannelTest {
 
     @Test
     public void suspendAndResumeAction() {
-        DmxChannel channel = new DmxChannel(0, 1);
+        DmxChannel channel = new DmxChannel(0, 1, 0);
         BaseAction action = new FadeAction(0, 100, -1);
 
         // has action
