@@ -2,6 +2,9 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
     $scope.navigateTo = function(path) {
         $location.path('inbox/' + path);
     }
+    $scope.navigateToConfig = function(path) {
+        $location.path('configuration/' + path);
+    }
     $scope.thingTypes = [];
     function getThingTypes() {
         thingTypeRepository.getAll(function(thingTypes) {
@@ -37,7 +40,7 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
         discoveryResultRepository.getAll(true);
     };
 
-}).controller('InboxEntryController', function($scope, $mdDialog, $q, inboxService, discoveryResultRepository, thingTypeRepository, thingService, toastService, thingRepository) {
+}).controller('InboxEntryController', function($scope, $mdDialog, $q, inboxService, discoveryResultRepository, thingTypeRepository, thingService, toastService, thingRepository, configDescriptionService) {
     $scope.approve = function(thingUID, thingTypeUID, event) {
         $mdDialog.show({
             controller : 'ApproveInboxEntryDialogController',
@@ -54,16 +57,47 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
                 'enableChannels' : !$scope.advancedMode
             }, result.label).$promise.then(function() {
                 thingRepository.setDirty(true);
-                toastService.showDefaultToast('Thing added.', 'Show Thing', 'configuration/things/view/' + thingUID);
                 var thingType = thingTypeRepository.find(function(thingType) {
                     return thingTypeUID === thingType.UID;
                 });
-
-                if (thingType && thingType.bridge) {
-                    $scope.navigateTo('setup/search/' + thingUID.split(':')[0]);
-                } else {
-                    discoveryResultRepository.getAll(true);
-                }
+                
+                var configRequired = false;
+                thingRepository.getOne(function(thing) {
+                    return thing.UID === thingUID;
+                }, function(thing) {
+                    configDescriptionService.getByUri({
+                        uri : 'thing-type:' + thingType.UID
+                    }, function(configDescription) {
+                        if (configDescription.parameters) {
+                            for (var i = 0; i < configDescription.parameters.length; i++) {
+                                var parameter = configDescription.parameters[i]; 
+                                if (parameter.required) {
+                                    if (thing.configuration.hasOwnProperty(parameter.name)) {
+                                        if (thing.configuration[parameter.name] === '') {
+                                            configRequired = true;
+                                            break;
+                                        }                                        
+                                    } else {                                        
+                                        configRequired = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }).$promise.finally(function() {
+                        if (configRequired) {
+                            $scope.navigateToConfig('things/edit/' + thingUID);
+                            toastService.showDefaultToast('Thing added and must be configured');
+                        } else {
+                            toastService.showDefaultToast('Thing added.', 'Show Thing', 'configuration/things/view/' + thingUID);
+                            if (thingType && thingType.bridge) {
+                                $scope.navigateTo('setup/search/' + thingUID.split(':')[0]);
+                            } else {
+                                discoveryResultRepository.getAll(true);
+                            }
+                        }
+                    });
+                });
             });
         });
     };
