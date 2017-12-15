@@ -23,9 +23,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.smarthome.config.core.ConfigConstants;
+import org.eclipse.smarthome.config.core.ConfigurableService;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.config.core.MultipleInstanceServiceInfo;
+import org.eclipse.smarthome.io.rest.core.internal.RESTCoreActivator;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -98,16 +102,21 @@ public class ConfigurationService {
 
         org.osgi.service.cm.Configuration configuration = null;
         if (newConfiguration.containsKey(ConfigConstants.SERVICE_CONTEXT)) {
-            String context = (String) newConfiguration.get(ConfigConstants.SERVICE_CONTEXT);
-            String pidWithContext = configId + ConfigConstants.SERVICE_CONTEXT_MARKER + context;
 
             try {
-                configuration = getConfigurationWithContext(pidWithContext);
+                configuration = getConfigurationWithContext(configId);
             } catch (InvalidSyntaxException e) {
-                logger.error("Failed to lookup config for PID '{}' with context '{}'", configId, context);
+                logger.error("Failed to lookup config for PID '{}'", configId);
             }
             if (configuration == null) {
                 configuration = configurationAdmin.createFactoryConfiguration(configId, null);
+                // obtain configdescription from the transportservice
+
+                String configDescriptionURI = getConfigDescriptionURI(configId);
+
+                Dictionary<String, Object> props = getProperties(configuration);
+                props.put(ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI, configDescriptionURI);
+                configuration.update(props);
             }
         } else {
             configuration = configurationAdmin.getConfiguration(configId, null);
@@ -138,24 +147,38 @@ public class ConfigurationService {
         return oldConfiguration;
     }
 
-    // TODO: move
-    private org.osgi.service.cm.Configuration getConfigurationWithContext(String pidWithContext)
+    private String getConfigDescriptionURI(String configId) {
+        ServiceReference<?>[] multiServiceReferences;
+        try {
+            multiServiceReferences = RESTCoreActivator.getBundleContext()
+                    .getServiceReferences(MultipleInstanceServiceInfo.class.getName(), null);
+            if (multiServiceReferences != null) {
+                for (ServiceReference<?> serviceReference : multiServiceReferences) {
+                    MultipleInstanceServiceInfo mis = (MultipleInstanceServiceInfo) RESTCoreActivator.getBundleContext()
+                            .getService(serviceReference);
+
+                    if (mis.getServicePID().equals(configId)) {
+                        return mis.getConfigDescriptionUri();
+                    }
+                }
+            }
+        } catch (InvalidSyntaxException e) {
+            logger.error("Could not retrieve service reference for service id '{}'", configId, e);
+        }
+        return null;
+    }
+
+    private org.osgi.service.cm.Configuration getConfigurationWithContext(String serviceId)
             throws IOException, InvalidSyntaxException {
 
-        if (!pidWithContext.contains(ConfigConstants.SERVICE_CONTEXT_MARKER)) {
-            throw new IllegalArgumentException("Given PID should be followed by a context");
-        }
-        String pid = pidWithContext.split(ConfigConstants.SERVICE_CONTEXT_MARKER)[0];
-        String context = pidWithContext.split(ConfigConstants.SERVICE_CONTEXT_MARKER)[1];
-
-        org.osgi.service.cm.Configuration[] configs = configurationAdmin.listConfigurations(
-                "(&(service.factoryPid=" + pid + ")(" + ConfigConstants.SERVICE_CONTEXT + "=" + context + "))");
+        org.osgi.service.cm.Configuration[] configs = configurationAdmin
+                .listConfigurations("(&(service.pid=" + serviceId + "))");
 
         if (configs == null) {
             return null;
         }
         if (configs.length > 1) {
-            throw new IllegalStateException("More than one configuration with PID " + pidWithContext + " exists");
+            throw new IllegalStateException("More than one configuration with PID " + serviceId + " exists");
         }
 
         return configs[0];

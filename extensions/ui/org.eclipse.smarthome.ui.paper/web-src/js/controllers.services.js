@@ -34,8 +34,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
             hasBackdrop : true,
             locals : {
                 serviceId : serviceId,
-                configDescriptionURI : configDescriptionURI,
-                readOnlyParameters : []
+                configDescriptionURI : configDescriptionURI
             }
         });
     }
@@ -51,15 +50,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
         $location.path('/configuration/services/' + path);
     }
 
-    $scope.newConfig = function(serviceId, event) {
-        configure(serviceId, true, event);
-    }
-
-    $scope.editConfig = function(serviceId, configDescriptionURI, event) {
-        configure(serviceId, false, event);
-    }
-
-    var configure = function(serviceId, newConfig, event) {
+    $scope.configure = function(serviceId, event) {
         $mdDialog.show({
             controller : 'ConfigurableServiceDialogController',
             templateUrl : 'partials/dialog.configureservice.html',
@@ -67,13 +58,26 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
             hasBackdrop : true,
             locals : {
                 serviceId : serviceId,
-                configDescriptionURI : $scope.serviceConfigDescriptionURI,
-                readOnlyParameters : newConfig ? [] : [ "esh.servicecontext" ]
+                configDescriptionURI : $scope.serviceConfigDescriptionURI
             }
         }).then(function() {
             $scope.refresh();
         });
     };
+
+    $scope.deleteConfig = function(serviceContext, event) {
+        $mdDialog.show({
+            controller : 'ServiceConfigRemoveController',
+            templateUrl : 'partials/dialog.remove.html',
+            targetEvent : event,
+            hasBackdrop : true,
+            locals : {
+                serviceContext : serviceContext
+            }
+        }).then(function() {
+            $scope.refresh();
+        });
+    }
 
     serviceConfigService.getById({
         id : $scope.servicePID
@@ -92,4 +96,19 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
     }
 
     $scope.refresh();
+}).controller('ServiceConfigRemoveController', function($scope, $mdDialog, $filter, $location, toastService, serviceConfigService, serviceContext) {
+    $scope.serviceContext = serviceContext;
+    $scope.remove = function() {
+        serviceConfigService.deleteConfig({
+            id : serviceContext.id
+        }, function() {
+            $scope.refresh();
+            toastService.showDefaultToast('Service config removed.');
+        });
+        $mdDialog.hide();
+    }
+
+    $scope.close = function() {
+        $mdDialog.cancel();
+    }
 });
