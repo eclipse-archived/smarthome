@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.smarthome.core.items.Item;
@@ -57,7 +58,6 @@ import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
@@ -132,22 +132,28 @@ public class RuleTriggerManager {
                 result = timerEventTriggeredRules;
                 break;
             case UPDATE:
-                result = Iterables.concat(updateEventTriggeredRules.values());
+                result = updateEventTriggeredRules.values().stream().flatMap(Collection::stream)
+                        .collect(Collectors.toList());
                 break;
             case CHANGE:
-                result = Iterables.concat(changedEventTriggeredRules.values());
+                result = changedEventTriggeredRules.values().stream().flatMap(Collection::stream)
+                        .collect(Collectors.toList());
                 break;
             case COMMAND:
-                result = Iterables.concat(commandEventTriggeredRules.values());
+                result = commandEventTriggeredRules.values().stream().flatMap(Collection::stream)
+                        .collect(Collectors.toList());
                 break;
             case TRIGGER:
-                result = Iterables.concat(triggerEventTriggeredRules.values());
+                result = triggerEventTriggeredRules.values().stream().flatMap(Collection::stream)
+                        .collect(Collectors.toList());
                 break;
             case THINGUPDATE:
-                result = Iterables.concat(thingUpdateEventTriggeredRules.values());
+                result = thingUpdateEventTriggeredRules.values().stream().flatMap(Collection::stream)
+                        .collect(Collectors.toList());
                 break;
             case THINGCHANGE:
-                result = Iterables.concat(thingChangedEventTriggeredRules.values());
+                result = thingChangedEventTriggeredRules.values().stream().flatMap(Collection::stream)
+                        .collect(Collectors.toList());
                 break;
             default:
                 result = new HashSet<>();
