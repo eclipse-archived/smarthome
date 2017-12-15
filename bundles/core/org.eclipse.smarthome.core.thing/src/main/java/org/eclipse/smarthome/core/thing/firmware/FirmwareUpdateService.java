@@ -16,6 +16,7 @@ import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -86,7 +87,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
 
     protected int timeout = 30 * 60 * 1000;
 
-    private final Set<String> subscribedEventTypes = ImmutableSet.of(ThingStatusInfoChangedEvent.TYPE);
+    private final Set<String> subscribedEventTypes = Collections.singleton(ThingStatusInfoChangedEvent.TYPE);
 
     private final Map<ThingUID, FirmwareStatusInfo> firmwareStatusInfoMap = new ConcurrentHashMap<>();
     private final Map<ThingUID, ProgressCallbackImpl> progressCallbackMap = new ConcurrentHashMap<>();
