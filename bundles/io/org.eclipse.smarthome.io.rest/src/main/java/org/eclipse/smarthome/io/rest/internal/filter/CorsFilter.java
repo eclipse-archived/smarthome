@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.io.rest.internal.filter;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,8 +32,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 /**
  * A PostMatching filter used to add CORS HTTP headers on responses for requests with CORS
@@ -69,7 +68,7 @@ public class CorsFilter implements ContainerResponseFilter {
     private static final String VARY_HEADER_WILDCARD = "*";
     private static final String HEADERS_SEPARATOR = ",";
 
-    private static final List<String> ACCEPTED_HTTP_METHODS_LIST = Lists.newArrayList(HTTP_GET_METHOD, HTTP_POST_METHOD,
+    private static final List<String> ACCEPTED_HTTP_METHODS_LIST = Arrays.asList(HTTP_GET_METHOD, HTTP_POST_METHOD,
             HTTP_PUT_METHOD, HTTP_DELETE_METHOD, HTTP_HEAD_METHOD, HTTP_OPTIONS_METHOD);
 
     private static final String ACCEPTED_HTTP_METHODS = ACCEPTED_HTTP_METHODS_LIST.stream()
