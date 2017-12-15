@@ -25,6 +25,7 @@ import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -57,6 +58,7 @@ import org.slf4j.LoggerFactory;
  * @author Thomas.Eichstaedt-Engelen OH1 ntp binding (getTime routine)
  * @author Markus Rathgeb - Add locale provider
  * @author Erdoan Hadzhiyusein - Adapted the class to work with the new DateTimeType
+ * @author Alexander Kostadinov - Little binding improvements
  */
 
 public class NtpHandler extends BaseThingHandler {
@@ -118,21 +120,21 @@ public class NtpHandler extends BaseThingHandler {
             logger.debug("Initializing NTP handler for '{}'.", getThing().getUID());
 
             Configuration config = getThing().getConfiguration();
-            hostname = (String) config.get(PROPERTY_NTP_SERVER_HOST);
+            hostname = Objects.toString(config.get(PROPERTY_NTP_SERVER_HOST));
             port = (BigDecimal) config.get(PROPERTY_NTP_SERVER_PORT);
             refreshInterval = (BigDecimal) config.get(PROPERTY_REFRESH_INTERVAL);
             refreshNtp = (BigDecimal) config.get(PROPERTY_REFRESH_NTP);
             refreshNtpCount = 0;
 
             try {
-                timeZone = TimeZone.getTimeZone((String) config.get(PROPERTY_TIMEZONE));
+                timeZone = TimeZone.getTimeZone(Objects.toString(config.get(PROPERTY_TIMEZONE)));
             } catch (Exception e) {
                 timeZone = TimeZone.getDefault();
                 logger.debug("{} using default TZ: {}", getThing().getUID(), timeZone);
             }
 
             try {
-                String localeString = (String) config.get(PROPERTY_LOCALE);
+                String localeString = Objects.toString(config.get(PROPERTY_LOCALE));
                 locale = new Locale(localeString);
             } catch (Exception e) {
                 locale = localeProvider.getLocale();
@@ -144,7 +146,7 @@ public class NtpHandler extends BaseThingHandler {
                 Channel stringChannel = getThing().getChannel(stringChannelUID.getId());
                 if (stringChannel != null) {
                     Configuration cfg = stringChannel.getConfiguration();
-                    String dateTimeFormatString = (String) cfg.get(PROPERTY_DATE_TIME_FORMAT);
+                    String dateTimeFormatString = Objects.toString(cfg.get(PROPERTY_DATE_TIME_FORMAT));
                     if (!(dateTimeFormatString == null || dateTimeFormatString.isEmpty())) {
                         dateTimeFormat = new SimpleDateFormat(dateTimeFormatString);
                     } else {

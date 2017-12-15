@@ -30,6 +30,7 @@ import org.osgi.service.component.annotations.Reference;
  *
  * @author Marcel Verpaalen - Initial contribution
  * @author Markus Rathgeb - Add locale provider support
+ * @author Alexander Kostadinov - Little binding improvements
  */
 @Component(service = ThingHandlerFactory.class, immediate = true)
 public class NtpHandlerFactory extends BaseThingHandlerFactory {
@@ -55,7 +56,7 @@ public class NtpHandlerFactory extends BaseThingHandlerFactory {
 
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (thingTypeUID.equals(THING_TYPE_NTP)) {
+        if (THING_TYPE_NTP.equals(thingTypeUID)) {
             return new NtpHandler(thing, localeProvider);
         }
 
