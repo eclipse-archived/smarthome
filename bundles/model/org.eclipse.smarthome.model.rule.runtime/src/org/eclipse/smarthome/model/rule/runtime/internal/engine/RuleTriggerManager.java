@@ -19,6 +19,7 @@ import static org.quartz.TriggerBuilder.newTrigger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -57,9 +58,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
@@ -88,16 +86,16 @@ public class RuleTriggerManager {
     }
 
     // lookup maps for different triggering conditions
-    private Map<String, Set<Rule>> updateEventTriggeredRules = Maps.newHashMap();
-    private Map<String, Set<Rule>> changedEventTriggeredRules = Maps.newHashMap();
-    private Map<String, Set<Rule>> commandEventTriggeredRules = Maps.newHashMap();
-    private Map<String, Set<Rule>> thingUpdateEventTriggeredRules = Maps.newHashMap();
-    private Map<String, Set<Rule>> thingChangedEventTriggeredRules = Maps.newHashMap();
+    private final Map<String, Set<Rule>> updateEventTriggeredRules = new HashMap<>();
+    private final Map<String, Set<Rule>> changedEventTriggeredRules = new HashMap<>();
+    private final Map<String, Set<Rule>> commandEventTriggeredRules = new HashMap<>();
+    private final Map<String, Set<Rule>> thingUpdateEventTriggeredRules = new HashMap<>();
+    private final Map<String, Set<Rule>> thingChangedEventTriggeredRules = new HashMap<>();
     // Maps from channelName -> Rules
-    private Map<String, Set<Rule>> triggerEventTriggeredRules = Maps.newHashMap();
-    private Set<Rule> systemStartupTriggeredRules = new CopyOnWriteArraySet<>();
-    private Set<Rule> systemShutdownTriggeredRules = new CopyOnWriteArraySet<>();
-    private Set<Rule> timerEventTriggeredRules = new CopyOnWriteArraySet<>();
+    private final Map<String, Set<Rule>> triggerEventTriggeredRules = new HashMap<>();
+    private final Set<Rule> systemStartupTriggeredRules = new CopyOnWriteArraySet<>();
+    private final Set<Rule> systemShutdownTriggeredRules = new CopyOnWriteArraySet<>();
+    private final Set<Rule> timerEventTriggeredRules = new CopyOnWriteArraySet<>();
 
     // the scheduler used for timer events
     private Scheduler scheduler;
@@ -152,7 +150,7 @@ public class RuleTriggerManager {
                 result = Iterables.concat(thingChangedEventTriggeredRules.values());
                 break;
             default:
-                result = Sets.newHashSet();
+                result = new HashSet<>();
         }
         List<Rule> filteredList = new ArrayList<>();
         for (Rule rule : result) {
@@ -210,7 +208,7 @@ public class RuleTriggerManager {
      * @return all rules for which the trigger condition is true
      */
     public Iterable<Rule> getRules(TriggerTypes triggerType, String channel, String event) {
-        List<Rule> result = Lists.newArrayList();
+        List<Rule> result = new ArrayList<>();
 
         switch (triggerType) {
             case TRIGGER:
@@ -265,15 +263,15 @@ public class RuleTriggerManager {
             case THINGCHANGE:
                 return thingChangedEventTriggeredRules.get(name);
             default:
-                return Sets.newHashSet();
+                return new HashSet<>();
         }
     }
 
     private Iterable<Rule> internalGetRules(TriggerTypes triggerType, Item item, Type oldType, Type newType) {
-        List<Rule> result = Lists.newArrayList();
+        List<Rule> result = new ArrayList<>();
         Iterable<Rule> rules = getAllRules(triggerType, item.getName());
         if (rules == null) {
-            rules = Lists.newArrayList();
+            rules = new ArrayList<>();
         }
         switch (triggerType) {
             case STARTUP:
@@ -364,10 +362,10 @@ public class RuleTriggerManager {
 
     private Iterable<Rule> internalGetThingRules(TriggerTypes triggerType, String thingUid, ThingStatus oldStatus,
             ThingStatus newStatus) {
-        List<Rule> result = Lists.newArrayList();
+        List<Rule> result = new ArrayList<>();
         Iterable<Rule> rules = getAllRules(triggerType, thingUid);
         if (rules == null) {
-            rules = Lists.newArrayList();
+            rules = new ArrayList<>();
         }
 
         switch (triggerType) {
