@@ -21,7 +21,6 @@
     <module>config</module>
     <module>core</module>
     <module>automation</module>
-    <module>designer</module>
     <module>io</module>
     <module>model</module>
     <module>ui</module>
