@@ -35,22 +35,13 @@ import org.osgi.service.component.annotations.Reference;
  * *
  *
  * @author Marcel Verpaalen - Initial contribution
+ * @author Alexander Kostadinov - Little binding improvements
  */
 @Component(service = DiscoveryService.class, immediate = true, configurationPid = "discovery.ntp")
 public class NtpDiscovery extends AbstractDiscoveryService {
 
-    public NtpDiscovery() throws IllegalArgumentException {
+    public NtpDiscovery() {
         super(SUPPORTED_THING_TYPES_UIDS, 10);
-    }
-
-    @Override
-    protected void activate(Map<String, Object> configProperties) {
-        super.activate(configProperties);
-    }
-
-    @Override
-    protected void modified(Map<String, Object> configProperties) {
-        super.modified(configProperties);
     }
 
     @Override

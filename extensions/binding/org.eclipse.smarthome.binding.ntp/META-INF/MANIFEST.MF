@@ -25,3 +25,4 @@ Import-Package:
  org.eclipse.smarthome.core.types,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
+Bundle-ActivationPolicy: lazy
