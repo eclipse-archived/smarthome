@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.core.thing.events;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
@@ -26,7 +27,6 @@ import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper;
 import org.eclipse.smarthome.core.types.Type;
 import org.osgi.service.component.annotations.Component;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -264,7 +264,7 @@ public class ThingEventFactory extends AbstractEventFactory {
         String topic = buildTopic(THING_UPDATED_EVENT_TOPIC, thing.getUID());
         ThingDTO thingDTO = map(thing);
         ThingDTO oldThingDTO = map(oldThing);
-        List<ThingDTO> thingDTOs = Lists.newLinkedList();
+        List<ThingDTO> thingDTOs = new LinkedList<>();
         thingDTOs.add(thingDTO);
         thingDTOs.add(oldThingDTO);
         String payload = serializePayload(thingDTOs);
