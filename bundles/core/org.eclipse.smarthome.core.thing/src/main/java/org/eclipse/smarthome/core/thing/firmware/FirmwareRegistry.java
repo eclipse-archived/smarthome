@@ -32,8 +32,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Iterables;
-
 /**
  * The {@link FirmwareRegistry} is registered as an OSGi service and is responsible for tracking all
  * {@link FirmwareProvider}s. For this reason it is the central instance to get access to all available firmwares. If a
@@ -124,7 +122,7 @@ public final class FirmwareRegistry {
      */
     public Firmware getLatestFirmware(ThingTypeUID thingTypeUID, Locale locale) {
         Locale loc = locale != null ? locale : localeProvider.getLocale();
-        return Iterables.getFirst(getFirmwares((thingTypeUID), loc), null);
+        return getFirmwares((thingTypeUID), loc).stream().findFirst().orElse(null);
     }
 
     /**
