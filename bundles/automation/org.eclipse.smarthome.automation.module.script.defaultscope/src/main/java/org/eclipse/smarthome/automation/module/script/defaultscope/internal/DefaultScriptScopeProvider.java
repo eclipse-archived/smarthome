@@ -40,8 +40,6 @@ import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
-import org.joda.time.DateTime;
-import org.joda.time.LocalTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,12 +105,6 @@ public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
         elements = new HashMap<>();
         elements.put("State", State.class);
         elements.put("Command", Command.class);
-        try {
-            elements.put("DateTime", DateTime.class);
-            elements.put("LocalTime", LocalTime.class);
-        } catch (NoClassDefFoundError e) {
-            logger.debug("Jodatime not present, therefore no support for Date/Time in scripts");
-        }
         elements.put("StringUtils", StringUtils.class);
         elements.put("URLEncoder", URLEncoder.class);
         elements.put("FileUtils", FileUtils.class);
