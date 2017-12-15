@@ -9,7 +9,6 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Export-Package: org.eclipse.smarthome.io.rest
 Import-Package: 
- com.google.common.base,
  com.google.common.collect,
  com.google.gson,
  com.google.gson.stream,

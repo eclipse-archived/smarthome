@@ -35,7 +35,6 @@ Ignore-Package: org.eclipse.smarthome.core.internal.items,org.eclipse.sm
  arthome.core.internal,org.eclipse.smarthome.core.internal.events,org.ec
  lipse.smarthome.core.internal.logging
 Import-Package: 
- com.google.common.base,
  com.google.common.collect,
  com.google.gson,
  org.apache.commons.io,
