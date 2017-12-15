@@ -15,7 +15,7 @@
     
     <!-- Eclipse SmartHome specific suppressions-->
     <!-- These bundles are generated trough XText -->
-    <suppress files=".+org.eclipse.smarthome.model.+|.+org.eclipse.smarthome.designer.+" checks="RequireBundleCheck|ExportInternalPackageCheck|ManifestPackageVersionCheck|ImportExportedPackagesCheck|PackageExportsNameCheck"/>
+    <suppress files=".+org.eclipse.smarthome.model.+" checks="RequireBundleCheck|ExportInternalPackageCheck|ManifestPackageVersionCheck|ImportExportedPackagesCheck|PackageExportsNameCheck"/>
     <!-- Some source files have different headers -->
     <suppress files=".+org.eclipse.smarthome.automation.+" checks="HeaderCheck"/>
     <suppress files=".+org.eclipse.smarthome.config.dispatch.test.+" checks="ServiceComponentManifestCheck"/>
