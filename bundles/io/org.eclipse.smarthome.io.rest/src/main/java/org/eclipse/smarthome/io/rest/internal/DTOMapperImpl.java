@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 @Component
 public class DTOMapperImpl implements DTOMapper {
 
-    private final Logger logger = LoggerFactory.getLogger(DTOMapper.class);
+    private final Logger logger = LoggerFactory.getLogger(DTOMapperImpl.class);
 
     @Override
     public <T> Stream<T> limitToFields(Stream<T> itemStream, String fields) {
