@@ -353,14 +353,14 @@ public class MqttBrokerConnection {
      */
     public boolean addConsumer(MqttMessageSubscriber subscriber) throws MqttException {
         // Prepare topic for regex pattern matching taking place in messageArrived.
-        String topic = StringUtils.replace(StringUtils.replace(subscriber.getTopic(), "+", "[^/]*"), "#", ".*");
+        String topic = prepareTopic(subscriber.getTopic());
         synchronized (consumers) {
             List<MqttMessageSubscriber> subscriberList = consumers.get(topic);
             if (subscriberList == null) {
                 subscriberList = new ArrayList<>();
+                consumers.put(topic, subscriberList);
             }
             subscriberList.add(subscriber);
-            consumers.put(subscriber.getTopic(), subscriberList);
         }
         if (isConnected()) {
             try {
@@ -370,6 +370,10 @@ public class MqttBrokerConnection {
             }
         }
         return true;
+    }
+
+    private String prepareTopic(String topic) {
+        return StringUtils.replace(StringUtils.replace(topic, "+", "[^/]*"), "#", ".*");
     }
 
     /**
@@ -390,11 +394,12 @@ public class MqttBrokerConnection {
         }
 
         synchronized (consumers) {
-            List<MqttMessageSubscriber> list = consumers.get(subscriber.getTopic());
+            String topic = prepareTopic(subscriber.getTopic());
+            List<MqttMessageSubscriber> list = consumers.get(topic);
             if (list != null) {
                 list.remove(subscriber);
                 if (list.isEmpty()) {
-                    consumers.remove(subscriber.getTopic());
+                    consumers.remove(topic);
                 }
             }
         }
