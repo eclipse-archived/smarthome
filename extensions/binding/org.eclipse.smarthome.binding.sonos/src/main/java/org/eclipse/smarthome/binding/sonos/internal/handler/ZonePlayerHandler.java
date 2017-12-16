@@ -84,24 +84,24 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     private final Logger logger = LoggerFactory.getLogger(ZonePlayerHandler.class);
 
-    private final static String ANALOG_LINE_IN_URI = "x-rincon-stream:";
-    private final static String OPTICAL_LINE_IN_URI = "x-sonos-htastream:";
-    private final static String QUEUE_URI = "x-rincon-queue:";
-    private final static String GROUP_URI = "x-rincon:";
-    private final static String STREAM_URI = "x-sonosapi-stream:";
-    private final static String RADIO_URI = "x-sonosapi-radio:";
-    private final static String FILE_URI = "x-file-cifs:";
-    private final static String SPDIF = ":spdif";
-    private final static String TUNEIN_URI = "x-sonosapi-stream:s%s?sid=%s&flags=32";
+    private static final String ANALOG_LINE_IN_URI = "x-rincon-stream:";
+    private static final String OPTICAL_LINE_IN_URI = "x-sonos-htastream:";
+    private static final String QUEUE_URI = "x-rincon-queue:";
+    private static final String GROUP_URI = "x-rincon:";
+    private static final String STREAM_URI = "x-sonosapi-stream:";
+    private static final String RADIO_URI = "x-sonosapi-radio:";
+    private static final String FILE_URI = "x-file-cifs:";
+    private static final String SPDIF = ":spdif";
+    private static final String TUNEIN_URI = "x-sonosapi-stream:s%s?sid=%s&flags=32";
 
     private UpnpIOService service;
     private ScheduledFuture<?> pollingJob;
     private SonosZonePlayerState savedState = null;
 
-    private final static Collection<String> SERVICE_SUBSCRIPTIONS = Arrays.asList("DeviceProperties", "AVTransport",
+    private static final Collection<String> SERVICE_SUBSCRIPTIONS = Arrays.asList("DeviceProperties", "AVTransport",
             "ZoneGroupTopology", "GroupManagement", "RenderingControl", "AudioIn", "HTControl");
     private Map<String, Boolean> subscriptionState = new HashMap<String, Boolean>();
-    protected final static int SUBSCRIPTION_DURATION = 1800;
+    protected static final int SUBSCRIPTION_DURATION = 1800;
     private static final int SOCKET_TIMEOUT = 5000;
 
     /**
@@ -373,9 +373,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     @Override
     public void onValueReceived(String variable, String value, String service) {
-
         if (getThing().getStatus() == ThingStatus.ONLINE) {
-
             logger.trace("Received pair '{}':'{}' (service '{}') for thing '{}'",
                     new Object[] { variable, value, service, this.getThing().getUID() });
 
@@ -497,7 +495,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 case "CurrentAlbumArtURI":
                     updateChannel(CURRENTALBUMARTURL);
                     break;
-
                 case "CurrentSleepTimerGeneration":
                     if (value.equals("0")) {
                         updateState(SLEEPTIMER, new DecimalType(0));
@@ -520,12 +517,10 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 case "CurrentTuneInStationId":
                     updateChannel(TUNEINSTATIONID);
                     break;
-
                 default:
                     break;
             }
         }
-
     }
 
     private void dispatchOnAllGroupMembers(String variable, String value, String service) {
@@ -929,9 +924,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     public String getCoordinator() {
-
         if (stateMap.get("ZoneGroupState") != null) {
-
             Collection<SonosZoneGroup> zoneGroups = SonosXMLParser.getZoneGroupFromXML(stateMap.get("ZoneGroupState"));
 
             for (SonosZoneGroup zg : zoneGroups) {
@@ -949,7 +942,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     protected void updateMediaInformation() {
-
         String currentURI = getCurrentURI();
         SonosMetaData currentTrack = getTrackMetadata();
         SonosMetaData currentUriMetaData = getCurrentURIMetadata();
@@ -998,7 +990,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                         List<String> fields = SonosXMLParser.getRadioTimeFromXML(response);
 
                         if (fields != null && fields.size() > 0) {
-
                             opmlUrlSucceeded = true;
 
                             resultString = new String();
@@ -1093,7 +1084,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
 
         return false;
-
     }
 
     @Override
@@ -1122,7 +1112,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     public SonosMetaData getEnqueuedTransportURIMetaData() {
-
         if (stateMap.get("EnqueuedTransportURIMetaData") != null
                 && !stateMap.get("EnqueuedTransportURIMetaData").isEmpty()) {
             return SonosXMLParser.getMetaDataFromXML(stateMap.get("EnqueuedTransportURIMetaData"));
@@ -1246,7 +1235,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         startAt = startAt + initialNumberReturned;
 
         while (startAt < totalMatches) {
-
             inputs.put("StartingIndex", Long.toString(startAt));
             result = service.invokeAction(this, "ContentDirectory", "Browse", inputs);
 
@@ -1310,9 +1298,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * @return true if no error occurred.
      */
     protected void saveState() {
-
         synchronized (stateLock) {
-
             savedState = new SonosZonePlayerState();
             String currentURI = getCurrentURI();
 
@@ -1320,7 +1306,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             savedState.volume = getVolume();
 
             if (currentURI != null) {
-
                 if (isPlayingStream(currentURI) || isPlayingRadio(currentURI)) {
                     // we are streaming music, like tune-in radio or Google Play Music radio
                     SonosMetaData track = getTrackMetadata();
@@ -1339,7 +1324,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     // we are playing something that sits in the queue
                     SonosMetaData queued = getEnqueuedTransportURIMetaData();
                     if (queued != null) {
-
                         savedState.track = getCurrenTrackNr();
 
                         if (queued.getUpnpClass().contains("object.container.playlistContainer")) {
@@ -1353,7 +1337,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                                     break;
                                 }
                             }
-
                         } else if (queued.getUpnpClass().contains("object.container")) {
                             // we are playing some other sort of
                             // 'container' - we will save that to a
@@ -1383,7 +1366,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                                     break;
                                 }
                             }
-
                         }
                     } else {
                         savedState.entry = new SonosEntry("", "", "", "", "", "", "", QUEUE_URI + getUDN() + "#0");
@@ -1403,7 +1385,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * @return true if no error occurred.
      */
     protected void restoreState() {
-
         synchronized (stateLock) {
             if (savedState != null) {
                 // put settings back
@@ -1415,13 +1396,11 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     if (savedState.entry != null) {
                         // check if we have a playlist to deal with
                         if (savedState.entry.getUpnpClass().contains("object.container.playlistContainer")) {
-
                             addURIToQueue(savedState.entry.getRes(),
                                     SonosXMLParser.compileMetadataString(savedState.entry), 0, true);
                             SonosEntry entry = new SonosEntry("", "", "", "", "", "", "", QUEUE_URI + getUDN() + "#0");
                             setCurrentURI(entry);
                             setPositionTrack(savedState.track);
-
                         } else {
                             setCurrentURI(savedState.entry);
                             setPosition(savedState.relTime);
@@ -1443,9 +1422,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     public void saveQueue(String name, String queueID) {
-
         if (name != null && queueID != null) {
-
             Map<String, String> inputs = new HashMap<String, String>();
             inputs.put("Title", name);
             inputs.put("ObjectID", queueID);
@@ -1462,7 +1439,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         if (command != null) {
             if (command instanceof OnOffType || command instanceof IncreaseDecreaseType
                     || command instanceof DecimalType || command instanceof PercentType) {
-
                 Map<String, String> inputs = new HashMap<String, String>();
 
                 String newValue = null;
@@ -1595,9 +1571,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     public void addURIToQueue(String URI, String meta, long desiredFirstTrack, boolean enqueueAsNext) {
-
         if (URI != null && meta != null) {
-
             Map<String, String> inputs = new HashMap<String, String>();
 
             try {
@@ -1624,7 +1598,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     public void setCurrentURI(String URI, String URIMetaData) {
         if (URI != null && URIMetaData != null) {
-
             Map<String, String> inputs = new HashMap<String, String>();
 
             try {
@@ -1657,7 +1630,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     protected void seek(String unit, String target) {
         if (unit != null && target != null) {
-
             Map<String, String> inputs = new HashMap<String, String>();
 
             try {
@@ -1677,7 +1649,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     public void play() {
-
         Map<String, String> inputs = new HashMap<String, String>();
         inputs.put("Speed", "1");
 
@@ -1707,7 +1678,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     public void setShuffle(Command command) {
         if ((command != null) && (command instanceof OnOffType || command instanceof OpenClosedType
                 || command instanceof UpDownType)) {
-
             try {
                 ZonePlayerHandler coordinator = getCoordinatorHandler();
 
@@ -1738,7 +1708,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                             break;
                     }
                 }
-
             } catch (IllegalStateException e) {
                 logger.warn("Cannot handle shuffle command ({})", e.getMessage());
             }
@@ -1765,7 +1734,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                                 command.toString());
                         break;
                 }
-
             } catch (IllegalStateException e) {
                 logger.warn("Cannot handle repeat command ({})", e.getMessage());
             }
@@ -1833,9 +1801,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * @param udn or name
      */
     public void playLineIn(Command command) {
-
         if (command != null && command instanceof StringType) {
-
             try {
                 String remotePlayerName = command.toString();
                 ZonePlayerHandler coordinatorHandler = getCoordinatorHandler();
@@ -1843,7 +1809,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
                 // check if player has a line-in connected
                 if (remoteHandler.isAnalogLineInConnected() || remoteHandler.isOpticalLineInConnected()) {
-
                     // stop whatever is currently playing
                     coordinatorHandler.stop();
 
@@ -1862,7 +1827,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 } else {
                     logger.warn("Line-in of {} is not connected", remoteHandler.getUDN());
                 }
-
             } catch (IllegalStateException e) {
                 logger.warn("Cannot play line-in ({})", e.getMessage());
             }
@@ -1940,7 +1904,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     public void setMute(Command command) {
         if (command != null) {
             if (command instanceof OnOffType || command instanceof OpenClosedType || command instanceof UpDownType) {
-
                 Map<String, String> inputs = new HashMap<String, String>();
                 inputs.put("Channel", "Master");
 
@@ -1950,7 +1913,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 } else if (command.equals(OnOffType.OFF) || command.equals(UpDownType.DOWN)
                         || command.equals(OpenClosedType.CLOSED)) {
                     inputs.put("DesiredMute", "False");
-
                 }
 
                 Map<String, String> result = service.invokeAction(this, "RenderingControl", "SetMute", inputs);
@@ -1974,7 +1936,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     public void updateAlarm(SonosAlarm alarm) {
         if (alarm != null) {
-
             Map<String, String> inputs = new HashMap<String, String>();
 
             try {
@@ -2022,7 +1983,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     public void setAlarm(boolean alarmSwitch) {
-
         List<SonosAlarm> sonosAlarms = getCurrentAlarmList();
 
         // find the nearest alarm - take the current time from the Sonos system,
@@ -2035,8 +1995,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         try {
             currentDateTime = fmt.parse(currentLocalTime);
         } catch (ParseException e) {
-            logger.error("An exception occurred while formatting a date");
-            e.printStackTrace();
+            logger.error("An exception occurred while formatting a date", e);
         }
 
         if (currentDateTime != null) {
@@ -2069,7 +2028,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
             // Set the Alarm
             if (firstAlarm != null) {
-
                 if (alarmSwitch) {
                     firstAlarm.setEnabled(true);
                 } else {
@@ -2077,7 +2035,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 }
 
                 updateAlarm(firstAlarm);
-
             }
         }
     }
@@ -2093,7 +2050,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     public void snoozeAlarm(Command command) {
         if (isAlarmRunning() && command instanceof DecimalType) {
-
             int minutes = ((DecimalType) command).intValue();
 
             Map<String, String> inputs = new HashMap<String, String>();
@@ -2154,7 +2110,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     public boolean publicAddress() {
         // check if sourcePlayer has a line-in connected
         if (isAnalogLineInConnected() || isOpticalLineInConnected()) {
-
             // first remove this player from its own group if any
             becomeStandAlonePlayer();
 
@@ -2190,17 +2145,14 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 coordinator.play();
 
                 return true;
-
             } catch (IllegalStateException e) {
                 logger.warn("Cannot handle command ({})", e.getMessage());
                 return false;
             }
-
         } else {
             logger.warn("Line-in of {} is not connected", getUDN());
             return false;
         }
-
     }
 
     /**
@@ -2210,9 +2162,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      *            in the format of //host/folder/filename.mp3
      */
     public void playURI(Command command) {
-
         if (command != null && command instanceof StringType) {
-
             try {
                 String url = command.toString();
 
@@ -2241,12 +2191,10 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
                 // start jammin'
                 coordinator.play();
-
             } catch (IllegalStateException e) {
                 logger.warn("Cannot play URI ({})", e.getMessage());
             }
         }
-
     }
 
     private void scheduleNotificationSound(final Command command) {
@@ -2267,7 +2215,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * @param url in the format of //host/folder/filename.mp3
      */
     public void playNotificationSoundURI(Command notificationURL) {
-
         if (notificationURL != null && notificationURL instanceof StringType) {
             try {
                 ZonePlayerHandler coordinator = getCoordinatorHandler();
@@ -2286,7 +2233,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 synchronized (notificationLock) {
                     notificationLock.notify();
                 }
-
             } catch (IllegalStateException e) {
                 logger.warn("Cannot play sound ({})", e.getMessage());
             }
@@ -2324,7 +2270,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
         return currentURI.contains(ANALOG_LINE_IN_URI)
                 || (currentURI.startsWith(OPTICAL_LINE_IN_URI) && currentURI.endsWith(SPDIF));
-
     }
 
     /**
@@ -2537,7 +2482,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             ZonePlayerHandler coordinator = getCoordinatorHandler();
 
             coordinator.removeAllTracksFromQueue();
-
         } catch (IllegalStateException e) {
             logger.warn("Cannot clear queue ({})", e.getMessage());
         }
@@ -2555,7 +2499,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
             // start jammin'
             coordinator.play();
-
         } catch (IllegalStateException e) {
             logger.warn("Cannot play queue ({})", e.getMessage());
         }
@@ -2564,7 +2507,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     public void setLed(Command command) {
         if (command != null) {
             if (command instanceof OnOffType || command instanceof OpenClosedType || command instanceof UpDownType) {
-
                 Map<String, String> inputs = new HashMap<String, String>();
 
                 if (command.equals(OnOffType.ON) || command.equals(UpDownType.UP)
@@ -2573,7 +2515,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 } else if (command.equals(OnOffType.OFF) || command.equals(UpDownType.DOWN)
                         || command.equals(OpenClosedType.CLOSED)) {
                     inputs.put("DesiredLEDState", "Off");
-
                 }
 
                 Map<String, String> result = service.invokeAction(this, "DeviceProperties", "SetLEDState", inputs);
@@ -2620,7 +2561,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     public void playRadio(Command command) {
-
         if (command instanceof StringType) {
             String station = command.toString();
             List<SonosEntry> stations = getFavoriteRadios();
@@ -2647,11 +2587,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 logger.warn("Radio station '{}' not found", station);
             }
         }
-
     }
 
     public void playTuneinStation(Command command) {
-
         if (command instanceof StringType) {
             String stationId = command.toString();
             List<SonosMusicService> allServices = getAvailableMusicServices();
@@ -2734,7 +2672,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * @return true if a match was found and played.
      */
     public void playFavorite(Command command) {
-
         if (command instanceof StringType) {
             String favorite = command.toString();
             List<SonosEntry> favorites = getFavorites();
@@ -2775,12 +2712,10 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             } else {
                 logger.warn("Favorite '{}' not found", favorite);
             }
-
         }
     }
 
     public void playTrack(Command command) {
-
         if (command != null && command instanceof DecimalType) {
             try {
                 ZonePlayerHandler coordinator = getCoordinatorHandler();
@@ -2801,11 +2736,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 logger.warn("Cannot play track ({})", e.getMessage());
             }
         }
-
     }
 
     public void playPlayList(Command command) {
-
         if (command != null && command instanceof StringType) {
             String playlist = command.toString();
             List<SonosEntry> playlists = getPlayLists();
@@ -2928,7 +2861,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     public void setSleepTimer(Command command) {
         if (command != null) {
             if (command instanceof DecimalType) {
-
                 Map<String, String> inputs = new HashMap<String, String>();
                 inputs.put("InstanceID", "0");
                 inputs.put("NewSleepTimerDuration", sleepSecondsToTimeStr(((DecimalType) command).longValue()));
@@ -2960,7 +2892,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             logger.error("Sonos SleepTimer: Invalid sleep time set. sleep time must be >=0 and < 68400s (24h)");
             return "ERR";
         }
-
     }
 
     private long sleepStrTimeToSeconds(String sleepTime) {
