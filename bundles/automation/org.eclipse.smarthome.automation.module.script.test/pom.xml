@@ -96,7 +96,6 @@
                 <id>org.eclipse.smarthome.automation.module.script.defaultscope</id>
                 <versionRange>0.0.0</versionRange>
               </requirement>
-              <!-- 
               <requirement>
                 <type>eclipse-plugin</type>
                 <id>ch.qos.logback.classic</id>
@@ -117,7 +116,6 @@
                 <id>org.slf4j.api</id>
                 <versionRange>0.0.0</versionRange>
               </requirement>
-               -->
             </extraRequirements>
           </dependency-resolution>
         </configuration>
@@ -242,7 +240,6 @@
               <level>4</level>
               <autoStart>true</autoStart>
             </bundle>
-            <!-- 
             <bundle>
               <id>ch.qos.logback.classic</id>
               <level>2</level>
@@ -263,7 +260,6 @@
               <level>2</level>
               <autoStart>true</autoStart>
             </bundle>
-             -->
           </bundleStartLevel>
         </configuration>
       </plugin>

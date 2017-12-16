@@ -35,7 +35,7 @@ public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory {
     @NonNullByDefault({})
     protected BundleContext bundleContext;
 
-    public void activate(BundleContext bundleContext) {
+    public void activate(@Nullable BundleContext bundleContext) {
         if (bundleContext == null) {
             throw new IllegalArgumentException("BundleContext must not be null.");
         }

@@ -15,8 +15,7 @@ package org.eclipse.smarthome.automation.events;
 import org.eclipse.smarthome.automation.dto.RuleDTO;
 
 /**
- * An {@link RuleRemovedEvent} notifies subscribers that an item has been added.
- * Rule added events must be created with the {@link RuleEventFactory}.
+ * An {@link RuleRemovedEvent} notifies subscribers that a rule has been removed.
  *
  * @author Benedikt Niehues - initial contribution
  *

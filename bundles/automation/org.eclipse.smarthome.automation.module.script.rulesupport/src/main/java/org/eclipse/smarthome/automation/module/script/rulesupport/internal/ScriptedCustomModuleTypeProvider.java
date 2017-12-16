@@ -23,7 +23,7 @@ import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 
 /**
  * The {@link ScriptedCustomModuleTypeProvider} is used in combination with the
- * {@link ScriptedCustomModuleHandlerFactory} to allow scripts to define custom types in the RuleEngine. These
+ * {@link ScriptedCustomModuleHandlerFactory} to allow scripts to define custom types in the RuleManager. These
  * registered types can then be used publicly from any Rule-Editor.
  *
  * @author Simon Merschjohann - initial contribution

@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.automation.core.internal;
+package org.eclipse.smarthome.automation.core.util;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -22,7 +22,6 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Resolves Module references.
@@ -78,12 +77,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Vasil Ilchev - Initial Contribution
  */
-public class ReferenceResolverUtil {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReferenceResolverUtil.class);
-
-    private ReferenceResolverUtil() {
-    }
+public class ReferenceResolver {
 
     /**
      * Updates (changes) configuration properties of module base on given context (it can be CompositeModule
@@ -100,8 +94,7 @@ public class ReferenceResolverUtil {
      * @param module module that is directly part of Rule or part of CompositeModule
      * @param context containing Rule configuration or Composite configuration values.
      */
-    public static void updateModuleConfiguration(Module module, Map<String, ?> context) {
-        Configuration config = module.getConfiguration();
+    public static void updateConfiguration(Configuration config, Map<String, ?> context, Logger logger) {
         for (String configKey : config.keySet()) {
             Object o = config.get(configKey);
             if (o instanceof String) {
@@ -112,15 +105,17 @@ public class ReferenceResolverUtil {
                         config.put(configKey, result);
                     }
                 } else if (containsPattern(childConfigPropertyValue)) {
-                    Object result = resolvePattern(childConfigPropertyValue, context);
-                    config.put(configKey, result);
+                    Object result = resolvePattern(childConfigPropertyValue, context, logger);
+                    if (result != null) {
+                        config.put(configKey, result);
+                    }
                 }
             }
         }
     }
 
     /**
-     * Resolves Composite child module's inputs references to CompositeModule context (inputs and configuration)
+     * Resolves Composite child module's references to CompositeModule context (inputs and configuration)
      *
      * @param module Composite Module's child module.
      * @param compositeContext Composite Module's context
@@ -161,7 +156,8 @@ public class ReferenceResolverUtil {
         Object result = reference;
         if (isReference(reference)) {
             final String trimmedVal = reference.trim();
-            result = context.get(trimmedVal.substring(2, trimmedVal.length() - 1));// ${substring}
+            String key = trimmedVal.substring(2, trimmedVal.length() - 1);
+            result = context.get(key);// ${substring}
         }
         return result;
     }
@@ -210,7 +206,7 @@ public class ReferenceResolverUtil {
      * @param context
      * @return
      */
-    private static String resolvePattern(String reference, Map<String, ?> context) {
+    private static String resolvePattern(String reference, Map<String, ?> context, Logger logger) {
         final StringBuilder sb = new StringBuilder();
         int previous = 0;
         for (int start, end; (start = reference.indexOf("${", previous)) != -1; previous = end + 1) {
@@ -218,9 +214,10 @@ public class ReferenceResolverUtil {
             end = reference.indexOf('}', start + 2);
             if (end == -1) {
                 previous = start;
-                LOGGER.warn("Couldn't parse referenced key: {}: expected reference syntax-> ${referencedKey}",
-                        reference.substring(start));
-                break;
+                String msg = "Couldn't parse referenced key: " + reference.substring(start)
+                        + ": expected reference syntax-> ${referencedKey}";
+                logger.warn("{}", msg);
+                throw new IllegalArgumentException(msg);
             }
             final String referencedKey = reference.substring(start + 2, end);
             final Object referencedValue = context.get(referencedKey);
@@ -228,9 +225,9 @@ public class ReferenceResolverUtil {
             if (referencedValue != null) {
                 sb.append(referencedValue);
             } else {
-                // remain as it is: value is null
-                sb.append(reference.substring(start, end + 1));
-                LOGGER.warn("Cannot find reference for ${ {} } , it will remain the same.", referencedKey);
+                String msg = "Cannot find reference for ${ " + referencedKey + " } , it will remain the same.";
+                logger.warn("{}", msg);
+                sb.append("${" + referencedKey + "}");
             }
         }
         sb.append(reference.substring(previous));
@@ -267,47 +264,47 @@ public class ReferenceResolverUtil {
      * <li>To get Bean value, the dot and property name have to be used as reference: .x is equivalent to the call
      * object.getX()
      *
-     * For example: ref = [x].y[z] will execute the call: ((Map)((Map)object).get(x).getY()).get(z)
+     * For example: reference = [x].y[z] will execute the call: ((Map)((Map)object).get(x).getY()).get(z)
      *
-     * @param object Bean ot map object
-     * @param ref reference path to the value
+     * @param complexValue Bean or map object
+     * @param reference reference path to the value
      * @return the value when it exist on specified reference path or null otherwise.
      */
-    public static Object getValue(Object object, String ref) {
+    public static Object resolveComplexDataReference(Object complexValue, String reference) {
         Object result = null;
         int idx = -1;
-        if (object == null) {
+        if (complexValue == null) {
             return null;
         }
-        if ((ref == null) || (ref.length() == 0)) {
-            return object;
+        if ((reference == null) || (reference.length() == 0)) {
+            return complexValue;
         }
-
-        char ch = ref.charAt(0);
+        String key = reference;
+        char ch = key.charAt(0);
         if ('.' == ch) {
-            ref = ref.substring(1, ref.length());
+            key = reference.substring(1);
         }
-
         if ('[' == ch) {
-            if (!(object instanceof Map)) {
+            if (!(complexValue instanceof Map)) {
                 return null;
             }
-            idx = ref.indexOf(']');
+            idx = key.indexOf(']');
             if (idx == -1) {
                 return null;
             }
-            String key = ref.substring(1, idx++);
-            Map<?, ?> map = (Map<?, ?>) object;
+            key = key.substring(1, idx++);
+            Map<?, ?> map = (Map<?, ?>) complexValue;
             result = map.get(key);
+            key = reference.substring(idx);
         } else {
-            String key = null;
-            idx = getNextRefToken(ref, 1);
-            key = idx != ref.length() ? ref.substring(0, idx) : ref;
+            idx = getNextRefToken(key, 1);
+            key = 0 < idx ? key.substring(0, idx) : key;
             String getter = "get" + key.substring(0, 1).toUpperCase() + key.substring(1);
             try {
-                Method m = object.getClass().getMethod(getter, new Class[0]);
+                Method m = complexValue.getClass().getMethod(getter, new Class[0]);
                 if (m != null) {
-                    result = m.invoke(object, null);
+                    result = m.invoke(complexValue);
+                    key = reference.substring(idx + reference.indexOf(key));
                 } else {
                     return null;
                 }
@@ -315,8 +312,11 @@ public class ReferenceResolverUtil {
                 return null;
             }
         }
-        if ((result != null) && (idx < ref.length())) {
-            return getValue(result, ref.substring(idx));
+        if ((result != null) && (idx < reference.length())) {
+            if (result instanceof Map) {
+                return resolveComplexDataReference(result, reference.substring(getNextRefToken(reference, 1)));
+            }
+            return resolveComplexDataReference(result, key);
         }
         return result;
     }
@@ -331,17 +331,12 @@ public class ReferenceResolverUtil {
     public static int getNextRefToken(String ref, int startIndex) {
         int idx1 = ref.indexOf('[', startIndex);
         int idx2 = ref.indexOf('.', startIndex);
-        int idx;
         if ((idx1 != -1) && ((idx2 == -1) || (idx1 < idx2))) {
-            idx = idx1;
-        } else {
-            if ((idx2 != -1) && ((idx1 == -1) || (idx2 < idx1))) {
-                idx = idx2;
-            } else {
-                idx = ref.length();
-            }
+            return idx1;
+        } else if ((idx2 != -1) && ((idx1 == -1) || (idx2 < idx1))) {
+            return idx2;
         }
-        return idx;
+        return -1;
     }
 
 }

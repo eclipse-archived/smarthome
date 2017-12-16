@@ -42,6 +42,10 @@ import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -58,6 +62,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path("module-types")
 @Api("module-types")
+@Component
 public class ModuleTypeResource implements RESTResource {
 
     private ModuleTypeRegistry moduleTypeRegistry;
@@ -65,6 +70,7 @@ public class ModuleTypeResource implements RESTResource {
     @Context
     private UriInfo uriInfo;
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setModuleTypeRegistry(ModuleTypeRegistry moduleTypeRegistry) {
         this.moduleTypeRegistry = moduleTypeRegistry;
     }

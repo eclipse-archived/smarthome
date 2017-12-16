@@ -42,7 +42,7 @@ public class CompositeConditionType extends ConditionType {
      * {@link Condition}s.
      * It initialize only base properties of the {@code CompositeConditionType}.
      *
-     * @param UID is the unique id of this module type in scope of the RuleEngine.
+     * @param UID is the unique id of this module type in scope of the RuleManager.
      * @param configDescriptions is a {@link Set} of configuration descriptions.
      * @param children is a LinkedHashSet of {@link Condition}s.
      * @param inputs is a {@link Set} of {@link Input} descriptions.
@@ -58,7 +58,7 @@ public class CompositeConditionType extends ConditionType {
      * {@link Condition}s.
      * It initialize all properties of the {@code CompositeConditionType}.
      *
-     * @param UID is the unique id of this module type in scope of the RuleEngine.
+     * @param UID is the unique id of this module type in scope of the RuleManager.
      * @param configDescriptions is a {@link List} of configuration descriptions.
      * @param label is a short and accurate name of the {@code CompositeConditionType}.
      * @param description is a short and understandable description of which can be used the

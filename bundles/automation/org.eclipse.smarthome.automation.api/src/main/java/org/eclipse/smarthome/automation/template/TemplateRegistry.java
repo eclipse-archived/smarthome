@@ -19,14 +19,12 @@ import org.eclipse.smarthome.core.common.registry.Registry;
 
 /**
  * This interface provides functionality to get available {@link Template}s. The {@link Template} can be returned
- * localized depending on locale parameter.
- * When the parameter is not specified or there is no such localization
+ * localized depending on locale parameter. When the parameter is not specified or there is no such localization
  * resources the returned template is localized with default locale.
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
- * @param <E>
  */
 public interface TemplateRegistry<E extends Template> extends Registry<E, String> {
 

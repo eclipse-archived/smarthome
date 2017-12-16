@@ -48,10 +48,10 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
 
     private final Logger logger = LoggerFactory.getLogger(GenericEventTriggerHandler.class);
 
-    private String source;
+    private final String source;
     private String topic;
-    private Set<String> types;
-    private BundleContext bundleContext;
+    private final Set<String> types;
+    private final BundleContext bundleContext;
 
     public static final String MODULE_TYPE_ID = "core.GenericEventTrigger";
 
@@ -88,7 +88,7 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
 
     @Override
     public void receive(Event event) {
-        if (ruleEngineCallback != null) {
+        if (callback != null) {
             logger.trace("Received Event: Source: {} Topic: {} Type: {}  Payload: {}", event.getSource(),
                     event.getTopic(), event.getType(), event.getPayload());
             if (!event.getTopic().contains(source)) {
@@ -97,7 +97,7 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
             Map<String, Object> values = new HashMap<>();
             values.put("event", event);
 
-            ruleEngineCallback.triggered(this.module, values);
+            callback.triggered(this.module, values);
         }
     }
 

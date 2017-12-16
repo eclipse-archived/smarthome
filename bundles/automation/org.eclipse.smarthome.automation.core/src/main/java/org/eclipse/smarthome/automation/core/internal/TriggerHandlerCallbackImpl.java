@@ -20,28 +20,32 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleStatus;
+import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
+import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 
 /**
- * This class is implementation of {@link RuleEngineCallback} used by the {@link Trigger}s to notify rule engine about
- * appearing of new triggered data. There is one and only one {@link RuleEngineCallback} per Rule and it is used by all
+ * This class is implementation of {@link TriggerHandlerCallback} used by the {@link Trigger}s to notify rule engine
+ * about
+ * appearing of new triggered data. There is one and only one {@link TriggerHandlerCallback} per Rule and it is used by
+ * all
  * rule's {@link Trigger}s.
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Kai Kreuzer - improved stability
  */
-public class RuleEngineCallbackImpl implements RuleEngineCallback {
+public class TriggerHandlerCallbackImpl implements TriggerHandlerCallback {
 
-    private RuntimeRule r;
+    private final RuntimeRule r;
 
     private ExecutorService executor;
 
     private Future<?> future;
 
-    private RuleEngine re;
+    private final RuleEngineImpl re;
 
-    protected RuleEngineCallbackImpl(RuleEngine re, RuntimeRule r) {
+    protected TriggerHandlerCallbackImpl(RuleEngineImpl re, RuntimeRule r) {
         this.re = re;
         this.r = r;
         executor = Executors.newSingleThreadExecutor();
@@ -69,7 +73,7 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
 
     class TriggerData implements Runnable {
 
-        private Trigger trigger;
+        private final Trigger trigger;
 
         public Trigger getTrigger() {
             return trigger;
@@ -79,7 +83,7 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
             return outputs;
         }
 
-        private Map<String, ?> outputs;
+        private final Map<String, ?> outputs;
 
         public TriggerData(Trigger t, Map<String, ?> outputs) {
             this.trigger = t;
@@ -100,6 +104,36 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
             });
             executor = null;
         }
+    }
+
+    @Override
+    public Boolean isEnabled(String ruleUID) {
+        return re.isEnabled(ruleUID);
+    }
+
+    @Override
+    public void setEnabled(String uid, boolean isEnabled) {
+        re.setEnabled(uid, isEnabled);
+    }
+
+    @Override
+    public RuleStatusInfo getStatusInfo(String ruleUID) {
+        return re.getStatusInfo(ruleUID);
+    }
+
+    @Override
+    public RuleStatus getStatus(String ruleUID) {
+        return re.getStatus(ruleUID);
+    }
+
+    @Override
+    public void runNow(String uid) {
+        re.runNow(uid);
+    }
+
+    @Override
+    public void runNow(String uid, boolean considerConditions, Map<String, Object> context) {
+        re.runNow(uid, considerConditions, context);
     }
 
 }

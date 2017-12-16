@@ -33,7 +33,7 @@ public class RulePredicates {
     public static final String PREFIX_SEPARATOR = ":";
 
     /**
-     * Gets the prefix of the {@link Rule}, if any exist. This property is either set by the {@link RuleEngine} when
+     * Gets the prefix of the {@link Rule}, if any exist. This property is either set by the {@link ModuleHandlerCallback} when
      * the {@link Rule} is added or by the creating party. It's an optional property.
      * <br/>
      * <br/>

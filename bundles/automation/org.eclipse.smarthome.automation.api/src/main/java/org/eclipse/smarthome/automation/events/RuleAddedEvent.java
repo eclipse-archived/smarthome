@@ -15,8 +15,7 @@ package org.eclipse.smarthome.automation.events;
 import org.eclipse.smarthome.automation.dto.RuleDTO;
 
 /**
- * An {@link RuleAddedEvent} notifies subscribers that an item has been added.
- * Rule added events must be created with the {@link RuleEventFactory}.
+ * An {@link RuleAddedEvent} notifies subscribers that a rule has been added.
  *
  * @author Benedikt Niehues - initial contribution
  *

@@ -21,10 +21,11 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.Trigger;
 
 /**
- * This is a class to be used within the {@link RuleEngine} for resolved rules.
+ * This is a class to be used within the {@link RuleEngineImpl} for resolved rules.
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
@@ -34,20 +35,28 @@ public class RuntimeRule extends Rule {
 
     private Map<String, Module> moduleMap;
 
+    private RuleStatusInfo statusInfo;
+
     /**
-     * Utility constructor creating copy of the Rule or create a new empty instance.
+     * Utility constructor creating {@link RuntimeRule} instance, copy of the {@link Rule}.
      *
-     * @param rule a rule which has to be copied or null when an empty instance of rule
-     *            has to be created.
+     * @param rule a {@link Rule} which has to be transformed to {@link RuntimeRule}, 'cause {@link RuleEngineImpl} works
+     *            with {@link RuntimeRule} instances.
+     * @param statusInfo a {@link RuleStatusInfo} instance, associated with the real status of the {@link Rule}.
      */
-    @SuppressWarnings("null")
-    protected RuntimeRule(Rule rule) {
-        super(rule.getUID(), getRuntimeTriggersCopy(rule.getTriggers()), getRuntimeConditionsCopy(rule.getConditions()),
-                getRuntimeActionsCopy(rule.getActions()), rule.getConfigurationDescriptions(), rule.getConfiguration(),
-                rule.getTemplateUID(), rule.getVisibility());
+    protected RuntimeRule(Rule rule, RuleStatusInfo statusInfo) {
+        super(rule.getUID());
+        setTriggers(getRuntimeTriggersCopy(rule.getTriggers()));
+        setConditions(getRuntimeConditionsCopy(rule.getConditions()));
+        setActions(getRuntimeActionsCopy(rule.getActions()));
+        setConfigurationDescriptions(rule.getConfigurationDescriptions());
+        setTemplateUID(rule.getTemplateUID());
+        setVisibility(rule.getVisibility());
+        setConfiguration(rule.getConfiguration());
         setName(rule.getName());
         setTags(rule.getTags());
         setDescription(rule.getDescription());
+        setStatusInfo(statusInfo);
     }
 
     @Override
@@ -65,12 +74,19 @@ public class RuntimeRule extends Rule {
         }
         for (Module m : getConditions()) {
             moduleMap.put(m.getId(), m);
-
         }
         for (Module m : getActions()) {
             moduleMap.put(m.getId(), m);
         }
         return moduleMap;
+    }
+
+    protected synchronized RuleStatusInfo getStatusInfo() {
+        return statusInfo;
+    }
+
+    protected synchronized void setStatusInfo(RuleStatusInfo statusInfo) {
+        this.statusInfo = statusInfo;
     }
 
     private static List<Action> getRuntimeActionsCopy(List<Action> actions) {

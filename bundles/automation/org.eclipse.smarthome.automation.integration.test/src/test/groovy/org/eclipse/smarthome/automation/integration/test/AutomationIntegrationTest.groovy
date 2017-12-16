@@ -21,13 +21,14 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.automation.Action
 import org.eclipse.smarthome.automation.Condition
-import org.eclipse.smarthome.automation.ManagedRuleProvider
 import org.eclipse.smarthome.automation.Rule
+import org.eclipse.smarthome.automation.RuleManager
 import org.eclipse.smarthome.automation.RuleProvider
 import org.eclipse.smarthome.automation.RuleRegistry
 import org.eclipse.smarthome.automation.RuleStatus
 import org.eclipse.smarthome.automation.Trigger
 import org.eclipse.smarthome.automation.Visibility
+import org.eclipse.smarthome.automation.core.ManagedRuleProvider
 import org.eclipse.smarthome.automation.events.RuleAddedEvent
 import org.eclipse.smarthome.automation.events.RuleRemovedEvent
 import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent
@@ -65,7 +66,7 @@ import org.slf4j.LoggerFactory
 import com.google.common.collect.Sets
 
 /**
- * this tests the RuleEngine
+ * this tests the RuleEngineImpl
  * @author Benedikt Niehues - initial contribution
  * @author Marin Mitev - various fixes and extracted JSON parser test to separate file
  *
@@ -76,6 +77,7 @@ class AutomationIntegrationTest extends OSGiTest{
     def EventPublisher eventPublisher
     def ItemRegistry itemRegistry
     def RuleRegistry ruleRegistry
+    def RuleManager ruleEngine
     def ManagedRuleProvider managedRuleProvider
     def ModuleTypeRegistry moduleTypeRegistry
     def TemplateRegistry templateRegistry
@@ -120,6 +122,7 @@ class AutomationIntegrationTest extends OSGiTest{
         eventPublisher = getService(EventPublisher)
         itemRegistry = getService(ItemRegistry)
         ruleRegistry = getService(RuleRegistry)
+        ruleEngine = getService(RuleManager)
         managedRuleProvider = getService(ManagedRuleProvider)
         moduleTypeRegistry = getService(ModuleTypeRegistry)
         templateRegistry = getService(TemplateRegistry)
@@ -128,6 +131,7 @@ class AutomationIntegrationTest extends OSGiTest{
             assertThat storageService, is(notNullValue())
             assertThat itemRegistry, is(notNullValue())
             assertThat ruleRegistry, is(notNullValue())
+            assertThat ruleEngine, is(notNullValue())
             assertThat moduleTypeRegistry, is(notNullValue())
             assertThat templateRegistry, is(notNullValue())
             assertThat managedRuleProvider, is(notNullValue())
@@ -174,7 +178,7 @@ class AutomationIntegrationTest extends OSGiTest{
         })
         def Rule ruleAdded = ruleRegistry.get(rule.UID)
         assertThat ruleAdded, is(notNullValue())
-        assertThat ruleRegistry.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.IDLE)
+        assertThat ruleEngine.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.IDLE)
 
 
         //UPDATE
@@ -262,7 +266,7 @@ class AutomationIntegrationTest extends OSGiTest{
             }, is(notNullValue())
         }, 9000, 200)
         waitForAssert({
-            assertThat ruleRegistry.getStatusInfo(rule.UID).getStatus(), is(not(RuleStatus.RUNNING))
+            assertThat ruleEngine.getStatusInfo(rule.UID).getStatus(), is(not(RuleStatus.RUNNING))
         })
     }
     @Test
@@ -293,7 +297,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
         ruleRegistry.add(rule)
 
-        assertThat ruleRegistry.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.UNINITIALIZED)
+        assertThat ruleEngine.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.UNINITIALIZED)
     }
 
     @Test
@@ -301,21 +305,21 @@ class AutomationIntegrationTest extends OSGiTest{
         logger.info('assert that a rule switches from IDLE to UNINITIALIZED if a moduleHanlder disappears and back to IDLE if it appears again')
         def Rule rule = createSimpleRule()
         ruleRegistry.add(rule)
-        assertThat ruleRegistry.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.IDLE)
+        assertThat ruleEngine.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.IDLE)
 
         def moduleBundle = FrameworkUtil.getBundle(GenericEventTriggerHandler)
         moduleBundle.stop()
         waitForAssert({
-            logger.info("RuleStatus: {}", ruleRegistry.getStatusInfo(rule.UID).getStatus())
-            assertThat ruleRegistry.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.UNINITIALIZED)
+            logger.info("RuleStatus: {}", ruleEngine.getStatusInfo(rule.UID).getStatus())
+            assertThat ruleEngine.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.UNINITIALIZED)
         },3000,100)
 
 
         moduleBundle.start()
-        ruleRegistry.setEnabled(rule.UID,true)
+        ruleEngine.setEnabled(rule.UID,true)
         waitForAssert({
-            logger.info("RuleStatus: {}", ruleRegistry.getStatusInfo(rule.UID))
-            assertThat ruleRegistry.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.IDLE)
+            logger.info("RuleStatus: {}", ruleEngine.getStatusInfo(rule.UID))
+            assertThat ruleEngine.getStatusInfo(rule.UID).getStatus(), is(RuleStatus.IDLE)
         },3000,100)
     }
 
@@ -374,7 +378,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
         //TEST RULE
         waitForAssert({
-            assertThat ruleRegistry.getStatusInfo(rule.uid).getStatus(), is(RuleStatus.IDLE)
+            assertThat ruleEngine.getStatusInfo(rule.uid).getStatus(), is(RuleStatus.IDLE)
         })
 
         def EventPublisher eventPublisher = getService(EventPublisher)
@@ -430,7 +434,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
         //TEST RULE
         waitForAssert({
-            assertThat ruleRegistry.getStatusInfo(rule.getUID()).getStatus(), is(RuleStatus.IDLE)
+            assertThat ruleEngine.getStatusInfo(rule.getUID()).getStatus(), is(RuleStatus.IDLE)
         }, 3000, 100)
 
         def myLampItem3 = itemRegistry.getItem("myLampItem3")
@@ -454,7 +458,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
         registerService(itemEventHandler)
 
-        ruleRegistry.runNow(rule.getUID());
+        ruleEngine.runNow(rule.getUID());
         waitForAssert ({ assertThat itemEvent, is(notNullValue())} , 3000, 100)
         waitForAssert ({ assertThat itemEvent.itemCommand, is(OnOffType.ON)} , 3000, 100)
 
@@ -486,7 +490,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
         //TEST RULE
         waitForAssert({
-            assertThat ruleRegistry.getStatusInfo(rule.uid).getStatus(), is(RuleStatus.IDLE)
+            assertThat ruleEngine.getStatusInfo(rule.uid).getStatus(), is(RuleStatus.IDLE)
         })
 
         def EventPublisher eventPublisher = getService(EventPublisher)
@@ -544,7 +548,7 @@ class AutomationIntegrationTest extends OSGiTest{
         logger.info("Rule created: "+rule.getUID())
 
         ruleRegistry.add(rule)
-        ruleRegistry.setEnabled(rule.UID, true)
+        ruleEngine.setEnabled(rule.UID, true)
         ruleRegistry.remove(rule.UID)
     }
 
@@ -637,7 +641,7 @@ class AutomationIntegrationTest extends OSGiTest{
         assertThat ruleRegistry.getAll().find{it.UID==templateRule.UID}, is(notNullValue())
         waitForAssert {
             assertThat ruleRegistry.get(templateRule.UID), is(notNullValue())
-            assertThat ruleRegistry.getStatus(templateRule.UID), is(RuleStatus.IDLE)
+            assertThat ruleEngine.getStatus(templateRule.UID), is(RuleStatus.IDLE)
         }
 
         Event itemEvent = null
@@ -796,14 +800,14 @@ class AutomationIntegrationTest extends OSGiTest{
         logger.info("Rule created: "+rule.getUID())
 
         ruleRegistry.add(rule)
-        ruleRegistry.setEnabled(rule.UID, true)
+        ruleEngine.setEnabled(rule.UID, true)
 
         //WAIT until Rule modules types are parsed and the rule becomes IDLE
         waitForAssert({
             assertThat ruleRegistry.getAll().isEmpty(), is(false)
             def rule2 = ruleRegistry.get(rule.UID)
             assertThat rule2, is(notNullValue())
-            def ruleStatus2 = ruleRegistry.getStatusInfo(rule2.uid).status as RuleStatus
+            def ruleStatus2 = ruleEngine.getStatusInfo(rule2.uid).status as RuleStatus
             assertThat ruleStatus2, is(RuleStatus.IDLE)
         }, 10000, 200)
 

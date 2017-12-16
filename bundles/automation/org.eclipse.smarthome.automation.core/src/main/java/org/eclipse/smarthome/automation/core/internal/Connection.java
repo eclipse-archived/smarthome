@@ -36,9 +36,9 @@ public class Connection {
 
     public static final String REF_IDENTIFIER = "$";
 
-    private String ouputModuleId;
-    private String outputName;
-    private String inputName;
+    private final String ouputModuleId;
+    private final String outputName;
+    private final String inputName;
 
     /**
      * This constructor is responsible for creation of connections between modules in the rule.
@@ -154,5 +154,4 @@ public class Connection {
         }
         return connections;
     }
-
 }

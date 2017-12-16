@@ -15,10 +15,12 @@ package org.eclipse.smarthome.automation.module.core.internal;
 import static org.junit.Assert.*;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,6 +28,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleManager;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.Trigger;
@@ -111,8 +114,11 @@ public class RunRuleModuleTest extends JavaOSGiTest {
                         new SimpleEntry<>("eventTypes", "ItemStateEvent"))
                 .collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()))));
 
+        final List<String> ruleUIDs = new ArrayList<>();
+        ruleUIDs.add("exampleSceneRule");
+
         final Configuration outerRuleActionConfig = new Configuration(
-                Collections.unmodifiableMap(Stream.of(new SimpleEntry<>("ruleUIDs", "[exampleSceneRule]"))
+                Collections.unmodifiableMap(Stream.of(new SimpleEntry<>("ruleUIDs", ruleUIDs))
                         .collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()))));
 
         final Rule outerRule = new Rule("sceneActivationRule");
@@ -131,6 +137,7 @@ public class RunRuleModuleTest extends JavaOSGiTest {
     @Test
     public void sceneActivatedByRule() throws ItemNotFoundException, InterruptedException {
         final RuleRegistry ruleRegistry = getService(RuleRegistry.class);
+        final RuleManager ruleEngine = getService(RuleManager.class);
         Assert.assertNotNull(ruleRegistry);
 
         // Scene rule
@@ -139,9 +146,9 @@ public class RunRuleModuleTest extends JavaOSGiTest {
         logger.info("SceneRule created: {}", sceneRule.getUID());
 
         ruleRegistry.add(sceneRule);
-        ruleRegistry.setEnabled(sceneRule.getUID(), true);
+        ruleEngine.setEnabled(sceneRule.getUID(), true);
         waitForAssert(() -> {
-            Assert.assertEquals(RuleStatus.IDLE, ruleRegistry.getStatusInfo(sceneRule.getUID()).getStatus());
+            Assert.assertEquals(RuleStatus.IDLE, ruleEngine.getStatusInfo(sceneRule.getUID()).getStatus());
         });
 
         // Outer rule
@@ -150,9 +157,9 @@ public class RunRuleModuleTest extends JavaOSGiTest {
         logger.info("SceneActivationRule created: {}", outerRule.getUID());
 
         ruleRegistry.add(outerRule);
-        ruleRegistry.setEnabled(outerRule.getUID(), true);
+        ruleEngine.setEnabled(outerRule.getUID(), true);
         waitForAssert(() -> {
-            Assert.assertEquals(RuleStatus.IDLE, ruleRegistry.getStatusInfo(outerRule.getUID()).getStatus());
+            Assert.assertEquals(RuleStatus.IDLE, ruleEngine.getStatusInfo(outerRule.getUID()).getStatus());
         });
 
         // Test rule

@@ -16,8 +16,7 @@ import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.core.events.AbstractEvent;
 
 /**
- * An {@link RuleStatusInfoEvent} notifies subscribers that an item has been
- * added. Rule added events must be created with the {@link RuleEventFactory}.
+ * An {@link RuleStatusInfoEvent} notifies subscribers that a rule status has been updated.
  *
  * @author Benedikt Niehues - initial contribution
  * @author Kai Kreuzer - added toString method

@@ -22,8 +22,8 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.internal.ReferenceResolverUtil;
-import org.eclipse.smarthome.automation.core.internal.RuleEngine;
+import org.eclipse.smarthome.automation.core.internal.RuleEngineImpl;
+import org.eclipse.smarthome.automation.core.util.ReferenceResolver;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
@@ -55,8 +55,8 @@ import org.slf4j.LoggerFactory;
 public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory implements ModuleHandlerFactory {
 
     private ModuleTypeRegistry mtRegistry;
-    private RuleEngine ruleEngine;
-    private Logger logger = LoggerFactory.getLogger(getClass());
+    private RuleEngineImpl ruleEngine;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * The constructor of system handler factory for composite module types
@@ -65,7 +65,7 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
      * @param mtManager is a module type manager
      * @param re is a rule engine
      */
-    public CompositeModuleHandlerFactory(BundleContext bc, ModuleTypeRegistry mtRegistry, RuleEngine re) {
+    public CompositeModuleHandlerFactory(BundleContext bc, ModuleTypeRegistry mtRegistry, RuleEngineImpl re) {
         this.mtRegistry = mtRegistry;
         this.ruleEngine = re;
         activate(bc);
@@ -153,7 +153,7 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
      * This method associates module handlers to the child modules of composite module types. It links module types of
      * child modules to the rule which contains this composite module. It also resolve links between child configuration
      * properties and configuration of composite module see:
-     * {@link #ReferenceResolverUtil.updateModuleConfiguration(Module, Map)}.
+     * {@link ReferenceResolver#updateConfiguration(Configuration, Map, Logger)}.
      *
      * @param compositeConfig configuration values of composite module.
      * @param childModules list of child modules
@@ -176,7 +176,7 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
                 mapModuleToHandler = null;
                 return null;
             }
-            ReferenceResolverUtil.updateModuleConfiguration(child, compositeConfig.getProperties());
+            ReferenceResolver.updateConfiguration(child.getConfiguration(), compositeConfig.getProperties(), logger);
             MT childHandler = (MT) childMhf.getHandler(child, childModulePrefix + ":" + compositeModuleId);
 
             if (childHandler == null) {

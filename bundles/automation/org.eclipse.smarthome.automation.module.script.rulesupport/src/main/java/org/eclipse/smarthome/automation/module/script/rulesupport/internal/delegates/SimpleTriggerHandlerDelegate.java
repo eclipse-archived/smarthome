@@ -12,10 +12,11 @@
  */
 package org.eclipse.smarthome.automation.module.script.rulesupport.internal.delegates;
 
+import org.eclipse.smarthome.automation.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
-import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
+import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 
 /**
  * The {@link SimpleTriggerHandlerDelegate} allows to define triggers in a script language in different ways.
@@ -23,7 +24,7 @@ import org.eclipse.smarthome.automation.handler.TriggerHandler;
  * @author Simon Merschjohann
  */
 public class SimpleTriggerHandlerDelegate extends BaseModuleHandler<Trigger> implements TriggerHandler {
-    private org.eclipse.smarthome.automation.module.script.rulesupport.shared.simple.SimpleTriggerHandler triggerHandler;
+    private final org.eclipse.smarthome.automation.module.script.rulesupport.shared.simple.SimpleTriggerHandler triggerHandler;
 
     public SimpleTriggerHandlerDelegate(Trigger module,
             org.eclipse.smarthome.automation.module.script.rulesupport.shared.simple.SimpleTriggerHandler triggerHandler) {
@@ -36,8 +37,8 @@ public class SimpleTriggerHandlerDelegate extends BaseModuleHandler<Trigger> imp
     }
 
     @Override
-    public void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
+    public void setCallback(ModuleHandlerCallback callback) {
         triggerHandler.setRuleEngineCallback(this.module,
-                new SimpleRuleEngineCallbackDelegate(this.module, ruleCallback));
+                new SimpleTriggerHandlerCallbackDelegate(this.module, (TriggerHandlerCallback) callback));
     }
 }

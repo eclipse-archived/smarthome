@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.smarthome.automation.ManagedRuleProvider;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.core.ManagedRuleProvider;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.type.ModuleType;

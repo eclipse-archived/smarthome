@@ -29,6 +29,7 @@ import java.util.stream.Stream;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleManager;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.Trigger;
@@ -60,7 +61,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This tests the RuleEngine.
+ * This tests the RuleEngineImpl.
  *
  * @author Benedikt Niehues - initial contribution
  * @author Markus Rathgeb - Migrated Groovy tests to pure Java ones and made it more robust
@@ -152,11 +153,12 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         logger.info("Rule created: {}", rule.getUID());
 
         final RuleRegistry ruleRegistry = getService(RuleRegistry.class);
+        final RuleManager ruleEngine = getService(RuleManager.class);
         ruleRegistry.add(rule);
-        ruleRegistry.setEnabled(rule.getUID(), true);
+        ruleEngine.setEnabled(rule.getUID(), true);
 
         waitForAssert(() -> {
-            Assert.assertEquals(RuleStatus.IDLE, ruleRegistry.getStatusInfo(rule.getUID()).getStatus());
+            Assert.assertEquals(RuleStatus.IDLE, ruleEngine.getStatusInfo(rule.getUID()).getStatus());
         });
 
         // Test rule
@@ -324,7 +326,6 @@ public class RuntimeRuleTest extends JavaOSGiTest {
 
     @Test
     public void ruleTriggeredByCompositeTrigger() throws ItemNotFoundException, InterruptedException {
-        // //Test the creation of a rule out of
         final Configuration triggerConfig = new Configuration(Stream.of(new SimpleEntry<>("itemName", "myMotionItem3"))
                 .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
         final Configuration actionConfig = new Configuration(
@@ -340,12 +341,13 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         logger.info("Rule created: {}", rule.getUID());
 
         final RuleRegistry ruleRegistry = getService(RuleRegistry.class);
+        final RuleManager ruleEngine = getService(RuleManager.class);
         ruleRegistry.add(rule);
 
         // Test rule
 
         waitForAssert(() -> {
-            Assert.assertEquals(RuleStatus.IDLE, ruleRegistry.getStatusInfo(rule.getUID()).getStatus());
+            Assert.assertEquals(RuleStatus.IDLE, ruleEngine.getStatusInfo(rule.getUID()).getStatus());
         });
 
         final Queue<Event> events = new LinkedList<>();
@@ -389,6 +391,7 @@ public class RuntimeRuleTest extends JavaOSGiTest {
     @Ignore
     public void ruleEnableHandlerWorks() throws ItemNotFoundException {
         final RuleRegistry ruleRegistry = getService(RuleRegistry.class);
+        final RuleManager ruleEngine = getService(RuleManager.class);
         final String firstRuleUID = "FirstTestRule";
         final String secondRuleUID = "SecondTestRule";
         final String thirdRuleUID = "ThirdTestRule";
@@ -424,9 +427,9 @@ public class RuntimeRuleTest extends JavaOSGiTest {
                     TypeParser.parseCommand(myMotionItem.getAcceptedCommandTypes(), "ON")));
 
             waitForAssert(() -> {
-                Assert.assertEquals(RuleStatus.DISABLED, ruleRegistry.getStatus(firstRuleUID));
-                Assert.assertEquals(RuleStatus.DISABLED, ruleRegistry.getStatus(secondRuleUID));
-                Assert.assertEquals(RuleStatus.IDLE, ruleRegistry.getStatus(thirdRuleUID));
+                Assert.assertEquals(RuleStatus.DISABLED, ruleEngine.getStatus(firstRuleUID));
+                Assert.assertEquals(RuleStatus.DISABLED, ruleEngine.getStatus(secondRuleUID));
+                Assert.assertEquals(RuleStatus.IDLE, ruleEngine.getStatus(thirdRuleUID));
             });
 
             final Configuration triggerConfig2 = new Configuration(
@@ -447,9 +450,9 @@ public class RuntimeRuleTest extends JavaOSGiTest {
                     TypeParser.parseCommand(myMotionItem.getAcceptedCommandTypes(), "OFF")));
 
             waitForAssert(() -> {
-                Assert.assertEquals(RuleStatus.IDLE, ruleRegistry.getStatus(firstRuleUID));
-                Assert.assertEquals(RuleStatus.DISABLED, ruleRegistry.getStatus(secondRuleUID));
-                Assert.assertEquals(RuleStatus.IDLE, ruleRegistry.getStatus(thirdRuleUID));
+                Assert.assertEquals(RuleStatus.IDLE, ruleEngine.getStatus(firstRuleUID));
+                Assert.assertEquals(RuleStatus.DISABLED, ruleEngine.getStatus(secondRuleUID));
+                Assert.assertEquals(RuleStatus.IDLE, ruleEngine.getStatus(thirdRuleUID));
             });
         } finally {
             ruleRegistry.remove(firstRuleUID);

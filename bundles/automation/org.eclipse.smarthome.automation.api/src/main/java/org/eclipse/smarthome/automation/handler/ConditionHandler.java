@@ -18,7 +18,7 @@ import org.eclipse.smarthome.automation.Condition;
 
 /**
  * This interface is implemented by external modules, which are called by the
- * RuleEngine, when it has to check if the {@link Condition} is satisfied or
+ * RuleManager, when it has to check if the {@link Condition} is satisfied or
  * not.
  *
  * @author Yordan Mihaylov - Initial Contribution

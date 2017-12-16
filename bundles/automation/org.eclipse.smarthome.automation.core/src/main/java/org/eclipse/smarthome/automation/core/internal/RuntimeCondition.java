@@ -16,25 +16,36 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class is implementation of {@link Condition} modules used in the {@link RuleEngine}s.
+ * This class is implementation of {@link Condition} modules used in the {@link RuleEngineImpl}s.
  *
  * @author Yordan Mihaylov - Initial Contribution
  */
+@NonNullByDefault
 public class RuntimeCondition extends Condition {
 
+    @Nullable
     private ConditionHandler conditionHandler;
     private Set<Connection> connections;
 
     public RuntimeCondition(Condition condition) {
         super(condition.getId(), condition.getTypeUID(), condition.getConfiguration(), condition.getInputs());
-        setConnections(Connection.getConnections(condition.getInputs(), LoggerFactory.getLogger(getClass())));
         setLabel(condition.getLabel());
         setDescription(condition.getDescription());
+        connections = Connection.getConnections(condition.getInputs(), LoggerFactory.getLogger(getClass()));
+    }
+
+    @Override
+    public void setConfiguration(@Nullable Configuration configuration) {
+        this.configuration = configuration == null ? new Configuration()
+                : new Configuration(configuration.getProperties());
     }
 
     /**
@@ -43,8 +54,9 @@ public class RuntimeCondition extends Condition {
      *
      * @see org.eclipse.smarthome.automation.Condition#setConnections(java.util.Set)
      */
+    @SuppressWarnings("null")
     void setConnections(Set<Connection> connections) {
-        this.connections = connections;
+        this.connections = connections == null ? new HashSet<>() : connections;
     }
 
     public Set<Connection> getConnections() {
@@ -58,9 +70,6 @@ public class RuntimeCondition extends Condition {
      * @return copy of passed connections.
      */
     Set<Connection> copyConnections(Set<Connection> connections) {
-        if (connections == null) {
-            return null;
-        }
         Set<Connection> result = new HashSet<Connection>(connections.size());
         for (Iterator<Connection> it = connections.iterator(); it.hasNext();) {
             Connection c = it.next();
@@ -74,6 +83,7 @@ public class RuntimeCondition extends Condition {
      *
      * @return handler of the module or null.
      */
+    @Nullable
     ConditionHandler getModuleHandler() {
         return conditionHandler;
     }
@@ -83,7 +93,7 @@ public class RuntimeCondition extends Condition {
      *
      * @param conditionHandler
      */
-    public void setModuleHandler(ConditionHandler conditionHandler) {
+    public void setModuleHandler(@Nullable ConditionHandler conditionHandler) {
         this.conditionHandler = conditionHandler;
     }
 

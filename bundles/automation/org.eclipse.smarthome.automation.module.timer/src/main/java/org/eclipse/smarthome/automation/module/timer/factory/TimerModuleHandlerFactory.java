@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This HandlerFactory creates TimerTriggerHandlers to control items within the
- * RuleEngine.
+ * RuleManager.
  *
  * @author Christoph Knauf - initial contribution
  * @author Kai Kreuzer - added new module types

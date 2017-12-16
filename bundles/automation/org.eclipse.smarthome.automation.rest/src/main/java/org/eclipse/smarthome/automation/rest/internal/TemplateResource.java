@@ -34,6 +34,10 @@ import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -48,6 +52,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path("templates")
 @Api("templates")
+@Component
 public class TemplateResource implements RESTResource {
 
     private TemplateRegistry<RuleTemplate> templateRegistry;
@@ -55,6 +60,7 @@ public class TemplateResource implements RESTResource {
     @Context
     private UriInfo uriInfo;
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setTemplateRegistry(TemplateRegistry<RuleTemplate> templateRegistry) {
         this.templateRegistry = templateRegistry;
     }

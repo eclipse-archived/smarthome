@@ -33,6 +33,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.Provider;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * The implementation of {@link TemplateRegistry} that is registered as a service.
@@ -40,6 +41,7 @@ import org.eclipse.smarthome.core.common.registry.Provider;
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - TemplateRegistry extends AbstractRegistry
  */
+@Component(service = { TemplateRegistry.class, RuleTemplateRegistry.class }, immediate = true)
 public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String, RuleTemplateProvider>
         implements TemplateRegistry<RuleTemplate> {
 
@@ -140,9 +142,7 @@ public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String,
                 Collection<String> tags = resultTemplate.getTags();
                 RuleTemplate t = locale == null ? resultTemplate
                         : ((RuleTemplateProvider) provider).getTemplate(resultTemplate.getUID(), locale);
-                if (tag == null) {
-                    result.add(t);
-                } else if (tags != null && tags.contains(tag)) {
+                if (tags.contains(tag)) {
                     result.add(t);
                 }
             }
@@ -164,9 +164,7 @@ public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String,
                 Collection<String> tTags = resultTemplate.getTags();
                 RuleTemplate t = locale == null ? resultTemplate
                         : ((RuleTemplateProvider) provider).getTemplate(resultTemplate.getUID(), locale);
-                if (tagSet == null) {
-                    result.add(t);
-                } else if (tTags != null && tTags.containsAll(tagSet)) {
+                if (tTags.containsAll(tagSet)) {
                     result.add(t);
                 }
             }

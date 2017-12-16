@@ -41,6 +41,7 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleManager;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.dto.ActionDTO;
@@ -58,6 +59,10 @@ import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,21 +81,33 @@ import io.swagger.annotations.ResponseHeader;
  */
 @Path("rules")
 @Api("rules")
+@Component
 public class RuleResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(RuleResource.class);
 
     private RuleRegistry ruleRegistry;
+    private RuleManager ruleManager;
 
     @Context
     private UriInfo uriInfo;
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setRuleRegistry(RuleRegistry ruleRegistry) {
         this.ruleRegistry = ruleRegistry;
     }
 
     protected void unsetRuleRegistry(RuleRegistry ruleRegistry) {
         this.ruleRegistry = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setRuleManager(RuleManager ruleManager) {
+        this.ruleManager = ruleManager;
+    }
+
+    protected void unsetRuleManager(RuleManager ruleManager) {
+        this.ruleManager = null;
     }
 
     @GET
@@ -109,11 +126,11 @@ public class RuleResource implements RESTResource {
             p = p.and(hasPrefix(prefix));
         }
 
-        // if tags is null or emty list returns all rules
+        // if tags is null or empty list returns all rules
         p = p.and(hasAllTags(tags));
 
         final Collection<EnrichedRuleDTO> rules = ruleRegistry.stream().filter(p) // filter according to Predicates
-                .map(rule -> EnrichedRuleDTOMapper.map(rule, ruleRegistry)) // map matching rules
+                .map(rule -> EnrichedRuleDTOMapper.map(rule, ruleManager)) // map matching rules
                 .collect(Collectors.toList());
 
         return Response.ok(rules).build();
@@ -152,7 +169,7 @@ public class RuleResource implements RESTResource {
     public Response getByUID(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID) {
         Rule rule = ruleRegistry.get(ruleUID);
         if (rule != null) {
-            return Response.ok(EnrichedRuleDTOMapper.map(rule, ruleRegistry)).build();
+            return Response.ok(EnrichedRuleDTOMapper.map(rule, ruleManager)).build();
         } else {
             return Response.status(Status.NOT_FOUND).build();
         }
@@ -247,7 +264,7 @@ public class RuleResource implements RESTResource {
                     uriInfo.getPath(), ruleUID);
             return Response.status(Status.NOT_FOUND).build();
         } else {
-            ruleRegistry.setEnabled(ruleUID, !"false".equalsIgnoreCase(enabled));
+            ruleManager.setEnabled(ruleUID, !"false".equalsIgnoreCase(enabled));
             // ruleRegistry.update(rule);
             return Response.ok(null, MediaType.TEXT_PLAIN).build();
         }
@@ -267,8 +284,8 @@ public class RuleResource implements RESTResource {
                     uriInfo.getPath(), ruleUID);
             return Response.status(Status.NOT_FOUND).build();
         } else {
-            ruleRegistry.runNow(ruleUID);
-            return Response.ok(null, MediaType.TEXT_PLAIN).build();
+            ruleManager.runNow(ruleUID);
+            return Response.ok().build();
         }
     }
 
@@ -458,7 +475,7 @@ public class RuleResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return ruleRegistry != null;
+        return ruleRegistry != null && ruleManager != null;
     }
 
 }

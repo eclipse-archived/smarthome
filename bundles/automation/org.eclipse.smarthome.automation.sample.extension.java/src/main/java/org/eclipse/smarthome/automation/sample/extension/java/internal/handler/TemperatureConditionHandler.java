@@ -20,7 +20,7 @@ import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.sample.extension.java.internal.type.TemperatureConditionType;
 
 /**
- * This class serves to handle the Condition types provided by this application. It is used to help the RuleEngine
+ * This class serves to handle the Condition types provided by this application. It is used to help the RuleManager
  * to decide to continue with the execution of the rule or to terminate it.
  *
  * @author Ana Dimova - Initial Contribution

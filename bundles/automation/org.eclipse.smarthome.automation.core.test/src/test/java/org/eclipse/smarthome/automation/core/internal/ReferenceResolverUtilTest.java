@@ -20,6 +20,7 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.ReferenceResolver;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,6 +38,8 @@ public class ReferenceResolverUtilTest {
     private static final Map<String, Object> expectedModuleConfiguration = new HashMap<String, Object>();
     private static final Map<String, String> compositeChildModuleInputsReferences = new HashMap<String, String>();
     private static final Map<String, Object> expectedCompositeChildModuleContext = new HashMap<String, Object>();
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     static {
         // context from where references will be taken
@@ -89,17 +92,17 @@ public class ReferenceResolverUtilTest {
 
     @Test
     public void testModuleConfigurationResolving() {
-        // test trigger configuration..
+        // test trigger configuration.
         Module trigger = new Trigger(null, null, new Configuration(moduleConfiguration));
-        ReferenceResolverUtil.updateModuleConfiguration(trigger, context);
+        ReferenceResolver.updateConfiguration(trigger.getConfiguration(), context, logger);
         Assert.assertEquals(trigger.getConfiguration(), new Configuration(expectedModuleConfiguration));
-        // test condition configuration..
+        // test condition configuration.
         Module condition = new Condition(null, null, new Configuration(moduleConfiguration), null);
-        ReferenceResolverUtil.updateModuleConfiguration(condition, context);
+        ReferenceResolver.updateConfiguration(condition.getConfiguration(), context, logger);
         Assert.assertEquals(condition.getConfiguration(), new Configuration(expectedModuleConfiguration));
-        // test action configuration..
+        // test action configuration.
         Module action = new Action(null, null, new Configuration(moduleConfiguration), null);
-        ReferenceResolverUtil.updateModuleConfiguration(action, context);
+        ReferenceResolver.updateConfiguration(action.getConfiguration(), context, logger);
         Assert.assertEquals(action.getConfiguration(), new Configuration(expectedModuleConfiguration));
     }
 
@@ -107,11 +110,11 @@ public class ReferenceResolverUtilTest {
     public void testModuleInputResolving() {
         // test Composite child Module(condition) context
         Module condition = new Condition(null, null, null, compositeChildModuleInputsReferences);
-        Map<String, Object> conditionContext = ReferenceResolverUtil.getCompositeChildContext(condition, context);
+        Map<String, Object> conditionContext = ReferenceResolver.getCompositeChildContext(condition, context);
         Assert.assertEquals(conditionContext, expectedCompositeChildModuleContext);
         // test Composite child Module(action) context
         Module action = new Action(null, null, null, compositeChildModuleInputsReferences);
-        Map<String, Object> actionContext = ReferenceResolverUtil.getCompositeChildContext(action, context);
+        Map<String, Object> actionContext = ReferenceResolver.getCompositeChildContext(action, context);
         Assert.assertEquals(actionContext, expectedCompositeChildModuleContext);
     }
 
@@ -128,32 +131,32 @@ public class ReferenceResolverUtilTest {
         map.put("result_2", map1);
 
         // test getValue from map
-        Assert.assertEquals("bValue", ReferenceResolverUtil.getValue(map, "[result_1].a[b]"));
-        Assert.assertEquals("a.bValue", ReferenceResolverUtil.getValue(map, "[result_2][a.b]"));
-        Assert.assertEquals("bValue", ReferenceResolverUtil.getValue(map, "[result_2][a][b]"));
-        Assert.assertEquals("fValue", ReferenceResolverUtil.getValue(map, "[result_1].bean2.e[f]"));
+        Assert.assertEquals("bValue", ReferenceResolver.resolveComplexDataReference(map, "[result_1].a[b]"));
+        Assert.assertEquals("a.bValue", ReferenceResolver.resolveComplexDataReference(map, "[result_2][a.b]"));
+        Assert.assertEquals("bValue", ReferenceResolver.resolveComplexDataReference(map, "[result_2][a][b]"));
+        Assert.assertEquals("fValue", ReferenceResolver.resolveComplexDataReference(map, "[result_1].bean2.e[f]"));
 
         // test getValue from bean
-        Assert.assertEquals("bValue", ReferenceResolverUtil.getValue(bean1, "a[b]"));
-        Assert.assertEquals("bValue", ReferenceResolverUtil.getValue(bean1, ".a[b]"));
-        Assert.assertEquals("fValue", ReferenceResolverUtil.getValue(bean1, "bean2.e[f]"));
-        Assert.assertEquals("fValue", ReferenceResolverUtil.getValue(bean1, ".bean2.e[f]"));
+        Assert.assertEquals("bValue", ReferenceResolver.resolveComplexDataReference(bean1, "a[b]"));
+        Assert.assertEquals("bValue", ReferenceResolver.resolveComplexDataReference(bean1, ".a[b]"));
+        Assert.assertEquals("fValue", ReferenceResolver.resolveComplexDataReference(bean1, "bean2.e[f]"));
+        Assert.assertEquals("fValue", ReferenceResolver.resolveComplexDataReference(bean1, ".bean2.e[f]"));
     }
 
-    class B1 {
-        public Object getA() {
+    public class B1 {
+        public Map<String, Object> getA() {
             Map<String, Object> map2 = new HashMap<>();
             map2.put("b", "bValue");
             return map2;
         }
 
-        public Object getBean2() {
+        public B2 getBean2() {
             return new B2();
         }
     }
 
-    class B2 {
-        public Object getE() {
+    public class B2 {
+        public Map<String, Object> getE() {
             Map<String, Object> map2 = new HashMap<>();
             map2.put("f", "fValue");
             return map2;

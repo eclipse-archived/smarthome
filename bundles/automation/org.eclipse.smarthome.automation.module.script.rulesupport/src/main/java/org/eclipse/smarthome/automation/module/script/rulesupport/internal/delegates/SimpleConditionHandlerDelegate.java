@@ -20,7 +20,7 @@ import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.module.script.rulesupport.shared.simple.SimpleConditionHandler;
 
 /**
- * The SimpleConditionHandlerDelegate allows the registration of {@link SimpleConditionHandler}s to the RuleEngine.
+ * The SimpleConditionHandlerDelegate allows the registration of {@link SimpleConditionHandler}s to the RuleManager.
  *
  * @author Simon Merschjohann
  *

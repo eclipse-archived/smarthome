@@ -19,12 +19,13 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.automation.Action
-import org.eclipse.smarthome.automation.ManagedRuleProvider
 import org.eclipse.smarthome.automation.Rule
+import org.eclipse.smarthome.automation.ModuleHandlerCallback
 import org.eclipse.smarthome.automation.RuleRegistry
 import org.eclipse.smarthome.automation.RuleStatus
 import org.eclipse.smarthome.automation.RuleStatusInfo
 import org.eclipse.smarthome.automation.Trigger
+import org.eclipse.smarthome.automation.core.ManagedRuleProvider
 import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent
 import org.eclipse.smarthome.automation.type.ActionType
 import org.eclipse.smarthome.automation.type.Input
@@ -53,7 +54,7 @@ import org.slf4j.LoggerFactory
 import com.google.common.collect.Sets
 
 /**
- * This tests the RuleEngine and the import from JSON resources contained in the ESH-INF folder.
+ * This tests the RuleEngineImpl and the import from JSON resources contained in the ESH-INF folder.
  * This test must be run first otherwise imported rules will be cleared.
  *
  * @author Benedikt Niehues - initial contribution
@@ -66,6 +67,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
     def EventPublisher eventPublisher
     def ItemRegistry itemRegistry
     def RuleRegistry ruleRegistry
+    def ModuleHandlerCallback ruleEngine
     def ManagedRuleProvider managedRuleProvider
     def ModuleTypeRegistry moduleTypeRegistry
     def Event ruleEvent
@@ -123,13 +125,14 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         eventPublisher = getService(EventPublisher)
         itemRegistry = getService(ItemRegistry)
         ruleRegistry = getService(RuleRegistry)
+        ruleEngine = getService(ModuleHandlerCallback)
         moduleTypeRegistry = getService(ModuleTypeRegistry)
         waitForAssert ({
             assertThat storageService, is(notNullValue())
-
             assertThat eventPublisher, is(notNullValue()) //sometimes assert fails because EventPublisher service is null
             assertThat itemRegistry, is(notNullValue())
             assertThat ruleRegistry, is(notNullValue())
+            assertThat ruleEngine, is(notNullValue())
             assertThat managedRuleProvider, is(notNullValue())
             assertThat moduleTypeRegistry, is(notNullValue())
         }, 9000)
@@ -193,7 +196,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
             assertThat ruleRegistry.getAll().isEmpty(), is(false)
             def rule2 = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("jsonTest") && !it.tags.contains("references")} as Rule
             assertThat rule2, is(notNullValue())
-            def ruleStatus2 = ruleRegistry.getStatusInfo(rule2.uid) as RuleStatusInfo
+            def ruleStatus2 = ruleEngine.getStatusInfo(rule2.uid) as RuleStatusInfo
             assertThat ruleStatus2.getStatus(), is(RuleStatus.IDLE)
         }, 10000, 200)
         def rule = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("jsonTest") && !it.tags.contains("references")} as Rule
@@ -218,7 +221,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         assertThat action.typeUID, is("core.ItemCommandAction")
         assertThat action.configuration.get("itemName"), is("myLampItem")
         assertThat action.configuration.get("command"), is("ON")
-        def ruleStatus = ruleRegistry.getStatusInfo(rule.uid) as RuleStatusInfo
+        def ruleStatus = ruleEngine.getStatusInfo(rule.uid) as RuleStatusInfo
         assertThat ruleStatus.getStatus(), is(RuleStatus.IDLE)
     }
 
@@ -231,7 +234,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
             assertThat ruleRegistry.getAll().isEmpty(), is(false)
             def rule2 = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("jsonTest") && it.tags.contains("references")} as Rule
             assertThat rule2, is(notNullValue())
-            def ruleStatus2 = ruleRegistry.getStatusInfo(rule2.uid) as RuleStatusInfo
+            def ruleStatus2 = ruleEngine.getStatusInfo(rule2.uid) as RuleStatusInfo
             assertThat ruleStatus2.getStatus(), is(RuleStatus.IDLE)
         }, 10000, 200)
         def rule = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("jsonTest") && it.tags.contains("references")} as Rule
@@ -255,7 +258,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         assertThat action, is(notNullValue())
         assertThat action.typeUID, is("core.ItemCommandAction")
         assertThat action.configuration.get("command"), is("ON")
-        def ruleStatus = ruleRegistry.getStatusInfo(rule.uid) as RuleStatusInfo
+        def ruleStatus = ruleEngine.getStatusInfo(rule.uid) as RuleStatusInfo
         assertThat ruleStatus.getStatus(), is(RuleStatus.IDLE)
 
         // run the rule to check if the runtime rule has resolved module references and is executed successfully
@@ -292,7 +295,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
             assertThat ruleRegistry.getAll().isEmpty(), is(false)
             Rule r = ruleRegistry.get("ItemSampleRule")
             assertThat r, is(notNullValue())
-            assertThat ruleRegistry.getStatusInfo(r.UID).getStatus(), is(RuleStatus.IDLE)
+            assertThat ruleEngine.getStatusInfo(r.UID).getStatus(), is(RuleStatus.IDLE)
 
         }, 9000, 200)
         SwitchItem myPresenceItem = itemRegistry.getItem("myPresenceItem")

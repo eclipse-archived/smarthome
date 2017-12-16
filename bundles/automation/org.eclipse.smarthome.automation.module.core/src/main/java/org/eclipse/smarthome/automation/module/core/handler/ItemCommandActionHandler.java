@@ -106,10 +106,14 @@ public class ItemCommandActionHandler extends BaseModuleHandler<Action> implemen
             try {
                 Item item = itemRegistry.getItem(itemName);
                 Command commandObj = TypeParser.parseCommand(item.getAcceptedCommandTypes(), command);
-                ItemCommandEvent itemCommandEvent = ItemEventFactory.createCommandEvent(itemName, commandObj);
-                logger.debug("Executing ItemCommandAction on Item {} with Command {}", itemCommandEvent.getItemName(),
-                        itemCommandEvent.getItemCommand());
-                eventPublisher.post(itemCommandEvent);
+                if (commandObj != null) {
+                    ItemCommandEvent itemCommandEvent = ItemEventFactory.createCommandEvent(itemName, commandObj);
+                    logger.debug("Executing ItemCommandAction on Item {} with Command {}",
+                            itemCommandEvent.getItemName(), itemCommandEvent.getItemCommand());
+                    eventPublisher.post(itemCommandEvent);
+                } else {
+                    logger.warn("Command '{}' is not valid for item '{}'.", command, itemName);
+                }
             } catch (ItemNotFoundException e) {
                 logger.error("Item with name {} not found in ItemRegistry.", itemName);
             }

@@ -34,7 +34,7 @@ public class Condition extends Module {
     private Map<String, String> inputs;
 
     public Condition() {
-        super();
+        this.inputs = Collections.emptyMap();
     }
 
     /**
@@ -58,7 +58,7 @@ public class Condition extends Module {
      * @return map that contains the inputs of this condition.
      */
     public Map<String, String> getInputs() {
-        return inputs != null ? inputs : Collections.<String, String> emptyMap();
+        return inputs;
     }
 
     /**
@@ -67,9 +67,7 @@ public class Condition extends Module {
      * @param inputs map that contains the inputs for this condition.
      */
     public void setInputs(Map<String, String> inputs) {
-        if (inputs != null) {
-            this.inputs = inputs;
-        }
+        this.inputs = inputs != null ? inputs : Collections.emptyMap();
     }
 
 }

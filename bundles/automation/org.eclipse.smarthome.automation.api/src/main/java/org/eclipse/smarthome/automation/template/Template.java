@@ -16,17 +16,14 @@ import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Visibility;
 import org.eclipse.smarthome.core.common.registry.Identifiable;
 
 /**
- * The templates define types of shared, ready to use rule definitions, which
- * can be instantiated and configured to produce {@link Rule} instances . Each
- * Template has a unique id (UID).
+ * The templates define types of shared, ready to use definitions of automation objects, which
+ * can be instantiated and configured to produce automation instances. Each Template has a unique id (UID).
  * <p>
- * The {@link Template}s can be used by any creator of Rules, but they can be modified only by its owner. The template
- * modification is done by updating the {@link Template} through {@link TemplateRegistry}
+ * The {@link Template}s can be used by any creator of automation objects, but they can be modified only by its owner.
  * <p>
  * Templates can have <code>tags</code> - non-hierarchical keywords or terms for describing them.
  *
@@ -38,10 +35,9 @@ import org.eclipse.smarthome.core.common.registry.Identifiable;
 public interface Template extends Identifiable<String> {
 
     /**
-     * This method is used for getting the type of Template. It is unique in scope
-     * of RuleEngine.
+     * This method is used obtain the UID of a Template.
      *
-     * @return the unique id of Template.
+     * @return the identifier of the Template.
      */
     @Override
     public String getUID();
@@ -49,8 +45,8 @@ public interface Template extends Identifiable<String> {
     /**
      * Templates can have
      * <ul>
-     * <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
-     * used to filter the templates. This method is used for getting the assign tags to this Template.</li>
+     * <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are used to filter the
+     * templates. This method is used to obtain the assigned tags to a Template.</li>
      * </ul>
      *
      * @return tags of the template
@@ -58,26 +54,25 @@ public interface Template extends Identifiable<String> {
     public Set<String> getTags();
 
     /**
-     * This method is used for getting the label of the Template. The label is a
-     * short, user friendly name of the Template defined by this descriptor.
+     * This method is used to obtain the label of a Template. The label is a short, human-readable label of the Template
+     * defined by its creator.
      *
      * @return the label of the Template.
      */
     public @Nullable String getLabel();
 
     /**
-     * This method is used for getting the description of the Template. The
-     * description is a long, user friendly description of the Template defined by
-     * this descriptor.
+     * This method is used to obtain the description of a Template. The description is a long, human-readable
+     * description of the purpose of a Template, defined by its creator.
      *
      * @return the description of the Template.
      */
     public @Nullable String getDescription();
 
     /**
-     * This method is used to show visibility of the template
+     * This method is used to show visibility of a Template.
      *
-     * @return visibility of template
+     * @return visibility of the Template.
      */
     public Visibility getVisibility();
 

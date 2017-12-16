@@ -12,17 +12,21 @@
  */
 package org.eclipse.smarthome.automation.core.internal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
- * This class is implementation of {@link Trigger} modules used in the {@link RuleEngine}s.
+ * This class is implementation of {@link Trigger} modules used in the {@link RuleEngineImpl}s.
  *
  * @author Yordan Mihaylov - Initial Contribution
  */
+@NonNullByDefault
 public class RuntimeTrigger extends Trigger {
 
+    @Nullable
     private TriggerHandler triggerHandler;
 
     public RuntimeTrigger(String id, String typeUID, Configuration configuration) {
@@ -35,11 +39,18 @@ public class RuntimeTrigger extends Trigger {
         setDescription(trigger.getDescription());
     }
 
+    @Override
+    public void setConfiguration(@Nullable Configuration configuration) {
+        this.configuration = configuration == null ? new Configuration()
+                : new Configuration(configuration.getProperties());
+    }
+
     /**
      * This method gets handler which is responsible for handling of this module.
      *
      * @return handler of the module or null.
      */
+    @Nullable
     TriggerHandler getModuleHandler() {
         return triggerHandler;
     }
@@ -49,7 +60,7 @@ public class RuntimeTrigger extends Trigger {
      *
      * @param triggerHandler
      */
-    public void setModuleHandler(TriggerHandler triggerHandler) {
+    public void setModuleHandler(@Nullable TriggerHandler triggerHandler) {
         this.triggerHandler = triggerHandler;
     }
 

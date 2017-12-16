@@ -36,6 +36,7 @@ import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.Provider;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * The implementation of {@link ModuleTypeRegistry} that is registered as a service.
@@ -43,6 +44,7 @@ import org.eclipse.smarthome.core.common.registry.Provider;
  * @author Yordan Mihaylov - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
+@Component(service = ModuleTypeRegistry.class, immediate = true)
 public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String, ModuleTypeProvider>
         implements ModuleTypeRegistry {
 
@@ -93,7 +95,7 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String,
                 Collection<String> tags = mt.getTags();
                 if (moduleTypeTag == null) {
                     result.add((T) createCopy(mt));
-                } else if (tags != null && tags.contains(moduleTypeTag)) {
+                } else if (tags.contains(moduleTypeTag)) {
                     result.add((T) createCopy(mt));
                 }
             }
@@ -201,7 +203,6 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String,
         if (mType == null) {
             return null;
         }
-
         ModuleType result;
         if (mType instanceof CompositeTriggerType) {
             CompositeTriggerType m = (CompositeTriggerType) mType;
@@ -235,7 +236,6 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String,
             ActionType m = (ActionType) mType;
             result = new ActionType(mType.getUID(), mType.getConfigurationDescriptions(), mType.getLabel(),
                     mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs(), m.getOutputs());
-
         } else {
             throw new IllegalArgumentException("Invalid template type:" + mType);
         }
@@ -287,5 +287,4 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String,
         }
         return res;
     }
-
 }

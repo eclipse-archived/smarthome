@@ -22,12 +22,12 @@ import org.eclipse.smarthome.automation.module.script.rulesupport.shared.Scripte
  * @author Simon Merschjohann - Initial contribution
  */
 public abstract class SimpleTriggerHandler implements ScriptedHandler {
-    private SimpleRuleEngineCallback ruleCallback;
+    private SimpleTriggerHandlerCallback ruleCallback;
 
     public void init(Trigger module) {
     }
 
-    public void setRuleEngineCallback(Trigger module, SimpleRuleEngineCallback ruleCallback) {
+    public void setRuleEngineCallback(Trigger module, SimpleTriggerHandlerCallback ruleCallback) {
         this.ruleCallback = ruleCallback;
     }
 

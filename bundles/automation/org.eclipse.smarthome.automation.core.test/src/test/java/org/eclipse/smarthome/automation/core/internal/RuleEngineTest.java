@@ -35,15 +35,15 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Test adding, retrieving and updating rules from the RuleEngine
+ * Test adding, retrieving and updating rules from the RuleEngineImpl
  *
  * @author Marin Mitev - initial version
  * @author Thomas Höfer - Added config description parameter unit
  */
 public class RuleEngineTest {
 
-    private RuleEngine createRuleEngine() {
-        RuleEngine ruleEngine = new RuleEngine();
+    private RuleEngineImpl createRuleEngine() {
+        RuleEngineImpl ruleEngine = new RuleEngineImpl();
         ruleEngine.setModuleTypeRegistry(new ModuleTypeRegistryMockup());
         return ruleEngine;
     }
@@ -54,21 +54,21 @@ public class RuleEngineTest {
      */
     @Test
     public void testAddRetrieveRules() {
-        RuleEngine ruleEngine = createRuleEngine();
+        RuleEngineImpl ruleEngine = createRuleEngine();
         Rule rule0 = new Rule(null);
-        ruleEngine.addRule(rule0, true);
+        ruleEngine.addRule(rule0);
         Collection<RuntimeRule> rules = ruleEngine.getRuntimeRules();
         Assert.assertNotNull("null returned instead of rules list", rules);
         Assert.assertEquals("empty rules list is returned", 1, rules.size());
         Assert.assertNotNull("Returned rule with wrong UID", rules.iterator().next().getUID());
         Rule rule1 = createRule();
-        ruleEngine.addRule(rule1, true);
+        ruleEngine.addRule(rule1);
         rules = ruleEngine.getRuntimeRules();
         Assert.assertEquals("rules list should contain 2 rules", 2, rules.size());
         RuntimeRule rule1Get = ruleEngine.getRuntimeRule("rule1");
         Assert.assertEquals("Returned rule with wrong UID", "rule1", rule1Get.getUID());
         Rule rule2 = createRule();
-        ruleEngine.addRule(rule2, true);
+        ruleEngine.addRule(rule2);
         rules = ruleEngine.getRuntimeRules();
         Assert.assertEquals("rules list should contain 2 rules", 2, rules.size());
         Assert.assertEquals("rules list should contain 2 rules", rule1Get, ruleEngine.getRuntimeRule("rule1"));
@@ -80,7 +80,7 @@ public class RuleEngineTest {
      */
     @Test
     public void testAutoMapRuleConnections() {
-        RuleEngine ruleEngine = createRuleEngine();
+        RuleEngineImpl ruleEngine = createRuleEngine();
         Rule rule = createAutoMapRule();
         // check condition connections
         Map<String, String> conditionInputs = rule.getConditions().get(0).getInputs();
@@ -97,7 +97,7 @@ public class RuleEngineTest {
                 "triggerId.triggerOutput".equals(actionInputs.get("in6")));
 
         // do connections auto mapping
-        ruleEngine.addRule(rule, true);
+        ruleEngine.addRule(rule);
         RuntimeRule ruleGet = ruleEngine.getRuntimeRule("AutoMapRule");
         Assert.assertEquals("Returned rule with wrong UID", "AutoMapRule", ruleGet.getUID());
 
@@ -129,20 +129,20 @@ public class RuleEngineTest {
      */
     @Test
     public void testRuleTags() {
-        RuleEngine ruleEngine = createRuleEngine();
+        RuleEngineImpl ruleEngine = createRuleEngine();
 
         Rule rule1 = new Rule("ruleWithTag1");
         Set<String> ruleTags = new LinkedHashSet<String>();
         ruleTags.add("tag1");
         rule1.setTags(ruleTags);
-        ruleEngine.addRule(rule1, true);
+        ruleEngine.addRule(rule1);
 
         Rule rule2 = new Rule("ruleWithTags12");
         ruleTags = new LinkedHashSet<String>();
         ruleTags.add("tag1");
         ruleTags.add("tag2");
         rule2.setTags(ruleTags);
-        ruleEngine.addRule(rule2, true);
+        ruleEngine.addRule(rule2);
 
         RuntimeRule rule1Get = ruleEngine.getRuntimeRule("ruleWithTag1");
         Assert.assertNotNull("Cannot find rule by UID", rule1Get);
@@ -161,13 +161,13 @@ public class RuleEngineTest {
      */
     @Test
     public void testRuleConfigNull() {
-        RuleEngine ruleEngine = createRuleEngine();
+        RuleEngineImpl ruleEngine = createRuleEngine();
 
         Rule rule3 = new Rule("rule3");
         rule3.setTriggers(createTriggers("typeUID"));
         rule3.setConditions(createConditions("typeUID"));
         rule3.setActions(createActions("typeUID"));
-        ruleEngine.addRule(rule3, true);
+        ruleEngine.addRule(rule3);
         RuntimeRule rule3Get = ruleEngine.getRuntimeRule("rule3");
         Assert.assertNotNull("Rule configuration is null", rule3Get.getConfiguration());
     }
@@ -178,7 +178,7 @@ public class RuleEngineTest {
      */
     @Test
     public void testRuleConfigValue() {
-        RuleEngine ruleEngine = createRuleEngine();
+        RuleEngineImpl ruleEngine = createRuleEngine();
 
         List<ConfigDescriptionParameter> configDescriptions = createConfigDescriptions();
         Configuration configurations = new Configuration();
@@ -190,7 +190,7 @@ public class RuleEngineTest {
         rule4.setActions(createActions("typeUID"));
         rule4.setConfigurationDescriptions(configDescriptions);
         rule4.setConfiguration(configurations);
-        ruleEngine.addRule(rule4, true);
+        ruleEngine.addRule(rule4);
         RuntimeRule rule4Get = ruleEngine.getRuntimeRule("rule4");
         Configuration rule4cfg = rule4Get.getConfiguration();
         List<ConfigDescriptionParameter> rule4cfgD = rule4Get.getConfigurationDescriptions();
@@ -215,11 +215,11 @@ public class RuleEngineTest {
      */
     @Test
     public void testRuleActions() {
-        RuleEngine ruleEngine = createRuleEngine();
+        RuleEngineImpl ruleEngine = createRuleEngine();
 
         Rule rule1 = createRule();
         List<Action> actions = rule1.getActions();
-        ruleEngine.addRule(rule1, true);
+        ruleEngine.addRule(rule1);
 
         RuntimeRule rule1Get = ruleEngine.getRuntimeRule("rule1");
         List<Action> actionsGet = rule1Get.getActions();
@@ -228,7 +228,7 @@ public class RuleEngineTest {
         Assert.assertEquals("Returned actions list should not be a copy", actionsGet, rule1Get.getActions());
 
         actions.add(new Action("actionId2", "typeUID2", null, null));
-        ruleEngine.updateRule(rule1, true);
+        ruleEngine.addRule(rule1);
         rule1Get = ruleEngine.getRuntimeRule("rule1");
         List<Action> actionsGet2 = rule1Get.getActions();
         Assert.assertNotNull("Null actions list", actionsGet2);
@@ -236,8 +236,7 @@ public class RuleEngineTest {
         Assert.assertNotNull("Rule action with wrong id is returned", rule1Get.getModule("actionId2"));
 
         actions.add(new Action("actionId3", "typeUID3", null, null));
-        ruleEngine.updateRule(rule1, true);// ruleEngine.update will update the RuntimeRule.moduleMap with the new
-        // module
+        ruleEngine.addRule(rule1); // ruleEngine.update will update the RuntimeRule.moduleMap with the new module
         rule1Get = ruleEngine.getRuntimeRule("rule1");
         List<Action> actionsGet3 = rule1Get.getActions();
         Assert.assertNotNull("Null actions list", actionsGet3);
@@ -252,11 +251,11 @@ public class RuleEngineTest {
      */
     @Test
     public void testRuleTriggers() {
-        RuleEngine ruleEngine = createRuleEngine();
+        RuleEngineImpl ruleEngine = createRuleEngine();
 
         Rule rule1 = createRule();
         List<Trigger> triggers = rule1.getTriggers();
-        ruleEngine.addRule(rule1, true);
+        ruleEngine.addRule(rule1);
         RuntimeRule rule1Get = ruleEngine.getRuntimeRule("rule1");
         List<Trigger> triggersGet = rule1Get.getTriggers();
         Assert.assertNotNull("Null triggers list", triggersGet);
@@ -264,8 +263,9 @@ public class RuleEngineTest {
         Assert.assertEquals("Returned triggers list should not be a copy", triggersGet, rule1Get.getTriggers());
 
         triggers.add(new Trigger("triggerId2", "typeUID2", null));
-        ruleEngine.updateRule(rule1, true);// ruleEngine.update will update the RuntimeRule.moduleMap with the new
-                                           // module
+        ruleEngine.addRule(rule1); // ruleEngine.update will update the
+                                   // RuntimeRule.moduleMap with the new
+                                   // module
         RuntimeRule rule2Get = ruleEngine.getRuntimeRule("rule1");
         List<Trigger> triggersGet2 = rule2Get.getTriggers();
         Assert.assertNotNull("Null triggers list", triggersGet2);
@@ -280,11 +280,11 @@ public class RuleEngineTest {
      */
     @Test
     public void testRuleConditions() {
-        RuleEngine ruleEngine = createRuleEngine();
+        RuleEngineImpl ruleEngine = createRuleEngine();
 
         Rule rule1 = createRule();
         List<Condition> conditions = rule1.getConditions();
-        ruleEngine.addRule(rule1, true);
+        ruleEngine.addRule(rule1);
         RuntimeRule rule1Get = ruleEngine.getRuntimeRule("rule1");
         List<Condition> conditionsGet = rule1Get.getConditions();
         Assert.assertNotNull("Null conditions list", conditionsGet);
@@ -292,8 +292,7 @@ public class RuleEngineTest {
         Assert.assertEquals("Returned conditions list should not be a copy", conditionsGet, rule1Get.getConditions());
 
         conditions.add(new Condition("conditionId2", "typeUID2", null, null));
-        ruleEngine.updateRule(rule1, true);// ruleEngine.update will update the RuntimeRule.moduleMap with the new
-        // module
+        ruleEngine.addRule(rule1); // ruleEngine.update will update the RuntimeRule.moduleMap with the new module
         RuntimeRule rule2Get = ruleEngine.getRuntimeRule("rule1");
         List<Condition> conditionsGet2 = rule2Get.getConditions();
         Assert.assertNotNull("Null conditions list", conditionsGet2);

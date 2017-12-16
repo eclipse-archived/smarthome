@@ -57,6 +57,7 @@ public abstract class Module {
      * @see {@link ConfigDescriptionParameter}.
      */
     protected Configuration configuration;
+
     /**
      * Unique type id of this module.
      */
@@ -76,6 +77,7 @@ public abstract class Module {
     }
 
     public Module() {
+        setConfiguration(null);
     }
 
     /**
@@ -143,9 +145,6 @@ public abstract class Module {
      * @return current configuration values or null.
      */
     public Configuration getConfiguration() {
-        if (configuration == null) {
-            configuration = new Configuration();
-        }
         return configuration;
     }
 
@@ -155,7 +154,6 @@ public abstract class Module {
      * @param configuration new configuration values.
      */
     public void setConfiguration(Configuration configuration) {
-        this.configuration = configuration;
+        this.configuration = configuration == null ? new Configuration() : configuration;
     }
-
 }

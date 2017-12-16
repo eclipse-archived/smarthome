@@ -20,8 +20,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.ManagedRuleProvider;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.core.ManagedRuleProvider;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.osgi.framework.Bundle;
 

@@ -14,22 +14,24 @@ package org.eclipse.smarthome.automation.handler;
 
 import java.util.Map;
 
+import org.eclipse.smarthome.automation.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.type.Output;
 
 /**
- * This is a callback interface to RuleEngine which is used by the {@link TriggerHandler} to notify the RuleEngine about
- * firing of the {@link Trigger}. These calls from {@link Trigger}s must be stored in a queue
+ * This is a callback interface to RuleManager which is used by the {@link TriggerHandler} to notify the RuleManager
+ * about firing of the {@link Trigger}. These calls from {@link Trigger}s must be stored in a queue
  * and applied to the RuleAngine in order of their appearance. Each {@link Rule} has to create its own instance of
- * {@link RuleEngineCallback}.
+ * {@link TriggerHandlerCallback}.
  *
  * @author Yordan Mihaylov - Initial Contribution
+ * @author Kai Kreuzer - made it a sub-interface of ModuleHandlerCallback
  */
-public interface RuleEngineCallback {
+public interface TriggerHandlerCallback extends ModuleHandlerCallback {
 
     /**
-     * This method is used by the {@link TriggerHandler} to notify the RuleEngine when
+     * This method is used by the {@link TriggerHandler} to notify the RuleManager when
      * the liked {@link Trigger} instance was fired.
      *
      * @param trigger instance of trigger which was fired. When one TriggerHandler
@@ -43,4 +45,5 @@ public interface RuleEngineCallback {
      *            </ul>
      */
     public void triggered(Trigger trigger, Map<String, ?> context);
+
 }

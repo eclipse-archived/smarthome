@@ -43,12 +43,6 @@ import org.eclipse.smarthome.automation.type.TriggerType;
  */
 public class ConnectionValidator {
 
-    private static ModuleTypeRegistry mtRegistry;
-
-    public static void setRegistry(ModuleTypeRegistry mtRegistry) {
-        ConnectionValidator.mtRegistry = mtRegistry;
-    }
-
     /**
      * The method validates connections between inputs and outputs of modules participated in rule. It compares data
      * types of connected inputs and outputs and throws exception when there is a lack of coincidence.
@@ -56,12 +50,11 @@ public class ConnectionValidator {
      * @param r rule which must be checked
      * @throws IllegalArgumentException when validation fails.
      */
-    public static void validateConnections(RuntimeRule r) {
+    public static void validateConnections(ModuleTypeRegistry mtRegistry, RuntimeRule r) {
         if (r == null) {
             throw new IllegalArgumentException("Validation of rule  is failed! Rule must not be null!");
         }
-
-        ConnectionValidator.validateConnections(r.getTriggers(), r.getConditions(), r.getActions());
+        validateConnections(mtRegistry, r.getTriggers(), r.getConditions(), r.getActions());
     }
 
     /**
@@ -74,15 +67,16 @@ public class ConnectionValidator {
      * @param actions is a list with actions of the rule whose connections have to be validated
      * @throws IllegalArgumentException when validation fails.
      */
-    public static void validateConnections(List<Trigger> triggers, List<Condition> conditions, List<Action> actions) {
+    public static void validateConnections(ModuleTypeRegistry mtRegistry, List<Trigger> triggers,
+            List<Condition> conditions, List<Action> actions) {
         if (!conditions.isEmpty()) {
             for (Condition condition : conditions) {
-                validateConditionConnections((RuntimeCondition) condition, triggers);
+                validateConditionConnections(mtRegistry, (RuntimeCondition) condition, triggers);
             }
         }
         if (!actions.isEmpty()) {
             for (Action action : actions) {
-                validateActionConnections((RuntimeAction) action, triggers, actions);
+                validateActionConnections(mtRegistry, (RuntimeAction) action, triggers, actions);
             }
         }
     }
@@ -97,7 +91,9 @@ public class ConnectionValidator {
      * @param actions is a list with actions of the rule on which the action belongs
      * @throws IllegalArgumentException when validation fails.
      */
-    private static void validateActionConnections(RuntimeAction action, List<Trigger> triggers, List<Action> actions) {
+    private static void validateActionConnections(ModuleTypeRegistry mtRegistry, RuntimeAction action,
+            List<Trigger> triggers, List<Action> actions) {
+
         ActionType type = (ActionType) mtRegistry.get(action.getTypeUID()); // get module type of the condition
         if (type == null) {
             // if module type not exists in the system - throws exception
@@ -125,7 +121,7 @@ public class ConnectionValidator {
                     throw new IllegalArgumentException("Required input \"" + name + "\" of the condition \""
                             + action.getId() + "\" not connected");
                 } else if (connection != null) {
-                    checkConnection(connection, input, triggers, actions);
+                    checkConnection(mtRegistry, connection, input, triggers, actions);
                 }
             }
         }
@@ -142,8 +138,8 @@ public class ConnectionValidator {
      * @param actions is a list with actions of the rule on which the action belongs
      * @throws IllegalArgumentException when validation fails.
      */
-    private static void checkConnection(Connection connection, Input input, List<Trigger> triggers,
-            List<Action> actions) {
+    private static void checkConnection(ModuleTypeRegistry mtRegistry, Connection connection, Input input,
+            List<Trigger> triggers, List<Action> actions) {
         Map<String, Action> actionsMap = new HashMap<String, Action>();
         for (Action a : actions) {
             actionsMap.put(a.getId(), a);
@@ -159,7 +155,7 @@ public class ConnectionValidator {
             }
             checkCompatibility(msg, connection, input, actionType.getOutputs());
         } else {
-            checkConnection(connection, input, triggers);
+            checkConnection(mtRegistry, connection, input, triggers);
         }
     }
 
@@ -172,7 +168,9 @@ public class ConnectionValidator {
      * @param triggers is a list with triggers of the rule on which the condition belongs
      * @throws IllegalArgumentException when validation fails.
      */
-    private static void validateConditionConnections(RuntimeCondition condition, List<Trigger> triggers) {
+    private static void validateConditionConnections(ModuleTypeRegistry mtRegistry, RuntimeCondition condition,
+            List<Trigger> triggers) {
+
         ConditionType type = (ConditionType) mtRegistry.get(condition.getTypeUID()); // get module type of the condition
         if (type == null) {
             // if module type not exists in the system - throws exception
@@ -197,7 +195,7 @@ public class ConnectionValidator {
                 String name = input.getName();
                 Connection connection = connectionsMap.get(name);
                 if (connection != null) {
-                    checkConnection(connection, input, triggers);
+                    checkConnection(mtRegistry, connection, input, triggers);
                 } else if (input.isRequired()) {
                     throw new IllegalArgumentException("Required input \"" + name + "\" of the condition \""
                             + condition.getId() + "\" not connected");
@@ -216,7 +214,9 @@ public class ConnectionValidator {
      * @param triggers is a list with triggers of the rule on which the action belongs
      * @throws IllegalArgumentException when validation fails.
      */
-    private static void checkConnection(Connection connection, Input input, List<Trigger> triggers) {
+    private static void checkConnection(ModuleTypeRegistry mtRegistry, Connection connection, Input input,
+            List<Trigger> triggers) {
+
         Map<String, Trigger> triggersMap = new HashMap<String, Trigger>();
         for (Trigger trigger : triggers) {
             triggersMap.put(trigger.getId(), trigger);

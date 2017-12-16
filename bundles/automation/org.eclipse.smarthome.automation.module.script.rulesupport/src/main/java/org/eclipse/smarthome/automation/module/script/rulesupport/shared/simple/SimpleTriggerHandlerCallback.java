@@ -14,12 +14,12 @@ package org.eclipse.smarthome.automation.module.script.rulesupport.shared.simple
 
 import java.util.Map;
 
-import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
+import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 
 /**
  *
  * @author Simon Merschjohann - Initial contribution
  */
-public interface SimpleRuleEngineCallback extends RuleEngineCallback {
+public interface SimpleTriggerHandlerCallback extends TriggerHandlerCallback {
     public void triggered(Map<String, ?> context);
 }

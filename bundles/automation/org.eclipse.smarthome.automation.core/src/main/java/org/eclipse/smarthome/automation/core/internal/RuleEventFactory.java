@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.automation.events;
+package org.eclipse.smarthome.automation.core.internal;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -21,8 +21,14 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.dto.RuleDTO;
 import org.eclipse.smarthome.automation.dto.RuleDTOMapper;
+import org.eclipse.smarthome.automation.events.RuleAddedEvent;
+import org.eclipse.smarthome.automation.events.RuleRemovedEvent;
+import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent;
+import org.eclipse.smarthome.automation.events.RuleUpdatedEvent;
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.events.EventFactory;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +38,7 @@ import org.slf4j.LoggerFactory;
  * @author Benedikt Niehues - initial contribution
  * @author Markus Rathgeb - Use the DTO for the Rule representation
  */
+@Component(service = EventFactory.class, immediate = true)
 public class RuleEventFactory extends AbstractEventFactory {
 
     private final Logger logger = LoggerFactory.getLogger(RuleEventFactory.class);

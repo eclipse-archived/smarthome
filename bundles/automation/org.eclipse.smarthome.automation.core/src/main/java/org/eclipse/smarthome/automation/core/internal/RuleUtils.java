@@ -95,8 +95,8 @@ public class RuleUtils {
     /**
      * This method creates copy of the rule
      *
-     * @param rule the rule which has to be copied
-     * @return copy of the rule.
+     * @param r the rule which has to be copied
+     * @return deep copy of the rule.
      */
     public static Rule getRuleCopy(Rule r) {
         Rule rule = new Rule(r.getUID(), getTriggersCopy(r.getTriggers()), getConditionsCopy(r.getConditions()),

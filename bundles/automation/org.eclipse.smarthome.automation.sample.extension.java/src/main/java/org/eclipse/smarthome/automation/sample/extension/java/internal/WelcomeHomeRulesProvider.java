@@ -64,7 +64,7 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
      * The configuration of the rule created by template should contain as keys all required parameter names of the
      * configuration of the template and their values.
      * In this example the UIDs of the rules is given by the provider, but can be <code>null</code>.
-     * Then the RuleEngine will generate the UID for each provided rule.
+     * Then the RuleManager will generate the UID for each provided rule.
      */
     public WelcomeHomeRulesProvider() {
         // initialize the "AirConditionerSwitchOnRule" rule from template by using UID, templateUID and configuration.
@@ -90,7 +90,7 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
 
     @Override
     public Collection<Rule> getAll() {
-        return rules.values(); // adding the provided rules into RuleEngine
+        return rules.values(); // adding the provided rules into RuleManager
     }
 
     @Override
