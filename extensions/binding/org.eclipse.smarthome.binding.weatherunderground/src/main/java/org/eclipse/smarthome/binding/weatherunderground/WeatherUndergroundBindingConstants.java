@@ -27,8 +27,8 @@ public class WeatherUndergroundBindingConstants {
     public static final String LOCAL = "local";
 
     // List all Thing Type UIDs, related to the WeatherUnderground Binding
-    public final static ThingTypeUID THING_TYPE_WEATHER = new ThingTypeUID(BINDING_ID, "weather");
+    public static final ThingTypeUID THING_TYPE_WEATHER = new ThingTypeUID(BINDING_ID, "weather");
 
     // Channel configuration Properties
-    public final static String PROPERTY_SOURCE_UNIT = "SourceUnit";
+    public static final String PROPERTY_SOURCE_UNIT = "SourceUnit";
 }

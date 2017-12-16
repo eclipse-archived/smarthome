@@ -278,7 +278,6 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         String statusDescr = null;
 
         try {
-
             // Build a valid URL for the Weather Underground service using
             // the requested features and the thing configuration settings
             WeatherUndergroundConfiguration config = getConfigAs(WeatherUndergroundConfiguration.class);
