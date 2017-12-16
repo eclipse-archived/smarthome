@@ -166,16 +166,16 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
                 | ((convertPercentToByte(rgb[1]) & 0xFF) << 8) | ((convertPercentToByte(rgb[2]) & 0xFF) << 0);
     }
 
-    public void setHue(DecimalType h) {
-        this.hue = h.toBigDecimal();
+    public HSBType withHue(DecimalType h) {
+        return new HSBType(h, getSaturation(), getBrightness());
     }
 
-    public void setSaturation(PercentType s) {
-        this.saturation = s.toBigDecimal();
+    public HSBType withSaturation(PercentType s) {
+        return new HSBType(getHue(), s, getBrightness());
     }
 
-    public void setBrightness(PercentType b) {
-        this.value = b.toBigDecimal();
+    public HSBType withBrightness(PercentType b) {
+        return new HSBType(getHue(), getSaturation(), b);
     }
 
     @Override
