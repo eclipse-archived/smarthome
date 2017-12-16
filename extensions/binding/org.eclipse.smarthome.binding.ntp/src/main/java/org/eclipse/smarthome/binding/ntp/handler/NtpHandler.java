@@ -113,7 +113,6 @@ public class NtpHandler extends BaseThingHandler {
 
     @Override
     public void initialize() {
-
         try {
             logger.debug("Initializing NTP handler for '{}'.", getThing().getUID());
 
@@ -166,7 +165,6 @@ public class NtpHandler extends BaseThingHandler {
                     "Initialized NTP handler '{}' with configuration: host '{}', refresh interval {}, timezone {}, locale {}.",
                     getThing().getUID(), hostname, refreshInterval, timeZone, locale);
             startAutomaticRefresh();
-
         } catch (Exception ex) {
             logger.error("Error occurred while initializing NTP handler: {}", ex.getMessage(), ex);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
@@ -223,7 +221,6 @@ public class NtpHandler extends BaseThingHandler {
      *         error occurs.
      */
     public long getTime(String hostname) {
-
         try {
             NTPUDPClient timeClient = new NTPUDPClient();
             timeClient.setDefaultTimeout(NTP_TIMEOUT);
