@@ -585,14 +585,6 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         waitForAssert({assertThat thingA.getStatusInfo(), is(thingStatusInfo)})
         waitForAssert({assertThat thingB.getStatusInfo(), is(thingStatusInfo)})
 
-        // set bridge status to ONLINE
-        bridgeHandler.updateBridgeStatus(ThingStatus.ONLINE)
-
-        // child things retain previous state
-        waitForAssert({assertThat bridge.getStatus(), is(ThingStatus.ONLINE)})
-        waitForAssert({assertThat thingA.getStatusInfo(), is(thingStatusInfo)})
-        waitForAssert({assertThat thingB.getStatusInfo(), is(thingStatusInfo)})
-
         unregisterService(ThingHandlerFactory.class.name)
         thingHandlerFactory.deactivate(componentContext)
     }

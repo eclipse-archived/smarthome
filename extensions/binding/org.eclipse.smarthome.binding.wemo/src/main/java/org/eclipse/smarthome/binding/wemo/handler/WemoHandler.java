@@ -504,10 +504,10 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
     @Override
     public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
         super.bridgeStatusChanged(bridgeStatusInfo);
-        if (ThingStatus.ONLINE.equals(bridgeStatusInfo.getStatus())
-                && ThingStatus.OFFLINE.equals(getThing().getStatusInfo().getStatus())
-                && ThingStatusDetail.BRIDGE_OFFLINE.equals(getThing().getStatusInfo().getStatusDetail())) {
-            updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE);
+        if ((bridgeStatusInfo.getStatus() == ThingStatus.ONLINE)
+                && (getThing().getStatusInfo().getStatus() == ThingStatus.OFFLINE)
+                && (getThing().getStatusInfo().getStatusDetail() == ThingStatusDetail.BRIDGE_OFFLINE)) {
+            updateStatus(ThingStatus.UNKNOWN, ThingStatusDetail.NONE);
         }
     }
 
