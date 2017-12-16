@@ -138,7 +138,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         public void handleCommand(ChannelUID channelUID, Command command) {
         }
 
-        public void updateBridgetatus(ThingStatus status) {
+        public void updateBridgeStatus(ThingStatus status) {
             updateStatus(status)
         }
 
@@ -365,9 +365,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         @Override
         public void initialize() {
             ThingBuilder thingBuilder = editThing()
-            thingBuilder.withChannels([
-                new Channel(new ChannelUID("bindingId:type:thingId:1"), "String")
-            ])
+            thingBuilder.withChannels([new Channel(new ChannelUID("bindingId:type:thingId:1"), "String")])
             updateThing(thingBuilder.build())
             updateStatus(ThingStatus.ONLINE)
         }
@@ -579,20 +577,11 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         // set bridge status to OFFLINE
         def bridgeHandler = getThingHandler(thingHandlerFactory, SimpleBridgeHandler)
         assertThat bridgeHandler, not(null)
-        bridgeHandler.updateBridgetatus(ThingStatus.OFFLINE)
+        bridgeHandler.updateBridgeStatus(ThingStatus.OFFLINE)
 
         // child things are OFFLINE with detail BRIDGE_OFFLINE
         waitForAssert({assertThat bridge.getStatus(), is(ThingStatus.OFFLINE)})
         def thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE).build()
-        waitForAssert({assertThat thingA.getStatusInfo(), is(thingStatusInfo)})
-        waitForAssert({assertThat thingB.getStatusInfo(), is(thingStatusInfo)})
-
-        // set bridge status to ONLINE
-        bridgeHandler.updateBridgetatus(ThingStatus.ONLINE)
-
-        // child things are ONLINE with detail NONE
-        waitForAssert({assertThat bridge.getStatus(), is(ThingStatus.ONLINE)})
-        thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
         waitForAssert({assertThat thingA.getStatusInfo(), is(thingStatusInfo)})
         waitForAssert({assertThat thingB.getStatusInfo(), is(thingStatusInfo)})
 
@@ -613,8 +602,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         def URI configDescriptionUri = new URI("test:test");
         def thingType = ThingTypeBuilder.instance(new ThingTypeUID(BINDING_ID, THING_TYPE_ID), "label").withConfigDescriptionURI(configDescriptionUri).build();
         def configDescription = new ConfigDescription(configDescriptionUri,
-                [
-                    ConfigDescriptionParameterBuilder.create("parameter", ConfigDescriptionParameter.Type.TEXT).withRequired(true).build()] as List);
+                [ConfigDescriptionParameterBuilder.create("parameter", ConfigDescriptionParameter.Type.TEXT).withRequired(true).build()] as List);
 
         registerService([
             getThingType: {thingTypeUID,locale -> thingType }
@@ -645,8 +633,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
     private void registerConfigDescriptionProvider(boolean withRequiredParameter = false) {
         def URI configDescriptionUri = new URI("test:test");
-        def configDescription = new ConfigDescription(configDescriptionUri, [
-            ConfigDescriptionParameterBuilder.create("parameter", ConfigDescriptionParameter.Type.TEXT).withRequired(withRequiredParameter).build()] as List);
+        def configDescription = new ConfigDescription(configDescriptionUri, [ConfigDescriptionParameterBuilder.create("parameter", ConfigDescriptionParameter.Type.TEXT).withRequired(withRequiredParameter).build()] as List);
 
         registerService([
             getConfigDescription: {uri, locale -> configDescription}

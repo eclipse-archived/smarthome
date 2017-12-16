@@ -25,6 +25,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
@@ -130,4 +131,15 @@ public class LIRCRemoteHandler extends BaseThingHandler implements LIRCMessageLi
             }
         }
     }
+
+    @Override
+    public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
+        super.bridgeStatusChanged(bridgeStatusInfo);
+        if ((bridgeStatusInfo.getStatus() == ThingStatus.ONLINE)
+                && (getThing().getStatusInfo().getStatus() == ThingStatus.OFFLINE)
+                && (getThing().getStatusInfo().getStatusDetail() == ThingStatusDetail.BRIDGE_OFFLINE)) {
+            updateStatus(ThingStatus.UNKNOWN, ThingStatusDetail.NONE);
+        }
+    }
+
 }

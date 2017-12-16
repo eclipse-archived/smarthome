@@ -43,6 +43,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
@@ -498,6 +499,16 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
     public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
             Collection<ThingTypeUID> thingTypeUIDs, ThingUID bridgeUID) {
         return Collections.emptyList();
+    }
+
+    @Override
+    public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
+        super.bridgeStatusChanged(bridgeStatusInfo);
+        if ((bridgeStatusInfo.getStatus() == ThingStatus.ONLINE)
+                && (getThing().getStatusInfo().getStatus() == ThingStatus.OFFLINE)
+                && (getThing().getStatusInfo().getStatusDetail() == ThingStatusDetail.BRIDGE_OFFLINE)) {
+            updateStatus(ThingStatus.UNKNOWN, ThingStatusDetail.NONE);
+        }
     }
 
 }
