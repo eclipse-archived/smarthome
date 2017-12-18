@@ -47,7 +47,7 @@ import org.osgi.framework.ServiceRegistration;
 @NonNullByDefault
 public class HueThingHandlerFactory extends BaseThingHandlerFactory {
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream
             .concat(HueBridgeHandler.SUPPORTED_THING_TYPES.stream(), HueLightHandler.SUPPORTED_THING_TYPES.stream())
             .collect(Collectors.toSet());
 

@@ -76,7 +76,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
 
     private static final String LIGHT_STATE_CHANGED = "changed";
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
 
     private static final int DEFAULT_POLLING_INTERVAL = 10; // in seconds
 
@@ -486,7 +486,6 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
                         throw new IllegalArgumentException(
                                 "Could not notify lightStatusListeners for unknown event type " + type);
                 }
-
             } catch (Exception e) {
                 logger.error("An exception occurred while calling the BridgeHeartbeatListener", e);
             }
