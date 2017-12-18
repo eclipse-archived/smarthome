@@ -119,7 +119,6 @@ public class LIRCBridgeHandler extends BaseBridgeHandler {
             logger.error("Connection to LIRC failed", e);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
         }
-
     }
 
     /**
