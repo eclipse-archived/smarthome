@@ -16,6 +16,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
@@ -53,9 +54,9 @@ public class WatchQueueReader implements Runnable {
 
     protected WatchService watchService;
 
-    private Map<WatchKey, Path> registeredKeys;
+    private final Map<WatchKey, Path> registeredKeys;
 
-    private Map<WatchKey, AbstractWatchService> keyToService;
+    private final Map<WatchKey, AbstractWatchService> keyToService;
 
     private Thread qr;
 
@@ -120,6 +121,15 @@ public class WatchQueueReader implements Runnable {
                             registerDirectoryInternal(watchService, kinds, subDir);
                         }
                         return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                        if (exc instanceof AccessDeniedException) {
+                            logger.warn("Access to folder '{}' was denied, therefore skipping it.",
+                                    file.toAbsolutePath().toString());
+                        }
+                        return FileVisitResult.SKIP_SUBTREE;
                     }
                 });
     }
@@ -191,7 +201,8 @@ public class WatchQueueReader implements Runnable {
                 for (WatchEvent<?> event : key.pollEvents()) {
                     WatchEvent.Kind<?> kind = event.kind();
                     if (kind == OVERFLOW) {
-                        logger.warn("Found an event of kind 'OVERFLOW': {}. File system changes might have been missed.",
+                        logger.warn(
+                                "Found an event of kind 'OVERFLOW': {}. File system changes might have been missed.",
                                 event);
                         continue;
                     }
