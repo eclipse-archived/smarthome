@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class WemoBridgeHandler extends BaseBridgeHandler {
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
 
     private final Logger logger = LoggerFactory.getLogger(WemoBridgeHandler.class);
 

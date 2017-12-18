@@ -57,24 +57,24 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
 
     private final Logger logger = LoggerFactory.getLogger(WemoLinkDiscoveryService.class);
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_MZ100);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_MZ100);
 
     public static final String NORMALIZE_ID_REGEX = "[^a-zA-Z0-9_]";
 
     /**
      * Maximum time to search for devices in seconds.
      */
-    private final static int SEARCH_TIME = 20;
+    private static final int SEARCH_TIME = 20;
 
     /**
      * Initial delay for scanning job in seconds.
      */
-    private final static int INITIAL_DELAY = 5;
+    private static final int INITIAL_DELAY = 5;
 
     /**
      * Scan interval for scanning job in seconds.
      */
-    private final static int SCAN_INTERVAL = 120;
+    private static final int SCAN_INTERVAL = 120;
 
     /**
      * The handler for WeMo Link bridge
@@ -119,10 +119,8 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
 
     @Override
     protected void startScan() {
-
         logger.trace("Starting WeMoEndDevice discovery on WeMo Link {}", wemoBridgeHandler.getThing().getUID());
         try {
-
             String devUDN = "uuid:" + wemoBridgeHandler.getThing().getConfiguration().get(UDN).toString();
             logger.trace("devUDN = '{}'", devUDN);
 
@@ -215,7 +213,6 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
 
                                     thingDiscovered(discoveryResult);
                                 }
-
                             } else {
                                 logger.debug("Discovered an unsupported device :");
                                 logger.debug("DeviceIndex : {}", getCharacterDataFromElement(line));
@@ -231,7 +228,6 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
                                 wemoBridgeHandler.getThing().getUID(), e);
                     }
                 }
-
             }
         } catch (Exception e) {
             logger.error("Failed to get endDevices for bridge '{}'", wemoBridgeHandler.getThing().getUID(), e);

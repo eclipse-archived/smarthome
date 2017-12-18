@@ -66,7 +66,7 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
 
     private final Logger logger = LoggerFactory.getLogger(WemoMakerHandler.class);
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_MAKER);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_MAKER);
 
     private UpnpIOService service;
 
@@ -91,7 +91,6 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
     };
 
     public WemoMakerHandler(Thing thing, UpnpIOService upnpIOService) {
-
         super(thing);
 
         logger.debug("Creating a WemoMakerHandler for thing '{}'", getThing().getUID());
@@ -101,12 +100,10 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
         } else {
             logger.debug("upnpIOService not set.");
         }
-
     }
 
     @Override
     public void initialize() {
-
         Configuration configuration = getConfig();
 
         if (configuration.get("udn") != null) {
@@ -116,7 +113,6 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
         } else {
             logger.debug("Cannot initalize WemoMakerHandler. UDN not set.");
         }
-
     }
 
     @Override
@@ -161,9 +157,7 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
             }
         } else if (channelUID.getId().equals(CHANNEL_RELAY)) {
             if (command instanceof OnOffType) {
-
                 try {
-
                     String binaryState = null;
 
                     if (command.equals(OnOffType.ON)) {
@@ -224,7 +218,6 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
      * The {@link updateWemoState} polls the actual state of a WeMo Maker.
      */
     protected void updateWemoState() {
-
         String action = "GetAttributes";
         String actionService = "deviceevent";
 
