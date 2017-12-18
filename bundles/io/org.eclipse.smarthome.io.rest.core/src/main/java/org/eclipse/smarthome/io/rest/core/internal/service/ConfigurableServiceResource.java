@@ -264,6 +264,18 @@ public class ConfigurableServiceResource implements RESTResource {
 
                     services.add(new ConfigurableServiceDTO(mis.getServicePID(), mis.getLabel(), mis.getCategory(),
                             mis.getConfigDescriptionUri(), true));
+
+                    // load all instances for this multi service PID:
+                    List<ConfigurableServiceDTO> multiServiceInstances = getServicesByFilter(
+                            "(" + ConfigurableService.SERVICE_PROPERTY_FACTORY_PID + "=" + mis.getServicePID() + ")");
+                    for (ConfigurableServiceDTO multiInstanceService : multiServiceInstances) {
+                        if (multiInstanceService.configDescriptionURI == null) { // only add those w/o
+                                                                                 // configDescriptionURI (file based
+                                                                                 // configs).
+                            multiInstanceService.configDescriptionURI = mis.getConfigDescriptionUri();
+                            services.add(multiInstanceService);
+                        }
+                    }
                 }
             }
         } catch (InvalidSyntaxException ex) {
