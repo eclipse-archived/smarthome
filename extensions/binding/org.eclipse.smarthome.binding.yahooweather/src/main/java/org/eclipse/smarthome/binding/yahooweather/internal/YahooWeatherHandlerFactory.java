@@ -30,7 +30,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
  */
 public class YahooWeatherHandlerFactory extends BaseThingHandlerFactory {
 
-    private final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections
             .singleton(YahooWeatherBindingConstants.THING_TYPE_WEATHER);
 
     @Override
@@ -40,7 +40,6 @@ public class YahooWeatherHandlerFactory extends BaseThingHandlerFactory {
 
     @Override
     protected ThingHandler createHandler(Thing thing) {
-
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (thingTypeUID.equals(YahooWeatherBindingConstants.THING_TYPE_WEATHER)) {
