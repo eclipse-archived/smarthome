@@ -34,14 +34,14 @@ public class SonosBindingConstants {
     // List of all Thing Type UIDs
     // Column (:) is not used for PLAY:1, PLAY:3, PLAY:5 and CONNECT:AMP because of
     // ThingTypeUID and device pairing name restrictions
-    public final static ThingTypeUID ONE_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "One");
-    public final static ThingTypeUID PLAY1_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "PLAY1");
-    public final static ThingTypeUID PLAY3_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "PLAY3");
-    public final static ThingTypeUID PLAY5_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "PLAY5");
-    public final static ThingTypeUID PLAYBAR_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "PLAYBAR");
-    public final static ThingTypeUID CONNECT_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "CONNECT");
-    public final static ThingTypeUID CONNECTAMP_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "CONNECTAMP");
-    public final static ThingTypeUID ZONEPLAYER_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "zoneplayer");
+    public static final ThingTypeUID ONE_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "One");
+    public static final ThingTypeUID PLAY1_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "PLAY1");
+    public static final ThingTypeUID PLAY3_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "PLAY3");
+    public static final ThingTypeUID PLAY5_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "PLAY5");
+    public static final ThingTypeUID PLAYBAR_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "PLAYBAR");
+    public static final ThingTypeUID CONNECT_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "CONNECT");
+    public static final ThingTypeUID CONNECTAMP_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "CONNECTAMP");
+    public static final ThingTypeUID ZONEPLAYER_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "zoneplayer");
 
     public static final Set<ThingTypeUID> WITH_LINEIN_THING_TYPES_UIDS = Stream
             .of(PLAY5_THING_TYPE_UID, PLAYBAR_THING_TYPE_UID, CONNECT_THING_TYPE_UID, CONNECTAMP_THING_TYPE_UID)
@@ -59,52 +59,52 @@ public class SonosBindingConstants {
     }
 
     // List of all Channel ids
-    public final static String ADD = "add";
-    public final static String ALARM = "alarm";
-    public final static String ALARMPROPERTIES = "alarmproperties";
-    public final static String ALARMRUNNING = "alarmrunning";
-    public final static String CLEARQUEUE = "clearqueue";
-    public final static String CONTROL = "control";
-    public final static String COORDINATOR = "coordinator";
-    public final static String CURRENTALBUM = "currentalbum";
-    public final static String CURRENTALBUMART = "currentalbumart";
-    public final static String CURRENTALBUMARTURL = "currentalbumarturl";
-    public final static String CURRENTARTIST = "currentartist";
-    public final static String CURRENTTITLE = "currenttitle";
-    public final static String CURRENTTRACK = "currenttrack";
-    public final static String CURRENTTRACKURI = "currenttrackuri";
-    public final static String CURRENTTRANSPORTURI = "currenttransporturi";
-    public final static String FAVORITE = "favorite";
-    public final static String LED = "led";
-    public final static String LINEIN = "linein";
-    public final static String LOCALCOORDINATOR = "localcoordinator";
-    public final static String MUTE = "mute";
-    public final static String NOTIFICATIONSOUND = "notificationsound";
-    public final static String NOTIFICATIONVOLUME = "notificationvolume";
-    public final static String PLAYLINEIN = "playlinein";
-    public final static String PLAYLIST = "playlist";
-    public final static String PLAYQUEUE = "playqueue";
-    public final static String PLAYTRACK = "playtrack";
-    public final static String PLAYURI = "playuri";
-    public final static String PUBLICADDRESS = "publicaddress";
-    public final static String RADIO = "radio";
-    public final static String REMOVE = "remove";
-    public final static String REPEAT = "repeat";
-    public final static String RESTORE = "restore";
-    public final static String RESTOREALL = "restoreall";
-    public final static String SAVE = "save";
-    public final static String SAVEALL = "saveall";
-    public final static String SHUFFLE = "shuffle";
-    public final static String SLEEPTIMER = "sleeptimer";
-    public final static String SNOOZE = "snooze";
-    public final static String STANDALONE = "standalone";
-    public final static String STATE = "state";
-    public final static String STOP = "stop";
-    public final static String TUNEINSTATIONID = "tuneinstationid";
-    public final static String VOLUME = "volume";
-    public final static String ZONEGROUPID = "zonegroupid";
-    public final static String ZONENAME = "zonename";
-    public final static String MODELID = "modelId";
+    public static final String ADD = "add";
+    public static final String ALARM = "alarm";
+    public static final String ALARMPROPERTIES = "alarmproperties";
+    public static final String ALARMRUNNING = "alarmrunning";
+    public static final String CLEARQUEUE = "clearqueue";
+    public static final String CONTROL = "control";
+    public static final String COORDINATOR = "coordinator";
+    public static final String CURRENTALBUM = "currentalbum";
+    public static final String CURRENTALBUMART = "currentalbumart";
+    public static final String CURRENTALBUMARTURL = "currentalbumarturl";
+    public static final String CURRENTARTIST = "currentartist";
+    public static final String CURRENTTITLE = "currenttitle";
+    public static final String CURRENTTRACK = "currenttrack";
+    public static final String CURRENTTRACKURI = "currenttrackuri";
+    public static final String CURRENTTRANSPORTURI = "currenttransporturi";
+    public static final String FAVORITE = "favorite";
+    public static final String LED = "led";
+    public static final String LINEIN = "linein";
+    public static final String LOCALCOORDINATOR = "localcoordinator";
+    public static final String MUTE = "mute";
+    public static final String NOTIFICATIONSOUND = "notificationsound";
+    public static final String NOTIFICATIONVOLUME = "notificationvolume";
+    public static final String PLAYLINEIN = "playlinein";
+    public static final String PLAYLIST = "playlist";
+    public static final String PLAYQUEUE = "playqueue";
+    public static final String PLAYTRACK = "playtrack";
+    public static final String PLAYURI = "playuri";
+    public static final String PUBLICADDRESS = "publicaddress";
+    public static final String RADIO = "radio";
+    public static final String REMOVE = "remove";
+    public static final String REPEAT = "repeat";
+    public static final String RESTORE = "restore";
+    public static final String RESTOREALL = "restoreall";
+    public static final String SAVE = "save";
+    public static final String SAVEALL = "saveall";
+    public static final String SHUFFLE = "shuffle";
+    public static final String SLEEPTIMER = "sleeptimer";
+    public static final String SNOOZE = "snooze";
+    public static final String STANDALONE = "standalone";
+    public static final String STATE = "state";
+    public static final String STOP = "stop";
+    public static final String TUNEINSTATIONID = "tuneinstationid";
+    public static final String VOLUME = "volume";
+    public static final String ZONEGROUPID = "zonegroupid";
+    public static final String ZONENAME = "zonename";
+    public static final String MODELID = "modelId";
 
     // List of properties
     public static final String IDENTIFICATION = "identification";

@@ -77,7 +77,6 @@ public class ZonePlayerDiscoveryParticipant implements UpnpDiscoveryParticipant 
     public ThingUID getThingUID(RemoteDevice device) {
         if (device.getDetails().getManufacturerDetails().getManufacturer() != null) {
             if (device.getDetails().getManufacturerDetails().getManufacturer().toUpperCase().contains("SONOS")) {
-
                 String modelName = getModelName(device);
                 if (modelName.equals("ZP80")) {
                     modelName = "CONNECT";
