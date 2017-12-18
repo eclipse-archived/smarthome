@@ -57,22 +57,9 @@ public class ConfigurationService {
      * @return config or null if no config with the given config id exists
      * @throws IOException if configuration can not be read
      */
-    // public Configuration get(String configId, Map<String, Object> props) throws IOException {
     public Configuration get(String configId) throws IOException {
-        Dictionary<String, Object> properties = null;
-        // if (props.containsKey(ConfigConstants.SERVICE_CONTEXT)) {
-        // String context = (String) props.get(ConfigConstants.SERVICE_CONTEXT);
-        // String pidWithContext = configId + ConfigConstants.SERVICE_CONTEXT_MARKER + context;
-        // try {
-        // org.osgi.service.cm.Configuration configuration = getConfigurationWithContext(pidWithContext);
-        // properties = configuration.getProperties();
-        // } catch (InvalidSyntaxException e) {
-        // logger.error("Failed to lookup config for PID '{}' with context '{}'", configId, context);
-        // }
-        // } else {
         org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(configId, null);
-        properties = configuration.getProperties();
-        // }
+        Dictionary<String, Object> properties = configuration.getProperties();
         return toConfiguration(properties);
     }
 
@@ -86,6 +73,19 @@ public class ConfigurationService {
      */
     public Configuration update(String configId, Configuration newConfiguration) throws IOException {
         return update(configId, newConfiguration, false);
+    }
+
+    public String getProperty(String servicePID, String key) {
+        try {
+            org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(servicePID, null);
+            if (configuration != null && configuration.getProperties() != null) {
+                return (String) configuration.getProperties().get(key);
+            }
+        } catch (IOException e) {
+            logger.debug("Error while retrieving property {} for PID {}.", key, servicePID);
+        }
+
+        return null;
     }
 
     /**

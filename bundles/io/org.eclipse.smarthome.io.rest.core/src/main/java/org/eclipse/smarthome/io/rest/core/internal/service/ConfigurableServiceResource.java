@@ -235,13 +235,13 @@ public class ConfigurableServiceResource implements RESTResource {
         if (serviceReferences != null) {
             for (ServiceReference<?> serviceReference : serviceReferences) {
                 String id = getServiceId(serviceReference);
-                String label = (String) serviceReference.getProperty(ConfigurableService.SERVICE_PROPERTY_LABEL);
+                String label = configurationService.getProperty(id, ConfigurableService.SERVICE_PROPERTY_LABEL);
                 if (label == null) {
-                    label = (String) serviceReference.getProperty(ConfigConstants.SERVICE_CONTEXT);
+                    label = configurationService.getProperty(id, ConfigConstants.SERVICE_CONTEXT);
                 }
-                String category = (String) serviceReference.getProperty(ConfigurableService.SERVICE_PROPERTY_CATEGORY);
-                String configDescriptionURI = (String) serviceReference
-                        .getProperty(ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI);
+                String category = configurationService.getProperty(id, ConfigurableService.SERVICE_PROPERTY_CATEGORY);
+                String configDescriptionURI = configurationService.getProperty(id,
+                        ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI);
 
                 services.add(new ConfigurableServiceDTO(id, label, category, configDescriptionURI, false));
             }
@@ -266,10 +266,6 @@ public class ConfigurableServiceResource implements RESTResource {
                             mis.getConfigDescriptionUri(), true));
                 }
             }
-
-            String filter = "(" + ConfigConstants.SERVICE_CONTEXT + "=*)";
-            services.addAll(getServicesByFilter(filter));
-
         } catch (InvalidSyntaxException ex) {
             logger.error("Cannot get service references, because syntax is invalid: {}", ex.getMessage(), ex);
         }
