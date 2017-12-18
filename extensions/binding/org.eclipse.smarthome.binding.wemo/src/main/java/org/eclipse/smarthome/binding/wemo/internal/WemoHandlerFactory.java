@@ -51,7 +51,7 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
 
     private UpnpIOService upnpIOService;
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = WemoBindingConstants.SUPPORTED_THING_TYPES;
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = WemoBindingConstants.SUPPORTED_THING_TYPES;
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -62,10 +62,8 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
 
     @Override
     protected ThingHandler createHandler(Thing thing) {
-
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
         if (thingTypeUID != null) {
-
             logger.debug("Trying to create a handler for ThingType '{}", thingTypeUID);
 
             if (thingTypeUID.equals(WemoBindingConstants.THING_TYPE_BRIDGE)) {
