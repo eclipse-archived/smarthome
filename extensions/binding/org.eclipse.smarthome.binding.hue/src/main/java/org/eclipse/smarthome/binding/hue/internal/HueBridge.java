@@ -49,7 +49,7 @@ import com.google.gson.JsonParser;
  */
 @NonNullByDefault
 public class HueBridge {
-    private final static String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
     private final String ip;
     private @Nullable String username;
