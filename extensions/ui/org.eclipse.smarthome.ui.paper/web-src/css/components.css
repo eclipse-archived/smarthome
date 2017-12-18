@@ -1473,6 +1473,10 @@ md-progress-circular.firmware {
     padding-bottom: 0;
 }
 
+.multi-services.white-bg {
+    padding-top: 80px;
+}
+
 search-field {
 	display: flex;
 	width: 100%;

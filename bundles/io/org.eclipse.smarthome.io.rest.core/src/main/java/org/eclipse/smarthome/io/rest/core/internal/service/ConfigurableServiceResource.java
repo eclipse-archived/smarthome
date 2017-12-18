@@ -235,13 +235,14 @@ public class ConfigurableServiceResource implements RESTResource {
         if (serviceReferences != null) {
             for (ServiceReference<?> serviceReference : serviceReferences) {
                 String id = getServiceId(serviceReference);
-                String label = configurationService.getProperty(id, ConfigurableService.SERVICE_PROPERTY_LABEL);
-                if (label == null) {
+                String label = (String) serviceReference.getProperty(ConfigurableService.SERVICE_PROPERTY_LABEL);
+                if (label == null) { // for multi context services the label can be changed and must be read from config
+                                     // admin.
                     label = configurationService.getProperty(id, ConfigConstants.SERVICE_CONTEXT);
                 }
-                String category = configurationService.getProperty(id, ConfigurableService.SERVICE_PROPERTY_CATEGORY);
-                String configDescriptionURI = configurationService.getProperty(id,
-                        ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI);
+                String category = (String) serviceReference.getProperty(ConfigurableService.SERVICE_PROPERTY_CATEGORY);
+                String configDescriptionURI = (String) serviceReference
+                        .getProperty(ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI);
 
                 services.add(new ConfigurableServiceDTO(id, label, category, configDescriptionURI, false));
             }

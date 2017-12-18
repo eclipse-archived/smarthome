@@ -33,6 +33,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -163,17 +164,20 @@ public class ConfigDispatcher {
         String pid = pidWithContext.split(ConfigConstants.SERVICE_CONTEXT_MARKER)[0];
         String context = pidWithContext.split(ConfigConstants.SERVICE_CONTEXT_MARKER)[1];
 
-        Configuration[] configs = configAdmin
-                .listConfigurations("(&(service.factoryPid=" + pid + ")(" + ConfigConstants.SERVICE_CONTEXT + "=" + context + "))");
+        Configuration[] configs = configAdmin.listConfigurations(
+                "(&(service.factoryPid=" + pid + ")(" + ConfigConstants.SERVICE_CONTEXT + "=" + context + "))");
 
-        if (configs == null) {
+        if (configs == null || configs.length == 0) {
             return null;
         }
+        Configuration configuration = configs[0];
+
         if (configs.length > 1) {
-            throw new IllegalStateException("More than one configuration with PID " + pidWithContext + " exists");
+            logger.error("More than one configuration with PID '{}' exists, using entry '{}'.", pidWithContext,
+                    configuration.getProperties().get(Constants.SERVICE_PID));
         }
 
-        return configs[0];
+        return configuration;
     }
 
     private void processOrphanExclusivePIDs() {
