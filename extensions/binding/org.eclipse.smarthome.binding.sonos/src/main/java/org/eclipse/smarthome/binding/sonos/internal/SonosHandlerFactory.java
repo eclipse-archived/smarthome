@@ -74,7 +74,6 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
     @Override
     public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID,
             ThingUID bridgeUID) {
-
         if (SonosBindingConstants.SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
             ThingUID sonosDeviceUID = getPlayerUID(thingTypeUID, thingUID, configuration);
             logger.debug("Creating a sonos thing with ID '{}'", sonosDeviceUID);
@@ -86,13 +85,11 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
-
         return SonosBindingConstants.SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
     }
 
     @Override
     protected ThingHandler createHandler(Thing thing) {
-
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (SonosBindingConstants.SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
