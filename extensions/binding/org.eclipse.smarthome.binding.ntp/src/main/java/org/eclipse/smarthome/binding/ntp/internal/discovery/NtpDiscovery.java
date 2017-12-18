@@ -58,7 +58,6 @@ public class NtpDiscovery extends AbstractDiscoveryService {
         scheduler.schedule(() -> {
             discoverNtp();
         }, 1, TimeUnit.SECONDS);
-
     }
 
     @Override
