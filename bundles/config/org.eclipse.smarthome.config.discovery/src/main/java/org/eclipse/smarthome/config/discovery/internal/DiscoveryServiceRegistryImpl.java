@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -44,7 +44,9 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -134,9 +136,12 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         }
     }
 
-    private final List<DiscoveryService> discoveryServices = new CopyOnWriteArrayList<>();
+    private final Set<DiscoveryService> discoveryServices = new CopyOnWriteArraySet<>();
+    private final Set<DiscoveryService> discoveryServicesAll = new HashSet<>();
 
     private final Set<DiscoveryListener> listeners = new CopyOnWriteArraySet<>();
+
+    private final AtomicBoolean active = new AtomicBoolean();
 
     private final Logger logger = LoggerFactory.getLogger(DiscoveryServiceRegistryImpl.class);
 
@@ -176,8 +181,25 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                 return null;
             }
         }
-
     };
+
+    @Activate
+    protected void activate() {
+        active.set(true);
+        for (final DiscoveryService discoveryService : discoveryServicesAll) {
+            addDiscoveryServiceActivated(discoveryService);
+        }
+    }
+
+    @Deactivate
+    protected void deactivate() {
+        active.set(false);
+        for (final DiscoveryService discoveryService : discoveryServicesAll) {
+            removeDiscoveryServiceActivated(discoveryService);
+        }
+        this.listeners.clear();
+        this.cachedResults.clear();
+    }
 
     @Override
     public boolean abortScan(ThingTypeUID thingTypeUID) throws IllegalStateException {
@@ -448,6 +470,13 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addDiscoveryService(final DiscoveryService discoveryService) {
+        discoveryServicesAll.add(discoveryService);
+        if (active.get()) {
+            addDiscoveryServiceActivated(discoveryService);
+        }
+    }
+
+    private void addDiscoveryServiceActivated(final DiscoveryService discoveryService) {
         discoveryService.addDiscoveryListener(this);
         if (discoveryService instanceof ExtendedDiscoveryService) {
             safeCaller.create((ExtendedDiscoveryService) discoveryService).build()
@@ -457,17 +486,18 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     }
 
     protected void removeDiscoveryService(DiscoveryService discoveryService) {
+        discoveryServicesAll.remove(discoveryService);
+        if (active.get()) {
+            removeDiscoveryServiceActivated(discoveryService);
+        }
+    }
+
+    private void removeDiscoveryServiceActivated(DiscoveryService discoveryService) {
         this.discoveryServices.remove(discoveryService);
         discoveryService.removeDiscoveryListener(this);
         synchronized (cachedResults) {
             this.cachedResults.removeAll(discoveryService);
         }
-    }
-
-    protected void deactivate() {
-        this.discoveryServices.clear();
-        this.listeners.clear();
-        this.cachedResults.clear();
     }
 
     private int getMaxScanTimeout(Set<DiscoveryService> discoveryServices) {
