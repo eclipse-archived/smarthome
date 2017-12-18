@@ -75,13 +75,13 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
 
     private final Logger logger = LoggerFactory.getLogger(WemoCoffeeHandler.class);
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_COFFEE);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_COFFEE);
 
     private Map<String, Boolean> subscriptionState = new HashMap<String, Boolean>();
 
     private final Map<String, String> stateMap = Collections.synchronizedMap(new HashMap<String, String>());
 
-    protected final static int SUBSCRIPTION_DURATION = 600;
+    protected static final int SUBSCRIPTION_DURATION = 600;
 
     private UpnpIOService service;
 
@@ -103,7 +103,6 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
 
                 updateWemoState();
                 onSubscription();
-
             } catch (Exception e) {
                 logger.debug("Exception during poll : {}", e);
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
@@ -112,7 +111,6 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
     };
 
     public WemoCoffeeHandler(Thing thing, UpnpIOService upnpIOService) {
-
         super(thing);
 
         logger.debug("Creating a WemoCoffeeHandler V0.4 for thing '{}'", getThing().getUID());
@@ -122,12 +120,10 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
         } else {
             logger.debug("upnpIOService not set.");
         }
-
     }
 
     @Override
     public void initialize() {
-
         Configuration configuration = getConfig();
 
         if (configuration.get("udn") != null) {
@@ -138,7 +134,6 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
         } else {
             logger.debug("Cannot initalize WemoCoffeeHandler. UDN not set.");
         }
-
     }
 
     @Override
@@ -185,13 +180,9 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                 logger.debug("Exception during poll : {}", e);
             }
         } else if (channelUID.getId().equals(CHANNEL_STATE)) {
-
             if (command instanceof OnOffType) {
-
                 if (command.equals(OnOffType.ON)) {
-
                     try {
-
                         String soapHeader = "\"urn:Belkin:service:deviceevent:1#SetAttributes\"";
 
                         String content = "<?xml version=\"1.0\"?>"
@@ -222,7 +213,6 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                                 e.getMessage());
                         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
                     }
-
                 } else if (command.equals(OnOffType.OFF)) {
                     // do nothing, as WeMo Coffee Maker cannot be switched off remotely
                 }
@@ -252,7 +242,6 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                 service.addSubscription(this, subscription, SUBSCRIPTION_DURATION);
                 subscriptionState.put(subscription, true);
             }
-
         } else {
             logger.debug("Setting up WeMo GENA subscription for '{}' FAILED - service.isRegistered(this) is FALSE",
                     this);
@@ -263,7 +252,6 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
         logger.debug("Removing WeMo GENA subscription for '{}'", this);
 
         if (service.isRegistered(this)) {
-
             String subscription = "deviceevent1";
             if ((subscriptionState.get(subscription) != null) && subscriptionState.get(subscription).booleanValue()) {
                 logger.debug("WeMo {}: Unsubscribing from service {}...", getUDN(), subscription);
@@ -301,7 +289,6 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
      * The {@link updateWemoState} polls the actual state of a WeMo CoffeeMaker.
      */
     protected void updateWemoState() {
-
         String action = "GetAttributes";
         String actionService = "deviceevent";
 

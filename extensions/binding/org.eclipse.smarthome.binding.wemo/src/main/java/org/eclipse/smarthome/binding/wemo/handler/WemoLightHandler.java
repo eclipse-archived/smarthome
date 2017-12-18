@@ -69,9 +69,9 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
      */
     private static final int DIM_STEPSIZE = 5;
 
-    protected final static String SUBSCRIPTION = "bridge1";
+    protected static final String SUBSCRIPTION = "bridge1";
 
-    protected final static int SUBSCRIPTION_DURATION = 600;
+    protected static final int SUBSCRIPTION_DURATION = 600;
 
     /**
      * The default refresh interval in Seconds.
@@ -96,7 +96,6 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
 
                 getDeviceState();
                 onSubscription();
-
             } catch (Exception e) {
                 logger.debug("Exception during poll : {}", e);
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
@@ -162,7 +161,6 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
     }
 
     private synchronized WemoBridgeHandler getWemoBridgeHandler() {
-
         if (this.wemoBridgeHandler == null) {
             Bridge bridge = getBridge();
             if (bridge == null) {
@@ -182,7 +180,6 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-
         if (command instanceof RefreshType) {
             try {
                 getDeviceState();
@@ -190,7 +187,6 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                 logger.debug("Exception during poll : {}", e);
             }
         } else {
-
             Configuration configuration = getConfig();
             configuration.get(DEVICE_ID);
 
@@ -391,7 +387,6 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                 service.addSubscription(this, SUBSCRIPTION, SUBSCRIPTION_DURATION);
                 subscriptionState.put(SUBSCRIPTION, true);
             }
-
         } else {
             logger.debug("Setting up WeMo GENA subscription for '{}' FAILED - service.isRegistered(this) is FALSE",
                     this);
@@ -409,7 +404,6 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
 
             subscriptionState = new HashMap<String, Boolean>();
             service.unregisterParticipant(this);
-
         }
     }
 

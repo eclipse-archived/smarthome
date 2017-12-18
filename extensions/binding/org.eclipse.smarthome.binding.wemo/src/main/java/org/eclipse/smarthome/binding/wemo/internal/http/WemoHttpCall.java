@@ -30,9 +30,7 @@ public class WemoHttpCall {
     static String contentHeader = "text/xml; charset=utf-8";
 
     public static String executeCall(String wemoURL, String soapHeader, String content) {
-
         try {
-
             Properties wemoHeaders = new Properties();
             wemoHeaders.setProperty("CONTENT-TYPE", contentHeader);
             wemoHeaders.put("SOAPACTION", soapHeader);
@@ -41,11 +39,9 @@ public class WemoHttpCall {
 
             String wemoCallResponse = HttpUtil.executeUrl("POST", wemoURL, wemoHeaders, wemoContent, null, 2000);
             return wemoCallResponse;
-
         } catch (Exception e) {
             throw new RuntimeException("Could not call WeMo", e);
         }
-
     }
 
 }

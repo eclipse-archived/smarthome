@@ -69,8 +69,6 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
     protected synchronized void stopScan() {
         removeOlderResults(getTimestampOfLastScan());
         super.stopScan();
-        if (!isBackgroundDiscoveryEnabled()) {
-        }
     }
 
 }
