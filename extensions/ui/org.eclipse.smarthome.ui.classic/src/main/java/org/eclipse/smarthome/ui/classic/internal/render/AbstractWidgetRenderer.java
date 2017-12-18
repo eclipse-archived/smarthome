@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-abstract public class AbstractWidgetRenderer implements WidgetRenderer {
+public abstract class AbstractWidgetRenderer implements WidgetRenderer {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractWidgetRenderer.class);
 
@@ -60,7 +60,7 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
     protected static final String SNIPPET_LOCATION = "snippets/";
 
     /* a local cache so we do not have to read the snippets over and over again from the bundle */
-    protected static final Map<String, String> snippetCache = new HashMap<String, String>();
+    protected static final Map<String, String> SNIPPET_CACHE = new HashMap<String, String>();
 
     public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
         this.itemUIRegistry = itemUIRegistry;
@@ -89,7 +89,7 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
      */
     protected synchronized String getSnippet(String elementType) throws RenderException {
         String lowerCaseElementType = elementType.toLowerCase();
-        String snippet = snippetCache.get(lowerCaseElementType);
+        String snippet = SNIPPET_CACHE.get(lowerCaseElementType);
         if (snippet == null) {
             String snippetLocation = SNIPPET_LOCATION + lowerCaseElementType + SNIPPET_EXT;
             URL entry = WebAppActivator.getContext().getBundle().getEntry(snippetLocation);
@@ -97,7 +97,7 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
                 try {
                     snippet = IOUtils.toString(entry.openStream());
                     if (!config.isHtmlCacheDisabled()) {
-                        snippetCache.put(lowerCaseElementType, snippet);
+                        SNIPPET_CACHE.put(lowerCaseElementType, snippet);
                     }
                 } catch (IOException e) {
                     logger.warn("Cannot load snippet for element type '{}'", lowerCaseElementType, e);
@@ -127,7 +127,6 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
      * @return the label to use for the widget
      */
     public String getLabel(Widget w, String preferredValue) {
-
         String label = itemUIRegistry.getLabel(w);
         int index = label.indexOf('[');
         int index2 = label.lastIndexOf(']');
