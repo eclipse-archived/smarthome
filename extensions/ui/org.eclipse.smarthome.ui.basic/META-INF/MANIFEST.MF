@@ -32,6 +32,7 @@ Import-Package:
  org.eclipse.smarthome.io.rest.sitemap,
  org.eclipse.smarthome.model.core,
  org.eclipse.smarthome.model.sitemap,
+ org.eclipse.smarthome.ui.basic.render,
  org.eclipse.smarthome.ui.items,
  org.osgi.framework,
  org.osgi.service.component,
