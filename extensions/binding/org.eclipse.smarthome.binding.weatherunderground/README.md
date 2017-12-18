@@ -27,9 +27,9 @@ If the system location is changed, the background discovery updates the configur
 After adding this discovered thing, you will have to set the correct API key. 
 
 ## Binding Configuration
- 
+
 The binding has no configuration options, all configuration is done at Thing and Channel levels.
- 
+
 ## Thing Configuration
 
 The thing has a few configuration parameters:
