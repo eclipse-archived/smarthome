@@ -24,12 +24,12 @@ import java.util.Map;
  * @author Vlad Ivanov - Initial contribution
  */
 public class WebAppConfig {
-    private final static String DEFAULT_SITEMAP = "default";
-    private final static String DEFAULT_ICON_TYPE = "png";
+    private static final String DEFAULT_SITEMAP = "default";
+    private static final String DEFAULT_ICON_TYPE = "png";
 
-    public final static String THEME_NAME_DEFAULT = "default";
-    public final static String THEME_NAME_DARK = "dark";
-    private final static String DEFAULT_THEME = THEME_NAME_DEFAULT;
+    public static final String THEME_NAME_DEFAULT = "default";
+    public static final String THEME_NAME_DARK = "dark";
+    private static final String DEFAULT_THEME = THEME_NAME_DEFAULT;
 
     private String defaultSitemap = DEFAULT_SITEMAP;
     private String iconType = DEFAULT_ICON_TYPE;
@@ -37,35 +37,35 @@ public class WebAppConfig {
 
     private List<String> cssClassList = new ArrayList<String>();
 
-    private static final Map<String, String> cssClasses;
-    private static final Map<String, Boolean> cssDefaultValues;
+    private static final Map<String, String> CSS_CLASSES;
+    private static final Map<String, Boolean> CSS_DEFAULT_VALUES;
 
-    private final static String CONFIG_ENABLE_ICONS = "enableIcons";
-    private final static String CONFIG_CONDENSED_LAYOUT = "condensedLayout";
-    private final static String CONFIG_CAPITALIZE = "capitalizeValues";
+    private static final String CONFIG_ENABLE_ICONS = "enableIcons";
+    private static final String CONFIG_CONDENSED_LAYOUT = "condensedLayout";
+    private static final String CONFIG_CAPITALIZE = "capitalizeValues";
 
     static {
-        cssClasses = new HashMap<String, String>();
-        cssClasses.put(CONFIG_ENABLE_ICONS, "ui-icons-enabled");
-        cssClasses.put(CONFIG_CONDENSED_LAYOUT, "ui-layout-condensed");
-        cssClasses.put(CONFIG_CAPITALIZE, "ui-capitalize-values");
+        CSS_CLASSES = new HashMap<String, String>();
+        CSS_CLASSES.put(CONFIG_ENABLE_ICONS, "ui-icons-enabled");
+        CSS_CLASSES.put(CONFIG_CONDENSED_LAYOUT, "ui-layout-condensed");
+        CSS_CLASSES.put(CONFIG_CAPITALIZE, "ui-capitalize-values");
 
-        cssDefaultValues = new HashMap<String, Boolean>();
-        cssDefaultValues.put(CONFIG_ENABLE_ICONS, true);
-        cssDefaultValues.put(CONFIG_CONDENSED_LAYOUT, false);
-        cssDefaultValues.put(CONFIG_CAPITALIZE, false);
+        CSS_DEFAULT_VALUES = new HashMap<String, Boolean>();
+        CSS_DEFAULT_VALUES.put(CONFIG_ENABLE_ICONS, true);
+        CSS_DEFAULT_VALUES.put(CONFIG_CONDENSED_LAYOUT, false);
+        CSS_DEFAULT_VALUES.put(CONFIG_CAPITALIZE, false);
     }
 
     private void applyCssClasses(Map<String, Object> configProps) {
         cssClassList.clear();
 
-        for (String key : cssClasses.keySet()) {
-            Boolean value = cssDefaultValues.get(key);
+        for (String key : CSS_CLASSES.keySet()) {
+            Boolean value = CSS_DEFAULT_VALUES.get(key);
             if (configProps.containsKey(key)) {
                 value = configProps.get(key).toString().equalsIgnoreCase("true");
             }
             if (value) {
-                cssClassList.add(cssClasses.get(key));
+                cssClassList.add(CSS_CLASSES.get(key));
             }
         }
     }

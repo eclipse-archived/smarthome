@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * @author Vlad Ivanov - BasicUI changes
  *
  */
-abstract public class AbstractWidgetRenderer implements WidgetRenderer {
+public abstract class AbstractWidgetRenderer implements WidgetRenderer {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractWidgetRenderer.class);
 
@@ -64,7 +64,7 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
     protected static final String SNIPPET_LOCATION = "snippets/";
 
     /* a local cache so we do not have to read the snippets over and over again from the bundle */
-    protected static final Map<String, String> snippetCache = new HashMap<String, String>();
+    protected static final Map<String, String> SNIPPET_CACHE = new HashMap<String, String>();
 
     public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
         this.itemUIRegistry = itemUIRegistry;
@@ -140,14 +140,14 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
      */
     protected synchronized String getSnippet(String elementType) throws RenderException {
         String lowerTypeElementType = elementType.toLowerCase();
-        String snippet = snippetCache.get(lowerTypeElementType);
+        String snippet = SNIPPET_CACHE.get(lowerTypeElementType);
         if (snippet == null) {
             String snippetLocation = SNIPPET_LOCATION + lowerTypeElementType + SNIPPET_EXT;
             URL entry = WebAppActivator.getContext().getBundle().getEntry(snippetLocation);
             if (entry != null) {
                 try {
                     snippet = IOUtils.toString(entry.openStream());
-                    snippetCache.put(lowerTypeElementType, snippet);
+                    SNIPPET_CACHE.put(lowerTypeElementType, snippet);
                 } catch (IOException e) {
                     logger.warn("Cannot load snippet for element type '{}'", lowerTypeElementType, e);
                 }

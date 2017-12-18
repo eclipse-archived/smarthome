@@ -17,12 +17,12 @@ import org.osgi.framework.BundleContext;
 
 /**
  * Extension of the default OSGi bundle activator
- * 
+ *
  * @author Vlad Ivanov - Initial contribution
  */
 public final class WebAppActivator implements BundleActivator {
 
-    static private BundleContext context;
+    private static BundleContext context;
 
     /**
      * Called whenever the OSGi framework starts our bundle
@@ -40,7 +40,7 @@ public final class WebAppActivator implements BundleActivator {
         context = null;
     }
 
-    static public BundleContext getContext() {
+    public static BundleContext getContext() {
         return context;
     }
 
