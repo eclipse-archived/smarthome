@@ -64,7 +64,6 @@ public class CmdServlet extends BaseServlet {
             Hashtable<String, String> props = new Hashtable<String, String>();
             httpService.registerServlet(WEBAPP_ALIAS + "/" + SERVLET_NAME, this, props,
                     createHttpContext(bundleContext.getBundle()));
-
         } catch (NamespaceException e) {
             logger.error("Error during servlet startup", e);
         } catch (ServletException e) {

@@ -23,9 +23,9 @@ import java.util.Map;
  */
 public class WebAppConfig {
 
-    private final static String DEFAULT_SITEMAP = "default";
-    private final static String DEFAULT_ICON_TYPE = "png";
-    private final static boolean DEFAULT_HTML_CACHE_DISABLED = false;
+    private static final String DEFAULT_SITEMAP = "default";
+    private static final String DEFAULT_ICON_TYPE = "png";
+    private static final boolean DEFAULT_HTML_CACHE_DISABLED = false;
 
     private String defaultSitemap = DEFAULT_SITEMAP;
     private String iconType = DEFAULT_ICON_TYPE;

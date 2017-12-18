@@ -66,7 +66,6 @@ public class PageRenderer extends AbstractWidgetRenderer {
      */
     public StringBuilder processPage(String id, String sitemap, String label, EList<Widget> children, boolean async)
             throws RenderException {
-
         String snippet = getSnippet(async ? "layer" : "main");
         snippet = snippet.replaceAll("%id%", id);
 
@@ -86,21 +85,20 @@ public class PageRenderer extends AbstractWidgetRenderer {
 
         String[] parts = snippet.split("%children%");
 
-        StringBuilder pre_children = new StringBuilder(parts[0]);
-        StringBuilder post_children = new StringBuilder(parts[1]);
+        StringBuilder preChildren = new StringBuilder(parts[0]);
+        StringBuilder postChildren = new StringBuilder(parts[1]);
 
         if (parts.length == 2) {
-            processChildren(pre_children, post_children, children);
+            processChildren(preChildren, postChildren, children);
         } else if (parts.length > 2) {
             logger.error("Snippet '{}' contains multiple %children% sections, but only one is allowed!",
                     async ? "layer" : "main");
         }
-        return pre_children.append(post_children);
+        return preChildren.append(postChildren);
     }
 
     private void processChildren(StringBuilder sb_pre, StringBuilder sb_post, EList<Widget> children)
             throws RenderException {
-
         // put a single frame around all children widgets, if there are no explicit frames
         if (!children.isEmpty()) {
             boolean frameRequired = false;
@@ -128,20 +126,20 @@ public class PageRenderer extends AbstractWidgetRenderer {
         }
 
         for (Widget w : children) {
-            StringBuilder new_pre = new StringBuilder();
-            StringBuilder new_post = new StringBuilder();
+            StringBuilder newPre = new StringBuilder();
+            StringBuilder newPost = new StringBuilder();
             StringBuilder widgetSB = new StringBuilder();
             EList<Widget> nextChildren = renderWidget(w, widgetSB);
             if (nextChildren != null) {
                 String[] parts = widgetSB.toString().split("%children%");
                 // no %children% placeholder found or at the end
                 if (parts.length == 1) {
-                    new_pre.append(widgetSB);
+                    newPre.append(widgetSB);
                 }
                 // %children% section found
                 if (parts.length > 1) {
-                    new_pre.append(parts[0]);
-                    new_post.insert(0, parts[1]);
+                    newPre.append(parts[0]);
+                    newPost.insert(0, parts[1]);
                 }
                 // multiple %children% sections found -> log an error and ignore all code starting from the second
                 // occurance
@@ -152,14 +150,13 @@ public class PageRenderer extends AbstractWidgetRenderer {
                             "Snippet for widget '{}' contains multiple %children% sections, but only one is allowed!",
                             widgetType);
                 }
-                processChildren(new_pre, new_post, nextChildren);
-                sb_pre.append(new_pre);
-                sb_pre.append(new_post);
+                processChildren(newPre, newPost, nextChildren);
+                sb_pre.append(newPre);
+                sb_pre.append(newPost);
             } else {
                 sb_pre.append(widgetSB);
             }
         }
-
     }
 
     @Override
