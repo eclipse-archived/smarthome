@@ -15,12 +15,6 @@
 
   <name>${bindingIdCamelCase} Binding Tests</name>
 
-  <properties>
-    <bundle.symbolicName>${rootArtifactId}</bundle.symbolicName>
-    <bundle.namespace>${package}</bundle.namespace>
-  </properties>
-
-
   <build>
     <plugins>
       <plugin>
