@@ -64,7 +64,7 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
         FileUtils.copyDirectory(new File(CONFIGURATION_BASE_DIR), new File(configBaseDirectory));
 
         configAdmin = getService(ConfigurationAdmin.class);
-        assertThat("ConfigurationAdmin service cannot be found", configAdmin, is(notNullValue()));
+        assertThat(configAdmin, is(notNullValue()));
     }
 
     @After
@@ -616,12 +616,11 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
 
         Configuration c1 = getConfigurationWithContext("service.pid#ctx1");
         // test if configuration with context ctx1 was deleted
-        assertThat("Configuration 1 is not deleted", c1, is(nullValue()));
+        assertThat(c1, is(nullValue()));
 
         // configuration with context ctx2 should still exist
         Configuration c2 = getConfigurationWithContext("service.pid#ctx2");
-        assertThat("Configuration 2 should still exist but was removed", c2.getProperties().get("property1"),
-                is("value2"));
+        assertThat(c2.getProperties().get("property1"), is("value2"));
     }
 
     @Test
@@ -648,8 +647,7 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
             } catch (IOException e) {
                 fail("IOException occured while retrieving configuration for pid " + pid);
             }
-            assertThat("The configuration with properties for the given pid was found but should have been removed.",
-                    configuration.getProperties(), is(nullValue()));
+            assertThat(configuration.getProperties(), is(nullValue()));
         });
     }
 
@@ -715,8 +713,7 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
             } catch (IOException e) {
                 fail("IOException occured while retrieving configuration for pid " + pid);
             }
-            assertThat("The configuration with properties for the given pid was found but should have been removed.",
-                    configuration.getProperties(), is(nullValue()));
+            assertThat(configuration.getProperties(), is(nullValue()));
         });
     }
 
@@ -899,13 +896,10 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
         waitForAssert(() -> {
             Configuration configuration = getConfigurationWithContext(pidWithContext);
 
-            assertThat("The configuration for the given pid cannot be found", configuration, is(notNullValue()));
-            assertThat("There are no properties for the configuration", configuration.getProperties(),
-                    is(notNullValue()));
-            assertThat("There is no such " + property + " in the configuration properties",
-                    configuration.getProperties().get(property), is(notNullValue()));
-            assertThat("The value of the property " + property + " for pid " + pidWithContext + " is not as expected",
-                    configuration.getProperties().get(property), is(equalTo(value)));
+            assertThat(configuration, is(notNullValue()));
+            assertThat(configuration.getProperties(), is(notNullValue()));
+            assertThat(configuration.getProperties().get(property), is(notNullValue()));
+            assertThat(configuration.getProperties().get(property), is(equalTo(value)));
         });
     }
 
@@ -916,13 +910,10 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
             } catch (IOException e) {
                 fail("IOException occured while retrieving configuration for pid " + pid);
             }
-            assertThat("The configuration for the given pid cannot be found", configuration, is(notNullValue()));
-            assertThat("There are no properties for the configuration", configuration.getProperties(),
-                    is(notNullValue()));
-            assertThat("There is no such " + property + " in the configuration properties",
-                    configuration.getProperties().get(property), is(notNullValue()));
-            assertThat("The value of the property " + property + " for pid " + pid + " is not as expected",
-                    configuration.getProperties().get(property), is(equalTo(value)));
+            assertThat(configuration, is(notNullValue()));
+            assertThat(configuration.getProperties(), is(notNullValue()));
+            assertThat(configuration.getProperties().get(property), is(notNullValue()));
+            assertThat(configuration.getProperties().get(property), is(equalTo(value)));
         });
     }
 
@@ -941,11 +932,9 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
             } catch (IOException e) {
                 fail("IOException occured while retrieving configuration for pid " + pid);
             }
-            assertThat("The configuration for the given pid cannot be found", configuration, is(notNullValue()));
-            assertThat("There are no properties for the configuration", configuration.getProperties(),
-                    is(notNullValue()));
-            assertThat("There should not be such " + property + " in the configuration properties",
-                    configuration.getProperties().get(property), is(nullValue()));
+            assertThat(configuration, is(notNullValue()));
+            assertThat(configuration.getProperties(), is(notNullValue()));
+            assertThat(configuration.getProperties().get(property), is(nullValue()));
         });
     }
 
@@ -957,8 +946,7 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
             } catch (IOException e) {
                 fail("IOException occured while retrieving configuration for pid " + pid);
             }
-            assertThat("Configuration properties should not be present", configuration.getProperties(),
-                    is(nullValue()));
+            assertThat(configuration.getProperties(), is(nullValue()));
         });
     }
 
