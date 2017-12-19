@@ -12,11 +12,9 @@
  */
 package org.eclipse.smarthome.config.core.validation.internal;
 
-import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
-
 /**
  * The {@link ConfigDescriptionParameterValidatorFactory} creates the corresponding
- * {@link ConfigDescriptionParameterValidator}s used by {@link ConfigDescriptionValidator}.
+ * {@link ConfigDescriptionParameterValidator}s used by ConfigDescriptionValidator.
  *
  * @author Thomas Höfer - Initial contribution
  */

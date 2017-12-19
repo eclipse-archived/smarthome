@@ -80,6 +80,8 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected ItemChannelLinkRegistry linkRegistry;
     @NonNullByDefault({})
     protected ThingTypeRegistry thingTypeRegistry;
+    @NonNullByDefault({})
+    protected ConfigDescriptionValidator configDescriptionValidator;
 
     @Deprecated // this must not be used by bindings!
     @NonNullByDefault({})
@@ -96,6 +98,9 @@ public abstract class BaseThingHandler implements ThingHandler {
     @SuppressWarnings("rawtypes")
     @NonNullByDefault({})
     private ServiceTracker thingTypeRegistryServiceTracker;
+    @SuppressWarnings("rawtypes")
+    @NonNullByDefault({})
+    private ServiceTracker configDescriptionValidatorServiceTracker;
 
     private @Nullable ThingHandlerCallback callback;
 
@@ -158,6 +163,22 @@ public abstract class BaseThingHandler implements ThingHandler {
             }
         };
         thingTypeRegistryServiceTracker.open();
+        configDescriptionValidatorServiceTracker = new ServiceTracker(this.bundleContext,
+                ConfigDescriptionValidator.class.getName(), null) {
+            @Override
+            public Object addingService(final @Nullable ServiceReference reference) {
+                configDescriptionValidator = (ConfigDescriptionValidator) bundleContext.getService(reference);
+                return configDescriptionValidator;
+            }
+
+            @Override
+            public void removedService(final @Nullable ServiceReference reference, final @Nullable Object service) {
+                synchronized (BaseThingHandler.this) {
+                    configDescriptionValidator = null;
+                }
+            }
+        };
+        configDescriptionValidatorServiceTracker.open();
     }
 
     public void unsetBundleContext(final BundleContext bundleContext) {
@@ -281,7 +302,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected void validateConfigurationParameters(Map<String, Object> configurationParameters) {
         ThingType thingType = thingTypeRegistry.getThingType(getThing().getThingTypeUID());
         if (thingType != null && thingType.getConfigDescriptionURI() != null) {
-            ConfigDescriptionValidator.validate(configurationParameters, thingType.getConfigDescriptionURI());
+            configDescriptionValidator.validate(configurationParameters, thingType.getConfigDescriptionURI());
         }
     }
 
