@@ -40,7 +40,7 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
-import org.eclipse.smarthome.core.thing.type.TypeResolver;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -72,6 +72,7 @@ public class ChannelItemProvider implements ItemProvider {
     private ItemRegistry itemRegistry;
     private final Set<ItemFactory> itemFactories = new HashSet<>();
     private Map<String, Item> items = null;
+    private ChannelTypeRegistry channelTypeRegistry;
 
     private boolean enabled = true;
     private boolean initialized = false;
@@ -150,6 +151,15 @@ public class ChannelItemProvider implements ItemProvider {
 
     protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry linkRegistry) {
         this.linkRegistry = null;
+    }
+
+    @Reference
+    protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry;
+    }
+
+    protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null;
     }
 
     @Activate
@@ -267,7 +277,8 @@ public class ChannelItemProvider implements ItemProvider {
 
     private String getCategory(Channel channel) {
         if (channel.getChannelTypeUID() != null) {
-            ChannelType channelType = TypeResolver.resolve(channel.getChannelTypeUID(), localeProvider.getLocale());
+            ChannelType channelType = channelTypeRegistry.getChannelType(channel.getChannelTypeUID(),
+                    localeProvider.getLocale());
             if (channelType != null) {
                 return channelType.getCategory();
             }
@@ -281,7 +292,7 @@ public class ChannelItemProvider implements ItemProvider {
         } else {
             final Locale locale = localeProvider.getLocale();
             if (channel.getChannelTypeUID() != null) {
-                final ChannelType channelType = TypeResolver.resolve(channel.getChannelTypeUID(), locale);
+                final ChannelType channelType = channelTypeRegistry.getChannelType(channel.getChannelTypeUID(), locale);
                 if (channelType != null) {
                     return channelType.getLabel();
                 }
