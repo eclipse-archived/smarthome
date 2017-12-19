@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -30,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableSet;
 
 /**
  *
@@ -112,7 +112,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      * @return the direct members of this {@link GroupItem}
      */
     public Set<Item> getMembers() {
-        return ImmutableSet.copyOf(members);
+        return Collections.unmodifiableSet(new LinkedHashSet<Item>(members));
     }
 
     /**
@@ -123,7 +123,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      * @return all members of this and all contained {@link GroupItem}s
      */
     public Set<Item> getAllMembers() {
-        return ImmutableSet.copyOf(getMembers((Item i) -> !(i instanceof GroupItem)));
+        return Collections.unmodifiableSet(new LinkedHashSet<Item>(getMembers((Item i) -> !(i instanceof GroupItem))));
     }
 
     private void collectMembers(Collection<Item> allMembers, Collection<Item> members) {
