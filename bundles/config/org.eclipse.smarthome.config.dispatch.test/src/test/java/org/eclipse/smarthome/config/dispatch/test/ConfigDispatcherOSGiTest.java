@@ -495,7 +495,8 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
         FileUtils.touch(fileToModify);
         cd.processConfigFile(fileToModify);
 
-        String value = getLastModifiedValueForPoperty(getAbsoluteConfigDirectory(configDirectory, servicesDirectory), conflictProperty);
+        String value = getLastModifiedValueForPoperty(getAbsoluteConfigDirectory(configDirectory, servicesDirectory),
+                conflictProperty);
 
         /*
          * Assert that the property for the same local pid in the last modified file
@@ -591,7 +592,8 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
         verifyValueOfConfigurationPropertyWithContext("service.pid#ctx1", "property1", "value1");
         verifyValueOfConfigurationPropertyWithContext("service.pid#ctx2", "property1", "value2");
 
-        File serviceConfigFile = new File(getAbsoluteConfigDirectory(configDirectory, servicesDirectory), "service-ctx1.cfg");
+        File serviceConfigFile = new File(getAbsoluteConfigDirectory(configDirectory, servicesDirectory),
+                "service-ctx1.cfg");
 
         cd.fileRemoved(serviceConfigFile.getAbsolutePath());
 
@@ -635,7 +637,8 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
         String configDirectory = configBaseDirectory + SEP + "exclusive_pid_overrides_configuration_on_update";
         String servicesDirectory = "exclusive_pid_overrides_configuration_on_update_services";
 
-        File serviceConfigFile = new File(getAbsoluteConfigDirectory(configDirectory, servicesDirectory), "service.pid.cfg");
+        File serviceConfigFile = new File(getAbsoluteConfigDirectory(configDirectory, servicesDirectory),
+                "service.pid.cfg");
 
         initialize(null);
 
@@ -664,7 +667,8 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
         String configDirectory = configBaseDirectory + SEP + "exclusive_pid_configuration_removed_after_file_delete";
         String servicesDirectory = "exclusive_pid_configuration_removed_after_file_delete_services";
 
-        File serviceConfigFile = new File(getAbsoluteConfigDirectory(configDirectory, servicesDirectory), "service.pid.cfg");
+        File serviceConfigFile = new File(getAbsoluteConfigDirectory(configDirectory, servicesDirectory),
+                "service.pid.cfg");
 
         initialize(null);
 
@@ -720,7 +724,8 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
         FileUtils.touch(fileToModify);
         cd.processConfigFile(fileToModify);
 
-        String value = getLastModifiedValueForPoperty(getAbsoluteConfigDirectory(configDirectory, servicesDirectory), conflictProperty);
+        String value = getLastModifiedValueForPoperty(getAbsoluteConfigDirectory(configDirectory, servicesDirectory),
+                conflictProperty);
 
         /*
          * Assert that the property for the same global pid in the last modified file
@@ -770,7 +775,8 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
         FileUtils.touch(fileToModify);
         cd.processConfigFile(fileToModify);
 
-        String value = getLastModifiedValueForPoperty(getAbsoluteConfigDirectory(configDirectory, servicesDirectory), conflictProperty);
+        String value = getLastModifiedValueForPoperty(getAbsoluteConfigDirectory(configDirectory, servicesDirectory),
+                conflictProperty);
 
         /*
          * Assert that the global pid from the last modified file
@@ -804,7 +810,8 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
         FileUtils.touch(fileToModify);
         cd.processConfigFile(fileToModify);
 
-        String value = getLastModifiedValueForPoperty(getAbsoluteConfigDirectory(configDirectory, servicesDirectory), conflictProperty);
+        String value = getLastModifiedValueForPoperty(getAbsoluteConfigDirectory(configDirectory, servicesDirectory),
+                conflictProperty);
 
         /*
          * Assert that the local pid from the last modified file
