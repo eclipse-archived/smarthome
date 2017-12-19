@@ -13,7 +13,7 @@
 package org.eclipse.smarthome.config.dispatch.test;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -645,7 +645,8 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
             try {
                 configuration = configAdmin.getConfiguration(pid);
             } catch (IOException e) {
-                fail("IOException occured while retrieving configuration for pid " + pid);
+                throw new IllegalArgumentException("IOException occured while retrieving configuration for pid " + pid,
+                        e);
             }
             assertThat(configuration.getProperties(), is(nullValue()));
         });
@@ -711,7 +712,8 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
             try {
                 configuration = configAdmin.getConfiguration(pid);
             } catch (IOException e) {
-                fail("IOException occured while retrieving configuration for pid " + pid);
+                throw new IllegalArgumentException("IOException occured while retrieving configuration for pid " + pid,
+                        e);
             }
             assertThat(configuration.getProperties(), is(nullValue()));
         });
@@ -871,16 +873,18 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
             pid = pidWithContext.split(ConfigDispatcher.SERVICE_CONTEXT_MARKER)[0];
             configContext = pidWithContext.split(ConfigDispatcher.SERVICE_CONTEXT_MARKER)[1];
         } else {
-            fail("PID does not have a context");
+            throw new IllegalArgumentException("PID does not have a context");
         }
         Configuration[] configs = null;
         try {
             configs = configAdmin.listConfigurations("(&(service.factoryPid=" + pid + ")("
                     + ConfigDispatcher.SERVICE_CONTEXT + "=" + configContext + "))");
         } catch (IOException e) {
-            fail("IOException occured while retrieving configuration for pid " + pidWithContext);
+            throw new IllegalArgumentException(
+                    "IOException occured while retrieving configuration for pid " + pidWithContext, e);
         } catch (InvalidSyntaxException e) {
-            fail("InvalidSyntaxException occured while retrieving configuration for pid " + pidWithContext);
+            throw new IllegalArgumentException(
+                    "InvalidSyntaxException occured while retrieving configuration for pid " + pidWithContext, e);
         }
 
         if (configs == null) {
@@ -908,7 +912,8 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
             try {
                 configuration = configAdmin.getConfiguration(pid);
             } catch (IOException e) {
-                fail("IOException occured while retrieving configuration for pid " + pid);
+                throw new IllegalArgumentException("IOException occured while retrieving configuration for pid " + pid,
+                        e);
             }
             assertThat(configuration, is(notNullValue()));
             assertThat(configuration.getProperties(), is(notNullValue()));
@@ -930,7 +935,8 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
             try {
                 configuration = configAdmin.getConfiguration(pid);
             } catch (IOException e) {
-                fail("IOException occured while retrieving configuration for pid " + pid);
+                throw new IllegalArgumentException("IOException occured while retrieving configuration for pid " + pid,
+                        e);
             }
             assertThat(configuration, is(notNullValue()));
             assertThat(configuration.getProperties(), is(notNullValue()));
@@ -944,7 +950,8 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
             try {
                 configuration = configAdmin.getConfiguration(pid);
             } catch (IOException e) {
-                fail("IOException occured while retrieving configuration for pid " + pid);
+                throw new IllegalArgumentException("IOException occured while retrieving configuration for pid " + pid,
+                        e);
             }
             assertThat(configuration.getProperties(), is(nullValue()));
         });
@@ -971,7 +978,8 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
                 }
             }
         } catch (IOException e) {
-            fail("An exception " + e + " was thrown, while reading from file " + file.getPath());
+            throw new IllegalArgumentException(
+                    "An exception " + e + " was thrown, while reading from file " + file.getPath(), e);
         }
 
         return value;
