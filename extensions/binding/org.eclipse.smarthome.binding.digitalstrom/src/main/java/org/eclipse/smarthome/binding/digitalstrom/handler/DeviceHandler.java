@@ -715,9 +715,9 @@ public class DeviceHandler extends BaseThingHandler implements DeviceStatusListe
         }
         String channelTypeID = DsChannelTypeProvider.getOutputChannelTypeID(device.getFunctionalColorGroup(),
                 device.getOutputMode());
-        logger.debug("load channel: typeID="
-                + DsChannelTypeProvider.getOutputChannelTypeID(device.getFunctionalColorGroup(), device.getOutputMode())
-                + ", itemType=" + DsChannelTypeProvider.getItemType(channelTypeID));
+        logger.debug("load channel: typeID={}, itemType={}",
+                DsChannelTypeProvider.getOutputChannelTypeID(device.getFunctionalColorGroup(), device.getOutputMode()),
+                DsChannelTypeProvider.getItemType(channelTypeID));
         if (channelTypeID != null && (currentChannel == null || currentChannel != channelTypeID)) {
             loadOutputChannel(new ChannelTypeUID(BINDING_ID, channelTypeID),
                     DsChannelTypeProvider.getItemType(channelTypeID));

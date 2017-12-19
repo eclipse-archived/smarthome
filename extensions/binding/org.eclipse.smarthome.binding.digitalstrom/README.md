@@ -543,8 +543,5 @@ If you configure your system with textual configuration files, like *\*.thing*, 
 
 If you want to create a rule, which uses things of the digitalSTROM-Binding, there are also two things you have to consider.
 
-1. If the rule contains several digitalSTROM-Devices, which can be summarized in a digitalSTROM-Scene, e.g. some lights in a zone, please use a equivalent supported scene. 
-That will significantly reduce the communication to the digitalSTROM-Server, increases performance and does not bypass the digitalSTROM state-machine.
-2. If you implement your own temperature control algorithm for a zone/room, e.g. because you want to use other temperature sensors, and call more than one digitalSTROM-BL-KM200, please use the *zone_temperature_control* for valve value control.
-The *zone_temperature_control* for valve value control will call all digitalSTROM-BL-KM200 with one command and increases the performance.
-To get the needed channel at the *zone_temperature_control* you have to choose a control mode unequal to *pid-controlled* for the affected zone at the digitalSTROM-heating-control-app. 
+1. If the rule contains several digitalSTROM-Devices, which can be summarized in a digitalSTROM-Scene, e.g. some lights in a zone, please use a equivalent supported scene. That will significantly reduce the communication to the digitalSTROM-Server, increases performance and does not bypass the digitalSTROM state-machine.
+2. If you implement your own temperature control algorithm for a zone/room, e.g. because you want to use other temperature sensors, and call more than one digitalSTROM-BL-KM200, please use the *zone_temperature_control* for valve value control. The *zone_temperature_control* for valve value control will call all digitalSTROM-BL-KM200 with one command and increases the performance. To get the needed channel at the *zone_temperature_control* you have to choose a control mode unequal to *pid-controlled* for the affected zone at the digitalSTROM-heating-control-app. 

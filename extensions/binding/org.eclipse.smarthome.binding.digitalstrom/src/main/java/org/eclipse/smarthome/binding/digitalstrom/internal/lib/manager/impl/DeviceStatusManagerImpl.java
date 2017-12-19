@@ -502,8 +502,8 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
         }
         if (deviceStateUpdate.isSensorUpdateType()) {
             if (sensorJobExecutor != null) {
-                logger.debug("remove SensorJob with ID: "
-                        + DeviceConsumptionSensorJob.getID(eshDevice, deviceStateUpdate.getTypeAsSensorEnum()));
+                logger.debug("remove SensorJob with ID: {}",
+                        DeviceConsumptionSensorJob.getID(eshDevice, deviceStateUpdate.getTypeAsSensorEnum()));
                 sensorJobExecutor.removeSensorJob(eshDevice,
                         DeviceConsumptionSensorJob.getID(eshDevice, deviceStateUpdate.getTypeAsSensorEnum()));
             }
@@ -1275,7 +1275,7 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
                             sceneID = group.get(JSONApiResponseKeysEnum.LAST_CALL_SCENE.getKey()).getAsShort();
                         }
                         if (zoneID > -1 && groupID > -1 && sceneID > -1) {
-                            logger.debug("inizial state, call scene " + zoneID + "-" + groupID + "-" + sceneID);
+                            logger.debug("initial state, call scene {}-{}-{}", zoneID, groupID, sceneID);
                             sceneMan.callInternalSceneWithoutDiscovery(zoneID, groupID, sceneID);
                         }
                     }

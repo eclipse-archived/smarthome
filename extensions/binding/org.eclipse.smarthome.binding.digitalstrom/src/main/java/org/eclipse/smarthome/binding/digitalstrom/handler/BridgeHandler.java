@@ -193,7 +193,7 @@ public class BridgeHandler extends BaseBridgeHandler
             }
             Map<String, String> dsidMap = connMan.getDigitalSTROMAPI().getDSID(connMan.getSessionToken());
             if (dsidMap != null) {
-                logger.debug(dsidMap.toString());
+                logger.debug("{}", dsidMap);
                 properties.putAll(dsidMap);
             }
             Map<String, String> versions = connMan.getDigitalSTROMAPI().getSystemVersion();
