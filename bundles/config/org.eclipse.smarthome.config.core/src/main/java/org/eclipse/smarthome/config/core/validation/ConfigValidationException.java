@@ -82,8 +82,7 @@ public final class ConfigValidationException extends RuntimeException {
      * internationalized then the default message is delivered.
      * <p>
      * If there is no TranslationProvider available then this operation will return the default validation messages by
-     * using
-     * {@link ConfigValidationException#getValidationMessages()}.
+     * using {@link ConfigValidationException#getValidationMessages()}.
      *
      * @param locale the locale to be used; if null then the default locale will be used
      *
