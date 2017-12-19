@@ -38,7 +38,8 @@ import com.google.common.collect.Lists;
 @Component(immediate = true, service = ThingTypeRegistry.class)
 public class ThingTypeRegistry {
 
-    private List<ThingTypeProvider> thingTypeProviders = new CopyOnWriteArrayList<>();
+    private final List<ThingTypeProvider> thingTypeProviders = new CopyOnWriteArrayList<>();
+    private ChannelTypeRegistry channelTypeRegistry;
 
     /**
      * Returns all thing types.
@@ -161,7 +162,7 @@ public class ThingTypeRegistry {
     public ChannelType getChannelType(Channel channel, Locale locale) {
         ChannelTypeUID channelTypeUID = channel.getChannelTypeUID();
         if (channelTypeUID != null) {
-            return TypeResolver.resolve(channelTypeUID, locale);
+            return channelTypeRegistry.getChannelType(channelTypeUID, locale);
         }
         return null;
     }
@@ -177,6 +178,15 @@ public class ThingTypeRegistry {
         if (thingTypeProvider != null) {
             this.thingTypeProviders.remove(thingTypeProvider);
         }
+    }
+
+    @Reference
+    protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry;
+    }
+
+    protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null;
     }
 
 }
