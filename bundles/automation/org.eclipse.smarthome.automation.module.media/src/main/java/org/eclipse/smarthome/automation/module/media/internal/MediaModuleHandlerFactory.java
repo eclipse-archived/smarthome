@@ -12,8 +12,9 @@
  */
 package org.eclipse.smarthome.automation.module.media.internal;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
+
 import java.util.Collection;
 
 import org.eclipse.smarthome.automation.Action;
@@ -35,13 +36,14 @@ import org.osgi.service.component.annotations.Reference;
 @Component(service = ModuleHandlerFactory.class)
 public class MediaModuleHandlerFactory extends BaseModuleHandlerFactory {
 
-    private static final Collection<String> types = Arrays.asList(SayActionHandler.TYPE_ID, PlayActionHandler.TYPE_ID);
+    private static final Collection<String> TYPES = unmodifiableList(
+            asList(SayActionHandler.TYPE_ID, PlayActionHandler.TYPE_ID));
     private VoiceManager voiceManager;
     private AudioManager audioManager;
 
     @Override
     public Collection<String> getTypes() {
-        return new ArrayList<>(types);
+        return TYPES;
     }
 
     @Override
