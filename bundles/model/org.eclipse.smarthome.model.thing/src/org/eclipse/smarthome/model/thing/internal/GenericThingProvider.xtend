@@ -59,6 +59,8 @@ import org.eclipse.xtend.lib.annotations.Data
 import org.osgi.framework.FrameworkUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.osgi.service.component.annotations.Component
+import org.osgi.service.component.annotations.Reference
 
 /**
  * {@link ThingProvider} implementation which computes *.things files.
@@ -73,6 +75,7 @@ import org.slf4j.LoggerFactory
  * @author Markus Rathgeb - Add locale provider support
  * 
  */
+ @Component(immediate=true, service=ThingProvider)
 class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvider, ModelRepositoryChangeListener, ReadyService.ReadyTracker {
 
     private static final String XML_THING_TYPE = "esh.xmlThingTypes";
@@ -428,6 +431,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         thingTypeRegistry?.getThingType(thingTypeUID, localeProvider.getLocale())
     }
 
+    @Reference
     def protected void setModelRepository(ModelRepository modelRepository) {
         this.modelRepository = modelRepository
         modelRepository.addModelRepositoryChangeListener(this)
@@ -491,6 +495,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         }
     }
 
+    @Reference
     def protected void setLocaleProvider(LocaleProvider localeProvider) {
         this.localeProvider = localeProvider
     }
@@ -499,6 +504,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         this.localeProvider = null
     }
 
+    @Reference(cardinality=OPTIONAL, policy=DYNAMIC)
     def protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = thingTypeRegistry
     }
@@ -507,6 +513,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         this.thingTypeRegistry = null
     }
 
+    @Reference(cardinality=MULTIPLE, policy=DYNAMIC)
     def protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         logger.debug("ThingHandlerFactory added {}", thingHandlerFactory)
         thingHandlerFactories.add(thingHandlerFactory);
@@ -522,14 +529,14 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         // Don't do anything, Things should not be deleted
     }
 
-    def private thingHandlerFactoryAdded(ThingHandlerFactory thingHandlerFactory) {
+    def thingHandlerFactoryAdded(ThingHandlerFactory thingHandlerFactory) {
         thingsMap.keySet.forEach [
             //create things for this specific thingHandlerFactory from the model.
             createThingsFromModelForThingHandlerFactory(it, thingHandlerFactory)
         ]
     }
     
-    
+    @Reference
     def void setReadyService(ReadyService readyService) {
         readyService.registerTracker(this, new ReadyMarkerFilter().withType(XML_THING_TYPE));
     }
@@ -642,6 +649,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         ThingHandlerFactory thingHandlerFactory
     }
 
+    @Reference
     def protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescriptionRegistry = configDescriptionRegistry
     }
