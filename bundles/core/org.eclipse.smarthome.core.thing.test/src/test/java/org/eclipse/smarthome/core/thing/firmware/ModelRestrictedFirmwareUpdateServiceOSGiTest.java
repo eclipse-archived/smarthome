@@ -18,6 +18,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -221,7 +222,7 @@ public class ModelRestrictedFirmwareUpdateServiceOSGiTest extends JavaOSGiTest {
                 if (thingTypeUID.equals(thingType.getUID())) {
                     return new HashSet<>(Arrays.asList(firmwares));
                 } else {
-                    return new HashSet<>();
+                    return Collections.emptySet();
                 }
             }
 
