@@ -899,7 +899,6 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
 
             assertThat(configuration, is(notNullValue()));
             assertThat(configuration.getProperties(), is(notNullValue()));
-            assertThat(configuration.getProperties().get(property), is(notNullValue()));
             assertThat(configuration.getProperties().get(property), is(equalTo(value)));
         });
     }
@@ -914,7 +913,6 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
             }
             assertThat(configuration, is(notNullValue()));
             assertThat(configuration.getProperties(), is(notNullValue()));
-            assertThat(configuration.getProperties().get(property), is(notNullValue()));
             assertThat(configuration.getProperties().get(property), is(equalTo(value)));
         });
     }
