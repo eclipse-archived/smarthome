@@ -46,8 +46,6 @@ import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
-
 /**
  * The {@link WemoDimmerHandler} is responsible for handling commands, which are
  * sent to one of the channels and to update their states.
@@ -59,8 +57,7 @@ public class WemoDimmerHandler extends BaseThingHandler implements UpnpIOPartici
 
     private final Logger logger = LoggerFactory.getLogger(WemoDimmerHandler.class);
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_SOCKET, THING_TYPE_INSIGHT,
-            THING_TYPE_LIGHTSWITCH, THING_TYPE_MOTION);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_DIMMER);
 
     private Map<String, Boolean> subscriptionState = new HashMap<String, Boolean>();
 
@@ -71,6 +68,10 @@ public class WemoDimmerHandler extends BaseThingHandler implements UpnpIOPartici
     private UpnpIOService service;
 
     private int currentBrightness;
+
+    private int currentNightModeBrightness;
+
+    private String currentNightModeState = null;
 
     /**
      * Set dimming stepsize to 5%
@@ -177,8 +178,10 @@ public class WemoDimmerHandler extends BaseThingHandler implements UpnpIOPartici
             }
         } else {
 
+            String action = "SetBinaryState";
             String argument = null;
             String value = null;
+            String timeStamp = null;
 
             switch (channelUID.getId()) {
                 case CHANNEL_BRIGHTNESS:
@@ -226,19 +229,132 @@ public class WemoDimmerHandler extends BaseThingHandler implements UpnpIOPartici
                         value = "0";
                     }
                     break;
+                case CHANNEL_FADERCOUNTDOWNTIME:
+                    argument = "Fader";
+                    if (command instanceof DecimalType) {
+                        int commandValue = Integer.valueOf(String.valueOf(command));
+                        commandValue = commandValue * 60;
+                        String commandString = String.valueOf(commandValue);
+                        value = "<BinaryState></BinaryState>" + "<Duration></Duration>" + "<EndAction></EndAction>"
+                                + "<brightness></brightness>" + "<fader>" + commandString + ":-1:1:0:0</fader>"
+                                + "<UDN></UDN>";
+                    }
+                    break;
+                case CHANNEL_FADERENABLED:
+                    argument = "Fader";
+
+                    if (command.equals(OnOffType.ON)) {
+                        value = "<BinaryState></BinaryState>" + "<Duration></Duration>" + "<EndAction></EndAction>"
+                                + "<brightness></brightness>" + "<fader>600:-1:1:0:0</fader>" + "<UDN></UDN>";
+
+                    } else if (command.equals(OnOffType.OFF)) {
+                        value = "<BinaryState></BinaryState>" + "<Duration></Duration>" + "<EndAction></EndAction>"
+                                + "<brightness></brightness>" + "<fader>600:-1:0:0:0</fader>" + "<UDN></UDN>";
+                    }
+                    break;
+                case CHANNEL_TIMERSTART:
+                    argument = "Fader";
+
+                    long ts = System.currentTimeMillis() / 1000;
+                    timeStamp = String.valueOf(ts);
+                    logger.info("timestamp '{}' created", timeStamp);
+
+                    String faderSeconds = null;
+                    String faderEnabled = null;
+
+                    String[] splitFader = this.stateMap.get("fader").split(":");
+
+                    if (splitFader[0] != null) {
+                        faderSeconds = splitFader[0];
+                    }
+                    if (splitFader[0] != null) {
+                        faderEnabled = splitFader[2];
+                    }
+
+                    if (faderSeconds != null && faderEnabled != null) {
+                        if (command.equals(OnOffType.ON)) {
+                            value = "<BinaryState></BinaryState>" + "<Duration></Duration>" + "<EndAction></EndAction>"
+                                    + "<brightness></brightness>" + "<fader>" + faderSeconds + ":" + timeStamp + ":"
+                                    + faderEnabled + ":0:0</fader>" + "<UDN></UDN>";
+
+                        } else if (command.equals(OnOffType.OFF)) {
+                            value = "<BinaryState></BinaryState>" + "<Duration></Duration>" + "<EndAction></EndAction>"
+                                    + "<brightness></brightness>" + "<fader>" + faderSeconds + ":-1:" + faderEnabled
+                                    + ":0:0</fader>" + "<UDN></UDN>";
+                        }
+                    }
+                    break;
+                case CHANNEL_NIGHTMODE:
+                    action = "ConfigureNightMode";
+                    argument = "NightModeConfiguration";
+                    String nightModeBrightness = String.valueOf(currentNightModeBrightness);
+
+                    if (command.equals(OnOffType.ON)) {
+                        value = "&lt;startTime&gt;0&lt;/startTime&gt; \\n&lt;nightMode&gt;1&lt;/nightMode&gt; \\n&lt;endTime&gt;23400&lt;/endTime&gt; \\n&lt;nightModeBrightness&gt;"
+                                + nightModeBrightness + "&lt;/nightModeBrightness&gt; \\n";
+                    } else if (command.equals(OnOffType.OFF)) {
+                        value = "&lt;startTime&gt;0&lt;/startTime&gt; \\n&lt;nightMode&gt;0&lt;/nightMode&gt; \\n&lt;endTime&gt;23400&lt;/endTime&gt; \\n&lt;nightModeBrightness&gt;"
+                                + nightModeBrightness + "&lt;/nightModeBrightness&gt; \\n";
+                    }
+                    break;
+                case CHANNEL_NIGHTMODEBRIGHTNESS:
+                    action = "ConfigureNightMode";
+                    argument = "NightModeConfiguration";
+
+                    if (command instanceof PercentType) {
+                        int newBrightness = ((PercentType) command).intValue();
+                        String newNightModeBrightness = String.valueOf(newBrightness);
+                        value = "&lt;startTime&gt;0&lt;/startTime&gt; \\n&lt;nightMode&gt;" + currentNightModeState
+                                + "&lt;/nightMode&gt; \\n&lt;endTime&gt;23400&lt;/endTime&gt; \\n&lt;nightModeBrightness&gt;"
+                                + newNightModeBrightness + "&lt;/nightModeBrightness&gt; \\n";
+
+                        currentNightModeBrightness = newBrightness;
+                    } else if (command instanceof IncreaseDecreaseType) {
+                        int newBrightness;
+                        String newNightModeBrightness = null;
+                        switch (command.toString()) {
+                            case "INCREASE":
+                                newBrightness = currentNightModeBrightness + DIM_STEPSIZE;
+                                if (newBrightness > 100) {
+                                    newBrightness = 100;
+                                }
+                                newNightModeBrightness = String.valueOf(newBrightness);
+                                currentBrightness = newBrightness;
+                                break;
+                            case "DECREASE":
+                                newBrightness = currentNightModeBrightness - DIM_STEPSIZE;
+                                if (newBrightness < 0) {
+                                    newBrightness = 0;
+                                }
+                                newNightModeBrightness = String.valueOf(newBrightness);
+                                currentNightModeBrightness = newBrightness;
+                                break;
+                        }
+                        value = "&lt;startTime&gt;0&lt;/startTime&gt; \\n&lt;nightMode&gt;" + currentNightModeState
+                                + "&lt;/nightMode&gt; \\n&lt;endTime&gt;23400&lt;/endTime&gt; \\n&lt;nightModeBrightness&gt;"
+                                + newNightModeBrightness + "&lt;/nightModeBrightness&gt; \\n";
+                    }
+                    break;
             }
 
             if (argument != null && value != null) {
 
                 try {
 
-                    String soapHeader = "\"urn:Belkin:service:basicevent:1#SetBinaryState\"";
+                    String soapHeader = "\"urn:Belkin:service:basicevent:1#" + action + "\"";
 
                     String content = "<?xml version=\"1.0\"?>"
                             + "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">"
-                            + "<s:Body>" + "<u:SetBinaryState xmlns:u=\"urn:Belkin:service:basicevent:1\">" + "<"
-                            + argument + ">" + value + "</" + argument + ">" + "</u:SetBinaryState>" + "</s:Body>"
+                            + "<s:Body>" + "<u:" + action + " xmlns:u=\"urn:Belkin:service:basicevent:1\">" + "<"
+                            + argument + ">" + value + "</" + argument + ">" + "</u:" + action + ">" + "</s:Body>"
                             + "</s:Envelope>";
+
+                    if (channelUID.getId().equals(CHANNEL_TIMERSTART)) {
+                        content = "<?xml version=\"1.0\"?>"
+                                + "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">"
+                                + "<s:Body>" + "<u:" + action + " xmlns:u=\"urn:Belkin:service:basicevent:1\">" + value
+                                + "</u:" + action + ">" + "</s:Body>" + "</s:Envelope>";
+                    }
 
                     String wemoURL = getWemoURL("basicevent");
 
@@ -278,9 +394,7 @@ public class WemoDimmerHandler extends BaseThingHandler implements UpnpIOPartici
             case "BinaryState":
                 State state = value.equals("0") ? OnOffType.OFF : OnOffType.ON;
                 logger.info("State '{}' for device '{}' received", state, getThing().getUID());
-                if (state != null) {
-                    updateState(CHANNEL_STATE, state);
-                }
+                updateState(CHANNEL_STATE, state);
                 break;
             case "brightness":
                 logger.info("brightness '{}' for device '{}' received", value, getThing().getUID());
@@ -297,20 +411,43 @@ public class WemoDimmerHandler extends BaseThingHandler implements UpnpIOPartici
                     int faderSeconds = Integer.valueOf(splitFader[0]);
                     State faderMinutes = new DecimalType(faderSeconds / 60);
                     logger.info("faderTime '{} minutes' for device '{}' received", faderMinutes, getThing().getUID());
-                    updateState(CHANNEL_FADERTIME, faderMinutes);
+                    updateState(CHANNEL_FADERCOUNTDOWNTIME, faderMinutes);
                 }
                 if (splitFader[1] != null) {
-                    if (splitFader[1] == "-1") {
-                        updateState(CHANNEL_FADERSTATE, OnOffType.OFF);
-                    } else {
-                        updateState(CHANNEL_FADERSTATE, OnOffType.ON);
-                        State faderStartState = getDateTimeState(splitFader[1]);
-                        logger.info("New faderStart '{}' for device '{}' received", faderStartState,
-                                getThing().getUID());
-                        updateState(CHANNEL_FADERSTART, faderStartState);
-                    }
+                    State isTimerRunning = splitFader[1].equals("-1") ? OnOffType.OFF : OnOffType.ON;
+                    logger.info("isTimerRunning '{}' for device '{}' received", isTimerRunning, getThing().getUID());
+                    updateState(CHANNEL_TIMERSTART, isTimerRunning);
+                }
+                if (splitFader[2] != null) {
+                    State isFaderEnabled = splitFader[1].equals("0") ? OnOffType.OFF : OnOffType.ON;
+                    logger.info("isFaderEnabled '{}' for device '{}' received", isFaderEnabled, getThing().getUID());
+                    updateState(CHANNEL_FADERENABLED, isFaderEnabled);
                 }
                 break;
+            case "nightMode":
+                State nightModeState = value.equals("0") ? OnOffType.OFF : OnOffType.ON;
+                currentNightModeState = value;
+                logger.info("State '{}' for device '{}' received", nightModeState, getThing().getUID());
+                updateState(CHANNEL_NIGHTMODE, nightModeState);
+                break;
+            case "startTime":
+                State startTimeState = getDateTimeState(value);
+                logger.info("State '{}' for device '{}' received", startTimeState, getThing().getUID());
+                updateState(CHANNEL_STARTTIME, startTimeState);
+                break;
+            case "endTime":
+                State endTimeState = getDateTimeState(value);
+                logger.info("State '{}' for device '{}' received", endTimeState, getThing().getUID());
+                updateState(CHANNEL_ENDTIME, endTimeState);
+                break;
+            case "nightModeBrightness":
+                int nightModeBrightnessValue = Integer.valueOf(value);
+                currentNightModeBrightness = nightModeBrightnessValue;
+                State nightModeBrightnessState = new PercentType(nightModeBrightnessValue);
+                logger.info("State '{}' for device '{}' received", nightModeBrightnessState, getThing().getUID());
+                updateState(CHANNEL_NIGHTMODEBRIGHTNESS, nightModeBrightnessState);
+                break;
+
         }
     }
 
@@ -456,33 +593,29 @@ public class WemoDimmerHandler extends BaseThingHandler implements UpnpIOPartici
                             getThing().getUID());
                     value = StringUtils.substringBetween(wemoCallResponse, "<startTime>", "</startTime>");
                     if (value != null) {
-                        State startTimeState = getDateTimeState(value);
-                        logger.info("New startTime '{}' for device '{}' received", startTimeState, getThing().getUID());
-                        updateState(CHANNEL_STARTTIME, startTimeState);
+                        variable = "startTime";
+                        logger.trace("New startTime '{}' for device '{}' received", value, getThing().getUID());
+                        this.onValueReceived(variable, value, actionService + "1");
                     }
                     value = StringUtils.substringBetween(wemoCallResponse, "<endTime>", "</endTime>");
                     if (value != null) {
-                        State endTimeState = getDateTimeState(value);
-                        logger.info("New endTime '{}' for device '{}' received", endTimeState, getThing().getUID());
-                        updateState(CHANNEL_ENDTIME, endTimeState);
+                        variable = "endTime";
+                        logger.trace("New endTime '{}' for device '{}' received", value, getThing().getUID());
+                        this.onValueReceived(variable, value, actionService + "1");
+                    }
+                    value = StringUtils.substringBetween(wemoCallResponse, "<nightMode>", "</nightMode>");
+                    if (value != null) {
+                        variable = "nightMode";
+                        logger.trace("New nightMode state '{}' for device '{}' received", value, getThing().getUID());
+                        this.onValueReceived(variable, value, actionService + "1");
                     }
                     value = StringUtils.substringBetween(wemoCallResponse, "<nightModeBrightness>",
                             "</nightModeBrightness>");
                     if (value != null) {
-                        int nightModeBrightnessValue = Integer.valueOf(value);
-                        State nightModeBrightnessState = new PercentType(nightModeBrightnessValue);
-                        logger.info("New nightModeBrightness '{}' for device '{}' received", value,
+                        variable = "nightModeBrightness";
+                        logger.trace("New nightModeBrightness  '{}' for device '{}' received", value,
                                 getThing().getUID());
-                        updateState(CHANNEL_NIGHTMODEBRIGHTNESS, nightModeBrightnessState);
-                    }
-                    value = StringUtils.substringBetween(wemoCallResponse, "<nightMode>", "</nightMode>");
-                    if (value != null) {
-                        State nightModeState = value.equals("0") ? OnOffType.OFF : OnOffType.ON;
-                        logger.info("nightMode state '{}' for device '{}' received", nightModeState,
-                                getThing().getUID());
-                        if (nightModeState != null) {
-                            updateState(CHANNEL_NIGHTMODE, nightModeState);
-                        }
+                        this.onValueReceived(variable, value, actionService + "1");
                     }
                 }
             }
@@ -516,10 +649,8 @@ public class WemoDimmerHandler extends BaseThingHandler implements UpnpIOPartici
             GregorianCalendar brewCal = new GregorianCalendar();
             brewCal.setTimeInMillis(value);
             State dateTimeState = new DateTimeType(brewCal);
-            if (dateTimeState != null) {
-                logger.trace("New date/time '{}' received", dateTimeState);
-                return dateTimeState;
-            }
+            logger.trace("New date/time '{}' received", dateTimeState);
+            return dateTimeState;
         }
         return null;
     }

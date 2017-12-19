@@ -168,9 +168,9 @@
         <channels>
             <channel id="state" typeId="state"/>
             <channel id="brightness" typeId="brightness" />
-            <channel id="faderState" typeId="faderState"/>
-            <channel id="faderTime" typeId="faderTime"/>
-            <channel id="faderStart" typeId="faderStart"/>
+            <channel id="faderCountDownTime" typeId="faderCountDownTime"/>
+            <channel id="faderEnabled" typeId="faderEnabled"/>
+            <channel id="timerStart" typeId="timerStart"/>
             <channel id="nightMode" typeId="nightMode"/>
             <channel id="startTime" typeId="startTime"/>
             <channel id="endTime" typeId="endTime"/>
@@ -188,7 +188,7 @@
     </thing-type>
      <channel-type id="state">
         <item-type>Switch</item-type>
-        <label>Switch</label>
+        <label>OFF/ON</label>
         <description>Turns the power on or off</description>
         <category>Switch</category>
     </channel-type>
@@ -369,44 +369,48 @@
         <description>Date/time the coffee maker last completed cleaning</description>
     </channel-type>
 
-     <channel-type id="faderState" advanced="true">
+     <channel-type id="faderCountDownTime" advanced="true">
+        <item-type>Number</item-type>
+        <label>Fader CountDown Time</label>
+        <description>The fading duration time in minutes</description>
+        <state min="1" max="30" step="1.0" pattern="%d min" readOnly="false"/>
+    </channel-type>
+
+     <channel-type id="faderEnabled" advanced="true">
         <item-type>Switch</item-type>
-        <label>Fader Switch</label>
+        <label>Fader OFF/ON</label>
         <description>Allows to switch the fader ON/OFF</description>
     </channel-type>
-
-     <channel-type id="faderTime" advanced="true">
-        <item-type>Number</item-type>
-        <label>Fader Time</label>
-        <description>Fading duration</description>
+    
+    <channel-type id="timerStart" advanced="true">
+       <item-type>Switch</item-type>
+       <label>Timer OFF/ON</label>
+       <description>Allows to switch the timer ON/OFF</description>
     </channel-type>
-
-     <channel-type id="faderStart" advanced="true">
-        <item-type>DateTime</item-type>
-        <label>Fader Start</label>
-        <description>Date/time when the fader was switched on</description>
-    </channel-type>
+    
 
      <channel-type id="nightMode" advanced="true">
         <item-type>Switch</item-type>
-        <label>NightMode</label>
+        <label>NightMode OFF/ON</label>
         <description>Allows to switch the nightMode ON/OFF</description>
     </channel-type>
 
      <channel-type id="startTime" advanced="true">
         <item-type>DateTime</item-type>
         <label>NightMode Start Time</label>
-        <description>Date/time when the Night Mode starts</description>
+        <description>Time when the Night Mode starts</description>
+        <state pattern="%1$tR" readOnly="true"/>
     </channel-type>
 
      <channel-type id="endTime" advanced="true">
         <item-type>DateTime</item-type>
         <label>NightMode End Time</label>
-        <description>Date/time when the Night Mode ends</description>
+        <description>Time when the Night Mode ends</description>
+        <state pattern="%1$tR" readOnly="true"/>
     </channel-type>
 
      <channel-type id="nightModeBrightness" advanced="true">
-        <item-type>Number</item-type>
+        <item-type>Dimmer</item-type>
         <label>Night Mode Brightness</label>
         <description>Allows setting the brightness of Night Mode</description>
     </channel-type>
