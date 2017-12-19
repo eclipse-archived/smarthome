@@ -78,7 +78,9 @@ var Repository = function($q, $rootScope, remoteService, dataType, staticData, g
     };
 
     this.resolveSingleElement = function(callback, element) {
-        if (getOneFunction && self.singleElements[element.UID]) {
+        if (!element) {
+            callback(undefined);
+        } else if (getOneFunction && self.singleElements[element.UID]) {
             callback(self.singleElements[element.UID]);
         } else if (getOneFunction) {
             var parameter = {};
