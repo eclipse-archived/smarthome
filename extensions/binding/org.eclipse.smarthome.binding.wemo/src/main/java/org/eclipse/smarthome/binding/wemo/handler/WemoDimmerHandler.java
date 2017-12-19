@@ -63,6 +63,8 @@ public class WemoDimmerHandler extends BaseThingHandler implements UpnpIOPartici
 
     private Map<String, String> stateMap = Collections.synchronizedMap(new HashMap<String, String>());
 
+    protected static final String SUBSCRIPTION = "basicevent1";
+
     protected final static int SUBSCRIPTION_DURATION = 600;
 
     private UpnpIOService service;
@@ -104,7 +106,6 @@ public class WemoDimmerHandler extends BaseThingHandler implements UpnpIOPartici
     };
 
     public WemoDimmerHandler(Thing thing, UpnpIOService upnpIOService) {
-
         super(thing);
 
         logger.debug("Creating a WemoDimmerHandler V0.6 for thing '{}'", getThing().getUID());
@@ -114,12 +115,10 @@ public class WemoDimmerHandler extends BaseThingHandler implements UpnpIOPartici
         } else {
             logger.debug("upnpIOService not set.");
         }
-
     }
 
     @Override
     public void initialize() {
-
         Configuration configuration = getConfig();
 
         if (configuration.get("udn") != null) {
@@ -130,7 +129,6 @@ public class WemoDimmerHandler extends BaseThingHandler implements UpnpIOPartici
         } else {
             logger.debug("Cannot initalize WemoDimmerHandler. UDN not set.");
         }
-
     }
 
     @Override
@@ -455,12 +453,10 @@ public class WemoDimmerHandler extends BaseThingHandler implements UpnpIOPartici
         if (service.isRegistered(this)) {
             logger.debug("Checking WeMo GENA subscription for '{}'", this);
 
-            String subscription = "basicevent1";
-
-            if ((subscriptionState.get(subscription) == null) || !subscriptionState.get(subscription).booleanValue()) {
-                logger.debug("Setting up GENA subscription {}: Subscribing to service {}...", getUDN(), subscription);
-                service.addSubscription(this, subscription, SUBSCRIPTION_DURATION);
-                subscriptionState.put(subscription, true);
+            if ((subscriptionState.get(SUBSCRIPTION) == null) || !subscriptionState.get(SUBSCRIPTION).booleanValue()) {
+                logger.debug("Setting up GENA subscription {}: Subscribing to service {}...", getUDN(), SUBSCRIPTION);
+                service.addSubscription(this, SUBSCRIPTION, SUBSCRIPTION_DURATION);
+                subscriptionState.put(SUBSCRIPTION, true);
             }
 
         } else {
@@ -473,11 +469,10 @@ public class WemoDimmerHandler extends BaseThingHandler implements UpnpIOPartici
         logger.debug("Removing WeMo GENA subscription for '{}'", this);
 
         if (service.isRegistered(this)) {
-            String subscription = "basicevent1";
 
-            if ((subscriptionState.get(subscription) != null) && subscriptionState.get(subscription).booleanValue()) {
-                logger.debug("WeMo {}: Unsubscribing from service {}...", getUDN(), subscription);
-                service.removeSubscription(this, subscription);
+            if ((subscriptionState.get(SUBSCRIPTION) != null) && subscriptionState.get(SUBSCRIPTION).booleanValue()) {
+                logger.debug("WeMo {}: Unsubscribing from service {}...", getUDN(), SUBSCRIPTION);
+                service.removeSubscription(this, SUBSCRIPTION);
             }
 
             subscriptionState = new HashMap<String, Boolean>();
