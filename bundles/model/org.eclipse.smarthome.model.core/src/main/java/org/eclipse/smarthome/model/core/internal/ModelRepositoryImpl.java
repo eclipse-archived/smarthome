@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.core.internal;
 
@@ -14,9 +19,11 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.io.IOUtils;
@@ -207,6 +214,26 @@ public class ModelRepositoryImpl implements ModelRepository {
     }
 
     @Override
+    public Set<String> removeAllModelsOfType(final String modelType) {
+        Set<String> ret = new HashSet<>();
+        synchronized (resourceSet) {
+            // Make a copy to avoid ConcurrentModificationException
+            List<Resource> resourceListCopy = new ArrayList<Resource>(resourceSet.getResources());
+            for (Resource resource : resourceListCopy) {
+                if (resource != null && resource.getURI().lastSegment().contains(".") && resource.isLoaded()) {
+                    if (modelType.equalsIgnoreCase(resource.getURI().fileExtension())) {
+                        logger.debug("Removing resource '{}'", resource.getURI().lastSegment());
+                        ret.add(resource.getURI().lastSegment());
+                        resourceSet.getResources().remove(resource);
+                        notifyListeners(resource.getURI().lastSegment(), EventType.REMOVED);
+                    }
+                }
+            }
+        }
+        return ret;
+    }
+
+    @Override
     public void addModelRepositoryChangeListener(ModelRepositoryChangeListener listener) {
         listeners.add(listener);
     }
@@ -252,8 +279,9 @@ public class ModelRepositoryImpl implements ModelRepository {
             if (resource != null && !resource.getContents().isEmpty()) {
                 // Check for syntactical errors
                 for (Diagnostic diagnostic : resource.getErrors()) {
-                    criticalErrors.append(MessageFormat.format("[{0},{1}]: {2}\n", diagnostic.getLine(),
-                            diagnostic.getColumn(), diagnostic.getMessage()));
+                    criticalErrors
+                            .append(MessageFormat.format("[{0},{1}]: {2}\n", Integer.toString(diagnostic.getLine()),
+                                    Integer.toString(diagnostic.getColumn()), diagnostic.getMessage()));
                 }
                 if (criticalErrors.length() > 0) {
                     return criticalErrors.toString();

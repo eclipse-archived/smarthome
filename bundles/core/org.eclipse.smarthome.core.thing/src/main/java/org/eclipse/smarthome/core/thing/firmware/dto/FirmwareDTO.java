@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.firmware.dto;
 
@@ -17,16 +22,18 @@ public class FirmwareDTO {
     public final String firmwareUID;
     public final String vendor;
     public final String model;
+    public final boolean modelRestricted;
     public final String description;
     public final String version;
     public final String changelog;
     public final String prerequisiteVersion;
 
-    public FirmwareDTO(String firmwareUID, String vendor, String model, String description, String version,
-            String prerequisiteVersion, String changelog) {
+    public FirmwareDTO(String firmwareUID, String vendor, String model, boolean modelRestricted, String description,
+            String version, String prerequisiteVersion, String changelog) {
         this.firmwareUID = firmwareUID;
         this.vendor = vendor;
         this.model = model;
+        this.modelRestricted = modelRestricted;
         this.description = description;
         this.version = version;
         this.prerequisiteVersion = prerequisiteVersion;

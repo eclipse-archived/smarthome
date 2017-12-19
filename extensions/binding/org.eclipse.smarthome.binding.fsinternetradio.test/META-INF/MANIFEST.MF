@@ -1,33 +1,31 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse Smarthome FSInternetRadio Binding Test
-Bundle-SymbolicName: org.eclipse.smarthome.binding.fsinternetradio.test
-Bundle-Version: 0.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.binding.fsinternetradio.test
 Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.10.0.qualifier
 Fragment-Host: org.eclipse.smarthome.binding.fsinternetradio
-Import-Package: groovy.lang,
- javax.servlet,
+Require-Bundle: org.mockito,
+ org.hamcrest
+Import-Package: javax.servlet,
  javax.servlet.http,
- org.codehaus.groovy.reflection,
- org.codehaus.groovy.runtime,
- org.codehaus.groovy.runtime.callsite,
- org.codehaus.groovy.runtime.typehandling,
+ org.apache.commons.io,
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.jetty.server;version="[9.3.15,9.4.0)",
+ org.eclipse.jetty.server.handler;version="[9.3.15,9.4.0)",
+ org.eclipse.jetty.servlet;version="[9.3.15,9.4.0)",
  org.eclipse.smarthome.config.core,
- org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.items,
- org.eclipse.smarthome.core.items.events,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.thing,
+ org.eclipse.smarthome.core.thing.binding,
  org.eclipse.smarthome.core.thing.link,
- org.eclipse.smarthome.test,
+ org.eclipse.smarthome.test.java,
  org.eclipse.smarthome.test.storage,
- org.osgi.service.http,
- org.hamcrest;core=split,
- org.junit;
- org.junit.runner,
- org.junit.runners,
- org.jupnp,
+ org.junit,
+ org.jupnp.model,
  org.jupnp.model.types,
  org.osgi.framework,
- org.slf4j
+ org.osgi.service.http

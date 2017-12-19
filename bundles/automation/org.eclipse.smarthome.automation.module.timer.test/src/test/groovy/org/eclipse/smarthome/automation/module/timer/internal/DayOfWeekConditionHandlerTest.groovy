@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2017 Deutsche Telekom AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.module.timer.internal;
 
@@ -25,8 +30,13 @@ import org.eclipse.smarthome.automation.module.core.handler.ItemStateTriggerHand
 import org.eclipse.smarthome.automation.module.timer.handler.DayOfWeekConditionHandler
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry
 import org.eclipse.smarthome.config.core.Configuration
+import org.eclipse.smarthome.core.events.Event
+import org.eclipse.smarthome.core.events.EventPublisher
+import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.items.ItemProvider
 import org.eclipse.smarthome.core.items.ItemRegistry
+import org.eclipse.smarthome.core.items.events.ItemCommandEvent
+import org.eclipse.smarthome.core.items.events.ItemEventFactory
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.test.OSGiTest
@@ -71,7 +81,6 @@ class DayOfWeekConditionHandlerTest extends OSGiTest{
             ruleRegistry = getService(RuleRegistry) as RuleRegistry
             assertThat ruleRegistry, is(notNullValue())
         }, 3000, 100)
-        enableItemAutoUpdate()
     }
 
     @Test
@@ -136,10 +145,24 @@ class DayOfWeekConditionHandlerTest extends OSGiTest{
         ]
 
         // prepare the execution
-        switchedItem.send(OnOffType.OFF);
-        waitForAssert({
-            assertThat switchedItem.state,is(OnOffType.OFF);
-        })
+        def EventPublisher eventPublisher = getService(EventPublisher)
+
+        ItemCommandEvent itemEvent = null
+        def itemEventHandler = [
+            receive: {  Event e ->
+                logger.info("Event: " + e.topic)
+                if (e.topic.contains(testItemName2)){
+                    itemEvent=e
+                }
+            },
+
+            getSubscribedEventTypes: {
+                Collections.singleton(ItemCommandEvent.TYPE)
+            },
+
+            getEventFilter:{ null }
+        ] as EventSubscriber
+        registerService(itemEventHandler)
 
         def rule = new Rule("MyRule"+new Random().nextInt())
         rule.triggers = triggers
@@ -161,9 +184,10 @@ class DayOfWeekConditionHandlerTest extends OSGiTest{
         logger.info("Rule is enabled and idle")
 
         logger.info("Send and wait for item state is ON")
-        triggeredItem.send(OnOffType.ON)
+        eventPublisher.post(ItemEventFactory.createStateEvent(testItemName1, OnOffType.ON))
         waitForAssert({
-            assertThat switchedItem.state,is(OnOffType.ON)
+            assertThat itemEvent, is(notNullValue())
+            assertThat itemEvent.itemCommand, is(OnOffType.ON)
         })
         logger.info("item state is ON")
 
@@ -172,15 +196,9 @@ class DayOfWeekConditionHandlerTest extends OSGiTest{
         ruleRegistry.update(rule)
 
         // prepare the execution
-        switchedItem.send(OnOffType.OFF);
-        waitForAssert({
-            assertThat switchedItem.state,is(OnOffType.OFF);
-        })
-
-        logger.info("Send and wait for item state")
-        triggeredItem.send(OnOffType.ON)
+        itemEvent = null
+        eventPublisher.post(ItemEventFactory.createStateEvent(testItemName1, OnOffType.ON))
         sleep(1000)
-        assertThat switchedItem.state,is(OnOffType.OFF)
-        logger.info("item state is still OFF")
+        assertThat itemEvent, is(nullValue())
     }
 }

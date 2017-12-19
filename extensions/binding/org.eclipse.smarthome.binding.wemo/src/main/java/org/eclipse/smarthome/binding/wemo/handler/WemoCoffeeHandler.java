@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.wemo.handler;
 
@@ -12,12 +17,14 @@ import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.*;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -56,37 +63,36 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.google.common.collect.Sets;
-
 /**
  * The {@link WemoCoffeeHandler} is responsible for handling commands, which are
  * sent to one of the channels and to update their states.
  *
  * @author Hans-Jörg Merk - Initial contribution
+ * @author Erdoan Hadzhiyusein - Adapted the class to work with the new DateTimeType
  */
 
 public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOParticipant, DiscoveryListener {
 
     private final Logger logger = LoggerFactory.getLogger(WemoCoffeeHandler.class);
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_COFFEE);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_COFFEE);
 
     private Map<String, Boolean> subscriptionState = new HashMap<String, Boolean>();
 
-    private Map<String, String> stateMap = Collections.synchronizedMap(new HashMap<String, String>());
+    private final Map<String, String> stateMap = Collections.synchronizedMap(new HashMap<String, String>());
 
-    protected final static int SUBSCRIPTION_DURATION = 600;
+    protected static final int SUBSCRIPTION_DURATION = 600;
 
     private UpnpIOService service;
 
     /**
      * The default refresh interval in Seconds.
      */
-    private int REFRESH_INTERVAL = 60;
+    private final int REFRESH_INTERVAL = 60;
 
     private ScheduledFuture<?> refreshJob;
 
-    private Runnable refreshRunnable = new Runnable() {
+    private final Runnable refreshRunnable = new Runnable() {
 
         @Override
         public void run() {
@@ -97,15 +103,14 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
 
                 updateWemoState();
                 onSubscription();
-
             } catch (Exception e) {
                 logger.debug("Exception during poll : {}", e);
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
             }
         }
     };
 
     public WemoCoffeeHandler(Thing thing, UpnpIOService upnpIOService) {
-
         super(thing);
 
         logger.debug("Creating a WemoCoffeeHandler V0.4 for thing '{}'", getThing().getUID());
@@ -115,23 +120,20 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
         } else {
             logger.debug("upnpIOService not set.");
         }
-
     }
 
     @Override
     public void initialize() {
-
         Configuration configuration = getConfig();
 
         if (configuration.get("udn") != null) {
             logger.debug("Initializing WemoCoffeeHandler for UDN '{}'", configuration.get("udn"));
             onSubscription();
             onUpdate();
-            super.initialize();
+            updateStatus(ThingStatus.ONLINE);
         } else {
             logger.debug("Cannot initalize WemoCoffeeHandler. UDN not set.");
         }
-
     }
 
     @Override
@@ -178,13 +180,9 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                 logger.debug("Exception during poll : {}", e);
             }
         } else if (channelUID.getId().equals(CHANNEL_STATE)) {
-
             if (command instanceof OnOffType) {
-
                 if (command.equals(OnOffType.ON)) {
-
                     try {
-
                         String soapHeader = "\"urn:Belkin:service:deviceevent:1#SetAttributes\"";
 
                         String content = "<?xml version=\"1.0\"?>"
@@ -215,7 +213,6 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                                 e.getMessage());
                         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
                     }
-
                 } else if (command.equals(OnOffType.OFF)) {
                     // do nothing, as WeMo Coffee Maker cannot be switched off remotely
                 }
@@ -245,7 +242,6 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                 service.addSubscription(this, subscription, SUBSCRIPTION_DURATION);
                 subscriptionState.put(subscription, true);
             }
-
         } else {
             logger.debug("Setting up WeMo GENA subscription for '{}' FAILED - service.isRegistered(this) is FALSE",
                     this);
@@ -256,7 +252,6 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
         logger.debug("Removing WeMo GENA subscription for '{}'", this);
 
         if (service.isRegistered(this)) {
-
             String subscription = "deviceevent1";
             if ((subscriptionState.get(subscription) != null) && subscriptionState.get(subscription).booleanValue()) {
                 logger.debug("WeMo {}: Unsubscribing from service {}...", getUDN(), subscription);
@@ -277,7 +272,7 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                 refreshInterval = ((BigDecimal) refreshConfig).intValue();
                 logger.debug("Setting WemoCoffeeHandler refreshInterval to '{}' seconds", refreshInterval);
             }
-            refreshJob = scheduler.scheduleAtFixedRate(refreshRunnable, 0, refreshInterval, TimeUnit.SECONDS);
+            refreshJob = scheduler.scheduleWithFixedDelay(refreshRunnable, 0, refreshInterval, TimeUnit.SECONDS);
         }
     }
 
@@ -294,7 +289,6 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
      * The {@link updateWemoState} polls the actual state of a WeMo CoffeeMaker.
      */
     protected void updateWemoState() {
-
         String action = "GetAttributes";
         String actionService = "deviceevent";
 
@@ -337,12 +331,12 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                             NodeList deviceIndex = element.getElementsByTagName("name");
                             Element line = (Element) deviceIndex.item(0);
                             String attributeName = getCharacterDataFromElement(line);
-                            logger.trace("attributeName: " + attributeName);
+                            logger.trace("attributeName: {}", attributeName);
 
                             NodeList deviceID = element.getElementsByTagName("value");
                             line = (Element) deviceID.item(0);
                             String attributeValue = getCharacterDataFromElement(line);
-                            logger.trace("attributeValue: " + attributeValue);
+                            logger.trace("attributeValue: {}", attributeValue);
 
                             switch (attributeName) {
                                 case "Mode":
@@ -466,9 +460,9 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                         getThing().getUID());
                 return null;
             }
-            GregorianCalendar brewCal = new GregorianCalendar();
-            brewCal.setTimeInMillis(value);
-            State dateTimeState = new DateTimeType(brewCal);
+            ZonedDateTime zoned = ZonedDateTime.ofInstant(Instant.ofEpochMilli(value),
+                    TimeZone.getDefault().toZoneId());
+            State dateTimeState = new DateTimeType(zoned);
             if (dateTimeState != null) {
                 logger.trace("New attribute brewed '{}' received", dateTimeState);
                 return dateTimeState;
@@ -503,8 +497,8 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
 
     @Override
     public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
-            Collection<ThingTypeUID> thingTypeUIDs) {
-        return null;
+            Collection<ThingTypeUID> thingTypeUIDs, ThingUID bridgeUID) {
+        return Collections.emptyList();
     }
 
 }

@@ -8,7 +8,7 @@
   <parent>
     <groupId>org.eclipse.smarthome.bundles</groupId>
     <artifactId>config</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.10.0-SNAPSHOT</version>
   </parent>
 
 
@@ -46,6 +46,11 @@
                 <id>org.eclipse.smarthome.core.thing</id>
                 <versionRange>0.0.0</versionRange>
               </requirement>
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>org.eclipse.smarthome.core.thing.xml</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
             </extraRequirements>
           </dependency-resolution>
         </configuration>
@@ -72,6 +77,11 @@
             </bundle>
             <bundle>
               <id>org.eclipse.smarthome.core.thing</id>
+              <level>4</level>
+              <autoStart>true</autoStart>
+            </bundle>
+            <bundle>
+              <id>org.eclipse.smarthome.core.thing.xml</id>
               <level>4</level>
               <autoStart>true</autoStart>
             </bundle>

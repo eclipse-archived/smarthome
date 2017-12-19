@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure;
 
@@ -12,7 +17,9 @@ import java.util.Map;
 /**
  * The {@link Apartment} represents a digitalSTROM-Apartment.
  *
- * @author Alexander Betker
+ * @author Alexander Betker - initial contributer
+ * @author Michael Ochel - add java-doc
+ * @author Matthias Siegele - add java-doc
  */
 public interface Apartment {
 
@@ -21,5 +28,5 @@ public interface Apartment {
      *
      * @return map of all zones
      */
-    public Map<Integer, Zone> getZoneMap();
+    Map<Integer, Zone> getZoneMap();
 }

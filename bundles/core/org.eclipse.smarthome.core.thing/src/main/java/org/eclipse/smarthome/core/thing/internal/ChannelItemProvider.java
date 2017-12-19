@@ -1,20 +1,26 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.internal;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
@@ -25,6 +31,7 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.RegistryHook;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -34,6 +41,14 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,22 +59,23 @@ import org.slf4j.LoggerFactory;
  * @author Markus Rathgeb - Add locale provider support
  * @author Thomas Höfer - Added modified operation
  */
+@Component(configurationPid = "org.eclipse.smarthome.channelitemprovider", immediate = true, configurationPolicy = ConfigurationPolicy.OPTIONAL)
 public class ChannelItemProvider implements ItemProvider {
 
     private final Logger logger = LoggerFactory.getLogger(ChannelItemProvider.class);
 
-    private Set<ProviderChangeListener<Item>> listeners = new HashSet<>();
+    private final Set<ProviderChangeListener<Item>> listeners = new HashSet<>();
 
     private LocaleProvider localeProvider;
     private ThingRegistry thingRegistry;
     private ItemChannelLinkRegistry linkRegistry;
     private ItemRegistry itemRegistry;
-    private Set<ItemFactory> itemFactories = new HashSet<>();
+    private final Set<ItemFactory> itemFactories = new HashSet<>();
     private Map<String, Item> items = null;
 
     private boolean enabled = true;
     private boolean initialized = false;
-    private long lastUpdate = System.nanoTime();
+    private volatile long lastUpdate = System.nanoTime();
 
     @Override
     public Collection<Item> getAll() {
@@ -68,13 +84,13 @@ public class ChannelItemProvider implements ItemProvider {
         } else {
             synchronized (this) {
                 if (items == null) {
-                    items = new HashMap<>();
+                    items = new ConcurrentHashMap<>();
                     for (ItemChannelLink link : linkRegistry.getAll()) {
                         createItemForLink(link);
                     }
                 }
             }
-            return items.values();
+            return new HashSet<>(items.values());
         }
     }
 
@@ -91,6 +107,7 @@ public class ChannelItemProvider implements ItemProvider {
         listeners.remove(listener);
     }
 
+    @Reference
     protected void setLocaleProvider(final LocaleProvider localeProvider) {
         this.localeProvider = localeProvider;
     }
@@ -99,6 +116,7 @@ public class ChannelItemProvider implements ItemProvider {
         this.localeProvider = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, policy = ReferencePolicy.DYNAMIC)
     protected void addItemFactory(ItemFactory itemFactory) {
         this.itemFactories.add(itemFactory);
     }
@@ -107,6 +125,7 @@ public class ChannelItemProvider implements ItemProvider {
         this.itemFactories.remove(itemFactory);
     }
 
+    @Reference
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = thingRegistry;
     }
@@ -115,6 +134,7 @@ public class ChannelItemProvider implements ItemProvider {
         this.thingRegistry = null;
     }
 
+    @Reference
     protected void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
     }
@@ -123,6 +143,7 @@ public class ChannelItemProvider implements ItemProvider {
         this.itemRegistry = null;
     }
 
+    @Reference
     protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry linkRegistry) {
         this.linkRegistry = linkRegistry;
     }
@@ -131,10 +152,12 @@ public class ChannelItemProvider implements ItemProvider {
         this.linkRegistry = null;
     }
 
+    @Activate
     protected void activate(Map<String, Object> properties) {
         modified(properties);
     }
 
+    @Modified
     protected synchronized void modified(Map<String, Object> properties) {
         if (properties != null) {
             String enabled = (String) properties.get("enabled");
@@ -149,17 +172,7 @@ public class ChannelItemProvider implements ItemProvider {
             boolean initialDelay = properties == null
                     || !"false".equalsIgnoreCase((String) properties.get("initialDelay"));
             if (initialDelay) {
-                Executors.newSingleThreadExecutor().submit(() -> {
-                    // we wait until no further new links or items are announced in order to avoid creation of
-                    // items which then must be removed again immediately.
-                    while (lastUpdate > System.nanoTime() - TimeUnit.SECONDS.toNanos(2)) {
-                        try {
-                            Thread.sleep(100L);
-                        } catch (InterruptedException e) {
-                        }
-                    }
-                    initialize();
-                });
+                delayedInitialize(Executors.newSingleThreadScheduledExecutor());
             } else {
                 initialize();
             }
@@ -174,6 +187,18 @@ public class ChannelItemProvider implements ItemProvider {
         }
     }
 
+    private void delayedInitialize(ScheduledExecutorService executor) {
+        // we wait until no further new links or items are announced in order to avoid creation of
+        // items which then must be removed again immediately.
+        final long diff = System.nanoTime() - lastUpdate - TimeUnit.SECONDS.toNanos(2);
+        if (diff < 0) {
+            executor.schedule(() -> delayedInitialize(executor), -diff, TimeUnit.NANOSECONDS);
+        } else {
+            executor.shutdown();
+            initialize();
+        }
+    }
+
     private void initialize() {
         logger.debug("Enabling channel item provider.");
         initialized = true;
@@ -182,6 +207,7 @@ public class ChannelItemProvider implements ItemProvider {
         addRegistryChangeListeners();
     }
 
+    @Deactivate
     protected void deactivate() {
         removeRegistryChangeListeners();
         synchronized (this) {
@@ -192,12 +218,12 @@ public class ChannelItemProvider implements ItemProvider {
 
     private void addRegistryChangeListeners() {
         this.linkRegistry.addRegistryChangeListener(linkRegistryListener);
-        this.itemRegistry.addRegistryChangeListener(itemRegistryListener);
+        this.itemRegistry.addRegistryHook(itemRegistryListener);
         this.thingRegistry.addRegistryChangeListener(thingRegistryListener);
     }
 
     private void removeRegistryChangeListeners() {
-        this.itemRegistry.removeRegistryChangeListener(itemRegistryListener);
+        this.itemRegistry.removeRegistryHook(itemRegistryListener);
         this.linkRegistry.removeRegistryChangeListener(linkRegistryListener);
         this.thingRegistry.removeRegistryChangeListener(thingRegistryListener);
     }
@@ -210,7 +236,7 @@ public class ChannelItemProvider implements ItemProvider {
             // there is already an item, we do not need to create one
             return;
         }
-        Channel channel = thingRegistry.getChannel(link.getUID());
+        Channel channel = thingRegistry.getChannel(link.getLinkedUID());
         if (channel != null) {
             Item item = null;
             // Only create an item for state channels
@@ -324,10 +350,10 @@ public class ChannelItemProvider implements ItemProvider {
         }
     };
 
-    RegistryChangeListener<Item> itemRegistryListener = new RegistryChangeListener<Item>() {
+    RegistryHook<Item> itemRegistryListener = new RegistryHook<Item>() {
 
         @Override
-        public void added(Item element) {
+        public void beforeAdding(Item element) {
             // check, if it is our own item
             for (Item item : items.values()) {
                 if (item == element) {
@@ -346,7 +372,7 @@ public class ChannelItemProvider implements ItemProvider {
         }
 
         @Override
-        public void removed(Item element) {
+        public void afterRemoving(Item element) {
             // check, if it is our own item
             for (Item item : items.values()) {
                 if (item == element) {
@@ -363,8 +389,5 @@ public class ChannelItemProvider implements ItemProvider {
             }
         }
 
-        @Override
-        public void updated(Item oldElement, Item element) {
-        }
     };
 }

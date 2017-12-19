@@ -1,13 +1,19 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * A {@link ThingStatusInfo} represents status information of a thing which consists of
@@ -22,9 +28,9 @@ import org.apache.commons.lang.StringUtils;
  */
 public class ThingStatusInfo {
 
-    private ThingStatus status;
+    private @NonNull ThingStatus status;
 
-    private ThingStatusDetail statusDetail;
+    private @NonNull ThingStatusDetail statusDetail;
 
     private String description;
 
@@ -32,6 +38,8 @@ public class ThingStatusInfo {
      * Default constructor for deserialization e.g. by Gson.
      */
     protected ThingStatusInfo() {
+        status = ThingStatus.UNKNOWN;
+        statusDetail = ThingStatusDetail.NONE;
     }
 
     /**
@@ -43,14 +51,8 @@ public class ThingStatusInfo {
      *
      * @throws IllegalArgumentException if thing status or thing status detail is null
      */
-    public ThingStatusInfo(ThingStatus status, ThingStatusDetail statusDetail, String description)
+    public ThingStatusInfo(@NonNull ThingStatus status, @NonNull ThingStatusDetail statusDetail, String description)
             throws IllegalArgumentException {
-        if (status == null) {
-            throw new IllegalArgumentException("Thing status must not be null");
-        }
-        if (statusDetail == null) {
-            throw new IllegalArgumentException("Thing status detail must not be null");
-        }
         this.status = status;
         this.statusDetail = statusDetail;
         this.description = description;
@@ -61,7 +63,7 @@ public class ThingStatusInfo {
      *
      * @return the status (not null)
      */
-    public ThingStatus getStatus() {
+    public @NonNull ThingStatus getStatus() {
         return status;
     }
 
@@ -70,7 +72,7 @@ public class ThingStatusInfo {
      *
      * @return the status detail (not null)
      */
-    public ThingStatusDetail getStatusDetail() {
+    public @NonNull ThingStatusDetail getStatusDetail() {
         return statusDetail;
     }
 

@@ -1,17 +1,28 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.io.console.karaf.internal;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.apache.karaf.shell.api.action.Action;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.apache.karaf.shell.api.console.Command;
 import org.apache.karaf.shell.api.console.Completer;
 import org.apache.karaf.shell.api.console.Parser;
+import org.apache.karaf.shell.api.console.Registry;
 import org.apache.karaf.shell.api.console.Session;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.ConsoleInterpreter;
@@ -21,14 +32,34 @@ import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
  * This class wraps ESH ConsoleCommandExtensions to commands for Apache Karaf
  *
  * @author Markus Rathgeb - Initial contribution and API
+ * @author Henning Treu - implement help command
  *
  */
-public class CommandWrapper implements Command {
+@Service
+@org.apache.karaf.shell.api.action.Command(name = "help", scope = "smarthome", description = "Print the full usage information of the 'smarthome' commands.")
+public class CommandWrapper implements Command, Action {
 
     // Define a scope for all commands.
     public static final String SCOPE = "smarthome";
 
     private final ConsoleCommandExtension command;
+
+    /**
+     * The registry is injected when a CommandWrapper is instantiated by Karaf (see {@link CommandWrapper} default
+     * constructor).
+     */
+    @Reference
+    private Registry registry;
+
+    /**
+     * The constructor for the "help" instance of this class. This instance will be created by
+     * org.apache.karaf.shell.impl.action.command.ManagerImpl.instantiate(Class<? extends T>, Registry) and
+     * is used to print all usages from the `smarthome` scope.
+     * The wrapped command is unused here because the karaf ifrastructure will call the {@link #execute()} method.
+     */
+    public CommandWrapper() {
+        this(null);
+    }
 
     public CommandWrapper(final ConsoleCommandExtension command) {
         this.command = command;
@@ -36,17 +67,7 @@ public class CommandWrapper implements Command {
 
     @Override
     public Object execute(Session session, List<Object> argList) throws Exception {
-        final String[] args = new String[argList.size()];
-        for (int i = 0; i < args.length; ++i) {
-            final Object ele = argList.get(i);
-            final String str;
-            if (ele instanceof String) {
-                str = (String) ele;
-            } else {
-                str = ele.toString();
-            }
-            args[i] = str;
-        }
+        String[] args = argList.stream().map(a -> a.toString()).collect(Collectors.toList()).toArray(new String[0]);
 
         final Console console = new OSGiConsole(getScope());
 
@@ -83,6 +104,22 @@ public class CommandWrapper implements Command {
     @Override
     public String getScope() {
         return SCOPE;
+    }
+
+    /**
+     * {@link Action}.{@link #execute()} will be called on the CommandWrapper instance created by Karaf (see
+     * {@link CommandWrapper} default constructor).
+     */
+    @Override
+    public Object execute() throws Exception {
+        List<Command> commands = registry.getCommands();
+        for (Command command : commands) {
+            if (command.getScope().equals(SCOPE) && command instanceof CommandWrapper) {
+                command.execute(null, Arrays.asList(new Object[] { "--help" }));
+            }
+        }
+
+        return null;
     }
 
 }

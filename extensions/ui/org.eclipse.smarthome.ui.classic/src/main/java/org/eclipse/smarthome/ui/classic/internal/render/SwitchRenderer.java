@@ -1,12 +1,18 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.ui.classic.internal.render;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -87,8 +93,9 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
             for (Mapping mapping : s.getMappings()) {
                 String button = getSnippet("button");
                 button = StringUtils.replace(button, "%item%", w.getItem());
-                button = StringUtils.replace(button, "%cmd%", mapping.getCmd());
-                button = StringUtils.replace(button, "%label%", mapping.getLabel());
+                button = StringUtils.replace(button, "%cmd%", StringEscapeUtils.escapeHtml(mapping.getCmd()));
+                button = StringUtils.replace(button, "%label%",
+                        mapping.getLabel() != null ? StringEscapeUtils.escapeHtml(mapping.getLabel()) : "");
                 if (s.getMappings().size() > 1 && state.toString().equals(mapping.getCmd())) {
                     button = StringUtils.replace(button, "%type%", "Warn"); // button with red color
                 } else {

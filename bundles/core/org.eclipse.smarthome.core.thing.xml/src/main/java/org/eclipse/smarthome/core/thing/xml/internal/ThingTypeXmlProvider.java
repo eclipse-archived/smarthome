@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.xml.internal;
 
@@ -64,10 +69,11 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
     private List<ChannelTypeXmlResult> channelTypeRefs;
 
     private XmlChannelTypeProvider channelTypeProvider;
+    private XmlChannelGroupTypeProvider channelGroupTypeProvider;
 
     public ThingTypeXmlProvider(Bundle bundle, AbstractXmlConfigDescriptionProvider configDescriptionProvider,
-            XmlThingTypeProvider thingTypeProvider, XmlChannelTypeProvider channelTypeProvider)
-            throws IllegalArgumentException {
+            XmlThingTypeProvider thingTypeProvider, XmlChannelTypeProvider channelTypeProvider,
+            XmlChannelGroupTypeProvider channelGroupTypeProvider) throws IllegalArgumentException {
 
         if (bundle == null) {
             throw new IllegalArgumentException("The Bundle must not be null!");
@@ -85,9 +91,9 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
         this.configDescriptionProvider = configDescriptionProvider;
         this.thingTypeProvider = thingTypeProvider;
         this.channelTypeProvider = channelTypeProvider;
+        this.channelGroupTypeProvider = channelGroupTypeProvider;
 
         this.thingTypeRefs = new ArrayList<>(10);
-        this.channelGroupTypeRefs = new ArrayList<>(10);
         this.channelGroupTypeRefs = new ArrayList<>(10);
         this.channelTypeRefs = new ArrayList<>(10);
     }
@@ -117,7 +123,7 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
     private void addConfigDescription(ConfigDescription configDescription) {
         if (configDescription != null) {
             try {
-                this.configDescriptionProvider.addConfigDescription(this.bundle, configDescription);
+                this.configDescriptionProvider.add(this.bundle, configDescription);
             } catch (Exception ex) {
                 this.logger.error("Could not register ConfigDescription!", ex);
             }
@@ -132,17 +138,17 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
         for (ChannelTypeXmlResult type : this.channelTypeRefs) {
             ChannelType channelType = type.toChannelType();
             channelTypes.put(channelType.getUID().getAsString(), channelType);
-            this.channelTypeProvider.addChannelType(this.bundle, channelType);
+            this.channelTypeProvider.add(this.bundle, channelType);
         }
 
         // create channel group types
         for (ChannelGroupTypeXmlResult type : this.channelGroupTypeRefs) {
-            this.channelTypeProvider.addChannelGroupType(this.bundle, type.toChannelGroupType());
+            this.channelGroupTypeProvider.add(this.bundle, type.toChannelGroupType());
         }
 
         // create thing and bridge types
         for (ThingTypeXmlResult type : this.thingTypeRefs) {
-            this.thingTypeProvider.addThingType(this.bundle, type.toThingType());
+            this.thingTypeProvider.add(this.bundle, type.toThingType());
         }
 
         // release temporary cache
@@ -153,10 +159,10 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
 
     @Override
     public synchronized void release() {
-        this.thingTypeProvider.removeAllThingTypes(this.bundle);
-        this.channelTypeProvider.removeAllChannelGroupTypes(this.bundle);
-        this.channelTypeProvider.removeAllChannelTypes(this.bundle);
-        this.configDescriptionProvider.removeAllConfigDescriptions(this.bundle);
+        this.thingTypeProvider.removeAll(bundle);
+        this.channelGroupTypeProvider.removeAll(bundle);
+        this.channelTypeProvider.removeAll(bundle);
+        this.configDescriptionProvider.removeAll(bundle);
     }
 
 }

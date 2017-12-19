@@ -1,14 +1,20 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.ui.items;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.sitemap.LinkableWidget;
@@ -41,7 +47,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      *            the widget to retrieve the label for
      * @return the label to use for the widget
      */
-    public String getLabel(Widget w);
+    public String getLabel(@NonNull Widget w);
 
     /**
      * Retrieves the category for a widget.
@@ -54,7 +60,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      *            the widget to retrieve the category for
      * @return the category to use for the widget
      */
-    public String getCategory(Widget w);
+    public String getCategory(@NonNull Widget w);
 
     /**
      * Retrieves the current state of the item of a widget or <code>UnDefType.UNDEF</code>.
@@ -63,7 +69,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      *            the widget to retrieve the item state for
      * @return the item state of the widget
      */
-    public State getState(Widget w);
+    public State getState(@NonNull Widget w);
 
     /**
      * Retrieves the widget for a given id on a given sitemap.
@@ -74,7 +80,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      *            the id of the widget to look for
      * @return the widget for the given id
      */
-    public Widget getWidget(Sitemap sitemap, String id);
+    public Widget getWidget(@NonNull Sitemap sitemap, @NonNull String id);
 
     /**
      * Provides an id for a widget.
@@ -89,7 +95,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      *            the widget to get the id for
      * @return an id for this widget
      */
-    public String getWidgetId(Widget w);
+    public String getWidgetId(@NonNull Widget w);
 
     /**
      * this should be used instead of Sitemap.getChildren() as the default
@@ -99,7 +105,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      *            the sitemap to retrieve the children for
      * @return the children of the sitemap
      */
-    public EList<Widget> getChildren(Sitemap sitemap);
+    public EList<Widget> getChildren(@NonNull Sitemap sitemap);
 
     /**
      * this should be used instead of LinkableWidget.getChildren() as there
@@ -110,7 +116,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      *            the widget to retrieve the children for
      * @return the (dynamically or statically defined) children of the widget
      */
-    public EList<Widget> getChildren(LinkableWidget w);
+    public EList<Widget> getChildren(@NonNull LinkableWidget w);
 
     /**
      * this should be used instead of Widget.eContainer() as as the concrete
@@ -120,7 +126,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      *            the widget to retrieve the parent for
      * @return the parent of the widget
      */
-    public EObject getParent(Widget w);
+    public EObject getParent(@NonNull Widget w);
 
     /**
      * Gets the label color for the widget. Checks conditional statements to
@@ -130,7 +136,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      *            Widget
      * @return String with the color
      */
-    public String getLabelColor(Widget w);
+    public String getLabelColor(@NonNull Widget w);
 
     /**
      * Gets the value color for the widget. Checks conditional statements to
@@ -140,7 +146,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      *            Widget
      * @return String with the color
      */
-    public String getValueColor(Widget w);
+    public String getValueColor(@NonNull Widget w);
 
     /**
      * Gets the widget visibility based on the item state
@@ -149,7 +155,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      *            Widget
      * @return true if the item is visible
      */
-    public boolean getVisiblity(Widget w);
+    public boolean getVisiblity(@NonNull Widget w);
 
     /**
      * Gets the item state
@@ -158,5 +164,5 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      *            item name
      * @return State of the item
      */
-    public State getItemState(String itemName);
+    public State getItemState(@NonNull String itemName);
 }

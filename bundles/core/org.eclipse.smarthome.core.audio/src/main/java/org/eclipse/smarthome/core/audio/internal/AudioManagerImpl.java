@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.audio.internal;
 
@@ -30,6 +35,7 @@ import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.FileAudioStream;
 import org.eclipse.smarthome.core.audio.URLAudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
+import org.eclipse.smarthome.core.audio.UnsupportedAudioStreamException;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +45,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Karel Goderis - Initial contribution and API
  * @author Kai Kreuzer - removed unwanted dependencies
+ * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
+ * 
  */
 public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
 
@@ -47,7 +55,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     private static final String CONFIG_DEFAULT_SINK = "defaultSink";
     private static final String CONFIG_DEFAULT_SOURCE = "defaultSource";
 
-    private final Logger logger = LoggerFactory.getLogger(AudioManager.class);
+    private final Logger logger = LoggerFactory.getLogger(AudioManagerImpl.class);
 
     // service maps
     private Map<String, AudioSource> audioSources = new ConcurrentHashMap<>();
@@ -88,7 +96,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             if (sink != null) {
                 try {
                     sink.process(audioStream);
-                } catch (UnsupportedAudioFormatException e) {
+                } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
                     logger.error("Error playing '{}': {}", audioStream.toString(), e.getMessage());
                 }
             } else {
@@ -123,7 +131,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
         if (sink != null) {
             try {
                 sink.process(audioStream);
-            } catch (UnsupportedAudioFormatException e) {
+            } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
                 logger.error("Error playing '{}': {}", url, e.getMessage());
             }
         }

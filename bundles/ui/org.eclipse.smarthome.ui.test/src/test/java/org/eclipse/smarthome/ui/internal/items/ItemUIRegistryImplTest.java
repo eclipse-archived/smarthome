@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.ui.internal.items;
 
@@ -12,6 +17,8 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.smarthome.core.items.Item;
@@ -26,6 +33,7 @@ import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
+import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.model.sitemap.Mapping;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
@@ -165,6 +173,19 @@ public class ItemUIRegistryImplTest {
     }
 
     @Test
+    public void getLabel_labelWithZonedDate() throws ItemNotFoundException {
+        String testLabel = "Label [%1$td.%1$tm.%1$tY]";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getState()).thenReturn(new DateTimeType("2011-06-01T00:00:00Z"));
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Label [01.06.2011]", label);
+    }
+    
+    @Test
     public void getLabel_labelWithTime() throws ItemNotFoundException {
         String testLabel = "Label [%1$tT]";
         Widget w = mock(Widget.class);
@@ -173,10 +194,25 @@ public class ItemUIRegistryImplTest {
         when(w.getItem()).thenReturn("Item");
         when(registry.getItem("Item")).thenReturn(item);
         when(item.getState()).thenReturn(new DateTimeType("2011-06-01T15:30:59"));
+        
         String label = uiRegistry.getLabel(w);
         assertEquals("Label [15:30:59]", label);
     }
 
+    @Test
+    public void getLabel_labelWithZonedTime() throws ItemNotFoundException {
+        String testLabel = "Label [%1$tT]";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getState()).thenReturn(new DateTimeType("2011-06-01T15:30:59Z"));
+        
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Label [15:30:59]", label);
+    }
+    
     @Test
     public void getLabel_widgetWithoutLabelAndItem() throws ItemNotFoundException {
         Widget w = mock(Widget.class);
@@ -442,6 +478,46 @@ public class ItemUIRegistryImplTest {
         when(item.getState()).thenReturn(new StringType("State"));
         String label = uiRegistry.getLabel(w);
         assertEquals("Label", label);
+    }
+
+    @Test
+    public void getLabel_labelWithMappedOption() throws ItemNotFoundException {
+        String testLabel = "Label";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        StateDescription stateDescription = mock(StateDescription.class);
+        List<StateOption> options = new ArrayList<>();
+        options.add(new StateOption("State0", "This is the state 0"));
+        options.add(new StateOption("State1", "This is the state 1"));
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getStateDescription()).thenReturn(stateDescription);
+        when(stateDescription.getPattern()).thenReturn("%s");
+        when(stateDescription.getOptions()).thenReturn(options);
+        when(item.getState()).thenReturn(new StringType("State1"));
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Label [This is the state 1]", label);
+    }
+
+    @Test
+    public void getLabel_labelWithUnmappedOption() throws ItemNotFoundException {
+        String testLabel = "Label";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        StateDescription stateDescription = mock(StateDescription.class);
+        List<StateOption> options = new ArrayList<>();
+        options.add(new StateOption("State0", "This is the state 0"));
+        options.add(new StateOption("State1", "This is the state 1"));
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getStateDescription()).thenReturn(stateDescription);
+        when(stateDescription.getPattern()).thenReturn("%s");
+        when(stateDescription.getOptions()).thenReturn(options);
+        when(item.getState()).thenReturn(new StringType("State"));
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Label [State]", label);
     }
 
 }

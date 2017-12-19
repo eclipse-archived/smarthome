@@ -1,18 +1,29 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters;
+
+import java.util.Date;
+
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.MeteringTypeEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.MeteringUnitsEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.impl.DSID;
 
 /**
  * The {@link CachedMeteringValue} saves the metering value of an digitalSTROM-Circuit.
  *
  * @author Alexander Betker - Initial contribution
- * @author Michael Ochel - add missing java-doc
- * @author Matthias Siegele - add missing java-doc
+ * @author Michael Ochel - add methods getDateAsDate(), getMeteringType() and getMeteringUnit(); add missing java-doc
+ * @author Matthias Siegele - add methods getDateAsDate(), getMeteringType() and getMeteringUnit(); add missing java-doc
  */
 public interface CachedMeteringValue {
 
@@ -21,20 +32,40 @@ public interface CachedMeteringValue {
      *
      * @return dSID of circuit
      */
-    public DSID getDsid();
+    DSID getDsid();
 
     /**
      * Returns the saved sensor value.
      *
      * @return sensor value
      */
-    public double getValue();
+    double getValue();
 
     /**
-     * Returns the time stamp when the sensor value was read out.
+     * Returns the timestamp when the sensor value was read out as {@link String}.
      *
-     * @return read out time stamp
+     * @return read out timestamp
      */
-    public String getDate();
+    String getDate();
 
+    /**
+     * Returns the timestamp when the sensor value was read out as {@link Date}.
+     *
+     * @return read out timestamp
+     */
+    Date getDateAsDate();
+
+    /**
+     * Returns the {@link MeteringTypeEnum} of this {@link CachedMeteringValue}.
+     *
+     * @return metering type as {@link MeteringTypeEnum}
+     */
+    MeteringTypeEnum getMeteringType();
+
+    /**
+     * Returns the {@link MeteringUnitsEnum} of this {@link CachedMeteringValue}.
+     *
+     * @return metering unit as {@link MeteringUnitsEnum}
+     */
+    MeteringUnitsEnum getMeteringUnit();
 }

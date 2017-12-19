@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.fsinternetradio.internal;
 
@@ -17,7 +22,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
-import org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant;
+import org.eclipse.smarthome.config.discovery.upnp.UpnpDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.jupnp.model.meta.DeviceDetails;
@@ -183,7 +188,8 @@ public class FSInternetRadioDiscoveryParticipant implements UpnpDiscoveryPartici
                 final String modelNumber = modelDetails.getModelNumber();
                 if (modelNumber != null) {
                     if (manufacturer != null) {
-                        final Set<String> supportedRadios = SUPPORTED_RADIO_MODELS.get(manufacturer.trim().toUpperCase());
+                        final Set<String> supportedRadios = SUPPORTED_RADIO_MODELS
+                                .get(manufacturer.trim().toUpperCase());
                         if (supportedRadios != null && supportedRadios.contains(modelNumber.toUpperCase())) {
                             return new ThingUID(THING_TYPE_RADIO, details.getSerialNumber());
                         }

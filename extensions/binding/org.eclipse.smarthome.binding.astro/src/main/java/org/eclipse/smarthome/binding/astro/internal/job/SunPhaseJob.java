@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.astro.internal.job;
 
@@ -36,16 +41,14 @@ public final class SunPhaseJob extends AbstractJob {
      *             if any of the arguments is {@code null}
      */
     public SunPhaseJob(String thingUID, SunPhaseName sunPhaseName) {
-        checkArgument(thingUID != null, "Thing UID cannot be null");
-        checkArgument(sunPhaseName != null, "Sun Phase Name cannot be null");
-
-        this.thingUID = thingUID;
+        super(thingUID);
+        checkArgument(sunPhaseName != null, "The sunPhaseName must not be null");
         this.sunPhaseName = sunPhaseName;
     }
 
     @Override
     public void run() {
-        AstroThingHandler astroHandler = AstroHandlerFactory.getHandler(thingUID);
+        AstroThingHandler astroHandler = AstroHandlerFactory.getHandler(getThingUID());
         if (checkNull(astroHandler, "AstroThingHandler is null")) {
             return;
         }
@@ -59,6 +62,11 @@ public final class SunPhaseJob extends AbstractJob {
             typedSun.getPhase().setName(sunPhaseName);
             astroHandler.publishChannelIfLinked(phaseNameChannel.getUID());
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Sun phase job " + getThingUID() + "/" + sunPhaseName;
     }
 
 }

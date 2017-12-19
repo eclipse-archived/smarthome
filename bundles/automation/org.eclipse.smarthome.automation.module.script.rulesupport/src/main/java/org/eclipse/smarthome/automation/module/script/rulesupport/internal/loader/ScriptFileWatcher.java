@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
 package org.eclipse.smarthome.automation.module.script.rulesupport.internal.loader;
 
 import static java.nio.file.StandardWatchEventKinds.*;
@@ -233,11 +245,8 @@ public class ScriptFileWatcher extends AbstractWatchService {
             @Override
             public int compare(URL o1, URL o2) {
                 String f1 = o1.getPath();
-                String s1 = f1.substring(f1.lastIndexOf("/") + 1);
                 String f2 = o2.getPath();
-                String s2 = f2.substring(f2.lastIndexOf("/") + 1);
-
-                return String.CASE_INSENSITIVE_ORDER.compare(s1, s2);
+                return String.CASE_INSENSITIVE_ORDER.compare(f1, f2);
             }
         });
 

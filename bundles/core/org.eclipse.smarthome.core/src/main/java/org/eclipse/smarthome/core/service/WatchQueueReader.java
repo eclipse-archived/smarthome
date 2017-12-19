@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.service;
 
@@ -11,6 +16,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
@@ -23,7 +29,6 @@ import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.text.MessageFormat;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -49,9 +54,9 @@ public class WatchQueueReader implements Runnable {
 
     protected WatchService watchService;
 
-    private Map<WatchKey, Path> registeredKeys;
+    private final Map<WatchKey, Path> registeredKeys;
 
-    private Map<WatchKey, AbstractWatchService> keyToService;
+    private final Map<WatchKey, AbstractWatchService> keyToService;
 
     private Thread qr;
 
@@ -117,6 +122,15 @@ public class WatchQueueReader implements Runnable {
                         }
                         return FileVisitResult.CONTINUE;
                     }
+
+                    @Override
+                    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                        if (exc instanceof AccessDeniedException) {
+                            logger.warn("Access to folder '{}' was denied, therefore skipping it.",
+                                    file.toAbsolutePath().toString());
+                        }
+                        return FileVisitResult.SKIP_SUBTREE;
+                    }
                 });
     }
 
@@ -180,16 +194,16 @@ public class WatchQueueReader implements Runnable {
                 try {
                     key = watchService.take();
                 } catch (InterruptedException exc) {
-                    logger.info(MessageFormat.format("Caught InterruptedException: {0}", exc.getLocalizedMessage()));
+                    logger.info("Caught InterruptedException: {}", exc.getLocalizedMessage());
                     return;
                 }
 
                 for (WatchEvent<?> event : key.pollEvents()) {
                     WatchEvent.Kind<?> kind = event.kind();
                     if (kind == OVERFLOW) {
-                        logger.warn(MessageFormat.format(
-                                "Found an event of kind 'OVERFLOW': {0}. File system changes might have been missed.",
-                                event));
+                        logger.warn(
+                                "Found an event of kind 'OVERFLOW': {}. File system changes might have been missed.",
+                                event);
                         continue;
                     }
 

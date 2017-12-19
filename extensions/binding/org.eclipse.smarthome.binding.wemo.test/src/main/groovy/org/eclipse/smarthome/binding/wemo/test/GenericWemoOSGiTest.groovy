@@ -1,16 +1,26 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.wemo.test
 
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
-import groovy.xml.Namespace
+import static org.mockito.Mockito.*
+
+import static org.hamcrest.CoreMatchers.*
+import static org.junit.Assert.*
+import static org.junit.matchers.JUnitMatchers.*
+import static org.mockito.Mockito.*
 
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
@@ -37,8 +47,11 @@ import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
 import org.eclipse.smarthome.core.thing.link.ThingLinkManager
+import org.eclipse.smarthome.core.thing.type.ChannelKind
+import org.eclipse.smarthome.core.thing.type.ChannelType
+import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOService
-import org.eclipse.smarthome.io.transport.upnp.UpnpIOServiceImpl
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.storage.VolatileStorageService
 import org.jupnp.UpnpService
@@ -56,7 +69,7 @@ import org.jupnp.model.types.UDN
 import org.osgi.service.cm.ConfigurationAdmin
 import org.osgi.service.http.HttpService
 
-import com.google.common.collect.ImmutableSet
+import groovy.xml.Namespace
 
 /**
  * Generic test class for all Wemo related tests that contains methods and constants used across the different test classes
@@ -82,9 +95,11 @@ public abstract class GenericWemoOSGiTest extends OSGiTest {
     def DEVICE_DESCRIPTION_PATH = "/setup.xml"
     def DEVICE_CONTROL_PATH = '/upnp/control/'
 
+    def DEFAULT_CHANNEL_TYPE_UID = new ChannelTypeUID(WemoBindingConstants.BINDING_ID + ":channelType")
+
     ManagedThingProvider managedThingProvider
     static MockUpnpService mockUpnpService
-    UpnpIOServiceImpl upnpIOService
+    UpnpIOService upnpIOService
     ThingRegistry thingRegistry
     ItemRegistry itemRegistry
 
@@ -114,6 +129,12 @@ public abstract class GenericWemoOSGiTest extends OSGiTest {
         //UPnP IO Service is required from the WemoDiscoveryService and WemoHandlerFactory
         upnpIOService = getService(UpnpIOService.class)
         assertThat(UpnpIOService, is(notNullValue()))
+
+        ChannelTypeProvider channelTypeProvider = mock(ChannelTypeProvider.class);
+        when(channelTypeProvider.getChannelType(any(), any()))
+                .thenReturn(new ChannelType(DEFAULT_CHANNEL_TYPE_UID, false, "Switch", ChannelKind.STATE, "label", null, null,
+                null, null, null, null));
+        registerService(channelTypeProvider);
 
         setSimpleMode(false)
     }
@@ -156,7 +177,8 @@ public abstract class GenericWemoOSGiTest extends OSGiTest {
         ThingUID thingUID = new ThingUID(thingTypeUID, TEST_THING_ID);
 
         ChannelUID channelUID = new ChannelUID(thingUID, channelID)
-        Channel channel = new Channel(channelUID, itemAcceptedType)
+        Channel channel = new Channel(channelUID, DEFAULT_CHANNEL_TYPE_UID, itemAcceptedType, ChannelKind.STATE,
+                null, Collections.emptySet(), null, "label", null);
 
         thing = ThingBuilder.create(thingTypeUID, thingUID)
                 .withConfiguration(configuration)
@@ -229,7 +251,7 @@ public abstract class GenericWemoOSGiTest extends OSGiTest {
     private Set<ThingHandler> getThingHandlers(ThingHandlerFactory factory) {
         def thingManager = getService(ThingTypeMigrationService.class, { "org.eclipse.smarthome.core.thing.internal.ThingManager" } )
         assertThat thingManager, not(null)
-        ImmutableSet.copyOf(thingManager.thingHandlersByFactory.get(factory))
+        Collections.unmodifiableSet(new HashSet<>(thingManager.thingHandlersByFactory.get(factory)))
     }
 }
 

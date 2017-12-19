@@ -8,6 +8,10 @@ body, h1, h2, h3 {
 	font-weight: 300;
 }
 
+html {
+	background-color: rgba(0,0,0,0);
+}
+
 .vhidden {
 	visibility: hidden;
 }
@@ -390,8 +394,7 @@ md-tabs.section-tabs {
 
 .section-header .toolbar {
 	position: absolute;
-	bottom: -50px;
-	left: 15px;
+	left: 7px;
 	z-index: 8;
 }
 

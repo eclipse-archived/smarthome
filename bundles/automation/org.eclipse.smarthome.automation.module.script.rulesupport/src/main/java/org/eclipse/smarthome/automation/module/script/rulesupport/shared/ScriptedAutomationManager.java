@@ -1,14 +1,20 @@
 /**
- * Copyright (c) 2015-2017 Simon Merschjohann and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.module.script.rulesupport.shared;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.UUID;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
@@ -100,8 +106,7 @@ public class ScriptedAutomationManager {
     }
 
     public Rule addRule(Rule element) {
-
-        Rule rule = element.getUID() == null ? new Rule() : new Rule(element.getUID());
+        Rule rule = element.getUID() == null ? new Rule(generateUID()) : new Rule(element.getUID());
 
         String name = element.getName();
         if (name == null || name.isEmpty()) {
@@ -169,6 +174,10 @@ public class ScriptedAutomationManager {
         ruleRegistryDelegate.add(rule);
 
         return rule;
+    }
+
+    private String generateUID() {
+        return UUID.randomUUID().toString();
     }
 
     public void addConditionType(ConditionType condititonType) {

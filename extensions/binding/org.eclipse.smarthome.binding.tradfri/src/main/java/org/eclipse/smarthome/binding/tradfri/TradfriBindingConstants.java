@@ -1,24 +1,30 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.tradfri;
 
+import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-
-import com.google.common.collect.ImmutableSet;
 
 /**
  * The {@link TradfriBindingConstants} class defines common constants, which are
  * used across the whole binding.
  *
  * @author Kai Kreuzer - Initial contribution
+ * @author Christoph Weitkamp - Added support for remote controller and motion sensor devices (read-only battery level)
  */
 public class TradfriBindingConstants {
 
@@ -27,19 +33,34 @@ public class TradfriBindingConstants {
     // List of all Thing Type UIDs
     public static final ThingTypeUID GATEWAY_TYPE_UID = new ThingTypeUID(BINDING_ID, "gateway");
 
-    public final static ThingTypeUID THING_TYPE_DIMMABLE_LIGHT = new ThingTypeUID(BINDING_ID, "0100");
-    public final static ThingTypeUID THING_TYPE_COLOR_TEMP_LIGHT = new ThingTypeUID(BINDING_ID, "0220");
-    public final static ThingTypeUID THING_TYPE_DIMMER = new ThingTypeUID(BINDING_ID, "0820");
+    public static final ThingTypeUID THING_TYPE_DIMMABLE_LIGHT = new ThingTypeUID(BINDING_ID, "0100");
+    public static final ThingTypeUID THING_TYPE_COLOR_TEMP_LIGHT = new ThingTypeUID(BINDING_ID, "0220");
+    public static final ThingTypeUID THING_TYPE_COLOR_LIGHT = new ThingTypeUID(BINDING_ID, "0210");
+    public static final ThingTypeUID THING_TYPE_DIMMER = new ThingTypeUID(BINDING_ID, "0820");
+    public static final ThingTypeUID THING_TYPE_REMOTE_CONTROL = new ThingTypeUID(BINDING_ID, "0830");
+    public static final ThingTypeUID THING_TYPE_MOTION_SENSOR = new ThingTypeUID(BINDING_ID, "0107");
 
-    public static final Set<ThingTypeUID> SUPPORTED_LIGHT_TYPES_UIDS = ImmutableSet.of(THING_TYPE_DIMMABLE_LIGHT,
-            THING_TYPE_COLOR_TEMP_LIGHT);
+    public static final Set<ThingTypeUID> SUPPORTED_LIGHT_TYPES_UIDS = Collections
+            .unmodifiableSet(Stream.of(THING_TYPE_DIMMABLE_LIGHT, THING_TYPE_COLOR_TEMP_LIGHT, THING_TYPE_COLOR_LIGHT)
+                    .collect(Collectors.toSet()));
 
+    // List of all Gateway Configuration Properties
+    public static final String GATEWAY_CONFIG_HOST = "host";
+    public static final String GATEWAY_CONFIG_PORT = "port";
+    public static final String GATEWAY_CONFIG_CODE = "code";
+    public static final String GATEWAY_CONFIG_IDENTITY = "identity";
+    public static final String GATEWAY_CONFIG_PRE_SHARED_KEY = "preSharedKey";
+    
     // Not yet used - included for future support
-    public static final Set<ThingTypeUID> SUPPORTED_CONTROLLER_TYPES_UIDS = ImmutableSet.of(THING_TYPE_DIMMER);
+    public static final Set<ThingTypeUID> SUPPORTED_CONTROLLER_TYPES_UIDS = Collections.unmodifiableSet(Stream
+            .of(THING_TYPE_DIMMER, THING_TYPE_REMOTE_CONTROL, THING_TYPE_MOTION_SENSOR).collect(Collectors.toSet()));
 
     // List of all Channel IDs
     public static final String CHANNEL_BRIGHTNESS = "brightness";
     public static final String CHANNEL_COLOR_TEMPERATURE = "color_temperature";
+    public static final String CHANNEL_COLOR = "color";
+    public static final String CHANNEL_BATTERY_LEVEL = "battery_level";
+    public static final String CHANNEL_BATTERY_LOW = "battery_low";
 
     // IPSO Objects
     public static final String DEVICES = "15001";
@@ -146,8 +167,10 @@ public class TradfriBindingConstants {
     public static final int WAKE_UP_SMART_TASK = 3;
 
     public static final String TYPE_LIGHT = "2";
+    public static final String TYPE_SENSOR = "4";
     public static final String TYPE_SWITCH = "0";
     public static final String DEVICE_VENDOR = "0";
     public static final String DEVICE_MODEL = "1";
     public static final String DEVICE_FIRMWARE = "3";
+    public static final String DEVICE_BATTERY_LEVEL = "9";
 }

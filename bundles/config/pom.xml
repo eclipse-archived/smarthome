@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.eclipse.smarthome</groupId>
     <artifactId>bundles</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.10.0-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -21,7 +21,10 @@
     <module>org.eclipse.smarthome.config.dispatch.test</module>
     <module>org.eclipse.smarthome.config.core.test</module>
     <module>org.eclipse.smarthome.config.discovery</module>
+    <module>org.eclipse.smarthome.config.discovery.mdns</module>
     <module>org.eclipse.smarthome.config.discovery.test</module>
+    <module>org.eclipse.smarthome.config.discovery.upnp</module>
+    <module>org.eclipse.smarthome.config.serial</module>
     <module>org.eclipse.smarthome.config.xml</module>
     <module>org.eclipse.smarthome.config.xml.test</module>
   </modules>

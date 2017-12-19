@@ -88,6 +88,7 @@ md-tabs {
 md-tabs md-tabs-wrapper {
 	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
 	background-color: #01324D;
+	z-index: 1;
 }
 
 md-tabs section {
@@ -285,8 +286,13 @@ md-slider.md-default-theme.hue .md-thumb:after {
 }
 
 /* Fab Item / List Item */
-.fab-item, .list-item {
+.list-item {
 	position: relative;
+}
+
+.fab-item {
+	margin-top: 15px;
+    margin-bottom: 15px;
 }
 
 .fab-item h3, .list-item h3 {
@@ -304,22 +310,31 @@ md-slider.md-default-theme.hue .md-thumb:after {
 }
 
 .fab-item button.md-fab {
-	position: absolute;
-	left: 0px;
-	top: 0px;
+	float: left;
+	margin: 0;
 }
 
 .fab-item .item-content {
-	margin-left: 75px;
 	min-height: 60px;
+    padding-left: 20px;
+    display: flex;
 }
 
-.fab-item .item-content .actions, .list-item .actions, .item-content .actions
+.list-item .actions
 	{
 	position: absolute;
 	top: 7px;
 	right: 0px;
 	background: white;
+}
+
+.fab-item .item-content .actions {
+	flex-wrap: nowrap;
+	display: flex;
+}
+
+.fab-item .item-content .actions i:last-child {
+	float: right;
 }
 
 .extensions .card .item-content {
@@ -340,6 +355,17 @@ md-slider.md-default-theme.hue .md-thumb:after {
 
 .extensions .container.showCards {
 	margin-top: 10px;
+}
+
+.item-content .description {
+	width: 100%;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+.item-content .description h3 {
+    width: 100%;
 }
 
 .showCards .fab-item .item-content {
@@ -371,10 +397,10 @@ md-slider.md-default-theme.hue .md-thumb:after {
 	width: 56px;
 	height: 56px;
 	background-color: #CCC;
-	position: absolute;
 	text-align: center;
 	font-size: 30px;
 	line-height: 54px;
+	float: left;
 }
 
 .fab-item .rectangle {
@@ -396,10 +422,6 @@ md-slider.md-default-theme.hue .md-thumb:after {
 	height: 28px;
 	line-height: 28px;
 	font-size: 15px;
-}
-
-.fab-item hr.border-line {
-	margin: 10px 0px;
 }
 
 /* Input */
@@ -667,10 +689,6 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	margin-top: 5px;
 }
 
-.channel .circle {
-	margin-left: 8px;
-}
-
 .channels .channelGroup {
 	margin-top: 20px;
 }
@@ -913,6 +931,10 @@ md-input-container .md-errors-spacer {
     width: 100px;
 }
 
+button.extensible-thing {
+	margin-top: 0;
+}
+
 md-chips .md-chip-remove-container {
 	display: none;
 }
@@ -985,14 +1007,6 @@ md-chips strong {
 	outline: 0;
 }
 
-.thing .cbody {
-	margin-bottom: 10px;
-}
-
-.fab-item hr.border-line {
-	margin: 0px;
-}
-
 .material-icons.color-remove {
 	font-size: 12px;
 	margin-top: 10px;
@@ -1049,6 +1063,10 @@ md-dialog-content .dayParameter {
 
 .dayParameter>div {
 	min-height: 48px;
+}
+
+.item-container {
+    padding-left: 0px;
 }
 
 .container.itemConfig .md-select-value, .container .includeConfig .md-select-value {
@@ -1145,16 +1163,18 @@ background-color: green;
     .rule .actions i,.item-content .actions i{
         margin:1px;
     }
-    .container {
-    padding-left:8px;
-    padding-right:4px;
-    }   
 }
 
 .item-content p, .item-content h3 {
     word-wrap: normal;
     text-overflow:ellipsis;
     overflow:hidden;
+    margin-top: 0px;
+}
+
+.item-content p {
+	margin: 0;
+	width: 100%;
 }
 
 .item-content h3:focus {
@@ -1170,13 +1190,12 @@ background-color: green;
 	margin-right: 20px;
 }
 
-.linkedItems {
-	
-/*     background-color:#e6e6e6 */
+.linkedItems.item-content {
+	margin-left: 56px;
+	display: block;
 }
 
 .linkedItems>div{
-	border-bottom: 1px solid #ddd;
     margin: 5px;
 }
 
@@ -1187,12 +1206,12 @@ background-color: green;
 	font-size:15px;
 }
 
-.fab-item .linkedItems button.md-fab {
-	position:relative;
+.linkedItems button.md-fab {
+	float: none;
+	margin: 0 0 4px 6px;
 }
 
 .linkedItems>.row {
-	padding-bottom: 10px;
 	margin-top: 10px;
 }
 
@@ -1415,4 +1434,50 @@ md-progress-circular.firmware {
 .no-animation * {
    -webkit-transition: none !important;
    transition: none !important;
+}
+
+.bindings.white-bg {
+    padding-top: 30px;
+}
+
+.bindings.white-bg.has-section-header {
+    padding-top: 80px;
+}
+
+.binding.white-bg {
+    padding-top: 30px;
+}
+
+.binding .item-content .actions {
+	width: 60px;
+}
+
+.binding.white-bg.has-section-header {
+    padding-top: 80px;
+}
+
+.fab-item hr.border-line {
+	margin: 10px 0 0 76px;
+}
+
+.binding :not(md-expansion-panel) .md-title {
+	padding-bottom: 10px;
+	flex-grow: 2;
+	max-width: none;
+}
+.binding .things .search {
+	padding: 0 0 10px 0;
+}
+
+.binding .things md-expansion-panel .md-title.ng-binding {
+    padding-bottom: 0;
+}
+
+search-field {
+	display: flex;
+	width: 100%;
+}
+
+search-field i {
+	margin-top: 4px;
 }

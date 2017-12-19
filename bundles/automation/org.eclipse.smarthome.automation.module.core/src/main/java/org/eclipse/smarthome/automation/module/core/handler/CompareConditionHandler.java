@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.module.core.handler;
 
@@ -16,7 +21,7 @@ import java.util.Map;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
-import org.eclipse.smarthome.automation.module.core.handler.exception.UncomparableException;
+import org.eclipse.smarthome.automation.module.core.internal.exception.UncomparableException;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.slf4j.Logger;
@@ -60,10 +65,10 @@ public class CompareConditionHandler extends BaseModuleHandler<Condition> implem
             Object rightValue = getRightOperandValue(rightOperandString, toCompare);
             if (rightValue == null) {
                 if (leftObj != null) {
-                    logger.info("unsupported type for compare condition: " + leftObj.getClass());
+                    logger.info("unsupported type for compare condition: {}", leftObj.getClass());
                 } else {
-                    logger.info("unsupported type for compare condition: null ("
-                            + module.getInputs().get(INPUT_LEFT_FIELD) + ")");
+                    logger.info("unsupported type for compare condition: null ({})",
+                            module.getInputs().get(INPUT_LEFT_FIELD));
                 }
                 return false;
             }

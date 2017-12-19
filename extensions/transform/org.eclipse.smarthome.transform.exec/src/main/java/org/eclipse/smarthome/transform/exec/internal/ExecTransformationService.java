@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.transform.exec.internal;
 
@@ -25,7 +30,7 @@ public class ExecTransformationService implements TransformationService {
 
     /**
      * Transforms the input <code>source</code> by the command line.
-     * 
+     *
      * @param commandLine
      *            the command to execute. Command line should contain %s string,
      *            which will be replaced by the input data.
@@ -43,8 +48,8 @@ public class ExecTransformationService implements TransformationService {
 
         long startTime = System.currentTimeMillis();
 
-        commandLine = String.format(commandLine, source);
-        String result = ExecUtil.executeCommandLineAndWaitResponse(commandLine, 5000);
+        String formattedCommandLine = String.format(commandLine, source);
+        String result = ExecUtil.executeCommandLineAndWaitResponse(formattedCommandLine, 5000);
         logger.trace("command line execution elapsed {} ms", System.currentTimeMillis() - startTime);
 
         return result;

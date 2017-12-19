@@ -1,21 +1,28 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.items;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -25,15 +32,20 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 
+/**
+ *
+ * @author Kai Kreuzer - Initial contribution
+ */
 public class GroupItem extends GenericItem implements StateChangeListener {
 
+    @NonNull
     public static final String TYPE = "Group";
 
     private final Logger logger = LoggerFactory.getLogger(GroupItem.class);
 
     protected final GenericItem baseItem;
 
-    protected final Set<Item> members;
+    protected final CopyOnWriteArrayList<Item> members;
 
     protected GroupFunction function;
 
@@ -42,11 +54,11 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      *
      * @param name name of the group
      */
-    public GroupItem(String name) {
+    public GroupItem(@NonNull String name) {
         this(name, null, null);
     }
 
-    public GroupItem(String name, GenericItem baseItem) {
+    public GroupItem(@NonNull String name, GenericItem baseItem) {
         // only baseItem but no function set -> use Equality
         this(name, baseItem, new GroupFunction.Equality());
     }
@@ -58,7 +70,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      * @param baseItem type of items in the group
      * @param function function to calculate group status out of member status
      */
-    public GroupItem(String name, GenericItem baseItem, GroupFunction function) {
+    public GroupItem(@NonNull String name, GenericItem baseItem, GroupFunction function) {
         super(TYPE, name);
 
         // we only allow GroupItem with BOTH, baseItem AND function set, or NONE of them set
@@ -70,7 +82,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
             this.baseItem = baseItem;
         }
 
-        members = new CopyOnWriteArraySet<Item>();
+        members = new CopyOnWriteArrayList<Item>();
     }
 
     /**
@@ -114,13 +126,14 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         return ImmutableSet.copyOf(getMembers((Item i) -> !(i instanceof GroupItem)));
     }
 
-    private void collectMembers(Set<Item> allMembers, Set<Item> members) {
+    private void collectMembers(Collection<Item> allMembers, Collection<Item> members) {
         for (Item member : members) {
+            if (allMembers.contains(member)) {
+                continue;
+            }
+            allMembers.add(member);
             if (member instanceof GroupItem) {
                 collectMembers(allMembers, ((GroupItem) member).members);
-                allMembers.add(member);
-            } else {
-                allMembers.add(member);
             }
         }
     }
@@ -147,11 +160,34 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         if (item == null) {
             throw new IllegalArgumentException("Item must not be null!");
         }
-        members.add(item);
+        members.addIfAbsent(item);
+        registerStateListener(item);
+    }
+
+    private void registerStateListener(Item item) {
         if (item instanceof GenericItem) {
             GenericItem genericItem = (GenericItem) item;
             genericItem.addStateChangeListener(this);
         }
+    }
+
+    private void unregisterStateListener(Item old) {
+        if (old instanceof GenericItem) {
+            GenericItem genericItem = (GenericItem) old;
+            genericItem.removeStateChangeListener(this);
+        }
+    }
+
+    public void replaceMember(Item oldItem, Item newItem) {
+        if (oldItem == null || newItem == null) {
+            throw new IllegalArgumentException("Items must not be null!");
+        }
+        int index = members.indexOf(oldItem);
+        if (index > -1) {
+            Item old = members.set(index, newItem);
+            unregisterStateListener(old);
+        }
+        registerStateListener(newItem);
     }
 
     /**
@@ -165,10 +201,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
             throw new IllegalArgumentException("Item must not be null!");
         }
         members.remove(item);
-        if (item instanceof GenericItem) {
-            GenericItem genericItem = (GenericItem) item;
-            genericItem.removeStateChangeListener(this);
-        }
+        unregisterStateListener(item);
     }
 
     /**
@@ -310,8 +343,10 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     @Override
     public void stateUpdated(Item item, State state) {
         State oldState = this.state;
-        if (function != null) {
-            setState(function.calculate(members));
+        if (function != null && baseItem != null) {
+            State calculatedState = function.calculate(getMembers());
+            calculatedState = ItemUtil.convertToAcceptedState(calculatedState, baseItem);
+            setState(calculatedState);
         }
         if (!oldState.equals(this.state)) {
             sendGroupStateChangedEvent(item.getName(), this.state, oldState);

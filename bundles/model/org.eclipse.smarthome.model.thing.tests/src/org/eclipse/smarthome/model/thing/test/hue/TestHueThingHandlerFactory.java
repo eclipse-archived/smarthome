@@ -1,18 +1,26 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.thing.test.hue;
 
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
@@ -28,6 +36,7 @@ import com.google.common.collect.Sets;
  *         https://bugs.eclipse.org/bugs/show_bug.cgi?id=450236 - Considering
  *         ThingType Description
  */
+@NonNullByDefault
 public class TestHueThingHandlerFactory extends BaseThingHandlerFactory {
 
     public static final String BINDING_ID = "hue";
@@ -58,8 +67,8 @@ public class TestHueThingHandlerFactory extends BaseThingHandlerFactory {
     public static final String LIGHT_ID = "lightId";
 
     @Override
-    public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID,
-            ThingUID bridgeUID) {
+    public @Nullable Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration,
+            @Nullable ThingUID thingUID, @Nullable ThingUID bridgeUID) {
         if (SUPPORTED_BRIDGE_TYPES.contains(thingTypeUID)) {
             ThingUID hueBridgeUID = getBridgeThingUID(thingTypeUID, thingUID, configuration);
             return super.createThing(thingTypeUID, configuration, hueBridgeUID, null);
@@ -76,36 +85,48 @@ public class TestHueThingHandlerFactory extends BaseThingHandlerFactory {
         return SUPPORTED_TYPES.contains(thingTypeUID);
     }
 
-    private ThingUID getBridgeThingUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration) {
-        if (thingUID == null) {
+    private ThingUID getBridgeThingUID(ThingTypeUID thingTypeUID, @Nullable ThingUID thingUID,
+            Configuration configuration) {
+        if (thingUID != null) {
+            return thingUID;
+        } else {
             String serialNumber = (String) configuration.get(SERIAL_NUMBER);
-            thingUID = new ThingUID(thingTypeUID, serialNumber);
+            return new ThingUID(thingTypeUID, serialNumber);
         }
-        return thingUID;
     }
 
-    private ThingUID getLightUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration,
-            ThingUID bridgeUID) {
-        String lightId = (String) configuration.get(LIGHT_ID);
-
-        if (thingUID == null) {
-            thingUID = new ThingUID(thingTypeUID, lightId, bridgeUID.getId());
+    private ThingUID getLightUID(ThingTypeUID thingTypeUID, @Nullable ThingUID thingUID, Configuration configuration,
+            @Nullable ThingUID bridgeUID) {
+        if (thingUID != null) {
+            return thingUID;
+        } else {
+            String lightId = (String) configuration.get(LIGHT_ID);
+            return new ThingUID(thingTypeUID, lightId, bridgeUID.getId());
         }
-        return thingUID;
     }
 
     @Override
-    protected ThingHandler createHandler(Thing thing) {
+    protected @Nullable ThingHandler createHandler(Thing thing) {
         if (thing instanceof Bridge) {
             return new BaseBridgeHandler((Bridge) thing) {
                 @Override
                 public void handleCommand(ChannelUID channelUID, Command command) {
+                }
+
+                @Override
+                public void initialize() {
+                    updateStatus(ThingStatus.ONLINE);
                 }
             };
         } else {
             return new BaseThingHandler(thing) {
                 @Override
                 public void handleCommand(ChannelUID channelUID, Command command) {
+                }
+
+                @Override
+                public void initialize() {
+                    updateStatus(ThingStatus.ONLINE);
                 }
             };
         }

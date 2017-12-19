@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.impl;
 
@@ -30,18 +35,20 @@ public class JSONResponseHandler {
     /**
      * Checks the digitalSTROM-JSON response and return true if it was successful, otherwise false.
      *
-     * @param jsonResponse
+     * @param jsonResponse to check
      * @return true, if successful
      */
     public static boolean checkResponse(JsonObject jsonResponse) {
         if (jsonResponse == null) {
             return false;
-        } else if (jsonResponse.get(JSONApiResponseKeysEnum.RESPONSE_OK.getKey()) != null) {
-            return jsonResponse.get(JSONApiResponseKeysEnum.RESPONSE_OK.getKey()).toString()
-                    .equals(JSONApiResponseKeysEnum.RESPONSE_SUCCESSFUL.getKey());
+        } else if (jsonResponse.get(JSONApiResponseKeysEnum.OK.getKey()) != null) {
+            return jsonResponse.get(JSONApiResponseKeysEnum.OK.getKey()).getAsBoolean();
         } else {
-            logger.error("JSONResponseHandler: error in json request. Error message : "
-                    + jsonResponse.get(JSONApiResponseKeysEnum.RESPONSE_MESSAGE.getKey()).toString());
+            String message = "unknown message";
+            if (jsonResponse.get(JSONApiResponseKeysEnum.MESSAGE.getKey()) != null) {
+                message = jsonResponse.get(JSONApiResponseKeysEnum.MESSAGE.getKey()).getAsString();
+            }
+            logger.error("JSONResponseHandler: error in json request. Error message : {}", message);
         }
         return false;
     }
@@ -50,7 +57,7 @@ public class JSONResponseHandler {
      * Returns the {@link JsonObject} from the given digitalSTROM-JSON response {@link String} or null if the json
      * response was empty.
      *
-     * @param jsonResponse
+     * @param jsonResponse to convert
      * @return jsonObject
      */
     public static JsonObject toJsonObject(String jsonResponse) {
@@ -58,7 +65,7 @@ public class JSONResponseHandler {
             try {
                 return (JsonObject) new JsonParser().parse(jsonResponse);
             } catch (JsonParseException e) {
-                logger.error("An JsonParseException occurred by parsing jsonRequest: " + jsonResponse, e);
+                logger.error("An JsonParseException occurred by parsing jsonRequest: {}", jsonResponse, e);
             }
         }
         return null;
@@ -67,12 +74,12 @@ public class JSONResponseHandler {
     /**
      * Returns the result {@link JsonObject} from the given digitalSTROM-JSON response {@link JsonObject}.
      *
-     * @param jsonObject
+     * @param jsonObject of response
      * @return json result object
      */
     public static JsonObject getResultJsonObject(JsonObject jsonObject) {
         if (jsonObject != null) {
-            return (JsonObject) jsonObject.get(JSONApiResponseKeysEnum.RESULT.getKey());
+            return jsonObject.get(JSONApiResponseKeysEnum.RESULT.getKey()).getAsJsonObject();
         }
         return null;
     }

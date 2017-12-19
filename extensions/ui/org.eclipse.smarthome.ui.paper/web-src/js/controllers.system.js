@@ -25,9 +25,10 @@ angular.module('PaperUI.controllers.configuration').controller('SystemController
     $scope.refresh();
 }).controller('ConfigureSystemServiceController', function($rootScope, $scope, $mdDialog, configService, serviceConfigService, configDescriptionService, toastService) {
 
+    $scope.editing = false;
     $scope.service = null;
     $scope.parameters = [];
-    $scope.configuration;
+    $scope.configuration = {};
     $scope.config = {};
     $scope.serviceId;
     $scope.configDescriptionURI;
@@ -36,7 +37,6 @@ angular.module('PaperUI.controllers.configuration').controller('SystemController
         var serviceId = $scope.serviceId;
         var configDescriptionURI = $scope.configDescriptionURI;
         if (configDescriptionURI) {
-            $scope.expertMode = false;
             configDescriptionService.getByUri({
                 uri : configDescriptionURI
             }, function(configDescription) {

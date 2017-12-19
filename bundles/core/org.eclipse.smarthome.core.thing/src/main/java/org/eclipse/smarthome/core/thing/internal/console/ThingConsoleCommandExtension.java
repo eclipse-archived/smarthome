@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.internal.console;
 
@@ -23,6 +28,9 @@ import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.i18n.ThingStatusInfoI18nLocalizationService;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
+import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * {@link ThingConsoleCommandExtension} provides console commands for listing and removing things.
@@ -31,6 +39,7 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  * @author Thomas Höfer - Added localization of thing status
  * @author Stefan Triller - Added trigger channel command
  */
+@Component(immediate = true, service = ConsoleCommandExtension.class)
 public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
     private static final String SUBCMD_LIST = "list";
@@ -131,10 +140,12 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
         }
     }
 
+    @Reference
     protected void setManagedThingProvider(ManagedThingProvider managedThingProvider) {
         this.managedThingProvider = managedThingProvider;
     }
 
+    @Reference
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = thingRegistry;
     }
@@ -147,6 +158,7 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
         this.thingRegistry = null;
     }
 
+    @Reference
     protected void setThingStatusInfoI18nLocalizationService(
             ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService) {
         this.thingStatusInfoI18nLocalizationService = thingStatusInfoI18nLocalizationService;
@@ -157,6 +169,7 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
         this.thingStatusInfoI18nLocalizationService = null;
     }
 
+    @Reference
     protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }

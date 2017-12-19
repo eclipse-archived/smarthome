@@ -8,7 +8,7 @@
   <parent>
     <groupId>org.eclipse.smarthome.bundles</groupId>
     <artifactId>model</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.10.0-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -48,7 +48,7 @@
               -p
             </argument>
             <argument>
-              runtimeProject=/${project.basedir}
+              rootPath=/${project.basedir}/..
             </argument>
           </arguments>
           <additionalClasspathElements>

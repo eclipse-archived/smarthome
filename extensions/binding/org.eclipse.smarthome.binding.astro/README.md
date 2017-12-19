@@ -10,7 +10,9 @@ This binding supports two Things: Sun and Moon
 
 ## Discovery
 
-Discovery is not necessary, because all calculations are done within the binding.
+If a system location is set, "Local Sun" and a "Local Moon" will be automatically discovered for this location.
+
+If the system location is changed, the background discovery updates the configuration of "Local Sun" and "Local Moon" automatically.
 
 ## Binding Configuration
 
@@ -18,9 +20,10 @@ No binding configuration required.
 
 ## Thing Configuration
 
-A thing requires the geolocation (latitude, longitude) for which the calculation is done.
-Optionally, a refresh interval (in seconds) can be defined to also calculate positional data like azimuth and elevation.
-An complementary altitude (optional) configuration item can also be specified to sharpen results provided by Radiation group.
+All Things require the parameter `geolocation` (as `<latitude>,<longitude>,[<altitude in m>]`) for which the calculation is done. 
+The altitude segment is optional and sharpens results provided by the Radiation group.
+Optionally, a refresh `interval` (in seconds) can be defined to also calculate positional data like azimuth and elevation.
+
 
 ## Channels
 
@@ -48,7 +51,7 @@ An complementary altitude (optional) configuration item can also be specified to
             * `total, partial, ring` (DateTime)
     * **group** `phase`
         * **channel** 
-            * `name` (String), values: `SUN_RISE, ASTRO_DAWN, NAUTIC_DAWN, CIVIL_DAWN, CIVIL_DUSK, NAUTIC_DUSK, ASTRO_DUSK, SUN_SET, DAYLIGHT, NOON, NIGHT`
+            * `name` (String), values: `SUN_RISE, ASTRO_DAWN, NAUTIC_DAWN, CIVIL_DAWN, CIVIL_DUSK, NAUTIC_DUSK, ASTRO_DUSK, SUN_SET, DAYLIGHT, NIGHT`
 * **thing** `moon`
     * **group** `rise, set`
         * **channel** 
@@ -123,26 +126,26 @@ sunrise is 22:10 but `latest` is set to 20:00 so the event/datetime value is mov
 Things:
 
 ```
-astro:sun:home  [ geolocation="xx.xxxxxx,xx.xxxxxx", altitude=100, interval=60 ]
-astro:moon:home [ geolocation="xx.xxxxxx,xx.xxxxxx", interval=60 ]
+astro:sun:home  [ geolocation="52.5200066,13.4049540,100", interval=60 ]
+astro:moon:home [ geolocation="52.5200066,13.4049540", interval=60 ]
 ```
 
 or optionally with an event offset
 
 ```
-astro:sun:home [ geolocation="xx.xxxxxx,xx.xxxxxx", altitude=100, interval=60 ] {
+astro:sun:home [ geolocation="52.5200066,13.4049540,100", interval=60 ] {
     Channels:
         Type rangeEvent : rise#event [
             offset=-30
         ]
 }
-astro:moon:home [ geolocation="xx.xxxxxx,xx.xxxxxx", interval=60 ]
+astro:moon:home [ geolocation="52.5200066,13.4049540", interval=60 ]
 ```
 
 or a datetime offset
 
 ```
-astro:sun:home [ geolocation="xx.xxxxxx,xx.xxxxxx", altitude=100, interval=60 ] {
+astro:sun:home [ geolocation="52.5200066,13.4049540,100", interval=60 ] {
     Channels:
         Type start : rise#start [
             offset=5
@@ -156,7 +159,7 @@ astro:sun:home [ geolocation="xx.xxxxxx,xx.xxxxxx", altitude=100, interval=60 ] 
 or a offset and latest
 
 ```
-astro:sun:home [ geolocation="xx.xxxxxx,xx.xxxxxx", altitude=100, interval=60 ] {
+astro:sun:home [ geolocation="52.5200066,13.4049540,100", interval=60 ] {
     Channels:
         Type rangeEvent : rise#event [
             offset=-10,
@@ -187,3 +190,7 @@ then
     ...
 end
 ```
+
+## Tips
+
+Do not worry if for example the "astro dawn" is undefined at your location. The reason might be that you live in a northern country and it is summer, such that the sun is not 18 degrees below the horizon in the morning. For details see [this Wikipedia article](https://en.wikipedia.org/wiki/Dawn). The "civil dawn" event might often be the better choice.

@@ -1,16 +1,20 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.wemo.handler.test
 
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
-import groovy.xml.XmlUtil
 
 import javax.servlet.http.HttpServlet
 
@@ -29,6 +33,8 @@ import org.eclipse.smarthome.core.types.UnDefType
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+
+import groovy.xml.XmlUtil
 
 /**
  * Tests for {@link WemoMakerHandler}.
@@ -173,7 +179,7 @@ class WemoMakerHandlerOSGiTest extends GenericWemoOSGiTest {
         }
 
         waitForAssert {
-            assertThat "UPnP registry is not clear", upnpIOService.participants.keySet().size(), is(0)
+            assertThat "UPnP registry is not clear", upnpIOService.participants.size(), is(0)
         }
 
         itemRegistry.remove(DEFAULT_TEST_ITEM_NAME)

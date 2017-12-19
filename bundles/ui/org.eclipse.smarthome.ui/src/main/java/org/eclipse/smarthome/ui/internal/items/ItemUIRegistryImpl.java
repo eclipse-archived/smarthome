@@ -1,13 +1,19 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.ui.internal.items;
 
-import java.util.Calendar;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -23,6 +29,7 @@ import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -30,6 +37,7 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.RegistryHook;
 import org.eclipse.smarthome.core.library.items.CallItem;
 import org.eclipse.smarthome.core.library.items.ColorItem;
 import org.eclipse.smarthome.core.library.items.ContactItem;
@@ -48,11 +56,13 @@ import org.eclipse.smarthome.core.library.types.NextPreviousType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.PlayPauseType;
+import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationHelper;
 import org.eclipse.smarthome.core.transform.TransformationService;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
+import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.core.types.Type;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.model.sitemap.ColorArray;
@@ -80,6 +90,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Chris Jackson
  * @author Stefan Triller - Method to convert a state into something a sitemap entity can understand
+ * @author Erdoan Hadzhiyusein - Adapted the class to work with the new DateTimeType
  *
  */
 public class ItemUIRegistryImpl implements ItemUIRegistry {
@@ -99,7 +110,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
     protected ItemRegistry itemRegistry;
 
-    private Map<Widget, Widget> defaultWidgets = Collections.synchronizedMap(new WeakHashMap<Widget, Widget>());
+    private final Map<Widget, Widget> defaultWidgets = Collections.synchronizedMap(new WeakHashMap<Widget, Widget>());
 
     public ItemUIRegistryImpl() {
     }
@@ -184,9 +195,9 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     }
 
     @Override
-    public Widget getDefaultWidget(Class<? extends Item> itemType, String itemName) {
+    public Widget getDefaultWidget(Class<? extends Item> targetItemType, String itemName) {
         for (ItemUIProvider provider : itemUIProviders) {
-            Widget widget = provider.getDefaultWidget(itemType, itemName);
+            Widget widget = provider.getDefaultWidget(targetItemType, itemName);
             if (widget != null) {
                 return widget;
             }
@@ -194,6 +205,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
         // do some reasonable default, if no provider had an answer
         // if the itemType is not defined, try to get it from the item name
+        Class<? extends Item> itemType = targetItemType;
         if (itemType == null) {
             itemType = getItemType(itemName);
         }
@@ -268,6 +280,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     @Override
     public String getLabel(Widget w) {
         String label = getLabelFromWidget(w);
+        String labelMappedOption = null;
 
         // now insert the value, if the state is a string or decimal value and there is some formatting pattern defined
         // in the label
@@ -276,11 +289,21 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         if (itemName != null) {
             State state = null;
             String formatPattern = getFormatPattern(label);
+            StateDescription stateDescription = null;
 
             try {
                 final Item item = getItem(itemName);
+                // There is a known issue in the implementation of the method getStateDescription() of class Item
+                // in the following case:
+                // - the item provider returns as expected a state description without pattern but with for
+                // example a min value because a min value is set in the item definition but no label with
+                // pattern is set.
+                // - the channel state description provider returns as expected a state description with a pattern
+                // In this case, the result is no display of value by UIs because no pattern is set in the
+                // returned StateDescription. What is expected is the display of a value using the pattern
+                // provided by the channel state description provider.
+                stateDescription = item.getStateDescription();
                 if (formatPattern == null) {
-                    final StateDescription stateDescription = item.getStateDescription();
                     if (stateDescription != null) {
                         final String pattern = stateDescription.getPattern();
                         if (pattern != null) {
@@ -321,6 +344,26 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                     if (state == null || state instanceof UnDefType) {
                         formatPattern = formatUndefined(formatPattern);
                     } else if (state instanceof Type) {
+                        // if the channel contains options, we build a label with the mapped option value
+                        if (stateDescription != null && stateDescription.getOptions() != null) {
+                            for (StateOption option : stateDescription.getOptions()) {
+                                if (option.getValue().equals(state.toString()) && option.getLabel() != null) {
+                                    State stateOption = new StringType(option.getLabel());
+                                    try {
+                                        String formatPatternOption = stateOption.format(formatPattern);
+                                        labelMappedOption = label.trim();
+                                        labelMappedOption = labelMappedOption.substring(0,
+                                                labelMappedOption.indexOf("[") + 1) + formatPatternOption + "]";
+                                    } catch (IllegalArgumentException e) {
+                                        logger.debug(
+                                                "Mapping option value '{}' for item {} using format '{}' failed ({}); mapping is ignored",
+                                                stateOption, itemName, formatPattern, e.getMessage());
+                                        labelMappedOption = null;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
                         // The following exception handling has been added to work around a Java bug with formatting
                         // numbers. See http://bugs.sun.com/view_bug.do?bug_id=6476425
                         // Without this catch, the whole sitemap, or page can not be displayed!
@@ -340,18 +383,18 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             }
         }
 
-        label = transform(label);
+        label = transform(label, labelMappedOption);
 
         return label;
     }
 
     private String getFormatPattern(String label) {
-        label = label.trim();
-        int indexOpenBracket = label.indexOf("[");
-        int indexCloseBracket = label.endsWith("]") ? label.length() - 1 : -1;
+        String pattern = label.trim();
+        int indexOpenBracket = pattern.indexOf("[");
+        int indexCloseBracket = pattern.endsWith("]") ? pattern.length() - 1 : -1;
 
         if ((indexOpenBracket >= 0) && (indexCloseBracket > indexOpenBracket)) {
-            return label.substring(indexOpenBracket + 1, indexCloseBracket);
+            return pattern.substring(indexOpenBracket + 1, indexCloseBracket);
         } else {
             return null;
         }
@@ -401,8 +444,11 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
      * label (the right side is signified by being enclosed in square brackets [].
      * If so, check if the value starts with the call to a transformation service
      * (e.g. "[MAP(en.map):%s]") and execute the transformation in this case.
+     * If the value does not start with the call to a transformation service,
+     * we return the label with the mapped option value if provided (not null).
      */
-    private String transform(String label) {
+    private String transform(String label, String labelMappedOption) {
+        String ret = label;
         if (getFormatPattern(label) != null) {
             Matcher matcher = EXTRACT_TRANSFORMFUNCTION_PATTERN.matcher(label);
             if (matcher.find()) {
@@ -413,22 +459,24 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                         .getTransformationService(UIActivator.getContext(), type);
                 if (transformation != null) {
                     try {
-                        label = label.substring(0, label.indexOf("[") + 1) + transformation.transform(pattern, value)
+                        ret = label.substring(0, label.indexOf("[") + 1) + transformation.transform(pattern, value)
                                 + "]";
                     } catch (TransformationException e) {
-                        logger.error("transformation throws exception [transformation=" + transformation + ", value="
-                                + value + "]", e);
-                        label = label.substring(0, label.indexOf("[") + 1) + value + "]";
+                        logger.error("transformation throws exception [transformation={}, value={}]", transformation,
+                                value, e);
+                        ret = label.substring(0, label.indexOf("[") + 1) + value + "]";
                     }
                 } else {
                     logger.warn(
                             "couldn't transform value in label because transformationService of type '{}' is unavailable",
                             type);
-                    label = label.substring(0, label.indexOf("[") + 1) + value + "]";
+                    ret = label.substring(0, label.indexOf("[") + 1) + value + "]";
                 }
+            } else if (labelMappedOption != null) {
+                ret = labelMappedOption;
             }
         }
-        return label;
+        return ret;
     }
 
     @Override
@@ -480,9 +528,15 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     private State convertState(Widget w, Item i) {
         State returnState = null;
 
-        // RollerShutter are represented as Switch in a Sitemap but need a PercentType state
-        if (w instanceof Slider || (w instanceof Switch && i instanceof RollershutterItem)) {
+        if (w instanceof Switch && i instanceof RollershutterItem) {
+            // RollerShutter are represented as Switch in a Sitemap but need a PercentType state
             returnState = i.getStateAs(PercentType.class);
+        } else if (w instanceof Slider) {
+            if (i.getAcceptedDataTypes().contains(PercentType.class)) {
+                returnState = i.getStateAs(PercentType.class);
+            } else {
+                returnState = i.getStateAs(DecimalType.class);
+            }
         } else if (w instanceof Switch) {
             Switch sw = (Switch) w;
             if (sw.getMappings().size() == 0) {
@@ -511,9 +565,15 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                 w.setItem(id);
             } else {
                 try {
-                    w = sitemap.getChildren().get(Integer.valueOf(id.substring(0, 2)));
-                    for (int i = 2; i < id.length(); i += 2) {
-                        w = ((LinkableWidget) w).getChildren().get(Integer.valueOf(id.substring(i, i + 2)));
+                    int widgetID = Integer.valueOf(id.substring(0, 2));
+                    if (widgetID < sitemap.getChildren().size()) {
+                        w = sitemap.getChildren().get(widgetID);
+                        for (int i = 2; i < id.length(); i += 2) {
+                            int childWidgetID = Integer.valueOf(id.substring(i, i + 2));
+                            if (childWidgetID < ((LinkableWidget) w).getChildren().size()) {
+                                w = ((LinkableWidget) w).getChildren().get(childWidgetID);
+                            }
+                        }
                     }
                 } catch (NumberFormatException e) {
                     // no valid number, so the requested page id does not exist
@@ -568,8 +628,9 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         if (!(widget instanceof Default)) {
             return widget;
         } else {
-            if (widget.getItem() != null) {
-                Item item = itemRegistry.get(widget.getItem());
+            String itemName = widget.getItem();
+            if (itemName != null) {
+                Item item = itemRegistry.get(itemName);
                 if (item != null) {
                     Widget defaultWidget = getDefaultWidget(item.getClass(), item.getName());
                     if (defaultWidget != null) {
@@ -604,27 +665,32 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         EList<Widget> children = new BasicEList<Widget>();
         String itemName = group.getItem();
         try {
-            Item item = getItem(itemName);
-            if (item instanceof GroupItem) {
-                GroupItem groupItem = (GroupItem) item;
-                for (Item member : groupItem.getMembers()) {
-                    Widget widget = getDefaultWidget(member.getClass(), member.getName());
-                    if (widget != null) {
-                        widget.setItem(member.getName());
-                        children.add(widget);
+            if (itemName != null) {
+                Item item = getItem(itemName);
+                if (item instanceof GroupItem) {
+                    GroupItem groupItem = (GroupItem) item;
+                    for (Item member : groupItem.getMembers()) {
+                        Widget widget = getDefaultWidget(member.getClass(), member.getName());
+                        if (widget != null) {
+                            widget.setItem(member.getName());
+                            children.add(widget);
+                        }
                     }
+                } else {
+                    logger.warn("Item '{}' is not a group.", item.getName());
                 }
             } else {
-                logger.warn("Item '{}' is not a group.", item.getName());
+                logger.warn("Group does not specify an associated item - ignoring it.");
             }
         } catch (ItemNotFoundException e) {
-            logger.warn("Group '{}' could not be found.", group.getLabel(), e);
+            logger.warn("Dynamic group with label '{}' will be ignored, because its item '{}' does not exist.",
+                    group.getLabel(), itemName);
         }
         return children;
 
     }
 
-    private Class<? extends Item> getItemType(String itemName) {
+    private Class<? extends Item> getItemType(@NonNull String itemName) {
         try {
             Item item = itemRegistry.getItem(itemName);
             return item.getClass();
@@ -643,7 +709,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
-    public String getItemCategory(String itemName) {
+    public String getItemCategory(@NonNull String itemName) {
         try {
             Item item = itemRegistry.getItem(itemName);
             return item.getCategory();
@@ -657,7 +723,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         if (itemRegistry != null) {
             return itemRegistry.getItem(name);
         } else {
-            return null;
+            throw new ItemNotFoundException(name);
         }
     }
 
@@ -666,10 +732,11 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         if (itemRegistry != null) {
             return itemRegistry.getItemByPattern(name);
         } else {
-            return null;
+            throw new ItemNotFoundException(name);
         }
     }
 
+    @SuppressWarnings("null")
     @Override
     public Collection<Item> getItems() {
         if (itemRegistry != null) {
@@ -679,6 +746,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
+    @SuppressWarnings("null")
     @Override
     public Collection<Item> getItemsOfType(String type) {
         if (itemRegistry != null) {
@@ -688,6 +756,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
+    @SuppressWarnings("null")
     @Override
     public Collection<Item> getItems(String pattern) {
         if (itemRegistry != null) {
@@ -722,13 +791,14 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     }
 
     @Override
-    public String getWidgetId(Widget w) {
-        Widget w2 = defaultWidgets.get(w);
+    public String getWidgetId(Widget widget) {
+        Widget w2 = defaultWidgets.get(widget);
         if (w2 != null) {
             return getWidgetId(w2);
         }
 
         String id = "";
+        Widget w = widget;
         while (w.eContainer() instanceof Widget) {
             Widget parent = (Widget) w.eContainer();
             String index = String.valueOf(((LinkableWidget) parent).getChildren().indexOf(w));
@@ -762,8 +832,9 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
         // Remove quotes - this occurs in some instances where multiple types
         // are defined in the xtext definitions
-        if (value.startsWith("\"") && value.endsWith("\"")) {
-            value = value.substring(1, value.length() - 1);
+        String unquotedValue = value;
+        if (unquotedValue.startsWith("\"") && unquotedValue.endsWith("\"")) {
+            unquotedValue = unquotedValue.substring(1, unquotedValue.length() - 1);
         }
 
         // Convert the condition string into enum
@@ -776,93 +847,93 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             try {
                 switch (condition) {
                     case EQUAL:
-                        if (Double.parseDouble(state.toString()) == Double.parseDouble(value)) {
+                        if (Double.parseDouble(state.toString()) == Double.parseDouble(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case LTE:
-                        if (Double.parseDouble(state.toString()) <= Double.parseDouble(value)) {
+                        if (Double.parseDouble(state.toString()) <= Double.parseDouble(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case GTE:
-                        if (Double.parseDouble(state.toString()) >= Double.parseDouble(value)) {
+                        if (Double.parseDouble(state.toString()) >= Double.parseDouble(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case GREATER:
-                        if (Double.parseDouble(state.toString()) > Double.parseDouble(value)) {
+                        if (Double.parseDouble(state.toString()) > Double.parseDouble(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case LESS:
-                        if (Double.parseDouble(state.toString()) < Double.parseDouble(value)) {
+                        if (Double.parseDouble(state.toString()) < Double.parseDouble(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case NOT:
                     case NOTEQUAL:
-                        if (Double.parseDouble(state.toString()) != Double.parseDouble(value)) {
+                        if (Double.parseDouble(state.toString()) != Double.parseDouble(unquotedValue)) {
                             matched = true;
                         }
                         break;
                 }
             } catch (NumberFormatException e) {
-                logger.debug("matchStateToValue: Decimal format exception: " + e);
+                logger.debug("matchStateToValue: Decimal format exception: ", e);
             }
         } else if (state instanceof DateTimeType) {
-            Calendar val = ((DateTimeType) state).getCalendar();
-            Calendar now = Calendar.getInstance();
-            long secsDif = (now.getTimeInMillis() - val.getTimeInMillis()) / 1000;
+            ZonedDateTime val = ((DateTimeType) state).getZonedDateTime();
+            ZonedDateTime now = ZonedDateTime.now();
+            long secsDif = ChronoUnit.SECONDS.between(now, val);
 
             try {
                 switch (condition) {
                     case EQUAL:
-                        if (secsDif == Integer.parseInt(value)) {
+                        if (secsDif == Integer.parseInt(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case LTE:
-                        if (secsDif <= Integer.parseInt(value)) {
+                        if (secsDif <= Integer.parseInt(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case GTE:
-                        if (secsDif >= Integer.parseInt(value)) {
+                        if (secsDif >= Integer.parseInt(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case GREATER:
-                        if (secsDif > Integer.parseInt(value)) {
+                        if (secsDif > Integer.parseInt(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case LESS:
-                        if (secsDif < Integer.parseInt(value)) {
+                        if (secsDif < Integer.parseInt(unquotedValue)) {
                             matched = true;
                         }
                         break;
                     case NOT:
                     case NOTEQUAL:
-                        if (secsDif != Integer.parseInt(value)) {
+                        if (secsDif != Integer.parseInt(unquotedValue)) {
                             matched = true;
                         }
                         break;
                 }
             } catch (NumberFormatException e) {
-                logger.debug("matchStateToValue: Decimal format exception: " + e);
+                logger.debug("matchStateToValue: Decimal format exception: ", e);
             }
         } else {
             // Strings only allow = and !=
             switch (condition) {
                 case NOT:
                 case NOTEQUAL:
-                    if (!value.equals(state.toString())) {
+                    if (!unquotedValue.equals(state.toString())) {
                         matched = true;
                     }
                     break;
                 default:
-                    if (value.equals(state.toString())) {
+                    if (unquotedValue.equals(state.toString())) {
                         matched = true;
                     }
                     break;
@@ -899,13 +970,14 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                     continue;
                 }
 
-                // If there's an item defined here, get it's state
-                if (color.getItem() != null) {
+                // If there's an item defined here, get its state
+                String itemName = color.getItem();
+                if (itemName != null) {
                     // Try and find the item to test.
                     // If it's not found, return visible
                     Item item;
                     try {
-                        item = itemRegistry.getItem(color.getItem());
+                        item = itemRegistry.getItem(itemName);
 
                         // Get the item state
                         cmpState = item.getState();
@@ -966,7 +1038,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         logger.debug("Checking visiblity for widget '{}'.", w.getLabel());
 
         for (VisibilityRule rule : w.getVisibility()) {
-            if (rule.getItem() == null) {
+            String itemName = rule.getItem();
+            if (itemName == null) {
                 continue;
             }
             if (rule.getState() == null) {
@@ -977,7 +1050,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             // If it's not found, return visible
             Item item;
             try {
-                item = itemRegistry.getItem(rule.getItem());
+                item = itemRegistry.getItem(itemName);
             } catch (ItemNotFoundException e) {
                 logger.error("Cannot retrieve visibility item {} for widget {}", rule.getItem(),
                         w.eClass().getInstanceTypeName());
@@ -1041,6 +1114,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
+    @SuppressWarnings("null")
     @Override
     public Collection<Item> getItemsByTag(String... tags) {
         if (itemRegistry != null) {
@@ -1050,6 +1124,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
+    @SuppressWarnings("null")
     @Override
     public Collection<Item> getItemsByTagAndType(String type, String... tags) {
         if (itemRegistry != null) {
@@ -1059,6 +1134,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
+    @SuppressWarnings("null")
     @Override
     public <T extends GenericItem> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags) {
         if (itemRegistry != null) {
@@ -1112,6 +1188,20 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             return null;
         }
 
+    }
+
+    @Override
+    public void addRegistryHook(RegistryHook<Item> hook) {
+        if (itemRegistry != null) {
+            itemRegistry.addRegistryHook(hook);
+        }
+    }
+
+    @Override
+    public void removeRegistryHook(RegistryHook<Item> hook) {
+        if (itemRegistry != null) {
+            itemRegistry.removeRegistryHook(hook);
+        }
     }
 
 }

@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.core.internal;
 
@@ -35,6 +40,7 @@ public class RuntimeRule extends Rule {
      * @param rule a rule which has to be copied or null when an empty instance of rule
      *            has to be created.
      */
+    @SuppressWarnings("null")
     protected RuntimeRule(Rule rule) {
         super(rule.getUID(), getRuntimeTriggersCopy(rule.getTriggers()), getRuntimeConditionsCopy(rule.getConditions()),
                 getRuntimeActionsCopy(rule.getActions()), rule.getConfigurationDescriptions(), rule.getConfiguration(),
@@ -67,10 +73,6 @@ public class RuntimeRule extends Rule {
         return moduleMap;
     }
 
-    protected void setUID(String rUID) {
-        uid = rUID;
-    }
-
     private static List<Action> getRuntimeActionsCopy(List<Action> actions) {
         List<Action> res = new ArrayList<Action>();
         if (actions != null) {
@@ -82,7 +84,7 @@ public class RuntimeRule extends Rule {
     }
 
     private static List<Condition> getRuntimeConditionsCopy(List<Condition> conditions) {
-        List<Condition> res = new ArrayList<Condition>(11);
+        List<Condition> res = new ArrayList<Condition>();
         if (conditions != null) {
             for (Condition condition : conditions) {
                 res.add(new RuntimeCondition(condition));
@@ -92,7 +94,7 @@ public class RuntimeRule extends Rule {
     }
 
     private static List<Trigger> getRuntimeTriggersCopy(List<Trigger> triggers) {
-        List<Trigger> res = new ArrayList<Trigger>(11);
+        List<Trigger> res = new ArrayList<Trigger>();
         if (triggers != null) {
             for (Trigger trigger : triggers) {
                 res.add(new RuntimeTrigger(trigger));

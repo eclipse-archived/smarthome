@@ -1,21 +1,29 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.library.types;
 
 import static org.junit.Assert.*;
 
 import java.text.SimpleDateFormat;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +33,7 @@ import org.junit.runners.Parameterized.Parameters;
 /**
  * @author Thomas.Eichstaedt-Engelen
  * @author Gaël L'hopital - Added Timezone and Milliseconds
+ * @author Erdoan Hadzhiyusein - Added ZonedDateTime tests
  */
 @RunWith(Parameterized.class)
 public class DateTimeTypeTest {
@@ -115,18 +124,20 @@ public class DateTimeTypeTest {
                         "2014-03-30T10:58:47.033+0000") },
                 { new ParameterSet(TimeZone.getTimeZone("UTC"), initTimeMap(), TimeZone.getTimeZone("CET"),
                         "2014-03-30T08:58:47.033+0000") },
-                { new ParameterSet(TimeZone.getTimeZone("UTC"), "2014-03-30T10:58:47UTS",
+                { new ParameterSet(TimeZone.getTimeZone("UTC"), "2014-03-30T10:58:47UTC",
                         "2014-03-30T10:58:47.000+0000") },
                 { new ParameterSet(TimeZone.getTimeZone("CET"), initTimeMap(), TimeZone.getTimeZone("UTC"),
                         "2014-03-30T12:58:47.033+0200") },
                 { new ParameterSet(TimeZone.getTimeZone("CET"), initTimeMap(), TimeZone.getTimeZone("CET"),
                         "2014-03-30T10:58:47.033+0200") },
-                { new ParameterSet(TimeZone.getTimeZone("CET"), "2014-03-30T10:58:47UTS",
+                { new ParameterSet(TimeZone.getTimeZone("CET"), "2014-03-30T10:58:47CET",
                         "2014-03-30T10:58:47.000+0200") },
                 { new ParameterSet(TimeZone.getTimeZone("GMT+5"), "2014-03-30T10:58:47.000Z",
                         "2014-03-30T15:58:47.000+0500") },
                 { new ParameterSet(TimeZone.getTimeZone("GMT"), initTimeMap(), TimeZone.getTimeZone("GMT"),
                         "2014-03-30T10:58:47.033+0000") },
+                { new ParameterSet(TimeZone.getTimeZone("CET"), initTimeMap(), TimeZone.getTimeZone("+02:00"),
+                        "2014-03-30T12:58:47.033+0200") },
                 { new ParameterSet(TimeZone.getTimeZone("GMT+2"), initTimeMap(), TimeZone.getTimeZone("GML"),
                         "2014-03-30T12:58:47.033+0200") },
                 { new ParameterSet(TimeZone.getTimeZone("GMT-2"), initTimeMap(), TimeZone.getTimeZone("GMT+3"),
@@ -166,13 +177,33 @@ public class DateTimeTypeTest {
     }
 
     @Test
+    public void serializationTestZoned() {
+        ZonedDateTime zoned = ZonedDateTime.now();
+        DateTimeType dt = new DateTimeType(zoned);
+        DateTimeType sdt = new DateTimeType(dt.toFullString());
+        assertEquals(dt.getZonedDateTime(), sdt.getZonedDateTime());
+    }
+
+    @Test
     public void equalityTest() {
         DateTimeType dt1 = new DateTimeType(Calendar.getInstance());
-        DateTimeType dt2 = DateTimeType.valueOf(dt1.toString());
+        DateTimeType dt2 = DateTimeType.valueOf(dt1.toFullString());
 
         assertTrue(dt1.toString().equals(dt2.toString()));
         assertTrue(dt1.equals(dt2));
         assertTrue(dt1.getCalendar().equals(dt2.getCalendar()));
+
+        assertTrue(dt1.equals(dt2));
+    }
+
+    @Test
+    public void equalityTestZoned() {
+        ZonedDateTime zoned = ZonedDateTime.now();
+        DateTimeType dt1 = new DateTimeType(zoned);
+        DateTimeType dt2 = DateTimeType.valueOf(dt1.toFullString());
+
+        assertTrue(dt1.toString().equals(dt2.toFullString()));
+        assertTrue(dt1.getZonedDateTime().equals(dt2.getZonedDateTime()));
         assertTrue(dt1.equals(dt2));
     }
 
@@ -190,16 +221,45 @@ public class DateTimeTypeTest {
                     parameterSet.inputTimeMap.get("date"), parameterSet.inputTimeMap.get("hourOfDay"),
                     parameterSet.inputTimeMap.get("minute"), parameterSet.inputTimeMap.get("second"));
             calendar.set(Calendar.MILLISECOND, parameterSet.inputTimeMap.get("milliseconds"));
-
             inputTimeString = new SimpleDateFormat(DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS).format(calendar.getTime());
         } else {
             inputTimeString = parameterSet.inputTimeString;
         }
-
         DateTimeType dt = DateTimeType.valueOf(inputTimeString);
-
+        if (parameterSet.inputTimeZone == null) {
+            dt = new DateTimeType(dt.getZonedDateTime().withZoneSameInstant(TimeZone.getDefault().toZoneId()));
+        }
         // Test
         assertEquals(parameterSet.expectedResult, dt.toString());
+    }
 
+    @Test
+    public void createZonedDate() {
+        String inputTimeString;
+
+        // set default time zone
+        TimeZone.setDefault(parameterSet.defaultTimeZone);
+
+        // get formatted time string
+        if (parameterSet.inputTimeString == null) {
+            int durationInNano = (int) TimeUnit.NANOSECONDS.convert(parameterSet.inputTimeMap.get("milliseconds"),
+                    TimeUnit.MILLISECONDS);
+
+            LocalDateTime dateTime = LocalDateTime.of(parameterSet.inputTimeMap.get("year"),
+                    parameterSet.inputTimeMap.get("month") + 1, parameterSet.inputTimeMap.get("date"),
+                    parameterSet.inputTimeMap.get("hourOfDay"), parameterSet.inputTimeMap.get("minute"),
+                    parameterSet.inputTimeMap.get("second"), durationInNano);
+            ZonedDateTime zonedDate = ZonedDateTime.of(dateTime, parameterSet.inputTimeZone.toZoneId()).toInstant()
+                    .atZone(parameterSet.defaultTimeZone.toZoneId());
+            inputTimeString = zonedDate.format((DateTimeFormatter.ofPattern(DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS)));
+        } else {
+            inputTimeString = parameterSet.inputTimeString;
+        }
+        DateTimeType dt = new DateTimeType(inputTimeString);
+        if (parameterSet.inputTimeZone == null) {
+            dt = new DateTimeType(dt.getZonedDateTime().withZoneSameInstant(TimeZone.getDefault().toZoneId()));
+        }
+        // Test
+        assertEquals(parameterSet.expectedResult, dt.toString());
     }
 }

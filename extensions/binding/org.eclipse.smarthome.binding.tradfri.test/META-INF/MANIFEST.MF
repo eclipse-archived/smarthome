@@ -1,12 +1,17 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name:  Tradfri Binding Tests
-Bundle-SymbolicName: org.eclipse.smarthome.binding.tradfri.test;singleton:=true
-Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.9.0.qualifier
+Bundle-Name: TRÅDFRI Binding Tests
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.binding.tradfri.test;singleto
+ n:=true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.10.0.qualifier
+Export-Package: org.eclipse.smarthome.binding.tradfri;uses:="org.eclipse
+ .smarthome.test"
 Fragment-Host: org.eclipse.smarthome.binding.tradfri
-Import-Package: org.eclipse.smarthome.binding.tradfri,
+Import-Package: 
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.binding.tradfri,
  org.eclipse.smarthome.binding.tradfri.handler,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.events,
@@ -19,7 +24,7 @@ Import-Package: org.eclipse.smarthome.binding.tradfri,
  org.osgi.framework,
  org.osgi.service.device,
  org.slf4j
-Require-Bundle: org.junit,org.mockito,org.hamcrest
-Export-Package: org.eclipse.smarthome.binding.tradfri.internal;x-internal:=true,
- org.eclipse.smarthome.binding.tradfri;uses:="org.eclipse.smarthome.test"
-
+Require-Bundle: 
+ org.hamcrest,
+ org.junit,
+ org.mockito

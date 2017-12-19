@@ -1,12 +1,19 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.lifx.internal;
 
+import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -22,7 +29,6 @@ import org.eclipse.smarthome.binding.lifx.LifxBindingConstants;
 import org.eclipse.smarthome.binding.lifx.handler.LifxLightHandler.CurrentLightState;
 import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
 import org.eclipse.smarthome.binding.lifx.internal.listener.LifxPropertiesUpdateListener;
-import org.eclipse.smarthome.binding.lifx.internal.listener.LifxResponsePacketListener;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetHostFirmwareRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetVersionRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetWifiFirmwareRequest;
@@ -34,29 +40,28 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.StateWifiFirmwareRes
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-
 /**
  * The {@link LifxLightPropertiesUpdater} updates the light properties when a light goes online. When packets get lost
- * the requests are resend when the {@code UPDATE_INTERVAL} elapses.
+ * the requests are resent when the {@code UPDATE_INTERVAL} elapses.
  *
  * @author Wouter Born - Update light properties when online
  */
-public class LifxLightPropertiesUpdater implements LifxResponsePacketListener {
+public class LifxLightPropertiesUpdater {
 
     private final Logger logger = LoggerFactory.getLogger(LifxLightPropertiesUpdater.class);
 
     private static final int UPDATE_INTERVAL = 15;
 
+    private final String logId;
+    private final InetSocketAddress ipAddress;
     private final MACAddress macAddress;
-    private final String macAsHex;
     private final CurrentLightState currentLightState;
     private final LifxLightCommunicationHandler communicationHandler;
 
     private final List<LifxPropertiesUpdateListener> propertiesUpdateListeners = new CopyOnWriteArrayList<>();
 
-    private final List<Packet> requestPackets = Lists.newArrayList(new GetVersionRequest(),
-            new GetHostFirmwareRequest(), new GetWifiFirmwareRequest());
+    private final List<Packet> requestPackets = Arrays.asList(new GetVersionRequest(), new GetHostFirmwareRequest(),
+            new GetWifiFirmwareRequest());
     private final Set<Integer> receivedPacketTypes = new HashSet<>();
 
     private final ReentrantLock lock = new ReentrantLock();
@@ -67,56 +72,73 @@ public class LifxLightPropertiesUpdater implements LifxResponsePacketListener {
     private boolean updating;
     private boolean wasOnline;
 
-    public LifxLightPropertiesUpdater(MACAddress macAddress, ScheduledExecutorService scheduler,
-            CurrentLightState currentLightState, LifxLightCommunicationHandler communicationHandler) {
-        this.macAddress = macAddress;
-        this.macAsHex = macAddress.getHex();
-        this.scheduler = scheduler;
-        this.currentLightState = currentLightState;
+    public LifxLightPropertiesUpdater(LifxLightContext context, LifxLightCommunicationHandler communicationHandler) {
+        this.logId = context.getLogId();
+        this.macAddress = context.getConfiguration().getMACAddress();
+        this.ipAddress = context.getConfiguration().getHost();
+        this.currentLightState = context.getCurrentLightState();
+        this.scheduler = context.getScheduler();
         this.communicationHandler = communicationHandler;
     }
 
-    private Runnable updateRunnable = new Runnable() {
-
-        @Override
-        public void run() {
-            try {
-                lock.lock();
-
-                if (currentLightState.isOnline()) {
-                    if (!wasOnline) {
-                        if (propertiesUpdateListeners.size() > 0) {
-                            logger.debug("{} : Updating light properties", macAsHex);
-                            updating = true;
-                            properties.clear();
-                            receivedPacketTypes.clear();
-                            properties.put(LifxBindingConstants.PROPERTY_MAC_ADDRESS, macAddress.getAsLabel());
-                            sendPropertyRequestPackets();
-                        }
-                    } else if (updating && !receivedAllResponsePackets()) {
-                        logger.debug("{} : Resending requests for missing response packets", macAsHex);
-                        sendPropertyRequestPackets();
-                    }
-                }
-
-                wasOnline = currentLightState.isOnline();
-            } catch (Exception e) {
-                logger.error("Error occurred while polling online state", e);
-            } finally {
-                lock.unlock();
-            }
+    public void updateProperties() {
+        if (propertiesUpdateListeners.isEmpty()) {
+            logger.debug("{} : Not updating properties because there are no listeners", logId);
+            return;
         }
 
-        private void sendPropertyRequestPackets() {
-            for (Packet packet : requestPackets) {
-                if (!receivedPacketTypes.contains(packet.expectedResponses()[0])) {
-                    communicationHandler.sendPacket(packet);
+        try {
+            lock.lock();
+
+            boolean isOnline = currentLightState.isOnline();
+            if (isOnline) {
+                if (!wasOnline) {
+                    logger.debug("{} : Updating light properties", logId);
+                    properties.clear();
+                    receivedPacketTypes.clear();
+                    updating = true;
+                    updateHostProperty();
+                    updateMACAddressProperty();
+                    sendPropertyRequestPackets();
+                } else if (updating && !receivedAllResponsePackets()) {
+                    logger.debug("{} : Resending requests for missing response packets", logId);
+                    sendPropertyRequestPackets();
                 }
             }
-        }
-    };
 
-    @Override
+            wasOnline = isOnline;
+        } catch (Exception e) {
+            logger.error("Error occurred while polling online state of a light ({})", logId, e);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private void updateHostProperty() {
+        if (communicationHandler.getIpAddress() != null) {
+            properties.put(LifxBindingConstants.PROPERTY_HOST, communicationHandler.getIpAddress().getHostString());
+        } else if (ipAddress != null) {
+            properties.put(LifxBindingConstants.PROPERTY_HOST, ipAddress.getHostString());
+        }
+    }
+
+    private void updateMACAddressProperty() {
+        if (communicationHandler.getMACAddress() != null) {
+            properties.put(LifxBindingConstants.PROPERTY_MAC_ADDRESS,
+                    communicationHandler.getMACAddress().getAsLabel());
+        } else if (macAddress != null) {
+            properties.put(LifxBindingConstants.PROPERTY_MAC_ADDRESS, macAddress.getAsLabel());
+        }
+    }
+
+    private void sendPropertyRequestPackets() {
+        for (Packet packet : requestPackets) {
+            if (!receivedPacketTypes.contains(packet.expectedResponses()[0])) {
+                communicationHandler.sendPacket(packet);
+            }
+        }
+    }
+
     public void handleResponsePacket(Packet packet) {
         if (!updating) {
             return;
@@ -145,10 +167,8 @@ public class LifxLightPropertiesUpdater implements LifxResponsePacketListener {
 
         if (receivedAllResponsePackets()) {
             updating = false;
-            for (LifxPropertiesUpdateListener listener : propertiesUpdateListeners) {
-                listener.handlePropertiesUpdate(properties);
-            }
-            logger.debug("{} : Finished updating light properties", macAsHex);
+            propertiesUpdateListeners.forEach(listener -> listener.handlePropertiesUpdate(properties));
+            logger.debug("{} : Finished updating light properties", logId);
         }
     }
 
@@ -167,12 +187,13 @@ public class LifxLightPropertiesUpdater implements LifxResponsePacketListener {
     public void start() {
         try {
             lock.lock();
-            communicationHandler.addResponsePacketListener(this);
+            communicationHandler.addResponsePacketListener(this::handleResponsePacket);
             if (updateJob == null || updateJob.isCancelled()) {
-                updateJob = scheduler.scheduleWithFixedDelay(updateRunnable, 0, UPDATE_INTERVAL, TimeUnit.SECONDS);
+                updateJob = scheduler.scheduleWithFixedDelay(this::updateProperties, 0, UPDATE_INTERVAL,
+                        TimeUnit.SECONDS);
             }
         } catch (Exception e) {
-            logger.error("Error occurred while starting properties update job", e);
+            logger.error("Error occurred while starting properties update job for a light ({})", logId, e);
         } finally {
             lock.unlock();
         }
@@ -181,13 +202,13 @@ public class LifxLightPropertiesUpdater implements LifxResponsePacketListener {
     public void stop() {
         try {
             lock.lock();
-            communicationHandler.removeResponsePacketListener(this);
+            communicationHandler.removeResponsePacketListener(this::handleResponsePacket);
             if (updateJob != null && !updateJob.isCancelled()) {
                 updateJob.cancel(true);
                 updateJob = null;
             }
         } catch (Exception e) {
-            logger.error("Error occurred while stopping properties update job", e);
+            logger.error("Error occurred while stopping properties update job for a light ({})", logId, e);
         } finally {
             lock.unlock();
         }

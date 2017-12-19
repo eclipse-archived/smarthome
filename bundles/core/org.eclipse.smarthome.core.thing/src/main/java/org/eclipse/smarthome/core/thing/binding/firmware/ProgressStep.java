@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.binding.firmware;
 
@@ -12,14 +17,21 @@ package org.eclipse.smarthome.core.thing.binding.firmware;
  * of the firmware update is defined by the operation {@link ProgressCallback#defineSequence(ProgressStep...)}.
  *
  * @author Thomas Höfer - Initial contribution
+ * @author Chris Jackson - Add WAITING
  */
 public enum ProgressStep {
 
     /**
      * The {@link FirmwareUpdateHandler} is going to download / read the firmware image by reading the input stream from
-     * {@link Firmware#getContent()}.
+     * {@link Firmware#getBytes()}.
      */
     DOWNLOADING,
+
+    /**
+     * The {@link FirmwareUpdateHandler} is waiting for the device to initiate the transfer. For battery devices that
+     * may wake up periodically, this may take some time. For mains devices this step may be very short or omitted.
+     */
+    WAITING,
 
     /** The {@link FirmwareUpdateHandler} is going to transfer the firmware to the actual device. */
     TRANSFERRING,

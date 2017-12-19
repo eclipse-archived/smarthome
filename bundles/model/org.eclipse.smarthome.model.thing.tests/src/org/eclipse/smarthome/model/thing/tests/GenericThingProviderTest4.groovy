@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.thing.tests;
 
@@ -11,8 +16,8 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import org.eclipse.smarthome.config.core.BundleProcessor
-import org.eclipse.smarthome.config.core.BundleProcessor.BundleProcessorListener
+import org.eclipse.smarthome.core.service.ReadyMarker
+import org.eclipse.smarthome.core.service.ReadyService
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.Thing
@@ -50,15 +55,12 @@ import org.osgi.service.component.ComponentContext
 @RunWith(Parameterized.class)
 class GenericThingProviderTest4 extends OSGiTest{
     private TestHueThingTypeProvider thingTypeProvider
-    private BundleProcessor bundleProcessor
+    private ReadyService readyService
     private Bundle bundle
     private ThingHandlerFactory hueThingHandlerFactory
-    private BundleProcessorListener listenerThingManager
-    private BundleProcessorListener listenerGenericProvider
     private boolean finished
     private int bridgeInitializeCounter
     private int thingInitializeCounter
-    final boolean thingManagerListenerFirst
     final boolean slowInit
 
     private final static String TESTMODEL_NAME = "testModelX.things"
@@ -66,30 +68,19 @@ class GenericThingProviderTest4 extends OSGiTest{
     ModelRepository modelRepository;
     ThingRegistry thingRegistry;
 
-    @Parameters(name = "{index}: thingManagerFirst={0}, slowInit={1}")
+    @Parameters(name = "{index}: slowInit={0}")
     public static Collection<Object[]> data() {
         return [
             [
-                true,
                 false
             ] as Object[],
             [
-                false,
-                false
-            ] as Object[],
-            [
-                true,
-                true
-            ] as Object[],
-            [
-                false,
                 true
             ] as Object[]
         ]
     }
 
-    public GenericThingProviderTest4(boolean thingManagerListenerFirst, boolean slowInit) {
-        this.thingManagerListenerFirst = thingManagerListenerFirst
+    public GenericThingProviderTest4(boolean slowInit) {
         this.slowInit = slowInit
     }
 
@@ -116,6 +107,10 @@ class GenericThingProviderTest4 extends OSGiTest{
 
     @Before
     public void setUp() {
+        registerVolatileStorageService();
+
+        readyService = getService ReadyService
+        assertThat readyService, is(notNullValue())
         thingRegistry = getService ThingRegistry
         assertThat thingRegistry, is(notNullValue())
         modelRepository = getService ModelRepository
@@ -133,6 +128,10 @@ class GenericThingProviderTest4 extends OSGiTest{
                         } else {
                             return new BaseThingHandler(thing) {
                                         void handleCommand(ChannelUID arg0, Command arg1) {};
+                                        @Override
+                                        void initialize() {
+                                            updateState(ThingStatus.ONLINE);
+                                        }
                                     }
                         }
                     }
@@ -140,27 +139,17 @@ class GenericThingProviderTest4 extends OSGiTest{
 
         finished = false;
         bundle = FrameworkUtil.getBundle(TestHueThingHandlerFactoryX)
-        bundleProcessor = [
-            "hasFinishedLoading": { return finished },
-            "registerListener": { l ->
-                String actionClassName = l.action.getClass().getName()
-                if (actionClassName.contains("ThingManager")) {
-                    listenerThingManager = l
-                }
-                if (actionClassName.contains("GenericThingProvider")) {
-                    listenerGenericProvider = l
-                }
-            },
-            "unregisterListener": { l ->
-                if (l.action.getClass().getName().contains("ThingManager")) {
-                    listenerThingManager = null
-                }
-                if (l.action.getClass().getName().contains("GenericThingProvider")) {
-                    listenerGenericProvider = null
-                }
-            }
-        ] as BundleProcessor
-        registerService(bundleProcessor)
+
+        removeReadyMarker()
+    }
+
+    private void removeReadyMarker() {
+        waitForAssert {
+            // wait for the XML processing to be finished, then remove the ready marker again
+            ReadyMarker marker = new ReadyMarker("esh.xmlThingTypes", bundle.getSymbolicName())
+            assertThat readyService.isReady(marker), is(true)
+            readyService.unmarkReady(marker);
+        }
     }
 
     @After
@@ -188,6 +177,7 @@ class GenericThingProviderTest4 extends OSGiTest{
                 it.getUID().getAsString().equals("Xhue:Xbridge:myBridge")
             }.getHandler(), is(nullValue())
         }
+        removeReadyMarker()
     }
 
     private def updateModel() {
@@ -205,15 +195,8 @@ class GenericThingProviderTest4 extends OSGiTest{
 
     private def finishLoading() {
         finished = true;
-        if (thingManagerListenerFirst) {
-            assertThat bridgeInitializeCounter, is(0)
-            listenerThingManager.bundleFinished(bundleProcessor, bundle)
-            listenerGenericProvider.bundleFinished(bundleProcessor, bundle)
-        } else {
-            assertThat bridgeInitializeCounter, is(0)
-            listenerGenericProvider.bundleFinished(bundleProcessor, bundle)
-            listenerThingManager.bundleFinished(bundleProcessor, bundle)
-        }
+        assertThat bridgeInitializeCounter, is(0)
+        readyService.markReady(new ReadyMarker("esh.xmlThingTypes", bundle.getSymbolicName()))
     }
 
     private def unload() {
@@ -222,9 +205,8 @@ class GenericThingProviderTest4 extends OSGiTest{
     }
 
     private void assertThatAllIsGood() {
-        assertThat thingRegistry.getAll().size(), is(1)
-
         waitForAssert {
+            assertThat thingRegistry.getAll().size(), is(1)
             Thing bridge = thingRegistry.get(new ThingUID("Xhue:Xbridge:myBridge"))
             assertThat bridge, is(notNullValue())
             assertThat bridge, is(instanceOf(Bridge))

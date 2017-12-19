@@ -1,17 +1,19 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor;
 
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.config.Config;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.ConnectionManager;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.SensorJob;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.impl.DeviceConsumptionSensorJob;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.impl.DeviceOutputValueSensorJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +24,10 @@ import org.slf4j.LoggerFactory;
  * <p>
  * In addition priorities can be assigned to jobs, but the following list shows the maximum evaluation of a
  * {@link SensorJob} per priority.
+ * </p>
  * <ul>
- * <li>low priority: read cycles before execution is set in {@link Config.LOW_PRIORITY_FACTOR}</li>
- * <li>medium priority: read cycles before execution is set in {@link Config.MEDIUM_PRIORITY_FACTOR}</li>
+ * <li>low priority: read cycles before execution is set in {@link Config}</li>
+ * <li>medium priority: read cycles before execution is set in {@link Config}</li>
  * <li>high priority: read cycles before execution 0</li>
  * </ul>
  *
@@ -34,11 +37,16 @@ import org.slf4j.LoggerFactory;
  */
 public class SensorJobExecutor extends AbstractSensorJobExecutor {
 
-    private Logger logger = LoggerFactory.getLogger(SensorJobExecutor.class);
+    private final Logger logger = LoggerFactory.getLogger(SensorJobExecutor.class);
 
-    private long mediumFactor = super.config.getSensorReadingWaitTime() * super.config.getMediumPriorityFactor();
-    private long lowFactor = super.config.getSensorReadingWaitTime() * super.config.getLowPriorityFactor();
+    private final long mediumFactor = super.config.getSensorReadingWaitTime() * super.config.getMediumPriorityFactor();
+    private final long lowFactor = super.config.getSensorReadingWaitTime() * super.config.getLowPriorityFactor();
 
+    /**
+     * Creates a new {@link SensorJobExecutor}.
+     *
+     * @param connectionManager must not be null
+     */
     public SensorJobExecutor(ConnectionManager connectionManager) {
         super(connectionManager);
     }

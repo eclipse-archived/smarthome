@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.discovery.internal.console;
 
@@ -18,8 +23,11 @@ import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
+import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +37,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution
  * @author Dennis Nobel - Added background discovery commands
  */
+@Component(immediate = true, service = ConsoleCommandExtension.class)
 public class DiscoveryConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
     private static final String SUBCMD_START = "start";
@@ -97,7 +106,7 @@ public class DiscoveryConsoleCommandExtension extends AbstractConsoleCommandExte
             if (properties == null) {
                 properties = new Hashtable<>();
             }
-            properties.put(DiscoveryService.CONFIG_PROPERTY_BACKGROUND_DISCOVERY_ENABLED, enabled);
+            properties.put(DiscoveryService.CONFIG_PROPERTY_BACKGROUND_DISCOVERY, enabled);
             configuration.update(properties);
             console.println("Background discovery for discovery service '" + discoveryServicePID + "' was set to "
                     + enabled + ".");
@@ -128,6 +137,7 @@ public class DiscoveryConsoleCommandExtension extends AbstractConsoleCommandExte
                         "disables background discovery for the discovery service with the given PID") });
     }
 
+    @Reference
     protected void setDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
         this.discoveryServiceRegistry = discoveryServiceRegistry;
     }
@@ -136,6 +146,7 @@ public class DiscoveryConsoleCommandExtension extends AbstractConsoleCommandExte
         this.discoveryServiceRegistry = null;
     }
 
+    @Reference
     protected void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
         this.configurationAdmin = configurationAdmin;
     }

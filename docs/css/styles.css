@@ -21,16 +21,20 @@ body {
 	}
 }
 
+@media only screen and (min-width: 993px) {
+    .container {
+       width: 82%;
+    }
+}
+
+@media only screen and (min-width: 1150px) {
+	.container {
+	   width: 70%;
+	}
+}
+
 /* deactivate scroll effects for low resolutions */ 
 @media only screen and (max-width: 992px) {
-	.parallax img {
-		-webkit-transform: initial !important;
-		-o-transform: initial !important;
-		-ms-transform: initial !important;
-		-moz-transform: initial !important;
-		transform: initial !important;
-		left: -50%;
-	}
 	.scrollme.animateme {
 		-webkit-transform: initial !important;
 		-o-transform: initial !important;
@@ -40,6 +44,8 @@ body {
 		opacity: 1 !important;
 	}
 }
+
+
 
 /* Layout: Header */
 
@@ -795,4 +801,47 @@ body.documentation section#documentation h2:after, body.documentation section#do
 
 body.documentation section#documentation h2:hover:after, body.documentation section#documentation h3:hover:after, body.documentation section#documentation h4:hover:after, body.documentation section#documentation h5:hover:after {
 	visibility: visible;
+}
+
+/* Blog */
+section#blog .section-header {
+    background-color: #5999ad;
+}
+
+body section#blog {
+    padding: 0;    
+}
+
+body .card .card-content p {
+    margin: 0px 0px 10px 0px;
+}
+
+body section#blog .parallax-container {
+    height: 300px;
+}
+
+body section#blog .parallax-container #headline {
+	width: 100%;
+}
+
+body section#blog .parallax-container h1 {
+    color: white;
+}
+
+body.documentation .icons figure {
+    width: 80px;
+    display: inline-block;
+    text-align: center;
+    font-size: 0.7em;
+    margin: 10px 8px;
+}
+
+.white-text a { 
+	color: #9ee8ff; 
+}
+
+.img-responsive {
+    max-width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }

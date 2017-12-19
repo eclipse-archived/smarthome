@@ -1,13 +1,18 @@
 Manifest-Version: 1.0
-Bundle-Name: Eclipse SmartHome Json Storage Service
-Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.9.0.qualifier
+Bundle-ClassPath: .
+Bundle-License: https://www.eclipse.org/legal/epl-2.0/
 Bundle-ManifestVersion: 2
-Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: com.google.gson,
+Bundle-Name: Eclipse SmartHome Json Storage Service
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.storage.json;singleton:=true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.10.0.qualifier
+Import-Package: 
+ com.google.gson,
  com.google.gson.annotations,
  com.google.gson.reflect,
  com.google.gson.stream,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.storage,
  org.osgi.framework,
@@ -15,7 +20,4 @@ Import-Package: com.google.gson,
  org.osgi.service.component,
  org.osgi.service.event,
  org.slf4j
-Bundle-SymbolicName: org.eclipse.smarthome.storage.json;singleton:=true
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-ClassPath: .
 Service-Component: OSGI-INF/*.xml

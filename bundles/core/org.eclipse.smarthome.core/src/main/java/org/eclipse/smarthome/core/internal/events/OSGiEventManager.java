@@ -1,25 +1,29 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.internal.events;
 
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeoutException;
 
-import org.eclipse.smarthome.core.common.SafeMethodCaller;
-import org.eclipse.smarthome.core.common.SafeMethodCaller.ActionWithException;
+import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFactory;
 import org.eclipse.smarthome.core.events.EventFilter;
@@ -28,6 +32,12 @@ import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
 import org.osgi.util.tracker.ServiceTracker;
@@ -51,6 +61,7 @@ import com.google.common.collect.SetMultimap;
  *
  * @author Stefan Bußweiler - Initial contribution
  */
+@Component(immediate = true, property = { "event.topics:String=smarthome" })
 public class OSGiEventManager implements EventHandler, EventPublisher {
 
     @SuppressWarnings("rawtypes")
@@ -80,7 +91,7 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
 
     }
 
-    private Logger logger = LoggerFactory.getLogger(OSGiEventManager.class);
+    private final Logger logger = LoggerFactory.getLogger(OSGiEventManager.class);
 
     private EventAdmin osgiEventAdmin;
 
@@ -91,17 +102,22 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
 
     private EventSubscriberServiceTracker eventSubscriberServiceTracker;
 
+    private SafeCaller safeCaller;
+
+    @Activate
     protected void activate(ComponentContext componentContext) {
         eventSubscriberServiceTracker = new EventSubscriberServiceTracker(componentContext.getBundleContext());
         eventSubscriberServiceTracker.open();
     }
 
+    @Deactivate
     protected void deactivate(ComponentContext componentContext) {
         if (eventSubscriberServiceTracker != null) {
             eventSubscriberServiceTracker.close();
         }
     }
 
+    @Reference
     protected void setEventAdmin(EventAdmin eventAdmin) {
         this.osgiEventAdmin = eventAdmin;
     }
@@ -110,6 +126,7 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         this.osgiEventAdmin = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addEventFactory(EventFactory eventFactory) {
         Set<String> supportedEventTypes = eventFactory.getSupportedEventTypes();
 
@@ -130,6 +147,15 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         }
     }
 
+    @Reference
+    protected void setSafeCaller(SafeCaller safeCaller) {
+        this.safeCaller = safeCaller;
+    }
+
+    protected void unsetSafeCaller(SafeCaller safeCaller) {
+        this.safeCaller = null;
+    }
+
     @Override
     public void handleEvent(org.osgi.service.event.Event osgiEvent) {
         Object typeObj = osgiEvent.getProperty("type");
@@ -148,7 +174,8 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         } else {
             logger.error(
                     "The handled OSGi event is invalid. Expect properties as string named 'type', 'payload' and 'topic'. "
-                            + "Received event properties are: " + osgiEvent.getPropertyNames());
+                            + "Received event properties are: {}",
+                    Arrays.toString(osgiEvent.getPropertyNames()));
         }
     }
 
@@ -164,7 +191,7 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
                 }
             }
         } else {
-            logger.warn("Could not find an Event Factory for the event type '" + type + "'.");
+            logger.debug("Could not find an Event Factory for the event type '{}'.", type);
         }
     }
 
@@ -174,32 +201,25 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         try {
             eshEvent = eventFactory.createEvent(type, topic, payload, source);
         } catch (Exception e) {
-            logger.error("Creation of ESH-Event failed, "
-                    + "because one of the registered event factories has thrown an exception: " + e.getMessage(), e);
+            logger.error(
+                    "Creation of ESH-Event failed, "
+                            + "because one of the registered event factories has thrown an exception: {}",
+                    e.getMessage(), e);
         }
         return eshEvent;
     }
 
-    private void dispatchESHEvent(final Set<EventSubscriber> eventSubscribers, final Event event) {
+    private synchronized void dispatchESHEvent(final Set<EventSubscriber> eventSubscribers, final Event event) {
         for (final EventSubscriber eventSubscriber : eventSubscribers) {
-            try {
-                EventFilter filter = eventSubscriber.getEventFilter();
-                if (filter == null || filter.apply(event)) {
-                    SafeMethodCaller.call(new ActionWithException<Void>() {
-
-                        @Override
-                        public Void call() throws Exception {
-                            eventSubscriber.receive(event);
-                            return null;
-                        }
-                    });
-                }
-            } catch (TimeoutException timeoutException) {
-                logger.warn("Dispatching event to subscriber '{}' takes more than {}ms.", eventSubscriber.toString(),
-                        SafeMethodCaller.DEFAULT_TIMEOUT);
-            } catch (Throwable t) {
-                logger.error("Dispatching/filtering event for subscriber '" + EventSubscriber.class.getName()
-                        + "' failed: " + t.getMessage(), t);
+            EventFilter filter = eventSubscriber.getEventFilter();
+            if (filter == null || filter.apply(event)) {
+                safeCaller.create(eventSubscriber).withAsync().onTimeout(() -> {
+                    logger.warn("Dispatching event to subscriber '{}' takes more than {}ms.",
+                            eventSubscriber.toString(), SafeCaller.DEFAULT_TIMEOUT);
+                }).onException(e -> {
+                    logger.error("Dispatching/filtering event for subscriber '{}' failed: {}",
+                            EventSubscriber.class.getName(), e.getMessage(), e);
+                }).build().receive(event);
             }
         }
     }

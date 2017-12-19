@@ -1,12 +1,14 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome hue Binding Tests
-Bundle-SymbolicName: org.eclipse.smarthome.binding.hue.test;singleton:=true
-Bundle-Version: 0.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.binding.hue.test;singleton:=t
+ rue
 Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.10.0.qualifier
 Fragment-Host: org.eclipse.smarthome.binding.hue
-Import-Package: com.google.gson,
+Import-Package: 
+ com.google.gson,
  com.google.gson.reflect,
  groovy.json,
  groovy.lang,
@@ -14,6 +16,7 @@ Import-Package: com.google.gson,
  org.codehaus.groovy.runtime,
  org.codehaus.groovy.runtime.callsite,
  org.codehaus.groovy.runtime.typehandling,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.jetty.client,
  org.eclipse.smarthome.config.discovery.inbox,
  org.eclipse.smarthome.core.common.registry,

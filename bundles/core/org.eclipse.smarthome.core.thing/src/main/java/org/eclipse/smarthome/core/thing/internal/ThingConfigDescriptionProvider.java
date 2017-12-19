@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.internal;
 
@@ -25,6 +30,8 @@ import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Provides a proxy for thing & channel configuration descriptions.
@@ -38,12 +45,14 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
  * @author Simon Kaufmann - Added support for channel config descriptions
  *
  */
+@Component
 public class ThingConfigDescriptionProvider implements ConfigDescriptionProvider {
     private ThingRegistry thingRegistry;
     private ThingTypeRegistry thingTypeRegistry;
     private ConfigDescriptionRegistry configDescriptionRegistry;
     private ChannelTypeRegistry channelTypeRegistry;
 
+    @Reference
     protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescriptionRegistry = configDescriptionRegistry;
     }
@@ -52,6 +61,7 @@ public class ThingConfigDescriptionProvider implements ConfigDescriptionProvider
         this.configDescriptionRegistry = null;
     }
 
+    @Reference
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = thingRegistry;
     }
@@ -60,6 +70,7 @@ public class ThingConfigDescriptionProvider implements ConfigDescriptionProvider
         this.thingRegistry = null;
     }
 
+    @Reference
     protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = thingTypeRegistry;
     }
@@ -68,6 +79,7 @@ public class ThingConfigDescriptionProvider implements ConfigDescriptionProvider
         this.thingTypeRegistry = null;
     }
 
+    @Reference
     protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
         this.channelTypeRegistry = channelTypeRegistry;
     }

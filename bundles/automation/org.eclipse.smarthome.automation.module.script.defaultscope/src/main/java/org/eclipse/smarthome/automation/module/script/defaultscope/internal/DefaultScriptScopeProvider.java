@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.module.script.defaultscope.internal;
 
@@ -35,8 +40,6 @@ import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
-import org.joda.time.DateTime;
-import org.joda.time.LocalTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,12 +105,6 @@ public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
         elements = new HashMap<>();
         elements.put("State", State.class);
         elements.put("Command", Command.class);
-        try {
-            elements.put("DateTime", DateTime.class);
-            elements.put("LocalTime", LocalTime.class);
-        } catch (NoClassDefFoundError e) {
-            logger.debug("Jodatime not present, therefore no support for Date/Time in scripts");
-        }
         elements.put("StringUtils", StringUtils.class);
         elements.put("URLEncoder", URLEncoder.class);
         elements.put("FileUtils", FileUtils.class);

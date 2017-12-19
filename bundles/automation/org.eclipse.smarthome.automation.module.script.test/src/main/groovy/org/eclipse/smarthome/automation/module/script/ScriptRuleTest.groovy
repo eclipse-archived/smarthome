@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.module.script;
 
@@ -32,8 +37,6 @@ import org.junit.Before
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
-import com.google.common.collect.Sets
 
 
 /**
@@ -65,7 +68,6 @@ class ScriptRuleTest extends OSGiTest {
         registerService(itemProvider)
         registerService(volatileStorageService)
 
-        enableItemAutoUpdate()
 
         def eventSubscriber = [
             receive: {  event ->
@@ -73,7 +75,7 @@ class ScriptRuleTest extends OSGiTest {
                 logger.info("received event from item {}, command {}", receivedEvent.itemName, receivedEvent.itemCommand)
             },
             getSubscribedEventTypes: {
-                Sets.newHashSet(ItemCommandEvent.TYPE)
+                Collections.singleton(ItemCommandEvent.TYPE)
             },
             getEventFilter: { null },
         ] as EventSubscriber

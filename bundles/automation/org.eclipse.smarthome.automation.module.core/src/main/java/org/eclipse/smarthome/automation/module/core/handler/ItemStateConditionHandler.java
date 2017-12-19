@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.module.core.handler;
 
@@ -89,11 +94,11 @@ public class ItemStateConditionHandler extends BaseModuleHandler<Condition> impl
             Item item = itemRegistry.getItem(itemName);
             State compareState = TypeParser.parseState(item.getAcceptedDataTypes(), state);
             State itemState = item.getState();
-            logger.debug("ItemStateCondition '" + module.getId() + "'checking if {} (State={}) {} {}", itemName,
-                    itemState, operator, compareState);
+            logger.debug("ItemStateCondition '{}'checking if {} (State={}) {} {}", module.getId(), itemName, itemState,
+                    operator, compareState);
             switch (operator) {
                 case "=":
-                    logger.debug("ConditionSatisfied --> " + itemState.equals(compareState));
+                    logger.debug("ConditionSatisfied --> {}", itemState.equals(compareState));
                     return itemState.equals(compareState);
                 case "!=":
                     return !itemState.equals(compareState);
@@ -123,7 +128,7 @@ public class ItemStateConditionHandler extends BaseModuleHandler<Condition> impl
                     break;
             }
         } catch (ItemNotFoundException e) {
-            logger.error("Item with Name " + itemName + " not found in itemRegistry");
+            logger.error("Item with Name {} not found in itemRegistry", itemName);
             return false;
         }
         return false;

@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.eclipse.smarthome</groupId>
     <artifactId>smarthome</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.10.0-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -27,9 +27,8 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.eclipse.tycho</groupId>
+        <groupId>${tycho-groupid}</groupId>
         <artifactId>tycho-source-plugin</artifactId>
-        <version>${tycho-version}</version>
         <executions>
           <execution>
             <id>plugin-source</id>
@@ -39,7 +38,28 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-scr-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>generate-scr-scrdescriptor</id>
+            <goals>
+              <goal>scr</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
+      <version>${ds-annotations.version}</version>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
 
 </project>

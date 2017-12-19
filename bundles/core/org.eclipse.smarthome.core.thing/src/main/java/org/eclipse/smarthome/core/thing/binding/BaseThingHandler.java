@@ -1,17 +1,25 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.binding;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
@@ -41,8 +49,6 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
 /**
  * {@link BaseThingHandler} provides a base implementation for the {@link ThingHandler} interface.
  * <p>
@@ -59,6 +65,7 @@ import com.google.common.base.Preconditions;
  * @author Stefan Bußweiler - Added new thing status handling, refactorings thing/bridge life cycle
  * @author Kai Kreuzer - Refactored isLinked method to not use deprecated functions anymore
  */
+@NonNullByDefault
 public abstract class BaseThingHandler implements ThingHandler {
 
     private static final String THING_HANDLER_THREADPOOL_NAME = "thingHandler";
@@ -67,28 +74,32 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected final ScheduledExecutorService scheduler = ThreadPoolManager
             .getScheduledPool(THING_HANDLER_THREADPOOL_NAME);
 
+    @NonNullByDefault({})
     protected ThingRegistry thingRegistry;
+    @NonNullByDefault({})
     protected ItemChannelLinkRegistry linkRegistry;
+
+    @Deprecated // this must not be used by bindings!
+    @NonNullByDefault({})
     protected BundleContext bundleContext;
 
     protected Thing thing;
 
     @SuppressWarnings("rawtypes")
+    @NonNullByDefault({})
     private ServiceTracker thingRegistryServiceTracker;
     @SuppressWarnings("rawtypes")
+    @NonNullByDefault({})
     private ServiceTracker linkRegistryServiceTracker;
 
-    private ThingHandlerCallback callback;
+    private @Nullable ThingHandlerCallback callback;
 
     /**
      * Creates a new instance of this class for the {@link Thing}.
      *
      * @param thing the thing that should be handled, not null
-     *
-     * @throws IllegalArgumentException if thing argument is null
      */
     public BaseThingHandler(Thing thing) {
-        Preconditions.checkArgument(thing != null, "The argument 'thing' must not be null.");
         this.thing = thing;
     }
 
@@ -97,13 +108,13 @@ public abstract class BaseThingHandler implements ThingHandler {
         this.bundleContext = bundleContext;
         thingRegistryServiceTracker = new ServiceTracker(this.bundleContext, ThingRegistry.class.getName(), null) {
             @Override
-            public Object addingService(final ServiceReference reference) {
+            public Object addingService(final @Nullable ServiceReference reference) {
                 thingRegistry = (ThingRegistry) bundleContext.getService(reference);
                 return thingRegistry;
             }
 
             @Override
-            public void removedService(final ServiceReference reference, final Object service) {
+            public void removedService(final @Nullable ServiceReference reference, final @Nullable Object service) {
                 synchronized (BaseThingHandler.this) {
                     thingRegistry = null;
                 }
@@ -113,13 +124,13 @@ public abstract class BaseThingHandler implements ThingHandler {
         linkRegistryServiceTracker = new ServiceTracker(this.bundleContext, ItemChannelLinkRegistry.class.getName(),
                 null) {
             @Override
-            public Object addingService(final ServiceReference reference) {
+            public Object addingService(final @Nullable ServiceReference reference) {
                 linkRegistry = (ItemChannelLinkRegistry) bundleContext.getService(reference);
                 return linkRegistry;
             }
 
             @Override
-            public void removedService(final ServiceReference reference, final Object service) {
+            public void removedService(final @Nullable ServiceReference reference, final @Nullable Object service) {
                 synchronized (BaseThingHandler.this) {
                     linkRegistry = null;
                 }
@@ -142,12 +153,17 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     @Override
     public void handleConfigurationUpdate(Map<String, Object> configurationParameters) {
+
+        if (!isModifyingCurrentConfig(configurationParameters)) {
+            return;
+        }
+
         validateConfigurationParameters(configurationParameters);
 
         // can be overridden by subclasses
         Configuration configuration = editConfiguration();
-        for (Entry<String, Object> configurationParmeter : configurationParameters.entrySet()) {
-            configuration.put(configurationParmeter.getKey(), configurationParmeter.getValue());
+        for (Entry<String, Object> configurationParameter : configurationParameters.entrySet()) {
+            configuration.put(configurationParameter.getKey(), configurationParameter.getValue());
         }
 
         if (isInitialized()) {
@@ -162,6 +178,24 @@ public abstract class BaseThingHandler implements ThingHandler {
         }
     }
 
+    /**
+     * Checks whether a given list of parameters would mean any change to the existing Thing configuration if applied to
+     * it.
+     * Note that the passed parameters might be a subset of the existing configuration.
+     *
+     * @param configurationParameters the parameters to check against the current configuration
+     * @return true if the parameters would result in a modified configuration, false otherwise
+     */
+    protected boolean isModifyingCurrentConfig(Map<String, Object> configurationParameters) {
+        Configuration currentConfig = getConfig();
+        for (Entry<String, Object> entry : configurationParameters.entrySet()) {
+            if (!Objects.equals(currentConfig.get(entry.getKey()), entry.getValue())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void dispose() {
         // can be overridden by subclasses
@@ -173,16 +207,18 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     @Override
+    @Deprecated
     public void handleUpdate(ChannelUID channelUID, State newState) {
         // can be overridden by subclasses
     }
 
     @Override
+    @Deprecated
     public void initialize() {
-        // can be overridden by subclasses
-        // standard behavior is to set the thing to ONLINE,
-        // assuming no further initialization is necessary.
+        // should be overridden by subclasses!
         updateStatus(ThingStatus.ONLINE);
+        logger.warn(
+                "BaseThingHandler.initialize() will be removed soon, ThingStatus can be set manually via updateStatus(ThingStatus.ONLINE)");
     }
 
     @Override
@@ -193,7 +229,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     @Override
-    public void setCallback(ThingHandlerCallback thingHandlerCallback) {
+    public void setCallback(@Nullable ThingHandlerCallback thingHandlerCallback) {
         synchronized (this) {
             this.callback = thingHandlerCallback;
         }
@@ -272,7 +308,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     /**
      *
      * Updates the state of the thing. Will use the thing UID to infer the
-     * unique channel UID.
+     * unique channel UID from the given ID.
      *
      * @param channel
      *            ID id of the channel, which was updated
@@ -297,20 +333,20 @@ public abstract class BaseThingHandler implements ThingHandler {
             if (this.callback != null) {
                 this.callback.channelTriggered(this.getThing(), channelUID, event);
             } else {
-                throw new IllegalStateException("Could not update state, because callback is missing");
+                throw new IllegalStateException("Could not trigger channel, because callback is missing");
             }
         }
     }
 
     /**
      * Emits an event for the given channel. Will use the thing UID to infer the
-     * unique channel UID.
+     * unique channel UID from the given ID.
      *
-     * @param channelUID UID of the channel over which the event will be emitted
+     * @param channelID ID of the channel over which the event will be emitted
      * @param event Event to emit
      */
-    protected void triggerChannel(String channelUID, String event) {
-        triggerChannel(new ChannelUID(this.getThing().getUID(), channelUID), event);
+    protected void triggerChannel(String channelID, String event) {
+        triggerChannel(new ChannelUID(this.getThing().getUID(), channelID), event);
     }
 
     /**
@@ -378,7 +414,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      * @throws IllegalStateException
      *             if handler is not initialized correctly, because no callback is present
      */
-    protected void updateStatus(ThingStatus status, ThingStatusDetail statusDetail, String description) {
+    protected void updateStatus(ThingStatus status, ThingStatusDetail statusDetail, @Nullable String description) {
         synchronized (this) {
             if (this.callback != null) {
                 ThingStatusInfoBuilder statusBuilder = ThingStatusInfoBuilder.create(status, statusDetail);
@@ -439,6 +475,10 @@ public abstract class BaseThingHandler implements ThingHandler {
      *             if handler is not initialized correctly, because no callback is present
      */
     protected void updateThing(Thing thing) {
+        if (thing == this.thing) {
+            throw new IllegalArgumentException(
+                    "Changes must not be done on the current thing - create a copy, e.g. via editThing()");
+        }
         synchronized (this) {
             if (this.callback != null) {
                 this.thing = thing;
@@ -491,8 +531,7 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     /**
      * Returns a copy of the properties map, that can be modified. The method {@link
-     * BaseThingHandler#updateProperties(Map<String, String> properties)} must then be called to change the
-     * properties values for the thing that is handled by this thing handler instance.
+     * BaseThingHandler#updateProperties(Map<String, String> properties)} must be called to persist the properties.
      *
      * @return copy of the thing properties (not null)
      */
@@ -502,20 +541,33 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     /**
-     * Updates multiple properties for the thing that is handled by this thing handler instance. Each value is only
-     * set for the given property name if there has not been set any value yet or if the value has been changed. If the
-     * value of the property to be set is null then the property is removed.
+     * Informs the framework, that the given properties map of the thing was updated. This method performs a check, if
+     * the properties were updated. If the properties did not change, the framework is not informed about changes.
      *
      * @param properties
-     *            properties map, that was updated
+     *            properties map, that was updated and should be persisted
+     *
+     * @throws IllegalStateException
+     *             if handler is not initialized correctly, because no callback is present
      */
     protected void updateProperties(Map<String, String> properties) {
+        boolean propertiesUpdated = false;
         for (Entry<String, String> property : properties.entrySet()) {
             String propertyName = property.getKey();
             String propertyValue = property.getValue();
             String existingPropertyValue = thing.getProperties().get(propertyName);
             if (existingPropertyValue == null || !existingPropertyValue.equals(propertyValue)) {
                 this.thing.setProperty(propertyName, propertyValue);
+                propertiesUpdated = true;
+            }
+        }
+        if (propertiesUpdated) {
+            synchronized (this) {
+                if (this.callback != null) {
+                    this.callback.thingUpdated(thing);
+                } else {
+                    throw new IllegalStateException("Could not update properties, because callback is missing");
+                }
             }
         }
     }
@@ -526,7 +578,8 @@ public abstract class BaseThingHandler implements ThingHandler {
      * set for the given property name if there has not been set any value yet or if the value has been changed. If the
      * value of the property to be set is null then the property is removed.
      *
-     * If multiple properties should be changed at the same time, the {@link BaseThingHandler#editProperties()} method
+     * This method also informs the framework about the updated thing, which in fact will persists the changes. So, if
+     * multiple properties should be changed at the same time, the {@link BaseThingHandler#editProperties()} method
      * should be used.
      *
      * @param name the name of the property to be set
@@ -536,6 +589,13 @@ public abstract class BaseThingHandler implements ThingHandler {
         String existingPropertyValue = thing.getProperties().get(name);
         if (existingPropertyValue == null || !existingPropertyValue.equals(value)) {
             thing.setProperty(name, value);
+            synchronized (this) {
+                if (this.callback != null) {
+                    this.callback.thingUpdated(thing);
+                } else {
+                    throw new IllegalStateException("Could not update properties, because callback is missing");
+                }
+            }
         }
     }
 
@@ -545,7 +605,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      * @return returns the bridge of the thing or null if the thing has no
      *         bridge
      */
-    protected Bridge getBridge() {
+    protected @Nullable Bridge getBridge() {
         ThingUID bridgeUID = thing.getBridgeUID();
         synchronized (this) {
             if (bridgeUID != null && thingRegistry != null) {
@@ -559,18 +619,17 @@ public abstract class BaseThingHandler implements ThingHandler {
     /**
      * Returns whether at least on item is linked for the given channel ID.
      *
-     * @param channelId
-     *            channel ID (must not be null)
+     * @param channelId channel ID (must not be null)
      * @return true if at least one item is linked, false otherwise
-     * @throws IllegalArgumentException
-     *             if no channel with the given ID exists
      */
     protected boolean isLinked(String channelId) {
         Channel channel = thing.getChannel(channelId);
         if (channel != null) {
             return linkRegistry != null ? !linkRegistry.getLinks(channel.getUID()).isEmpty() : false;
         } else {
-            throw new IllegalArgumentException("Channel with ID '" + channelId + "' does not exists.");
+            logger.debug("Channel with ID '{},' does not exists in thing '{}' and is therefore not linked.", channelId,
+                    thing.getUID());
+            return false;
         }
     }
 

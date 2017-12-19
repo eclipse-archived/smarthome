@@ -1,14 +1,21 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.lifx.internal;
 
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.DEFAULT_COLOR;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -33,7 +40,7 @@ public class LifxLightState {
     private PercentType infrared;
     private SignalStrength signalStrength;
 
-    private long lastChange;
+    private LocalDateTime lastChange = LocalDateTime.MIN;
 
     private List<LifxLightStateListener> listeners = new CopyOnWriteArrayList<>();
 
@@ -133,9 +140,7 @@ public class LifxLightState {
         HSBK[] oldColors = this.colors;
         this.colors = newColors;
         updateLastChange();
-        for (LifxLightStateListener listener : listeners) {
-            listener.handleColorsChange(oldColors, newColors);
-        }
+        listeners.forEach(listener -> listener.handleColorsChange(oldColors, newColors));
     }
 
     public void setPowerState(OnOffType newOnOff) {
@@ -146,9 +151,7 @@ public class LifxLightState {
         PowerState oldPowerState = this.powerState;
         this.powerState = newPowerState;
         updateLastChange();
-        for (LifxLightStateListener listener : listeners) {
-            listener.handlePowerStateChange(oldPowerState, newPowerState);
-        }
+        listeners.forEach(listener -> listener.handlePowerStateChange(oldPowerState, newPowerState));
     }
 
     public void setTemperature(PercentType temperature) {
@@ -169,26 +172,22 @@ public class LifxLightState {
         PercentType oldInfrared = this.infrared;
         this.infrared = newInfrared;
         updateLastChange();
-        for (LifxLightStateListener listener : listeners) {
-            listener.handleInfraredChange(oldInfrared, newInfrared);
-        }
+        listeners.forEach(listener -> listener.handleInfraredChange(oldInfrared, newInfrared));
     }
 
     public void setSignalStrength(SignalStrength newSignalStrength) {
         SignalStrength oldSignalStrength = this.signalStrength;
         this.signalStrength = newSignalStrength;
         updateLastChange();
-        for (LifxLightStateListener listener : listeners) {
-            listener.handleSignalStrengthChange(oldSignalStrength, newSignalStrength);
-        }
+        listeners.forEach(listener -> listener.handleSignalStrengthChange(oldSignalStrength, newSignalStrength));
     }
 
     private void updateLastChange() {
-        lastChange = System.currentTimeMillis();
+        lastChange = LocalDateTime.now();
     }
 
-    public long getMillisSinceLastChange() {
-        return System.currentTimeMillis() - lastChange;
+    public Duration getDurationSinceLastChange() {
+        return Duration.between(lastChange, LocalDateTime.now());
     }
 
     public void addListener(LifxLightStateListener listener) {

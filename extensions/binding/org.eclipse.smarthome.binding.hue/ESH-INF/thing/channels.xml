@@ -32,7 +32,7 @@
 
 	<!-- Switch Channel -->
     <channel-type id="switch">
-        <item-type>SwitchItem</item-type>
+        <item-type>Switch</item-type>
         <label>Switch</label>
         <description>The switch channel allows to switch the light on and off.
         </description>

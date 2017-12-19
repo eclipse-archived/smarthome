@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.binding
 
@@ -39,7 +44,7 @@ import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder
-import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.test.OSGiTest
@@ -116,6 +121,11 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
             // check getBridge works
             assertThat getBridge().getUID().toString(), is("bindingId:type1:bridgeId")
         }
+
+        @Override
+        void initialize() {
+            updateStatus(ThingStatus.ONLINE);
+        }
     }
 
     class SimpleBridgeHandler extends BaseBridgeHandler {
@@ -130,6 +140,11 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
         public void updateBridgetatus(ThingStatus status) {
             updateStatus(status)
+        }
+
+        @Override
+        void initialize() {
+            updateStatus(ThingStatus.ONLINE);
         }
     }
 
@@ -315,6 +330,11 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         }
 
         @Override
+        void initialize() {
+            updateStatus(ThingStatus.ONLINE);
+        }
+
+        @Override
         public Collection<ConfigStatusMessage> getConfigStatus() {
             if("invalid".equals(getThing().getConfiguration().get(PARAM))) {
                 return [ERROR]
@@ -344,12 +364,12 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
         @Override
         public void initialize() {
-            super.initialize()
             ThingBuilder thingBuilder = editThing()
             thingBuilder.withChannels([
                 new Channel(new ChannelUID("bindingId:type:thingId:1"), "String")
             ])
             updateThing(thingBuilder.build())
+            updateStatus(ThingStatus.ONLINE)
         }
 
         @Override
@@ -493,7 +513,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         registerConfigDescriptionProvider(true)
 
         def thingUID = new ThingUID("bindingId:type:thingId")
-        def thing = ThingBuilder.create(thingUID).build()
+        def thing = ThingBuilder.create(thingUID).withConfiguration(new Configuration([parameter: "someValue"] as Map)).build()
 
         managedThingProvider.add(thing)
 
@@ -591,7 +611,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
     private void registerThingTypeAndConfigDescription() {
         def URI configDescriptionUri = new URI("test:test");
-        def thingType = new ThingType(new ThingTypeUID(BINDING_ID, THING_TYPE_ID), null, "label", null, null, null, null, configDescriptionUri)
+        def thingType = ThingTypeBuilder.instance(new ThingTypeUID(BINDING_ID, THING_TYPE_ID), "label").withConfigDescriptionURI(configDescriptionUri).build();
         def configDescription = new ConfigDescription(configDescriptionUri,
                 [
                     ConfigDescriptionParameterBuilder.create("parameter", ConfigDescriptionParameter.Type.TEXT).withRequired(true).build()] as List);
@@ -612,7 +632,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
     private void registerThingTypeProvider() {
         def URI configDescriptionUri = new URI("test:test");
-        def thingType = new ThingType(new ThingTypeUID(BINDING_ID, THING_TYPE_ID), null, "label", null, null, null, null, configDescriptionUri)
+        def thingType = ThingTypeBuilder.instance(new ThingTypeUID(BINDING_ID, THING_TYPE_ID), "label").withConfigDescriptionURI(configDescriptionUri).build();
 
         registerService([
             getThingType: {thingTypeUID,locale -> thingType }

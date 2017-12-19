@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.script;
 
@@ -97,8 +102,12 @@ public class ScriptServiceUtil {
         return getInstance().itemRegistry;
     }
 
-    public static ThingRegistry getThingRegistry() {
-        return getInstance().thingRegistry;
+    public ItemRegistry getItemRegistryInstance() {
+        return itemRegistry;
+    }
+
+    public ThingRegistry getThingRegistryInstance() {
+        return thingRegistry;
     }
 
     public static EventPublisher getEventPublisher() {
@@ -109,12 +118,20 @@ public class ScriptServiceUtil {
         return getInstance().modelRepository;
     }
 
+    public ModelRepository getModelRepositoryInstance() {
+        return modelRepository;
+    }
+
     public static ScriptEngine getScriptEngine() {
         return getInstance().scriptEngine.get();
     }
 
     public static List<ActionService> getActionServices() {
         return getInstance().actionServices;
+    }
+
+    public List<ActionService> getActionServiceInstances() {
+        return actionServices;
     }
 
     public void addActionService(ActionService actionService) {

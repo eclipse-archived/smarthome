@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.io.rest.sitemap;
 
@@ -15,6 +20,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.io.rest.sitemap.internal.PageChangeListener;
 import org.eclipse.smarthome.io.rest.sitemap.internal.SitemapEvent;
@@ -202,12 +208,8 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
         PageChangeListener listener = pageChangeListeners.get(getValue(sitemapName, pageId));
         if (listener == null) {
             // there is no listener for this page yet, so let's try to create one
-            EList<Widget> widgets = null;
-            widgets = collectWidgets(sitemapName, pageId);
-            if (widgets != null) {
-                listener = new PageChangeListener(sitemapName, pageId, itemUIRegistry, widgets);
-                pageChangeListeners.put(getValue(sitemapName, pageId), listener);
-            }
+            listener = new PageChangeListener(sitemapName, pageId, itemUIRegistry, collectWidgets(sitemapName, pageId));
+            pageChangeListeners.put(getValue(sitemapName, pageId), listener);
         }
         if (listener != null) {
             listener.addCallback(callback);
@@ -215,7 +217,7 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
     }
 
     private EList<Widget> collectWidgets(String sitemapName, String pageId) {
-        EList<Widget> widgets = null;
+        EList<Widget> widgets = new BasicEList<Widget>();
 
         Sitemap sitemap = getSitemap(sitemapName);
         if (sitemap != null) {
@@ -270,14 +272,10 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
         for (Entry<String, PageChangeListener> listenerEntry : pageChangeListeners.entrySet()) {
             String sitemapWithPage = listenerEntry.getKey();
             String sitemapName = extractSitemapName(sitemapWithPage);
-            String pageId = extractPageId(sitemapWithPage);
 
             if (sitemapName.equals(changedSitemapName)) {
-                EList<Widget> widgets = collectWidgets(sitemapName, pageId);
-                listenerEntry.getValue().sitemapContentChanged(widgets);
+                listenerEntry.getValue().sitemapContentChanged();
             }
         }
-
     }
-
 }

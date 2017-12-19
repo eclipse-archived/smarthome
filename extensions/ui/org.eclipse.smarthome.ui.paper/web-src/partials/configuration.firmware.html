@@ -3,12 +3,12 @@
     <div>
         Current firmware version:
         <span class="current-firmware">{{thing.properties['firmwareVersion']}}</span>
-        <span class="badge firmware-status" ng-class="firmwareStatus.status | firmwareStatusClass">
+        <span ng-if="firmwareStatus.status" class="badge firmware-status" ng-class="firmwareStatus.status | firmwareStatusClass">
            <span>{{firmwareStatus.status | firmwareStatusFormat}}</span>
            <span ng-if="isFirmwareUpdateable(firmwareStatus)"> {{firmwareStatus.updatableVersion}}</span>
         </span>
     </div>
-    <div>
+    <div ng-if="firmwareStatus.status">
         <span>
 	        <md-button ng-if="isFirmwareUpdateable(firmwareStatus)" aria-label="Install" ng-click="installFirmware(firmwareStatus.updatableVersion)">
 	           <span>Install</span>
@@ -22,7 +22,7 @@
             <span>Update step: {{updateStep | firmwareUpdateStep}}</span>
         </div>
     </div>
-    <md-button ng-show="thing.properties['firmwareVersion']" ng-click="fvdetails=!fvdetails">{{fvdetails?'hide':'show'}} firmware details</md-button>
+    <md-button ng-show="firmwares.length > 0" ng-click="fvdetails=!fvdetails">{{fvdetails?'hide':'show'}} firmware details</md-button>
     <div ng-show="fvdetails" class="thing-properties">
         <table class="table firmware-table middle-aligned"> 
             <tr>

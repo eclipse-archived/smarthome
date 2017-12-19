@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.ui.icon.internal;
 
@@ -119,30 +124,24 @@ public class IconServlet extends HttpServlet {
 
         IconProvider topProvider = getIconProvider(category, iconSetId, format);
         if (topProvider == null) {
-            logger.debug(
-                    "Requested icon category {} provided by no icon provider; try to failback to category \"none\"",
-                    category);
-            // Try to failback to category "none"
-            category = "none";
-            topProvider = getIconProvider(category, iconSetId, format);
-        }
-        if (topProvider != null) {
-            if (format.equals(Format.SVG)) {
-                resp.setContentType("image/svg+xml");
-            } else {
-                resp.setContentType("image/png");
-            }
-            resp.setDateHeader("Last-Modified", new Date().getTime());
-            ServletOutputStream os = resp.getOutputStream();
-            try (InputStream is = topProvider.getIcon(category, iconSetId, state, format)) {
-                IOUtils.copy(is, os);
-                resp.flushBuffer();
-            } catch (IOException e) {
-                logger.error("Failed sending the icon byte stream as a response: {}", e.getMessage());
-                resp.sendError(500, e.getMessage());
-            }
-        } else {
+            logger.debug("Requested icon category {} provided by no icon provider;", category);
             resp.sendError(404);
+            return;
+        }
+
+        if (format.equals(Format.SVG)) {
+            resp.setContentType("image/svg+xml");
+        } else {
+            resp.setContentType("image/png");
+        }
+        resp.setDateHeader("Last-Modified", new Date().getTime());
+        ServletOutputStream os = resp.getOutputStream();
+        try (InputStream is = topProvider.getIcon(category, iconSetId, state, format)) {
+            IOUtils.copy(is, os);
+            resp.flushBuffer();
+        } catch (IOException e) {
+            logger.error("Failed sending the icon byte stream as a response: {}", e.getMessage());
+            resp.sendError(500, e.getMessage());
         }
     }
 

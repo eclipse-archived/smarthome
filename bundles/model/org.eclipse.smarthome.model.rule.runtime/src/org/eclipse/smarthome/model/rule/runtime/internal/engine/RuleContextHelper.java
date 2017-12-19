@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.rule.runtime.internal.engine;
 
@@ -12,7 +17,6 @@ import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
 import org.eclipse.smarthome.model.rule.rules.VariableDeclaration;
-import org.eclipse.smarthome.model.script.ScriptServiceUtil;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
 import org.eclipse.xtext.naming.QualifiedName;
@@ -51,7 +55,7 @@ public class RuleContextHelper {
         }
         Provider<IEvaluationContext> contextProvider = injector.getProvider(IEvaluationContext.class);
         // no evaluation context found, so create a new one
-        ScriptEngine scriptEngine = ScriptServiceUtil.getScriptEngine();
+        ScriptEngine scriptEngine = injector.getInstance(ScriptEngine.class);
         if (scriptEngine != null) {
             IEvaluationContext evaluationContext = contextProvider.get();
             for (VariableDeclaration var : ruleModel.getVariables()) {
@@ -79,7 +83,7 @@ public class RuleContextHelper {
      */
     private static class RuleContextAdapter extends EContentAdapter {
 
-        private IEvaluationContext context;
+        private final IEvaluationContext context;
 
         public RuleContextAdapter(IEvaluationContext context) {
             this.context = context;

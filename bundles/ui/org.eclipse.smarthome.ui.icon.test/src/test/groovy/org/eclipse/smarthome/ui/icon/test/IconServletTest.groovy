@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.ui.icon.test
 
@@ -31,9 +36,11 @@ class IconServletTest {
     def provider2
     def calledProvider
     def response
+    def errorCode
 
     @Before
     void setUp() {
+        errorCode = null;
         servlet = new IconServlet();
 
         provider1 = [
@@ -68,7 +75,7 @@ class IconServletTest {
             setContentType : { s -> null },
             getOutputStream : { null },
             flushBuffer : {},
-            sendError : { i -> null }
+            sendError : { i -> errorCode = i }
         ] as HttpServletResponse
 
         calledProvider = null
@@ -108,5 +115,36 @@ class IconServletTest {
         servlet.addIconProvider(provider2)
         servlet.doGet(request, response)
         assertThat calledProvider, equalTo(2)
+    }
+
+    @Test
+    void testMissingIcon() {
+        def request = [
+            getParameter : { p -> null },
+            getRequestURI : { "/icon/missing_for_test.png" },
+            getDateHeader : { s -> 0L },
+        ] as HttpServletRequest
+        servlet.addIconProvider(provider1)
+        servlet.doGet(request, response)
+        assertEquals(404, errorCode)
+    }
+
+    @Test
+    void testExistingIcon() {
+        def request = [
+            getParameter : { p ->
+                switch(p) {
+                    case "format": return "svg"
+                    case "iconset": return "test"
+                    case "state": return "34"
+                }
+                null
+            },
+            getRequestURI : { "/x" },
+            getDateHeader : { s -> 0L },
+        ] as HttpServletRequest
+        servlet.addIconProvider(provider1)
+        servlet.doGet(request, response)
+        assertEquals(null, errorCode)
     }
 }

@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.wemo.internal.http;
 
@@ -25,9 +30,7 @@ public class WemoHttpCall {
     static String contentHeader = "text/xml; charset=utf-8";
 
     public static String executeCall(String wemoURL, String soapHeader, String content) {
-
         try {
-
             Properties wemoHeaders = new Properties();
             wemoHeaders.setProperty("CONTENT-TYPE", contentHeader);
             wemoHeaders.put("SOAPACTION", soapHeader);
@@ -36,11 +39,9 @@ public class WemoHttpCall {
 
             String wemoCallResponse = HttpUtil.executeUrl("POST", wemoURL, wemoHeaders, wemoContent, null, 2000);
             return wemoCallResponse;
-
         } catch (Exception e) {
             throw new RuntimeException("Could not call WeMo", e);
         }
-
     }
 
     public static String getEventServiceXML(String wemoURL) {

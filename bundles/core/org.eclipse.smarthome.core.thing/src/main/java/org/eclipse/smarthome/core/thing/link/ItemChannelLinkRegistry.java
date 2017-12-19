@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.link;
 
@@ -12,6 +17,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -20,6 +26,10 @@ import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.link.events.LinkEventFactory;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * {@link ItemChannelLinkRegistry} tracks all {@link ItemChannelLinkProvider}s
@@ -29,6 +39,7 @@ import org.eclipse.smarthome.core.thing.link.events.LinkEventFactory;
  * @author Markus Rathgeb - Linked items returns only existing items
  *
  */
+@Component(immediate = true, service = ItemChannelLinkRegistry.class)
 public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLink, ItemChannelLinkProvider> {
 
     private ThingRegistry thingRegistry;
@@ -50,19 +61,11 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
 
         for (ItemChannelLink itemChannelLink : getAll()) {
             if (itemChannelLink.getItemName().equals(itemName)) {
-                channelUIDs.add(itemChannelLink.getUID());
+                channelUIDs.add(itemChannelLink.getLinkedUID());
             }
         }
 
         return channelUIDs;
-    }
-
-    /**
-     * Channels can not be updated, so this methods throws an {@link UnsupportedOperationException}.
-     */
-    @Override
-    public ItemChannelLink update(ItemChannelLink element) {
-        throw new UnsupportedOperationException("Channels can not be updated.");
     }
 
     @Override
@@ -70,7 +73,7 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
         final Set<String> linkedItems = new LinkedHashSet<>();
         for (final AbstractLink link : getAll()) {
             final String itemName = link.getItemName();
-            if (link.getUID().equals(uid) && itemRegistry.get(itemName) != null) {
+            if (link.getLinkedUID().equals(uid) && itemRegistry.get(itemName) != null) {
                 linkedItems.add(itemName);
             }
         }
@@ -82,7 +85,7 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
         for (final AbstractLink link : getAll()) {
             final String itemName = link.getItemName();
             Item item = itemRegistry.get(itemName);
-            if (link.getUID().equals(uid) && item != null) {
+            if (link.getLinkedUID().equals(uid) && item != null) {
                 linkedItems.add(item);
             }
         }
@@ -109,6 +112,7 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
         return things;
     }
 
+    @Reference
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = thingRegistry;
     }
@@ -117,12 +121,33 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
         this.thingRegistry = null;
     }
 
+    @Reference
     protected void setItemRegistry(final ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
     }
 
     protected void unsetItemRegistry(final ItemRegistry itemRegistry) {
         this.itemRegistry = null;
+    }
+
+    @Reference
+    protected void setManagedProvider(ManagedItemChannelLinkProvider provider) {
+        super.setManagedProvider(provider);
+    }
+
+    protected void unsetManagedProvider(ManagedItemChannelLinkProvider provider) {
+        super.removeManagedProvider(provider);
+    }
+
+    @Override
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setEventPublisher(EventPublisher eventPublisher) {
+        super.setEventPublisher(eventPublisher);
+    }
+
+    @Override
+    protected void unsetEventPublisher(EventPublisher eventPublisher) {
+        super.unsetEventPublisher(eventPublisher);
     }
 
     public void removeLinksForThing(ThingUID thingUID) {

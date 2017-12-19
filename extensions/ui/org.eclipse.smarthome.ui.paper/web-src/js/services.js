@@ -192,14 +192,124 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
             insertEmptyOption(parameter);
         }
 
-        if (type === 'INTEGER' || type === 'DECIMAL') {
-            angular.forEach(parameter.options, function(option) {
-                option.value = parseInt(option.value);
-            })
-            if (parameter.defaultValue) {
-                parameter.defaultValue = parseInt(parameter.defaultValue);
+        if (type === 'INTEGER') {
+            adjustNumberValue(parameter, parseInt);
+            if (!parameter.pattern) {
+                // force the input of integers if not stated otherwise.
+                parameter.pattern = '-?\\d+'
             }
         }
+        if (type === 'DECIMAL') {
+            adjustNumberValue(parameter, parseFloat);
+        }
+    }
+
+    var adjustNumberValue = function(parameter, parseNumberFunction) {
+        angular.forEach(parameter.options, function(option) {
+            option.value = parseNumberFunction(option.value);
+        })
+        if (parameter.defaultValue) {
+            parameter.defaultValue = parseNumberFunction(parameter.defaultValue);
+        }
+    }
+
+    var getChannelsConfig = function(configParams) {
+        var self = this, hasOneItem;
+        var configParameters = configParams;
+        for (var i = 0; !hasOneItem && i < configParameters.length; i++) {
+            var parameterItems = $.grep(configParameters[i].parameters, function(value) {
+                return value.context && (value.context.toUpperCase() == "THING" || value.context.toUpperCase() == "CHANNEL");
+            });
+            if (parameterItems.length > 0) {
+                hasOneItem = true;
+            }
+            if (hasOneItem) {
+                thingRepository.getAll(function(things) {
+                    for (var g_i = 0; g_i < configParameters.length; g_i++) {
+                        for (var i = 0; i < configParameters[g_i].parameters.length; i++) {
+                            if (configParameters[g_i].parameters[i].context) {
+                                if (configParameters[g_i].parameters[i].context.toUpperCase() === "THING") {
+                                    configParameters[g_i].parameters[i].options = filterByAttributes(things, configParameters[g_i].parameters[i].filterCriteria);
+                                } else if (configParameters[g_i].parameters[i].context.toUpperCase() === "CHANNEL") {
+                                    configParameters[g_i].parameters[i].options = getChannelsFromThings(things, configParameters[g_i].parameters[i].filterCriteria);
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            function getChannelsFromThings(arr, filter) {
+                var channels = [];
+                for (var i = 0; i < arr.length; i++) {
+                    var filteredChannels = filterByAttributes(arr[i].channels, filter);
+                    for (var j = 0; j < filteredChannels.length; j++) {
+                        filteredChannels[j].label = arr[i].label;
+                        filteredChannels[j].value = filteredChannels[j].uid;
+                    }
+                    channels = channels.concat(filteredChannels);
+                }
+                return channels;
+            }
+        }
+        return configParameters;
+    }
+
+    var getItemConfigs = function(configParams) {
+        var configParameters = configParams;
+        var parameterItems = []
+        angular.forEach(configParameters, function(configParameter) {
+            parameterItems = parameterItems.concat($.grep(configParameter.parameters, function(value) {
+                return value.context && value.context.toUpperCase() == 'ITEM';
+            }));
+        })
+        if (parameterItems.length > 0) {
+            itemRepository.getAll(function(items) {
+                angular.forEach(configParameters, function(configParameter) {
+                    angular.forEach(configParameter.parameters, function(parameter) {
+                        if (parameter.context && parameter.context.toUpperCase() === 'ITEM') {
+                            var filteredItems = filterByAttributes(items, parameter.filterCriteria);
+                            parameter.options = $filter('orderBy')(filteredItems, 'label');
+                        }
+                    })
+                })
+            });
+        }
+        return configParameters;
+    }
+
+    var filterByAttributes = function(arr, filters) {
+        if (!filters || filters.length == 0) {
+            return arr;
+        }
+        return $.grep(arr, function(element, i) {
+            return $.grep(filters, function(filter) {
+                if (arr[i].hasOwnProperty(filter.name) && filter.value != "" && filter.value != null) {
+                    var filterValues = filter.value.split(',');
+                    return $.grep(filterValues, function(filterValue) {
+                        if (Array.isArray(arr[i][filter.name])) {
+                            return $.grep(arr[i][filter.name], function(arrValue) {
+                                return arrValue.toUpperCase().indexOf(filterValue.toUpperCase()) != -1;
+                            }).length > 0;
+                        } else {
+                            return arr[i][filter.name].toUpperCase().indexOf(filterValue.toUpperCase()) != -1;
+                        }
+                    }).length > 0
+                } else {
+                    return false;
+                }
+            }).length == filters.length;
+        });
+    }
+
+    var getParameter = function(paramGroups, itemName) {
+        for (var i = 0; i < paramGroups.length; i++) {
+            for (var j = 0; paramGroups[i].parameters && j < paramGroups[i].parameters.length; j++) {
+                if (paramGroups[i].parameters[j].name == itemName) {
+                    return paramGroups[i].parameters[j]
+                }
+            }
+        }
+        return null;
     }
 
     return {
@@ -265,96 +375,8 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
                 }
                 renderingGroups.push(group);
             });
-            renderingGroups = this.getItemConfigs(renderingGroups)
-            return this.getChannelsConfig(renderingGroups);
-        },
-        getChannelsConfig : function(configParams) {
-            var self = this, hasOneItem;
-            var configParameters = configParams;
-            for (var i = 0; !hasOneItem && i < configParameters.length; i++) {
-                var parameterItems = $.grep(configParameters[i].parameters, function(value) {
-                    return value.context && (value.context.toUpperCase() == "THING" || value.context.toUpperCase() == "CHANNEL");
-                });
-                if (parameterItems.length > 0) {
-                    hasOneItem = true;
-                }
-                if (hasOneItem) {
-                    thingRepository.getAll(function(things) {
-                        for (var g_i = 0; g_i < configParameters.length; g_i++) {
-                            for (var i = 0; i < configParameters[g_i].parameters.length; i++) {
-                                if (configParameters[g_i].parameters[i].context) {
-                                    if (configParameters[g_i].parameters[i].context.toUpperCase() === "THING") {
-                                        configParameters[g_i].parameters[i].options = self.filterByAttributes(things, configParameters[g_i].parameters[i].filterCriteria);
-                                    } else if (configParameters[g_i].parameters[i].context.toUpperCase() === "CHANNEL") {
-                                        configParameters[g_i].parameters[i].options = getChannelsFromThings(things, configParameters[g_i].parameters[i].filterCriteria);
-                                    }
-                                }
-                            }
-                        }
-                    });
-                }
-                function getChannelsFromThings(arr, filter) {
-                    var channels = [];
-                    for (var i = 0; i < arr.length; i++) {
-                        var filteredChannels = self.filterByAttributes(arr[i].channels, filter);
-                        for (var j = 0; j < filteredChannels.length; j++) {
-                            filteredChannels[j].label = arr[i].label;
-                            filteredChannels[j].value = filteredChannels[j].uid;
-                        }
-                        channels = channels.concat(filteredChannels);
-                    }
-                    return channels;
-                }
-            }
-            return configParameters;
-        },
-        getItemConfigs : function(configParams) {
-            var self = this, hasOneItem = false;
-            var configParameters = configParams;
-            for (var i = 0; !hasOneItem && i < configParameters.length; i++) {
-                var parameterItems = $.grep(configParameters[i].parameters, function(value) {
-                    return value.context && value.context.toUpperCase() == "ITEM";
-                });
-                if (parameterItems.length > 0) {
-                    hasOneItem = true;
-                }
-            }
-            if (hasOneItem) {
-                itemRepository.getAll(function(items) {
-                    for (var g_i = 0; g_i < configParameters.length; g_i++) {
-                        for (var i = 0; i < configParameters[g_i].parameters.length; i++) {
-                            if (configParameters[g_i].parameters[i].context && configParameters[g_i].parameters[i].context.toUpperCase() === "ITEM") {
-                                var filteredItems = self.filterByAttributes(items, configParameters[g_i].parameters[i].filterCriteria);
-                                configParameters[g_i].parameters[i].options = $filter('orderBy')(filteredItems, "label");
-                            }
-                        }
-                    }
-                });
-            }
-            return configParameters;
-        },
-        filterByAttributes : function(arr, filters) {
-            if (!filters || filters.length == 0) {
-                return arr;
-            }
-            return $.grep(arr, function(element, i) {
-                return $.grep(filters, function(filter) {
-                    if (arr[i].hasOwnProperty(filter.name) && filter.value != "" && filter.value != null) {
-                        var filterValues = filter.value.split(',');
-                        return $.grep(filterValues, function(filterValue) {
-                            if (Array.isArray(arr[i][filter.name])) {
-                                return $.grep(arr[i][filter.name], function(arrValue) {
-                                    return arrValue.toUpperCase().indexOf(filterValue.toUpperCase()) != -1;
-                                }).length > 0;
-                            } else {
-                                return arr[i][filter.name].toUpperCase().indexOf(filterValue.toUpperCase()) != -1;
-                            }
-                        }).length > 0
-                    } else {
-                        return false;
-                    }
-                }).length == filters.length;
-            });
+            renderingGroups = getItemConfigs(renderingGroups)
+            return getChannelsConfig(renderingGroups);
         },
 
         getConfigAsArray : function(config, paramGroups) {
@@ -363,7 +385,7 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
             angular.forEach(config, function(value, name) {
                 var value = config[name];
                 if (paramGroups) {
-                    var param = self.getParameter(paramGroups, name);
+                    var param = getParameter(paramGroups, name);
                     var date = Date.parse(value);
                     if (param !== null && param.context && !isNaN(date)) {
                         if (param.context.toUpperCase() === 'TIME') {
@@ -385,7 +407,7 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
 
             for (var i = 0; configArray && i < configArray.length; i++) {
                 var configEntry = configArray[i];
-                var param = this.getParameter(paramGroups, configEntry.name);
+                var param = getParameter(paramGroups, configEntry.name);
                 if (param !== null && param.type.toUpperCase() == "BOOLEAN") {
                     configEntry.value = String(configEntry.value).toUpperCase() == "TRUE";
                 } else if (param !== null && param.context) {
@@ -407,16 +429,6 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
             }
             return config;
         },
-        getParameter : function(paramGroups, itemName) {
-            for (var i = 0; i < paramGroups.length; i++) {
-                for (var j = 0; paramGroups[i].parameters && j < paramGroups[i].parameters.length; j++) {
-                    if (paramGroups[i].parameters[j].name == itemName) {
-                        return paramGroups[i].parameters[j]
-                    }
-                }
-            }
-            return null;
-        },
         setDefaults : function(thing, thingType) {
             if (thingType && thingType.configParameters) {
                 $.each(thingType.configParameters, function(i, parameter) {
@@ -428,8 +440,10 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
                             if (String(value).length > 0) {
                                 thing.configuration[parameter.name] = String(value).toUpperCase() == "TRUE";
                             }
-                        } else if (parameter.type === 'INTEGER' || parameter.type === 'DECIMAL') {
+                        } else if (parameter.type === 'INTEGER') {
                             thing.configuration[parameter.name] = parameter.defaultValue != null && parameter.defaultValue !== "" ? parseInt(parameter.defaultValue) : "";
+                        } else if (parameter.type === 'DECIMAL') {
+                            thing.configuration[parameter.name] = parameter.defaultValue != null && parameter.defaultValue !== "" ? parseFloat(parameter.defaultValue) : "";
                         } else {
                             thing.configuration[parameter.name] = parameter.defaultValue;
                         }
@@ -440,6 +454,9 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
             }
         },
         setConfigDefaults : function(originalConfiguration, groups, sending) {
+            if (!groups) { // no config groups available for this configuration
+                return originalConfiguration;
+            }
             var configuration = {};
             angular.copy(originalConfiguration, configuration);
             for (var i = 0; i < groups.length; i++) {
@@ -480,8 +497,10 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
                         if (String(value).length > 0) {
                             configuration[parameter.name] = String(value).toUpperCase() == "TRUE";
                         }
-                    } else if (!hasValue && (parameter.type === 'INTEGER' || parameter.type === 'DECIMAL')) {
+                    } else if (!hasValue && parameter.type === 'INTEGER') {
                         configuration[parameter.name] = parameter.defaultValue != null && parameter.defaultValue !== "" ? parseInt(parameter.defaultValue) : null;
+                    } else if (!hasValue && parameter.type === 'DECIMAL') {
+                        configuration[parameter.name] = parameter.defaultValue != null && parameter.defaultValue !== "" ? parseFloat(parameter.defaultValue) : null;
                     } else if (!hasValue) {
                         configuration[parameter.name] = parameter.defaultValue;
                     }
@@ -524,25 +543,26 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
             var thingChannels = [];
             var includedChannels = [];
             if (thingType && thingType.channelGroups && thingType.channelGroups.length > 0) {
-                for (var i = 0; i < thingType.channelGroups.length; i++) {
+                angular.forEach(thingType.channelGroups, function(channelGroup) {
                     var group = {};
-                    group.name = thingType.channelGroups[i].label;
-                    group.description = thingType.channelGroups[i].description;
-                    group.channels = this.matchGroup(thing.channels, thingType.channelGroups[i].id);
+                    group.name = channelGroup.label;
+                    group.description = channelGroup.description;
+                    group.channels = this.matchGroup(thing.channels, channelGroup.id);
                     includedChannels = includedChannels.concat(group.channels);
                     group.channels = advanced ? group.channels : this.filterAdvance(thingType, channelTypes, group.channels, false);
                     thingChannels.push(group);
-                }
+                }, this)
+
                 var group = {
                     "name" : "Others",
                     "description" : "Other channels",
                     "channels" : []
                 };
-                for (var i = 0; i < thing.channels.length; i++) {
-                    if (includedChannels.indexOf(thing.channels[i]) == -1) {
-                        group.channels.push(thing.channels[i]);
+                angular.forEach(thing.channels, function(channel) {
+                    if (includedChannels.indexOf(channel) == -1) {
+                        group.channels.push(channel);
                     }
-                }
+                })
                 if (group.channels && group.channels.length > 0) {
                     thingChannels.push(group);
                 }
@@ -557,62 +577,43 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
         },
 
         filterAdvance : function(thingType, channelTypes, channels, advanced) {
-            var self = this;
-            self.thingType = thingType, self.channelTypes = channelTypes, self.channels = channels;
-            return $.grep(channels, function(channel, i) {
-                var channelType = self.getChannelTypeByUID(self.thingType, self.channelTypes, channel.channelTypeUID);
+            return channels.filter(function(channel) {
+                var channelType = this.getChannelTypeByUID(thingType, channelTypes, channel.channelTypeUID);
                 return channelType ? advanced == channelType.advanced : true;
-            });
+            }, this);
         },
         getChannelTypeByUID : function(thingType, channelTypes, channelUID) {
             if (thingType) {
                 if (thingType.channels && thingType.channels.length > 0) {
-                    var c, c_i, c_l;
-                    for (c_i = 0, c_l = thingType.channels.length; c_i < c_l; ++c_i) {
-                        c = thingType.channels[c_i];
-                        if (c.typeUID == channelUID) {
-                            return c;
-                        }
+                    var result = thingType.channels.filter(function(channel) {
+                        return channel.typeUID === channelUID;
+                    })
+                    if (result.length > 0) {
+                        return result[0];
                     }
                 }
                 if (thingType.channelGroups && thingType.channelGroups.length > 0) {
-                    var c, c_i, c_l;
-                    var cg, cg_i, cg_l;
-                    for (cg_i = 0, cg_l = thingType.channelGroups.length; cg_i < cg_l; ++cg_i) {
-                        cg = thingType.channelGroups[cg_i];
-                        if (cg && cg.channels) {
-                            for (c_i = 0, c_l = cg.channels.length; c_i < c_l; ++c_i) {
-                                c = cg.channels[c_i];
-                                if (c.typeUID == channelUID) {
-                                    return c;
-                                }
+                    angular.forEach(thingType.channelGroups, function(channelGroup) {
+                        if (channelGroup && channelGroup.channels) {
+                            var result = channelGroup.channels.filter(function(channel) {
+                                return channel.typeUID === channelUID;
+                            })
+                            if (result.length > 0) {
+                                return result[0];
                             }
                         }
-                    }
+                    })
                 }
             }
             if (channelTypes) {
-                var c = {}, c_i, c_l;
-                for (c_i = 0, c_l = channelTypes.length; c_i < c_l; ++c_i) {
-                    c = channelTypes[c_i];
-                    if (c.UID == channelUID) {
-                        return c;
-                    }
-                }
+                return this.getChannelFromChannelTypes(channelTypes, channelUID);
             }
-            return;
         },
         getChannelFromChannelTypes : function(channelTypes, channelUID) {
-            if (channelTypes) {
-                var c = {}, c_i, c_l;
-                for (c_i = 0, c_l = channelTypes.length; c_i < c_l; ++c_i) {
-                    c = channelTypes[c_i];
-                    if (c.UID == channelUID) {
-                        return c;
-                    }
-                }
-            }
-            return;
+            var result = channelTypes.filter(function(channelType) {
+                return channelType.UID === channelUID;
+            })
+            return result.length > 0 ? result[0] : null;
         },
         matchGroup : function(arr, id) {
             var matched = [];
@@ -627,11 +628,11 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
             return matched;
         },
         addTypeToChannels : function(groups, channelTypes) {
-            for (var g_i = 0; g_i < groups.length; g_i++) {
-                for (var c_i = 0; c_i < groups[g_i].channels.length; c_i++) {
-                    groups[g_i].channels[c_i].channelType = this.getChannelFromChannelTypes(channelTypes, groups[g_i].channels[c_i].channelTypeUID);
-                }
-            }
+            angular.forEach(groups, function(group) {
+                angular.forEach(group.channels, function(channel) {
+                    channel.channelType = this.getChannelFromChannelTypes(channelTypes, channel.channelTypeUID);
+                }, this)
+            }, this)
             return groups;
         }
     }

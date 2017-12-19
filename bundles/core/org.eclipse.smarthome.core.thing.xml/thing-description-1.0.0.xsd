@@ -24,11 +24,13 @@
             <xs:element name="supported-bridge-type-refs" type="thing-description:supportedBridgeTypeRefs" minOccurs="0"/>
             <xs:element name="label" type="xs:string"/>
             <xs:element name="description" type="xs:string" minOccurs="0"/>
+            <xs:element name="category" type="xs:string" minOccurs="0"/>
             <xs:choice minOccurs="0">
                 <xs:element name="channels" type="thing-description:channels"/>
                 <xs:element name="channel-groups" type="thing-description:channelGroups"/>
             </xs:choice>
             <xs:element name="properties" type="thing-description:properties" minOccurs="0"/>
+            <xs:element name="representation-property" type="xs:string" minOccurs="0"/>
             <xs:choice minOccurs="0">
                 <xs:element name="config-description" type="config-description:configDescription"/>
                 <xs:element name="config-description-ref" type="config-description:configDescriptionRef"/>
@@ -36,7 +38,14 @@
         </xs:sequence>
         <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
         <xs:attribute name="listed" type="xs:boolean" default="true" use="optional"/>
+        <xs:attribute name="extensible" type="thing-description:namespaceIdListRestrictionPattern" use="optional"/>
     </xs:complexType>
+    
+    <xs:simpleType name="namespaceIdListRestrictionPattern">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[A-Za-z0-9\-_.]+(,( )?[A-Za-z0-9\-_.]+)*" />
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:complexType name="bridgeType">
         <xs:complexContent>
@@ -68,6 +77,7 @@
         <xs:sequence>
             <xs:element name="label" type="xs:string"/>
             <xs:element name="description" type="xs:string" minOccurs="0"/>
+            <xs:element name="category" type="xs:string" minOccurs="0"/>
             <xs:element name="channels" type="thing-description:channels" minOccurs="1"/>
         </xs:sequence>
         <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>

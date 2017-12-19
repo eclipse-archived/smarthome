@@ -1,12 +1,15 @@
-var Repository = function($q, $rootScope, remoteService, dataType, staticData) {
+var Repository = function($q, $rootScope, remoteService, dataType, staticData, getOneFunction, idParameterName, elmentId) {
     var self = this;
-    var cacheEnabled = true;
-    var dirty = false;
-    var initialFetch = false;
 
+    this.cacheEnabled = true;
+    this.dirty = false;
+    this.initialFetch = false;
+    this.staticData = staticData
     this.setDirty = function() {
-        this.dirty = true;
+        self.dirty = true;
     }
+
+    this.singleElements = getOneFunction ? {} : null;
     this.getAll = function(callback, refresh) {
         if (typeof callback === 'boolean') {
             refresh = true;
@@ -28,11 +31,11 @@ var Repository = function($q, $rootScope, remoteService, dataType, staticData) {
                 return;
             }
         });
-        if (cacheEnabled && staticData && self.initialFetch && !refresh && !self.dirty) {
+        if (self.cacheEnabled && self.staticData && self.initialFetch && !refresh && !self.dirty) {
             deferred.resolve($rootScope.data[dataType]);
         } else {
             remoteService.getAll(function(data) {
-                if ((!cacheEnabled || (data.length != $rootScope.data[dataType].length) || self.dirty || refresh)) {
+                if ((!self.cacheEnabled || (data.length != $rootScope.data[dataType].length) || self.dirty || refresh)) {
                     self.initialFetch = true;
                     $rootScope.data[dataType] = data;
                     self.dirty = false;
@@ -47,7 +50,7 @@ var Repository = function($q, $rootScope, remoteService, dataType, staticData) {
                     deferred.resolve('No update');
                 }
             });
-            if (cacheEnabled && self.initialFetch) {
+            if (self.cacheEnabled && self.initialFetch) {
                 deferred.notify($rootScope.data[dataType]);
             }
         }
@@ -56,11 +59,11 @@ var Repository = function($q, $rootScope, remoteService, dataType, staticData) {
     this.getOne = function(condition, callback, refresh) {
         var element = self.find(condition);
         if (element != null && !this.dirty && !refresh) {
-            callback(element);
+            self.resolveSingleElement(callback, element)
         } else {
             self.getAll(null, true).then(function(res) {
                 if (callback) {
-                    callback(self.find(condition));
+                    self.resolveSingleElement(callback, self.find(condition));
                     return;
                 } else {
                     return;
@@ -73,6 +76,22 @@ var Repository = function($q, $rootScope, remoteService, dataType, staticData) {
             });
         }
     };
+
+    this.resolveSingleElement = function(callback, element) {
+        if (getOneFunction && self.singleElements[element.UID]) {
+            callback(self.singleElements[element.UID]);
+        } else if (getOneFunction) {
+            var parameter = {};
+            parameter[idParameterName] = element[elmentId];
+            getOneFunction(parameter, function(singleElement) {
+                self.singleElements[element.UID] = singleElement;
+                callback(singleElement)
+            })
+        } else {
+            callback(element);
+        }
+    }
+
     this.find = function(condition) {
         for (var i = 0; i < $rootScope.data[dataType].length; i++) {
             var element = $rootScope.data[dataType][i];
@@ -112,7 +131,10 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
     return new Repository($q, $rootScope, bindingService, 'bindings', true);
 }).factory('thingTypeRepository', function($q, $rootScope, thingTypeService) {
     $rootScope.data.thingTypes = [];
-    return new Repository($q, $rootScope, thingTypeService, 'thingTypes', true);
+    return new Repository($q, $rootScope, thingTypeService, 'thingTypes', true, thingTypeService.getByUid, 'thingTypeUID', 'UID');
+}).factory('channelTypeRepository', function($q, $rootScope, channelTypeService) {
+    $rootScope.data.channelTypes = [];
+    return new Repository($q, $rootScope, channelTypeService, 'channelTypes', true);
 }).factory('discoveryResultRepository', function($q, $rootScope, inboxService, eventService) {
     var repository = new Repository($q, $rootScope, inboxService, 'discoveryResults')
     $rootScope.data.discoveryResults = [];

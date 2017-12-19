@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.library.items;
 
@@ -11,14 +16,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.StringListType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This item identifies a telephone call by its origin and destination.
@@ -28,8 +32,6 @@ import org.slf4j.LoggerFactory;
  */
 public class CallItem extends GenericItem {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
     private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
     private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
 
@@ -38,7 +40,7 @@ public class CallItem extends GenericItem {
         acceptedDataTypes.add(UnDefType.class);
     }
 
-    public CallItem(String name) {
+    public CallItem(@NonNull String name) {
         super(CoreItemFactory.CALL, name);
     }
 
@@ -57,8 +59,7 @@ public class CallItem extends GenericItem {
         if (isAcceptedState(acceptedDataTypes, state)) {
             super.setState(state);
         } else {
-            logger.error("Tried to set invalid state {} on item {} of type {}, ignoring it", state, getName(),
-                    getClass().getSimpleName());
+            logSetTypeError(state);
         }
     }
 }

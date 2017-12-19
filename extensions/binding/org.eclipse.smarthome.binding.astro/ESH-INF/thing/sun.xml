@@ -54,6 +54,9 @@
 			<channel-group id="eclipse" typeId="sunEclipse" />
 			<channel-group id="phase" typeId="sunPhase" />
 		</channel-groups>
+
+		<representation-property>geolocation</representation-property>
+
 		<config-description-ref uri="thing-type:astro:config" />
 	</thing-type>
 

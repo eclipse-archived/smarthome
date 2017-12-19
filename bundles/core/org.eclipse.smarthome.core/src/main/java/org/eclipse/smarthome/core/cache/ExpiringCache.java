@@ -1,17 +1,22 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.cache;
 
+import java.lang.ref.SoftReference;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * This is a simple expiring and reloading cache implementation.
@@ -20,21 +25,18 @@ import org.slf4j.LoggerFactory;
  * answer from the last calculation is not valid anymore, i.e. if it is expired.
  *
  * @author Christoph Weitkamp - Initial contribution and API.
- * 
+ *
  * @param <V> the type of the value
  */
 public class ExpiringCache<V> {
-
-    private final Logger logger = LoggerFactory.getLogger(ExpiringCache.class);
-
     private final long expiry;
     private final Supplier<V> action;
-    private V value;
+    private SoftReference<V> value;
     private long expiresAt;
 
     /**
      * Create a new instance.
-     * 
+     *
      * @param expiry the duration in milliseconds for how long the value stays valid
      * @param action the action to retrieve/calculate the value
      */
@@ -51,38 +53,40 @@ public class ExpiringCache<V> {
 
     /**
      * Returns the value - possibly from the cache, if it is still valid.
-     * 
-     * @return the value
      */
+    @Nullable
     public synchronized V getValue() {
-        if (value == null || isExpired()) {
+        V cachedValue = value.get();
+        if (cachedValue == null || isExpired()) {
             return refreshValue();
         }
-        return value;
+        return cachedValue;
     }
 
     /**
      * Invalidates the value in the cache.
      */
-    public synchronized void invalidateValue() {
-        value = null;
+    public final synchronized void invalidateValue() {
+        value = new SoftReference<>(null);
         expiresAt = 0;
     }
 
     /**
      * Refreshes and returns the value in the cache.
-     * 
+     *
      * @return the new value
      */
+    @Nullable
     public synchronized V refreshValue() {
-        value = action.get();
+        V freshValue = action.get();
+        value = new SoftReference<>(freshValue);
         expiresAt = System.nanoTime() + expiry;
-        return value;
+        return freshValue;
     }
 
     /**
      * Checks if the value is expired.
-     * 
+     *
      * @return true if the value is expired
      */
     public boolean isExpired() {

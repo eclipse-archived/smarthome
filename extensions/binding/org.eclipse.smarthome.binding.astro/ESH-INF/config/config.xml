@@ -6,12 +6,9 @@
 
 	<config-description uri="thing-type:astro:config">
 		<parameter name="geolocation" type="text" required="true">
-			<label>GeoLocation</label>
-			<description>The latitude and longitude separated with a comma (xx.xxxxxx,xx.xxxxxx)</description>
-		</parameter>
-		<parameter name="altitude" type="integer" required="false">
-			<label>Altitude</label>
-			<description>The altitude of the GeoLocation in meter above sea level.</description>
+			<context>location</context>
+			<label>Location</label>
+			<description>The latitude, longitude and altitude separated with a comma (lat,long,[alt])</description>
 		</parameter>
 		<parameter name="interval" type="integer" min="1" max="86400">
 			<label>Interval</label>

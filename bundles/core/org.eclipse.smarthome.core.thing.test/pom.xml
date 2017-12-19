@@ -4,12 +4,12 @@
   <groupId>org.eclipse.smarthome.core</groupId>
   <artifactId>org.eclipse.smarthome.core.thing.test</artifactId>
   <packaging>eclipse-test-plugin</packaging>
-  <version>0.9.0-SNAPSHOT</version>
+  <version>0.10.0-SNAPSHOT</version>
   <name>Eclipse SmartHome Thing Tests</name>
   <parent>
     <groupId>org.eclipse.smarthome.bundles</groupId>
     <artifactId>core</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.10.0-SNAPSHOT</version>
   </parent>
 
 
@@ -57,6 +57,16 @@
                 <id>ch.qos.logback.slf4j</id>
                 <versionRange>0.0.0</versionRange>
               </requirement>
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>org.eclipse.smarthome.config.xml</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>org.eclipse.smarthome.core.thing.xml</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
             </extraRequirements>
           </dependency-resolution>
         </configuration>
@@ -93,6 +103,11 @@
             </bundle>
             <bundle>
               <id>org.eclipse.smarthome.config.xml</id>
+              <level>4</level>
+              <autoStart>true</autoStart>
+            </bundle>
+            <bundle>
+              <id>org.eclipse.smarthome.core.thing.xml</id>
               <level>4</level>
               <autoStart>true</autoStart>
             </bundle>

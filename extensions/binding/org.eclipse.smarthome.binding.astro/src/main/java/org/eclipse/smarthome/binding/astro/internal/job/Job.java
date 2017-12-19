@@ -1,30 +1,35 @@
 /**
- * Copyright (c) 2017 by the respective copyright holders.
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.astro.internal.job;
 
+import static java.util.Arrays.asList;
+import static java.util.Calendar.SECOND;
+import static java.util.Collections.singletonList;
 import static java.util.Objects.isNull;
-import static org.apache.commons.lang.time.DateFormatUtils.ISO_DATETIME_FORMAT;
+import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang.time.DateUtils.truncatedEquals;
 import static org.eclipse.smarthome.binding.astro.AstroBindingConstants.*;
 import static org.eclipse.smarthome.binding.astro.internal.util.DateTimeUtils.*;
-import static org.eclipse.smarthome.core.scheduler.CronHelper.createCronFromCalendar;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Calendar;
+import java.util.List;
 
 import org.eclipse.smarthome.binding.astro.handler.AstroThingHandler;
 import org.eclipse.smarthome.binding.astro.internal.config.AstroChannelConfig;
 import org.eclipse.smarthome.binding.astro.internal.model.Planet;
 import org.eclipse.smarthome.binding.astro.internal.model.Range;
 import org.eclipse.smarthome.binding.astro.internal.model.SunPhaseName;
-import org.eclipse.smarthome.core.scheduler.CronExpression;
-import org.eclipse.smarthome.core.scheduler.Expression;
-import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager.ExpressionThreadPoolExecutor;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
@@ -53,15 +58,7 @@ public interface Job extends Runnable {
         try {
             Calendar today = Calendar.getInstance();
             if (isSameDay(eventAt, today) && isTimeGreaterEquals(eventAt, today)) {
-                ExpressionThreadPoolExecutor executor = astroHandler.getScheduler();
-                if (executor != null) {
-                    Expression cron = new CronExpression(createCronFromCalendar(eventAt));
-                    if (astroHandler.addJobToQueue(job)) {
-                        executor.schedule(job, cron);
-                    }
-                    String formattedDate = ISO_DATETIME_FORMAT.format(eventAt);
-                    logger.debug("Scheduled Astro Job for thing {} at {}", thingUID, formattedDate);
-                }
+                astroHandler.schedule(job, eventAt);
             }
         } catch (Exception ex) {
             logger.error("{}", ex.getMessage(), ex);
@@ -78,21 +75,44 @@ public interface Job extends Runnable {
      * @param channelId the channel ID
      */
     public static void scheduleEvent(String thingUID, AstroThingHandler astroHandler, Calendar eventAt, String event,
-            String channelId) {
+            String channelId, boolean configAlreadyApplied) {
+        scheduleEvent(thingUID, astroHandler, eventAt, singletonList(event), channelId, configAlreadyApplied);
+    }
+
+    /**
+     * Schedules an {@link EventJob} instance
+     *
+     * @param thingUID the Thing UID
+     * @param astroHandler the {@link ThingHandler} instance
+     * @param eventAt the {@link Calendar} instance denoting scheduled instant
+     * @param events the event IDs to schedule
+     * @param channelId the channel ID
+     */
+    public static void scheduleEvent(String thingUID, AstroThingHandler astroHandler, Calendar eventAt,
+            List<String> events, String channelId, boolean configAlreadyApplied) {
         boolean thingNull = checkNull(thingUID, "Thing UID is null");
         boolean astroHandlerNull = checkNull(astroHandler, "AstroThingHandler is null");
         boolean eventAtNull = checkNull(eventAt, "Scheduled Instant is null");
-        boolean eventNull = checkNull(event, "Event is null");
+        boolean eventsNull = checkNull(events, "Events list is null");
         boolean channelIdNull = checkNull(channelId, "Channel ID is null");
 
-        if (thingNull || astroHandlerNull || eventAtNull || eventNull || channelIdNull) {
+        if (thingNull || astroHandlerNull || eventAtNull || eventsNull || channelIdNull || events.isEmpty()) {
             return;
         }
-        AstroChannelConfig config = astroHandler.getThing().getChannel(channelId).getConfiguration()
-                .as(AstroChannelConfig.class);
-        Calendar instant = applyConfig(eventAt, config);
-        Job eventJob = new EventJob(thingUID, channelId, event);
-        schedule(thingUID, astroHandler, eventJob, instant);
+        final Calendar instant;
+        if (!configAlreadyApplied) {
+            final Channel channel = astroHandler.getThing().getChannel(channelId);
+            if (channel == null) {
+                logger.warn("Cannot find channel '{}' for thing '{}'.", channelId, astroHandler.getThing().getUID());
+                return;
+            }
+            AstroChannelConfig config = channel.getConfiguration().as(AstroChannelConfig.class);
+            instant = applyConfig(eventAt, config);
+        } else {
+            instant = eventAt;
+        }
+        List<Job> jobs = events.stream().map(e -> new EventJob(thingUID, channelId, e)).collect(toList());
+        schedule(thingUID, astroHandler, new CompositeJob(thingUID, jobs), instant);
     }
 
     /**
@@ -112,8 +132,30 @@ public interface Job extends Runnable {
         if (thingNull || astroHandlerNull || rangeNull || channelIdNull) {
             return;
         }
-        scheduleEvent(thingUID, astroHandler, range.getStart(), EVENT_START, channelId);
-        scheduleEvent(thingUID, astroHandler, range.getEnd(), EVENT_END, channelId);
+
+        Calendar start = range.getStart();
+        Calendar end = range.getEnd();
+
+        // depending on the location you might not have a valid range for day/night, so skip the events:
+        if (start == null || end == null) {
+            return;
+        }
+
+        final Channel channel = astroHandler.getThing().getChannel(channelId);
+        if (channel == null) {
+            logger.warn("Cannot find channel '{}' for thing '{}'.", channelId, astroHandler.getThing().getUID());
+            return;
+        }
+        AstroChannelConfig config = channel.getConfiguration().as(AstroChannelConfig.class);
+        Calendar configStart = applyConfig(start, config);
+        Calendar configEnd = applyConfig(end, config);
+
+        if (truncatedEquals(configStart, configEnd, SECOND)) {
+            scheduleEvent(thingUID, astroHandler, configStart, asList(EVENT_START, EVENT_END), channelId, true);
+        } else {
+            scheduleEvent(thingUID, astroHandler, configStart, EVENT_START, channelId, true);
+            scheduleEvent(thingUID, astroHandler, configEnd, EVENT_END, channelId, true);
+        }
     }
 
     /**
@@ -178,7 +220,7 @@ public interface Job extends Runnable {
      */
     public static <T> boolean checkNull(T obj, String message) {
         if (isNull(obj)) {
-            logger.trace(message);
+            logger.trace("{}", message);
             return true;
         }
         return false;

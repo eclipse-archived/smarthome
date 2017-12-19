@@ -22,18 +22,35 @@ Note that this list also serves as a checklist for code reviews on pull requests
 1. Generics must be used where applicable.
 1. Code should not show any warnings. Warnings that cannot be circumvented should be suppressed by using the @SuppressWarnings annotation. 
 1. For dependency injection, OSGi Declarative Services should be used.
+1. OSGi Declarative Services should be declared using annotations. The IDE will take care of the service *.xml file creation. See the official OSGi documentation for an [example here](http://enroute.osgi.org/services/org.osgi.service.component.html).
 1. Packages that contain classes that are not meant to be used by other bundles should have "internal" in their package name.
+1. We are using [null annotations](https://wiki.eclipse.org/JDT_Core/Null_Analysis) from the Eclipse JDT project. Therefore every bundle should have an **optional** `Import-Package` dependency to `org.eclipse.jdt.annotation`.
+Classes should be annotated by `@NonNullByDefault` and return types, parameter types, generic types etc. are annotated with `@Nullable` only.
+Fields that get a static and mandatory reference injected through OSGi Declarative Services can be annotated with
+
+```java
+@NonNullByDefault({})
+private MyService injectedService;
+```
+
+to skip the nullevaluation for these fields.
+Fields within `ThingHandler` classes that are initialized within the `initialize()` method may also be annotated like this, because the framework ensures that `initialize()` will be called before any other method. However please watch the scenario where the initialization of the handler fails, because then fields might not have been initialized and using them should be prepended by a `null` check.
+There is **no need** for a `@NonNull` annotation because it is set as default.
+The transition of existing classes could be a longer process but if you want to use nullness annotation in a class / interface you need to set the default for the whole class and annotate all types that differ from the default.
+Test classes do not have to be annotated.
 
 ## B. OSGi Bundles
 
-7. Every bundle must contain a Maven pom.xml with a version and artifact name that is in sync with the manifest entry. The pom.xml must reference the correct parent pom (which is usually in the parent folder).
-1. Every bundle must contain an [about.html](https://eclipse.org/legal/epl/about.php) file, providing license information.
+1. Every bundle must contain a Maven pom.xml with a version and artifact name that is in sync with the manifest entry. The pom.xml must reference the correct parent pom (which is usually in the parent folder).
+1. Every bundle must contain a [NOTICE](https://www.eclipse.org/projects/handbook/#legaldoc) file, providing meta information about the bundle and license information about 3rd party content.
 1. Every bundle must contain a build.properties file, which lists all resources that should end up in the binary under ```bin.includes```.
-1. The manifest must not contain any "Require-Bundle" entries. Instead, "Import-Package" must be used.
+1. The manifest must not contain any "Require-Bundle" entries (except for test fragment bundles, see below). Instead, "Import-Package" must be used.
 1. The manifest must not export any internal package.
 1. The manifest must not have any version constraint on package imports, unless this is thoughtfully added. Note that Eclipse automatically adds these constraints based on the version in the target platform, which might be too high in many cases.
 1. The manifest must include all services in the Service-Component entry. A good approach is to put OSGI-INF/*.xml in there.
 1. Every exported package of a bundle must be imported by the bundle itself again.
+1. Test fragments may have the bundles `org.junit`, `org.hamcrest` and `org.mockito` in the "Require-Bundle" section. This is the only exception to not having "Require-Bundle" at all.
+1. Any 3rd party content has to be added thoughtfully and version/license information has to be given in the NOTICE file.
 
 ## C. Language Levels and Libraries
 
@@ -66,3 +83,11 @@ Note that this list also serves as a checklist for code reviews on pull requests
  - ```error``` logging should only be used to inform the user that something is tremendously wrong in his setup, the system cannot function normally anymore, and there is a need for immediate action. It should also be used if some code fails irrecoverably and the user should report it as a severe bug.
 1. For bindings, you should NOT log errors, if e.g. connections are dropped - this is considered to be an external problem and from a system perspective to be a normal and expected situation. The correct way to inform users about such events is to update the Thing status accordingly. Note that all events (including Thing status events) are anyhow already logged.
 1. Likewise, bundles that accept external requests (such as servlets) must not log errors or warnings if incoming requests are incorrect. Instead, appropriate error responses should be returned to the caller.
+
+## Static code analysis
+
+The Eclipse SmartHome Maven build includes [tooling for static code analysis](https://github.com/openhab/static-code-analysis) that will validate your code against the Coding Guidelines and some additional best practices. Information about the checks can be found [here](https://github.com/openhab/static-code-analysis/blob/master/docs/included-checks.md).
+
+The tool will generate an individual report for each bundle that you can find in `path/to/bundle/target/code-analysis/report.html` file and a report for the whole build that contains links to the individual reports in the `target/summary_report.html`. The tool categorizes the found issues by priority: 1(error),2(warning) or 3(info). If any error is found within your code the Maven build will end with failure. You will receive detailed information (path to the file, line and message) listing all problems with Priority 1 on the console.
+
+Please fix all the Priority 1 issues and all issues with Priority 2 and 3 that are relevant (if you have any doubt don't hesitate to ask). Re-run the build to confirm that the checks are passing.

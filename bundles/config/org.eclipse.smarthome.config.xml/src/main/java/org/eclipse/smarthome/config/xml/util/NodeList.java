@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.xml.util;
 
@@ -104,8 +109,9 @@ public class NodeList implements NodeName {
         if (this.list != null) {
             attributes = new ArrayList<>(this.list.size());
 
-            if ((formattedText == null) || (formattedText.isEmpty())) {
-                formattedText = "%s";
+            String format = formattedText;
+            if ((format == null) || (format.isEmpty())) {
+                format = "%s";
             }
 
             for (NodeAttributes node : (List<NodeAttributes>) this.list) {
@@ -113,10 +119,10 @@ public class NodeList implements NodeName {
                     String attributeValue = node.getAttribute(attributeName);
 
                     if (attributeValue != null) {
-                        attributes.add(String.format(formattedText, attributeValue));
+                        attributes.add(String.format(format, attributeValue));
                     } else {
-                        throw new ConversionException("Missing attribute '" + attributeName + "' in '" + nodeName
-                                + "'!");
+                        throw new ConversionException(
+                                "Missing attribute '" + attributeName + "' in '" + nodeName + "'!");
                     }
                 } else {
                     throw new ConversionException("Invalid attribute in '" + nodeName + "'!");

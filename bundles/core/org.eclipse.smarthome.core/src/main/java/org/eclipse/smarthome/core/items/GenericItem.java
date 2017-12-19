@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.items;
 
@@ -19,6 +24,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
@@ -27,6 +33,7 @@ import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
+import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,8 +67,10 @@ abstract public class GenericItem implements ActiveItem {
 
     protected Set<String> tags = new HashSet<String>();
 
+    @NonNull
     final protected String name;
 
+    @NonNull
     final protected String type;
 
     protected State state = UnDefType.NULL;
@@ -72,7 +81,7 @@ abstract public class GenericItem implements ActiveItem {
 
     private List<StateDescriptionProvider> stateDescriptionProviders;
 
-    public GenericItem(String type, String name) {
+    public GenericItem(@NonNull String type, @NonNull String name) {
         this.name = name;
         this.type = type;
     }
@@ -85,6 +94,11 @@ abstract public class GenericItem implements ActiveItem {
     @Override
     public State getStateAs(Class<? extends State> typeClass) {
         return state.as(typeClass);
+    }
+
+    @Override
+    public String getUID() {
+        return getName();
     }
 
     @Override
@@ -220,8 +234,8 @@ abstract public class GenericItem implements ActiveItem {
                             listener.stateChanged(GenericItem.this, oldState, newState);
                         }
                     } catch (Exception e) {
-                        logger.warn("failed notifying listener '{}' about state update of item {}: {}",
-                                new Object[] { listener.toString(), GenericItem.this.getName(), e.getMessage() }, e);
+                        logger.warn("failed notifying listener '{}' about state update of item {}: {}", listener,
+                                GenericItem.this.getName(), e.getMessage(), e);
                     }
                 }
             });
@@ -276,11 +290,7 @@ abstract public class GenericItem implements ActiveItem {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((category == null) ? 0 : category.hashCode());
-        result = prime * result + ((label == null) ? 0 : label.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((tags == null) ? 0 : tags.hashCode());
-        result = prime * result + ((type == null) ? 0 : type.hashCode());
         return result;
     }
 
@@ -296,39 +306,11 @@ abstract public class GenericItem implements ActiveItem {
             return false;
         }
         GenericItem other = (GenericItem) obj;
-        if (category == null) {
-            if (other.category != null) {
-                return false;
-            }
-        } else if (!category.equals(other.category)) {
-            return false;
-        }
-        if (label == null) {
-            if (other.label != null) {
-                return false;
-            }
-        } else if (!label.equals(other.label)) {
-            return false;
-        }
         if (name == null) {
             if (other.name != null) {
                 return false;
             }
         } else if (!name.equals(other.name)) {
-            return false;
-        }
-        if (tags == null) {
-            if (other.tags != null) {
-                return false;
-            }
-        } else if (!tags.equals(other.tags)) {
-            return false;
-        }
-        if (type == null) {
-            if (other.type != null) {
-                return false;
-            }
-        } else if (!type.equals(other.type)) {
             return false;
         }
         return true;
@@ -396,15 +378,32 @@ abstract public class GenericItem implements ActiveItem {
 
     @Override
     public StateDescription getStateDescription(Locale locale) {
+        StateDescription result = null;
+        List<StateOption> stateOptions = Collections.emptyList();
         if (stateDescriptionProviders != null) {
             for (StateDescriptionProvider stateDescriptionProvider : stateDescriptionProviders) {
                 StateDescription stateDescription = stateDescriptionProvider.getStateDescription(this.name, locale);
-                if (stateDescription != null) {
-                    return stateDescription;
+
+                // as long as no valid StateDescription is provided we reassign here:
+                if (result == null) {
+                    result = stateDescription;
+                }
+
+                // if the current StateDescription does provide options and we don't already have some, we pick them up
+                // here
+                if (stateDescription != null && !stateDescription.getOptions().isEmpty() && stateOptions.isEmpty()) {
+                    stateOptions = stateDescription.getOptions();
                 }
             }
         }
-        return null;
+
+        // we recreate the StateDescription if we found a valid one and state options are given:
+        if (result != null && !stateOptions.isEmpty()) {
+            result = new StateDescription(result.getMinimum(), result.getMaximum(), result.getStep(),
+                    result.getPattern(), result.isReadOnly(), stateOptions);
+        }
+
+        return result;
     }
 
     /**
@@ -420,6 +419,11 @@ abstract public class GenericItem implements ActiveItem {
             return true;
         }
         return false;
+    }
+
+    protected void logSetTypeError(State state) {
+        logger.error("Tried to set invalid state {} ({}) on item {} of type {}, ignoring it", state,
+                state.getClass().getSimpleName(), getName(), getClass().getSimpleName());
     }
 
 }

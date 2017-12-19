@@ -1,14 +1,19 @@
 Manifest-Version: 1.0
+Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
 Bundle-Name: FSInternetRadio Binding
-Bundle-SymbolicName: org.eclipse.smarthome.binding.fsinternetradio;singleton:=true
-Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-ClassPath: .
+Bundle-SymbolicName: org.eclipse.smarthome.binding.fsinternetradio;singl
+ eton:=true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.10.0.qualifier
+Export-Package: 
+ org.eclipse.smarthome.binding.fsinternetradio,
+ org.eclipse.smarthome.binding.fsinternetradio.handler
 Import-Package: 
  org.apache.commons.io,
  org.apache.commons.lang,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.jetty.client,
  org.eclipse.jetty.client.api,
  org.eclipse.jetty.client.util,
@@ -16,6 +21,7 @@ Import-Package:
  org.eclipse.jetty.util.component,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.config.discovery,
+ org.eclipse.smarthome.config.discovery.upnp,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.thing.binding,
@@ -25,5 +31,3 @@ Import-Package:
  org.jupnp.model.meta,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
-Export-Package: org.eclipse.smarthome.binding.fsinternetradio,
- org.eclipse.smarthome.binding.fsinternetradio.handler

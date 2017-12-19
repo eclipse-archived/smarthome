@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
 package org.eclipse.smarthome.io.rest;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -79,6 +91,17 @@ public class JSONResponseTest {
             entityInStream.read(entityValue);
             assertThat(new String(entityValue), is(ENTITY_JSON_VALUE));
         }
+    }
+
+    @Test
+    public void shouldCreateSuccessResponseWithNullEntity() throws Exception {
+        Response response = JSONResponse.createResponse(Status.ACCEPTED, null, null);
+
+        assertThat(response.getStatus(), is(202));
+        assertThat(response.getMediaType(), is(MediaType.APPLICATION_JSON_TYPE));
+
+        Object entity = response.getEntity();
+        assertThat(entity, is(nullValue()));
     }
 
     @Test

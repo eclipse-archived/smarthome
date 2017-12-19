@@ -18,18 +18,14 @@
                      "name": "kind"
                   }
                ]
-            }
-         ],
-         "children":[
+            },
             {
-               "id":"channelEventTriggerId",
-               "type":"core.GenericEventTrigger",
-               "configuration":{
-                  "eventSource":"${channelUID}",
-                  "eventTopic":"smarthome/channels/*/triggered",
-                  "eventTypes":"ChannelTriggeredEvent"
-               }
-            }
+               "name":"event",
+               "type":"TEXT",
+               "label":"Event",
+               "description":"the event on the channel to react on",
+               "required":false
+            }            
          ],
          "outputs":[
             {

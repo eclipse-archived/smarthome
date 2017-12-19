@@ -3,8 +3,8 @@
     xsi:schemaLocation="http://eclipse.org/smarthome/schemas/binding/v1.0.0 http://eclipse.org/smarthome/schemas/binding-1.0.0.xsd"
 >
 
-    <name>@text/BINDING_NAME</name>
-    <description>@text/BINDING_DESC</description>
+    <name>@text/binding_name</name>
+    <description>@text/binding_desc</description>
     <author>TH-Köln</author>
 
 </binding:binding>

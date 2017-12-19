@@ -1,36 +1,36 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.astro.handler;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.stream.Collectors.toList;
-import static org.eclipse.smarthome.core.scheduler.CronHelper.*;
 import static org.eclipse.smarthome.core.thing.ThingStatus.*;
 import static org.eclipse.smarthome.core.thing.type.ChannelKind.TRIGGER;
 import static org.eclipse.smarthome.core.types.RefreshType.REFRESH;
 
 import java.lang.invoke.MethodHandles;
 import java.text.ParseException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Consumer;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.eclipse.smarthome.binding.astro.internal.config.AstroChannelConfig;
 import org.eclipse.smarthome.binding.astro.internal.config.AstroThingConfig;
 import org.eclipse.smarthome.binding.astro.internal.job.Job;
@@ -38,16 +38,13 @@ import org.eclipse.smarthome.binding.astro.internal.job.PositionalJob;
 import org.eclipse.smarthome.binding.astro.internal.model.Planet;
 import org.eclipse.smarthome.binding.astro.internal.util.PropertyUtils;
 import org.eclipse.smarthome.core.scheduler.CronExpression;
-import org.eclipse.smarthome.core.scheduler.Expression;
 import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager;
 import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager.ExpressionThreadPoolExecutor;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,29 +56,23 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AstroThingHandler extends BaseThingHandler {
 
+    private static final String DAILY_MIDNIGHT = "30 0 0 * * ? *";
+
     /** Logger Instance */
     protected final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    /** Delay for the scheduled job in milliseconds */
-    private static final int DELAY = 2000;
-
-    /** Maximum number of scheduled jobs */
-    private static final int MAX_SCHEDULED_JOBS = 200;
-
     /** Scheduler to schedule jobs */
-    private ExpressionThreadPoolExecutor scheduledExecutor;
-    private ExecutorService localExecutor;
+    private final ExpressionThreadPoolExecutor scheduledExecutor;
 
-    private ScheduledFuture<?> schedulerFuture;
     private int linkedPositionalChannels = 0;
     protected AstroThingConfig thingConfig;
     private final Lock monitor = new ReentrantLock();
-    private Queue<Job> scheduledJobs;
+    private Job dailyJob;
+    private final Set<ScheduledFuture<?>> scheduledFutures = new HashSet<>();
 
     public AstroThingHandler(Thing thing) {
         super(thing);
         scheduledExecutor = ExpressionThreadPoolManager.getExpressionScheduledPool("astro");
-        scheduledJobs = new LinkedBlockingQueue<>(MAX_SCHEDULED_JOBS);
     }
 
     @Override
@@ -124,10 +115,6 @@ public abstract class AstroThingHandler extends BaseThingHandler {
     @Override
     public void dispose() {
         logger.debug("Disposing thing {}", getThing().getUID());
-        if (schedulerFuture != null && !schedulerFuture.isCancelled()) {
-            schedulerFuture.cancel(true);
-            schedulerFuture = null;
-        }
         stopJobs();
         logger.debug("Thing {} disposed", getThing().getUID());
     }
@@ -140,12 +127,6 @@ public abstract class AstroThingHandler extends BaseThingHandler {
         } else {
             logger.warn("The Astro-Binding is a read-only binding and can not handle commands");
         }
-    }
-
-    @Override
-    public void handleUpdate(ChannelUID channelUID, State newState) {
-        logger.warn("The Astro-Binding is a read-only binding and can not handle channel updates");
-        super.handleUpdate(channelUID, newState);
     }
 
     /**
@@ -165,11 +146,15 @@ public abstract class AstroThingHandler extends BaseThingHandler {
      */
     public void publishChannelIfLinked(ChannelUID channelUID) {
         if (isLinked(channelUID.getId()) && getPlanet() != null) {
+            final Channel channel = getThing().getChannel(channelUID.getId());
+            if (channel == null) {
+                logger.error("Cannot find channel for {}", channelUID);
+                return;
+            }
             try {
-                AstroChannelConfig config = getThing().getChannel(channelUID.getId()).getConfiguration()
-                        .as(AstroChannelConfig.class);
+                AstroChannelConfig config = channel.getConfiguration().as(AstroChannelConfig.class);
                 updateState(channelUID, PropertyUtils.getState(channelUID, config, getPlanet()));
-            } catch (final Exception ex) {
+            } catch (Exception ex) {
                 logger.error("Can't update state for channel {} : {}", channelUID, ex.getMessage(), ex);
             }
         }
@@ -181,95 +166,62 @@ public abstract class AstroThingHandler extends BaseThingHandler {
      */
     private void restartJobs() {
         logger.debug("Restarting jobs for thing {}", getThing().getUID());
-
-        if (schedulerFuture != null && !schedulerFuture.isCancelled()) {
-            schedulerFuture.cancel(true);
-        }
-        if (localExecutor != null) {
-            localExecutor.shutdownNow();
-        }
-        localExecutor = Executors.newSingleThreadExecutor();
-        schedulerFuture = scheduler.schedule(() -> {
-            monitor.lock();
-            try {
-                stopJobs();
-                if (getThing().getStatus() == ONLINE) {
-                    String thingUID = getThing().getUID().toString();
-                    String typeId = getThing().getThingTypeUID().getId();
-                    // Daily Job
-                    Job dailyJob = getDailyJob();
-                    if (dailyJob == null) {
-                        logger.error("Daily Job instance not present");
-                        return;
-                    }
-                    if (scheduledExecutor == null) {
-                        logger.warn("Thread Pool Executor is not available");
-                        return;
-                    }
-                    Expression midNightExpression = new CronExpression(DAILY_MIDNIGHT);
-                    if (addJobToQueue(dailyJob)) {
-                        scheduledExecutor.schedule(dailyJob, midNightExpression);
-                        logger.info("Scheduled astro job-daily-{} at midnight for thing {}", typeId, thingUID);
-                    }
-
-                    // Execute startup job immediately
-                    localExecutor.submit(dailyJob);
-
-                    // Repeat scheduled job every configured seconds
-                    LocalDateTime currentTime = LocalDateTime.now();
-                    LocalDateTime futureTimeWithInterval = currentTime.plusSeconds(thingConfig.getInterval());
-                    Date start = Date.from(futureTimeWithInterval.atZone(ZoneId.systemDefault()).toInstant());
-                    if (isPositionalChannelLinked()) {
-                        Expression expression = new CronExpression(
-                                createCronForRepeatEverySeconds(thingConfig.getInterval()), start);
-                        Job positionalJob = new PositionalJob(thingUID);
-                        if (addJobToQueue(positionalJob)) {
-                            scheduledExecutor.schedule(positionalJob, expression);
-                            logger.info("Scheduled astro job-positional with interval of {} seconds for thing {}",
-                                    thingConfig.getInterval(), thingUID);
-                        }
-                        // Execute positional job immediately
-                        localExecutor.submit(positionalJob);
-                    }
-                }
-            } catch (ParseException ex) {
-                logger.error("{}", ex.getMessage(), ex);
-            } finally {
-                monitor.unlock();
-            }
-        }, DELAY, MILLISECONDS);
-    }
-
-    /**
-     * Stops all jobs for this thing.
-     */
-    private void stopJobs() {
-        ThingUID thingUID = getThing().getUID();
-        logger.debug("Stopping Scheduled Jobs for thing {}", thingUID);
         monitor.lock();
         try {
-            if (scheduledExecutor != null) {
-                List<Job> jobsToRemove = scheduledJobs.stream().filter(this::isJobAssociatedWithThing)
-                        .collect(toList());
-                Consumer<Job> removalFromExecutor = scheduledExecutor::remove;
-                Consumer<Job> removalFromQueue = scheduledJobs::remove;
-                jobsToRemove.forEach(removalFromExecutor.andThen(removalFromQueue));
-                logger.debug("Stopped {} Scheduled Jobs for thing {}", jobsToRemove.size(), thingUID);
+            stopJobs();
+            if (getThing().getStatus() == ONLINE) {
+                String thingUID = getThing().getUID().toString();
+                if (scheduledExecutor == null) {
+                    logger.warn("Thread Pool Executor is not available");
+                    return;
+                }
+                // Daily Job
+                dailyJob = getDailyJob();
+                scheduledExecutor.schedule(dailyJob, new CronExpression(DAILY_MIDNIGHT));
+                logger.debug("Scheduled {} at midnight", dailyJob);
+                // Execute daily startup job immediately
+                dailyJob.run();
+
+                // Repeat positional job every configured seconds
+                if (isPositionalChannelLinked()) {
+                    Job positionalJob = new PositionalJob(thingUID);
+                    ScheduledFuture<?> future = scheduler.scheduleWithFixedDelay(positionalJob, 0,
+                            thingConfig.getInterval(), TimeUnit.SECONDS);
+                    scheduledFutures.add(future);
+                    logger.info("Scheduled {} every {} seconds", positionalJob, thingConfig.getInterval());
+                }
             }
-        } catch (final Exception ex) {
+        } catch (ParseException ex) {
             logger.error("{}", ex.getMessage(), ex);
         } finally {
             monitor.unlock();
         }
     }
 
-    private boolean isJobAssociatedWithThing(Job job) {
-        String thingUID = getThing().getUID().getAsString();
-        String jobThingUID = job.getThingUID();
-        if (jobThingUID != null) {
-            return thingUID.equals(jobThingUID);
+    /**
+     * Stops all jobs for this thing.
+     */
+    private void stopJobs() {
+        logger.debug("Stopping scheduled jobs for thing {}", getThing().getUID());
+        monitor.lock();
+        try {
+            if (scheduledExecutor != null) {
+                if (dailyJob != null) {
+                    scheduledExecutor.remove(dailyJob);
+                }
+                dailyJob = null;
+            }
+            for (ScheduledFuture<?> future : scheduledFutures) {
+                if (!future.isDone()) {
+                    future.cancel(true);
+                }
+            }
+            scheduledFutures.clear();
+        } catch (Exception ex) {
+            logger.error("{}", ex.getMessage(), ex);
+        } finally {
+            monitor.unlock();
         }
-        return false;
     }
 
     @Override
@@ -313,18 +265,12 @@ public abstract class AstroThingHandler extends BaseThingHandler {
      * Emits an event for the given channel.
      */
     public void triggerEvent(String channelId, String event) {
-        if (getThing().getChannel(channelId) == null) {
+        final Channel channel = getThing().getChannel(channelId);
+        if (channel == null) {
             logger.warn("Event {} in thing {} does not exist, please recreate the thing", event, getThing().getUID());
             return;
         }
-        triggerChannel(getThing().getChannel(channelId).getUID(), event);
-    }
-
-    /**
-     * Returns the scheduler for the Astro jobs
-     */
-    public ExpressionThreadPoolExecutor getScheduler() {
-        return scheduledExecutor;
+        triggerChannel(channel.getUID(), event);
     }
 
     /**
@@ -332,11 +278,31 @@ public abstract class AstroThingHandler extends BaseThingHandler {
      *
      * @return {@code true} if the {@code job} is added to the queue, otherwise {@code false}
      */
-    public boolean addJobToQueue(Job job) {
-        if (job != null && !scheduledJobs.contains(job)) {
-            return scheduledJobs.add(job);
+    public void schedule(Job job, Calendar eventAt) {
+        long sleepTime;
+        monitor.lock();
+        try {
+            tidyScheduledFutures();
+            sleepTime = eventAt.getTimeInMillis() - new Date().getTime();
+            ScheduledFuture<?> future = scheduler.schedule(job, sleepTime, TimeUnit.MILLISECONDS);
+            scheduledFutures.add(future);
+        } finally {
+            monitor.unlock();
         }
-        return false;
+        if (logger.isDebugEnabled()) {
+            String formattedDate = DateFormatUtils.ISO_DATETIME_FORMAT.format(eventAt);
+            logger.debug("Scheduled {} in {}ms (at {})", job, sleepTime, formattedDate);
+        }
+    }
+
+    private void tidyScheduledFutures() {
+        for (Iterator<ScheduledFuture<?>> iterator = scheduledFutures.iterator(); iterator.hasNext();) {
+            ScheduledFuture<?> future = iterator.next();
+            if (future.isDone()) {
+                logger.trace("Tidying up done future {}", future);
+                iterator.remove();
+            }
+        }
     }
 
     /**

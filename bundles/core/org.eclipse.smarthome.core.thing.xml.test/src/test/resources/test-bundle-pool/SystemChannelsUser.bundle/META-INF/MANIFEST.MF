@@ -1,10 +1,12 @@
 Manifest-Version: 1.0
+Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
 Bundle-Name: Synthetic Test Bundle
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: SystemChannelsUser.bundle;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-ClassPath: .
-Import-Package: com.google.common.collect,
+Import-Package: 
+ com.google.common.collect,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.osgi.framework

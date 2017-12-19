@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.common.registry;
 
@@ -60,8 +65,7 @@ public abstract class AbstractProvider<E> implements Provider<E> {
                         break;
                 }
             } catch (Exception ex) {
-                logger.error("Could not inform the listener '" + listener + "' about the '" + eventType.name()
-                        + "' event!: " + ex.getMessage(), ex);
+                logger.error("Could not inform the listener '{}' about the '{}' event!: {}", listener, eventType.name(), ex.getMessage(), ex);
             }
         }
     }

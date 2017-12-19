@@ -1,15 +1,23 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.lifx.handler;
 
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.*;
-import static org.eclipse.smarthome.binding.lifx.internal.LifxUtils.increaseDecreasePercentType;
+import static org.eclipse.smarthome.binding.lifx.internal.util.LifxMessageUtil.increaseDecreasePercentType;
 
+import java.net.InetSocketAddress;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,9 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.binding.lifx.LifxBindingConstants;
 import org.eclipse.smarthome.binding.lifx.internal.LifxChannelFactory;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightCommunicationHandler;
+import org.eclipse.smarthome.binding.lifx.internal.LifxLightConfig;
+import org.eclipse.smarthome.binding.lifx.internal.LifxLightContext;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightCurrentStateUpdater;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightOnlineStateUpdater;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightPropertiesUpdater;
@@ -27,7 +38,6 @@ import org.eclipse.smarthome.binding.lifx.internal.LifxLightState;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightStateChanger;
 import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
 import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
-import org.eclipse.smarthome.binding.lifx.internal.listener.LifxPropertiesUpdateListener;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLightInfraredRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLightPowerRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetRequest;
@@ -47,6 +57,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
@@ -64,27 +75,28 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Added configurable transition time and small fixes
  * @author Wouter Born - Decomposed class into separate objects
  */
-public class LifxLightHandler extends BaseThingHandler implements LifxPropertiesUpdateListener {
+public class LifxLightHandler extends BaseThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(LifxLightHandler.class);
 
-    private static final long FADE_TIME_DEFAULT = 300;
-    private static final int MAX_STATE_CHANGE_DURATION = 4000;
+    private static final Duration MIN_STATUS_INFO_UPDATE_INTERVAL = Duration.ofSeconds(1);
+    private static final Duration MAX_STATE_CHANGE_DURATION = Duration.ofSeconds(4);
 
     private final LifxChannelFactory channelFactory;
     private Products product;
 
-    private long fadeTime = FADE_TIME_DEFAULT;
     private PercentType powerOnBrightness;
 
-    private MACAddress macAddress;
-    private String macAsHex;
+    private String logId;
 
     private final ReentrantLock lock = new ReentrantLock();
 
-    private Map<String, State> channelStates;
     private CurrentLightState currentLightState;
     private LifxLightState pendingLightState;
+
+    private Map<String, State> channelStates;
+    private ThingStatusInfo statusInfo;
+    private LocalDateTime lastStatusInfoUpdate = LocalDateTime.MIN;
 
     private LifxLightCommunicationHandler communicationHandler;
     private LifxLightCurrentStateUpdater currentStateUpdater;
@@ -103,15 +115,22 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
         }
 
         public void setOnline() {
-            updateStatus(ThingStatus.ONLINE);
+            updateStatusIfChanged(ThingStatus.ONLINE);
+        }
+
+        public void setOnline(MACAddress macAddress) {
+            updateStatusIfChanged(ThingStatus.ONLINE);
+            Configuration configuration = editConfiguration();
+            configuration.put(LifxBindingConstants.CONFIG_PROPERTY_DEVICE_ID, macAddress.getAsLabel());
+            updateConfiguration(configuration);
         }
 
         public void setOffline() {
-            updateStatus(ThingStatus.OFFLINE);
+            updateStatusIfChanged(ThingStatus.OFFLINE);
         }
 
         public void setOfflineByCommunicationError() {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
+            updateStatusIfChanged(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
         }
 
         @Override
@@ -193,7 +212,7 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
 
     }
 
-    public LifxLightHandler(Thing thing, LifxChannelFactory channelFactory) {
+    public LifxLightHandler(@NonNull Thing thing, @NonNull LifxChannelFactory channelFactory) {
         super(thing);
         this.channelFactory = channelFactory;
     }
@@ -203,38 +222,42 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
         try {
             lock.lock();
 
+            LifxLightConfig configuration = getConfigAs(LifxLightConfig.class);
+
+            logId = getLogId(configuration.getMACAddress(), configuration.getHost());
             product = getProduct();
-            macAddress = new MACAddress((String) getConfig().get(LifxBindingConstants.CONFIG_PROPERTY_DEVICE_ID), true);
-            macAsHex = this.macAddress.getHex();
 
-            logger.debug("Initializing the LIFX handler for light '{}'.", macAsHex);
+            logger.debug("{} : Initializing handler", logId);
 
-            fadeTime = getFadeTime();
             powerOnBrightness = getPowerOnBrightness();
 
             channelStates = new HashMap<>();
             currentLightState = new CurrentLightState();
             pendingLightState = new LifxLightState();
 
-            communicationHandler = new LifxLightCommunicationHandler(macAddress, scheduler, currentLightState);
-            currentStateUpdater = new LifxLightCurrentStateUpdater(macAddress, scheduler, currentLightState,
-                    communicationHandler, product);
-            onlineStateUpdater = new LifxLightOnlineStateUpdater(macAddress, scheduler, currentLightState,
-                    communicationHandler);
-            propertiesUpdater = new LifxLightPropertiesUpdater(macAddress, scheduler, currentLightState,
-                    communicationHandler);
-            propertiesUpdater.addPropertiesUpdateListener(this);
-            lightStateChanger = new LifxLightStateChanger(macAddress, scheduler, pendingLightState,
-                    communicationHandler, product, fadeTime);
+            LifxLightContext context = new LifxLightContext(logId, product, configuration, currentLightState,
+                    pendingLightState, scheduler);
 
-            communicationHandler.start();
-            currentStateUpdater.start();
-            onlineStateUpdater.start();
-            propertiesUpdater.start();
-            lightStateChanger.start();
-            startOrStopSignalStrengthUpdates();
+            communicationHandler = new LifxLightCommunicationHandler(context);
+            currentStateUpdater = new LifxLightCurrentStateUpdater(context, communicationHandler);
+            onlineStateUpdater = new LifxLightOnlineStateUpdater(context, communicationHandler);
+            propertiesUpdater = new LifxLightPropertiesUpdater(context, communicationHandler);
+            propertiesUpdater.addPropertiesUpdateListener(this::updateProperties);
+            lightStateChanger = new LifxLightStateChanger(context, communicationHandler);
+
+            if (configuration.getMACAddress() != null || configuration.getHost() != null) {
+                communicationHandler.start();
+                currentStateUpdater.start();
+                onlineStateUpdater.start();
+                propertiesUpdater.start();
+                lightStateChanger.start();
+                startOrStopSignalStrengthUpdates();
+            } else {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                        "Configure a Device ID or Host");
+            }
         } catch (Exception e) {
-            logger.debug("Error occurred while initializing LIFX handler: {}", e.getMessage(), e);
+            logger.debug("{} : Error occurred while initializing handler: {}", logId, e.getMessage(), e);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
         } finally {
             lock.unlock();
@@ -245,6 +268,8 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
     public void dispose() {
         try {
             lock.lock();
+
+            logger.debug("{} : Disposing handler", logId);
 
             if (communicationHandler != null) {
                 communicationHandler.stop();
@@ -263,7 +288,7 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
 
             if (propertiesUpdater != null) {
                 propertiesUpdater.stop();
-                propertiesUpdater.removePropertiesUpdateListener(this);
+                propertiesUpdater.removePropertiesUpdateListener(this::updateProperties);
                 propertiesUpdater = null;
             }
 
@@ -274,23 +299,13 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
 
             currentLightState = null;
             pendingLightState = null;
-
         } finally {
             lock.unlock();
         }
     }
 
-    private long getFadeTime() {
-        Object fadeCfg = getConfig().get(LifxBindingConstants.CONFIG_PROPERTY_FADETIME);
-        if (fadeCfg == null) {
-            return FADE_TIME_DEFAULT;
-        }
-        try {
-            return Long.parseLong(fadeCfg.toString());
-        } catch (NumberFormatException e) {
-            logger.warn("Invalid value '{}' for transition time, using default instead.", fadeCfg.toString());
-            return FADE_TIME_DEFAULT;
-        }
+    public String getLogId(MACAddress macAddress, InetSocketAddress host) {
+        return (macAddress != null ? macAddress.getHex() : (host != null ? host.getHostString() : "Unknown"));
     }
 
     private PercentType getPowerOnBrightness() {
@@ -324,7 +339,7 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
     }
 
     private void addRemoveZoneChannels(int zones) {
-        List<Channel> newChannels = new ArrayList<Channel>();
+        List<Channel> newChannels = new ArrayList<>();
 
         // retain non-zone channels
         for (Channel channel : getThing().getChannels()) {
@@ -368,77 +383,72 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-
         if (command instanceof RefreshType) {
-            try {
-                switch (channelUID.getId()) {
-                    case CHANNEL_COLOR:
-                    case CHANNEL_BRIGHTNESS:
-                        sendPacket(new GetLightPowerRequest());
-                        sendPacket(new GetRequest());
-                        break;
-                    case CHANNEL_TEMPERATURE:
-                        sendPacket(new GetRequest());
-                        break;
-                    case CHANNEL_INFRARED:
-                        sendPacket(new GetLightInfraredRequest());
-                        break;
-                    case CHANNEL_SIGNAL_STRENGTH:
-                        sendPacket(new GetWifiInfoRequest());
-                        break;
-                    default:
-                        break;
-                }
-            } catch (Exception ex) {
-                logger.error("Error while refreshing a channel for the light: {}", ex.getMessage(), ex);
+            switch (channelUID.getId()) {
+                case CHANNEL_COLOR:
+                case CHANNEL_BRIGHTNESS:
+                    sendPacket(new GetLightPowerRequest());
+                    sendPacket(new GetRequest());
+                    break;
+                case CHANNEL_TEMPERATURE:
+                    sendPacket(new GetRequest());
+                    break;
+                case CHANNEL_INFRARED:
+                    sendPacket(new GetLightInfraredRequest());
+                    break;
+                case CHANNEL_SIGNAL_STRENGTH:
+                    sendPacket(new GetWifiInfoRequest());
+                    break;
+                default:
+                    break;
             }
         } else {
-            try {
-                boolean supportedCommand = true;
-                switch (channelUID.getId()) {
-                    case CHANNEL_COLOR:
-                        if (command instanceof HSBType) {
-                            handleHSBCommand((HSBType) command);
-                        } else if (command instanceof PercentType) {
-                            handlePercentCommand((PercentType) command);
-                        } else if (command instanceof OnOffType) {
-                            handleOnOffCommand((OnOffType) command);
-                        } else if (command instanceof IncreaseDecreaseType) {
-                            handleIncreaseDecreaseCommand((IncreaseDecreaseType) command);
-                        } else {
-                            supportedCommand = false;
-                        }
-                        break;
-                    case CHANNEL_BRIGHTNESS:
-                        if (command instanceof PercentType) {
-                            handlePercentCommand((PercentType) command);
-                        } else if (command instanceof OnOffType) {
-                            handleOnOffCommand((OnOffType) command);
-                        } else if (command instanceof IncreaseDecreaseType) {
-                            handleIncreaseDecreaseCommand((IncreaseDecreaseType) command);
-                        } else {
-                            supportedCommand = false;
-                        }
-                        break;
-                    case CHANNEL_TEMPERATURE:
-                        if (command instanceof PercentType) {
-                            handleTemperatureCommand((PercentType) command);
-                        } else if (command instanceof IncreaseDecreaseType) {
-                            handleIncreaseDecreaseTemperatureCommand((IncreaseDecreaseType) command);
-                        } else {
-                            supportedCommand = false;
-                        }
-                        break;
-                    case CHANNEL_INFRARED:
-                        if (command instanceof PercentType) {
-                            handleInfraredCommand((PercentType) command);
-                        } else if (command instanceof IncreaseDecreaseType) {
-                            handleIncreaseDecreaseInfraredCommand((IncreaseDecreaseType) command);
-                        } else {
-                            supportedCommand = false;
-                        }
-                        break;
-                    default:
+            boolean supportedCommand = true;
+            switch (channelUID.getId()) {
+                case CHANNEL_COLOR:
+                    if (command instanceof HSBType) {
+                        handleHSBCommand((HSBType) command);
+                    } else if (command instanceof PercentType) {
+                        handlePercentCommand((PercentType) command);
+                    } else if (command instanceof OnOffType) {
+                        handleOnOffCommand((OnOffType) command);
+                    } else if (command instanceof IncreaseDecreaseType) {
+                        handleIncreaseDecreaseCommand((IncreaseDecreaseType) command);
+                    } else {
+                        supportedCommand = false;
+                    }
+                    break;
+                case CHANNEL_BRIGHTNESS:
+                    if (command instanceof PercentType) {
+                        handlePercentCommand((PercentType) command);
+                    } else if (command instanceof OnOffType) {
+                        handleOnOffCommand((OnOffType) command);
+                    } else if (command instanceof IncreaseDecreaseType) {
+                        handleIncreaseDecreaseCommand((IncreaseDecreaseType) command);
+                    } else {
+                        supportedCommand = false;
+                    }
+                    break;
+                case CHANNEL_TEMPERATURE:
+                    if (command instanceof PercentType) {
+                        handleTemperatureCommand((PercentType) command);
+                    } else if (command instanceof IncreaseDecreaseType) {
+                        handleIncreaseDecreaseTemperatureCommand((IncreaseDecreaseType) command);
+                    } else {
+                        supportedCommand = false;
+                    }
+                    break;
+                case CHANNEL_INFRARED:
+                    if (command instanceof PercentType) {
+                        handleInfraredCommand((PercentType) command);
+                    } else if (command instanceof IncreaseDecreaseType) {
+                        handleIncreaseDecreaseInfraredCommand((IncreaseDecreaseType) command);
+                    } else {
+                        supportedCommand = false;
+                    }
+                    break;
+                default:
+                    try {
                         if (channelUID.getId().startsWith(CHANNEL_COLOR_ZONE)) {
                             int zoneIndex = Integer.parseInt(channelUID.getId().replace(CHANNEL_COLOR_ZONE, ""));
                             if (command instanceof HSBType) {
@@ -462,15 +472,16 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
                         } else {
                             supportedCommand = false;
                         }
-                        break;
-                }
+                    } catch (NumberFormatException e) {
+                        logger.error("Failed to parse zone index for a command of a light ({}) : {}", logId,
+                                e.getMessage());
+                        supportedCommand = false;
+                    }
+                    break;
+            }
 
-                if (supportedCommand && !(command instanceof OnOffType)
-                        && !CHANNEL_INFRARED.equals(channelUID.getId())) {
-                    getLightStateForCommand().setPowerState(PowerState.ON);
-                }
-            } catch (Exception ex) {
-                logger.error("Error while updating light: {}", ex.getMessage(), ex);
+            if (supportedCommand && !(command instanceof OnOffType) && !CHANNEL_INFRARED.equals(channelUID.getId())) {
+                getLightStateForCommand().setPowerState(PowerState.ON);
             }
         }
     }
@@ -483,7 +494,7 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
     }
 
     private boolean isStateChangePending() {
-        return pendingLightState.getMillisSinceLastChange() < MAX_STATE_CHANGE_DURATION;
+        return pendingLightState.getDurationSinceLastChange().minus(MAX_STATE_CHANGE_DURATION).isNegative();
     }
 
     private void handleTemperatureCommand(PercentType temperature) {
@@ -560,16 +571,27 @@ public class LifxLightHandler extends BaseThingHandler implements LifxProperties
         }
     }
 
-    @Override
-    public void handlePropertiesUpdate(Map<String, String> properties) {
-        updateProperties(properties);
-    }
-
-    private void updateStateIfChanged(String channel, State newState) {
+    private void updateStateIfChanged(@NonNull String channel, @NonNull State newState) {
         State oldState = channelStates.get(channel);
         if (oldState == null || !oldState.equals(newState)) {
             updateState(channel, newState);
             channelStates.put(channel, newState);
+        }
+    }
+
+    private void updateStatusIfChanged(@NonNull ThingStatus status) {
+        updateStatusIfChanged(status, ThingStatusDetail.NONE);
+    }
+
+    private void updateStatusIfChanged(@NonNull ThingStatus status, @NonNull ThingStatusDetail statusDetail) {
+        ThingStatusInfo newStatusInfo = new ThingStatusInfo(status, statusDetail, null);
+        Duration durationSinceLastUpdate = Duration.between(lastStatusInfoUpdate, LocalDateTime.now());
+        boolean intervalElapsed = MIN_STATUS_INFO_UPDATE_INTERVAL.minus(durationSinceLastUpdate).isNegative();
+
+        if (statusInfo == null || !statusInfo.equals(newStatusInfo) || intervalElapsed) {
+            statusInfo = newStatusInfo;
+            lastStatusInfoUpdate = LocalDateTime.now();
+            updateStatus(status, statusDetail);
         }
     }
 

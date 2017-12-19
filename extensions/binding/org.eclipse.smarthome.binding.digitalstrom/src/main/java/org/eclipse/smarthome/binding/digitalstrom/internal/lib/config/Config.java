@@ -1,18 +1,16 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.config;
-
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.SensorJobExecutor;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.SensorJob;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.impl.HttpTransportImpl;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Device;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.OutputModeEnum;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.sceneEvent.Event;
 
 /**
  * The {@link Config} contains all configurations for the digitalSTROM-Library.
@@ -28,16 +26,19 @@ public class Config {
      * The default application name to generate the application token.
      */
     public static final String DEFAULT_APPLICATION_NAME = "ESH";
+    /**
+     * Defines the used tread pool name to get a thread pool from {@link ThreadPoolManager}.
+     */
     public static final String THREADPOOL_NAME = "digitalSTROM";
 
     private String applicationName = DEFAULT_APPLICATION_NAME;
 
-    private String host = null;
-    private String userName = null;
-    private String password = null;
-    private String appToken = null;
-    private String trustCertPath = null;
-    private String cert = null;
+    private String host;
+    private String userName;
+    private String password;
+    private String appToken;
+    private String trustCertPath;
+    private String cert;
 
     // Timeouts
     /**
@@ -45,9 +46,17 @@ public class Config {
      */
     public static final int DEFAULT_CONNECTION_TIMEOUT = 4000;
     /**
+     * High connection timeout for requests that take some time.
+     */
+    public static final int HIGH_CONNECTION_TIMEOUT = 60000;
+    /**
      * Default read timeout
      */
     public static final int DEFAULT_READ_TIMEOUT = 10000;
+    /**
+     * High read timeout for requests that take some time.
+     */
+    public static final int HIGH_READ_TIMEOUT = 60000;
     /**
      * Default connection timeout for sensor readings from devices
      */
@@ -107,9 +116,21 @@ public class Config {
     private int sensorReadingWaitTime = DEFAULT_SENSOR_READING_WAIT_TIME;
 
     // sensor data Prioritys
+    /**
+     * Priority for never refresh the sensor value.
+     */
     public static final String REFRESH_PRIORITY_NEVER = "never";
+    /**
+     * Priority for refresh the sensor value with low priority.
+     */
     public static final String REFRESH_PRIORITY_LOW = "low";
+    /**
+     * Priority for refresh the sensor value with medium priority.
+     */
     public static final String REFRESH_PRIORITY_MEDIUM = "medium";
+    /**
+     * Priority for refresh the sensor value with high priority.
+     */
     public static final String REFRESH_PRIORITY_HIGH = "high";
 
     // max sensor reading cyclic to wait
@@ -142,10 +163,10 @@ public class Config {
      * Creates a new {@link Config} and set the given hostAddress, userName, password and applicationToken. The other
      * configurations will be set to default.
      *
-     * @param hostAddress
-     * @param userName
-     * @param password
-     * @param applicationToken
+     * @param hostAddress of the digitalSTROM-Server, must not be null
+     * @param userName to login, can be null
+     * @param password to login, can be null
+     * @param applicationToken to login , can be null
      */
     public Config(String hostAddress, String userName, String password, String applicationToken) {
         this.host = hostAddress;
@@ -178,7 +199,7 @@ public class Config {
      * If the host dosen't use the default port (8080), the port has to be set after the host name. e.g.
      * <i>my-digitalSTROM-Server.com:58080</i>
      *
-     * @param the hostAddress
+     * @param hostAddress of the digitalSTROM-Server
      */
     public void setHost(String hostAddress) {
         this.host = hostAddress;
@@ -196,7 +217,7 @@ public class Config {
     /**
      * Sets the username.
      *
-     * @param userName
+     * @param userName to set
      */
     public void setUserName(String userName) {
         this.userName = userName;
@@ -214,7 +235,7 @@ public class Config {
     /**
      * Sets the password.
      *
-     * @param password
+     * @param password to set
      */
     public void setPassword(String password) {
         this.password = password;
@@ -232,7 +253,7 @@ public class Config {
     /**
      * Sets the Application-Token.
      *
-     * @param applicationToken
+     * @param applicationToken to set
      */
     public void setAppToken(String applicationToken) {
         this.appToken = applicationToken;
@@ -250,7 +271,7 @@ public class Config {
     /**
      * Sets the connection timeout.
      *
-     * @param the connectionTimeout
+     * @param connectionTimeout to set
      */
     public void setConnectionTimeout(int connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
@@ -286,7 +307,7 @@ public class Config {
     /**
      * Sets the connection timeout for sensor readings from devices.
      *
-     * @param sensordataConnectionTimeout
+     * @param sensordataConnectionTimeout to set
      */
     public void setSensordataConnectionTimeout(int sensordataConnectionTimeout) {
         this.sensordataConnectionTimeout = sensordataConnectionTimeout;
@@ -304,7 +325,7 @@ public class Config {
     /**
      * Sets the connection timeout for sensor readings from devices.
      *
-     * @param readSensordataTimeout
+     * @param sensordataReadTimeout to set
      */
     public void setSensordataReadTimeout(int sensordataReadTimeout) {
         this.sensordataReadTimeout = sensordataReadTimeout;
@@ -332,7 +353,7 @@ public class Config {
      * Sets the SSL-Certificate of the server, will be set automatically by the {@link HttpTransportImpl} if no
      * SSL-Certification path is set.
      *
-     * @param cert
+     * @param cert of the digitalSTROM-Server to set
      */
     public void setCert(String cert) {
         this.cert = cert;
@@ -341,7 +362,7 @@ public class Config {
     /**
      * Sets the path to the SSL-Certificate. It can be a absolute or relative path.
      *
-     * @param trustCertPath
+     * @param trustCertPath path to a SSL-Certificate
      */
     public void setTrustCertPath(String trustCertPath) {
         this.trustCertPath = trustCertPath;
@@ -397,7 +418,7 @@ public class Config {
      * Sets the interval of the polling frequency in milliseconds. The digitalSTROM-rules state that the
      * polling interval must to be at least 1 second.
      *
-     * @param pollingFrequency
+     * @param pollingFrequency to set
      */
     public void setPollingFrequency(int pollingFrequency) {
         this.pollingFrequency = pollingFrequency;
@@ -469,7 +490,7 @@ public class Config {
     /**
      * Sets the factor to prioritize medium {@link SensorJob}s in the {@link SensorJobExecutor} down.
      *
-     * @param mediumPriorityFactor
+     * @param mediumPriorityFactor to set
      */
     public void setMediumPriorityFactor(long mediumPriorityFactor) {
         this.mediumPriorityFactor = mediumPriorityFactor;
@@ -487,7 +508,7 @@ public class Config {
     /**
      * Sets the factor to prioritize low {@link SensorJob}s in the {@link SensorJobExecutor}down.
      *
-     * @param lowPriorityFactor
+     * @param lowPriorityFactor to set
      */
     public void setLowPriorityFactor(long lowPriorityFactor) {
         this.lowPriorityFactor = lowPriorityFactor;
@@ -505,7 +526,7 @@ public class Config {
     /**
      * Sets the polling interval in milliseconds to poll the {@link Event}s in the {@link EventListener}.
      *
-     * @param eventListenerRefreshinterval
+     * @param eventListenerRefreshinterval to set
      */
     public void setEventListenerRefreshinterval(int eventListenerRefreshinterval) {
         this.eventListenerRefreshinterval = eventListenerRefreshinterval;
@@ -525,7 +546,7 @@ public class Config {
      * Sets the max standby active power for a device. It's needed to set a {@link Device} with output mode
      * {@link OutputModeEnum#WIPE} on if it isen't any more in standby mode.
      *
-     * @param standbyActivePower
+     * @param standbyActivePower to set
      */
     public void setStandbyActivePower(int standbyActivePower) {
         this.standbyActivePower = standbyActivePower;
@@ -543,7 +564,7 @@ public class Config {
     /**
      * Sets the application name to generate the application token.
      *
-     * @param applicationName
+     * @param applicationName to set
      */
     public void setApplicationName(String applicationName) {
         this.applicationName = applicationName;
@@ -560,7 +581,7 @@ public class Config {
     /**
      * Updates this {@link Config} with the configuration of given {@link Config}.
      *
-     * @param config
+     * @param config new config
      */
     public void updateConfig(Config config) {
         setHost(config.getHost());

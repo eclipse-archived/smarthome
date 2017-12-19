@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.internal.console;
 
@@ -22,6 +27,11 @@ import org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo;
 import org.eclipse.smarthome.core.thing.firmware.FirmwareUpdateService;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
+import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * {@link FirmwareUpdateConsoleCommandExtension} provides console commands for managing the firmwares of things.
@@ -29,6 +39,7 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  * @author Thomas Höfer - Initial contribution
  * @author Christoph Knauf - added cancel command
  */
+@Component(immediate = true, service = ConsoleCommandExtension.class)
 public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
     private static final String SUBCMD_LIST = "list";
@@ -66,7 +77,7 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
                 updateFirmware(console, args);
                 break;
             case SUBCMD_CANCEL:
-                cancelUpdate(console,args); 
+                cancelUpdate(console, args);
                 break;
             default:
                 console.println(String.format("Unknown firmware sub command '%s'.", subCommand));
@@ -118,7 +129,7 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
                     String.format("The firmware status for thing with UID %s could not be determined.", thingUID));
         }
     }
-    
+
     private void cancelUpdate(Console console, String[] args) {
         if (args.length != 2) {
             console.println("Specify the thing id to cancel the update: firmware cancel <thingUID>");
@@ -132,7 +143,7 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
             console.println(String.format("No firmware update handler available for thing with UID %s.", thingUID));
             return;
         }
-        
+
         firmwareUpdateService.cancelFirmwareUpdate(thingUID);
         console.println("Firmware update canceled.");
     }
@@ -168,16 +179,14 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
 
     @Override
     public List<String> getUsages() {
-        return Arrays
-                .asList(new String[] {
-                        buildCommandUsage(SUBCMD_LIST + " <thingTypeUID>",
-                                "lists the available firmwares for a thing type"),
-                        buildCommandUsage(SUBCMD_STATUS + " <thingUID>", "lists the firmware status for a thing"),
-                        buildCommandUsage(SUBCMD_CANCEL + " <thingUID>", "cancels the update for a thing"),
-                        buildCommandUsage(SUBCMD_UPDATE + " <thingUID> <firmware version>",
-                                "updates the firmware for a thing") });
+        return Arrays.asList(new String[] {
+                buildCommandUsage(SUBCMD_LIST + " <thingTypeUID>", "lists the available firmwares for a thing type"),
+                buildCommandUsage(SUBCMD_STATUS + " <thingUID>", "lists the firmware status for a thing"),
+                buildCommandUsage(SUBCMD_CANCEL + " <thingUID>", "cancels the update for a thing"), buildCommandUsage(
+                        SUBCMD_UPDATE + " <thingUID> <firmware version>", "updates the firmware for a thing") });
     }
 
+    @Reference
     protected void setFirmwareUpdateService(FirmwareUpdateService firmwareUpdateService) {
         this.firmwareUpdateService = firmwareUpdateService;
     }
@@ -186,6 +195,7 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
         this.firmwareUpdateService = null;
     }
 
+    @Reference
     protected void setFirmwareRegistry(FirmwareRegistry firmwareRegistry) {
         this.firmwareRegistry = firmwareRegistry;
     }
@@ -194,6 +204,7 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
         this.firmwareRegistry = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addFirmwareUpdateHandler(FirmwareUpdateHandler firmwareUpdateHandler) {
         firmwareUpdateHandlers.add(firmwareUpdateHandler);
     }

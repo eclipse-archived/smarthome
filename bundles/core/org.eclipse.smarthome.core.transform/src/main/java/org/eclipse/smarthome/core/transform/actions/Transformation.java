@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.transform.actions;
 
@@ -25,7 +30,7 @@ public class Transformation {
 
     /**
      * Applies a transformation of a given type with some function to a value.
-     * 
+     *
      * @param type the transformation type, e.g. REGEX or MAP
      * @param function the function to call, this value depends on the transformation type
      * @param value the value to apply the transformation to
@@ -35,18 +40,18 @@ public class Transformation {
      */
     public static String transform(String type, String function, String value) {
         String result;
-        TransformationService service = TransformationHelper.getTransformationService(
-                TransformationActivator.getContext(), type);
+        TransformationService service = TransformationHelper
+                .getTransformationService(TransformationActivator.getContext(), type);
         Logger logger = LoggerFactory.getLogger(Transformation.class);
         if (service != null) {
             try {
                 result = service.transform(function, value);
             } catch (TransformationException e) {
-                logger.error("Error executing the transformation '" + type + "': " + e.getMessage());
+                logger.error("Error executing the transformation '{}': {}", type, e.getMessage());
                 result = value;
             }
         } else {
-            logger.warn("No transformation service '" + type + "' could be found.");
+            logger.warn("No transformation service '{}' could be found.", type);
             result = value;
         }
         return result;

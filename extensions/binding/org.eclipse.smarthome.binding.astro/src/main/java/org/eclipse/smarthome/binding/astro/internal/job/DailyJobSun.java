@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.astro.internal.job;
 
@@ -35,16 +40,15 @@ public final class DailyJobSun extends AbstractJob {
      *             if {@code thingUID} or {@code handler} is {@code null}
      */
     public DailyJobSun(String thingUID, AstroThingHandler handler) {
-        checkArgument(thingUID != null, "Thing UID cannot be null");
-        checkArgument(handler != null, "AstroThingHandler instance cannot be null");
-
-        this.thingUID = thingUID;
+        super(thingUID);
+        checkArgument(handler != null, "The handler must not be null");
         this.handler = handler;
     }
 
     @Override
     public void run() {
         handler.publishDailyInfo();
+        String thingUID = getThingUID();
         logger.info("Scheduled Astro event-jobs for thing {}", thingUID);
 
         Planet planet = handler.getPlanet();
@@ -68,9 +72,9 @@ public final class DailyJobSun extends AbstractJob {
         scheduleRange(thingUID, handler, sun.getDaylight(), EVENT_CHANNEL_ID_DAYLIGHT);
 
         SunEclipse eclipse = sun.getEclipse();
-        scheduleEvent(thingUID, handler, eclipse.getPartial(), EVENT_ECLIPSE_PARTIAL, EVENT_CHANNEL_ID_ECLIPSE);
-        scheduleEvent(thingUID, handler, eclipse.getTotal(), EVENT_ECLIPSE_TOTAL, EVENT_CHANNEL_ID_ECLIPSE);
-        scheduleEvent(thingUID, handler, eclipse.getRing(), EVENT_ECLIPSE_RING, EVENT_CHANNEL_ID_ECLIPSE);
+        scheduleEvent(thingUID, handler, eclipse.getPartial(), EVENT_ECLIPSE_PARTIAL, EVENT_CHANNEL_ID_ECLIPSE, false);
+        scheduleEvent(thingUID, handler, eclipse.getTotal(), EVENT_ECLIPSE_TOTAL, EVENT_CHANNEL_ID_ECLIPSE, false);
+        scheduleEvent(thingUID, handler, eclipse.getRing(), EVENT_ECLIPSE_RING, EVENT_CHANNEL_ID_ECLIPSE, false);
 
         // schedule republish jobs
         schedulePublishPlanet(thingUID, handler, sun.getZodiac().getEnd());
@@ -79,7 +83,6 @@ public final class DailyJobSun extends AbstractJob {
         // schedule phase jobs
         scheduleSunPhase(thingUID, handler, SUN_RISE, sun.getRise().getStart());
         scheduleSunPhase(thingUID, handler, SUN_SET, sun.getSet().getStart());
-        scheduleSunPhase(thingUID, handler, NOON, sun.getNoon().getStart());
         scheduleSunPhase(thingUID, handler, NIGHT, sun.getNight().getStart());
         scheduleSunPhase(thingUID, handler, DAYLIGHT, sun.getDaylight().getStart());
         scheduleSunPhase(thingUID, handler, ASTRO_DAWN, sun.getAstroDawn().getStart());
@@ -88,6 +91,11 @@ public final class DailyJobSun extends AbstractJob {
         scheduleSunPhase(thingUID, handler, ASTRO_DUSK, sun.getAstroDusk().getStart());
         scheduleSunPhase(thingUID, handler, NAUTIC_DUSK, sun.getNauticDusk().getStart());
         scheduleSunPhase(thingUID, handler, CIVIL_DUSK, sun.getCivilDusk().getStart());
+    }
+
+    @Override
+    public String toString() {
+        return "Daily job sun " + getThingUID();
     }
 
 }

@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.setup.test.inbox
 
@@ -25,8 +30,11 @@ import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
+import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder
+import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.State
 import org.eclipse.smarthome.test.OSGiTest
@@ -47,6 +55,7 @@ import org.junit.Test
  *
  * @author Michael Grammling - Initial Contribution
  * @author Thomas Höfer - Added representation
+ * @author Andre Fuechsel - Added tests for device id
  */
 class DynamicThingUpdateOSGITest extends OSGiTest {
 
@@ -55,9 +64,14 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
     final BINDING_ID = 'dynamicUpdateBindingId'
     final THING_TYPE_ID = 'dynamicUpdateThingType'
     final THING_ID = 'dynamicUpdateThingId'
+    final THING_ID2 = 'dynamicUpdateThingId2'
+    final DEVICE_ID = 'deviceId'
+    final DEVICE_ID_KEY = 'deviceIdKey'
 
     final ThingTypeUID THING_TYPE_UID = new ThingTypeUID(BINDING_ID, THING_TYPE_ID)
     final ThingUID THING_UID = new ThingUID(THING_TYPE_UID, THING_ID)
+    final ThingUID THING_UID2 = new ThingUID(THING_TYPE_UID, THING_ID2)
+    final ThingType THING_TYPE = ThingTypeBuilder.instance(THING_TYPE_UID, "label").withRepresentationProperty(DEVICE_ID_KEY).isListed(true).build();
 
     Inbox inbox
     DiscoveryServiceRegistry discoveryServiceRegistry
@@ -74,6 +88,9 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
     void setUp() {
         registerVolatileStorageService()
 
+        def thingTypeProvider = [ "getThingType" : { uid, locale -> THING_TYPE } ] as ThingTypeProvider
+        registerService(thingTypeProvider)
+
         inbox = getService Inbox
         discoveryServiceRegistry = getService DiscoveryServiceRegistry
         managedThingProvider = getService ManagedThingProvider
@@ -87,6 +104,8 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
         managedThingProvider.all.each {
             managedThingProvider.remove(it.getUID())
         }
+
+        unregisterMocks()
     }
 
     ThingHandler createThingHandler(Thing thing) {
@@ -102,7 +121,7 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
                 this.thingUpdated = true
                 this.updatedThing = updatedThing
             },
-            setCallback: {callbackArg -> callback = callbackArg },
+            'setCallback' : { callbackArg -> callback = callbackArg }
         ] as ThingHandler )
 
         return thingHandler
@@ -142,6 +161,9 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
         Thing thing = ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
         thing.getConfiguration().put(CFG_IP_ADDRESS_KEY, null);
         managedThingProvider.add thing
+        waitForAssert {
+            assertThat callback, is(notNullValue())
+        }
         callback.statusUpdated(thing, ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build())
 
         final Map<String, Object> discoveryResultProps = new HashMap<>();
@@ -173,6 +195,24 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
 
         assertThat inbox.getAll().size(), is(0)
         assertThat thingUpdated, is(false)
+
+        unregisterService(thingHandlerFactory)
+    }
+
+    @Test
+    void 'assert that an thing with different thing uid as the already existing thing is added'() {
+        assertThat inbox.getAll().size(), is(0)
+
+        ThingHandlerFactory thingHandlerFactory = createThingHandlerFactory()
+        registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
+
+        managedThingProvider.add ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
+
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID2, null, [:], null, "DummyLabel", DEFAULT_TTL)
+
+        inbox.add discoveryResult
+
+        assertThat inbox.getAll().size(), is(1)
 
         unregisterService(thingHandlerFactory)
     }

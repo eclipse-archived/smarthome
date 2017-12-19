@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.xml.internal;
 
@@ -35,8 +40,8 @@ public class ChannelGroupTypeConverter extends AbstractDescriptionTypeConverter<
     public ChannelGroupTypeConverter() {
         super(ChannelGroupTypeXmlResult.class, "channel-group-type");
 
-        super.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "id", "true" },
-                { "advanced", "false" } });
+        super.attributeMapValidator = new ConverterAttributeMapValidator(
+                new String[][] { { "id", "true" }, { "advanced", "false" } });
     }
 
     private boolean isAdvanced(Map<String, String> attributes, boolean defaultValue) {
@@ -65,12 +70,22 @@ public class ChannelGroupTypeConverter extends AbstractDescriptionTypeConverter<
 
         String label = super.readLabel(nodeIterator);
         String description = super.readDescription(nodeIterator);
+        String category = readCategory(nodeIterator);
         List<ChannelXmlResult> channelTypeDefinitions = readChannelTypeDefinitions(nodeIterator);
 
-        ChannelGroupTypeXmlResult groupChannelType = new ChannelGroupTypeXmlResult(channelGroupTypeUID, advanced,
-                label, description, channelTypeDefinitions);
+        ChannelGroupTypeXmlResult groupChannelType = new ChannelGroupTypeXmlResult(channelGroupTypeUID, advanced, label,
+                description, category, channelTypeDefinitions);
 
         return groupChannelType;
+    }
+
+    private String readCategory(NodeIterator nodeIterator) {
+        Object category = nodeIterator.nextValue("category", false);
+        if (category != null) {
+            return category.toString();
+        } else {
+            return null;
+        }
     }
 
 }

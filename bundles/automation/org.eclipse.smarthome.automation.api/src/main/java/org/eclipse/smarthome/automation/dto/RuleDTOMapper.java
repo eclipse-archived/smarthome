@@ -1,15 +1,20 @@
 /**
- * Copyright (c) 2016 Markus Rathgeb
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.eclipse.smarthome.automation.dto;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTOMapper;
 
 /**
  * This is a utility class to convert between the respective object and its DTO.
@@ -27,8 +32,8 @@ public class RuleDTOMapper {
     public static Rule map(final RuleDTO ruleDto) {
         final Rule rule = new Rule(ruleDto.uid, TriggerDTOMapper.mapDto(ruleDto.triggers),
                 ConditionDTOMapper.mapDto(ruleDto.conditions), ActionDTOMapper.mapDto(ruleDto.actions),
-                ruleDto.configDescriptions, new Configuration(ruleDto.configuration), ruleDto.templateUID,
-                ruleDto.visibility);
+                ConfigDescriptionDTOMapper.map(ruleDto.configDescriptions), new Configuration(ruleDto.configuration),
+                ruleDto.templateUID, ruleDto.visibility);
         rule.setTags(ruleDto.tags);
         rule.setName(ruleDto.name);
         rule.setDescription(ruleDto.description);
@@ -40,7 +45,7 @@ public class RuleDTOMapper {
         to.conditions = ConditionDTOMapper.map(from.getConditions());
         to.actions = ActionDTOMapper.map(from.getActions());
         to.configuration = from.getConfiguration().getProperties();
-        to.configDescriptions = from.getConfigurationDescriptions();
+        to.configDescriptions = ConfigDescriptionDTOMapper.mapParameters(from.getConfigurationDescriptions());
         to.templateUID = from.getTemplateUID();
         to.uid = from.getUID();
         to.name = from.getName();

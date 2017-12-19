@@ -1,13 +1,15 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Thing Model Runtime
-Bundle-SymbolicName: org.eclipse.smarthome.model.thing.runtime;singleton:=true
-Bundle-Version: 0.9.0.qualifier
-Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.eclipse.smarthome.model.core,
+Bundle-SymbolicName: org.eclipse.smarthome.model.thing.runtime;singleton
+ :=true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.10.0.qualifier
+Import-Package: 
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.model.core,
  org.osgi.framework,
  org.slf4j
 Require-Bundle: org.eclipse.smarthome.model.thing
-Service-Component: OSGI-INF/runtime.xml
-
+Service-Component: OSGI-INF/*.xml

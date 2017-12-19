@@ -1,12 +1,18 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.module.script.internal.handler;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -106,9 +112,13 @@ abstract public class AbstractScriptModuleHandler<T extends Module> extends Base
     protected void setExecutionContext(ScriptEngine engine, Map<String, ?> context) {
         ScriptContext executionContext = engine.getContext();
 
-        // make the whole context available as "ctx"
+        // Add the rule's UID to the context and make it available as "ctx".
         // Note: We don't use "context" here as it doesn't work on all JVM versions!
-        executionContext.setAttribute("ctx", context, ScriptContext.ENGINE_SCOPE);
+        final Map<String, Object> contextNew = new HashMap<>(context);
+        contextNew.put("ruleUID", this.ruleUID);
+        executionContext.setAttribute("ctx", contextNew, ScriptContext.ENGINE_SCOPE);
+
+        // Add the rule's UID to the global namespace.
         executionContext.setAttribute("ruleUID", this.ruleUID, ScriptContext.ENGINE_SCOPE);
 
         // add the single context entries without their prefix to the scope

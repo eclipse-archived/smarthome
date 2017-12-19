@@ -100,7 +100,7 @@
 		<item-type>Number</item-type>
 		<label>Duration</label>
 		<description>The duration time in minutes of the event</description>
-		<state readOnly="true" pattern="%.1f min"/>
+		<state readOnly="true" pattern="%d min"/>
 	</channel-type>
 
 	<channel-type id="rangeEvent">
@@ -313,7 +313,7 @@
 
 	<channel-type id="fullMoon">
 		<item-type>DateTime</item-type>
-		<label>New moon</label>
+		<label>Full moon</label>
 		<description>The DateTime for full moon</description>
 		<state readOnly="true" pattern="%1$tF %1$tR" />
 	</channel-type>
@@ -329,14 +329,14 @@
 		<item-type>Number</item-type>
 		<label>Moon age</label>
 		<description>The age of the moon in days</description>
-		<state readOnly="true" />
+		<state readOnly="true" pattern="%d d" />
 	</channel-type>
 
 	<channel-type id="illumination">
 		<item-type>Number</item-type>
 		<label>Moon illumination</label>
 		<description>The illumination of the moon in %</description>
-		<state readOnly="true" />
+		<state readOnly="true" pattern="%.0f %%"  />
 	</channel-type>
 
 	<channel-type id="phaseName">
@@ -420,14 +420,14 @@
 		<item-type>Number</item-type>
 		<label>Miles</label>
 		<description>The distance in miles</description>
-		<state readOnly="true" pattern="%d miles" />
+		<state readOnly="true" pattern="%.1f miles" />
 	</channel-type>
 
 	<channel-type id="kilometer">
 		<item-type>Number</item-type>
 		<label>Kilometer</label>
 		<description>The distance in kilometers</description>
-		<state readOnly="true" pattern="%d km" />
+		<state readOnly="true" pattern="%.1f km" />
 	</channel-type>
 
 	<channel-type id="distanceEvent">

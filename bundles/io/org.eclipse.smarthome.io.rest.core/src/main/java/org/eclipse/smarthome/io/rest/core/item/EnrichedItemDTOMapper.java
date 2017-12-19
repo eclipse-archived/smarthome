@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.io.rest.core.item;
 
@@ -19,6 +24,7 @@ import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.transform.TransformationHelper;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.io.rest.core.internal.RESTCoreActivator;
+import org.eclipse.smarthome.io.rest.core.internal.item.ItemResource;
 
 /**
  * The {@link EnrichedItemDTOMapper} is a utility class to map items into enriched item data transform objects (DTOs).
@@ -45,7 +51,7 @@ public class EnrichedItemDTOMapper {
 
         String state = item.getState().toFullString();
         String transformedState = considerTransformation(state, item.getStateDescription(locale));
-        if (transformedState.equals(state)) {
+        if (transformedState != null && transformedState.equals(state)) {
             transformedState = null;
         }
         StateDescription stateDescription = considerTransformation(item.getStateDescription(locale));
@@ -90,7 +96,7 @@ public class EnrichedItemDTOMapper {
     }
 
     private static String considerTransformation(String state, StateDescription stateDescription) {
-        if (stateDescription != null && stateDescription.getPattern() != null) {
+        if (stateDescription != null && stateDescription.getPattern() != null && state != null) {
             try {
                 return TransformationHelper.transform(RESTCoreActivator.getBundleContext(),
                         stateDescription.getPattern(), state.toString());

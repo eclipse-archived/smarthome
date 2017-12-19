@@ -1,15 +1,23 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.binding.builder;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -24,19 +32,20 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
  * @author Alex Tugarev - Extended about default tags
  * @author Chris Jackson - Added properties and label/description
  */
+@NonNullByDefault
 public class ChannelBuilder {
 
     private ChannelUID channelUID;
-    private String acceptedItemType;
+    private @Nullable String acceptedItemType;
     private ChannelKind kind;
-    private Configuration configuration;
+    private @Nullable Configuration configuration;
     private Set<String> defaultTags;
-    private Map<String, String> properties;
-    private String label;
-    private String description;
-    private ChannelTypeUID channelTypeUID;
+    private @Nullable Map<String, String> properties;
+    private @Nullable String label;
+    private @Nullable String description;
+    private @Nullable ChannelTypeUID channelTypeUID;
 
-    private ChannelBuilder(ChannelUID channelUID, String acceptedItemType, Set<String> defaultTags) {
+    private ChannelBuilder(ChannelUID channelUID, @Nullable String acceptedItemType, Set<String> defaultTags) {
         this.channelUID = channelUID;
         this.acceptedItemType = acceptedItemType;
         this.defaultTags = defaultTags;
@@ -52,7 +61,7 @@ public class ChannelBuilder {
      *            item type that is accepted by this channel
      * @return channel builder
      */
-    public static ChannelBuilder create(ChannelUID channelUID, String acceptedItemType) {
+    public static ChannelBuilder create(ChannelUID channelUID, @Nullable String acceptedItemType) {
         return new ChannelBuilder(channelUID, acceptedItemType, new HashSet<String>());
     }
 
@@ -62,7 +71,7 @@ public class ChannelBuilder {
      * @param channelTypeUID channel type UID
      * @return channel builder
      */
-    public ChannelBuilder withType(ChannelTypeUID channelTypeUID) {
+    public ChannelBuilder withType(@Nullable ChannelTypeUID channelTypeUID) {
         this.channelTypeUID = channelTypeUID;
         return this;
     }

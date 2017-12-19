@@ -70,10 +70,9 @@ The event source is optional and represents the name of the source identifying t
 |-----------------------------|---------------------------------------------------------|------------------------------------------------|
 | ItemChannelLinkAddedEvent   |An item channel link has been added to the registry.     |smarthome/links/{itemName}-{channelUID}/added   |
 | ItemChannelLinkRemovedEvent |An item channel link has been removed from the registry. |smarthome/links/{itemName}-{channelUID}/removed |
-| ItemThingLinkAddedEvent     |An item thing link has been added to the registry.       |smarthome/links/{itemName}-{thingUID}/added     |
-| ItemThingLinkRemovedEvent   |An item thing link has been removed from the registry.   |smarthome/links/{itemName}-{thingUID}/removed   |
 
 #### Channel Events
+
 | Event                       |Description                                              |Topic                                           |
 |-----------------------------|---------------------------------------------------------|------------------------------------------------|
 | ChannelTriggeredEvent       |A channel has been triggered.                            |smarthome/channels/{channelUID}/triggered       |

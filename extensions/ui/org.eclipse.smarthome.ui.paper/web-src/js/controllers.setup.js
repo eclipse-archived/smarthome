@@ -2,6 +2,9 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
     $scope.navigateTo = function(path) {
         $location.path('inbox/' + path);
     }
+    $scope.navigateToConfig = function(path) {
+        $location.path('configuration/' + path);
+    }
     $scope.thingTypes = [];
     function getThingTypes() {
         thingTypeRepository.getAll(function(thingTypes) {
@@ -37,7 +40,7 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
         discoveryResultRepository.getAll(true);
     };
 
-}).controller('InboxEntryController', function($scope, $mdDialog, $q, inboxService, discoveryResultRepository, thingTypeRepository, thingService, toastService, thingRepository) {
+}).controller('InboxEntryController', function($scope, $mdDialog, $q, inboxService, discoveryResultRepository, thingTypeRepository, thingService, toastService, thingRepository, configDescriptionService) {
     $scope.approve = function(thingUID, thingTypeUID, event) {
         $mdDialog.show({
             controller : 'ApproveInboxEntryDialogController',
@@ -54,16 +57,47 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
                 'enableChannels' : !$scope.advancedMode
             }, result.label).$promise.then(function() {
                 thingRepository.setDirty(true);
-                toastService.showDefaultToast('Thing added.', 'Show Thing', 'configuration/things/view/' + thingUID);
                 var thingType = thingTypeRepository.find(function(thingType) {
                     return thingTypeUID === thingType.UID;
                 });
-
-                if (thingType && thingType.bridge) {
-                    $scope.navigateTo('setup/search/' + thingUID.split(':')[0]);
-                } else {
-                    discoveryResultRepository.getAll(true);
-                }
+                
+                var configRequired = false;
+                thingRepository.getOne(function(thing) {
+                    return thing.UID === thingUID;
+                }, function(thing) {
+                    configDescriptionService.getByUri({
+                        uri : 'thing-type:' + thingType.UID
+                    }, function(configDescription) {
+                        if (configDescription.parameters) {
+                            for (var i = 0; i < configDescription.parameters.length; i++) {
+                                var parameter = configDescription.parameters[i]; 
+                                if (parameter.required) {
+                                    if (thing.configuration.hasOwnProperty(parameter.name)) {
+                                        if (thing.configuration[parameter.name] === '') {
+                                            configRequired = true;
+                                            break;
+                                        }                                        
+                                    } else {                                        
+                                        configRequired = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }).$promise.finally(function() {
+                        if (configRequired) {
+                            $scope.navigateToConfig('things/edit/' + thingUID);
+                            toastService.showDefaultToast('Thing added and must be configured');
+                        } else {
+                            toastService.showDefaultToast('Thing added.', 'Show Thing', 'configuration/things/view/' + thingUID);
+                            if (thingType && thingType.bridge) {
+                                $scope.navigateTo('setup/search/' + thingUID.split(':')[0]);
+                            } else {
+                                discoveryResultRepository.getAll(true);
+                            }
+                        }
+                    });
+                });
             });
         });
     };
@@ -195,6 +229,7 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
     $scope.thingType = null;
     $scope.thing = {
         UID : null,
+        thingTypeUID : thingTypeUID,
         configuration : {},
         item : {
             label : null,
@@ -204,30 +239,11 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
     $scope.thingID = null;
 
     $scope.addThing = function(thing) {
-        thing.thingTypeUID = thingTypeUID;
         thing.UID = thing.thingTypeUID + ":" + thing.ID;
         thing.configuration = configService.setConfigDefaults(thing.configuration, $scope.parameters, true);
         thingService.add(thing, function() {
             toastService.showDefaultToast('Thing added.', 'Show Thing', 'configuration/things/view/' + thing.UID);
-            window.localStorage.setItem('thingUID', thing.UID);
             $location.path('configuration/things');
-        });
-    };
-
-    $scope.needsBridge = false;
-    $scope.bridges = [];
-    $scope.getBridges = function() {
-        $scope.bridges = [];
-        thingRepository.getAll(function(things) {
-            for (var i = 0; i < things.length; i++) {
-                var thing = things[i];
-                for (var j = 0; j < $scope.thingType.supportedBridgeTypeUIDs.length; j++) {
-                    var supportedBridgeTypeUID = $scope.thingType.supportedBridgeTypeUIDs[j];
-                    if (thing.thingTypeUID === supportedBridgeTypeUID) {
-                        $scope.bridges.push(thing);
-                    }
-                }
-            }
         });
     };
 
@@ -241,10 +257,7 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
         $scope.thing.ID = generateUUID();
         $scope.thing.item.label = thingType.label;
         $scope.thing.label = thingType.label;
-        $scope.needsBridge = $scope.thingType.supportedBridgeTypeUIDs && $scope.thingType.supportedBridgeTypeUIDs.length > 0;
-        if ($scope.needsBridge) {
-            $scope.getBridges();
-        }
+
         configService.setDefaults($scope.thing, $scope.thingType)
     });
 }).controller('SetupWizardController', function($scope, discoveryResultRepository) {

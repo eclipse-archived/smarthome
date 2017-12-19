@@ -1,47 +1,58 @@
 #set( $dt = $package.getClass().forName("java.util.Date").newInstance() )
 #set( $year = $dt.getYear() + 1900 )
+#if( $vendorName == "Eclipse.org/SmartHome" )
+    #set( $copyright = "Contributors to the Eclipse Foundation" )
+#else
+    #set( $copyright = "by the respective copyright holders." )
+#end
 /**
- * Copyright (c) 2010-${year} by the respective copyright holders.
+ * Copyright (c) ${startYear},${year} ${copyright}
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package ${package};
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import ${package}.handler.${bindingIdCamelCase}Handler;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.ThingProvider;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.eclipse.smarthome.test.storage.VolatileStorageService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
-* Tests cases for {@link  ${bindingIdCamelCase}Handler}.
+* Tests cases for {@link ${bindingIdCamelCase}Handler}.
 *
-* @author  ${author} - Initial contribution
+* @author ${author} - Initial contribution
 */
 public class ${bindingIdCamelCase}OSGiTest extends JavaOSGiTest {
 
-    private final ThingTypeUID BRIDGE_THING_TYPE_UID = new ThingTypeUID("${bindingId}", "bridge");
+    private static final ThingTypeUID BRIDGE_THING_TYPE_UID = new ThingTypeUID("${bindingId}", "bridge");
 
     private ManagedThingProvider managedThingProvider;
-    private VolatileStorageService volatileStorageService = new VolatileStorageService();
+    private final VolatileStorageService volatileStorageService = new VolatileStorageService();
     private Bridge bridge;
-    
+
     @Before
     public void setUp() {
         registerService(volatileStorageService);
         managedThingProvider = getService(ThingProvider.class, ManagedThingProvider.class);
-        bridge = BridgeBuilder.create(BRIDGE_THING_TYPE_UID, "1").withLabel("My Bridge").build();		        
+        bridge = BridgeBuilder.create(BRIDGE_THING_TYPE_UID, "1").withLabel("My Bridge").build();
     }
 
     @After
@@ -54,7 +65,7 @@ public class ${bindingIdCamelCase}OSGiTest extends JavaOSGiTest {
     public void creationOf${bindingIdCamelCase}Handler() {
         assertThat(bridge.getHandler(), is(nullValue()));
         managedThingProvider.add(bridge);
-        waitForAssert(() -> assertThat(bridge.getHandler(), is(notNullValue())));        
+        waitForAssert(() -> assertThat(bridge.getHandler(), is(notNullValue())));
     }
 
 }

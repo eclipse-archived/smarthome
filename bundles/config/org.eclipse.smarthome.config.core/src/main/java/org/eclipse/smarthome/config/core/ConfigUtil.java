@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.core;
 
@@ -16,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.smarthome.config.core.normalization.Normalizer;
-import org.eclipse.smarthome.config.core.normalization.NormalizerFactory;
+import org.eclipse.smarthome.config.core.internal.normalization.Normalizer;
+import org.eclipse.smarthome.config.core.internal.normalization.NormalizerFactory;
 import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
 
 /**
@@ -27,6 +32,14 @@ import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
  * @author Thomas Höfer - Minor changes for type normalization based on config description
  */
 public class ConfigUtil {
+    /**
+     * We do not want to handle or try to normalize OSGi provided configuration parameters
+     *
+     * @param name The configuration parameter name
+     */
+    private static boolean isOSGiConfigParameter(String name) {
+        return name.equals("objectClass") || name.equals("component.name") || name.equals("component.id");
+    }
 
     /**
      * Normalizes the types to the ones allowed for configurations.
@@ -35,11 +48,13 @@ public class ConfigUtil {
      * @return normalized configuration
      */
     public static Map<String, Object> normalizeTypes(Map<String, Object> configuration) {
-        Map<String, Object> convertedConfiguration = new HashMap<String, Object>(configuration.size());
+        Map<String, Object> convertedConfiguration = new HashMap<>(configuration.size());
         for (Entry<String, Object> parameter : configuration.entrySet()) {
             String name = parameter.getKey();
             Object value = parameter.getValue();
-            convertedConfiguration.put(name, normalizeType(value));
+            if (!isOSGiConfigParameter(name)) {
+                convertedConfiguration.put(name, normalizeType(value));
+            }
         }
         return convertedConfiguration;
     }
@@ -129,7 +144,7 @@ public class ConfigUtil {
             return null;
         }
 
-        Map<String, Object> convertedConfiguration = new HashMap<String, Object>(configuration.size());
+        Map<String, Object> convertedConfiguration = new HashMap<>();
 
         Map<String, ConfigDescriptionParameter> configParams = new HashMap<>();
         for (int i = configDescriptions.size() - 1; i >= 0; i--) {
@@ -138,8 +153,10 @@ public class ConfigUtil {
         for (Entry<String, ?> parameter : configuration.entrySet()) {
             String name = parameter.getKey();
             Object value = parameter.getValue();
-            ConfigDescriptionParameter configDescriptionParameter = configParams.get(name);
-            convertedConfiguration.put(name, normalizeType(value, configDescriptionParameter));
+            if (!isOSGiConfigParameter(name)) {
+                ConfigDescriptionParameter configDescriptionParameter = configParams.get(name);
+                convertedConfiguration.put(name, normalizeType(value, configDescriptionParameter));
+            }
         }
         return convertedConfiguration;
     }

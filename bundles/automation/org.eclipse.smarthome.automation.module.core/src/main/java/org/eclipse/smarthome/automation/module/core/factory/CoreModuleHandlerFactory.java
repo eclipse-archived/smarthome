@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.module.core.factory;
 
@@ -17,6 +22,7 @@ import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
+import org.eclipse.smarthome.automation.module.core.handler.ChannelEventTriggerHandler;
 import org.eclipse.smarthome.automation.module.core.handler.CompareConditionHandler;
 import org.eclipse.smarthome.automation.module.core.handler.GenericEventConditionHandler;
 import org.eclipse.smarthome.automation.module.core.handler.GenericEventTriggerHandler;
@@ -44,12 +50,12 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
 
     private Logger logger = LoggerFactory.getLogger(CoreModuleHandlerFactory.class);
 
-    private static final Collection<String> types = Arrays.asList(
-            new String[] { ItemCommandTriggerHandler.MODULE_TYPE_ID, ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID,
-                    ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID, ItemStateConditionHandler.ITEM_STATE_CONDITION,
-                    ItemCommandActionHandler.ITEM_COMMAND_ACTION, GenericEventTriggerHandler.MODULE_TYPE_ID,
-                    GenericEventConditionHandler.MODULETYPE_ID, GenericEventConditionHandler.MODULETYPE_ID,
-                    CompareConditionHandler.MODULE_TYPE, RuleEnablementActionHandler.UID, RunRuleActionHandler.UID });
+    private static final Collection<String> types = Arrays.asList(ItemCommandTriggerHandler.MODULE_TYPE_ID,
+            ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID, ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID,
+            ItemStateConditionHandler.ITEM_STATE_CONDITION, ItemCommandActionHandler.ITEM_COMMAND_ACTION,
+            GenericEventTriggerHandler.MODULE_TYPE_ID, ChannelEventTriggerHandler.MODULE_TYPE_ID,
+            GenericEventConditionHandler.MODULETYPE_ID, GenericEventConditionHandler.MODULETYPE_ID,
+            CompareConditionHandler.MODULE_TYPE, RuleEnablementActionHandler.UID, RunRuleActionHandler.UID);
 
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
@@ -150,6 +156,8 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
 
             if (GenericEventTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
                 return new GenericEventTriggerHandler((Trigger) module, this.bundleContext);
+            } else if (ChannelEventTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
+                return new ChannelEventTriggerHandler((Trigger) module, this.bundleContext);
             } else if (ItemCommandTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
                 return new ItemCommandTriggerHandler((Trigger) module, this.bundleContext);
             } else if (ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID.equals(moduleTypeUID)
@@ -178,11 +186,11 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
             } else if (RuleEnablementActionHandler.UID.equals(moduleTypeUID)) {
                 return new RuleEnablementActionHandler((Action) module, ruleRegistry);
             } else if (RunRuleActionHandler.UID.equals(moduleTypeUID)) {
-            	return new RunRuleActionHandler((Action)module, ruleRegistry);
+                return new RunRuleActionHandler((Action) module, ruleRegistry);
             }
         }
 
-        logger.error("The ModuleHandler is not supported:" + moduleTypeUID);
+        logger.error("The ModuleHandler is not supported:{}", moduleTypeUID);
         return null;
     }
 }

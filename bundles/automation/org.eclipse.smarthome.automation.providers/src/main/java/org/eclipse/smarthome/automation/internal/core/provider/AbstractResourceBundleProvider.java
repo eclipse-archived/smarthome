@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.internal.core.provider;
 
@@ -14,6 +19,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
@@ -459,10 +465,10 @@ public abstract class AbstractResourceBundleProvider<E> {
         InputStream is = null;
         try {
             is = url.openStream();
-            reader = new InputStreamReader(is);
+            reader = new InputStreamReader(is, StandardCharsets.UTF_8);
             return parser.parse(reader);
         } catch (ParsingException e) {
-            logger.error(e.getLocalizedMessage(), e);
+            logger.error("{}", e.getLocalizedMessage(), e);
         } catch (IOException e) {
             logger.error("Can't read from resource of bundle with ID {}", bundle.getBundleId(), e);
             processAutomationProviderUninstalled(bundle);
@@ -486,29 +492,25 @@ public abstract class AbstractResourceBundleProvider<E> {
     @SuppressWarnings("unchecked")
     protected void addNewProvidedObjects(List<String> newPortfolio, List<String> previousPortfolio,
             Set<E> parsedObjects) {
+        List<ProviderChangeListener<E>> snapshot = null;
+        synchronized (listeners) {
+            snapshot = new LinkedList<ProviderChangeListener<E>>(listeners);
+        }
         for (E parsedObject : parsedObjects) {
             String uid = getUID(parsedObject);
-            if (providedObjectsHolder.get(uid) == null) {
-                if (checkExistence(uid)) {
-                    continue;
-                }
-            } else if (previousPortfolio == null || !previousPortfolio.contains(uid)) {
-                logger.error("{} with UID \"{}\" already exists! Failed to create a second with the same UID!",
-                        parsedObject.getClass().getName(), uid, new IllegalArgumentException());
+            E oldElement = providedObjectsHolder.get(uid);
+            if (oldElement != null && !previousPortfolio.contains(uid)) {
+                logger.warn("{} with UID '{}' already exists! Failed to add a second with the same UID!",
+                        parsedObject.getClass().getName(), uid);
                 continue;
-            }
-            newPortfolio.add(uid);
-            E oldelement = providedObjectsHolder.put(uid, parsedObject);
-            if (listeners != null) {
-                List<ProviderChangeListener<E>> snapshot = null;
-                synchronized (listeners) {
-                    snapshot = new LinkedList<ProviderChangeListener<E>>(listeners);
-                }
+            } else {
+                newPortfolio.add(uid);
+                providedObjectsHolder.put(uid, parsedObject);
                 for (ProviderChangeListener<E> listener : snapshot) {
-                    if (oldelement == null) {
+                    if (oldElement == null) {
                         listener.added((Provider<E>) this, parsedObject);
                     } else {
-                        listener.updated((Provider<E>) this, oldelement, parsedObject);
+                        listener.updated((Provider<E>) this, oldElement, parsedObject);
                     }
                 }
             }
@@ -529,12 +531,6 @@ public abstract class AbstractResourceBundleProvider<E> {
             waitingProviders.remove(bundle);
         }
     }
-
-    /**
-     * @param uid
-     * @return
-     */
-    protected abstract boolean checkExistence(String uid);
 
     /**
      * @param parsedObject

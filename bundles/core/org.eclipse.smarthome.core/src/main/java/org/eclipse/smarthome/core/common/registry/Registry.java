@@ -1,14 +1,22 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.common.registry;
 
 import java.util.Collection;
 import java.util.stream.Stream;
+
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * The {@link Registry} interface represents a registry for elements of the type
@@ -16,24 +24,26 @@ import java.util.stream.Stream;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Victor Toni - provide elements as {@link Stream}
+ * @author Kai Kreuzer - added null annotations
  *
  * @param <E> type of the elements in the registry
  */
-public interface Registry<E, K> {
+public interface Registry<E extends Identifiable<K>, K> {
 
     /**
      * Adds a {@link RegistryChangeListener} to the registry.
      *
      * @param listener registry change listener
      */
-    void addRegistryChangeListener(RegistryChangeListener<E> listener);
+    void addRegistryChangeListener(@NonNull RegistryChangeListener<E> listener);
 
     /**
      * Returns a collection of all elements in the registry.
      *
      * @return collection of all elements in the registry
      */
-    Collection<E> getAll();
+    @NonNull
+    Collection<@NonNull E> getAll();
 
     /**
      * Returns a stream of all elements in the registry.
@@ -49,7 +59,7 @@ public interface Registry<E, K> {
      *            key of the element
      * @return element or null if no element was found
      */
-    public E get(K key);
+    public @Nullable E get(K key);
 
     /**
      * Removes a {@link RegistryChangeListener} from the registry.
@@ -57,7 +67,7 @@ public interface Registry<E, K> {
      * @param listener
      *            registry change listener
      */
-    void removeRegistryChangeListener(RegistryChangeListener<E> listener);
+    void removeRegistryChangeListener(@NonNull RegistryChangeListener<E> listener);
 
     /**
      * Adds the given element to the according {@link ManagedProvider}.
@@ -68,7 +78,7 @@ public interface Registry<E, K> {
      * @throws IllegalStateException
      *             if no ManagedProvider is available
      */
-    public E add(E element);
+    public @NonNull E add(@NonNull E element);
 
     /**
      * Updates the given element at the according {@link ManagedProvider}.
@@ -80,7 +90,7 @@ public interface Registry<E, K> {
      * @throws IllegalStateException
      *             if no ManagedProvider is available
      */
-    public E update(E element);
+    public @Nullable E update(@NonNull E element);
 
     /**
      * Removes the given element from the according {@link ManagedProvider}.
@@ -92,5 +102,5 @@ public interface Registry<E, K> {
      * @throws IllegalStateException
      *             if no ManagedProvider is available
      */
-    public E remove(K key);
+    public @Nullable E remove(@NonNull K key);
 }

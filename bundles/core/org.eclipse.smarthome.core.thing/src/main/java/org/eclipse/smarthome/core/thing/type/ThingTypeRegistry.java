@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.type;
 
@@ -17,6 +22,10 @@ import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import com.google.common.collect.Lists;
 
@@ -26,6 +35,7 @@ import com.google.common.collect.Lists;
  * @author Oliver Libutzki - Initial contribution
  * @author Dennis Nobel - Added locale support
  */
+@Component(immediate = true, service = ThingTypeRegistry.class)
 public class ThingTypeRegistry {
 
     private List<ThingTypeProvider> thingTypeProviders = new CopyOnWriteArrayList<>();
@@ -156,6 +166,7 @@ public class ThingTypeRegistry {
         return null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addThingTypeProvider(ThingTypeProvider thingTypeProvider) {
         if (thingTypeProvider != null) {
             this.thingTypeProviders.add(thingTypeProvider);

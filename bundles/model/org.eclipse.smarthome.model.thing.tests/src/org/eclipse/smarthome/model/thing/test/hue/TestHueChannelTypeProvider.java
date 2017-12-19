@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.thing.test.hue;
 
@@ -55,7 +60,7 @@ public class TestHueChannelTypeProvider implements ChannelTypeProvider {
             channelTypes = Lists.newArrayList(ctColor, ctColorTemperature, ctColorX, ctColorTemperatureX);
 
             ChannelGroupType groupX = new ChannelGroupType(GROUP_CHANNEL_GROUP_TYPE_UID, false, "Channel Group",
-                    "Channel Group",
+                    "Channel Group", null,
                     Lists.newArrayList(new ChannelDefinition("foo", TestHueChannelTypeProvider.COLOR_CHANNEL_TYPE_UID),
                             new ChannelDefinition("bar", TestHueChannelTypeProvider.COLOR_CHANNEL_TYPE_UID)));
             channelGroupTypes = Lists.newArrayList(groupX);

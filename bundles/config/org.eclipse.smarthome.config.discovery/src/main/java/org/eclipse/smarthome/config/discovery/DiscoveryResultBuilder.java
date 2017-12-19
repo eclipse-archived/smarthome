@@ -1,15 +1,22 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.discovery;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.discovery.internal.DiscoveryResultImpl;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -23,16 +30,17 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  *
  * @see DiscoveryResult
  */
+@NonNullByDefault
 public class DiscoveryResultBuilder {
 
     final private ThingUID thingUID;
 
-    private ThingUID bridgeUID;
-    private Map<String, Object> properties = new HashMap<>();
-    private String representationProperty;
-    private String label;
+    private @Nullable ThingUID bridgeUID;
+    private final Map<String, Object> properties = new HashMap<>();
+    private @Nullable String representationProperty;
+    private @Nullable String label;
     private long ttl = DiscoveryResult.TTL_UNLIMITED;
-    private ThingTypeUID thingTypeUID;
+    private @Nullable ThingTypeUID thingTypeUID;
 
     private DiscoveryResultBuilder(ThingUID thingUID) {
         this.thingTypeUID = thingUID.getThingTypeUID();
@@ -56,7 +64,7 @@ public class DiscoveryResultBuilder {
      * @param thingTypeUID the {@link ThingTypeUID}
      * @return the updated builder
      */
-    public DiscoveryResultBuilder withThingType(ThingTypeUID thingTypeUID) {
+    public DiscoveryResultBuilder withThingType(@Nullable ThingTypeUID thingTypeUID) {
         this.thingTypeUID = thingTypeUID;
         return this;
     }
@@ -67,8 +75,10 @@ public class DiscoveryResultBuilder {
      * @param properties of the desired result
      * @return the updated builder
      */
-    public DiscoveryResultBuilder withProperties(Map<String, Object> properties) {
-        this.properties.putAll(properties);
+    public DiscoveryResultBuilder withProperties(@Nullable Map<String, Object> properties) {
+        if (properties != null) {
+            this.properties.putAll(properties);
+        }
         return this;
     }
 
@@ -89,7 +99,7 @@ public class DiscoveryResultBuilder {
      * @param representationProperty the representation property of the desired result
      * @return the updated builder
      */
-    public DiscoveryResultBuilder withRepresentationProperty(String representationProperty) {
+    public DiscoveryResultBuilder withRepresentationProperty(@Nullable String representationProperty) {
         this.representationProperty = representationProperty;
         return this;
     }
@@ -100,7 +110,7 @@ public class DiscoveryResultBuilder {
      * @param bridgeUID of the desired result
      * @return the updated builder
      */
-    public DiscoveryResultBuilder withBridge(ThingUID bridgeUID) {
+    public DiscoveryResultBuilder withBridge(@Nullable ThingUID bridgeUID) {
         this.bridgeUID = bridgeUID;
         return this;
     }
@@ -111,7 +121,7 @@ public class DiscoveryResultBuilder {
      * @param label of the desired result
      * @return the updated builder
      */
-    public DiscoveryResultBuilder withLabel(String label) {
+    public DiscoveryResultBuilder withLabel(@Nullable String label) {
         this.label = label;
         return this;
     }

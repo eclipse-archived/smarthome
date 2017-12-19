@@ -1,11 +1,18 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.common.registry;
+
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * The {@link ManagedProvider} is a specific {@link Provider} that enables to
@@ -18,7 +25,7 @@ package org.eclipse.smarthome.core.common.registry;
  * @param <K>
  *            type of the element key
  */
-public interface ManagedProvider<E, K> extends Provider<E> {
+public interface ManagedProvider<E extends Identifiable<K>, K> extends Provider<E> {
 
     /**
      * Adds an element.
@@ -26,7 +33,7 @@ public interface ManagedProvider<E, K> extends Provider<E> {
      * @param element
      *            element to be added
      */
-    void add(E element);
+    void add(@NonNull E element);
 
     /**
      * Removes an element and returns the removed element.
@@ -36,7 +43,7 @@ public interface ManagedProvider<E, K> extends Provider<E> {
      * @return element that was removed, or null if no element with the given
      *         key exists
      */
-    E remove(K key);
+    E remove(@NonNull K key);
 
     /**
      * Updates an element.
@@ -46,7 +53,7 @@ public interface ManagedProvider<E, K> extends Provider<E> {
      * @return returns the old element or null if no element with the same key
      *         exists
      */
-    E update(E element);
+    E update(@NonNull E element);
 
     /**
      * Returns an element for the given key or null if no element for the given

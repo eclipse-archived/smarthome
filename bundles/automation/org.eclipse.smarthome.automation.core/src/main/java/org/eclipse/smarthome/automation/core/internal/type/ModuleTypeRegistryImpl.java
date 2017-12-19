@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.core.internal.type;
 
@@ -12,7 +17,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -61,13 +65,13 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String,
     @Override
     @SuppressWarnings("unchecked")
     public <T extends ModuleType> T get(String moduleTypeUID, Locale locale) {
-        T mType = null;
         for (Provider<ModuleType> provider : elementMap.keySet()) {
-            if (provider instanceof ModuleTypeProvider) {
-                mType = ((ModuleTypeProvider) provider).getModuleType(moduleTypeUID, locale);
-            }
-            if (mType != null) {
-                return (T) createCopy(mType);
+            for (ModuleType mType : elementMap.get(provider)) {
+                if (mType.getUID().equals(moduleTypeUID)) {
+                    ModuleType mt = locale == null ? mType
+                            : ((ModuleTypeProvider) provider).getModuleType(mType.getUID(), locale);
+                    return (T) createCopy(mt);
+                }
             }
         }
         return null;
@@ -82,20 +86,15 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String,
     @SuppressWarnings("unchecked")
     public <T extends ModuleType> Collection<T> getByTag(String moduleTypeTag, Locale locale) {
         Collection<T> result = new ArrayList<T>(20);
-        Collection<ModuleType> moduleTypes = null;
         for (Provider<ModuleType> provider : elementMap.keySet()) {
-            moduleTypes = ((ModuleTypeProvider) provider).getModuleTypes(locale);
-            if (moduleTypes != null) {
-                for (Iterator<ModuleType> it = moduleTypes.iterator(); it.hasNext();) {
-                    ModuleType mt = it.next();
-                    if (moduleTypeTag != null) {
-                        Collection<String> tags = mt.getTags();
-                        if (tags != null && tags.contains(moduleTypeTag)) {
-                            result.add((T) createCopy(mt));
-                        }
-                    } else {
-                        result.add((T) createCopy(mt));
-                    }
+            for (ModuleType mType : elementMap.get(provider)) {
+                ModuleType mt = locale == null ? mType
+                        : ((ModuleTypeProvider) provider).getModuleType(mType.getUID(), locale);
+                Collection<String> tags = mt.getTags();
+                if (moduleTypeTag == null) {
+                    result.add((T) createCopy(mt));
+                } else if (tags != null && tags.contains(moduleTypeTag)) {
+                    result.add((T) createCopy(mt));
                 }
             }
         }
@@ -112,20 +111,14 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String,
     public <T extends ModuleType> Collection<T> getByTags(Locale locale, String... tags) {
         Set<String> tagSet = tags != null ? new HashSet<String>(Arrays.asList(tags)) : null;
         Collection<T> result = new ArrayList<T>(20);
-        Collection<ModuleType> moduleTypes = null;
         for (Provider<ModuleType> provider : elementMap.keySet()) {
-            moduleTypes = ((ModuleTypeProvider) provider).getModuleTypes(locale);
-            if (moduleTypes != null) {
-                for (Iterator<ModuleType> it = moduleTypes.iterator(); it.hasNext();) {
-                    ModuleType mt = it.next();
-                    if (tagSet != null) {
-                        Collection<String> mtTags = mt.getTags();
-                        if (mtTags.containsAll(tagSet)) {
-                            result.add((T) createCopy(mt));
-                        }
-                    } else {
-                        result.add((T) createCopy(mt));
-                    }
+            for (ModuleType mType : elementMap.get(provider)) {
+                ModuleType mt = locale == null ? mType
+                        : ((ModuleTypeProvider) provider).getModuleType(mType.getUID(), locale);
+                if (tagSet == null) {
+                    result.add((T) createCopy(mt));
+                } else if (mt.getTags().containsAll(tagSet)) {
+                    result.add((T) createCopy(mt));
                 }
             }
         }

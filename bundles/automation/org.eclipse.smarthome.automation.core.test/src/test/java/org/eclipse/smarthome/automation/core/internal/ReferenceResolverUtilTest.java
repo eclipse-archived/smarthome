@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
 package org.eclipse.smarthome.automation.core.internal;
 
 import java.math.BigDecimal;
@@ -105,9 +117,9 @@ public class ReferenceResolverUtilTest {
 
     @Test
     public void testBeanMapAccess() {
-        Map map = new HashMap();
-        Map map1 = new HashMap();
-        Map map2 = new HashMap();
+        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map1 = new HashMap<>();
+        Map<String, Object> map2 = new HashMap<>();
         map2.put("b", "bValue");
         map1.put("a", map2);
         B1 bean1 = new B1();
@@ -130,7 +142,7 @@ public class ReferenceResolverUtilTest {
 
     class B1 {
         public Object getA() {
-            Map map2 = new HashMap();
+            Map<String, Object> map2 = new HashMap<>();
             map2.put("b", "bValue");
             return map2;
         }
@@ -142,7 +154,7 @@ public class ReferenceResolverUtilTest {
 
     class B2 {
         public Object getE() {
-            Map map2 = new HashMap();
+            Map<String, Object> map2 = new HashMap<>();
             map2.put("f", "fValue");
             return map2;
         }

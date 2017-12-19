@@ -1,27 +1,35 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Item Model Tests
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.model.item.tests; singleton:=
+ true
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.9.0.qualifier
-Bundle-SymbolicName: org.eclipse.smarthome.model.item.tests; singleton:=true
-Require-Bundle: org.eclipse.core.runtime
-Import-Package: groovy.lang,
+Bundle-Version: 0.10.0.qualifier
+Fragment-Host: org.eclipse.smarthome.model.item
+Import-Package: 
+ groovy.lang,
  org.apache.log4j,
  org.codehaus.groovy.reflection,
  org.codehaus.groovy.runtime,
  org.codehaus.groovy.runtime.callsite,
  org.codehaus.groovy.runtime.typehandling,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.items.events,
  org.eclipse.smarthome.core.thing.util,
  org.eclipse.smarthome.test,
- org.hamcrest;core=split,
+ org.eclipse.smarthome.test.java,
  org.hamcrest.core,
- org.junit;version="4.0.0",
- org.junit.runner;version="4.0.0",
+ org.hamcrest;core=split,
  org.junit.runner.manipulation;version="4.0.0",
  org.junit.runner.notification;version="4.0.0",
+ org.junit.runner;version="4.0.0",
+ org.junit.runners.model;version="4.0.0",
  org.junit.runners;version="4.0.0",
- org.junit.runners.model;version="4.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Fragment-Host: org.eclipse.smarthome.model.item
+ org.junit;version="4.0.0"
+Require-Bundle: 
+ org.eclipse.core.runtime,
+ org.eclipse.xtext.testing,
+ org.eclipse.xtext.xbase.lib,
+ org.eclipse.xtext.xbase.testing

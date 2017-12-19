@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.ui.classic.internal.servlet;
 
@@ -36,6 +41,7 @@ import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.classic.internal.WebAppConfig;
 import org.eclipse.smarthome.ui.classic.internal.render.PageRenderer;
 import org.eclipse.smarthome.ui.classic.render.RenderException;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.http.NamespaceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +69,7 @@ public class WebAppServlet extends BaseServlet {
     private PageRenderer renderer;
     protected Set<SitemapProvider> sitemapProviders = new CopyOnWriteArraySet<>();
 
-    private WebAppConfig config = new WebAppConfig();
+    private final WebAppConfig config = new WebAppConfig();
 
     public void addSitemapProvider(SitemapProvider sitemapProvider) {
         this.sitemapProviders.add(sitemapProvider);
@@ -78,11 +84,12 @@ public class WebAppServlet extends BaseServlet {
         this.renderer = renderer;
     }
 
-    protected void activate(Map<String, Object> configProps) {
+    protected void activate(Map<String, Object> configProps, BundleContext bundleContext) {
         config.applyConfig(configProps);
         try {
             Hashtable<String, String> props = new Hashtable<String, String>();
-            httpService.registerServlet(WEBAPP_ALIAS + "/" + SERVLET_NAME, this, props, createHttpContext());
+            httpService.registerServlet(WEBAPP_ALIAS + "/" + SERVLET_NAME, this, props,
+                    createHttpContext(bundleContext.getBundle()));
             httpService.registerResources(WEBAPP_ALIAS, "web", null);
             logger.info("Started Classic UI at " + WEBAPP_ALIAS + "/" + SERVLET_NAME);
         } catch (NamespaceException e) {

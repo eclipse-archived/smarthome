@@ -1,13 +1,19 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.core;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,12 +66,16 @@ public class Configuration {
             try {
                 configuration = configurationClass.newInstance();
             } catch (InstantiationException | IllegalAccessException ex) {
-                logger.error("Could not create configuration instance: " + ex.getMessage(), ex);
+                logger.error("Could not create configuration instance: {}", ex.getMessage(), ex);
                 return null;
             }
 
             List<Field> fields = getAllFields(configurationClass);
             for (Field field : fields) {
+                // Don't try to write to final fields
+                if (Modifier.isFinal(field.getModifiers())) {
+                    continue;
+                }
                 String fieldName = field.getName();
                 String typeName = field.getType().getSimpleName();
                 Object value = properties.get(fieldName);
@@ -91,12 +101,12 @@ public class Configuration {
                     }
 
                     if (value != null) {
-                        logger.debug("Setting value ({}) {} to field '{}' in configuration class {}", typeName, value,
+                        logger.trace("Setting value ({}) {} to field '{}' in configuration class {}", typeName, value,
                                 fieldName, configurationClass.getName());
                         FieldUtils.writeField(configuration, fieldName, value, true);
                     }
                 } catch (Exception ex) {
-                    logger.warn("Could not set field value for field '" + fieldName + "': " + ex.getMessage(), ex);
+                    logger.warn("Could not set field value for field '{}': {}", fieldName, ex.getMessage(), ex);
                 }
             }
 
@@ -107,9 +117,10 @@ public class Configuration {
     private List<Field> getAllFields(Class<?> clazz) {
         List<Field> fields = new ArrayList<Field>();
 
-        while (clazz != null) {
-            fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
-            clazz = clazz.getSuperclass();
+        Class<?> currentClass = clazz;
+        while (currentClass != null) {
+            fields.addAll(Arrays.asList(currentClass.getDeclaredFields()));
+            currentClass = currentClass.getSuperclass();
         }
 
         return fields;

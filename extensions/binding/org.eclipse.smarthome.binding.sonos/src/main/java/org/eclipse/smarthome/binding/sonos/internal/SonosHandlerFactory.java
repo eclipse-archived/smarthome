@@ -1,35 +1,42 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.sonos.internal;
 
-import static org.eclipse.smarthome.binding.sonos.config.ZonePlayerConfiguration.UDN;
+import static org.eclipse.smarthome.binding.sonos.internal.config.ZonePlayerConfiguration.UDN;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.smarthome.binding.sonos.SonosBindingConstants;
-import org.eclipse.smarthome.binding.sonos.handler.ZonePlayerHandler;
+import org.eclipse.smarthome.binding.sonos.internal.handler.ZonePlayerHandler;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.core.audio.AudioHTTPServer;
 import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.net.HttpServiceUtil;
-import org.eclipse.smarthome.core.net.NetUtil;
+import org.eclipse.smarthome.core.net.NetworkAddressService;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,15 +46,16 @@ import org.slf4j.LoggerFactory;
  *
  * @author Karel Goderis - Initial contribution
  */
+@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.sonos", configurationPolicy = ConfigurationPolicy.OPTIONAL)
 public class SonosHandlerFactory extends BaseThingHandlerFactory {
 
-    private Logger logger = LoggerFactory.getLogger(SonosHandlerFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(SonosHandlerFactory.class);
 
     private UpnpIOService upnpIOService;
-    private DiscoveryServiceRegistry discoveryServiceRegistry;
     private AudioHTTPServer audioHTTPServer;
+    private NetworkAddressService networkAddressService;
 
-    private Map<String, ServiceRegistration<AudioSink>> audioSinkRegistrations = new ConcurrentHashMap<>();
+    private final Map<String, ServiceRegistration<AudioSink>> audioSinkRegistrations = new ConcurrentHashMap<>();
 
     // optional OPML URL that can be configured through configuration admin
     private String opmlUrl = null;
@@ -66,7 +74,6 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
     @Override
     public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID,
             ThingUID bridgeUID) {
-
         if (SonosBindingConstants.SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
             ThingUID sonosDeviceUID = getPlayerUID(thingTypeUID, thingUID, configuration);
             logger.debug("Creating a sonos thing with ID '{}'", sonosDeviceUID);
@@ -78,26 +85,24 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
-
         return SonosBindingConstants.SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
     }
 
     @Override
     protected ThingHandler createHandler(Thing thing) {
-
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (SonosBindingConstants.SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
             logger.debug("Creating a ZonePlayerHandler for thing '{}' with UDN '{}'", thing.getUID(),
                     thing.getConfiguration().get(UDN));
 
-            ZonePlayerHandler handler = new ZonePlayerHandler(thing, upnpIOService, discoveryServiceRegistry, opmlUrl);
+            ZonePlayerHandler handler = new ZonePlayerHandler(thing, upnpIOService, opmlUrl);
 
             // register the speaker as an audio sink
             String callbackUrl = createCallbackUrl();
             SonosAudioSink audioSink = new SonosAudioSink(handler, audioHTTPServer, callbackUrl);
             @SuppressWarnings("unchecked")
-            ServiceRegistration<AudioSink> reg = (ServiceRegistration<AudioSink>) bundleContext
+            ServiceRegistration<AudioSink> reg = (ServiceRegistration<AudioSink>) getBundleContext()
                     .registerService(AudioSink.class.getName(), audioSink, new Hashtable<String, Object>());
             audioSinkRegistrations.put(thing.getUID().toString(), reg);
 
@@ -110,7 +115,7 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
         if (callbackUrl != null) {
             return callbackUrl;
         } else {
-            final String ipAddress = NetUtil.getLocalIpv4HostAddress();
+            final String ipAddress = networkAddressService.getPrimaryIpv4HostAddress();
             if (ipAddress == null) {
                 logger.warn("No network interface could be found.");
                 return null;
@@ -137,16 +142,15 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
     }
 
     private ThingUID getPlayerUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration) {
-
-        String udn = (String) configuration.get(UDN);
-
-        if (thingUID == null) {
-            thingUID = new ThingUID(thingTypeUID, udn);
+        if (thingUID != null) {
+            return thingUID;
+        } else {
+            String udn = (String) configuration.get(UDN);
+            return new ThingUID(thingTypeUID, udn);
         }
-
-        return thingUID;
     }
 
+    @Reference
     protected void setUpnpIOService(UpnpIOService upnpIOService) {
         this.upnpIOService = upnpIOService;
     }
@@ -155,20 +159,22 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
         this.upnpIOService = null;
     }
 
-    protected void setDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
-        this.discoveryServiceRegistry = discoveryServiceRegistry;
-    }
-
-    protected void unsetDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
-        this.discoveryServiceRegistry = null;
-    }
-
+    @Reference
     protected void setAudioHTTPServer(AudioHTTPServer audioHTTPServer) {
         this.audioHTTPServer = audioHTTPServer;
     }
 
     protected void unsetAudioHTTPServer(AudioHTTPServer audioHTTPServer) {
         this.audioHTTPServer = null;
+    }
+
+    @Reference
+    protected void setNetworkAddressService(NetworkAddressService networkAddressService) {
+        this.networkAddressService = networkAddressService;
+    }
+
+    protected void unsetNetworkAddressService(NetworkAddressService networkAddressService) {
+        this.networkAddressService = null;
     }
 
 }

@@ -1,17 +1,26 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.cache;
 
 import static org.junit.Assert.*;
 
+import org.apache.commons.lang.RandomStringUtils;
+
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.Before;
+
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 /**
  * Test class for the {@link ExpiringCache} class.
@@ -19,67 +28,65 @@ import org.slf4j.LoggerFactory;
  * @author Christoph Weitkamp - Initial contribution.
  */
 public class ExpiringCacheTest {
+    private static final long CACHE_EXPIRY = TimeUnit.SECONDS.toMillis(2);
+    private static final Supplier<String> CACHE_ACTION = () -> RandomStringUtils.random(8);
 
-    private final Logger logger = LoggerFactory.getLogger(ExpiringCacheTest.class);
+    private ExpiringCache<String> subject;
+
+    @Before
+    public void setUp() {
+        subject = new ExpiringCache<>(CACHE_EXPIRY, CACHE_ACTION);
+    }
 
     @Test(expected = IllegalArgumentException.class)
     public void testIllegalArgumentException1() throws IllegalArgumentException {
-        new ExpiringCache<String>(ExpiringCacheMapTest.CACHE_EXPIRY, null);
+        new ExpiringCache<>(CACHE_EXPIRY, null);
     }
 
     @Test
     public void testGetValue() {
-        final ExpiringCache<String> single_cache = new ExpiringCache<String>(ExpiringCacheMapTest.CACHE_EXPIRY,
-                ExpiringCacheMapTest.CACHE_ACTION);
-
         // use the same key twice
-        String value1 = single_cache.getValue();
+        String value1 = subject.getValue();
+
         assertNotNull(value1);
-        String value2 = single_cache.getValue();
+
+        String value2 = subject.getValue();
+
         assertNotNull(value2);
         assertEquals(value1, value2);
     }
 
     @Test
     public void testExpired() throws InterruptedException {
-        final ExpiringCache<String> single_cache = new ExpiringCache<String>(ExpiringCacheMapTest.CACHE_EXPIRY,
-                ExpiringCacheMapTest.CACHE_ACTION);
-
-        String value1 = single_cache.getValue();
-        assertFalse(single_cache.isExpired());
+        String value1 = subject.getValue();
+        assertFalse(subject.isExpired());
 
         // wait until cache expires
-        Thread.sleep(ExpiringCacheMapTest.CACHE_EXPIRY + 100);
-        assertTrue(single_cache.isExpired());
+        Thread.sleep(CACHE_EXPIRY + 100);
+        assertTrue(subject.isExpired());
 
-        String value2 = single_cache.getValue();
-        assertFalse(single_cache.isExpired());
+        String value2 = subject.getValue();
+        assertFalse(subject.isExpired());
         assertNotEquals(value1, value2);
     }
 
     @Test
     public void testInvalidate() {
-        final ExpiringCache<String> single_cache = new ExpiringCache<String>(ExpiringCacheMapTest.CACHE_EXPIRY,
-                ExpiringCacheMapTest.CACHE_ACTION);
-
-        String value1 = single_cache.getValue();
+        String value1 = subject.getValue();
 
         // invalidate item
-        single_cache.invalidateValue();
+        subject.invalidateValue();
 
-        String value2 = single_cache.getValue();
+        String value2 = subject.getValue();
         assertNotEquals(value1, value2);
     }
 
     @Test
     public void testRefresh() {
-        final ExpiringCache<String> single_cache = new ExpiringCache<String>(ExpiringCacheMapTest.CACHE_EXPIRY,
-                ExpiringCacheMapTest.CACHE_ACTION);
-
-        String value1 = single_cache.getValue();
+        String value1 = subject.getValue();
 
         // refresh item
-        String value2 = single_cache.refreshValue();
+        String value2 = subject.refreshValue();
         assertNotEquals(value1, value2);
     }
 }

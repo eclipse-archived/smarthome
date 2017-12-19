@@ -1,21 +1,25 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Rule Model Tests
-Bundle-SymbolicName: org.eclipse.smarthome.model.rule.tests;singleton:=true
-Bundle-Version: 0.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.model.rule.tests;singleton:=t
+ rue
 Bundle-Vendor: Eclipse.org/SmartHome
-Require-Bundle: org.eclipse.smarthome.model.rule,
- org.eclipse.core.runtime,
- org.eclipse.xtend.lib,
- com.google.guava,
- org.eclipse.xtext.xbase.lib
-Import-Package: org.eclipse.smarthome.core.items,
+Bundle-Version: 0.10.0.qualifier
+Import-Package: 
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.model.script.engine,
  org.hamcrest.core,
- org.junit.runner;version="4.0.0",
  org.junit.runner.manipulation;version="4.0.0",
  org.junit.runner.notification;version="4.0.0",
- org.junit.runners;version="4.0.0",
- org.junit.runners.model;version="4.0.0"
+ org.junit.runner;version="4.0.0",
+ org.junit.runners.model;version="4.0.0",
+ org.junit.runners;version="4.0.0"
+Require-Bundle: 
+ com.google.guava,
+ org.eclipse.core.runtime,
+ org.eclipse.smarthome.model.rule,
+ org.eclipse.xtend.lib,
+ org.eclipse.xtext.xbase.lib

@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.binding.xml.internal;
 
@@ -24,7 +29,8 @@ import org.slf4j.LoggerFactory;
  * registered as {@link BindingInfoProvider} service at the <i>OSGi</i> service registry.
  * <p>
  * If there is a {@link ConfigDescription} object within the {@link BindingInfoXmlResult} object, it is added to the
- * {@link AbstractXmlConfigDescriptionProvider} which is itself registered as <i>OSGi</i> service at the service registry.
+ * {@link AbstractXmlConfigDescriptionProvider} which is itself registered as <i>OSGi</i> service at the service
+ * registry.
  *
  * @author Michael Grammling - Initial Contribution
  *
@@ -67,14 +73,14 @@ public class BindingInfoXmlProvider implements XmlDocumentProvider<BindingInfoXm
 
             if (configDescription != null) {
                 try {
-                    this.configDescriptionProvider.addConfigDescription(this.bundle, configDescription);
+                    this.configDescriptionProvider.add(this.bundle, configDescription);
                 } catch (Exception ex) {
                     this.logger.error("Could not register ConfigDescription!", ex);
                 }
             }
 
             BindingInfo bindingInfo = bindingInfoXmlResult.getBindingInfo();
-            this.bindingInfoProvider.addBindingInfo(bundle, bindingInfo);
+            this.bindingInfoProvider.add(bundle, bindingInfo);
         }
     }
 
@@ -85,8 +91,8 @@ public class BindingInfoXmlProvider implements XmlDocumentProvider<BindingInfoXm
 
     @Override
     public synchronized void release() {
-        this.bindingInfoProvider.removeAllBindingInfos(this.bundle);
-        this.configDescriptionProvider.removeAllConfigDescriptions(this.bundle);
+        this.bindingInfoProvider.removeAll(bundle);
+        this.configDescriptionProvider.removeAll(bundle);
     }
 
 }

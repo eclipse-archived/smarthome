@@ -1,15 +1,21 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.internal;
 
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
+
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
@@ -28,6 +34,7 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Lists;
 
 /**
@@ -41,7 +48,7 @@ import com.google.common.collect.Lists;
  */
 public class ThingFactoryHelper {
 
-    private static Logger logger = LoggerFactory.getLogger(ThingFactory.class);
+    private static Logger logger = LoggerFactory.getLogger(ThingFactoryHelper.class);
 
     /**
      * Create {@link Channel} instances for the given Thing.
@@ -157,8 +164,8 @@ public class ThingFactoryHelper {
                     return null;
             }
         } catch (NumberFormatException ex) {
-            LoggerFactory.getLogger(ThingFactory.class).warn("Could not parse default value '" + defaultValue
-                    + "' as type '" + parameterType + "': " + ex.getMessage(), ex);
+            LoggerFactory.getLogger(ThingFactoryHelper.class).warn("Could not parse default value '{}' as type '{}': {}",
+                    defaultValue, parameterType, ex.getMessage(), ex);
             return null;
         }
     }

@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.internal.core.provider;
 
@@ -12,7 +17,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -107,8 +111,7 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
                 if (parser != null) {
                     Set<Rule> parsedObjects = parseData(parser, url, bundle);
                     if (parsedObjects != null && !parsedObjects.isEmpty()) {
-                        Set<Rule> rules = setUIDs(vendor, parsedObjects);
-                        addNewProvidedObjects(null, null, rules);
+                        addNewProvidedObjects(null, null, parsedObjects);
                     }
                 }
             }
@@ -121,13 +124,15 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
             Set<Rule> parsedObjects) {
         if (parsedObjects != null && !parsedObjects.isEmpty()) {
             for (Rule rule : parsedObjects) {
-                try {
-                    mProvider.add(rule);
-                } catch (IllegalArgumentException e) {
-                    logger.debug("Not importing rule '{}' because: {}", rule.getUID(), e.getMessage(), e);
-                } catch (IllegalStateException e) {
-                    logger.debug("Not importing rule '{}' since the rule registry is in an invalid state: {}",
-                            rule.getUID(), e.getMessage());
+                if (rule != null) {
+                    try {
+                        mProvider.add(rule);
+                    } catch (IllegalArgumentException e) {
+                        logger.debug("Not importing rule '{}' because: {}", rule.getUID(), e.getMessage(), e);
+                    } catch (IllegalStateException e) {
+                        logger.debug("Not importing rule '{}' since the rule registry is in an invalid state: {}",
+                                rule.getUID(), e.getMessage());
+                    }
                 }
             }
         }
@@ -154,43 +159,7 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
     }
 
     @Override
-    protected boolean checkExistence(String uid) {
-        return mProvider.get(uid) != null;
-    }
-
-    @Override
     protected String getUID(Rule parsedObject) {
         return parsedObject.getUID();
     }
-
-    protected Set<Rule> setUIDs(Vendor vendor, Set<Rule> rules) {
-        Set<Rule> newRules = new HashSet<Rule>();
-        for (Rule rule : rules) {
-            if (rule.getUID() == null) {
-                rule = setUID(vendor, rule);
-            }
-            newRules.add(rule);
-        }
-        return newRules;
-    }
-
-    /**
-     * This method gives UIDs on the rules that don't have one.
-     *
-     * @param vendor
-     *            is the bundle providing the rules.
-     * @param rule
-     *            is the provided rule.
-     */
-    private Rule setUID(Vendor vendor, Rule rule) {
-        String uid = vendor.getVendorID() + vendor.count();
-        Rule r = new Rule(uid, rule.getTriggers(), rule.getConditions(), rule.getActions(),
-                rule.getConfigurationDescriptions(), rule.getConfiguration(), rule.getTemplateUID(),
-                rule.getVisibility());
-        r.setName(rule.getName());
-        r.setDescription(rule.getDescription());
-        r.setTags(rule.getTags());
-        return r;
-    }
-
 }

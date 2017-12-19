@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 1997, 2016 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.core.internal;
 
@@ -213,8 +218,8 @@ public class ReferenceResolverUtil {
             end = reference.indexOf('}', start + 2);
             if (end == -1) {
                 previous = start;
-                logger.warn("Couldn't parse referenced key: " + reference.substring(start)
-                        + ": expected reference syntax-> ${referencedKey}");
+                logger.warn("Couldn't parse referenced key: {}: expected reference syntax-> ${referencedKey}",
+                        reference.substring(start));
                 break;
             }
             final String referencedKey = reference.substring(start + 2, end);
@@ -292,7 +297,7 @@ public class ReferenceResolverUtil {
                 return null;
             }
             String key = ref.substring(1, idx++);
-            Map map = (Map) object;
+            Map<?, ?> map = (Map<?, ?>) object;
             result = map.get(key);
         } else {
             String key = null;

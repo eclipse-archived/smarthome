@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.internal
 
@@ -20,19 +25,19 @@ import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingRegistry
+import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
-import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition
 import org.eclipse.smarthome.core.thing.type.ChannelType
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
-import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.StateDescription
 import org.eclipse.smarthome.core.types.StateOption
@@ -94,7 +99,8 @@ class ThingLinkManagerOSGiTest extends OSGiTest {
             getChannelGroupType: { null }
         ] as ChannelTypeProvider)
 
-        def thingTypeProvider = new TestThingTypeProvider([new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, [new ChannelDefinition("1", channelType.UID)], null, null, null)])
+        def thingType = ThingTypeBuilder.instance(new ThingTypeUID("hue:lamp"), "label").withChannelDefinitions([new ChannelDefinition("1", channelType.UID)]).build();
+        def thingTypeProvider = new SimpleThingTypeProvider([thingType])
         registerService(thingTypeProvider)
     }
 
@@ -177,6 +183,11 @@ class ThingLinkManagerOSGiTest extends OSGiTest {
             return new BaseThingHandler(thing) {
                         public void handleCommand(ChannelUID channelUID, Command command) { }
 
+                        @Override
+                        public void initialize() {
+                            updateStatus(ThingStatus.ONLINE);
+                        }
+
                         void channelLinked(ChannelUID channelUID) {
                             putContext("linkedChannel", channelUID)
                         }
@@ -186,24 +197,6 @@ class ThingLinkManagerOSGiTest extends OSGiTest {
                             putContext("unlinkedChannel", channelUID)
                         }
                     }
-        }
-    }
-
-    class TestThingTypeProvider implements ThingTypeProvider {
-        def Collection<ThingType> thingTypes
-
-        TestThingTypeProvider(Collection<ThingType> thingTypes){
-            this.thingTypes = thingTypes
-        }
-
-        @Override
-        public Collection<ThingType> getThingTypes(Locale locale) {
-            return this.thingTypes;
-        }
-
-        @Override
-        public ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale) {
-            return thingTypes.find { it.UID == thingTypeUID }
         }
     }
 }

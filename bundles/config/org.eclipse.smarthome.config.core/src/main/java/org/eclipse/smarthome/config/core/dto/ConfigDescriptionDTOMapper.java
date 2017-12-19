@@ -1,18 +1,25 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.core.dto;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup;
 import org.eclipse.smarthome.config.core.FilterCriteria;
 import org.eclipse.smarthome.config.core.ParameterOption;
@@ -22,27 +29,74 @@ import org.eclipse.smarthome.config.core.ParameterOption;
  * {@link ConfigDescriptionDTO}.
  *
  * @author Dennis Nobel - Initial contribution
- *
+ * @author Ana Dimova - converting ConfigDescriptionParameterDTO to ConfigDescriptionParameter
  */
 public class ConfigDescriptionDTOMapper {
 
     /**
-     * Maps config description into config description DTO object.
+     * Maps configuration description into configuration description DTO object.
      *
-     * @param configDescription the config description (not null)
-     * @return the config description DTO object
+     * @param configDescription the configuration description (not null)
+     * @return the configuration description DTO object
      */
     public static ConfigDescriptionDTO map(ConfigDescription configDescription) {
         List<ConfigDescriptionParameterGroupDTO> parameterGroups = mapParameterGroups(
                 configDescription.getParameterGroups());
         List<ConfigDescriptionParameterDTO> parameters = mapParameters(configDescription.getParameters());
-        return new ConfigDescriptionDTO(configDescription.getURI().toString(), parameters, parameterGroups);
+        return new ConfigDescriptionDTO(toDecodedString(configDescription.getUID()), parameters, parameterGroups);
+    }
+
+    private static String toDecodedString(URI uri) {
+        // combine these partials because URI.toString() does not decode
+        return uri.getScheme() + ":" + uri.getSchemeSpecificPart();
+    }
+
+    public static List<ConfigDescriptionParameter> map(List<ConfigDescriptionParameterDTO> parameters) {
+        if (parameters == null) {
+            return null;
+        }
+        final List<ConfigDescriptionParameter> result = new ArrayList<>(parameters.size());
+        for (ConfigDescriptionParameterDTO parameter : parameters) {
+            result.add(ConfigDescriptionParameterBuilder.create(parameter.name, parameter.type)
+                    .withContext(parameter.context).withDefault(parameter.defaultValue)
+                    .withDescription(parameter.description).withLabel(parameter.label).withRequired(parameter.required)
+                    .withMinimum(parameter.min).withMaximum(parameter.max).withStepSize(parameter.stepsize)
+                    .withPattern(parameter.pattern).withReadOnly(parameter.readOnly).withMultiple(parameter.multiple)
+                    .withMultipleLimit(parameter.multipleLimit).withGroupName(parameter.groupName)
+                    .withAdvanced(parameter.advanced).withVerify(parameter.verify)
+                    .withLimitToOptions(parameter.limitToOptions).withUnit(parameter.unitLabel)
+                    .withUnitLabel(parameter.unitLabel).withOptions(mapOptionsDTO(parameter.options))
+                    .withFilterCriteria(mapFilterCriteriaDTO(parameter.filterCriteria)).build());
+        }
+        return result;
+    }
+
+    private static List<FilterCriteria> mapFilterCriteriaDTO(List<FilterCriteriaDTO> filterCriteria) {
+        if (filterCriteria == null) {
+            return null;
+        }
+        List<FilterCriteria> result = new LinkedList<FilterCriteria>();
+        for (FilterCriteriaDTO criteria : filterCriteria) {
+            result.add(new FilterCriteria(criteria.name, criteria.value));
+        }
+        return result;
+    }
+
+    private static List<ParameterOption> mapOptionsDTO(List<ParameterOptionDTO> options) {
+        if (options == null) {
+            return null;
+        }
+        List<ParameterOption> result = new LinkedList<ParameterOption>();
+        for (ParameterOptionDTO option : options) {
+            result.add(new ParameterOption(option.value, option.label));
+        }
+        return result;
     }
 
     /**
-     * Maps config description parameters into DTO objects.
+     * Maps configuration description parameters into DTO objects.
      *
-     * @param parameters the config description parameters (not null)
+     * @param parameters the configuration description parameters (not null)
      *
      * @return the parameter DTO objects (not null)
      */
@@ -70,9 +124,9 @@ public class ConfigDescriptionDTOMapper {
     }
 
     /**
-     * Maps config description parameter groups into DTO objects.
+     * Maps configuration description parameter groups into DTO objects.
      *
-     * @param parameterGroups the config description parameter groups (not null)
+     * @param parameterGroups the configuration description parameter groups (not null)
      *
      * @return the parameter group DTO objects (not null)
      */

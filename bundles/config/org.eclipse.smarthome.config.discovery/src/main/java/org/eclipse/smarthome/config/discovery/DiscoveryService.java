@@ -1,14 +1,21 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.discovery;
 
 import java.util.Collection;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 /**
@@ -24,7 +31,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * <li><b>Background discovery:</b> If this mode is enabled, the discovery process should run in the background as long
  * as this mode is not disabled again. Background discovery can be enabled and disabled and is configured through the
  * configuration admin. The implementation class that registers an OSGi service must define a PID and has to react on
- * configuration changes for it. See also {@link DiscoveryService#CONFIG_PROPERTY_BACKGROUND_DISCOVERY_ENABLED}.</li>
+ * configuration changes for it. See also {@link DiscoveryService#CONFIG_PROPERTY_BACKGROUND_DISCOVERY}.</li>
  * <li><b>Active scan:</b> If an active scan is triggered, the the service should try to actively query for new devices
  * and should report new results within the defined scan timeout. An active scan can be aborted.</li>
  * </ul>
@@ -36,13 +43,14 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * @see DiscoveryListener
  * @see DiscoveryServiceRegistry
  */
+@NonNullByDefault
 public interface DiscoveryService {
 
     /**
      * Configuration property for enabling the auto discovery feature of a
      * DiscoveryService.
      */
-    static final String CONFIG_PROPERTY_BACKGROUND_DISCOVERY_ENABLED = "backgroundDiscovery.enabled";
+    static final String CONFIG_PROPERTY_BACKGROUND_DISCOVERY = "background";
 
     /**
      * Returns the list of {@code Thing} types which are supported by the {@link DiscoveryService}.
@@ -77,7 +85,7 @@ public interface DiscoveryService {
      *
      * @param listener a listener that is notified about errors or termination of the scan
      */
-    void startScan(ScanListener listener);
+    void startScan(@Nullable ScanListener listener);
 
     /**
      * Stops an active scan for devices.<br>
@@ -106,7 +114,7 @@ public interface DiscoveryService {
      *
      * @param listener the listener to be added (could be null)
      */
-    void addDiscoveryListener(DiscoveryListener listener);
+    void addDiscoveryListener(@Nullable DiscoveryListener listener);
 
     /**
      * Removes a {@link DiscoveryListener} from the listeners' registry.
@@ -119,6 +127,6 @@ public interface DiscoveryService {
      *
      * @param listener the listener to be removed (could be null)
      */
-    void removeDiscoveryListener(DiscoveryListener listener);
+    void removeDiscoveryListener(@Nullable DiscoveryListener listener);
 
 }

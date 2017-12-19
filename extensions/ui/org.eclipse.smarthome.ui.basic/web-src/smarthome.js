@@ -305,7 +305,8 @@
 	function Control(parentNode) {
 		var
 			_t = this,
-			suppress = false;
+			suppress = false,
+			noneImageSrc = "/icon/none.png";
 
 		_t.parentNode = parentNode;
 		_t.formRow = parentNode.parentNode;
@@ -315,18 +316,27 @@
 		_t.visible = !_t.formRow.classList.contains(o.formRowHidden);
 		_t.label = _t.parentNode.parentNode.querySelector(o.formLabel);
 
+		function replaceImageWithNone() {
+			this.removeEventListener("error", replaceImageWithNone);
+			this.src = noneImageSrc;
+		}
+
 		if (_t.icon !== null) {
 			_t.iconName = _t.icon.getAttribute(o.iconAttribute);
+			if (_t.icon.src !== noneImageSrc) {
+				_t.icon.addEventListener("error", replaceImageWithNone);
+			}
 		}
 
 		_t.reloadIcon = function(state) {
 			// Some widgets don't have icons
 			if (_t.icon !== null) {
+				_t.icon.addEventListener("error", replaceImageWithNone);
 				_t.icon.setAttribute("src",
 					"/icon/" +
 					_t.iconName +
 					"?state=" +
-					state +
+					encodeURIComponent(state) +
 					"&format=" +
 					smarthome.UI.iconType
 				);
@@ -343,12 +353,12 @@
 			_t.visible = state;
 		};
 
-		_t.setValue = function(value, itemState) {
+		_t.setValue = function(value, itemState, visible) {
 			_t.reloadIcon(itemState);
 			if (suppress) {
 				suppress = false;
 			} else {
-				_t.setValuePrivate(value, itemState);
+				_t.setValuePrivate(value, itemState, visible);
 			}
 		};
 
@@ -409,37 +419,67 @@
 		}
 
 		var
-			_t = this;
+			_t = this,
+			interval = null,
+			urlNoneIcon = "images/none.png";
 
 		_t.image = parentNode.querySelector("img");
 		_t.updateInterval = parseInt(parentNode.getAttribute("data-update-interval"), 10);
 
 		_t.url = parentNode.getAttribute("data-proxied-url");
 		_t.validUrl = parentNode.getAttribute("data-valid-url") === "true";
+		_t.ignoreRefresh = parentNode.getAttribute("data-ignore-refresh") === "true";
 
-		_t.setValuePrivate = function(value, itemState) {
-			if (itemState.startsWith("data:")) {
+		_t.setValuePrivate = function(value, itemState, visible) {
+			if (!visible) {
+				_t.ignoreRefresh = true;
+				_t.image.setAttribute("src", urlNoneIcon);
+			} else if (itemState.startsWith("data:")) {
 				// Image element associated to an item of type ImageItem
+				_t.ignoreRefresh = true;
 				_t.image.setAttribute("src", itemState);
 			} else if ((itemState !== "UNDEF") || (_t.validUrl)) {
 				// Image element associated to an item of type StringItem (URL)
 				// Or no associated item but url is set and valid in the image element
+				_t.ignoreRefresh = false;
 				_t.image.setAttribute("src", _t.url + "&t=" + Date.now());
 			} else {
 				// No associated item and url is not set or not valid in the image element
-				_t.image.setAttribute("src", "images/none.png");
+				_t.ignoreRefresh = true;
+				_t.image.setAttribute("src", urlNoneIcon);
 			}
 		};
 
-		if (_t.updateInterval === 0) {
-			return;
-		}
-		// Limit the refresh interval to 100 ms
-		if (_t.updateInterval < 100) {
-			_t.updateInterval = 100;
-		}
+		_t.setVisible = function(state) {
+			if (state) {
+				_t.formRow.classList.remove(o.formRowHidden);
+				_t.activateRefresh();
+			} else {
+				_t.formRow.classList.add(o.formRowHidden);
+				_t.deactivateRefresh();
+			}
 
-		var
+			_t.visible = state;
+		};
+
+		_t.deactivateRefresh = function() {
+			if (interval !== null) {
+				clearInterval(interval);
+				interval = null;
+			}
+		};
+
+		_t.activateRefresh = function() {
+			_t.deactivateRefresh();
+
+			if (_t.updateInterval === 0 || _t.ignoreRefresh) {
+				return;
+			}
+			// Limit the refresh interval to 100 ms
+			if (_t.updateInterval < 100) {
+				_t.updateInterval = 100;
+			}
+
 			interval = setInterval(function() {
 				if (_t.image.clientWidth === 0) {
 					clearInterval(interval);
@@ -447,6 +487,11 @@
 				}
 				_t.image.setAttribute("src", _t.url + "&t=" + Date.now());
 			}, _t.updateInterval);
+		};
+
+		if (_t.visible) {
+			_t.activateRefresh();
+		}
 	}
 
 	/* class ControlText extends Control */
@@ -606,7 +651,7 @@
 		_t.setValuePrivate = function(value, itemState) {
 			_t.value = "" + itemState;
 			if (_t.valueMap[itemState] !== undefined) {
-				_t.valueNode.innerHTML = _t.valueMap[itemState];
+				_t.valueNode.innerHTML = smarthome.UI.escapeHtml(_t.valueMap[itemState]);
 			} else {
 				_t.valueNode.innerHTML = "";
 			}
@@ -1398,23 +1443,25 @@
 		_t.iconType = document.body.getAttribute(o.iconTypeAttribute);
 		_t.notification = document.querySelector(o.notify);
 
-		_t.setTitle = function(title, needsEscape) {
+		_t.escapeHtml = function(text) {
 			var
-				escapedText = title,
+				escapedText = text,
 				escapeTable = [
 					[ /&/g, "&amp;" ],
 					[ /</g, "&lt;"  ],
 					[ />/g, "&gt;"  ]
 				];
 
-			if (needsEscape) {
-				for (var i = 0; i < escapeTable.length; i++) {
-					escapedText = escapedText.replace(escapeTable[i][0], escapeTable[i][1]);
-				}
+			for (var i = 0; i < escapeTable.length; i++) {
+				escapedText = escapedText.replace(escapeTable[i][0], escapeTable[i][1]);
 			}
 
-			document.querySelector("title").innerHTML = escapedText;
-			_t.layoutTitle.innerHTML = escapedText;
+			return escapedText;
+		};
+
+		_t.setTitle = function(title) {
+			document.querySelector("title").innerHTML = title;
+			_t.layoutTitle.innerHTML = title;
 		};
 
 		function replaceContent(xmlResponse) {
@@ -1433,7 +1480,7 @@
 			});
 
 			// HTML entities are already escaped on server
-			_t.setTitle(nodeArray[0].textContent, false);
+			_t.setTitle(nodeArray[0].textContent);
 
 			var
 				contentElement = document.querySelector(".page-content");
@@ -1653,6 +1700,39 @@
 		this.resume = function() {
 			this.paused = false;
 		};
+
+		this.extractValueFromLabel = function(label) {
+			var
+				value = null;
+
+			if (
+				(typeof(label) === "string") &&
+				(label.indexOf("[") !== -1) &&
+				(label.indexOf("]") !== -1)
+			) {
+				var
+					pos = label.indexOf("[") + 1;
+
+				value = label.substr(
+					pos,
+					label.lastIndexOf("]") - pos
+				);
+			}
+
+			return value;
+		};
+
+		this.getTitleFromLabel = function(label) {
+			var
+				value = this.extractValueFromLabel(label),
+				title = null;
+
+			if (value  !== null) {
+				title = label.substr(0, label.indexOf("[")) + value;
+			}
+
+			return title;
+		};
 	}
 
 	function ChangeListenerEventsource(subscribeLocation) {
@@ -1674,29 +1754,30 @@
 				value,
 				title;
 
+			if (data.TYPE === "SITEMAP_CHANGED") {
+				var oldLocation = window.location.href;
+				var parts = oldLocation.split("?");
+				if (parts.length > 1) {
+					window.location.href = parts[0] + "?sitemap=" + data.sitemapName;
+				} else {
+					window.location.reload(true);
+				}
+				_t.pause();
+				return;
+			}
+
 			if (!(data.widgetId in smarthome.dataModel) && (data.widgetId !== smarthome.UI.page)) {
 				return;
 			}
 
-			if (
-				(typeof(data.label) === "string") &&
-				(data.label.indexOf("[") !== -1) &&
-				(data.label.indexOf("]") !== -1)
-			) {
-				var
-					pos = data.label.indexOf("[");
-
-				value = data.label.substr(
-					pos + 1,
-					data.label.lastIndexOf("]") - (pos + 1)
-				);
-				title = data.label.substr(0, pos) + value;
-			} else {
+			value = _t.extractValueFromLabel(data.label);
+			if (value === null) {
 				value = data.item.state;
 			}
+			title = _t.getTitleFromLabel(data.label);
 
-			if ((data.widgetId === smarthome.UI.page) && (title !== undefined)) {
-				smarthome.UI.setTitle(title, true);
+			if ((data.widgetId === smarthome.UI.page) && (title !== null)) {
+				smarthome.UI.setTitle(smarthome.UI.escapeHtml(title));
 			} else if (smarthome.dataModel[data.widgetId] !== undefined) {
 				var
 					widget = smarthome.dataModel[data.widgetId];
@@ -1706,22 +1787,29 @@
 						widget: widget,
 						visibility: data.visibility
 					});
-				} else {
-					widget.setValue(value, data.item.state);
-					if (data.label !== undefined) {
-						widget.setLabel(data.label);
-					}
-					if (data.labelcolor !== undefined) {
-						widget.setLabelColor(data.labelcolor);
-					} else {
-						widget.setLabelColor("");
-					}
-					if (data.valuecolor !== undefined) {
-						widget.setValueColor(data.valuecolor);
-					} else {
-						widget.setValueColor("");
-					}
 				}
+
+				widget.setValue(smarthome.UI.escapeHtml(value), data.item.state, data.visibility);
+
+				[{
+					apply: widget.setLabel,
+					data: data.label,
+					fallback: null
+				}, {
+					apply: widget.setLabelColor,
+					data: data.labelcolor,
+					fallback: ""
+				}, {
+					apply: widget.setValueColor,
+					data: data.valuecolor,
+					fallback: ""
+				}].forEach(function(e) {
+					if (e.data !== undefined) {
+						e.apply(e.data);
+					} else if (e.fallback !== null) {
+						e.apply(e.fallback);
+					}
+				});
 			}
 		});
 
@@ -1741,10 +1829,18 @@
 		_t.page = document.body.getAttribute("data-page-id");
 
 		function applyChanges(response) {
+			var
+				title;
+
 			try {
 				response = JSON.parse(response);
 			} catch (e) {
 				return;
+			}
+
+			title = _t.getTitleFromLabel(response.title);
+			if (title !== null) {
+				smarthome.UI.setTitle(smarthome.UI.escapeHtml(title));
 			}
 
 			function walkWidgets(widgets) {
@@ -1755,15 +1851,21 @@
 
 					var
 						item = widget.item.name,
-						value = widget.item.state,
+						state = widget.item.state,
 						label = widget.label,
+						value = _t.extractValueFromLabel(widget.label),
+						visibility = widget.visibility,
 						labelcolor = widget.labelcolor,
 						valuecolor = widget.valuecolor;
 
+					if (value === null) {
+						value = state;
+					}
+
 					if (smarthome.dataModelLegacy[item] !== undefined) {
 						smarthome.dataModelLegacy[item].widgets.forEach(function(w) {
-							if (value !== "NULL") {
-								w.setValue(value, value);
+							if (state !== "NULL") {
+								w.setValue(smarthome.UI.escapeHtml(value), state, visibility);
 							}
 							if (label !== undefined) {
 								w.setLabel(label);

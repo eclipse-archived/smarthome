@@ -1,16 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
-/**
- * Copyright (c) 2014-2016 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.io.rest.internal.filter;
 
@@ -25,6 +23,7 @@ import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Provider;
 
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * A filter that only affects resources implementing the {@link SatisfiableRESTResource} interface.
@@ -36,6 +35,7 @@ import org.eclipse.smarthome.io.rest.RESTResource;
  *
  */
 @Provider
+@Component(immediate = true, service = SatisfiableResourceFilter.class)
 public class SatisfiableResourceFilter implements ContainerRequestFilter {
 
     @Override

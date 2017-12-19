@@ -1,14 +1,21 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing;
 
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.core.common.registry.Registry;
@@ -42,7 +49,8 @@ public interface ThingRegistry extends Registry<Thing, ThingUID> {
      * @param channelUID channel UID
      * @return channel for the given channel UID or null of no channel was found
      */
-    Channel getChannel(ChannelUID channelUID);
+    @Nullable
+    Channel getChannel(@NonNull ChannelUID channelUID);
 
     /**
      * Updates the configuration of a thing for the given UID.
@@ -53,7 +61,7 @@ public interface ThingRegistry extends Registry<Thing, ThingUID> {
      * @throws ConfigValidationException if one or more of the given configuration parameters do not match
      *             their declarations in the configuration description
      */
-    void updateConfiguration(ThingUID thingUID, Map<String, Object> configurationParameters);
+    void updateConfiguration(@NonNull ThingUID thingUID, Map<@NonNull String, Object> configurationParameters);
 
     /**
      * Initiates the removal process for the {@link Thing} specified by the given {@link ThingUID}.
@@ -80,7 +88,8 @@ public interface ThingRegistry extends Registry<Thing, ThingUID> {
      * @param thingUID Identificator of the {@link Thing} to be removed
      * @return the {@link Thing} that was removed, or null if no {@link Thing} with the given {@link ThingUID} exists
      */
-    Thing forceRemove(ThingUID thingUID);
+    @Nullable
+    Thing forceRemove(@NonNull ThingUID thingUID);
 
     /**
      * Creates a thing based on the given configuration properties
@@ -97,6 +106,6 @@ public interface ThingRegistry extends Registry<Thing, ThingUID> {
      *            the configuration
      * @return the created thing
      */
-	Thing createThingOfType(ThingTypeUID thingTypeUID, ThingUID thingUIDObject, ThingUID bridgeUID, String label,
-			Configuration configuration);
+    Thing createThingOfType(@NonNull ThingTypeUID thingTypeUID, ThingUID thingUIDObject, ThingUID bridgeUID,
+            String label, Configuration configuration);
 }

@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.sonos.internal;
 
@@ -14,7 +19,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 /**
  * The {@link SonosEntry} is a datastructure to describe
  * multimedia "entries" in the Sonos ecosystem
- * 
+ *
  * @author Karel Goderis - Initial contribution
  */
 public class SonosEntry implements Serializable {
@@ -30,6 +35,7 @@ public class SonosEntry implements Serializable {
     private final String creator;
     private final int originalTrackNumber;
     private final SonosResourceMetaData resourceMetaData;
+    private String desc;
 
     public SonosEntry(String id, String title, String parentId, String album, String albumArtUri, String creator,
             String upnpClass, String res) {
@@ -53,6 +59,7 @@ public class SonosEntry implements Serializable {
         this.res = res;
         this.originalTrackNumber = originalTrackNumber;
         this.resourceMetaData = resourceMetaData;
+        this.desc = null;
     }
 
     /**
@@ -126,10 +133,19 @@ public class SonosEntry implements Serializable {
     /**
      * The resourceMetaData field from the ResMD parent, this will be login info for
      * streaming accounts to use in favorites
-     * 
+     *
      * @return
      */
     public SonosResourceMetaData getResourceMetaData() {
         return resourceMetaData;
     }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
 }

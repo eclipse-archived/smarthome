@@ -10,21 +10,17 @@ describe('factory configService', function() {
         expect(configService).toBeDefined();
     });
     describe('tests for Rendering model', function() {
+        var $httpBackend
+        var restConfig
+        var itemRepository
         beforeEach(inject(function($injector, $rootScope, thingService) {
             $httpBackend = $injector.get('$httpBackend');
             restConfig = $injector.get('restConfig');
+            itemRepository = $injector.get('itemRepository');
         }));
         it('should accept empty config parameters', function() {
             var params = configService.getRenderingModel();
             expect(params).toEqual([]);
-        });
-        it('should call item config', function() {
-            spyOn(configService, "getItemConfigs").and.callThrough();
-            var inputParams = [ {
-                type : 'none'
-            } ];
-            var params = configService.getRenderingModel(inputParams);
-            expect(configService.getItemConfigs).toHaveBeenCalled();
         });
         it('should return the default group when no groups', function() {
             var inputParams = [ {
@@ -70,6 +66,33 @@ describe('factory configService', function() {
             } ];
             var params = configService.getRenderingModel(inputParams);
             expect(params[0].parameters[0].element).toEqual("select");
+        });
+        it('should return item options for context ITEM', function() {
+            var inputParams = [ {
+                context : 'item',
+                filterCriteria : [{
+                    name: 'type',
+                    value: 'number'
+                }]
+            } ];
+            
+            var items = [{
+                type : 'number',
+                label : 'number item'
+            }, {
+                type : 'contact',
+                label : 'contact item'
+            }]
+            
+            spyOn(itemRepository, 'getAll').and.callFake(function(callback) {
+                callback(items)
+            });
+            
+            var params = configService.getRenderingModel(inputParams);
+            expect(params[0].parameters[0].element).toEqual("select");
+            expect(params[0].parameters[0].options.length).toEqual(1);
+            expect(params[0].parameters[0].options[0]).toBeDefined();
+            expect(params[0].parameters[0].options[0].label).toEqual('number item');
         });
         it('should return date widget for context DATE type=Text', function() {
             var inputParams = [ {
@@ -213,17 +236,72 @@ describe('factory configService', function() {
             expect(paramsDecimal[0].parameters[0].element).toEqual("select");
             expect(paramsDecimal[0].parameters[0].options[0].value).toEqual(1);
         });
-        it('should return text widget for type INTEGER/DECIMAL', function() {
+        it('should return parse floats type DECIMAL with options', function() {
+            var inputParams = [ {
+                type : 'decimal',
+                options : [ {
+                    value : "1.1"
+                }, {
+                    value : "2.2"
+                } ],
+                limitToOptions : true
+            } ];
+            var params = configService.getRenderingModel(inputParams);
+            expect(params[0].parameters[0].element).toEqual("select");
+            expect(params[0].parameters[0].options[0].value).toEqual(1.1);
+            expect(params[0].parameters[0].options[1].value).toEqual(2.2);
+        });
+        it('should return number widget for type INTEGER/DECIMAL', function() {
             var inputParams = [ {
                 type : 'integer'
             } ];
             var params = configService.getRenderingModel(inputParams);
             expect(params[0].parameters[0].element).toEqual("input");
             expect(params[0].parameters[0].inputType).toEqual("number");
-            inputParams.type = 'decimal';
+            expect(params[0].parameters[0].pattern).toEqual("-?\\d+");
+
+            inputParams[0].pattern = '[1-3]{4}';
+            var params = configService.getRenderingModel(inputParams);
+            expect(params[0].parameters[0].element).toEqual("input");
+            expect(params[0].parameters[0].inputType).toEqual("number");
+            expect(params[0].parameters[0].pattern).toEqual("[1-3]{4}");
+
+            inputParams[0].type = 'decimal';
+            inputParams[0].pattern = undefined;
             var paramsDecimal = configService.getRenderingModel(inputParams);
             expect(paramsDecimal[0].parameters[0].element).toEqual("input");
             expect(paramsDecimal[0].parameters[0].inputType).toEqual("number");
+            expect(params[0].parameters[0].pattern).toBe(undefined);
+        });
+        it('should set defaults type DECIMAL', function() {
+            var thing = {
+                    configuration: {}
+            }
+            
+            var thingType = {
+                configParameters : [ {
+                    name: 'test',
+                    type : 'DECIMAL',
+                    defaultValue : '1.1'
+                } ]
+            }
+
+            configService.setDefaults(thing, thingType);
+            expect(thing.configuration['test']).toEqual(1.1);
+        });
+        it('should set config values from type DECIMAL', function() {
+            var originalConfiguration = {};
+            
+            var groups = [{
+                parameters : [ {
+                    name : 'test',
+                    type : 'DECIMAL',
+                    defaultValue : '1.1'
+                } ]
+            }]
+
+            var config = configService.setConfigDefaults(originalConfiguration, groups, false);
+            expect(config['test']).toEqual(1.1);
         });
         it('should rertieve rules and add options for context RULE', function() {
             var inputParams = [ {
@@ -244,5 +322,20 @@ describe('factory configService', function() {
             expect(params[0].parameters[0].options[1].label).toEqual('rule2');
         });
     });
+    
+    describe('test for replaceEmtpyValues method', function() {
+        it('should replace empty strings and undefined values by null', function () {
+            var emptyProperties = {
+                    label : '',
+                    value : undefined,
+                    property : null
+            }
+            
+            emptyProperties = configService.replaceEmptyValues(emptyProperties)
+            expect(emptyProperties.label).toBe(null)
+            expect(emptyProperties.value).toBe(null)
+            expect(emptyProperties.property).toBe(null)
+        })
+    })
 
 });

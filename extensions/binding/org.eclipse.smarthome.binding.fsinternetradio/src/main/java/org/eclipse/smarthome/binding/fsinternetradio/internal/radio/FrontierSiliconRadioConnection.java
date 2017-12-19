@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.fsinternetradio.internal.radio;
 
@@ -40,9 +45,6 @@ public class FrontierSiliconRadioConnection {
     /** Port number, usually 80. */
     private final int port;
 
-    /** URL path, must begin with a slash (/) */
-    private static final String path = "/fsapi";
-
     /** Access pin, passed upon login as GET parameter. */
     private final String pin;
 
@@ -61,7 +63,11 @@ public class FrontierSiliconRadioConnection {
         this.pin = pin;
     }
 
-    protected void deactivate() {
+    public boolean isLoggedIn() {
+        return isLoggedIn;
+    }
+
+    protected void close() {
         stopHttpClient(httpClient);
     }
 
@@ -81,7 +87,8 @@ public class FrontierSiliconRadioConnection {
 
         startHttpClient(httpClient);
 
-        final String url = "http://" + hostname + ":" + port + path + "/CREATE_SESSION?pin=" + pin;
+        final String url = "http://" + hostname + ":" + port + FrontierSiliconRadioConstants.CONNECTION_PATH
+                + "/CREATE_SESSION?pin=" + pin;
 
         logger.trace("opening URL: {}", url);
 
@@ -155,8 +162,9 @@ public class FrontierSiliconRadioConnection {
                 continue; // not logged in and login was not successful - try again!
             }
 
-            final String url = "http://" + hostname + ":" + port + path + "/" + requestString + "?pin=" + pin + "&sid="
-                    + sessionId + (params == null || params.trim().length() == 0 ? "" : "&" + params);
+            final String url = "http://" + hostname + ":" + port + FrontierSiliconRadioConstants.CONNECTION_PATH + "/"
+                    + requestString + "?pin=" + pin + "&sid=" + sessionId
+                    + (params == null || params.trim().length() == 0 ? "" : "&" + params);
 
             logger.trace("calling url: '{}'", url);
 

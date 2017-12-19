@@ -1,13 +1,20 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.common.registry;
 
 import java.util.Collection;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * A {@link Provider} provides elements of a determined type and the subinterfaces
@@ -17,17 +24,16 @@ import java.util.Collection;
  *
  * @author Dennis Nobel - Initial contribution
  *
- * @param <E>
- *            type of the provided elements
+ * @param <E> type of the provided elements
  */
+@NonNullByDefault
 public interface Provider<E> {
 
     /**
      * Adds a {@link ProviderChangeListener} which must be notified if there are
      * changes concerning the elements provided by the {@link Provider}.
      *
-     * @param listener
-     *            the listener to be added
+     * @param listener the listener to be added
      */
     void addProviderChangeListener(ProviderChangeListener<E> listener);
 
@@ -41,8 +47,7 @@ public interface Provider<E> {
     /**
      * Removes a {@link ProviderChangeListener}.
      *
-     * @param listener
-     *            the listener to be removed.
+     * @param listener the listener to be removed.
      */
     void removeProviderChangeListener(ProviderChangeListener<E> listener);
 

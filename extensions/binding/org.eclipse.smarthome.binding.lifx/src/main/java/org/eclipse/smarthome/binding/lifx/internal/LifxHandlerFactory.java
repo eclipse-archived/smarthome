@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.lifx.internal;
 
@@ -14,7 +19,11 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * The {@link LifxHandlerFactory} is responsible for creating things and thing handlers.
@@ -22,6 +31,7 @@ import org.osgi.service.component.ComponentContext;
  * @author Dennis Nobel - Initial contribution
  * @author Karel Goderis - Remove dependency on external libraries
  */
+@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.lifx", configurationPolicy = ConfigurationPolicy.OPTIONAL)
 public class LifxHandlerFactory extends BaseThingHandlerFactory {
 
     private LifxChannelFactory channelFactory;
@@ -38,8 +48,11 @@ public class LifxHandlerFactory extends BaseThingHandlerFactory {
 
     @Override
     protected ThingHandler createHandler(Thing thing) {
-        if (supportsThingType(thing.getThingTypeUID())) {
-            return new LifxLightHandler(thing, channelFactory);
+        ThingTypeUID typeUID = thing.getThingTypeUID();
+        if (typeUID != null && supportsThingType(typeUID)) {
+            if (channelFactory != null) {
+                return new LifxLightHandler(thing, channelFactory);
+            }
         }
 
         return null;
@@ -50,6 +63,7 @@ public class LifxHandlerFactory extends BaseThingHandlerFactory {
         super.deactivate(componentContext);
     }
 
+    @Reference
     protected void setChannelFactory(LifxChannelFactory channelFactory) {
         this.channelFactory = channelFactory;
     }

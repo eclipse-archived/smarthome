@@ -12,7 +12,7 @@ Bundle: `org.eclipse.smarthome.ui.icon`
 
 Eclipse SmartHome comes with a flexible infrastructure for handling icons that are to be used within user interfaces.
 This bunde registers a servlet under the url `/icon/`, which can then be easily queried for icons using GET requests of the form `/icon/<category>?state=<state>&format=[png|svg]&iconset=<iconsetid>`, where 
-- `category` is one from the [list of channel categories](../../development/bindings/thing-definition.html#channel-categories) or any custom category that might be used within the solution
+- `category` is one from the [list of channel categories](../concepts/categories.html#channel-categories) or any custom category that might be used within the solution
 -`state` (optional) is the string-representation of an item state
 - `format` (optional) defines the requested format to be either PNG or SVG 
 - `iconset` (optional) specifies an iconset to use

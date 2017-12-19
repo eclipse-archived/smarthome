@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.integration.test
 
@@ -12,14 +17,13 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry
-import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider
 import org.eclipse.smarthome.core.storage.StorageService
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.osgi.framework.Bundle
-import org.osgi.framework.BundleContext
 import org.osgi.framework.FrameworkEvent
 import org.osgi.framework.FrameworkListener
 import org.osgi.service.packageadmin.PackageAdmin
@@ -82,15 +86,6 @@ class HostFragmentSupportTest extends OSGiTest{
         Locale.setDefault(Locale.ENGLISH)
         registerVolatileStorageService()
 
-        def autoupdateConfig = [
-            autoUpdate: { String itemName ->
-                println "AutoUpdate Item -> " + itemName
-                return true
-            }
-
-        ] as AutoUpdateBindingConfigProvider
-        registerService(autoupdateConfig)
-
         def StorageService storageService = getService(StorageService)
         moduleTypeRegistry = getService(ModuleTypeRegistry)
         pkgAdmin = getService(PackageAdmin)
@@ -107,73 +102,9 @@ class HostFragmentSupportTest extends OSGiTest{
     void after() {
         logger.info('@After');
     }
-    
+
     protected void registerVolatileStorageService() {
         registerService(AutomationIntegrationJsonTest.VOLATILE_STORAGE_SERVICE)
-    }
-    
-    @Test
-    public void 'asserting that the installation of the host-fragment provides the resources correctly' () {
-        logger.info('asserting that the installation of the host-fragment provides the resources correctly')
-
-        // first install the host
-        def Bundle host = bundleContext.installBundle(RESOURCES_TEST_BUNDLE_1, getClass().getClassLoader().getResourceAsStream(PATH + RESOURCES_TEST_BUNDLE_1 + EXT))
-        assertThat host, is(notNullValue())
-        host.start()
-
-        // assert that the host resources are loaded
-        waitForAssert({
-            assertThat host.getState(), is(Bundle.ACTIVE)
-            assertThat moduleTypeRegistry.get(trigger1), is(notNullValue())
-            assertThat moduleTypeRegistry.get(trigger1, Locale.getDefault()).getLabel(), is(moduleTypeRegistry.get(trigger1).getLabel())
-            assertThat moduleTypeRegistry.get(trigger1, new Locale("bg")).getLabel(), is(trigger1LabelBG)
-            assertThat moduleTypeRegistry.get(trigger1, Locale.GERMANY).getLabel(), is(trigger1LabelDE)
-            assertThat moduleTypeRegistry.get(condition1), is(notNullValue())
-            assertThat moduleTypeRegistry.get(condition1, Locale.getDefault()).getLabel(), is(moduleTypeRegistry.get(condition1).getLabel())
-            assertThat moduleTypeRegistry.get(condition1, new Locale("bg")).getLabel(), is(condition1LabelBG)
-            assertThat moduleTypeRegistry.get(condition1, Locale.GERMANY).getLabel(), is(condition1LabelDE)
-            assertThat moduleTypeRegistry.get(action1), is(notNullValue())
-            assertThat moduleTypeRegistry.get(action1, Locale.getDefault()).getLabel(), is(moduleTypeRegistry.get(action1).getLabel())
-            assertThat moduleTypeRegistry.get(action1, new Locale("bg")).getLabel(), is(action1LabelBG)
-            assertThat moduleTypeRegistry.get(action1, Locale.GERMANY).getLabel(), is(action1LabelDE)
-        }, 3000, 200)
-
-        // then install the fragment
-        def Bundle fragment = bundleContext.installBundle(RESOURCES_TEST_BUNDLE_3, getClass().getClassLoader().getResourceAsStream(PATH + RESOURCES_TEST_BUNDLE_3 + EXT))
-        assertThat fragment, is(notNullValue())
-
-        // assert that the host and fragment resources are loaded
-        waitForAssert({
-            assertThat fragment.getState(), is(Bundle.RESOLVED)
-            assertThat moduleTypeRegistry.get(trigger1), is(notNullValue())
-            assertThat moduleTypeRegistry.get(condition1), is(notNullValue())
-            assertThat moduleTypeRegistry.get(action1), is(notNullValue())
-            assertThat moduleTypeRegistry.get(trigger2), is(notNullValue())
-            assertThat moduleTypeRegistry.get(trigger2, Locale.getDefault()).getLabel(), is(moduleTypeRegistry.get(trigger2).getLabel())
-            assertThat moduleTypeRegistry.get(trigger2, new Locale("bg")).getLabel(), is(trigger2LabelBG)
-            assertThat moduleTypeRegistry.get(trigger2, Locale.GERMANY).getLabel(), is(trigger2LabelDE)
-            assertThat moduleTypeRegistry.get(condition2), is(notNullValue())
-            assertThat moduleTypeRegistry.get(condition2, Locale.getDefault()).getLabel(), is(moduleTypeRegistry.get(condition2).getLabel())
-            assertThat moduleTypeRegistry.get(condition2, new Locale("bg")).getLabel(), is(condition2LabelBG)
-            assertThat moduleTypeRegistry.get(condition2, Locale.GERMANY).getLabel(), is(condition2LabelDE)
-        }, 3000, 200)
-
-        // first uninstall the host
-        host.uninstall()
-
-        // assert that the host and fragment resources are removed
-        waitForAssert({
-            assertThat host.getState(), is(Bundle.UNINSTALLED)
-            assertThat moduleTypeRegistry.get(trigger1), is(nullValue())
-            assertThat moduleTypeRegistry.get(condition1), is(nullValue())
-            assertThat moduleTypeRegistry.get(action1), is(nullValue())
-            assertThat moduleTypeRegistry.get(trigger2), is(nullValue())
-            assertThat moduleTypeRegistry.get(condition2), is(nullValue())
-        }, 3000, 200)
-
-        // uninstall the fragment
-        fragment.uninstall()
-        assertThat fragment.getState(), is(Bundle.UNINSTALLED)
     }
 
     @Test

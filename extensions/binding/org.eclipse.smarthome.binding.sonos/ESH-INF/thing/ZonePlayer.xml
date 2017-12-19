@@ -30,6 +30,7 @@
 			<channel id="notificationsound" typeId="notificationsound" />
 			<channel id="notificationvolume" typeId="notificationvolume" />
 			<channel id="playlist" typeId="playlist" />
+			<channel id="clearqueue" typeId="clearqueue" />
 			<channel id="playqueue" typeId="playqueue" />
 			<channel id="playtrack" typeId="playtrack" />
 			<channel id="playuri" typeId="playuri" />
@@ -44,8 +45,8 @@
 			<channel id="standalone" typeId="standalone" />
 			<channel id="state" typeId="state" />
 			<channel id="stop" typeId="stop" />
+			<channel id="tuneinstationid" typeId="tuneinstationid" />
 			<channel id="volume" typeId="volume" />
-			<channel id="zonegroup" typeId="zonegroup" />
 			<channel id="zonegroupid" typeId="zonegroupid" />
 			<channel id="zonename" typeId="zonename" />
 			<channel id="coordinator" typeId="coordinator" />
@@ -59,18 +60,8 @@
 			<property name="modelId">ZonePlayer</property>
 		</properties>
 
-		<config-description>
-			<parameter name="udn" type="text">
-				<label>Unique Device Name</label>
-				<description>The UDN identifies the Zone Player.</description>
-				<required>true</required>
-			</parameter>
+		<representation-property>udn</representation-property>
 
-			<parameter name="refresh" type="integer">
-				<label>Refresh interval</label>
-				<description>Specifies the refresh interval in seconds</description>
-				<default>60</default>
-			</parameter>
-		</config-description>
+		<config-description-ref uri="thing-type:sonos:zoneplayer" />
 	</thing-type>
 </thing:thing-descriptions>

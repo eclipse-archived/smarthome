@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener;
 
@@ -20,14 +25,21 @@ public interface TotalPowerConsumptionListener {
     /**
      * This method is called whenever the total power consumption of the digitalSTROM-System has changed.
      *
-     * @param newPowerConsumption
+     * @param newPowerConsumption of the digitalSTROM-System
      */
-    public void onTotalPowerConsumptionChanged(int newPowerConsumption);
+    void onTotalPowerConsumptionChanged(int newPowerConsumption);
 
     /**
-     * This method is called whenever the total energy meter value of the digitalSTROM-System has changed.
+     * This method is called whenever the total energy meter value in Wh of the digitalSTROM-System has changed.
      *
-     * @param newPowerConsumption
+     * @param newEnergyMeterValue of the digitalSTROM-System
      */
-    public void onEnergyMeterValueChanged(int newEnergyMeterValue);
+    void onEnergyMeterValueChanged(int newEnergyMeterValue);
+
+    /**
+     * This method is called whenever the total energy meter value in Ws of the digitalSTROM-System has changed.
+     *
+     * @param newEnergyMeterValue of the digitalSTROM-System
+     */
+    void onEnergyMeterWsValueChanged(int newEnergyMeterValue);
 }

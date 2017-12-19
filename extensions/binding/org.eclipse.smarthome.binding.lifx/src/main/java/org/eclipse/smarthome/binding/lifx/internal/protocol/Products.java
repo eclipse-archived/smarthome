@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.lifx.internal.protocol;
 
@@ -24,13 +29,24 @@ public enum Products {
     W800LV(1, 10, "White 800 (Low Voltage)", false, false, false),
     W800HV(1, 11, "White 800 (High Voltage)", false, false, false),
     W900LV(1, 18, "White 900 BR30 (Low Voltage)", false, false, false),
-    C900(1, 20, "Color 900 BR30", true, false, false),
+    C1000BR30(1, 20, "Color 1000 BR30", true, false, false),
     C1000(1, 22, "Color 1000", true, false, false),
-    LA19(1, 27, "LIFX A19", true, false, false),
-    LBR30(1, 28, "LIFX BR30", true, false, false),
-    LPA19(1, 29, "LIFX+ A19", true, true, false),
-    LPBR30(1, 30, "LIFX+ BR30", true, true, false),
-    LZ(1, 31, "LIFX Z", true, false, true);
+    LA19_1(1, 27, "LIFX A19", true, false, false),
+    LBR30_1(1, 28, "LIFX BR30", true, false, false),
+    LPA19_1(1, 29, "LIFX+ A19", true, true, false),
+    LPBR30_1(1, 30, "LIFX+ BR30", true, true, false),
+    LZ_1(1, 31, "LIFX Z", true, false, true),
+    LZ_2(1, 32, "LIFX Z 2", true, false, true),
+    LDL_1(1, 36, "LIFX Downlight", true, false, false),
+    LDL_2(1, 37, "LIFX Downlight", true, false, false),
+    LA19_2(1, 43, "LIFX A19", true, false, false),
+    LBR30_2(1, 44, "LIFX BR30", true, false, false),
+    LPA19_2(1, 45, "LIFX+ A19", true, true, false),
+    LPBR30_2(1, 46, "LIFX+ BR30", true, true, false),
+    LM(1, 49, "LIFX Mini", true, false, false),
+    LMDD(1, 50, "LIFX Mini Day and Dusk", false, false, false),
+    LMW(1, 51, "LIFX Mini White", false, false, false),
+    LGU10(1, 52, "LIFX GU10", true, false, false);
 
     private final long vendorID;
     private final long productID;

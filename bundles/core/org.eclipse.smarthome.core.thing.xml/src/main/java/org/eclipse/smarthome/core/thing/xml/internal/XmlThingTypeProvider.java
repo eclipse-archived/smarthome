@@ -1,34 +1,40 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.xml.internal;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
+import org.eclipse.smarthome.config.xml.AbstractXmlBasedProvider;
 import org.eclipse.smarthome.config.xml.AbstractXmlConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentBundleTracker;
+import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
+import org.eclipse.smarthome.core.service.ReadyService;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nLocalizationService;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.osgi.framework.Bundle;
-import org.osgi.service.component.ComponentContext;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -44,239 +50,57 @@ import org.osgi.service.component.annotations.Reference;
  * @author Dennis Nobel - Added locale support, Added cache for localized thing types
  * @author Ivan Iliev - Added support for system wide channel types
  * @author Kai Kreuzer - fixed concurrency issues
+ * @author Simon Kaufmann - factored out common aspects into {@link AbstractXmlBasedProvider}
  */
-@Component(immediate = true, property = { "esh.scope=core.xml" })
-public class XmlThingTypeProvider implements ThingTypeProvider {
-
-    private class LocalizedThingTypeKey {
-        public ThingTypeUID uid;
-        public String locale;
-
-        public LocalizedThingTypeKey(ThingTypeUID uid, String locale) {
-            this.uid = uid;
-            this.locale = locale;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + getOuterType().hashCode();
-            result = prime * result + ((locale == null) ? 0 : locale.hashCode());
-            result = prime * result + ((uid == null) ? 0 : uid.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            LocalizedThingTypeKey other = (LocalizedThingTypeKey) obj;
-            if (!getOuterType().equals(other.getOuterType())) {
-                return false;
-            }
-            if (locale == null) {
-                if (other.locale != null) {
-                    return false;
-                }
-            } else if (!locale.equals(other.locale)) {
-                return false;
-            }
-            if (uid == null) {
-                if (other.uid != null) {
-                    return false;
-                }
-            } else if (!uid.equals(other.uid)) {
-                return false;
-            }
-            return true;
-        }
-
-        private XmlThingTypeProvider getOuterType() {
-            return XmlThingTypeProvider.this;
-        }
-
-    }
+@Component(immediate = true, property = { "esh.scope=core.xml.thing" })
+public class XmlThingTypeProvider extends AbstractXmlBasedProvider<UID, ThingType>
+        implements ThingTypeProvider, XmlDocumentProviderFactory<List<?>> {
 
     private static final String XML_DIRECTORY = "/ESH-INF/thing/";
-
-    private Map<LocalizedThingTypeKey, ThingType> localizedThingTypeCache = new ConcurrentHashMap<>();
-
-    private Map<Bundle, List<ThingType>> bundleThingTypesMap = new ConcurrentHashMap<>(10);
+    public static final String READY_MARKER = "esh.xmlThingTypes";
 
     private ThingTypeI18nLocalizationService thingTypeI18nLocalizationService;
-
     private AbstractXmlConfigDescriptionProvider configDescriptionProvider;
-
     private XmlChannelTypeProvider channelTypeProvider;
+    private XmlChannelGroupTypeProvider channelGroupTypeProvider;
 
     private XmlDocumentBundleTracker<List<?>> thingTypeTracker;
+    private ReadyService readyService;
+
+    private ScheduledExecutorService scheduler = ThreadPoolManager
+            .getScheduledPool(XmlDocumentBundleTracker.THREAD_POOL_NAME);
+    private Future<?> trackerJob;
 
     @Activate
-    protected void activate(ComponentContext context) {
+    protected void activate(BundleContext bundleContext) {
         XmlDocumentReader<List<?>> thingTypeReader = new ThingDescriptionReader();
+        thingTypeTracker = new XmlDocumentBundleTracker<List<?>>(bundleContext, XML_DIRECTORY, thingTypeReader, this,
+                READY_MARKER, readyService);
 
-        XmlDocumentProviderFactory<List<?>> thingTypeProviderFactory = new ThingTypeXmlProviderFactory(
-                configDescriptionProvider, this, channelTypeProvider);
-
-        thingTypeTracker = new XmlDocumentBundleTracker<List<?>>(context.getBundleContext(), XML_DIRECTORY,
-                thingTypeReader, thingTypeProviderFactory);
-        thingTypeTracker.open();
+        trackerJob = scheduler.submit(() -> {
+            thingTypeTracker.open();
+        });
 
     }
 
     @Deactivate
-    protected void deactivate(ComponentContext context) {
+    protected void deactivate() {
+        if (trackerJob != null && !trackerJob.isDone()) {
+            trackerJob.cancel(true);
+            trackerJob = null;
+        }
         thingTypeTracker.close();
         thingTypeTracker = null;
     }
 
-    private List<ThingType> acquireThingTypes(Bundle bundle) {
-        if (bundle != null) {
-            List<ThingType> thingTypes = this.bundleThingTypesMap.get(bundle);
-
-            if (thingTypes == null) {
-                thingTypes = new CopyOnWriteArrayList<ThingType>();
-
-                this.bundleThingTypesMap.put(bundle, thingTypes);
-            }
-
-            return thingTypes;
-        }
-
-        return null;
-    }
-
-    /**
-     * Adds a {@link ThingType} object to the internal list associated with the
-     * specified module.
-     * <p>
-     * This method returns silently, if any of the parameters is {@code null}.
-     *
-     * @param bundle
-     *            the module to which the Thing type to be added
-     * @param thingType
-     *            the Thing type to be added
-     */
-    public synchronized void addThingType(Bundle bundle, ThingType thingType) {
-        if (thingType != null) {
-            List<ThingType> thingTypes = acquireThingTypes(bundle);
-
-            if (thingTypes != null) {
-                thingTypes.add(thingType);
-                // just make sure no old entry remains in the cache
-                removeCachedEntries(thingType);
-            }
-        }
-    }
-
-    private ThingType createLocalizedThingType(Bundle bundle, ThingType thingType, Locale locale) {
-        // Create a localized thing type key (used for caching localized thing types).
-        final LocalizedThingTypeKey localizedThingTypeKey = getLocalizedThingTypeKey(thingType, locale);
-
-        // Check if there is already an entry in our cache.
-        final ThingType cacheEntry = localizedThingTypeCache.get(localizedThingTypeKey);
-        if (cacheEntry != null) {
-            return cacheEntry;
-        }
-
-        // Check if there is a localization service available.
-        if (thingTypeI18nLocalizationService != null) {
-            // Fetch the localized thing type.
-            final ThingType localizedThingType = thingTypeI18nLocalizationService.createLocalizedThingType(bundle,
-                    thingType, locale);
-            // Put the localized thing type in our cache, so we could reuse it.
-            localizedThingTypeCache.put(localizedThingTypeKey, localizedThingType);
-            return localizedThingType;
-        } else {
-            // There is no localization service available, return the non-localized one.
-            return thingType;
-        }
-    }
-
-    private LocalizedThingTypeKey getLocalizedThingTypeKey(ThingType thingType, Locale locale) {
-        String localeString = locale != null ? locale.toLanguageTag() : null;
-        LocalizedThingTypeKey localizedThingTypeKey = new LocalizedThingTypeKey(thingType.getUID(),
-                locale != null ? localeString : null);
-        return localizedThingTypeKey;
-    }
-
-    private void removeCachedEntries(List<ThingType> thingTypes) {
-        for (ThingType thingType : thingTypes) {
-            removeCachedEntries(thingType);
-        }
-    }
-
-    private void removeCachedEntries(ThingType thingType) {
-        for (Iterator<Entry<LocalizedThingTypeKey, ThingType>> iterator = this.localizedThingTypeCache.entrySet()
-                .iterator(); iterator.hasNext();) {
-            Entry<LocalizedThingTypeKey, ThingType> entry = iterator.next();
-            if (entry.getKey().uid.equals(thingType.getUID())) {
-                iterator.remove();
-            }
-        }
-    }
-
     @Override
     public ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale) {
-        Collection<Entry<Bundle, List<ThingType>>> thingTypesList = this.bundleThingTypesMap.entrySet();
-
-        if (thingTypesList != null) {
-            for (Entry<Bundle, List<ThingType>> thingTypes : thingTypesList) {
-                for (ThingType thingType : thingTypes.getValue()) {
-                    if (thingType.getUID().equals(thingTypeUID)) {
-                        return createLocalizedThingType(thingTypes.getKey(), thingType, locale);
-                    }
-                }
-            }
-        }
-        return null;
+        return get(thingTypeUID, locale);
     }
 
     @Override
     public synchronized Collection<ThingType> getThingTypes(Locale locale) {
-        List<ThingType> allThingTypes = new ArrayList<>(10);
-
-        Collection<Entry<Bundle, List<ThingType>>> thingTypesList = this.bundleThingTypesMap.entrySet();
-
-        if (thingTypesList != null) {
-            for (Entry<Bundle, List<ThingType>> thingTypes : thingTypesList) {
-                for (ThingType thingType : thingTypes.getValue()) {
-                    ThingType localizedThingType = createLocalizedThingType(thingTypes.getKey(), thingType, locale);
-
-                    allThingTypes.add(localizedThingType);
-                }
-            }
-        }
-
-        return allThingTypes;
-    }
-
-    /**
-     * Removes all {@link ThingType} objects from the internal list associated
-     * with the specified module.
-     * <p>
-     * This method returns silently if the module is {@code null}.
-     *
-     * @param bundle
-     *            the module for which all associated Thing types to be removed
-     */
-    public synchronized void removeAllThingTypes(Bundle bundle) {
-        if (bundle != null) {
-            List<ThingType> thingTypes = this.bundleThingTypesMap.get(bundle);
-
-            if (thingTypes != null) {
-                this.bundleThingTypesMap.remove(bundle);
-                removeCachedEntries(thingTypes);
-            }
-        }
+        return getAll(locale);
     }
 
     @Reference
@@ -299,13 +123,45 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
         this.configDescriptionProvider = null;
     }
 
-    @Reference(target = "(esh.scope=core.xml)")
+    @Reference(target = "(esh.scope=core.xml.channels)")
     public void setChannelTypeProvider(ChannelTypeProvider channelTypeProvider) {
         this.channelTypeProvider = (XmlChannelTypeProvider) channelTypeProvider;
     }
 
-    public void unsetChannelTypeProvider(ChannelTypeProvider configDescriptionProvider) {
+    public void unsetChannelTypeProvider(ChannelTypeProvider channelTypeProvider) {
         this.channelTypeProvider = null;
+    }
+
+    @Reference(target = "(esh.scope=core.xml.channelGroups)")
+    public void setChannelGroupTypeProvider(ChannelTypeProvider channelGroupTypeProvider) {
+        this.channelGroupTypeProvider = (XmlChannelGroupTypeProvider) channelGroupTypeProvider;
+    }
+
+    public void unsetChannelGroupTypeProvider(ChannelTypeProvider channelGroupTypeProvider) {
+        this.channelGroupTypeProvider = null;
+    }
+
+    @Reference
+    public void setReadyService(ReadyService readyService) {
+        this.readyService = readyService;
+    }
+
+    public void unsetReadyService(ReadyService readyService) {
+        this.readyService = null;
+    }
+
+    @Override
+    protected ThingType localize(Bundle bundle, ThingType thingType, Locale locale) {
+        if (thingTypeI18nLocalizationService == null) {
+            return null;
+        }
+        return thingTypeI18nLocalizationService.createLocalizedThingType(bundle, thingType, locale);
+    }
+
+    @Override
+    public XmlDocumentProvider<List<?>> createDocumentProvider(Bundle bundle) {
+        return new ThingTypeXmlProvider(bundle, configDescriptionProvider, this, channelTypeProvider,
+                channelGroupTypeProvider);
     }
 
 }

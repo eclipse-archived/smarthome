@@ -1,16 +1,19 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor;
 
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.ConnectionManager;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.SensorJob;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.impl.SceneConfigReadingJob;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.impl.SceneOutputValueReadingJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,8 +23,9 @@ import org.slf4j.LoggerFactory;
  * {@link SceneOutputValueReadingJob}.
  * <p>
  * In addition priorities can be assigned to jobs therefore the {@link SceneReadingJobExecutor} offers the methods
- * {@link #addHighPriorityJob()}, {@link #addLowPriorityJob()} and {@link #addLowPriorityJob()}.
- * 
+ * {@link #addHighPriorityJob(SensorJob)}, {@link #addMediumPriorityJob(SensorJob)} and
+ * {@link #addLowPriorityJob(SensorJob)}.
+ * </p>
  * <p>
  * <b>NOTE:</b><br>
  * In contrast to the {@link SensorJobExecutor} the {@link SceneReadingJobExecutor} will execute {@link SensorJob}'s
@@ -35,6 +39,11 @@ public class SceneReadingJobExecutor extends AbstractSensorJobExecutor {
 
     private Logger logger = LoggerFactory.getLogger(SceneReadingJobExecutor.class);
 
+    /**
+     * Creates a new {@link SceneReadingJobExecutor}.
+     *
+     * @param connectionManager must not be null
+     */
     public SceneReadingJobExecutor(ConnectionManager connectionManager) {
         super(connectionManager);
     }
@@ -72,5 +81,4 @@ public class SceneReadingJobExecutor extends AbstractSensorJobExecutor {
         logger.debug("Add SceneReadingJob from device with dSID {} and low-priority to SceneReadingJobExecutor",
                 sensorJob.getDSID());
     }
-
 }

@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.xml.internal;
 
@@ -32,15 +37,17 @@ public class ChannelGroupTypeXmlResult {
     private boolean advanced;
     private String label;
     private String description;
+    private String category;
     private List<ChannelXmlResult> channelTypeReferences;
 
     public ChannelGroupTypeXmlResult(ChannelGroupTypeUID channelGroupTypeUID, boolean advanced, String label,
-            String description, List<ChannelXmlResult> channelTypeReferences) {
+            String description, String category, List<ChannelXmlResult> channelTypeReferences) {
 
         this.channelGroupTypeUID = channelGroupTypeUID;
         this.advanced = advanced;
         this.label = label;
         this.description = description;
+        this.category = category;
         this.channelTypeReferences = channelTypeReferences;
     }
 
@@ -67,7 +74,7 @@ public class ChannelGroupTypeXmlResult {
 
     public ChannelGroupType toChannelGroupType() throws ConversionException {
         ChannelGroupType channelGroupType = new ChannelGroupType(this.channelGroupTypeUID, this.advanced, this.label,
-                this.description, toChannelDefinitions(this.channelTypeReferences));
+                this.description, this.category, toChannelDefinitions(this.channelTypeReferences));
 
         return channelGroupType;
     }
@@ -75,8 +82,8 @@ public class ChannelGroupTypeXmlResult {
     @Override
     public String toString() {
         return "ChannelGroupTypeXmlResult [channelGroupTypeUID=" + channelGroupTypeUID + ", advanced=" + advanced
-                + ", label=" + label + ", description=" + description + ", channelTypeReferences="
-                + channelTypeReferences + "]";
+                + ", label=" + label + ", description=" + description + ", category=" + category
+                + ", channelTypeReferences=" + channelTypeReferences + "]";
     }
 
 }

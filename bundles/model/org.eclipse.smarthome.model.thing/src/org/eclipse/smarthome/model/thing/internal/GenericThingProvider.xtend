@@ -1,12 +1,18 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.thing.internal
 
+import java.math.BigDecimal
 import java.util.ArrayList
 import java.util.Collection
 import java.util.HashSet
@@ -15,11 +21,15 @@ import java.util.Map
 import java.util.Set
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
-import org.eclipse.smarthome.config.core.BundleProcessor
-import org.eclipse.smarthome.config.core.BundleProcessorVetoManager
+import java.util.concurrent.CopyOnWriteArraySet
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
+import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.common.registry.AbstractProvider
 import org.eclipse.smarthome.core.i18n.LocaleProvider
+import org.eclipse.smarthome.core.service.ReadyMarker
+import org.eclipse.smarthome.core.service.ReadyMarkerFilter
+import org.eclipse.smarthome.core.service.ReadyService
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
@@ -33,6 +43,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition
 import org.eclipse.smarthome.core.thing.type.ChannelKind
+import org.eclipse.smarthome.core.thing.type.ChannelType
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.core.thing.type.TypeResolver
@@ -45,12 +56,9 @@ import org.eclipse.smarthome.model.thing.thing.ModelPropertyContainer
 import org.eclipse.smarthome.model.thing.thing.ModelThing
 import org.eclipse.smarthome.model.thing.thing.ThingModel
 import org.eclipse.xtend.lib.annotations.Data
+import org.osgi.framework.FrameworkUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
-import org.eclipse.smarthome.core.thing.type.ChannelType
-import java.math.BigDecimal
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
 
 /**
  * {@link ThingProvider} implementation which computes *.things files.
@@ -65,7 +73,9 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
  * @author Markus Rathgeb - Add locale provider support
  * 
  */
-class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvider, ModelRepositoryChangeListener {
+class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvider, ModelRepositoryChangeListener, ReadyService.ReadyTracker {
+
+    private static final String XML_THING_TYPE = "esh.xmlThingTypes";
 
     private LocaleProvider localeProvider
 
@@ -82,16 +92,9 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
     private val List<QueueContent> queue = new CopyOnWriteArrayList
     private var Thread lazyRetryThread = null
     
-    private val BundleProcessorVetoManager<ThingHandlerFactory> vetoManager = new BundleProcessorVetoManager(new BundleProcessorVetoManager.Action<ThingHandlerFactory>() {
-        override apply(ThingHandlerFactory thingHandlerFactory) {
-            thingsMap.keySet.forEach [
-                // create things for this specific thingHandlerFactory from the model.
-                createThingsFromModelForThingHandlerFactory(it, thingHandlerFactory)
-            ]
-        }
-    })
-    
     private static final Logger logger = LoggerFactory.getLogger(GenericThingProvider)
+
+    private val Set<String> loadedXmlThingTypes = new CopyOnWriteArraySet
 
     def void activate() {
         modelRepository.getAllModelNamesOfType("things").forEach [
@@ -127,7 +130,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                 it != null
             ]?.toSet?.forEach[
                 // Execute for each unique ThingHandlerFactory
-                vetoManager.applyActionFor(it.getClass(), it)
+                createThingsFromModelForThingHandlerFactory(modelName, it)
             ]
         }
     }
@@ -506,12 +509,12 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 
     def protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         logger.debug("ThingHandlerFactory added {}", thingHandlerFactory)
-        this.thingHandlerFactories.add(thingHandlerFactory);
+        thingHandlerFactories.add(thingHandlerFactory);
         thingHandlerFactoryAdded(thingHandlerFactory)
     }
 
     def protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
-        this.thingHandlerFactories.remove(thingHandlerFactory);
+        thingHandlerFactories.remove(thingHandlerFactory);
         thingHandlerFactoryRemoved()
     }
 
@@ -520,10 +523,48 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
     }
 
     def private thingHandlerFactoryAdded(ThingHandlerFactory thingHandlerFactory) {
-        vetoManager.applyActionFor(thingHandlerFactory.getClass(), thingHandlerFactory)
+        thingsMap.keySet.forEach [
+            //create things for this specific thingHandlerFactory from the model.
+            createThingsFromModelForThingHandlerFactory(it, thingHandlerFactory)
+        ]
+    }
+    
+    
+    def void setReadyService(ReadyService readyService) {
+        readyService.registerTracker(this, new ReadyMarkerFilter().withType(XML_THING_TYPE));
+    }
+
+    def void unsetReadyService(ReadyService readyService) {
+        readyService.unregisterTracker(this);
+    }
+
+    override onReadyMarkerAdded(ReadyMarker readyMarker) {
+        val bsn = readyMarker.identifier
+        loadedXmlThingTypes.add(bsn)
+        bsn.handleXmlThingTypesLoaded
+    }
+    
+    def private getBundleName(ThingHandlerFactory thingHandlerFactory) {
+        FrameworkUtil.getBundle(thingHandlerFactory.class).symbolicName
+    }
+    
+    def private handleXmlThingTypesLoaded(String bsn) {
+        thingHandlerFactories.filter[
+            getBundleName.equals(bsn)
+        ].forEach[ thingHandlerFactory |
+            thingHandlerFactory.thingHandlerFactoryAdded
+        ]
+    }
+
+    override onReadyMarkerRemoved(ReadyMarker readyMarker) {
+        val bsn = readyMarker.identifier
+        loadedXmlThingTypes.remove(bsn);
     }
 
     def private createThingsFromModelForThingHandlerFactory(String modelName, ThingHandlerFactory factory) {
+        if (!loadedXmlThingTypes.contains(factory.bundleName)) {
+            return
+        }
         val oldThings = thingsMap.get(modelName).clone
         val newThings = newArrayList()
         if (modelRepository != null) {
@@ -601,14 +642,6 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         ThingHandlerFactory thingHandlerFactory
     }
 
-    def protected void addBundleProcessor(BundleProcessor bundleProcessor) {
-        vetoManager.addBundleProcessor(bundleProcessor)
-    }
-
-    def protected void removeBundleProcessor(BundleProcessor bundleProcessor) {
-        vetoManager.removeBundleProcessor(bundleProcessor)
-    }
-    
     def protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescriptionRegistry = configDescriptionRegistry
     }

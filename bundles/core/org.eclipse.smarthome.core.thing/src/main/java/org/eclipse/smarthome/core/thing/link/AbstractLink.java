@@ -1,12 +1,18 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.link;
 
+import org.eclipse.smarthome.core.common.registry.Identifiable;
 import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.thing.UID;
 
@@ -15,7 +21,7 @@ import org.eclipse.smarthome.core.thing.UID;
  *
  * @author Dennis Nobel - Initial contribution
  */
-public abstract class AbstractLink {
+public abstract class AbstractLink implements Identifiable<String> {
 
     /**
      * Returns the link ID for a given item name and UID
@@ -51,7 +57,7 @@ public abstract class AbstractLink {
     public boolean equals(Object obj) {
         if (obj instanceof AbstractLink) {
             AbstractLink link = (AbstractLink) obj;
-            return this.getID().equals(link.getID());
+            return this.getUID().equals(link.getUID());
         }
         return false;
     }
@@ -61,8 +67,9 @@ public abstract class AbstractLink {
      *
      * @return id (can not be null)
      */
-    public String getID() {
-        return getIDFor(getItemName(), getUID());
+    @Override
+    public String getUID() {
+        return getIDFor(getItemName(), getLinkedUID());
     }
 
     /**
@@ -79,15 +86,15 @@ public abstract class AbstractLink {
      *
      * @return UID (can not be null)
      */
-    public abstract UID getUID();
+    public abstract UID getLinkedUID();
 
     @Override
     public int hashCode() {
-        return this.itemName.hashCode() * this.getUID().hashCode();
+        return this.itemName.hashCode() * this.getLinkedUID().hashCode();
     }
 
     @Override
     public String toString() {
-        return getID();
+        return getUID();
     }
 }

@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.type;
 
@@ -24,8 +29,11 @@ public class ChannelGroupType extends AbstractDescriptionType {
 
     private final boolean advanced;
     private final List<ChannelDefinition> channelDefinitions;
+    private final String category;
 
     /**
+     * Deprecated: Will be removed before 1.0 release in favor for constructor with category
+     *
      * Creates a new instance of this class with the specified parameters.
      *
      * @param uid the unique identifier which identifies this channel group type within the
@@ -44,12 +52,50 @@ public class ChannelGroupType extends AbstractDescriptionType {
      *
      * @throws IllegalArgumentException if the UID is null, or the label is null or empty
      */
+    @Deprecated
     public ChannelGroupType(ChannelGroupTypeUID uid, boolean advanced, String label, String description,
             List<ChannelDefinition> channelDefinitions) throws IllegalArgumentException {
 
         super(uid, label, description);
 
         this.advanced = advanced;
+        this.category = null;
+
+        if (channelDefinitions != null) {
+            this.channelDefinitions = Collections.unmodifiableList(channelDefinitions);
+        } else {
+            this.channelDefinitions = Collections.unmodifiableList(new ArrayList<ChannelDefinition>(0));
+        }
+    }
+
+    /**
+     * Creates a new instance of this class with the specified parameters.
+     *
+     * @param uid the unique identifier which identifies this channel group type within the
+     *            overall system (must neither be null, nor empty)
+     *
+     * @param advanced true if this channel group type contains advanced features, otherwise false
+     *
+     * @param label the human readable label for the according type
+     *            (must neither be null nor empty)
+     *
+     * @param description the human readable description for the according type
+     *            (could be null or empty)
+     *
+     * @param category the category of this channel group type, e.g. Temperature (could be null or empty)
+     *
+     * @param channelDefinitions the channel definitions this channel group forms
+     *            (could be null or empty)
+     *
+     * @throws IllegalArgumentException if the UID is null, or the label is null or empty
+     */
+    public ChannelGroupType(ChannelGroupTypeUID uid, boolean advanced, String label, String description,
+            String category, List<ChannelDefinition> channelDefinitions) throws IllegalArgumentException {
+
+        super(uid, label, description);
+
+        this.advanced = advanced;
+        this.category = category;
 
         if (channelDefinitions != null) {
             this.channelDefinitions = Collections.unmodifiableList(channelDefinitions);
@@ -62,7 +108,7 @@ public class ChannelGroupType extends AbstractDescriptionType {
      * Returns {@code true} if this {@link ChannelGroupType} contains advanced functionalities
      * which should be typically not shown in the basic view of user interfaces,
      * otherwise {@code false}.
-     * 
+     *
      * @return true if this channel group contains advanced functionalities, otherwise false
      */
     public boolean isAdvanced() {
@@ -78,6 +124,10 @@ public class ChannelGroupType extends AbstractDescriptionType {
      */
     public List<ChannelDefinition> getChannelDefinitions() {
         return channelDefinitions;
+    }
+
+    public String getCategory() {
+        return this.category;
     }
 
     @Override

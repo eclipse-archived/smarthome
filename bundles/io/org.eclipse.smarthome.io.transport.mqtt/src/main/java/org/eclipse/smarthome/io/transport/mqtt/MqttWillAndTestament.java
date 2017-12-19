@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.io.transport.mqtt;
 
@@ -45,23 +50,57 @@ public class MqttWillAndTestament {
             String value = StringUtils.trimToEmpty(components[i]);
             switch (i) {
                 case 0:
-                    result.setTopic(value);
+                    result.topic = value;
                     break;
                 case 1:
-                    result.setPayload(value.getBytes());
+                    result.payload = value.getBytes();
                     break;
                 case 2:
                     if (!"".equals(value)) {
-                        result.setQos(Integer.valueOf(value));
+                        int qos = Integer.valueOf(value);
+                        if (qos >= 0 && qos <= 2) {
+                            result.qos = qos;
+                        }
                     }
                     break;
                 case 3:
-                    result.setRetain(Boolean.valueOf(value));
+                    result.retain = Boolean.valueOf(value);
                     break;
             }
         }
-        return result;
+        return result.isValid() ? result : null;
+    }
 
+    /**
+     * Hide the constructor and force consumers to use the fromString() method or the
+     * constructor requiring all field parameters to be set.
+     */
+    private MqttWillAndTestament() {
+    }
+
+    /**
+     * Create a new {@link} MqttWillAndTestament with at least a topic name.
+     *
+     * @param topic topic is a normal topic string (no placeholders are allowed)
+     * @param payload The optional payload. Can be null.
+     * @param qos Valid values are 0 (Deliver at most once),1 (Deliver at least once) or 2</li>
+     * @param retain true if messages shall be retained
+     */
+    public MqttWillAndTestament(String topic, byte[] payload, int qos, boolean retain) {
+        if (StringUtils.isBlank(topic)) {
+            throw new IllegalArgumentException("Topic must be set");
+        }
+        this.topic = topic;
+        this.payload = payload;
+        this.qos = qos;
+        this.retain = retain;
+    }
+
+    /**
+     * Return true if the last will and testament object is valid.
+     */
+    private boolean isValid() {
+        return !StringUtils.isBlank(topic);
     }
 
     /**
@@ -72,28 +111,10 @@ public class MqttWillAndTestament {
     }
 
     /**
-     * Set the topic for the last will.
-     *
-     * @param topic the topic
-     */
-    public void setTopic(String topic) {
-        this.topic = topic;
-    }
-
-    /**
      * @return the payload of the last will.
      */
     public byte[] getPayload() {
         return payload;
-    }
-
-    /**
-     * Set the payload of the last will.
-     *
-     * @param payload the payload
-     */
-    public void setPayload(byte[] payload) {
-        this.payload = payload;
     }
 
     /**
@@ -104,30 +125,10 @@ public class MqttWillAndTestament {
     }
 
     /**
-     * Set quality of service. Valid values are 0,1,2
-     *
-     * @param qos level.
-     */
-    public void setQos(int qos) {
-        if (qos >= 0 && qos <= 2) {
-            this.qos = qos;
-        }
-    }
-
-    /**
      * @return true if the last will should be retained by the broker.
      */
     public boolean isRetain() {
         return retain;
-    }
-
-    /**
-     * Set whether the last will should be retained by the broker.
-     *
-     * @param retain true to retain.
-     */
-    public void setRetain(boolean retain) {
-        this.retain = retain;
     }
 
     @Override

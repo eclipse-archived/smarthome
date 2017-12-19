@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.audio.test
 
@@ -95,6 +100,20 @@ public class AudioManagerTest extends AudioOSGiTest {
         try{
             audioManager.playFile(audioStream.file.getName(), audioSinkFake.getId())
         } catch (UnsupportedAudioFormatException e){
+            fail("An exception $e was thrown, while trying to process a stream")
+        }
+    }
+
+    @Test
+    public void 'audio manager handles UnsupportedAudioStreamException'(){
+        registerSink()
+
+        audioStream = getFileAudioStream(MP3_FILE_PATH)
+
+        audioSinkFake.isUnsupportedAudioStreamExceptionExpected = true
+        try{
+            audioManager.playFile(audioStream.file.getName(), audioSinkFake.getId())
+        } catch (UnsupportedAudioStreamException e){
             fail("An exception $e was thrown, while trying to process a stream")
         }
     }
@@ -322,12 +341,12 @@ public class AudioManagerTest extends AudioOSGiTest {
 
         Collection<ParameterOption> parameterOptions = audioManager.getParameterOptions(URI.create(AudioManagerImpl.CONFIG_URI), param, Locale.US)
 
-        boolean isParameterOptionAdded = parameterOptions.find { parameterOption -> 
+        boolean isParameterOptionAdded = parameterOptions.find { parameterOption ->
             if(parameterOption.getValue().equals(id) && parameterOption.getLabel().equals(label)){
                 return true
             }
         }
-        
+
         assertThat "$param was not added to the parameter options",
                 isParameterOptionAdded,
                 is(equalTo(true))

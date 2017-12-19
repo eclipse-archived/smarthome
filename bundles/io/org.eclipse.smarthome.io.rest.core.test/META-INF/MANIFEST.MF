@@ -1,19 +1,23 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome IO REST Core Tests
-Bundle-SymbolicName: org.eclipse.smarthome.io.rest.core.test;singleton:=true
-Bundle-Version: 0.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.io.rest.core.test;singleton:=
+ true
 Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.10.0.qualifier
 Fragment-Host: org.eclipse.smarthome.io.rest.core
-Import-Package: com.jayway.jsonpath,
+Import-Package: 
+ com.jayway.jsonpath,
  groovy.lang,
- javax.ws.rs.core;version="1.1.1",
+ javax.ws.rs.core,
+ org.apache.commons.collections,
  org.apache.commons.io,
  org.codehaus.groovy.reflection,
  org.codehaus.groovy.runtime,
  org.codehaus.groovy.runtime.callsite,
  org.codehaus.groovy.runtime.typehandling,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.config.discovery,
  org.eclipse.smarthome.config.xml,
@@ -38,4 +42,7 @@ Import-Package: com.jayway.jsonpath,
  org.junit;version="4.0.0",
  org.mockito,
  org.slf4j
-Require-Bundle: org.junit,org.mockito,org.hamcrest
+Require-Bundle: 
+ org.hamcrest,
+ org.junit,
+ org.mockito

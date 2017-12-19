@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2016 Kai Kreuzer and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.module.media.internal;
 
@@ -11,18 +16,18 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.automation.Visibility;
 import org.eclipse.smarthome.automation.module.media.handler.PlayActionHandler;
+import org.eclipse.smarthome.automation.module.media.handler.SayActionHandler;
 import org.eclipse.smarthome.automation.type.ActionType;
-import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
-import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
@@ -31,14 +36,18 @@ import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.core.audio.AudioManager;
 import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * This class dynamically provides the Play action type.
  * This is necessary since there is no other way to provide dynamic config param options for module types.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Simon Kaufmann - added "say" action
  *
  */
+@Component(immediate = true)
 public class MediaActionTypeProvider implements ModuleTypeProvider {
 
     private AudioManager audioManager;
@@ -46,8 +55,10 @@ public class MediaActionTypeProvider implements ModuleTypeProvider {
     @SuppressWarnings("unchecked")
     @Override
     public ModuleType getModuleType(String UID, Locale locale) {
-        if ("media.PlayAction".equals(UID)) {
+        if (PlayActionHandler.TYPE_ID.equals(UID)) {
             return getPlayActionType(locale);
+        } else if (SayActionHandler.TYPE_ID.equals(UID)) {
+            return getSayActionType(locale);
         } else {
             return null;
         }
@@ -55,26 +66,40 @@ public class MediaActionTypeProvider implements ModuleTypeProvider {
 
     @Override
     public Collection<ModuleType> getModuleTypes(Locale locale) {
-        return Collections.singleton(getPlayActionType(locale));
+        return Stream.of(getPlayActionType(locale), getSayActionType(locale)).collect(Collectors.toList());
     }
 
     private ModuleType getPlayActionType(Locale locale) {
-        return new ActionType("media.PlayAction", getConfigDesc(locale), "play a sound", "Plays a sound file.", null,
-                Visibility.VISIBLE, new ArrayList<Input>(), new ArrayList<Output>());
+        return new ActionType(PlayActionHandler.TYPE_ID, getConfigPlayDesc(locale), "play a sound",
+                "Plays a sound file.", null, Visibility.VISIBLE, new ArrayList<>(), new ArrayList<>());
     }
 
-    private List<ConfigDescriptionParameter> getConfigDesc(Locale locale) {
+    private ModuleType getSayActionType(Locale locale) {
+        return new ActionType(SayActionHandler.TYPE_ID, getConfigSayDesc(locale), "say something",
+                "Speaks a given text through a natural voice.", null, Visibility.VISIBLE, new ArrayList<>(),
+                new ArrayList<>());
+    }
+
+    private List<ConfigDescriptionParameter> getConfigPlayDesc(Locale locale) {
         ConfigDescriptionParameter param1 = ConfigDescriptionParameterBuilder
                 .create(PlayActionHandler.PARAM_SOUND, Type.TEXT).withRequired(true).withLabel("Sound")
                 .withDescription("the sound to play").withOptions(getSoundOptions()).withLimitToOptions(true).build();
+        return Stream.of(param1, getAudioSinkConfigDescParam(locale)).collect(Collectors.toList());
+    }
+
+    private List<ConfigDescriptionParameter> getConfigSayDesc(Locale locale) {
+        ConfigDescriptionParameter param1 = ConfigDescriptionParameterBuilder
+                .create(SayActionHandler.PARAM_TEXT, Type.TEXT).withRequired(true).withLabel("Text")
+                .withDescription("the text to speak").build();
+        return Stream.of(param1, getAudioSinkConfigDescParam(locale)).collect(Collectors.toList());
+    }
+
+    private ConfigDescriptionParameter getAudioSinkConfigDescParam(Locale locale) {
         ConfigDescriptionParameter param2 = ConfigDescriptionParameterBuilder
-                .create(PlayActionHandler.PARAM_SINK, Type.TEXT).withRequired(false).withLabel("Sink")
+                .create(SayActionHandler.PARAM_SINK, Type.TEXT).withRequired(false).withLabel("Sink")
                 .withDescription("the audio sink id").withOptions(getSinkOptions(locale)).withLimitToOptions(true)
                 .build();
-        List<ConfigDescriptionParameter> params = new ArrayList<>(2);
-        params.add(param1);
-        params.add(param2);
-        return params;
+        return param2;
     }
 
     /**
@@ -127,6 +152,7 @@ public class MediaActionTypeProvider implements ModuleTypeProvider {
         // does nothing because this provider does not change
     }
 
+    @Reference
     protected void setAudioManager(AudioManager audioManager) {
         this.audioManager = audioManager;
     }

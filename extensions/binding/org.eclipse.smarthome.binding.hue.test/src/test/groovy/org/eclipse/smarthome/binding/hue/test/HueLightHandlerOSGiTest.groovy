@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.hue.test
 
@@ -63,6 +68,8 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
     final ThingTypeUID OSRAM_PAR16_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "0220")
     final String OSRAM_MODEL_TYPE = "PAR16 50 TW"
     final String OSRAM_MODEL_TYPE_ID = "PAR16_50_TW"
+
+    def UNIQUE_ID = "00:17:88:01:00:e1:88:29-0b"
 
     ThingRegistry thingRegistry
     ItemChannelLinkRegistry linkRegistry
@@ -136,24 +143,7 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
                 assertThat hueLightHandler, is(notNullValue())
             }
 
-            def AsyncResultWrapper<String> addressWrapper = new AsyncResultWrapper<String>()
-            def AsyncResultWrapper<String> bodyWrapper = new AsyncResultWrapper<String>()
-
-            MockedHttpClient mockedHttpClient =  [
-                put: { String address, String body ->
-                    addressWrapper.set(address)
-                    bodyWrapper.set(body)
-                    new Result("", 200)
-                },
-                get: { String address ->
-                    if (address.endsWith("testUserName/")) {
-                        new Result(new HueLightState().toString(), 200)
-                    }
-                }
-            ] as MockedHttpClient
-
             HueBridgeHandler hueBridgeHandler = hueLightHandler.getHueBridgeHandler()
-            installHttpClientMock(hueBridgeHandler, mockedHttpClient)
 
             assertBridgeOnline(hueLightHandler.getBridge())
             hueLightHandler.initialize()
@@ -162,7 +152,7 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
                 assertThat(hueLight.getStatus(), is(ThingStatus.ONLINE))
             }, 10000)
 
-            hueBridgeHandler.onConnectionLost(hueBridgeHandler.bridge)
+            hueBridgeHandler.onConnectionLost()
 
             assertThat(hueBridge.getStatus(), is(ThingStatus.OFFLINE))
             assertThat(hueBridge.getStatusInfo().getStatusDetail(), is(not(ThingStatusDetail.BRIDGE_OFFLINE)))
@@ -496,7 +486,7 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
                     new Result("", 200)
                 },
                 get: { String address ->
-                    if (address.endsWith("testUserName/")) {
+                    if (address.endsWith("testUserName")) {
                         new Result(currentState.toString(), 200)
                     }
                 }
@@ -516,8 +506,8 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
 
             postCommand(hueLight, channel, command)
 
-            waitForAssert({assertTrue addressWrapper.isSet}, 10000)
-            waitForAssert({assertTrue bodyWrapper.isSet}, 10000)
+            waitForAssert({ assertTrue addressWrapper.isSet }, 10000)
+            waitForAssert({ assertTrue bodyWrapper.isSet }, 10000)
 
             assertThat addressWrapper.wrappedObject, is("http://1.2.3.4/api/testUserName/lights/1/state")
             assertJson(expectedReply, bodyWrapper.wrappedObject)
@@ -575,7 +565,7 @@ class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
             MockedHttpClient mockedHttpClient) {
 
         // mock HttpClient
-        def hueBridgeField = hueBridgeHandler.getClass().getDeclaredField("bridge")
+        def hueBridgeField = hueBridgeHandler.getClass().getDeclaredField("hueBridge")
         hueBridgeField.accessible = true
         def hueBridgeValue = null
 

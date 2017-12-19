@@ -1,20 +1,28 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.discovery;
 
 import static org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants.*;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.eclipse.smarthome.binding.digitalstrom.handler.BridgeHandler;
 import org.eclipse.smarthome.binding.digitalstrom.handler.SceneHandler;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.FuncNameAndColorGroupEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.InternalScene;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.constants.SceneEnum;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
@@ -24,8 +32,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Sets;
 
 /**
  * The {@link SceneDiscoveryService} discovers all digitalSTROM-scene of one supported scene-type. The scene-type has to
@@ -38,21 +44,21 @@ import com.google.common.collect.Sets;
 public class SceneDiscoveryService extends AbstractDiscoveryService {
 
     private final static Logger logger = LoggerFactory.getLogger(SceneDiscoveryService.class);
-
     private final BridgeHandler bridgeHandler;
-
     private final String sceneType;
+
+    public static final int TIMEOUT = 10;
 
     /**
      * Creates a new {@link SceneDiscoveryService} for the given supportedThingType.
      *
      * @param bridgeHandler (must not be null)
      * @param supportedThingType (must not be null)
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException see {@link AbstractDiscoveryService#AbstractDiscoveryService(int)}
      */
     public SceneDiscoveryService(BridgeHandler bridgeHandler, ThingTypeUID supportedThingType)
             throws IllegalArgumentException {
-        super(Sets.newHashSet(supportedThingType), 10, false);
+        super(new HashSet<>(Arrays.asList(supportedThingType)), TIMEOUT, false);
         this.sceneType = supportedThingType.getId();
         this.bridgeHandler = bridgeHandler;
     }
@@ -62,8 +68,8 @@ public class SceneDiscoveryService extends AbstractDiscoveryService {
      */
     @Override
     public void deactivate() {
-        logger.debug("deactivate discovery service for scene type " + sceneType + " remove thing tyspes "
-                + super.getSupportedThingTypes().toString());
+        logger.debug("deactivate discovery service for scene type {} remove thing tyspes {}", sceneType,
+                super.getSupportedThingTypes());
         removeOlderResults(new Date().getTime());
     }
 
@@ -85,15 +91,15 @@ public class SceneDiscoveryService extends AbstractDiscoveryService {
     }
 
     private void onSceneAddedInternal(InternalScene scene) {
+        logger.debug("{}", scene.getSceneType());
         if (scene != null && scene.getSceneType().equals(sceneType)) {
-            if (!ignoredScene(scene.getSceneID())) {
+            if (!ignoredScene(scene.getSceneID()) && !ignoreGroup(scene.getGroupID())) {
                 ThingUID thingUID = getThingUID(scene);
                 if (thingUID != null) {
                     ThingUID bridgeUID = bridgeHandler.getThing().getUID();
-                    Map<String, Object> properties = new HashMap<>(5);
-                    properties.put(SCENE_NAME, scene.getSceneName());
-                    properties.put(SCENE_ZONE_ID, scene.getZoneID());
-                    properties.put(SCENE_GROUP_ID, scene.getGroupID());
+                    Map<String, Object> properties = new HashMap<>();
+                    properties.put(ZONE_ID, scene.getZoneID());
+                    properties.put(GROUP_ID, scene.getGroupID());
                     if (SceneEnum.containsScene(scene.getSceneID())) {
                         properties.put(SCENE_ID, SceneEnum.getScene(scene.getSceneID()).toString());
                     } else {
@@ -111,6 +117,18 @@ public class SceneDiscoveryService extends AbstractDiscoveryService {
                 }
             }
         }
+    }
+
+    private boolean ignoreGroup(Short groupID) {
+        if (FuncNameAndColorGroupEnum.getMode(groupID) != null) {
+            switch (FuncNameAndColorGroupEnum.getMode(groupID)) {
+                case TEMPERATION_CONTROL:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        return false;
     }
 
     private boolean ignoredScene(short sceneID) {
@@ -172,6 +190,7 @@ public class SceneDiscoveryService extends AbstractDiscoveryService {
      * Creates a {@link DiscoveryResult} of the given {@link InternalScene}, if the scene exists, if it is allowed to
      * use the scene
      * and if the scene is not one of the following scenes:
+     * <ul>
      * <li>{@link SceneEnum#INCREMENT}</li>
      * <li>{@link SceneEnum#DECREMENT}</li>
      * <li>{@link SceneEnum#STOP}</li>
@@ -197,7 +216,8 @@ public class SceneDiscoveryService extends AbstractDiscoveryService {
      * <li>{@link SceneEnum#ENERGY_OVERLOAD}</li>
      * <li>{@link SceneEnum#ALARM_SIGNAL}</li>
      * <li>{@link SceneEnum#AUTO_STANDBY}</li>
-     * <li>{@link SceneEnum#ZONE_ACTIVE}</li><br>
+     * <li>{@link SceneEnum#ZONE_ACTIVE}</li>
+     * </ul>
      *
      * @param scene (must not be null)
      */

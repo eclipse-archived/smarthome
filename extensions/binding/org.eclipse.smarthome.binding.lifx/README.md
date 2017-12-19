@@ -16,6 +16,7 @@ The following table lists the thing types of the supported LIFX devices:
 | Color 1000 BR30              | colorlight   |
 | LIFX A19                     | colorlight   |
 | LIFX BR30                    | colorlight   |
+| LIFX Downlight               | colorlight   |
 |                              |              |
 | LIFX+ A19                    | colorirlight |
 | LIFX+ BR30                   | colorirlight |
@@ -43,7 +44,7 @@ The binding is able to auto-discover all lights in a network over the LIFX UDP p
 
 ## Thing Configuration
 
-Each light needs the device ID as a configuration parameter. The device ID is printed as a serial number on the light and can also be found within the native LIFX Android or iOS application. But usually the discovery works quite reliably, so that a manual configuration is not needed.
+Each light needs a Device ID or Host as a configuration parameter. The device ID is printed as a serial number on the light and can also be found within the native LIFX Android or iOS application. But usually the discovery works quite reliably, so that a manual configuration is not needed.
 
 However, in the thing file, a manual configuration looks e.g. like
 
@@ -53,20 +54,25 @@ Thing lifx:colorlight:living [ deviceId="D073D5A1A1A1", fadetime=200 ]
 
 The *fadetime* is an optional thing configuration parameter which configures the time to fade to a new color value (in ms). When the *fadetime* is not configured, the binding uses 300ms as default.
 
+You can optionally also configure a fixed Host or IP address when lights are in a different subnet and are not discovered.
+
+```
+Thing lifx:colorirlight:porch [ host="10.120.130.4", fadetime=0 ]
+```
 
 ## Channels
 
 All devices support some of the following channels:
 
-| Channel Type ID | Item Type | Description                                                                          | Thing Types                            |
-|-----------------|-----------|--------------------------------------------------------------------------------------|----------------------------------------|
-| brightness      | Dimmer    | This channel supports adjusting the brightness value.                                | whitelight                             |
-| color           | Color     | This channel supports full color control with hue, saturation and brightness values. | colorlight, colorirlight, colormzlight |
-| colorzone       | Color     | This channel supports full zone color control with hue, saturation and brightness values. | colormzlight |
-| infrared        | Dimmer    | This channel supports adjusting the infrared value. *Note:* IR capable lights only activate their infrared LEDs when the brightness drops below a certain level. | colorirlight |
-| signalstrength  | Number    | This channel represents signal strength with values 0, 1, 2, 3 or 4; 0 being worst strength and 4 being best strength. | colorlight, colorirlight, colormzlight, whitelight |
-| temperature     | Dimmer    | This channel supports adjusting the color temperature from cold (0%) to warm (100%). | colorlight, colorirlight, colormzlight, whitelight |
-| temperaturezone | Dimmer    | This channel supports adjusting the zone color temperature from cold (0%) to warm (100%). |  colormzlight |
+| Channel Type ID | Item Type | Description                                                                                                                                                      | Thing Types                                        |
+|-----------------|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------|
+| brightness      | Dimmer    | This channel supports adjusting the brightness value.                                                                                                            | whitelight                                         |
+| color           | Color     | This channel supports full color control with hue, saturation and brightness values.                                                                             | colorlight, colorirlight, colormzlight             |
+| colorzone       | Color     | This channel supports full zone color control with hue, saturation and brightness values.                                                                        | colormzlight                                       |
+| infrared        | Dimmer    | This channel supports adjusting the infrared value. *Note:* IR capable lights only activate their infrared LEDs when the brightness drops below a certain level. | colorirlight                                       |
+| signalstrength  | Number    | This channel represents signal strength with values 0, 1, 2, 3 or 4; 0 being worst strength and 4 being best strength.                                           | colorlight, colorirlight, colormzlight, whitelight |
+| temperature     | Dimmer    | This channel supports adjusting the color temperature from cold (0%) to warm (100%).                                                                             | colorlight, colorirlight, colormzlight, whitelight |
+| temperaturezone | Dimmer    | This channel supports adjusting the zone color temperature from cold (0%) to warm (100%).                                                                        | colormzlight                                       |
 
 The *color* and *brightness* channels have a "Power on brightness" configuration option that is used to determine the brightness when a light is switched on. When it is left empty, the brightness of a light remains unchanged when a light is switched on or off.
 
@@ -90,22 +96,19 @@ Or create items for each type (*Color*, *Switch*, *Dimmer*) and define the corre
 ### demo.things:
 
 ```
-Thing lifx:colorlight:living [ deviceId="D073D5A1A1A1" ] {
-    Channels:
-        Type color : color [ powerOnBrightness= ]
-}
+Thing lifx:colorlight:living [ deviceId="D073D5A1A1A1" ]
 
 Thing lifx:colorlight:living2 [ deviceId="D073D5A2A2A2" ] {
     Channels:
-        Type color : color [ powerOnBrightness= ]
+        Type color : color [ powerOnBrightness=50 ]
 }
 
-Thing lifx:colorirlight:porch [ deviceId="D073D5B2B2B2", fadetime=0 ] {
+Thing lifx:colorirlight:porch [ deviceId="D073D5B2B2B2", host="10.120.130.4", fadetime=0 ] {
     Channels:
         Type color : color [ powerOnBrightness=75 ]
 }
 
-Thing lifx:colormzlight:ceiling [ deviceId="D073D5C3C3C3" ]
+Thing lifx:colormzlight:ceiling [ host="10.120.130.5" ]
 
 Thing lifx:whitelight:kitchen [ deviceId="D073D5D4D4D4", fadetime=150 ]
 ```
@@ -135,7 +138,7 @@ Dimmer Ceiling_Temperature { channel="lifx:colormzlight:ceiling:temperature" }
 Color Ceiling_Color_Zone_0 { channel="lifx:colormzlight:ceiling:colorzone0" }
 Dimmer Ceiling_Temperature_Zone_0 { channel="lifx:colormzlight:ceiling:temperaturezone0" }
 Color Ceiling_Color_Zone_15 { channel="lifx:colormzlight:ceiling:colorzone15" }
-Dimmer Ceiling_Temperature_Zone_15 { channel="lifx:colormzlight:ceiling:colorzone15" }
+Dimmer Ceiling_Temperature_Zone_15 { channel="lifx:colormzlight:ceiling:temperaturezone15" }
 
 // Kitchen
 Switch Kitchen_Toggle { channel="lifx:whitelight:kichen:brightness" }

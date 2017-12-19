@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.xml.internal;
 
@@ -19,7 +24,8 @@ import org.osgi.framework.Bundle;
  * The {@link ConfigDescriptionXmlProvider} is responsible managing any created
  * objects by a {@link ConfigDescriptionReader} for a certain bundle.
  * <p>
- * This implementation registers each {@link ConfigDescription} object at the {@link AbstractXmlConfigDescriptionProvider} which
+ * This implementation registers each {@link ConfigDescription} object at the
+ * {@link AbstractXmlConfigDescriptionProvider} which
  * is itself registered as {@link ConfigDescriptionProvider} service at the <i>OSGi</i> service registry.
  *
  * @author Michael Grammling - Initial Contribution
@@ -48,7 +54,7 @@ public class ConfigDescriptionXmlProvider implements XmlDocumentProvider<List<Co
 
     @Override
     public synchronized void addingObject(List<ConfigDescription> configDescriptions) {
-        this.configDescriptionProvider.addConfigDescriptions(this.bundle, configDescriptions);
+        this.configDescriptionProvider.addAll(this.bundle, configDescriptions);
     }
 
     @Override
@@ -58,7 +64,7 @@ public class ConfigDescriptionXmlProvider implements XmlDocumentProvider<List<Co
 
     @Override
     public synchronized void release() {
-        this.configDescriptionProvider.removeAllConfigDescriptions(this.bundle);
+        this.configDescriptionProvider.removeAll(bundle);
     }
 
 }
