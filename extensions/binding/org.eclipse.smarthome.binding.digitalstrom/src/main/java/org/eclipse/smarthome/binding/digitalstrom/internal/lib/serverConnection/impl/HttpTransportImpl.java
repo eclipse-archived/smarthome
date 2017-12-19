@@ -43,6 +43,7 @@ import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.config.Config;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.ConnectionListener;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.ConnectionManager;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.HttpTransport;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.simpleDSRequestBuilder.constants.ParameterKeys;
@@ -284,12 +285,10 @@ public class HttpTransportImpl implements HttpTransport {
             informConnectionManager(ConnectionManager.CONNECTION_EXCEPTION);
         } catch (MalformedURLException e) {
             informConnectionManager(ConnectionManager.MALFORMED_URL_EXCEPTION);
+        } catch (java.net.UnknownHostException e) {
+            informConnectionManager(ConnectionManager.UNKNOWN_HOST_EXCEPTION);
         } catch (IOException e) {
-            if (e instanceof java.net.ConnectException) {
-                informConnectionManager(ConnectionManager.CONNECTION_EXCEPTION);
-            } else if (e instanceof java.net.UnknownHostException) {
-                informConnectionManager(ConnectionManager.UNKNOWN_HOST_EXCEPTION);
-            } else if (connectionManager != null) {
+            if (connectionManager != null) {
                 informConnectionManager(ConnectionManager.GENERAL_EXCEPTION);
             }
         } finally {
@@ -315,7 +314,7 @@ public class HttpTransportImpl implements HttpTransport {
                 if (sessionToken == null) {
                     return addSessionToken(request, connectionManager.getNewSessionToken());
                 }
-                request = addSessionToken(request, sessionToken);
+                return addSessionToken(request, sessionToken);
             }
         }
         return request;
@@ -375,6 +374,8 @@ public class HttpTransportImpl implements HttpTransport {
                 }
                 connection.disconnect();
                 return connection.getResponseCode();
+            } else {
+                return ConnectionManager.GENERAL_EXCEPTION;
             }
         } catch (SocketTimeoutException e) {
             return ConnectionManager.SOCKET_TIMEOUT_EXCEPTION;
@@ -382,15 +383,11 @@ public class HttpTransportImpl implements HttpTransport {
             return ConnectionManager.CONNECTION_EXCEPTION;
         } catch (MalformedURLException e) {
             return ConnectionManager.MALFORMED_URL_EXCEPTION;
+        } catch (java.net.UnknownHostException e) {
+            return ConnectionManager.UNKNOWN_HOST_EXCEPTION;
         } catch (IOException e) {
-            if (e instanceof java.net.ConnectException) {
-                return ConnectionManager.CONNECTION_EXCEPTION;
-            }
-            if (e instanceof java.net.UnknownHostException) {
-                return ConnectionManager.UNKNOWN_HOST_EXCEPTION;
-            }
+            return ConnectionManager.GENERAL_EXCEPTION;
         }
-        return ConnectionManager.GENERAL_EXCEPTION;
     }
 
     @Override

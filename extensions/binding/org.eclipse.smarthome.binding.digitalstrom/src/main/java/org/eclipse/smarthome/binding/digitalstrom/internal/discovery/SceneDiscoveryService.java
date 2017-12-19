@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.eclipse.smarthome.binding.digitalstrom.handler.BridgeHandler;
+import org.eclipse.smarthome.binding.digitalstrom.handler.SceneHandler;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.FuncNameAndColorGroupEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.InternalScene;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.constants.SceneEnum;
@@ -90,7 +91,7 @@ public class SceneDiscoveryService extends AbstractDiscoveryService {
     }
 
     private void onSceneAddedInternal(InternalScene scene) {
-        logger.debug(scene.getSceneType());
+        logger.debug("{}", scene.getSceneType());
         if (scene != null && scene.getSceneType().equals(sceneType)) {
             if (!ignoredScene(scene.getSceneID()) && !ignoreGroup(scene.getGroupID())) {
                 ThingUID thingUID = getThingUID(scene);
