@@ -590,9 +590,8 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
 
         cd.processConfigFile(srcDupFile);
 
-        // ctx1 is overwritten by service-ctx1duplicate.cfg
+        // only ctx1 is overwritten by service-ctx1duplicate.cfg
         verifyValueOfConfigurationPropertyWithContext("service.pid#ctx1", "property1", "valueDup");
-        // ctx2 is parsed as is
         verifyValueOfConfigurationPropertyWithContext("service.pid#ctx2", "property1", "value2");
     }
 
@@ -615,10 +614,8 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
         cd.fileRemoved(serviceConfigFile.getAbsolutePath());
 
         Configuration c1 = getConfigurationWithContext("service.pid#ctx1");
-        // test if configuration with context ctx1 was deleted
         assertThat(c1, is(nullValue()));
 
-        // configuration with context ctx2 should still exist
         Configuration c2 = getConfigurationWithContext("service.pid#ctx2");
         assertThat(c2.getProperties().get("property1"), is("value2"));
     }
@@ -890,7 +887,7 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
         if (configs == null) {
             return null;
         }
-        // otherwise we should have exactly one configuration
+
         assertThat(configs.length, is(1));
 
         return configs[0];
