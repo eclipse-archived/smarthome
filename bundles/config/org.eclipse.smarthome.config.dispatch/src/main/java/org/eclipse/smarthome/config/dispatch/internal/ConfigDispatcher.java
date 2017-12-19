@@ -336,7 +336,6 @@ public class ConfigDispatcher {
         } else if (context != null && exclusivePIDMap.contains(exclusivePID)) {
             Dictionary p = new Properties();
             p.put(SERVICE_CONTEXT, context);
-            configuration.update(p);
             configMap.put(configuration, p);
         }
 
@@ -350,7 +349,6 @@ public class ConfigDispatcher {
             if (exclusivePIDMap.contains(pid) && parsedLine.pid != null && !pid.equals(parsedLine.pid)) {
                 logger.error("Error parsing config file {}. Exclusive PID {} found but line starts with {}.",
                         configFile.getName(), pid, parsedLine.pid);
-                configuration.update((Dictionary) new Properties()); // update with empty properties
                 return;
             }
 

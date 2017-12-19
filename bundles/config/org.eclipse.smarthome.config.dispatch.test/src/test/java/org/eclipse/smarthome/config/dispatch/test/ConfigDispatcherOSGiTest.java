@@ -542,7 +542,7 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
          * Assert that the configuration is updated only with the property=value
          * pairs which are parsed last:
          */
-        verifyNotExistingConfigurationProperty("global.service.pid", "property1");
+        verifyNotExistingConfiguration("global.service.pid");
     }
 
     @Test
@@ -888,6 +888,27 @@ public class ConfigDispatcherOSGiTest extends JavaOSGiTest {
             assertThat(configuration, is(notNullValue()));
             assertThat(configuration.getProperties(), is(notNullValue()));
             assertThat(configuration.getProperties().get(property), is(equalTo(value)));
+        });
+    }
+
+    private void verifyNotExistingConfiguration(String pid) {
+        /*
+         * If a property is not present in the configuration's properties,
+         * configuration.getProperties().get(property) should return null.
+         *
+         * Sending events, related to modification of file, is a OS specific action.
+         * So when we check if a configuration is updated, we use separate waitForAssert-s
+         * in order to be sure that the events are processed before the assertion.
+         */
+        waitForAssert(() -> {
+            try {
+                configuration = configAdmin.getConfiguration(pid);
+            } catch (IOException e) {
+                throw new IllegalArgumentException("IOException occured while retrieving configuration for pid " + pid,
+                        e);
+            }
+            assertThat(configuration, is(notNullValue()));
+            assertThat(configuration.getProperties(), is(nullValue()));
         });
     }
 
