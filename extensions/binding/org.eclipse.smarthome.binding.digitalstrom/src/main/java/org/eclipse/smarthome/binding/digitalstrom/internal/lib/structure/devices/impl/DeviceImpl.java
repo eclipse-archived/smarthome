@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.impl;
 
@@ -1230,8 +1235,8 @@ public class DeviceImpl extends AbstractGeneralDeviceInformations implements Dev
             if (!isEchoSensor(sensorType)) {
                 logger.debug("Event is no echo, set values {} for sensorType {}", devSenVal, devSenVal.getSensorType());
                 if (SensorEnum.isPowerSensor(sensorType) && getSensorDataReadingInitialized(sensorType)) {
-                    logger.debug(
-                            "SensorJob was initialized, remove sensorjob for sensorType: " + devSenVal.getSensorType());
+                    logger.debug("SensorJob was initialized, remove sensorjob for sensorType: {}",
+                            devSenVal.getSensorType());
                     deviceStateUpdates.add(new DeviceStateUpdateImpl(sensorType, -1));
                 }
                 setDeviceSensorValue(devSenVal);

@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.impl;
 
@@ -14,7 +19,9 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
 
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.event.constants.EventNames;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.event.constants.EventResponseEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.DsAPI;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.constants.JSONApiResponseKeysEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.SensorEnum;
 import org.slf4j.Logger;
@@ -72,8 +79,8 @@ public class DeviceSensorValue {
             try {
                 timestamp = formatter.parse(sensorValue.get(JSONApiResponseKeysEnum.TIMESTAMP.getKey()).getAsString());
             } catch (ParseException e) {
-                logger.error("A ParseException occurred by parsing date string: "
-                        + sensorValue.get(JSONApiResponseKeysEnum.TIMESTAMP.getKey()).getAsString(), e);
+                logger.error("A ParseException occurred by parsing date string: {}",
+                        sensorValue.get(JSONApiResponseKeysEnum.TIMESTAMP.getKey()).getAsString(), e);
             }
         }
     }

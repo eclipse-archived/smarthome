@@ -19,6 +19,8 @@ Import-Package:
  org.apache.commons.io,
  org.apache.commons.lang,
  org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.binding.digitalstrom,
+ org.eclipse.smarthome.binding.digitalstrom.handler,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.config.discovery,
  org.eclipse.smarthome.config.discovery.mdns,
