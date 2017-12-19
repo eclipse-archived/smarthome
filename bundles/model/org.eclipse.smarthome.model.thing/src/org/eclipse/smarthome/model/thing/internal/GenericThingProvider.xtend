@@ -44,9 +44,9 @@ import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition
 import org.eclipse.smarthome.core.thing.type.ChannelKind
 import org.eclipse.smarthome.core.thing.type.ChannelType
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
-import org.eclipse.smarthome.core.thing.type.TypeResolver
 import org.eclipse.smarthome.core.thing.util.ThingHelper
 import org.eclipse.smarthome.model.core.ModelRepository
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener
@@ -57,10 +57,10 @@ import org.eclipse.smarthome.model.thing.thing.ModelThing
 import org.eclipse.smarthome.model.thing.thing.ThingModel
 import org.eclipse.xtend.lib.annotations.Data
 import org.osgi.framework.FrameworkUtil
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.osgi.service.component.annotations.Component
 import org.osgi.service.component.annotations.Reference
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * {@link ThingProvider} implementation which computes *.things files.
@@ -85,6 +85,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
     private ModelRepository modelRepository
 
     private ThingTypeRegistry thingTypeRegistry
+    private ChannelTypeRegistry channelTypeRegistry
 
     private Map<String, Collection<Thing>> thingsMap = new ConcurrentHashMap
 
@@ -337,7 +338,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                 val configuration = createConfiguration
                 if (it.channelType != null) {
                     channelTypeUID = new ChannelTypeUID(thingUID.bindingId, it.channelType)
-                    val resolvedChannelType = TypeResolver.resolve(channelTypeUID)
+                    val resolvedChannelType = channelTypeUID.channelType
                     if (resolvedChannelType != null) {
                         itemType = resolvedChannelType.itemType
                         parsedKind = resolvedChannelType.kind
@@ -365,7 +366,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         ]
         channelDefinitions.forEach [
             if (addedChannelIds.add(id)) {
-                val channelType = TypeResolver.resolve(it.channelTypeUID)
+                val channelType = it.channelTypeUID.channelType
                 if (channelType != null) {
                     channels +=
                         ChannelBuilder.create(new ChannelUID(thingTypeUID, thingUID, id), channelType.itemType).
@@ -429,6 +430,10 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 
     def private getThingType(ThingTypeUID thingTypeUID) {
         thingTypeRegistry?.getThingType(thingTypeUID, localeProvider.getLocale())
+    }
+
+    def private getChannelType(ChannelTypeUID channelTypeUID) {
+        channelTypeRegistry?.getChannelType(channelTypeUID, localeProvider.getLocale())
     }
 
     @Reference
@@ -511,6 +516,15 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 
     def protected void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = null
+    }
+
+    @Reference
+    def protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry
+    }
+
+    def protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null
     }
 
     @Reference(cardinality=MULTIPLE, policy=DYNAMIC)
