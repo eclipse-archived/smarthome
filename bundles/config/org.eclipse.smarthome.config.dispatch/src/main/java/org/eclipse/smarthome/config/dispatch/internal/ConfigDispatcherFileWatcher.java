@@ -31,9 +31,10 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
- * Watches file-system events and passes them to our {@code ConfigDispatcher}
+ * Watches file-system events and passes them to our {@link ConfigDispatcher}
  *
- * @author Stefan Triller - initial contribution
+ * @author Kai Kreuzer - Initial contribution and API
+ * @author Stefan Triller - factored out this code from {@link ConfigDispatcher}
  *
  */
 @Component(immediate = true)
