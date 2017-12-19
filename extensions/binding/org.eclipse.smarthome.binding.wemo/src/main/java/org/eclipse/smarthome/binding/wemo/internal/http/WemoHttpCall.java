@@ -44,4 +44,34 @@ public class WemoHttpCall {
         }
     }
 
+    public static String getEventServiceXML(String wemoURL) {
+
+        try {
+
+            String eventServiceURL = wemoURL + "/eventservice.xml";
+
+            String wemoCallResponse = HttpUtil.executeUrl("GET", eventServiceURL, 2000);
+            return wemoCallResponse;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Could not call WeMo", e);
+        }
+
+    }
+
+    public static String getDeviceInfoServiceXML(String wemoURL) {
+
+        try {
+
+            String deviceInfoServiceURL = wemoURL + "/deviceinfoservice.xml";
+
+            String wemoCallResponse = HttpUtil.executeUrl("GET", deviceInfoServiceURL, 2000);
+            return wemoCallResponse;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Could not call WeMo", e);
+        }
+
+    }
+
 }

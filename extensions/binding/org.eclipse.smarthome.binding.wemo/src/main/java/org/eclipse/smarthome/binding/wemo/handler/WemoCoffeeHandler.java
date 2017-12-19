@@ -497,8 +497,8 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
 
     @Override
     public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
-            Collection<ThingTypeUID> thingTypeUIDs, ThingUID bridgeUID) {
-        return Collections.emptyList();
+            Collection<ThingTypeUID> thingTypeUIDs) {
+        return null;
     }
 
 }

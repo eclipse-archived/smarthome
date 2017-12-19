@@ -21,7 +21,7 @@ import java.util.Set;
 import org.eclipse.smarthome.binding.wemo.WemoBindingConstants;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
-import org.eclipse.smarthome.config.discovery.upnp.UpnpDiscoveryParticipant;
+import org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.jupnp.model.meta.RemoteDevice;
@@ -119,11 +119,15 @@ public class WemoDiscoveryParticipant implements UpnpDiscoveryParticipant {
                                     device.getIdentity().getUdn().getIdentifierString());
                             return new ThingUID(THING_TYPE_COFFEE, device.getIdentity().getUdn().getIdentifierString());
                         }
+                        if (device.getDetails().getModelDetails().getModelName().toLowerCase().startsWith("dimmer")) {
+                            logger.debug("Discovered a WeMo DimmerSwitch thing with UDN '{}'",
+                                    device.getIdentity().getUdn().getIdentifierString());
+                            return new ThingUID(THING_TYPE_DIMMER, device.getIdentity().getUdn().getIdentifierString());
+                        }
                     }
                 }
             }
         }
         return null;
     }
-
 }

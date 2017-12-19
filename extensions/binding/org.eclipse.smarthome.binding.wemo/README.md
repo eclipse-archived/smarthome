@@ -5,7 +5,7 @@ The integration happens either through the WeMo-Link bridge, which acts as an IP
 
 ## Supported Things
 
-The WeMo Binding supports the Socket, Insight, Lightswitch, Motion and Maker devices, as well as the WeMo-Link bridge with WeMo LED bulbs.
+The WeMo Binding supports WeMo Switch, Wemo Insight Switch, WeMo Lightswitch, WeMo Motion Sensor, WeMo Maker, WeMo-Link with WeMo LED bulbs, WeMo Coffe Maker, WeMo Dimmer Switch (Fader and Nightmode not implemented yet).
 
 ## Discovery
 
@@ -55,6 +55,14 @@ Devices support some of the following channels:
 | energyTotal | Number     | Energy in Wh used in total. |
 | standbyLimit | Number    | Minimum energy draw in W to register device as switched on (default 8W, configurable via WeMo App). |
 | brightness   | Number    | Brightness of a WeMo LED. |
+| coffeeMode   | String    | Operation for CoffeMaker, either Refill, PlaceCarafe, RefillWater, Ready, Brewing, Brewed, CleaningBrewing, CleaningSoaking, BrewingFailCarafeRemoved |
+| modeTime     | Number    | Current amount of time, in minutes, that the Coffee Maker has been in the current mode. |
+| timeRemaining | Number   | The remaining brewing time of a WeMo Coffee Maker. |
+| waterLevelReached | Switch | Indicates if the WeMo Coffee Maker needs to be refilled. |
+| cleanAdvise  | Switch    | Indicates if a WeMo Coffee Maker needs to be cleaned. |
+| filterAdvise | Switch    | Indicates if a WeMo Coffee Maker needs to have the filter changed. |
+| brewed       | DateTime  | Date/time the coffee maker last completed brewing coffee. |
+| lastCleaned  | DateTime  | Date/time the coffee maker last completed cleaning. |
 
 
 ## Full Example
