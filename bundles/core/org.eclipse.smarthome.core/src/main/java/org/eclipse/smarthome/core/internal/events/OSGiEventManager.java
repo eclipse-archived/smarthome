@@ -88,9 +88,6 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
 
     private final ConcurrentHashMap<String, CopyOnWriteArraySet<EventSubscriber>> typedEventSubscribers = new ConcurrentHashMap<>();
 
-    // private final SetMultimap<String, EventSubscriber> typedEventSubscribers = Multimaps
-    // .synchronizedSetMultimap(HashMultimap.<String, EventSubscriber> create());
-
     private ThreadedEventHandler eventHandler;
 
     private EventSubscriberServiceTracker eventSubscriberServiceTracker;
@@ -215,7 +212,7 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
 
     private void assertValidState(EventAdmin eventAdmin) throws IllegalStateException {
         if (eventAdmin == null) {
-            throw new IllegalArgumentException("The event bus module is not available!");
+            throw new IllegalStateException("The event bus module is not available!");
         }
     }
 

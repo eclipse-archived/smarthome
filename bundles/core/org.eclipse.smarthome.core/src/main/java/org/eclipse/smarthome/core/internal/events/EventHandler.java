@@ -85,7 +85,7 @@ public class EventHandler {
             final @Nullable String source) {
         final EventFactory eventFactory = typedEventFactories.get(type);
         if (eventFactory == null) {
-            logger.warn("Could not find an Event Factory for the event type '{}'.", type);
+            logger.debug("Could not find an Event Factory for the event type '{}'.", type);
             return;
         }
 
@@ -106,7 +106,7 @@ public class EventHandler {
         Set<EventSubscriber> eventTypeSubscribers = typedEventSubscribers.get(eventType);
         Set<EventSubscriber> allEventTypeSubscribers = typedEventSubscribers.get(EventSubscriber.ALL_EVENT_TYPES);
 
-        Set<EventSubscriber> subscribers = new HashSet<EventSubscriber>();
+        Set<EventSubscriber> subscribers = new HashSet<>();
         if (eventTypeSubscribers != null) {
             subscribers.addAll(eventTypeSubscribers);
         }

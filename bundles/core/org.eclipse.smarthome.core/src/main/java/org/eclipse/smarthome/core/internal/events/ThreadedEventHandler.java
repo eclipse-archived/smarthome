@@ -70,6 +70,8 @@ public class ThreadedEventHandler implements Closeable {
                     }
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
+                } catch (RuntimeException ex) {
+                    logger.error("Error on event handling.", ex);
                 }
             }
         }, "ESH-OSGiEventManager");
