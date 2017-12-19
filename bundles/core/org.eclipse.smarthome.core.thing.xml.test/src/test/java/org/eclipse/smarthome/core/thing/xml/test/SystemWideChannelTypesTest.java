@@ -18,14 +18,12 @@ import static org.junit.Assert.assertThat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
-import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.test.SyntheticBundleInstaller;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
@@ -46,11 +44,15 @@ public class SystemWideChannelTypesTest extends JavaOSGiTest {
     private static final String SYSTEM_CHANNELS_WITHOUT_THING_TYPES_BUNDLE_NAME = "SystemChannelsNoThingTypes.bundle";
 
     private ThingTypeProvider thingTypeProvider;
+    private ChannelTypeRegistry channelTypeRegistry;
 
     @Before
     public void setUp() {
         thingTypeProvider = getService(ThingTypeProvider.class);
         assertThat(thingTypeProvider, is(notNullValue()));
+
+        channelTypeRegistry = getService(ChannelTypeRegistry.class);
+        assertThat(channelTypeRegistry, is(notNullValue()));
     }
 
     @After
@@ -185,20 +187,21 @@ public class SystemWideChannelTypesTest extends JavaOSGiTest {
                 .findFirst().get();
         assertThat(lowBat, is(notNullValue()));
 
-        assertThat(TypeResolver.resolve(myChannel.getChannelTypeUID(), Locale.GERMAN).getLabel(),
+        assertThat(channelTypeRegistry.getChannelType(myChannel.getChannelTypeUID(), Locale.GERMAN).getLabel(),
                 is("Mein String My Channel"));
-        assertThat(TypeResolver.resolve(myChannel.getChannelTypeUID(), Locale.GERMAN).getDescription(),
+        assertThat(channelTypeRegistry.getChannelType(myChannel.getChannelTypeUID(), Locale.GERMAN).getDescription(),
                 is("Wetterinformation mit My Channel Type Beschreibung"));
 
         assertThat(myChannel.getLabel(), is("Mein String My Channel"));
         assertThat(myChannel.getDescription(), is("Wetterinformation mit My Channel Type Beschreibung"));
 
-        assertThat(TypeResolver.resolve(sigStr.getChannelTypeUID(), Locale.GERMAN).getLabel(), is("Signalstärke"));
+        assertThat(channelTypeRegistry.getChannelType(sigStr.getChannelTypeUID(), Locale.GERMAN).getLabel(),
+                is("Signalstärke"));
 
         assertThat(sigStr.getLabel(), is("Meine spezial Signalstärke"));
         assertThat(sigStr.getDescription(), is("Meine spezial Beschreibung für Signalstärke"));
 
-        assertThat(TypeResolver.resolve(lowBat.getChannelTypeUID(), Locale.GERMAN).getLabel(),
+        assertThat(channelTypeRegistry.getChannelType(lowBat.getChannelTypeUID(), Locale.GERMAN).getLabel(),
                 is("Niedriger Batteriestatus"));
 
         assertThat(lowBat.getLabel(), is("Niedriger Batteriestatus"));
