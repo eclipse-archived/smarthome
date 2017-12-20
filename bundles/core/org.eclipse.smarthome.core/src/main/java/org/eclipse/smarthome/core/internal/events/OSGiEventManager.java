@@ -15,13 +15,11 @@ package org.eclipse.smarthome.core.internal.events;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.events.Event;
@@ -70,7 +68,7 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         public Object addingService(ServiceReference reference) {
             EventSubscriber eventSubscriber = (EventSubscriber) this.context.getService(reference);
             if (eventSubscriber != null) {
-                addEventSubscriber(eventSubscriber);
+                eventHandler.addEventSubscriber(eventSubscriber);
                 return eventSubscriber;
             } else {
                 return null;
@@ -79,14 +77,12 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
 
         @Override
         public void removedService(ServiceReference reference, Object service) {
-            removeEventSubscriber((EventSubscriber) service);
+            eventHandler.removeEventSubscriber((EventSubscriber) service);
         }
 
     }
 
     private final Map<String, EventFactory> typedEventFactories = new ConcurrentHashMap<String, EventFactory>();
-
-    private final ConcurrentHashMap<String, CopyOnWriteArraySet<EventSubscriber>> typedEventSubscribers = new ConcurrentHashMap<>();
 
     private ThreadedEventHandler eventHandler;
 
@@ -98,7 +94,7 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
 
     @Activate
     protected void activate(ComponentContext componentContext) {
-        eventHandler = new ThreadedEventHandler(typedEventSubscribers, typedEventFactories, safeCaller);
+        eventHandler = new ThreadedEventHandler(typedEventFactories, safeCaller);
 
         eventSubscriberServiceTracker = new EventSubscriberServiceTracker(componentContext.getBundleContext());
         eventSubscriberServiceTracker.open();
@@ -213,33 +209,6 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
     private void assertValidState(EventAdmin eventAdmin) throws IllegalStateException {
         if (eventAdmin == null) {
             throw new IllegalStateException("The event bus module is not available!");
-        }
-    }
-
-    private void addEventSubscriber(final EventSubscriber eventSubscriber) {
-        final Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
-        for (final String subscribedEventType : subscribedEventTypes) {
-            final Set<EventSubscriber> entries = typedEventSubscribers.get(subscribedEventType);
-            if (entries == null) {
-                typedEventSubscribers.put(subscribedEventType,
-                        new CopyOnWriteArraySet<>(Collections.singleton(eventSubscriber)));
-            } else {
-                entries.add(eventSubscriber);
-            }
-        }
-    }
-
-    private void removeEventSubscriber(EventSubscriber eventSubscriber) {
-        final Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
-
-        for (final String subscribedEventType : subscribedEventTypes) {
-            final Set<EventSubscriber> entries = typedEventSubscribers.get(subscribedEventType);
-            if (entries != null) {
-                entries.remove(eventSubscriber);
-                if (entries.isEmpty()) {
-                    typedEventSubscribers.remove(subscribedEventType);
-                }
-            }
         }
     }
 

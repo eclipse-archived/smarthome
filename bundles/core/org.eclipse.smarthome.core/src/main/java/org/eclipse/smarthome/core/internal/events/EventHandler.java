@@ -16,8 +16,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -39,7 +37,7 @@ public class EventHandler {
 
     private final Logger logger = LoggerFactory.getLogger(EventHandler.class);
 
-    private final ConcurrentHashMap<String, CopyOnWriteArraySet<EventSubscriber>> typedEventSubscribers;
+    private final Map<String, Set<EventSubscriber>> typedEventSubscribers;
     private final Map<String, EventFactory> typedEventFactories;
     private final SafeCaller safeCaller;
 
@@ -50,7 +48,7 @@ public class EventHandler {
      * @param typedEventFactories the event factories indexed by the event type
      * @param safeCaller the safe caller to use
      */
-    public EventHandler(final ConcurrentHashMap<String, CopyOnWriteArraySet<EventSubscriber>> typedEventSubscribers,
+    public EventHandler(final Map<String, Set<EventSubscriber>> typedEventSubscribers,
             final Map<String, EventFactory> typedEventFactories, final SafeCaller safeCaller) {
         this.typedEventSubscribers = typedEventSubscribers;
         this.typedEventFactories = typedEventFactories;
