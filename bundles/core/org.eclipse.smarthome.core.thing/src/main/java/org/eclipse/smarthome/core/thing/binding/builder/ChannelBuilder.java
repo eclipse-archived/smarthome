@@ -35,8 +35,8 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 @NonNullByDefault
 public class ChannelBuilder {
 
-    private ChannelUID channelUID;
-    private @Nullable String acceptedItemType;
+    private final ChannelUID channelUID;
+    private @Nullable final String acceptedItemType;
     private ChannelKind kind;
     private @Nullable Configuration configuration;
     private Set<String> defaultTags;
@@ -140,10 +140,6 @@ public class ChannelBuilder {
      * @return channel builder
      */
     public ChannelBuilder withKind(ChannelKind kind) {
-        if (kind == null) {
-            throw new IllegalArgumentException("kind must not be null");
-        }
-
         this.kind = kind;
         return this;
     }
