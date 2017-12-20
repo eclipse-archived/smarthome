@@ -37,7 +37,7 @@ public class ChannelBuilder {
 
     private final ChannelUID channelUID;
     private @Nullable final String acceptedItemType;
-    private ChannelKind kind;
+    private @Nullable ChannelKind kind;
     private @Nullable Configuration configuration;
     private Set<String> defaultTags;
     private @Nullable Map<String, String> properties;
@@ -139,7 +139,12 @@ public class ChannelBuilder {
      * @param kind kind.
      * @return channel builder
      */
-    public ChannelBuilder withKind(ChannelKind kind) {
+    public ChannelBuilder withKind(@Nullable ChannelKind kind) {
+        if (kind == null) {
+            // this code is used by 3rd party developers and thus we cannot use nonnull annotation because we have to
+            // protect ourselves against {@code null} anyway
+            throw new IllegalArgumentException("kind must not be null");
+        }
         this.kind = kind;
         return this;
     }
