@@ -104,15 +104,17 @@ public class ThingFactoryHelper {
     private static <T> T withChannelTypeRegistry(Function<ChannelTypeRegistry, T> consumer) {
         BundleContext bundleContext = FrameworkUtil.getBundle(ThingFactoryHelper.class).getBundleContext();
         ServiceReference ref = bundleContext.getServiceReference(ChannelTypeRegistry.class.getName());
-        ChannelTypeRegistry channelTypeRegistry = null;
-        if (ref != null) {
-            channelTypeRegistry = (ChannelTypeRegistry) bundleContext.getService(ref);
+        try {
+            ChannelTypeRegistry channelTypeRegistry = null;
+            if (ref != null) {
+                channelTypeRegistry = (ChannelTypeRegistry) bundleContext.getService(ref);
+            }
+            return consumer.apply(channelTypeRegistry);
+        } finally {
+            if (ref != null) {
+                bundleContext.ungetService(ref);
+            }
         }
-        T ret = consumer.apply(channelTypeRegistry);
-        if (ref != null) {
-            bundleContext.ungetService(ref);
-        }
-        return ret;
     }
 
     private static Channel createChannel(ChannelDefinition channelDefinition, ThingUID thingUID, String groupId,

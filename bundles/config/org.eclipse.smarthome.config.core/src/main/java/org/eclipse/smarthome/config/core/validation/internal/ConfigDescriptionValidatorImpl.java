@@ -26,7 +26,10 @@ import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationMessage;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -58,6 +61,18 @@ public final class ConfigDescriptionValidatorImpl implements ConfigDescriptionVa
             .add(ConfigDescriptionParameterValidatorFactory.createTypeValidator())
             .add(ConfigDescriptionParameterValidatorFactory.createMinMaxValidator())
             .add(ConfigDescriptionParameterValidatorFactory.createPatternValidator()).build();
+
+    private BundleContext bundleContext;
+
+    @Activate
+    protected void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
+
+    @Deactivate
+    protected void deactivate() {
+        this.bundleContext = null;
+    }
 
     /**
      * Validates the given configuration parameters against the given configuration description having the given URI.
@@ -111,7 +126,8 @@ public final class ConfigDescriptionValidatorImpl implements ConfigDescriptionVa
         }
 
         if (!configDescriptionValidationMessages.isEmpty()) {
-            throw new ConfigValidationException(translationProvider, configDescriptionValidationMessages);
+            throw new ConfigValidationException(bundleContext.getBundle(), translationProvider,
+                    configDescriptionValidationMessages);
         }
     }
 

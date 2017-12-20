@@ -96,7 +96,7 @@ class ConfigValidationExceptionTest {
 
     @Test
     void 'assert that default messages are provided'() {
-        ConfigValidationException configValidationException = new ConfigValidationException(translationProvider, ALL)
+        ConfigValidationException configValidationException = new ConfigValidationException(bundle, translationProvider, ALL)
 
         Map messages = configValidationException.getValidationMessages();
 
@@ -107,7 +107,7 @@ class ConfigValidationExceptionTest {
 
     @Test
     void 'assert that internationalized messages are provided'() {
-        ConfigValidationException configValidationException = new ConfigValidationException(translationProvider, ALL)
+        ConfigValidationException configValidationException = new ConfigValidationException(bundle, translationProvider, ALL)
 
         Map messages = configValidationException.getValidationMessages(DE);
 
@@ -124,7 +124,7 @@ class ConfigValidationExceptionTest {
 
     @Test
     void 'assert that default messages are provided if no i18n provider is available'() {
-        ConfigValidationException configValidationException = new ConfigValidationException(null, ALL)
+        ConfigValidationException configValidationException = new ConfigValidationException(bundle, null, ALL)
 
         Map messages = configValidationException.getValidationMessages(DE);
 
@@ -141,7 +141,7 @@ class ConfigValidationExceptionTest {
 
     @Test(expected=NullPointerException)
     void 'assert that NPE is thrown for null config validation messages'() {
-        new ConfigValidationException(translationProvider, null)
+        new ConfigValidationException(bundle, translationProvider, null)
     }
 
     def static ConfigValidationMessage createMessage(String parameterName, String defaultMessage, String messageKey, Collection<Object> content=Collections.<String> emptyList()) {

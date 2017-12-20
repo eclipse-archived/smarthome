@@ -282,29 +282,32 @@ public class ThingType extends AbstractDescriptionType {
             BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
             @SuppressWarnings("rawtypes")
             ServiceReference ref = bundleContext.getServiceReference(ChannelTypeRegistry.class.getName());
-            ChannelTypeRegistry channelTypeRegistry = null;
-            if (ref != null) {
-                channelTypeRegistry = (ChannelTypeRegistry) bundleContext.getService(ref);
-            }
+            try {
+                ChannelTypeRegistry channelTypeRegistry = null;
+                if (ref != null) {
+                    channelTypeRegistry = (ChannelTypeRegistry) bundleContext.getService(ref);
+                }
 
-            for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
-                if (channelGroupDefinition.getId().equals(channelUID.getGroupId())) {
-                    ChannelGroupType channelGroupType = null;
-                    if (channelTypeRegistry != null) {
-                        channelGroupType = channelTypeRegistry.getChannelGroupType(channelGroupDefinition.getTypeUID());
-                    }
-                    if (channelGroupType != null) {
-                        for (ChannelDefinition channelDefinition : channelGroupType.getChannelDefinitions()) {
-                            if (channelDefinition.getId().equals(channelUID.getIdWithoutGroup())) {
-                                return channelDefinition.getChannelTypeUID();
+                for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
+                    if (channelGroupDefinition.getId().equals(channelUID.getGroupId())) {
+                        ChannelGroupType channelGroupType = null;
+                        if (channelTypeRegistry != null) {
+                            channelGroupType = channelTypeRegistry
+                                    .getChannelGroupType(channelGroupDefinition.getTypeUID());
+                        }
+                        if (channelGroupType != null) {
+                            for (ChannelDefinition channelDefinition : channelGroupType.getChannelDefinitions()) {
+                                if (channelDefinition.getId().equals(channelUID.getIdWithoutGroup())) {
+                                    return channelDefinition.getChannelTypeUID();
+                                }
                             }
                         }
                     }
                 }
-            }
-
-            if (ref != null) {
-                bundleContext.ungetService(ref);
+            } finally {
+                if (ref != null) {
+                    bundleContext.ungetService(ref);
+                }
             }
         }
         return null;

@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
 import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventPublisher;
@@ -165,6 +166,7 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
         firmwareRegistry.addFirmwareProvider(mockProvider);
 
         firmwareUpdateService.setTranslationProvider(mockTranslationProvider);
+        firmwareUpdateService.setConfigDescriptionValidator(getService(ConfigDescriptionValidator.class));
     }
 
     @After

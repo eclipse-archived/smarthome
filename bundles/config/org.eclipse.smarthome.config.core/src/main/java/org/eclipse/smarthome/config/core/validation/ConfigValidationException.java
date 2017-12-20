@@ -21,7 +21,6 @@ import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,12 +52,13 @@ public final class ConfigValidationException extends RuntimeException {
      *
      * @throws NullPointException if given bundle or configuration description validation messages are null
      */
-    public ConfigValidationException(TranslationProvider translationProvider,
+    public ConfigValidationException(Bundle bundle, TranslationProvider translationProvider,
             Collection<ConfigValidationMessage> configValidationMessages) {
+        Preconditions.checkNotNull(bundle, "Bundle must not be null");
         Preconditions.checkNotNull(configValidationMessages, "Config validation messages must not be null");
-        this.bundle = FrameworkUtil.getBundle(this.getClass());
-        this.configValidationMessages = configValidationMessages;
+        this.bundle = bundle;
         this.translationProvider = translationProvider;
+        this.configValidationMessages = configValidationMessages;
     }
 
     /**
