@@ -120,7 +120,7 @@ public class ThingStatusInfo {
             if (other.description != null) {
                 return false;
             }
-        } else if (Objects.equals(description, other.description)) {
+        } else if (!Objects.equals(description, other.description)) {
             return false;
         }
         if (status != other.status) {
