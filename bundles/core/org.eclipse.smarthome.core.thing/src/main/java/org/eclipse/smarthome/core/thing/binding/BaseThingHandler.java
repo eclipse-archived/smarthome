@@ -12,11 +12,15 @@
  */
 package org.eclipse.smarthome.core.thing.binding;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -103,6 +107,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     private ServiceTracker configDescriptionValidatorServiceTracker;
 
     private @Nullable ThingHandlerCallback callback;
+    private final List<ScheduledFuture<?>> scheduledFutures = new ArrayList<>();
 
     /**
      * Creates a new instance of this class for the {@link Thing}.
@@ -241,7 +246,8 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     @Override
     public void dispose() {
-        // can be overridden by subclasses
+        scheduledFutures.stream().filter(sf -> !sf.isCancelled()).forEach(sf -> sf.cancel(true));
+        scheduledFutures.clear();
     }
 
     @Override
@@ -701,6 +707,50 @@ public abstract class BaseThingHandler implements ThingHandler {
         } else {
             throw new IllegalStateException("Could not change thing type because callback is missing");
         }
+    }
+
+    /**
+     * Creates and executes a periodic action that becomes enabled first after the given initial delay, and subsequently
+     * with the given delay between the termination of one execution and the commencement of the next. If any execution
+     * of the task encounters an exception, subsequent executions are suppressed. Otherwise, the task will only
+     * terminate via cancellation or termination of the executor.
+     *
+     * When a {@link RuntimeException} is thrown in the thread it will set the binding OFFLINE with the error message.
+     * This will inform the user something is wrong. This behavior can be changed by overriding
+     * {@link #scheduledThreadAborted(RuntimeException)}.
+     *
+     * Scheduled tasks started via the method are automatically cleaned when {@link #dispose()} is called.
+     *
+     * @param command the task to execute
+     * @param initialDelay the time to delay first execution
+     * @param delay the delay between the termination of one
+     *            execution and the commencement of the next
+     * @param unit the time unit of the initialDelay and delay parameters
+     * @see ScheduledExecutorService#scheduleWithFixedDelay(Runnable, long, long, TimeUnit)
+     */
+    protected ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
+            TimeUnit unit) {
+        Runnable wrapped = () -> {
+            try {
+                command.run();
+            } catch (RuntimeException e) {
+                scheduledThreadAborted(e);
+                throw e;
+            }
+        };
+        ScheduledFuture<?> future = scheduler.scheduleWithFixedDelay(wrapped, initialDelay, delay, unit);
+        scheduledFutures.add(future);
+        return future;
+    }
+
+    /**
+     * Called when a task scheduled with {@link #scheduleWithFixedDelay(Runnable, long, long, TimeUnit)} is aborted with
+     * a RuntimeException. It sets the thing offline. Override if a different behavior is required.
+     *
+     * @param e The {@link RuntimeException}
+     */
+    protected void scheduledThreadAborted(RuntimeException e) {
+        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, e.getMessage());
     }
 
 }
