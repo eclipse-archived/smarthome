@@ -23,8 +23,8 @@ import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
-import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.test.SyntheticBundleInstaller;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
@@ -37,11 +37,15 @@ public class ThingTypeI18nTest extends JavaOSGiTest {
     private static final String TEST_BUNDLE_NAME = "yahooweather.bundle";
 
     private ThingTypeProvider thingTypeProvider;
+    private ChannelTypeRegistry channelTypeRegistry;
 
     @Before
     public void setUp() {
         thingTypeProvider = getService(ThingTypeProvider.class);
         assertThat(thingTypeProvider, is(notNullValue()));
+
+        channelTypeRegistry = getService(ChannelTypeRegistry.class);
+        assertThat(channelTypeRegistry, is(notNullValue()));
     }
 
     @After
@@ -83,8 +87,8 @@ public class ThingTypeI18nTest extends JavaOSGiTest {
                 .filter(it -> it.toString().equals("yahooweather:weather-with-group")).findFirst().get();
         assertThat(weatherGroupType, is(notNullValue()));
 
-        ChannelGroupType channelGroupType = TypeResolver
-                .resolve(weatherGroupType.getChannelGroupDefinitions().get(0).getTypeUID(), Locale.GERMAN);
+        ChannelGroupType channelGroupType = channelTypeRegistry
+                .getChannelGroupType(weatherGroupType.getChannelGroupDefinitions().get(0).getTypeUID(), Locale.GERMAN);
         assertThat(channelGroupType, is(notNullValue()));
 
         assertThat(channelGroupType.getLabel(), is("Wetterinformation mit Gruppe"));
@@ -139,8 +143,9 @@ public class ThingTypeI18nTest extends JavaOSGiTest {
         assertThat(weatherType, is(notNullValue()));
         assertThat(weatherType.getChannelDefinitions().size(), is(2));
 
-        ChannelType temperatureChannelType = TypeResolver.resolve(weatherType.getChannelDefinitions().stream()
-                .filter(it -> it.getId().equals("temperature")).findFirst().get().getChannelTypeUID(), Locale.GERMAN);
+        ChannelType temperatureChannelType = channelTypeRegistry.getChannelType(weatherType.getChannelDefinitions()
+                .stream().filter(it -> it.getId().equals("temperature")).findFirst().get().getChannelTypeUID(),
+                Locale.GERMAN);
         assertThat(temperatureChannelType, is(notNullValue()));
 
         assertThat(temperatureChannelType.getLabel(), is("Temperatur"));

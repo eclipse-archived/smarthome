@@ -1,2 +1,3 @@
 /org.eclipse.smarthome.config.core.internal.i18n.I18nConfigOptionsProvider.xml
 /org.eclipse.smarthome.config.core.net.internal.NetworkConfigOptionProvider.xml
+/org.eclipse.smarthome.config.core.validation.internal.ConfigDescriptionValidatorImpl.xml

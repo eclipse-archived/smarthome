@@ -16,10 +16,10 @@ import java.net.URI;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-import org.eclipse.smarthome.config.core.internal.Activator;
-import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.i18n.I18nUtil;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 
 /**
  * The {@link ConfigDescriptionI18nUtil} uses the {@link TranslationProvider} to
@@ -32,7 +32,7 @@ import org.osgi.framework.Bundle;
  */
 public class ConfigDescriptionI18nUtil {
 
-    private TranslationProvider i18nProvider;
+    private final TranslationProvider i18nProvider;
 
     private static final Pattern delimiter = Pattern.compile("[:=\\s]");
 
@@ -76,7 +76,7 @@ public class ConfigDescriptionI18nUtil {
     public String getParameterUnitLabel(Bundle bundle, URI configDescriptionURI, String parameterName, String unit,
             String defaultUnitLabel, Locale locale) {
         if (unit != null && defaultUnitLabel == null) {
-            String label = i18nProvider.getText(Activator.getBundle(), "unit." + unit, null, locale);
+            String label = i18nProvider.getText(FrameworkUtil.getBundle(this.getClass()), "unit." + unit, null, locale);
             if (label != null) {
                 return label;
             }

@@ -18,7 +18,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
-import org.eclipse.smarthome.config.core.internal.Activator;
+import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,7 @@ public final class ConfigValidationException extends RuntimeException {
     private final Logger logger = LoggerFactory.getLogger(ConfigValidationException.class);
     private final Bundle bundle;
     private final Collection<ConfigValidationMessage> configValidationMessages;
+    private final TranslationProvider translationProvider;
 
     /**
      * Creates a new {@link ConfigValidationException} for the given {@link ConfigValidationMessage}s. It
@@ -50,10 +52,12 @@ public final class ConfigValidationException extends RuntimeException {
      *
      * @throws NullPointException if given bundle or configuration description validation messages are null
      */
-    public ConfigValidationException(Bundle bundle, Collection<ConfigValidationMessage> configValidationMessages) {
+    public ConfigValidationException(Bundle bundle, TranslationProvider translationProvider,
+            Collection<ConfigValidationMessage> configValidationMessages) {
         Preconditions.checkNotNull(bundle, "Bundle must not be null");
         Preconditions.checkNotNull(configValidationMessages, "Config validation messages must not be null");
         this.bundle = bundle;
+        this.translationProvider = translationProvider;
         this.configValidationMessages = configValidationMessages;
     }
 
@@ -77,7 +81,8 @@ public final class ConfigValidationException extends RuntimeException {
      * Retrieves the internationalized validation messages for this exception. If there is no text found to be
      * internationalized then the default message is delivered.
      * <p>
-     * If there is no TranslationProvider available then this operation will return the default validation messages by using
+     * If there is no TranslationProvider available then this operation will return the default validation messages by
+     * using
      * {@link ConfigValidationException#getValidationMessages()}.
      *
      * @param locale the locale to be used; if null then the default locale will be used
@@ -90,14 +95,14 @@ public final class ConfigValidationException extends RuntimeException {
     public Map<String, String> getValidationMessages(Locale locale) {
         ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
         for (ConfigValidationMessage configValidationMessage : configValidationMessages) {
-            if (Activator.getTranslationProvider() == null) {
+            if (translationProvider == null) {
                 logger.warn(
                         "TranslationProvider is not available. Will provide default validation message for parameter '{}'.",
                         configValidationMessage.parameterName);
                 builder.put(configValidationMessage.parameterName,
                         MessageFormat.format(configValidationMessage.defaultMessage, configValidationMessage.content));
             } else {
-                String text = Activator.getTranslationProvider().getText(bundle, configValidationMessage.messageKey,
+                String text = translationProvider.getText(bundle, configValidationMessage.messageKey,
                         configValidationMessage.defaultMessage, locale, configValidationMessage.content);
                 builder.put(configValidationMessage.parameterName, text);
             }

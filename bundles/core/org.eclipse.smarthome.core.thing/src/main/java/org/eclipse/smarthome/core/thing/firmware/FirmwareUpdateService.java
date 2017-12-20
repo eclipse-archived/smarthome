@@ -97,6 +97,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
     private TranslationProvider i18nProvider;
     private LocaleProvider localeProvider;
     private SafeCaller safeCaller;
+    private ConfigDescriptionValidator configDescriptionValidator;
 
     private final Runnable firmwareStatusRunnable = new Runnable() {
         @Override
@@ -435,7 +436,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
         }
 
         try {
-            ConfigDescriptionValidator.validate(config, new URI(CONFIG_DESC_URI_KEY));
+            configDescriptionValidator.validate(config, new URI(CONFIG_DESC_URI_KEY));
         } catch (URISyntaxException | ConfigValidationException e) {
             logger.debug("Validation of new configuration values failed. Will keep current configuration.", e);
             return false;
@@ -532,6 +533,15 @@ public final class FirmwareUpdateService implements EventSubscriber {
 
     protected void unsetSafeCaller(SafeCaller safeCaller) {
         this.safeCaller = null;
+    }
+
+    @Reference
+    protected void setConfigDescriptionValidator(ConfigDescriptionValidator configDescriptionValidator) {
+        this.configDescriptionValidator = configDescriptionValidator;
+    }
+
+    protected void unsetConfigDescriptionValidator(ConfigDescriptionValidator configDescriptionValidator) {
+        this.configDescriptionValidator = null;
     }
 
 }
