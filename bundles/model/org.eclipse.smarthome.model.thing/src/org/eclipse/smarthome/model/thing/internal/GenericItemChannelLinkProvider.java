@@ -26,6 +26,7 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkProvider;
 import org.eclipse.smarthome.model.item.BindingConfigParseException;
 import org.eclipse.smarthome.model.item.BindingConfigReader;
+import org.osgi.service.component.annotations.Component;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -37,6 +38,7 @@ import com.google.common.collect.Lists;
  * @author Alex Tugarev - Added parsing of multiple Channel UIDs
  *
  */
+@Component(immediate = true, service = { ItemChannelLinkProvider.class, BindingConfigReader.class })
 public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannelLink>
         implements BindingConfigReader, ItemChannelLinkProvider {
 

@@ -38,7 +38,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
-import org.eclipse.smarthome.core.thing.type.TypeResolver;
+import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
@@ -78,6 +78,10 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected ThingRegistry thingRegistry;
     @NonNullByDefault({})
     protected ItemChannelLinkRegistry linkRegistry;
+    @NonNullByDefault({})
+    protected ThingTypeRegistry thingTypeRegistry;
+    @NonNullByDefault({})
+    protected ConfigDescriptionValidator configDescriptionValidator;
 
     @Deprecated // this must not be used by bindings!
     @NonNullByDefault({})
@@ -91,6 +95,12 @@ public abstract class BaseThingHandler implements ThingHandler {
     @SuppressWarnings("rawtypes")
     @NonNullByDefault({})
     private ServiceTracker linkRegistryServiceTracker;
+    @SuppressWarnings("rawtypes")
+    @NonNullByDefault({})
+    private ServiceTracker thingTypeRegistryServiceTracker;
+    @SuppressWarnings("rawtypes")
+    @NonNullByDefault({})
+    private ServiceTracker configDescriptionValidatorServiceTracker;
 
     private @Nullable ThingHandlerCallback callback;
 
@@ -137,11 +147,44 @@ public abstract class BaseThingHandler implements ThingHandler {
             }
         };
         linkRegistryServiceTracker.open();
+        thingTypeRegistryServiceTracker = new ServiceTracker(this.bundleContext, ThingTypeRegistry.class.getName(),
+                null) {
+            @Override
+            public Object addingService(final @Nullable ServiceReference reference) {
+                thingTypeRegistry = (ThingTypeRegistry) bundleContext.getService(reference);
+                return thingTypeRegistry;
+            }
+
+            @Override
+            public void removedService(final @Nullable ServiceReference reference, final @Nullable Object service) {
+                synchronized (BaseThingHandler.this) {
+                    thingTypeRegistry = null;
+                }
+            }
+        };
+        thingTypeRegistryServiceTracker.open();
+        configDescriptionValidatorServiceTracker = new ServiceTracker(this.bundleContext,
+                ConfigDescriptionValidator.class.getName(), null) {
+            @Override
+            public Object addingService(final @Nullable ServiceReference reference) {
+                configDescriptionValidator = (ConfigDescriptionValidator) bundleContext.getService(reference);
+                return configDescriptionValidator;
+            }
+
+            @Override
+            public void removedService(final @Nullable ServiceReference reference, final @Nullable Object service) {
+                synchronized (BaseThingHandler.this) {
+                    configDescriptionValidator = null;
+                }
+            }
+        };
+        configDescriptionValidatorServiceTracker.open();
     }
 
     public void unsetBundleContext(final BundleContext bundleContext) {
         linkRegistryServiceTracker.close();
         thingRegistryServiceTracker.close();
+        thingTypeRegistryServiceTracker.close();
         this.bundleContext = null;
     }
 
@@ -257,9 +300,9 @@ public abstract class BaseThingHandler implements ThingHandler {
      *             their declarations in the configuration description
      */
     protected void validateConfigurationParameters(Map<String, Object> configurationParameters) {
-        ThingType thingType = TypeResolver.resolve(getThing().getThingTypeUID());
+        ThingType thingType = thingTypeRegistry.getThingType(getThing().getThingTypeUID());
         if (thingType != null && thingType.getConfigDescriptionURI() != null) {
-            ConfigDescriptionValidator.validate(configurationParameters, thingType.getConfigDescriptionURI());
+            configDescriptionValidator.validate(configurationParameters, thingType.getConfigDescriptionURI());
         }
     }
 

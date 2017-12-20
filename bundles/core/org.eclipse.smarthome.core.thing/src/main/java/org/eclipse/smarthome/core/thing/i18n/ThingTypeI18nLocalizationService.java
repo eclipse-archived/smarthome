@@ -24,9 +24,9 @@ import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
-import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -45,6 +45,9 @@ public class ThingTypeI18nLocalizationService {
     @NonNullByDefault({})
     private ThingTypeI18nUtil thingTypeI18nUtil;
 
+    @NonNullByDefault({})
+    private ChannelTypeRegistry channelTypeRegistry;
+
     @Reference
     protected void setTranslationProvider(TranslationProvider i18nProvider) {
         this.thingTypeI18nUtil = new ThingTypeI18nUtil(i18nProvider);
@@ -52,6 +55,15 @@ public class ThingTypeI18nLocalizationService {
 
     protected void unsetTranslationProvider(TranslationProvider i18nProvider) {
         this.thingTypeI18nUtil = null;
+    }
+
+    @Reference
+    protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry;
+    }
+
+    protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null;
     }
 
     public ThingType createLocalizedThingType(Bundle bundle, ThingType thingType, Locale locale) {
@@ -68,7 +80,8 @@ public class ThingTypeI18nLocalizationService {
             String channelDescription = this.thingTypeI18nUtil.getChannelDescription(bundle, thingType.getUID(),
                     channelDefinition, channelDefinition.getDescription(), locale);
             if (channelLabel == null || channelDescription == null) {
-                ChannelType channelType = TypeResolver.resolve(channelDefinition.getChannelTypeUID(), locale);
+                ChannelType channelType = channelTypeRegistry.getChannelType(channelDefinition.getChannelTypeUID(),
+                        locale);
                 if (channelType != null) {
                     if (channelLabel == null) {
                         channelLabel = this.thingTypeI18nUtil.getChannelLabel(bundle, channelType.getUID(),
@@ -93,7 +106,8 @@ public class ThingTypeI18nLocalizationService {
             String channelGroupDescription = this.thingTypeI18nUtil.getChannelGroupDescription(bundle,
                     thingType.getUID(), channelGroupDefinition, channelGroupDefinition.getDescription(), locale);
             if (channelGroupLabel == null || channelGroupDescription == null) {
-                ChannelGroupType channelGroupType = TypeResolver.resolve(channelGroupDefinition.getTypeUID(), locale);
+                ChannelGroupType channelGroupType = channelTypeRegistry
+                        .getChannelGroupType(channelGroupDefinition.getTypeUID(), locale);
                 if (channelGroupType != null) {
                     if (channelGroupLabel == null) {
                         channelGroupLabel = this.thingTypeI18nUtil.getChannelGroupLabel(bundle,

@@ -1,5 +1,4 @@
 Manifest-Version: 1.0
-Bundle-Activator: org.eclipse.smarthome.core.thing.internal.Activator
 Bundle-License: https://www.eclipse.org/legal/epl-2.0/
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Core Thing

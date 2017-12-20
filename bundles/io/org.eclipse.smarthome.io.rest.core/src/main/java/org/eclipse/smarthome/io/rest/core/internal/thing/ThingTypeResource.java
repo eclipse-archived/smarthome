@@ -50,9 +50,9 @@ import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
-import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
@@ -94,6 +94,7 @@ public class ThingTypeResource implements RESTResource {
     private ThingTypeRegistry thingTypeRegistry;
     private ConfigDescriptionRegistry configDescriptionRegistry;
     private FirmwareRegistry firmwareRegistry;
+    private ChannelTypeRegistry channelTypeRegistry;
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
@@ -120,6 +121,15 @@ public class ThingTypeResource implements RESTResource {
 
     protected void unsetFirmwareRegistry(FirmwareRegistry firmwareRegistry) {
         this.firmwareRegistry = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry;
+    }
+
+    protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null;
     }
 
     @GET
@@ -212,7 +222,8 @@ public class ThingTypeResource implements RESTResource {
         List<ChannelGroupDefinitionDTO> channelGroupDefinitionDTOs = new ArrayList<>();
         for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
             String id = channelGroupDefinition.getId();
-            ChannelGroupType channelGroupType = TypeResolver.resolve(channelGroupDefinition.getTypeUID(), locale);
+            ChannelGroupType channelGroupType = channelTypeRegistry
+                    .getChannelGroupType(channelGroupDefinition.getTypeUID(), locale);
 
             // Default to the channelGroupDefinition label to override the
             // channelGroupType
@@ -242,7 +253,7 @@ public class ThingTypeResource implements RESTResource {
             Locale locale) {
         List<ChannelDefinitionDTO> channelDefinitionDTOs = new ArrayList<>();
         for (ChannelDefinition channelDefinition : channelDefinitions) {
-            ChannelType channelType = TypeResolver.resolve(channelDefinition.getChannelTypeUID(), locale);
+            ChannelType channelType = channelTypeRegistry.getChannelType(channelDefinition.getChannelTypeUID(), locale);
             if (channelType == null) {
                 logger.warn("Cannot find channel type: {}", channelDefinition.getChannelTypeUID());
                 return null;
@@ -290,6 +301,7 @@ public class ThingTypeResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return thingTypeRegistry != null && configDescriptionRegistry != null && firmwareRegistry != null;
+        return thingTypeRegistry != null && configDescriptionRegistry != null && firmwareRegistry != null
+                && channelTypeRegistry != null;
     }
 }

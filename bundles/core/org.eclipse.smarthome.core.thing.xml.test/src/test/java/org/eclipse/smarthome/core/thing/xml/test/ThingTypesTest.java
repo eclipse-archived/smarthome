@@ -25,8 +25,8 @@ import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
-import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.test.SyntheticBundleInstaller;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
@@ -41,11 +41,15 @@ public class ThingTypesTest extends JavaOSGiTest {
     private static final String TEST_BUNDLE_NAME = "ThingTypesTest.bundle";
 
     private ThingTypeProvider thingTypeProvider;
+    private ChannelTypeRegistry channelTypeRegistry;
 
     @Before
     public void setUp() {
         thingTypeProvider = getService(ThingTypeProvider.class);
         assertThat(thingTypeProvider, is(notNullValue()));
+
+        channelTypeRegistry = getService(ChannelTypeRegistry.class);
+        assertThat(channelTypeRegistry, is(notNullValue()));
     }
 
     @After
@@ -101,7 +105,7 @@ public class ThingTypesTest extends JavaOSGiTest {
         assertThat(colorChannel.getProperties().get("chan.key1"), is("value1"));
         assertThat(colorChannel.getProperties().get("chan.key2"), is("value2"));
 
-        ChannelType colorChannelType = TypeResolver.resolve(colorChannel.getChannelTypeUID());
+        ChannelType colorChannelType = channelTypeRegistry.getChannelType(colorChannel.getChannelTypeUID());
         assertThat(colorChannelType, is(notNullValue()));
         assertThat(colorChannelType.toString(), is("hue:color"));
         assertThat(colorChannelType.getItemType(), is("ColorItem"));
@@ -121,7 +125,8 @@ public class ThingTypesTest extends JavaOSGiTest {
 
         assertThat(colorTemperatureChannel, is(notNullValue()));
         assertThat(colorTemperatureChannel.getProperties().size(), is(0));
-        ChannelType colorTemperatureChannelType = TypeResolver.resolve(colorTemperatureChannel.getChannelTypeUID());
+        ChannelType colorTemperatureChannelType = channelTypeRegistry
+                .getChannelType(colorTemperatureChannel.getChannelTypeUID());
         assertThat(colorTemperatureChannelType, is(notNullValue()));
 
         assertThat(colorTemperatureChannelType.toString(), is("hue:color_temperature"));
@@ -140,7 +145,7 @@ public class ThingTypesTest extends JavaOSGiTest {
         ChannelDefinition alarmChannel = channelDefinitions.stream().filter(it -> it.getId().equals("alarm"))
                 .findFirst().get();
         assertThat(alarmChannel, is(notNullValue()));
-        ChannelType alarmChannelType = TypeResolver.resolve(alarmChannel.getChannelTypeUID());
+        ChannelType alarmChannelType = channelTypeRegistry.getChannelType(alarmChannel.getChannelTypeUID());
         assertThat(alarmChannelType, is(notNullValue()));
 
         assertThat(alarmChannelType.toString(), is("hue:alarm"));
