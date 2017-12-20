@@ -27,6 +27,8 @@ import org.eclipse.smarthome.config.core.validation.internal.ConfigDescriptionVa
 import org.eclipse.smarthome.config.core.validation.internal.MessageKey
 import org.junit.Before
 import org.junit.Test
+import org.osgi.framework.Bundle
+import org.osgi.framework.BundleContext
 
 /**
  * Testing the {@link ConfigDescriptionValidator}.
@@ -127,6 +129,13 @@ class ConfigDescriptionValidatorTest {
                         CONFIG_DESCRIPTION
                     }
                 ] as ConfigDescriptionRegistry);
+        configDescriptionValidator.activate([
+            getBundle: {
+                -> [
+                    getBundleId: { -> 0 }
+                ] as Bundle
+            }
+        ] as BundleContext)
 
         params = [
             (BOOL_PARAM_NAME): null,
