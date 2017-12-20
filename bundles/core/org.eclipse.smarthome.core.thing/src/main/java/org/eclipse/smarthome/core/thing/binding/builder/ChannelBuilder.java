@@ -141,11 +141,10 @@ public class ChannelBuilder {
      */
     public ChannelBuilder withKind(@Nullable ChannelKind kind) {
         if (kind == null) {
-            // this code is used by 3rd party developers and thus we cannot use nonnull annotation because we have to
-            // protect ourselves against {@code null} anyway
-            throw new IllegalArgumentException("kind must not be null");
+            this.kind = ChannelKind.STATE;
+        } else {
+            this.kind = kind;
         }
-        this.kind = kind;
         return this;
     }
 
