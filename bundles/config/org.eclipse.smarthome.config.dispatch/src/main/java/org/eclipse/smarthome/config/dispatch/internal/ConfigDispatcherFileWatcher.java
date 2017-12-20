@@ -105,7 +105,7 @@ public class ConfigDispatcherFileWatcher extends AbstractWatchService {
         this.configDispatcher = configDispatcher;
     }
 
-    public void unsetDispatcher(ConfigDispatcher configDispatcher) {
+    public void unsetConfigDispatcher(ConfigDispatcher configDispatcher) {
         this.configDispatcher = null;
     }
 
