@@ -37,6 +37,9 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +81,7 @@ import com.google.gson.JsonSyntaxException;
  * @author Henning Treu - Delete orphan exclusive configuration from configAdmin
  * @author Stefan Triller - Add support for service contexts
  */
+@Component
 public class ConfigDispatcher {
 
     private final Logger logger = LoggerFactory.getLogger(ConfigDispatcher.class);
@@ -111,12 +115,12 @@ public class ConfigDispatcher {
 
     private ExclusivePIDMap exclusivePIDMap;
 
-    private final ConfigurationAdmin configAdmin;
+    private ConfigurationAdmin configAdmin;
 
-    private final File exclusivePIDStore;
+    private File exclusivePIDStore;
 
-    public ConfigDispatcher(BundleContext bundleContext, ConfigurationAdmin configAdmin) {
-        this.configAdmin = configAdmin;
+    @Activate
+    public void activate(BundleContext bundleContext) {
         exclusivePIDStore = bundleContext.getDataFile(EXCLUSIVE_PID_STORE_FILE);
         loadExclusivePIDList();
         readDefaultConfig();
@@ -422,6 +426,15 @@ public class ConfigDispatcher {
             logger.warn("Could not parse line '{}'", line);
             return new ParseLineResult();
         }
+    }
+
+    @Reference
+    public void setConfigurationAdmin(ConfigurationAdmin configAdmin) {
+        this.configAdmin = configAdmin;
+    }
+
+    public void unsetConfigurationAdmin(ConfigurationAdmin configAdmin) {
+        this.configAdmin = null;
     }
 
     /**

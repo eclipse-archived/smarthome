@@ -22,13 +22,10 @@ import java.nio.file.WatchEvent.Kind;
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.service.AbstractWatchService;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * Watches file-system events and passes them to our {@link ConfigDispatcher}
@@ -48,8 +45,6 @@ public class ConfigDispatcherFileWatcher extends AbstractWatchService {
 
     private ConfigDispatcher configDispatcher;
 
-    private ConfigurationAdmin configAdmin;
-
     public ConfigDispatcherFileWatcher() {
         super(getPathToWatch());
     }
@@ -66,7 +61,7 @@ public class ConfigDispatcherFileWatcher extends AbstractWatchService {
     @Activate
     public void activate(BundleContext bundleContext) {
         super.activate();
-        configDispatcher = new ConfigDispatcher(bundleContext, configAdmin);
+        // configDispatcher = new ConfigDispatcher(bundleContext);
         configDispatcher.processConfigFile(getSourcePath().toFile());
     }
 
@@ -91,7 +86,7 @@ public class ConfigDispatcherFileWatcher extends AbstractWatchService {
     protected void processWatchEvent(WatchEvent<?> event, Kind<?> kind, Path path) {
         if (kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
             File f = path.toFile();
-            if (!f.isHidden()) {
+            if (!f.isHidden() && f.getName().endsWith(".cfg")) {
                 configDispatcher.processConfigFile(f);
             }
         } else if (kind == ENTRY_DELETE) {
@@ -105,13 +100,13 @@ public class ConfigDispatcherFileWatcher extends AbstractWatchService {
         }
     }
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.STATIC)
-    protected void setConfigurationAdmin(ConfigurationAdmin configAdmin) {
-        this.configAdmin = configAdmin;
+    @Reference
+    public void setConfigDispatcher(ConfigDispatcher configDispatcher) {
+        this.configDispatcher = configDispatcher;
     }
 
-    protected void unsetConfigurationAdmin(ConfigurationAdmin configAdmin) {
-        this.configAdmin = null;
+    public void unsetDispatcher(ConfigDispatcher configDispatcher) {
+        this.configDispatcher = null;
     }
 
 }
