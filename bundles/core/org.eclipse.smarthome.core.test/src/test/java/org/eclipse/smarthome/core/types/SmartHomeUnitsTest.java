@@ -7,6 +7,7 @@ import static org.junit.Assert.assertThat;
 import java.math.BigDecimal;
 
 import javax.measure.Quantity;
+import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Pressure;
 import javax.measure.quantity.Speed;
@@ -14,11 +15,12 @@ import javax.measure.quantity.Temperature;
 
 import org.junit.Test;
 
+import tec.uom.se.AbstractUnit;
 import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public class ESHUnitsTest {
+public class SmartHomeUnitsTest {
 
     private static final double DEFAULT_ERROR = 0.0000000000000001d;
 
@@ -49,7 +51,8 @@ public class ESHUnitsTest {
     public void testHectoPascal2Pascal() {
         Quantity<Pressure> pascal = Quantities.getQuantity(BigDecimal.valueOf(100), Units.PASCAL);
 
-        assertThat(pascal.to(SmartHomeUnits.HECTO_PASCAL), is(Quantities.getQuantity(BigDecimal.ONE, SmartHomeUnits.HECTO_PASCAL)));
+        assertThat(pascal.to(SmartHomeUnits.HECTO_PASCAL),
+                is(Quantities.getQuantity(BigDecimal.ONE, SmartHomeUnits.HECTO_PASCAL)));
     }
 
     @Test
@@ -125,6 +128,16 @@ public class ESHUnitsTest {
     public void test_mile_UnitSymbol() {
         assertThat(SmartHomeUnits.MILE.getSymbol(), is("mi"));
         assertThat(SmartHomeUnits.MILE.toString(), is("mi"));
+    }
+
+    @Test
+    public void test_one_UnitSymbol() {
+        assertThat(AbstractUnit.ONE.getSymbol(), is(""));
+
+        Quantity<Dimensionless> one1 = Quantities.getQuantity(new BigDecimal(1), AbstractUnit.ONE);
+        Quantity<Dimensionless> one2 = Quantities.getQuantity(new BigDecimal(1), AbstractUnit.ONE);
+
+        assertThat(one1.add(one2).toString(), is("2 one"));
     }
 
 }
