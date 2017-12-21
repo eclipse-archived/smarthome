@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="onewire4j"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+    <bridge-type id="rs232-bridge">
+        <label>RS 232 Bridge</label>
+        <description>The RS 232 bridge represents a single One Wire network  connected via RS232</description>
+
+        <config-description>
+            <parameter name="port" type="text">
+                <context></context>
+                <label>Serial Port</label>
+                <description>Set the Serial Port</description>
+                <required>true</required>
+                <options>
+                    <option value="/dev/ttyUSB0">/dev/ttyUSB0</option>
+                    <option value="/dev/ttyUSB1">/dev/ttyUSB1</option>
+                </options>
+            </parameter>
+            <parameter name="refreshrate"  type="decimal" min="1">
+                <description>Refresh rate in sec</description>
+                <required>true</required>
+                <default>60</default>
+            </parameter>
+        </config-description>
+    </bridge-type>
+
+</thing:thing-descriptions>

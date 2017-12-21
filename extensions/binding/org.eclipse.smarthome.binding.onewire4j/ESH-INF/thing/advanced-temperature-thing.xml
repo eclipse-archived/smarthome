@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="onewire4j"
+						  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+						  xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+						  xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<!-- Sample Thing Type -->
+	<thing-type id="advanced-temperature">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="rs232-bridge"/>
+        </supported-bridge-type-refs>     
+
+		<label>OneWire4J Advanced Temperature Binding Thing</label>
+		<description>Temperature and alert thing for OneWire4J binding</description>
+
+		<channels>
+			<channel id="temperature" typeId="temperature"/>
+            <channel id="minTemperature" typeId="minTemperature"/>
+            <channel id="maxTemperature" typeId="maxTemperature"/>
+		</channels>
+		
+        <config-description>
+            <parameter name="deviceId" type="text">
+                <label>Device Id</label>
+                <description>The one wire device id.</description>
+            </parameter>
+        </config-description>
+	</thing-type>
+
+	<channel-type id="temperature">
+		<item-type>Number</item-type>
+		<label>Temperature</label>
+		<description>Measured Temperature</description>
+        <state readOnly="true" pattern="%.1f °C">
+        </state>
+	</channel-type>
+    <channel-type id="minTemperature">
+        <item-type>Number</item-type>
+        <label>MinTemperature</label>
+        <description>Min Temperature Alert</description>
+        <state readOnly="false" pattern="%.1f °C">
+        </state>
+    </channel-type>
+    <channel-type id="maxTemperature">
+        <item-type>Number</item-type>
+        <label>MaxTemperature</label>
+        <description>Max Temperature Alert</description>
+        <state readOnly="false" pattern="%.1f °C">
+        </state>
+    </channel-type>
+
+</thing:thing-descriptions>
