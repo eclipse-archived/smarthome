@@ -51,7 +51,7 @@ public class OneWire4JHandlerFactory extends BaseThingHandlerFactory {
             OneWire4JBindingConstants.THING_TYPE_ONEWIRE_TEMPERATURE,
             OneWire4JBindingConstants.BRIDGE_TYPE_ONEWIRE_RS232);
 
-    // @Reference
+    // TODO @Reference
     private final SerialPortSocketFactory serialPortSocketFactory = de.ibapl.spsw.provider.SerialPortSocketFactoryImpl
             .singleton();
 
