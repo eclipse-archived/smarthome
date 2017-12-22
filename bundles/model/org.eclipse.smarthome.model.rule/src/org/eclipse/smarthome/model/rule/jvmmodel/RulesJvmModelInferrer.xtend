@@ -24,6 +24,9 @@ import org.eclipse.smarthome.model.rule.rules.ChangedEventTrigger
 import org.eclipse.smarthome.model.rule.rules.CommandEventTrigger
 import org.eclipse.smarthome.model.rule.rules.EventEmittedTrigger
 import org.eclipse.smarthome.model.rule.rules.EventTrigger
+import org.eclipse.smarthome.model.rule.rules.GroupMemberChangedEventTrigger
+import org.eclipse.smarthome.model.rule.rules.GroupMemberCommandEventTrigger
+import org.eclipse.smarthome.model.rule.rules.GroupMemberUpdateEventTrigger
 import org.eclipse.smarthome.model.rule.rules.Rule
 import org.eclipse.smarthome.model.rule.rules.RuleModel
 import org.eclipse.smarthome.model.rule.rules.ThingStateChangedEventTrigger
@@ -168,6 +171,9 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
             if (trigger instanceof CommandEventTrigger) {
                 return true;
             }
+            if (trigger instanceof GroupMemberCommandEventTrigger) {
+                return true;
+            }
         }
         return false;
     }
@@ -177,6 +183,9 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
             if (trigger instanceof ChangedEventTrigger) {
                 return true;
             }
+            if (trigger instanceof GroupMemberChangedEventTrigger) {
+                return true;
+            }
         }
         return false;
     }
@@ -184,6 +193,9 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
     def private boolean containsStateUpdateTrigger(Rule rule) {
         for (EventTrigger trigger : rule.getEventtrigger()) {
             if (trigger instanceof UpdateEventTrigger) {
+                return true;
+            }
+            if (trigger instanceof GroupMemberUpdateEventTrigger) {
                 return true;
             }
         }
