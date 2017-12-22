@@ -98,7 +98,7 @@ sitemap demo label="Main Menu"
         Slider item=Light2_Brightness label="Light2 Brightness [%.1f %%]"
         Slider item=Light2_ColorTemperature label="Light2 Color Temperature [%.1f %%]"
         Colorpicker item=ColorLight label="Color"
-        Number item=RemoteControlBatteryLevel label="Battery level [%d %%]"
+        Text item=RemoteControlBatteryLevel label="Battery level [%d %%]"
         Switch item=RemoteControlBatteryLow label="Battery low warning"
     }
 }
