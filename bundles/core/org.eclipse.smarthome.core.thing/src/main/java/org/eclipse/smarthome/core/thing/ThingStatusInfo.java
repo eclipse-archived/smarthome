@@ -12,8 +12,11 @@
  */
 package org.eclipse.smarthome.core.thing;
 
+import java.util.Objects;
+
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * A {@link ThingStatusInfo} represents status information of a thing which consists of
@@ -26,13 +29,14 @@ import org.eclipse.jdt.annotation.NonNull;
  * @author Stefan Bußweiler - Initial contribution
  * @author Dennis Nobel - Added null checks
  */
+@NonNullByDefault
 public class ThingStatusInfo {
 
-    private @NonNull ThingStatus status;
+    private final ThingStatus status;
 
-    private @NonNull ThingStatusDetail statusDetail;
+    private final ThingStatusDetail statusDetail;
 
-    private String description;
+    private @Nullable String description;
 
     /**
      * Default constructor for deserialization e.g. by Gson.
@@ -48,11 +52,8 @@ public class ThingStatusInfo {
      * @param status the status (must not be null)
      * @param statusDetail the detail of the status (must not be null)
      * @param description the description of the status
-     *
-     * @throws IllegalArgumentException if thing status or thing status detail is null
      */
-    public ThingStatusInfo(@NonNull ThingStatus status, @NonNull ThingStatusDetail statusDetail, String description)
-            throws IllegalArgumentException {
+    public ThingStatusInfo(ThingStatus status, ThingStatusDetail statusDetail, @Nullable String description) {
         this.status = status;
         this.statusDetail = statusDetail;
         this.description = description;
@@ -63,7 +64,7 @@ public class ThingStatusInfo {
      *
      * @return the status (not null)
      */
-    public @NonNull ThingStatus getStatus() {
+    public ThingStatus getStatus() {
         return status;
     }
 
@@ -72,7 +73,7 @@ public class ThingStatusInfo {
      *
      * @return the status detail (not null)
      */
-    public @NonNull ThingStatusDetail getStatusDetail() {
+    public ThingStatusDetail getStatusDetail() {
         return statusDetail;
     }
 
@@ -81,7 +82,7 @@ public class ThingStatusInfo {
      *
      * @return the description
      */
-    public String getDescription() {
+    public @Nullable String getDescription() {
         return description;
     }
 
@@ -95,14 +96,16 @@ public class ThingStatusInfo {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
+        String description = this.description; // prevent NPE in case the class variable is changed between the two
+                                               // calls in the next line
         result = prime * result + ((description == null) ? 0 : description.hashCode());
-        result = prime * result + ((status == null) ? 0 : status.hashCode());
-        result = prime * result + ((statusDetail == null) ? 0 : statusDetail.hashCode());
+        result = prime * result + status.hashCode();
+        result = prime * result + statusDetail.hashCode();
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;
         }
@@ -117,7 +120,7 @@ public class ThingStatusInfo {
             if (other.description != null) {
                 return false;
             }
-        } else if (!description.equals(other.description)) {
+        } else if (!Objects.equals(description, other.description)) {
             return false;
         }
         if (status != other.status) {

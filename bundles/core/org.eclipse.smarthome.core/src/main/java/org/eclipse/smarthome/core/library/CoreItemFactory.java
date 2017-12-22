@@ -12,7 +12,8 @@
  */
 package org.eclipse.smarthome.core.library;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.library.items.CallItem;
@@ -37,23 +38,27 @@ import org.osgi.service.component.annotations.Component;
  * @author Alexander Kostadinov
  */
 @Component(immediate = true)
+@NonNullByDefault
 public class CoreItemFactory implements ItemFactory {
 
-    public static final @NonNull String CALL = "Call";
-    public static final @NonNull String COLOR = "Color";
-    public static final @NonNull String CONTACT = "Contact";
-    public static final @NonNull String DATETIME = "DateTime";
-    public static final @NonNull String DIMMER = "Dimmer";
-    public static final @NonNull String IMAGE = "Image";
-    public static final @NonNull String LOCATION = "Location";
-    public static final @NonNull String NUMBER = "Number";
-    public static final @NonNull String PLAYER = "Player";
-    public static final @NonNull String ROLLERSHUTTER = "Rollershutter";
-    public static final @NonNull String STRING = "String";
-    public static final @NonNull String SWITCH = "Switch";
+    public static final String CALL = "Call";
+    public static final String COLOR = "Color";
+    public static final String CONTACT = "Contact";
+    public static final String DATETIME = "DateTime";
+    public static final String DIMMER = "Dimmer";
+    public static final String IMAGE = "Image";
+    public static final String LOCATION = "Location";
+    public static final String NUMBER = "Number";
+    public static final String PLAYER = "Player";
+    public static final String ROLLERSHUTTER = "Rollershutter";
+    public static final String STRING = "String";
+    public static final String SWITCH = "Switch";
 
     @Override
-    public GenericItem createItem(String itemTypeName, String itemName) {
+    public @Nullable GenericItem createItem(@Nullable String itemTypeName, String itemName) {
+        if (itemTypeName == null) {
+            return null;
+        }
         switch (itemTypeName) {
             case CALL:
                 return new CallItem(itemName);
