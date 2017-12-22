@@ -41,7 +41,7 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.ESHUnits;
+import org.eclipse.smarthome.core.types.SmartHomeUnits;
 import org.eclipse.smarthome.core.types.MeasurementSystem;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
@@ -233,7 +233,7 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
             case "windGust":
                 return undefOrQuantity(current.getWindGustKmh(), Units.KILOMETRE_PER_HOUR, getSpeedConversionMap());
             case "pressure":
-                return undefOrQuantity(current.getPressureHPa(), ESHUnits.HECTO_PASCAL, getPressureConversionMap());
+                return undefOrQuantity(current.getPressureHPa(), SmartHomeUnits.HECTO_PASCAL, getPressureConversionMap());
             case "dewPoint":
                 return undefOrQuantity(current.getDewPointC(), Units.CELSIUS, getTemperatureConversionMap());
             case "heatIndex":
@@ -244,17 +244,17 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
                 return undefOrQuantity(current.getFeelingTemperatureC(), Units.CELSIUS, getTemperatureConversionMap());
             case "visibility":
                 return undefOrQuantity(current.getVisibilityKm(), KILO(Units.METRE),
-                        getConversionMap(KILO(Units.METRE), ESHUnits.MILE));
+                        getConversionMap(KILO(Units.METRE), SmartHomeUnits.MILE));
             case "solarRadiation":
-                return undefOrQuantity(current.getSolarRadiation(), ESHUnits.IRRADIANCE, Collections.emptyMap());
+                return undefOrQuantity(current.getSolarRadiation(), SmartHomeUnits.IRRADIANCE, Collections.emptyMap());
             case "UVIndex":
                 return undefOrDecimal(current.getUVIndex());
             case "precipitationDay":
                 return undefOrQuantity(current.getPrecipitationDayMm(), MILLI(Units.METRE),
-                        getConversionMap(MILLI(Units.METRE), ESHUnits.INCH));
+                        getConversionMap(MILLI(Units.METRE), SmartHomeUnits.INCH));
             case "precipitationHour":
                 return undefOrQuantity(current.getPrecipitationHourMm(), MILLI(Units.METRE),
-                        getConversionMap(MILLI(Units.METRE), ESHUnits.INCH));
+                        getConversionMap(MILLI(Units.METRE), SmartHomeUnits.INCH));
             case "icon":
                 State icon = HttpUtil.downloadImage(current.getIcon().toExternalForm());
                 if (icon == null) {
@@ -287,10 +287,10 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
                 return undefOrDecimal(dayForecast.getProbaPrecipitation());
             case "precipitationDay":
                 return undefOrQuantity(dayForecast.getPrecipitationDayMm(), MILLI(Units.METRE),
-                        getConversionMap(MILLI(Units.METRE), ESHUnits.INCH));
+                        getConversionMap(MILLI(Units.METRE), SmartHomeUnits.INCH));
             case "snow":
                 return undefOrQuantity(dayForecast.getSnowCm(), CENTI(Units.METRE),
-                        getConversionMap(CENTI(Units.METRE), ESHUnits.INCH));
+                        getConversionMap(CENTI(Units.METRE), SmartHomeUnits.INCH));
             case "maxWindDirection":
                 return undefOrState(dayForecast.getMaxWindDirection(),
                         new StringType(dayForecast.getMaxWindDirection()));
@@ -346,15 +346,15 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
     }
 
     private Map<MeasurementSystem, Unit<?>> getPressureConversionMap() {
-        return getConversionMap(ESHUnits.HECTO_PASCAL, ESHUnits.INCH_OF_MERCURY);
+        return getConversionMap(SmartHomeUnits.HECTO_PASCAL, SmartHomeUnits.INCH_OF_MERCURY);
     }
 
     private Map<MeasurementSystem, Unit<?>> getSpeedConversionMap() {
-        return getConversionMap(Units.KILOMETRE_PER_HOUR, ESHUnits.MILES_PER_HOUR);
+        return getConversionMap(Units.KILOMETRE_PER_HOUR, SmartHomeUnits.MILES_PER_HOUR);
     }
 
     private Map<MeasurementSystem, Unit<?>> getTemperatureConversionMap() {
-        return getConversionMap(Units.CELSIUS, ESHUnits.FAHRENHEIT);
+        return getConversionMap(Units.CELSIUS, SmartHomeUnits.FAHRENHEIT);
     }
 
     private String getChannelTypeId(String channelId) {

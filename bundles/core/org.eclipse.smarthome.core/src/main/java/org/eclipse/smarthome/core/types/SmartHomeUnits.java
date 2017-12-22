@@ -27,11 +27,11 @@ import tec.uom.se.unit.TransformedUnit;
 import tec.uom.se.unit.Units;
 
 /**
- * Unit Provider.
+ * SmartHome specific unit definitions.
  *
  * @author Gaël L'hopital - Initial contribution .
  */
-public class ESHUnits extends Units {
+public class SmartHomeUnits extends Units {
 
     public static final Unit<Pressure> INCH_OF_MERCURY = new TransformedUnit<>("inHg", PASCAL,
             new RationalConverter(BigInteger.valueOf(3386388), BigInteger.valueOf(1000)));

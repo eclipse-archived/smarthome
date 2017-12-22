@@ -21,6 +21,7 @@ import org.eclipse.smarthome.core.types.MeasurementSystem;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.eclipse.smarthome.core.types.util.UnitUtils;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -63,7 +64,7 @@ public class ItemStateConverterImpl implements ItemStateConverter {
             QuantityType<?> quantityState = (QuantityType<?>) state;
             NumberItem numberItem = (NumberItem) item;
 
-            // in case the item does define a unit it takes predescense over all other conversions:
+            // in case the item does define a unit it takes precedence over all other conversions:
             Unit<?> itemUnit = parseItemUnit(numberItem);
             if (itemUnit != null) {
                 if (!itemUnit.equals(quantityState.getUnit())) {
@@ -102,7 +103,7 @@ public class ItemStateConverterImpl implements ItemStateConverter {
         }
 
         String pattern = stateDescription.getPattern();
-        return unitProvider.parseUnit(pattern);
+        return UnitUtils.parseUnit(pattern);
     }
 
     private boolean isAccepted(Item item, State state) {

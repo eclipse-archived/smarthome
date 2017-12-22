@@ -28,7 +28,7 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.ConfigStatusThingHandler;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.ESHUnits;
+import org.eclipse.smarthome.core.types.SmartHomeUnits;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -222,9 +222,9 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
                     // https://github.com/pvizeli/yahooweather/issues/2
                     // https://github.com/monkeecreate/jquery.simpleWeather/issues/227
                     // So we provide a "special" unit here:
-                    result = new QuantityType(pressDouble / 33.86d, ESHUnits.HECTO_PASCAL);
+                    result = new QuantityType(pressDouble / 33.86d, SmartHomeUnits.HECTO_PASCAL);
                 } else {
-                    result = new QuantityType(pressDouble, ESHUnits.HECTO_PASCAL);
+                    result = new QuantityType(pressDouble, SmartHomeUnits.HECTO_PASCAL);
                 }
                 return result;
             }

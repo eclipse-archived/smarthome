@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.library.types.util;
+package org.eclipse.smarthome.core.internal.items.group;
 
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.library.items.NumberItem;

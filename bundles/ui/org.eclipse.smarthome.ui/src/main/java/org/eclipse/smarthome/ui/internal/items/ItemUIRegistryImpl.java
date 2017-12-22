@@ -63,6 +63,7 @@ import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.core.types.Type;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.eclipse.smarthome.core.types.util.UnitUtils;
 import org.eclipse.smarthome.model.sitemap.ColorArray;
 import org.eclipse.smarthome.model.sitemap.Default;
 import org.eclipse.smarthome.model.sitemap.Group;
@@ -369,8 +370,9 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                         QuantityType quantityState = (QuantityType) state;
                         state = convertStateToWidgetUnit(quantityState, w);
 
-                        if (formatPattern.contains("%unit%")) {
-                            formatPattern = formatPattern.replace("%unit%", quantityState.getUnit().toString());
+                        if (formatPattern.contains(UnitUtils.UNIT_PLACEHOLDER)) {
+                            formatPattern = formatPattern.replace(UnitUtils.UNIT_PLACEHOLDER,
+                                    quantityState.getUnit().toString());
                         }
                     }
 
@@ -396,7 +398,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     }
 
     private State convertStateToWidgetUnit(QuantityType quantityState, @NonNull Widget w) {
-        Unit<?> widgetUnit = unitProvider.parseUnit(getFormatPattern(w.getLabel()));
+        Unit<?> widgetUnit = UnitUtils.parseUnit(getFormatPattern(w.getLabel()));
         if (widgetUnit != null && !widgetUnit.equals(quantityState.getUnit())) {
             return quantityState.toUnit(widgetUnit);
         }

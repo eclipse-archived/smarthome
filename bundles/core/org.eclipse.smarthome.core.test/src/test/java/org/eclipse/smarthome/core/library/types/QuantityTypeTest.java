@@ -17,7 +17,7 @@ import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Temperature;
 
-import org.eclipse.smarthome.core.types.ESHUnits;
+import org.eclipse.smarthome.core.types.SmartHomeUnits;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class QuantityTypeTest {
     @Before
     public void setup() {
         @SuppressWarnings("unused")
-        Unit<Temperature> fahrenheit = ESHUnits.FAHRENHEIT;
+        Unit<Temperature> fahrenheit = SmartHomeUnits.FAHRENHEIT;
     }
 
     @Test

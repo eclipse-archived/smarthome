@@ -24,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractProvider;
-import org.eclipse.smarthome.core.items.DimensionClassParser;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -36,6 +35,7 @@ import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
+import org.eclipse.smarthome.core.types.util.UnitUtils;
 import org.eclipse.smarthome.model.core.EventType;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
@@ -222,8 +222,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
                 ModelGroupFunction function = modelGroupItem.getFunction();
 
                 if (baseItem instanceof NumberItem) {
-                    Class<? extends Quantity<?>> dimension = DimensionClassParser
-                            .parseDimension(modelGroupItem.getDimension());
+                    Class<? extends Quantity<?>> dimension = UnitUtils.parseDimension(modelGroupItem.getDimension());
                     ((NumberItem) baseItem).setDimension(dimension);
                 }
 
@@ -237,7 +236,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
             item = createItemOfType(normalItem.getType(), itemName);
 
             if (item instanceof NumberItem) {
-                Class<? extends Quantity<?>> dimension = DimensionClassParser.parseDimension(normalItem.getDimension());
+                Class<? extends Quantity<?>> dimension = UnitUtils.parseDimension(normalItem.getDimension());
                 ((NumberItem) item).setDimension(dimension);
             }
         }

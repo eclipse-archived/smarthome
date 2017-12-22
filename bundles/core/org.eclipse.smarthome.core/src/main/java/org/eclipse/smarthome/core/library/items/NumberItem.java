@@ -25,6 +25,7 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.eclipse.smarthome.core.types.util.UnitUtils;
 
 /**
  * A NumberItem has a decimal value and is usually used for all kinds
@@ -94,7 +95,7 @@ public class NumberItem extends GenericItem {
         if (state instanceof DecimalType && dimension != null) {
             Unit<?> unit = getUnit();
             if (unit != null) {
-                super.setState(new QuantityType(((DecimalType) state).doubleValue(), unit));
+                super.setState(new QuantityType<>(((DecimalType) state).doubleValue(), unit));
                 return;
             }
         }
@@ -102,8 +103,8 @@ public class NumberItem extends GenericItem {
         // QuantityType update, check unit and convert if necessary:
         if (state instanceof QuantityType) {
             Unit<?> unit = getUnit();
-            if (unit != null && !((QuantityType) state).getUnit().equals(unit)) {
-                super.setState(((QuantityType) state).toUnit(unit));
+            if (unit != null && !((QuantityType<?>) state).getUnit().equals(unit)) {
+                super.setState(((QuantityType<?>) state).toUnit(unit));
                 return;
             }
         }
@@ -142,7 +143,7 @@ public class NumberItem extends GenericItem {
         }
 
         if (getStateDescription() != null) {
-            Unit<?> stateDescriptionUnit = unitProvider.parseUnit(getStateDescription().getPattern());
+            Unit<?> stateDescriptionUnit = UnitUtils.parseUnit(getStateDescription().getPattern());
             if (stateDescriptionUnit != null) {
                 return stateDescriptionUnit;
             }

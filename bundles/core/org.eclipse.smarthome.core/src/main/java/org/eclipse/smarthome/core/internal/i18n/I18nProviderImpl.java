@@ -27,16 +27,15 @@ import javax.measure.quantity.Temperature;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.i18n.LocationProvider;
 import org.eclipse.smarthome.core.i18n.TimeZoneProvider;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.library.types.PointType;
-import org.eclipse.smarthome.core.types.ESHUnits;
 import org.eclipse.smarthome.core.types.Intensity;
 import org.eclipse.smarthome.core.types.MeasurementSystem;
+import org.eclipse.smarthome.core.types.SmartHomeUnits;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -46,7 +45,7 @@ import org.osgi.service.component.annotations.Modified;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import tec.uom.se.quantity.Quantities;
+import tec.uom.se.AbstractUnit;
 import tec.uom.se.unit.Units;
 
 /**
@@ -285,62 +284,38 @@ public class I18nProviderImpl
 
         Map<MeasurementSystem, Unit<? extends Quantity<?>>> temperatureMap = new HashMap<>();
         temperatureMap.put(MeasurementSystem.SI, Units.CELSIUS);
-        temperatureMap.put(MeasurementSystem.US, ESHUnits.FAHRENHEIT);
+        temperatureMap.put(MeasurementSystem.US, SmartHomeUnits.FAHRENHEIT);
         dimensionMap.put(Temperature.class, temperatureMap);
 
         Map<MeasurementSystem, Unit<? extends Quantity<?>>> pressureMap = new HashMap<>();
-        pressureMap.put(MeasurementSystem.SI, ESHUnits.HECTO_PASCAL);
-        pressureMap.put(MeasurementSystem.US, ESHUnits.INCH_OF_MERCURY);
+        pressureMap.put(MeasurementSystem.SI, SmartHomeUnits.HECTO_PASCAL);
+        pressureMap.put(MeasurementSystem.US, SmartHomeUnits.INCH_OF_MERCURY);
         dimensionMap.put(Pressure.class, pressureMap);
 
         Map<MeasurementSystem, Unit<? extends Quantity<?>>> speedMap = new HashMap<>();
         speedMap.put(MeasurementSystem.SI, Units.KILOMETRE_PER_HOUR);
-        speedMap.put(MeasurementSystem.US, ESHUnits.MILES_PER_HOUR);
+        speedMap.put(MeasurementSystem.US, SmartHomeUnits.MILES_PER_HOUR);
         dimensionMap.put(Speed.class, speedMap);
 
         Map<MeasurementSystem, Unit<? extends Quantity<?>>> lengthMap = new HashMap<>();
         lengthMap.put(MeasurementSystem.SI, Units.METRE);
-        lengthMap.put(MeasurementSystem.US, ESHUnits.INCH);
+        lengthMap.put(MeasurementSystem.US, SmartHomeUnits.INCH);
         dimensionMap.put(Length.class, lengthMap);
 
         Map<MeasurementSystem, Unit<? extends Quantity<?>>> intensityMap = new HashMap<>();
-        intensityMap.put(MeasurementSystem.SI, ESHUnits.IRRADIANCE);
-        intensityMap.put(MeasurementSystem.US, ESHUnits.IRRADIANCE);
+        intensityMap.put(MeasurementSystem.SI, SmartHomeUnits.IRRADIANCE);
+        intensityMap.put(MeasurementSystem.US, SmartHomeUnits.IRRADIANCE);
         dimensionMap.put(Intensity.class, intensityMap);
 
         Map<MeasurementSystem, Unit<? extends Quantity<?>>> percentMap = new HashMap<>();
-        percentMap.put(MeasurementSystem.SI, Units.PERCENT);
-        percentMap.put(MeasurementSystem.US, Units.PERCENT);
+        percentMap.put(MeasurementSystem.SI, AbstractUnit.ONE);
+        percentMap.put(MeasurementSystem.US, AbstractUnit.ONE);
         dimensionMap.put(Dimensionless.class, percentMap);
 
         Map<MeasurementSystem, Unit<? extends Quantity<?>>> angleMap = new HashMap<>();
-        angleMap.put(MeasurementSystem.SI, ESHUnits.DEGREE_ANGLE);
-        angleMap.put(MeasurementSystem.US, ESHUnits.DEGREE_ANGLE);
+        angleMap.put(MeasurementSystem.SI, SmartHomeUnits.DEGREE_ANGLE);
+        angleMap.put(MeasurementSystem.US, SmartHomeUnits.DEGREE_ANGLE);
         dimensionMap.put(Angle.class, angleMap);
     }
 
-    @Override
-    public @Nullable Unit<?> parseUnit(String pattern) {
-        if (StringUtils.isBlank(pattern)) {
-            return null;
-        }
-
-        int lastBlankIndex = pattern.lastIndexOf(" ");
-        if (lastBlankIndex < 0) {
-            return null;
-        }
-
-        String unitSymbol = pattern.substring(lastBlankIndex).trim();
-        if (StringUtils.isNotBlank(unitSymbol) && !unitSymbol.equals("%unit%")) {
-            try {
-                Quantity<?> quantity = Quantities.getQuantity("1 " + unitSymbol);
-                return quantity.getUnit();
-            } catch (IllegalArgumentException e) {
-                // we expect this exception in case the extracted string does not match any known unit
-                logger.warn("Unknown unit from pattern: {}", unitSymbol);
-            }
-        }
-
-        return null;
-    }
 }

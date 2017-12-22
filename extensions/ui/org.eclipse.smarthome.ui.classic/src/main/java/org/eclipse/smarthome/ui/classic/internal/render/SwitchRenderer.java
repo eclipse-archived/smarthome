@@ -18,6 +18,7 @@ import org.eclipse.smarthome.core.library.items.RollershutterItem;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.util.UnitUtils;
 import org.eclipse.smarthome.model.sitemap.Mapping;
 import org.eclipse.smarthome.model.sitemap.Switch;
 import org.eclipse.smarthome.model.sitemap.Widget;
@@ -95,8 +96,8 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
 
                 if (item instanceof NumberItem && ((NumberItem) item).getDimension() != null) {
                     String unit = getUnitForWidget(w);
-                    command = StringUtils.replace(command, "%unit%", unit);
-                    label = StringUtils.replace(label, "%unit%", unit);
+                    command = StringUtils.replace(command, UnitUtils.UNIT_PLACEHOLDER, unit);
+                    label = StringUtils.replace(label, UnitUtils.UNIT_PLACEHOLDER, unit);
 
                     // Special treatment for °C since uom library uses a single character: ℃
                     // This will ensure the current state matches the cmd and the butonClass is set accordingly.
