@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="onewire4j"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+    <bridge-type id="rs232-bridge">
+        <label>RS 232 Bridge</label>
+        <description>The RS 232 bridge represents a single One Wire network  connected via RS232</description>
+
+        <config-description-ref uri="bridge-type:rs-232" />
+    </bridge-type>
+
+</thing:thing-descriptions>

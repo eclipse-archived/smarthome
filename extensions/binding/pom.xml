@@ -30,6 +30,8 @@
     <module>org.eclipse.smarthome.binding.lirc</module>
     <module>org.eclipse.smarthome.binding.ntp</module>
     <module>org.eclipse.smarthome.binding.ntp.test</module>
+    <module>org.eclipse.smarthome.binding.onewire4j</module>
+    <module>org.eclipse.smarthome.binding.onewire4j.test</module>
     <module>org.eclipse.smarthome.binding.serialbutton</module>
     <module>org.eclipse.smarthome.binding.sonos</module>
     <module>org.eclipse.smarthome.binding.tradfri</module>
