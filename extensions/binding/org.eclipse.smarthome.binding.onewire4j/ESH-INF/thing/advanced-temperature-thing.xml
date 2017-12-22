@@ -27,13 +27,6 @@
         </config-description>
 	</thing-type>
 
-	<channel-type id="temperature">
-		<item-type>Number</item-type>
-		<label>Temperature</label>
-		<description>Measured Temperature</description>
-        <state readOnly="true" pattern="%.1f °C">
-        </state>
-	</channel-type>
     <channel-type id="minTemperature">
         <item-type>Number</item-type>
         <label>MinTemperature</label>
