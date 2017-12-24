@@ -1751,6 +1751,7 @@
 
 			var
 				data = JSON.parse(payload.data),
+				state,
 				value,
 				title;
 
@@ -1770,9 +1771,15 @@
 				return;
 			}
 
+			if (data.state === undefined) {
+				state = data.item.state;
+			} else {
+				state = data.state;
+			}
+
 			value = _t.extractValueFromLabel(data.label);
 			if (value === null) {
-				value = data.item.state;
+				value = state;
 			}
 			title = _t.getTitleFromLabel(data.label);
 
@@ -1789,7 +1796,7 @@
 					});
 				}
 
-				widget.setValue(smarthome.UI.escapeHtml(value), data.item.state, data.visibility);
+				widget.setValue(smarthome.UI.escapeHtml(value), state, data.visibility);
 
 				[{
 					apply: widget.setLabel,
