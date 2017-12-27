@@ -22,6 +22,7 @@ package ${package}.handler;
 import static ${package}.${bindingIdCamelCase}BindingConstants.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -46,7 +47,7 @@ public class ${bindingIdCamelCase}Handler extends BaseThingHandler {
     }
 
     @Override
-    public void handleCommand(ChannelUID channelUID, Command command) {
+    public void handleCommand(ChannelUID channelUID, @Nullable Command command) {
         if (channelUID.getId().equals(CHANNEL_1)) {
             // TODO: handle command
 
