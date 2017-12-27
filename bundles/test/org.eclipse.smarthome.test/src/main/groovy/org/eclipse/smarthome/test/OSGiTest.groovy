@@ -115,7 +115,10 @@ abstract class OSGiTest {
     protected registerService(def service, Hashtable properties = [:]) {
         def interfaceName = getInterfaceName(service)
         assertThat interfaceName, is(notNullValue())
-        registeredServices.put(interfaceName, bundleContext.registerService(interfaceName, service, properties))
+        def ServiceRegistration registration = bundleContext.registerService(interfaceName, service, properties)
+        assertThat registration, is(notNullValue())
+        registeredServices.put(interfaceName, registration)
+        return registration
     }
 
     /**
@@ -129,15 +132,29 @@ abstract class OSGiTest {
      */
     protected registerService(def service, String interfaceName, Hashtable properties = [:]) {
         assertThat interfaceName, is(notNullValue())
-        registeredServices.put(interfaceName, bundleContext.registerService(interfaceName, service, properties))
+        def ServiceRegistration registration = bundleContext.registerService(interfaceName, service, properties);
+        assertThat registration, is(notNullValue())
+        registeredServices.put(interfaceName, registration)
+        return registration;
     }
 
+    /**
+     * Registers the given object as OSGi service. The given interface names as String array are used as OSGi service
+     * interface names.
+     *
+     * @param service service to be registered
+     * @param interfaceNames interface names of the OSGi service
+     * @param properties OSGi service properties
+     * @return service registration object
+     */
     protected registerService(def service, String[] interfaceNames, Hashtable properties = [:]) {
         assertThat interfaceNames, is(notNullValue())
-        def ServiceRegistration ref = bundleContext.registerService(interfaceNames, service, properties)
+        def ServiceRegistration registration = bundleContext.registerService(interfaceNames, service, properties)
+        assertThat registration, is(notNullValue())
         for (String i : interfaceNames) {
             registeredServices.put(i, ref)
         }
+        return registration;
     }
 
     /**
