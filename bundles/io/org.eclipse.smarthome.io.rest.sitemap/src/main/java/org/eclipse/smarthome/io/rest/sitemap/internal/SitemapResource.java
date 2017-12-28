@@ -377,14 +377,12 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
         bean.leaf = isLeaf;
         bean.link = UriBuilder.fromUri(uri).path(PATH_SITEMAPS).path(sitemapName).path(pageId).build().toASCIIString();
         if (children != null) {
-            int cntWidget = 0;
             for (Widget widget : children) {
-                String widgetId = pageId + "_" + cntWidget;
+                String widgetId = itemUIRegistry.getWidgetId(widget);
                 WidgetDTO subWidget = createWidgetBean(sitemapName, widget, drillDown, uri, widgetId, locale);
                 if (subWidget != null) {
                     bean.widgets.add(subWidget);
                 }
-                cntWidget++;
             }
         } else {
             bean.widgets = null;
@@ -420,14 +418,11 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             LinkableWidget linkableWidget = (LinkableWidget) widget;
             EList<Widget> children = itemUIRegistry.getChildren(linkableWidget);
             if (widget instanceof Frame) {
-                int cntWidget = 0;
-                String wID = widgetId;
                 for (Widget child : children) {
-                    wID += "_" + cntWidget;
+                    String wID = itemUIRegistry.getWidgetId(child);
                     WidgetDTO subWidget = createWidgetBean(sitemapName, child, drillDown, uri, wID, locale);
                     if (subWidget != null) {
                         bean.widgets.add(subWidget);
-                        cntWidget++;
                     }
                 }
             } else if (children.size() > 0) {
