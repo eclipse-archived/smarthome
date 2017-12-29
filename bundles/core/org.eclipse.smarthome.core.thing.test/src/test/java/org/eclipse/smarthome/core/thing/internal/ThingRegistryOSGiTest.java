@@ -57,7 +57,7 @@ import org.junit.Test;
  * @author Stefan Bußweiler - Initial contribution
  * @author Kai Kreuzer - Moved createThing test from managed provider
  */
-class ThingRegistryOSGiTest extends JavaOSGiTest {
+public class ThingRegistryOSGiTest extends JavaOSGiTest {
 
     ManagedThingProvider managedThingProvider;
     ThingHandlerFactory thingHandlerFactory;
@@ -72,14 +72,14 @@ class ThingRegistryOSGiTest extends JavaOSGiTest {
     Event receivedEvent = null;
 
     @Before
-    void setUp() {
+    public void setUp() {
         registerVolatileStorageService();
         managedThingProvider = getService(ManagedThingProvider.class);
         unregisterCurrentThingHandlerFactory();
     }
 
     @After
-    void teardown() {
+    public void teardown() {
         unregisterCurrentThingHandlerFactory();
         managedThingProvider.getAll().stream().forEach(it -> managedThingProvider.remove(it.getUID()));
     }
@@ -193,7 +193,7 @@ class ThingRegistryOSGiTest extends JavaOSGiTest {
     }
 
     @Test
-    void assertThatCreateThingDelegatesToRegisteredThingHandlerFactory() {
+    public void assertThatCreateThingDelegatesToRegisteredThingHandlerFactory() {
         ThingTypeUID expectedThingTypeUID = THING_TYPE_UID;
         ThingUID expectedThingUID = new ThingUID(THING_TYPE_UID, THING1_ID);
         Configuration expectedConfiguration = new Configuration();
