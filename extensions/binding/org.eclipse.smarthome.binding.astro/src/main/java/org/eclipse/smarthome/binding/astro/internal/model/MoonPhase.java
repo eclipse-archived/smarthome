@@ -30,6 +30,8 @@ public class MoonPhase {
     private Calendar _new;
     private int age;
     private double illumination;
+    private double agePercent;
+    private double ageDegree;
 
     private MoonPhaseName name;
 
@@ -131,11 +133,40 @@ public class MoonPhase {
         this.name = name;
     }
 
+    /**
+     * Returns the age in degree.
+     */
+    public double getAgeDegree() {
+        return ageDegree;
+    }
+
+    /**
+     * Sets the age in degree.
+     */
+    public void setAgeDegree(double ageDegree) {
+        this.ageDegree = ageDegree;
+    }
+
+    /**
+     * Returns the age in percent.
+     */
+    public double getAgePercent() {
+        return agePercent;
+    }
+
+    /**
+     * Sets the age in percent.
+     */
+    public void setAgePercent(double agePercent) {
+        this.agePercent = agePercent;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
                 .append("firstQuarter", DateTimeUtils.getDate(firstQuarter)).append("full", DateTimeUtils.getDate(full))
                 .append("thirdQuarter", DateTimeUtils.getDate(thirdQuarter)).append("new", DateTimeUtils.getDate(_new))
-                .append("age", age).append("illumination", illumination).append("name", name).toString();
+                .append("age", age).append("ageDegree", ageDegree).append("agePercent", agePercent)
+                .append("illumination", illumination).append("name", name).toString();
     }
 }

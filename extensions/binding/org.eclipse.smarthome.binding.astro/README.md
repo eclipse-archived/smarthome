@@ -60,7 +60,7 @@ Optionally, a refresh `interval` (in seconds) can be defined to also calculate p
     * **group** `phase`
         * **channel**: 
             * `firstQuarter, thirdQuarter, full, new` (DateTime)
-            * `age, illumination` (Number)
+            * `age, agePercent, ageDegree, illumination` (Number)
             * `name` (String), values: `NEW, WAXING_CRESCENT, FIRST_QUARTER, WAXING_GIBBOUS, FULL, WANING_GIBBOUS, THIRD_QUARTER, WANING_CRESCENT`
     * **group** `eclipse`
         * **channel**: 
