@@ -30,7 +30,6 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.internal.ThingImpl;
 import org.eclipse.smarthome.core.thing.util.ThingHelper;
 
-
 /**
  * This class allows the easy construction of a {@link Thing} instance using the builder pattern.
  *
