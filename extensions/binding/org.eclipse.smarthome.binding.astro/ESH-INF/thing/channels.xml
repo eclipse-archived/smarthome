@@ -100,7 +100,7 @@
 		<item-type>Number</item-type>
 		<label>Duration</label>
 		<description>The duration time in minutes of the event</description>
-		<state readOnly="true" pattern="%d min"/>
+		<state readOnly="true" pattern="%d min" />
 	</channel-type>
 
 	<channel-type id="rangeEvent">
@@ -291,6 +291,8 @@
 			<channel id="full" typeId="fullMoon" />
 			<channel id="new" typeId="newMoon" />
 			<channel id="age" typeId="age" />
+			<channel id="ageDegree" typeId="ageDegree" />
+			<channel id="agePercent" typeId="agePercent" />
 			<channel id="illumination" typeId="illumination" />
 			<channel id="name" typeId="phaseName" />
 			<channel id="event" typeId="phaseEvent" />
@@ -332,11 +334,25 @@
 		<state readOnly="true" pattern="%d d" />
 	</channel-type>
 
+	<channel-type id="ageDegree">
+		<item-type>Number</item-type>
+		<label>Moon age in degree</label>
+		<description>The age of the moon in degree</description>
+		<state readOnly="true" pattern="%.2f °" />
+	</channel-type>
+
+	<channel-type id="agePercent">
+		<item-type>Number</item-type>
+		<label>Moon age in percent</label>
+		<description>The age of the moon in percent</description>
+		<state readOnly="true" pattern="%.2f %%" />
+	</channel-type>
+
 	<channel-type id="illumination">
 		<item-type>Number</item-type>
 		<label>Moon illumination</label>
 		<description>The illumination of the moon in %</description>
-		<state readOnly="true" pattern="%.0f %%"  />
+		<state readOnly="true" pattern="%.0f %%" />
 	</channel-type>
 
 	<channel-type id="phaseName">
