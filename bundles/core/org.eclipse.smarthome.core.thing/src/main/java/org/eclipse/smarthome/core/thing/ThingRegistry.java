@@ -60,6 +60,8 @@ public interface ThingRegistry extends Registry<Thing, ThingUID> {
      *
      * @throws ConfigValidationException if one or more of the given configuration parameters do not match
      *             their declarations in the configuration description
+     * @throws IllegalArgumentException if no thing with the given UID exists
+     * @throws IllegalStateException if no handler is attached to the thing
      */
     void updateConfiguration(@NonNull ThingUID thingUID, Map<@NonNull String, Object> configurationParameters);
 
