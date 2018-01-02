@@ -12,7 +12,10 @@
  */
 package org.eclipse.smarthome.core.thing.firmware;
 
-import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.*;
+import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.createUnknownInfo;
+import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.createUpToDateInfo;
+import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.createUpdateAvailableInfo;
+import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.createUpdateExecutableInfo;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -65,6 +68,7 @@ import com.google.common.collect.ImmutableSet;
  * central instance to start a firmware update.
  *
  * @author Thomas Höfer - Initial contribution
+ * @authot Dimitar Ivanov - update and cancel operations are run with different safe caller identifiers in order to execute asynchronously
  */
 @Component(immediate = true, service = { EventSubscriber.class, FirmwareUpdateService.class })
 public final class FirmwareUpdateService implements EventSubscriber {
@@ -268,7 +272,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
             logger.error("Unexpected exception occurred while cancelling firmware update of thing with UID {}.",
                     thingUID, e.getCause());
             progressCallback.failedInternal("unexpected-handler-error-during-cancel");
-        }).build().cancel();
+        }).withIdentifier(new Object()).build().cancel();
     }
 
     @Override
