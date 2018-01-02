@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="sonyaudio"
+						  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+						  xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+						  xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+  <!-- Commands -->
+  <channel-type id="input-ct800">
+	  <item-type>String</item-type>
+	  <label>Input Source</label>
+	  <description>Select the input source of the reciever</description>
+	  <state>
+	      <options>
+	          <option value="extInput:btAudio">Bluetooth Audio</option>
+	          <option value="extInput:tv">TV</option>
+	          <option value="extInput:hdmi?port=1">HDMI1</option>
+	          <option value="extInput:hdmi?port=2">HDMI2</option>
+	          <option value="extInput:hdmi?port=3">HDMI3</option>
+	          <option value="extInput:line">Analog</option>
+	          <option value="storage:usb1">USB</option>
+	          <option value="dlna:music">Home Network</option>
+	      </options>
+	  </state>
+  </channel-type>
+
+	<channel-type id="sound-field-ct800">
+			<item-type>String</item-type>
+			<label>Sound Field</label>
+			<description>Select the Sound Field for the receiver</description>
+			<state>
+					<options>
+							<option value="clearAudio">ClearAudio+</option>
+							<option value="movie">Movie</option>
+							<option value="music">Music</option>
+							<option value="sports">Sports</option>
+							<option value="game">Game Studio</option>
+							<option value="standard">Standard</option>
+					</options>
+			</state>
+	</channel-type>
+
+  <!-- HT-CT800 Thing Type -->
+  <thing-type id="HT-CT800">
+    <label>SONY soundbar HT-CT800</label>
+    <description>SONY soundbar HT-CT800</description>
+    <channels>
+        <channel id="power" typeId="power" />
+        <channel id="input" typeId="input-ct800" />
+        <channel id="volume" typeId="volume" />
+        <channel id="mute" typeId="mute" />
+				<channel id="soundField" typeId="sound-field-ct800" />
+    </channels>
+    <config-description-ref uri="thing-type:sonyaudio:config" />
+  </thing-type>
+</thing:thing-descriptions>
