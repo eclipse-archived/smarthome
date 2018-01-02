@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  */
 public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
 
-    public static final String THREAD_POOL_NAME = "xml-processing";
+    public static final String THREAD_POOL_NAME = "file-processing";
 
     private final Logger logger = LoggerFactory.getLogger(XmlDocumentBundleTracker.class);
     private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(THREAD_POOL_NAME);
@@ -73,7 +73,7 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
 
     @SuppressWarnings("rawtypes")
     private BundleTracker relevantBundlesTracker;
-    private ReadyService readyService;
+    private final ReadyService readyService;
 
     /**
      * Creates a new instance of this class with the specified parameters.
