@@ -870,7 +870,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             }
             logger.debug("The rule '{}' is executed.", ruleUID);
         } catch (Throwable t) {
-            logger.error("Fail to execute rule '{}': {}", new Object[] { ruleUID, t.getMessage() }, t);
+            logger.error("Failed to execute rule '{}': {}", new Object[] { ruleUID, t.getMessage() }, t);
         }
         // change state to IDLE only if the rule has not been DISABLED.
         synchronized (this) {
@@ -1010,7 +1010,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
                     updateContext(rUID, action.getId(), outputs);
                 }
             } catch (Throwable t) {
-                String errMessage = "Fail to execute action: " + action.getId();
+                String errMessage = "Failed to execute action '" + action.getId() + "': " + t.getMessage();
                 if (stopOnFirstFail) {
                     RuntimeException re = new RuntimeException(errMessage, t);
                     throw re;
