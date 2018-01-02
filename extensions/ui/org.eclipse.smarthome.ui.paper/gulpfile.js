@@ -66,7 +66,8 @@ var paths = {
         './node_modules/masonry-layout/dist/masonry.pkgd.min.js',
         './node_modules/sprintf-js/dist/sprintf.min.js',
         './node_modules/bootstrap/dist/js/bootstrap.min.js',
-        './node_modules/tinycolor2/tinycolor.js'
+        './node_modules/tinycolor2/tinycolor.js',
+        './node_modules/openlayers/ol-esh.js'
     ],
     JQUI: [{
         'src' : [
@@ -160,7 +161,8 @@ gulp.task('concat', function () {
                 path.basename += '.min';
                 return path;
             }))
-            .pipe(uglify({mangle: false}))
+            .pipe(ngAnnotate())
+            .pipe(uglify())
             .pipe(gulp.dest('./web/js'));
     });
 });

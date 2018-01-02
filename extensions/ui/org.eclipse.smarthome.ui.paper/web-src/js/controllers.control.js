@@ -1,4 +1,4 @@
-angular.module('PaperUI.controllers.control', []) //
+angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
 .controller('ControlPageController', function($scope, $routeParams, $location, $timeout, $filter, itemRepository, thingTypeRepository, util, thingRepository, channelTypeRepository) {
     $scope.tabs = [];
 
@@ -524,23 +524,6 @@ angular.module('PaperUI.controllers.control', []) //
         }
     }
 
-}).controller('LocationItemController', function($scope, $sce) {
-    $scope.init = function() {
-        if ($scope.item.state !== 'UNDEF' && $scope.item.state !== 'NULL') {
-            var latitude = parseFloat($scope.item.state.split(',')[0]);
-            var longitude = parseFloat($scope.item.state.split(',')[1]);
-            var bbox = (longitude - 0.01) + ',' + (latitude - 0.01) + ',' + (longitude + 0.01) + ',' + (latitude + 0.01);
-            var marker = latitude + ',' + longitude;
-            $scope.formattedState = latitude + '°N ' + longitude + '°E';
-            $scope.url = $sce.trustAsResourceUrl('https://www.openstreetmap.org/export/embed.html?bbox=' + bbox + '&marker=' + marker);
-        } else {
-            $scope.formattedState = '- °N - °E';
-        }
-    };
-    $scope.$watch('item.state', function() {
-        $scope.init();
-    });
-    $scope.init();
 }).directive('itemStateDropdown', function() {
     return {
         restrict : 'A',
