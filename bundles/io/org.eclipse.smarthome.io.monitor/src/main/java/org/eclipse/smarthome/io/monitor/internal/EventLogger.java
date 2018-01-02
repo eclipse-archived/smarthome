@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.io.monitor.internal;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,18 +23,15 @@ import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
-
 /**
  *
  * @author Kai Kreuzer - Initial contribution
  */
 public class EventLogger implements EventSubscriber {
 
-    private final Map<String, Logger> eventLoggers = Maps.newHashMap();
+    private final Map<String, Logger> eventLoggers = new HashMap<>();
 
-    private final Set<String> subscribedEventTypes = ImmutableSet.of(EventSubscriber.ALL_EVENT_TYPES);
+    private final Set<String> subscribedEventTypes = Collections.singleton(EventSubscriber.ALL_EVENT_TYPES);
 
     @Override
     public Set<String> getSubscribedEventTypes() {

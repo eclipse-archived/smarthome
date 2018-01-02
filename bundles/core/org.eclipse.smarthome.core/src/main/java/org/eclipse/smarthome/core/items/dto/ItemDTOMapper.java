@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.items.ActiveItem;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
@@ -27,9 +28,6 @@ import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 
 /**
  * The {@link ItemDTOMapper} is an utility class to map items into item data transfer objects (DTOs).
@@ -48,15 +46,19 @@ public class ItemDTOMapper {
      * @return the item object
      */
     public static ActiveItem map(ItemDTO itemDTO, Set<ItemFactory> itemFactories) {
-        Preconditions.checkArgument(itemDTO != null, "The argument 'itemDTO' must no be null.");
-        Preconditions.checkArgument(itemFactories != null, "The argument 'itemFactories' must no be null.");
+        if (itemDTO == null) {
+            throw new IllegalArgumentException("The argument 'itemDTO' must no be null.");
+        }
+        if (itemFactories == null) {
+            throw new IllegalArgumentException("The argument 'itemFactories' must no be null.");
+        }
 
         GenericItem newItem = null;
         if (itemDTO.type != null) {
             if (itemDTO instanceof GroupItemDTO && itemDTO.type.equals(GroupItem.TYPE)) {
                 GroupItemDTO groupItemDTO = (GroupItemDTO) itemDTO;
                 GenericItem baseItem = null;
-                if (!Strings.isNullOrEmpty(groupItemDTO.groupType)) {
+                if (!StringUtils.isEmpty(groupItemDTO.groupType)) {
                     baseItem = createItem(groupItemDTO.groupType, itemDTO.name, itemFactories);
                 }
                 GroupFunction function = new GroupFunction.Equality();

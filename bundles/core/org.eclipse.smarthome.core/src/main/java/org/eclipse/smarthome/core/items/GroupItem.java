@@ -15,7 +15,7 @@ package org.eclipse.smarthome.core.items;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -28,9 +28,6 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableSet;
 
 /**
  *
@@ -112,7 +109,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      * @return the direct members of this {@link GroupItem}
      */
     public Set<Item> getMembers() {
-        return ImmutableSet.copyOf(members);
+        return Collections.unmodifiableSet(new LinkedHashSet<>(members));
     }
 
     /**
@@ -123,7 +120,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      * @return all members of this and all contained {@link GroupItem}s
      */
     public Set<Item> getAllMembers() {
-        return ImmutableSet.copyOf(getMembers((Item i) -> !(i instanceof GroupItem)));
+        return Collections.unmodifiableSet(new LinkedHashSet<>(getMembers((Item i) -> !(i instanceof GroupItem))));
     }
 
     private void collectMembers(Collection<Item> allMembers, Collection<Item> members) {
@@ -145,7 +142,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      * @return Set of member items filtered by filterItem
      */
     public Set<Item> getMembers(Predicate<Item> filterItem) {
-        Set<Item> allMembers = new HashSet<Item>();
+        Set<Item> allMembers = new LinkedHashSet<Item>();
         collectMembers(allMembers, members);
         return allMembers.stream().filter(filterItem).collect(Collectors.toSet());
     }
@@ -323,13 +320,13 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         if (!getTags().isEmpty()) {
             sb.append(", ");
             sb.append("Tags=[");
-            sb.append(Joiner.on(", ").join(getTags()));
+            sb.append(getTags().stream().collect(Collectors.joining(", ")));
             sb.append("]");
         }
         if (!getGroupNames().isEmpty()) {
             sb.append(", ");
             sb.append("Groups=[");
-            sb.append(Joiner.on(", ").join(getGroupNames()));
+            sb.append(getGroupNames().stream().collect(Collectors.joining(", ")));
             sb.append("]");
         }
         sb.append(")");

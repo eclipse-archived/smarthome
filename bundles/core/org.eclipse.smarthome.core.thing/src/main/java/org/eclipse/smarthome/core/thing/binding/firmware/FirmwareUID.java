@@ -12,9 +12,9 @@
  */
 package org.eclipse.smarthome.core.thing.binding.firmware;
 
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import java.util.Objects;
 
-import com.google.common.base.Preconditions;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 /**
  * The {@link FirmwareUID} is the unique identifier for a {@link Firmware}. It consists of the {@link ThingTypeUID} and
@@ -44,10 +44,13 @@ public final class FirmwareUID {
      * @throws IllegalArgumentException if given firmware version is null or empty or consist of a colon
      */
     public FirmwareUID(ThingTypeUID thingTypeUID, String firmwareVersion) {
-        Preconditions.checkNotNull(thingTypeUID, "Thing type UID must not be null.");
-        Preconditions.checkArgument(firmwareVersion != null && !firmwareVersion.isEmpty(),
-                "Firmware version must not be null or empty.");
-        Preconditions.checkArgument(!firmwareVersion.contains(":"), "Firmware version must not consist of a colon.");
+        Objects.requireNonNull(thingTypeUID, "Thing type UID must not be null.");
+        if (firmwareVersion == null || firmwareVersion.isEmpty()) {
+            throw new IllegalArgumentException("Firmware version must not be null or empty.");
+        }
+        if (firmwareVersion.contains(":")) {
+            throw new IllegalArgumentException("Firmware version must not consist of a colon.");
+        }
         this.thingTypeUID = thingTypeUID;
         this.firmwareVersion = firmwareVersion;
     }

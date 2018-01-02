@@ -20,7 +20,6 @@ import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFactory;
 import org.osgi.service.component.annotations.Component;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
 /**
@@ -124,7 +123,7 @@ public class InboxEventFactory extends AbstractEventFactory {
     }
 
     private static void assertValidArgument(DiscoveryResult discoveryResult) {
-        Preconditions.checkArgument(discoveryResult != null, "The argument 'discoveryResult' must not be null.");
+        checkNotNull(discoveryResult, "discoveryResult");
     }
 
     private static String buildTopic(String topic, String thingUID) {

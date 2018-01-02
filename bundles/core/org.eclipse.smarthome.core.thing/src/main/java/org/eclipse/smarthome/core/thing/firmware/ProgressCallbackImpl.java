@@ -29,8 +29,6 @@ import org.eclipse.smarthome.core.thing.binding.firmware.ProgressStep;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
-import com.google.common.base.Preconditions;
-
 /**
  * The callback implementation for the {@link ProgressCallback}.
  *
@@ -78,7 +76,9 @@ final class ProgressCallbackImpl implements ProgressCallback {
 
     @Override
     public void defineSequence(ProgressStep... sequence) {
-        Preconditions.checkArgument(sequence != null && sequence.length > 0, "Sequence must not be null or empty.");
+        if (sequence == null || sequence.length == 0) {
+            throw new IllegalArgumentException("Sequence must not be null or empty.");
+        }
         this.sequence = Collections.unmodifiableCollection(Arrays.asList(sequence));
         progressIterator = this.sequence.iterator();
         this.state = InternalState.INITIALIZED;
@@ -86,7 +86,9 @@ final class ProgressCallbackImpl implements ProgressCallback {
 
     @Override
     public void next() {
-        Preconditions.checkState(this.state != InternalState.FINISHED, "Update is finished.");
+        if (this.state == InternalState.FINISHED) {
+            throw new IllegalStateException("Update is finished.");
+        }
         if (this.state == InternalState.PENDING) {
             state = InternalState.RUNNING;
             postProgressInfoEvent();
@@ -102,9 +104,12 @@ final class ProgressCallbackImpl implements ProgressCallback {
 
     @Override
     public void failed(String errorMessageKey, Object... arguments) {
-        Preconditions.checkState(this.state != InternalState.FINISHED, "Update is finished.");
-        Preconditions.checkArgument(errorMessageKey != null && !errorMessageKey.isEmpty(),
-                "The error message key must not be null or empty.");
+        if (this.state == InternalState.FINISHED) {
+            throw new IllegalStateException("Update is finished.");
+        }
+        if (errorMessageKey == null || errorMessageKey.isEmpty()) {
+            throw new IllegalArgumentException("The error message key must not be null or empty.");
+        }
         this.state = InternalState.FINISHED;
         String errorMessage = getMessage(firmwareUpdateHandler.getClass(), errorMessageKey, arguments);
         postResultInfoEvent(FirmwareUpdateResult.ERROR, errorMessage);
@@ -112,23 +117,32 @@ final class ProgressCallbackImpl implements ProgressCallback {
 
     @Override
     public void success() {
-        Preconditions.checkState(this.state != InternalState.FINISHED, "Update is finished.");
-        Preconditions.checkState((this.progress != null && this.progress == 100) || (this.progressIterator!=null && !progressIterator.hasNext()),
-                "Update can't be successfully finished until progress is 100% or last progress step is reached");
+        if (this.state == InternalState.FINISHED) {
+            throw new IllegalStateException("Update is finished.");
+        }
+        if ((this.progress != null && this.progress < 100)
+                || (this.progressIterator != null && progressIterator.hasNext())) {
+            throw new IllegalStateException(
+                    "Update can't be successfully finished until progress is 100% or last progress step is reached");
+        }
         this.state = InternalState.FINISHED;
         postResultInfoEvent(FirmwareUpdateResult.SUCCESS, null);
     }
 
     @Override
     public void pending() {
-        Preconditions.checkState(this.state != InternalState.FINISHED, "Update is finished.");
+        if (this.state == InternalState.FINISHED) {
+            throw new IllegalStateException("Update is finished.");
+        }
         this.state = InternalState.PENDING;
         postProgressInfoEvent();
     }
 
     @Override
     public void canceled() {
-        Preconditions.checkState(this.state != InternalState.FINISHED, "Update is finished.");
+        if (this.state == InternalState.FINISHED) {
+            throw new IllegalStateException("Update is finished.");
+        }
         this.state = InternalState.FINISHED;
         String cancelMessage = getMessage(this.getClass(), UPDATE_CANCELED_MESSAGE_KEY);
         postResultInfoEvent(FirmwareUpdateResult.CANCELED, cancelMessage);
@@ -136,8 +150,12 @@ final class ProgressCallbackImpl implements ProgressCallback {
 
     @Override
     public void update(int progress) {
-        Preconditions.checkState(this.state != InternalState.FINISHED, "Update is finished.");
-        Preconditions.checkArgument(progress >= 0 && progress <= 100, "The progress must be between 0 and 100.");
+        if (this.state == InternalState.FINISHED) {
+            throw new IllegalStateException("Update is finished.");
+        }
+        if (progress < 0 || progress > 100) {
+            throw new IllegalArgumentException("The progress must be between 0 and 100.");
+        }
         if (this.progress == null) {
             updateProgress(progress);
         } else if (progress < this.progress) {

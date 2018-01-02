@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -30,9 +31,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 
 /**
  * The {@link FirmwareRegistry} is registered as an OSGi service and is responsible for tracking all
@@ -79,7 +77,7 @@ public final class FirmwareRegistry {
      * @throws NullPointerException if given firmware UID is null
      */
     public Firmware getFirmware(FirmwareUID firmwareUID, Locale locale) {
-        Preconditions.checkNotNull(firmwareUID, "Firmware UID must not be null");
+        Objects.requireNonNull(firmwareUID, "Firmware UID must not be null.");
 
         Locale loc = locale != null ? locale : localeProvider.getLocale();
 
@@ -124,7 +122,7 @@ public final class FirmwareRegistry {
      */
     public Firmware getLatestFirmware(ThingTypeUID thingTypeUID, Locale locale) {
         Locale loc = locale != null ? locale : localeProvider.getLocale();
-        return Iterables.getFirst(getFirmwares((thingTypeUID), loc), null);
+        return getFirmwares((thingTypeUID), loc).stream().findFirst().orElse(null);
     }
 
     /**
@@ -154,7 +152,7 @@ public final class FirmwareRegistry {
      * @throws NullPointerException if given thing type UID is null
      */
     public Collection<Firmware> getFirmwares(ThingTypeUID thingTypeUID, Locale locale) {
-        Preconditions.checkNotNull(thingTypeUID, "Thing type UID must not be null");
+        Objects.requireNonNull(thingTypeUID, "Thing type UID must not be null.");
 
         Locale loc = locale != null ? locale : localeProvider.getLocale();
 

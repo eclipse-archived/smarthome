@@ -17,6 +17,9 @@ import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatus.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
@@ -35,8 +38,6 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.common.collect.Sets;
 
 /**
  * OSGi integration tests for the {@link FirmwareUpdateService}, focusing on firmware updates with firmwares that are
@@ -219,9 +220,9 @@ public class ModelRestrictedFirmwareUpdateServiceOSGiTest extends JavaOSGiTest {
             @Override
             public Set<Firmware> getFirmwares(ThingTypeUID thingTypeUID, Locale locale) {
                 if (thingTypeUID.equals(thingType.getUID())) {
-                    return Sets.newHashSet(firmwares);
+                    return new HashSet<>(Arrays.asList(firmwares));
                 } else {
-                    return Sets.newHashSet();
+                    return Collections.emptySet();
                 }
             }
 

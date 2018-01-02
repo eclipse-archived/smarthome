@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -42,11 +43,6 @@ import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 /**
  * @author Oliver Libutzki - Added reloadAllModelsOfType method
@@ -173,22 +169,13 @@ public class ModelRepositoryImpl implements ModelRepository {
         synchronized (resourceSet) {
             // Make a copy to avoid ConcurrentModificationException
             List<Resource> resourceListCopy = new ArrayList<Resource>(resourceSet.getResources());
-            Iterable<Resource> matchingResources = Iterables.filter(resourceListCopy, new Predicate<Resource>() {
-                @Override
-                public boolean apply(Resource input) {
-                    if (input != null && input.getURI().lastSegment().contains(".") && input.isLoaded()) {
-                        return modelType.equalsIgnoreCase(input.getURI().fileExtension());
-                    } else {
-                        return false;
-                    }
-                }
-            });
-            return Lists.newArrayList(Iterables.transform(matchingResources, new Function<Resource, String>() {
-                @Override
-                public String apply(Resource from) {
-                    return from.getURI().path();
-                }
-            }));
+
+            return resourceListCopy.stream().filter(input -> {
+                return input != null && input.getURI().lastSegment().contains(".") && input.isLoaded()
+                        && modelType.equalsIgnoreCase(input.getURI().fileExtension());
+            }).map(from -> {
+                return from.getURI().path();
+            }).collect(Collectors.toList());
         }
     }
 

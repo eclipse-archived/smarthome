@@ -19,6 +19,8 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Set;
 
@@ -35,8 +37,6 @@ import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import com.google.common.collect.Lists;
 
 public class ChannelTypeResourceTest {
 
@@ -74,10 +74,10 @@ public class ChannelTypeResourceTest {
 
         TriggerProfileType profileType = mock(TriggerProfileType.class);
         when(profileType.getUID()).thenReturn(profileTypeUID);
-        when(profileType.getSupportedChannelTypeUIDs()).thenReturn(Lists.newArrayList(uid));
-        when(profileType.getSupportedItemTypes()).thenReturn(Lists.newArrayList("Switch", "Dimmer"));
+        when(profileType.getSupportedChannelTypeUIDs()).thenReturn(Collections.singletonList(uid));
+        when(profileType.getSupportedItemTypes()).thenReturn(Arrays.asList("Switch", "Dimmer"));
 
-        when(profileTypeRegistry.getProfileTypes()).thenReturn(Lists.newArrayList(profileType));
+        when(profileTypeRegistry.getProfileTypes()).thenReturn(Collections.singletonList(profileType));
 
         Response response = channelTypeResource.getLinkableItemTypes(uid.getAsString());
 

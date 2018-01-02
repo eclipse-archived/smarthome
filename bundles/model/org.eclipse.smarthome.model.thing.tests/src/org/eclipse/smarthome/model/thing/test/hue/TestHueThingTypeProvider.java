@@ -16,6 +16,7 @@
 package org.eclipse.smarthome.model.thing.test.hue;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
@@ -29,8 +30,6 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 /**
  * @author Benedikt Niehues - Fix ESH Bug 450236
@@ -54,13 +53,11 @@ public class TestHueThingTypeProvider implements ThingTypeProvider {
 
             ChannelDefinition colorTemp = new ChannelDefinition("color_temperature",
                     TestHueChannelTypeProvider.COLOR_TEMP_CHANNEL_TYPE_UID);
-            thingTypes.put(TestHueThingHandlerFactory.THING_TYPE_LCT001,
-                    ThingTypeBuilder.instance(TestHueThingHandlerFactory.THING_TYPE_LCT001, "LCT001")
-                            .withSupportedBridgeTypeUIDs(
-                                    Lists.newArrayList(TestHueThingHandlerFactory.THING_TYPE_BRIDGE.toString()))
-                            .withDescription("Hue LAMP").isListed(false)
-                            .withChannelDefinitions(Lists.newArrayList(color, colorTemp))
-                            .withConfigDescriptionURI(new URI("hue", "LCT001", null)).build());
+            thingTypes.put(TestHueThingHandlerFactory.THING_TYPE_LCT001, ThingTypeBuilder
+                    .instance(TestHueThingHandlerFactory.THING_TYPE_LCT001, "LCT001")
+                    .withSupportedBridgeTypeUIDs(Arrays.asList(TestHueThingHandlerFactory.THING_TYPE_BRIDGE.toString()))
+                    .withDescription("Hue LAMP").isListed(false).withChannelDefinitions(Arrays.asList(color, colorTemp))
+                    .withConfigDescriptionURI(new URI("hue", "LCT001", null)).build());
 
             thingTypes.put(TestHueThingHandlerFactoryX.THING_TYPE_BRIDGE,
                     ThingTypeBuilder.instance(TestHueThingHandlerFactoryX.THING_TYPE_BRIDGE, "HueBridge")
@@ -74,20 +71,18 @@ public class TestHueThingTypeProvider implements ThingTypeProvider {
             thingTypes.put(TestHueThingHandlerFactoryX.THING_TYPE_LCT001,
                     ThingTypeBuilder.instance(TestHueThingHandlerFactoryX.THING_TYPE_LCT001, "XLCT001")
                             .withSupportedBridgeTypeUIDs(
-                                    Lists.newArrayList(TestHueThingHandlerFactoryX.THING_TYPE_BRIDGE.toString()))
+                                    Arrays.asList(TestHueThingHandlerFactoryX.THING_TYPE_BRIDGE.toString()))
                             .withDescription("Hue LAMP").isListed(false)
-                            .withChannelDefinitions(Lists.newArrayList(colorX, colorTempX))
+                            .withChannelDefinitions(Arrays.asList(colorX, colorTempX))
                             .withConfigDescriptionURI(new URI("Xhue", "XLCT001", null)).build());
 
             ChannelGroupDefinition groupDefinition = new ChannelGroupDefinition("group",
                     TestHueChannelTypeProvider.GROUP_CHANNEL_GROUP_TYPE_UID);
-            thingTypes.put(TestHueThingHandlerFactory.THING_TYPE_GROUPED,
-                    ThingTypeBuilder.instance(TestHueThingHandlerFactory.THING_TYPE_GROUPED, "grouped")
-                            .withSupportedBridgeTypeUIDs(
-                                    Lists.newArrayList(TestHueThingHandlerFactory.THING_TYPE_BRIDGE.toString()))
-                            .withDescription("Grouped Lamp")
-                            .withChannelGroupDefinitions(Lists.newArrayList(groupDefinition))
-                            .withConfigDescriptionURI(new URI("hue", "grouped", null)).build());
+            thingTypes.put(TestHueThingHandlerFactory.THING_TYPE_GROUPED, ThingTypeBuilder
+                    .instance(TestHueThingHandlerFactory.THING_TYPE_GROUPED, "grouped")
+                    .withSupportedBridgeTypeUIDs(Arrays.asList(TestHueThingHandlerFactory.THING_TYPE_BRIDGE.toString()))
+                    .withDescription("Grouped Lamp").withChannelGroupDefinitions(Arrays.asList(groupDefinition))
+                    .withConfigDescriptionURI(new URI("hue", "grouped", null)).build());
 
         } catch (Exception e) {
             logger.error("{}", e.getMessage());

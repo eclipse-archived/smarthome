@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.io.rest.sse.internal.listeners;
 
+import java.util.Collections;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.events.Event;
@@ -19,17 +20,15 @@ import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.io.rest.sse.SseResource;
 
-import com.google.common.collect.ImmutableSet;
-
 /**
  * The {@link SseEventSubscriber} is responsible for broadcasting Eclipse SmartHome events
  * to currently listening SSE clients.
- * 
+ *
  * @author Stefan Bußweiler - Initial contribution
  */
 public class SseEventSubscriber implements EventSubscriber {
 
-    private final Set<String> subscribedEventTypes = ImmutableSet.of(EventSubscriber.ALL_EVENT_TYPES);
+    private final Set<String> subscribedEventTypes = Collections.singleton(EventSubscriber.ALL_EVENT_TYPES);
 
     private SseResource sseResource;
 

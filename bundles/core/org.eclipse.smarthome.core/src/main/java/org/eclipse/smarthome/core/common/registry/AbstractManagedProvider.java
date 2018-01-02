@@ -13,17 +13,14 @@
 package org.eclipse.smarthome.core.common.registry;
 
 import java.util.Collection;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.eclipse.smarthome.core.storage.StorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Function;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
 
 /**
  * {@link AbstractManagedProvider} is an abstract implementation for the {@link ManagedProvider} interface and can be
@@ -67,26 +64,14 @@ public abstract class AbstractManagedProvider<E extends Identifiable<K>, K, PE> 
 
     @Override
     public Collection<E> getAll() {
-        final Function<String, E> toElementList = new Function<String, E>() {
-            @Override
-            public E apply(String elementKey) {
-                if (elementKey != null) {
-                    PE persistableElement = storage.get(elementKey);
-                    if (persistableElement != null) {
-                        return toElement(elementKey, persistableElement);
-                    } else {
-                        return null;
-                    }
-                } else {
-                    return null;
-                }
+        return storage.getKeys().stream().map(key -> {
+            PE persistableElement = storage.get(key);
+            if (persistableElement != null) {
+                return toElement(key, persistableElement);
+            } else {
+                return null;
             }
-        };
-
-        Collection<String> keys = storage.getKeys();
-        Collection<E> elements = Collections2.filter(Collections2.transform(keys, toElementList), Predicates.notNull());
-
-        return ImmutableList.copyOf(elements);
+        }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     @Override
