@@ -75,6 +75,7 @@ public interface DiscoveryListener {
      * @deprecated use {@link #removeOlderResults(DiscoveryService, long, Collection, ThingUID)} instead
      */
     @Deprecated
+    @Nullable
     default Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
             @Nullable Collection<ThingTypeUID> thingTypeUIDs) {
         return removeOlderResults(source, timestamp, thingTypeUIDs, null);
