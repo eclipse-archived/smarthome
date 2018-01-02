@@ -14,7 +14,6 @@ package org.eclipse.smarthome.model.rule.runtime.internal.engine;
 
 import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
@@ -59,7 +58,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.google.inject.Injector;
 
 /**
@@ -108,9 +106,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         logger.debug("Started rule engine");
 
         // read all rule files
-        Iterable<String> ruleModelNames = modelRepository.getAllModelNamesOfType("rules");
-        ArrayList<String> clonedList = Lists.newArrayList(ruleModelNames);
-        for (String ruleModelName : clonedList) {
+        for (String ruleModelName : modelRepository.getAllModelNamesOfType("rules")) {
             EObject model = modelRepository.getModel(ruleModelName);
             if (model instanceof RuleModel) {
                 RuleModel ruleModel = (RuleModel) model;

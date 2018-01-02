@@ -18,7 +18,6 @@ import org.eclipse.smarthome.core.events.EventFactory;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.osgi.service.component.annotations.Component;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -75,8 +74,8 @@ public final class FirmwareEventFactory extends AbstractEventFactory {
      */
     static FirmwareStatusInfoEvent createFirmwareStatusInfoEvent(FirmwareStatusInfo firmwareStatusInfo,
             ThingUID thingUID) {
-        Preconditions.checkNotNull(firmwareStatusInfo, "The firmare status info must not be null.");
-        Preconditions.checkNotNull(thingUID, "The thing UID must not be null");
+        checkNotNull(firmwareStatusInfo, "firmwareStatusInfo");
+        checkNotNull(thingUID, "thingUID");
 
         String topic = FIRMWARE_STATUS_TOPIC.replace(THING_UID_TOPIC_KEY, thingUID.getAsString());
         String payload = serializePayload(firmwareStatusInfo);
@@ -96,8 +95,8 @@ public final class FirmwareEventFactory extends AbstractEventFactory {
      */
     static FirmwareUpdateProgressInfoEvent createFirmwareUpdateProgressInfoEvent(
             FirmwareUpdateProgressInfo progressInfo, ThingUID thingUID) {
-        Preconditions.checkNotNull(progressInfo, "The progress info must not be null");
-        Preconditions.checkNotNull(thingUID, "The thing UID must not be null");
+        checkNotNull(progressInfo, "progressInfo");
+        checkNotNull(thingUID, "thingUID");
 
         String topic = FIRMWARE_UPDATE_PROGRESS_TOPIC.replace(THING_UID_TOPIC_KEY, thingUID.getAsString());
         String payload = serializePayload(progressInfo);
@@ -117,8 +116,8 @@ public final class FirmwareEventFactory extends AbstractEventFactory {
      */
     static FirmwareUpdateResultInfoEvent createFirmwareUpdateResultInfoEvent(
             FirmwareUpdateResultInfo firmwareUpdateResultInfo, ThingUID thingUID) {
-        Preconditions.checkNotNull(firmwareUpdateResultInfo, "The firmware update result info must not be null");
-        Preconditions.checkNotNull(thingUID, "The thing UID must not be null");
+        checkNotNull(firmwareUpdateResultInfo, "firmwareUpdateResultInfo");
+        checkNotNull(thingUID, "thingUID");
 
         String topic = FIRMWARE_UPDATE_RESULT_TOPIC.replace(THING_UID_TOPIC_KEY, thingUID.getAsString());
         String payload = serializePayload(firmwareUpdateResultInfo);

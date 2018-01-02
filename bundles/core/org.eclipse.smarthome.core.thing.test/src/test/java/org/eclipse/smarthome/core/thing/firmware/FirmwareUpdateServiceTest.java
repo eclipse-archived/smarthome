@@ -68,6 +68,7 @@ import org.osgi.framework.Bundle;
  *
  * @author Thomas Höfer - Initial contribution
  * @author Simon Kaufmann - converted to standalone Java tests
+ * @author Dimitar Ivanov - added a test for valid cancel execution during firmware update
  */
 public class FirmwareUpdateServiceTest extends JavaOSGiTest {
 
@@ -319,6 +320,38 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
             verify(handler2, times(0)).cancel();
             verify(handler3, times(1)).cancel();
         });
+    }
+    
+    @Test
+    public void testCancelFirmwareUpdateIntheMiddleOfUpdate() {
+        final long stepsTime = 10;
+        final int numberOfSteps = SEQUENCE.length;
+        final AtomicBoolean isUpdateFinished = new AtomicBoolean(false);
+
+        doAnswer(invocation -> {
+            ProgressCallback progressCallback = (ProgressCallback) invocation.getArguments()[1];
+            progressCallback.defineSequence(SEQUENCE);
+
+            // Simulate update steps with delay
+            for (int updateStepsCount = 0; updateStepsCount < numberOfSteps; updateStepsCount++) {
+                progressCallback.next();
+                Thread.sleep(stepsTime);
+            }
+            progressCallback.success();
+            isUpdateFinished.set(true);
+            return null;
+        }).when(handler1).updateFirmware(any(Firmware.class), any(ProgressCallback.class));
+
+        // Execute update and cancel it immediately
+        firmwareUpdateService.updateFirmware(THING1_UID, FW112_EN.getUID(), null);
+        firmwareUpdateService.cancelFirmwareUpdate(THING1_UID);
+
+        // Be sure that the cancel is executed before the completion of the update
+        waitForAssert(() -> {
+            verify(handler1, times(1)).cancel();
+        }, stepsTime * numberOfSteps, stepsTime);
+
+        assertThat(isUpdateFinished.get(), is(false));
     }
 
     @Test(expected = IllegalArgumentException.class)

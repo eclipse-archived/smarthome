@@ -14,6 +14,7 @@ package org.eclipse.smarthome.core.thing.internal;
 
 import java.math.BigDecimal;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -39,8 +40,6 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-
 /**
  * Utility methods for creation of Things.
  *
@@ -65,7 +64,7 @@ public class ThingFactoryHelper {
      */
     public static List<Channel> createChannels(ThingType thingType, ThingUID thingUID,
             ConfigDescriptionRegistry configDescriptionRegistry) {
-        List<Channel> channels = Lists.newArrayList();
+        List<Channel> channels = new ArrayList<>();
         List<ChannelDefinition> channelDefinitions = thingType.getChannelDefinitions();
         for (ChannelDefinition channelDefinition : channelDefinitions) {
             Channel channel = createChannel(channelDefinition, thingUID, null, configDescriptionRegistry);

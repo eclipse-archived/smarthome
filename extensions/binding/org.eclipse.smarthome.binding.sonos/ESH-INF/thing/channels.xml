@@ -253,7 +253,7 @@
 	<channel-type id="stop" advanced="true">
 		<item-type>Switch</item-type>
 		<label>Stop</label>
-		<description>Stop the Zone Player</description>
+		<description>Stop the Zone Player. ON if the player is stopped.</description>
 	</channel-type>
 
 	<channel-type id="tuneinstationid" advanced="true">

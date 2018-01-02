@@ -13,7 +13,6 @@ Export-Package:
  org.eclipse.smarthome.config.core.status.events,
  org.eclipse.smarthome.config.core.validation
 Import-Package: 
- com.google.common.base,
  com.google.common.collect,
  com.google.gson,
  com.google.gson.annotations,

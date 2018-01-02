@@ -12,10 +12,9 @@
  */
 package org.eclipse.smarthome.core.events;
 
+import java.util.Collections;
 import java.util.Set;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 
 /**
@@ -38,7 +37,7 @@ public abstract class AbstractEventFactory implements EventFactory {
      * @param supportedEventTypes the supported event types
      */
     public AbstractEventFactory(Set<String> supportedEventTypes) {
-        this.supportedEventTypes = ImmutableSet.copyOf(supportedEventTypes);
+        this.supportedEventTypes = Collections.unmodifiableSet(supportedEventTypes);
     }
 
     @Override
@@ -58,12 +57,9 @@ public abstract class AbstractEventFactory implements EventFactory {
     }
 
     private void assertValidArguments(String eventType, String topic, String payload) {
-        Preconditions.checkArgument(eventType != null && !eventType.isEmpty(),
-                "The argument 'eventType' must not be null or empty.");
-        Preconditions.checkArgument(topic != null && !topic.isEmpty(),
-                "The argument 'topic' must not be null or empty.");
-        Preconditions.checkArgument(payload != null && !payload.isEmpty(),
-                "The argument 'payload' must not be null or empty.");
+        checkNotNullOrEmpty(eventType, "eventType");
+        checkNotNullOrEmpty(topic, "topic");
+        checkNotNullOrEmpty(payload, "payload");
     }
 
     /**
@@ -113,6 +109,18 @@ public abstract class AbstractEventFactory implements EventFactory {
      */
     protected String[] getTopicElements(String topic) {
         return topic.split("/");
+    }
+
+    protected static void checkNotNull(Object object, String argumentName) {
+        if (object == null) {
+            throw new IllegalArgumentException("The argument '" + argumentName + "' must not be null.");
+        }
+    }
+
+    protected static void checkNotNullOrEmpty(String string, String argumentName) {
+        if (string == null || string.isEmpty()) {
+            throw new IllegalArgumentException("The argument '" + argumentName + "' must not be null or empty.");
+        }
     }
 
 }

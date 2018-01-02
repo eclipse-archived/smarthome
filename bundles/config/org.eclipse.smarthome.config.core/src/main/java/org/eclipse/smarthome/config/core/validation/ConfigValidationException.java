@@ -14,8 +14,11 @@ package org.eclipse.smarthome.config.core.validation;
 
 import java.text.MessageFormat;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -23,9 +26,6 @@ import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 
 /**
  * A runtime exception to be thrown if given {@link Configuration} parameters do not match their declaration in the
@@ -54,8 +54,8 @@ public final class ConfigValidationException extends RuntimeException {
      */
     public ConfigValidationException(Bundle bundle, TranslationProvider translationProvider,
             Collection<ConfigValidationMessage> configValidationMessages) {
-        Preconditions.checkNotNull(bundle, "Bundle must not be null");
-        Preconditions.checkNotNull(configValidationMessages, "Config validation messages must not be null");
+        Objects.requireNonNull(bundle, "Bundle must not be null");
+        Objects.requireNonNull(configValidationMessages, "Config validation messages must not be null");
         this.bundle = bundle;
         this.translationProvider = translationProvider;
         this.configValidationMessages = configValidationMessages;
@@ -69,12 +69,12 @@ public final class ConfigValidationException extends RuntimeException {
      *         default message as value
      */
     public Map<String, String> getValidationMessages() {
-        ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
+        Map<String, String> ret = new HashMap<>();
         for (ConfigValidationMessage configValidationMessage : configValidationMessages) {
-            builder.put(configValidationMessage.parameterName,
+            ret.put(configValidationMessage.parameterName,
                     MessageFormat.format(configValidationMessage.defaultMessage, configValidationMessage.content));
         }
-        return builder.build();
+        return Collections.unmodifiableMap(ret);
     }
 
     /**
@@ -82,8 +82,7 @@ public final class ConfigValidationException extends RuntimeException {
      * internationalized then the default message is delivered.
      * <p>
      * If there is no TranslationProvider available then this operation will return the default validation messages by
-     * using
-     * {@link ConfigValidationException#getValidationMessages()}.
+     * using {@link ConfigValidationException#getValidationMessages()}.
      *
      * @param locale the locale to be used; if null then the default locale will be used
      *
@@ -93,21 +92,21 @@ public final class ConfigValidationException extends RuntimeException {
      *         delivered)
      */
     public Map<String, String> getValidationMessages(Locale locale) {
-        ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
+        Map<String, String> ret = new HashMap<>();
         for (ConfigValidationMessage configValidationMessage : configValidationMessages) {
             if (translationProvider == null) {
                 logger.warn(
                         "TranslationProvider is not available. Will provide default validation message for parameter '{}'.",
                         configValidationMessage.parameterName);
-                builder.put(configValidationMessage.parameterName,
+                ret.put(configValidationMessage.parameterName,
                         MessageFormat.format(configValidationMessage.defaultMessage, configValidationMessage.content));
             } else {
                 String text = translationProvider.getText(bundle, configValidationMessage.messageKey,
                         configValidationMessage.defaultMessage, locale, configValidationMessage.content);
-                builder.put(configValidationMessage.parameterName, text);
+                ret.put(configValidationMessage.parameterName, text);
             }
         }
-        return builder.build();
+        return Collections.unmodifiableMap(ret);
     }
 
 }

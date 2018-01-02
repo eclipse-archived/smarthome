@@ -170,7 +170,8 @@ public class FolderObserverTest extends JavaOSGiTest {
         }
 
         waitForAssert(() -> assertThat(file.exists(), is(true)));
-        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)));
+        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)), DFL_TIMEOUT * 2,
+                DFL_SLEEP_TIME);
         waitForAssert(() -> assertThat(modelRepo.isRemoveModelMethodCalled, is(false)));
         waitForAssert(() -> assertThat(modelRepo.calledFileName, is(file.getName())));
     }
@@ -210,14 +211,16 @@ public class FolderObserverTest extends JavaOSGiTest {
         }
 
         waitForAssert(() -> assertThat(file.exists(), is(true)));
-        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)));
+        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)), DFL_TIMEOUT * 2,
+                DFL_SLEEP_TIME);
 
         modelRepo.clean();
 
         String text = "Additional content";
         FileUtils.writeStringToFile(file, text, true);
 
-        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)));
+        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)), DFL_TIMEOUT * 2,
+                DFL_SLEEP_TIME);
         waitForAssert(() -> assertThat(modelRepo.calledFileName, is(file.getName())));
 
         String finalFileContent;
@@ -352,12 +355,14 @@ public class FolderObserverTest extends JavaOSGiTest {
             FileUtils.writeStringToFile(mockFileWithValidExt, INITIAL_FILE_CONTENT);
         }
 
-        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)));
+        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)), DFL_TIMEOUT * 2,
+                DFL_SLEEP_TIME);
 
         modelRepo.clean();
         FileUtils.writeStringToFile(mockFileWithValidExt, "Additional content", true);
 
-        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)));
+        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)), DFL_TIMEOUT * 2,
+                DFL_SLEEP_TIME);
     }
 
     /**

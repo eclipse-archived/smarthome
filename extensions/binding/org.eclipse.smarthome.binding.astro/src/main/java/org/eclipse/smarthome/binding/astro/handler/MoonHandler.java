@@ -37,8 +37,8 @@ public class MoonHandler extends AstroThingHandler {
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(Arrays.asList(THING_TYPE_MOON));
 
-    private final String[] positionalChannelIds = new String[] { "phase#name", "phase#age", "phase#illumination",
-            "position#azimuth", "position#elevation", "zodiac#sign" };
+    private final String[] positionalChannelIds = new String[] { "phase#name", "phase#age", "phase#agePercent",
+            "phase#ageDegree", "phase#illumination", "position#azimuth", "position#elevation", "zodiac#sign" };
     private final MoonCalc moonCalc = new MoonCalc();
     private Moon moon;
 
@@ -80,7 +80,7 @@ public class MoonHandler extends AstroThingHandler {
     protected Job getDailyJob() {
         return new DailyJobMoon(thing.getUID().getAsString(), this);
     }
-    
+
     private void initializeMoon() {
         moon = moonCalc.getMoonInfo(Calendar.getInstance(), thingConfig.getLatitude(), thingConfig.getLongitude());
     }

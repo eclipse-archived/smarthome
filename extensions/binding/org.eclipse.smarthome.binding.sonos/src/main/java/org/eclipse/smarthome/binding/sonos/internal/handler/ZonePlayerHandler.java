@@ -94,6 +94,10 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private static final String SPDIF = ":spdif";
     private static final String TUNEIN_URI = "x-sonosapi-stream:s%s?sid=%s&flags=32";
 
+    private static final String STATE_PLAYING = "PLAYING";
+    private static final String STATE_PAUSED_PLAYBACK = "PAUSED_PLAYBACK";
+    private static final String STATE_STOPPED = "STOPPED";
+
     private UpnpIOService service;
     private ScheduledFuture<?> pollingJob;
     private SonosZonePlayerState savedState = null;
@@ -244,7 +248,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     break;
                 case STOP:
                     try {
-                        getCoordinatorHandler().stop();
+                        if (command instanceof OnOffType) {
+                            getCoordinatorHandler().stop();
+                        }
                     } catch (IllegalStateException e) {
                         logger.warn("Cannot handle stop command ({})", e.getMessage());
                     }
@@ -419,6 +425,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 case "TransportState":
                     updateChannel(STATE);
                     updateChannel(CONTROL);
+                    updateChannel(STOP);
                     dispatchOnAllGroupMembers(variable, value, service);
                     break;
                 case "CurrentPlayMode":
@@ -575,12 +582,21 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 break;
             case CONTROL:
                 if (stateMap.get("TransportState") != null) {
-                    if (stateMap.get("TransportState").equals("PLAYING")) {
+                    if (stateMap.get("TransportState").equals(STATE_PLAYING)) {
                         newState = PlayPauseType.PLAY;
-                    } else if (stateMap.get("TransportState").equals("STOPPED")) {
+                    } else if (stateMap.get("TransportState").equals(STATE_STOPPED)) {
                         newState = PlayPauseType.PAUSE;
-                    } else if (stateMap.get("TransportState").equals("PAUSED_PLAYBACK")) {
+                    } else if (stateMap.get("TransportState").equals(STATE_PAUSED_PLAYBACK)) {
                         newState = PlayPauseType.PAUSE;
+                    }
+                }
+                break;
+            case STOP:
+                if (stateMap.get("TransportState") != null) {
+                    if (stateMap.get("TransportState").equals(STATE_STOPPED)) {
+                        newState = OnOffType.ON;
+                    } else {
+                        newState = OnOffType.OFF;
                     }
                 }
                 break;
@@ -1408,11 +1424,11 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     }
 
                     if (savedState.transportState != null) {
-                        if (savedState.transportState.equals("PLAYING")) {
+                        if (savedState.transportState.equals(STATE_PLAYING)) {
                             play();
-                        } else if (savedState.transportState.equals("STOPPED")) {
+                        } else if (savedState.transportState.equals(STATE_STOPPED)) {
                             stop();
-                        } else if (savedState.transportState.equals("PAUSED_PLAYBACK")) {
+                        } else if (savedState.transportState.equals(STATE_PAUSED_PLAYBACK)) {
                             pause();
                         }
                     }
@@ -2170,7 +2186,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
                 // stop whatever is currently playing
                 coordinator.stop();
-                coordinator.waitForNotTransportState("PLAYING");
+                coordinator.waitForNotTransportState(STATE_PLAYING);
 
                 // clear any tracks which are pending in the queue
                 coordinator.removeAllTracksFromQueue();
@@ -2342,7 +2358,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private void handleNotificationSound(Command notificationURL, ZonePlayerHandler coordinator) {
         String originalVolume = (isAdHocGroup() || isStandalonePlayer()) ? getVolume() : coordinator.getVolume();
         coordinator.stop();
-        coordinator.waitForNotTransportState("PLAYING");
+        coordinator.waitForNotTransportState(STATE_PLAYING);
         applyNotificationSoundVolume();
         long notificationPosition = coordinator.getQueueSize() + 1;
         coordinator.addURIToQueue(notificationURL.toString(), "", notificationPosition, false);
@@ -2359,11 +2375,11 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private void restoreLastTransportState(ZonePlayerHandler coordinator, String nextAction) {
         if (nextAction != null) {
             switch (nextAction) {
-                case "PLAYING":
+                case STATE_PLAYING:
                     coordinator.play();
-                    coordinator.waitForTransportState("PLAYING");
+                    coordinator.waitForTransportState(STATE_PLAYING);
                     break;
-                case "PAUSED_PLAYBACK":
+                case STATE_PAUSED_PLAYBACK:
                     coordinator.pause();
                     break;
             }
@@ -2400,7 +2416,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     private void waitForFinishedNotification() {
-        waitForTransportState("PLAYING");
+        waitForTransportState(STATE_PLAYING);
 
         // check Sonos state events to determine the end of the notification sound
         String notificationTitle = stateMap.get("CurrentTitle");
@@ -2409,7 +2425,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             try {
                 Thread.sleep(50);
                 if (!notificationTitle.equals(stateMap.get("CurrentTitle"))
-                        || !"PLAYING".equals(stateMap.get("TransportState"))) {
+                        || !STATE_PLAYING.equals(stateMap.get("TransportState"))) {
                     break;
                 }
             } catch (InterruptedException e) {

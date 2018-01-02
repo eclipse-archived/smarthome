@@ -12,10 +12,9 @@
  */
 package org.eclipse.smarthome.model.script.runtime.internal.engine;
 
-import static com.google.common.collect.Iterables.filter;
-
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -42,8 +41,6 @@ import org.eclipse.xtext.validation.Issue;
 import org.eclipse.xtext.xbase.XExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Predicate;
 
 /**
  * This is the implementation of a {@link ScriptEngine} which is made available as an OSGi service.
@@ -170,13 +167,7 @@ public class ScriptEngineImpl implements ScriptEngine, ModelParser {
 
     protected Iterable<Issue> getValidationErrors(final EObject model) {
         final List<Issue> validate = validate(model);
-        Iterable<Issue> issues = filter(validate, new Predicate<Issue>() {
-            @Override
-            public boolean apply(Issue input) {
-                return Severity.ERROR == input.getSeverity();
-            }
-        });
-        return issues;
+        return validate.stream().filter(input -> Severity.ERROR == input.getSeverity()).collect(Collectors.toList());
     }
 
     @Override

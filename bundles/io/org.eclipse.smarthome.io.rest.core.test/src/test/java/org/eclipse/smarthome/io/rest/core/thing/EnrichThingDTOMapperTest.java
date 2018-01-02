@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -36,8 +38,6 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import com.google.common.collect.Sets;
 
 public class EnrichThingDTOMapperTest {
 
@@ -79,7 +79,7 @@ public class EnrichThingDTOMapperTest {
 
     @Test
     public void shouldMapEnrichedThingDTO() {
-        when(linkedItemsMap.get("1")).thenReturn(Sets.newHashSet("linkedItem1", "linkedItem2"));
+        when(linkedItemsMap.get("1")).thenReturn(Stream.of("linkedItem1", "linkedItem2").collect(Collectors.toSet()));
 
         EnrichedThingDTO enrichedThingDTO = EnrichedThingDTOMapper.map(thing, thingStatusInfo, firmwareStatus,
                 linkedItemsMap, true);

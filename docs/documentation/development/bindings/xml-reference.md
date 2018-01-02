@@ -487,9 +487,6 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <tr><td>option</td><td>The description for the option (optional).</td></tr>
   <tr><td>option.value</td><td>The value for the option (mandatory).</td></tr>
   <tr><td>event</td><td>The restrictions of an trigger event which gives information how to interpret it (optional).</td></tr>
-  <tr><td>options</td><td>A list restricting all possible values (optional).</td></tr>
-  <tr><td>option</td><td>The description for the option (optional).</td></tr>
-  <tr><td>option.value</td><td>The value for the option (mandatory).</td></tr>  
   <tr><td>config-description</td><td>The configuration description for the channel within the ConfigDescriptionRegistry (optional).</td></tr>
   <tr><td>config-description-ref</td><td>The reference to a configuration description for the channel within the ConfigDescriptionRegistry (optional).</td></tr>
   <tr><td>config-description-ref.uri</td><td>The URI of the configuration description for the channel within the ConfigDescriptionRegistry (mandatory).</td></tr>
