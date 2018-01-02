@@ -142,6 +142,9 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
                 parameter.element = 'input';
                 parameter.inputType = 'password';
                 break;
+            case 'LOCATION':
+                parameter.element = 'location';
+                break;
             default:
                 return false;
         }

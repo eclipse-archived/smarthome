@@ -1,0 +1,21 @@
+<div layout="row" layout-align="start center">
+	<p>
+		<i class="material-icons">place</i>{{getLabel(item.category, item.name, 'Location')}}
+	</p>
+</div>
+<div layout="row" layout-align="start center" class="map-container">
+	<div layout="row" layout-align="start center" flex>
+		<map-component model="item.state" readOnly="isReadOnly(item)" />
+	</div>
+</div>
+<div layout="row" layout-align="start center">
+	<div ng-show="isReadOnly(item)" layout="row" layout-align="end center">
+		<h2 class="state" ng-if="isReadOnly(item)">{{formattedState}}</h2>
+	</div>
+	<div ng-show="!isReadOnly(item)" layout="row" layout-align="end center">
+		<h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{formattedState}}</h2>
+		<md-input-container ng-show="editMode"> <input ng-model="item.state" aria-label={{item.label}}></input> </md-input-container>
+		<i class="md-button control-button material-icons" ng-show="editMode" ng-click="updateState()">check</i>
+	</div>
+</div>
+<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList(item) && !isReadOnly(item)"></div>
