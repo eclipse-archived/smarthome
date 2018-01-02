@@ -336,14 +336,14 @@
 
 	<channel-type id="ageDegree">
 		<item-type>Number</item-type>
-		<label>Moon age in degree</label>
+		<label>Moon age</label>
 		<description>The age of the moon in degree</description>
 		<state readOnly="true" pattern="%.2f °" />
 	</channel-type>
 
 	<channel-type id="agePercent">
 		<item-type>Number</item-type>
-		<label>Moon age in percent</label>
+		<label>Moon age</label>
 		<description>The age of the moon in percent</description>
 		<state readOnly="true" pattern="%.2f %%" />
 	</channel-type>
