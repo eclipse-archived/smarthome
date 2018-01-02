@@ -45,11 +45,8 @@ public class ThingStatusInfoBuilder {
      * @param status the status (must not be null)
      * @param statusDetail the detail of the status (must not be null)
      * @return status info builder
-     *
-     * @throws IllegalArgumentException if thing status or thing status detail is null
      */
-    public static ThingStatusInfoBuilder create(ThingStatus status, ThingStatusDetail statusDetail)
-            throws IllegalArgumentException {
+    public static ThingStatusInfoBuilder create(ThingStatus status, ThingStatusDetail statusDetail) {
         return new ThingStatusInfoBuilder(status, statusDetail, null);
     }
 
@@ -58,10 +55,8 @@ public class ThingStatusInfoBuilder {
      *
      * @param status the status (must not be null)
      * @return status info builder
-     *
-     * @throws IllegalArgumentException if thing status is null
      */
-    public static ThingStatusInfoBuilder create(ThingStatus status) throws IllegalArgumentException {
+    public static ThingStatusInfoBuilder create(ThingStatus status) {
         return create(status, ThingStatusDetail.NONE);
     }
 
@@ -71,7 +66,7 @@ public class ThingStatusInfoBuilder {
      * @param description the description
      * @return status info builder
      */
-    public ThingStatusInfoBuilder withDescription(@Nullable String description) throws IllegalArgumentException {
+    public ThingStatusInfoBuilder withDescription(@Nullable String description) {
         this.description = description;
         return this;
     }
@@ -81,10 +76,8 @@ public class ThingStatusInfoBuilder {
      *
      * @param statusDetail the status detail (must not be null)
      * @return status info builder
-     *
-     * @throws IllegalArgumentException if thing status detail is null
      */
-    public ThingStatusInfoBuilder withStatusDetail(ThingStatusDetail statusDetail) throws IllegalArgumentException {
+    public ThingStatusInfoBuilder withStatusDetail(ThingStatusDetail statusDetail) {
         this.statusDetail = statusDetail;
         return this;
     }
