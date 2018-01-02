@@ -32,6 +32,7 @@
     <module>org.eclipse.smarthome.binding.ntp.test</module>
     <module>org.eclipse.smarthome.binding.serialbutton</module>
     <module>org.eclipse.smarthome.binding.sonos</module>
+    <module>org.eclipse.smarthome.binding.sonyaudio</module>
     <module>org.eclipse.smarthome.binding.tradfri</module>
     <module>org.eclipse.smarthome.binding.tradfri.test</module>
     <module>org.eclipse.smarthome.binding.weatherunderground</module>
