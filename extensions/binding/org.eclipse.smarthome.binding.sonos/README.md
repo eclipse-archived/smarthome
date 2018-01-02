@@ -88,6 +88,7 @@ The devices support the following channels:
 
 All supported Sonos devices are registered as an audio sink in the framework.
 Audio streams are treated as notifications, i.e. they are fed into the `notificationsound` channel and changing the volume of the audio sink will change the `notificationvolume`, not the `volume`.
+Note that the `notificationvolume` is set by the binding during each start of the system to equal the master volume (resulting in a barely audible level), making the use of a persistence policy obsolete. In order to control the `notificationvolume` users have to set it manually or by a rule.
 Note that the Sonos binding has a limit of 20 seconds for notification sounds. Any sound that is longer than that will be cut off.
 
 URL audio streams (e.g. an Internet radio stream) are an exception and do not get sent to the `notificationsound` channel. Instead, these will be sent to the `playuri` channel.
