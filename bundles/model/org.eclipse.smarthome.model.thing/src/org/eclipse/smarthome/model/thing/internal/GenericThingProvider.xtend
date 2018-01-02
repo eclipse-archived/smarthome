@@ -209,9 +209,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 
         thingBuilder.withConfiguration(configuration)
         thingBuilder.withBridge(bridgeUID)
-        if(label !== null) {
-            thingBuilder.withLabel(label)
-            }
+        thingBuilder.withLabel(label)
         thingBuilder.withLocation(location)
 
         val channels = createChannels(thingTypeUID, thingUID, modelThing.channels,

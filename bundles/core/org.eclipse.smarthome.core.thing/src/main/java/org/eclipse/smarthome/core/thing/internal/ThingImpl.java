@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -43,11 +45,12 @@ import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
  * @author Simon Kaufmann - Added label
  *
  */
+@NonNullByDefault
 public class ThingImpl implements Thing {
 
-    private String label;
+    private @Nullable String label;
 
-    private ThingUID bridgeUID;
+    private @Nullable ThingUID bridgeUID;
 
     private List<Channel> channels;
 
@@ -59,18 +62,12 @@ public class ThingImpl implements Thing {
 
     private ThingTypeUID thingTypeUID;
 
-    private String location;
+    private @Nullable String location;
 
     transient volatile private ThingStatusInfo status = ThingStatusInfoBuilder
             .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build();
 
-    transient volatile private ThingHandler thingHandler;
-
-    /**
-     * Package protected default constructor to allow reflective instantiation.
-     */
-    ThingImpl() {
-    }
+    transient volatile private @Nullable ThingHandler thingHandler;
 
     /**
      * @param thingTypeUID thing type UID
@@ -111,17 +108,17 @@ public class ThingImpl implements Thing {
     }
 
     @Override
-    public String getLabel() {
+    public @Nullable String getLabel() {
         return label;
     }
 
     @Override
-    public void setLabel(String label) {
+    public void setLabel(@Nullable String label) {
         this.label = label;
     }
 
     @Override
-    public ThingUID getBridgeUID() {
+    public @Nullable ThingUID getBridgeUID() {
         return this.bridgeUID;
     }
 
@@ -131,7 +128,7 @@ public class ThingImpl implements Thing {
     }
 
     @Override
-    public Channel getChannel(String channelId) {
+    public @Nullable Channel getChannel(String channelId) {
         for (Channel channel : this.channels) {
             if (channel.getUID().getId().equals(channelId)) {
                 return channel;
@@ -150,7 +147,7 @@ public class ThingImpl implements Thing {
     }
 
     @Override
-    public ThingHandler getHandler() {
+    public @Nullable ThingHandler getHandler() {
         return this.thingHandler;
     }
 
@@ -170,7 +167,7 @@ public class ThingImpl implements Thing {
     }
 
     @Override
-    public void setBridgeUID(ThingUID bridgeUID) {
+    public void setBridgeUID(@Nullable ThingUID bridgeUID) {
         this.bridgeUID = bridgeUID;
     }
 
@@ -183,7 +180,7 @@ public class ThingImpl implements Thing {
     }
 
     @Override
-    public void setHandler(ThingHandler thingHandler) {
+    public void setHandler(@Nullable ThingHandler thingHandler) {
         this.thingHandler = thingHandler;
     }
 
@@ -213,7 +210,7 @@ public class ThingImpl implements Thing {
     }
 
     @Override
-    public String setProperty(String name, String value) {
+    public @Nullable String setProperty(String name, @Nullable String value) {
         if (StringUtils.isEmpty(name)) {
             throw new IllegalArgumentException("Property name must not be null or empty");
         }
@@ -231,12 +228,12 @@ public class ThingImpl implements Thing {
     }
 
     @Override
-    public String getLocation() {
+    public @Nullable String getLocation() {
         return location;
     }
 
     @Override
-    public void setLocation(String location) {
+    public void setLocation(@Nullable String location) {
         this.location = location;
     }
 
@@ -249,7 +246,7 @@ public class ThingImpl implements Thing {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;
         }

@@ -62,7 +62,7 @@ public class ThingBuilder {
         return new ThingBuilder(thing);
     }
 
-    public ThingBuilder withLabel(String label) {
+    public ThingBuilder withLabel(@Nullable String label) {
         this.thing.setLabel(label);
         return this;
     }

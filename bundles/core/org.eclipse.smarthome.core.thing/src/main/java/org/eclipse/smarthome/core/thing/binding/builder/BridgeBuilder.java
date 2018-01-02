@@ -64,7 +64,7 @@ public class BridgeBuilder extends ThingBuilder {
     }
 
     @Override
-    public BridgeBuilder withLabel(String label) {
+    public BridgeBuilder withLabel(@Nullable String label) {
         return (BridgeBuilder) super.withLabel(label);
     }
 
