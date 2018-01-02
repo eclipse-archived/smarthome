@@ -37,7 +37,7 @@ public class ChannelBuilder {
 
     private final ChannelUID channelUID;
     private @Nullable final String acceptedItemType;
-    private @Nullable ChannelKind kind;
+    private ChannelKind kind;
     private @Nullable Configuration configuration;
     private Set<String> defaultTags;
     private @Nullable Map<String, String> properties;
@@ -139,12 +139,12 @@ public class ChannelBuilder {
      * @param kind kind.
      * @return channel builder
      */
-    public ChannelBuilder withKind(@Nullable ChannelKind kind) {
+    public ChannelBuilder withKind(ChannelKind kind) {
         if (kind == null) {
-            this.kind = ChannelKind.STATE;
-        } else {
-            this.kind = kind;
+            throw new IllegalArgumentException("kind must not be null");
         }
+
+        this.kind = kind;
         return this;
     }
 
