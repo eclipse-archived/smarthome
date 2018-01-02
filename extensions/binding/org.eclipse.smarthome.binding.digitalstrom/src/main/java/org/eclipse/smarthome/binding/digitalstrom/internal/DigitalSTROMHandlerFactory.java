@@ -12,11 +12,14 @@
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal;
 
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toSet;
 import static org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants.*;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants;
@@ -39,8 +42,6 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
-
 /**
  * The {@link DigitalSTROMHandlerFactory} is responsible for creating things and thing
  * handlers.
@@ -56,12 +57,13 @@ public class DigitalSTROMHandlerFactory extends BaseThingHandlerFactory {
     /**
      * Contains all supported {@link ThingTypeUID}'s.
      */
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets
-            .union(SceneHandler.SUPPORTED_THING_TYPES,
-                    Sets.union(BridgeHandler.SUPPORTED_THING_TYPES,
-                            Sets.union(DeviceHandler.SUPPORTED_THING_TYPES,
-                                    Sets.union(ZoneTemperatureControlHandler.SUPPORTED_THING_TYPES,
-                                            CircuitHandler.SUPPORTED_THING_TYPES))));
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream.of( //
+            SceneHandler.SUPPORTED_THING_TYPES.stream(), //
+            BridgeHandler.SUPPORTED_THING_TYPES.stream(), //
+            DeviceHandler.SUPPORTED_THING_TYPES.stream(), //
+            ZoneTemperatureControlHandler.SUPPORTED_THING_TYPES.stream(), //
+            CircuitHandler.SUPPORTED_THING_TYPES.stream()) //
+            .flatMap(identity()).collect(toSet());
 
     private HashMap<ThingUID, BridgeHandler> bridgeHandlers;
 

@@ -13,10 +13,12 @@
 package org.eclipse.smarthome.core.thing.internal;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -27,10 +29,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 /**
  * The {@link ThingImpl} class is a concrete implementation of the {@link Thing}.
@@ -129,7 +127,7 @@ public class ThingImpl implements Thing {
 
     @Override
     public List<Channel> getChannels() {
-        return ImmutableList.copyOf(this.channels);
+        return Collections.unmodifiableList(new ArrayList<>(this.channels));
     }
 
     @Override
@@ -210,13 +208,13 @@ public class ThingImpl implements Thing {
     @Override
     public Map<String, String> getProperties() {
         synchronized (this) {
-            return ImmutableMap.copyOf(properties);
+            return Collections.unmodifiableMap(new HashMap<>(properties));
         }
     }
 
     @Override
     public String setProperty(String name, String value) {
-        if (Strings.isNullOrEmpty(name)) {
+        if (StringUtils.isEmpty(name)) {
             throw new IllegalArgumentException("Property name must not be null or empty");
         }
         synchronized (this) {

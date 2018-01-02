@@ -31,7 +31,6 @@ import org.eclipse.smarthome.core.types.Type;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.osgi.service.component.annotations.Component;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
 /**
@@ -373,21 +372,18 @@ public class ItemEventFactory extends AbstractEventFactory {
     }
 
     private static void assertValidArguments(String itemName, Type type, String typeArgumentName) {
-        Preconditions.checkArgument(itemName != null && !itemName.isEmpty(),
-                "The argument 'itemName' must not be null or empty.");
-        Preconditions.checkArgument(type != null, "The argument '" + typeArgumentName + "' must not be null or empty.");
+        checkNotNullOrEmpty(itemName, "itemName");
+        checkNotNull(type, typeArgumentName);
     }
 
     private static void assertValidArguments(String itemName, String memberName, Type type, String typeArgumentName) {
-        Preconditions.checkArgument(itemName != null && !itemName.isEmpty(),
-                "The argument 'itemName' must not be null or empty.");
-        Preconditions.checkArgument(memberName != null && !memberName.isEmpty(),
-                "The argument 'memberName' must not be null or empty.");
-        Preconditions.checkArgument(type != null, "The argument '" + typeArgumentName + "' must not be null or empty.");
+        checkNotNullOrEmpty(itemName, "itemName");
+        checkNotNullOrEmpty(memberName, "memberName");
+        checkNotNull(type, typeArgumentName);
     }
 
     private static void assertValidArgument(Item item, String argumentName) {
-        Preconditions.checkArgument(item != null, "The argument '" + argumentName + "' must no be null.");
+        checkNotNull(item, argumentName);
     }
 
     /**

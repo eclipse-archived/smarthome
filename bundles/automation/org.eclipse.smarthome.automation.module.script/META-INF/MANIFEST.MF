@@ -10,7 +10,6 @@ Bundle-Version: 0.10.0.qualifier
 DynamicImport-Package: *
 Export-Package: org.eclipse.smarthome.automation.module.script
 Import-Package: 
- com.google.common.base,
  javax.script,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.automation,

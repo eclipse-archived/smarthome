@@ -22,6 +22,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
@@ -41,7 +43,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.jayway.jsonpath.JsonPath;
@@ -76,7 +77,7 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
         item2 = new SwitchItem(ITEM_NAME2);
         item3 = new DimmerItem(ITEM_NAME3);
 
-        when(itemProvider.getAll()).thenReturn(Lists.newArrayList(item1, item2, item3));
+        when(itemProvider.getAll()).thenReturn(Arrays.asList(item1, item2, item3));
         registerService(itemProvider);
     }
 
@@ -146,7 +147,7 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
         assertThat(response.getStatus(), is(Status.NOT_FOUND.getStatusCode()));
 
         unregisterService(itemProvider);
-        when(itemProvider.getAll()).thenReturn(Lists.newArrayList(new SwitchItem("UnmanagedItem")));
+        when(itemProvider.getAll()).thenReturn(Collections.singletonList(new SwitchItem("UnmanagedItem")));
         registerService(itemProvider);
 
         response = itemResource.addTag("UnmanagedItem", "MyTag");

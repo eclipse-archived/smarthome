@@ -118,7 +118,7 @@ class ThingFactoryTest extends OSGiTest{
         assertThat thing.configuration, is(not(null))
         assertThat thing.configuration.get("testProperty"), is(not(null))
         assertThat thing.configuration.get("testProperty"), is(equalTo("default"))
-        assertThat thing.channels.size, is(equalTo(2))
+        assertThat thing.getChannels().size(), is(equalTo(2))
         assertThat thing.channels[0].configuration.get("testProperty"), is(equalTo("default"))
         assertThat thing.channels[1].configuration.get("testProperty"), is(equalTo("default"))
         assertThat thing.getProperties().size(), is(0)
@@ -169,7 +169,7 @@ class ThingFactoryTest extends OSGiTest{
 
         def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)
 
-        assertThat thing.getChannels().size, is(2)
+        assertThat thing.getChannels().size(), is(2)
         assertThat thing.getChannels().get(0).getUID().toString(), is(equalTo("bindingId:thingType:thingId:ch1"))
         assertThat thing.getChannels().get(0).getAcceptedItemType(), is(equalTo("Color"))
         assertThat thing.getChannels().get(0).getDefaultTags().contains("tag1"), is(true)
@@ -208,7 +208,7 @@ class ThingFactoryTest extends OSGiTest{
 
         def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)
 
-        assertThat thing.getChannels().size, is(3)
+        assertThat thing.getChannels().size(), is(3)
         assertThat thing.getChannels().get(0).getUID().toString(), is(equalTo("bindingId:thingType:thingId:group1#ch1"))
         assertThat thing.getChannels().get(1).getUID().toString(), is(equalTo("bindingId:thingType:thingId:group1#ch2"))
         assertThat thing.getChannels().get(2).getUID().toString(), is(equalTo("bindingId:thingType:thingId:group2#ch1"))

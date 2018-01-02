@@ -14,9 +14,12 @@ package org.eclipse.smarthome.config.core.validation.internal;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
@@ -36,9 +39,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-
 /**
  * The {@link ConfigDescriptionValidatorImpl} validates a given set of {@link Configuration} parameters against a
  * given {@link ConfigDescription} URI. So it can be used as a static pre-validation to avoid that the configuration of
@@ -56,11 +56,11 @@ public final class ConfigDescriptionValidatorImpl implements ConfigDescriptionVa
     private ConfigDescriptionRegistry configDescriptionRegistry;
     private TranslationProvider translationProvider;
 
-    private static final List<ConfigDescriptionParameterValidator> validators = new ImmutableList.Builder<ConfigDescriptionParameterValidator>()
-            .add(ConfigDescriptionParameterValidatorFactory.createRequiredValidator())
-            .add(ConfigDescriptionParameterValidatorFactory.createTypeValidator())
-            .add(ConfigDescriptionParameterValidatorFactory.createMinMaxValidator())
-            .add(ConfigDescriptionParameterValidatorFactory.createPatternValidator()).build();
+    private static final List<ConfigDescriptionParameterValidator> VALIDATORS = Collections
+            .unmodifiableList(Arrays.asList(ConfigDescriptionParameterValidatorFactory.createRequiredValidator(),
+                    ConfigDescriptionParameterValidatorFactory.createTypeValidator(),
+                    ConfigDescriptionParameterValidatorFactory.createMinMaxValidator(),
+                    ConfigDescriptionParameterValidatorFactory.createPatternValidator()));
 
     private BundleContext bundleContext;
 
@@ -88,8 +88,8 @@ public final class ConfigDescriptionValidatorImpl implements ConfigDescriptionVa
     @Override
     @SuppressWarnings("unchecked")
     public void validate(Map<String, Object> configurationParameters, URI configDescriptionURI) {
-        Preconditions.checkNotNull(configurationParameters, "Configuration parameters must not be null");
-        Preconditions.checkNotNull(configDescriptionURI, "Config description URI must not be null");
+        Objects.requireNonNull(configurationParameters, "Configuration parameters must not be null");
+        Objects.requireNonNull(configDescriptionURI, "Config description URI must not be null");
 
         ConfigDescription configDescription = getConfigDescription(configDescriptionURI);
 
@@ -142,7 +142,7 @@ public final class ConfigDescriptionValidatorImpl implements ConfigDescriptionVa
      */
     private ConfigValidationMessage validateParameter(ConfigDescriptionParameter configDescriptionParameter,
             Object value) {
-        for (ConfigDescriptionParameterValidator validator : validators) {
+        for (ConfigDescriptionParameterValidator validator : VALIDATORS) {
             ConfigValidationMessage message = validator.validate(configDescriptionParameter, value);
             if (message != null) {
                 return message;

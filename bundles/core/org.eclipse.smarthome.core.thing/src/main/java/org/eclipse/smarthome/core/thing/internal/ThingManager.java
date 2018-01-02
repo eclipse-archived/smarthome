@@ -80,7 +80,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 
@@ -947,7 +946,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         logger.debug("Thing handler factory '{}' removed", thingHandlerFactory.getClass().getSimpleName());
 
-        Set<ThingHandler> handlers = ImmutableSet.copyOf(thingHandlersByFactory.get(thingHandlerFactory));
+        Set<ThingHandler> handlers = new HashSet<>(thingHandlersByFactory.get(thingHandlerFactory));
         for (ThingHandler thingHandler : handlers) {
             Thing thing = thingHandler.getThing();
             if (thing != null && isHandlerRegistered(thing)) {

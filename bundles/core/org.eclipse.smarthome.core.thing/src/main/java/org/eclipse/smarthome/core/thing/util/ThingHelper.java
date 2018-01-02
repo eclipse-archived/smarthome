@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.iterators.ArrayIterator;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -33,9 +35,6 @@ import org.eclipse.smarthome.core.thing.dto.ChannelDTOMapper;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.internal.BridgeImpl;
 import org.eclipse.smarthome.core.thing.internal.ThingImpl;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Objects;
 
 /**
  * {@link ThingHelper} provides a utility method to create and bind items.
@@ -64,19 +63,19 @@ public class ThingHelper {
             return false;
         }
         // bridge
-        if (!Objects.equal(a.getBridgeUID(), b.getBridgeUID())) {
+        if (!Objects.equals(a.getBridgeUID(), b.getBridgeUID())) {
             return false;
         }
         // configuration
-        if (!Objects.equal(a.getConfiguration(), b.getConfiguration())) {
+        if (!Objects.equals(a.getConfiguration(), b.getConfiguration())) {
             return false;
         }
         // label
-        if (!Objects.equal(a.getLabel(), b.getLabel())) {
+        if (!Objects.equals(a.getLabel(), b.getLabel())) {
             return false;
         }
         // location
-        if (!Objects.equal(a.getLocation(), b.getLocation())) {
+        if (!Objects.equals(a.getLocation(), b.getLocation())) {
             return false;
         }
         // channels
@@ -97,7 +96,7 @@ public class ThingHelper {
             strings.add(channel.getUID().toString() + '#' + channel.getAcceptedItemType() + '#' + channel.getKind());
         }
         Collections.sort(strings);
-        return Joiner.on(',').join(strings);
+        return strings.stream().collect(Collectors.joining(","));
     }
 
     public static void addChannelsToThing(Thing thing, Collection<Channel> channels) {

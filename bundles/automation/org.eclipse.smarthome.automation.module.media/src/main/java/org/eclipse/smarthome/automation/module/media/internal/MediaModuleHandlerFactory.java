@@ -12,7 +12,9 @@
  */
 package org.eclipse.smarthome.automation.module.media.internal;
 
-import java.util.ArrayList;
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
+
 import java.util.Collection;
 
 import org.eclipse.smarthome.automation.Action;
@@ -27,8 +29,6 @@ import org.eclipse.smarthome.core.voice.VoiceManager;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import com.google.common.collect.ImmutableList;
-
 /**
  *
  * @author Kai Kreuzer - Initial contribution
@@ -36,14 +36,14 @@ import com.google.common.collect.ImmutableList;
 @Component(service = ModuleHandlerFactory.class)
 public class MediaModuleHandlerFactory extends BaseModuleHandlerFactory {
 
-    private static final Collection<String> types = ImmutableList.of(SayActionHandler.TYPE_ID,
-            PlayActionHandler.TYPE_ID);
+    private static final Collection<String> TYPES = unmodifiableList(
+            asList(SayActionHandler.TYPE_ID, PlayActionHandler.TYPE_ID));
     private VoiceManager voiceManager;
     private AudioManager audioManager;
 
     @Override
     public Collection<String> getTypes() {
-        return new ArrayList<>(types);
+        return TYPES;
     }
 
     @Override

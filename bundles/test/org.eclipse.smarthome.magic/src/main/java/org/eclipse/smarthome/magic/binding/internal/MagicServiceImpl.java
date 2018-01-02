@@ -14,6 +14,7 @@ package org.eclipse.smarthome.magic.binding.internal;
 
 import java.math.BigDecimal;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 
@@ -21,8 +22,6 @@ import org.eclipse.smarthome.config.core.ConfigOptionProvider;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.magic.binding.MagicService;
 import org.osgi.service.component.annotations.Component;
-
-import com.google.common.collect.Lists;
 
 /**
  *
@@ -42,7 +41,7 @@ public class MagicServiceImpl implements MagicService {
         }
 
         if (param.equals(PARAMETER_BACKEND_DECIMAL)) {
-            return Lists.newArrayList(new ParameterOption(BigDecimal.ONE.toPlainString(), "1"),
+            return Arrays.asList(new ParameterOption(BigDecimal.ONE.toPlainString(), "1"),
                     new ParameterOption(BigDecimal.TEN.toPlainString(), "10"),
                     new ParameterOption(BigDecimal.valueOf(21d).toPlainString(), "21"));
         }

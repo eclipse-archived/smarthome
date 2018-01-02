@@ -50,8 +50,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import com.google.common.collect.ImmutableMap;
-
 /**
  * @author Andre Fuechsel - Initial contribution
  */
@@ -79,13 +77,10 @@ public class AutomaticInboxProcessorTest {
     private static final ThingType THING_TYPE3 = ThingTypeBuilder.instance(THING_TYPE_UID3, "label").isListed(true)
             .withRepresentationProperty(OTHER_KEY).build();
 
-    private final static Map<String, String> THING_PROPERTIES = new ImmutableMap.Builder<String, String>()
-            .put(DEVICE_ID_KEY, DEVICE_ID).build();
-    private final static Map<String, String> OTHER_THING_PROPERTIES = new ImmutableMap.Builder<String, String>()
-            .put(OTHER_KEY, OTHER_VALUE).build();
+    private final static Map<String, String> THING_PROPERTIES = Collections.singletonMap(DEVICE_ID_KEY, DEVICE_ID);
+    private final static Map<String, String> OTHER_THING_PROPERTIES = Collections.singletonMap(OTHER_KEY, OTHER_VALUE);
 
-    private final static Configuration CONFIG = new Configuration(
-            new ImmutableMap.Builder<String, Object>().put(CONFIG_KEY, CONFIG_VALUE).build());
+    private final static Configuration CONFIG = new Configuration(Collections.singletonMap(CONFIG_KEY, CONFIG_VALUE));
 
     private AutomaticInboxProcessor inboxAutoIgnore;
     private PersistentInbox inbox;

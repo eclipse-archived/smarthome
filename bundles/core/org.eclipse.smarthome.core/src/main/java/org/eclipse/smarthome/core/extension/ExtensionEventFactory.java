@@ -12,12 +12,12 @@
  */
 package org.eclipse.smarthome.core.extension;
 
+import java.util.Collections;
+
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFactory;
 import org.osgi.service.component.annotations.Component;
-
-import com.google.common.collect.Sets;
 
 /**
  * This is an {@link EventFactory} for creating extension events. The following event types are supported by this
@@ -44,7 +44,7 @@ public class ExtensionEventFactory extends AbstractEventFactory {
      * Constructs a new ExtensionEventFactory.
      */
     public ExtensionEventFactory() {
-        super(Sets.newHashSet(ExtensionEvent.TYPE));
+        super(Collections.singleton(ExtensionEvent.TYPE));
     }
 
     @Override

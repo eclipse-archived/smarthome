@@ -23,7 +23,6 @@ Export-Package:
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.thing.util
 Import-Package: 
- com.google.common.base,
  com.google.common.collect,
  org.apache.commons.collections.iterators,
  org.apache.commons.io,

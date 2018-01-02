@@ -17,14 +17,14 @@ import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -32,7 +32,7 @@ public class Stream2JSONInputStreamTest {
 
     private Stream2JSONInputStream collection2InputStream;
 
-    private Gson GSON = new GsonBuilder().create();
+    private final Gson GSON = new GsonBuilder().create();
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldFailForNullSource() throws IOException {
@@ -50,8 +50,8 @@ public class Stream2JSONInputStreamTest {
     @Test
     public void shouldStreamSingleObjectToJSON() throws Exception {
         DummyObject dummyObject = new DummyObject("demoKey", "demoValue");
-        ArrayList<DummyObject> dummyList = Lists.newArrayList(dummyObject);
-        collection2InputStream = new Stream2JSONInputStream(dummyList.stream());
+        List<DummyObject> dummyList = Arrays.asList(dummyObject);
+        collection2InputStream = new Stream2JSONInputStream(Stream.of(dummyObject));
 
         assertThat(inputStreamToString(collection2InputStream), is(GSON.toJson(dummyList)));
     }
@@ -60,7 +60,7 @@ public class Stream2JSONInputStreamTest {
     public void shouldStreamCollectionStreamToJSON() throws Exception {
         DummyObject dummyObject1 = new DummyObject("demoKey1", "demoValue1");
         DummyObject dummyObject2 = new DummyObject("demoKey2", "demoValue2");
-        ArrayList<DummyObject> dummyCollection = Lists.newArrayList(dummyObject1, dummyObject2);
+        List<DummyObject> dummyCollection = Arrays.asList(dummyObject1, dummyObject2);
         collection2InputStream = new Stream2JSONInputStream(dummyCollection.stream());
 
         assertThat(inputStreamToString(collection2InputStream), is(GSON.toJson(dummyCollection)));
@@ -72,8 +72,8 @@ public class Stream2JSONInputStreamTest {
 
     @SuppressWarnings("unused")
     private class DummyObject {
-        private String key;
-        private String value;
+        private final String key;
+        private final String value;
 
         DummyObject(String key, String value) {
             this.key = key;
