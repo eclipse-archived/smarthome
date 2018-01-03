@@ -22,4 +22,6 @@
     
     <!--remove me after EPL-2.0 PRs are done -->
     <suppress files="build.properties" checks="AboutHtmlCheck" />
+
+    <suppress files=".+org.eclipse.smarthome.ui.paper.+" checks="OutsideOfLibExternalLibrariesCheck|ManifestExternalLibrariesCheck|BuildPropertiesExternalLibrariesCheck" />
 </suppressions>
