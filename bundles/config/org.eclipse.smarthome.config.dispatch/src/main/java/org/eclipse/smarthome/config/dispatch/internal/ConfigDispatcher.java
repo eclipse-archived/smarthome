@@ -81,7 +81,7 @@ import com.google.gson.JsonSyntaxException;
  * @author Henning Treu - Delete orphan exclusive configuration from configAdmin
  * @author Stefan Triller - Add support for service contexts
  */
-@Component
+@Component(immediate = true)
 public class ConfigDispatcher {
 
     private final Logger logger = LoggerFactory.getLogger(ConfigDispatcher.class);

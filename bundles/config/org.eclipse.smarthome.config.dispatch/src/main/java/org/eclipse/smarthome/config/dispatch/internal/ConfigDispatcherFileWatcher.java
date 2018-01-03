@@ -21,7 +21,6 @@ import java.nio.file.WatchEvent.Kind;
 
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.service.AbstractWatchService;
-import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -58,10 +57,10 @@ public class ConfigDispatcherFileWatcher extends AbstractWatchService {
         }
     }
 
+    @Override
     @Activate
-    public void activate(BundleContext bundleContext) {
+    public void activate() {
         super.activate();
-        // configDispatcher = new ConfigDispatcher(bundleContext);
         configDispatcher.processConfigFile(getSourcePath().toFile());
     }
 
@@ -69,7 +68,6 @@ public class ConfigDispatcherFileWatcher extends AbstractWatchService {
     @Override
     public void deactivate() {
         super.deactivate();
-
     }
 
     @Override
