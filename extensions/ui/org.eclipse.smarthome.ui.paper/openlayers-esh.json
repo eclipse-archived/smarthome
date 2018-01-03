@@ -31,11 +31,15 @@
   ],
   "compile": {
     "externs": [
+      "externs/bingmaps.js",
+      "externs/cartodb.js",
+      "externs/esrijson.js",
       "externs/geojson.js",
       "externs/oli.js",
       "externs/olx.js",
       "externs/proj4js.js",
-      "externs/tilejson.js"
+      "externs/tilejson.js",
+      "externs/topojson.js"
     ],
     "compilation_level": "ADVANCED",
     "output_wrapper": "(function(){%output%})();",
