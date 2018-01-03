@@ -16,7 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -33,9 +34,10 @@ import org.eclipse.smarthome.core.thing.internal.BridgeImpl;
  * @author Markus Rathgeb - Override methods to return BridgeBuidler instead of ThingBuidler
  *
  */
+@NonNullByDefault
 public class BridgeBuilder extends ThingBuilder {
 
-    private BridgeBuilder(@NonNull BridgeImpl thing) {
+    private BridgeBuilder(BridgeImpl thing) {
         super(thing);
     }
 
@@ -62,7 +64,7 @@ public class BridgeBuilder extends ThingBuilder {
     }
 
     @Override
-    public BridgeBuilder withLabel(String label) {
+    public BridgeBuilder withLabel(@Nullable String label) {
         return (BridgeBuilder) super.withLabel(label);
     }
 
@@ -92,17 +94,17 @@ public class BridgeBuilder extends ThingBuilder {
     }
 
     @Override
-    public BridgeBuilder withBridge(ThingUID bridgeUID) {
+    public BridgeBuilder withBridge(@Nullable ThingUID bridgeUID) {
         return (BridgeBuilder) super.withBridge(bridgeUID);
     }
 
     @Override
-    public BridgeBuilder withProperties(Map<@NonNull String, String> properties) {
+    public BridgeBuilder withProperties(Map<String, String> properties) {
         return (BridgeBuilder) super.withProperties(properties);
     }
 
     @Override
-    public BridgeBuilder withLocation(String location) {
+    public BridgeBuilder withLocation(@Nullable String location) {
         return (BridgeBuilder) super.withLocation(location);
     }
 

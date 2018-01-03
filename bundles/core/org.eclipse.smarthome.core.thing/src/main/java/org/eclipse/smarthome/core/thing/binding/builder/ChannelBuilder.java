@@ -35,8 +35,8 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 @NonNullByDefault
 public class ChannelBuilder {
 
-    private ChannelUID channelUID;
-    private @Nullable String acceptedItemType;
+    private final ChannelUID channelUID;
+    private @Nullable final String acceptedItemType;
     private ChannelKind kind;
     private @Nullable Configuration configuration;
     private Set<String> defaultTags;
