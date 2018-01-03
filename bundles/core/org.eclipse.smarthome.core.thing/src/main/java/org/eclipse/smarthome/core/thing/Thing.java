@@ -60,6 +60,7 @@ public interface Thing extends Identifiable<ThingUID> {
      *
      * @return the human readable label
      */
+    @Nullable
     String getLabel();
 
     /**
@@ -67,7 +68,7 @@ public interface Thing extends Identifiable<ThingUID> {
      *
      * @param label the human readable label
      */
-    void setLabel(String label);
+    void setLabel(@Nullable String label);
 
     /**
      * Gets the channels.
