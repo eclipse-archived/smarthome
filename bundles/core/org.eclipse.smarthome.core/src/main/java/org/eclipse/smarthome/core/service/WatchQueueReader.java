@@ -217,7 +217,11 @@ public class WatchQueueReader implements Runnable {
                         }
                         if (service != null) {
                             File f = resolvedPath.toFile();
-                            service.processWatchEvent(event, kind, resolvedPath);
+                            if (kind == ENTRY_MODIFY && f.isDirectory()) {
+                                logger.trace("Skipping modification event for directory: {}", f);
+                            } else {
+                                service.processWatchEvent(event, kind, resolvedPath);
+                            }
                             if (kind == ENTRY_CREATE && f.isDirectory() && service.watchSubDirectories()
                                     && service.getWatchEventKinds(resolvedPath) != null) {
                                 registerDirectoryInternal(service, service.getWatchEventKinds(resolvedPath),
@@ -264,37 +268,13 @@ public class WatchQueueReader implements Runnable {
         if (registeredPath != null) {
             // If the path has been registered in the watch service it relative path can be resolved
             // The context path is resolved by its already registered parent path
-            Path resolvedContextPath = registeredPath.resolve(contextPath);
-            // Relativize the resolved context to the directory watched (Build the relative path)
-            Path path = baseWatchedDir.relativize(resolvedContextPath);
-            // As the modification of file in subdirectory is considered a modification on the subdirectory itself, we
-            // will consider the defined behavior to watch the directory changes
-            if (baseWatchedDir.resolve(path).toFile().isDirectory()
-                    && !isWatchingDirectoryChanges(key, resolvedContextPath)) {
-                // As we have found a directory event and do not want to track directory changes - we will skip it
-                return null;
-            }
-
-            return resolvedContextPath;
+            return registeredPath.resolve(contextPath);
         }
 
         logger.warn(
                 "Detected invalid WatchEvent '{}' and key '{}' for entry '{}' in not registered file or directory of '{}'",
                 event, key, contextPath, baseWatchedDir);
         return null;
-    }
-
-    /**
-     * Tells to the queue reader if watching for the directory changes. All the watch events will be processed if the
-     * method returns <code>true<code>. Otherwise the events for directories will be skipped.
-     *
-     * &#64;param key the WatchKey returned for directory, on its registration in the watch service.
-     * &#64;param resolvedContextPath the path of the event (resolved to the {@link #baseWatchedDir})
-     *
-     * @return <code>true</code> if the directory events will be processed and <code>false</code> otherwise
-     */
-    private boolean isWatchingDirectoryChanges(WatchKey key, Path resolvedContextPath) {
-        return keyToService.get(key).getWatchingDirectoryChanges(resolvedContextPath);
     }
 
 }
