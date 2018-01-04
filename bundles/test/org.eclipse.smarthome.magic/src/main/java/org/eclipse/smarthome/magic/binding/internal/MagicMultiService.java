@@ -10,6 +10,14 @@ import org.osgi.service.component.annotations.Modified;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Testings service for multi-context configurations.
+ * This service deliberately does not provide any service interfaces so it is activated immediately once it receives its
+ * configuration.
+ *
+ * @author Stefan Triller - initial contribution
+ *
+ */
 @Component(configurationPolicy = ConfigurationPolicy.REQUIRE, configurationPid = "org.eclipse.smarthome.magicMultiInstance")
 public class MagicMultiService {
 
