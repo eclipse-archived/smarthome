@@ -23,13 +23,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.smarthome.config.core.ConfigConstants;
-import org.eclipse.smarthome.config.core.ConfigurableService;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.config.core.MultipleInstanceServiceInfo;
-import org.eclipse.smarthome.io.rest.core.internal.RESTCoreActivator;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -110,13 +106,6 @@ public class ConfigurationService {
             }
             if (configuration == null) {
                 configuration = configurationAdmin.createFactoryConfiguration(configId, null);
-                // obtain configdescription from the transportservice
-
-                String configDescriptionURI = getConfigDescriptionURI(configId);
-
-                Dictionary<String, Object> props = getProperties(configuration);
-                props.put(ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI, configDescriptionURI);
-                configuration.update(props);
             }
         } else {
             configuration = configurationAdmin.getConfiguration(configId, null);
@@ -145,27 +134,6 @@ public class ConfigurationService {
         }
         configuration.update(properties);
         return oldConfiguration;
-    }
-
-    private String getConfigDescriptionURI(String configId) {
-        ServiceReference<?>[] multiServiceReferences;
-        try {
-            multiServiceReferences = RESTCoreActivator.getBundleContext()
-                    .getServiceReferences(MultipleInstanceServiceInfo.class.getName(), null);
-            if (multiServiceReferences != null) {
-                for (ServiceReference<?> serviceReference : multiServiceReferences) {
-                    MultipleInstanceServiceInfo mis = (MultipleInstanceServiceInfo) RESTCoreActivator.getBundleContext()
-                            .getService(serviceReference);
-
-                    if (mis.getServicePID().equals(configId)) {
-                        return mis.getConfigDescriptionUri();
-                    }
-                }
-            }
-        } catch (InvalidSyntaxException e) {
-            logger.error("Could not retrieve service reference for service id '{}'", configId, e);
-        }
-        return null;
     }
 
     private org.osgi.service.cm.Configuration getConfigurationWithContext(String serviceId)
