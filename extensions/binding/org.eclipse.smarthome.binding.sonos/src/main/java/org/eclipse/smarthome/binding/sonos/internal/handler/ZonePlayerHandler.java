@@ -44,6 +44,7 @@ import org.eclipse.smarthome.binding.sonos.internal.SonosXMLParser;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZoneGroup;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZonePlayerState;
 import org.eclipse.smarthome.binding.sonos.internal.config.ZonePlayerConfiguration;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.NextPreviousType;
@@ -121,11 +122,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * Intrinsic lock used to synchronize the execution of notification sounds
      */
     private final Object notificationLock = new Object();
-
-    /**
-     * Separate sound volume used for the notification
-     */
-    private String notificationSoundVolume = null;
 
     /**
      * {@link ThingHandler} instance of the coordinator speaker used for control delegation
@@ -243,7 +239,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     scheduleNotificationSound(command);
                     break;
                 case NOTIFICATIONVOLUME:
-                    setNotificationSoundVolume(command);
+                    if (command instanceof PercentType) {
+                        setNotificationSoundVolume((PercentType) command);
+                    }
                     break;
                 case STOP:
                     try {
@@ -563,15 +561,15 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         return url;
     }
 
-    protected void updateChannel(String channeldD) {
-        if (!isLinked(channeldD)) {
+    protected void updateChannel(String channelId) {
+        if (!isLinked(channelId)) {
             return;
         }
 
         String url;
 
         State newState = UnDefType.UNDEF;
-        switch (channeldD) {
+        switch (channelId) {
             case STATE:
                 if (stateMap.get("TransportState") != null) {
                     newState = new StringType(stateMap.get("TransportState"));
@@ -707,7 +705,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 break;
         }
         if (newState != null) {
-            updateState(channeldD, newState);
+            updateState(channelId, newState);
         }
     }
 
@@ -1552,13 +1550,12 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     /**
      * Sets the volume level for a notification sound
-     * (initializes {@link #notificationSoundVolume})
      *
-     * @param command
+     * @param notificationSoundVolume
      */
-    public void setNotificationSoundVolume(Command command) {
-        if (command != null) {
-            notificationSoundVolume = command.toString();
+    public void setNotificationSoundVolume(PercentType notificationSoundVolume) {
+        if (notificationSoundVolume != null) {
+            setVolumeForGroup(notificationSoundVolume);
         }
     }
 
@@ -1566,19 +1563,17 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * Gets the volume level for a notification sound
      */
     public PercentType getNotificationSoundVolume() {
+        Integer notificationSoundVolume = getConfigAs(ZonePlayerConfiguration.class).notificationVolume;
         if (notificationSoundVolume == null) {
-            // we need to initialize the value for the first time
-            notificationSoundVolume = getVolume();
-            if (notificationSoundVolume != null) {
-                updateState(SonosBindingConstants.NOTIFICATIONVOLUME,
-                        new PercentType(new BigDecimal(notificationSoundVolume)));
+            // if no value is set, we use the curren volume instead
+            String volume = getVolume();
+            if (volume != null) {
+                return new PercentType(volume);
+            } else {
+                return null;
             }
         }
-        if (notificationSoundVolume != null) {
-            return new PercentType(new BigDecimal(notificationSoundVolume));
-        } else {
-            return null;
-        }
+        return new PercentType(notificationSoundVolume);
     }
 
     public void addURIToQueue(String URI, String meta, long desiredFirstTrack, boolean enqueueAsNext) {
@@ -2209,15 +2204,11 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     private void scheduleNotificationSound(final Command command) {
-        scheduler.schedule(new Runnable() {
-
-            @Override
-            public void run() {
-                synchronized (notificationLock) {
-                    playNotificationSoundURI(command);
-                }
+        scheduler.submit(() -> {
+            synchronized (notificationLock) {
+                playNotificationSoundURI(command);
             }
-        }, 0, TimeUnit.MILLISECONDS);
+        });
     }
 
     /**
