@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -30,4 +30,13 @@ public interface NetworkAddressService {
      */
     @Nullable
     String getPrimaryIpv4HostAddress();
+
+    /**
+     * Returns the broadcast address of the user configured primary IPv4 address
+     *
+     * @return IPv4 broadcast address as a String in format xxx.xxx.xxx or
+     *         <code>null</code> if no broadcast address is found or an error occurred
+     */
+    @Nullable
+    String getPrimaryBroadcastAddress();
 }

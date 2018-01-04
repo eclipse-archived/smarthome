@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -18,6 +18,7 @@ import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -183,12 +184,52 @@ public class NetUtil implements NetworkAddressService {
         return broadcastAddresses;
     }
 
+    @Override
+    public String getPrimaryBroadcastAddress() {
+        String primaryIp = getPrimaryIpv4HostAddress();
+        String broadcastAddress = null;
+        if (primaryIp != null) {
+            try {
+                byte[] addr = InetAddress.getByName(primaryIp).getAddress();
+                Short prefix = getAllInterfaceAddresses().stream()
+                        .filter(a -> a.getAddress().getHostAddress().equals(primaryIp)).map(a -> a.getPrefix())
+                        .findFirst().get().shortValue();
+                byte[] netmask = InetAddress.getByName(networkPrefixLengthToNetmask(prefix)).getAddress();
+                byte[] broadcast = new byte[] { (byte) (~netmask[0] | addr[0]), (byte) (~netmask[1] | addr[1]),
+                        (byte) (~netmask[2] | addr[2]), (byte) (~netmask[3] | addr[3]) };
+                broadcastAddress = InetAddress.getByAddress(broadcast).getHostAddress();
+            } catch (UnknownHostException ex) {
+                LOGGER.error("Invalid IP address parameter: {}", ex.getMessage(), ex);
+            }
+        }
+        if (broadcastAddress == null) {
+            // an error has occurred, using broadcast address of first interface
+            broadcastAddress = getFirstIpv4BroadcastAddress();
+            LOGGER.warn(
+                    "Could not find broadcast address of configured IP, using broadcast address {} of first interface instead",
+                    broadcastAddress);
+        }
+        return broadcastAddress;
+    }
+
     /**
+     * Deprecated: Please use getPrimaryBroadcastAddress()
+     *
      * Get the first candidate for a broadcast address
      *
-     * @return broadcast address, null of no broadcast address is found
+     * @return broadcast address, null if no broadcast address is found
      */
+    @Deprecated
     public static String getBroadcastAddress() {
+        final List<String> broadcastAddresses = getAllBroadcastAddresses();
+        if (!broadcastAddresses.isEmpty()) {
+            return broadcastAddresses.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    private static String getFirstIpv4BroadcastAddress() {
         final List<String> broadcastAddresses = getAllBroadcastAddresses();
         if (!broadcastAddresses.isEmpty()) {
             return broadcastAddresses.get(0);
