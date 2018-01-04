@@ -16,6 +16,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitOption;
@@ -29,6 +30,9 @@ import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -54,11 +58,13 @@ public class WatchQueueReader implements Runnable {
 
     protected WatchService watchService;
 
-    private final Map<WatchKey, Path> registeredKeys;
+    private final Map<WatchKey, Path> registeredKeys = new HashMap<>();
 
-    private final Map<WatchKey, AbstractWatchService> keyToService;
+    private final Map<WatchKey, AbstractWatchService> keyToService = new HashMap<>();
 
     private Thread qr;
+
+    private final Map<AbstractWatchService, Map<Path, byte[]>> hashes = new HashMap<>();
 
     private static final WatchQueueReader INSTANCE = new WatchQueueReader();
 
@@ -77,13 +83,8 @@ public class WatchQueueReader implements Runnable {
         return INSTANCE;
     }
 
-    /**
-     * Builds the {@link WatchQueueReader} object that will monitor the directory changes if there is
-     * an {@link AbstractWatchService} that requests its functionality.
-     */
     private WatchQueueReader() {
-        registeredKeys = new HashMap<>();
-        keyToService = new HashMap<>();
+        // prevent instantiation
     }
 
     /**
@@ -176,11 +177,13 @@ public class WatchQueueReader implements Runnable {
                 watchService = null;
                 keyToService.clear();
                 registeredKeys.clear();
+                hashes.clear();
             } else {
                 for (WatchKey key : keys) {
                     key.cancel();
                     keyToService.remove(key);
                     registeredKeys.remove(key);
+                    hashes.remove(service);
                 }
             }
         }
@@ -220,7 +223,21 @@ public class WatchQueueReader implements Runnable {
                             if (kind == ENTRY_MODIFY && f.isDirectory()) {
                                 logger.trace("Skipping modification event for directory: {}", f);
                             } else {
-                                service.processWatchEvent(event, kind, resolvedPath);
+                                if (kind == ENTRY_MODIFY) {
+                                    if (checkAndTrackContent(service, resolvedPath)) {
+                                        service.processWatchEvent(event, kind, resolvedPath);
+                                    } else {
+                                        // On some OS/FileSystems (e.g. Linux), the modification of a file causes two
+                                        // ENTRY_MODIFY-events to be fired: one for the content change and one for the
+                                        // last modification timestamp.
+                                        // See also:
+                                        // https://stackoverflow.com/questions/16777869/java-7-watchservice-ignoring-multiple-occurrences-of-the-same-event
+                                        logger.trace("File content '{}' is not changed, skipping modification event",
+                                                f);
+                                    }
+                                } else {
+                                    service.processWatchEvent(event, kind, resolvedPath);
+                                }
                             }
                             if (kind == ENTRY_CREATE && f.isDirectory() && service.watchSubDirectories()
                                     && service.getWatchEventKinds(resolvedPath) != null) {
@@ -240,6 +257,7 @@ public class WatchQueueReader implements Runnable {
                                         keyToService.remove(toCancel);
                                         toCancel.cancel();
                                     }
+                                    forgetChecksum(service, resolvedPath);
                                 }
                             }
                         }
@@ -275,6 +293,54 @@ public class WatchQueueReader implements Runnable {
                 "Detected invalid WatchEvent '{}' and key '{}' for entry '{}' in not registered file or directory of '{}'",
                 event, key, contextPath, baseWatchedDir);
         return null;
+    }
+
+    private byte[] hash(Path path) {
+        try {
+            MessageDigest digester = MessageDigest.getInstance("SHA-256");
+            try (InputStream is = Files.newInputStream(path)) {
+                byte[] buffer = new byte[4069];
+                int read;
+                do {
+                    read = is.read(buffer);
+                    if (read > 0) {
+                        digester.update(buffer, 0, read);
+                    }
+                } while (read != -1);
+            }
+            return digester.digest();
+        } catch (NoSuchAlgorithmException | IOException e) {
+            logger.debug("Error calculating the hash of file {}", path, e);
+            return null;
+        }
+    }
+
+    /**
+     * Calculate a checksum of the given file and report back whether it has changed since the last time.
+     *
+     * @param service the service determining the scope
+     * @param resolvedPath the file path
+     * @return {@code true} if the file content has changed since the last call to this method
+     */
+    private boolean checkAndTrackContent(AbstractWatchService service, Path resolvedPath) {
+        byte[] newHash = hash(resolvedPath);
+        if (newHash == null) {
+            return true;
+        }
+        Map<Path, byte[]> keyHashes = hashes.get(service);
+        if (keyHashes == null) {
+            keyHashes = new HashMap<>();
+            hashes.put(service, keyHashes);
+        }
+        byte[] oldHash = keyHashes.put(resolvedPath, newHash);
+        return oldHash == null || !Arrays.equals(oldHash, newHash);
+    }
+
+    private void forgetChecksum(AbstractWatchService service, Path resolvedPath) {
+        Map<Path, byte[]> keyHashes = hashes.get(service);
+        if (keyHashes != null) {
+            keyHashes.remove(resolvedPath);
+        }
     }
 
 }

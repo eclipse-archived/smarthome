@@ -136,7 +136,7 @@ public class AbstractWatchServiceTest extends JavaTest {
 
         new File(WATCHED_DIRECTORY + File.separatorChar + fileName).createNewFile();
 
-        waitForAssert(() -> assertThat(watchService.allFullEvents.size(), is(2)));
+        assertEventCount(2);
 
         FullEvent innerFileEvent = watchService.allFullEvents.get(0);
         assertThat(innerFileEvent.eventKind, is(ENTRY_CREATE));
@@ -189,12 +189,12 @@ public class AbstractWatchServiceTest extends JavaTest {
         // Wait for a possible event for the maximum timeout
         Thread.sleep(NO_EVENT_TIMEOUT_IN_SECONDS * 1000);
 
-        assertThat(watchService.allFullEvents.size(), is(0));
+        assertEventCount(0);
     }
 
     private void assertFileCreateEventIsProcessed(File innerFile, String innerFileName) {
         // Single event for file creation is present
-        waitForAssert(() -> assertThat(watchService.allFullEvents.size(), is(1)));
+        assertEventCount(1);
         FullEvent fileEvent = watchService.allFullEvents.get(0);
         assertThat(fileEvent.eventKind, is(ENTRY_CREATE));
         assertThat(fileEvent.eventPath.toString(), is(WATCHED_DIRECTORY + File.separatorChar + innerFileName));
@@ -217,9 +217,25 @@ public class AbstractWatchServiceTest extends JavaTest {
         FileUtils.writeLines(file, Collections.singletonList("Additional content"), true);
         fullEventAssertionsByKind(fileName, ENTRY_MODIFY, false);
 
+        // File modified but identical content
+        FileUtils.writeLines(file, Collections.singletonList("Additional content"), false);
+        assertNoEventsAreProcessed();
+
         // File deleted
         file.delete();
         fullEventAssertionsByKind(fileName, ENTRY_DELETE, true);
+    }
+
+    private void assertEventCount(int expected) {
+        try {
+            waitForAssert(() -> assertThat(watchService.allFullEvents.size(), is(expected)));
+        } catch (AssertionError e) {
+            System.out.println("===");
+            System.out.println("Wrong event count:");
+            watchService.allFullEvents.forEach(event -> System.out.println(event.toString()));
+            System.out.println("===");
+            throw e;
+        }
     }
 
     private void fullEventAssertionsByKind(String fileName, Kind<?> kind, boolean osSpecific) throws Exception {
@@ -232,7 +248,7 @@ public class AbstractWatchServiceTest extends JavaTest {
             cleanUpOsSpecificModifyEvent();
         }
 
-        waitForAssert(() -> assertThat(watchService.allFullEvents.size(), is(1)));
+        assertEventCount(1);
         FullEvent fullEvent = watchService.allFullEvents.get(0);
 
         assertThat(fullEvent.eventPath.toString(), is(WATCHED_DIRECTORY + File.separatorChar + fileName));
