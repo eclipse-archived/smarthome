@@ -104,7 +104,6 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
         serviceConfigService.deleteConfig({
             id : serviceContext.id
         }, function() {
-            $scope.refresh();
             toastService.showDefaultToast('Service config removed.');
         });
         $mdDialog.hide();
