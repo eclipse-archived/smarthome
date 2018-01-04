@@ -47,12 +47,14 @@ import org.slf4j.LoggerFactory;
 public class NetUtil implements NetworkAddressService {
 
     private static final String PRIMARY_ADDRESS = "primaryAddress";
+    private static final String BROADCAST_ADDRESS = "broadcastAddress";
     private static final Logger LOGGER = LoggerFactory.getLogger(NetUtil.class);
 
     private static final Pattern IPV4_PATTERN = Pattern
             .compile("^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
 
     private String primaryAddress;
+    private String configuredBroadcastAddress;
 
     @Activate
     protected void activate(Map<String, Object> props) {
@@ -67,6 +69,14 @@ public class NetUtil implements NetworkAddressService {
             primaryAddress = getFirstLocalIPv4Address();
         } else {
             primaryAddress = primaryAddressConf;
+        }
+
+        String broadcastAddressConf = (String) config.get(BROADCAST_ADDRESS);
+        if (broadcastAddressConf == null || broadcastAddressConf.isEmpty() || !isValidIPConfig(broadcastAddressConf)) {
+            // if none is specified we return the one matching the primary ip
+            configuredBroadcastAddress = getPrimaryBroadcastAddress();
+        } else {
+            configuredBroadcastAddress = broadcastAddressConf;
         }
     }
 
@@ -185,35 +195,43 @@ public class NetUtil implements NetworkAddressService {
     }
 
     @Override
-    public String getPrimaryBroadcastAddress() {
+    public String getConfiguredBroadcastAddress() {
+        String broadcastAddr;
+
+        if (configuredBroadcastAddress != null) {
+            broadcastAddr = configuredBroadcastAddress;
+        } else {
+            // we do not seem to have any network interfaces
+            broadcastAddr = null;
+        }
+        return broadcastAddr;
+    }
+
+    private String getPrimaryBroadcastAddress() {
         String primaryIp = getPrimaryIpv4HostAddress();
         String broadcastAddress = null;
         if (primaryIp != null) {
             try {
-                byte[] addr = InetAddress.getByName(primaryIp).getAddress();
                 Short prefix = getAllInterfaceAddresses().stream()
                         .filter(a -> a.getAddress().getHostAddress().equals(primaryIp)).map(a -> a.getPrefix())
                         .findFirst().get().shortValue();
-                byte[] netmask = InetAddress.getByName(networkPrefixLengthToNetmask(prefix)).getAddress();
-                byte[] broadcast = new byte[] { (byte) (~netmask[0] | addr[0]), (byte) (~netmask[1] | addr[1]),
-                        (byte) (~netmask[2] | addr[2]), (byte) (~netmask[3] | addr[3]) };
-                broadcastAddress = InetAddress.getByAddress(broadcast).getHostAddress();
-            } catch (UnknownHostException ex) {
+                broadcastAddress = getIpv4NetBroadcastAddress(primaryIp, prefix);
+            } catch (IllegalArgumentException ex) {
                 LOGGER.error("Invalid IP address parameter: {}", ex.getMessage(), ex);
             }
         }
         if (broadcastAddress == null) {
-            // an error has occurred, using broadcast address of first interface
+            // an error has occurred, using broadcast address of first interface instead
             broadcastAddress = getFirstIpv4BroadcastAddress();
             LOGGER.warn(
-                    "Could not find broadcast address of configured IP, using broadcast address {} of first interface instead",
+                    "Could not find broadcast address of primary IP, using broadcast address {} of first interface instead",
                     broadcastAddress);
         }
         return broadcastAddress;
     }
 
     /**
-     * Deprecated: Please use getPrimaryBroadcastAddress()
+     * Deprecated: Please use the NetworkAddressService with getPrimaryBroadcastAddress()
      *
      * Get the first candidate for a broadcast address
      *
@@ -344,6 +362,36 @@ public class NetUtil implements NetworkAddressService {
         }
 
         return netAddress;
+    }
+
+    /**
+     * Get the network broadcast address of the subnet a specific ip address is in
+     *
+     * @param ipAddressString ipv4 address of the device (i.e. 192.168.5.1)
+     * @param prefix network prefix in bits (i.e. 24)
+     * @return network broadcast address of the network the device is in (i.e. 192.168.5.255)
+     *
+     * @throws IllegalArgumentException if parameters are wrong
+     */
+    public static @NonNull String getIpv4NetBroadcastAddress(@NonNull String ipAddressString, short prefix) {
+
+        String errorString = "IP '" + ipAddressString + "' is not a valid IPv4 address";
+        if (!isValidIPConfig(ipAddressString)) {
+            throw new IllegalArgumentException(errorString);
+        }
+        if (prefix < 1 || prefix > 32) {
+            throw new IllegalArgumentException("Prefix '" + prefix + "' is out of bounds (1-32)");
+        }
+
+        try {
+            byte[] addr = InetAddress.getByName(ipAddressString).getAddress();
+            byte[] netmask = InetAddress.getByName(networkPrefixLengthToNetmask(prefix)).getAddress();
+            byte[] broadcast = new byte[] { (byte) (~netmask[0] | addr[0]), (byte) (~netmask[1] | addr[1]),
+                    (byte) (~netmask[2] | addr[2]), (byte) (~netmask[3] | addr[3]) };
+            return InetAddress.getByAddress(broadcast).getHostAddress();
+        } catch (UnknownHostException ex) {
+            throw new IllegalArgumentException(errorString);
+        }
     }
 
     private String getIPv4inSubnet(String ipAddress, String subnetMask) {

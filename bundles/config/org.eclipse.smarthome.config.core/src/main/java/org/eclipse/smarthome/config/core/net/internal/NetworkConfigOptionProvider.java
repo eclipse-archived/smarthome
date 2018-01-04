@@ -15,6 +15,7 @@ package org.eclipse.smarthome.config.core.net.internal;
 import java.net.Inet4Address;
 import java.net.URI;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,6 +36,7 @@ import org.osgi.service.component.annotations.Component;
 public class NetworkConfigOptionProvider implements ConfigOptionProvider {
     static final URI CONFIG_URI = URI.create("system:network");
     static final String PARAM_PRIMARY_ADDRESS = "primaryAddress";
+    static final String PARAM_BROADCAST_ADDRESS = "broadcastAddress";
 
     @Override
     public Collection<ParameterOption> getParameterOptions(URI uri, String param, Locale locale) {
@@ -46,6 +48,12 @@ public class NetworkConfigOptionProvider implements ConfigOptionProvider {
             Stream<CidrAddress> ipv4Addresses = NetUtil.getAllInterfaceAddresses().stream()
                     .filter(a -> a.getAddress() instanceof Inet4Address);
             return ipv4Addresses.map(a -> new ParameterOption(a.toString(), a.toString())).collect(Collectors.toList());
+        }
+
+        if (param.equals(PARAM_BROADCAST_ADDRESS)) {
+            List<String> broadcastAddrList = NetUtil.getAllBroadcastAddresses();
+            broadcastAddrList.add("255.255.255.255");
+            return broadcastAddrList.stream().map(a -> new ParameterOption(a, a)).collect(Collectors.toList());
         }
         return null;
     }
