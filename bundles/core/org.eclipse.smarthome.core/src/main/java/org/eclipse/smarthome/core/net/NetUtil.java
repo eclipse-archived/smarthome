@@ -231,7 +231,7 @@ public class NetUtil implements NetworkAddressService {
     }
 
     /**
-     * Deprecated: Please use the NetworkAddressService with getPrimaryBroadcastAddress()
+     * Deprecated: Please use the NetworkAddressService with getConfiguredBroadcastAddress()
      *
      * Get the first candidate for a broadcast address
      *
