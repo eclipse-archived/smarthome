@@ -80,7 +80,6 @@ public class ConfigurationService {
         } catch (IOException e) {
             logger.debug("Error while retrieving property {} for PID {}.", key, servicePID);
         }
-
         return null;
     }
 
@@ -95,7 +94,6 @@ public class ConfigurationService {
      * @throws IOException if configuration can not be stored
      */
     public Configuration update(String configId, Configuration newConfiguration, boolean override) throws IOException {
-
         org.osgi.service.cm.Configuration configuration = null;
         if (newConfiguration.containsKey(ConfigConstants.SERVICE_CONTEXT)) {
 

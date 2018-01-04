@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -39,7 +39,7 @@ public interface MultipleInstanceServiceInfo {
     String getCategory();
 
     /**
-     * Get the real service.pid of the service that can be created multiple times with different configurations
+     * Get the service.pid of the service that can be created multiple times with different configurations
      *
      * @return service.pid of the service
      */

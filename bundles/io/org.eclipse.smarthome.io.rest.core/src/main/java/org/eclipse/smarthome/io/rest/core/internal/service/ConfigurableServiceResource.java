@@ -270,9 +270,8 @@ public class ConfigurableServiceResource implements RESTResource {
                     List<ConfigurableServiceDTO> multiServiceInstances = getServicesByFilter(
                             "(" + ConfigurableService.SERVICE_PROPERTY_FACTORY_PID + "=" + mis.getServicePID() + ")");
                     for (ConfigurableServiceDTO multiInstanceService : multiServiceInstances) {
-                        if (multiInstanceService.configDescriptionURI == null) { // only add those w/o
-                                                                                 // configDescriptionURI (file based
-                                                                                 // configs).
+                        if (multiInstanceService.configDescriptionURI == null) { // append configDescriptionURI to
+                                                                                 // multi-context service instances
                             multiInstanceService.configDescriptionURI = mis.getConfigDescriptionUri();
                             services.add(multiInstanceService);
                         }

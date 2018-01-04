@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014,2017 Contributors to the Eclipse Foundation
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -23,8 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Testing service for multi-context configurations.
  *
- * @author Stefan Triller - Initial contribution
+ * @author Stefan Triller - initial contribution
  *
  */
 @Component(configurationPolicy = ConfigurationPolicy.REQUIRE, service = MagicMultiInstanceService.class, configurationPid = "org.eclipse.smarthome.magicMultiInstance")
@@ -34,7 +35,7 @@ public class MagicMultiInstanceService {
 
     @Activate
     public void activate(Map<String, Object> properties) {
-        logger.debug("\nactivate");
+        logger.debug("activate");
         for (Entry<String, Object> e : properties.entrySet()) {
             logger.debug(e.getKey() + " : " + e.getValue());
         }
@@ -42,7 +43,7 @@ public class MagicMultiInstanceService {
 
     @Modified
     public void modified(Map<String, Object> properties) {
-        logger.debug("\nmodified");
+        logger.debug("modified");
         for (Entry<String, Object> e : properties.entrySet()) {
             logger.debug(e.getKey() + " : " + e.getValue());
         }

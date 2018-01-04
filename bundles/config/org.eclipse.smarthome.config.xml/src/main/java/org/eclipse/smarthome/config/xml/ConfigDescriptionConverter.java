@@ -43,7 +43,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  */
 public class ConfigDescriptionConverter extends GenericUnmarshaller<ConfigDescription> {
 
-    private final ConverterAttributeMapValidator attributeMapValidator;
+    private ConverterAttributeMapValidator attributeMapValidator;
 
     public ConfigDescriptionConverter() {
         super(ConfigDescription.class);
@@ -53,6 +53,8 @@ public class ConfigDescriptionConverter extends GenericUnmarshaller<ConfigDescri
 
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
+        ConfigDescription configDescription = null;
+
         // read attributes
         Map<String, String> attributes = this.attributeMapValidator.readValidatedAttributes(reader);
         String uriText = attributes.get("uri");
@@ -93,7 +95,9 @@ public class ConfigDescriptionConverter extends GenericUnmarshaller<ConfigDescri
         ConverterAssertion.assertEndOfType(reader);
 
         // create object
-        return new ConfigDescription(uri, configDescriptionParams, configDescriptionGroups);
+        configDescription = new ConfigDescription(uri, configDescriptionParams, configDescriptionGroups);
+
+        return configDescription;
     }
 
 }
