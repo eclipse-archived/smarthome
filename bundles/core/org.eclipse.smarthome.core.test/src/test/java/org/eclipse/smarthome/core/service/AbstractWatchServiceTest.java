@@ -239,7 +239,8 @@ public class AbstractWatchServiceTest extends JavaTest {
     }
 
     private void fullEventAssertionsByKind(String fileName, Kind<?> kind, boolean osSpecific) throws Exception {
-        waitForAssert(() -> assertThat(watchService.allFullEvents.size() >= 1, is(true)));
+        waitForAssert(() -> assertThat(watchService.allFullEvents.size() >= 1, is(true)), DFL_TIMEOUT * 2,
+                DFL_SLEEP_TIME);
 
         if (osSpecific && kind.equals(ENTRY_DELETE)) {
             // There is possibility that one more modify event is triggered on some OS

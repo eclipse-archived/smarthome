@@ -38,7 +38,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,20 +57,20 @@ import org.slf4j.LoggerFactory;
  */
 public class WatchQueueReader implements Runnable {
 
-    /**
-     * Default logger for ESH Watch Services
-     */
+    private static final String THREAD_POOL_NAME = "file-processing";
+    private static final int PROCESSING_DELAY = 1000; // ms
+
     protected final Logger logger = LoggerFactory.getLogger(WatchQueueReader.class);
+    private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(THREAD_POOL_NAME);
 
     protected WatchService watchService;
 
     private final Map<WatchKey, Path> registeredKeys = new HashMap<>();
-
     private final Map<WatchKey, AbstractWatchService> keyToService = new HashMap<>();
+    private final Map<AbstractWatchService, Map<Path, byte[]>> hashes = new HashMap<>();
+    private final Map<WatchKey, @Nullable Map<Path, @Nullable ScheduledFuture<?>>> futures = new ConcurrentHashMap<>();
 
     private Thread qr;
-
-    private final Map<AbstractWatchService, Map<Path, byte[]>> hashes = new HashMap<>();
 
     private static final WatchQueueReader INSTANCE = new WatchQueueReader();
 
@@ -178,12 +184,18 @@ public class WatchQueueReader implements Runnable {
                 keyToService.clear();
                 registeredKeys.clear();
                 hashes.clear();
+                futures.values().forEach(keyFutures -> keyFutures.values().forEach(future -> future.cancel(true)));
+                futures.clear();
             } else {
                 for (WatchKey key : keys) {
                     key.cancel();
                     keyToService.remove(key);
                     registeredKeys.remove(key);
                     hashes.remove(service);
+                    Map<Path, @Nullable ScheduledFuture<?>> keyFutures = futures.remove(key);
+                    if (keyFutures != null) {
+                        keyFutures.values().forEach(future -> future.cancel(true));
+                    }
                 }
             }
         }
@@ -193,7 +205,7 @@ public class WatchQueueReader implements Runnable {
     public void run() {
         try {
             for (;;) {
-                WatchKey key = null;
+                WatchKey key;
                 try {
                     key = watchService.take();
                 } catch (InterruptedException exc) {
@@ -214,7 +226,7 @@ public class WatchQueueReader implements Runnable {
                     if (resolvedPath != null) {
 
                         // Process the event only when a relative path to it is resolved
-                        AbstractWatchService service = null;
+                        AbstractWatchService service;
                         synchronized (this) {
                             service = keyToService.get(key);
                         }
@@ -224,17 +236,7 @@ public class WatchQueueReader implements Runnable {
                                 logger.trace("Skipping modification event for directory: {}", f);
                             } else {
                                 if (kind == ENTRY_MODIFY) {
-                                    if (checkAndTrackContent(service, resolvedPath)) {
-                                        service.processWatchEvent(event, kind, resolvedPath);
-                                    } else {
-                                        // On some OS/FileSystems (e.g. Linux), the modification of a file causes two
-                                        // ENTRY_MODIFY-events to be fired: one for the content change and one for the
-                                        // last modification timestamp.
-                                        // See also:
-                                        // https://stackoverflow.com/questions/16777869/java-7-watchservice-ignoring-multiple-occurrences-of-the-same-event
-                                        logger.trace("File content '{}' is not changed, skipping modification event",
-                                                f);
-                                    }
+                                    processModificationEvent(key, event, resolvedPath, service);
                                 } else {
                                     service.processWatchEvent(event, kind, resolvedPath);
                                 }
@@ -258,6 +260,13 @@ public class WatchQueueReader implements Runnable {
                                         toCancel.cancel();
                                     }
                                     forgetChecksum(service, resolvedPath);
+                                    Map<Path, @Nullable ScheduledFuture<?>> keyFutures = futures.get(key);
+                                    if (keyFutures != null) {
+                                        ScheduledFuture<?> future = keyFutures.remove(resolvedPath);
+                                        if (future != null) {
+                                            future.cancel(true);
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -270,6 +279,55 @@ public class WatchQueueReader implements Runnable {
             logger.debug("ClosedWatchServiceException caught! {}. \n{} Stopping ", exc.getLocalizedMessage(),
                     Thread.currentThread().getName());
             return;
+        }
+    }
+
+    /**
+     * Schedules forwarding of the event to the listeners (if appliccable).
+     * <p>
+     * By delaying the forwarding, duplicate modification events and those where the actual file-content is not
+     * consistent or empty in between will get skipped and the file system gets a chance to "settle" before the
+     * framework is going to act on it.
+     * <p>
+     * Also, modification events are received for meta-data changes (e.g. last modification timestamp or file
+     * permissions). They are filtered out by comparing the checksums of the file's content.
+     * <p>
+     * See also
+     * <a href=
+     * "https://stackoverflow.com/questions/16777869/java-7-watchservice-ignoring-multiple-occurrences-of-the-same-event">this
+     * discussion</a> on Stack Overflow.
+     *
+     *
+     * @param key
+     * @param event
+     * @param resolvedPath
+     * @param service
+     */
+    private void processModificationEvent(WatchKey key, WatchEvent<?> event, Path resolvedPath,
+            AbstractWatchService service) {
+        synchronized (futures) {
+            logger.trace("Modification event for {} ", resolvedPath);
+            ScheduledFuture<?> previousFuture = removeScheduledJob(key, resolvedPath);
+            if (previousFuture != null) {
+                previousFuture.cancel(true);
+                logger.trace("Cancelled previous for {} ", resolvedPath);
+            }
+            ScheduledFuture<?> future = scheduler.schedule(() -> {
+                logger.trace("Executing job for {}", resolvedPath);
+                ScheduledFuture<?> res = removeScheduledJob(key, resolvedPath);
+                if (res != null) {
+                    logger.trace("Job removed itself for {}", resolvedPath);
+                } else {
+                    logger.trace("Job couldn't find itself for {}", resolvedPath);
+                }
+                if (checkAndTrackContent(service, resolvedPath)) {
+                    service.processWatchEvent(event, event.kind(), resolvedPath);
+                } else {
+                    logger.trace("File content '{}' has not changed, skipping modification event", resolvedPath);
+                }
+            }, PROCESSING_DELAY, TimeUnit.MILLISECONDS);
+            logger.trace("Scheduled processing of {}", resolvedPath);
+            rememberScheduledJob(key, resolvedPath, future);
         }
     }
 
@@ -298,6 +356,9 @@ public class WatchQueueReader implements Runnable {
     private byte[] hash(Path path) {
         try {
             MessageDigest digester = MessageDigest.getInstance("SHA-256");
+            if (!Files.exists(path)) {
+                return null;
+            }
             try (InputStream is = Files.newInputStream(path)) {
                 byte[] buffer = new byte[4069];
                 int read;
@@ -341,6 +402,25 @@ public class WatchQueueReader implements Runnable {
         if (keyHashes != null) {
             keyHashes.remove(resolvedPath);
         }
+    }
+
+    private Map<Path, @Nullable ScheduledFuture<?>> getKeyFutures(WatchKey key) {
+        Map<Path, @Nullable ScheduledFuture<?>> keyFutures = futures.get(key);
+        if (keyFutures == null) {
+            keyFutures = new ConcurrentHashMap<>();
+            futures.put(key, keyFutures);
+        }
+        return keyFutures;
+    }
+
+    private ScheduledFuture<?> removeScheduledJob(WatchKey key, Path resolvedPath) {
+        Map<Path, @Nullable ScheduledFuture<?>> keyFutures = getKeyFutures(key);
+        return keyFutures.remove(resolvedPath);
+    }
+
+    private void rememberScheduledJob(WatchKey key, Path resolvedPath, ScheduledFuture<?> future) {
+        Map<Path, @Nullable ScheduledFuture<?>> keyFutures = getKeyFutures(key);
+        keyFutures.put(resolvedPath, future);
     }
 
 }
