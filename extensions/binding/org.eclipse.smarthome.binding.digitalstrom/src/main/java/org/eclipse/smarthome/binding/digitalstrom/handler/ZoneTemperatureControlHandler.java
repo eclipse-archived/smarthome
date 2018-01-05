@@ -323,7 +323,7 @@ public class ZoneTemperatureControlHandler extends BaseThingHandler implements T
         ThingBuilder thingBuilder = editThing();
         thingBuilder.withChannels(newChannelList);
         updateThing(thingBuilder.build());
-        logger.debug("load channel: {} with item: {]", currentChannelID,
+        logger.debug("load channel: {} with item: {}", currentChannelID,
                 DsChannelTypeProvider.getItemType(currentChannelID));
     }
 

@@ -134,7 +134,8 @@ public class ChaserThingHandler extends DmxThingHandler {
                 values.add(value);
                 logger.trace("added step value {} to thing {}", value, this.thing.getUID());
             } else {
-                logger.debug("could not add step value to thing {}, malformed", singleStepString, this.thing.getUID());
+                logger.debug("could not add step value: {} to thing {}, malformed", singleStepString,
+                        this.thing.getUID());
             }
         }
         return (values.size() > 0);
@@ -151,8 +152,8 @@ public class ChaserThingHandler extends DmxThingHandler {
             channels.clear();
             DmxBridgeHandler bridgeHandler = (DmxBridgeHandler) getBridge().getHandler();
             try {
-                List<BaseDmxChannel> configChannels = BaseDmxChannel.fromString((String) configuration.get(CONFIG_DMX_ID),
-                        bridgeHandler.getUniverseId());
+                List<BaseDmxChannel> configChannels = BaseDmxChannel
+                        .fromString((String) configuration.get(CONFIG_DMX_ID), bridgeHandler.getUniverseId());
                 logger.trace("found {} channels in {}", configChannels.size(), this.thing.getUID());
                 for (BaseDmxChannel channel : configChannels) {
                     channels.add(bridgeHandler.getDmxChannel(channel, this.thing));

@@ -51,7 +51,7 @@ final class IntNormalizer extends AbstractNormalizer {
                 return BigDecimal.valueOf((Double) value).setScale(0, RoundingMode.UNNECESSARY);
             }
         } catch (ArithmeticException | NumberFormatException e) {
-            logger.trace("\"{}\" is not a valid integer number.", e, value);
+            logger.trace("\"{}\" is not a valid integer number.", value, e);
             return value;
         }
         logger.trace("Class \"{}\" cannot be converted to an integer number.", value.getClass().getName());
