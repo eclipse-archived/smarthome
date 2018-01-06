@@ -86,6 +86,7 @@ public class LifxLightHandler extends BaseThingHandler {
     private Products product;
 
     private PercentType powerOnBrightness;
+    private HSBK powerOnColor;
 
     private String logId;
 
@@ -230,6 +231,7 @@ public class LifxLightHandler extends BaseThingHandler {
             logger.debug("{} : Initializing handler", logId);
 
             powerOnBrightness = getPowerOnBrightness();
+            powerOnColor = getPowerOnColor();
 
             channelStates = new HashMap<>();
             currentLightState = new CurrentLightState();
@@ -326,6 +328,37 @@ public class LifxLightHandler extends BaseThingHandler {
         Configuration configuration = channel.getConfiguration();
         Object powerOnBrightness = configuration.get(LifxBindingConstants.CONFIG_PROPERTY_POWER_ON_BRIGHTNESS);
         return powerOnBrightness == null ? null : new PercentType(powerOnBrightness.toString());
+    }
+
+    private HSBK getPowerOnColor() {
+        Channel channel = null;
+
+        if (product.isColor()) {
+            ChannelUID channelUID = new ChannelUID(getThing().getUID(), LifxBindingConstants.CHANNEL_COLOR);
+            channel = getThing().getChannel(channelUID.getId());
+        }
+
+        if (channel == null) {
+            return null;
+        }
+
+        Configuration configuration = channel.getConfiguration();
+        Object powerOnColor = configuration.get(LifxBindingConstants.CONFIG_PROPERTY_POWER_ON_COLOR);
+        if (powerOnColor != null) {
+            String vals[] = powerOnColor.toString().replaceAll(" ", "").split(",");
+            if (vals.length == 4) {
+                int hue = Integer.parseInt(vals[0]);
+                int saturation = Integer.parseInt(vals[1]);
+                int brightness = Integer.parseInt(vals[2]);
+                int kelvin = Integer.parseInt(vals[3]);
+
+                HSBType hsb = new HSBType(new DecimalType(hue), new PercentType(saturation),
+                        new PercentType(brightness));
+                return new HSBK(hsb, kelvin);
+            }
+        }
+
+        return null;
     }
 
     private Products getProduct() {
@@ -528,6 +561,9 @@ public class LifxLightHandler extends BaseThingHandler {
     }
 
     private void handleOnOffCommand(OnOffType onOff) {
+        if (powerOnColor != null && onOff == OnOffType.ON) {
+            getLightStateForCommand().setColor(powerOnColor);
+        }
         if (powerOnBrightness != null) {
             PercentType newBrightness = onOff == OnOffType.ON ? powerOnBrightness : new PercentType(0);
             getLightStateForCommand().setBrightness(newBrightness);

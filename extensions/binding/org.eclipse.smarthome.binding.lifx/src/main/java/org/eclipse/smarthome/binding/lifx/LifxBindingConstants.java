@@ -76,6 +76,7 @@ public class LifxBindingConstants {
 
     // Config property for channel configuration
     public static final String CONFIG_PROPERTY_POWER_ON_BRIGHTNESS = "powerOnBrightness";
+    public static final String CONFIG_PROPERTY_POWER_ON_COLOR = "powerOnColor";
 
     // Property keys
     public static final String PROPERTY_HOST = "host";
