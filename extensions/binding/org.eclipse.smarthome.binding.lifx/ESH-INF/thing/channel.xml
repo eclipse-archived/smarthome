@@ -46,6 +46,7 @@
         <label>Temperature</label>
         <description>Sets the temperature of the light</description>
         <category>Temperature</category>
+        <config-description-ref uri="channel-type:lifx:temperature" />
     </channel-type>
 
     <channel-type id="temperaturezone" advanced="true">

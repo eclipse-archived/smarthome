@@ -46,6 +46,7 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PowerState;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Products;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.SignalStrength;
+import org.eclipse.smarthome.binding.lifx.internal.util.LifxMessageUtil;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
@@ -74,6 +75,7 @@ import org.slf4j.LoggerFactory;
  * @author Karel Goderis - Rewrite for Firmware V2, and remove dependency on external libraries
  * @author Kai Kreuzer - Added configurable transition time and small fixes
  * @author Wouter Born - Decomposed class into separate objects
+ * @author Pauli Anttila - Added power on temperature and color features.
  */
 public class LifxLightHandler extends BaseThingHandler {
 
@@ -86,7 +88,8 @@ public class LifxLightHandler extends BaseThingHandler {
     private Products product;
 
     private PercentType powerOnBrightness;
-    private HSBK powerOnColor;
+    private HSBType powerOnColor;
+    private PercentType powerOnTemperature;
 
     private String logId;
 
@@ -232,6 +235,7 @@ public class LifxLightHandler extends BaseThingHandler {
 
             powerOnBrightness = getPowerOnBrightness();
             powerOnColor = getPowerOnColor();
+            powerOnTemperature = getPowerOnTemperature();
 
             channelStates = new HashMap<>();
             currentLightState = new CurrentLightState();
@@ -330,7 +334,7 @@ public class LifxLightHandler extends BaseThingHandler {
         return powerOnBrightness == null ? null : new PercentType(powerOnBrightness.toString());
     }
 
-    private HSBK getPowerOnColor() {
+    private HSBType getPowerOnColor() {
         Channel channel = null;
 
         if (product.isColor()) {
@@ -344,24 +348,27 @@ public class LifxLightHandler extends BaseThingHandler {
 
         Configuration configuration = channel.getConfiguration();
         Object powerOnColor = configuration.get(LifxBindingConstants.CONFIG_PROPERTY_POWER_ON_COLOR);
-        if (powerOnColor != null) {
-            String vals[] = powerOnColor.toString().replaceAll(" ", "").split(",");
-            if (vals.length == 4) {
-                int hue = Integer.parseInt(vals[0]);
-                int saturation = Integer.parseInt(vals[1]);
-                int brightness = Integer.parseInt(vals[2]);
-                int temperature = Integer.parseInt(vals[3]);
+        return powerOnColor == null ? null : new HSBType(powerOnColor.toString());
+    }
 
-                HSBType hsb = new HSBType(new DecimalType(hue), new PercentType(saturation),
-                        new PercentType(brightness));
-                if (temperature <= 100) {
-                    return new HSBK(hsb, new PercentType(temperature));
-                } else {
-                    return new HSBK(hsb, temperature);
-                }
-            }
+    private PercentType getPowerOnTemperature() {
+        ChannelUID channelUID = new ChannelUID(getThing().getUID(), LifxBindingConstants.CHANNEL_TEMPERATURE);
+        Channel channel = getThing().getChannel(channelUID.getId());
+
+        if (channel == null) {
+            return null;
         }
 
+        Configuration configuration = channel.getConfiguration();
+        Object powerOnTemperature = configuration.get(LifxBindingConstants.CONFIG_PROPERTY_POWER_ON_TEMPERATURE);
+        if (powerOnTemperature != null) {
+            int temperature = Integer.parseInt(powerOnTemperature.toString());
+            if (temperature <= 100) {
+                return new PercentType(powerOnTemperature.toString());
+            } else if (temperature >= 2500) {
+                return LifxMessageUtil.kelvinToPercentType(temperature);
+            }
+        }
         return null;
     }
 
@@ -567,6 +574,9 @@ public class LifxLightHandler extends BaseThingHandler {
     private void handleOnOffCommand(OnOffType onOff) {
         if (powerOnColor != null && onOff == OnOffType.ON) {
             getLightStateForCommand().setColor(powerOnColor);
+        }
+        if (powerOnTemperature != null && onOff == OnOffType.ON) {
+            getLightStateForCommand().setTemperature(powerOnTemperature);
         }
         if (powerOnBrightness != null) {
             PercentType newBrightness = onOff == OnOffType.ON ? powerOnBrightness : new PercentType(0);

@@ -46,11 +46,6 @@ public class HSBK {
         setTemperature(temperature);
     }
 
-    public HSBK(HSBType hsb, int kelvin) {
-        setHSB(hsb);
-        this.kelvin = kelvin;
-    }
-
     public int getHue() {
         return hue;
     }
