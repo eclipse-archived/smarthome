@@ -350,11 +350,15 @@ public class LifxLightHandler extends BaseThingHandler {
                 int hue = Integer.parseInt(vals[0]);
                 int saturation = Integer.parseInt(vals[1]);
                 int brightness = Integer.parseInt(vals[2]);
-                int kelvin = Integer.parseInt(vals[3]);
+                int temperature = Integer.parseInt(vals[3]);
 
                 HSBType hsb = new HSBType(new DecimalType(hue), new PercentType(saturation),
                         new PercentType(brightness));
-                return new HSBK(hsb, kelvin);
+                if (temperature <= 100) {
+                    return new HSBK(hsb, new PercentType(temperature));
+                } else {
+                    return new HSBK(hsb, temperature);
+                }
             }
         }
 
