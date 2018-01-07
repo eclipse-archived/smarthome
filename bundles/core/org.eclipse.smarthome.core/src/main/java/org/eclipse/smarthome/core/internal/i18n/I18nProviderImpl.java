@@ -158,7 +158,8 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
                 this.location = PointType.valueOf(location);
             } catch (IllegalArgumentException e) {
                 // preserve old location or null if none was set before
-                logger.warn("Could not set new location, keeping old one: ", location, e.getMessage());
+                logger.warn("Could not set new location: {}, keeping old one, error message: {}", location,
+                        e.getMessage());
             }
         }
     }

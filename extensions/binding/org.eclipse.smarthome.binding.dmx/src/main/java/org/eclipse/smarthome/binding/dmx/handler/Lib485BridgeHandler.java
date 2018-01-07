@@ -61,7 +61,8 @@ public class Lib485BridgeHandler extends DmxBridgeHandler {
                     try {
                         socket = new Socket(receiverNode.getAddressString(), receiverNode.getPort());
                     } catch (IOException e) {
-                        logger.debug("Could not connect to {} in {}: {}", receiverNode, this.thing.getUID(), e);
+                        logger.debug("Could not connect to {} in {}: {}", receiverNode, this.thing.getUID(),
+                                e.getMessage());
                         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
                                 "could not connect to " + receiverNode.toString());
                         return;
@@ -88,7 +89,8 @@ public class Lib485BridgeHandler extends DmxBridgeHandler {
                 try {
                     socket.close();
                 } catch (IOException e) {
-                    logger.warn("Could not close socket {} in {}: {}", receiverNode, this.thing.getUID(), e);
+                    logger.warn("Could not close socket {} in {}: {}", receiverNode, this.thing.getUID(),
+                            e.getMessage());
                 }
             }
             receiverNodes.put(receiverNode, null);
@@ -106,7 +108,8 @@ public class Lib485BridgeHandler extends DmxBridgeHandler {
                     try {
                         socket.getOutputStream().write(universe.getBuffer());
                     } catch (IOException e) {
-                        logger.debug("Could not send to {} in {}: {}", receiverNode, this.thing.getUID(), e);
+                        logger.debug("Could not send to {} in {}: {}", receiverNode, this.thing.getUID(),
+                                e.getMessage());
                         closeConnection(ThingStatusDetail.COMMUNICATION_ERROR, "could not send DMX data");
                         return;
                     }

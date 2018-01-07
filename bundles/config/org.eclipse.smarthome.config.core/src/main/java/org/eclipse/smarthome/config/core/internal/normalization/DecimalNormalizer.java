@@ -50,7 +50,7 @@ final class DecimalNormalizer extends AbstractNormalizer {
                 return BigDecimal.valueOf((Double) value);
             }
         } catch (ArithmeticException | NumberFormatException e) {
-            logger.trace("\"{}\" is not a valid decimal number.", e, value);
+            logger.trace("\"{}\" is not a valid decimal number.", value, e);
             return value;
         }
         logger.trace("Class \"{}\" cannot be converted to a decimal number.", value.getClass().getName());

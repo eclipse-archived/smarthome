@@ -86,7 +86,7 @@ public class InstanceUUID {
         try {
             lines = IOUtils.readLines(new FileInputStream(file));
         } catch (IOException ioe) {
-            logger.warn("Failed reading the UUID file '{}': ", file.getAbsolutePath(), ioe.getMessage());
+            logger.warn("Failed reading the UUID file '{}': {}", file.getAbsolutePath(), ioe.getMessage());
         }
         return lines != null && lines.size() > 0 ? lines.get(0) : "";
     }

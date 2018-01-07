@@ -74,7 +74,7 @@ public class DeviceDiscoveryService extends AbstractDiscoveryService {
      */
     @Override
     public void deactivate() {
-        logger.debug("deactivate discovery service for device type {} thing types are: ", deviceType,
+        logger.debug("deactivate discovery service for device type {} thing types are: {}", deviceType,
                 super.getSupportedThingTypes().toString());
         removeOlderResults(new Date().getTime());
     }

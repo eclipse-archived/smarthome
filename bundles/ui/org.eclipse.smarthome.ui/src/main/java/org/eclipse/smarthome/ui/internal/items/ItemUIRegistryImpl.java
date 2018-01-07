@@ -372,7 +372,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                             formatPattern = ((Type) state).format(formatPattern);
                         } catch (IllegalArgumentException e) {
                             logger.warn("Exception while formatting value '{}' of item {} with format '{}': {}", state,
-                                    itemName, formatPattern, e);
+                                    itemName, formatPattern, e.getMessage());
                             formatPattern = new String("Err");
                         }
                     }
@@ -433,8 +433,9 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         try {
             return String.format(undefinedFormatPattern, "-");
         } catch (Exception e) {
-            logger.warn("Exception while formatting undefined value [sourcePattern={}, targetPattern={}, {}]",
-                    formatPattern, undefinedFormatPattern, e);
+            logger.warn(
+                    "Exception while formatting undefined value [sourcePattern={}, targetPattern={}, exceptionMessage={}]",
+                    formatPattern, undefinedFormatPattern, e.getMessage());
             return "Err";
         }
     }
