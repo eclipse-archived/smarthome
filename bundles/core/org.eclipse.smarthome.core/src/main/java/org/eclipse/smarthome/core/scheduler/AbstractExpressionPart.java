@@ -46,7 +46,7 @@ abstract class AbstractExpressionPart implements ExpressionPart {
     }
 
     /**
-     * @param set the set of values that the epxression part should take into consideration
+     * @param set the set of values that the expression part should take into consideration
      */
     public void setValueSet(BoundedIntegerSet set) {
         this.valueSet = set;
