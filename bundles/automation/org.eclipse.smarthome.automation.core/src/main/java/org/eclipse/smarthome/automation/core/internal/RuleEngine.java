@@ -870,7 +870,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             }
             logger.debug("The rule '{}' is executed.", ruleUID);
         } catch (Throwable t) {
-            logger.error("Failed to execute rule '{}': {}", new Object[] { ruleUID, t.getMessage() }, t);
+            logger.error("Failed to execute rule '{}': ", ruleUID, t);
         }
         // change state to IDLE only if the rule has not been DISABLED.
         synchronized (this) {
@@ -1015,7 +1015,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
                     RuntimeException re = new RuntimeException(errMessage, t);
                     throw re;
                 } else {
-                    logger.warn(errMessage, t);
+                    logger.warn("Error message: {}", errMessage);
                 }
             }
         }

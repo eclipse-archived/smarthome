@@ -132,7 +132,7 @@ public class ConfigurableServiceResource implements RESTResource {
             return configuration != null ? Response.ok(configuration.getProperties()).build()
                     : Response.ok(Collections.emptyMap()).build();
         } catch (IOException ex) {
-            logger.error("Cannot get configuration for service {}: {}", serviceId, ex.getMessage(), serviceId, ex);
+            logger.error("Cannot get configuration for service {}: ", serviceId, ex);
             return Response.status(Status.INTERNAL_SERVER_ERROR).build();
         }
     }

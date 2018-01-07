@@ -108,7 +108,8 @@ public abstract class DmxOverEthernetHandler extends DmxBridgeHandler {
                     try {
                         socket.send(sendPacket);
                     } catch (IOException e) {
-                        logger.debug("Could not send to {} in {}: {}", receiverNode, this.thing.getUID(), e);
+                        logger.debug("Could not send to {} in {}: {}", receiverNode, this.thing.getUID(),
+                                e.getMessage());
                         closeConnection(ThingStatusDetail.COMMUNICATION_ERROR, "could not send DMX data");
                     }
                 }

@@ -177,8 +177,8 @@ public class DimmerThingHandler extends DmxThingHandler {
         if (configuration.get(CONFIG_DMX_ID) != null) {
             DmxBridgeHandler bridgeHandler = (DmxBridgeHandler) getBridge().getHandler();
             try {
-                List<BaseDmxChannel> configChannels = BaseDmxChannel.fromString((String) configuration.get(CONFIG_DMX_ID),
-                        bridgeHandler.getUniverseId());
+                List<BaseDmxChannel> configChannels = BaseDmxChannel
+                        .fromString((String) configuration.get(CONFIG_DMX_ID), bridgeHandler.getUniverseId());
                 logger.trace("found {} channels in {}", configChannels.size(), this.thing.getUID());
                 for (BaseDmxChannel channel : configChannels) {
                     channels.add(bridgeHandler.getDmxChannel(channel, this.thing));
@@ -261,7 +261,7 @@ public class DimmerThingHandler extends DmxThingHandler {
 
     @Override
     public void channelLinked(ChannelUID channelUID) {
-        logger.trace("trying to add listeners for {} (Thing [})", channelUID, this.thing.getUID());
+        logger.trace("trying to add listeners for {} (Thing {})", channelUID, this.thing.getUID());
         switch (channelUID.getId()) {
             case CHANNEL_SWITCH:
                 if (channels.size() > 0) {
@@ -287,7 +287,7 @@ public class DimmerThingHandler extends DmxThingHandler {
 
     @Override
     public void channelUnlinked(ChannelUID channelUID) {
-        logger.trace("trying to remove listeners for {} (Thing [})", channelUID, this.thing.getUID());
+        logger.trace("trying to remove listeners for {} (Thing {})", channelUID, this.thing.getUID());
         switch (channelUID.getId()) {
             case CHANNEL_SWITCH:
             case CHANNEL_BRIGHTNESS:

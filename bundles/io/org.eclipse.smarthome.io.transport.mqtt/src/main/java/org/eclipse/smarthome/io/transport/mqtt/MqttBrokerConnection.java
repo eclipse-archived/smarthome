@@ -116,12 +116,12 @@ public class MqttBrokerConnection {
                 final List<MqttMessageSubscriber> consumerList = entry.getValue();
 
                 if (topic.matches(target)) {
-                    logger.trace("Topic match for '{}' and '{}' using regex {}", topic, target);
+                    logger.trace("Topic match for '{}' using regex {}", topic, target);
                     for (MqttMessageSubscriber consumer : consumerList) {
                         consumer.processMessage(topic, message.getPayload());
                     }
                 } else {
-                    logger.trace("No topic match for '{}' and '{}' using regex {}", topic, target);
+                    logger.trace("No topic match for '{}' using regex {}", topic, target);
                 }
             }
         }
