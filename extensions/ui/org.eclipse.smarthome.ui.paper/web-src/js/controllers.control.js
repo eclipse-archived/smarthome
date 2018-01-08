@@ -16,6 +16,12 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
         });
     }
 
+    $scope.masonry = function(index) {
+        $timeout(function() {
+            new Masonry('#items-' + index, {});
+        }, 100, false);
+    }
+
     function renderTabs() {
         thingRepository.getAll(function(things) {
             $scope.tabs = getTabs(things);
@@ -49,7 +55,7 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
         return renderedTabs.map(function(location) {
             return {
                 name : location,
-                thingCount : 1
+                hasThings : false
             }
         });
     }
@@ -57,19 +63,14 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
     $scope.refresh();
 
 }).controller('ControlController', function($scope, $timeout, $filter, itemService, util, $attrs, thingRepository, channelTypeRepository, thingTypeRepository, thingConfigService, imageService) {
-
-    var tabName = $scope.$parent.tab.name
-    var tabIndex = $scope.$parent.$index
-
     $scope.things = [];
     var renderedThings = []
 
     var renderItems = function() {
-        var redraw;
         thingRepository.getAll(function(things) {
             var thingsForTab = things.filter(function(thing) {
                 var thingLocation = thing.location ? thing.location.toUpperCase() : 'OTHER'
-                return thingLocation === tabName;
+                return thingLocation === $scope.tab.name;
             })
             channelTypeRepository.getAll(function(channelTypes) {
                 angular.forEach(thingsForTab, function(thing) {
@@ -82,22 +83,13 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
                             renderedThings = renderedThings.sort(function(a, b) {
                                 return a.label < b.label ? -1 : a.label > b.label ? 1 : 0
                             })
-                            $timeout.cancel(redraw)
-                            redraw = $timeout(function() {
-                                $scope.things = renderedThings;
-                                masonry()
-                            }, 0, true)
+                            $scope.tab.hasThings = renderedThings.length > 0;
+                            $scope.things = renderedThings;
                         }
                     }, false)
                 })
             }, false)
         }, false)
-    }
-
-    var masonry = function() {
-        $timeout(function() {
-            new Masonry('#items-' + tabIndex, {});
-        }, 100, false);
     }
 
     function renderThing(thing, thingType, channelTypes) {

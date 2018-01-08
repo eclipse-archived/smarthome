@@ -4,13 +4,13 @@
 	</div>
 
 	<md-tabs md-stretch-tabs="always" class="section-tabs">
-	<md-tab ng-repeat="tab in tabs track by tab.name" ng-disabled="::tab.disabled" label="{{::tab.name}}" layout-fill> 
+	<md-tab ng-repeat="tab in tabs track by tab.name" ng-disabled="::tab.disabled" label="{{::tab.name}}" md-on-select="masonry($index)" layout-fill> 
 	<md-tab-content layout-fill="">
-	<p class="text-center" ng-if="::tab.thingCount === 0">
+	<p class="text-center" ng-if="!tab.hasThings">
 		No Things available.
 		<button class="md-button" ng-click="$location.path('inbox/setup')">Add Thing</button>
 	</p>
-	<div ng-controller="ControlController" class="items row" ng-attr-id="{{::'items-' + tabs.indexOf(tab)}}">
+	<div ng-controller="ControlController" class="items row" ng-init="tab = tab" ng-attr-id="{{::'items-' + tabs.indexOf(tab)}}">
 		<div class="col-lg-4 col-sm-6 col-xs-12 item-wrapper" ng-repeat="thing in things track by thing.UID">
 			<div class="card item">
 				<div class="row">
