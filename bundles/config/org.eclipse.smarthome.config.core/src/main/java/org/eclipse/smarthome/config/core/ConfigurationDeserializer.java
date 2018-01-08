@@ -10,15 +10,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.storage.json.internal;
+package org.eclipse.smarthome.config.core;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
-
-import org.eclipse.smarthome.config.core.Configuration;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -34,6 +32,7 @@ import com.google.gson.JsonPrimitive;
  * As opposed to Gson's default behavior, it ensures that all numbers are represented as {@link BigDecimal}s.
  *
  * @author Simon Kaufmann - initial contribution and API
+ * @author Ana Dimova - added a deserializer for the configuration, conforming to the automation json format
  *
  */
 public class ConfigurationDeserializer implements JsonDeserializer<Configuration> {
@@ -41,23 +40,28 @@ public class ConfigurationDeserializer implements JsonDeserializer<Configuration
     @Override
     public Configuration deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException {
-        Configuration configuration = new Configuration();
         JsonObject configurationObject = json.getAsJsonObject();
         if (configurationObject.get("properties") != null) {
-            JsonObject propertiesObject = configurationObject.get("properties").getAsJsonObject();
-            for (Entry<String, JsonElement> entry : propertiesObject.entrySet()) {
-                JsonElement value = entry.getValue();
-                String key = entry.getKey();
-                if (value.isJsonPrimitive()) {
-                    JsonPrimitive primitive = value.getAsJsonPrimitive();
-                    configuration.put(key, deserialize(primitive));
-                } else if (value.isJsonArray()) {
-                    JsonArray array = value.getAsJsonArray();
-                    configuration.put(key, deserialize(array));
-                } else {
-                    throw new IllegalArgumentException(
-                            "Configuration parameters must be primitives or arrays of primities only but was " + value);
-                }
+            return deserialize(configurationObject.get("properties").getAsJsonObject());
+        } else {
+            return deserialize(configurationObject);
+        }
+    }
+
+    private Configuration deserialize(JsonObject propertiesObject) {
+        Configuration configuration = new Configuration();
+        for (Entry<String, JsonElement> entry : propertiesObject.entrySet()) {
+            JsonElement value = entry.getValue();
+            String key = entry.getKey();
+            if (value.isJsonPrimitive()) {
+                JsonPrimitive primitive = value.getAsJsonPrimitive();
+                configuration.put(key, deserialize(primitive));
+            } else if (value.isJsonArray()) {
+                JsonArray array = value.getAsJsonArray();
+                configuration.put(key, deserialize(array));
+            } else {
+                throw new IllegalArgumentException(
+                        "Configuration parameters must be primitives or arrays of primities only but was " + value);
             }
         }
         return configuration;
