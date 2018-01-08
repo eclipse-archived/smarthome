@@ -97,7 +97,7 @@ public class NetUtilTest {
         try {
             broadcast = NetUtil.getIpv4NetBroadcastAddress("192.168.5.8", (short) 33);
         } catch (IllegalArgumentException iae) {
-            assertThat(iae.getMessage(), is("Netmask '33' is out of bounds (1-32)"));
+            assertThat(iae.getMessage(), is("Prefix '33' is out of bounds (1-32)"));
         }
         try {
             broadcast = NetUtil.getIpv4NetBroadcastAddress("192.168.58", (short) 24);
