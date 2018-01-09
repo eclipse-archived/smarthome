@@ -106,9 +106,9 @@ public class NetUtil implements NetworkAddressService {
     }
 
     /**
-     * Deprecated: Please use the NetworkAddressService with getPrimaryIpv4HostAddress()
+     * @deprecated Please use the NetworkAddressService with {@link #getPrimaryIpv4HostAddress()}
      *
-     * Get the first candidate for a local IPv4 host address (non loopback, non localhost).
+     *             Get the first candidate for a local IPv4 host address (non loopback, non localhost).
      */
     @Deprecated
     public static String getLocalIpv4HostAddress() {
@@ -231,9 +231,9 @@ public class NetUtil implements NetworkAddressService {
     }
 
     /**
-     * Deprecated: Please use the NetworkAddressService with getConfiguredBroadcastAddress()
+     * @deprecated Please use the NetworkAddressService with {@link #getConfiguredBroadcastAddress()}
      *
-     * Get the first candidate for a broadcast address
+     *             Get the first candidate for a broadcast address
      *
      * @return broadcast address, null if no broadcast address is found
      */

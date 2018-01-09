@@ -14,8 +14,8 @@ package org.eclipse.smarthome.config.core.net.internal;
 
 import java.net.Inet4Address;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -51,7 +51,7 @@ public class NetworkConfigOptionProvider implements ConfigOptionProvider {
         }
 
         if (param.equals(PARAM_BROADCAST_ADDRESS)) {
-            List<String> broadcastAddrList = NetUtil.getAllBroadcastAddresses();
+            ArrayList<String> broadcastAddrList = new ArrayList<>(NetUtil.getAllBroadcastAddresses());
             broadcastAddrList.add("255.255.255.255");
             return broadcastAddrList.stream().map(a -> new ParameterOption(a, a)).collect(Collectors.toList());
         }
