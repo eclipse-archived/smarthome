@@ -23,11 +23,10 @@ import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapProvider;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,16 +48,19 @@ public class SitemapProviderImpl implements SitemapProvider, ModelRepositoryChan
 
     private final Map<String, Sitemap> sitemapModelCache = new ConcurrentHashMap<>();
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.STATIC)
+    @Reference
     public void setModelRepository(ModelRepository modelRepo) {
         this.modelRepo = modelRepo;
-        modelRepo.addModelRepositoryChangeListener(this);
         refreshSitemapModels();
     }
 
     public void unsetModelRepository(ModelRepository modelRepo) {
-        modelRepo.removeModelRepositoryChangeListener(this);
         this.modelRepo = null;
+    }
+
+    @Activate
+    protected void activate() {
+        modelRepo.addModelRepositoryChangeListener(this);
     }
 
     @Deactivate
@@ -66,6 +68,7 @@ public class SitemapProviderImpl implements SitemapProvider, ModelRepositoryChan
         if (modelRepo != null) {
             modelRepo.removeModelRepositoryChangeListener(this);
         }
+        sitemapModelCache.clear();
     }
 
     @Override
