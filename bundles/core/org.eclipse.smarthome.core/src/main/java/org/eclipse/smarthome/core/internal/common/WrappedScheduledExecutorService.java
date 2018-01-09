@@ -41,12 +41,13 @@ public class WrappedScheduledExecutorService extends ScheduledThreadPoolExecutor
 
     @Override
     protected void afterExecute(Runnable r, Throwable t) {
+        super.afterExecute(r, t);
         Throwable actualThrowable = t;
         if (actualThrowable == null && r instanceof Future<?>) {
             try {
                 ((Future<?>) r).get();
             } catch (CancellationException ce) {
-                actualThrowable = ce;
+                // ignore canceled tasks
             } catch (ExecutionException ee) {
                 actualThrowable = ee.getCause();
             } catch (InterruptedException ie) {
