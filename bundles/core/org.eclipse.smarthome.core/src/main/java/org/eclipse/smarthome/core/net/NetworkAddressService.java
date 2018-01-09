@@ -30,4 +30,14 @@ public interface NetworkAddressService {
      */
     @Nullable
     String getPrimaryIpv4HostAddress();
+
+    /**
+     * Returns the user configured broadcast address, or the broadcast address of the user configured primary IPv4 if
+     * not provided
+     *
+     * @return IPv4 broadcast address as a String in format xxx.xxx.xxx or
+     *         <code>null</code> if no broadcast address is found or an error occurred
+     */
+    @Nullable
+    String getConfiguredBroadcastAddress();
 }

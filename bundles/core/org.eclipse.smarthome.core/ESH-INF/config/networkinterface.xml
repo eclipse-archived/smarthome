@@ -10,6 +10,12 @@
 			<description>A subnet (e.g. 192.168.1.0/24) <!-- or an IP address (e.g. 192.168.1.5) --></description>
 			<limitToOptions>true</limitToOptions>
 		</parameter>
+		<parameter name="broadcastAddress" type="text">
+			<label>Broadcast Address</label>
+			<description>A broadcast address (e.g. 192.168.1.255)</description>
+			<limitToOptions>true</limitToOptions>
+			<advanced>true</advanced>
+		</parameter>
 	</config-description>
 
 </config-description:config-descriptions>
