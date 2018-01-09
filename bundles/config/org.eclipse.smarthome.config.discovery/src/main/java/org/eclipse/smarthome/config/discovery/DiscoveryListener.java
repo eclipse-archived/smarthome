@@ -75,6 +75,7 @@ public interface DiscoveryListener {
      * @deprecated use {@link #removeOlderResults(DiscoveryService, long, Collection, ThingUID)} instead
      */
     @Deprecated
+    @Nullable
     default Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
             @Nullable Collection<ThingTypeUID> thingTypeUIDs) {
         return removeOlderResults(source, timestamp, thingTypeUIDs, null);
@@ -98,6 +99,7 @@ public interface DiscoveryListener {
      *            if not {@code null} only results of that bridge are being removed
      * @return collection of thing UIDs of all removed things
      */
+    @Nullable
     Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
             @Nullable Collection<ThingTypeUID> thingTypeUIDs, @Nullable ThingUID bridgeUID);
 
