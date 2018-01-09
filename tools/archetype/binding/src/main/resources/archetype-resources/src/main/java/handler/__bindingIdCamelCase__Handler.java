@@ -22,11 +22,13 @@ package ${package}.handler;
 import static ${package}.${bindingIdCamelCase}BindingConstants.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
+import ${package}.internal.${bindingIdCamelCase}Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +42,9 @@ import org.slf4j.LoggerFactory;
 public class ${bindingIdCamelCase}Handler extends BaseThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(${bindingIdCamelCase}Handler.class);
+
+    @Nullable
+    private ${bindingIdCamelCase}Configuration config;
 
     public ${bindingIdCamelCase}Handler(Thing thing) {
         super(thing);
@@ -59,6 +64,8 @@ public class ${bindingIdCamelCase}Handler extends BaseThingHandler {
 
     @Override
     public void initialize() {
+        config = getConfigAs(${bindingIdCamelCase}Configuration.class);
+
         // TODO: Initialize the thing. If done set status to ONLINE to indicate proper working.
         // Long running initialization should be done asynchronously in background.
         updateStatus(ThingStatus.ONLINE);
