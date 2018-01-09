@@ -18,7 +18,6 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -184,7 +183,7 @@ public class HueBridgeNupnpDiscoveryOSGITest extends JavaOSGiTest {
             @Override
             public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
                     Collection<ThingTypeUID> thingTypeUIDs, ThingUID bridgeUID) {
-                return Collections.emptyList();
+                return null;
             }
         });
 
@@ -232,7 +231,7 @@ public class HueBridgeNupnpDiscoveryOSGITest extends JavaOSGiTest {
             @Override
             public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
                     Collection<ThingTypeUID> thingTypeUIDs, ThingUID bridgeUID) {
-                return Collections.emptyList();
+                return null;
             }
         });
 

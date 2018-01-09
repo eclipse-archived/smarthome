@@ -322,7 +322,7 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
     @Override
     public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
             Collection<ThingTypeUID> thingTypeUIDs, ThingUID bridgeUID) {
-        return Collections.emptyList();
+        return null;
     }
 
     @Override
