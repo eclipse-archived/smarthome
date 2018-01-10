@@ -14,6 +14,8 @@ package org.eclipse.smarthome.automation.handler;
 
 import java.util.Collection;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Module;
 
 /**
@@ -27,14 +29,17 @@ import org.eclipse.smarthome.automation.Module;
  * @author Yordan Mihaylov - Initial Contribution
  * @author Benedikt Niehues - change behavior for unregistering ModuleHandler
  */
+@NonNullByDefault
 public interface ModuleHandlerFactory {
 
     /**
      * This method is used to return UIDs of module types supported by this {@link ModuleHandlerFactory}
      *
-     * @return collection of module type unequal UID supported by this factory.
+     * @return collection of module type UID supported by this factory (instead of an empty collection null could be
+     *         returned).
      */
-    public Collection<String> getTypes();
+    @Nullable
+    Collection<String> getTypes();
 
     /**
      * This method is used to get a ModuleHandler instance for the passed module
@@ -44,7 +49,7 @@ public interface ModuleHandlerFactory {
      * @param ruleUID the UID of the rule for which the handler instance is created.
      * @return {@link ModuleHandler} instance.
      */
-    public ModuleHandler getHandler(Module module, String ruleUID);
+    ModuleHandler getHandler(Module module, String ruleUID);
 
     /**
      * This method signalises the Factory that a ModuleHandler for the passed module is not needed anymore. Implementors
@@ -52,6 +57,6 @@ public interface ModuleHandlerFactory {
      *
      * @param module
      */
-    public void ungetHandler(Module module, String ruleUID, ModuleHandler handler);
+    void ungetHandler(Module module, String ruleUID, ModuleHandler handler);
 
 }
