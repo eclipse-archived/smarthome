@@ -35,6 +35,14 @@ public class BridgeImpl extends ThingImpl implements Bridge {
     private transient List<Thing> things = new CopyOnWriteArrayList<>();
     private transient Logger logger = LoggerFactory.getLogger(BridgeImpl.class);
 
+    /**
+     * Package protected default constructor to allow reflective instantiation.
+     *
+     * !!! DO NOT REMOVE - Gson needs it !!!
+     */
+    BridgeImpl() {
+    }
+
     public BridgeImpl(ThingTypeUID thingTypeUID, String bridgeId) {
         super(thingTypeUID, bridgeId);
     }
