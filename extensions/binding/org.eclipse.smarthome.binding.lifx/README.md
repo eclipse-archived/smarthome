@@ -78,7 +78,7 @@ The *color* and *brightness* channels have a "Power on brightness" configuration
 
 The *color* channels have a "Power on color" configuration option that is used to determine the hue, saturation, brightness levels when a light is switched on. When it is left empty, the color of a light remains unchanged when a light is switched on or off. Configuration options contains 3 comma separated values, where first value is hue (0-360), second  saturation (0-100) and third brightness (0-100). If both "Power on brightness" and "Power on color" configuration options are defined, "Power on brightness" option overrides the brightness level defined on the "Power on color" configuration option.
 
-The *temperature* channels have a "Power on temperature" configuration option that is used to determine the color temperature when a light is switched on. When it is left empty, the color temperature of a light remains unchanged when a light is switched on or off. Color temperature can be defined as a kelvin degrees (2500-9000) or percent (0-100).
+The *temperature* channels have a "Power on temperature" configuration option that is used to determine the color temperature when a light is switched on. When it is left empty, the color temperature of a light remains unchanged when a light is switched on or off.
 
 MultiZone lights (*colormzlight*) have serveral channels (e.g. *colorzone0*, *temperaturezone0*, etc.) that allow for controlling specific zones of the light. Changing the *color* and *temperature* channels will update the states of all zones. The *color* and *temperature* channels of MultiZone lights always return the same state as *colorzone0*, *temperaturezone0*.
 
@@ -114,7 +114,7 @@ Thing lifx:colorirlight:porch [ deviceId="D073D5B2B2B2", host="10.120.130.4", fa
 
 Thing lifx:colorirlight:porch [ deviceId="D073D5B2B2B2", host="10.120.130.4", fadetime=0 ] {
     Channels:
-        Type temperature : temperature [ powerOnTemperature=4000 ] // 4000k
+        Type temperature : temperature [ powerOnTemperature=20 ]
 }
 
 Thing lifx:colorirlight:porch [ deviceId="D073D5B2B2B2", host="10.120.130.4", fadetime=0 ] {

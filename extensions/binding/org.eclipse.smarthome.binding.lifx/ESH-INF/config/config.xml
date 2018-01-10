@@ -39,9 +39,9 @@
     </config-description>
 
     <config-description uri="channel-type:lifx:temperature">
-        <parameter name="powerOnTemperature" type="integer" min="0" max="9000" required="false">
+        <parameter name="powerOnTemperature" type="integer" min="0" max="100" required="false" unit="%">
             <label>Power on temperature</label>
-            <description>Color temperature level used when switching on the light. Both percent (0-100) and kelvin degree (2500-9000) values are supported. Use empty value to leave color temperature as is.</description>
+            <description>Color temperature level used when switching on the light. Use empty value to leave color temperature as is.</description>
         </parameter>
     </config-description>
 

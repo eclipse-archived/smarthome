@@ -46,7 +46,6 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PowerState;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Products;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.SignalStrength;
-import org.eclipse.smarthome.binding.lifx.internal.util.LifxMessageUtil;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
@@ -362,12 +361,7 @@ public class LifxLightHandler extends BaseThingHandler {
         Configuration configuration = channel.getConfiguration();
         Object powerOnTemperature = configuration.get(LifxBindingConstants.CONFIG_PROPERTY_POWER_ON_TEMPERATURE);
         if (powerOnTemperature != null) {
-            int temperature = Integer.parseInt(powerOnTemperature.toString());
-            if (temperature <= 100) {
-                return new PercentType(powerOnTemperature.toString());
-            } else if (temperature >= 2500) {
-                return LifxMessageUtil.kelvinToPercentType(temperature);
-            }
+            return new PercentType(powerOnTemperature.toString());
         }
         return null;
     }
