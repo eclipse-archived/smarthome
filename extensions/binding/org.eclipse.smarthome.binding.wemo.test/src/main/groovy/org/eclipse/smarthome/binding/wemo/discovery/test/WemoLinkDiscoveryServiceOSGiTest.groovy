@@ -25,6 +25,7 @@ import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 import groovy.xml.XmlUtil
@@ -34,7 +35,6 @@ import groovy.xml.XmlUtil
  *
  * @author Svilen Valkanov - Initial contribution
  */
-
 class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
 
     def inbox
@@ -56,6 +56,7 @@ class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
     }
 
     @Test
+    @Ignore("see https://github.com/eclipse/smarthome/issues/4071")
     void 'assert supported thing is discovered' (){
         def bridgeTypeUID = WemoBindingConstants.THING_TYPE_BRIDGE
         def thingTypeUID = WemoBindingConstants.THING_TYPE_MZ100
