@@ -52,14 +52,16 @@ public class ThingImpl implements Thing {
 
     private @Nullable ThingUID bridgeUID;
 
-    private List<Channel> channels;
+    private List<Channel> channels = new ArrayList<>(0);
 
     private Configuration configuration = new Configuration();
 
     private Map<String, String> properties = new HashMap<>();
 
+    @NonNullByDefault({})
     private ThingUID uid;
 
+    @NonNullByDefault({})
     private ThingTypeUID thingTypeUID;
 
     private @Nullable String location;
@@ -70,6 +72,14 @@ public class ThingImpl implements Thing {
     transient volatile private @Nullable ThingHandler thingHandler;
 
     /**
+     * Package protected default constructor to allow reflective instantiation.
+     *
+     * !!! DO NOT REMOVE - Gson needs it !!!
+     */
+    ThingImpl() {
+    }
+
+    /**
      * @param thingTypeUID thing type UID
      * @param thingId thing ID
      * @throws IllegalArgumentException
@@ -77,7 +87,6 @@ public class ThingImpl implements Thing {
     public ThingImpl(ThingTypeUID thingTypeUID, String thingId) throws IllegalArgumentException {
         this.uid = new ThingUID(thingTypeUID.getBindingId(), thingTypeUID.getId(), thingId);
         this.thingTypeUID = thingTypeUID;
-        this.channels = new ArrayList<>(0);
     }
 
     /**
@@ -93,7 +102,6 @@ public class ThingImpl implements Thing {
         }
         this.uid = thingUID;
         this.thingTypeUID = new ThingTypeUID(thingUID.getBindingId(), thingUID.getThingTypeId());
-        this.channels = new ArrayList<>(0);
     }
 
     /**
@@ -104,7 +112,6 @@ public class ThingImpl implements Thing {
     public ThingImpl(ThingTypeUID thingTypeUID, ThingUID thingUID) throws IllegalArgumentException {
         this.uid = thingUID;
         this.thingTypeUID = thingTypeUID;
-        this.channels = new ArrayList<>(0);
     }
 
     @Override
