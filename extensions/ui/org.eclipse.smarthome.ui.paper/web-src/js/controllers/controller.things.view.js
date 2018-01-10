@@ -1,5 +1,5 @@
 angular.module('PaperUI.controllers.things') //
-.controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeRepository, configService, thingConfigService, util, itemRepository, channelTypeService) {
+.controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeRepository, configService, thingConfigService, util, itemRepository, channelTypeService, configDescriptionService) {
     $scope.setSubtitle([ 'Things' ]);
 
     var thingUID = $scope.path[4];
@@ -294,19 +294,22 @@ angular.module('PaperUI.controllers.things') //
     }
 
     $scope.configChannel = function(channel, thing, event) {
-        var channelType = this.getChannelFromChannelTypes(channel.channelTypeUID);
-
-        $mdDialog.show({
-            controller : 'ChannelConfigController',
-            templateUrl : 'partials/dialog.channelconfig.html',
-            targetEvent : event,
-            hasBackdrop : true,
-            locals : {
-                channelType : channelType,
-                channel : channel,
-                thing : thing
-            }
+        configDescriptionService.getByUri({
+            uri : 'channel:' + channel.uid
+        }, function(configDescription) {
+            $mdDialog.show({
+                controller : 'ChannelConfigController',
+                templateUrl : 'partials/dialog.channelconfig.html',
+                targetEvent : event,
+                hasBackdrop : true,
+                locals : {
+                    channelType : configDescription,
+                    channel : channel,
+                    thing : thing
+                }
+            });
         });
+
     };
 
     $scope.getLinkedItems = function(channel) {
