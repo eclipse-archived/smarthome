@@ -16,6 +16,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Module;
 import org.osgi.framework.BundleContext;
 
@@ -25,9 +27,12 @@ import org.osgi.framework.BundleContext;
  * @author Kai Kreuzer - Initial Contribution
  * @author Benedikt Niehues - change behavior for unregistering ModuleHandler
  */
-abstract public class BaseModuleHandlerFactory implements ModuleHandlerFactory {
+@NonNullByDefault
+public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory {
 
-    private Map<String, ModuleHandler> handlers = new HashMap<String, ModuleHandler>();
+    private final Map<String, ModuleHandler> handlers = new HashMap<String, ModuleHandler>();
+
+    @NonNullByDefault({})
     protected BundleContext bundleContext;
 
     public void activate(BundleContext bundleContext) {
@@ -64,7 +69,7 @@ abstract public class BaseModuleHandlerFactory implements ModuleHandlerFactory {
      * @param ruleUID the id of the rule for which the handler should be created
      * @return A {@link ModuleHandler} instance or <code>null</code> if thins module type is not supported
      */
-    abstract protected ModuleHandler internalCreate(Module module, String ruleUID);
+    protected abstract @Nullable ModuleHandler internalCreate(Module module, String ruleUID);
 
     public void dispose() {
         for (ModuleHandler handler : handlers.values()) {

@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.automation.handler;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * A common interface for all module Handler interfaces. The Handler interfaces are
  * bridge between RuleEngine and external modules used by the RuleEngine.
@@ -19,6 +21,7 @@ package org.eclipse.smarthome.automation.handler;
  * @author Yordan Mihaylov - Initial Contribution
  * @see ModuleHandlerFactory
  */
+@NonNullByDefault
 public interface ModuleHandler {
 
     /**
