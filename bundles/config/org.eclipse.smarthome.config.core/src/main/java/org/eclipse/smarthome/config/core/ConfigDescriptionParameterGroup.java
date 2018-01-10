@@ -12,6 +12,9 @@
  */
 package org.eclipse.smarthome.config.core;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * The {@link ConfigDescriptionParameterGroup} specifies information about parameter groups.
  * A parameter group is used to group a number of parameters together so they can
@@ -25,30 +28,26 @@ package org.eclipse.smarthome.config.core;
  * @author Chris Jackson - Initial Contribution
  *
  */
+@NonNullByDefault
 public class ConfigDescriptionParameterGroup {
 
-    private String name;
-    private String context;
-    private boolean advanced;
-    private String label;
-    private String description;
+    private final String name;
+    private final @Nullable String context;
+    private final boolean advanced;
+    private final String label;
+    private final String description;
 
     /**
      * Create a Parameter Group. A group is used by the user interface to display groups
      * of parameters together.
      *
-     * @param name
-     *            the name, used to link the group, to the parameter
-     * @param context
-     *            a context string. Can be used to provide some context to the group
-     * @param advanced
-     *            a flag that is set to true if this group contains advanced settings
-     * @param label
-     *            the human readable group label
-     * @param description
-     *            a description that can be provided to the user
+     * @param name the name, used to link the group, to the parameter
+     * @param context a context string. Can be used to provide some context to the group
+     * @param advanced a flag that is set to true if this group contains advanced settings
+     * @param label the human readable group label
+     * @param description a description that can be provided to the user
      */
-    public ConfigDescriptionParameterGroup(String name, String context, Boolean advanced, String label,
+    public ConfigDescriptionParameterGroup(String name, @Nullable String context, Boolean advanced, String label,
             String description) {
         this.name = name;
         this.context = context;
@@ -71,7 +70,7 @@ public class ConfigDescriptionParameterGroup {
      *
      * @return group context as a string
      */
-    public String getContext() {
+    public @Nullable String getContext() {
         return context;
     }
 
