@@ -45,7 +45,8 @@ public class Channel {
 
     private final ChannelKind kind;
 
-    private final ChannelUID uid;
+    @NonNullByDefault({}) // uid might not have been initialized by the default constructor.
+    private ChannelUID uid;
 
     private @Nullable ChannelTypeUID channelTypeUID;
 
@@ -63,7 +64,6 @@ public class Channel {
      * Package protected default constructor to allow reflective instantiation.
      */
     Channel() {
-        this.uid = new ChannelUID("DummyUID");
         this.kind = ChannelKind.STATE;
         this.configuration = new Configuration();
         this.properties = Collections.unmodifiableMap(new HashMap<String, String>(0));
