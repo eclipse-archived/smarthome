@@ -13,4 +13,5 @@ Import-Package:
  org.eclipse.jdt.annotation;resolution:=optional,
  org.osgi.framework,
  org.osgi.service.http,
- org.osgi.util.tracker
+ org.osgi.util.tracker,
+ org.slf4j
