@@ -102,9 +102,17 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
     /* RegEx to extract and parse a function String <code>'\[(.*?)\((.*)\):(.*)\]'</code> */
     protected static final Pattern EXTRACT_TRANSFORMFUNCTION_PATTERN = Pattern.compile("\\[(.*?)\\((.*)\\):(.*)\\]");
+    protected static final Pattern EXTRACT_TRANSFORMFUNCTION_PATTERN_WITHOUT_SQUARE_BRACKETS = Pattern
+            .compile("(.*?)\\((.*)\\):(.*)");
 
     /* RegEx to identify format patterns. See java.util.Formatter#formatSpecifier (without the '%' at the very end). */
     protected static final String IDENTIFY_FORMAT_PATTERN_PATTERN = "%(\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z])";
+
+    /*
+     * All % characters from transformation function are replaced temporarily by this special string. String should
+     * be unique and something which transformation function should "never" contain.
+     */
+    private static final String SPECIAL_STRING = "___@@@@##&&##@@@@___";
 
     protected Set<ItemUIProvider> itemUIProviders = new HashSet<ItemUIProvider>();
 
@@ -316,6 +324,9 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                 if (updatedPattern != null) {
                     formatPattern = updatedPattern;
 
+                    formatPattern = replaceReservedCharacterFromTrasformationPattern(formatPattern, "%",
+                            SPECIAL_STRING);
+
                     if (!formatPattern.isEmpty()) {
                         // TODO: TEE: we should find a more generic solution here! When
                         // using indexes in formatString this 'contains' will fail again
@@ -376,6 +387,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                             formatPattern = new String("Err");
                         }
                     }
+
+                    formatPattern = formatPattern.replaceAll(SPECIAL_STRING, "%");
 
                     label = label.trim();
                     label = label.substring(0, label.indexOf("[") + 1) + formatPattern + "]";
@@ -474,6 +487,23 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                 }
             } else if (labelMappedOption != null) {
                 ret = labelMappedOption;
+            }
+        }
+        return ret;
+    }
+
+    private String replaceReservedCharacterFromTrasformationPattern(String label, String search, String replacement) {
+        String ret = label;
+        Matcher matcher = EXTRACT_TRANSFORMFUNCTION_PATTERN_WITHOUT_SQUARE_BRACKETS.matcher(label);
+        if (matcher.find()) {
+            String type = matcher.group(1);
+            String pattern = matcher.group(2);
+            String value = matcher.group(3);
+
+            if (pattern != null) {
+                if (pattern.contains(search)) {
+                    ret = type + "(" + pattern.replaceAll(search, replacement) + "):" + value;
+                }
             }
         }
         return ret;
