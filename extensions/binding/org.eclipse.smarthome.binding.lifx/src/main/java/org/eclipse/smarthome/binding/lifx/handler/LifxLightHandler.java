@@ -74,6 +74,7 @@ import org.slf4j.LoggerFactory;
  * @author Karel Goderis - Rewrite for Firmware V2, and remove dependency on external libraries
  * @author Kai Kreuzer - Added configurable transition time and small fixes
  * @author Wouter Born - Decomposed class into separate objects
+ * @author Pauli Anttila - Added power on temperature and color features.
  */
 public class LifxLightHandler extends BaseThingHandler {
 
@@ -86,6 +87,8 @@ public class LifxLightHandler extends BaseThingHandler {
     private Products product;
 
     private PercentType powerOnBrightness;
+    private HSBType powerOnColor;
+    private PercentType powerOnTemperature;
 
     private String logId;
 
@@ -230,6 +233,8 @@ public class LifxLightHandler extends BaseThingHandler {
             logger.debug("{} : Initializing handler", logId);
 
             powerOnBrightness = getPowerOnBrightness();
+            powerOnColor = getPowerOnColor();
+            powerOnTemperature = getPowerOnTemperature();
 
             channelStates = new HashMap<>();
             currentLightState = new CurrentLightState();
@@ -326,6 +331,39 @@ public class LifxLightHandler extends BaseThingHandler {
         Configuration configuration = channel.getConfiguration();
         Object powerOnBrightness = configuration.get(LifxBindingConstants.CONFIG_PROPERTY_POWER_ON_BRIGHTNESS);
         return powerOnBrightness == null ? null : new PercentType(powerOnBrightness.toString());
+    }
+
+    private HSBType getPowerOnColor() {
+        Channel channel = null;
+
+        if (product.isColor()) {
+            ChannelUID channelUID = new ChannelUID(getThing().getUID(), LifxBindingConstants.CHANNEL_COLOR);
+            channel = getThing().getChannel(channelUID.getId());
+        }
+
+        if (channel == null) {
+            return null;
+        }
+
+        Configuration configuration = channel.getConfiguration();
+        Object powerOnColor = configuration.get(LifxBindingConstants.CONFIG_PROPERTY_POWER_ON_COLOR);
+        return powerOnColor == null ? null : new HSBType(powerOnColor.toString());
+    }
+
+    private PercentType getPowerOnTemperature() {
+        ChannelUID channelUID = new ChannelUID(getThing().getUID(), LifxBindingConstants.CHANNEL_TEMPERATURE);
+        Channel channel = getThing().getChannel(channelUID.getId());
+
+        if (channel == null) {
+            return null;
+        }
+
+        Configuration configuration = channel.getConfiguration();
+        Object powerOnTemperature = configuration.get(LifxBindingConstants.CONFIG_PROPERTY_POWER_ON_TEMPERATURE);
+        if (powerOnTemperature != null) {
+            return new PercentType(powerOnTemperature.toString());
+        }
+        return null;
     }
 
     private Products getProduct() {
@@ -528,6 +566,12 @@ public class LifxLightHandler extends BaseThingHandler {
     }
 
     private void handleOnOffCommand(OnOffType onOff) {
+        if (powerOnColor != null && onOff == OnOffType.ON) {
+            getLightStateForCommand().setColor(powerOnColor);
+        }
+        if (powerOnTemperature != null && onOff == OnOffType.ON) {
+            getLightStateForCommand().setTemperature(powerOnTemperature);
+        }
         if (powerOnBrightness != null) {
             PercentType newBrightness = onOff == OnOffType.ON ? powerOnBrightness : new PercentType(0);
             getLightStateForCommand().setBrightness(newBrightness);
