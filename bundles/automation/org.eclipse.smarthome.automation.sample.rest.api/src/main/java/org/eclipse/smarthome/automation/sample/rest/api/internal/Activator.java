@@ -26,6 +26,8 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -34,6 +36,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  */
 @SuppressWarnings("rawtypes")
 public class Activator implements BundleActivator, ServiceTrackerCustomizer, HttpContext {
+    private static Logger logger = LoggerFactory.getLogger(Activator.class);
 
     static final String ALIAS = "/esh/automation/restdemo";
 
@@ -62,7 +65,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer, Htt
             try {
                 httpService.registerResources(ALIAS, "/res", this);
             } catch (NamespaceException e) {
-                e.printStackTrace();
+                logger.warn("Failed registering resource {}", ALIAS, e);
             }
         }
         return httpService;
