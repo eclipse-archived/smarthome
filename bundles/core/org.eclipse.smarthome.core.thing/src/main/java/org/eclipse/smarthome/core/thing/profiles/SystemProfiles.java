@@ -27,6 +27,7 @@ public interface SystemProfiles {
 
     ProfileTypeUID DEFAULT = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "default");
     ProfileTypeUID FOLLOW = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "follow");
+    ProfileTypeUID TOGGLE = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "toggle");
     ProfileTypeUID RAWBUTTON_TOGGLE_SWITCH = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "rawbutton-toggle-switch");
     ProfileTypeUID RAWROCKER_ON_OFF = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "rawrocker-to-on-off");
     ProfileTypeUID RAWROCKER_DIMMER = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "rawrocker-to-dimmer");
@@ -34,6 +35,8 @@ public interface SystemProfiles {
     StateProfileType DEFAULT_TYPE = ProfileTypeBuilder.newState(DEFAULT, "Default").build();
 
     StateProfileType FOLLOW_TYPE = ProfileTypeBuilder.newState(FOLLOW, "Follow").build();
+
+    StateProfileType TOGGLE_TYPE = ProfileTypeBuilder.newState(TOGGLE, "Toggle").build();
 
     TriggerProfileType RAWBUTTON_TOGGLE_SWITCH_TYPE = ProfileTypeBuilder
             .newTrigger(RAWBUTTON_TOGGLE_SWITCH, "Raw Button Toggle").withSupportedItemTypes(CoreItemFactory.SWITCH)
