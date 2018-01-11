@@ -12,8 +12,14 @@
  */
 package org.eclipse.smarthome.core.thing.internal.profiles;
 
+import static java.util.stream.Collectors.toSet;
+
+import java.util.Set;
+import java.util.stream.Stream;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PlayPauseType;
 import org.eclipse.smarthome.core.library.types.UpDownType;
@@ -43,6 +49,14 @@ import org.eclipse.smarthome.core.types.UnDefType;
  */
 @NonNullByDefault
 public class SystemToggleProfile extends SystemDefaultProfile implements TriggerProfile {
+
+    public static final Set<String> SUPPORTED_ITEM_TYPES = Stream.of(//
+            CoreItemFactory.SWITCH, //
+            CoreItemFactory.DIMMER, //
+            CoreItemFactory.COLOR, //
+            CoreItemFactory.ROLLERSHUTTER, //
+            CoreItemFactory.PLAYER //
+    ).collect(toSet());
 
     private State previousState = UnDefType.NULL;
     private final ProfileCallback callback;

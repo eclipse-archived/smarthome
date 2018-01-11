@@ -102,7 +102,11 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
         }
         switch (channelType.getKind()) {
             case STATE:
-                return SystemProfiles.DEFAULT;
+                if (SystemToggleProfile.SUPPORTED_ITEM_TYPES.contains(itemType)) {
+                    return SystemProfiles.TOGGLE;
+                } else {
+                    return SystemProfiles.DEFAULT;
+                }
             case TRIGGER:
                 if (DefaultSystemChannelTypeProvider.SYSTEM_RAWBUTTON.getUID().equals(channelType.getUID())) {
                     if (CoreItemFactory.SWITCH.equalsIgnoreCase(itemType)) {
@@ -129,7 +133,11 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
         if (channelType == null) {
             switch (channel.getKind()) {
                 case STATE:
-                    return SystemProfiles.DEFAULT;
+                    if (SystemToggleProfile.SUPPORTED_ITEM_TYPES.contains(itemType)) {
+                        return SystemProfiles.TOGGLE;
+                    } else {
+                        return SystemProfiles.DEFAULT;
+                    }
                 case TRIGGER:
                     return null;
                 default:
