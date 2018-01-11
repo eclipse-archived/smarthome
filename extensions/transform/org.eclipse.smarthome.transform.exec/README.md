@@ -15,7 +15,7 @@ String yourItem "Some info  [EXEC(/absolute/path/to/your/TransformProgram %s):]"
   
 **.thing**
 
-This example shows the transformation of the input channel of the Exec Binding with "%2s" and the transformation of the return value of the execution, the output channel, with "%s".
+This example shows the transformation of the output channel of an item.
 ```java
 Thing yourThing [ ... , transform="EXEC(/absolute/path/to/your/TransformProgram %s)"]
 ```
