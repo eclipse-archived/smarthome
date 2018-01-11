@@ -77,8 +77,8 @@ The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4
   <tr><td>parameter</td><td>The description of a concrete configuration parameter (optional).</td></tr>
   <tr><td>parameter.name</td><td>The name of the configuration parameter (mandatory).</td></tr>
   <tr><td>parameter.type</td><td>The data type of the configuration parameter (mandatory).</td></tr>
-  <tr><td>parameter.min</td><td>The minimal value for numeric types, or the minimal length of strings, or the minimal number of selected options (optional).</td></tr>
-  <tr><td>parameter.max</td><td>The maximum value for numeric types, or the maximum length of strings, or the maximum number of selected options (optional).</td></tr>
+  <tr><td>parameter.min</td><td>The minimal value for numeric types, or the minimal length of strings. Note that the value of any options may be outside of this value. (optional).</td></tr>
+  <tr><td>parameter.max</td><td>The maximum value for numeric types, or the maximum length of strings. Note that the value of any options may be outside of this value. (optional).</td></tr>  
   <tr><td>parameter.step</td><td>The value granularity for a numeric value (optional).</td></tr>
   <tr><td>parameter.pattern</td><td>The regular expression for a text type (optional).</td></tr>
   <tr><td>parameter.required</td><td>Specifies whether the value is required (optional).</td></tr>
@@ -95,7 +95,7 @@ The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4
   <tr><td>description</td><td>A human-readable description for the configuration parameter (optional).</td></tr>
   <tr><td>unitLabel</td><td>The unit label represents a human-readable label for the unit. It can also be used to provide unit labels for natural language units as iterations, runs, etc. The unit label must only be set if the type of the parameter is either integer or decimal (optional).</td></tr>
   <tr><td>option</td><td>The element definition of a static selection list (optional).</td></tr>
-  <tr><td>option.value</td><td>The value of the selection list element.</td></tr>
+  <tr><td>option.value</td><td>The value of the selection list element. Note that the value may be outside of the range specified in the min/max if this is specified.</td></tr>
   <tr><td>multipleLimit</td><td>If multiple is true, sets the maximum number of options that can be selected (optional).</td></tr>
   <tr><td>limitToOptions</td><td>If true (default) will only allow the user to select items in the options list. If false, will allow the user to enter other text (optional).</td></tr>
   <tr><td>criteria</td><td>The filter criteria for values of a dynamic selection list (optional).</td></tr>  
@@ -485,7 +485,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <tr><td>state.readOnly</td><td>The flag indicating if the state is read-only or can be modified (optional, default: false).</td></tr>
   <tr><td>options</td><td>A list restricting all possible values (optional).</td></tr>
   <tr><td>option</td><td>The description for the option (optional).</td></tr>
-  <tr><td>option.value</td><td>The value for the option (mandatory).</td></tr>
+  <tr><td>option.value</td><td>The value for the option (mandatory). Note that the value may be outside of the range specified in the min/max if this is specified.</td></tr>
   <tr><td>event</td><td>The restrictions of an trigger event which gives information how to interpret it (optional).</td></tr>
   <tr><td>config-description</td><td>The configuration description for the channel within the ConfigDescriptionRegistry (optional).</td></tr>
   <tr><td>config-description-ref</td><td>The reference to a configuration description for the channel within the ConfigDescriptionRegistry (optional).</td></tr>
