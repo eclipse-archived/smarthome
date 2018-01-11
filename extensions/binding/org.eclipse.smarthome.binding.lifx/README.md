@@ -76,6 +76,10 @@ All devices support some of the following channels:
 
 The *color* and *brightness* channels have a "Power on brightness" configuration option that is used to determine the brightness when a light is switched on. When it is left empty, the brightness of a light remains unchanged when a light is switched on or off.
 
+The *color* channels have a "Power on color" configuration option that is used to determine the hue, saturation, brightness levels when a light is switched on. When it is left empty, the color of a light remains unchanged when a light is switched on or off. Configuration options contains 3 comma separated values, where first value is hue (0-360), second  saturation (0-100) and third brightness (0-100). If both "Power on brightness" and "Power on color" configuration options are defined, "Power on brightness" option overrides the brightness level defined on the "Power on color" configuration option.
+
+The *temperature* channels have a "Power on temperature" configuration option that is used to determine the color temperature when a light is switched on. When it is left empty, the color temperature of a light remains unchanged when a light is switched on or off.
+
 MultiZone lights (*colormzlight*) have serveral channels (e.g. *colorzone0*, *temperaturezone0*, etc.) that allow for controlling specific zones of the light. Changing the *color* and *temperature* channels will update the states of all zones. The *color* and *temperature* channels of MultiZone lights always return the same state as *colorzone0*, *temperaturezone0*.
 
 
@@ -106,6 +110,16 @@ Thing lifx:colorlight:living2 [ deviceId="D073D5A2A2A2" ] {
 Thing lifx:colorirlight:porch [ deviceId="D073D5B2B2B2", host="10.120.130.4", fadetime=0 ] {
     Channels:
         Type color : color [ powerOnBrightness=75 ]
+}
+
+Thing lifx:colorirlight:porch [ deviceId="D073D5B2B2B2", host="10.120.130.4", fadetime=0 ] {
+    Channels:
+        Type temperature : temperature [ powerOnTemperature=20 ]
+}
+
+Thing lifx:colorirlight:porch [ deviceId="D073D5B2B2B2", host="10.120.130.4", fadetime=0 ] {
+    Channels:
+        Type color : color [ powerOnColor="120,100,50" ] // Deep green, 50% brightness
 }
 
 Thing lifx:colormzlight:ceiling [ host="10.120.130.5" ]
