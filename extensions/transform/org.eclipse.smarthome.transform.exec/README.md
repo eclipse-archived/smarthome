@@ -27,7 +27,7 @@ rule "Your Rule Name"
   when
     Item YourTriggeringItem changed
 then
-    var formatted = transform("EXEC","/absolute/path/to/your/TransformProgram ", YourTriggeringItem.state.toString)
+    var formatted = transform("EXEC","/absolute/path/to/your/TransformProgram", YourTriggeringItem.state.toString)
     yourFormattedItem.sendCommand(formatted.toString) 
 end
 ```
