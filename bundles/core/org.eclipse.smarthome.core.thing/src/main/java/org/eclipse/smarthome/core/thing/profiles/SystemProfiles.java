@@ -39,12 +39,11 @@ public interface SystemProfiles {
             .newTrigger(RAWBUTTON_TOGGLE_SWITCH, "Raw Button Toggle").withSupportedItemTypes(CoreItemFactory.SWITCH)
             .withSupportedChannelTypeUIDs(DefaultSystemChannelTypeProvider.SYSTEM_RAWBUTTON.getUID()).build();
 
-    TriggerProfileType RAWROCKER_ON_OFF_TYPE = ProfileTypeBuilder
-            .newTrigger(RAWROCKER_ON_OFF, "Raw Rocker To On Off")
+    TriggerProfileType RAWROCKER_ON_OFF_TYPE = ProfileTypeBuilder.newTrigger(RAWROCKER_ON_OFF, "Raw Rocker To On Off")
             .withSupportedItemTypes(CoreItemFactory.SWITCH, CoreItemFactory.DIMMER)
             .withSupportedChannelTypeUIDs(DefaultSystemChannelTypeProvider.SYSTEM_RAWROCKER.getUID()).build();
 
-    TriggerProfileType RAWROCKER_DIMMER_TYPE = ProfileTypeBuilder
-            .newTrigger(RAWROCKER_DIMMER, "Raw Rocker To Dimmer").withSupportedItemTypes(CoreItemFactory.DIMMER)
+    TriggerProfileType RAWROCKER_DIMMER_TYPE = ProfileTypeBuilder.newTrigger(RAWROCKER_DIMMER, "Raw Rocker To Dimmer")
+            .withSupportedItemTypes(CoreItemFactory.DIMMER)
             .withSupportedChannelTypeUIDs(DefaultSystemChannelTypeProvider.SYSTEM_RAWROCKER.getUID()).build();
 }
