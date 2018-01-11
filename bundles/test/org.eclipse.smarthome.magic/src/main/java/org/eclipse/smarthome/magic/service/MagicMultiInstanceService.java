@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * @author Stefan Triller - initial contribution
  *
  */
-@Component(configurationPolicy = ConfigurationPolicy.REQUIRE, service = MagicMultiInstanceService.class, configurationPid = "org.eclipse.smarthome.magicMultiInstance")
+@Component(immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, service = MagicMultiInstanceService.class, configurationPid = "org.eclipse.smarthome.magicMultiInstance")
 public class MagicMultiInstanceService {
 
     private final Logger logger = LoggerFactory.getLogger(MagicMultiInstanceService.class);

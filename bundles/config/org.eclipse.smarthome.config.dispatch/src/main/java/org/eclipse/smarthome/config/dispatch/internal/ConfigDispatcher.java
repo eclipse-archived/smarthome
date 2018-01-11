@@ -164,8 +164,8 @@ public class ConfigDispatcher {
         String pid = pidWithContext.split(ConfigConstants.SERVICE_CONTEXT_MARKER)[0];
         String context = pidWithContext.split(ConfigConstants.SERVICE_CONTEXT_MARKER)[1];
 
-        Configuration[] configs = configAdmin.listConfigurations(
-                "(&(service.factoryPid=" + pid + ")(" + ConfigConstants.SERVICE_CONTEXT + "=" + context + "))");
+        Configuration[] configs = configAdmin.listConfigurations("(&(" + ConfigurationAdmin.SERVICE_FACTORYPID + "="
+                + pid + ")(" + ConfigConstants.SERVICE_CONTEXT + "=" + context + "))");
 
         if (configs == null || configs.length == 0) {
             return null;

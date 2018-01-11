@@ -37,6 +37,8 @@ configurableServiceDialogController.controller('ConfigurableServiceDialogControl
             }
         })
         if (!found) {
+            // the service context field is the name of this configuration to help the user to distinguish between
+            // multiple configurations because the service.id will be generated randomly, so not useful for a human user
             var eshServiceContextParameter = {
                 label : 'Service Context',
                 name : 'esh.servicecontext',

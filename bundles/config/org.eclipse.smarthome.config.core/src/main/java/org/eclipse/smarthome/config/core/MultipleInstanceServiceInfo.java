@@ -48,7 +48,7 @@ public interface MultipleInstanceServiceInfo {
     /**
      * Get the description URI of this service
      *
-     * @return the URI description of this service
+     * @return the config description URI of this service
      */
     String getConfigDescriptionUri();
 

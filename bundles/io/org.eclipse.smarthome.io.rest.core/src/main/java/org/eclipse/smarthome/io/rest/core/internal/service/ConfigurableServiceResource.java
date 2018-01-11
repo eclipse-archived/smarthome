@@ -47,6 +47,7 @@ import org.eclipse.smarthome.io.rest.core.service.ConfigurableServiceDTO;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -134,7 +135,7 @@ public class ConfigurableServiceResource implements RESTResource {
     }
 
     private List<ConfigurableServiceDTO> collectServicesById(String serviceId) {
-        String filter = "(" + ConfigurableService.SERVICE_PROPERTY_FACTORY_PID + "=" + serviceId + ")";
+        String filter = "(" + ConfigurationAdmin.SERVICE_FACTORYPID + "=" + serviceId + ")";
         return getServicesByFilter(filter);
     }
 
@@ -229,7 +230,7 @@ public class ConfigurableServiceResource implements RESTResource {
         try {
             serviceReferences = RESTCoreActivator.getBundleContext().getServiceReferences((String) null, filter);
         } catch (InvalidSyntaxException ex) {
-            logger.error("Cannot get service references, because syntax is invalid: {}", ex.getMessage(), ex);
+            logger.error("Cannot get service references because syntax of the filter '{}' is invalid.", filter);
         }
 
         if (serviceReferences != null) {
@@ -268,7 +269,7 @@ public class ConfigurableServiceResource implements RESTResource {
 
                     // load all instances for this multi service PID:
                     List<ConfigurableServiceDTO> multiServiceInstances = getServicesByFilter(
-                            "(" + ConfigurableService.SERVICE_PROPERTY_FACTORY_PID + "=" + mis.getServicePID() + ")");
+                            "(" + ConfigurationAdmin.SERVICE_FACTORYPID + "=" + mis.getServicePID() + ")");
                     for (ConfigurableServiceDTO multiInstanceService : multiServiceInstances) {
                         if (multiInstanceService.configDescriptionURI == null) { // append configDescriptionURI to
                                                                                  // multi-context service instances
