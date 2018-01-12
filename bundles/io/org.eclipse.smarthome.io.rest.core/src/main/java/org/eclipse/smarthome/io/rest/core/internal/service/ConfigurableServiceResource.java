@@ -38,7 +38,6 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.ConfigurableService;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.config.core.MultipleInstanceServiceInfo;
 import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.config.ConfigurationService;
@@ -79,8 +78,14 @@ public class ConfigurableServiceResource implements RESTResource {
     /** The URI path to this resource */
     public static final String PATH_SERVICES = "services";
 
-    private static final String CONFIGURABLE_SERVICE_FILTER = "(" + ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI
-            + "=*)";
+    // all singleton services without multi-config services
+    private static final String CONFIGURABLE_SERVICE_FILTER = "(&("
+            + ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI + "=*)(!(" + ConfigurableService.SERVICE_PROPERTY_FACTORY_SERVICE
+            + "=*)))";
+
+    // all multi-config services without singleton services
+    private static final String CONFIGURABLE_MULTI_CONFIG_SERVICE_FILTER = "("
+            + ConfigurableService.SERVICE_PROPERTY_FACTORY_SERVICE + "=*)";
 
     private final Logger logger = LoggerFactory.getLogger(ConfigurableServiceResource.class);
 
@@ -113,6 +118,11 @@ public class ConfigurableServiceResource implements RESTResource {
     }
 
     private ConfigurableServiceDTO getServiceById(String serviceId) {
+        ConfigurableServiceDTO multiService = getMultiConfigServiceById(serviceId);
+        if (multiService != null) {
+            return multiService;
+        }
+
         List<ConfigurableServiceDTO> configurableServices = getConfigurableServices();
         for (ConfigurableServiceDTO configurableService : configurableServices) {
             if (configurableService.id.equals(serviceId)) {
@@ -122,13 +132,23 @@ public class ConfigurableServiceResource implements RESTResource {
         return null;
     }
 
+    private ConfigurableServiceDTO getMultiConfigServiceById(String serviceId) {
+        String filter = "(&(" + Constants.SERVICE_PID + "=" + serviceId + ")(" + ConfigurationAdmin.SERVICE_FACTORYPID
+                + "=*))";
+        List<ConfigurableServiceDTO> services = getServicesByFilter(filter);
+        if (services.size() == 1) {
+            return services.get(0);
+        }
+        return null;
+    }
+
     @GET
     @Path("/{serviceId}/contexts")
     @Produces({ MediaType.APPLICATION_JSON })
-    @ApiOperation(value = "Get existing multiple context service configurations for the given service ID.")
+    @ApiOperation(value = "Get existing multiple context service configurations for the given factory PID.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = ConfigurableServiceDTO.class, responseContainer = "List") })
-    public List<ConfigurableServiceDTO> getMultiConfigServicesById(
+    public List<ConfigurableServiceDTO> getMultiConfigServicesByFactoryPid(
             @PathParam("serviceId") @ApiParam(value = "service ID", required = true) String serviceId) {
         List<ConfigurableServiceDTO> services = collectServicesById(serviceId);
         return services;
@@ -230,7 +250,7 @@ public class ConfigurableServiceResource implements RESTResource {
         try {
             serviceReferences = RESTCoreActivator.getBundleContext().getServiceReferences((String) null, filter);
         } catch (InvalidSyntaxException ex) {
-            logger.error("Cannot get service references because syntax of the filter '{}' is invalid.", filter);
+            logger.error("Cannot get service references because the syntax of the filter '{}' is invalid.", filter);
         }
 
         if (serviceReferences != null) {
@@ -245,43 +265,45 @@ public class ConfigurableServiceResource implements RESTResource {
                 String configDescriptionURI = (String) serviceReference
                         .getProperty(ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI);
 
-                services.add(new ConfigurableServiceDTO(id, label, category, configDescriptionURI, false));
+                if (configDescriptionURI == null) {
+                    String factoryPid = (String) serviceReference.getProperty(ConfigurationAdmin.SERVICE_FACTORYPID);
+                    configDescriptionURI = getConfigDescriptionByFactoryPid(factoryPid);
+                }
+
+                boolean multiple = "true"
+                        .equals(serviceReference.getProperty(ConfigurableService.SERVICE_PROPERTY_FACTORY_SERVICE));
+
+                services.add(new ConfigurableServiceDTO(id, label, category, configDescriptionURI, multiple));
             }
         }
         return services;
     }
 
+    private String getConfigDescriptionByFactoryPid(String factoryPid) {
+        String configDescriptionURI = null;
+
+        String filter = "(" + Constants.SERVICE_PID + "=" + factoryPid + ")";
+
+        try {
+            ServiceReference<?>[] refs = RESTCoreActivator.getBundleContext().getServiceReferences((String) null,
+                    filter);
+
+            if (refs != null && refs.length > 0) {
+                configDescriptionURI = (String) refs[0]
+                        .getProperty(ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI);
+            }
+        } catch (InvalidSyntaxException e) {
+            logger.error("Cannot get service references because the syntax of the filter '{}' is invalid.", filter);
+        }
+        return configDescriptionURI;
+    }
+
     private List<ConfigurableServiceDTO> getConfigurableServices() {
         List<ConfigurableServiceDTO> services = new ArrayList<>();
-        try {
-            services.addAll(getServicesByFilter(CONFIGURABLE_SERVICE_FILTER));
 
-            // obtain the list of services holding metadata on how to create multiple services with different configs
-            ServiceReference<?>[] multiServiceReferences = RESTCoreActivator.getBundleContext()
-                    .getServiceReferences(MultipleInstanceServiceInfo.class.getName(), null);
-            if (multiServiceReferences != null) {
-                for (ServiceReference<?> serviceReference : multiServiceReferences) {
-                    MultipleInstanceServiceInfo mis = (MultipleInstanceServiceInfo) RESTCoreActivator.getBundleContext()
-                            .getService(serviceReference);
+        services.addAll(getServicesByFilter(CONFIGURABLE_SERVICE_FILTER));
+        services.addAll(getServicesByFilter(CONFIGURABLE_MULTI_CONFIG_SERVICE_FILTER));
 
-                    services.add(new ConfigurableServiceDTO(mis.getServicePID(), mis.getLabel(), mis.getCategory(),
-                            mis.getConfigDescriptionUri(), true));
-
-                    // load all instances for this multi service PID:
-                    List<ConfigurableServiceDTO> multiServiceInstances = getServicesByFilter(
-                            "(" + ConfigurationAdmin.SERVICE_FACTORYPID + "=" + mis.getServicePID() + ")");
-                    for (ConfigurableServiceDTO multiInstanceService : multiServiceInstances) {
-                        if (multiInstanceService.configDescriptionURI == null) { // append configDescriptionURI to
-                                                                                 // multi-context service instances
-                            multiInstanceService.configDescriptionURI = mis.getConfigDescriptionUri();
-                            services.add(multiInstanceService);
-                        }
-                    }
-                }
-            }
-        } catch (InvalidSyntaxException ex) {
-            logger.error("Cannot get service references, because syntax is invalid: {}", ex.getMessage(), ex);
-        }
         return services;
     }
 

@@ -49,4 +49,9 @@ public interface ConfigurableService {
      */
     public static final String SERVICE_PROPERTY_CATEGORY = "service.config.category";
 
+    /**
+     * Marker for multiple configurations for this service ("true" = multiple configurations possible)
+     */
+    public static final String SERVICE_PROPERTY_FACTORY_SERVICE = "esh.factoryservice";
+
 }
