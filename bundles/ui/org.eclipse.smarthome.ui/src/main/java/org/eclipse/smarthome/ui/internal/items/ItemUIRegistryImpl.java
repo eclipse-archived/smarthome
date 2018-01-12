@@ -324,8 +324,10 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                 if (updatedPattern != null) {
                     formatPattern = updatedPattern;
 
-                    formatPattern = replaceReservedCharacterFromTrasformationPattern(formatPattern, "%",
-                            SPECIAL_STRING);
+                    if (formatPattern.contains("%")) {
+                        formatPattern = replaceReservedCharacterFromTrasformationPattern(formatPattern, "%",
+                                SPECIAL_STRING);
+                    }
 
                     if (!formatPattern.isEmpty()) {
                         // TODO: TEE: we should find a more generic solution here! When
