@@ -108,9 +108,9 @@ abstract class OSGiTest {
         List<ServiceRegistration<?>> regs = registeredServices.get(interfaceName)
         if (regs == null) {
             regs = []
+            registeredServices.put(interfaceName, regs);
         }
         regs.add(srvReg);
-        registeredServices.put(interfaceName, regs);
     }
 
     /**
@@ -179,12 +179,11 @@ abstract class OSGiTest {
     protected unregisterService(def service) {
         def interfaceName = service instanceof String ? service : getInterfaceName(service)
         def reg = null
-        List<ServiceRegistration<?>> regList = registeredServices.get(interfaceName)
+        List<ServiceRegistration<?>> regList = registeredServices.remove(interfaceName)
 
         if (regList != null) {
             reg = regList.get(0)
             regList.each { it.unregister() }
-            registeredServices.remove(interfaceName)
         }
 
         return reg
