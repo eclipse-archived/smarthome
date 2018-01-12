@@ -22,6 +22,14 @@
         source="http://www.eclipse.org/oomph/setup/UserPreferences"/>
     <setupTask
         xsi:type="setup:CompoundTask"
+        name="org.codehaus.groovy.eclipse.compilerResolver">
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.codehaus.groovy.eclipse.compilerResolver/groovy.compiler.level"
+          value="23"/>
+    </setupTask>
+    <setupTask
+        xsi:type="setup:CompoundTask"
         name="org.eclipse.core.resources">
       <setupTask
           xsi:type="setup:PreferenceTask"
