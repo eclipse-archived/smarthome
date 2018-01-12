@@ -13,7 +13,10 @@
 package org.eclipse.smarthome.ui.internal.proxy;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -259,20 +262,20 @@ public class ProxyServletService extends HttpServlet {
                 State state = itemUIRegistry.getItemState(itemName);
                 if (state != null && state instanceof StringType) {
                     try {
-                        uri = URI.create(state.toString());
+                        uri = new URL(state.toString()).toURI();
                         request.setAttribute(ATTR_URI, uri);
                         return uri;
-                    } catch (IllegalArgumentException ex) {
+                    } catch (MalformedURLException | URISyntaxException ex) {
                         // fall thru
                     }
                 }
             }
 
             try {
-                uri = URI.create(uriString);
+                uri = new URL(uriString).toURI();
                 request.setAttribute(ATTR_URI, uri);
                 return uri;
-            } catch (IllegalArgumentException iae) {
+            } catch (IllegalArgumentException | MalformedURLException | URISyntaxException iae) {
                 throw new ProxyServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                         String.format("URI '%s' is not a valid URI.", uriString));
             }
