@@ -273,8 +273,10 @@ public class DmxChannel extends BaseDmxChannel {
         if ((lastStateValue != value) && (calculationTime - lastStateTimestamp > refreshTime)) {
             // notify value listeners if value changed
             for (Entry<ChannelUID, DmxThingHandler> listener : valueListeners.entrySet()) {
-                (listener.getValue()).updateChannelValue(listener.getKey(), Util.toDmxValue(value >> 8));
-                logger.trace("sending VALUE status update to listener {}", listener.getKey());
+                int dmxValue = Util.toDmxValue(value >> 8);
+                (listener.getValue()).updateChannelValue(listener.getKey(), dmxValue);
+                logger.trace("sending VALUE={} (raw={}) status update to listener {} ({})", dmxValue, value,
+                        listener.getValue(), listener.getKey());
             }
 
             // notify on/off listeners if on/off state changed
@@ -282,7 +284,8 @@ public class DmxChannel extends BaseDmxChannel {
                 OnOffType state = (value == 0) ? OnOffType.OFF : OnOffType.ON;
                 for (Entry<ChannelUID, DmxThingHandler> listener : onOffListeners.entrySet()) {
                     (listener.getValue()).updateState(listener.getKey(), state);
-                    logger.trace("sending ONOFF status update to listener {}", listener.getKey());
+                    logger.trace("sending ONOFF={} (raw={}), status update to listener {}", state, value,
+                            listener.getKey());
                 }
             }
 

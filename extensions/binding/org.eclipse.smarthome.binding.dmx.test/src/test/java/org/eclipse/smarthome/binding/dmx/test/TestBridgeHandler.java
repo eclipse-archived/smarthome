@@ -88,6 +88,12 @@ public class TestBridgeHandler extends DmxBridgeHandler {
     public long calcBuffer(long time, long timespan) {
         universe.calculateBuffer(time);
         universe.calculateBuffer(time + timespan);
+        try {
+            // needed for the framework to process all events
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            logger.error("failed to sleep for 200 ms");
+        }
         return time + timespan;
     }
 
