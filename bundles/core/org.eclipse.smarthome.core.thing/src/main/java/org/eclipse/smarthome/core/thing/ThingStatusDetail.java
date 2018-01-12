@@ -16,7 +16,7 @@ package org.eclipse.smarthome.core.thing;
  * {@link ThingStatusDetail} defines possible status details of a {@link ThingStatusInfo}.
  *
  * @author Stefan Bußweiler - Initial contribution, added new status details
- * @author Chris Jackson - Added THING_GONE
+ * @author Chris Jackson - Added GONE status
  */
 public enum ThingStatusDetail {
     NONE,
@@ -32,10 +32,10 @@ public enum ThingStatusDetail {
     DUTY_CYCLE,
     BRIDGE_UNINITIALIZED,
     /**
-     * Thing has been removed. Used for example when the thing has been removed from its bridge and the thing handler
-     * should be removed.
+     * Device has been removed. Used for example when the device has been removed from its bridge and
+     * the thing handler should be removed.
      */
-    THING_GONE;
+    GONE;
 
     public static OnlineStatus ONLINE = new OnlineStatus();
 
