@@ -295,6 +295,7 @@ public class ColorThingHandler extends DmxThingHandler {
         }
         currentColor = HSBType.fromRGB(currentValues.get(0), currentValues.get(1), currentValues.get(2));
         updateState(new ChannelUID(this.thing.getUID(), CHANNEL_COLOR), currentColor);
-        logger.trace("received update {} in channel {}, result is {}", value, channelUID, currentColor);
+        // TODO: return to trace after problem found
+        logger.debug("received update {} in channel {}, result is {}", value, channelUID, currentColor);
     }
 }

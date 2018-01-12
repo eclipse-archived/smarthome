@@ -302,7 +302,8 @@ public class TunableWhiteThingHandler extends DmxThingHandler {
                     100 * currentValues.get(1) / (currentValues.get(0) + currentValues.get(1)));
             updateState(new ChannelUID(this.thing.getUID(), CHANNEL_COLOR_TEMPERATURE), currentColorTemperature);
         }
-        logger.trace("received update {} for channel {}, resulting in b={}, ct={}", value, channelUID,
+        // TODO: return to trace after problem found
+        logger.debug("received update {} for channel {}, resulting in b={}, ct={}", value, channelUID,
                 currentBrightness, currentColorTemperature);
     }
 }

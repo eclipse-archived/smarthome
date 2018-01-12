@@ -235,7 +235,8 @@ public class DimmerThingHandler extends DmxThingHandler {
             logger.debug("don't know how to handle {}", channelUID.getId());
             return;
         }
-        logger.trace("received update {} in channel {}, resulting in brightness={}", value, channelUID,
+        // TODO: return to trace after problem found
+        logger.debug("received update {} in channel {}, resulting in brightness={}", value, channelUID,
                 currentBrightness);
     }
 }
