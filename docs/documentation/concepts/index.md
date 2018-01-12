@@ -27,8 +27,11 @@ Things do not have to be physical devices; they can also represent a web service
 Things expose their capabilities through **Channels**.
 Whether an installation takes advantage of a particular capability reflected by a Channel depends on whether it has been configured to do so.
 When you configure your system, you do not necessarily have to use every capability offered by a Thing.
+You can find out what Channels are available for a Thing by looking at the documentation of the Thing's Binding.
 
-**Bindings** are add-ons that provide a way to link Items to physical devices, and to abstract the specific communications requirements of that device into a more generic openHAB world of Things, Items and Channels.
+**Bindings** can be thought of as software adapters, making Things available to your home automation system.
+They are add-ons that provide a way to link Items to physical devices.
+They also abstract away the specific communications requirements of that device so that it may be treated more generically by the framework.
 
 **Items** represent capabilities that can be used by applications, either in user interfaces or in automation logic.
 Items have a **State** and they may receive commands.
