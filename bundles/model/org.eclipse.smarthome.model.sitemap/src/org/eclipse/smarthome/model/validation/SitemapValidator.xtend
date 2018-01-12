@@ -21,6 +21,8 @@ import org.eclipse.smarthome.model.sitemap.Sitemap
 import org.eclipse.smarthome.model.sitemap.SitemapPackage
 import org.eclipse.smarthome.model.sitemap.Widget
 import org.eclipse.xtext.validation.Check
+import org.eclipse.smarthome.model.sitemap.Setpoint
+import java.math.BigDecimal
 
 //import org.eclipse.xtext.validation.Check
 /**
@@ -83,4 +85,34 @@ class SitemapValidator extends AbstractSitemapValidator {
 		}
 	}
 
+	@Check
+	def void checkSetpoints(Setpoint sp) {
+	    if(sp.item === null)
+	    {
+	        error("Setpoint without an item defined",
+                    SitemapPackage.Literals.SETPOINT.getEStructuralFeature(SitemapPackage.SETPOINT));
+            return
+	    }
+
+	    if(BigDecimal.ZERO.equals(sp.step))
+	    {
+	        error("Setpoint on item '" +sp.item+ "' has step size of 0",
+                    SitemapPackage.Literals.SETPOINT.getEStructuralFeature(SitemapPackage.SETPOINT__STEP));
+	        return
+	    }
+
+	    if(sp.step < BigDecimal.ZERO)
+        {
+            error("Setpoint on item '" +sp.item+ "' has negative step size",
+                    SitemapPackage.Literals.SETPOINT.getEStructuralFeature(SitemapPackage.SETPOINT__STEP));
+            return
+        }
+
+	    if(sp.minValue > sp.maxValue)
+	    {
+	        error("Setpoint on item '" +sp.item+ "' has larger minValue than maxValue",
+                    SitemapPackage.Literals.SETPOINT.getEStructuralFeature(SitemapPackage.SETPOINT__MIN_VALUE));
+            return
+	    }
+	}
 }
