@@ -18,7 +18,7 @@ The functional view includes focusing on how rules effect representations of phy
 
 It is a bit of an over-simplification, but you can think of the physical view as being a view of the 'real world', and the functional view being a view of the 'software world'.
 
-## Things, Channels, Items and Links
+## Things, Channels, Bindings, Items and Links
 
 **Things** are entities that can be physically added to a system.
 Things may provide more than one function (for example, a Z-Wave multi-sensor may provide a motion detector and also measure room temperature).
@@ -27,8 +27,11 @@ Things do not have to be physical devices; they can also represent a web service
 Things expose their capabilities through **Channels**.
 Whether an installation takes advantage of a particular capability reflected by a Channel depends on whether it has been configured to do so.
 When you configure your system, you do not necessarily have to use every capability offered by a Thing.
-You can find out what Channels are available for a Thing by looking at the documentation of the Thing's **Binding**.
-Bindings can be thought of as software adapters, making Things available to your home automation system.
+You can find out what Channels are available for a Thing by looking at the documentation of the Thing's Binding.
+
+**Bindings** can be thought of as software adapters, making Things available to your home automation system.
+They are add-ons that provide a way to link Items to physical devices.
+They also abstract away the specific communications requirements of that device so that it may be treated more generically by the framework.
 
 **Items** represent capabilities that can be used by applications, either in user interfaces or in automation logic.
 Items have a **State** and they may receive commands.
