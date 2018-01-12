@@ -39,7 +39,7 @@ import org.osgi.framework.ServiceRegistration
 abstract class OSGiTest {
 
     BundleContext bundleContext
-    Map<String, ServiceRegistration> registeredServices = [:]
+    Map<String, List<ServiceRegistration<?>>> registeredServices = [:]
 
     @Before
     public void bindBundleContext() {
@@ -104,6 +104,15 @@ abstract class OSGiTest {
         })
     }
 
+    private void saveServiceRegistration(final String interfaceName, final ServiceRegistration<?> srvReg) {
+        List<ServiceRegistration<?>> regs = registeredServices.get(interfaceName)
+        if (regs == null) {
+            regs = []
+        }
+        regs.add(srvReg);
+        registeredServices.put(interfaceName, regs);
+    }
+
     /**
      * Registers the given object as OSGi service. The first interface is used as OSGi service
      * interface name.
@@ -117,7 +126,7 @@ abstract class OSGiTest {
         assertThat interfaceName, is(notNullValue())
         def ServiceRegistration registration = bundleContext.registerService(interfaceName, service, properties)
         assertThat registration, is(notNullValue())
-        registeredServices.put(interfaceName, registration)
+        saveServiceRegistration(interfaceName, registration)
         return registration
     }
 
@@ -134,9 +143,11 @@ abstract class OSGiTest {
         assertThat interfaceName, is(notNullValue())
         def ServiceRegistration registration = bundleContext.registerService(interfaceName, service, properties);
         assertThat registration, is(notNullValue())
-        registeredServices.put(interfaceName, registration)
+        saveServiceRegistration(interfaceName, registration)
         return registration;
     }
+
+
 
     /**
      * Registers the given object as OSGi service. The given interface names as String array are used as OSGi service
@@ -152,7 +163,7 @@ abstract class OSGiTest {
         def ServiceRegistration registration = bundleContext.registerService(interfaceNames, service, properties)
         assertThat registration, is(notNullValue())
         for (String i : interfaceNames) {
-            registeredServices.put(i, ref)
+            saveServiceRegistration(i, ref)
         }
         return registration;
     }
@@ -163,20 +174,20 @@ abstract class OSGiTest {
      * the service itself the interface name is taken from the first interface of the service object.
      *
      * @param service service or service interface name
-     * @return the service registration that was unregistered or null if no service could be found
+     * @return the first service registration that was unregistered or null if no service could be found
      */
     protected unregisterService(def service) {
         def interfaceName = service instanceof String ? service : getInterfaceName(service)
-        ServiceRegistration reg = registeredServices.remove(interfaceName)
-        if (reg != null) {
-            reg.unregister()
+        def reg = null
+        List<ServiceRegistration<?>> regList = registeredServices.get(interfaceName)
+
+        if (regList != null) {
+            reg = regList.get(0)
+            regList.each { it.unregister() }
+            registeredServices.remove(interfaceName)
         }
-        Iterator<ServiceRegistration> regs = registeredServices.values().iterator()
-        for (ServiceRegistration otherReg : regs) {
-            if (otherReg == reg) {
-                regs.remove()
-            }
-        }
+
+        return reg
     }
 
     /**
@@ -261,8 +272,8 @@ abstract class OSGiTest {
 
     @After
     public void unregisterMocks() {
-        registeredServices.each() { interfaceName, service ->
-            service.unregister()
+        registeredServices.each() { interfaceName, services ->
+            services.each { it.unregister() }
         }
         registeredServices.clear()
     }
