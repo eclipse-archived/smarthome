@@ -108,12 +108,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     /* RegEx to identify format patterns. See java.util.Formatter#formatSpecifier (without the '%' at the very end). */
     protected static final String IDENTIFY_FORMAT_PATTERN_PATTERN = "%(\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z])";
 
-    /*
-     * All % characters from transformation function are replaced temporarily by this special string. String should
-     * be unique and something which transformation function should "never" contain.
-     */
-    private static final String SPECIAL_STRING = "___@@@@##&&##@@@@___";
-
     protected Set<ItemUIProvider> itemUIProviders = new HashSet<ItemUIProvider>();
 
     protected ItemRegistry itemRegistry;
@@ -324,11 +318,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                 if (updatedPattern != null) {
                     formatPattern = updatedPattern;
 
-                    if (formatPattern.contains("%")) {
-                        formatPattern = replaceReservedCharacterFromTrasformationPattern(formatPattern, "%",
-                                SPECIAL_STRING);
-                    }
-
                     if (!formatPattern.isEmpty()) {
                         // TODO: TEE: we should find a more generic solution here! When
                         // using indexes in formatString this 'contains' will fail again
@@ -377,20 +366,20 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                                 }
                             }
                         }
+
                         // The following exception handling has been added to work around a Java bug with formatting
                         // numbers. See http://bugs.sun.com/view_bug.do?bug_id=6476425
                         // Without this catch, the whole sitemap, or page can not be displayed!
                         // This also handles IllegalFormatConversionException, which is a subclass of IllegalArgument.
                         try {
-                            formatPattern = ((Type) state).format(formatPattern);
+                            formatPattern = fillFormatPattern(formatPattern, state);
                         } catch (IllegalArgumentException e) {
+
                             logger.warn("Exception while formatting value '{}' of item {} with format '{}': {}", state,
                                     itemName, formatPattern, e);
                             formatPattern = new String("Err");
                         }
                     }
-
-                    formatPattern = formatPattern.replaceAll(SPECIAL_STRING, "%");
 
                     label = label.trim();
                     label = label.substring(0, label.indexOf("[") + 1) + formatPattern + "]";
@@ -494,18 +483,17 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         return ret;
     }
 
-    private String replaceReservedCharacterFromTrasformationPattern(String label, String search, String replacement) {
-        String ret = label;
-        Matcher matcher = EXTRACT_TRANSFORMFUNCTION_PATTERN_WITHOUT_SQUARE_BRACKETS.matcher(label);
-        if (matcher.find()) {
-            String type = matcher.group(1);
-            String pattern = matcher.group(2);
-            String value = matcher.group(3);
-
-            if (pattern != null) {
-                if (pattern.contains(search)) {
-                    ret = type + "(" + pattern.replaceAll(search, replacement) + "):" + value;
-                }
+    private String fillFormatPattern(String formatPattern, Type state) throws IllegalArgumentException {
+        String ret = formatPattern;
+        if (ret != null && state != null) {
+            Matcher matcher = EXTRACT_TRANSFORMFUNCTION_PATTERN_WITHOUT_SQUARE_BRACKETS.matcher(ret);
+            if (matcher.find()) {
+                String type = matcher.group(1);
+                String pattern = matcher.group(2);
+                String value = matcher.group(3);
+                ret = type + "(" + pattern + "):" + state.format(value);
+            } else {
+                ret = state.format(formatPattern);
             }
         }
         return ret;
