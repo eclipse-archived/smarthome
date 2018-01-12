@@ -207,9 +207,9 @@ public class JavaOSGiTest extends JavaTest {
         List<ServiceRegistration<?>> regs = registeredServices.get(interfaceName);
         if (regs == null) {
             regs = new ArrayList<>();
+            registeredServices.put(interfaceName, regs);
         }
         regs.add(srvReg);
-        registeredServices.put(interfaceName, regs);
     }
 
     /**
@@ -257,11 +257,10 @@ public class JavaOSGiTest extends JavaTest {
      */
     protected ServiceRegistration<?> unregisterService(final String interfaceName) {
         ServiceRegistration<?> reg = null;
-        List<ServiceRegistration<?>> regList = registeredServices.get(interfaceName);
+        List<ServiceRegistration<?>> regList = registeredServices.remove(interfaceName);
         if (regList != null) {
             reg = regList.get(0);
             regList.forEach(r -> r.unregister());
-            registeredServices.remove(interfaceName);
         }
         return reg;
     }
