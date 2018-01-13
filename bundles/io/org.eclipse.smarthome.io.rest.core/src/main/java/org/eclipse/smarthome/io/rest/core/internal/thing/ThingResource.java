@@ -732,14 +732,21 @@ public class ThingResource implements RESTResource {
         }
 
         List<ConfigDescription> configDescriptions = new ArrayList<>(2);
-        ConfigDescription typeConfigDesc = configDescRegistry.getConfigDescription(thingType.getConfigDescriptionURI());
-        if (typeConfigDesc != null) {
-            configDescriptions.add(typeConfigDesc);
+        if (thingType.getConfigDescriptionURI() != null) {
+            ConfigDescription typeConfigDesc = configDescRegistry
+                    .getConfigDescription(thingType.getConfigDescriptionURI());
+            if (typeConfigDesc != null) {
+                configDescriptions.add(typeConfigDesc);
+            }
         }
-        ConfigDescription thingConfigDesc = configDescRegistry.getConfigDescription(getConfigDescriptionURI(thingUID));
-        if (thingConfigDesc != null) {
-            configDescriptions.add(thingConfigDesc);
+        if (getConfigDescriptionURI(thingUID) != null) {
+            ConfigDescription thingConfigDesc = configDescRegistry
+                    .getConfigDescription(getConfigDescriptionURI(thingUID));
+            if (thingConfigDesc != null) {
+                configDescriptions.add(thingConfigDesc);
+            }
         }
+
         if (configDescriptions.isEmpty()) {
             return properties;
         }
