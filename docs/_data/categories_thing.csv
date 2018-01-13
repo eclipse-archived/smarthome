@@ -5,6 +5,7 @@ Camera,"All kinds of cameras",camera.png
 Car,"Smart Cars",
 CleaningRobot,"Vacuum robots, mopping robots, etc.",
 Door,"Door",door.png
+EntryControl,"Entry control devices such as keypads, security control panels etc",
 FrontDoor,"Front Door",frontdoor.png
 GarageDoor,"Garage Door",garagedoor.png
 HVAC,"Air condition devices, Fans",
