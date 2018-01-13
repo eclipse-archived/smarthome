@@ -275,8 +275,7 @@ public class DmxChannel extends BaseDmxChannel {
             for (Entry<ChannelUID, DmxThingHandler> listener : valueListeners.entrySet()) {
                 int dmxValue = Util.toDmxValue(value >> 8);
                 (listener.getValue()).updateChannelValue(listener.getKey(), dmxValue);
-                // TODO: return to trace after problem found
-                logger.debug("sending VALUE={} (raw={}) status update to listener {} ({})", dmxValue, value,
+                logger.trace("sending VALUE={} (raw={}) status update to listener {} ({})", dmxValue, value,
                         listener.getValue(), listener.getKey());
             }
 
@@ -285,8 +284,7 @@ public class DmxChannel extends BaseDmxChannel {
                 OnOffType state = (value == 0) ? OnOffType.OFF : OnOffType.ON;
                 for (Entry<ChannelUID, DmxThingHandler> listener : onOffListeners.entrySet()) {
                     (listener.getValue()).updateState(listener.getKey(), state);
-                    // TODO: return to trace after problem found
-                    logger.debug("sending ONOFF={} (raw={}), status update to listener {}", state, value,
+                    logger.trace("sending ONOFF={} (raw={}), status update to listener {}", state, value,
                             listener.getKey());
                 }
             }
