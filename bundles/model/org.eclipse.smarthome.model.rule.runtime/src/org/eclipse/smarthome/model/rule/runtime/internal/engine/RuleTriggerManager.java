@@ -259,27 +259,6 @@ public class RuleTriggerManager {
     }
 
     private Iterable<Rule> getAllRules(TriggerTypes type, String name) {
-        switch (type) {
-            case STARTUP:
-                return systemStartupTriggeredRules;
-            case SHUTDOWN:
-                return systemShutdownTriggeredRules;
-            case UPDATE:
-                return updateEventTriggeredRules.get(name);
-            case CHANGE:
-                return changedEventTriggeredRules.get(name);
-            case COMMAND:
-                return commandEventTriggeredRules.get(name);
-            case THINGUPDATE:
-                return thingUpdateEventTriggeredRules.get(name);
-            case THINGCHANGE:
-                return thingChangedEventTriggeredRules.get(name);
-            default:
-                return new HashSet<>();
-        }
-    }
-
-    private Iterable<Rule> getRulesOrEmptySet(TriggerTypes type, String name) {
         Iterable<Rule> rules = null;
         switch (type) {
             case STARTUP:
@@ -307,14 +286,124 @@ public class RuleTriggerManager {
                 break;
         }
         if (rules == null) {
-            rules = new HashSet<>();
+            rules = Collections.emptySet();
         }
         return rules;
     }
 
+    private void internalGetUpdateRules(String name, Boolean isGroup, List<Class<? extends State>> acceptedDataTypes,
+            State state, List<Rule> result) {
+        final String mapName = (isGroup) ? GROUP_NAME_PREFIX + name : name;
+        for (Rule rule : getAllRules(UPDATE, mapName)) {
+            for (EventTrigger t : rule.getEventtrigger()) {
+                String triggerStateString = null;
+                if ((!isGroup) && (t instanceof UpdateEventTrigger)) {
+                    final UpdateEventTrigger ut = (UpdateEventTrigger) t;
+                    if (ut.getItem().equals(name)) {
+                        triggerStateString = ut.getState();
+                    } else {
+                        continue;
+                    }
+                } else if ((isGroup) && (t instanceof GroupMemberUpdateEventTrigger)) {
+                    final GroupMemberUpdateEventTrigger gmut = (GroupMemberUpdateEventTrigger) t;
+                    if (gmut.getGroup().equals(name)) {
+                        triggerStateString = gmut.getState();
+                    } else {
+                        continue;
+                    }
+                } else {
+                    continue;
+                }
+                if (triggerStateString != null) {
+                    final State triggerState = TypeParser.parseState(acceptedDataTypes, triggerStateString);
+                    if (!state.equals(triggerState)) {
+                        continue;
+                    }
+                }
+                result.add(rule);
+            }
+        }
+    }
+
+    private void internalGetChangeRules(String name, Boolean isGroup, List<Class<? extends State>> acceptedDataTypes,
+            State newState, State oldState, List<Rule> result) {
+        final String mapName = (isGroup) ? GROUP_NAME_PREFIX + name : name;
+        for (Rule rule : getAllRules(CHANGE, mapName)) {
+            for (EventTrigger t : rule.getEventtrigger()) {
+                String triggerOldStateString = null;
+                String triggerNewStateString = null;
+                if ((!isGroup) && (t instanceof ChangedEventTrigger)) {
+                    final ChangedEventTrigger ct = (ChangedEventTrigger) t;
+                    if (ct.getItem().equals(name)) {
+                        triggerOldStateString = ct.getOldState();
+                        triggerNewStateString = ct.getNewState();
+                    } else {
+                        continue;
+                    }
+                } else if ((isGroup) && (t instanceof GroupMemberChangedEventTrigger)) {
+                    final GroupMemberChangedEventTrigger gmct = (GroupMemberChangedEventTrigger) t;
+                    if (gmct.getGroup().equals(name)) {
+                        triggerOldStateString = gmct.getOldState();
+                        triggerNewStateString = gmct.getNewState();
+                    } else {
+                        continue;
+                    }
+                } else {
+                    continue;
+                }
+                if (triggerOldStateString != null) {
+                    final State triggerOldState = TypeParser.parseState(acceptedDataTypes, triggerOldStateString);
+                    if (!oldState.equals(triggerOldState)) {
+                        continue;
+                    }
+                }
+                if (triggerNewStateString != null) {
+                    final State triggerNewState = TypeParser.parseState(acceptedDataTypes, triggerNewStateString);
+                    if (!newState.equals(triggerNewState)) {
+                        continue;
+                    }
+                }
+                result.add(rule);
+            }
+        }
+    }
+
+    private void internalGetCommandRules(String name, Boolean isGroup,
+            List<Class<? extends Command>> acceptedCommandTypes, Command command, List<Rule> result) {
+        final String mapName = (isGroup) ? GROUP_NAME_PREFIX + name : name;
+        for (Rule rule : getAllRules(COMMAND, mapName)) {
+            for (final EventTrigger t : rule.getEventtrigger()) {
+                String triggerCommandString = null;
+                if ((!isGroup) && (t instanceof CommandEventTrigger)) {
+                    final CommandEventTrigger ct = (CommandEventTrigger) t;
+                    if (ct.getItem().equals(name)) {
+                        triggerCommandString = ct.getCommand();
+                    } else {
+                        continue;
+                    }
+                } else if ((isGroup) && (t instanceof GroupMemberCommandEventTrigger)) {
+                    final GroupMemberCommandEventTrigger gmct = (GroupMemberCommandEventTrigger) t;
+                    if (gmct.getGroup().equals(name)) {
+                        triggerCommandString = gmct.getCommand();
+                    } else {
+                        continue;
+                    }
+                } else {
+                    continue;
+                }
+                if (triggerCommandString != null) {
+                    final Command triggerCommand = TypeParser.parseCommand(acceptedCommandTypes, triggerCommandString);
+                    if (!command.equals(triggerCommand)) {
+                        continue;
+                    }
+                }
+                result.add(rule);
+            }
+        }
+    }
+
     private Iterable<Rule> internalGetRules(TriggerTypes triggerType, Item item, Type oldType, Type newType) {
         List<Rule> result = new ArrayList<>();
-        final String itemName = item.getName();
         switch (triggerType) {
             case STARTUP:
                 return systemStartupTriggeredRules;
@@ -324,142 +413,32 @@ public class RuleTriggerManager {
                 return timerEventTriggeredRules;
             case UPDATE:
                 if (newType instanceof State) {
-                    State state = (State) newType;
-                    for (Rule rule : getRulesOrEmptySet(UPDATE, itemName)) {
-                        for (EventTrigger t : rule.getEventtrigger()) {
-                            if (t instanceof UpdateEventTrigger) {
-                                UpdateEventTrigger ut = (UpdateEventTrigger) t;
-                                if (ut.getItem().equals(itemName)) {
-                                    if (ut.getState() != null) {
-                                        State triggerState = TypeParser.parseState(item.getAcceptedDataTypes(),
-                                                ut.getState());
-                                        if (!state.equals(triggerState)) {
-                                            continue;
-                                        }
-                                    }
-                                    result.add(rule);
-                                }
-                            }
-                        }
-                    }
+                    List<Class<? extends State>> acceptedDataTypes = item.getAcceptedDataTypes();
+                    final State state = (State) newType;
+                    internalGetUpdateRules(item.getName(), false, acceptedDataTypes, state, result);
                     for (String groupName : item.getGroupNames()) {
-                        final String groupNameWithPrefix = GROUP_NAME_PREFIX + groupName;
-                        for (Rule rule : getRulesOrEmptySet(UPDATE, groupNameWithPrefix)) {
-                            for (EventTrigger t : rule.getEventtrigger()) {
-                                if (t instanceof GroupMemberUpdateEventTrigger) {
-                                    GroupMemberUpdateEventTrigger gmut = (GroupMemberUpdateEventTrigger) t;
-                                    if (gmut.getGroup().equals(groupName)) {
-                                        if (gmut.getState() != null) {
-                                            State triggerState = TypeParser.parseState(item.getAcceptedDataTypes(),
-                                                    gmut.getState());
-                                            if (!state.equals(triggerState)) {
-                                                continue;
-                                            }
-                                        }
-                                        result.add(rule);
-                                    }
-                                }
-                            }
-                        }
+                        internalGetUpdateRules(groupName, true, acceptedDataTypes, state, result);
                     }
                 }
                 break;
             case CHANGE:
                 if (newType instanceof State && oldType instanceof State) {
-                    State newState = (State) newType;
-                    State oldState = (State) oldType;
-                    for (Rule rule : getRulesOrEmptySet(CHANGE, itemName)) {
-                        for (EventTrigger t : rule.getEventtrigger()) {
-                            if (t instanceof ChangedEventTrigger) {
-                                ChangedEventTrigger ct = (ChangedEventTrigger) t;
-                                if (ct.getItem().equals(itemName)) {
-                                    if (ct.getOldState() != null) {
-                                        State triggerOldState = TypeParser.parseState(item.getAcceptedDataTypes(),
-                                                ct.getOldState());
-                                        if (!oldState.equals(triggerOldState)) {
-                                            continue;
-                                        }
-                                    }
-                                    if (ct.getNewState() != null) {
-                                        State triggerNewState = TypeParser.parseState(item.getAcceptedDataTypes(),
-                                                ct.getNewState());
-                                        if (!newState.equals(triggerNewState)) {
-                                            continue;
-                                        }
-                                    }
-                                    result.add(rule);
-                                }
-                            }
-                        }
-                    }
+                    List<Class<? extends State>> acceptedDataTypes = item.getAcceptedDataTypes();
+                    final State newState = (State) newType;
+                    final State oldState = (State) oldType;
+                    internalGetChangeRules(item.getName(), false, acceptedDataTypes, newState, oldState, result);
                     for (String groupName : item.getGroupNames()) {
-                        final String groupNameWithPrefix = GROUP_NAME_PREFIX + groupName;
-                        for (Rule rule : getRulesOrEmptySet(CHANGE, groupNameWithPrefix)) {
-                            for (EventTrigger t : rule.getEventtrigger()) {
-                                if (t instanceof GroupMemberChangedEventTrigger) {
-                                    GroupMemberChangedEventTrigger gmct = (GroupMemberChangedEventTrigger) t;
-                                    if (gmct.getGroup().equals(groupName)) {
-                                        if (gmct.getOldState() != null) {
-                                            State triggerOldState = TypeParser.parseState(item.getAcceptedDataTypes(),
-                                                    gmct.getOldState());
-                                            if (!oldState.equals(triggerOldState)) {
-                                                continue;
-                                            }
-                                        }
-                                        if (gmct.getNewState() != null) {
-                                            State triggerNewState = TypeParser.parseState(item.getAcceptedDataTypes(),
-                                                    gmct.getNewState());
-                                            if (!newState.equals(triggerNewState)) {
-                                                continue;
-                                            }
-                                        }
-                                        result.add(rule);
-                                    }
-                                }
-                            }
-                        }
+                        internalGetChangeRules(groupName, true, acceptedDataTypes, newState, oldState, result);
                     }
                 }
                 break;
             case COMMAND:
                 if (newType instanceof Command) {
+                    List<Class<? extends Command>> acceptedCommandTypes = item.getAcceptedCommandTypes();
                     final Command command = (Command) newType;
-                    for (Rule rule : getRulesOrEmptySet(COMMAND, itemName)) {
-                        for (final EventTrigger t : rule.getEventtrigger()) {
-                            if (t instanceof CommandEventTrigger) {
-                                final CommandEventTrigger ct = (CommandEventTrigger) t;
-                                if (ct.getItem().equals(itemName)) {
-                                    if (ct.getCommand() != null) {
-                                        final Command triggerCommand = TypeParser
-                                                .parseCommand(item.getAcceptedCommandTypes(), ct.getCommand());
-                                        if (!command.equals(triggerCommand)) {
-                                            continue;
-                                        }
-                                    }
-                                    result.add(rule);
-                                }
-                            }
-                        }
-                    }
+                    internalGetCommandRules(item.getName(), false, acceptedCommandTypes, command, result);
                     for (String groupName : item.getGroupNames()) {
-                        final String groupNameWithPrefix = GROUP_NAME_PREFIX + groupName;
-                        for (Rule rule : getRulesOrEmptySet(COMMAND, groupNameWithPrefix)) {
-                            for (final EventTrigger t : rule.getEventtrigger()) {
-                                if (t instanceof GroupMemberCommandEventTrigger) {
-                                    final GroupMemberCommandEventTrigger gmct = (GroupMemberCommandEventTrigger) t;
-                                    if (gmct.getGroup().equals(groupName)) {
-                                        if (gmct.getCommand() != null) {
-                                            final Command triggerCommand = TypeParser
-                                                    .parseCommand(item.getAcceptedCommandTypes(), gmct.getCommand());
-                                            if (!command.equals(triggerCommand)) {
-                                                continue;
-                                            }
-                                        }
-                                        result.add(rule);
-                                    }
-                                }
-                            }
-                        }
+                        internalGetCommandRules(groupName, true, acceptedCommandTypes, command, result);
                     }
                 }
                 break;
@@ -473,9 +452,6 @@ public class RuleTriggerManager {
             ThingStatus newStatus) {
         List<Rule> result = new ArrayList<>();
         Iterable<Rule> rules = getAllRules(triggerType, thingUid);
-        if (rules == null) {
-            rules = new ArrayList<>();
-        }
 
         switch (triggerType) {
             case THINGUPDATE:
