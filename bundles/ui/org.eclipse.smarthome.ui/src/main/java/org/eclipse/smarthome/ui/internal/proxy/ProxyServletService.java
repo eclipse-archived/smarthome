@@ -262,7 +262,7 @@ public class ProxyServletService extends HttpServlet {
                 State state = itemUIRegistry.getItemState(itemName);
                 if (state != null && state instanceof StringType) {
                     try {
-                        uri = new URL(state.toString()).toURI();
+                        uri = createURIFromString(state.toString());
                         request.setAttribute(ATTR_URI, uri);
                         return uri;
                     } catch (MalformedURLException | URISyntaxException ex) {
@@ -272,17 +272,23 @@ public class ProxyServletService extends HttpServlet {
             }
 
             try {
-                uri = new URL(uriString).toURI();
+                uri = createURIFromString(uriString);
                 request.setAttribute(ATTR_URI, uri);
                 return uri;
             } catch (IllegalArgumentException | MalformedURLException | URISyntaxException iae) {
                 throw new ProxyServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                        String.format("URI '%s' is not a valid URI.", uriString));
+                        String.format("URL '%s' is not a valid URL.", uriString));
             }
         } catch (ProxyServletException pse) {
             request.setAttribute(ATTR_SERVLET_EXCEPTION, pse);
             return null;
         }
+    }
+
+    private URI createURIFromString(String url) throws MalformedURLException, URISyntaxException {
+        // URI in this context should be valid URL. Therefore before creating URI, create URL,
+        // which validates the string.
+        return new URL(url).toURI();
     }
 
     /**
