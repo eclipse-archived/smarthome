@@ -14,6 +14,8 @@ package org.eclipse.smarthome.ui.basic.internal.render;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -311,5 +313,15 @@ public abstract class AbstractWidgetRenderer implements WidgetRenderer {
                     this.localeProvider.getLocale());
         }
         return result;
+    }
+
+    protected boolean isValidURL(String url) {
+        if (url != null && !url.isEmpty()) {
+            try {
+                return new URL(url).toURI() != null ? true : false;
+            } catch (MalformedURLException | URISyntaxException ex) {
+            }
+        }
+        return false;
     }
 }

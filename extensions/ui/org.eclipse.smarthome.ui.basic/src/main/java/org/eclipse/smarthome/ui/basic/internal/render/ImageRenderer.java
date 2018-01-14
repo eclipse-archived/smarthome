@@ -12,9 +12,6 @@
  */
 package org.eclipse.smarthome.ui.basic.internal.render;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
@@ -88,15 +85,5 @@ public class ImageRenderer extends AbstractWidgetRenderer {
 
         sb.append(snippet);
         return null;
-    }
-
-    private boolean isValidURL(String url) {
-        if (url != null && !url.isEmpty()) {
-            try {
-                return new URL(url).toURI() != null ? true : false;
-            } catch (MalformedURLException | URISyntaxException ex) {
-            }
-        }
-        return false;
     }
 }
