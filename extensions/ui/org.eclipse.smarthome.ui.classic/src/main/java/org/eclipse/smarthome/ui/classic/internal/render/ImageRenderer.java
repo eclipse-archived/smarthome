@@ -12,7 +12,9 @@
  */
 package org.eclipse.smarthome.ui.classic.internal.render;
 
-import java.net.URI;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
@@ -58,14 +60,7 @@ public class ImageRenderer extends AbstractWidgetRenderer {
         if (w.eResource() != null) {
             sitemap = w.eResource().getURI().path();
         }
-        boolean validUrl = false;
-        if (image.getUrl() != null && !image.getUrl().isEmpty()) {
-            try {
-                URI.create(image.getUrl());
-                validUrl = true;
-            } catch (IllegalArgumentException ex) {
-            }
-        }
+        boolean validUrl = isValidURL(image.getUrl());
         String proxiedUrl = "../proxy?sitemap=" + sitemap + "&widgetId=" + widgetId;
         State state = itemUIRegistry.getState(w);
         String url;
@@ -80,5 +75,15 @@ public class ImageRenderer extends AbstractWidgetRenderer {
 
         sb.append(snippet);
         return null;
+    }
+
+    private boolean isValidURL(String url) {
+        if (url != null && !url.isEmpty()) {
+            try {
+                return new URL(url).toURI() != null ? true : false;
+            } catch (MalformedURLException | URISyntaxException ex) {
+            }
+        }
+        return false;
     }
 }
