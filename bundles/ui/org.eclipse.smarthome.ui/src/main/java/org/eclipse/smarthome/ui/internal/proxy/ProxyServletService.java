@@ -73,6 +73,7 @@ public class ProxyServletService extends HttpServlet {
     public static final String PROXY_ALIAS = "proxy";
 
     private static final String CONFIG_MAX_THREADS = "maxThreads";
+    private static final String CONFIG_TIMEOUT = "timeout";
     private static final int DEFAULT_MAX_THREADS = 8;
     public static final String ATTR_URI = ProxyServletService.class.getName() + ".URI";
     public static final String ATTR_SERVLET_EXCEPTION = ProxyServletService.class.getName() + ".ProxyServletException";
@@ -146,6 +147,11 @@ public class ProxyServletService extends HttpServlet {
         if (props.get(CONFIG_MAX_THREADS) == null) {
             props.put(CONFIG_MAX_THREADS,
                     String.valueOf(Math.max(DEFAULT_MAX_THREADS, Runtime.getRuntime().availableProcessors())));
+        }
+
+        // By default disable the timeout for the Jetty proxy server
+        if (props.get(CONFIG_TIMEOUT) == null) {
+            props.put(CONFIG_TIMEOUT, String.valueOf(0));
         }
 
         return props;
