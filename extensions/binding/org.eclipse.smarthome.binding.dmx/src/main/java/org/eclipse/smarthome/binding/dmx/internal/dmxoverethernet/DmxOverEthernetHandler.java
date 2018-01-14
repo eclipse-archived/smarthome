@@ -82,6 +82,7 @@ public abstract class DmxOverEthernetHandler extends DmxBridgeHandler {
         } else {
             logger.debug("socket was already closed when calling closeConnection in bridge {}", this.thing.getUID());
         }
+        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, "UDP socket closed");
     }
 
     @Override
