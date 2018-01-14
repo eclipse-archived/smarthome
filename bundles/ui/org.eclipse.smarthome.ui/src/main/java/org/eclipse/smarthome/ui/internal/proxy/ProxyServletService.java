@@ -275,7 +275,7 @@ public class ProxyServletService extends HttpServlet {
                 uri = createURIFromString(uriString);
                 request.setAttribute(ATTR_URI, uri);
                 return uri;
-            } catch (IllegalArgumentException | MalformedURLException | URISyntaxException iae) {
+            } catch (MalformedURLException | URISyntaxException iae) {
                 throw new ProxyServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                         String.format("URL '%s' is not a valid URL.", uriString));
             }
