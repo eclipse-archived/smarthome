@@ -14,6 +14,7 @@ package org.eclipse.smarthome.transform.jsonpath.internal;
 
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
+import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +55,7 @@ public class JSonPathTransformationService implements TransformationService {
         try {
             Object transformationResult = JsonPath.read(source, jsonPathExpression);
             logger.debug("transformation resulted in '{}'", transformationResult);
-            return (transformationResult != null) ? transformationResult.toString() : source;
+            return (transformationResult != null) ? transformationResult.toString() : UnDefType.NULL.toFullString();
         } catch (PathNotFoundException e) {
             throw new TransformationException("Invalid path '" + jsonPathExpression + "' in '" + source + "'");
         } catch (InvalidPathException | InvalidJsonException e) {

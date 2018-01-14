@@ -16,5 +16,6 @@ Import-Package:
  net.minidev.json.writer,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.transform,
+ org.eclipse.smarthome.core.types,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
