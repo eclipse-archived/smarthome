@@ -1550,7 +1550,11 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      */
     public void setNotificationSoundVolume(PercentType notificationSoundVolume) {
         if (notificationSoundVolume != null) {
-            setVolumeForGroup(notificationSoundVolume);
+            // set new volume only if it is higher than the current volume
+            String volume = getVolume();
+            if (volume == null || notificationSoundVolume.intValue() > PercentType.valueOf(volume).intValue()) {
+                setVolumeForGroup(notificationSoundVolume);
+            }
         }
     }
 
@@ -1560,7 +1564,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     public PercentType getNotificationSoundVolume() {
         Integer notificationSoundVolume = getConfigAs(ZonePlayerConfiguration.class).notificationVolume;
         if (notificationSoundVolume == null) {
-            // if no value is set, we use the curren volume instead
+            // if no value is set we use the current volume instead
             String volume = getVolume();
             if (volume != null) {
                 return new PercentType(volume);
@@ -2390,9 +2394,13 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * @param coordinator - {@link ZonePlayerHandler} coordinator for the SONOS device(s)
      */
     private void applyNotificationSoundVolume() {
-        PercentType volume = getNotificationSoundVolume();
-        if (volume != null) {
-            setVolumeForGroup(volume);
+        PercentType notificationSoundVolume = getNotificationSoundVolume();
+        if (notificationSoundVolume != null) {
+            // set new volume only if it is higher than the current volume
+            String volume = getVolume();
+            if (volume == null || notificationSoundVolume.intValue() > PercentType.valueOf(volume).intValue()) {
+                setVolumeForGroup(notificationSoundVolume);
+            }
         }
     }
 
