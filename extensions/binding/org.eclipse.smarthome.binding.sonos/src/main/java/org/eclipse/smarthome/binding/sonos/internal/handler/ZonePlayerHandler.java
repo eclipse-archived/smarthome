@@ -238,11 +238,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 case NOTIFICATIONSOUND:
                     scheduleNotificationSound(command);
                     break;
-                case NOTIFICATIONVOLUME:
-                    if (command instanceof PercentType) {
-                        setNotificationSoundVolume((PercentType) command);
-                    }
-                    break;
                 case STOP:
                     try {
                         if (command instanceof OnOffType) {

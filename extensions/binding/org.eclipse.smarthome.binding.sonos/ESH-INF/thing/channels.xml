@@ -137,14 +137,6 @@
 		<description>Play a notification sound by a given URI</description>
 	</channel-type>
 
-	<channel-type id="notificationvolume" advanced="true">
-		<item-type>Dimmer</item-type>
-		<label>Notification Sound Volume</label>
-		<description>Set the volume applied to a notification sound</description>
-		<category>SoundVolume</category>
-		<state min="0" max="100" step="1" pattern="%d %%" />
-	</channel-type>
-
 	<channel-type id="playlist" advanced="true">
 		<item-type>String</item-type>
 		<label>Play Playlist</label>
