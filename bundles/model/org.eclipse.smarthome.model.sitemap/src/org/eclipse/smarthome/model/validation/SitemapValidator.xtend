@@ -97,12 +97,12 @@ class SitemapValidator extends AbstractSitemapValidator {
                 SitemapPackage.Literals.SETPOINT.getEStructuralFeature(SitemapPackage.SETPOINT__STEP));
         }
 
-        if (sp.step < BigDecimal.ZERO) {
+        if (sp.step !== null && sp.step < BigDecimal.ZERO) {
             error("Setpoint on item '" + sp.item + "' has negative step size",
                 SitemapPackage.Literals.SETPOINT.getEStructuralFeature(SitemapPackage.SETPOINT__STEP));
         }
 
-        if (sp.minValue > sp.maxValue) {
+        if (sp.minValue !== null && sp.maxValue !== null && sp.minValue > sp.maxValue) {
             error("Setpoint on item '" + sp.item + "' has larger minValue than maxValue",
                 SitemapPackage.Literals.SETPOINT.getEStructuralFeature(SitemapPackage.SETPOINT__MIN_VALUE));
         }
