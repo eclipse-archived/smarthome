@@ -37,7 +37,7 @@ public class MagicMultiInstanceService {
     public void activate(Map<String, Object> properties) {
         logger.debug("activate");
         for (Entry<String, Object> e : properties.entrySet()) {
-            logger.debug(e.getKey() + " : " + e.getValue());
+            logger.debug("{}: {}", e.getKey(), e.getValue());
         }
     }
 
@@ -45,7 +45,7 @@ public class MagicMultiInstanceService {
     public void modified(Map<String, Object> properties) {
         logger.debug("modified");
         for (Entry<String, Object> e : properties.entrySet()) {
-            logger.debug(e.getKey() + " : " + e.getValue());
+            logger.debug("{}: {}", e.getKey(), e.getValue());
         }
     }
 }
