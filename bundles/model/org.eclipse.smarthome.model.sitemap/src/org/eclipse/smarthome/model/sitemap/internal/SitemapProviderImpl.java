@@ -51,7 +51,6 @@ public class SitemapProviderImpl implements SitemapProvider, ModelRepositoryChan
     @Reference
     public void setModelRepository(ModelRepository modelRepo) {
         this.modelRepo = modelRepo;
-        refreshSitemapModels();
     }
 
     public void unsetModelRepository(ModelRepository modelRepo) {
@@ -60,6 +59,7 @@ public class SitemapProviderImpl implements SitemapProvider, ModelRepositoryChan
 
     @Activate
     protected void activate() {
+        refreshSitemapModels();
         modelRepo.addModelRepositoryChangeListener(this);
     }
 
