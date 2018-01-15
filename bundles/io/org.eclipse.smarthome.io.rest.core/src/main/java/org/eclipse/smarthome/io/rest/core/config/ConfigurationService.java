@@ -22,11 +22,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link ConfigurationService} manages configurations in the {@link ConfigurationAdmin}. The config id is the
@@ -39,6 +43,8 @@ import org.osgi.service.component.annotations.Reference;
 public class ConfigurationService {
 
     private ConfigurationAdmin configurationAdmin;
+
+    private final Logger logger = LoggerFactory.getLogger(ConfigurationService.class);
 
     /**
      * Returns a configuration for a config id.
@@ -65,6 +71,18 @@ public class ConfigurationService {
         return update(configId, newConfiguration, false);
     }
 
+    public String getProperty(String servicePID, String key) {
+        try {
+            org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(servicePID, null);
+            if (configuration != null && configuration.getProperties() != null) {
+                return (String) configuration.getProperties().get(key);
+            }
+        } catch (IOException e) {
+            logger.debug("Error while retrieving property {} for PID {}.", key, servicePID);
+        }
+        return null;
+    }
+
     /**
      * Creates or updates a configuration for a config id.
      *
@@ -76,7 +94,21 @@ public class ConfigurationService {
      * @throws IOException if configuration can not be stored
      */
     public Configuration update(String configId, Configuration newConfiguration, boolean override) throws IOException {
-        org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(configId, null);
+        org.osgi.service.cm.Configuration configuration = null;
+        if (newConfiguration.containsKey(ConfigConstants.SERVICE_CONTEXT)) {
+
+            try {
+                configuration = getConfigurationWithContext(configId);
+            } catch (InvalidSyntaxException e) {
+                logger.error("Failed to lookup config for PID '{}'", configId);
+            }
+            if (configuration == null) {
+                configuration = configurationAdmin.createFactoryConfiguration(configId, null);
+            }
+        } else {
+            configuration = configurationAdmin.getConfiguration(configId, null);
+        }
+
         Configuration oldConfiguration = toConfiguration(configuration.getProperties());
         Dictionary<String, Object> properties = getProperties(configuration);
         Set<Entry<String, Object>> configurationParameters = newConfiguration.getProperties().entrySet();
@@ -100,6 +132,22 @@ public class ConfigurationService {
         }
         configuration.update(properties);
         return oldConfiguration;
+    }
+
+    private org.osgi.service.cm.Configuration getConfigurationWithContext(String serviceId)
+            throws IOException, InvalidSyntaxException {
+
+        org.osgi.service.cm.Configuration[] configs = configurationAdmin
+                .listConfigurations("(&(" + Constants.SERVICE_PID + "=" + serviceId + "))");
+
+        if (configs == null) {
+            return null;
+        }
+        if (configs.length > 1) {
+            throw new IllegalStateException("More than one configuration with PID " + serviceId + " exists");
+        }
+
+        return configs[0];
     }
 
     /**

@@ -32,6 +32,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.ConfigUtil;
@@ -45,6 +46,7 @@ import org.eclipse.smarthome.io.rest.core.service.ConfigurableServiceDTO;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -76,8 +78,14 @@ public class ConfigurableServiceResource implements RESTResource {
     /** The URI path to this resource */
     public static final String PATH_SERVICES = "services";
 
-    private static final String CONFIGURABLE_SERVICE_FILTER = "(" + ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI
-            + "=*)";
+    // all singleton services without multi-config services
+    private static final String CONFIGURABLE_SERVICE_FILTER = "(&("
+            + ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI + "=*)(!("
+            + ConfigurableService.SERVICE_PROPERTY_FACTORY_SERVICE + "=*)))";
+
+    // all multi-config services without singleton services
+    private static final String CONFIGURABLE_MULTI_CONFIG_SERVICE_FILTER = "("
+            + ConfigurableService.SERVICE_PROPERTY_FACTORY_SERVICE + "=*)";
 
     private final Logger logger = LoggerFactory.getLogger(ConfigurableServiceResource.class);
 
@@ -110,6 +118,11 @@ public class ConfigurableServiceResource implements RESTResource {
     }
 
     private ConfigurableServiceDTO getServiceById(String serviceId) {
+        ConfigurableServiceDTO multiService = getMultiConfigServiceById(serviceId);
+        if (multiService != null) {
+            return multiService;
+        }
+
         List<ConfigurableServiceDTO> configurableServices = getConfigurableServices();
         for (ConfigurableServiceDTO configurableService : configurableServices) {
             if (configurableService.id.equals(serviceId)) {
@@ -117,6 +130,33 @@ public class ConfigurableServiceResource implements RESTResource {
             }
         }
         return null;
+    }
+
+    private ConfigurableServiceDTO getMultiConfigServiceById(String serviceId) {
+        String filter = "(&(" + Constants.SERVICE_PID + "=" + serviceId + ")(" + ConfigurationAdmin.SERVICE_FACTORYPID
+                + "=*))";
+        List<ConfigurableServiceDTO> services = getServicesByFilter(filter);
+        if (services.size() == 1) {
+            return services.get(0);
+        }
+        return null;
+    }
+
+    @GET
+    @Path("/{serviceId}/contexts")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @ApiOperation(value = "Get existing multiple context service configurations for the given factory PID.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ConfigurableServiceDTO.class, responseContainer = "List") })
+    public List<ConfigurableServiceDTO> getMultiConfigServicesByFactoryPid(
+            @PathParam("serviceId") @ApiParam(value = "service ID", required = true) String serviceId) {
+        List<ConfigurableServiceDTO> services = collectServicesById(serviceId);
+        return services;
+    }
+
+    private List<ConfigurableServiceDTO> collectServicesById(String serviceId) {
+        String filter = "(" + ConfigurationAdmin.SERVICE_FACTORYPID + "=" + serviceId + ")";
+        return getServicesByFilter(filter);
     }
 
     @GET
@@ -204,25 +244,66 @@ public class ConfigurableServiceResource implements RESTResource {
         }
     }
 
+    private List<ConfigurableServiceDTO> getServicesByFilter(String filter) {
+        List<ConfigurableServiceDTO> services = new ArrayList<>();
+        ServiceReference<?>[] serviceReferences = null;
+        try {
+            serviceReferences = RESTCoreActivator.getBundleContext().getServiceReferences((String) null, filter);
+        } catch (InvalidSyntaxException ex) {
+            logger.error("Cannot get service references because the syntax of the filter '{}' is invalid.", filter);
+        }
+
+        if (serviceReferences != null) {
+            for (ServiceReference<?> serviceReference : serviceReferences) {
+                String id = getServiceId(serviceReference);
+                String label = (String) serviceReference.getProperty(ConfigurableService.SERVICE_PROPERTY_LABEL);
+                if (label == null) { // for multi context services the label can be changed and must be read from config
+                                     // admin.
+                    label = configurationService.getProperty(id, ConfigConstants.SERVICE_CONTEXT);
+                }
+                String category = (String) serviceReference.getProperty(ConfigurableService.SERVICE_PROPERTY_CATEGORY);
+                String configDescriptionURI = (String) serviceReference
+                        .getProperty(ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI);
+
+                if (configDescriptionURI == null) {
+                    String factoryPid = (String) serviceReference.getProperty(ConfigurationAdmin.SERVICE_FACTORYPID);
+                    configDescriptionURI = getConfigDescriptionByFactoryPid(factoryPid);
+                }
+
+                boolean multiple = Boolean.parseBoolean(
+                        (String) serviceReference.getProperty(ConfigurableService.SERVICE_PROPERTY_FACTORY_SERVICE));
+
+                services.add(new ConfigurableServiceDTO(id, label, category, configDescriptionURI, multiple));
+            }
+        }
+        return services;
+    }
+
+    private String getConfigDescriptionByFactoryPid(String factoryPid) {
+        String configDescriptionURI = null;
+
+        String filter = "(" + Constants.SERVICE_PID + "=" + factoryPid + ")";
+
+        try {
+            ServiceReference<?>[] refs = RESTCoreActivator.getBundleContext().getServiceReferences((String) null,
+                    filter);
+
+            if (refs != null && refs.length > 0) {
+                configDescriptionURI = (String) refs[0]
+                        .getProperty(ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI);
+            }
+        } catch (InvalidSyntaxException e) {
+            logger.error("Cannot get service references because the syntax of the filter '{}' is invalid.", filter);
+        }
+        return configDescriptionURI;
+    }
+
     private List<ConfigurableServiceDTO> getConfigurableServices() {
         List<ConfigurableServiceDTO> services = new ArrayList<>();
-        try {
-            ServiceReference<?>[] serviceReferences = RESTCoreActivator.getBundleContext()
-                    .getServiceReferences((String) null, CONFIGURABLE_SERVICE_FILTER);
-            if (serviceReferences != null) {
-                for (ServiceReference<?> serviceReference : serviceReferences) {
-                    String id = getServiceId(serviceReference);
-                    String label = (String) serviceReference.getProperty(ConfigurableService.SERVICE_PROPERTY_LABEL);
-                    String category = (String) serviceReference
-                            .getProperty(ConfigurableService.SERVICE_PROPERTY_CATEGORY);
-                    String configDescriptionURI = (String) serviceReference
-                            .getProperty(ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI);
-                    services.add(new ConfigurableServiceDTO(id, label, category, configDescriptionURI));
-                }
-            }
-        } catch (InvalidSyntaxException ex) {
-            logger.error("Cannot get service references, because syntax is invalid: {}", ex.getMessage(), ex);
-        }
+
+        services.addAll(getServicesByFilter(CONFIGURABLE_SERVICE_FILTER));
+        services.addAll(getServicesByFilter(CONFIGURABLE_MULTI_CONFIG_SERVICE_FILTER));
+
         return services;
     }
 

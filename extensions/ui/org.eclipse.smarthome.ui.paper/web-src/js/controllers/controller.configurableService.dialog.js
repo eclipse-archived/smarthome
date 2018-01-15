@@ -1,6 +1,6 @@
 var configurableServiceDialogController = angular.module('PaperUI.controllers.configurableServiceDialog', [ 'PaperUI.services', 'PaperUI.services.rest', 'ngMaterial', 'PaperUI.directive.parameterDescription', 'PaperUI.directive.locationParameter' ]);
 
-configurableServiceDialogController.controller('ConfigurableServiceDialogController', function($scope, $mdDialog, configService, serviceConfigService, configDescriptionService, toastService, serviceId, configDescriptionURI) {
+configurableServiceDialogController.controller('ConfigurableServiceDialogController', function($scope, $mdDialog, configService, serviceConfigService, configDescriptionService, toastService, serviceId, configDescriptionURI, multiple) {
 
     var loadService = function(serviceId) {
         serviceConfigService.getById({
@@ -29,6 +29,28 @@ configurableServiceDialogController.controller('ConfigurableServiceDialogControl
         }).then(applyDefaults(configDescriptionURI));
     }
 
+    var addESHServiceContextParameter = function(configDescription) {
+        var found = false;
+        angular.forEach(configDescription.parameters, function(parameter) {
+            if (parameter.name === 'esh.servicecontext') {
+                found = true;
+            }
+        })
+        if (!found) {
+            // the service context field is the name of this configuration to help the user to distinguish between
+            // multiple configurations because the service.id will be generated randomly, so not useful for a human user
+            var eshServiceContextParameter = {
+                label : 'Service Context',
+                name : 'esh.servicecontext',
+                description : 'Label to recognize this configuration',
+                type : 'TEXT',
+                required : true
+            }
+
+            configDescription.parameters.splice(0, 0, eshServiceContextParameter);
+        }
+    }
+
     var applyDefaults = function(configDescriptionURI) {
         if (!configDescriptionURI) {
             return;
@@ -38,6 +60,9 @@ configurableServiceDialogController.controller('ConfigurableServiceDialogControl
             uri : configDescriptionURI
         }).$promise.then(function(configDescription) {
             if (configDescription) {
+                if (multiple) {
+                    addESHServiceContextParameter(configDescription);
+                }
                 $scope.parameters = configService.getRenderingModel(configDescription.parameters, configDescription.parameterGroups);
                 $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
             }
