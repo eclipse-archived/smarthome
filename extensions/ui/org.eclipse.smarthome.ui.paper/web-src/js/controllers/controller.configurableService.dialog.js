@@ -42,6 +42,7 @@ configurableServiceDialogController.controller('ConfigurableServiceDialogControl
             var eshServiceContextParameter = {
                 label : 'Service Context',
                 name : 'esh.servicecontext',
+                description : 'Human readable name of this configuration',
                 type : 'TEXT',
                 required : true
             }

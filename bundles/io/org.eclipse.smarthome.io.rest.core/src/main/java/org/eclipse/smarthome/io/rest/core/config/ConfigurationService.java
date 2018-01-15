@@ -138,7 +138,7 @@ public class ConfigurationService {
             throws IOException, InvalidSyntaxException {
 
         org.osgi.service.cm.Configuration[] configs = configurationAdmin
-                .listConfigurations("(&(service.pid=" + serviceId + "))");
+                .listConfigurations("(&(" + Constants.SERVICE_PID + "=" + serviceId + "))");
 
         if (configs == null) {
             return null;

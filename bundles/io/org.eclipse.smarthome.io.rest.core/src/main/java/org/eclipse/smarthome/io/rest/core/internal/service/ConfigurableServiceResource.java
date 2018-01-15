@@ -80,8 +80,8 @@ public class ConfigurableServiceResource implements RESTResource {
 
     // all singleton services without multi-config services
     private static final String CONFIGURABLE_SERVICE_FILTER = "(&("
-            + ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI + "=*)(!(" + ConfigurableService.SERVICE_PROPERTY_FACTORY_SERVICE
-            + "=*)))";
+            + ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI + "=*)(!("
+            + ConfigurableService.SERVICE_PROPERTY_FACTORY_SERVICE + "=*)))";
 
     // all multi-config services without singleton services
     private static final String CONFIGURABLE_MULTI_CONFIG_SERVICE_FILTER = "("
@@ -270,8 +270,8 @@ public class ConfigurableServiceResource implements RESTResource {
                     configDescriptionURI = getConfigDescriptionByFactoryPid(factoryPid);
                 }
 
-                boolean multiple = "true"
-                        .equals(serviceReference.getProperty(ConfigurableService.SERVICE_PROPERTY_FACTORY_SERVICE));
+                boolean multiple = Boolean.parseBoolean(
+                        (String) serviceReference.getProperty(ConfigurableService.SERVICE_PROPERTY_FACTORY_SERVICE));
 
                 services.add(new ConfigurableServiceDTO(id, label, category, configDescriptionURI, multiple));
             }

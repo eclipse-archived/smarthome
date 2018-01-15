@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.magic.service;
 
+import org.eclipse.smarthome.config.core.ConfigurableService;
+import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Component;
 
 /**
@@ -21,9 +23,11 @@ import org.osgi.service.component.annotations.Component;
  */
 
 @Component(immediate = true, service = MagicMultiInstanceServiceMarker.class, property = {
-        "service.pid=org.eclipse.smarthome.magicMultiInstance", "esh.factoryservice=true",
-        "service.config.label=MagicMultiInstanceService", "service.config.category=test",
-        "service.config.description.uri=test:multipleMagic" })
+        Constants.SERVICE_PID + "=org.eclipse.smarthome.magicMultiInstance",
+        ConfigurableService.SERVICE_PROPERTY_FACTORY_SERVICE + "=true",
+        ConfigurableService.SERVICE_PROPERTY_LABEL + "=MagicMultiInstanceService",
+        ConfigurableService.SERVICE_PROPERTY_CATEGORY + "=test",
+        ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI + "=test:multipleMagic" })
 public class MagicMultiInstanceServiceMarker {
     // this is a marker service and represents a service factory so multiple configuration instances of type
     // "org.eclipse.smarthome.magicMultiInstance" can be created.
