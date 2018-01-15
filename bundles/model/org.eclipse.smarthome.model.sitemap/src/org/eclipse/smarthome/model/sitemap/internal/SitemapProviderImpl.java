@@ -12,13 +12,21 @@
  */
 package org.eclipse.smarthome.model.sitemap.internal;
 
-import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.smarthome.model.core.EventType;
 import org.eclipse.smarthome.model.core.ModelRepository;
+import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapProvider;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,14 +36,19 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public class SitemapProviderImpl implements SitemapProvider {
+@Component(service = SitemapProvider.class)
+public class SitemapProviderImpl implements SitemapProvider, ModelRepositoryChangeListener {
 
-    protected static final String SITEMAP_FILEEXT = ".sitemap";
+    private static final String SITEMAP_MODEL_NAME = "sitemap";
+    protected static final String SITEMAP_FILEEXT = "." + SITEMAP_MODEL_NAME;
 
     private final Logger logger = LoggerFactory.getLogger(SitemapProviderImpl.class);
 
     private ModelRepository modelRepo = null;
 
+    private final Map<String, Sitemap> sitemapModelCache = new ConcurrentHashMap<>();
+
+    @Reference
     public void setModelRepository(ModelRepository modelRepo) {
         this.modelRepo = modelRepo;
     }
@@ -44,39 +57,60 @@ public class SitemapProviderImpl implements SitemapProvider {
         this.modelRepo = null;
     }
 
+    @Activate
+    protected void activate() {
+        refreshSitemapModels();
+        modelRepo.addModelRepositoryChangeListener(this);
+    }
+
+    @Deactivate
+    protected void deactivate() {
+        if (modelRepo != null) {
+            modelRepo.removeModelRepositoryChangeListener(this);
+        }
+        sitemapModelCache.clear();
+    }
+
     @Override
     public Sitemap getSitemap(String sitemapName) {
-        if (modelRepo != null) {
-            String filename = sitemapName + ".sitemap";
-            Sitemap sitemap = (Sitemap) modelRepo.getModel(filename);
-            if (sitemap != null) {
-                if (!sitemap.getName().equals(sitemapName)) {
-                    logger.warn(
-                            "Filename `{}` does not match the name `{}` of the sitemap - please fix this as you might see unexpected behavior otherwise.",
-                            filename, sitemap.getName());
-                }
-                return sitemap;
-            } else {
-                logger.trace("Sitemap {} cannot be found", sitemapName);
-                return null;
+        String filename = sitemapName + SITEMAP_FILEEXT;
+        Sitemap sitemap = sitemapModelCache.get(filename);
+        if (sitemap != null) {
+            if (!sitemap.getName().equals(sitemapName)) {
+                logger.warn(
+                        "Filename `{}` does not match the name `{}` of the sitemap - please fix this as you might see unexpected behavior otherwise.",
+                        filename, sitemap.getName());
             }
+            return sitemap;
         } else {
-            logger.debug("No model repository service is available");
+            logger.trace("Sitemap {} cannot be found", sitemapName);
             return null;
         }
     }
 
     @Override
     public Set<String> getSitemapNames() {
-        Set<String> names = new HashSet<>();
-        if (modelRepo != null) {
-            for (String name : modelRepo.getAllModelNamesOfType("sitemap")) {
-                names.add(StringUtils.removeEnd(name, SITEMAP_FILEEXT));
+        return sitemapModelCache.keySet().stream().map(name -> StringUtils.removeEnd(name, SITEMAP_FILEEXT))
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public void modelChanged(String modelName, EventType type) {
+        if (modelName.endsWith(SITEMAP_FILEEXT)) {
+            if (type == EventType.REMOVED) {
+                sitemapModelCache.remove(modelName);
+            } else {
+                sitemapModelCache.put(modelName, (Sitemap) modelRepo.getModel(modelName));
             }
-        } else {
-            logger.debug("No model repository service is available");
         }
-        return names;
+    }
+
+    private void refreshSitemapModels() {
+        sitemapModelCache.clear();
+        Iterable<String> sitemapNames = modelRepo.getAllModelNamesOfType(SITEMAP_MODEL_NAME);
+        for (String sitemapName : sitemapNames) {
+            sitemapModelCache.put(sitemapName, (Sitemap) modelRepo.getModel(sitemapName));
+        }
     }
 
 }
