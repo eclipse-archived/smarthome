@@ -102,6 +102,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
     /* RegEx to extract and parse a function String <code>'\[(.*?)\((.*)\):(.*)\]'</code> */
     protected static final Pattern EXTRACT_TRANSFORMFUNCTION_PATTERN = Pattern.compile("\\[(.*?)\\((.*)\\):(.*)\\]");
+    protected static final Pattern EXTRACT_TRANSFORMFUNCTION_PATTERN_WITHOUT_SQUARE_BRACKETS = Pattern
+            .compile("(.*?)\\((.*)\\):(.*)");
 
     /* RegEx to identify format patterns. See java.util.Formatter#formatSpecifier (without the '%' at the very end). */
     protected static final String IDENTIFY_FORMAT_PATTERN_PATTERN = "%(\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z])";
@@ -364,13 +366,15 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                                 }
                             }
                         }
+
                         // The following exception handling has been added to work around a Java bug with formatting
                         // numbers. See http://bugs.sun.com/view_bug.do?bug_id=6476425
                         // Without this catch, the whole sitemap, or page can not be displayed!
                         // This also handles IllegalFormatConversionException, which is a subclass of IllegalArgument.
                         try {
-                            formatPattern = ((Type) state).format(formatPattern);
+                            formatPattern = fillFormatPattern(formatPattern, state);
                         } catch (IllegalArgumentException e) {
+
                             logger.warn("Exception while formatting value '{}' of item {} with format '{}': {}", state,
                                     itemName, formatPattern, e.getMessage());
                             formatPattern = new String("Err");
@@ -475,6 +479,22 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                 }
             } else if (labelMappedOption != null) {
                 ret = labelMappedOption;
+            }
+        }
+        return ret;
+    }
+
+    private String fillFormatPattern(String formatPattern, Type state) throws IllegalArgumentException {
+        String ret = formatPattern;
+        if (ret != null && state != null) {
+            Matcher matcher = EXTRACT_TRANSFORMFUNCTION_PATTERN_WITHOUT_SQUARE_BRACKETS.matcher(ret);
+            if (matcher.find()) {
+                String type = matcher.group(1);
+                String pattern = matcher.group(2);
+                String value = matcher.group(3);
+                ret = type + "(" + pattern + "):" + state.format(value);
+            } else {
+                ret = state.format(formatPattern);
             }
         }
         return ret;

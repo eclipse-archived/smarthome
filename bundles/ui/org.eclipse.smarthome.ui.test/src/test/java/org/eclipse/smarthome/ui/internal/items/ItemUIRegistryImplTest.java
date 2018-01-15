@@ -184,7 +184,7 @@ public class ItemUIRegistryImplTest {
         String label = uiRegistry.getLabel(w);
         assertEquals("Label [01.06.2011]", label);
     }
-    
+
     @Test
     public void getLabel_labelWithTime() throws ItemNotFoundException {
         String testLabel = "Label [%1$tT]";
@@ -194,7 +194,7 @@ public class ItemUIRegistryImplTest {
         when(w.getItem()).thenReturn("Item");
         when(registry.getItem("Item")).thenReturn(item);
         when(item.getState()).thenReturn(new DateTimeType("2011-06-01T15:30:59"));
-        
+
         String label = uiRegistry.getLabel(w);
         assertEquals("Label [15:30:59]", label);
     }
@@ -208,11 +208,11 @@ public class ItemUIRegistryImplTest {
         when(w.getItem()).thenReturn("Item");
         when(registry.getItem("Item")).thenReturn(item);
         when(item.getState()).thenReturn(new DateTimeType("2011-06-01T15:30:59Z"));
-        
+
         String label = uiRegistry.getLabel(w);
         assertEquals("Label [15:30:59]", label);
     }
-    
+
     @Test
     public void getLabel_widgetWithoutLabelAndItem() throws ItemNotFoundException {
         Widget w = mock(Widget.class);
@@ -518,6 +518,20 @@ public class ItemUIRegistryImplTest {
         when(item.getState()).thenReturn(new StringType("State"));
         String label = uiRegistry.getLabel(w);
         assertEquals("Label [State]", label);
+    }
+
+    @Test
+    public void getLabel_transformationContainingPercentS() throws ItemNotFoundException {
+        // It doesn't matter that "FOO" doesn't exist - this is to assert it doesn't fail before because of the two "%s"
+        String testLabel = "Memory [FOO(echo %s):%s]";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getState()).thenReturn(new StringType("State"));
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Memory [State]", label);
     }
 
 }
