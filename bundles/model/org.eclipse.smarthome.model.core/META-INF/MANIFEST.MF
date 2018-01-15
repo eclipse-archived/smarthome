@@ -25,7 +25,6 @@ Import-Package:
  org.eclipse.emf.ecore.util,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
- org.eclipse.smarthome.core.common,
  org.eclipse.smarthome.core.service,
  org.eclipse.smarthome.model.core,
  org.eclipse.xtext.common.types.impl,
