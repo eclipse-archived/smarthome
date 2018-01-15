@@ -87,11 +87,6 @@ class SitemapValidator extends AbstractSitemapValidator {
 
     @Check
     def void checkSetpoints(Setpoint sp) {
-        if (sp.item === null) {
-            error("Setpoint without an item defined",
-                SitemapPackage.Literals.SETPOINT.getEStructuralFeature(SitemapPackage.SETPOINT));
-        }
-
         if (BigDecimal.ZERO == sp.step) {
             error("Setpoint on item '" + sp.item + "' has step size of 0",
                 SitemapPackage.Literals.SETPOINT.getEStructuralFeature(SitemapPackage.SETPOINT__STEP));
