@@ -28,11 +28,43 @@ The following item types are currently available (alphabetical order):
 | String         | Stores texts | String |
 | Switch         | Typically used for lights (on/off) | OnOff |
 
-Group Items can derive their own state depending on their member items.
+## Group Items
 
-- AVG displays the average of the item states in the group.
-- OR displays an OR of the group, typically used to display whether any item in a group has been set.
-- other aggregations: AND, SUM, MIN, MAX, NAND, NOR
+Group items collect other items into groups.
+Group items can themselves be members of other group items.
+Cyclic membership is not forbidden but strongly not recommended.
+User interfaces might display group items as single entries and provide navigation to its members.
+
+Example for a Group item as a simple collection of other items:
+```
+    Group groundFloor
+    Switch kitchenLight (groundFloor)
+    Switch livingroomLight (groundFloor)
+``` 
+
+### Derive Group State from Member Items
+
+Group items can derive their own state from their member items.
+To derive a state the group item must be constructed using a base item and a group function.
+When calculating the state, group functions recursively traverse the group's members and also take members of subgroups into account.
+If a subgroup however defines a state on its own (having base item & group function set) traversal stops and the state of the subgroup member is taken. 
+
+Available group functions:
+
+| Function           | Parameters                    | Base Item                                   | Description                                                                                                                                     |
+|--------------------|-------------------------------|---------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| EQUALITY           | -                             | \<all\>                                     | Sets the state of the members if all have equal state. Otherwise UNDEF is set.                                                                  |
+| AND, OR, NAND, NOR | <activeState>, <passiveState> | \<all\> (must match active & passive state) | Sets the \<activeState\>, if the member state \<activeState\> evaluates to `true` under the boolean term. Otherwise the \<passiveState\> is set.|
+| SUM, AVG, MIN, MAX | -                             | Number                                      | Sets the state according to the arithmetic function over all member states.                                                                     |
+| COUNT              | <regular expression>          | Number                                      | Sets the state to the number of members matching the given regular expression with their states.                                                |
+
+
+Examples for derived states on group items when declared in the item DSL:
+
+- `Group:Number:COUNT(".*")` counts all members of the group matching the given regular expression, here any character or state (simply count all members).
+- `Group:Number:AVG` calculates the average value over all member states which can be interpreted as `DecimalTypes`.
+- `Group:Switch:OR(ON,OFF)` sets the group state to `ON` if any of its members has the state `ON`, `OFF` if all are off.    
+- `Group:Switch:AND(ON,OFF)` sets the group state to `ON` if all of its members have the state `ON`, `OFF` if any of the group members has a different state than `ON`.
 
 ## State and Command Type Formatting
 

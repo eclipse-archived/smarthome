@@ -33,10 +33,12 @@ import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction;
+import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.RawType;
+import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -194,6 +196,128 @@ public class GroupItemTest extends JavaOSGiTest {
 
         members = rootGroupItem.getMembers(i -> i.getLabel().equals("mem1"));
         assertThat(members.size(), is(2));
+    }
+
+    @Test
+    public void testGetMembersFilteringGroups() {
+        GroupItem rootGroupItem = new GroupItem("root");
+
+        TestItem member1 = new TestItem("member1");
+        member1.setLabel("mem1");
+        rootGroupItem.addMember(member1);
+
+        GroupItem subGroup = new GroupItem("subGroup1");
+        subGroup.setLabel("subGrp1");
+        TestItem subMember1 = new TestItem("subGroup member 1");
+        subMember1.setLabel("subMem1");
+        subGroup.addMember(subMember1);
+
+        rootGroupItem.addMember(subGroup);
+
+        Set<Item> members = rootGroupItem
+                .getMembers(i -> !(i instanceof GroupItem) && i.getGroupNames().contains(rootGroupItem.getName()));
+        assertThat(members.size(), is(1));
+    }
+
+    @Test
+    public void testGetMembersFilteringGroupsTransient() {
+        GroupItem rootGroupItem = new GroupItem("root");
+
+        TestItem member1 = new TestItem("member1");
+        member1.setLabel("mem1");
+        rootGroupItem.addMember(member1);
+
+        GroupItem subGroup = new GroupItem("subGroup1");
+        subGroup.setLabel("subGrp1");
+        TestItem subMember1 = new TestItem("subGroup member 1");
+        subMember1.setLabel("subMem1");
+        subGroup.addMember(subMember1);
+
+        rootGroupItem.addMember(subGroup);
+
+        Set<Item> members = rootGroupItem.getMembers(i -> !(i instanceof GroupItem));
+        assertThat(members.size(), is(2));
+    }
+
+    @Test
+    public void testGetStateAs_shouldEqualStateUpdate() {
+        // Main group uses AND function
+        GroupItem rootGroupItem = new GroupItem("root", new SwitchItem("baseItem"),
+                new ArithmeticGroupFunction.And(OnOffType.ON, OnOffType.OFF));
+        TestItem member1 = new TestItem("member1");
+        rootGroupItem.addMember(member1);
+        TestItem member2 = new TestItem("member2");
+        rootGroupItem.addMember(member2);
+
+        // Sub-group uses NAND function
+        GroupItem subGroup = new GroupItem("subGroup1", new SwitchItem("baseItem"),
+                new ArithmeticGroupFunction.NAnd(OnOffType.ON, OnOffType.OFF));
+        TestItem subMember = new TestItem("subGroup member 1");
+        subGroup.addMember(subMember);
+        rootGroupItem.addMember(subGroup);
+
+        member1.setState(OnOffType.ON);
+        member2.setState(OnOffType.ON);
+        subMember.setState(OnOffType.OFF);
+
+        // subGroup and subMember state differ
+        assertThat(subGroup.getStateAs(OnOffType.class), is(OnOffType.ON));
+        assertThat(subMember.getStateAs(OnOffType.class), is(OnOffType.OFF));
+
+        // We expect ON here
+        State getStateAsState = rootGroupItem.getStateAs(OnOffType.class);
+
+        rootGroupItem.stateUpdated(member1, null); // recalculate the state
+        State stateUpdatedState = rootGroupItem.getState();
+
+        assertThat(getStateAsState, is(OnOffType.ON));
+        assertThat(stateUpdatedState, is(OnOffType.ON));
+    }
+
+    @Test
+    public void assertCyclicGroupItemsCalculateState() {
+        GroupFunction countFn = new ArithmeticGroupFunction.Count(new StringType(".*"));
+        GroupItem rootGroup = new GroupItem("rootGroup", new SwitchItem("baseItem"), countFn);
+        TestItem rootMember = new TestItem("rootMember");
+        rootGroup.addMember(rootMember);
+
+        GroupItem group1 = new GroupItem("group1");
+        GroupItem group2 = new GroupItem("group2");
+
+        rootGroup.addMember(group1);
+        group1.addMember(group2);
+        group2.addMember(group1);
+
+        group1.addMember(new TestItem("sub1"));
+        group2.addMember(new TestItem("sub2-1"));
+        group2.addMember(new TestItem("sub2-2"));
+        group2.addMember(new TestItem("sub2-3"));
+
+        // count: rootMember, sub1, sub2-1, sub2-2, sub2-3
+        assertThat(rootGroup.getStateAs(DecimalType.class), is(new DecimalType(5)));
+    }
+
+    @Test
+    public void assertCyclicGroupItemsCalculateStateWithSubGroupFunction() {
+        GroupFunction countFn = new ArithmeticGroupFunction.Count(new StringType(".*"));
+        GroupItem rootGroup = new GroupItem("rootGroup", new SwitchItem("baseItem"), countFn);
+        TestItem rootMember = new TestItem("rootMember");
+        rootGroup.addMember(rootMember);
+
+        GroupItem group1 = new GroupItem("group1");
+        GroupItem group2 = new GroupItem("group2", new SwitchItem("baseItem"), new ArithmeticGroupFunction.Sum());
+
+        rootGroup.addMember(group1);
+        group1.addMember(group2);
+        group2.addMember(group1);
+
+        group1.addMember(new TestItem("sub1"));
+        group2.addMember(new TestItem("sub2-1"));
+        group2.addMember(new TestItem("sub2-2"));
+        group2.addMember(new TestItem("sub2-3"));
+
+        // count: rootMember, sub1, group2
+        assertThat(rootGroup.getStateAs(DecimalType.class), is(new DecimalType(3)));
     }
 
     @Test
