@@ -51,6 +51,10 @@ angular.module('PaperUI', [//
         templateUrl : 'partials/configuration.html',
         controller : 'ServicesController',
         title : 'Configuration'
+    }).when('/configuration/services/:servicePID', {
+        templateUrl : 'partials/configuration.multiService.html',
+        controller : 'MultiServicesController',
+        title : 'Configuration'
     }).when('/configuration/things', {
         templateUrl : 'partials/configuration.things.html',
         controller : 'ThingController',

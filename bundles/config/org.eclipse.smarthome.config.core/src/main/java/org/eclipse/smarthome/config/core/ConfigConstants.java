@@ -32,11 +32,17 @@ public class ConfigConstants {
     /** The default user data directory name */
     final static public String DEFAULT_USERDATA_FOLDER = "userdata";
 
+    /** The property to recognize a service instance created by a service factory */
+    public static final String SERVICE_CONTEXT = "esh.servicecontext";
+
+    /** The property to separate service PIDs from their contexts */
+    public static final String SERVICE_CONTEXT_MARKER = "#";
+
     /**
      * Returns the configuration folder path name. The main config folder <code>&lt;smarthome&gt;/config</code> can be
      * overwritten by setting
      * the System property <code>smarthome.configdir</code>.
-     * 
+     *
      * @return the configuration folder path name
      */
     static public String getConfigFolder() {
@@ -52,7 +58,7 @@ public class ConfigConstants {
      * Returns the user data folder path name. The main user data folder <code>&lt;smarthome&gt;/userdata</code> can be
      * overwritten by setting
      * the System property <code>smarthome.userdata</code>.
-     * 
+     *
      * @return the user data folder path name
      */
     static public String getUserDataFolder() {
