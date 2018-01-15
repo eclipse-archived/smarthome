@@ -12,6 +12,9 @@
  */
 package org.eclipse.smarthome.ui.basic.internal.render;
 
+import java.net.URI;
+import java.util.Date;
+
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.core.library.types.StringType;
@@ -30,6 +33,8 @@ import org.eclipse.smarthome.ui.basic.render.WidgetRenderer;
  */
 public class VideoRenderer extends AbstractWidgetRenderer {
 
+    private static final String URL_NONE_ICON = "images/none.png";
+
     @Override
     public boolean canRender(Widget w) {
         return w instanceof Video;
@@ -43,23 +48,50 @@ public class VideoRenderer extends AbstractWidgetRenderer {
         String widgetId = itemUIRegistry.getWidgetId(w);
         String sitemap = w.eResource().getURI().path();
 
-        if (videoWidget.getEncoding() != null && videoWidget.getEncoding().toLowerCase().contains("mjpeg")) {
-            // we handle mjpeg streams as an html image as browser can usually handle this
-            snippet = getSnippet("image");
+        // we handle mjpeg streams as an html image as browser can usually handle this
+        String snippetName = (videoWidget.getEncoding() != null
+                && videoWidget.getEncoding().toLowerCase().contains("mjpeg")) ? "image" : "video";
+
+        snippet = getSnippet(snippetName);
+        snippet = preprocessSnippet(snippet, w);
+
+        State state = itemUIRegistry.getState(w);
+        String url;
+        if (snippetName.equals("image")) {
+            boolean validUrl = false;
+            if (videoWidget.getUrl() != null && !videoWidget.getUrl().isEmpty()) {
+                try {
+                    URI.create(videoWidget.getUrl());
+                    validUrl = true;
+                } catch (IllegalArgumentException ex) {
+                }
+            }
+            String proxiedUrl = "../proxy?sitemap=" + sitemap + "&amp;widgetId=" + widgetId;
+            if (!itemUIRegistry.getVisiblity(w)) {
+                url = URL_NONE_ICON;
+            } else if ((sitemap != null) && ((state instanceof StringType) || validUrl)) {
+                url = proxiedUrl + "&amp;t=" + (new Date()).getTime();
+            } else {
+                url = URL_NONE_ICON;
+            }
+            snippet = StringUtils.replace(snippet, "%valid_url%", validUrl ? "true" : "false");
+            snippet = StringUtils.replace(snippet, "%proxied_url%", proxiedUrl);
+            snippet = StringUtils.replace(snippet, "%update_interval%", "0");
+            snippet = StringUtils.replace(snippet, "%ignore_refresh%", "true");
+            snippet = StringUtils.replace(snippet, "%url%", url);
         } else {
-            snippet = getSnippet("video");
+            String mediaType;
+            if (videoWidget.getEncoding() != null && videoWidget.getEncoding().toLowerCase().contains("hls")) {
+                // For HTTP Live Stream we don't proxy the URL and we set the appropriate media type
+                url = (state instanceof StringType) ? state.toString() : videoWidget.getUrl();
+                mediaType = "type=\"application/vnd.apple.mpegurl\"";
+            } else {
+                url = "../proxy?sitemap=" + sitemap + "&widgetId=" + widgetId;
+                mediaType = "";
+            }
+            snippet = StringUtils.replace(snippet, "%url%", url);
+            snippet = StringUtils.replace(snippet, "%media_type%", mediaType);
         }
-        String url = "../proxy?sitemap=" + sitemap + "&widgetId=" + widgetId;
-        String mediaType = "";
-        if (videoWidget.getEncoding() != null && videoWidget.getEncoding().toLowerCase().contains("hls")) {
-            // For HTTP Live Stream we don't proxy the URL and we set the appropriate media type
-            State state = itemUIRegistry.getState(w);
-            url = (state instanceof StringType) ? state.toString() : videoWidget.getUrl();
-            mediaType = "type=\"application/vnd.apple.mpegurl\"";
-        }
-        snippet = StringUtils.replace(snippet, "%url%", url);
-        snippet = StringUtils.replace(snippet, "%media_type%", mediaType);
-        snippet = preprocessSnippet(snippet, videoWidget);
 
         sb.append(snippet);
         return null;
