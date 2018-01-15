@@ -28,6 +28,7 @@ public class SitemapWidgetEvent extends SitemapEvent {
     public String labelcolor;
     public String valuecolor;
     public boolean visibility;
+    public String state;
     public EnrichedItemDTO item;
 
     public SitemapWidgetEvent() {
