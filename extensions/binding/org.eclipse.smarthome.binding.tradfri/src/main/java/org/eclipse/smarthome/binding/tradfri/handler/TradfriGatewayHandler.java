@@ -121,7 +121,6 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
 
                 establishConnection();
             } else {
-                updateStatus(ThingStatus.UNKNOWN);
                 // Running async operation to retrieve new <'identity','key'> pair
                 scheduler.execute(() -> {
                     boolean success = obtainIdentityAndPreSharedKey();
