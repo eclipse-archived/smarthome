@@ -30,9 +30,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.MapUtils;
@@ -40,7 +37,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.ConfigConstants;
-import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.service.AbstractWatchService;
 import org.eclipse.smarthome.model.core.ModelParser;
 import org.eclipse.smarthome.model.core.ModelRepository;
@@ -57,10 +53,9 @@ import org.osgi.service.component.ComponentContext;
  */
 public class FolderObserver extends AbstractWatchService {
 
-    private static final String THREAD_POOL_NAME = "file-processing";
-    private static final int MODEL_PROCESSING_DELAY = 1;
-
-    private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(THREAD_POOL_NAME);
+    public FolderObserver() {
+        super(ConfigConstants.getConfigFolder());
+    }
 
     /* the model repository is provided as a service */
     private ModelRepository modelRepo = null;
@@ -74,12 +69,6 @@ public class FolderObserver extends AbstractWatchService {
     /* set of files that have been ignored due to a missing parser */
     private final Set<File> ignoredFiles = new HashSet<>();
     private final Map<String, File> nameFileMap = new HashMap<>();
-
-    private final Map<String, ScheduledFuture<?>> futures = new ConcurrentHashMap<>();
-
-    public FolderObserver() {
-        super(ConfigConstants.getConfigFolder());
-    }
 
     public void setModelRepository(ModelRepository modelRepo) {
         this.modelRepo = modelRepo;
@@ -233,25 +222,17 @@ public class FolderObserver extends AbstractWatchService {
             try {
                 synchronized (FolderObserver.class) {
                     if ((kind == ENTRY_CREATE || kind == ENTRY_MODIFY)) {
-                        cancelQueuedProcessing(file);
-                        logger.trace("Received file system event {} on {}, queuing it further processing", kind, file);
-                        ScheduledFuture<?> future = scheduler.schedule(() -> {
-                            logger.trace("Processing file system event {} on {} now", kind, file);
-                            futures.remove(file.getName());
-                            if (parsers.contains(getExtension(file.getName()))) {
-                                try (FileInputStream inputStream = FileUtils.openInputStream(file)) {
-                                    nameFileMap.put(file.getName(), file);
-                                    modelRepo.addOrRefreshModel(file.getName(), inputStream);
-                                } catch (IOException e) {
-                                    logger.warn("Error while opening file during update: {}", file.getAbsolutePath());
-                                }
-                            } else {
-                                ignoredFiles.add(file);
+                        if (parsers.contains(getExtension(file.getName()))) {
+                            try (FileInputStream inputStream = FileUtils.openInputStream(file)) {
+                                nameFileMap.put(file.getName(), file);
+                                modelRepo.addOrRefreshModel(file.getName(), inputStream);
+                            } catch (IOException e) {
+                                logger.warn("Error while opening file during update: {}", file.getAbsolutePath());
                             }
-                        }, MODEL_PROCESSING_DELAY, TimeUnit.SECONDS);
-                        futures.put(file.getName(), future);
+                        } else {
+                            ignoredFiles.add(file);
+                        }
                     } else if (kind == ENTRY_DELETE) {
-                        cancelQueuedProcessing(file);
                         modelRepo.removeModel(file.getName());
                         nameFileMap.remove(file.getName());
                     }
@@ -259,14 +240,6 @@ public class FolderObserver extends AbstractWatchService {
             } catch (Exception e) {
                 logger.error("Error handling update of file '{}': {}.", file.getAbsolutePath(), e.getMessage(), e);
             }
-        }
-    }
-
-    private void cancelQueuedProcessing(final File file) {
-        ScheduledFuture<?> future = futures.remove(file.getName());
-        if (future != null) {
-            logger.trace("Cancelled previously queued processing of file {}", file);
-            future.cancel(true);
         }
     }
 
