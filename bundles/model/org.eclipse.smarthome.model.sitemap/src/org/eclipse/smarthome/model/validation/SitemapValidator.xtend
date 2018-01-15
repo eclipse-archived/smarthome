@@ -1,13 +1,13 @@
 /**
  * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
- *
+ * 
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
- *
+ * 
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0
- *
+ * 
  * SPDX-License-Identifier: EPL-2.0
  */
 /*
@@ -27,63 +27,63 @@ import java.math.BigDecimal
 //import org.eclipse.xtext.validation.Check
 /**
  * Custom validation rules. 
- *
+ * 
  * see http://www.eclipse.org/Xtext/documentation.html#validation
  */
 class SitemapValidator extends AbstractSitemapValidator {
 
-	@Check
-	def void checkFramesInFrame(Frame frame) {
-		for (Widget w : frame.children) {
-			if (w instanceof Frame) {
-				error("Frames must not contain other frames",
-					SitemapPackage.Literals.FRAME.getEStructuralFeature(SitemapPackage.FRAME__CHILDREN));
-				return;
-			}
-		}
-	}
+    @Check
+    def void checkFramesInFrame(Frame frame) {
+        for (Widget w : frame.children) {
+            if (w instanceof Frame) {
+                error("Frames must not contain other frames",
+                    SitemapPackage.Literals.FRAME.getEStructuralFeature(SitemapPackage.FRAME__CHILDREN));
+                return;
+            }
+        }
+    }
 
-	@Check
-	def void checkFramesInWidgetList(Sitemap sitemap) {
-		var containsFrames = false
-		var containsOtherWidgets = false
+    @Check
+    def void checkFramesInWidgetList(Sitemap sitemap) {
+        var containsFrames = false
+        var containsOtherWidgets = false
 
-		for (Widget w : sitemap.children) {
-			if (w instanceof Frame) {
-				containsFrames = true
-			} else {
-				containsOtherWidgets = true
-			}
-			if (containsFrames && containsOtherWidgets) {
-				error("Sitemap should contain either only frames or none at all",
-					SitemapPackage.Literals.SITEMAP.getEStructuralFeature(SitemapPackage.SITEMAP__NAME));
-				return
-			}
-		}
-	}
+        for (Widget w : sitemap.children) {
+            if (w instanceof Frame) {
+                containsFrames = true
+            } else {
+                containsOtherWidgets = true
+            }
+            if (containsFrames && containsOtherWidgets) {
+                error("Sitemap should contain either only frames or none at all",
+                    SitemapPackage.Literals.SITEMAP.getEStructuralFeature(SitemapPackage.SITEMAP__NAME));
+                return
+            }
+        }
+    }
 
-	@Check
-	def void checkFramesInWidgetList(LinkableWidget widget) {
-		if (widget instanceof Frame) {
+    @Check
+    def void checkFramesInWidgetList(LinkableWidget widget) {
+        if (widget instanceof Frame) {
 
-			// we have a dedicated check for frames in place
-			return;
-		}
-		var	containsFrames = false
-		var	containsOtherWidgets = false
-		for (Widget w : widget.children) {
-			if (w instanceof Frame) {
-				containsFrames = true
-			} else {
-				containsOtherWidgets = true
-			}
-			if (containsFrames && containsOtherWidgets) {
-				error("Linkable widget should contain either only frames or none at all",
-					SitemapPackage.Literals.FRAME.getEStructuralFeature(SitemapPackage.LINKABLE_WIDGET__CHILDREN));
-				return
-			}
-		}
-	}
+            // we have a dedicated check for frames in place
+            return;
+        }
+        var containsFrames = false
+        var containsOtherWidgets = false
+        for (Widget w : widget.children) {
+            if (w instanceof Frame) {
+                containsFrames = true
+            } else {
+                containsOtherWidgets = true
+            }
+            if (containsFrames && containsOtherWidgets) {
+                error("Linkable widget should contain either only frames or none at all",
+                    SitemapPackage.Literals.FRAME.getEStructuralFeature(SitemapPackage.LINKABLE_WIDGET__CHILDREN));
+                return
+            }
+        }
+    }
 
     @Check
     def void checkSetpoints(Setpoint sp) {
@@ -91,14 +91,6 @@ class SitemapValidator extends AbstractSitemapValidator {
             error("Setpoint without an item defined",
                 SitemapPackage.Literals.SETPOINT.getEStructuralFeature(SitemapPackage.SETPOINT));
         }
-	@Check
-	def void checkSetpoints(Setpoint sp) {
-	    if(sp.item === null)
-	    {
-	        error("Setpoint without an item defined",
-                    SitemapPackage.Literals.SETPOINT.getEStructuralFeature(SitemapPackage.SETPOINT));
-            return
-	    }
 
         if (BigDecimal.ZERO == sp.step) {
             error("Setpoint on item '" + sp.item + "' has step size of 0",
