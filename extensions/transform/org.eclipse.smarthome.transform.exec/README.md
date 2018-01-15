@@ -9,6 +9,7 @@ The external program must either be in the executable search path of the server 
 **.items**
 
 This will replace the visible label in the UI with the transformation you apply with the command <YourCommand>.
+  
 ```java
 String yourItem "Some info  [EXEC(/absolute/path/to/your/TransformProgram %s):]"
 ```
@@ -16,6 +17,7 @@ String yourItem "Some info  [EXEC(/absolute/path/to/your/TransformProgram %s):]"
 **.thing**
 
 This example shows the transformation of the output channel of an item.
+
 ```java
 Thing yourThing [ ... , transform="EXEC(/absolute/path/to/your/TransformProgram %s)"]
 ```
@@ -35,6 +37,7 @@ end
 **Example with a program**
 
 Substitute the `/absolute/path/to/your/TransformProgram` with
+
 ```shell
 /bin/date -v1d -v+1m -v-1d -v-%s
 ```
