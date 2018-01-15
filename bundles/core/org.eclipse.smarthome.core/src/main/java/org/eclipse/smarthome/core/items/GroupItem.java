@@ -157,7 +157,14 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         if (item == null) {
             throw new IllegalArgumentException("Item must not be null!");
         }
-        members.addIfAbsent(item);
+
+        boolean added = members.addIfAbsent(item);
+
+        // in case membership is constructed programmatically this sanitises
+        // the group names on the item:
+        if (added && item instanceof GenericItem) {
+            ((GenericItem) item).addGroupName(this.getName());
+        }
         registerStateListener(item);
     }
 
@@ -279,7 +286,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         // if a group does not have a function it cannot have a state
         State newState = null;
         if (function != null) {
-            newState = function.getStateAs(getAllMembers(), typeClass);
+            newState = function.getStateAs(getStateMembers(getMembers()), typeClass);
         }
 
         if (newState == null && baseItem != null) {
@@ -341,7 +348,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     public void stateUpdated(Item item, State state) {
         State oldState = this.state;
         if (function != null && baseItem != null) {
-            State calculatedState = function.calculate(getMembers());
+            State calculatedState = function.calculate(getStateMembers(getMembers()));
             calculatedState = ItemUtil.convertToAcceptedState(calculatedState, baseItem);
             setState(calculatedState);
         }
@@ -367,6 +374,36 @@ public class GroupItem extends GenericItem implements StateChangeListener {
             eventPublisher.post(
                     ItemEventFactory.createGroupStateChangedEvent(this.getName(), memberName, newState, oldState));
         }
+    }
+
+    private Set<Item> getStateMembers(Set<Item> items) {
+        Set<Item> result = new HashSet<>();
+        collectStateMembers(result, items);
+
+        // filter out group items w/o state. we had those in to detect cyclic membership.
+        return result.stream().filter(i -> !isGroupItem(i) || hasOwnState((GroupItem) i)).collect(Collectors.toSet());
+    }
+
+    private void collectStateMembers(Set<Item> result, Set<Item> items) {
+        for (Item item : items) {
+            if (result.contains(item)) {
+                continue;
+            }
+            if (!isGroupItem(item) || (isGroupItem(item) && hasOwnState((GroupItem) item))) {
+                result.add(item);
+            } else {
+                result.add(item); // also add group items w/o state to detect cyclic membership.
+                collectStateMembers(result, ((GroupItem) item).getMembers());
+            }
+        }
+    }
+
+    private boolean isGroupItem(Item item) {
+        return item instanceof GroupItem;
+    }
+
+    private boolean hasOwnState(GroupItem item) {
+        return item.getFunction() != null && item.getBaseItem() != null;
     }
 
 }
