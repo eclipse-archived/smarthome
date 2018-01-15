@@ -11,7 +11,7 @@ The external program must either be in the executable search path of the server 
 This will replace the visible label in the UI with the transformation you apply with the command <YourCommand>.
   
 ```java
-String yourItem "Some info  [EXEC(/absolute/path/to/your/TransformProgram %s):]"
+String yourItem "Some info  [EXEC(/absolute/path/to/your/TransformProgram %s):%s]"
 ```
   
 **.thing**
@@ -26,7 +26,7 @@ Thing yourThing [ ... , transform="EXEC(/absolute/path/to/your/TransformProgram 
 
 ```java
 rule "Your Rule Name"
-  when
+when
     Item YourTriggeringItem changed
 then
     var formatted = transform("EXEC","/absolute/path/to/your/TransformProgram", YourTriggeringItem.state.toString)
