@@ -86,6 +86,7 @@ public class BindingExtensionHandler implements MarketplaceExtensionHandler {
             installedBindings.put(ext.getId(), bundle.getBundleId());
             persistInstalledBindingsMap(installedBindings);
         } catch (BundleException e) {
+            logger.debug("Failed to install binding from marketplace.", e);
             throw new MarketplaceHandlerException("Binding cannot be installed: " + e.getMessage());
         }
     }
