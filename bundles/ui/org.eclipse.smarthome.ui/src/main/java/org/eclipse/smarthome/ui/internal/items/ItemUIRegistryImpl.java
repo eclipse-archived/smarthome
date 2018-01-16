@@ -757,7 +757,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
-    @SuppressWarnings("null")
     @Override
     public Collection<Item> getItems() {
         if (itemRegistry != null) {
@@ -767,7 +766,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
-    @SuppressWarnings("null")
     @Override
     public Collection<Item> getItemsOfType(String type) {
         if (itemRegistry != null) {
@@ -777,7 +775,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
-    @SuppressWarnings("null")
     @Override
     public Collection<Item> getItems(String pattern) {
         if (itemRegistry != null) {
@@ -1153,7 +1150,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
-    @SuppressWarnings("null")
     @Override
     public Collection<Item> getItemsByTag(String... tags) {
         if (itemRegistry != null) {
@@ -1163,7 +1159,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
-    @SuppressWarnings("null")
     @Override
     public Collection<Item> getItemsByTagAndType(String type, String... tags) {
         if (itemRegistry != null) {
@@ -1173,7 +1168,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
     }
 
-    @SuppressWarnings("null")
     @Override
     public <T extends GenericItem> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags) {
         if (itemRegistry != null) {
