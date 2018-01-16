@@ -120,8 +120,8 @@ final class ProgressCallbackImpl implements ProgressCallback {
         if (this.state == InternalState.FINISHED) {
             throw new IllegalStateException("Update is finished.");
         }
-        if ((this.progress != null && this.progress < 100)
-                || (this.progressIterator != null && progressIterator.hasNext())) {
+        if ((this.progress == null || this.progress < 100)
+                && (this.progressIterator == null || progressIterator.hasNext())) {
             throw new IllegalStateException(
                     "Update can't be successfully finished until progress is 100% or last progress step is reached");
         }

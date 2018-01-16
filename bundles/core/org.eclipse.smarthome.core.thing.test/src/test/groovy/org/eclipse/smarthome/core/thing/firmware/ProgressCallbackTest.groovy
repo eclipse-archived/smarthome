@@ -117,6 +117,14 @@ public final class ProgressCallbackTest {
         sut.success()
     }
 
+    @Test
+    void 'assert success at 100 percent even if there is a remaining progress step'(){
+        sut.defineSequence(ProgressStep.DOWNLOADING, ProgressStep.TRANSFERRING)
+        sut.next()
+        sut.update(100)
+        sut.success()
+    }
+
     @Test(expected=IllegalArgumentException)
     void 'assert that update throws IllegalArgumentException if progress smaller 0'(){
         sut.update(-1)
