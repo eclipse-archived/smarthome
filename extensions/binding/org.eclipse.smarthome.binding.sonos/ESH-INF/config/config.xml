@@ -15,7 +15,7 @@
 		</parameter>
 		<parameter name="notificationVolume" type="integer" min="0" max="100" step="1" unit="%">
 			<label>Notification Sound Volume</label>
-			<description>Set the volume applied to a notification sound</description>
+			<description>Specifies the volume in percent applied to a notification sound</description>
 		</parameter>
 		<parameter name="refresh" type="integer" unit="s">
 			<label>Refresh interval</label>
