@@ -45,7 +45,7 @@ CommandEventTrigger:
 ;
 
 GroupMemberCommandEventTrigger:
-    'Member' 'of' group=ItemName 'received command' (command=ValidCommand)?
+    'Member of' group=ItemName 'received command' (command=ValidCommand)?
 ;
 
 UpdateEventTrigger:
@@ -53,7 +53,7 @@ UpdateEventTrigger:
 ;
 
 GroupMemberUpdateEventTrigger:
-    'Member' 'of' group=ItemName 'received update' (state=ValidState)?
+    'Member of' group=ItemName 'received update' (state=ValidState)?
 ;
 
 ChangedEventTrigger:
@@ -61,7 +61,7 @@ ChangedEventTrigger:
 ;
 
 GroupMemberChangedEventTrigger:
-	'Member' 'of' group=ItemName 'changed' ('from' oldState=ValidState)? ('to' newState=ValidState)?
+	'Member of' group=ItemName 'changed' ('from' oldState=ValidState)? ('to' newState=ValidState)?
 ;		
 
 EventEmittedTrigger:
