@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Config Writeback
+Bundle-SymbolicName: org.eclipse.smarthome.config.writeback
+Bundle-Version: 0.9.0.qualifier
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.apache.commons.io,
+ org.apache.commons.lang,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.service,
+ org.osgi.framework;version="1.8.0",
+ org.osgi.service.cm,
+ org.slf4j
+Service-Component: OSGI-INF/*.xml
