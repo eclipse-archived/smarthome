@@ -51,35 +51,35 @@ public class MappingUriExtensionsTest {
                 { "conf", //
                         "file:///q:/conf", //
                         "file:///q:/conf", //
-                        "/" }, //
+                        "" }, //
                 { "conf", //
                         "file:///q:", //
                         "file:///q:", //
-                        "/" }, //
+                        "" }, //
                 { "conf", //
                         "file://fqdn/openhab-conf", //
                         "file://fqdn/openhab-conf", //
-                        "/" }, //
+                        "" }, //
                 { "conf", //
                         "file://fqdn/openhab-conf/conf", //
                         "file://fqdn/openhab-conf/conf", //
-                        "/" }, //
+                        "" }, //
                 { null, //
                         "file:///asdf/conf/items/test.items", //
                         "file:///asdf/conf", //
-                        "/items/test.items" }, //
+                        "items/test.items" }, //
                 { null, //
                         "file:///asdf/items/test.items", //
                         "file:///asdf", //
-                        "/items/test.items" }, //
+                        "items/test.items" }, //
                 { null, //
                         "file://fqdn/openhab-conf/conf/items/test.items", //
                         "file://fqdn/openhab-conf/conf", //
-                        "/items/test.items" }, //
+                        "items/test.items" }, //
                 { null, //
                         "file://fqdn/openhab-conf/items/test.items", //
                         "file://fqdn/openhab-conf", //
-                        "/items/test.items" },//
+                        "items/test.items" },//
         });
     }
 
@@ -111,7 +111,7 @@ public class MappingUriExtensionsTest {
     public void testToUri() {
         MappingUriExtensions mapper = createMapper();
         URI clientPath = mapper.toUri(request);
-        assertEquals("file://" + confFolder.getAbsolutePath() + expectedUriPath, clientPath.toString());
+        assertEquals(confFolder.toPath().toUri().toString() + expectedUriPath, clientPath.toString());
     }
 
     @Test
@@ -119,7 +119,7 @@ public class MappingUriExtensionsTest {
         MappingUriExtensions mapper = createMapper();
         mapper.toUri(request);
 
-        URI uri = URI.createURI("file://" + confFolder.getAbsolutePath() + expectedUriPath);
+        URI uri = URI.createURI(confFolder.toPath().toUri().toString() + expectedUriPath);
         String res = mapper.toPath(uri);
         assertEquals(request, res);
     }
@@ -129,7 +129,7 @@ public class MappingUriExtensionsTest {
             @Override
             protected String calcServerLocation(String configFolder) {
                 // ensure test execution is independent from the current working directory
-                return "file://" + confFolder.getAbsolutePath();
+                return removeTrailingSlash(confFolder.toPath().toUri().toString());
             }
         };
     }
