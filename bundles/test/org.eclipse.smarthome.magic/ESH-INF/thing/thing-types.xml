@@ -56,6 +56,15 @@
 		</channels>
 	</thing-type>
 
+	<thing-type id="location-thing">
+		<label>Magic Location</label>
+		<description>A location thing providing a location channel.</description>
+
+		<channels>
+			<channel id="location" typeId="location" />
+		</channels>
+	</thing-type>
+
 	<thing-type id="configurable-thing">
 		<label>Magic Configurable Thing</label>
 		<description>A thing that can be configured.</description>
