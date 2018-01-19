@@ -13,7 +13,9 @@
 package org.eclipse.smarthome.binding.fsinternetradio.test;
 
 import static org.eclipse.smarthome.binding.fsinternetradio.FSInternetRadioBindingConstants.*;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
@@ -59,6 +61,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.osgi.service.http.NamespaceException;
 
 /**
@@ -207,9 +210,6 @@ public class FSInternetRadioHandlerJavaTest extends JavaTest {
         Thing radioThing = initializeRadioThing(DEFAULT_COMPLETE_CONFIGURATION);
         testRadioThingConsideringConfiguration(radioThing);
 
-        // turn-on the radio
-        turnTheRadioOn(radioThing);
-
         ChannelUID modeChannelUID = getChannelUID(radioThing, modeChannelID);
 
         /*
@@ -220,12 +220,12 @@ public class FSInternetRadioHandlerJavaTest extends JavaTest {
 
         // try to handle a command
         radioHandler.handleCommand(modeChannelUID, DecimalType.valueOf("1"));
-        radioServiceDummy.setInvalidResponse(false);
 
         waitForAssert(() -> {
-            String exceptionMessage = "java.io.IOException: org.xml.sax.SAXParseException; lineNumber: 1; columnNumber: 2; The markup in the document preceding the root element must be well-formed.";
+            String exceptionMessage = "java.io.IOException: org.xml.sax.SAXParseException; lineNumber: 1; columnNumber: 2;";
             verifyCommunicationError(exceptionMessage);
         });
+        radioServiceDummy.setInvalidResponse(false);
     }
 
     /**
@@ -881,9 +881,12 @@ public class FSInternetRadioHandlerJavaTest extends JavaTest {
     }
 
     private void verifyCommunicationError(String exceptionMessage) {
-        ThingStatusInfoBuilder statusBuilder = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE,
-                ThingStatusDetail.COMMUNICATION_ERROR);
-        ThingStatusInfo statusInfo = statusBuilder.withDescription(exceptionMessage).build();
-        verify(callback, atLeast(1)).statusUpdated(radioThing, statusInfo);
+        ArgumentCaptor<ThingStatusInfo> captor = ArgumentCaptor.forClass(ThingStatusInfo.class);
+        verify(callback, atLeast(1)).statusUpdated(isA(Thing.class), captor.capture());
+        ThingStatusInfo status = captor.getValue();
+        assertThat(status.getStatus(), is(ThingStatus.OFFLINE));
+        assertThat(status.getStatusDetail(), is(ThingStatusDetail.COMMUNICATION_ERROR));
+        assertThat(status.getDescription().contains(exceptionMessage), is(true));
+
     }
 }
