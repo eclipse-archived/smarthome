@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,13 +44,13 @@ public class SafeCallManagerImpl implements SafeCallManager {
     private final Map<Object, @Nullable Invocation> activeAsyncInvocations = new HashMap<>();
 
     private final ScheduledExecutorService watcher;
-    private final String threadPoolName;
+    private final ExecutorService scheduler;
     private boolean enforceSingleThreadPerIdentifier;
 
-    public SafeCallManagerImpl(ScheduledExecutorService watcher, String threadPoolName,
+    public SafeCallManagerImpl(ScheduledExecutorService watcher, ExecutorService scheduler,
             boolean enforceSingleThreadPerIdentifier) {
         this.watcher = watcher;
-        this.threadPoolName = threadPoolName;
+        this.scheduler = scheduler;
         this.enforceSingleThreadPerIdentifier = enforceSingleThreadPerIdentifier;
     }
 
@@ -158,7 +157,7 @@ public class SafeCallManagerImpl implements SafeCallManager {
 
     @Override
     public ExecutorService getScheduler() {
-        return ThreadPoolManager.getPool(threadPoolName);
+        return scheduler;
     }
 
     private void watch(Invocation invocation) {

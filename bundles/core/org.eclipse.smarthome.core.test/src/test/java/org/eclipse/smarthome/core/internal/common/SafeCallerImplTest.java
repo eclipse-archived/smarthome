@@ -20,12 +20,13 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -50,29 +51,24 @@ public class SafeCallerImplTest extends JavaTest {
     private static final int THREAD_POOL_SIZE = 3;
 
     // the duration that the called object should block for
-    private static final int BLOCK = 1500;
+    private static final int BLOCK = 500;
 
     // the standard timeout for the safe-caller used in most tests
-    private static final int TIMEOUT = 600;
+    private static final int TIMEOUT = 200;
 
     // the grace period allowed for processing before a timing assertion should fail
-    private static final int GRACE = 300;
+    private static final int GRACE = 100;
 
-    @Mock
-    private Runnable mockRunnable;
+    public @Rule TestName name = new TestName();
 
-    @Mock
-    private Runnable mockTimeoutHandler;
-
-    @Mock
-    private Consumer<Throwable> mockErrorHandler;
-
-    @Rule
-    public TestName name = new TestName();
-
-    private SafeCallerImpl safeCaller;
+    private @Mock Runnable mockRunnable;
+    private @Mock Runnable mockTimeoutHandler;
+    private @Mock Consumer<Throwable> mockErrorHandler;
 
     private QueueingThreadPoolExecutor scheduler;
+    private final List<AssertingThread> threads = new LinkedList<>();
+
+    private SafeCallerImpl safeCaller;
 
     public static interface ITarget {
         public String method();
@@ -94,8 +90,8 @@ public class SafeCallerImplTest extends JavaTest {
         scheduler = QueueingThreadPoolExecutor.createInstance(name.getMethodName(), THREAD_POOL_SIZE);
         safeCaller = new SafeCallerImpl() {
             @Override
-            protected String getPoolName() {
-                return name.getMethodName();
+            protected ExecutorService getScheduler() {
+                return scheduler;
             }
         };
         safeCaller.activate(null);
@@ -105,7 +101,10 @@ public class SafeCallerImplTest extends JavaTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
+        // ensure all "inner" assertion errors are heard
+        joinAll();
+
         scheduler.shutdownNow();
         safeCaller.deactivate();
     }
@@ -157,7 +156,7 @@ public class SafeCallerImplTest extends JavaTest {
     }
 
     @Test
-    public void testMultiThread_sync() throws Exception {
+    public void testMultiThread_sync() {
         Runnable mock = mock(Runnable.class);
         doAnswer(a -> sleep(BLOCK)).when(mock).run();
 
@@ -166,6 +165,7 @@ public class SafeCallerImplTest extends JavaTest {
                 safeCaller.create(mock).withTimeout(TIMEOUT).build().run();
             });
         });
+        sleep(GRACE); // give it a chance to start
         spawn(() -> {
             assertDurationBetween(TIMEOUT - GRACE, BLOCK - GRACE, () -> {
                 safeCaller.create(mock).withTimeout(TIMEOUT).build().run();
@@ -206,12 +206,13 @@ public class SafeCallerImplTest extends JavaTest {
                 safeCaller.create(mock).withTimeout(TIMEOUT).build().run();
             });
         });
+        sleep(GRACE); // give it a chance to start
         spawn(() -> {
             assertDurationBelow(GRACE, () -> {
                 safeCaller.create(mock).withTimeout(TIMEOUT).build().run();
             });
         });
-        assertDurationBetween(TIMEOUT - GRACE, BLOCK - GRACE, () -> {
+        assertDurationBetween(BLOCK - 2 * GRACE, BLOCK + TIMEOUT + GRACE, () -> {
             waitForAssert(() -> {
                 verify(mock, times(2)).run();
             });
@@ -544,10 +545,10 @@ public class SafeCallerImplTest extends JavaTest {
     private static Object sleep(int duration) {
         try {
             Thread.sleep(duration);
-            return null;
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            // okay
         }
+        return null;
     }
 
     private void configureSingleThread() {
@@ -559,16 +560,58 @@ public class SafeCallerImplTest extends JavaTest {
         });
     }
 
-    private void spawn(Runnable runnable) throws InterruptedException, ExecutionException {
-        try {
-            Executors.newSingleThreadExecutor().submit(runnable).get();
-        } catch (ExecutionException e) {
-            if (e.getCause() instanceof AssertionError) {
-                throw (AssertionError) e.getCause();
-            } else {
-                throw e;
+    /**
+     * Executes the given runnable in another thread.
+     * <p>
+     * Returns immediately.
+     *
+     * @param runnable
+     */
+    private void spawn(Runnable runnable) {
+        AssertingThread t = new AssertingThread(runnable);
+        threads.add(t);
+        t.start();
+    }
+
+    /**
+     * Waits for all the threads which were created by {@link #spawn(Runnable)} in order to finish.
+     * <p>
+     * This is required in order to catch exceptions and especially {@link AssertionError}s which happened inside.
+     *
+     * @throws InterruptedException
+     */
+    private void joinAll() throws InterruptedException {
+        while (!threads.isEmpty()) {
+            AssertingThread t = threads.remove(0);
+            t.join();
+            if (t.assertionError != null) {
+                throw t.assertionError;
+            }
+            if (t.runtimeException != null) {
+                throw t.runtimeException;
             }
         }
+    }
+
+    private static class AssertingThread extends Thread {
+        private AssertionError assertionError;
+        private RuntimeException runtimeException;
+
+        public AssertingThread(Runnable runnable) {
+            super(runnable);
+        }
+
+        @Override
+        public void run() {
+            try {
+                super.run();
+            } catch (AssertionError e) {
+                AssertingThread.this.assertionError = e;
+            } catch (RuntimeException e) {
+                AssertingThread.this.runtimeException = e;
+            }
+        }
+
     }
 
 }
