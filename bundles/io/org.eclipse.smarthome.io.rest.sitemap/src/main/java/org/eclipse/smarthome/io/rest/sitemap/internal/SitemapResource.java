@@ -610,8 +610,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
                     try {
                         Item item = itemUIRegistry.getItem(itemName);
                         if (item instanceof GenericItem) {
-                            final GenericItem gItem = (GenericItem) item;
-                            items.add(gItem);
+                            items.add((GenericItem) item);
                         }
                     } catch (ItemNotFoundException e) {
                         // ignore
@@ -632,19 +631,16 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
 
     private Set<GenericItem> getItemsInVisibilityCond(EList<VisibilityRule> ruleList) {
         Set<GenericItem> items = new HashSet<GenericItem>();
-        if (ruleList != null) {
-            for (VisibilityRule rule : ruleList) {
-                String itemName = rule.getItem();
-                if (itemName != null) {
-                    try {
-                        Item item = itemUIRegistry.getItem(itemName);
-                        if (item instanceof GenericItem) {
-                            final GenericItem gItem = (GenericItem) item;
-                            items.add(gItem);
-                        }
-                    } catch (ItemNotFoundException e) {
-                        // ignore
+        for (VisibilityRule rule : ruleList) {
+            String itemName = rule.getItem();
+            if (itemName != null) {
+                try {
+                    Item item = itemUIRegistry.getItem(itemName);
+                    if (item instanceof GenericItem) {
+                        items.add((GenericItem) item);
                     }
+                } catch (ItemNotFoundException e) {
+                    // ignore
                 }
             }
         }
@@ -653,19 +649,16 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
 
     private Set<GenericItem> getItemsInColorCond(EList<ColorArray> colorList) {
         Set<GenericItem> items = new HashSet<GenericItem>();
-        if (colorList != null) {
-            for (ColorArray color : colorList) {
-                String itemName = color.getItem();
-                if (itemName != null) {
-                    try {
-                        Item item = itemUIRegistry.getItem(itemName);
-                        if (item instanceof GenericItem) {
-                            final GenericItem gItem = (GenericItem) item;
-                            items.add(gItem);
-                        }
-                    } catch (ItemNotFoundException e) {
-                        // ignore
+        for (ColorArray color : colorList) {
+            String itemName = color.getItem();
+            if (itemName != null) {
+                try {
+                    Item item = itemUIRegistry.getItem(itemName);
+                    if (item instanceof GenericItem) {
+                        items.add((GenericItem) item);
                     }
+                } catch (ItemNotFoundException e) {
+                    // ignore
                 }
             }
         }
