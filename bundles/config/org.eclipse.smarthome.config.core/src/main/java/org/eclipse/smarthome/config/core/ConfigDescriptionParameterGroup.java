@@ -47,8 +47,8 @@ public class ConfigDescriptionParameterGroup {
      * @param label the human readable group label
      * @param description a description that can be provided to the user
      */
-    public ConfigDescriptionParameterGroup(String name, @Nullable String context, Boolean advanced, String label,
-            String description) {
+    public ConfigDescriptionParameterGroup(String name, @Nullable String context, Boolean advanced,
+            @Nullable String label, @Nullable String description) {
         this.name = name;
         this.context = context;
         this.advanced = advanced;
