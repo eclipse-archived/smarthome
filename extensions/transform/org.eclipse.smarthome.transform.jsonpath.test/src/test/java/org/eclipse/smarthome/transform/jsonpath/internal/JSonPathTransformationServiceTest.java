@@ -80,4 +80,22 @@ public class JSonPathTransformationServiceTest {
         assertEquals("NULL", transformedResponse);
     }
 
+    @Test
+    public void testIndefinite_filteredToSingle() throws TransformationException {
+        String transformedResponse = processor.transform("$.*[?(@.name=='bob')].id", jsonArray);
+        assertEquals("1", transformedResponse);
+    }
+
+    @Test
+    public void testIndefinite_notFiltered() throws TransformationException {
+        String transformedResponse = processor.transform("$.*.id", jsonArray);
+        assertEquals("NULL", transformedResponse);
+    }
+
+    @Test
+    public void testIndefinite_noMatch() throws TransformationException {
+        String transformedResponse = processor.transform("$.*[?(@.name=='unknown')].id", jsonArray);
+        assertEquals("NULL", transformedResponse);
+    }
+
 }
