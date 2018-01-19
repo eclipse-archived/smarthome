@@ -34,8 +34,8 @@ public class ConfigDescriptionParameterGroup {
     private final String name;
     private final @Nullable String context;
     private final boolean advanced;
-    private final String label;
-    private final String description;
+    private final @Nullable String label;
+    private final @Nullable String description;
 
     /**
      * Create a Parameter Group. A group is used by the user interface to display groups
@@ -88,6 +88,7 @@ public class ConfigDescriptionParameterGroup {
      *
      * @return group label as a string
      */
+    @Nullable
     public String getLabel() {
         return label;
     }
@@ -97,6 +98,7 @@ public class ConfigDescriptionParameterGroup {
      *
      * @return group description as a string
      */
+    @Nullable
     public String getDescription() {
         return description;
     }
@@ -104,6 +106,7 @@ public class ConfigDescriptionParameterGroup {
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + " [groupId=\"" + name + "\", context=\"" + context + "\", advanced=\""
-                + advanced + "\", label=\"" + label + "\", description=\"" + description + "\"]";
+                + advanced + "\"" + (label != null ? ", label=\"" + label + "\"" : "")
+                + (description != null ? ", description=\"" + description + "\"" : "") + "]";
     }
 }
