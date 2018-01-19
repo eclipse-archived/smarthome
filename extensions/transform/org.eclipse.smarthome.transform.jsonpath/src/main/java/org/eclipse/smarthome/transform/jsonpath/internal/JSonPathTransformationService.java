@@ -77,7 +77,9 @@ public class JSonPathTransformationService implements TransformationService {
             return list.get(0).toString();
         }
         if (list.size() > 1) {
-            logger.warn("The JsonPath expression yielded more than one result: {}", list);
+            logger.warn(
+                    "JsonPath expressions with more than one result are not allowed, please adapt your selector. Result: {}",
+                    list);
         }
         return UnDefType.NULL.toFullString();
     }
