@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * @author Karel Goderis - Initial contribution and API
  * @author Kai Kreuzer - removed unwanted dependencies
  * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
- * 
+ * @author Christoph Weitkamp - Added parameter to adjust the volume
  */
 public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
 
@@ -77,7 +77,8 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     protected void modified(Map<String, Object> config) {
         if (config != null) {
             this.defaultSource = config.containsKey(CONFIG_DEFAULT_SOURCE)
-                    ? config.get(CONFIG_DEFAULT_SOURCE).toString() : null;
+                    ? config.get(CONFIG_DEFAULT_SOURCE).toString()
+                    : null;
             this.defaultSink = config.containsKey(CONFIG_DEFAULT_SINK) ? config.get(CONFIG_DEFAULT_SINK).toString()
                     : null;
         }
@@ -90,51 +91,74 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
 
     @Override
     public void play(AudioStream audioStream, String sinkId) {
+        play(audioStream, sinkId, null);
+    }
+
+    public void play(AudioStream audioStream, String sinkId, PercentType volume) {
         if (audioStream != null) {
             AudioSink sink = getSink(sinkId);
 
             if (sink != null) {
                 try {
+                    // get current volume
+                    PercentType oldVolume = getVolume(sinkId);
+                    // set notification sound volume
+                    if (volume != null) {
+                        setVolume(volume, sinkId);
+                    }
                     sink.process(audioStream);
+                    // restore volume
+                    setVolume(oldVolume, sinkId);
                 } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
-                    logger.error("Error playing '{}': {}", audioStream.toString(), e.getMessage());
+                    logger.warn("Error playing '{}': {}", audioStream, e.getMessage(), e);
                 }
             } else {
-                logger.warn("Failed playing audio stream '{}' as no audio sink was found.", audioStream.toString());
+                logger.warn("Failed playing audio stream '{}' as no audio sink was found.", audioStream);
             }
         }
     }
 
     @Override
     public void playFile(String fileName) throws AudioException {
-        playFile(fileName, null);
+        playFile(fileName, null, null);
+    }
+
+    @Override
+    public void playFile(String fileName, PercentType volume) throws AudioException {
+        playFile(fileName, null, volume);
     }
 
     @Override
     public void playFile(String fileName, String sink) throws AudioException {
+        playFile(fileName, sink, null);
+    }
+
+    @Override
+    public void playFile(String fileName, String sink, PercentType volume) throws AudioException {
         File file = new File(
                 ConfigConstants.getConfigFolder() + File.separator + SOUND_DIR + File.separator + fileName);
         FileAudioStream is = new FileAudioStream(file);
-        play(is, sink);
+        play(is, sink, volume);
     }
 
     @Override
     public void stream(String url) throws AudioException {
-        stream(url, null);
+        stream(url, null, null);
+    }
+
+    @Override
+    public void stream(String url, PercentType volume) throws AudioException {
+        stream(url, null, volume);
     }
 
     @Override
     public void stream(String url, String sinkId) throws AudioException {
-        AudioStream audioStream = url != null ? new URLAudioStream(url) : null;
-        AudioSink sink = getSink(sinkId);
+        stream(url, sinkId, null);
+    }
 
-        if (sink != null) {
-            try {
-                sink.process(audioStream);
-            } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
-                logger.error("Error playing '{}': {}", url, e.getMessage());
-            }
-        }
+    public void stream(String url, String sinkId, PercentType volume) throws AudioException {
+        AudioStream audioStream = url != null ? new URLAudioStream(url) : null;
+        play(audioStream, sinkId, volume);
     }
 
     @Override
@@ -145,8 +169,8 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             try {
                 return sink.getVolume();
             } catch (IOException e) {
-                logger.error("An exception occurred while getting the volume of sink {} : '{}'", sink.getId(),
-                        e.getMessage());
+                logger.warn("An exception occurred while getting the volume of sink {} : '{}'", sink.getId(),
+                        e.getMessage(), e);
             }
         }
 
@@ -161,8 +185,8 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             try {
                 sink.setVolume(volume);
             } catch (IOException e) {
-                logger.error("An exception occurred while setting the volume of sink {} : '{}'", sink.getId(),
-                        e.getMessage());
+                logger.warn("An exception occurred while setting the volume of sink {} : '{}'", sink.getId(),
+                        e.getMessage(), e);
             }
         }
     }

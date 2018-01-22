@@ -21,6 +21,7 @@ import org.eclipse.smarthome.core.library.types.PercentType;
  *
  * @author Karel Goderis - Initial contribution and API
  * @author Kai Kreuzer - removed unwanted dependencies
+ * @author Christoph Weitkamp - Added parameter to adjust the volume
  */
 public interface AudioManager {
 
@@ -45,25 +46,66 @@ public interface AudioManager {
     void play(AudioStream audioStream, String sinkId);
 
     /**
+     * Plays the passed audio stream on the given sink.
+     *
+     * @param audioStream The audio stream to play
+     * @param sinkId The id of the audio sink to use or null
+     * @param volume The volume to be used or null
+     */
+    void play(AudioStream audioStream, String sinkId, PercentType volume);
+
+    /**
      * Plays an audio file from the "sounds" folder using the default audio sink.
      *
+     * @param fileName The file from the "sounds" folder
      * @throws AudioException in case the file does not exist or cannot be opened
      */
     void playFile(String fileName) throws AudioException;
 
     /**
+     * Plays an audio file with the given volume from the "sounds" folder using the default audio sink.
+     *
+     * @param fileName The file from the "sounds" folder
+     * @param volume The volume to be used or null
+     * @throws AudioException in case the file does not exist or cannot be opened
+     */
+    void playFile(String fileName, PercentType volume) throws AudioException;
+
+    /**
      * Plays an audio file from the "sounds" folder using the given audio sink.
      *
+     * @param fileName The file from the "sounds" folder
+     * @param sink The id of the audio sink to use or null
      * @throws AudioException in case the file does not exist or cannot be opened
      */
     void playFile(String fileName, String sink) throws AudioException;
 
     /**
+     * Plays an audio file with the given volume from the "sounds" folder using the given audio sink.
+     *
+     * @param fileName The file from the "sounds" folder
+     * @param sink The id of the audio sink to use or null
+     * @param volume The volume to be used or null
+     * @throws AudioException in case the file does not exist or cannot be opened
+     */
+    void playFile(String fileName, String sink, PercentType volume) throws AudioException;
+
+    /**
      * Stream audio from the passed url using the default audio sink.
      *
+     * @param url The url to stream from or null if streaming should be stopped
      * @throws AudioException in case the url stream cannot be opened
      */
     void stream(String url) throws AudioException;
+
+    /**
+     * Stream audio with the given volume from the passed url using the default audio sink.
+     *
+     * @param url The url to stream from or null if streaming should be stopped
+     * @param volume The volume to be used or null
+     * @throws AudioException in case the url stream cannot be opened
+     */
+    void stream(String url, PercentType volume) throws AudioException;
 
     /**
      * Stream audio from the passed url to the given sink
@@ -73,6 +115,16 @@ public interface AudioManager {
      * @throws AudioException in case the url stream cannot be opened
      */
     void stream(String url, String sinkId) throws AudioException;
+
+    /**
+     * Stream audio with the given volume from the passed url to the given sink
+     *
+     * @param url The url to stream from or null if streaming should be stopped
+     * @param sinkId The id of the audio sink to use or null
+     * @param volume The volume to be used or null
+     * @throws AudioException in case the url stream cannot be opened
+     */
+    void stream(String url, String sinkId, PercentType volume) throws AudioException;
 
     /**
      * Retrieves the current volume of a sink

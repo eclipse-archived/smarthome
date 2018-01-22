@@ -18,6 +18,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.core.audio.AudioSink;
 import org.eclipse.smarthome.core.audio.AudioSource;
+import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.voice.text.HumanLanguageInterpreter;
 import org.eclipse.smarthome.core.voice.text.InterpretationException;
 
@@ -25,6 +26,7 @@ import org.eclipse.smarthome.core.voice.text.InterpretationException;
  * This service provides functionality around voice services and is the central service to be used directly by others.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Christoph Weitkamp - Added parameter to adjust the volume
  */
 public interface VoiceManager {
 
@@ -34,6 +36,14 @@ public interface VoiceManager {
      * @param text The text to say
      */
     void say(String text);
+
+    /**
+     * Speaks the passed string with the given volume using the default TTS service and default audio sink.
+     *
+     * @param text The text to say
+     * @param volume The volume to be used or null
+     */
+    void say(String text, PercentType volume);
 
     /**
      * Speaks the passed string using the provided voiceId and the default audio sink.
@@ -46,6 +56,17 @@ public interface VoiceManager {
     void say(String text, String voiceId);
 
     /**
+     * Speaks the passed string with the given volume using the provided voiceId and the default audio sink.
+     * If the voiceId is fully qualified (i.e. with a tts prefix), the according TTS service will be used, otherwise the
+     * voiceId is assumed to be available on the default TTS service.
+     *
+     * @param text The text to say
+     * @param voiceId The id of the voice to use (either with or without prefix)
+     * @param volume The volume to be used or null
+     */
+    void say(String text, String voiceId, PercentType volume);
+
+    /**
      * Speaks the passed string using the provided voiceId and the given audio sink.
      * If the voiceId is fully qualified (i.e. with a tts prefix), the according TTS service will be used, otherwise the
      * voiceId is assumed to be available on the default TTS service.
@@ -55,6 +76,18 @@ public interface VoiceManager {
      * @param sinkId The id of the audio sink to use or null
      */
     void say(String text, String voiceId, String sinkId);
+
+    /**
+     * Speaks the passed string with the given volume using the provided voiceId and the given audio sink.
+     * If the voiceId is fully qualified (i.e. with a tts prefix), the according TTS service will be used, otherwise the
+     * voiceId is assumed to be available on the default TTS service.
+     *
+     * @param text The text to say
+     * @param voiceId The id of the voice to use (either with or without prefix) or null
+     * @param sinkId The id of the audio sink to use or null
+     * @param volume The volume to be used or null
+     */
+    void say(String text, String voiceId, String sinkId, PercentType volume);
 
     /**
      * Interprets the passed string using the default services for HLI and locale.

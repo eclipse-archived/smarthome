@@ -52,7 +52,17 @@ public class AudioManagerStub implements AudioManager {
     }
 
     @Override
+    public void play(AudioStream audioStream, String sinkId, PercentType volume) {
+
+    }
+
+    @Override
     public void playFile(String fileName) throws AudioException {
+
+    }
+
+    @Override
+    public void playFile(String fileName, PercentType volume) throws AudioException {
 
     }
 
@@ -62,12 +72,27 @@ public class AudioManagerStub implements AudioManager {
     }
 
     @Override
+    public void playFile(String fileName, String sink, PercentType volume) throws AudioException {
+
+    }
+
+    @Override
     public void stream(String url) throws AudioException {
 
     }
 
     @Override
+    public void stream(String url, PercentType volume) throws AudioException {
+
+    }
+
+    @Override
     public void stream(String url, String sinkId) throws AudioException {
+
+    }
+
+    @Override
+    public void stream(String url, String sinkId, PercentType volume) throws AudioException {
 
     }
 
