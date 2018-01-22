@@ -144,11 +144,16 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
         var index = repository.findByIndex(function(result) {
             return discoveryResult.thingUID == result.thingUID;
         });
-        if (topic.indexOf("added") > -1 && index == -1) {
+        var command = topic.substring(topic.lastIndexOf('/') + 1);
+        if (command === "added" && index == -1) {
             repository.add(discoveryResult);
         }
-        if (topic.indexOf("removed") > -1 && index != -1) {
-            repository.remove(discoveryResult, index);
+        if (command === "removed" && index != -1) {
+            repository.remove(undefined, index);
+        }
+        if (command === "updated" && index != -1) {
+            repository.remove(undefined, index);
+            repository.add(discoveryResult);
         }
     });
     return repository;
