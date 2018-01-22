@@ -457,7 +457,9 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
             }
         }
 
-        postEvent(get(result.getThingUID()), type);
+        // in case of EventType added/updated the listeners might have modified the result in the discoveryResultStorage
+        DiscoveryResult resultForEvent = type == EventType.removed ? result : get(result.getThingUID());
+        postEvent(resultForEvent, type);
     }
 
     private void postEvent(DiscoveryResult result, EventType eventType) {
