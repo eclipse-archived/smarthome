@@ -39,6 +39,7 @@ import org.eclipse.smarthome.binding.tradfri.internal.TradfriCoapClient;
 import org.eclipse.smarthome.binding.tradfri.internal.TradfriCoapEndpoint;
 import org.eclipse.smarthome.binding.tradfri.internal.TradfriCoapHandler;
 import org.eclipse.smarthome.binding.tradfri.internal.config.TradfriGatewayConfig;
+import org.eclipse.smarthome.binding.tradfri.internal.model.TradfriVersion;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -68,7 +69,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static final String MIN_SUPPORTED_VERSION = "1.2.42";
+    private static final TradfriVersion MIN_SUPPORTED_VERSION = new TradfriVersion("1.2.42");
 
     private TradfriCoapClient deviceClient;
     private String gatewayURI;
@@ -376,7 +377,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
      */
     private boolean isOldFirmware() {
         String currentFirmware = thing.getProperties().get(Thing.PROPERTY_FIRMWARE_VERSION);
-        return currentFirmware == null || MIN_SUPPORTED_VERSION.compareTo(currentFirmware) > 0;
+        return currentFirmware == null || MIN_SUPPORTED_VERSION.compareTo(new TradfriVersion(currentFirmware)) > 0;
     }
 
     @Override
