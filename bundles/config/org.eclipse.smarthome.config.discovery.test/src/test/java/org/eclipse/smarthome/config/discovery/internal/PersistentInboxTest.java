@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
+import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -32,6 +33,9 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
+import org.eclipse.smarthome.config.discovery.inbox.events.InboxAddedEvent;
+import org.eclipse.smarthome.config.discovery.inbox.events.InboxUpdatedEvent;
+import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.eclipse.smarthome.core.storage.StorageService;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
@@ -46,6 +50,7 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 /**
@@ -141,6 +146,52 @@ public class PersistentInboxTest {
 
         assertTrue(lastAddedThing.getConfiguration().get("foo") instanceof String);
         assertEquals("3", lastAddedThing.getConfiguration().get("foo"));
+    }
+
+    @Test
+    public void testEmittedAddedResultIsReadFromStorage() {
+        DiscoveryResult result = DiscoveryResultBuilder.create(THING_UID).withProperty("foo", 3).build();
+
+        EventPublisher eventPublisher = mock(EventPublisher.class);
+        inbox.setEventPublisher(eventPublisher);
+
+        when(storage.get(THING_UID.toString())) //
+                .thenReturn(null) //
+                .thenReturn(DiscoveryResultBuilder.create(THING_UID).withProperty("foo", "bar").build());
+
+        inbox.add(result);
+
+        // 1st call checks existence of the result in the storage (returns null)
+        // 2nd call retrieves the stored instance before the event gets emitted
+        // (modified due to storage mock configuration)
+        verify(storage, times(2)).get(THING_UID.toString());
+
+        ArgumentCaptor<InboxAddedEvent> eventCaptor = ArgumentCaptor.forClass(InboxAddedEvent.class);
+        verify(eventPublisher).post(eventCaptor.capture());
+        assertThat(eventCaptor.getValue().getDiscoveryResult().properties, hasEntry("foo", "bar"));
+    }
+
+    @Test
+    public void testEmittedUpdatedResultIsReadFromStorage() {
+        DiscoveryResult result = DiscoveryResultBuilder.create(THING_UID).withProperty("foo", 3).build();
+
+        EventPublisher eventPublisher = mock(EventPublisher.class);
+        inbox.setEventPublisher(eventPublisher);
+
+        when(storage.get(THING_UID.toString())) //
+                .thenReturn(result) //
+                .thenReturn(DiscoveryResultBuilder.create(THING_UID).withProperty("foo", "bar").build());
+
+        inbox.add(result);
+
+        // 1st call checks existence of the result in the storage (returns the original result)
+        // 2nd call retrieves the stored instance before the event gets emitted
+        // (modified due to storage mock configuration)
+        verify(storage, times(2)).get(THING_UID.toString());
+
+        ArgumentCaptor<InboxUpdatedEvent> eventCaptor = ArgumentCaptor.forClass(InboxUpdatedEvent.class);
+        verify(eventPublisher).post(eventCaptor.capture());
+        assertThat(eventCaptor.getValue().getDiscoveryResult().properties, hasEntry("foo", "bar"));
     }
 
     private void configureConfigDescriptionRegistryMock(String paramName, Type type) throws URISyntaxException {
