@@ -93,6 +93,6 @@ public class TradfriVersion implements Comparable<TradfriVersion> {
 
     @Override
     public String toString() {
-        return Arrays.toString(parts.toArray());
+        return parts.stream().map(String::valueOf).collect(Collectors.joining("."));
     }
 }
