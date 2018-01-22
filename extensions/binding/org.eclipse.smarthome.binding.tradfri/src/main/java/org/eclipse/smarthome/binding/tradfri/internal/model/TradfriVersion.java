@@ -28,7 +28,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class TradfriVersion implements Comparable<TradfriVersion> {
     private static final String VERSION_PATTERN = "[0-9]+(\\.[0-9]+)*";
     private static final String VERSION_DELIMITER = "\\.";
-    private final List<Integer> parts;
+    final List<Integer> parts;
 
     /**
      * Create a new instance.
@@ -43,19 +43,11 @@ public class TradfriVersion implements Comparable<TradfriVersion> {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Returns an array of strings containing the version parts
-     */
-    public List<Integer> getParts() {
-        return parts;
-    }
-
     @Override
     public int compareTo(final TradfriVersion other) {
-        List<Integer> otherParts = other.getParts();
-        int minSize = Math.min(parts.size(), otherParts.size());
+        int minSize = Math.min(parts.size(), other.parts.size());
         for (int i = 0; i < minSize; ++i) {
-            int diff = parts.get(i) - otherParts.get(i);
+            int diff = parts.get(i) - other.parts.get(i);
             if (diff == 0) {
                 continue;
             } else if (diff < 0) {
@@ -69,8 +61,8 @@ public class TradfriVersion implements Comparable<TradfriVersion> {
                 return 1;
             }
         }
-        for (int i = minSize; i < otherParts.size(); ++i) {
-            if (otherParts.get(i) != 0) {
+        for (int i = minSize; i < other.parts.size(); ++i) {
+            if (other.parts.get(i) != 0) {
                 return -1;
             }
         }

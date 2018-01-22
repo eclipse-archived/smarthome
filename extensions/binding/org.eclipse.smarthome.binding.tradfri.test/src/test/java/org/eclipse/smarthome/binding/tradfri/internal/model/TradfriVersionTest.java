@@ -38,8 +38,8 @@ public class TradfriVersionTest {
     }
 
     @Test
-    public void testGetParts() {
-        assertEquals(Arrays.asList(1, 2, 42), VERSION.getParts());
+    public void testParts() {
+        assertEquals(Arrays.asList(1, 2, 42), VERSION.parts);
     }
 
     @Test
