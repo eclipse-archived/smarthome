@@ -456,7 +456,8 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
                 logger.error(errorMessage, ex);
             }
         }
-        postEvent(result, type);
+
+        postEvent(get(result.getThingUID()), type);
     }
 
     private void postEvent(DiscoveryResult result, EventType eventType) {
