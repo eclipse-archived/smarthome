@@ -99,18 +99,24 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             AudioSink sink = getSink(sinkId);
 
             if (sink != null) {
-                try {
-                    // get current volume
-                    PercentType oldVolume = getVolume(sinkId);
-                    // set notification sound volume
-                    if (volume != null) {
-                        setVolume(volume, sinkId);
+                // get current volume
+                PercentType oldVolume = getVolume(sinkId);
+                // set notification sound volume
+                if (volume != null) {
+                    setVolume(volume, sinkId);
+                }
+                if (sink.getSupportedStreams().stream().anyMatch(clazz -> clazz.isInstance(audioStream))) {
+                    try {
+                        sink.process(audioStream);
+                    } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
+                        logger.warn("Error playing '{}': {}", audioStream, e.getMessage(), e);
                     }
-                    sink.process(audioStream);
-                    // restore volume
+                } else {
+                    logger.warn("Failed playing audio stream '{}' as audio doesn't support it.", audioStream);
+                }
+                // restore volume
+                if (oldVolume != null) {
                     setVolume(oldVolume, sinkId);
-                } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
-                    logger.warn("Error playing '{}': {}", audioStream, e.getMessage(), e);
                 }
             } else {
                 logger.warn("Failed playing audio stream '{}' as no audio sink was found.", audioStream);

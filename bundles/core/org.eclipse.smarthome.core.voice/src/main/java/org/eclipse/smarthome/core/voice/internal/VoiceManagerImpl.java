@@ -191,18 +191,24 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
                 if (audioFormat != null) {
                     AudioStream audioStream = tts.synthesize(text, voice, audioFormat);
 
-                    try {
-                        // get current volume
-                        PercentType oldVolume = audioManager.getVolume(sinkId);
-                        // set notification sound volume
-                        if (volume != null) {
-                            audioManager.setVolume(volume, sinkId);
+                    // get current volume
+                    PercentType oldVolume = audioManager.getVolume(sinkId);
+                    // set notification sound volume
+                    if (volume != null) {
+                        audioManager.setVolume(volume, sinkId);
+                    }
+                    if (sink.getSupportedStreams().stream().anyMatch(clazz -> clazz.isInstance(audioStream))) {
+                        try {
+                            sink.process(audioStream);
+                        } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
+                            logger.warn("Error saying '{}': {}", text, e.getMessage(), e);
                         }
-                        sink.process(audioStream);
-                        // restore volume
+                    } else {
+                        logger.warn("Failed playing audio stream '{}' as audio doesn't support it.", audioStream);
+                    }
+                    // restore volume
+                    if (oldVolume != null) {
                         audioManager.setVolume(oldVolume, sinkId);
-                    } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
-                        logger.warn("Error saying '{}': {}", text, e.getMessage(), e);
                     }
                 } else {
                     logger.warn("No compatible audio format found for TTS '{}' and sink '{}'", tts.getId(),

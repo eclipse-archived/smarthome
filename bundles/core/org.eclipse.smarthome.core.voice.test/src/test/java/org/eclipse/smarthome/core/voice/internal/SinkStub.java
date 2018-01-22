@@ -28,18 +28,23 @@ import org.eclipse.smarthome.core.library.types.PercentType;
  * some of the methods are not needed. That's why their implementation is left empty.
  *
  * @author Mihaela Memova - initial contribution
- *
  * @author Velin Yordanov - migrated from groovy to java
- *
  */
 public class SinkStub implements AudioSink {
 
     private boolean isStreamProcessed;
-    private boolean isUnsupportedAudioFormatExceptionExpected;
-    private Set<AudioFormat> supportedFormats = new HashSet<AudioFormat>();
+    private static final Set<AudioFormat> SUPPORTED_AUDIO_FORMATS = new HashSet<>();
+    private static final Set<Class<? extends AudioStream>> SUPPORTED_AUDIO_STREAMS = new HashSet<>();
 
     private static final String SINK_STUB_ID = "sinkStubID";
     private static final String SINK_STUB_LABEL = "sinkStubLabel";
+
+    static {
+        SUPPORTED_AUDIO_FORMATS.add(AudioFormat.WAV);
+        SUPPORTED_AUDIO_FORMATS.add(AudioFormat.MP3);
+
+        SUPPORTED_AUDIO_STREAMS.add(AudioStream.class);
+    }
 
     @Override
     public String getId() {
@@ -62,9 +67,7 @@ public class SinkStub implements AudioSink {
 
     @Override
     public Set<AudioFormat> getSupportedFormats() {
-        supportedFormats.add(AudioFormat.MP3);
-        supportedFormats.add(AudioFormat.WAV);
-        return supportedFormats;
+        return SUPPORTED_AUDIO_FORMATS;
     }
 
     @Override
@@ -89,7 +92,6 @@ public class SinkStub implements AudioSink {
 
     @Override
     public Set<Class<? extends AudioStream>> getSupportedStreams() {
-        // this method will not be used in the tests
-        return null;
+        return SUPPORTED_AUDIO_STREAMS;
     }
 }

@@ -38,8 +38,8 @@ public class AudioSinkFake implements AudioSink {
     public boolean isUnsupportedAudioFormatExceptionExpected = false
     public boolean isUnsupportedAudioStreamExceptionExpected = false
 
-    private static final HashSet<AudioFormat> SUPPORTED_AUDIO_FORMATS = new HashSet<>();
-    private static final HashSet<Class<? extends AudioStream>> SUPPORTED_AUDIO_STREAMS = new HashSet<>();
+    private static final Set<AudioFormat> SUPPORTED_AUDIO_FORMATS = new HashSet<>();
+    private static final Set<Class<? extends AudioStream>> SUPPORTED_AUDIO_STREAMS = new HashSet<>();
 
     static {
         SUPPORTED_AUDIO_FORMATS.add(AudioFormat.WAV);
