@@ -12,50 +12,66 @@
  */
 package org.eclipse.smarthome.binding.tradfri.internal.model;
 
-import org.eclipse.jdt.annotation.NonNull;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * The {@link TradfriVersion} class is a default implementation of comparing TRÅDFRI versions.
+ * The {@link TradfriVersion} class is a default implementation for comparing TRÅDFRI versions.
  *
  * @author Christoph Weitkamp - Initial contribution
  */
+@NonNullByDefault
 public class TradfriVersion implements Comparable<TradfriVersion> {
     private static final String VERSION_PATTERN = "[0-9]+(\\.[0-9]+)*";
     private static final String VERSION_DELIMITER = "\\.";
-    private final String[] parts;
+    private final List<Integer> parts;
 
     /**
      * Create a new instance.
      *
      * @param version the version string
      */
-    public TradfriVersion(@NonNull String version) {
+    public TradfriVersion(final String version) {
         if (!version.matches(VERSION_PATTERN)) {
             throw new IllegalArgumentException("TradfriVersion cannot be created as version has invalid format.");
         }
-        this.parts = version.split(VERSION_DELIMITER);
+        parts = Arrays.stream(version.split(VERSION_DELIMITER)).map(part -> Integer.parseInt(part))
+                .collect(Collectors.toList());
     }
 
     /**
      * Returns an array of strings containing the version parts
      */
-    public String[] get() {
+    public List<Integer> getParts() {
         return parts;
     }
 
     @Override
-    public int compareTo(@NonNull TradfriVersion other) {
-        String[] otherParts = other.get();
-        int length = Math.max(parts.length, otherParts.length);
-        for (int i = 0; i < length; i++) {
-            int thisPart = i < parts.length ? Integer.parseInt(parts[i]) : 0;
-            int otherPart = i < otherParts.length ? Integer.parseInt(otherParts[i]) : 0;
-            if (thisPart < otherPart) {
+    public int compareTo(final TradfriVersion other) {
+        List<Integer> otherParts = other.getParts();
+        int minSize = Math.min(parts.size(), otherParts.size());
+        for (int i = 0; i < minSize; ++i) {
+            int diff = parts.get(i) - otherParts.get(i);
+            if (diff == 0) {
+                continue;
+            } else if (diff < 0) {
                 return -1;
-            }
-            if (thisPart > otherPart) {
+            } else {
                 return 1;
+            }
+        }
+        for (int i = minSize; i < parts.size(); ++i) {
+            if (parts.get(i) != 0) {
+                return 1;
+            }
+        }
+        for (int i = minSize; i < otherParts.size(); ++i) {
+            if (otherParts.get(i) != 0) {
+                return -1;
             }
         }
         return 0;
@@ -77,6 +93,6 @@ public class TradfriVersion implements Comparable<TradfriVersion> {
 
     @Override
     public String toString() {
-        return String.join(VERSION_DELIMITER, parts);
+        return Arrays.toString(parts.toArray());
     }
 }
