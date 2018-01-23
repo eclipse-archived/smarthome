@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.model.item.internal;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
@@ -400,8 +402,76 @@ public class GenericItemProvider extends AbstractProvider<Item>
                 !Objects.equals(item1.getGroupNames(), item2.getGroupNames()) || //
                 !Objects.equals(item1.getLabel(), item2.getLabel()) || //
                 !Objects.equals(item1.getTags(), item2.getTags()) || //
-                !Objects.equals(item1.getType(), item2.getType());
+                !Objects.equals(item1.getType(), item2.getType()) || //
+                hasStateDescriptionChanged(item1.getName(), item2.getName()) || //
+                hasGroupItemChanged(item1, item2);
+    }
 
+    private boolean hasStateDescriptionChanged(String itemName1, String itemName2) {
+        StateDescription sd1 = stateDescriptions.get(itemName1);
+        StateDescription sd2 = stateDescriptions.get(itemName2);
+
+        if (sd1 == null && sd2 == null) {
+            return false;
+        }
+
+        else if ((sd1 != null && sd2 == null) || (sd1 == null && sd2 != null)) {
+            // A StateDescription was added or removed
+            return true;
+        }
+
+        return !Objects.equals(sd1.getPattern(), sd2.getPattern());
+    }
+
+    private boolean hasGroupItemChanged(Item item1, Item item2) {
+        GroupItem gItem1 = null;
+        GroupItem gItem2 = null;
+
+        if (item1 instanceof GroupItem) {
+            gItem1 = (GroupItem) item1;
+        }
+        if (item2 instanceof GroupItem) {
+            gItem2 = (GroupItem) item2;
+        }
+
+        if (gItem1 == null && gItem2 == null) {
+            return false;
+        }
+
+        if ((gItem1 != null && gItem2 == null) || (gItem1 == null && gItem2 != null)) {
+            // Item was changed into a GroupItem
+            return true;
+        }
+
+        boolean sameBaseItemClass = false;
+        if (gItem1.getBaseItem() != null && gItem2.getBaseItem() != null) {
+            sameBaseItemClass = Objects.equals(gItem1.getBaseItem().getClass(), gItem2.getBaseItem().getClass());
+        }
+
+        boolean sameFunction = false;
+        GroupFunction gf1 = gItem1.getFunction();
+        GroupFunction gf2 = gItem2.getFunction();
+        if (gf1 != null && gf2 != null) {
+            if (Objects.equals(gf1.getClass(), gf2.getClass())) {
+                sameFunction = Arrays.equals(gf1.getParameters(), gf2.getParameters());
+            }
+        }
+
+        boolean sameMembers = true;
+        Set<Item> members1 = gItem1.getMembers();
+        Set<Item> members2 = gItem2.getMembers();
+        if (members1 != null && members2 != null) {
+            if (members1.size() != members2.size()) {
+                sameMembers = false;
+            } else {
+                sameMembers = Objects.equals(members1, members2);
+            }
+        } else if ((gItem1.getMembers() == null && gItem2.getMembers() != null)
+                || gItem1.getMembers() != null && gItem2.getMembers() == null) {
+            sameMembers = false;
+        }
+
+        return !(sameBaseItemClass && sameFunction && sameMembers);
     }
 
     private Map<String, Item> toItemMap(Collection<Item> items) {
