@@ -30,7 +30,10 @@ import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.library.types.PointType;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,13 +64,21 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
     }
 
     @Override
+    @Activate
     protected void activate(Map<String, Object> configProperties) {
         super.activate(configProperties);
     }
 
     @Override
+    @Modified
     protected void modified(Map<String, Object> configProperties) {
         super.modified(configProperties);
+    }
+
+    @Override
+    @Deactivate
+    protected void deactivate() {
+        super.deactivate();
     }
 
     @Override
