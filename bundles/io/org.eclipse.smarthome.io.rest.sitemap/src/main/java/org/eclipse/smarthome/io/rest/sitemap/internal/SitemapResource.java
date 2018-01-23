@@ -56,6 +56,7 @@ import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
 import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService;
 import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService.SitemapSubscriptionCallback;
 import org.eclipse.smarthome.model.sitemap.Chart;
+import org.eclipse.smarthome.model.sitemap.ColorArray;
 import org.eclipse.smarthome.model.sitemap.Frame;
 import org.eclipse.smarthome.model.sitemap.Image;
 import org.eclipse.smarthome.model.sitemap.LinkableWidget;
@@ -69,6 +70,7 @@ import org.eclipse.smarthome.model.sitemap.SitemapProvider;
 import org.eclipse.smarthome.model.sitemap.Slider;
 import org.eclipse.smarthome.model.sitemap.Switch;
 import org.eclipse.smarthome.model.sitemap.Video;
+import org.eclipse.smarthome.model.sitemap.VisibilityRule;
 import org.eclipse.smarthome.model.sitemap.Webview;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
@@ -608,16 +610,55 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
                     try {
                         Item item = itemUIRegistry.getItem(itemName);
                         if (item instanceof GenericItem) {
-                            final GenericItem gItem = (GenericItem) item;
-                            items.add(gItem);
+                            items.add((GenericItem) item);
                         }
                     } catch (ItemNotFoundException e) {
                         // ignore
                     }
-                } else {
-                    if (widget instanceof Frame) {
-                        items.addAll(getAllItems(((Frame) widget).getChildren()));
+                }
+                // Consider all items inside the frame
+                if (widget instanceof Frame) {
+                    items.addAll(getAllItems(((Frame) widget).getChildren()));
+                }
+                // Consider items involved in any visibility, labelcolor and valuecolor condition
+                items.addAll(getItemsInVisibilityCond(widget.getVisibility()));
+                items.addAll(getItemsInColorCond(widget.getLabelColor()));
+                items.addAll(getItemsInColorCond(widget.getValueColor()));
+            }
+        }
+        return items;
+    }
+
+    private Set<GenericItem> getItemsInVisibilityCond(EList<VisibilityRule> ruleList) {
+        Set<GenericItem> items = new HashSet<GenericItem>();
+        for (VisibilityRule rule : ruleList) {
+            String itemName = rule.getItem();
+            if (itemName != null) {
+                try {
+                    Item item = itemUIRegistry.getItem(itemName);
+                    if (item instanceof GenericItem) {
+                        items.add((GenericItem) item);
                     }
+                } catch (ItemNotFoundException e) {
+                    // ignore
+                }
+            }
+        }
+        return items;
+    }
+
+    private Set<GenericItem> getItemsInColorCond(EList<ColorArray> colorList) {
+        Set<GenericItem> items = new HashSet<GenericItem>();
+        for (ColorArray color : colorList) {
+            String itemName = color.getItem();
+            if (itemName != null) {
+                try {
+                    Item item = itemUIRegistry.getItem(itemName);
+                    if (item instanceof GenericItem) {
+                        items.add((GenericItem) item);
+                    }
+                } catch (ItemNotFoundException e) {
+                    // ignore
                 }
             }
         }
