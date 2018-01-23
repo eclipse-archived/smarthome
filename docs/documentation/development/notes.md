@@ -47,6 +47,7 @@ This will minify the files and copy all the sources to 'web' folder.
 The changes can be seen at 'http://localhost:8080/' (default port for smarthome web server).
 
 ### Paper UI Location Support
+
 Paper UI supports the rendering for location configuration parameters as well as `LocationItem`s in a map view.
 For licensing reasons the map component provided by the framework does _not_ render any map but defines the extension point `mapSourceService` which can be used to provide a map source.
 Using the [OpenLayers API (v4.2.0)](https://openlayers.org/en/v4.2.0/apidoc/) a solution may provide an existing or even its own implementation of a map source.
