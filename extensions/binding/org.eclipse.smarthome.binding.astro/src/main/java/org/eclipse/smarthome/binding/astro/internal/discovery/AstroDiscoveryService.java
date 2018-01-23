@@ -62,19 +62,9 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
     }
 
     @Override
-    protected void activate(Map<String, Object> configProperties) {
-        super.activate(configProperties);
-    }
-
-    @Override
     @Modified
     protected void modified(Map<String, Object> configProperties) {
         super.modified(configProperties);
-    }
-
-    @Override
-    protected void deactivate() {
-        super.deactivate();
     }
 
     @Override
