@@ -306,7 +306,7 @@ public class NetUtil implements NetworkAddressService {
      * @return string representation of netmask (i.e. 255.255.255.0)
      */
     public static @NonNull String networkPrefixLengthToNetmask(int prefixLength) {
-        if (prefixLength > 31 || prefixLength < 1) {
+        if (prefixLength > 32 || prefixLength < 1) {
             throw new IllegalArgumentException("Network prefix length is not within bounds");
         }
 
