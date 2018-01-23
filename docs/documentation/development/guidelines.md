@@ -22,7 +22,7 @@ Note that this list also serves as a checklist for code reviews on pull requests
 1. Generics must be used where applicable.
 1. Code should not show any warnings. Warnings that cannot be circumvented should be suppressed by using the @SuppressWarnings annotation. 
 1. For dependency injection, OSGi Declarative Services should be used.
-1. OSGi Declarative Services should be declared using annotations. The IDE will take care of the service *.xml file creation. See the official OSGi documentation for an [example here](http://enroute.osgi.org/services/org.osgi.service.component.html).
+1. OSGi Declarative Services should be declared using annotations. The IDE will take care of the service *.xml file creation. See the official OSGi documentation for an [example here](http://enroute.osgi.org/services/org.osgi.service.component.html). We always use `@Activate`, `@Deactivate` and `@Modified` if we define these methods, even if they exist in a super class, to make the code more readable.
 1. Packages that contain classes that are not meant to be used by other bundles should have "internal" in their package name.
 1. We are using [null annotations](https://wiki.eclipse.org/JDT_Core/Null_Analysis) from the Eclipse JDT project. Therefore every bundle should have an **optional** `Import-Package` dependency to `org.eclipse.jdt.annotation`.
 Classes should be annotated by `@NonNullByDefault` and return types, parameter types, generic types etc. are annotated with `@Nullable` only.
