@@ -1587,24 +1587,8 @@
 
 		_t.initControls = function() {
 			smarthome.dataModel = {};
-			smarthome.dataModelLegacy = {};
 
 			function appendControl(control) {
-				// dataModelLegacy keeps item → widgets binding for
-				// long-polling event listener
-				if (
-					(smarthome.dataModelLegacy[control.item] === undefined) ||
-					(smarthome.dataModelLegacy[control.item].widgets === undefined)
-				) {
-					if (control.item !== undefined) {
-						smarthome.dataModelLegacy[control.item] = { widgets: [] };
-					}
-				}
-
-				if (control.item !== undefined) {
-					smarthome.dataModelLegacy[control.item].widgets.push(control);
-				}
-
 				smarthome.dataModel[control.id] = control;
 			}
 
@@ -1733,6 +1717,47 @@
 
 			return title;
 		};
+
+		this.updateWidget = function(widget, update) {
+			var
+				value = this.extractValueFromLabel(update.label),
+				makeVisible = false;
+
+			if (widget.visible !== update.visibility) {
+				makeVisible = update.visibility;
+				smarthome.UI.layoutChangeProxy.push({
+					widget: widget,
+					visibility: update.visibility
+				});
+			}
+
+			if (makeVisible || update.state !== "NULL") {
+				if (value === null) {
+					value = update.state;
+				}
+				widget.setValue(smarthome.UI.escapeHtml(value), update.state, update.visibility);
+			}
+
+			[{
+				apply: widget.setLabel,
+				data: update.label,
+				fallback: null
+			}, {
+				apply: widget.setLabelColor,
+				data: update.labelcolor,
+				fallback: ""
+			}, {
+				apply: widget.setValueColor,
+				data: update.valuecolor,
+				fallback: ""
+			}].forEach(function(e) {
+				if (e.data !== undefined) {
+					e.apply(e.data);
+				} else if (e.fallback !== null) {
+					e.apply(e.fallback);
+				}
+			});
+		};
 	}
 
 	function ChangeListenerEventsource(subscribeLocation) {
@@ -1752,7 +1777,6 @@
 			var
 				data = JSON.parse(payload.data),
 				state,
-				value,
 				title;
 
 			if (data.TYPE === "SITEMAP_CHANGED") {
@@ -1767,7 +1791,10 @@
 				return;
 			}
 
-			if (!(data.widgetId in smarthome.dataModel) && (data.widgetId !== smarthome.UI.page)) {
+			if (
+				!(data.widgetId in smarthome.dataModel) &&
+				(data.widgetId !== smarthome.UI.page)
+			) {
 				return;
 			}
 
@@ -1777,46 +1804,22 @@
 				state = data.state;
 			}
 
-			value = _t.extractValueFromLabel(data.label);
-			if (value === null) {
-				value = state;
-			}
 			title = _t.getTitleFromLabel(data.label);
 
-			if ((data.widgetId === smarthome.UI.page) && (title !== null)) {
+			if (
+				(data.widgetId === smarthome.UI.page) &&
+				(title !== null)
+			) {
 				smarthome.UI.setTitle(smarthome.UI.escapeHtml(title));
 			} else if (smarthome.dataModel[data.widgetId] !== undefined) {
-				var
-					widget = smarthome.dataModel[data.widgetId];
-
-				if (widget.visible !== data.visibility) {
-					smarthome.UI.layoutChangeProxy.push({
-						widget: widget,
-						visibility: data.visibility
-					});
-				}
-
-				widget.setValue(smarthome.UI.escapeHtml(value), state, data.visibility);
-
-				[{
-					apply: widget.setLabel,
-					data: data.label,
-					fallback: null
-				}, {
-					apply: widget.setLabelColor,
-					data: data.labelcolor,
-					fallback: ""
-				}, {
-					apply: widget.setValueColor,
-					data: data.valuecolor,
-					fallback: ""
-				}].forEach(function(e) {
-					if (e.data !== undefined) {
-						e.apply(e.data);
-					} else if (e.fallback !== null) {
-						e.apply(e.fallback);
-					}
-				});
+				var update = {
+					visibility: data.visibility,
+					state: state,
+					label: data.label,
+					labelcolor: data.labelcolor,
+					valuecolor: data.valuecolor
+				};
+				_t.updateWidget(smarthome.dataModel[data.widgetId], update);
 			}
 		});
 
@@ -1837,7 +1840,8 @@
 
 		function applyChanges(response) {
 			var
-				title;
+				title,
+				id;
 
 			try {
 				response = JSON.parse(response);
@@ -1852,52 +1856,63 @@
 
 			function walkWidgets(widgets) {
 				widgets.forEach(function(widget) {
-					if (widget.item === undefined) {
+					if (
+						widget.widgetId === undefined ||
+						smarthome.dataModel[widget.widgetId] === undefined
+					) {
 						return;
 					}
 
 					var
-						item = widget.item.name,
-						state = widget.item.state,
-						label = widget.label,
-						value = _t.extractValueFromLabel(widget.label),
-						visibility = widget.visibility,
-						labelcolor = widget.labelcolor,
-						valuecolor = widget.valuecolor;
+						w = smarthome.dataModel[widget.widgetId],
+						state = "NULL",
+						update;
 
-					if (value === null) {
-						value = state;
+					if (widget.item !== undefined) {
+						state = widget.item.state;
 					}
-
-					if (smarthome.dataModelLegacy[item] !== undefined) {
-						smarthome.dataModelLegacy[item].widgets.forEach(function(w) {
-							if (state !== "NULL") {
-								w.setValue(smarthome.UI.escapeHtml(value), state, visibility);
-							}
-							if (label !== undefined) {
-								w.setLabel(label);
-							}
-							if (labelcolor !== undefined) {
-								w.setLabelColor(labelcolor);
-							} else {
-								w.setLabelColor("");
-							}
-							if (valuecolor !== undefined) {
-								w.setValueColor(valuecolor);
-							} else {
-								w.setValueColor("");
-							}
-						});
+					if (!w.visible || widget.item !== undefined) {
+						update = {
+							visibility: true,
+							state: state,
+							label: widget.label,
+							labelcolor: widget.labelcolor,
+							valuecolor: widget.valuecolor
+						};
+						_t.updateWidget(w, update);
 					}
+					w.handled = true;
 				});
+			}
+
+			for (id in smarthome.dataModel) {
+				smarthome.dataModel[id].handled = false;
 			}
 
 			if (response.leaf) {
 				walkWidgets(response.widgets);
 			} else {
 				response.widgets.forEach(function(frameWidget) {
+					if (
+						frameWidget.widgetId !== undefined &&
+						smarthome.dataModel[frameWidget.widgetId] !== undefined
+					) {
+						smarthome.dataModel[frameWidget.widgetId].handled = true;
+					}
 					walkWidgets(frameWidget.widgets);
 				});
+			}
+
+			for (id in smarthome.dataModel) {
+				var
+					w = smarthome.dataModel[id];
+
+				if (w.visible && !w.handled) {
+					smarthome.UI.layoutChangeProxy.push({
+						widget: w,
+						visibility: false
+					});
+				}
 			}
 		}
 
