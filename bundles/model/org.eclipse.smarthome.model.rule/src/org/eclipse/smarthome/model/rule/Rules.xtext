@@ -28,8 +28,11 @@ Rule:
 
 EventTrigger:
 	UpdateEventTrigger |
+	GroupMemberUpdateEventTrigger |
 	CommandEventTrigger |
+	GroupMemberCommandEventTrigger |
 	ChangedEventTrigger |
+	GroupMemberChangedEventTrigger |
 	EventEmittedTrigger |
 	TimerTrigger |
 	SystemTrigger |
@@ -41,12 +44,24 @@ CommandEventTrigger:
 	'Item' item=ItemName 'received command' (command=ValidCommand)?
 ;
 
+GroupMemberCommandEventTrigger:
+    'Member of' group=ItemName 'received command' (command=ValidCommand)?
+;
+
 UpdateEventTrigger:
 	'Item' item=ItemName 'received update' (state=ValidState)?
 ;
 
+GroupMemberUpdateEventTrigger:
+    'Member of' group=ItemName 'received update' (state=ValidState)?
+;
+
 ChangedEventTrigger:
-	'Item' item=ItemName 'changed' ('from' oldState=ValidState)? ('to' newState=ValidState)?
+    'Item' item=ItemName 'changed' ('from' oldState=ValidState)? ('to' newState=ValidState)?
+;
+
+GroupMemberChangedEventTrigger:
+	'Member of' group=ItemName 'changed' ('from' oldState=ValidState)? ('to' newState=ValidState)?
 ;		
 
 EventEmittedTrigger:
