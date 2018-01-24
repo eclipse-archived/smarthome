@@ -3,10 +3,13 @@ Bundle-ManifestVersion: 2
 Bundle-Name:  MqttBroker Binding Tests
 Bundle-SymbolicName: org.eclipse.smarthome.binding.mqttgeneric.test;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.9.0.qualifier
+Bundle-Version: 0.10.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Fragment-Host: org.eclipse.smarthome.binding.mqttgeneric
-Import-Package: org.eclipse.smarthome.binding.mqttgeneric,
+Import-Package: com.jayway.jsonpath,
+ net.minidev.json,
+ net.minidev.json.parser,
+ org.eclipse.smarthome.binding.mqttgeneric,
  org.eclipse.smarthome.binding.mqttgeneric.handler,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.events,
@@ -14,13 +17,10 @@ Import-Package: org.eclipse.smarthome.binding.mqttgeneric,
  org.eclipse.smarthome.core.thing.binding.builder,
  org.eclipse.smarthome.core.thing.util,
  org.eclipse.smarthome.core.types,
- com.jayway.jsonpath,
- net.minidev.json,
- net.minidev.json.parser,
  org.hamcrest;core=split,
  org.junit;version="4.0.0",
  org.mockito,
+ org.mockito.stubbing,
  org.osgi.framework,
  org.osgi.service.device,
  org.slf4j
-Require-Bundle: org.junit,org.mockito,org.hamcrest

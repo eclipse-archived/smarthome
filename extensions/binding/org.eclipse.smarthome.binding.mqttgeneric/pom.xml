@@ -7,11 +7,10 @@
 	<parent>
 		<groupId>org.eclipse.smarthome.binding</groupId>
 		<artifactId>pom</artifactId>
-		<version>0.9.0-SNAPSHOT</version>
+		<version>0.10.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>org.eclipse.smarthome.binding.mqttgeneric</artifactId>
-	<version>0.9.0-SNAPSHOT</version>
 
 	<name>MqttGeneric Binding</name>
 	<packaging>eclipse-plugin</packaging>

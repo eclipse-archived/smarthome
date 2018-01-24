@@ -12,12 +12,17 @@
  */
 package org.eclipse.smarthome.binding.mqttgeneric.handler;
 
-/**
- * @author David Graeff - Initial contribution
- */
-import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.types.State;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.transform.TransformationService;
 
-public interface ChannelStateUpdateListener {
-    void channelStateUpdated(ChannelUID channelUID, State value);
+/**
+ * @author Simon Kaufmann - initial contribution and API
+ */
+@NonNullByDefault
+public interface TransformationServiceProvider {
+
+    @Nullable
+    TransformationService getTransformationService(String type);
+
 }

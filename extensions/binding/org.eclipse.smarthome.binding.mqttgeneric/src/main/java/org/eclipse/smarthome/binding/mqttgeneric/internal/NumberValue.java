@@ -1,10 +1,14 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.mqttgeneric.internal;
 
@@ -25,7 +29,7 @@ import org.eclipse.smarthome.core.types.State;
 public class NumberValue implements AbstractMqttThingValue {
     DecimalType numberValue;
     boolean isFloat;
-    private double step;
+    private final double step;
 
     public NumberValue(Boolean isFloat, BigDecimal step) {
         this.isFloat = isFloat == null ? true : isFloat;
@@ -41,7 +45,9 @@ public class NumberValue implements AbstractMqttThingValue {
     @Override
     public String update(Command command) throws IllegalArgumentException {
         if (command instanceof StringType) {
-            numberValue = PercentType.valueOf(((StringType) command).toString());
+            numberValue = DecimalType.valueOf(((StringType) command).toString());
+        } else if (command instanceof DecimalType) {
+            numberValue = (DecimalType) command;
         } else if (command instanceof PercentType) {
             numberValue = ((PercentType) command);
         } else if (command instanceof IncreaseDecreaseType) {
@@ -54,7 +60,7 @@ public class NumberValue implements AbstractMqttThingValue {
             numberValue = new PercentType(new BigDecimal(v));
         } else {
             throw new IllegalArgumentException(
-                    "Type " + command.getClass().getName() + " not supported for PercentValue");
+                    "Type " + command.getClass().getName() + " not supported for NumberValue");
         }
 
         if (isFloat) {
@@ -66,7 +72,7 @@ public class NumberValue implements AbstractMqttThingValue {
 
     @Override
     public State update(String updatedValue) throws IllegalArgumentException {
-        numberValue = PercentType.valueOf(updatedValue);
+        numberValue = DecimalType.valueOf(updatedValue);
         return numberValue;
     }
 }

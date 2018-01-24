@@ -1,10 +1,14 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.mqttgeneric.handler;
 
@@ -44,10 +48,12 @@ public class ChannelConfig implements MqttMessageSubscriber {
     String on;
     String off;
 
+    String transformationServiceName;
+
     // Runtime config
-    TransformationService transformationService;
     AbstractMqttThingValue value;
     ChannelUID channelUID;
+    TransformationServiceProvider transformationServiceProvider;
     private ChannelStateUpdateListener channelStateUpdateListener;
 
     public ChannelConfig() {
@@ -70,10 +76,16 @@ public class ChannelConfig implements MqttMessageSubscriber {
 
         String str = new String(payload, StandardCharsets.UTF_8);
         if (transformationPattern != null) {
+            TransformationService service = transformationServiceProvider
+                    .getTransformationService(transformationServiceName);
+            if (service == null) {
+                logger.warn("Transformation service '{}' not found", transformationServiceName);
+                return;
+            }
             try {
-                str = transformationService.transform(transformationPattern, str);
+                str = service.transform(transformationPattern, str);
             } catch (TransformationException e) {
-                logger.error("Error executing the transformation {}", str, e);
+                logger.error("Error executing the transformation {}", str);
                 return;
             }
         }
@@ -81,7 +93,7 @@ public class ChannelConfig implements MqttMessageSubscriber {
         try {
             channelStateUpdateListener.channelStateUpdated(channelUID, value.update(str));
         } catch (IllegalArgumentException e) {
-            logger.warn("Type not supported for incoming payload", e);
+            logger.warn("Incoming payload '{}' not supported by type '{}'", str, value.getClass().getSimpleName());
         }
     }
 
@@ -102,15 +114,12 @@ public class ChannelConfig implements MqttMessageSubscriber {
         channelStateUpdateListener = null;
     }
 
-    public void start(MqttBrokerConnection connection, ChannelStateUpdateListener channelStateUpdateListener) {
+    public void start(MqttBrokerConnection connection, ChannelStateUpdateListener channelStateUpdateListener)
+            throws MqttException {
         this.connection = connection;
         this.channelStateUpdateListener = channelStateUpdateListener;
         if (StringUtils.isNotBlank(stateTopic)) {
-            try {
-                connection.addConsumer(this);
-            } catch (MqttException e) {
-                logger.warn("Could not subscribe to thing topic {} on connection {}", stateTopic, connection.getName());
-            }
+            connection.addConsumer(this);
         }
     }
 }

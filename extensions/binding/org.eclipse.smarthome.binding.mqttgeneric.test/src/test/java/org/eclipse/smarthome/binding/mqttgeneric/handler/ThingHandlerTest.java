@@ -1,17 +1,21 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.mqttgeneric.handler;
 
 import static org.eclipse.smarthome.binding.mqttgeneric.handler.ThingChannelConstants.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
@@ -74,7 +78,7 @@ public class ThingHandlerTest {
         // Return the mocked connection object if the bridge handler is asked for it
         when(bridgeHandler.getConnection()).thenReturn(connection);
 
-        subject = spy(new MqttThingHandler(thing));
+        subject = spy(new MqttThingHandler(thing, null));
         subject.setCallback(callback);
         // Return the bridge handler if the thing handler asks for it
         doReturn(bridgeHandler).when(subject).getBridgeHandler();

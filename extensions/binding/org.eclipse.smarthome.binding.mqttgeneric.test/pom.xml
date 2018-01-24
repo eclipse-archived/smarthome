@@ -6,18 +6,13 @@
   <parent>
     <groupId>org.eclipse.smarthome.binding</groupId>
     <artifactId>pom</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.10.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>org.eclipse.smarthome.binding.mqttgeneric.test</artifactId>
   <name>mqttgeneric Binding Tests</name>
-  <version>0.9.0-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.binding.mqttgeneric.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.binding.mqttgeneric</bundle.namespace>
-  </properties>
 
   <build>
     <plugins>

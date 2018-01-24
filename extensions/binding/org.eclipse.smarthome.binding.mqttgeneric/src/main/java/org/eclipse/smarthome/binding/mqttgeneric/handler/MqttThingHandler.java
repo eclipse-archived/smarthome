@@ -1,10 +1,14 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.mqttgeneric.handler;
 
@@ -26,8 +30,6 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
-import org.eclipse.smarthome.core.transform.TransformationHelper;
-import org.eclipse.smarthome.core.transform.TransformationService;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
@@ -47,8 +49,9 @@ public class MqttThingHandler extends BaseThingHandler implements ChannelStateUp
     final Logger logger = LoggerFactory.getLogger(MqttThingHandler.class);
     MqttBrokerConnection connection;
     Map<ChannelUID, ChannelConfig> channelDataByChannelUID = new HashMap<>();
+    private final TransformationServiceProvider transformationServiceProvider;
 
-    private MqttPublishCallback listener = new MqttPublishCallback() {
+    private final MqttPublishCallback listener = new MqttPublishCallback() {
         @Override
         public void onSuccess(MqttPublishResult result) {
             logger.info("Successfully published value to topic {}. ID: {}", result.getTopic(), result.getMessageID());
@@ -61,8 +64,9 @@ public class MqttThingHandler extends BaseThingHandler implements ChannelStateUp
         }
     };
 
-    public MqttThingHandler(Thing thing) {
+    public MqttThingHandler(Thing thing, TransformationServiceProvider transformationServiceProvider) {
         super(thing);
+        this.transformationServiceProvider = transformationServiceProvider;
     }
 
     @Override
@@ -99,14 +103,17 @@ public class MqttThingHandler extends BaseThingHandler implements ChannelStateUp
     @Override
     public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
         if (bridgeStatusInfo.getStatus() == ThingStatus.ONLINE) {
-            updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE);
             // If the bridge is online, no handler null check needs to be performed
-            MqttBrokerConnectionHandler h = getBridgeHandler();
-            connection = h.getConnection();
-            for (ChannelConfig channelConfig : channelDataByChannelUID.values()) {
-                channelConfig.start(connection, this);
+            try {
+                MqttBrokerConnectionHandler h = getBridgeHandler();
+                connection = h.getConnection();
+                for (ChannelConfig channelConfig : channelDataByChannelUID.values()) {
+                    channelConfig.start(connection, this);
+                }
+                updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE);
+            } catch (MqttException e) {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getLocalizedMessage());
             }
-
         } else if (bridgeStatusInfo.getStatus() == ThingStatus.OFFLINE) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
             connection = null;
@@ -150,19 +157,18 @@ public class MqttThingHandler extends BaseThingHandler implements ChannelStateUp
         for (Channel channel : thing.getChannels()) {
             ChannelConfig config = channel.getConfiguration().as(ChannelConfig.class);
             config.channelUID = channel.getUID();
+            config.transformationServiceProvider = transformationServiceProvider;
 
             if (StringUtils.isNotBlank(config.transformationPattern)) {
                 int index = config.transformationPattern.indexOf(':');
                 if (index == -1) {
-                    throw new IllegalArgumentException(
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                             "The transformation pattern must consist of the type and the pattern separated by a colon");
+                    return;
                 }
                 String type = config.transformationPattern.substring(0, index).toUpperCase();
                 config.transformationPattern = config.transformationPattern.substring(index + 1);
-                config.transformationService = getTransformationService(type);
-                if (config.transformationService == null) {
-                    throw new IllegalArgumentException("The transformation type is unknown: " + type);
-                }
+                config.transformationServiceName = type;
             }
 
             switch (channel.getChannelTypeUID().getId()) {
@@ -186,10 +192,6 @@ public class MqttThingHandler extends BaseThingHandler implements ChannelStateUp
         }
 
         bridgeStatusChanged(getBridgeStatus());
-    }
-
-    protected TransformationService getTransformationService(String type) {
-        return TransformationHelper.getTransformationService(bundleContext, type);
     }
 
     @Override
