@@ -117,7 +117,7 @@ public class NetUtil implements NetworkAddressService {
             final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {
                 final NetworkInterface current = interfaces.nextElement();
-                if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
+                if (!current.isUp() || current.isLoopback() || current.isVirtual() || current.isPointToPoint()) {
                     continue;
                 }
                 final Enumeration<InetAddress> addresses = current.getInetAddresses();
@@ -146,7 +146,7 @@ public class NetUtil implements NetworkAddressService {
             final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {
                 final NetworkInterface current = interfaces.nextElement();
-                if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
+                if (!current.isUp() || current.isLoopback() || current.isVirtual() || current.isPointToPoint()) {
                     continue;
                 }
                 final Enumeration<InetAddress> addresses = current.getInetAddresses();
@@ -399,7 +399,7 @@ public class NetUtil implements NetworkAddressService {
             final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {
                 final NetworkInterface current = interfaces.nextElement();
-                if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
+                if (!current.isUp() || current.isLoopback() || current.isVirtual() || current.isPointToPoint()) {
                     continue;
                 }
 
