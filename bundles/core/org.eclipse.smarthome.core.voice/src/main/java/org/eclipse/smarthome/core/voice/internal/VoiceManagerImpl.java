@@ -149,6 +149,10 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
 
     @Override
     public void say(String text, String voiceId, String sinkId, PercentType volume) {
+        if (text == null) {
+            throw new NullPointerException("Text cannot be said as it is null.");
+        }
+
         try {
             TTSService tts = null;
             Voice voice = null;

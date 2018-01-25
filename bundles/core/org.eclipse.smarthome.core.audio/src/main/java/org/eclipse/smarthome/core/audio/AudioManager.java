@@ -34,6 +34,7 @@ public interface AudioManager {
      * Plays the passed audio stream using the default audio sink.
      *
      * @param audioStream The audio stream to play
+     * @throws NullPointerException If audioStream is null
      */
     void play(AudioStream audioStream);
 
@@ -42,6 +43,7 @@ public interface AudioManager {
      *
      * @param audioStream The audio stream to play
      * @param sinkId The id of the audio sink to use or null
+     * @throws NullPointerException If audioStream is null
      */
     void play(AudioStream audioStream, String sinkId);
 
@@ -51,6 +53,7 @@ public interface AudioManager {
      * @param audioStream The audio stream to play
      * @param sinkId The id of the audio sink to use or null
      * @param volume The volume to be used or null
+     * @throws NullPointerException If audioStream is null
      */
     void play(AudioStream audioStream, String sinkId, PercentType volume);
 
@@ -59,6 +62,7 @@ public interface AudioManager {
      *
      * @param fileName The file from the "sounds" folder
      * @throws AudioException in case the file does not exist or cannot be opened
+     * @throws NullPointerException If fileName is null
      */
     void playFile(String fileName) throws AudioException;
 
@@ -68,6 +72,7 @@ public interface AudioManager {
      * @param fileName The file from the "sounds" folder
      * @param volume The volume to be used or null
      * @throws AudioException in case the file does not exist or cannot be opened
+     * @throws NullPointerException If fileName is null
      */
     void playFile(String fileName, PercentType volume) throws AudioException;
 
@@ -77,6 +82,7 @@ public interface AudioManager {
      * @param fileName The file from the "sounds" folder
      * @param sink The id of the audio sink to use or null
      * @throws AudioException in case the file does not exist or cannot be opened
+     * @throws NullPointerException If fileName is null
      */
     void playFile(String fileName, String sink) throws AudioException;
 
@@ -87,6 +93,7 @@ public interface AudioManager {
      * @param sink The id of the audio sink to use or null
      * @param volume The volume to be used or null
      * @throws AudioException in case the file does not exist or cannot be opened
+     * @throws NullPointerException If fileName is null
      */
     void playFile(String fileName, String sink, PercentType volume) throws AudioException;
 
@@ -95,6 +102,7 @@ public interface AudioManager {
      *
      * @param url The url to stream from or null if streaming should be stopped
      * @throws AudioException in case the url stream cannot be opened
+     * @throws NullPointerException If url is null
      */
     void stream(String url) throws AudioException;
 
@@ -104,6 +112,7 @@ public interface AudioManager {
      * @param url The url to stream from or null if streaming should be stopped
      * @param volume The volume to be used or null
      * @throws AudioException in case the url stream cannot be opened
+     * @throws NullPointerException If url is null
      */
     void stream(String url, PercentType volume) throws AudioException;
 
@@ -113,6 +122,7 @@ public interface AudioManager {
      * @param url The url to stream from or null if streaming should be stopped
      * @param sinkId The id of the audio sink to use or null
      * @throws AudioException in case the url stream cannot be opened
+     * @throws NullPointerException If url is null
      */
     void stream(String url, String sinkId) throws AudioException;
 
@@ -123,6 +133,7 @@ public interface AudioManager {
      * @param sinkId The id of the audio sink to use or null
      * @param volume The volume to be used or null
      * @throws AudioException in case the url stream cannot be opened
+     * @throws NullPointerException If url is null
      */
     void stream(String url, String sinkId, PercentType volume) throws AudioException;
 

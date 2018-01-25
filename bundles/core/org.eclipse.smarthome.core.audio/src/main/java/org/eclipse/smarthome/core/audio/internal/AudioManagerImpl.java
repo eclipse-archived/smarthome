@@ -95,32 +95,33 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     }
 
     public void play(AudioStream audioStream, String sinkId, PercentType volume) {
-        if (audioStream != null) {
-            AudioSink sink = getSink(sinkId);
+        if (audioStream == null) {
+            throw new NullPointerException("Audio stream cannot be played as it is null.");
+        }
 
-            if (sink != null) {
-                // get current volume
-                PercentType oldVolume = getVolume(sinkId);
-                // set notification sound volume
-                if (volume != null) {
-                    setVolume(volume, sinkId);
-                }
-                if (sink.getSupportedStreams().stream().anyMatch(clazz -> clazz.isInstance(audioStream))) {
-                    try {
-                        sink.process(audioStream);
-                    } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
-                        logger.warn("Error playing '{}': {}", audioStream, e.getMessage(), e);
-                    }
-                } else {
-                    logger.warn("Failed playing audio stream '{}' as audio doesn't support it.", audioStream);
-                }
-                // restore volume
-                if (oldVolume != null) {
-                    setVolume(oldVolume, sinkId);
+        AudioSink sink = getSink(sinkId);
+        if (sink != null) {
+            // get current volume
+            PercentType oldVolume = getVolume(sinkId);
+            // set notification sound volume
+            if (volume != null) {
+                setVolume(volume, sinkId);
+            }
+            if (sink.getSupportedStreams().stream().anyMatch(clazz -> clazz.isInstance(audioStream))) {
+                try {
+                    sink.process(audioStream);
+                } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
+                    logger.warn("Error playing '{}': {}", audioStream, e.getMessage(), e);
                 }
             } else {
-                logger.warn("Failed playing audio stream '{}' as no audio sink was found.", audioStream);
+                logger.warn("Failed playing audio stream '{}' as audio doesn't support it.", audioStream);
             }
+            // restore volume
+            if (oldVolume != null) {
+                setVolume(oldVolume, sinkId);
+            }
+        } else {
+            logger.warn("Failed playing audio stream '{}' as no audio sink was found.", audioStream);
         }
     }
 
@@ -141,6 +142,10 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
 
     @Override
     public void playFile(String fileName, String sink, PercentType volume) throws AudioException {
+        if (fileName == null) {
+            throw new NullPointerException("File cannot be played as fileName is null.");
+        }
+
         File file = new File(
                 ConfigConstants.getConfigFolder() + File.separator + SOUND_DIR + File.separator + fileName);
         FileAudioStream is = new FileAudioStream(file);
@@ -163,6 +168,10 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     }
 
     public void stream(String url, String sinkId, PercentType volume) throws AudioException {
+        if (url == null) {
+            throw new NullPointerException("Stream cannot be played as url is null.");
+        }
+
         AudioStream audioStream = url != null ? new URLAudioStream(url) : null;
         play(audioStream, sinkId, volume);
     }

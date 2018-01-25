@@ -34,6 +34,7 @@ public interface VoiceManager {
      * Speaks the passed string using the default TTS service and default audio sink.
      *
      * @param text The text to say
+     * @throws NullPointerException If text is null
      */
     void say(String text);
 
@@ -42,6 +43,7 @@ public interface VoiceManager {
      *
      * @param text The text to say
      * @param volume The volume to be used or null
+     * @throws NullPointerException If text is null
      */
     void say(String text, PercentType volume);
 
@@ -52,6 +54,7 @@ public interface VoiceManager {
      *
      * @param text The text to say
      * @param voiceId The id of the voice to use (either with or without prefix)
+     * @throws NullPointerException If text is null
      */
     void say(String text, String voiceId);
 
@@ -63,6 +66,7 @@ public interface VoiceManager {
      * @param text The text to say
      * @param voiceId The id of the voice to use (either with or without prefix)
      * @param volume The volume to be used or null
+     * @throws NullPointerException If text is null
      */
     void say(String text, String voiceId, PercentType volume);
 
@@ -74,6 +78,7 @@ public interface VoiceManager {
      * @param text The text to say
      * @param voiceId The id of the voice to use (either with or without prefix) or null
      * @param sinkId The id of the audio sink to use or null
+     * @throws NullPointerException If text is null
      */
     void say(String text, String voiceId, String sinkId);
 
@@ -86,6 +91,7 @@ public interface VoiceManager {
      * @param voiceId The id of the voice to use (either with or without prefix) or null
      * @param sinkId The id of the audio sink to use or null
      * @param volume The volume to be used or null
+     * @throws NullPointerException If text is null
      */
     void say(String text, String voiceId, String sinkId, PercentType volume);
 
