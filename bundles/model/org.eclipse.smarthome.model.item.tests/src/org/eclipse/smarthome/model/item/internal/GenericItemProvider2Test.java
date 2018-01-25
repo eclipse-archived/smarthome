@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.model.item.tests;
+package org.eclipse.smarthome.model.item.internal;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -22,6 +22,11 @@ import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.library.items.NumberItem;
+import org.eclipse.smarthome.core.library.items.SwitchItem;
+import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction;
+import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
@@ -150,4 +155,50 @@ public class GenericItemProvider2Test extends JavaOSGiTest {
         assertTrue(groupItem.getAllMembers().contains(item));
     }
 
+    @Test
+    public void testGroupItemIsSame() {
+        GenericItemProvider gip = new GenericItemProvider();
+
+        GroupItem g1 = new GroupItem("testGroup", new SwitchItem("test"),
+                new ArithmeticGroupFunction.Or(OnOffType.ON, OnOffType.OFF));
+        GroupItem g2 = new GroupItem("testGroup", new SwitchItem("test"),
+                new ArithmeticGroupFunction.Or(OnOffType.ON, OnOffType.OFF));
+
+        assertFalse(gip.hasItemChanged(g1, g2));
+    }
+
+    @Test
+    public void testGroupItemChangesBaseItem() {
+        GenericItemProvider gip = new GenericItemProvider();
+
+        GroupItem g1 = new GroupItem("testGroup", new SwitchItem("test"),
+                new ArithmeticGroupFunction.Or(OnOffType.ON, OnOffType.OFF));
+        GroupItem g2 = new GroupItem("testGroup", new NumberItem("test"),
+                new ArithmeticGroupFunction.Or(OnOffType.ON, OnOffType.OFF));
+
+        assertTrue(gip.hasItemChanged(g1, g2));
+    }
+
+    @Test
+    public void testGroupItemChangesFunctionParameters() {
+        GenericItemProvider gip = new GenericItemProvider();
+
+        GroupItem g1 = new GroupItem("testGroup", new SwitchItem("test"),
+                new ArithmeticGroupFunction.Or(OnOffType.ON, OnOffType.OFF));
+        GroupItem g2 = new GroupItem("testGroup", new SwitchItem("test"),
+                new ArithmeticGroupFunction.Or(OnOffType.ON, UnDefType.UNDEF));
+
+        assertTrue(gip.hasItemChanged(g1, g2));
+    }
+
+    @Test
+    public void testGroupItemChangesBaseItemAndFunction() {
+        GenericItemProvider gip = new GenericItemProvider();
+
+        GroupItem g1 = new GroupItem("testGroup", new SwitchItem("test"),
+                new ArithmeticGroupFunction.Or(OnOffType.ON, OnOffType.OFF));
+        GroupItem g2 = new GroupItem("testGroup", new NumberItem("number"), new ArithmeticGroupFunction.Sum());
+
+        assertTrue(gip.hasItemChanged(g1, g2));
+    }
 }

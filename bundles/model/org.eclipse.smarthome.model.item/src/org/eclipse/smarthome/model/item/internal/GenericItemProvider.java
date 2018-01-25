@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.model.item.internal;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -393,15 +394,52 @@ public class GenericItemProvider extends AbstractProvider<Item>
         }
     }
 
-    private boolean hasItemChanged(Item item1, Item item2) {
+    protected boolean hasItemChanged(Item item1, Item item2) {
         return !Objects.equals(item1.getClass(), item2.getClass()) || //
                 !Objects.equals(item1.getName(), item2.getName()) || //
                 !Objects.equals(item1.getCategory(), item2.getCategory()) || //
                 !Objects.equals(item1.getGroupNames(), item2.getGroupNames()) || //
                 !Objects.equals(item1.getLabel(), item2.getLabel()) || //
                 !Objects.equals(item1.getTags(), item2.getTags()) || //
-                !Objects.equals(item1.getType(), item2.getType());
+                !Objects.equals(item1.getType(), item2.getType()) || //
+                hasGroupItemChanged(item1, item2);
+    }
 
+    private boolean hasGroupItemChanged(Item item1, Item item2) {
+        GroupItem gItem1 = null;
+        GroupItem gItem2 = null;
+
+        if (item1 instanceof GroupItem) {
+            gItem1 = (GroupItem) item1;
+        }
+        if (item2 instanceof GroupItem) {
+            gItem2 = (GroupItem) item2;
+        }
+
+        if (gItem1 == null && gItem2 == null) {
+            return false;
+        }
+
+        if ((gItem1 != null && gItem2 == null) || (gItem1 == null && gItem2 != null)) {
+            return true;
+        }
+
+        boolean sameBaseItemClass = Objects.equals(gItem1.getBaseItem(), gItem2.getBaseItem());
+
+        boolean sameFunction = false;
+        GroupFunction gf1 = gItem1.getFunction();
+        GroupFunction gf2 = gItem2.getFunction();
+        if (gf1 != null && gf2 != null) {
+            if (Objects.equals(gf1.getClass(), gf2.getClass())) {
+                sameFunction = Arrays.equals(gf1.getParameters(), gf2.getParameters());
+            }
+        } else if (gf1 == null && gf2 == null) {
+            sameFunction = true;
+        }
+
+        boolean sameMembers = Objects.equals(gItem1.getMembers(), gItem2.getMembers());
+
+        return !(sameBaseItemClass && sameFunction && sameMembers);
     }
 
     private Map<String, Item> toItemMap(Collection<Item> items) {
