@@ -54,6 +54,9 @@ Workflow {
       serializer = {
         generateStub = generateXtendStub
       }
+      validator = {
+        composedCheck = "org.eclipse.xtext.validation.NamesAreUniqueValidator"
+      }
     }
   }
 }
