@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.model.item.tests
+package org.eclipse.smarthome.model.item.internal
 
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
