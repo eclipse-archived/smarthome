@@ -321,7 +321,7 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
             verify(handler3, times(1)).cancel();
         });
     }
-    
+
     @Test
     public void testCancelFirmwareUpdateIntheMiddleOfUpdate() {
         final long stepsTime = 10;
@@ -506,8 +506,8 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
             fail("Expeced an IllegalArgumentException, but it was not thrown.");
         } catch (IllegalArgumentException expected) {
             assertThat(expected.getMessage(), is(String.format(
-                    "Firmware with UID %s requires at least firmware version %s to get installed. But the current firmware version of the thing with UID %s is %s.",
-                    FW113_EN.getUID(), FW113_EN.getPrerequisiteVersion(), THING1_UID, V111)));
+                            "Firmware with UID %s requires at least firmware version %s to get installed. But the current firmware version of the thing with UID %s is %s.",
+                            FW113_EN.getUID(), FW113_EN.getPrerequisiteVersion(), THING1_UID, V111)));
         }
     }
 
@@ -647,7 +647,9 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
         events.get().addAll(eventCaptor.getAllValues());
         List<Event> list = events.get().stream().filter(event -> event instanceof FirmwareUpdateProgressInfoEvent)
                 .collect(Collectors.toList());
-        assertTrue(list.size() >= SEQUENCE.length);
+        waitForAssert(() -> {
+            assertTrue(list.size() >= SEQUENCE.length);
+        });
         for (int i = 0; i < SEQUENCE.length; i++) {
             FirmwareUpdateProgressInfoEvent event = (FirmwareUpdateProgressInfoEvent) list.get(i);
             assertThat(event.getTopic(), containsString(THING1_UID.getAsString()));
@@ -723,8 +725,6 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
 
     @Test
     public void testIndependentHandlers() {
-        int expectedFirmwareUpdateHandlers = 3;
-
         FirmwareUpdateHandler firmwareUpdateHandler = mock(FirmwareUpdateHandler.class);
         when(firmwareUpdateHandler.getThing())
                 .thenReturn(ThingBuilder.create(THING_TYPE_UID3, UNKNOWN_THING_UID).build());
