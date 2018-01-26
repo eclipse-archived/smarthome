@@ -25,7 +25,7 @@ public class ItemChannelLinkRemovedEvent extends AbstractItemChannelLinkRegistry
     /**
      * The link removed event type.
      */
-    public final static String TYPE = ItemChannelLinkRemovedEvent.class.getSimpleName();
+    public static final String TYPE = ItemChannelLinkRemovedEvent.class.getSimpleName();
 
     public ItemChannelLinkRemovedEvent(String topic, String payload, ItemChannelLinkDTO link) {
         super(topic, payload, link);

@@ -65,7 +65,7 @@ public class DefaultChartProvider implements ChartProvider {
     private final Logger logger = LoggerFactory.getLogger(DefaultChartProvider.class);
 
     protected ItemUIRegistry itemUIRegistry;
-    static protected Map<String, QueryablePersistenceService> persistenceServices = new HashMap<String, QueryablePersistenceService>();
+    protected static Map<String, QueryablePersistenceService> persistenceServices = new HashMap<String, QueryablePersistenceService>();
 
     private int legendPosition = 0;
 
@@ -94,7 +94,7 @@ public class DefaultChartProvider implements ChartProvider {
         persistenceServices.remove(service.getId());
     }
 
-    static public Map<String, QueryablePersistenceService> getPersistenceServices() {
+    public static Map<String, QueryablePersistenceService> getPersistenceServices() {
         return persistenceServices;
     }
 

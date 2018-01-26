@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SceneDiscoveryService extends AbstractDiscoveryService {
 
-    private final static Logger logger = LoggerFactory.getLogger(SceneDiscoveryService.class);
+    private static final Logger logger = LoggerFactory.getLogger(SceneDiscoveryService.class);
     private final BridgeHandler bridgeHandler;
     private final String sceneType;
 

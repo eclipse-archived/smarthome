@@ -43,7 +43,7 @@ public class Configuration {
 
     private final Map<String, Object> properties;
 
-    private transient final Logger logger = LoggerFactory.getLogger(Configuration.class);
+    private final transient Logger logger = LoggerFactory.getLogger(Configuration.class);
 
     public Configuration() {
         this(null);

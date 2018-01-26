@@ -25,7 +25,7 @@ public class ItemChannelLinkAddedEvent extends AbstractItemChannelLinkRegistryEv
     /**
      * The link added event type.
      */
-    public final static String TYPE = ItemChannelLinkAddedEvent.class.getSimpleName();
+    public static final String TYPE = ItemChannelLinkAddedEvent.class.getSimpleName();
 
     public ItemChannelLinkAddedEvent(String topic, String payload, ItemChannelLinkDTO link) {
         super(topic, payload, link);

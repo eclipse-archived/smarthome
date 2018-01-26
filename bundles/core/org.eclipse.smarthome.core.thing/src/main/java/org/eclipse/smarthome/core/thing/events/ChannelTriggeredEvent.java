@@ -26,7 +26,7 @@ public class ChannelTriggeredEvent extends AbstractEvent {
     /**
      * The thing trigger event type.
      */
-    public final static String TYPE = ChannelTriggeredEvent.class.getSimpleName();
+    public static final String TYPE = ChannelTriggeredEvent.class.getSimpleName();
 
     /**
      * The channel which triggered the event.

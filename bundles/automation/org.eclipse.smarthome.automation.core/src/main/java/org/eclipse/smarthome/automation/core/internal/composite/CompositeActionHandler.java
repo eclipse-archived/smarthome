@@ -38,7 +38,7 @@ import org.eclipse.smarthome.automation.type.Output;
 public class CompositeActionHandler extends AbstractCompositeModuleHandler<Action, CompositeActionType, ActionHandler>
         implements ActionHandler {
 
-    public final static String REFERENCE = "reference";
+    public static final String REFERENCE = "reference";
 
     private Map<String, Output> compositeOutputs;
 

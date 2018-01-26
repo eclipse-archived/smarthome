@@ -25,7 +25,7 @@ public class InboxUpdatedEvent extends AbstractInboxEvent {
     /**
      * The inbox updated event type.
      */
-    public final static String TYPE = InboxUpdatedEvent.class.getSimpleName();
+    public static final String TYPE = InboxUpdatedEvent.class.getSimpleName();
 
     /**
      * Constructs a new inbox updated event object.

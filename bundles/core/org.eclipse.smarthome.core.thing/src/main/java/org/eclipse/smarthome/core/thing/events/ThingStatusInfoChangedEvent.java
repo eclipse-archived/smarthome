@@ -27,7 +27,7 @@ public class ThingStatusInfoChangedEvent extends AbstractEvent {
     /**
      * The thing status event type.
      */
-    public final static String TYPE = ThingStatusInfoChangedEvent.class.getSimpleName();
+    public static final String TYPE = ThingStatusInfoChangedEvent.class.getSimpleName();
 
     private final ThingUID thingUID;
 

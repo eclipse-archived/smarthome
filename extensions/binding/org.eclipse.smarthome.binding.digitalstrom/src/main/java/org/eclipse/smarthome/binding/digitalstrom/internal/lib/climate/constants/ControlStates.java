@@ -27,7 +27,7 @@ public enum ControlStates {
 
     private final Short id;
     private final String key;
-    private final static ControlStates[] CONTROL_STATES = new ControlStates[ControlStates.values().length];
+    private static final ControlStates[] CONTROL_STATES = new ControlStates[ControlStates.values().length];
 
     static {
         for (ControlStates controlState : ControlStates.values()) {

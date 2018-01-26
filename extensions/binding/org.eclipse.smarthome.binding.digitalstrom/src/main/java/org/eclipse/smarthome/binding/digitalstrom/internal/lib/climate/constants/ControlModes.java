@@ -29,7 +29,7 @@ public enum ControlModes {
     private final Short id;
     private final String key;
 
-    private final static ControlModes[] CONTROL_MODES = new ControlModes[ControlModes.values().length];
+    private static final ControlModes[] CONTROL_MODES = new ControlModes[ControlModes.values().length];
 
     static {
         for (ControlModes controlMode : ControlModes.values()) {

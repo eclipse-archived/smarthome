@@ -31,14 +31,14 @@ public class DigitalSTROMBindingConstants {
     public static final String THING_TYPE_ID_ZONE_TEMERATURE_CONTROL = "zoneTemperatureControl";
 
     // List of all Thing Type UIDs
-    public final static ThingTypeUID THING_TYPE_DSS_BRIDGE = new ThingTypeUID(BINDING_ID, THING_TYPE_ID_DSS_BRIDGE);
-    public final static ThingTypeUID THING_TYPE_ZONE_TEMERATURE_CONTROL = new ThingTypeUID(BINDING_ID,
+    public static final ThingTypeUID THING_TYPE_DSS_BRIDGE = new ThingTypeUID(BINDING_ID, THING_TYPE_ID_DSS_BRIDGE);
+    public static final ThingTypeUID THING_TYPE_ZONE_TEMERATURE_CONTROL = new ThingTypeUID(BINDING_ID,
             THING_TYPE_ID_ZONE_TEMERATURE_CONTROL);
 
-    public final static ThingTypeUID THING_TYPE_APP_SCENE = new ThingTypeUID(BINDING_ID, SceneTypes.APARTMENT_SCENE);
-    public final static ThingTypeUID THING_TYPE_ZONE_SCENE = new ThingTypeUID(BINDING_ID, SceneTypes.ZONE_SCENE);
-    public final static ThingTypeUID THING_TYPE_GROUP_SCENE = new ThingTypeUID(BINDING_ID, SceneTypes.GROUP_SCENE);
-    public final static ThingTypeUID THING_TYPE_NAMED_SCENE = new ThingTypeUID(BINDING_ID, SceneTypes.NAMED_SCENE);
+    public static final ThingTypeUID THING_TYPE_APP_SCENE = new ThingTypeUID(BINDING_ID, SceneTypes.APARTMENT_SCENE);
+    public static final ThingTypeUID THING_TYPE_ZONE_SCENE = new ThingTypeUID(BINDING_ID, SceneTypes.ZONE_SCENE);
+    public static final ThingTypeUID THING_TYPE_GROUP_SCENE = new ThingTypeUID(BINDING_ID, SceneTypes.GROUP_SCENE);
+    public static final ThingTypeUID THING_TYPE_NAMED_SCENE = new ThingTypeUID(BINDING_ID, SceneTypes.NAMED_SCENE);
 
     // scene
     public static final String CHANNEL_ID_SCENE = "scene";

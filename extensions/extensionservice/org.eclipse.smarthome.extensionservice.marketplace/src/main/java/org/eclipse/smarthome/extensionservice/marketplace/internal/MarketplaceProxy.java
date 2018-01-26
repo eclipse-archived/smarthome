@@ -42,7 +42,7 @@ public class MarketplaceProxy {
 
     private final Logger logger = LoggerFactory.getLogger(MarketplaceProxy.class);
 
-    private final static String MP_URL = "https://marketplace.eclipse.org/taxonomy/term/4988%2C4396/api/p?client=org.eclipse.smarthome";
+    private static final String MP_URL = "https://marketplace.eclipse.org/taxonomy/term/4988%2C4396/api/p?client=org.eclipse.smarthome";
     private final URL url;
     private Node[] cachedNodes = null;
     private long refresh_interval = 3600;

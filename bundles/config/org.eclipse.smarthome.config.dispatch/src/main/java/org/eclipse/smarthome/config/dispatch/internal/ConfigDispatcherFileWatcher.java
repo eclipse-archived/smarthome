@@ -37,10 +37,10 @@ import org.osgi.service.component.annotations.Reference;
 public class ConfigDispatcherFileWatcher extends AbstractWatchService {
 
     /** The program argument name for setting the service config directory path */
-    final static public String SERVICEDIR_PROG_ARGUMENT = "smarthome.servicedir";
+    public static final String SERVICEDIR_PROG_ARGUMENT = "smarthome.servicedir";
 
     /** The default folder name of the configuration folder of services */
-    final static public String SERVICES_FOLDER = "services";
+    public static final String SERVICES_FOLDER = "services";
 
     private ConfigDispatcher configDispatcher;
 

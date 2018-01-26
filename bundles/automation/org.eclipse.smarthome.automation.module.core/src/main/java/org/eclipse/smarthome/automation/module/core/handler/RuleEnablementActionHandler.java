@@ -47,17 +47,17 @@ public class RuleEnablementActionHandler extends BaseModuleHandler<Action> imple
     /**
      * This filed contains the type of this handler so it can be recognized from the factory.
      */
-    public final static String UID = "core.RuleEnablementAction";
+    public static final String UID = "core.RuleEnablementAction";
 
     /**
      * This field is a key to the 'enable' property of the {@link Action}.
      */
-    private final static String ENABLE_KEY = "enable";
+    private static final String ENABLE_KEY = "enable";
 
     /**
      * This field is a key to the 'rulesUIDs' property of the {@link Action}.
      */
-    private final static String RULE_UIDS_KEY = "ruleUIDs";
+    private static final String RULE_UIDS_KEY = "ruleUIDs";
 
     /**
      * This logger is used to log warning message if at some point {@link RuleRegistry} service becomes unavailable.

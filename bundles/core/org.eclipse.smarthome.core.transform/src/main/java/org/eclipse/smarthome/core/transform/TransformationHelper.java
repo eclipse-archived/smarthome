@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TransformationHelper {
 
-    private final static Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
+    private static final Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
 
     /* RegEx to extract and parse a function String <code>'(.*?)\((.*)\):(.*)'</code> */
     protected static final Pattern EXTRACT_TRANSFORMFUNCTION_PATTERN = Pattern.compile("(.*?)\\((.*)\\):(.*)");
@@ -40,7 +40,7 @@ public class TransformationHelper {
      * @param pattern the pattern to check
      * @return true, if the pattern contains a transformation
      */
-    static public boolean isTransform(String pattern) {
+    public static boolean isTransform(String pattern) {
         return EXTRACT_TRANSFORMFUNCTION_PATTERN.matcher(pattern).matches();
     }
 
@@ -51,7 +51,7 @@ public class TransformationHelper {
      * @param transformationType the desired transformation type
      * @return a service instance or null, if none could be found
      */
-    static public TransformationService getTransformationService(BundleContext context, String transformationType) {
+    public static TransformationService getTransformationService(BundleContext context, String transformationType) {
         if (context != null) {
             Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
             String filter = "(smarthome.transform=" + transformationType + ")";

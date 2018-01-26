@@ -27,7 +27,7 @@ public class GroupItemStateChangedEvent extends ItemStateChangedEvent {
     /**
      * The group item state changed event type.
      */
-    public final static String TYPE = GroupItemStateChangedEvent.class.getSimpleName();
+    public static final String TYPE = GroupItemStateChangedEvent.class.getSimpleName();
 
     private final String memberName;
 

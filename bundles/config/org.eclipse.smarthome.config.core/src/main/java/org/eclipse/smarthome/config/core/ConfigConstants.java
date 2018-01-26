@@ -21,16 +21,16 @@ package org.eclipse.smarthome.config.core;
 public class ConfigConstants {
 
     /** The program argument name for setting the user data directory path */
-    final static public String USERDATA_DIR_PROG_ARGUMENT = "smarthome.userdata";
+    public static final String USERDATA_DIR_PROG_ARGUMENT = "smarthome.userdata";
 
     /** The program argument name for setting the main config directory path */
-    final static public String CONFIG_DIR_PROG_ARGUMENT = "smarthome.configdir";
+    public static final String CONFIG_DIR_PROG_ARGUMENT = "smarthome.configdir";
 
     /** The default main configuration directory name */
-    final static public String DEFAULT_CONFIG_FOLDER = "conf";
+    public static final String DEFAULT_CONFIG_FOLDER = "conf";
 
     /** The default user data directory name */
-    final static public String DEFAULT_USERDATA_FOLDER = "userdata";
+    public static final String DEFAULT_USERDATA_FOLDER = "userdata";
 
     /** The property to recognize a service instance created by a service factory */
     public static final String SERVICE_CONTEXT = "esh.servicecontext";
@@ -45,7 +45,7 @@ public class ConfigConstants {
      *
      * @return the configuration folder path name
      */
-    static public String getConfigFolder() {
+    public static String getConfigFolder() {
         String progArg = System.getProperty(CONFIG_DIR_PROG_ARGUMENT);
         if (progArg != null) {
             return progArg;
@@ -61,7 +61,7 @@ public class ConfigConstants {
      *
      * @return the user data folder path name
      */
-    static public String getUserDataFolder() {
+    public static String getUserDataFolder() {
         String progArg = System.getProperty(USERDATA_DIR_PROG_ARGUMENT);
         if (progArg != null) {
             return progArg;

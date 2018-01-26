@@ -33,7 +33,7 @@ public interface SceneStatusListener {
     /**
      * The {@link SceneStatusListener} id for the discovery implementation.
      */
-    final static String SCENE_DISCOVERY = "SceneDiscovery";
+    static final String SCENE_DISCOVERY = "SceneDiscovery";
 
     /**
      * This method is called whenever the state of the {@link InternalScene} has changed.

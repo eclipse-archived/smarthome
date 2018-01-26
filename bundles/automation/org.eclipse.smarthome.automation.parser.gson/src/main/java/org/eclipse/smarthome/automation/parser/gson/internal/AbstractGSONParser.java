@@ -39,7 +39,7 @@ import com.google.gson.GsonBuilder;
 public abstract class AbstractGSONParser<T> implements Parser<T> {
 
     // A Gson instance to use by the parsers
-    static protected Gson gson = new GsonBuilder() //
+    protected static Gson gson = new GsonBuilder() //
             .registerTypeAdapter(Rule.class, new RuleInstanceCreator()) //
             .registerTypeAdapter(RuleTemplate.class, new TemplateInstanceCreator()) //
             .registerTypeAdapter(CompositeActionType.class, new ActionInstanceCreator()) //

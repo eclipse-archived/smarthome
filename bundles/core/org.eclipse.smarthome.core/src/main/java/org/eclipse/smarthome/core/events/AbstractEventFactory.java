@@ -29,7 +29,7 @@ public abstract class AbstractEventFactory implements EventFactory {
 
     private final Set<String> supportedEventTypes;
 
-    private final static Gson jsonConverter = new Gson();
+    private static final Gson JSONCONVERTER = new Gson();
 
     /**
      * Must be called in subclass constructor to define the supported event types.
@@ -85,7 +85,7 @@ public abstract class AbstractEventFactory implements EventFactory {
      * @return a serialized Json representation
      */
     protected static String serializePayload(Object payloadObject) {
-        return jsonConverter.toJson(payloadObject);
+        return JSONCONVERTER.toJson(payloadObject);
     }
 
     /**
@@ -97,7 +97,7 @@ public abstract class AbstractEventFactory implements EventFactory {
      * @return an object of type T from the payload
      */
     protected static <T> T deserializePayload(String payload, Class<T> classOfPayload) {
-        return jsonConverter.fromJson(payload, classOfPayload);
+        return JSONCONVERTER.fromJson(payload, classOfPayload);
     }
 
     /**

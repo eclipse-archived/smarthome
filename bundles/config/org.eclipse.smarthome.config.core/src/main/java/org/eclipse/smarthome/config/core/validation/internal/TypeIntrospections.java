@@ -56,7 +56,7 @@ final class TypeIntrospections {
      * The {@link TypeIntrospection} provides operations to introspect the actual value for a configuration description
      * parameter.
      */
-    static abstract class TypeIntrospection {
+    abstract static class TypeIntrospection {
 
         private final Class<?> clazz;
         private final MessageKey minViolationMessageKey;

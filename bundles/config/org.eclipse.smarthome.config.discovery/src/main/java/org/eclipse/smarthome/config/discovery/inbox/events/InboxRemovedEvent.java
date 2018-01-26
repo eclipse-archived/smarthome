@@ -25,7 +25,7 @@ public class InboxRemovedEvent extends AbstractInboxEvent {
     /**
      * The inbox removed event type.
      */
-    public final static String TYPE = InboxRemovedEvent.class.getSimpleName();
+    public static final String TYPE = InboxRemovedEvent.class.getSimpleName();
 
     /**
      * Constructs a new inbox removed event object.

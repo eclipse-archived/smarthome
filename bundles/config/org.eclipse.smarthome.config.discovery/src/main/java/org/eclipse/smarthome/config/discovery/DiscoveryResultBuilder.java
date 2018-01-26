@@ -33,7 +33,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 @NonNullByDefault
 public class DiscoveryResultBuilder {
 
-    final private ThingUID thingUID;
+    private final ThingUID thingUID;
 
     private @Nullable ThingUID bridgeUID;
     private final Map<String, Object> properties = new HashMap<>();

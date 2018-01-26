@@ -26,7 +26,7 @@ public class ItemCommandEvent extends AbstractEvent {
     /**
      * The item command event type.
      */
-    public final static String TYPE = ItemCommandEvent.class.getSimpleName();
+    public static final String TYPE = ItemCommandEvent.class.getSimpleName();
 
     private final String itemName;
 
