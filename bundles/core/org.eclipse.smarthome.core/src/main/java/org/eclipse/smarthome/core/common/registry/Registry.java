@@ -28,7 +28,7 @@ import org.eclipse.jdt.annotation.Nullable;
  *
  * @param <E> type of the elements in the registry
  */
-public interface Registry<E extends Identifiable<K>, K> {
+public interface Registry<E extends Identifiable<K>, K> extends BaseRegistry<E, K> {
 
     /**
      * Adds a {@link RegistryChangeListener} to the registry.
