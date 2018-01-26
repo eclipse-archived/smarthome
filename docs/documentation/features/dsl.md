@@ -196,7 +196,23 @@ In order to track deletion of configuration entries and files the configuration 
 The framework will track exclusively marked service configurations for file or entry deletions. This way a configuration can be removed during runtime. For factory services even a whole service instance can be added and removed during runtime.
 
 To mark a configuration file exclusively for one service the _first line_ has to define the configuration PID in the format `pid:<configuration_pid>`.
-By giving this PID marker the framework creates an exclusive configuration for the contents of this file. Other files without this marker which also define configuration for the given PID will be ignored for this PID.
+By giving this PID marker the framework creates an exclusive configuration for the contents of this file.
+Other files without this marker which also define configuration for the given PID will be ignored for this PID.
+
+The file `conf/myService.cfg` with contents
+
+```property
+pid:org.eclipse.smarthome.bundle.myService
+timeout=30
+callback=MyCallback
+
+```
+
+will exclusively configure the OSGi service with configuration_pid `org.eclipse.smarthome.bundle.myService` set.
+Any other configuration for this PID in other configuration files will be ignored now.
+In contrast, when removing the line `timeout=30` from the file, the service's `modified` method will be called with a new configuration which does not include the `timeout` option anymore.
+When removing the whole file the configuration will completely be deleted from the Configuration Admin.
+
 
 ### Factory Service Configuration
 
