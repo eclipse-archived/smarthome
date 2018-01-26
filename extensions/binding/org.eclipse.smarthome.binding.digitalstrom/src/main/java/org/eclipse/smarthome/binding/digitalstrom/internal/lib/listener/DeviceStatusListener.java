@@ -37,7 +37,7 @@ public interface DeviceStatusListener {
     /**
      * ID of the device discovery listener.
      */
-    final static String DEVICE_DISCOVERY = "DeviceDiscovery";
+    static final String DEVICE_DISCOVERY = "DeviceDiscovery";
 
     /**
      * This method is called whenever the state of the {@link Device} has changed and passes the new device state as an

@@ -57,7 +57,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractDiscoveryService.class);
 
-    static protected final ScheduledExecutorService scheduler = ThreadPoolManager
+    protected static final ScheduledExecutorService scheduler = ThreadPoolManager
             .getScheduledPool(DISCOVERY_THREADPOOL_NAME);
 
     private final Set<DiscoveryListener> discoveryListeners = new CopyOnWriteArraySet<>();
@@ -67,8 +67,8 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
 
     private final Map<ThingUID, DiscoveryResult> cachedResults = new HashMap<>();
 
-    final private Set<ThingTypeUID> supportedThingTypes;
-    final private int timeout;
+    private final Set<ThingTypeUID> supportedThingTypes;
+    private final int timeout;
 
     private long timestampOfLastScan = 0L;
 
@@ -253,7 +253,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      * The abstract class schedules a call of {@link #stopScan()} after {@link #getScanTimeout()} seconds. If this
      * behavior is not appropriate, the {@link #startScan(ScanListener))} method should be overridden.
      */
-    abstract protected void startScan();
+    protected abstract void startScan();
 
     /**
      * This method cleans up after a scan, i.e. it removes listeners and other required operations.

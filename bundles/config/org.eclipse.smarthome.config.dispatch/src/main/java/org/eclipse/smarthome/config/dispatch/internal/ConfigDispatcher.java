@@ -90,7 +90,7 @@ public class ConfigDispatcher {
     private final Gson gson = new Gson();
 
     /** The program argument name for setting the service pid namespace */
-    final static public String SERVICEPID_PROG_ARGUMENT = "smarthome.servicepid";
+    public static final String SERVICEPID_PROG_ARGUMENT = "smarthome.servicepid";
 
     /** The property to recognize a service instance created by a service factory */
     public static final String SERVICE_CONTEXT = "esh.servicecontext";
@@ -102,13 +102,13 @@ public class ConfigDispatcher {
      * The program argument name for setting the default services config file
      * name
      */
-    final static public String SERVICECFG_PROG_ARGUMENT = "smarthome.servicecfg";
+    public static final String SERVICECFG_PROG_ARGUMENT = "smarthome.servicecfg";
 
     /** The default namespace for service pids */
-    final static public String SERVICE_PID_NAMESPACE = "org.eclipse.smarthome";
+    public static final String SERVICE_PID_NAMESPACE = "org.eclipse.smarthome";
 
     /** The default services configuration filename */
-    final static public String SERVICE_CFG_FILE = "smarthome.cfg";
+    public static final String SERVICE_CFG_FILE = "smarthome.cfg";
 
     private static final String PID_MARKER = "pid:";
 

@@ -24,7 +24,7 @@ import org.eclipse.smarthome.core.thing.dto.ChannelDTO;
  */
 public class EnrichedChannelDTO extends ChannelDTO {
 
-    final public Set<String> linkedItems;
+    public final Set<String> linkedItems;
 
     public EnrichedChannelDTO(ChannelDTO channelDTO, Set<String> linkedItems) {
         this.uid = channelDTO.uid;

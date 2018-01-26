@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class WrappedScheduledExecutorService extends ScheduledThreadPoolExecutor {
 
-    final static Logger logger = LoggerFactory.getLogger(WrappedScheduledExecutorService.class);
+    static final Logger logger = LoggerFactory.getLogger(WrappedScheduledExecutorService.class);
 
     public WrappedScheduledExecutorService(int corePoolSize, ThreadFactory threadFactory) {
         super(corePoolSize, threadFactory);

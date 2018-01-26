@@ -97,7 +97,7 @@ public class BridgeHandler extends BaseBridgeHandler
     /**
      * Contains all supported thing types of this handler
      */
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_DSS_BRIDGE);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_DSS_BRIDGE);
 
     private static final long RECONNECT_TRACKER_INTERVAL = 15;
 

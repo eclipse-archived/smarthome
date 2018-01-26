@@ -34,9 +34,9 @@ public class StringListType implements Command, State {
     protected List<String> typeDetails;
 
     // constants
-    static final public String DELIMITER = ",";
-    static final public String ESCAPED_DELIMITER = "\\" + DELIMITER;
-    static final public String REGEX_SPLITTER = "(?<!\\\\)" + DELIMITER;
+    public static final String DELIMITER = ",";
+    public static final String ESCAPED_DELIMITER = "\\" + DELIMITER;
+    public static final String REGEX_SPLITTER = "(?<!\\\\)" + DELIMITER;
 
     public StringListType() {
         typeDetails = Collections.emptyList();

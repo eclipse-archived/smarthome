@@ -198,7 +198,7 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
         }
     }
 
-    abstract protected void validateExpression() throws IllegalArgumentException;
+    protected abstract void validateExpression() throws IllegalArgumentException;
 
     protected void applyExpressionParts(boolean searchMode) {
         for (ExpressionPart part : getExpressionParts()) {
@@ -335,13 +335,13 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
     /**
      * Parses a token from the expression into an {@link ExpressionPart}
      */
-    abstract protected E parseToken(String token, int position) throws ParseException;
+    protected abstract E parseToken(String token, int position) throws ParseException;
 
     /**
      * Helper function that is called to populate the list of candidates dates in case not enough candidates were
      * generated in a first instance
      */
-    abstract protected void populateWithSeeds();
+    protected abstract void populateWithSeeds();
 
     public <T extends ExpressionPart> T getExpressionPart(Class<T> part) {
         for (ExpressionPart aPart : getExpressionParts()) {

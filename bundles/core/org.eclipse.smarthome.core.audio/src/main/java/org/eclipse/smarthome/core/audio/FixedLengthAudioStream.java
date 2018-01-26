@@ -21,7 +21,7 @@ import java.io.InputStream;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-abstract public class FixedLengthAudioStream extends AudioStream {
+public abstract class FixedLengthAudioStream extends AudioStream {
 
     /**
      * Provides the length of the stream in bytes.

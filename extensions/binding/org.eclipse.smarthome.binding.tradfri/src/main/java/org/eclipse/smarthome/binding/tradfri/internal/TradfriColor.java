@@ -28,8 +28,8 @@ public class TradfriColor {
     // Tradfri uses the CIE color space (see https://en.wikipedia.org/wiki/CIE_1931_color_space),
     // which uses x,y-coordinates.
     // Its own app comes with 3 predefined color temperature settings (0,1,2), which have those values:
-    private final static double[] PRESET_X = new double[] { 24933.0, 30138.0, 33137.0 };
-    private final static double[] PRESET_Y = new double[] { 24691.0, 26909.0, 27211.0 };
+    private static final double[] PRESET_X = new double[] { 24933.0, 30138.0, 33137.0 };
+    private static final double[] PRESET_Y = new double[] { 24691.0, 26909.0, 27211.0 };
 
     /**
      * RGB color values in the range 0 to 255.

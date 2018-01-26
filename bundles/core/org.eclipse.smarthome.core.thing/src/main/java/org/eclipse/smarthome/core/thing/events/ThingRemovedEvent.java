@@ -25,7 +25,7 @@ public class ThingRemovedEvent extends AbstractThingRegistryEvent {
     /**
      * The thing removed event type.
      */
-    public final static String TYPE = ThingRemovedEvent.class.getSimpleName();
+    public static final String TYPE = ThingRemovedEvent.class.getSimpleName();
 
     /**
      * Constructs a new thing removed event object.

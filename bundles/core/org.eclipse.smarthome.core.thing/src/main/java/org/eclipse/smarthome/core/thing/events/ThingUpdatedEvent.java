@@ -25,7 +25,7 @@ public class ThingUpdatedEvent extends AbstractThingRegistryEvent {
     /**
      * The thing updated event type.
      */
-    public final static String TYPE = ThingUpdatedEvent.class.getSimpleName();
+    public static final String TYPE = ThingUpdatedEvent.class.getSimpleName();
 
     private final ThingDTO oldThing;
 

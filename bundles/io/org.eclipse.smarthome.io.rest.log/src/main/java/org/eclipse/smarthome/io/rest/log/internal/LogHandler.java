@@ -54,7 +54,7 @@ public class LogHandler implements RESTResource {
     private final Logger logger = LoggerFactory.getLogger(LogHandler.class);
     public static final String PATH_LOG = "log";
 
-    private final static String TEMPLATE_INTERNAL_ERROR = "{\"error\":\"%s\",\"severity\":\"%s\"}";
+    private static final String TEMPLATE_INTERNAL_ERROR = "{\"error\":\"%s\",\"severity\":\"%s\"}";
 
     /**
      * Rolling array to store the last LOG_BUFFER_LIMIT messages. Those can be fetched e.g. by a

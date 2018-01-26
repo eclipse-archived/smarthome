@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T> the type of module the concrete handler can handle
  */
-abstract public class AbstractScriptModuleHandler<T extends Module> extends BaseModuleHandler<T> {
+public abstract class AbstractScriptModuleHandler<T extends Module> extends BaseModuleHandler<T> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /** Constant defining the configuration parameter of modules that specifies the mime type of a script */

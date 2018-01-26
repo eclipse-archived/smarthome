@@ -57,7 +57,7 @@ public class DigitalSTROMHandlerFactory extends BaseThingHandlerFactory {
     /**
      * Contains all supported {@link ThingTypeUID}'s.
      */
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream.of( //
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream.of( //
             SceneHandler.SUPPORTED_THING_TYPES.stream(), //
             BridgeHandler.SUPPORTED_THING_TYPES.stream(), //
             DeviceHandler.SUPPORTED_THING_TYPES.stream(), //

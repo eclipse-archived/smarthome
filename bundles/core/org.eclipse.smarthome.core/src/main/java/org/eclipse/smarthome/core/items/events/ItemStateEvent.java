@@ -26,7 +26,7 @@ public class ItemStateEvent extends AbstractEvent {
     /**
      * The item state event type.
      */
-    public final static String TYPE = ItemStateEvent.class.getSimpleName();
+    public static final String TYPE = ItemStateEvent.class.getSimpleName();
 
     private final String itemName;
 

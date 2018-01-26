@@ -30,7 +30,7 @@ public class MathUtils {
      *            second number
      * @return the gcd of m and n
      */
-    static public int gcd(int m, int n) {
+    public static int gcd(int m, int n) {
         if (m % n == 0)
             return n;
         return gcd(n, m % n);
@@ -45,7 +45,7 @@ public class MathUtils {
      *            second number
      * @return the lcm of m and n
      */
-    static public int lcm(int m, int n) {
+    public static int lcm(int m, int n) {
         return m * n / gcd(n, m);
     }
 
@@ -56,7 +56,7 @@ public class MathUtils {
      *            an array of n numbers
      * @return the gcd of the n numbers
      */
-    static public int gcd(Integer[] numbers) {
+    public static int gcd(Integer[] numbers) {
         int n = numbers[0];
         for (int m : numbers) {
             n = gcd(n, m);
@@ -71,7 +71,7 @@ public class MathUtils {
      *            an array of n numbers
      * @return the least common multiple of all numbers of the array
      */
-    static public int lcm(Integer[] numbers) {
+    public static int lcm(Integer[] numbers) {
         int n = numbers[0];
         for (int m : numbers) {
             n = lcm(n, m);

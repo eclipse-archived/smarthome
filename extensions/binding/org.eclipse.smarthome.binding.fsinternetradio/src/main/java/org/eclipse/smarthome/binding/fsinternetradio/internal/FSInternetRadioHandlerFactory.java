@@ -31,7 +31,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
  */
 public class FSInternetRadioHandlerFactory extends BaseThingHandlerFactory {
 
-    private final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(THING_TYPE_RADIO);
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(THING_TYPE_RADIO);
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {

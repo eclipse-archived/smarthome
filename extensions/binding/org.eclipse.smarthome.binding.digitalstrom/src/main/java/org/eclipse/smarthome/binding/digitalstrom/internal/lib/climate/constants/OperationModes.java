@@ -32,7 +32,7 @@ public enum OperationModes {
     private final Short id;
     private final String key;
 
-    private final static OperationModes[] OPERATION_MODES = new OperationModes[OperationModes.values().length];
+    private static final OperationModes[] OPERATION_MODES = new OperationModes[OperationModes.values().length];
 
     static {
         for (OperationModes operationMode : OperationModes.values()) {

@@ -23,17 +23,17 @@ public final class InterpretationResult {
     /**
      * Represents successful parsing and interpretation.
      */
-    public final static InterpretationResult OK = new InterpretationResult(true, "");
+    public static final InterpretationResult OK = new InterpretationResult(true, "");
 
     /**
      * Represents a syntactical problem during parsing.
      */
-    public final static InterpretationResult SYNTAX_ERROR = new InterpretationResult(false, "Syntax error.");
+    public static final InterpretationResult SYNTAX_ERROR = new InterpretationResult(false, "Syntax error.");
 
     /**
      * Represents a problem in the interpretation step after successful parsing.
      */
-    public final static InterpretationResult SEMANTIC_ERROR = new InterpretationResult(false, "Semantic error.");
+    public static final InterpretationResult SEMANTIC_ERROR = new InterpretationResult(false, "Semantic error.");
 
     private boolean success = false;
     private InterpretationException exception;

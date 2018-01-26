@@ -57,7 +57,7 @@ public interface DsAPI {
      * Meter field to get all meters by calling {@link #getLatest(String, MeteringTypeEnum, String, MeteringUnitsEnum)}.
      * It has to be set by meterDSIDs.
      */
-    final static String ALL_METERS = ".meters(all)";
+    static final String ALL_METERS = ".meters(all)";
 
     /**
      * Calls the scene sceneNumber on all devices of the apartment. If groupID
