@@ -53,7 +53,7 @@
     <jdt-annotations.version>2.1.0</jdt-annotations.version>
     <build.helper.maven.plugin.version>1.8</build.helper.maven.plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <sat.version>0.3.0</sat.version>
+    <sat.version>0.4.1</sat.version>
   </properties>
 
   <packaging>pom</packaging>
@@ -518,8 +518,8 @@
         <pluginManagement>
           <plugins>
             <plugin>
-              <groupId>org.openhab.tools</groupId>
-              <artifactId>static-code-analysis</artifactId>
+              <groupId>org.openhab.tools.sat</groupId>
+              <artifactId>sat-plugin</artifactId>
               <version>${sat.version}</version>
               <executions>
                 <execution>
@@ -552,8 +552,8 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.openhab.tools</groupId>
-            <artifactId>static-code-analysis</artifactId>
+            <groupId>org.openhab.tools.sat</groupId>
+            <artifactId>sat-plugin</artifactId>
             <version>${sat.version}</version>
           </plugin>
         </plugins>
