@@ -24,7 +24,7 @@ public class PlayURLEvent extends AbstractEvent {
     /**
      * The extension event type.
      */
-    public final static String TYPE = PlayURLEvent.class.getSimpleName();
+    public static final String TYPE = PlayURLEvent.class.getSimpleName();
 
     private String url;
 

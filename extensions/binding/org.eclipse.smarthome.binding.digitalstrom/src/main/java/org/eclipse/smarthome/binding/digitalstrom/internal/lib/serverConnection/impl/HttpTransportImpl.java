@@ -77,9 +77,9 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpTransportImpl implements HttpTransport {
 
-    private final static String LINE_SEPERATOR = System.getProperty("line.separator");
-    private final static String BEGIN_CERT = "-----BEGIN CERTIFICATE-----" + LINE_SEPERATOR;
-    private final static String END_CERT = LINE_SEPERATOR + "-----END CERTIFICATE-----" + LINE_SEPERATOR;
+    private static final String LINE_SEPERATOR = System.getProperty("line.separator");
+    private static final String BEGIN_CERT = "-----BEGIN CERTIFICATE-----" + LINE_SEPERATOR;
+    private static final String END_CERT = LINE_SEPERATOR + "-----END CERTIFICATE-----" + LINE_SEPERATOR;
 
     private static final Logger logger = LoggerFactory.getLogger(HttpTransportImpl.class);
     private static final short mayANewSessionTokenIsNeeded = 1;

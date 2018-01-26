@@ -52,34 +52,34 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
     /**
      * Contains all supported thing types of this handler.
      */
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(Arrays.asList(
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(Arrays.asList(
             DigitalSTROMBindingConstants.THING_TYPE_APP_SCENE, DigitalSTROMBindingConstants.THING_TYPE_GROUP_SCENE,
             DigitalSTROMBindingConstants.THING_TYPE_ZONE_SCENE, DigitalSTROMBindingConstants.THING_TYPE_NAMED_SCENE));
 
     /**
      * Configured scene does not exist or cannot be used.
      */
-    public final static String SCENE_WRONG = "sceneWrong";
+    public static final String SCENE_WRONG = "sceneWrong";
     /**
      * Configured zone does not exist.
      */
-    public final static String ZONE_WRONG = "zoneWrong";
+    public static final String ZONE_WRONG = "zoneWrong";
     /**
      * Configured group does not exist.
      */
-    public final static String GROUP_WRONG = "groupWrong";
+    public static final String GROUP_WRONG = "groupWrong";
     /**
      * StructureManager in BridgeHandler is null
      */
-    public final static String NO_STRUC_MAN = "noStrucMan";
+    public static final String NO_STRUC_MAN = "noStrucMan";
     /**
      * Configured scene is null.
      */
-    public final static String NO_SCENE = "noScene";
+    public static final String NO_SCENE = "noScene";
     /**
      * BridgeHandler is null.
      */
-    public final static String NO_BRIDGE = "noBridge";
+    public static final String NO_BRIDGE = "noBridge";
 
     private BridgeHandler bridgeHandler;
     private InternalScene scene;

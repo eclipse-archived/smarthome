@@ -22,7 +22,7 @@ import org.osgi.framework.BundleContext;
  */
 public final class UIActivator implements BundleActivator {
 
-    static private BundleContext context;
+    private static BundleContext context;
 
     /**
      * Called whenever the OSGi framework starts our bundle
@@ -40,7 +40,7 @@ public final class UIActivator implements BundleActivator {
         context = null;
     }
 
-    static public BundleContext getContext() {
+    public static BundleContext getContext() {
         return context;
     }
 

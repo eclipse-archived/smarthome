@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * @author Stefan Bußweiler - Migration to new ESH event concept
  *
  */
-abstract public class GenericItem implements ActiveItem {
+public abstract class GenericItem implements ActiveItem {
 
     private final Logger logger = LoggerFactory.getLogger(GenericItem.class);
 
@@ -65,10 +65,10 @@ abstract public class GenericItem implements ActiveItem {
     protected Set<String> tags = new HashSet<String>();
 
     @NonNull
-    final protected String name;
+    protected final String name;
 
     @NonNull
-    final protected String type;
+    protected final String type;
 
     protected State state = UnDefType.NULL;
 

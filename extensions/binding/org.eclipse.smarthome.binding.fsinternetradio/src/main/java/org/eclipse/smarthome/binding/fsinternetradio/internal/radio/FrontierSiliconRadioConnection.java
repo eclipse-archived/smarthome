@@ -37,7 +37,7 @@ public class FrontierSiliconRadioConnection {
     private final Logger logger = LoggerFactory.getLogger(FrontierSiliconRadioConnection.class);
 
     /** Timeout for HTTP requests in ms */
-    private final static int SOCKET_TIMEOUT = 5000;
+    private static final int SOCKET_TIMEOUT = 5000;
 
     /** Hostname of the radio. */
     private final String hostname;

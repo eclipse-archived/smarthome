@@ -97,7 +97,7 @@ public class ChartServlet extends HttpServlet {
 
     protected HttpService httpService;
     protected ItemUIRegistry itemUIRegistry;
-    static protected Map<String, ChartProvider> chartProviders = new HashMap<String, ChartProvider>();
+    protected static Map<String, ChartProvider> chartProviders = new HashMap<String, ChartProvider>();
 
     public void setHttpService(HttpService httpService) {
         this.httpService = httpService;
@@ -123,7 +123,7 @@ public class ChartServlet extends HttpServlet {
         chartProviders.remove(provider.getName());
     }
 
-    static public Map<String, ChartProvider> getChartProviders() {
+    public static Map<String, ChartProvider> getChartProviders() {
         return chartProviders;
     }
 

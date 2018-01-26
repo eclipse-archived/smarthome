@@ -26,13 +26,13 @@ import java.io.InputStream;
  * @author Kelly Davis - Modified to match discussion in #584
  * @author Kai Kreuzer - Refactored to be only a temporary instance for the stream
  */
-abstract public class AudioStream extends InputStream {
+public abstract class AudioStream extends InputStream {
 
     /**
      * Gets the supported audio format
      *
      * @return The supported audio format
      */
-    abstract public AudioFormat getFormat();
+    public abstract AudioFormat getFormat();
 
 }

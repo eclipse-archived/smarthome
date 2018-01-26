@@ -50,16 +50,16 @@ import org.slf4j.LoggerFactory;
 @Component(configurationPid = "org.eclipse.smarthome.threadpool")
 public class ThreadPoolManager {
 
-    private final static Logger logger = LoggerFactory.getLogger(ThreadPoolManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(ThreadPoolManager.class);
 
     protected static final int DEFAULT_THREAD_POOL_SIZE = 5;
 
     protected static final long THREAD_TIMEOUT = 65L;
     protected static final long THREAD_MONITOR_SLEEP = 60000;
 
-    static protected Map<String, ExecutorService> pools = new WeakHashMap<>();
+    protected static Map<String, ExecutorService> pools = new WeakHashMap<>();
 
-    static private Map<String, Integer> configs = new ConcurrentHashMap<>();
+    private static Map<String, Integer> configs = new ConcurrentHashMap<>();
 
     protected void activate(Map<String, Object> properties) {
         modified(properties);
@@ -106,7 +106,7 @@ public class ThreadPoolManager {
      * @param poolName a short name used to identify the pool, e.g. "discovery"
      * @return an instance to use
      */
-    static public ScheduledExecutorService getScheduledPool(String poolName) {
+    public static ScheduledExecutorService getScheduledPool(String poolName) {
         ExecutorService pool = pools.get(poolName);
         if (pool == null) {
             synchronized (pools) {
@@ -136,7 +136,7 @@ public class ThreadPoolManager {
      * @param poolName a short name used to identify the pool, e.g. "discovery"
      * @return an instance to use
      */
-    static public ExecutorService getPool(String poolName) {
+    public static ExecutorService getPool(String poolName) {
         ExecutorService pool = pools.get(poolName);
         if (pool == null) {
             synchronized (pools) {

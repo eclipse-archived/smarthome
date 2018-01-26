@@ -36,35 +36,35 @@ public class PostEventCommand extends DemoCommand {
     /**
      * This field contains the name of the command.
      */
-    protected final static String POST_EVENT = "postEvent";
+    protected static final String POST_EVENT = "postEvent";
     /**
      * This field contains a alias for the command.
      */
-    protected final static String POST_EVENT_SHORT = "pe";
+    protected static final String POST_EVENT_SHORT = "pe";
 
     /**
      * Template for the usage of the command.
      */
-    protected final static String SYNTAX = POST_EVENT + " <topic> <key> <value>.";
+    protected static final String SYNTAX = POST_EVENT + " <topic> <key> <value>.";
 
     /**
      * Contains the description of the command.
      */
-    protected final static String DESCRIPTION = "Posts event with 'topic' that contains entry <'key', 'value'>";
+    protected static final String DESCRIPTION = "Posts event with 'topic' that contains entry <'key', 'value'>";
 
     /**
      * Contains the position of the topic into the incoming {@link String[]}
      */
-    private final static int TOPIC_POSITION = 0;
+    private static final int TOPIC_POSITION = 0;
     /**
      * Contains the position of the entry's key into the incoming {@link String[]}
      */
-    private final static int KEY_POSITION = 1;
+    private static final int KEY_POSITION = 1;
 
     /**
      * Contains the position of the entry's value into the incoming {@link String[]}
      */
-    private final static int VALUE_POSITION = 2;
+    private static final int VALUE_POSITION = 2;
 
     /**
      * If parsing of the command is successful this field will contain a reference the event that the command posts.

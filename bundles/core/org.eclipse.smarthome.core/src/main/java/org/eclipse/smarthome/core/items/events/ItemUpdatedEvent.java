@@ -27,7 +27,7 @@ public class ItemUpdatedEvent extends AbstractItemRegistryEvent {
     /**
      * The item updated event type.
      */
-    public final static String TYPE = ItemUpdatedEvent.class.getSimpleName();
+    public static final String TYPE = ItemUpdatedEvent.class.getSimpleName();
 
     /**
      * Constructs a new item updated event object.

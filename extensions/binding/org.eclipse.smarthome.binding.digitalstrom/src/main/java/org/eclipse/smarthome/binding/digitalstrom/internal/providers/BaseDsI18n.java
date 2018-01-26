@@ -30,9 +30,9 @@ import org.osgi.service.component.ComponentContext;
  */
 public abstract class BaseDsI18n {
 
-    public final static String LABEL_ID = "label";
-    public final static String DESC_ID = "desc";
-    public final static String SEPERATOR = "_";
+    public static final String LABEL_ID = "label";
+    public static final String DESC_ID = "desc";
+    public static final String SEPERATOR = "_";
 
     private TranslationProvider translationProvider;
     private Bundle bundle;

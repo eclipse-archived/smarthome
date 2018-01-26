@@ -52,7 +52,7 @@ public class ConsoleTrigger extends BaseModuleHandler<Trigger> implements Trigge
      * This constant is used by {@link HandlerFactory} to create a correct handler instance. It must be the same as in
      * JSON definition of the module type.
      */
-    public final static String UID = "ConsoleTrigger";
+    public static final String UID = "ConsoleTrigger";
 
     /**
      * This constant is used to get the value of the 'eventTopic' property from {@link Trigger}'s {@link Configuration}.

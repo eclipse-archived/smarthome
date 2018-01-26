@@ -46,13 +46,13 @@ public class RunRuleActionHandler extends BaseModuleHandler<Action> implements A
     /**
      * The UID for this handler for identification in the factory.
      */
-    public final static String UID = "core.RunRuleAction";
+    public static final String UID = "core.RunRuleAction";
 
     /**
      * the key for the 'rulesUIDs' property of the {@link Action}.
      */
-    private final static String RULE_UIDS_KEY = "ruleUIDs";
-    private final static String CONSIDER_CONDITIONS_KEY = "considerConditions";
+    private static final String RULE_UIDS_KEY = "ruleUIDs";
+    private static final String CONSIDER_CONDITIONS_KEY = "considerConditions";
 
     /**
      * The logger

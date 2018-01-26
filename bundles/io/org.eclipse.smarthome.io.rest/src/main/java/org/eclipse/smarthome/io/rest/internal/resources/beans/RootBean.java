@@ -26,9 +26,9 @@ import org.eclipse.smarthome.io.rest.internal.RESTActivator;
  */
 public class RootBean {
 
-    final public String version = RESTActivator.getContext().getBundle().getVersion().toString();
+    public final String version = RESTActivator.getContext().getBundle().getVersion().toString();
 
-    final public List<Links> links = new ArrayList<Links>();
+    public final List<Links> links = new ArrayList<Links>();
 
     public static class Links {
         public Links(String type, String url) {

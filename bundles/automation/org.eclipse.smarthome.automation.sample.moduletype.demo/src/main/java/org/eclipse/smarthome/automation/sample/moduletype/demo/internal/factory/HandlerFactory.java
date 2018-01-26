@@ -42,17 +42,17 @@ public class HandlerFactory extends BaseModuleHandlerFactory implements ModuleHa
     /**
      * This field contains the name of this factory
      */
-    public final static String MODULE_HANDLER_FACTORY_NAME = "[SampleDemoFactory]";
+    public static final String MODULE_HANDLER_FACTORY_NAME = "[SampleDemoFactory]";
 
     /**
      * This field contains the types that are supported by this factory.
      */
-    private final static Collection<String> types;
+    private static final Collection<String> types;
 
     /**
      * For error logging if there is a query for a type that is not supported.
      */
-    private final static Logger logger;
+    private static final Logger logger;
 
     /**
      * This blocks fills the Collection ,which contains the types supported by this factory, with supported types and

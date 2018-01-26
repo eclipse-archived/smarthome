@@ -66,10 +66,10 @@ public class ThingImpl implements Thing {
 
     private @Nullable String location;
 
-    transient volatile private ThingStatusInfo status = ThingStatusInfoBuilder
+    private transient volatile ThingStatusInfo status = ThingStatusInfoBuilder
             .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build();
 
-    transient volatile private @Nullable ThingHandler thingHandler;
+    private transient volatile @Nullable ThingHandler thingHandler;
 
     /**
      * Package protected default constructor to allow reflective instantiation.

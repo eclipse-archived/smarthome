@@ -24,7 +24,7 @@ public class ExtensionEvent extends AbstractEvent {
     /**
      * The extension event type.
      */
-    public final static String TYPE = ExtensionEvent.class.getSimpleName();
+    public static final String TYPE = ExtensionEvent.class.getSimpleName();
 
     private String msg;
     private String id;

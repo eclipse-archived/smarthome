@@ -34,7 +34,7 @@ import org.eclipse.xtext.resource.XtextResource;
  */
 public class LazyLanguageConfig extends LanguageConfig {
 
-    private final static Logger LOG = Logger.getLogger(LazyLanguageConfig.class);
+    private static final Logger LOG = Logger.getLogger(LazyLanguageConfig.class);
     String uri = null;
     boolean isUI = false;
 

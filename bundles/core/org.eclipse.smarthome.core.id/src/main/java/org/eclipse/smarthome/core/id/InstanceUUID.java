@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceUUID {
 
-    static final private Logger logger = LoggerFactory.getLogger(InstanceUUID.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceUUID.class);
 
     private static final String UUID_FILE_NAME = "uuid";
 

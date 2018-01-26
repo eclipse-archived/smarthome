@@ -57,7 +57,7 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = SseResource.PATH_EVENTS, hidden = true)
 public class SseResource {
 
-    public final static String PATH_EVENTS = "events";
+    public static final String PATH_EVENTS = "events";
 
     private static final String X_ACCEL_BUFFERING_HEADER = "X-Accel-Buffering";
 
