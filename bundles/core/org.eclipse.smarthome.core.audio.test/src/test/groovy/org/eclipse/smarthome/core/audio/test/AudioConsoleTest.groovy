@@ -25,8 +25,8 @@ import org.junit.Test
 /**
  * OSGi test for {@link AudioConsoleCommandExtension}
  *
- * @author Petar Valchev
- *
+ * @author Petar Valchev - Initial contribution and API
+ * @author Christoph Weitkamp - Added parameter to adjust the volume
  */
 public class AudioConsoleTest extends AudioOSGiTest {
     private AudioConsoleCommandExtension audioConsoleCommandExtension
@@ -63,6 +63,30 @@ public class AudioConsoleTest extends AudioOSGiTest {
     }
 
     @Test
+    public void 'audio console plays file for a specified sink with a specified volume'(){
+        audioStream = getFileAudioStream(WAV_FILE_PATH)
+
+        String[] args = [audioConsoleCommandExtension.SUBCMD_PLAY, audioSinkFake.getId(), audioStream.file.getName(), "25"]
+        audioConsoleCommandExtension.execute(args, consoleMock)
+
+        assertCompatibleFormat()
+    }
+
+    @Test
+    public void 'audio console plays file for a specified sink with an invalid volume'(){
+        audioStream = getFileAudioStream(WAV_FILE_PATH)
+
+        String[] args = [audioConsoleCommandExtension.SUBCMD_PLAY, audioSinkFake.getId(), audioStream.file.getName(), "invalid"]
+        audioConsoleCommandExtension.execute(args, consoleMock)
+
+        waitForAssert({
+            assertThat "The given volume was invalid",
+                consoleOutput,
+                is(null)
+        })
+    }
+
+    @Test
     public void 'audio console plays stream'(){
         initializeAudioServlet()
 
@@ -94,6 +118,42 @@ public class AudioConsoleTest extends AudioOSGiTest {
         assertThat "The streamed url was not as expected",
                 audioSinkFake.audioStream.getURL(),
                 is(url)
+    }
+
+    @Test
+    public void 'audio console plays stream for a specified sink with a specified volume'(){
+        initializeAudioServlet()
+
+        audioStream = getByteArrayAudioStream(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED)
+
+        String path = audioServlet.serve(audioStream, testTimeout)
+        String url = generateURL(AUDIO_SERVLET_PROTOCOL, AUDIO_SERVLET_HOSTNAME, AUDIO_SERVLET_PORT, path)
+
+        String[] args = [audioConsoleCommandExtension.SUBCMD_STREAM, audioSinkFake.getId(), url, "25"]
+        audioConsoleCommandExtension.execute(args, consoleMock)
+
+        assertThat "The streamed url was not as expected",
+                audioSinkFake.audioStream.getURL(),
+                is(url)
+    }
+
+    @Test
+    public void 'audio console plays stream for a specified sink with an invalid volume'(){
+        initializeAudioServlet()
+
+        audioStream = getByteArrayAudioStream(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED)
+
+        String path = audioServlet.serve(audioStream, testTimeout)
+        String url = generateURL(AUDIO_SERVLET_PROTOCOL, AUDIO_SERVLET_HOSTNAME, AUDIO_SERVLET_PORT, path)
+
+        String[] args = [audioConsoleCommandExtension.SUBCMD_STREAM, audioSinkFake.getId(), url, "invalid"]
+        audioConsoleCommandExtension.execute(args, consoleMock)
+
+        waitForAssert({
+            assertThat "The given volume was invalid",
+                consoleOutput,
+                is(null)
+        })
     }
 
     @Test

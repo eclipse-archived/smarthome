@@ -19,6 +19,7 @@ import java.util.Set;
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.smarthome.core.audio.AudioException;
 import org.eclipse.smarthome.core.audio.AudioManager;
+import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
 
@@ -27,7 +28,7 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  *
  * @author Karel Goderis - Initial contribution and API
  * @author Kai Kreuzer - refactored to match AudioManager implementation
- *
+ * @author Christoph Weitkamp - Added parameter to adjust the volume
  */
 public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
@@ -45,9 +46,9 @@ public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtensio
     @Override
     public List<String> getUsages() {
         return Arrays.asList(new String[] {
-                buildCommandUsage(SUBCMD_PLAY + " <sink> <filename>",
+                buildCommandUsage(SUBCMD_PLAY + " <sink> <filename> <volume>",
                         "plays a sound file from the sounds folder through the optionally specified audio sink(s)"),
-                buildCommandUsage(SUBCMD_STREAM + " <sink> <url>",
+                buildCommandUsage(SUBCMD_STREAM + " <sink> <url> <volume>",
                         "streams the sound from the url through the optionally specified audio sink(s)"),
                 buildCommandUsage(SUBCMD_SOURCES, "lists the audio sources"),
                 buildCommandUsage(SUBCMD_SINKS, "lists the audio sinks") });
@@ -109,40 +110,79 @@ public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtensio
     }
 
     private void play(String[] args, Console console) {
-        if (args.length == 1) {
-            try {
-                audioManager.playFile(args[0]);
-            } catch (AudioException e) {
-                console.println(e.getMessage());
-            }
-        } else if (args.length == 2) {
-            Set<String> sinks = audioManager.getSinks(args[0]);
-            for (String aSink : sinks) {
+        switch (args.length) {
+            case 1:
+                playOnSink(null, args[0], null, console);
+                break;
+            case 2:
+                playOnSinks(args[0], args[1], null, console);
+                break;
+            case 3:
+                PercentType volume = null;
                 try {
-                    audioManager.playFile(args[1], aSink);
-                } catch (AudioException e) {
+                    volume = PercentType.valueOf(args[2]);
+                } catch (Exception e) {
                     console.println(e.getMessage());
+                    break;
                 }
-            }
+                playOnSinks(args[0], args[1], volume, console);
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    private void playOnSinks(String sinkIds, String fileName, PercentType volume, Console console) {
+        Set<String> sinks = audioManager.getSinks(sinkIds);
+        for (String sink : sinks) {
+            playOnSink(sink, fileName, volume, console);
+        }
+    }
+
+    private void playOnSink(String sinkId, String fileName, PercentType volume, Console console) {
+        try {
+            audioManager.playFile(fileName, sinkId, volume);
+        } catch (AudioException e) {
+            console.println(e.getMessage());
         }
     }
 
     private void stream(String[] args, Console console) {
-        if (args.length == 1) {
-            try {
-                audioManager.stream(args[0]);
-            } catch (AudioException e) {
-                console.println(e.getMessage());
-            }
-        } else if (args.length == 2) {
-            Set<String> sinks = audioManager.getSinks(args[0]);
-            for (String aSink : sinks) {
+        switch (args.length) {
+            case 1:
+                streamOnSink(null, args[0], null, console);
+                break;
+            case 2:
+                streamOnSinks(args[0], args[1], null, console);
+                break;
+            case 3:
+                PercentType volume = null;
                 try {
-                    audioManager.stream(args[1], aSink);
-                } catch (AudioException e) {
+                    volume = PercentType.valueOf(args[2]);
+                } catch (Exception e) {
                     console.println(e.getMessage());
+                    break;
                 }
-            }
+                streamOnSinks(args[0], args[1], volume, console);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void streamOnSinks(String sinkIds, String url, PercentType volume, Console console) {
+        Set<String> sinks = audioManager.getSinks(sinkIds);
+        for (String sink : sinks) {
+            streamOnSink(sink, url, volume, console);
+        }
+    }
+
+    private void streamOnSink(String sinkId, String url, PercentType volume, Console console) {
+        try {
+            audioManager.stream(url, sinkId, volume);
+        } catch (AudioException e) {
+            console.println(e.getMessage());
         }
     }
 
