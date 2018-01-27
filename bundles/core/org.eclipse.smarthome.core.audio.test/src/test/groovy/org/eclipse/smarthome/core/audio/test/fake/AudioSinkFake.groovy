@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.core.audio.test.fake
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set
 
 import org.eclipse.smarthome.core.audio.AudioFormat
@@ -74,12 +76,12 @@ public class AudioSinkFake implements AudioSink {
 
     @Override
     public Set<AudioFormat> getSupportedFormats() {
-        return SUPPORTED_AUDIO_FORMATS;
+        return Collections.unmodifiableSet(SUPPORTED_AUDIO_FORMATS);
     }
 
     @Override
     public Set<Class<? extends AudioStream>> getSupportedStreams() {
-        return SUPPORTED_AUDIO_STREAMS;
+        return Collections.unmodifiableSet(SUPPORTED_AUDIO_STREAMS);
     }
 
     @Override

@@ -102,7 +102,6 @@ public interface AudioManager {
      *
      * @param url The url to stream from or null if streaming should be stopped
      * @throws AudioException in case the url stream cannot be opened
-     * @throws NullPointerException If url is null
      */
     void stream(String url) throws AudioException;
 
@@ -112,7 +111,6 @@ public interface AudioManager {
      * @param url The url to stream from or null if streaming should be stopped
      * @param volume The volume to be used or null
      * @throws AudioException in case the url stream cannot be opened
-     * @throws NullPointerException If url is null
      */
     void stream(String url, PercentType volume) throws AudioException;
 
@@ -122,7 +120,6 @@ public interface AudioManager {
      * @param url The url to stream from or null if streaming should be stopped
      * @param sinkId The id of the audio sink to use or null
      * @throws AudioException in case the url stream cannot be opened
-     * @throws NullPointerException If url is null
      */
     void stream(String url, String sinkId) throws AudioException;
 
@@ -133,7 +130,6 @@ public interface AudioManager {
      * @param sinkId The id of the audio sink to use or null
      * @param volume The volume to be used or null
      * @throws AudioException in case the url stream cannot be opened
-     * @throws NullPointerException If url is null
      */
     void stream(String url, String sinkId, PercentType volume) throws AudioException;
 

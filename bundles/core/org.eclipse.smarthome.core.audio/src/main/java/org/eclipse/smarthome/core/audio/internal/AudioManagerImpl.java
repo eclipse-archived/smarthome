@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -95,9 +96,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     }
 
     public void play(AudioStream audioStream, String sinkId, PercentType volume) {
-        if (audioStream == null) {
-            throw new NullPointerException("Audio stream cannot be played as it is null.");
-        }
+        Objects.requireNonNull(audioStream, "Audio stream cannot be played as it is null.");
 
         AudioSink sink = getSink(sinkId);
         if (sink != null) {
@@ -142,9 +141,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
 
     @Override
     public void playFile(String fileName, String sink, PercentType volume) throws AudioException {
-        if (fileName == null) {
-            throw new NullPointerException("File cannot be played as fileName is null.");
-        }
+        Objects.requireNonNull(fileName, "File cannot be played as fileName is null.");
 
         File file = new File(
                 ConfigConstants.getConfigFolder() + File.separator + SOUND_DIR + File.separator + fileName);
@@ -168,10 +165,6 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     }
 
     public void stream(String url, String sinkId, PercentType volume) throws AudioException {
-        if (url == null) {
-            throw new NullPointerException("Stream cannot be played as url is null.");
-        }
-
         AudioStream audioStream = url != null ? new URLAudioStream(url) : null;
         play(audioStream, sinkId, volume);
     }

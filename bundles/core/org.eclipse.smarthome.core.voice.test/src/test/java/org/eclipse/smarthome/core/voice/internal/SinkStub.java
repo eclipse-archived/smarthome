@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.core.voice.internal;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -67,7 +68,7 @@ public class SinkStub implements AudioSink {
 
     @Override
     public Set<AudioFormat> getSupportedFormats() {
-        return SUPPORTED_AUDIO_FORMATS;
+        return Collections.unmodifiableSet(SUPPORTED_AUDIO_FORMATS);
     }
 
     @Override
@@ -92,6 +93,6 @@ public class SinkStub implements AudioSink {
 
     @Override
     public Set<Class<? extends AudioStream>> getSupportedStreams() {
-        return SUPPORTED_AUDIO_STREAMS;
+        return Collections.unmodifiableSet(SUPPORTED_AUDIO_STREAMS);
     }
 }

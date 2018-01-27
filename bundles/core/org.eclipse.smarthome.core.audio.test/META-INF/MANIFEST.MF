@@ -19,6 +19,8 @@ Import-Package:
  org.eclipse.jetty.io,
  org.eclipse.jetty.util.component,
  org.eclipse.smarthome.test,
+ org.eclipse.smarthome.io.console,
+ org.eclipse.smarthome.io.console.extensions,
  org.hamcrest;core=split,
  org.junit,
  org.osgi.framework

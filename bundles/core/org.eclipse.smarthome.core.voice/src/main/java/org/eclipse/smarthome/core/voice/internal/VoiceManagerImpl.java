@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.smarthome.config.core.ConfigOptionProvider;
@@ -149,9 +150,7 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
 
     @Override
     public void say(String text, String voiceId, String sinkId, PercentType volume) {
-        if (text == null) {
-            throw new NullPointerException("Text cannot be said as it is null.");
-        }
+        Objects.requireNonNull(text, "Text cannot be said as it is null.");
 
         try {
             TTSService tts = null;

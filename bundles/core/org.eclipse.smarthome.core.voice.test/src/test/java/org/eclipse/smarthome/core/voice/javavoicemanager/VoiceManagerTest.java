@@ -50,9 +50,8 @@ import org.osgi.service.cm.ConfigurationAdmin;
  * Tests for {@link VoiceManagerImpl}
  *
  * @author Mihaela Memova - initial contribution
- *
  * @author Velin Yordanov - migrated tests from groovy to java
- *
+ * @author Christoph Weitkamp - Added parameter to adjust the volume
  */
 public class VoiceManagerTest extends JavaOSGiTest {
     private final String PID = "org.eclipse.smarthome.voice";
@@ -99,6 +98,11 @@ public class VoiceManagerTest extends JavaOSGiTest {
 
         audioManager = new AudioManagerStub();
         registerService(audioManager);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void sayNull() {
+        voiceManager.say(null, null, sink.getId());
     }
 
     @Test
