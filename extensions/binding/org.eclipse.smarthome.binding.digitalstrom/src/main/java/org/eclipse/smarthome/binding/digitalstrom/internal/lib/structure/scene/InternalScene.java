@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene;
 
@@ -24,17 +29,17 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.c
  */
 public class InternalScene {
 
-    private final Short SCENE_ID;
-    private final Short GROUP_ID;
-    private final Integer ZONE_ID;
-    private String SceneName;
-    private final String INTERNAL_SCENE_ID;
+    private final Short sceneID;
+    private final Short groupID;
+    private final Integer zoneID;
+    private String sceneName;
+    private final String internalSceneID;
     private boolean active = false;
     private boolean deviceHasChanged = false;
     private String sceneType = SceneTypes.GROUP_SCENE;
 
     private List<Device> devices = Collections.synchronizedList(new LinkedList<Device>());
-    private SceneStatusListener listener = null;
+    private SceneStatusListener listener;
 
     /**
      * Creates a new {@link InternalScene} with the given parameters. Only the <i>sceneID</i> must not be null. If the
@@ -51,30 +56,33 @@ public class InternalScene {
         if (sceneID == null) {
             throw new IllegalArgumentException("The parameter sceneID can't be null!");
         }
-        this.SCENE_ID = sceneID;
+        this.sceneID = sceneID;
         if (groupID == null) {
-            this.GROUP_ID = 0;
+            this.groupID = 0;
         } else {
-            this.GROUP_ID = groupID;
+            this.groupID = groupID;
         }
         if (zoneID == null) {
-            this.ZONE_ID = 0;
+            this.zoneID = 0;
         } else {
-            this.ZONE_ID = zoneID;
+            this.zoneID = zoneID;
         }
-        this.INTERNAL_SCENE_ID = this.ZONE_ID + "-" + this.GROUP_ID + "-" + this.SCENE_ID;
+        this.internalSceneID = this.zoneID + "-" + this.groupID + "-" + this.sceneID;
         if (StringUtils.isBlank(sceneName)) {
-            this.SceneName = this.INTERNAL_SCENE_ID;
+            this.sceneName = this.internalSceneID;
         } else {
-            this.SceneName = sceneName;
+            this.sceneName = sceneName;
         }
-        if ((sceneName != this.INTERNAL_SCENE_ID) && !sceneName.contains("Apartment-Scene: ")
-                && !sceneName.contains("Zone-Scene: Zone:")
+        setSceneType();
+    }
+
+    private void setSceneType() {
+        if ((sceneName != null) && !sceneName.contains("Apartment-Scene: ") && !sceneName.contains("Zone-Scene: Zone:")
                 && !(sceneName.contains("Zone: ") && sceneName.contains("Group: ") && sceneName.contains("Scene: "))) {
             sceneType = SceneTypes.NAMED_SCENE;
-        } else if (this.ZONE_ID == 0) {
+        } else if (this.zoneID == 0) {
             sceneType = SceneTypes.APARTMENT_SCENE;
-        } else if (this.GROUP_ID == 0) {
+        } else if (this.groupID == 0) {
             sceneType = SceneTypes.ZONE_SCENE;
         }
     }
@@ -136,10 +144,10 @@ public class InternalScene {
     /**
      * This method has a device to call, if this scene was activated and the device state has changed.
      *
-     * @param sceneNumber
+     * @param sceneNumber new scene number
      */
     public void deviceSceneChanged(short sceneNumber) {
-        if (this.SCENE_ID != sceneNumber) {
+        if (this.sceneID != sceneNumber) {
             if (active) {
                 deviceHasChanged = true;
                 active = false;
@@ -166,26 +174,26 @@ public class InternalScene {
     /**
      * Adds an affected {@link Device} to this {@link InternalScene} device list.
      *
-     * @param device
+     * @param device to add
      */
     public void addDevice(Device device) {
         if (!this.devices.contains(device)) {
             this.devices.add(device);
         }
-        int prio = 0;
+        short prio = 0;
         if (this.listener != null) {
-            prio = 1000;
+            prio = 1;
         } else {
-            prio = 2000;
+            prio = 2;
         }
-        device.checkSceneConfig(SCENE_ID, prio);
+        device.checkSceneConfig(sceneID, prio);
     }
 
     /**
      * Overrides the existing device list of this {@link InternalScene} with a new reference to a {@link List} of
      * affected {@link Device}'s.
      *
-     * @param deviceList
+     * @param deviceList to add
      */
     public void addReferenceDevices(List<Device> deviceList) {
         this.devices = deviceList;
@@ -202,15 +210,15 @@ public class InternalScene {
      * </ul>
      */
     public void checkDeviceSceneConfig() {
-        int prio = 0;
+        short prio = 0;
         if (this.listener != null) {
-            prio = 1000;
+            prio = 1;
         } else {
-            prio = 2000;
+            prio = 2;
         }
         if (devices != null) {
             for (Device device : devices) {
-                device.checkSceneConfig(SCENE_ID, prio);
+                device.checkSceneConfig(sceneID, prio);
             }
         }
     }
@@ -228,7 +236,7 @@ public class InternalScene {
     /**
      * Adds a {@link List} of affected {@link Device}'s.
      *
-     * @param deviceList
+     * @param deviceList to add
      */
     public void addDevices(List<Device> deviceList) {
         for (Device device : deviceList) {
@@ -239,7 +247,7 @@ public class InternalScene {
     /**
      * Removes a not anymore affected {@link Device} from the device list.
      *
-     * @param device
+     * @param device to remove
      */
     public void removeDevice(Device device) {
         this.devices.remove(device);
@@ -248,7 +256,7 @@ public class InternalScene {
     /**
      * Updates the affected {@link Device}'s with the given deviceList.
      *
-     * @param deviceList
+     * @param deviceList to update
      */
     public void updateDeviceList(List<Device> deviceList) {
         if (!this.devices.equals(deviceList)) {
@@ -263,16 +271,17 @@ public class InternalScene {
      * @return scene name
      */
     public String getSceneName() {
-        return SceneName;
+        return sceneName;
     }
 
     /**
      * Sets the scene name.
      *
-     * @param sceneName
+     * @param sceneName to set
      */
     public void setSceneName(String sceneName) {
-        SceneName = sceneName;
+        this.sceneName = sceneName;
+        setSceneType();
     }
 
     /**
@@ -281,7 +290,7 @@ public class InternalScene {
      * @return scene id
      */
     public Short getSceneID() {
-        return SCENE_ID;
+        return sceneID;
     }
 
     /**
@@ -290,7 +299,7 @@ public class InternalScene {
      * @return group id
      */
     public Short getGroupID() {
-        return GROUP_ID;
+        return groupID;
     }
 
     /**
@@ -299,7 +308,7 @@ public class InternalScene {
      * @return zone id
      */
     public Integer getZoneID() {
-        return ZONE_ID;
+        return zoneID;
     }
 
     /**
@@ -308,13 +317,13 @@ public class InternalScene {
      * @return scene call id
      */
     public String getID() {
-        return INTERNAL_SCENE_ID;
+        return internalSceneID;
     }
 
     /**
      * Registers a {@link SceneStatusListener} to this {@link InternalScene}.
      *
-     * @param listener
+     * @param listener to register
      */
     public synchronized void registerSceneListener(SceneStatusListener listener) {
         this.listener = listener;
@@ -328,7 +337,6 @@ public class InternalScene {
      */
     public synchronized void unregisterSceneListener() {
         if (listener != null) {
-            // this.listener.onSceneRemoved(this);
             this.listener = null;
         }
     }
@@ -347,14 +355,14 @@ public class InternalScene {
 
     @Override
     public String toString() {
-        return "NamedScene [SceneName=" + SceneName + ", NAMED_SCENE_ID=" + INTERNAL_SCENE_ID + "]";
+        return "NamedScene [SceneName=" + sceneName + ", NAMED_SCENE_ID=" + internalSceneID + "]";
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((INTERNAL_SCENE_ID == null) ? 0 : INTERNAL_SCENE_ID.hashCode());
+        result = prime * result + ((internalSceneID == null) ? 0 : internalSceneID.hashCode());
         return result;
     }
 
@@ -370,11 +378,11 @@ public class InternalScene {
             return false;
         }
         InternalScene other = (InternalScene) obj;
-        if (INTERNAL_SCENE_ID == null) {
+        if (internalSceneID == null) {
             if (other.getID() != null) {
                 return false;
             }
-        } else if (!INTERNAL_SCENE_ID.equals(other.getID())) {
+        } else if (!internalSceneID.equals(other.getID())) {
             return false;
         }
         return true;

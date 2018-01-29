@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.net;
 
@@ -20,8 +25,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
-
-import com.google.common.collect.Lists;
 
 public class HttpServiceUtilTest {
 
@@ -88,7 +91,6 @@ public class HttpServiceUtilTest {
         assertThat(undfinedPort, is(-1));
     }
 
-    @SuppressWarnings("unchecked")
     private ServiceReference<?>[] getHttpServiceReferences() {
         ServiceReference<?> ref1 = mock(ServiceReference.class);
         when(ref1.getProperty(HTTP_PORT)).thenReturn("8081");
@@ -98,10 +100,9 @@ public class HttpServiceUtilTest {
         when(ref2.getProperty(HTTP_PORT)).thenReturn("8080");
         when(ref2.getProperty(Constants.SERVICE_RANKING)).thenReturn("100");
 
-        return Lists.newArrayList(ref1, ref2).toArray(new ServiceReference[0]);
+        return new ServiceReference[] { ref1, ref2 };
     }
 
-    @SuppressWarnings("unchecked")
     private ServiceReference<?>[] getSecureHttpServiceReferences() {
         ServiceReference<?> ref1 = mock(ServiceReference.class);
         when(ref1.getProperty(HTTP_PORT_SECURE)).thenReturn("48081");
@@ -111,7 +112,7 @@ public class HttpServiceUtilTest {
         when(ref2.getProperty(HTTP_PORT_SECURE)).thenReturn("48080");
         when(ref2.getProperty(Constants.SERVICE_RANKING)).thenReturn("2");
 
-        return Lists.newArrayList(ref1, ref2).toArray(new ServiceReference[0]);
+        return new ServiceReference[] { ref1, ref2 };
     }
 
 }

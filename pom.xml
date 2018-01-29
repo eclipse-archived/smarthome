@@ -9,7 +9,7 @@
 
   <groupId>org.eclipse.smarthome</groupId>
   <artifactId>smarthome</artifactId>
-  <version>0.9.0-SNAPSHOT</version>
+  <version>0.10.0-SNAPSHOT</version>
 
   <name>Eclipse SmartHome</name>
 
@@ -20,8 +20,8 @@
 
   <licenses>
     <license>
-      <name>Eclipse Public License</name>
-      <url>http://www.eclipse.org/legal/epl-v10.html</url>
+      <name>Eclipse Public License 2.0</name>
+      <url>https://www.eclipse.org/legal/epl-2.0/</url>
     </license>
   </licenses>
 
@@ -47,12 +47,13 @@
     <maven.compiler.compilerVersion>${esh.java.version}</maven.compiler.compilerVersion>
     <tycho-version>1.0.0</tycho-version>
     <tycho-groupid>org.eclipse.tycho</tycho-groupid>
-    <xtext-version>2.9.2</xtext-version>
+    <xtext-version>2.12.0</xtext-version>
     <karaf.version>4.0.3</karaf.version>
-    <ds-annotations.version>1.2.8</ds-annotations.version>
+    <ds-annotations.version>1.2.10</ds-annotations.version>
     <jdt-annotations.version>2.1.0</jdt-annotations.version>
     <build.helper.maven.plugin.version>1.8</build.helper.maven.plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <sat.version>0.4.1</sat.version>
   </properties>
 
   <packaging>pom</packaging>
@@ -70,9 +71,25 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.commonjava.maven.plugins</groupId>
+        <artifactId>directory-maven-plugin</artifactId>
+        <version>0.2</version>
+        <executions>
+          <execution>
+            <id>directories</id>
+            <goals>
+              <goal>highest-basedir</goal>
+            </goals>
+            <phase>initialize</phase>
+            <configuration>
+              <property>basedirRoot</property>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>${tycho-groupid}</groupId>
         <artifactId>tycho-maven-plugin</artifactId>
-        <version>${tycho-version}</version>
         <extensions>true</extensions>
       </plugin>
       <plugin>
@@ -148,29 +165,6 @@
       <plugins>
         <plugin>
           <groupId>${tycho-groupid}</groupId>
-          <artifactId>tycho-compiler-plugin</artifactId>
-          <version>${tycho-version}</version>
-          <configuration>
-            <extraClasspathElements>
-              <extraClasspathElement>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
-                <version>${ds-annotations.version}</version>
-              </extraClasspathElement>
-              <extraClasspathElement>
-                <groupId>org.eclipse.jdt</groupId>
-                <artifactId>org.eclipse.jdt.annotation</artifactId>
-                <version>${jdt-annotations.version}</version>
-              </extraClasspathElement>
-            </extraClasspathElements>
-            <compilerArgs>
-              <arg>-err:+nullAnnot(org.eclipse.jdt.annotation.Nullable|org.eclipse.jdt.annotation.NonNull|org.eclipse.jdt.annotation.NonNullByDefault),+inheritNullAnnot</arg>
-              <arg>-warn:+null,+inheritNullAnnot,+nullAnnotConflict,+nullUncheckedConversion,+nullAnnotRedundant,+nullDereference</arg>
-            </compilerArgs>
-          </configuration>          
-        </plugin>
-        <plugin>
-          <groupId>${tycho-groupid}</groupId>
           <artifactId>target-platform-configuration</artifactId>
           <version>${tycho-version}</version>
           <configuration>
@@ -191,11 +185,59 @@
         </plugin>
         <plugin>
           <groupId>${tycho-groupid}</groupId>
+          <artifactId>tycho-compiler-plugin</artifactId>
+          <version>${tycho-version}</version>
+          <configuration>
+            <extraClasspathElements>
+              <extraClasspathElement>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
+                <version>${ds-annotations.version}</version>
+              </extraClasspathElement>
+              <extraClasspathElement>
+                <groupId>org.eclipse.jdt</groupId>
+                <artifactId>org.eclipse.jdt.annotation</artifactId>
+                <version>${jdt-annotations.version}</version>
+              </extraClasspathElement>
+            </extraClasspathElements>
+            <compilerArgs>
+              <!--<arg>-err:+nullAnnot(org.eclipse.jdt.annotation.Nullable|org.eclipse.jdt.annotation.NonNull|org.eclipse.jdt.annotation.NonNullByDefault),+inheritNullAnnot</arg>-->
+              <arg>-warn:+nullAnnot(org.eclipse.jdt.annotation.Nullable|org.eclipse.jdt.annotation.NonNull|org.eclipse.jdt.annotation.NonNullByDefault),+null,+inheritNullAnnot,+nullAnnotConflict,+nullUncheckedConversion,+nullAnnotRedundant,+nullDereference</arg>
+            </compilerArgs>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>${tycho-groupid}</groupId>
+          <artifactId>tycho-maven-plugin</artifactId>
+          <version>${tycho-version}</version>
+        </plugin>
+        <plugin>
+          <groupId>${tycho-groupid}</groupId>
+          <artifactId>tycho-source-plugin</artifactId>
+          <version>${tycho-version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho.extras</groupId>
+          <artifactId>tycho-source-feature-plugin</artifactId>
+          <version>${tycho-version}</version>
+        </plugin>
+        <plugin>
+          <groupId>${tycho-groupid}</groupId>
           <artifactId>tycho-surefire-plugin</artifactId>
           <version>${tycho-version}</version>
           <configuration>
             <failIfNoTests>false</failIfNoTests>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>${tycho-groupid}</groupId>
+          <artifactId>tycho-p2-plugin</artifactId>
+          <version>${tycho-version}</version>
+        </plugin>
+        <plugin>
+          <groupId>${tycho-groupid}</groupId>
+          <artifactId>tycho-versions-plugin</artifactId>
+          <version>${tycho-version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.felix</groupId>
@@ -309,7 +351,7 @@
             </excludes>
             <useDefaultExcludes>true</useDefaultExcludes>
             <properties>
-              <year>2017</year>
+              <year>2018</year>
             </properties>
             <encoding>UTF-8</encoding>
           </configuration>
@@ -339,11 +381,6 @@
               </configuration>
             </execution>
           </executions>
-        </plugin>
-        <plugin>
-          <groupId>${tycho-groupid}</groupId>
-          <artifactId>tycho-versions-plugin</artifactId>
-          <version>${tycho-version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -469,6 +506,81 @@
         </plugins>
       </build>
     </profile>
+    <!-- static code analysis profiles -->
+    <profile>
+      <id>check</id>
+      <activation>
+        <property>
+          <name>!skipChecks</name>
+        </property>
+      </activation>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.openhab.tools.sat</groupId>
+              <artifactId>sat-plugin</artifactId>
+              <version>${sat.version}</version>
+              <executions>
+                <execution>
+                  <phase>verify</phase>
+                  <goals>
+                    <goal>checkstyle</goal>
+                    <goal>pmd</goal>
+                    <goal>findbugs</goal>
+                    <goal>report</goal>
+                  </goals>
+                </execution>
+              </executions>
+              <configuration>
+                <checkstyleProperties>${basedirRoot}/tools/static-code-analysis/checkstyle/ruleset.properties</checkstyleProperties>
+                <checkstyleFilter>${basedirRoot}/tools/static-code-analysis/checkstyle/suppressions.xml</checkstyleFilter>
+                <findbugsExclude>${basedirRoot}/tools/static-code-analysis/findbugs/suppressions.xml</findbugsExclude>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+    <profile>
+      <id>check-bundles</id>
+      <activation>
+        <file>
+          <exists>META-INF/MANIFEST.MF</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.openhab.tools.sat</groupId>
+            <artifactId>sat-plugin</artifactId>
+            <version>${sat.version}</version>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>jcenter</id>
+      <url>https://jcenter.bintray.com</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <repositories>
+    <repository>
+      <id>jcenter</id>
+      <name>JCenter Repository</name>
+      <url>https://jcenter.bintray.com</url>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
 </project>

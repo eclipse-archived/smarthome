@@ -1,15 +1,22 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.binding.xml.internal;
 
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.AbstractXmlBasedProvider;
@@ -20,8 +27,10 @@ import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
 import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoProvider;
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.i18n.BindingI18nUtil;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
+import org.eclipse.smarthome.core.service.ReadyService;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -49,18 +58,29 @@ public class XmlBindingInfoProvider extends AbstractXmlBasedProvider<String, Bin
     private BindingI18nUtil bindingI18nUtil;
     private AbstractXmlConfigDescriptionProvider configDescriptionProvider;
     private XmlDocumentBundleTracker<BindingInfoXmlResult> bindingInfoTracker;
+    private ReadyService readyService;
+
+    private ScheduledExecutorService scheduler = ThreadPoolManager
+            .getScheduledPool(XmlDocumentBundleTracker.THREAD_POOL_NAME);
+    private Future<?> trackerJob;
 
     @Activate
     public void activate(ComponentContext componentContext) {
         XmlDocumentReader<BindingInfoXmlResult> bindingInfoReader = new BindingInfoReader();
 
         bindingInfoTracker = new XmlDocumentBundleTracker<>(componentContext.getBundleContext(), XML_DIRECTORY,
-                bindingInfoReader, this, READY_MARKER);
-        bindingInfoTracker.open();
+                bindingInfoReader, this, READY_MARKER, readyService);
+        trackerJob = scheduler.submit(() -> {
+            bindingInfoTracker.open();
+        });
     }
 
     @Deactivate
     public void deactivate(ComponentContext componentContext) {
+        if (trackerJob != null && !trackerJob.isDone()) {
+            trackerJob.cancel(true);
+            trackerJob = null;
+        }
         bindingInfoTracker.close();
         bindingInfoTracker = null;
     }
@@ -91,6 +111,15 @@ public class XmlBindingInfoProvider extends AbstractXmlBasedProvider<String, Bin
 
     public void unsetConfigDescriptionProvider(ConfigDescriptionProvider configDescriptionProvider) {
         this.configDescriptionProvider = null;
+    }
+
+    @Reference
+    public void setReadyService(ReadyService readyService) {
+        this.readyService = readyService;
+    }
+
+    public void unsetReadyService(ReadyService readyService) {
+        this.readyService = null;
     }
 
     @Override

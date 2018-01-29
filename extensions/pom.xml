@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.eclipse.smarthome</groupId>
     <artifactId>smarthome</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.10.0-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -27,9 +27,8 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.eclipse.tycho</groupId>
+        <groupId>${tycho-groupid}</groupId>
         <artifactId>tycho-source-plugin</artifactId>
-        <version>${tycho-version}</version>
         <executions>
           <execution>
             <id>plugin-source</id>
@@ -50,7 +49,7 @@
             </goals>
           </execution>
         </executions>
-      </plugin>      
+      </plugin>
     </plugins>
   </build>
 
@@ -61,6 +60,6 @@
       <version>${ds-annotations.version}</version>
       <optional>true</optional>
     </dependency>
-  </dependencies>  
+  </dependencies>
 
 </project>

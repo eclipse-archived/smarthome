@@ -27,9 +27,9 @@ If the system location is changed, the background discovery updates the configur
 After adding this discovered thing, you will have to set the correct API key. 
 
 ## Binding Configuration
- 
+
 The binding has no configuration options, all configuration is done at Thing and Channel levels.
- 
+
 ## Thing Configuration
 
 The thing has a few configuration parameters:
@@ -53,6 +53,8 @@ For the location parameter, different syntaxes are possible:
 | PWS id                  | pws:KCASANFR70   |
 
 It can happen that the service is not able to determine the station to use, for example when you select as location a city in which several stations are registered. In this case, the thing configuration will fail because the service will not return the data expected by the binding. The best solution in this case is to use as location latitude and longitude, the service will automatically select a station from this position.
+
+For the language parameter Weather Underground uses a special set of language codes which are different from ISO 639-1 standard, for example for German use `DL`  or Swedish use `SW`. See [Weather Underground language support documentation](https://www.wunderground.com/weather/api/d/docs?d=language-support) for a detailed list. 
 
 ## Channels
 

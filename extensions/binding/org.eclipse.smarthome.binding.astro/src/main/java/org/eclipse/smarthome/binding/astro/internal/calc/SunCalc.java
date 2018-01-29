@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.astro.internal.calc;
 
@@ -198,7 +203,7 @@ public class SunCalc {
         if (sunYesterday.getAstroDusk().getEnd() != null
                 && DateUtils.isSameDay(sunYesterday.getAstroDusk().getEnd(), calendar)) {
             morningNightRange = new Range(sunYesterday.getAstroDusk().getEnd(), sun.getAstroDawn().getStart());
-        } else if (isSunUpAllDay) {
+        } else if (isSunUpAllDay || sun.getAstroDawn().getStart() == null) {
             morningNightRange = new Range();
         } else {
             morningNightRange = new Range(DateTimeUtils.truncateToMidnight(calendar), sun.getAstroDawn().getStart());
@@ -243,8 +248,10 @@ public class SunCalc {
         // phase
         for (Entry<SunPhaseName, Range> rangeEntry : sun.getAllRanges().entrySet()) {
             SunPhaseName entryPhase = rangeEntry.getKey();
-            if (entryPhase != SunPhaseName.MORNING_NIGHT && entryPhase != SunPhaseName.EVENING_NIGHT) {
-                if (rangeEntry.getValue().matches(Calendar.getInstance())) {
+            if (rangeEntry.getValue().matches(Calendar.getInstance())) {
+                if (entryPhase == SunPhaseName.MORNING_NIGHT || entryPhase == SunPhaseName.EVENING_NIGHT) {
+                    sun.getPhase().setName(SunPhaseName.NIGHT);
+                } else {
                     sun.getPhase().setName(entryPhase);
                 }
             }

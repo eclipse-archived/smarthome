@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor;
 
@@ -13,8 +18,7 @@ import java.util.PriorityQueue;
 
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.config.Config;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.SensorJob;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Device;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DSID;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.impl.DSID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,8 +49,9 @@ public class CircuitScheduler {
     /**
      * Creates a new {@link CircuitScheduler}.
      *
-     * @param meterDSID
-     * @param config
+     * @param meterDSID must not be null
+     * @param config must not be null
+     * @throws IllegalArgumentException if the meterDSID is null
      */
     public CircuitScheduler(DSID meterDSID, Config config) {
         if (meterDSID == null) {
@@ -59,8 +64,8 @@ public class CircuitScheduler {
     /**
      * Creates a new {@link CircuitScheduler} and add the first {@link SensorJob} to this {@link CircuitScheduler}.
      *
-     * @param sensorJob
-     * @param config
+     * @param sensorJob to add, must not be null
+     * @param config must not be null
      */
     public CircuitScheduler(SensorJob sensorJob, Config config) {
         this.meterDSID = sensorJob.getMeterDSID();
@@ -82,7 +87,7 @@ public class CircuitScheduler {
     /**
      * Adds a new SensorJob to this {@link CircuitScheduler}, if no {@link SensorJob} with a higher priority exists.
      *
-     * @param sensorJob
+     * @param sensorJob to add
      */
     public void addSensorJob(SensorJob sensorJob) {
         synchronized (sensorJobQueue) {
@@ -162,9 +167,28 @@ public class CircuitScheduler {
                 SensorJob job = iter.next();
                 if (job.getDSID().equals(dSID)) {
                     iter.remove();
+                    logger.debug("Remove SensorJob with ID {}.", job.getID());
                 }
             }
-            logger.debug("Remove SensorJobs from device with dSID {}.", dSID);
+        }
+    }
+
+    /**
+     * Removes the {@link SensorJob} with the given ID .
+     *
+     * @param id of the {@link SensorJob}
+     */
+    public void removeSensorJob(String id) {
+        synchronized (sensorJobQueue) {
+            for (Iterator<SensorJob> iter = sensorJobQueue.iterator(); iter.hasNext();) {
+                SensorJob job = iter.next();
+                if (job.getID().equals(id)) {
+                    iter.remove();
+                    logger.debug("Remove SensorJob with ID {}.", id);
+                    return;
+                }
+            }
+            logger.debug("No SensorJob with ID {} found, cannot remove a not existing SensorJob.", id);
         }
     }
 

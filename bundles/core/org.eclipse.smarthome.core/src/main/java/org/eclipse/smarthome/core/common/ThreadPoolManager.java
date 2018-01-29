@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.common;
 
@@ -20,6 +25,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * The created thread pools have named threads, so that it is easy to find them in the debugger. Additionally, it is
  * possible to configure the pool sizes through the configuration admin service, so that solutions have the chance to
  * tweak the pool sizes according to their needs.
- * 
+ *
  * <p>
  * The configuration can be done as
  * <br/>
@@ -41,18 +47,19 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution
  *
  */
+@Component(configurationPid = "org.eclipse.smarthome.threadpool")
 public class ThreadPoolManager {
 
-    private final static Logger logger = LoggerFactory.getLogger(ThreadPoolManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(ThreadPoolManager.class);
 
     protected static final int DEFAULT_THREAD_POOL_SIZE = 5;
 
     protected static final long THREAD_TIMEOUT = 65L;
     protected static final long THREAD_MONITOR_SLEEP = 60000;
 
-    static protected Map<String, ExecutorService> pools = new WeakHashMap<>();
+    protected static Map<String, ExecutorService> pools = new WeakHashMap<>();
 
-    static private Map<String, Integer> configs = new ConcurrentHashMap<>();
+    private static Map<String, Integer> configs = new ConcurrentHashMap<>();
 
     protected void activate(Map<String, Object> properties) {
         modified(properties);
@@ -99,7 +106,7 @@ public class ThreadPoolManager {
      * @param poolName a short name used to identify the pool, e.g. "discovery"
      * @return an instance to use
      */
-    static public ScheduledExecutorService getScheduledPool(String poolName) {
+    public static ScheduledExecutorService getScheduledPool(String poolName) {
         ExecutorService pool = pools.get(poolName);
         if (pool == null) {
             synchronized (pools) {
@@ -129,7 +136,7 @@ public class ThreadPoolManager {
      * @param poolName a short name used to identify the pool, e.g. "discovery"
      * @return an instance to use
      */
-    static public ExecutorService getPool(String poolName) {
+    public static ExecutorService getPool(String poolName) {
         ExecutorService pool = pools.get(poolName);
         if (pool == null) {
             synchronized (pools) {

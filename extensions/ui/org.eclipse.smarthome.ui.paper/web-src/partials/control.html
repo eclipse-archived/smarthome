@@ -4,13 +4,13 @@
 	</div>
 
 	<md-tabs md-stretch-tabs="always" class="section-tabs">
-	<md-tab ng-repeat="tab in tabs track by tab.name" ng-disabled="::tab.disabled" label="{{::tab.name}}" layout-fill> 
+	<md-tab ng-repeat="tab in tabs track by tab.name" ng-disabled="::tab.disabled" label="{{::tab.name}}" md-on-select="masonry($index)" layout-fill> 
 	<md-tab-content layout-fill="">
-	<p class="text-center" ng-if="::tab.thingCount === 0">
+	<p class="text-center" ng-if="!tab.hasThings">
 		No Things available.
 		<button class="md-button" ng-click="$location.path('inbox/setup')">Add Thing</button>
 	</p>
-	<div ng-controller="ControlController" class="items row" ng-attr-id="{{::'items-' + tabs.indexOf(tab)}}">
+	<div ng-controller="ControlController" class="items row" ng-init="tab = tab" ng-attr-id="{{::'items-' + tabs.indexOf(tab)}}">
 		<div class="col-lg-4 col-sm-6 col-xs-12 item-wrapper" ng-repeat="thing in things track by thing.UID">
 			<div class="card item">
 				<div class="row">
@@ -51,13 +51,13 @@
 											<h2>{{item.stateText}}</h2>
 										</div>
 									</div>
-									<md-slider ng-if="::(!isOptionList(item) && !item.readOnly)" ng-class="::{'left-padded' : showSwitch(item.category)}" class="md-default-theme" style="height: 40px;" flex min="0" max="100" ng-model="item.state" ng-change="setBrightness(item.state)" aria-label={{::item.label}}></md-slider>
+									<md-slider ng-if="::(!isOptionList(item) && !item.readOnly)" ng-class="::{'left-padded' : showSwitch(item.category)}" class="md-default-theme" style="height: 40px;" flex ng-min="0" ng-max="100" ng-model="item.state" ng-change="setBrightness(item.state)" aria-label={{::item.label}}></md-slider>
 									<div layout="row" layout-align="start center" class="dimmer-widget" ng-if="::(showSwitch(item.category) && !isOptionList(item) && !item.readOnly)">
 										<div flex="40">
 											<p class="no-icon-margin-left">Off/On</p>
 										</div>
 										<div flex="60" layout="row" layout-align="end center" class="dimmer-widget">
-											<md-switch class="md-default-theme" ng-model="on" ng-change="setOn(on)" ng-true-value="'ON'" ng-false-value="'OFF'" aria-label={{::item.label}}></md-switch>
+											<md-switch class="md-default-theme" ng-model="state.switchState" ng-change="setSwitch(state.switchState)" aria-label={{::item.label}}></md-switch>
 										</div>
 									</div>
 									<div layout="row" item-state-dropdown layout-align="end center" ng-if="::(isOptionList(item) && !item.readOnly)"></div>
@@ -178,29 +178,9 @@
 									</div>
 									<div layout="row" item-state-dropdown layout-align="end center" ng-if="::(isOptionList(item) && !item.readOnly)"></div>
 								</div>
-								<div ng-if="::(item.type === 'Location')" ng-controller="LocationItemController">
-									<div layout="row" layout-align="start center">
-										<p>
-											<i class="material-icons">place</i>{{::getLabel(item, 'Location')}}
-										</p>
-									</div>
-									<div layout="row" layout-align="start center" class="map-container">
-										<div layout="row" layout-align="start center" flex>
-											<iframe width="100%" ng-src="{{url}}"></iframe>
-										</div>
-									</div>
-									<div layout="row" layout-align="start center">
-										<div ng-if="::item.readOnly" layout="row" layout-align="end center">
-											<h2 class="state">{{formattedState}}</h2>
-										</div>
-										<div ng-if="::!item.readOnly" layout="row" layout-align="end center">
-											<h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{formattedState}}</h2>
-											<md-input-container ng-show="editMode"> <input ng-model="item.state" aria-label={{::item.label}}></input> </md-input-container>
-											<i class="md-button control-button material-icons" ng-show="editMode" ng-click="updateState()">check</i>
-										</div>
-									</div>
-									<div layout="row" item-state-dropdown layout-align="end center" ng-if="::(isOptionList(item) && !item.readOnly)"></div>
-								</div>
+								<div ng-if="::(item.type === 'Location')" >
+                                     <location-control/>
+                                 </div>
 								<div ng-if="::(item.type === 'Image')" ng-controller="ImageItemController">
 									<div layout-align="start center" layout="row">
 										<div flex="60">

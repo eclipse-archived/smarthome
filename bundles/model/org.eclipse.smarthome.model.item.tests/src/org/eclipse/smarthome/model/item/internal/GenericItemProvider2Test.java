@@ -1,0 +1,204 @@
+/**
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+package org.eclipse.smarthome.model.item.internal;
+
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayInputStream;
+import java.util.Iterator;
+
+import org.eclipse.smarthome.core.items.GenericItem;
+import org.eclipse.smarthome.core.items.GroupItem;
+import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.library.items.NumberItem;
+import org.eclipse.smarthome.core.library.items.SwitchItem;
+import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction;
+import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.types.UnDefType;
+import org.eclipse.smarthome.model.core.ModelRepository;
+import org.eclipse.smarthome.test.java.JavaOSGiTest;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+/**
+ *
+ * @author Simon Kaufmann - initial contribution and API.
+ *
+ */
+public class GenericItemProvider2Test extends JavaOSGiTest {
+
+    private static final String TESTMODEL_NAME = "testModel.items";
+    private static final String TESTMODEL_NAME2 = "testModel2.items";
+
+    private ModelRepository modelRepository;
+    private ItemRegistry itemRegistry;
+
+    @Before
+    public void setUp() {
+        itemRegistry = getService(ItemRegistry.class);
+        assertThat(itemRegistry, is(notNullValue()));
+        modelRepository = getService(ModelRepository.class);
+        assertThat(modelRepository, is(notNullValue()));
+        modelRepository.removeModel(TESTMODEL_NAME);
+        modelRepository.removeModel(TESTMODEL_NAME2);
+    }
+
+    @After
+    public void tearDown() {
+        modelRepository.removeModel(TESTMODEL_NAME);
+        modelRepository.removeModel(TESTMODEL_NAME2);
+    }
+
+    @Test
+    public void testStableOrder() {
+        assertThat(itemRegistry.getAll().size(), is(0));
+
+        String model = "Group testGroup " + //
+                "Number number1 (testGroup) " + //
+                "Number number2 (testGroup) " + //
+                "Number number3 (testGroup) " + //
+                "Number number4 (testGroup) " + //
+                "Number number5 (testGroup) " + //
+                "Number number6 (testGroup) " + //
+                "Number number7 (testGroup) " + //
+                "Number number8 (testGroup) " + //
+                "Number number9 (testGroup) ";
+
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.getBytes()));
+        GroupItem groupItem = (GroupItem) itemRegistry.get("testGroup");
+        assertNotNull(groupItem);
+
+        int number = 0;
+        Iterator<Item> it = groupItem.getMembers().iterator();
+        while (it.hasNext()) {
+            Item item = it.next();
+            assertEquals("number" + (++number), item.getName());
+        }
+    }
+
+    @Test
+    public void testStableReloadOrder() {
+        assertThat(itemRegistry.getAll().size(), is(0));
+
+        String model = "Group testGroup " + //
+                "Number number1 (testGroup) " + //
+                "Number number2 (testGroup) " + //
+                "Number number3 (testGroup) " + //
+                "Number number4 (testGroup) " + //
+                "Number number5 (testGroup) " + //
+                "Number number6 (testGroup) " + //
+                "Number number7 (testGroup) " + //
+                "Number number8 (testGroup) " + //
+                "Number number9 (testGroup) ";
+
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.getBytes()));
+        assertThat(itemRegistry.getAll().size(), is(10));
+
+        model = "Group testGroup " + //
+                "Number number1 (testGroup) " + //
+                "Number number2 (testGroup) " + //
+                "Number number3 (testGroup) " + //
+                "Number number4 (testGroup) " + //
+                "Number number5 (testGroup) " + //
+                "Number number6 (testGroup) " + //
+                "Number number7 \"Number Seven\" (testGroup) " + //
+                "Number number8 (testGroup) " + //
+                "Number number9 (testGroup) ";
+
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.getBytes()));
+        GroupItem groupItem = (GroupItem) itemRegistry.get("testGroup");
+        assertNotNull(groupItem);
+
+        int number = 0;
+        Iterator<Item> it = groupItem.getMembers().iterator();
+        while (it.hasNext()) {
+            Item item = it.next();
+            assertEquals("number" + (++number), item.getName());
+            if (number == 7) {
+                assertEquals("Number Seven", item.getLabel());
+            }
+        }
+    }
+
+    @Test
+    public void testGroupAssignmentsAreConsidered() {
+        assertThat(itemRegistry.getAll().size(), is(0));
+
+        String model = "Group testGroup " + //
+                "Number number1 (testGroup) " + //
+                "Number number2 ";
+
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.getBytes()));
+
+        model = "Group testGroup " + //
+                "Number number1 (testGroup) " + //
+                "Number number2 (testGroup)";
+
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.getBytes()));
+
+        GenericItem item = (GenericItem) itemRegistry.get("number2");
+        assertTrue(item.getGroupNames().contains("testGroup"));
+        GroupItem groupItem = (GroupItem) itemRegistry.get("testGroup");
+        assertTrue(groupItem.getAllMembers().contains(item));
+    }
+
+    @Test
+    public void testGroupItemIsSame() {
+        GenericItemProvider gip = new GenericItemProvider();
+
+        GroupItem g1 = new GroupItem("testGroup", new SwitchItem("test"),
+                new ArithmeticGroupFunction.Or(OnOffType.ON, OnOffType.OFF));
+        GroupItem g2 = new GroupItem("testGroup", new SwitchItem("test"),
+                new ArithmeticGroupFunction.Or(OnOffType.ON, OnOffType.OFF));
+
+        assertFalse(gip.hasItemChanged(g1, g2));
+    }
+
+    @Test
+    public void testGroupItemChangesBaseItem() {
+        GenericItemProvider gip = new GenericItemProvider();
+
+        GroupItem g1 = new GroupItem("testGroup", new SwitchItem("test"),
+                new ArithmeticGroupFunction.Or(OnOffType.ON, OnOffType.OFF));
+        GroupItem g2 = new GroupItem("testGroup", new NumberItem("test"),
+                new ArithmeticGroupFunction.Or(OnOffType.ON, OnOffType.OFF));
+
+        assertTrue(gip.hasItemChanged(g1, g2));
+    }
+
+    @Test
+    public void testGroupItemChangesFunctionParameters() {
+        GenericItemProvider gip = new GenericItemProvider();
+
+        GroupItem g1 = new GroupItem("testGroup", new SwitchItem("test"),
+                new ArithmeticGroupFunction.Or(OnOffType.ON, OnOffType.OFF));
+        GroupItem g2 = new GroupItem("testGroup", new SwitchItem("test"),
+                new ArithmeticGroupFunction.Or(OnOffType.ON, UnDefType.UNDEF));
+
+        assertTrue(gip.hasItemChanged(g1, g2));
+    }
+
+    @Test
+    public void testGroupItemChangesBaseItemAndFunction() {
+        GenericItemProvider gip = new GenericItemProvider();
+
+        GroupItem g1 = new GroupItem("testGroup", new SwitchItem("test"),
+                new ArithmeticGroupFunction.Or(OnOffType.ON, OnOffType.OFF));
+        GroupItem g2 = new GroupItem("testGroup", new NumberItem("number"), new ArithmeticGroupFunction.Sum());
+
+        assertTrue(gip.hasItemChanged(g1, g2));
+    }
+}

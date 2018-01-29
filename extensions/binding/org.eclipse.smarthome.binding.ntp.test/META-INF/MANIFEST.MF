@@ -1,11 +1,12 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome NTP Binding Tests
-Bundle-SymbolicName: org.eclipse.smarthome.binding.ntp.test
-Bundle-Version: 0.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.binding.ntp.test
+Bundle-Version: 0.10.0.qualifier
 Fragment-Host: org.eclipse.smarthome.binding.ntp
-Import-Package: groovy.lang,
+Import-Package: 
+ groovy.lang,
  org.apache.commons.io,
  org.apache.commons.lang,
  org.codehaus.groovy.reflection,
@@ -27,3 +28,8 @@ Import-Package: groovy.lang,
  org.junit,
  org.osgi.framework,
  org.osgi.service.component
+Require-Bundle: 
+ org.hamcrest,
+ org.junit,
+ org.mockito,
+ org.objenesis

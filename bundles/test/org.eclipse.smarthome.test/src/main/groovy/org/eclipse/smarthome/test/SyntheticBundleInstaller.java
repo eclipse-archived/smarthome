@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.test;
 
@@ -28,13 +33,13 @@ import java.util.zip.ZipEntry;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.smarthome.core.service.ReadyMarker;
+import org.eclipse.smarthome.core.service.ReadyService;
 import org.junit.Assert;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
-import org.osgi.framework.InvalidSyntaxException;
-import org.slf4j.LoggerFactory;
+import org.osgi.framework.ServiceReference;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -275,26 +280,25 @@ public class SyntheticBundleInstaller {
     }
 
     private static void waitForReadyMarker(BundleContext context, String marker, Bundle bundle) {
-        try {
-            if (bundle.getHeaders().get(Constants.FRAGMENT_HOST) != null) {
-                return;
-            }
-            String filter = "(" + marker + "=" + bundle.getSymbolicName() + ")";
-            long startTime = System.nanoTime();
-            while (context.getServiceReferences(ReadyMarker.class.getName(), filter) == null) {
-                if (System.nanoTime() - startTime > TimeUnit.SECONDS.toNanos(WAIT_TIMOUT)) {
-                    Assert.fail(MessageFormat.format("Timout waiting for marker {0} at bundle {1}", marker,
-                            bundle.getSymbolicName()));
-                }
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        } catch (InvalidSyntaxException e) {
-            LoggerFactory.getLogger(SyntheticBundleInstaller.class).error("Error looking up the ready marker", e);
+        if (bundle.getHeaders().get(Constants.FRAGMENT_HOST) != null) {
+            return;
         }
+        long startTime = System.nanoTime();
+        ServiceReference readyServiceRef = context.getServiceReference(ReadyService.class.getName());
+        ReadyService readyService = (ReadyService) context.getService(readyServiceRef);
+        ReadyMarker expected = new ReadyMarker(marker, bundle.getSymbolicName());
+        while (!readyService.isReady(expected)) {
+            if (System.nanoTime() - startTime > TimeUnit.SECONDS.toNanos(WAIT_TIMOUT)) {
+                Assert.fail(MessageFormat.format("Timout waiting for marker {0} at bundle {1}", marker,
+                        bundle.getSymbolicName()));
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        context.ungetService(readyServiceRef);
     }
 
     /**

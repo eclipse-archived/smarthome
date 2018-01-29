@@ -1,26 +1,35 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.magic.binding.internal;
 
 import java.math.BigDecimal;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 
+import org.eclipse.smarthome.config.core.ConfigOptionProvider;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.magic.binding.MagicService;
-
-import com.google.common.collect.Lists;
+import org.osgi.service.component.annotations.Component;
 
 /**
  *
  * @author Henning Treu - Initial contribution
  */
+@Component(configurationPid = "org.eclipse.smarthome.magic", service = ConfigOptionProvider.class, immediate = true, property = {
+        "service.pid=org.eclipse.smarthome.magic", "service.config.description.uri=test:magic",
+        "service.config.label=Magic", "service.config.category=test" })
 public class MagicServiceImpl implements MagicService {
 
     static final String PARAMETER_BACKEND_DECIMAL = "select_decimal_limit";
@@ -32,7 +41,7 @@ public class MagicServiceImpl implements MagicService {
         }
 
         if (param.equals(PARAMETER_BACKEND_DECIMAL)) {
-            return Lists.newArrayList(new ParameterOption(BigDecimal.ONE.toPlainString(), "1"),
+            return Arrays.asList(new ParameterOption(BigDecimal.ONE.toPlainString(), "1"),
                     new ParameterOption(BigDecimal.TEN.toPlainString(), "10"),
                     new ParameterOption(BigDecimal.valueOf(21d).toPlainString(), "21"));
         }

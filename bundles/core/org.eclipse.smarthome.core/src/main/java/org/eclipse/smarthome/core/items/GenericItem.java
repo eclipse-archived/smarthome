@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.items;
 
@@ -18,6 +23,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
@@ -33,10 +39,6 @@ import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-
 /**
  * The abstract base class for all items. It provides all relevant logic
  * for the infrastructure, such as publishing updates to the event bus
@@ -47,7 +49,7 @@ import com.google.common.collect.ImmutableSet;
  * @author Stefan Bußweiler - Migration to new ESH event concept
  *
  */
-abstract public class GenericItem implements ActiveItem {
+public abstract class GenericItem implements ActiveItem {
 
     private final Logger logger = LoggerFactory.getLogger(GenericItem.class);
 
@@ -63,10 +65,10 @@ abstract public class GenericItem implements ActiveItem {
     protected Set<String> tags = new HashSet<String>();
 
     @NonNull
-    final protected String name;
+    protected final String name;
 
     @NonNull
-    final protected String type;
+    protected final String type;
 
     protected State state = UnDefType.NULL;
 
@@ -108,7 +110,7 @@ abstract public class GenericItem implements ActiveItem {
 
     @Override
     public List<String> getGroupNames() {
-        return ImmutableList.copyOf(groupNames);
+        return Collections.unmodifiableList(new ArrayList<>(groupNames));
     }
 
     /**
@@ -256,13 +258,13 @@ abstract public class GenericItem implements ActiveItem {
         if (!getTags().isEmpty()) {
             sb.append(", ");
             sb.append("Tags=[");
-            sb.append(Joiner.on(", ").join(getTags()));
+            sb.append(getTags().stream().collect(Collectors.joining(", ")));
             sb.append("]");
         }
         if (!getGroupNames().isEmpty()) {
             sb.append(", ");
             sb.append("Groups=[");
-            sb.append(Joiner.on(", ").join(getGroupNames()));
+            sb.append(getGroupNames().stream().collect(Collectors.joining(", ")));
             sb.append("]");
         }
         sb.append(")");
@@ -285,11 +287,7 @@ abstract public class GenericItem implements ActiveItem {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((category == null) ? 0 : category.hashCode());
-        result = prime * result + ((label == null) ? 0 : label.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((tags == null) ? 0 : tags.hashCode());
-        result = prime * result + ((type == null) ? 0 : type.hashCode());
         return result;
     }
 
@@ -305,31 +303,11 @@ abstract public class GenericItem implements ActiveItem {
             return false;
         }
         GenericItem other = (GenericItem) obj;
-        if (category == null) {
-            if (other.category != null) {
+        if (name == null) {
+            if (other.name != null) {
                 return false;
             }
-        } else if (!category.equals(other.category)) {
-            return false;
-        }
-        if (label == null) {
-            if (other.label != null) {
-                return false;
-            }
-        } else if (!label.equals(other.label)) {
-            return false;
-        }
-        if (!name.equals(other.name)) {
-            return false;
-        }
-        if (tags == null) {
-            if (other.tags != null) {
-                return false;
-            }
-        } else if (!tags.equals(other.tags)) {
-            return false;
-        }
-        if (!type.equals(other.type)) {
+        } else if (!name.equals(other.name)) {
             return false;
         }
         return true;
@@ -337,7 +315,7 @@ abstract public class GenericItem implements ActiveItem {
 
     @Override
     public Set<String> getTags() {
-        return ImmutableSet.copyOf(tags);
+        return Collections.unmodifiableSet(new HashSet<>(tags));
     }
 
     @Override

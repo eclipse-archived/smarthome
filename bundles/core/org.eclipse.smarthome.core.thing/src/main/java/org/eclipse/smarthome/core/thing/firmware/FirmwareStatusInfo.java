@@ -1,16 +1,21 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.firmware;
 
+import java.util.Objects;
+
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID;
-
-import com.google.common.base.Preconditions;
 
 /**
  * The {@link FirmwareStatusInfo} represents the {@link FirmwareStatus} of a {@link Thing}. If the firmware status is
@@ -33,7 +38,7 @@ public final class FirmwareStatusInfo {
     }
 
     private FirmwareStatusInfo(FirmwareStatus firmwareStatus, FirmwareUID updatableFirmwareUID) {
-        Preconditions.checkNotNull(firmwareStatus, "Firmware status must not be null.");
+        Objects.requireNonNull(firmwareStatus, "Firmware status must not be null.");
         this.firmwareStatus = firmwareStatus;
         this.updatableFirmwareUID = updatableFirmwareUID;
     }
@@ -76,7 +81,7 @@ public final class FirmwareStatusInfo {
      * @throws NullPointerException if given firmware UID is null
      */
     static FirmwareStatusInfo createUpdateExecutableInfo(FirmwareUID updatableFirmwareUID) {
-        Preconditions.checkNotNull(updatableFirmwareUID, "Updatable firmware UID must not be null.");
+        Objects.requireNonNull(updatableFirmwareUID, "Updatable firmware UID must not be null.");
         return new FirmwareStatusInfo(FirmwareStatus.UPDATE_EXECUTABLE, updatableFirmwareUID);
     }
 

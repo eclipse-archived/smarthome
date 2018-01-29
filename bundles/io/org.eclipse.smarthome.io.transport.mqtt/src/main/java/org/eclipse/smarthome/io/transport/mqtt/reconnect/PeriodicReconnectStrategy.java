@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.io.transport.mqtt.reconnect;
 
@@ -27,15 +32,17 @@ import org.slf4j.LoggerFactory;
  */
 public class PeriodicReconnectStrategy extends AbstractReconnectStrategy {
     private final Logger logger = LoggerFactory.getLogger(PeriodicReconnectStrategy.class);
-    private int reconnectFrequency = 60000;
-    private int firstReconnectAfter = 10000;
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final int reconnectFrequency;
+    private final int firstReconnectAfter;
+
+    private ScheduledExecutorService scheduler = null;
     private ScheduledFuture<?> scheduledTask;
 
     /**
      * Use a default 60s reconnect frequency and try the first reconnect after 10s.
      */
     public PeriodicReconnectStrategy() {
+        this(10000, 60000);
     }
 
     /**
@@ -52,11 +59,51 @@ public class PeriodicReconnectStrategy extends AbstractReconnectStrategy {
     }
 
     @Override
-    public void lostConnection() {
-        logger.info("Starting connection helper to periodically try restore connection to broker '{}'",
-                getBrokerConnection().getName());
+    public synchronized void start() {
+        if (scheduler == null) {
+            scheduler = Executors.newScheduledThreadPool(1);
+        }
+    }
 
-        this.scheduledTask = scheduler.scheduleWithFixedDelay(() -> {
+    @Override
+    public synchronized void stop() {
+        if (scheduler != null) {
+            scheduler.shutdownNow();
+            scheduler = null;
+        }
+
+        // If there is a scheduled task ensure it is canceled.
+        if (scheduledTask != null) {
+            scheduledTask.cancel(true);
+            scheduledTask = null;
+        }
+    }
+
+    /**
+     * Returns if the reconnect strategy has been started.
+     *
+     * @return true if started
+     */
+    public synchronized boolean isStarted() {
+        return scheduler != null;
+    }
+
+    @Override
+    public synchronized void lostConnection() {
+        // Check if we are running (has been started and not stopped) state.
+        if (scheduler == null) {
+            return;
+        }
+
+        // If there is already a scheduled task, we continue only if it has been done (shouldn't be the case at all).
+        if (scheduledTask != null && !scheduledTask.isDone()) {
+            return;
+        }
+
+        logger.info("Try to restore connection to '{}' every {}ms", getBrokerConnection().getName(),
+                getReconnectFrequency());
+
+        scheduledTask = scheduler.scheduleWithFixedDelay(() -> {
             try {
                 getBrokerConnection().start();
             } catch (MqttException | ConfigurationException e) {
@@ -66,7 +113,8 @@ public class PeriodicReconnectStrategy extends AbstractReconnectStrategy {
     }
 
     @Override
-    public void connectionEstablished() {
+    public synchronized void connectionEstablished() {
+        // Stop the reconnect task if existing.
         if (scheduledTask != null) {
             scheduledTask.cancel(true);
             scheduledTask = null;
@@ -74,7 +122,7 @@ public class PeriodicReconnectStrategy extends AbstractReconnectStrategy {
     }
 
     @Override
-    public boolean isReconnecting() {
+    public synchronized boolean isReconnecting() {
         return scheduledTask != null;
     }
 
@@ -82,15 +130,7 @@ public class PeriodicReconnectStrategy extends AbstractReconnectStrategy {
         return reconnectFrequency;
     }
 
-    public void setReconnectFrequency(int reconnectFrequency) {
-        this.reconnectFrequency = reconnectFrequency;
-    }
-
     public int getFirstReconnectAfter() {
         return firstReconnectAfter;
-    }
-
-    public void setFirstReconnectAfter(int firstReconnectAfter) {
-        this.firstReconnectAfter = firstReconnectAfter;
     }
 }

@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.io.console.karaf.internal;
 
@@ -12,6 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.apache.karaf.shell.api.action.lifecycle.Manager;
 import org.apache.karaf.shell.api.console.Registry;
 import org.apache.karaf.shell.api.console.SessionFactory;
 import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
@@ -36,8 +42,12 @@ public class ConsoleSupportKaraf {
     // This map contains all registered commands.
     private final Map<ConsoleCommandExtension, CommandWrapper> registeredCommands = new HashMap<>();
 
+    private Manager manager;
+
     public void setSessionFactory(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
+        manager = sessionFactory.getRegistry().getService(Manager.class);
+        manager.register(CommandWrapper.class);
         registerCommands();
     }
 
@@ -45,6 +55,9 @@ public class ConsoleSupportKaraf {
         if (this.sessionFactory == sessionFactory) {
             unregisterCommands();
             sessionFactory = null;
+            if (manager != null) {
+                manager.unregister(CommandWrapper.class);
+            }
         }
     }
 

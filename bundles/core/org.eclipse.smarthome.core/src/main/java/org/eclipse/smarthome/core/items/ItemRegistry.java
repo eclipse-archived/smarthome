@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.items;
 
@@ -107,5 +112,19 @@ public interface ItemRegistry extends Registry<Item, String> {
      * @see ManagedItemProvider#remove(String, boolean)
      */
     public @Nullable Item remove(@NonNull String itemName, boolean recursive);
+
+    /**
+     * Add a hook to be informed before adding/after removing items.
+     *
+     * @param hook
+     */
+    void addRegistryHook(RegistryHook<Item> hook);
+
+    /**
+     * Remove the hook again.
+     *
+     * @param hook
+     */
+    void removeRegistryHook(RegistryHook<Item> hook);
 
 }

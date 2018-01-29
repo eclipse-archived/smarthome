@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.eclipse.smarthome.extension</groupId>
     <artifactId>pom</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.10.0-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -19,6 +19,9 @@
     <module>org.eclipse.smarthome.binding.astro</module>
     <module>org.eclipse.smarthome.binding.astro.test</module>
     <module>org.eclipse.smarthome.binding.digitalstrom</module>
+    <module>org.eclipse.smarthome.binding.dmx</module>
+    <module>org.eclipse.smarthome.binding.dmx.test</module>
+
     <module>org.eclipse.smarthome.binding.hue</module>
     <module>org.eclipse.smarthome.binding.hue.test</module>
     <module>org.eclipse.smarthome.binding.fsinternetradio</module>
@@ -27,6 +30,7 @@
     <module>org.eclipse.smarthome.binding.lirc</module>
     <module>org.eclipse.smarthome.binding.ntp</module>
     <module>org.eclipse.smarthome.binding.ntp.test</module>
+    <module>org.eclipse.smarthome.binding.serialbutton</module>
     <module>org.eclipse.smarthome.binding.sonos</module>
     <module>org.eclipse.smarthome.binding.tradfri</module>
     <module>org.eclipse.smarthome.binding.tradfri.test</module>

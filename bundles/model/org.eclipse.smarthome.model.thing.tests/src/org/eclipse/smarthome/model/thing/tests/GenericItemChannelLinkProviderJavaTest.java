@@ -1,21 +1,28 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.thing.tests;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
 import java.util.Collection;
 
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -57,6 +64,8 @@ public class GenericItemChannelLinkProviderJavaTest extends JavaOSGiTest {
 
     @Before
     public void setUp() {
+        registerVolatileStorageService();
+
         initMocks(this);
 
         thingRegistry = getService(ThingRegistry.class);
@@ -132,7 +141,7 @@ public class GenericItemChannelLinkProviderJavaTest extends JavaOSGiTest {
         provider.addProviderChangeListener(listener);
 
         provider.startConfigurationUpdate(ITEMS_TESTMODEL_NAME);
-        provider.processBindingConfiguration(ITEMS_TESTMODEL_NAME, "Number", ITEM, CHANNEL);
+        provider.processBindingConfiguration(ITEMS_TESTMODEL_NAME, "Number", ITEM, CHANNEL, new Configuration());
         provider.stopConfigurationUpdate(ITEMS_TESTMODEL_NAME);
         assertThat(provider.getAll().size(), is(1));
         assertThat(provider.getAll().iterator().next().toString(), is(LINK));
@@ -140,7 +149,7 @@ public class GenericItemChannelLinkProviderJavaTest extends JavaOSGiTest {
 
         reset(listener);
         provider.startConfigurationUpdate(ITEMS_TESTMODEL_NAME);
-        provider.processBindingConfiguration(ITEMS_TESTMODEL_NAME, "Number", ITEM, CHANNEL);
+        provider.processBindingConfiguration(ITEMS_TESTMODEL_NAME, "Number", ITEM, CHANNEL, new Configuration());
         provider.stopConfigurationUpdate(ITEMS_TESTMODEL_NAME);
         assertThat(provider.getAll().size(), is(1));
         assertThat(provider.getAll().iterator().next().toString(), is(LINK));
@@ -152,6 +161,70 @@ public class GenericItemChannelLinkProviderJavaTest extends JavaOSGiTest {
         provider.stopConfigurationUpdate(ITEMS_TESTMODEL_NAME);
         assertThat(provider.getAll().size(), is(0));
         verify(listener, only()).removed(same(provider), eq(new ItemChannelLink(ITEM, new ChannelUID(CHANNEL))));
+    }
+
+    @Test
+    public void testLinkConfiguration() {
+        Collection<Thing> things = thingRegistry.getAll();
+        assertThat(things.size(), is(0));
+
+        String thingsModel = "Bridge hue:bridge:huebridge [ ipAddress = \"192.168.3.84\", userName = \"19fc3fa6fc870a4280a55f21315631f\" ] {"
+                + "LCT001 bulb3 [ lightId = \"3\" ]" //
+                + "LCT001 bulb4 [ lightId = \"3\" ]" //
+                + "}";
+        modelRepository.addOrRefreshModel(THINGS_TESTMODEL_NAME, new ByteArrayInputStream(thingsModel.getBytes()));
+
+        String itemsModel = "Color Light3Color \"Light3 Color\" { channel=\"hue:LCT001:huebridge:bulb3:color\" [ foo=\"bar\", answer=42, always=true ] }"
+                + "Group:Switch:MAX TestSwitches";
+        modelRepository.addOrRefreshModel(ITEMS_TESTMODEL_NAME, new ByteArrayInputStream(itemsModel.getBytes()));
+
+        waitForAssert(() -> {
+            assertThat(thingRegistry.getAll().size(), is(3));
+            assertThat(itemRegistry.getItems().size(), is(2));
+            assertThat(itemChannelLinkRegistry.getAll().size(), is(1));
+        });
+
+        ItemChannelLink link = itemChannelLinkRegistry.get("Light3Color -> hue:LCT001:huebridge:bulb3:color");
+        assertNotNull(link);
+        assertEquals("Light3Color", link.getItemName());
+        assertEquals("hue:LCT001:huebridge:bulb3:color", link.getLinkedUID().toString());
+        assertEquals("bar", link.getConfiguration().get("foo"));
+        assertEquals(new BigDecimal(42), link.getConfiguration().get("answer"));
+        assertEquals(true, link.getConfiguration().get("always"));
+
+    }
+
+    @Test
+    public void testMultiLinkConfiguration() {
+        Collection<Thing> things = thingRegistry.getAll();
+        assertThat(things.size(), is(0));
+
+        String thingsModel = "Bridge hue:bridge:huebridge [ ipAddress = \"192.168.3.84\", userName = \"19fc3fa6fc870a4280a55f21315631f\" ] {"
+                + "LCT001 bulb2 [ lightId = \"2\" ]" //
+                + "LCT001 bulb3 [ lightId = \"3\" ]" //
+                + "LCT001 bulb4 [ lightId = \"4\" ]" //
+                + "}";
+        modelRepository.addOrRefreshModel(THINGS_TESTMODEL_NAME, new ByteArrayInputStream(thingsModel.getBytes()));
+
+        String itemsModel = "Color Light3Color \"Light3 Color\" { " + //
+                "channel=\"hue:LCT001:huebridge:bulb2:color,hue:LCT001:huebridge:bulb3:color\" [ value=1 ]," + //
+                "channel=\"hue:LCT001:huebridge:bulb4:color\" [ value=2 ]" + //
+                "}";
+        modelRepository.addOrRefreshModel(ITEMS_TESTMODEL_NAME, new ByteArrayInputStream(itemsModel.getBytes()));
+
+        waitForAssert(() -> {
+            assertThat(thingRegistry.getAll().size(), is(4));
+            assertThat(itemRegistry.getItems().size(), is(1));
+            assertThat(itemChannelLinkRegistry.getAll().size(), is(3));
+        });
+
+        assertEquals(new BigDecimal(1), itemChannelLinkRegistry.get("Light3Color -> hue:LCT001:huebridge:bulb2:color")
+                .getConfiguration().get("value"));
+        assertEquals(new BigDecimal(1), itemChannelLinkRegistry.get("Light3Color -> hue:LCT001:huebridge:bulb3:color")
+                .getConfiguration().get("value"));
+        assertEquals(new BigDecimal(2), itemChannelLinkRegistry.get("Light3Color -> hue:LCT001:huebridge:bulb4:color")
+                .getConfiguration().get("value"));
+
     }
 
 }

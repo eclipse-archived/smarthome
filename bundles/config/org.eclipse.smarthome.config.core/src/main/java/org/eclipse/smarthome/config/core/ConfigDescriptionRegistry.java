@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.core;
 
@@ -16,6 +21,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * {@link ConfigDescriptionRegistry} provides access to {@link ConfigDescription}s.
@@ -138,7 +145,7 @@ public class ConfigDescriptionRegistry {
      * @return config description or null if no config description exists for
      *         the given name
      */
-    public ConfigDescription getConfigDescription(URI uri, Locale locale) {
+    public @Nullable ConfigDescription getConfigDescription(URI uri, Locale locale) {
         List<ConfigDescriptionParameter> parameters = new ArrayList<ConfigDescriptionParameter>();
         List<ConfigDescriptionParameterGroup> parameterGroups = new ArrayList<ConfigDescriptionParameterGroup>();
 
@@ -179,7 +186,7 @@ public class ConfigDescriptionRegistry {
      * @return config description or null if no config description exists for
      *         the given name
      */
-    public ConfigDescription getConfigDescription(URI uri) {
+    public @Nullable ConfigDescription getConfigDescription(URI uri) {
         return getConfigDescription(uri, null);
     }
 
@@ -210,7 +217,7 @@ public class ConfigDescriptionRegistry {
         boolean found = false;
         for (ConfigOptionProvider configOptionProvider : this.configOptionProviders) {
             Collection<ParameterOption> newOptions = configOptionProvider.getParameterOptions(uri, parameter.getName(),
-                    locale);
+                    parameter.getContext(), locale);
 
             if (newOptions != null) {
                 found = true;

@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.thing.tests;
 
@@ -12,7 +17,7 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.core.service.ReadyMarker
-import org.eclipse.smarthome.core.service.ReadyUtil
+import org.eclipse.smarthome.core.service.ReadyService
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.Thing
@@ -50,6 +55,7 @@ import org.osgi.service.component.ComponentContext
 @RunWith(Parameterized.class)
 class GenericThingProviderTest4 extends OSGiTest{
     private TestHueThingTypeProvider thingTypeProvider
+    private ReadyService readyService
     private Bundle bundle
     private ThingHandlerFactory hueThingHandlerFactory
     private boolean finished
@@ -101,6 +107,10 @@ class GenericThingProviderTest4 extends OSGiTest{
 
     @Before
     public void setUp() {
+        registerVolatileStorageService();
+
+        readyService = getService ReadyService
+        assertThat readyService, is(notNullValue())
         thingRegistry = getService ThingRegistry
         assertThat thingRegistry, is(notNullValue())
         modelRepository = getService ModelRepository
@@ -136,11 +146,9 @@ class GenericThingProviderTest4 extends OSGiTest{
     private void removeReadyMarker() {
         waitForAssert {
             // wait for the XML processing to be finished, then remove the ready marker again
-            def ref = bundleContext.getServiceReferences(ReadyMarker.class.getName(), "(" + ReadyMarker.XML_THING_TYPE + "=" + bundle.getSymbolicName() + ")")
-            assertThat ref, is(notNullValue())
-            def registration = ref.registration.getAt(0)
-            assertThat registration, is(notNullValue())
-            registration.unregister()
+            ReadyMarker marker = new ReadyMarker("esh.xmlThingTypes", bundle.getSymbolicName())
+            assertThat readyService.isReady(marker), is(true)
+            readyService.unmarkReady(marker);
         }
     }
 
@@ -188,7 +196,7 @@ class GenericThingProviderTest4 extends OSGiTest{
     private def finishLoading() {
         finished = true;
         assertThat bridgeInitializeCounter, is(0)
-        ReadyUtil.markAsReady(bundleContext, ReadyMarker.XML_THING_TYPE, bundle.getSymbolicName())
+        readyService.markReady(new ReadyMarker("esh.xmlThingTypes", bundle.getSymbolicName()))
     }
 
     private def unload() {

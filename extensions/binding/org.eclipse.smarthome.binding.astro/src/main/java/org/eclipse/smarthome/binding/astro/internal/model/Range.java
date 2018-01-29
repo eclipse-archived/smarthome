@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.astro.internal.model;
 
@@ -62,10 +67,13 @@ public class Range {
      * Returns true, if the given calendar matches into the range.
      */
     public boolean matches(Calendar cal) {
-        if (start != null && end != null) {
-            return cal.getTimeInMillis() >= start.getTimeInMillis() && cal.getTimeInMillis() < end.getTimeInMillis();
+        if (start == null && end == null) {
+            return false;
         }
-        return false;
+        long matchStart = start != null ? start.getTimeInMillis()
+                : DateTimeUtils.truncateToMidnight(cal).getTimeInMillis();
+        long matchEnd = end != null ? end.getTimeInMillis() : DateTimeUtils.endOfDayDate(cal).getTimeInMillis();
+        return cal.getTimeInMillis() >= matchStart && cal.getTimeInMillis() < matchEnd;
     }
 
     @Override

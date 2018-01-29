@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.net;
 
@@ -13,6 +18,9 @@ import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,18 +41,20 @@ import org.slf4j.LoggerFactory;
  * @author Mark Herwege - Added methods to find broadcast address(es)
  * @author Stefan Triller - Converted to OSGi service with primary ipv4 conf
  */
-@Component(configurationPid = "org.eclipse.smarthome.network", property = {
+@Component(configurationPid = "org.eclipse.smarthome.network", property = { "service.pid=org.eclipse.smarthome.network",
         "service.config.description.uri=system:network", "service.config.label=Network Settings",
         "service.config.category=system" })
 public class NetUtil implements NetworkAddressService {
 
     private static final String PRIMARY_ADDRESS = "primaryAddress";
+    private static final String BROADCAST_ADDRESS = "broadcastAddress";
     private static final Logger LOGGER = LoggerFactory.getLogger(NetUtil.class);
 
     private static final Pattern IPV4_PATTERN = Pattern
             .compile("^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
 
     private String primaryAddress;
+    private String configuredBroadcastAddress;
 
     @Activate
     protected void activate(Map<String, Object> props) {
@@ -60,33 +70,45 @@ public class NetUtil implements NetworkAddressService {
         } else {
             primaryAddress = primaryAddressConf;
         }
+
+        String broadcastAddressConf = (String) config.get(BROADCAST_ADDRESS);
+        if (broadcastAddressConf == null || broadcastAddressConf.isEmpty() || !isValidIPConfig(broadcastAddressConf)) {
+            // if none is specified we return the one matching the primary ip
+            configuredBroadcastAddress = getPrimaryBroadcastAddress();
+        } else {
+            configuredBroadcastAddress = broadcastAddressConf;
+        }
     }
 
     @Override
     public String getPrimaryIpv4HostAddress() {
         String primaryIP;
 
-        String[] addrString = primaryAddress.split("/");
-        if (addrString.length > 1) {
-            String ip = getIPv4inSubnet(primaryAddress);
-            if (ip == null) {
-                // an error has occurred, using first interface like nothing has been configured
-                LOGGER.warn("Invalid address '{}', will use first interface instead.", primaryAddress);
-                primaryIP = getFirstLocalIPv4Address();
+        if (primaryAddress != null) {
+            String[] addrString = primaryAddress.split("/");
+            if (addrString.length > 1) {
+                String ip = getIPv4inSubnet(addrString[0], addrString[1]);
+                if (ip == null) {
+                    // an error has occurred, using first interface like nothing has been configured
+                    LOGGER.warn("Invalid address '{}', will use first interface instead.", primaryAddress);
+                    primaryIP = getFirstLocalIPv4Address();
+                } else {
+                    primaryIP = ip;
+                }
             } else {
-                primaryIP = ip;
+                primaryIP = addrString[0];
             }
         } else {
-            primaryIP = addrString[0];
+            // we do not seem to have any network interfaces
+            primaryIP = null;
         }
-
         return primaryIP;
     }
 
     /**
-     * Deprecated: Please use the NetworkAddressService with getPrimaryIpv4HostAddress()
+     * @deprecated Please use the NetworkAddressService with {@link #getPrimaryIpv4HostAddress()}
      *
-     * Get the first candidate for a local IPv4 host address (non loopback, non localhost).
+     *             Get the first candidate for a local IPv4 host address (non loopback, non localhost).
      */
     @Deprecated
     public static String getLocalIpv4HostAddress() {
@@ -95,7 +117,7 @@ public class NetUtil implements NetworkAddressService {
             final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {
                 final NetworkInterface current = interfaces.nextElement();
-                if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
+                if (!current.isUp() || current.isLoopback() || current.isVirtual() || current.isPointToPoint()) {
                     continue;
                 }
                 final Enumeration<InetAddress> addresses = current.getInetAddresses();
@@ -124,7 +146,7 @@ public class NetUtil implements NetworkAddressService {
             final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {
                 final NetworkInterface current = interfaces.nextElement();
-                if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
+                if (!current.isUp() || current.isLoopback() || current.isVirtual() || current.isPointToPoint()) {
                     continue;
                 }
                 final Enumeration<InetAddress> addresses = current.getInetAddresses();
@@ -172,11 +194,50 @@ public class NetUtil implements NetworkAddressService {
         return broadcastAddresses;
     }
 
+    @Override
+    public String getConfiguredBroadcastAddress() {
+        String broadcastAddr;
+
+        if (configuredBroadcastAddress != null) {
+            broadcastAddr = configuredBroadcastAddress;
+        } else {
+            // we do not seem to have any network interfaces
+            broadcastAddr = null;
+        }
+        return broadcastAddr;
+    }
+
+    private String getPrimaryBroadcastAddress() {
+        String primaryIp = getPrimaryIpv4HostAddress();
+        String broadcastAddress = null;
+        if (primaryIp != null) {
+            try {
+                Short prefix = getAllInterfaceAddresses().stream()
+                        .filter(a -> a.getAddress().getHostAddress().equals(primaryIp)).map(a -> a.getPrefix())
+                        .findFirst().get().shortValue();
+                broadcastAddress = getIpv4NetBroadcastAddress(primaryIp, prefix);
+            } catch (IllegalArgumentException ex) {
+                LOGGER.error("Invalid IP address parameter: {}", ex.getMessage(), ex);
+            }
+        }
+        if (broadcastAddress == null) {
+            // an error has occurred, using broadcast address of first interface instead
+            broadcastAddress = getFirstIpv4BroadcastAddress();
+            LOGGER.warn(
+                    "Could not find broadcast address of primary IP, using broadcast address {} of first interface instead",
+                    broadcastAddress);
+        }
+        return broadcastAddress;
+    }
+
     /**
-     * Get the first candidate for a broadcast address
+     * @deprecated Please use the NetworkAddressService with {@link #getConfiguredBroadcastAddress()}
      *
-     * @return broadcast address, null of no broadcast address is found
+     *             Get the first candidate for a broadcast address
+     *
+     * @return broadcast address, null if no broadcast address is found
      */
+    @Deprecated
     public static String getBroadcastAddress() {
         final List<String> broadcastAddresses = getAllBroadcastAddresses();
         if (!broadcastAddresses.isEmpty()) {
@@ -184,6 +245,57 @@ public class NetUtil implements NetworkAddressService {
         } else {
             return null;
         }
+    }
+
+    private static String getFirstIpv4BroadcastAddress() {
+        final List<String> broadcastAddresses = getAllBroadcastAddresses();
+        if (!broadcastAddresses.isEmpty()) {
+            return broadcastAddresses.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Gets every IPv4+IPv6 Address on each Interface except the loopback interface.
+     * The Address format is in the CIDR notation which is ip/prefix-length e.g. 129.31.31.1/24.
+     *
+     * Example to get a list of only IPv4 addresses in string representation:
+     * List<String> l = getAllInterfaceAddresses().stream().filter(a->a.getAddress() instanceof
+     * Inet4Address).map(a->a.getAddress().getHostAddress()).collect(Collectors.toList());
+     *
+     * @return The collected IPv4 and IPv6 Addresses
+     */
+    public static Collection<CidrAddress> getAllInterfaceAddresses() {
+        Collection<CidrAddress> interfaceIPs = new ArrayList<>();
+        Enumeration<NetworkInterface> en;
+        try {
+            en = NetworkInterface.getNetworkInterfaces();
+        } catch (SocketException ex) {
+            LOGGER.error("Could not find interface IP addresses: {}", ex.getMessage(), ex);
+            return interfaceIPs;
+        }
+
+        while (en.hasMoreElements()) {
+            NetworkInterface networkInterface = en.nextElement();
+
+            try {
+                if (!networkInterface.isUp() || networkInterface.isLoopback()) {
+                    continue;
+                }
+            } catch (SocketException ignored) {
+                continue;
+            }
+
+            for (InterfaceAddress cidr : networkInterface.getInterfaceAddresses()) {
+                final InetAddress address = cidr.getAddress();
+                assert address != null; // NetworkInterface.getInterfaceAddresses() should return only non-null
+                                        // addresses
+                interfaceIPs.add(new CidrAddress(address, cidr.getNetworkPrefixLength()));
+            }
+        }
+
+        return interfaceIPs;
     }
 
     /**
@@ -194,7 +306,7 @@ public class NetUtil implements NetworkAddressService {
      * @return string representation of netmask (i.e. 255.255.255.0)
      */
     public static @NonNull String networkPrefixLengthToNetmask(int prefixLength) {
-        if (prefixLength > 31 || prefixLength < 1) {
+        if (prefixLength > 32 || prefixLength < 1) {
             throw new IllegalArgumentException("Network prefix length is not within bounds");
         }
 
@@ -229,8 +341,8 @@ public class NetUtil implements NetworkAddressService {
         if (!isValidIPConfig(ipAddressString)) {
             throw new IllegalArgumentException(errorString);
         }
-        if (netMask < 1 || netMask > 31) {
-            throw new IllegalArgumentException("Netmask '" + netMask + "' is out of bounds (1-31)");
+        if (netMask < 1 || netMask > 32) {
+            throw new IllegalArgumentException("Netmask '" + netMask + "' is out of bounds (1-32)");
         }
 
         String subnetMaskString = networkPrefixLengthToNetmask(netMask);
@@ -252,12 +364,42 @@ public class NetUtil implements NetworkAddressService {
         return netAddress;
     }
 
-    private String getIPv4inSubnet(String subnet) {
+    /**
+     * Get the network broadcast address of the subnet a specific ip address is in
+     *
+     * @param ipAddressString ipv4 address of the device (i.e. 192.168.5.1)
+     * @param prefix network prefix in bits (i.e. 24)
+     * @return network broadcast address of the network the device is in (i.e. 192.168.5.255)
+     *
+     * @throws IllegalArgumentException if parameters are wrong
+     */
+    public static @NonNull String getIpv4NetBroadcastAddress(@NonNull String ipAddressString, short prefix) {
+
+        String errorString = "IP '" + ipAddressString + "' is not a valid IPv4 address";
+        if (!isValidIPConfig(ipAddressString)) {
+            throw new IllegalArgumentException(errorString);
+        }
+        if (prefix < 1 || prefix > 32) {
+            throw new IllegalArgumentException("Prefix '" + prefix + "' is out of bounds (1-32)");
+        }
+
+        try {
+            byte[] addr = InetAddress.getByName(ipAddressString).getAddress();
+            byte[] netmask = InetAddress.getByName(networkPrefixLengthToNetmask(prefix)).getAddress();
+            byte[] broadcast = new byte[] { (byte) (~netmask[0] | addr[0]), (byte) (~netmask[1] | addr[1]),
+                    (byte) (~netmask[2] | addr[2]), (byte) (~netmask[3] | addr[3]) };
+            return InetAddress.getByAddress(broadcast).getHostAddress();
+        } catch (UnknownHostException ex) {
+            throw new IllegalArgumentException(errorString);
+        }
+    }
+
+    private String getIPv4inSubnet(String ipAddress, String subnetMask) {
         try {
             final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {
                 final NetworkInterface current = interfaces.nextElement();
-                if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
+                if (!current.isUp() || current.isLoopback() || current.isVirtual() || current.isPointToPoint()) {
                     continue;
                 }
 
@@ -268,13 +410,16 @@ public class NetUtil implements NetworkAddressService {
                         continue;
                     }
 
-                    String ipv4Address = addr.getHostAddress();
-                    String subNetString = getIpv4NetAddress(ipv4Address, ifAddr.getNetworkPrefixLength()) + "/"
-                            + String.valueOf(ifAddr.getNetworkPrefixLength());
+                    String ipv4AddressOnInterface = addr.getHostAddress();
+                    String subnetStringOnInterface = getIpv4NetAddress(ipv4AddressOnInterface,
+                            ifAddr.getNetworkPrefixLength()) + "/" + String.valueOf(ifAddr.getNetworkPrefixLength());
+
+                    String configuredSubnetString = getIpv4NetAddress(ipAddress, Short.parseShort(subnetMask)) + "/"
+                            + subnetMask;
 
                     // use first IP within this subnet
-                    if (subNetString.equals(subnet)) {
-                        return ipv4Address;
+                    if (subnetStringOnInterface.equals(configuredSubnetString)) {
+                        return ipv4AddressOnInterface;
                     }
                 }
             }

@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.scheduler;
 
@@ -17,6 +22,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,10 +42,10 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
 
     private String expression;
     private String delimiters;
-    private List<E> expressionParts = Collections.emptyList();
+    private List<@NonNull E> expressionParts = Collections.emptyList();
 
     private boolean continueSearch;
-    private ArrayList<Date> candidates = new ArrayList<Date>();
+    private List<Date> candidates = new ArrayList<>();
     private Date startDate = null;
     private TimeZone timeZone = null;
 
@@ -165,7 +171,6 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
             position++;
             parts.add(parseToken(token, position));
         }
-        Collections.sort(parts);
         setExpressionParts(parts);
 
         validateExpression();
@@ -193,7 +198,7 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
         }
     }
 
-    abstract protected void validateExpression() throws IllegalArgumentException;
+    protected abstract void validateExpression() throws IllegalArgumentException;
 
     protected void applyExpressionParts(boolean searchMode) {
         for (ExpressionPart part : getExpressionParts()) {
@@ -330,28 +335,28 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
     /**
      * Parses a token from the expression into an {@link ExpressionPart}
      */
-    abstract protected E parseToken(String token, int position) throws ParseException;
+    protected abstract E parseToken(String token, int position) throws ParseException;
 
     /**
      * Helper function that is called to populate the list of candidates dates in case not enough candidates were
      * generated in a first instance
      */
-    abstract protected void populateWithSeeds();
+    protected abstract void populateWithSeeds();
 
-    public ExpressionPart getExpressionPart(Class<?> part) {
+    public <T extends ExpressionPart> T getExpressionPart(Class<T> part) {
         for (ExpressionPart aPart : getExpressionParts()) {
             if (aPart.getClass().equals(part)) {
-                return aPart;
+                return part.cast(aPart);
             }
         }
         return null;
     }
 
-    protected ArrayList<Date> getCandidates() {
+    protected List<Date> getCandidates() {
         return candidates;
     }
 
-    protected void setCandidates(ArrayList<Date> candidates) {
+    protected void setCandidates(List<Date> candidates) {
         this.candidates = candidates;
     }
 
@@ -359,12 +364,13 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
         this.candidates = null;
     }
 
-    public List<E> getExpressionParts() {
+    public List<@NonNull E> getExpressionParts() {
         return expressionParts;
     }
 
-    public void setExpressionParts(List<E> expressionParts) {
+    public void setExpressionParts(List<@NonNull E> expressionParts) {
         synchronized (this) {
+            Collections.sort(expressionParts);
             this.expressionParts = Collections.unmodifiableList(new LinkedList<>(expressionParts));
         }
     }

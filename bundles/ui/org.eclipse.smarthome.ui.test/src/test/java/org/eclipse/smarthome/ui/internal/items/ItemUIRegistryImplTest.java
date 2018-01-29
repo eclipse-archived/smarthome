@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.ui.internal.items;
 
@@ -168,6 +173,19 @@ public class ItemUIRegistryImplTest {
     }
 
     @Test
+    public void getLabel_labelWithZonedDate() throws ItemNotFoundException {
+        String testLabel = "Label [%1$td.%1$tm.%1$tY]";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getState()).thenReturn(new DateTimeType("2011-06-01T00:00:00Z"));
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Label [01.06.2011]", label);
+    }
+
+    @Test
     public void getLabel_labelWithTime() throws ItemNotFoundException {
         String testLabel = "Label [%1$tT]";
         Widget w = mock(Widget.class);
@@ -176,6 +194,21 @@ public class ItemUIRegistryImplTest {
         when(w.getItem()).thenReturn("Item");
         when(registry.getItem("Item")).thenReturn(item);
         when(item.getState()).thenReturn(new DateTimeType("2011-06-01T15:30:59"));
+
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Label [15:30:59]", label);
+    }
+
+    @Test
+    public void getLabel_labelWithZonedTime() throws ItemNotFoundException {
+        String testLabel = "Label [%1$tT]";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getState()).thenReturn(new DateTimeType("2011-06-01T15:30:59Z"));
+
         String label = uiRegistry.getLabel(w);
         assertEquals("Label [15:30:59]", label);
     }
@@ -485,6 +518,20 @@ public class ItemUIRegistryImplTest {
         when(item.getState()).thenReturn(new StringType("State"));
         String label = uiRegistry.getLabel(w);
         assertEquals("Label [State]", label);
+    }
+
+    @Test
+    public void getLabel_transformationContainingPercentS() throws ItemNotFoundException {
+        // It doesn't matter that "FOO" doesn't exist - this is to assert it doesn't fail before because of the two "%s"
+        String testLabel = "Memory [FOO(echo %s):%s]";
+        Widget w = mock(Widget.class);
+        Item item = mock(Item.class);
+        when(w.getLabel()).thenReturn(testLabel);
+        when(w.getItem()).thenReturn("Item");
+        when(registry.getItem("Item")).thenReturn(item);
+        when(item.getState()).thenReturn(new StringType("State"));
+        String label = uiRegistry.getLabel(w);
+        assertEquals("Memory [State]", label);
     }
 
 }

@@ -1,15 +1,22 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.xml.internal;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.AbstractXmlBasedProvider;
@@ -18,6 +25,8 @@ import org.eclipse.smarthome.config.xml.osgi.XmlDocumentBundleTracker;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
+import org.eclipse.smarthome.core.service.ReadyService;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
@@ -56,18 +65,30 @@ public class XmlThingTypeProvider extends AbstractXmlBasedProvider<UID, ThingTyp
     private XmlChannelGroupTypeProvider channelGroupTypeProvider;
 
     private XmlDocumentBundleTracker<List<?>> thingTypeTracker;
+    private ReadyService readyService;
+
+    private ScheduledExecutorService scheduler = ThreadPoolManager
+            .getScheduledPool(XmlDocumentBundleTracker.THREAD_POOL_NAME);
+    private Future<?> trackerJob;
 
     @Activate
     protected void activate(BundleContext bundleContext) {
         XmlDocumentReader<List<?>> thingTypeReader = new ThingDescriptionReader();
-
         thingTypeTracker = new XmlDocumentBundleTracker<List<?>>(bundleContext, XML_DIRECTORY, thingTypeReader, this,
-                READY_MARKER);
-        thingTypeTracker.open();
+                READY_MARKER, readyService);
+
+        trackerJob = scheduler.submit(() -> {
+            thingTypeTracker.open();
+        });
+
     }
 
     @Deactivate
     protected void deactivate() {
+        if (trackerJob != null && !trackerJob.isDone()) {
+            trackerJob.cancel(true);
+            trackerJob = null;
+        }
         thingTypeTracker.close();
         thingTypeTracker = null;
     }
@@ -118,6 +139,15 @@ public class XmlThingTypeProvider extends AbstractXmlBasedProvider<UID, ThingTyp
 
     public void unsetChannelGroupTypeProvider(ChannelTypeProvider channelGroupTypeProvider) {
         this.channelGroupTypeProvider = null;
+    }
+
+    @Reference
+    public void setReadyService(ReadyService readyService) {
+        this.readyService = readyService;
+    }
+
+    public void unsetReadyService(ReadyService readyService) {
+        this.readyService = null;
     }
 
     @Override

@@ -1,19 +1,23 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.core.validation;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Objects;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
-
-import com.google.common.base.Preconditions;
 
 /**
  * The {@link ConfigValidationMessage} is the result of a specific {@link ConfigDescriptionParameter}
@@ -58,10 +62,10 @@ public final class ConfigValidationMessage {
      * @param content the content to be passed as parameters into the message
      */
     public ConfigValidationMessage(String parameterName, String defaultMessage, String messageKey, Object... content) {
-        Preconditions.checkNotNull(parameterName, "Parameter Name must not be null");
-        Preconditions.checkNotNull(defaultMessage, "Default message must not be null");
-        Preconditions.checkNotNull(messageKey, "Message key must not be null");
-        Preconditions.checkNotNull(content, "Content must not be null");
+        Objects.requireNonNull(parameterName, "Parameter Name must not be null");
+        Objects.requireNonNull(defaultMessage, "Default message must not be null");
+        Objects.requireNonNull(messageKey, "Message key must not be null");
+        Objects.requireNonNull(content, "Content must not be null");
         this.parameterName = parameterName;
         this.defaultMessage = defaultMessage;
         this.messageKey = messageKey;
@@ -81,30 +85,40 @@ public final class ConfigValidationMessage {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         ConfigValidationMessage other = (ConfigValidationMessage) obj;
-        if (!Arrays.equals(content, other.content))
+        if (!Arrays.equals(content, other.content)) {
             return false;
+        }
         if (defaultMessage == null) {
-            if (other.defaultMessage != null)
+            if (other.defaultMessage != null) {
                 return false;
-        } else if (!defaultMessage.equals(other.defaultMessage))
+            }
+        } else if (!defaultMessage.equals(other.defaultMessage)) {
             return false;
+        }
         if (messageKey == null) {
-            if (other.messageKey != null)
+            if (other.messageKey != null) {
                 return false;
-        } else if (!messageKey.equals(other.messageKey))
+            }
+        } else if (!messageKey.equals(other.messageKey)) {
             return false;
+        }
         if (parameterName == null) {
-            if (other.parameterName != null)
+            if (other.parameterName != null) {
                 return false;
-        } else if (!parameterName.equals(other.parameterName))
+            }
+        } else if (!parameterName.equals(other.parameterName)) {
             return false;
+        }
         return true;
     }
 

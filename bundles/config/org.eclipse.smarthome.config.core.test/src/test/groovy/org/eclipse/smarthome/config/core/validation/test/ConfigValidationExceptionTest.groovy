@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.core.validation.test
 
@@ -13,7 +18,6 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import java.text.MessageFormat
 
-import org.eclipse.smarthome.config.core.internal.Activator
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException
 import org.eclipse.smarthome.config.core.validation.ConfigValidationMessage
 import org.eclipse.smarthome.config.core.validation.internal.MessageKey
@@ -60,9 +64,11 @@ class ConfigValidationExceptionTest {
         getBundleId: { -> 0 }
     ] as Bundle
 
+    private TranslationProvider translationProvider;
+
     @Before
     void setUp() {
-        Activator.i18nProvider = [
+        translationProvider = [
             getText: { bundle, key, defaultText, locale, params ->
                 if(locale == null) {
                     locale = Locale.ENGLISH;
@@ -90,7 +96,7 @@ class ConfigValidationExceptionTest {
 
     @Test
     void 'assert that default messages are provided'() {
-        ConfigValidationException configValidationException = new ConfigValidationException(bundle, ALL)
+        ConfigValidationException configValidationException = new ConfigValidationException(bundle, translationProvider, ALL)
 
         Map messages = configValidationException.getValidationMessages();
 
@@ -101,7 +107,7 @@ class ConfigValidationExceptionTest {
 
     @Test
     void 'assert that internationalized messages are provided'() {
-        ConfigValidationException configValidationException = new ConfigValidationException(bundle, ALL)
+        ConfigValidationException configValidationException = new ConfigValidationException(bundle, translationProvider, ALL)
 
         Map messages = configValidationException.getValidationMessages(DE);
 
@@ -118,9 +124,7 @@ class ConfigValidationExceptionTest {
 
     @Test
     void 'assert that default messages are provided if no i18n provider is available'() {
-        Activator.i18nProvider = null
-
-        ConfigValidationException configValidationException = new ConfigValidationException(bundle, ALL)
+        ConfigValidationException configValidationException = new ConfigValidationException(bundle, null, ALL)
 
         Map messages = configValidationException.getValidationMessages(DE);
 
@@ -136,13 +140,8 @@ class ConfigValidationExceptionTest {
     }
 
     @Test(expected=NullPointerException)
-    void 'assert that NPE is thrown for null bunlde'() {
-        new ConfigValidationException(null, ALL)
-    }
-
-    @Test(expected=NullPointerException)
     void 'assert that NPE is thrown for null config validation messages'() {
-        new ConfigValidationException(bundle, null)
+        new ConfigValidationException(bundle, translationProvider, null)
     }
 
     def static ConfigValidationMessage createMessage(String parameterName, String defaultMessage, String messageKey, Collection<Object> content=Collections.<String> emptyList()) {

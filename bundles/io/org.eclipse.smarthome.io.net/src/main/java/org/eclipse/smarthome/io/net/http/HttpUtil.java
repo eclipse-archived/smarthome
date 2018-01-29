@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.io.net.http;
 
@@ -52,6 +57,8 @@ public class HttpUtil {
 
     private static Logger logger = LoggerFactory.getLogger(HttpUtil.class);
 
+    private static final int DEFAULT_TIMEOUT_MS = 5000;
+
     private static final HttpClient CLIENT = new HttpClient(new SslContextFactory());
 
     private static class ProxyParams {
@@ -68,8 +75,8 @@ public class HttpUtil {
      * set into the {@link HttpClient}.
      *
      * @param httpMethod the HTTP method to use
-     * @param url the url to execute (in milliseconds)
-     * @param timeout the socket timeout to wait for data
+     * @param url the url to execute
+     * @param timeout the socket timeout in milliseconds to wait for data
      *
      * @return the response body or <code>NULL</code> when the request went wrong
      * @throws IOException when the request execution failed, timed out or it was interrupted
@@ -84,11 +91,11 @@ public class HttpUtil {
      * set into the {@link HttpClient}.
      *
      * @param httpMethod the HTTP method to use
-     * @param url the url to execute (in milliseconds)
+     * @param url the url to execute
      * @param content the content to be send to the given <code>url</code> or <code>null</code> if no content should be
      *            send.
      * @param contentType the content type of the given <code>content</code>
-     * @param timeout the socket timeout to wait for data
+     * @param timeout the socket timeout in milliseconds to wait for data
      *
      * @return the response body or <code>NULL</code> when the request went wrong
      * @throws IOException when the request execution failed, timed out or it was interrupted
@@ -105,12 +112,12 @@ public class HttpUtil {
      * set into the {@link HttpClient}.
      *
      * @param httpMethod the HTTP method to use
-     * @param url the url to execute (in milliseconds)
+     * @param url the url to execute
      * @param httpHeaders optional http request headers which has to be sent within request
      * @param content the content to be send to the given <code>url</code> or <code>null</code> if no content should be
      *            send.
      * @param contentType the content type of the given <code>content</code>
-     * @param timeout the socket timeout to wait for data
+     * @param timeout the socket timeout in milliseconds to wait for data
      *
      * @return the response body or <code>NULL</code> when the request went wrong
      * @throws IOException when the request execution failed, timed out or it was interrupted
@@ -128,12 +135,12 @@ public class HttpUtil {
      * Executes the given <code>url</code> with the given <code>httpMethod</code>
      *
      * @param httpMethod the HTTP method to use
-     * @param url the url to execute (in milliseconds)
+     * @param url the url to execute
      * @param httpHeaders optional HTTP headers which has to be set on request
      * @param content the content to be send to the given <code>url</code> or <code>null</code> if no content should be
      *            send.
      * @param contentType the content type of the given <code>content</code>
-     * @param timeout the socket timeout to wait for data
+     * @param timeout the socket timeout in milliseconds to wait for data
      * @param proxyHost the hostname of the proxy
      * @param proxyPort the port of the proxy
      * @param proxyUser the username to authenticate with the proxy
@@ -163,12 +170,12 @@ public class HttpUtil {
      * Executes the given <code>url</code> with the given <code>httpMethod</code>
      *
      * @param httpMethod the HTTP method to use
-     * @param url the url to execute (in milliseconds)
+     * @param url the url to execute
      * @param httpHeaders optional HTTP headers which has to be set on request
      * @param content the content to be send to the given <code>url</code> or <code>null</code> if no content should be
      *            send.
      * @param contentType the content type of the given <code>content</code>
-     * @param timeout the socket timeout to wait for data
+     * @param timeout the socket timeout in milliseconds to wait for data
      * @param proxyHost the hostname of the proxy
      * @param proxyPort the port of the proxy
      * @param proxyUser the username to authenticate with the proxy
@@ -363,7 +370,21 @@ public class HttpUtil {
      *         not an image
      */
     public static RawType downloadImage(String url) {
-        return downloadImage(url, true, -1);
+        return downloadImage(url, DEFAULT_TIMEOUT_MS);
+    }
+
+    /**
+     * Download the image data from an URL.
+     *
+     * If content type is not found in the headers, the data is scanned to determine the content type.
+     *
+     * @param url the URL of the image to be downloaded
+     * @param timeout the socket timeout in milliseconds to wait for data
+     * @return a RawType object containing the image, null if the content type could not be found or the content type is
+     *         not an image
+     */
+    public static RawType downloadImage(String url, int timeout) {
+        return downloadImage(url, true, -1, timeout);
     }
 
     /**
@@ -377,7 +398,22 @@ public class HttpUtil {
      *         not an image or the data size is too big
      */
     public static RawType downloadImage(String url, boolean scanTypeInContent, long maxContentLength) {
-        return downloadData(url, "image/.*", scanTypeInContent, maxContentLength);
+        return downloadImage(url, scanTypeInContent, maxContentLength, DEFAULT_TIMEOUT_MS);
+    }
+
+    /**
+     * Download the image data from an URL.
+     *
+     * @param url the URL of the image to be downloaded
+     * @param scanTypeInContent true to allow the scan of data to determine the content type if not found in the headers
+     * @param maxContentLength the maximum data size in bytes to trigger the download; any negative value to ignore the
+     *            data size
+     * @param timeout the socket timeout in milliseconds to wait for data
+     * @return a RawType object containing the image, null if the content type could not be found or the content type is
+     *         not an image or the data size is too big
+     */
+    public static RawType downloadImage(String url, boolean scanTypeInContent, long maxContentLength, int timeout) {
+        return downloadData(url, "image/.*", scanTypeInContent, maxContentLength, timeout);
     }
 
     /**
@@ -393,12 +429,29 @@ public class HttpUtil {
      */
     public static RawType downloadData(String url, String contentTypeRegex, boolean scanTypeInContent,
             long maxContentLength) {
+        return downloadData(url, contentTypeRegex, scanTypeInContent, maxContentLength, DEFAULT_TIMEOUT_MS);
+    }
+
+    /**
+     * Download the data from an URL.
+     *
+     * @param url the URL of the data to be downloaded
+     * @param contentTypeRegex the REGEX the content type must match; null to ignore the content type
+     * @param scanTypeInContent true to allow the scan of data to determine the content type if not found in the headers
+     * @param maxContentLength the maximum data size in bytes to trigger the download; any negative value to ignore the
+     *            data size
+     * @param timeout the socket timeout in milliseconds to wait for data
+     * @return a RawType object containing the downloaded data, null if the content type does not match the expected
+     *         type or the data size is too big
+     */
+    public static RawType downloadData(String url, String contentTypeRegex, boolean scanTypeInContent,
+            long maxContentLength, int timeout) {
 
         final ProxyParams proxyParams = prepareProxyParams();
 
         RawType rawData = null;
         try {
-            ContentResponse response = executeUrlAndGetReponse("GET", url, null, null, null, 5000,
+            ContentResponse response = executeUrlAndGetReponse("GET", url, null, null, null, timeout,
                     proxyParams.proxyHost, proxyParams.proxyPort, proxyParams.proxyUser, proxyParams.proxyPassword,
                     proxyParams.nonProxyHosts);
             byte[] data = response.getContent();
@@ -440,14 +493,10 @@ public class HttpUtil {
 
             rawData = new RawType(data, contentType);
 
-        } catch (IOException e) {
-            rawData = null;
-        }
-        if (rawData == null) {
-            logger.debug("Media download failed (URL {})", url);
-        } else {
             logger.debug("Media downloaded: size {} type {} (URL {})", rawData.getBytes().length, rawData.getMimeType(),
                     url);
+        } catch (IOException e) {
+            logger.debug("Media download failed (URL {}) : {}", url, e.getMessage());
         }
         return rawData;
     }

@@ -1,4 +1,4 @@
-angular.module('PaperUI.controllers.control', []) //
+angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
 .controller('ControlPageController', function($scope, $routeParams, $location, $timeout, $filter, itemRepository, thingTypeRepository, util, thingRepository, channelTypeRepository) {
     $scope.tabs = [];
 
@@ -11,9 +11,15 @@ angular.module('PaperUI.controllers.control', []) //
             channelTypeRepository.getAll(function() {
                 thingTypeRepository.getAll(function() {
                     renderTabs();
-                }, true)
-            }, true)
-        }, true);
+                })
+            })
+        });
+    }
+
+    $scope.masonry = function(index) {
+        $timeout(function() {
+            new Masonry('#items-' + index, {});
+        }, 100, false);
     }
 
     function renderTabs() {
@@ -49,7 +55,7 @@ angular.module('PaperUI.controllers.control', []) //
         return renderedTabs.map(function(location) {
             return {
                 name : location,
-                thingCount : 1
+                hasThings : false
             }
         });
     }
@@ -57,19 +63,14 @@ angular.module('PaperUI.controllers.control', []) //
     $scope.refresh();
 
 }).controller('ControlController', function($scope, $timeout, $filter, itemService, util, $attrs, thingRepository, channelTypeRepository, thingTypeRepository, thingConfigService, imageService) {
-
-    var tabName = $scope.$parent.tab.name
-    var tabIndex = $scope.$parent.$index
-
     $scope.things = [];
     var renderedThings = []
 
     var renderItems = function() {
-        var redraw;
         thingRepository.getAll(function(things) {
             var thingsForTab = things.filter(function(thing) {
                 var thingLocation = thing.location ? thing.location.toUpperCase() : 'OTHER'
-                return thingLocation === tabName;
+                return thingLocation === $scope.tab.name;
             })
             channelTypeRepository.getAll(function(channelTypes) {
                 angular.forEach(thingsForTab, function(thing) {
@@ -82,22 +83,13 @@ angular.module('PaperUI.controllers.control', []) //
                             renderedThings = renderedThings.sort(function(a, b) {
                                 return a.label < b.label ? -1 : a.label > b.label ? 1 : 0
                             })
-                            $timeout.cancel(redraw)
-                            redraw = $timeout(function() {
-                                $scope.things = renderedThings;
-                                masonry()
-                            }, 0, true)
+                            $scope.tab.hasThings = renderedThings.length > 0;
+                            $scope.things = renderedThings;
                         }
                     }, false)
                 })
             }, false)
         }, false)
-    }
-
-    var masonry = function() {
-        $timeout(function() {
-            new Masonry('#items-' + tabIndex, {});
-        }, 100, false);
     }
 
     function renderThing(thing, thingType, channelTypes) {
@@ -331,46 +323,43 @@ angular.module('PaperUI.controllers.control', []) //
     $scope.setOn = function(state) {
         $scope.sendCommand(state);
     }
-}).controller('DimmerItemController', function($scope, $timeout, itemService) {
+}).controller('DimmerItemController', function($scope, $timeout) {
     if ($scope.item.state === 'UNDEF' || $scope.item.state === 'NULL') {
         $scope.item.state = '-';
     }
-    $scope.on = parseInt($scope.item.state) > 0 ? 'ON' : 'OFF';
 
-    $scope.setOn = function(on) {
-        $scope.on = on === 'ON' ? 'ON' : 'OFF';
-
-        $scope.sendCommand(on);
-
-        var brightness = parseInt($scope.item.state);
-        if (on === 'ON' && brightness === 0) {
-            $scope.item.state = 100;
-        }
-        if (on === 'OFF' && brightness > 0) {
-            $scope.item.state = 0;
-        }
+    // state.switchState overcomes the new $scope from ng-if directive
+    $scope.state = {
+        switchState : parseInt($scope.item.state) > 0
     }
-    $scope.pending = false;
+
+    $scope.setSwitch = function(state) {
+        sendCommand(state ? 'ON' : 'OFF');
+    }
+
     $scope.setBrightness = function(brightness) {
-        // send updates every 300 ms only
-        if (!$scope.pending) {
-            $timeout(function() {
-                var command = $scope.item.state === 0 ? '0' : $scope.item.state;
-                $scope.sendCommand(command);
-                $scope.pending = false;
-            }, 300);
-            $scope.pending = true;
-        }
+        $scope.state.switchState = brightness > 0;
+        sendCommand(brightness);
     }
-    $scope.$watch('item.state', function() {
-        var brightness = parseInt($scope.item.state);
-        if (brightness > 0 && $scope.on === 'OFF') {
-            $scope.on = 'ON';
+
+    $scope.$watch("item.state", function(brightness) {
+        $scope.state.switchState = brightness > 0;
+    })
+
+    var commandTimeout = undefined;
+
+    var sendCommand = function(command) {
+        if (commandTimeout) {
+            $timeout.cancel(commandTimeout);
         }
-        if (brightness === 0 && $scope.on === 'ON') {
-            $scope.on = 'OFF';
-        }
-    });
+
+        // send updates every 300 ms only
+        commandTimeout = $timeout(function() {
+            $scope.sendCommand(command);
+            commandTimeout = undefined;
+        }, 300);
+    }
+
 }).controller('ColorItemController', function($scope, $timeout, $element, itemService) {
 
     if ($scope.item.state === 'UNDEF' || $scope.item.state === 'NULL') {
@@ -527,23 +516,6 @@ angular.module('PaperUI.controllers.control', []) //
         }
     }
 
-}).controller('LocationItemController', function($scope, $sce) {
-    $scope.init = function() {
-        if ($scope.item.state !== 'UNDEF' && $scope.item.state !== 'NULL') {
-            var latitude = parseFloat($scope.item.state.split(',')[0]);
-            var longitude = parseFloat($scope.item.state.split(',')[1]);
-            var bbox = (longitude - 0.01) + ',' + (latitude - 0.01) + ',' + (longitude + 0.01) + ',' + (latitude + 0.01);
-            var marker = latitude + ',' + longitude;
-            $scope.formattedState = latitude + '°N ' + longitude + '°E';
-            $scope.url = $sce.trustAsResourceUrl('https://www.openstreetmap.org/export/embed.html?bbox=' + bbox + '&marker=' + marker);
-        } else {
-            $scope.formattedState = '- °N - °E';
-        }
-    };
-    $scope.$watch('item.state', function() {
-        $scope.init();
-    });
-    $scope.init();
 }).directive('itemStateDropdown', function() {
     return {
         restrict : 'A',

@@ -361,18 +361,8 @@ describe('module PaperUI.controllers.setup', function() {
         it('should require ManualSetupConfigureController', function() {
             expect(manualSetupConfigureController).toBeDefined();
         });
-        it('should require bridges', function() {
-            var things = [ {
-                thingTypeUID : "A:B",
-                label : "THING"
-            } ];
-            $httpBackend.when('GET', restConfig.restPath + "/things").respond(things);
-            $httpBackend.whenGET(/^((?!rest\/things).)*$/).respond(200, [ {
-                thingTypeUID : 'A:B'
-            } ]);
-            $httpBackend.flush();
-            expect(scope.needsBridge).toBeTruthy();
-            expect(scope.bridges.length).toBe(1);
+        it('should set thingTypeUID to thing', function() {
+            expect(scope.thing.thingTypeUID).toBe('A:B');
         });
         it('should add thing', function() {
             spyOn(thingService, "add");

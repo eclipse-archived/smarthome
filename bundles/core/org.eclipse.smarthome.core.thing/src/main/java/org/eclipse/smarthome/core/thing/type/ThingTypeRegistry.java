@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.type;
 
@@ -22,8 +27,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
-import com.google.common.collect.Lists;
-
 /**
  * The {@link ThingTypeRegistry} tracks all {@link ThingType}s provided by registered {@link ThingTypeProvider}s.
  *
@@ -33,7 +36,8 @@ import com.google.common.collect.Lists;
 @Component(immediate = true, service = ThingTypeRegistry.class)
 public class ThingTypeRegistry {
 
-    private List<ThingTypeProvider> thingTypeProviders = new CopyOnWriteArrayList<>();
+    private final List<ThingTypeProvider> thingTypeProviders = new CopyOnWriteArrayList<>();
+    private ChannelTypeRegistry channelTypeRegistry;
 
     /**
      * Returns all thing types.
@@ -69,7 +73,7 @@ public class ThingTypeRegistry {
      * @return thing types for given binding id
      */
     public List<ThingType> getThingTypes(String bindingId, Locale locale) {
-        List<ThingType> thingTypesForBinding = Lists.newArrayList();
+        List<ThingType> thingTypesForBinding = new ArrayList<>();
 
         for (ThingType thingType : getThingTypes()) {
             if (thingType.getBindingId().equals(bindingId)) {
@@ -156,7 +160,7 @@ public class ThingTypeRegistry {
     public ChannelType getChannelType(Channel channel, Locale locale) {
         ChannelTypeUID channelTypeUID = channel.getChannelTypeUID();
         if (channelTypeUID != null) {
-            return TypeResolver.resolve(channelTypeUID, locale);
+            return channelTypeRegistry.getChannelType(channelTypeUID, locale);
         }
         return null;
     }
@@ -172,6 +176,15 @@ public class ThingTypeRegistry {
         if (thingTypeProvider != null) {
             this.thingTypeProviders.remove(thingTypeProvider);
         }
+    }
+
+    @Reference
+    protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry;
+    }
+
+    protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null;
     }
 
 }

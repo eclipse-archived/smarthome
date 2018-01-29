@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.hue.handler;
 
@@ -24,6 +29,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.hue.internal.Config;
 import org.eclipse.smarthome.binding.hue.internal.FullConfig;
 import org.eclipse.smarthome.binding.hue.internal.FullLight;
@@ -62,33 +69,35 @@ import org.slf4j.LoggerFactory;
  * @author Jochen Hiller - fixed status updates, use reachable=true/false for state compare
  * @author Denis Dudnik - switched to internally integrated source of Jue library
  */
+@NonNullByDefault
 public class HueBridgeHandler extends ConfigStatusBridgeHandler {
 
     private static final String LIGHT_STATE_ADDED = "added";
 
     private static final String LIGHT_STATE_CHANGED = "changed";
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
 
     private static final int DEFAULT_POLLING_INTERVAL = 10; // in seconds
 
     private static final String DEVICE_TYPE = "EclipseSmartHome";
 
-    private Logger logger = LoggerFactory.getLogger(HueBridgeHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(HueBridgeHandler.class);
 
-    private Map<String, FullLight> lastLightStates = new ConcurrentHashMap<>();
+    private final Map<String, FullLight> lastLightStates = new ConcurrentHashMap<>();
 
     private boolean lastBridgeConnectionState = false;
 
     private boolean propertiesInitializedSuccessfully = false;
 
-    private List<LightStatusListener> lightStatusListeners = new CopyOnWriteArrayList<>();
+    private final List<LightStatusListener> lightStatusListeners = new CopyOnWriteArrayList<>();
 
-    private ScheduledFuture<?> pollingJob;
+    private @Nullable ScheduledFuture<?> pollingJob;
 
+    @NonNullByDefault({})
     private HueBridge hueBridge = null;
 
-    private Runnable pollingRunnable = new Runnable() {
+    private final Runnable pollingRunnable = new Runnable() {
 
         @Override
         public void run() {
@@ -187,15 +196,17 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
     }
 
     public void updateLightState(FullLight light, StateUpdate stateUpdate) {
-
         if (hueBridge != null) {
             try {
                 hueBridge.setLightState(light, stateUpdate);
             } catch (DeviceOffException e) {
                 updateLightState(light, LightStateConverter.toOnOffLightState(OnOffType.ON));
                 updateLightState(light, stateUpdate);
-            } catch (IOException | ApiException e) {
-                throw new RuntimeException(e);
+            } catch (IOException e) {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
+            } catch (ApiException e) {
+                // This should not happen - if it does, it is most likely some bug that should be reported.
+                logger.warn("Error while accessing light: {}", e.getMessage(), e);
             } catch (IllegalStateException e) {
                 logger.trace("Error while accessing light: {}", e.getMessage());
             }
@@ -318,6 +329,9 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
      */
     public boolean onNotAuthenticated() {
         String userName = (String) getConfig().get(USER_NAME);
+        if (hueBridge == null) {
+            return false;
+        }
         if (userName == null) {
             createUser();
         } else {
@@ -383,9 +397,6 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
     }
 
     public boolean registerLightStatusListener(LightStatusListener lightStatusListener) {
-        if (lightStatusListener == null) {
-            throw new IllegalArgumentException("It's not allowed to pass a null LightStatusListener.");
-        }
         boolean result = lightStatusListeners.add(lightStatusListener);
         if (result) {
             onUpdate();
@@ -405,7 +416,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
         return result;
     }
 
-    public FullLight getLightById(String lightId) {
+    public @Nullable FullLight getLightById(String lightId) {
         return lastLightStates.get(lightId);
     }
 
@@ -449,26 +460,32 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
     }
 
     /**
-     * Iterate through lightStatusListeners and notify them about a changed ot added light state.
+     * Iterate through lightStatusListeners and notify them about a changed or added light state.
      *
      * @param fullLight
      * @param type Can be "changed" if just a state has changed or "added" if this is a new light on the bridge.
      */
     private void notifyLightStatusListeners(final FullLight fullLight, final String type) {
+        if (lightStatusListeners.isEmpty()) {
+            logger.debug("No light status listeners to notify of light change for light {}", fullLight.getId());
+            return;
+        }
+
         for (LightStatusListener lightStatusListener : lightStatusListeners) {
             try {
                 switch (type) {
                     case LIGHT_STATE_ADDED:
                         lightStatusListener.onLightAdded(hueBridge, fullLight);
+                        logger.debug("Sending lightAdded for light {}", fullLight.getId());
                         break;
                     case LIGHT_STATE_CHANGED:
+                        logger.debug("Sending lightStateChanged for light {}", fullLight.getId());
                         lightStatusListener.onLightStateChanged(hueBridge, fullLight);
                         break;
                     default:
                         throw new IllegalArgumentException(
                                 "Could not notify lightStatusListeners for unknown event type " + type);
                 }
-
             } catch (Exception e) {
                 logger.error("An exception occurred while calling the BridgeHeartbeatListener", e);
             }

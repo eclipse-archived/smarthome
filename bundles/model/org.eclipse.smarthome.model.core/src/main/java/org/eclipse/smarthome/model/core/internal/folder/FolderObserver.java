@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.core.internal.folder;
 
@@ -18,12 +23,14 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -33,9 +40,6 @@ import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.service.AbstractWatchService;
 import org.eclipse.smarthome.model.core.ModelParser;
 import org.eclipse.smarthome.model.core.ModelRepository;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.ComponentContext;
 
 /**
@@ -64,6 +68,7 @@ public class FolderObserver extends AbstractWatchService {
 
     /* set of files that have been ignored due to a missing parser */
     private final Set<File> ignoredFiles = new HashSet<>();
+    private final Map<String, File> nameFileMap = new HashMap<>();
 
     public void setModelRepository(ModelRepository modelRepo) {
         this.modelRepo = modelRepo;
@@ -82,6 +87,9 @@ public class FolderObserver extends AbstractWatchService {
 
     protected void removeModelParser(ModelParser modelParser) {
         parsers.remove(modelParser.getExtension());
+
+        Set<String> removed = modelRepo.removeAllModelsOfType(modelParser.getExtension());
+        ignoredFiles.addAll(removed.stream().map(name -> nameFileMap.get(name)).collect(Collectors.toSet()));
     }
 
     public void activate(ComponentContext ctx) {
@@ -120,6 +128,7 @@ public class FolderObserver extends AbstractWatchService {
         this.ignoredFiles.clear();
         this.folderFileExtMap.clear();
         this.parsers.clear();
+        this.nameFileMap.clear();
     }
 
     private void processIgnoredFiles(String extension) {
@@ -187,7 +196,7 @@ public class FolderObserver extends AbstractWatchService {
 
     protected class FileExtensionsFilter implements FilenameFilter {
 
-        private String[] validExtensions;
+        private final String[] validExtensions;
 
         public FileExtensionsFilter(String[] validExtensions) {
             this.validExtensions = validExtensions;
@@ -207,21 +216,6 @@ public class FolderObserver extends AbstractWatchService {
         }
     }
 
-    // TODO remove once #3562 got resolved
-    private void checkPreconditions(File file) throws IOException {
-        String name = file.getName();
-        if (name.endsWith(".script") || name.endsWith(".rules")) {
-            Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-            BundleContext context = bundle.getBundleContext();
-            if (context == null) {
-                logger.debug("Bundle {} is not started", bundle.getSymbolicName());
-            } else {
-                logger.debug("Going to validate: {}, ScriptServiceUtil: {}, ModelParsers: {}", name,
-                        context.getServiceReference("org.eclipse.smarthome.model.script.ScriptServiceUtil"), parsers);
-            }
-        }
-    }
-
     @SuppressWarnings("rawtypes")
     private void checkFile(final ModelRepository modelRepo, final File file, final Kind kind) {
         if (modelRepo != null && file != null) {
@@ -229,8 +223,8 @@ public class FolderObserver extends AbstractWatchService {
                 synchronized (FolderObserver.class) {
                     if ((kind == ENTRY_CREATE || kind == ENTRY_MODIFY)) {
                         if (parsers.contains(getExtension(file.getName()))) {
-                            checkPreconditions(file);
                             try (FileInputStream inputStream = FileUtils.openInputStream(file)) {
+                                nameFileMap.put(file.getName(), file);
                                 modelRepo.addOrRefreshModel(file.getName(), inputStream);
                             } catch (IOException e) {
                                 logger.warn("Error while opening file during update: {}", file.getAbsolutePath());
@@ -240,6 +234,7 @@ public class FolderObserver extends AbstractWatchService {
                         }
                     } else if (kind == ENTRY_DELETE) {
                         modelRepo.removeModel(file.getName());
+                        nameFileMap.remove(file.getName());
                     }
                 }
             } catch (Exception e) {

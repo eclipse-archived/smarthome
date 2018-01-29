@@ -1,10 +1,15 @@
 /**
-* Copyright (c) 2015, 2017 by Bosch Software Innovations and others.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*/
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
 package org.eclipse.smarthome.automation.core.internal;
 
 import java.util.Arrays;
@@ -17,7 +22,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.RuleRegistry;
@@ -91,7 +95,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     private static final String SOURCE = RuleRegistryImpl.class.getSimpleName();
     private static final Logger logger = LoggerFactory.getLogger(RuleRegistryImpl.class.getName());
 
-    private RuleEngine ruleEngine = new RuleEngine();
+    private final RuleEngine ruleEngine = new RuleEngine();
     private Storage<Boolean> disabledRulesStorage;
     private ModuleTypeRegistry moduleTypeRegistry;
     private RuleTemplateRegistry templateRegistry;
@@ -99,7 +103,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     /**
      * {@link Map} of template UIDs to rules where these templates participated.
      */
-    private Map<String, Set<String>> mapTemplateToRules = new HashMap<String, Set<String>>();
+    private final Map<String, Set<String>> mapTemplateToRules = new HashMap<String, Set<String>>();
 
     public RuleRegistryImpl() {
         super(RuleProvider.class);
@@ -231,37 +235,13 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      */
     @Override
     public Rule add(Rule rule) {
-        String rUID = rule.getUID();
-        if (rUID == null) {
-            rUID = ruleEngine.getUniqueId();
-            super.add(initRuleId(rUID, rule));
-        } else {
-            super.add(rule);
-        }
-        Rule ruleCopy = get(rUID);
+        super.add(rule);
+        Rule ruleCopy = get(rule.getUID());
         if (ruleCopy != null) {
             return ruleCopy;
         } else {
             throw new IllegalStateException();
         }
-    }
-
-    /**
-     * Sets a unique ID on the rule that should be added in the registry. If the rule already has an ID the method will
-     * not be invoked.
-     *
-     * @param rUID the unique Rule ID that should be set to the rule
-     * @param rule candidate for unique ID
-     * @return a rule with UID
-     */
-    protected @NonNull Rule initRuleId(String rUID, Rule rule) {
-        Rule ruleWithUID = new Rule(rUID, rule.getTriggers(), rule.getConditions(), rule.getActions(),
-                rule.getConfigurationDescriptions(), rule.getConfiguration(), rule.getTemplateUID(),
-                rule.getVisibility());
-        ruleWithUID.setName(rule.getName());
-        ruleWithUID.setTags(rule.getTags());
-        ruleWithUID.setDescription(rule.getDescription());
-        return ruleWithUID;
     }
 
     /**
@@ -280,20 +260,24 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      */
     @Override
     protected void notifyListenersAboutAddedElement(Rule rule) {
-        super.notifyListenersAboutAddedElement(rule);
-        postRuleAddedEvent(rule);
-        String uid = rule.getUID();
-        ruleEngine.addRule(rule, (disabledRulesStorage != null && disabledRulesStorage.get(uid) == null));
-        String templateUID = rule.getTemplateUID();
-        if (templateUID != null) {
-            synchronized (this) {
-                Set<String> ruleUIDs = mapTemplateToRules.get(templateUID);
-                if (ruleUIDs == null) {
-                    ruleUIDs = new HashSet<String>(11);
-                    mapTemplateToRules.put(templateUID, ruleUIDs);
+        try {
+            super.notifyListenersAboutAddedElement(rule);
+            postRuleAddedEvent(rule);
+            String uid = rule.getUID();
+            ruleEngine.addRule(rule, (disabledRulesStorage != null && disabledRulesStorage.get(uid) == null));
+            String templateUID = rule.getTemplateUID();
+            if (templateUID != null) {
+                synchronized (this) {
+                    Set<String> ruleUIDs = mapTemplateToRules.get(templateUID);
+                    if (ruleUIDs == null) {
+                        ruleUIDs = new HashSet<String>(11);
+                        mapTemplateToRules.put(templateUID, ruleUIDs);
+                    }
+                    ruleUIDs.add(uid);
                 }
-                ruleUIDs.add(uid);
             }
+        } catch (RuntimeException re) {
+            throw re;
         }
     }
 
@@ -391,8 +375,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         if (tag != null) {
             for (Collection<Rule> rules : elementMap.values()) {
                 for (Rule rule : rules) {
-                    Set<String> tags = rule.getTags();
-                    if (tags != null && tags.contains(tag)) {
+                    if (rule.getTags().contains(tag)) {
                         result.add(RuleUtils.getRuleCopy(rule));
                     }
                 }
@@ -420,8 +403,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         } else {
             for (Collection<Rule> rules : elementMap.values()) {
                 for (Rule rule : rules) {
-                    Set<String> rTags = rule.getTags();
-                    if (rTags != null && rTags.containsAll(tagSet)) {
+                    if (rule.getTags().containsAll(tagSet)) {
                         result.add(RuleUtils.getRuleCopy(rule));
                     }
                 }
@@ -494,11 +476,16 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
                         RuleUtils.getConditionsCopy(template.getConditions()),
                         RuleUtils.getActionsCopy(template.getActions()), template.getConfigurationDescriptions(),
                         rule.getConfiguration(), null, rule.getVisibility());
-                resolvedRule.setName(rule.getName());
+                String name = rule.getName();
+                if (name != null) {
+                    resolvedRule.setName(name);
+                }
                 resolvedRule.setTags(rule.getTags());
-                resolvedRule.setDescription(rule.getDescription());
+                String description = rule.getDescription();
+                if (description != null) {
+                    resolvedRule.setDescription(description);
+                }
 
-                // TODO this provide config resolution twice - It must be done only in RuleEngine. Remove it.
                 ruleEngine.resolveConfiguration(resolvedRule);
 
                 return resolvedRule;
@@ -518,13 +505,8 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
 
     @Override
     public void added(Provider<Rule> provider, Rule element) {
-        Rule ruleWithUID = element;
-        if (element.getUID() == null) {
-            String rUID = ruleEngine.getUniqueId();
-            ruleWithUID = initRuleId(rUID, element);
-        }
-        super.added(provider, ruleWithUID);
-        updateRuleByTemplate(provider, ruleWithUID);
+        super.added(provider, element);
+        updateRuleByTemplate(provider, element);
     }
 
     private void updateRuleByTemplate(Provider<Rule> provider, Rule rule) {
@@ -538,12 +520,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
 
     @Override
     public void updated(Provider<Rule> provider, Rule oldElement, Rule element) {
-        Rule ruleWithUID = element;
-        String rUID = oldElement.getUID();
-        if (element.getUID() == null) {
-            ruleWithUID = initRuleId(rUID, element);
-        }
-        Rule resolvedRule = resolveRuleByTemplate(ruleWithUID);
+        Rule resolvedRule = resolveRuleByTemplate(element);
         super.updated(provider, oldElement, resolvedRule);
     }
 
@@ -557,11 +534,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
                 rules.addAll(rulesForResolving);
             }
         }
-        if (rules != null) {
-            for (String rUID : rules) {
-                Rule rule = get(rUID);
-                updateRuleByTemplate(getProvider(rule), rule);
-            }
+        for (String rUID : rules) {
+            Rule rule = get(rUID);
+            updateRuleByTemplate(getProvider(rule), rule);
         }
     }
 

@@ -266,7 +266,7 @@ protected void devicePropertiesChanged(DeviceInfo deviceInfo) {
 }
 ```
 
-If only one property must be changed, there is also a convenient method `updateProperty(String name, String value)`. Note, that in contrast to configuration updates, property changes are never persisted. The framework is not notified about changed properties.
+If only one property must be changed, there is also a convenient method `updateProperty(String name, String value)`. Both methods will only inform the framework that the thing was modified, if at least one property was added, removed or updated. Thing handler implementations must not rely though on properties to be persisted as not all providers support that.
 
 ### Updating the Thing Structure
 

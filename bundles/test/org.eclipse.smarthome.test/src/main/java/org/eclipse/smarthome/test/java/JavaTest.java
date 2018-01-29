@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.test.java;
 
@@ -42,7 +47,7 @@ public class JavaTest {
      * @param sleepTime interval for checking the condition
      * @return true on success, false on timeout
      */
-    protected boolean waitFor(BooleanSupplier condition, int timeout, int sleepTime) {
+    protected boolean waitFor(BooleanSupplier condition, long timeout, long sleepTime) {
         int waitingTime = 0;
         boolean rv;
         while (!(rv = condition.getAsBoolean()) && waitingTime < timeout) {
@@ -71,7 +76,7 @@ public class JavaTest {
      * @param timeout timeout
      * @param sleepTime interval for checking the condition
      */
-    protected void waitForAssert(Runnable assertion, int timeout, int sleepTime) {
+    protected void waitForAssert(Runnable assertion, long timeout, long sleepTime) {
         waitForAssert(assertion, null, timeout, sleepTime);
     }
 
@@ -96,7 +101,7 @@ public class JavaTest {
      * @param sleepTime interval for checking the condition
      * @return the return value of the supplied assertion object's function on success
      */
-    protected <T> T waitForAssert(Supplier<T> assertion, int timeout, int sleepTime) {
+    protected <T> T waitForAssert(Supplier<T> assertion, long timeout, long sleepTime) {
         return waitForAssert(assertion, null, timeout, sleepTime);
     }
 
@@ -107,11 +112,28 @@ public class JavaTest {
      * @param beforeLastCall logic to execute in front of the last call to ${code assertion}
      * @param sleepTime interval for checking the condition
      */
-    protected void waitForAssert(Runnable assertion, Runnable beforeLastCall, int timeout, int sleepTime) {
-        int waitingTime = 0;
+    protected void waitForAssert(Runnable assertion, Runnable beforeLastCall, long timeout, long sleepTime) {
+        waitForAssert(assertion, beforeLastCall, null, timeout, sleepTime);
+    }
+
+    /**
+     * Wait until the assertion is fulfilled or the timeout is reached.
+     *
+     * @param assertion the logic to execute
+     * @param beforeLastCall logic to execute in front of the last call to ${code assertion}
+     * @param afterLastCall logic to execute after the last call to ${code assertion}
+     * @param sleepTime interval for checking the condition
+     */
+    protected void waitForAssert(Runnable assertion, Runnable beforeLastCall, Runnable afterLastCall, long timeout,
+            long sleepTime) {
+        long waitingTime = 0;
         while (waitingTime < timeout) {
             try {
                 assertion.run();
+
+                if (afterLastCall != null) {
+                    afterLastCall.run();
+                }
                 return;
             } catch (final Error | NullPointerException error) {
                 waitingTime += sleepTime;
@@ -121,7 +143,14 @@ public class JavaTest {
         if (beforeLastCall != null) {
             beforeLastCall.run();
         }
-        assertion.run();
+
+        try {
+            assertion.run();
+        } finally {
+            if (afterLastCall != null) {
+                afterLastCall.run();
+            }
+        }
     }
 
     /**
@@ -132,7 +161,7 @@ public class JavaTest {
      * @param sleepTime interval for checking the condition
      * @return the return value of the supplied assertion object's function on success
      */
-    private <T> T waitForAssert(Supplier<T> assertion, Runnable beforeLastCall, long timeout, int sleepTime) {
+    private <T> T waitForAssert(Supplier<T> assertion, Runnable beforeLastCall, long timeout, long sleepTime) {
         final long timeoutNs = TimeUnit.MILLISECONDS.toNanos(timeout);
         final long startingTime = System.nanoTime();
         while (System.nanoTime() - startingTime < timeoutNs) {

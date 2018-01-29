@@ -1,20 +1,30 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.hue.internal.discovery;
 
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler;
 import org.eclipse.smarthome.binding.hue.handler.HueLightHandler;
 import org.eclipse.smarthome.binding.hue.handler.LightStatusListener;
@@ -28,8 +38,6 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableMap;
-
 /**
  * The {@link HueBridgeServiceTracker} tracks for hue lights which are connected
  * to a paired hue bridge. The default search time for hue is 60 seconds.
@@ -40,25 +48,26 @@ import com.google.common.collect.ImmutableMap;
  * @author Thomas Höfer - Added representation
  * @author Denis Dudnik - switched to internally integrated source of Jue library
  */
+@NonNullByDefault
 public class HueLightDiscoveryService extends AbstractDiscoveryService implements LightStatusListener {
 
     private final Logger logger = LoggerFactory.getLogger(HueLightDiscoveryService.class);
 
-    private final static int SEARCH_TIME = 60;
+    private static final int SEARCH_TIME = 60;
 
     // @formatter:off
-    private final static Map<String, String> TYPE_TO_ZIGBEE_ID_MAP = new ImmutableMap.Builder<String, String>()
-            .put("on_off_light", "0000")
-            .put("on_off_plug_in_unit", "0010")
-            .put("dimmable_light", "0100")
-            .put("dimmable_plug_in_unit", "0110")
-            .put("color_light", "0200")
-            .put("extended_color_light", "0210")
-            .put("color_temperature_light", "0220")
-            .build();
+    private static final Map<String, @Nullable String> TYPE_TO_ZIGBEE_ID_MAP = Stream.of(
+            new SimpleEntry<>("on_off_light", "0000"),
+            new SimpleEntry<>("on_off_plug_in_unit", "0010"),
+            new SimpleEntry<>("dimmable_light", "0100"),
+            new SimpleEntry<>("dimmable_plug_in_unit", "0110"),
+            new SimpleEntry<>("color_light", "0200"),
+            new SimpleEntry<>("extended_color_light", "0210"),
+            new SimpleEntry<>("color_temperature_light", "0220")
+        ).collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()));
     // @formatter:on
 
-    private HueBridgeHandler hueBridgeHandler;
+    private final HueBridgeHandler hueBridgeHandler;
 
     public HueLightDiscoveryService(HueBridgeHandler hueBridgeHandler) {
         super(SEARCH_TIME);
@@ -71,7 +80,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 
     @Override
     public void deactivate() {
-        removeOlderResults(new Date().getTime());
+        removeOlderResults(new Date().getTime(), hueBridgeHandler.getThing().getUID());
         hueBridgeHandler.unregisterLightStatusListener(this);
     }
 
@@ -83,10 +92,8 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
     @Override
     public void startScan() {
         List<FullLight> lights = hueBridgeHandler.getFullLights();
-        if (lights != null) {
-            for (FullLight l : lights) {
-                onLightAddedInternal(l);
-            }
+        for (FullLight l : lights) {
+            onLightAddedInternal(l);
         }
         // search for unpaired lights
         hueBridgeHandler.startSearch();
@@ -99,7 +106,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
     }
 
     @Override
-    public void onLightAdded(HueBridge bridge, FullLight light) {
+    public void onLightAdded(@Nullable HueBridge bridge, FullLight light) {
         onLightAddedInternal(light);
     }
 
@@ -128,7 +135,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
     }
 
     @Override
-    public void onLightRemoved(HueBridge bridge, FullLight light) {
+    public void onLightRemoved(@Nullable HueBridge bridge, FullLight light) {
         ThingUID thingUID = getThingUID(light);
 
         if (thingUID != null) {
@@ -137,11 +144,11 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
     }
 
     @Override
-    public void onLightStateChanged(HueBridge bridge, FullLight light) {
+    public void onLightStateChanged(@Nullable HueBridge bridge, FullLight light) {
         // nothing to do
     }
 
-    private ThingUID getThingUID(FullLight light) {
+    private @Nullable ThingUID getThingUID(FullLight light) {
         ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
         ThingTypeUID thingTypeUID = getThingTypeUID(light);
 
@@ -152,7 +159,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
         }
     }
 
-    private ThingTypeUID getThingTypeUID(FullLight light) {
+    private @Nullable ThingTypeUID getThingTypeUID(FullLight light) {
         String thingTypeId = TYPE_TO_ZIGBEE_ID_MAP
                 .get(light.getType().replaceAll(HueLightHandler.NORMALIZE_ID_REGEX, "_").toLowerCase());
         return thingTypeId != null ? new ThingTypeUID(BINDING_ID, thingTypeId) : null;

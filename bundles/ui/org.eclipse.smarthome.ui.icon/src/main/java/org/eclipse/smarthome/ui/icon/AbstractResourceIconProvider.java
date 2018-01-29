@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.ui.icon;
 
@@ -33,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer
  *
  */
-abstract public class AbstractResourceIconProvider implements IconProvider {
+public abstract class AbstractResourceIconProvider implements IconProvider {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractResourceIconProvider.class);
 
@@ -112,7 +117,7 @@ abstract public class AbstractResourceIconProvider implements IconProvider {
      *
      * @return the priority as a positive integer
      */
-    abstract protected Integer getPriority();
+    protected abstract Integer getPriority();
 
     /**
      * Provides the content of a resource for a certain icon set as a stream or null, if the resource does not exist.
@@ -121,7 +126,7 @@ abstract public class AbstractResourceIconProvider implements IconProvider {
      * @param resourceName the name of the resource
      * @return the content as a stream or null, if the resource does not exist
      */
-    abstract protected InputStream getResource(String iconSetId, String resourceName);
+    protected abstract InputStream getResource(String iconSetId, String resourceName);
 
     /**
      * Checks whether a certain resource exists for a given icon set.
@@ -130,6 +135,6 @@ abstract public class AbstractResourceIconProvider implements IconProvider {
      * @param resourceName the name of the resource
      * @return true, if the resource exists, false otherwise
      */
-    abstract protected boolean hasResource(String iconSetId, String resourceName);
+    protected abstract boolean hasResource(String iconSetId, String resourceName);
 
 }

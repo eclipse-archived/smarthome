@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.io.transport.mqtt;
 
@@ -16,6 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.naming.ConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
@@ -110,18 +116,18 @@ public class MqttBrokerConnection {
                 final List<MqttMessageSubscriber> consumerList = entry.getValue();
 
                 if (topic.matches(target)) {
-                    logger.trace("Topic match for '{}' and '{}' using regex {}", topic, target);
+                    logger.trace("Topic match for '{}' using regex {}", topic, target);
                     for (MqttMessageSubscriber consumer : consumerList) {
                         consumer.processMessage(topic, message.getPayload());
                     }
                 } else {
-                    logger.trace("No topic match for '{}' and '{}' using regex {}", topic, target);
+                    logger.trace("No topic match for '{}' using regex {}", topic, target);
                 }
             }
         }
     }
 
-    private ClientCallbacks clientCallbacks = new ClientCallbacks();
+    private final ClientCallbacks clientCallbacks = new ClientCallbacks();
 
     /**
      * Create a new connection with the given name.
@@ -131,19 +137,20 @@ public class MqttBrokerConnection {
      *            ssl://localhost:8883
      * @throws ConfigurationException
      */
-    @SuppressWarnings("null")
-    public MqttBrokerConnection(String name, String url, boolean textualConfiguredBroker)
+    public MqttBrokerConnection(@NonNull String name, @NonNull String url, boolean textualConfiguredBroker)
             throws ConfigurationException {
         this.textualConfiguredBroker = textualConfiguredBroker;
-        this.name = name != null ? name.trim() : null;
-        this.url = url != null ? url.trim() : null;
-        if (StringUtils.isBlank(this.name)) {
+
+        if (name.isEmpty()) {
             throw new ConfigurationException("No name for the broker set!");
         }
-        if (StringUtils.isBlank(url) || (!url.startsWith("tcp://") && !url.startsWith("ssl://"))) {
+        if (url.isEmpty() || (!url.startsWith("tcp://") && !url.startsWith("ssl://"))) {
             throw new ConfigurationException(
                     "No valid url for the broker set! Must be tcp://localhost:1234 or ssl://localhost:1234. Port is optional.");
         }
+
+        this.name = name;
+        this.url = url;
         setReconnectStrategy(new PeriodicReconnectStrategy());
     }
 
@@ -345,25 +352,28 @@ public class MqttBrokerConnection {
      * @throws MqttException If connected and the subscribe fails, this exception is thrown.
      */
     public boolean addConsumer(MqttMessageSubscriber subscriber) throws MqttException {
-        String topic = subscriber.getTopic();
         // Prepare topic for regex pattern matching taking place in messageArrived.
-        topic = StringUtils.replace(StringUtils.replace(topic, "+", "[^/]*"), "#", ".*");
+        String topic = prepareTopic(subscriber.getTopic());
         synchronized (consumers) {
             List<MqttMessageSubscriber> subscriberList = consumers.get(topic);
             if (subscriberList == null) {
                 subscriberList = new ArrayList<>();
+                consumers.put(topic, subscriberList);
             }
             subscriberList.add(subscriber);
-            consumers.put(topic, subscriberList);
         }
         if (isConnected()) {
             try {
-                client.subscribe(topic, qos);
+                client.subscribe(subscriber.getTopic(), qos);
             } catch (org.eclipse.paho.client.mqttv3.MqttException e) {
                 throw new MqttException(e);
             }
         }
         return true;
+    }
+
+    private String prepareTopic(String topic) {
+        return StringUtils.replace(StringUtils.replace(topic, "+", "[^/]*"), "#", ".*");
     }
 
     /**
@@ -384,11 +394,12 @@ public class MqttBrokerConnection {
         }
 
         synchronized (consumers) {
-            List<MqttMessageSubscriber> list = consumers.get(subscriber.getTopic());
+            String topic = prepareTopic(subscriber.getTopic());
+            List<MqttMessageSubscriber> list = consumers.get(topic);
             if (list != null) {
                 list.remove(subscriber);
                 if (list.isEmpty()) {
-                    consumers.remove(subscriber.getTopic());
+                    consumers.remove(topic);
                 }
             }
         }
@@ -509,13 +520,17 @@ public class MqttBrokerConnection {
 
             @Override
             public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                isConnecting = false;
                 for (final MqttConnectionObserver connectionObserver : connectionObservers) {
                     connectionObserver.connectionStateChanged(
                             isConnected() ? MqttConnectionState.CONNECTED : MqttConnectionState.DISCONNECTED,
                             asyncActionToken.getException());
                 }
-                reconnectStrategy.lostConnection();
+
+                // If we tried to connect via start(), use the reconnect strategy to try it again
+                if (isConnecting) {
+                    isConnecting = false;
+                    reconnectStrategy.lostConnection();
+                }
             }
         };
     }
@@ -542,6 +557,11 @@ public class MqttBrokerConnection {
             return;
         }
 
+        // Ensure the reconnect strategy is started
+        if (reconnectStrategy != null) {
+            reconnectStrategy.start();
+        }
+
         if (StringUtils.isBlank(clientId) || clientId.length() > 23) {
             clientId = MqttClient.generateClientId();
         }
@@ -551,7 +571,6 @@ public class MqttBrokerConnection {
         MqttDefaultFilePersistence dataStore = new MqttDefaultFilePersistence(tmpDir);
 
         // Create client
-        logger.debug("Creating new client for '{}' using id '{}' and file store '{}'", getUrl(), clientId, tmpDir);
         try {
             client = new MqttAsyncClient(getUrl(), clientId, dataStore);
         } catch (org.eclipse.paho.client.mqttv3.MqttException e) {
@@ -559,7 +578,8 @@ public class MqttBrokerConnection {
         }
         client.setCallback(clientCallbacks);
 
-        logger.info("Starting MQTT broker connection '{}' with clientid {}", getName(), getClientId());
+        logger.info("Starting MQTT broker connection '{}' to '{}' with clientid {} and file store '{}'", getName(),
+                getUrl(), getClientId(), tmpDir);
 
         // Perform the connection attempt
         isConnecting = true;
@@ -573,9 +593,21 @@ public class MqttBrokerConnection {
 
     /**
      * Close the MQTT connection.
+     *
+     * You can re-establish a connection calling {@link #start()} again.
      */
     public synchronized void close() {
-        logger.trace("Closing connection to broker '{}'", getName());
+        logger.trace("Closing the MQTT broker connection '{}'", getName());
+
+        // Abort a connection attempt
+        isConnecting = false;
+
+        // Stop the reconnect strategy
+        if (reconnectStrategy != null) {
+            reconnectStrategy.stop();
+        }
+
+        // Close connection
         try {
             if (isConnected()) {
                 client.disconnect();

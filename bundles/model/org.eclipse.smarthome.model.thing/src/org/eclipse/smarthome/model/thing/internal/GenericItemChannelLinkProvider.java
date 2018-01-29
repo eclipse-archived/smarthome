@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.thing.internal;
 
@@ -13,16 +18,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractProvider;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkProvider;
 import org.eclipse.smarthome.model.item.BindingConfigParseException;
 import org.eclipse.smarthome.model.item.BindingConfigReader;
-
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * {@link GenericItemChannelLinkProvider} link items to channel by reading bindings with type "channel".
@@ -31,6 +36,7 @@ import com.google.common.collect.Lists;
  * @author Alex Tugarev - Added parsing of multiple Channel UIDs
  *
  */
+@Component(immediate = true, service = { ItemChannelLinkProvider.class, BindingConfigReader.class })
 public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannelLink>
         implements BindingConfigReader, ItemChannelLinkProvider {
 
@@ -56,19 +62,19 @@ public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannel
     }
 
     @Override
-    public void processBindingConfiguration(String context, String itemType, String itemName, String bindingConfig)
-            throws BindingConfigParseException {
+    public void processBindingConfiguration(String context, String itemType, String itemName, String bindingConfig,
+            Configuration configuration) throws BindingConfigParseException {
         String[] uids = bindingConfig.split(",");
         if (uids.length == 0) {
             throw new BindingConfigParseException(
                     "At least one Channel UID should be provided: <bindingID>.<thingTypeId>.<thingId>.<channelId>");
         }
         for (String uid : uids) {
-            createItemChannelLink(context, itemName, uid.trim());
+            createItemChannelLink(context, itemName, uid.trim(), configuration);
         }
     }
 
-    private void createItemChannelLink(String context, String itemName, String channelUID)
+    private void createItemChannelLink(String context, String itemName, String channelUID, Configuration configuration)
             throws BindingConfigParseException {
         ChannelUID channelUIDObject = null;
         try {
@@ -76,7 +82,7 @@ public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannel
         } catch (IllegalArgumentException e) {
             throw new BindingConfigParseException(e.getMessage());
         }
-        ItemChannelLink itemChannelLink = new ItemChannelLink(itemName, channelUIDObject);
+        ItemChannelLink itemChannelLink = new ItemChannelLink(itemName, channelUIDObject, configuration);
 
         Set<String> itemNames = contextMap.get(context);
         if (itemNames == null) {
@@ -130,7 +136,7 @@ public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannel
 
     @Override
     public Collection<ItemChannelLink> getAll() {
-        return Lists.newLinkedList(Iterables.concat(itemChannelLinkMap.values()));
+        return itemChannelLinkMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
     }
 
 }

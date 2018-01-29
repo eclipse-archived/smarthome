@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing;
 
@@ -102,6 +107,18 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
                     new EventOption(CommonTriggerEvents.LONG_PRESSED, null))),
             null);
 
+    /**
+     * System wide trigger {@link ChannelType} which triggers "DIR1_PRESSED", "DIR1_RELEASED", "DIR2_PRESSED" and
+     * "DIR2_RELEASED" events.
+     */
+    public static final ChannelType SYSTEM_RAWROCKER = new ChannelType(new ChannelTypeUID("system:rawrocker"), false,
+            null, ChannelKind.TRIGGER, "Raw rocker button", null, null, null, null,
+            new EventDescription(Arrays.asList(new EventOption(CommonTriggerEvents.DIR1_PRESSED, null),
+                    new EventOption(CommonTriggerEvents.DIR1_RELEASED, null),
+                    new EventOption(CommonTriggerEvents.DIR2_PRESSED, null),
+                    new EventOption(CommonTriggerEvents.DIR2_RELEASED, null))),
+            null);
+
     private static class LocalizedChannelTypeKey {
         public final String locale;
         public final UID uid;
@@ -160,9 +177,9 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
 
     public DefaultSystemChannelTypeProvider() {
         channelGroupTypes = Collections.emptyList();
-        channelTypes = Collections.unmodifiableCollection(
-                Arrays.asList(new ChannelType[] { SYSTEM_CHANNEL_SIGNAL_STRENGTH, SYSTEM_CHANNEL_LOW_BATTERY,
-                        SYSTEM_CHANNEL_BATTERY_LEVEL, SYSTEM_TRIGGER, SYSTEM_RAWBUTTON, SYSTEM_BUTTON }));
+        channelTypes = Collections.unmodifiableCollection(Arrays.asList(new ChannelType[] {
+                SYSTEM_CHANNEL_SIGNAL_STRENGTH, SYSTEM_CHANNEL_LOW_BATTERY, SYSTEM_CHANNEL_BATTERY_LEVEL,
+                SYSTEM_TRIGGER, SYSTEM_RAWBUTTON, SYSTEM_BUTTON, SYSTEM_RAWROCKER }));
 
     }
 
@@ -194,6 +211,8 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
             return createLocalizedChannelType(bundle, SYSTEM_RAWBUTTON, locale);
         } else if (channelTypeUID.equals(SYSTEM_BUTTON.getUID())) {
             return createLocalizedChannelType(bundle, SYSTEM_BUTTON, locale);
+        } else if (channelTypeUID.equals(SYSTEM_RAWROCKER.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_RAWROCKER, locale);
         }
         return null;
     }

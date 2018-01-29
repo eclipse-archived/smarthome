@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.thing.test.hue;
 
@@ -20,6 +25,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +45,9 @@ public class DumbThingTypeProvider implements ThingTypeProvider {
             List<ChannelDefinition> channelDefinitions = Collections.singletonList(channel1);
 
             thingTypes.put(DumbThingHandlerFactory.THING_TYPE_TEST,
-                    new ThingType(DumbThingHandlerFactory.THING_TYPE_TEST, null, "DUMB", "Funky Thing", false,
-                            channelDefinitions, null, null, new URI("dumb:DUMB")));
+                    ThingTypeBuilder.instance(DumbThingHandlerFactory.THING_TYPE_TEST, "DUMB").withDescription("Funky Thing")
+                            .isListed(false).withChannelDefinitions(channelDefinitions)
+                            .withConfigDescriptionURI(new URI("dumb:DUMB")).build());
         } catch (Exception e) {
             logger.error("{}", e.getMessage());
         }

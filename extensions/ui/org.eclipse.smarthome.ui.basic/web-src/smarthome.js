@@ -305,7 +305,8 @@
 	function Control(parentNode) {
 		var
 			_t = this,
-			suppress = false;
+			suppress = false,
+			noneImageSrc = "/icon/none.png";
 
 		_t.parentNode = parentNode;
 		_t.formRow = parentNode.parentNode;
@@ -315,13 +316,22 @@
 		_t.visible = !_t.formRow.classList.contains(o.formRowHidden);
 		_t.label = _t.parentNode.parentNode.querySelector(o.formLabel);
 
+		function replaceImageWithNone() {
+			this.removeEventListener("error", replaceImageWithNone);
+			this.src = noneImageSrc;
+		}
+
 		if (_t.icon !== null) {
 			_t.iconName = _t.icon.getAttribute(o.iconAttribute);
+			if (_t.icon.src !== noneImageSrc) {
+				_t.icon.addEventListener("error", replaceImageWithNone);
+			}
 		}
 
 		_t.reloadIcon = function(state) {
 			// Some widgets don't have icons
 			if (_t.icon !== null) {
+				_t.icon.addEventListener("error", replaceImageWithNone);
 				_t.icon.setAttribute("src",
 					"/icon/" +
 					_t.iconName +
@@ -343,12 +353,12 @@
 			_t.visible = state;
 		};
 
-		_t.setValue = function(value, itemState) {
+		_t.setValue = function(value, itemState, visible) {
 			_t.reloadIcon(itemState);
 			if (suppress) {
 				suppress = false;
 			} else {
-				_t.setValuePrivate(value, itemState);
+				_t.setValuePrivate(value, itemState, visible);
 			}
 		};
 
@@ -409,37 +419,67 @@
 		}
 
 		var
-			_t = this;
+			_t = this,
+			interval = null,
+			urlNoneIcon = "images/none.png";
 
 		_t.image = parentNode.querySelector("img");
 		_t.updateInterval = parseInt(parentNode.getAttribute("data-update-interval"), 10);
 
 		_t.url = parentNode.getAttribute("data-proxied-url");
 		_t.validUrl = parentNode.getAttribute("data-valid-url") === "true";
+		_t.ignoreRefresh = parentNode.getAttribute("data-ignore-refresh") === "true";
 
-		_t.setValuePrivate = function(value, itemState) {
-			if (itemState.startsWith("data:")) {
+		_t.setValuePrivate = function(value, itemState, visible) {
+			if (!visible) {
+				_t.ignoreRefresh = true;
+				_t.image.setAttribute("src", urlNoneIcon);
+			} else if (itemState.startsWith("data:")) {
 				// Image element associated to an item of type ImageItem
+				_t.ignoreRefresh = true;
 				_t.image.setAttribute("src", itemState);
 			} else if ((itemState !== "UNDEF") || (_t.validUrl)) {
 				// Image element associated to an item of type StringItem (URL)
 				// Or no associated item but url is set and valid in the image element
+				_t.ignoreRefresh = false;
 				_t.image.setAttribute("src", _t.url + "&t=" + Date.now());
 			} else {
 				// No associated item and url is not set or not valid in the image element
-				_t.image.setAttribute("src", "images/none.png");
+				_t.ignoreRefresh = true;
+				_t.image.setAttribute("src", urlNoneIcon);
 			}
 		};
 
-		if (_t.updateInterval === 0) {
-			return;
-		}
-		// Limit the refresh interval to 100 ms
-		if (_t.updateInterval < 100) {
-			_t.updateInterval = 100;
-		}
+		_t.setVisible = function(state) {
+			if (state) {
+				_t.formRow.classList.remove(o.formRowHidden);
+				_t.activateRefresh();
+			} else {
+				_t.formRow.classList.add(o.formRowHidden);
+				_t.deactivateRefresh();
+			}
 
-		var
+			_t.visible = state;
+		};
+
+		_t.deactivateRefresh = function() {
+			if (interval !== null) {
+				clearInterval(interval);
+				interval = null;
+			}
+		};
+
+		_t.activateRefresh = function() {
+			_t.deactivateRefresh();
+
+			if (_t.updateInterval === 0 || _t.ignoreRefresh) {
+				return;
+			}
+			// Limit the refresh interval to 100 ms
+			if (_t.updateInterval < 100) {
+				_t.updateInterval = 100;
+			}
+
 			interval = setInterval(function() {
 				if (_t.image.clientWidth === 0) {
 					clearInterval(interval);
@@ -447,6 +487,11 @@
 				}
 				_t.image.setAttribute("src", _t.url + "&t=" + Date.now());
 			}, _t.updateInterval);
+		};
+
+		if (_t.visible) {
+			_t.activateRefresh();
+		}
 	}
 
 	/* class ControlText extends Control */
@@ -1542,24 +1587,8 @@
 
 		_t.initControls = function() {
 			smarthome.dataModel = {};
-			smarthome.dataModelLegacy = {};
 
 			function appendControl(control) {
-				// dataModelLegacy keeps item → widgets binding for
-				// long-polling event listener
-				if (
-					(smarthome.dataModelLegacy[control.item] === undefined) ||
-					(smarthome.dataModelLegacy[control.item].widgets === undefined)
-				) {
-					if (control.item !== undefined) {
-						smarthome.dataModelLegacy[control.item] = { widgets: [] };
-					}
-				}
-
-				if (control.item !== undefined) {
-					smarthome.dataModelLegacy[control.item].widgets.push(control);
-				}
-
 				smarthome.dataModel[control.id] = control;
 			}
 
@@ -1688,6 +1717,47 @@
 
 			return title;
 		};
+
+		this.updateWidget = function(widget, update) {
+			var
+				value = this.extractValueFromLabel(update.label),
+				makeVisible = false;
+
+			if (widget.visible !== update.visibility) {
+				makeVisible = update.visibility;
+				smarthome.UI.layoutChangeProxy.push({
+					widget: widget,
+					visibility: update.visibility
+				});
+			}
+
+			if (makeVisible || update.state !== "NULL") {
+				if (value === null) {
+					value = update.state;
+				}
+				widget.setValue(smarthome.UI.escapeHtml(value), update.state, update.visibility);
+			}
+
+			[{
+				apply: widget.setLabel,
+				data: update.label,
+				fallback: null
+			}, {
+				apply: widget.setLabelColor,
+				data: update.labelcolor,
+				fallback: ""
+			}, {
+				apply: widget.setValueColor,
+				data: update.valuecolor,
+				fallback: ""
+			}].forEach(function(e) {
+				if (e.data !== undefined) {
+					e.apply(e.data);
+				} else if (e.fallback !== null) {
+					e.apply(e.fallback);
+				}
+			});
+		};
 	}
 
 	function ChangeListenerEventsource(subscribeLocation) {
@@ -1706,7 +1776,7 @@
 
 			var
 				data = JSON.parse(payload.data),
-				value,
+				state,
 				title;
 
 			if (data.TYPE === "SITEMAP_CHANGED") {
@@ -1721,50 +1791,35 @@
 				return;
 			}
 
-			if (!(data.widgetId in smarthome.dataModel) && (data.widgetId !== smarthome.UI.page)) {
+			if (
+				!(data.widgetId in smarthome.dataModel) &&
+				(data.widgetId !== smarthome.UI.page)
+			) {
 				return;
 			}
 
-			value = _t.extractValueFromLabel(data.label);
-			if (value === null) {
-				value = data.item.state;
+			if (data.state === undefined) {
+				state = data.item.state;
+			} else {
+				state = data.state;
 			}
+
 			title = _t.getTitleFromLabel(data.label);
 
-			if ((data.widgetId === smarthome.UI.page) && (title !== null)) {
+			if (
+				(data.widgetId === smarthome.UI.page) &&
+				(title !== null)
+			) {
 				smarthome.UI.setTitle(smarthome.UI.escapeHtml(title));
 			} else if (smarthome.dataModel[data.widgetId] !== undefined) {
-				var
-					widget = smarthome.dataModel[data.widgetId];
-
-				if (widget.visible !== data.visibility) {
-					smarthome.UI.layoutChangeProxy.push({
-						widget: widget,
-						visibility: data.visibility
-					});
-				}
-
-				widget.setValue(smarthome.UI.escapeHtml(value), data.item.state);
-
-				[{
-					apply: widget.setLabel,
-					data: data.label,
-					fallback: null
-				}, {
-					apply: widget.setLabelColor,
-					data: data.labelcolor,
-					fallback: ""
-				}, {
-					apply: widget.setValueColor,
-					data: data.valuecolor,
-					fallback: ""
-				}].forEach(function(e) {
-					if (e.data !== undefined) {
-						e.apply(e.data);
-					} else if (e.fallback !== null) {
-						e.apply(e.fallback);
-					}
-				});
+				var update = {
+					visibility: data.visibility,
+					state: state,
+					label: data.label,
+					labelcolor: data.labelcolor,
+					valuecolor: data.valuecolor
+				};
+				_t.updateWidget(smarthome.dataModel[data.widgetId], update);
 			}
 		});
 
@@ -1785,7 +1840,8 @@
 
 		function applyChanges(response) {
 			var
-				title;
+				title,
+				id;
 
 			try {
 				response = JSON.parse(response);
@@ -1800,51 +1856,63 @@
 
 			function walkWidgets(widgets) {
 				widgets.forEach(function(widget) {
-					if (widget.item === undefined) {
+					if (
+						widget.widgetId === undefined ||
+						smarthome.dataModel[widget.widgetId] === undefined
+					) {
 						return;
 					}
 
 					var
-						item = widget.item.name,
-						state = widget.item.state,
-						label = widget.label,
-						value = _t.extractValueFromLabel(widget.label),
-						labelcolor = widget.labelcolor,
-						valuecolor = widget.valuecolor;
+						w = smarthome.dataModel[widget.widgetId],
+						state = "NULL",
+						update;
 
-					if (value === null) {
-						value = state;
+					if (widget.item !== undefined) {
+						state = widget.item.state;
 					}
-
-					if (smarthome.dataModelLegacy[item] !== undefined) {
-						smarthome.dataModelLegacy[item].widgets.forEach(function(w) {
-							if (state !== "NULL") {
-								w.setValue(smarthome.UI.escapeHtml(value), state);
-							}
-							if (label !== undefined) {
-								w.setLabel(label);
-							}
-							if (labelcolor !== undefined) {
-								w.setLabelColor(labelcolor);
-							} else {
-								w.setLabelColor("");
-							}
-							if (valuecolor !== undefined) {
-								w.setValueColor(valuecolor);
-							} else {
-								w.setValueColor("");
-							}
-						});
+					if (!w.visible || widget.item !== undefined) {
+						update = {
+							visibility: true,
+							state: state,
+							label: widget.label,
+							labelcolor: widget.labelcolor,
+							valuecolor: widget.valuecolor
+						};
+						_t.updateWidget(w, update);
 					}
+					w.handled = true;
 				});
+			}
+
+			for (id in smarthome.dataModel) {
+				smarthome.dataModel[id].handled = false;
 			}
 
 			if (response.leaf) {
 				walkWidgets(response.widgets);
 			} else {
 				response.widgets.forEach(function(frameWidget) {
+					if (
+						frameWidget.widgetId !== undefined &&
+						smarthome.dataModel[frameWidget.widgetId] !== undefined
+					) {
+						smarthome.dataModel[frameWidget.widgetId].handled = true;
+					}
 					walkWidgets(frameWidget.widgets);
 				});
+			}
+
+			for (id in smarthome.dataModel) {
+				var
+					w = smarthome.dataModel[id];
+
+				if (w.visible && !w.handled) {
+					smarthome.UI.layoutChangeProxy.push({
+						widget: w,
+						visibility: false
+					});
+				}
 			}
 		}
 

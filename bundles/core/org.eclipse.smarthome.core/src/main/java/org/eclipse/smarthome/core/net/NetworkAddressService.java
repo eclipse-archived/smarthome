@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.net;
 
@@ -25,4 +30,14 @@ public interface NetworkAddressService {
      */
     @Nullable
     String getPrimaryIpv4HostAddress();
+
+    /**
+     * Returns the user configured broadcast address, or the broadcast address of the user configured primary IPv4 if
+     * not provided
+     *
+     * @return IPv4 broadcast address as a String in format xxx.xxx.xxx or
+     *         <code>null</code> if no broadcast address is found or an error occurred
+     */
+    @Nullable
+    String getConfiguredBroadcastAddress();
 }

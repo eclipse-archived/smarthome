@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.script.engine;
 
@@ -27,6 +32,12 @@ public abstract class ScriptException extends Exception {
         super(message);
         this.errors = new ArrayList<ScriptError>(1);
         errors.add(new ScriptError(message, 0, 0, -1));
+    }
+
+    protected ScriptException(ScriptError scriptError) {
+        super(scriptError.getMessage());
+        this.errors = new ArrayList<ScriptError>(1);
+        errors.add(scriptError);
     }
 
     /**
@@ -64,7 +75,7 @@ public abstract class ScriptException extends Exception {
 
     /**
      * Creates a ScriptException with one Error.
-     * 
+     *
      * @param errors
      */
     private ScriptException(final String scriptText, final ScriptError error) {
@@ -81,7 +92,7 @@ public abstract class ScriptException extends Exception {
 
     /**
      * All Errors that lead to this Exception.
-     * 
+     *
      * @return List of Error. Size >= 1, there is at last one ScriptError.
      */
     public List<ScriptError> getErrors() {
@@ -95,9 +106,9 @@ public abstract class ScriptException extends Exception {
     /**
      * Returns a concatenation of all errors in contained ScriptError instances.
      * Separated by newline, except for last error; no \n if only one error.
-     * 
+     *
      * @return The Message.
-     * 
+     *
      * @see ScriptError#getMessage()
      */
     @Override

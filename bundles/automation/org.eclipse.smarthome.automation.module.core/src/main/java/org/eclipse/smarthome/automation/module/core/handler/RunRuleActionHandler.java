@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2017 by Deutsche Telekom AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.module.core.handler;
 
@@ -41,13 +46,13 @@ public class RunRuleActionHandler extends BaseModuleHandler<Action> implements A
     /**
      * The UID for this handler for identification in the factory.
      */
-    public final static String UID = "core.RunRuleAction";
+    public static final String UID = "core.RunRuleAction";
 
     /**
      * the key for the 'rulesUIDs' property of the {@link Action}.
      */
-    private final static String RULE_UIDS_KEY = "ruleUIDs";
-    private final static String CONSIDER_CONDITIONS_KEY = "considerConditions";
+    private static final String RULE_UIDS_KEY = "ruleUIDs";
+    private static final String CONSIDER_CONDITIONS_KEY = "considerConditions";
 
     /**
      * The logger

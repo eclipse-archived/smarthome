@@ -1,14 +1,21 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.internal
 
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
+import static org.mockito.Matchers.any
+import static org.mockito.Mockito.*
 
 import java.util.concurrent.TimeUnit
 
@@ -25,14 +32,13 @@ import org.eclipse.smarthome.core.events.TopicEventFilter
 import org.eclipse.smarthome.core.i18n.LocaleProvider
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemRegistry
-import org.eclipse.smarthome.core.items.events.ItemCommandEvent
 import org.eclipse.smarthome.core.items.events.ItemEventFactory
 import org.eclipse.smarthome.core.items.events.ItemStateEvent
 import org.eclipse.smarthome.core.library.items.StringItem
 import org.eclipse.smarthome.core.library.types.DecimalType
 import org.eclipse.smarthome.core.library.types.StringType
 import org.eclipse.smarthome.core.service.ReadyMarker
-import org.eclipse.smarthome.core.service.ReadyUtil
+import org.eclipse.smarthome.core.service.ReadyService
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
@@ -61,7 +67,11 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
 import org.eclipse.smarthome.core.thing.link.ThingLinkManager
-import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.thing.type.ChannelKind
+import org.eclipse.smarthome.core.thing.type.ChannelType
+import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.core.types.State
 import org.eclipse.smarthome.test.OSGiTest
@@ -80,6 +90,7 @@ class ThingManagerOSGiTest extends OSGiTest {
     ManagedThingProvider managedThingProvider
     ThingLinkManager thingLinkManager
     ItemRegistry itemRegistry
+    ReadyService readyService
 
     ManagedItemChannelLinkProvider managedItemChannelLinkProvider
 
@@ -93,13 +104,25 @@ class ThingManagerOSGiTest extends OSGiTest {
 
     EventPublisher eventPublisher
     ItemChannelLinkRegistry itemChannelLinkRegistry
+    ChannelTypeProvider channelTypeProvider;
 
     @Before
     void setUp() {
+        def channelTypeUID = new ChannelTypeUID("binding:channelType")
+
         THING = ThingBuilder.create(THING_UID).withChannels([
-            new Channel(CHANNEL_UID, "Switch")
+            new Channel(CHANNEL_UID, channelTypeUID, "Switch", ChannelKind.STATE,
+            null, Collections.emptySet(), null, null, null)
         ]).build()
         registerVolatileStorageService()
+
+
+        channelTypeProvider = mock(ChannelTypeProvider.class);
+        when(channelTypeProvider.getChannelType(any(ChannelTypeUID.class), any(Locale.class)))
+                .thenReturn(new ChannelType(channelTypeUID, false, "Switch", ChannelKind.STATE, "label", null, null,
+                null, null, null, null));
+        registerService(channelTypeProvider);
+
         thingLinkManager = getService ThingLinkManager
         thingLinkManager.deactivate()
         managedItemChannelLinkProvider = getService(ManagedItemChannelLinkProvider)
@@ -112,8 +135,14 @@ class ThingManagerOSGiTest extends OSGiTest {
         itemChannelLinkRegistry = getService(ItemChannelLinkRegistry)
         assertNotNull(itemChannelLinkRegistry)
 
+        readyService = getService(ReadyService)
+        assertNotNull(readyService)
+
         waitForAssert {
             assertThat getBundleContext().getServiceReferences(ReadyMarker, "(" + ThingManager.XML_THING_TYPE + "=" + getBundleContext().getBundle().getSymbolicName() + ")"), is(notNullValue())
+        }
+        waitForAssert {
+            assertThat getBundleContext().getServiceReferences(ChannelItemProvider, null), is(notNullValue())
         }
     }
 
@@ -654,13 +683,13 @@ class ThingManagerOSGiTest extends OSGiTest {
         registerThingTypeProvider()
 
         def itemName = "name"
-        def handleUpdateWasCalled = false
+        def handleCommandWasCalled = false
         def callback
 
         managedThingProvider.add(THING)
         managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
         def thingHandler = [
-            handleUpdate: { ChannelUID channelUID, State newState -> handleUpdateWasCalled = true },
+            handleCommand: { ChannelUID channelUID, State newState -> handleCommandWasCalled = true },
             setCallback: { callbackArg -> callback = callbackArg },
             initialize: {},
             dispose: {},
@@ -676,19 +705,20 @@ class ThingManagerOSGiTest extends OSGiTest {
             }
         ] as ThingHandlerFactory
         registerService(thingHandlerFactory)
+        waitForAssert { assertThat itemRegistry.get(itemName), is(notNullValue()) }
 
         callback.statusUpdated(THING, ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build())
 
         // event should be delivered
-        eventPublisher.post(ItemEventFactory.createStateEvent(itemName, new DecimalType(10)))
-        waitForAssert { assertThat handleUpdateWasCalled, is(true) }
+        eventPublisher.post(ItemEventFactory.createCommandEvent(itemName, new DecimalType(10)))
+        waitForAssert { assertThat handleCommandWasCalled, is(true) }
 
-        handleUpdateWasCalled = false
+        handleCommandWasCalled = false
 
         // event should not be delivered, because the source is the same
-        eventPublisher.post(ItemEventFactory.createStateEvent(itemName, new DecimalType(10), CHANNEL_UID.toString()))
-        waitFor({handleUpdateWasCalled == true}, 1000)
-        assertThat handleUpdateWasCalled, is(false)
+        eventPublisher.post(ItemEventFactory.createCommandEvent(itemName, new DecimalType(10), CHANNEL_UID.toString()))
+        waitFor({handleCommandWasCalled == true}, 1000)
+        assertThat handleCommandWasCalled, is(false)
     }
 
     @Test
@@ -761,54 +791,6 @@ class ThingManagerOSGiTest extends OSGiTest {
         assertThat itemUpdateEvent.getItemState(), is(instanceOf(StringType))
         assertThat itemUpdateEvent.getItemState(), is("Value")
         waitForAssert { assertThat thingUpdatedWasCalled, is(true) }
-    }
-
-    @Test
-    void 'ThingManager handles post command correctly'() {
-
-        def itemName = "name"
-        def callback;
-
-        // Create item
-        Item item = new StringItem(itemName)
-        itemRegistry.add(item)
-
-        managedThingProvider.add(THING)
-        managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
-        def thingHandler = [
-            setCallback: {callbackArg -> callback = callbackArg },
-            initialize: {},
-            dispose: {},
-            getThing: {return THING}
-        ] as ThingHandler
-
-        def thingHandlerFactory = [
-            supportsThingType: { thingTypeUID -> true},
-            registerHandler: {thing -> thingHandler },
-            unregisterHandler: {thing -> },
-            removeThing: {thingUID ->
-            }
-        ] as ThingHandlerFactory
-        registerService(thingHandlerFactory)
-
-        Event receivedEvent = null
-        def itemCommandEventSubscriber = [
-            receive: { event -> receivedEvent = event },
-            getSubscribedEventTypes: { Sets.newHashSet(ItemCommandEvent.TYPE) },
-            getEventFilter: { new TopicEventFilter("smarthome/items/.*/command") },
-        ] as EventSubscriber
-        registerService(itemCommandEventSubscriber)
-
-        // thing manager posts the command to the event bus via EventPublisher
-        callback.postCommand(CHANNEL_UID, new StringType("Value"))
-        waitForAssert { assertThat receivedEvent, not(null) }
-        assertThat receivedEvent, is(instanceOf(ItemCommandEvent))
-        ItemCommandEvent itemCommandEvent = receivedEvent as ItemCommandEvent
-        assertThat itemCommandEvent.getTopic(), is("smarthome/items/name/command")
-        assertThat itemCommandEvent.getItemName(), is(itemName)
-        assertThat itemCommandEvent.getSource(), is(CHANNEL_UID.toString())
-        assertThat itemCommandEvent.getItemCommand(), is(instanceOf(StringType))
-        assertThat itemCommandEvent.getItemCommand(), is("Value")
     }
 
     @Test
@@ -1341,11 +1323,9 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         waitForAssert {
             // wait for the XML processing to be finished, then remove the ready marker again
-            def ref = bundleContext.getServiceReferences(ReadyMarker.class.getName(), "(" + ThingManager.XML_THING_TYPE + "=" + FrameworkUtil.getBundle(this.getClass()).getSymbolicName() + ")")
-            assertThat ref, is(notNullValue())
-            def registration = ref.registration.getAt(0)
-            assertThat registration, is(notNullValue())
-            registration.unregister()
+            ReadyMarker marker = new ReadyMarker(ThingManager.XML_THING_TYPE, FrameworkUtil.getBundle(this.getClass()).getSymbolicName())
+            assertThat readyService.isReady(marker), is(true)
+            readyService.unmarkReady(marker);
         }
 
         def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build()
@@ -1358,7 +1338,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         assertThat initializedCalled, is(false)
         assertThat thing.getStatusInfo(), is(statusInfo)
 
-        ReadyUtil.markAsReady(bundleContext, ThingManager.XML_THING_TYPE, FrameworkUtil.getBundle(this.getClass()).getSymbolicName())
+        readyService.markReady(new ReadyMarker(ThingManager.XML_THING_TYPE, FrameworkUtil.getBundle(this.getClass()).getSymbolicName()))
 
         // ThingHandler.initialize() called, thing status is INITIALIZING.NONE
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build()
@@ -1610,6 +1590,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         registerService(thingHandlerFactory)
 
         itemChannelLinkRegistry.add(new ItemChannelLink("testItem", new ChannelUID(THING.getUID(), "channel")))
+        waitForAssert { assertThat itemRegistry.get("testItem"), is(notNullValue()) }
 
         eventPublisher.post(ItemEventFactory.createCommandEvent("testItem", new StringType("TEST")))
 
@@ -1630,7 +1611,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
     private void registerThingTypeProvider() {
         def URI configDescriptionUri = new URI("test:test");
-        def thingType = new ThingType(new ThingTypeUID("binding", "type"), null, "label", null, null, null, null, configDescriptionUri)
+        def thingType = ThingTypeBuilder.instance(new ThingTypeUID("binding", "type"), "label").withConfigDescriptionURI(configDescriptionUri).build();
 
         registerService([
             getThingType: {thingTypeUID,locale -> thingType }

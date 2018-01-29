@@ -1,17 +1,19 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tests for the Eclipse SmartHome Json Storage
-Bundle-SymbolicName: org.eclipse.smarthome.storage.json.test
-Bundle-Version: 0.9.0.qualifier
-Bundle-Vendor: Eclipse.org/SmartHome
-Fragment-Host: org.eclipse.smarthome.storage.json
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: groovy.lang,
+Bundle-SymbolicName: org.eclipse.smarthome.storage.json.test
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.10.0.qualifier
+Fragment-Host: org.eclipse.smarthome.storage.json
+Import-Package: 
+ groovy.lang,
  org.apache.commons.io,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.java,
  org.hamcrest;core=split,
- org.junit;version="4.0.0",
- org.junit.matchers;version="4.0.0"
+ org.junit.matchers;version="4.0.0",
+ org.junit;version="4.0.0"

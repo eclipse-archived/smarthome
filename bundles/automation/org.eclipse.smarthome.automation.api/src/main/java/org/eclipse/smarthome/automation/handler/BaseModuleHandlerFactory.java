@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.handler;
 
@@ -11,6 +16,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Module;
 import org.osgi.framework.BundleContext;
 
@@ -20,9 +27,12 @@ import org.osgi.framework.BundleContext;
  * @author Kai Kreuzer - Initial Contribution
  * @author Benedikt Niehues - change behavior for unregistering ModuleHandler
  */
-abstract public class BaseModuleHandlerFactory implements ModuleHandlerFactory {
+@NonNullByDefault
+public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory {
 
-    private Map<String, ModuleHandler> handlers = new HashMap<String, ModuleHandler>();
+    private final Map<String, ModuleHandler> handlers = new HashMap<String, ModuleHandler>();
+
+    @NonNullByDefault({})
     protected BundleContext bundleContext;
 
     public void activate(BundleContext bundleContext) {
@@ -59,7 +69,7 @@ abstract public class BaseModuleHandlerFactory implements ModuleHandlerFactory {
      * @param ruleUID the id of the rule for which the handler should be created
      * @return A {@link ModuleHandler} instance or <code>null</code> if thins module type is not supported
      */
-    abstract protected ModuleHandler internalCreate(Module module, String ruleUID);
+    protected abstract @Nullable ModuleHandler internalCreate(Module module, String ruleUID);
 
     public void dispose() {
         for (ModuleHandler handler : handlers.values()) {

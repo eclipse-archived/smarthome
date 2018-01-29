@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.binding;
 
@@ -14,6 +19,11 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+
 /**
  * The {@link BindingInfoRegistry} provides access to {@link BindingInfo} objects.
  * It tracks {@link BindingInfoProvider} <i>OSGi</i> services to collect all {@link BindingInfo} objects.
@@ -21,10 +31,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Dennis Nobel - Initial contribution
  * @author Michael Grammling - Initial contribution, added locale support
  */
+@Component(immediate = true, service = BindingInfoRegistry.class)
 public class BindingInfoRegistry {
 
-    private Collection<BindingInfoProvider> bindingInfoProviders = new CopyOnWriteArrayList<>();
+    private final Collection<BindingInfoProvider> bindingInfoProviders = new CopyOnWriteArrayList<>();
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addBindingInfoProvider(BindingInfoProvider bindingInfoProvider) {
         if (bindingInfoProvider != null) {
             this.bindingInfoProviders.add(bindingInfoProvider);

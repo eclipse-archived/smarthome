@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.core.internal;
 
@@ -14,10 +19,13 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -35,11 +43,6 @@ import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 /**
  * @author Oliver Libutzki - Added reloadAllModelsOfType method
@@ -166,22 +169,13 @@ public class ModelRepositoryImpl implements ModelRepository {
         synchronized (resourceSet) {
             // Make a copy to avoid ConcurrentModificationException
             List<Resource> resourceListCopy = new ArrayList<Resource>(resourceSet.getResources());
-            Iterable<Resource> matchingResources = Iterables.filter(resourceListCopy, new Predicate<Resource>() {
-                @Override
-                public boolean apply(Resource input) {
-                    if (input != null && input.getURI().lastSegment().contains(".") && input.isLoaded()) {
-                        return modelType.equalsIgnoreCase(input.getURI().fileExtension());
-                    } else {
-                        return false;
-                    }
-                }
-            });
-            return Lists.newArrayList(Iterables.transform(matchingResources, new Function<Resource, String>() {
-                @Override
-                public String apply(Resource from) {
-                    return from.getURI().path();
-                }
-            }));
+
+            return resourceListCopy.stream().filter(input -> {
+                return input != null && input.getURI().lastSegment().contains(".") && input.isLoaded()
+                        && modelType.equalsIgnoreCase(input.getURI().fileExtension());
+            }).map(from -> {
+                return from.getURI().path();
+            }).collect(Collectors.toList());
         }
     }
 
@@ -204,6 +198,26 @@ public class ModelRepositoryImpl implements ModelRepository {
                 }
             }
         }
+    }
+
+    @Override
+    public Set<String> removeAllModelsOfType(final String modelType) {
+        Set<String> ret = new HashSet<>();
+        synchronized (resourceSet) {
+            // Make a copy to avoid ConcurrentModificationException
+            List<Resource> resourceListCopy = new ArrayList<Resource>(resourceSet.getResources());
+            for (Resource resource : resourceListCopy) {
+                if (resource != null && resource.getURI().lastSegment().contains(".") && resource.isLoaded()) {
+                    if (modelType.equalsIgnoreCase(resource.getURI().fileExtension())) {
+                        logger.debug("Removing resource '{}'", resource.getURI().lastSegment());
+                        ret.add(resource.getURI().lastSegment());
+                        resourceSet.getResources().remove(resource);
+                        notifyListeners(resource.getURI().lastSegment(), EventType.REMOVED);
+                    }
+                }
+            }
+        }
+        return ret;
     }
 
     @Override

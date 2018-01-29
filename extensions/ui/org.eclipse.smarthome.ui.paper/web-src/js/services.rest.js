@@ -294,25 +294,6 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
                 'Content-Type' : 'application/json'
             }
         },
-        link : {
-            method : 'POST',
-            params : {
-                thingUID : '@thingUID',
-                channelId : '@channelId'
-            },
-            url : restConfig.restPath + '/things/:thingUID/channels/:channelId/link',
-            headers : {
-                'Content-Type' : 'text/plain'
-            }
-        },
-        unlink : {
-            method : 'DELETE',
-            params : {
-                thingUID : '@thingUID',
-                channelId : '@channelId'
-            },
-            url : restConfig.restPath + '/things/:thingUID/channels/:channelId/link',
-        },
         getFirmwareStatus : {
             method : 'GET',
             params : {
@@ -327,13 +308,6 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
                 firmwareVersion : '@firmwareVersion'
             },
             url : restConfig.restPath + '/things/:thingUID/firmware/:firmwareVersion'
-        },
-        cancel : {
-            method : 'GET',
-            params : {
-                thingUID : '@thingUID'
-            },
-            url : restConfig.restPath + '/update/:thingUID/cancel'
         }
     });
 }).factory('serviceConfigService', function($resource, restConfig) {
@@ -341,6 +315,14 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
         getAll : {
             method : 'GET',
             isArray : true
+        },
+        getContexts : {
+            method : 'GET',
+            params : {
+                id : '@id'
+            },
+            isArray : true,
+            url : restConfig.restPath + '/services/:id/contexts'
         },
         getById : {
             method : 'GET',
@@ -449,8 +431,16 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
         }
     });
 
+    var suppressUnavailableError = function(response, headersGetter, status) {
+        return status != 503 ? response : {
+            showError : false
+        };
+    }
+
     extensionService.isAvailable = function(callback) {
-        $http.head(restConfig.restPath + '/extensions').then(function() {
+        $http.head(restConfig.restPath + '/extensions', {
+            transformResponse : suppressUnavailableError
+        }).then(function() {
             callback(true);
         }, function() {
             callback(false);
@@ -617,6 +607,14 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
             },
             url : restConfig.restPath + '/channel-types/:channelTypeUID'
         },
+        getLinkableItemTypes : {
+            method : 'GET',
+            isArray : true,
+            params : {
+                channelTypeUID : '@channelTypeUID'
+            },
+            url : restConfig.restPath + '/channel-types/:channelTypeUID/linkableItemTypes'
+        },
     });
 }).factory('templateService', function($resource, restConfig) {
     return $resource(restConfig.restPath + '/channel-types', {}, {
@@ -661,13 +659,6 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
                 thingUID : '@thingUID'
             },
             url : restConfig.restPath + '/update/:thingUID'
-        },
-        cancel : {
-            method : 'GET',
-            params : {
-                thingUID : '@thingUID'
-            },
-            url : restConfig.restPath + '/update/:thingUID/cancel'
         }
     });
 });

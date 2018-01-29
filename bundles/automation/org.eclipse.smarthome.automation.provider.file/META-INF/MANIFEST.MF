@@ -1,10 +1,13 @@
+Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Automation File Provider
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.automation.provider.file
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.9.0.qualifier
-Bundle-Name: Eclipse SmartHome Automation File Provider
+Bundle-Version: 0.10.0.qualifier
 Import-Package: 
  org.apache.commons.lang,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.automation,
  org.eclipse.smarthome.automation.parser,
  org.eclipse.smarthome.automation.template,
@@ -17,4 +20,3 @@ Import-Package:
  org.osgi.util.tracker,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8

@@ -1,193 +1,223 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.constants;
 
 /**
- * The {@link JSONApiResponseKeysEnum} contains all digitalSTROM-JSON response keys.
+ * The {@link JSONApiResponseKeysEnum} contains digitalSTROM-JSON response keys.
  *
- * @author Alexander Betker
- * @version digitalSTROM-API 1.14.5
+ * @author Alexander Betker - initial contributer
+ * @author Michael Ochel completely changed and updated only methods remained
+ * @author Matthias Siegele completely changed and updated only methods remained
  */
 public enum JSONApiResponseKeysEnum {
 
-    RESPONSE_OK("ok"),
-    RESPONSE_SUCCESSFUL("true"),
-    RESPONSE_MESSAGE("message"),
-
+    // GENERAL
+    OK("ok"),
+    MESSAGE("message"),
     RESULT("result"),
 
-    APARTMENT_GET_NAME("name"),
-    APARTMENT_GET_CONSUMPTION("consumption"),
-    APARTMENT_GET_STRUCTURE("apartment"),
-    APARTMENT_GET_STRUCTURE_ZONES("zones"),
-    APARTMENT_GET_STRUCTURE_ZONES_ID("id"),
-    APARTMENT_GET_STRUCTURE_ZONES_NAME("name"),
-    APARTMENT_GET_STRUCTURE_ZONES_ISPRESENT("isPresent"),
-    APARTMENT_GET_STRUCTURE_ZONES_DEVICES("devices"),
-    APARTMENT_GET_STRUCTURE_ZONES_GROUPS("groups"),
+    // STRUCTURE
+    APARTMENT("apartment"),
+    DS_METERS("dSMeters"),
+    ZONES("zones"),
+    CIRCUITS("circuits"),
+    DEVICES("devices"),
+    GROUPS("groups"),
+    REACHABLE_SCENES("reachableScenes"),
 
-    APARTMENT_GET_DEVICES("result"),
-    APARTMENT_GET_CIRCUITS("circuits"),
+    // SENSORS
+    // device
+    CONSUMPTION("consumption"),
+    SENSOR_VALUE("sensorValue"),
+    SENSOR_INDEX("sensorIndex"),
+    METER_VALUE("meterValue"),
+    TYPE("type"),
 
-    ZONE_GET_NAME("name"),
-    ZONE_GET_CONSUMPTION("consumption"),
-    ZONE_SCENE_GET_NAME("name"),
-    ZONE_GET_REACHABLE_SCENES("reachableScenes"),
+    // meter sensors
+    POWER_CONSUMPTION("powerConsumption"),
+    ENERGY_METER_VALUE("energyMeterValue"),
+    ENERGY_METER_VALUE_WS("energyMeterValueWs"),
+    RESOLUTIONS("resolutions"),
+    RESOLUTION("resolution"),
+    SERIES("series"),
+    UNIT("unit"),
+    VALUES("values"),
+    DATE("date"),
 
-    DEVICE_GET_NAME("name"),
-    DEVICE_GET_SPEC("result"),
-    DEVICE_GET_GROUPS("groups"),
-    DEVICE_GET_GROUPS_ID("id"),
-    DEVICE_GET_GROUPS_NAME("name"),
-    DEVICE_GET_STATE("isOn"),
-    DEVICE_GET_CONSUMPTION("consumption"),
-    DEVICE_HAS_TAG("hasTag"),
-    DEVICE_GET_TAGS("tags"),
-    DEVICE_GET_CONFIG("result"),
-    DEVICE_GET_CONFIG_CLASS("class"),
-    DEVICE_GET_CONFIG_INDEX("index"),
-    DEVICE_GET_CONFIG_VALUE("value"),
-    DEVICE_GET_CONFIG_WORD("result"),
-    DEVICE_GET_OUTPUT_VALUE("value"),
-    DEVICE_GET_SCENE_MODE("result"),
-    DEVICE_GET_SCENE_MODE_SCENE_ID("sceneID"),
-    DEVICE_GET_SCENE_MODE_DONT_CARE("dontCare"),
-    DEVICE_GET_SCENE_MODE_LOCAL_PRIO("localPrio"),
-    DEVICE_GET_SCENE_MODE_SPECIAL_MODE("specialMode"),
-    DEVICE_GET_SCENE_MODE_FLASH_MODE("flashMode"),
-    DEVICE_GET_SCENE_MODE_LEDCON_INDEX("ledconIndex"),
-    DEVICE_GET_SCENE_MODE_DIMTIME_INDEX("dimtimeIndex"),
-    DEVICE_GET_TRANSITION_TIME("result"),
-    DEVICE_GET_TRANSITION_TIME_INDEX("dimtimeIndex"),
-    DEVICE_GET_TRANSITION_TIME_UP("up"),
-    DEVICE_GET_TRANSITION_TIME_DOWN("down"),
+    // zone/apartment sensors
+    SENSOR_TYPE("sensorType"),
+    TEMPERATION_VALUE("TemperatureValue"),
+    TEMPERATION_VALUE_TIME("TemperatureValueTime"),
+    HUMIDITY_VALUE("HumidityValue"),
+    HUMIDITY_VALUE_TIME("HumidityValueTime"),
+    BRIGHTNESS_VALUE("BrightnessValue"),
+    BRIGHTNESS_VALUE_TIME("BrightnessValueTime"),
+    CO2_CONCENTRATION_VALUE("CO2ConcentrationValue"),
+    CO2_CONCENTRATION_VALUE_TIME("CO2ConcentrationValueTime"),
+    SENSORS("sensors"),
+    WEATHER_ICON_ID("WeatherIconId"),
+    WEATHER_CONDITION_ID("WeatherConditionId"),
+    WEATHER_SERVICE_ID("WeatherServiceId"),
+    WEATHER_SERVICE_TIME("WeatherServiceTime"),
 
-    DEVICE_GET_LED_MODE("result"),
-    DEVICE_GET_LED_MODE_INDEX("ledconIndex"),
-    DEVICE_GET_LED_MODE_COLOR("colorSelect"),
-    DEVICE_GET_LED_MODE_SELECT("modeSelect"),
-    DEVICE_GET_LED_MODE_DIM_MODE("dimMode"),
-    DEVICE_GET_LED_MODE_RGB("rgbMode"),
-    DEVICE_GET_LED_MODE_GROUP_COLOR_MODE("groupColorMode"),
+    // IDs
+    DSID("dSID"),
+    DSUID("dSUID"),
+    DSID_LOWER_CASE("dsid"),
+    METER_DSID("meterDSID"),
+    ZONE_ID("ZoneID"),
+    ZONE_ID_Lower_Z("zoneID"),
+    DSUID_LOWER_CASE("dsuid"),
+    GROUP_ID("groupID"),
+    METER_ID("meterID"),
+    ID("id"),
+    SCENE_ID("sceneID"),
+    NAME("name"),
+    DISPLAY_ID("DisplayID"),
 
-    DEVICE_GET_SENSOR_VALUE("result"),
-    DEVICE_GET_SENSOR_VALUE_SENSOR_VALUE("sensorValue"),
-    DEVICE_GET_SENSOR_TYPE("result"),
-    DEVICE_GET_SENSOR_TYPE_TYPE("sensorType"),
+    // DEVICE
+    // status
+    IS_PRESENT("isPresent"),
+    IS_VALID("isValid"),
+    IS_ON("isOn"),
+    PRESENT("present"),
+    ON("on"),
+    // descriptions
+    FUNCTION_ID("functionID"),
+    PRODUCT_REVISION("productRevision"),
+    PRODUCT_ID("productID"),
+    HW_INFO("hwInfo"),
+    OUTPUT_MODE("outputMode"),
+    BUTTON_ID("buttonID"),
+    HAS_TAG("hasTag"),
+    TAGS("tags"),
+    REVISION_ID("revisionID"),
 
-    DEVICE_GET_SENSOR_EVENT_TABLE_ENTRY("result"),
-    DEVICE_GET_SENSOR_EVENT_TABLE_ENTRY_EVENT_INDEX("eventIndex"),
-    DEVICE_GET_SENSOR_EVENT_TABLE_ENTRY_EVENT_NAME("eventName"),
-    DEVICE_GET_SENSOR_EVENT_TABLE_ENTRY_IS_SCENE_DEVICE("isSceneDevice"),
-    DEVICE_GET_SENSOR_EVENT_TABLE_ENTRY_SENSOR_INDEX("sensorIndex"),
-    DEVICE_GET_SENSOR_EVENT_TABLE_TEST("test"),
-    DEVICE_GET_SENSOR_EVENT_TABLE_ACTION("action"),
-    DEVICE_GET_SENSOR_EVENT_TABLE_VALUE("value"),
-    DEVICE_GET_SENSOR_EVENT_TABLE_HYSTERSIS("hysteresis"),
-    DEVICE_GET_SENSOR_EVENT_TABLE_VALIDITY("validity"),
+    // config
+    CLASS("class"),
+    INDEX("index"),
+    VALUE("value"),
 
-    // Device
-    DEVICE_NAME("name"),
-    DEVICE_ID("id"),
-    DEVICE_ID_QUERY("dSID"),
-    DEVICE_DSUID("dSUID"),
-    DEVICE_METER_ID("meterDSID"),
-    DEVICE_FUNCTION_ID("functionID"),
-    DEVICE_PRODUCT_REVISION("productRevision"),
-    DEVICE_PRODUCT_ID("productID"),
-    DEVICE_HW_INFO("hwInfo"),
-    DEVICE_ON("on"),
-    DEVICE_OUTPUT_MODE("outputMode"),
-    DEVICE_BUTTON_ID("buttonID"),
-    DEVICE_IS_PRESENT("isPresent"),
-    DEVICE_IS_PRESENT_QUERY("present"),
-    DEVICE_ZONE_ID("zoneID"),
-    DEVICE_ZONE_ID_QUERY("ZoneID"),
-    DEVICE_GROUPS("groups"),
+    DONT_CARE("dontCare"),
+    LOCAL_PRIO("localPrio"),
+    SPECIAL_MODE("specialMode"),
+    FLASH_MODE("flashMode"),
+    LEDCON_INDEX("ledconIndex"),
+    DIM_TIME_INDEX("dimtimeIndex"),
+    UP("up"),
+    DOWN("down"),
 
-    // DeviceSpec
-    DEVICE_SPEC_FUNCTION_ID("functionID"),
-    DEVICE_SPEC_PRODUCT_ID("productID"),
-    DEVICE_SPEC_REVISION_ID("revisionID"),
+    // event table
+    TEST("test"),
+    ACTION("action"),
+    HYSTERSIS("hysteresis"),
+    VALIDITY("validity"),
 
-    EVENT_GET_EVENT("events"),
-    EVENT_GET_EVENT_ERROR("message"),
-    EVENT_NAME("name"),
-    EVENT_PROPERTIES("properties"),
-    EVENT_SOURCE("source"),
+    // EVENTS
+    EVENTS("events"),
+    PROPERTIES("properties"),
+    EVENT_INDEX("eventIndex"),
+    EVENT_NAME("eventName"),
 
-    DS_METER_QUERY("dSMeters"),
-    DS_METER_DSID("dsid"),
-    DS_METER_DSID_QUERY("dSID"),
-    DS_METER_IS_PRESENT("isPresent"),
-    DS_METER_IS_PRESENT_QUERY("present"),
+    // SYSTEM & LOGIN
+    VERSION("version"),
+    TIME("time"),
+    TOKEN("token"),
+    APPLICATION_TOKEN("applicationToken"),
 
-    DS_METER_POWER_CONSUMPTION_QUERY("powerConsumption"),
-    DS_METER_ENERGY_METER_VALUE_QUERY("energyMeterValue"),
-    DS_METER_ENERGY_METER_VALUE_WS_QUERY("energyMeterValueWs"),
+    SELF("self"),
 
-    // Group
-    GROUP_ID("id"),
-    GROUP_NAME("name"),
-    GROUP_IS_PRESENT("isPresent"),
-    GROUP_DEVICES("devices"),
+    // CLIMATE
+    IS_CONFIGURED("IsConfigured"),
+    CONTROL_MODE("ControlMode"),
+    CONTROL_STATE("ControlState"),
+    CONTROL_DSUID("ControlDSUID"),
+    OPERATION_MODE("OperationMode"),
+    TEMPERATURE_VALUE("TemperatureValue"),
+    NOMINAL_VALUE("NominalValue"),
+    CONTROL_VALUE("ControlValue"),
+    TEMPERATURE_VALUE_TIME("TemperatureValueTime"),
+    NOMINAL_VALUE_TIME("NominalValueTime"),
+    CONTROL_VALUE_TIME("ControlValueTime"),
+    CTRL_T_RECENT("CtrlTRecent"),
+    CTRL_T_REFERENCE("CtrlTReference"),
+    CTRL_T_ERROR("CtrlTError"),
+    CTRL_T_ERROR_PREV("CtrlTErrorPrev"),
+    CTRL_INTEGRAL("CtrlIntegral"),
+    CTRL_YP("CtrlYp"),
+    CTRL_YI("CtrlYi"),
+    CTRL_YD("CtrlYd"),
+    CTRL_Y("CtrlY"),
+    CTRL_ANTI_WIND_UP("CtrlAntiWindUp"),
+    REFERENCE_ZONE("ReferenceZone"),
+    CTRL_OFFSET("CtrlOffset"),
+    EMERGENCY_VALUE("EmergencyValue"),
+    CTRL_KP("CtrlKp"),
+    CTRL_TS("CtrlTs"),
+    CTRL_TI("CtrlTi"),
+    CTRL_KD("CtrlKd"),
+    CTRL_MIN("CtrlImin"),
+    CTRL_MAX("CtrlImax"),
+    CTRL_Y_MIN("CtrlYmin"),
+    CTRL_Y_MAX("CtrlYmax"),
+    CTRL_KEEP_FLOOR_WARM("CtrlKeepFloorWarm"),
 
-    CIRCUIT_GET_NAME("name"),
-    CIRCUIT_GET_CONSUMPTION("consumption"),
-    CIRCUIT_GET_METER_VALUE("meterValue"),
+    // UNDEF
+    COLOR_SELECT("colorSelect"),
+    MODE_SELECT("modeSelect"),
+    DIM_MODE("dimMode"),
+    RGB_MODE("rgbMode"),
+    GROUP_COLOR_MODE("groupColorMode"),
+    SOURCE("source"),
+    IS_SCENE_DEVICE("isSceneDevice"),
 
-    PROPERTY_GET_STRING("value"),
-    PROPERTY_GET_INTEGER("value"),
-    PROPERTY_GET_BOOLEAN("value"),
-    PROPERTY_NAME("name"),
-    PROPERTY_TYPE("type"),
-    PROPERTY_QUERY("result"),
-    PROPERTY_QUERY_ZONE_ID("ZoneID"),
-    PROPERTY_QUERY_DEVICE_ID("dSID"),
-    PROPERTY_GET_CHILDREN("result"),
-    PROPERTY_GET_PROPERTY_TYPE("type"),
-    PROPERTY_GET_FLAGS("result"),
+    // Circuit
+    HW_VERSION("hwVersion"),
+    HW_VERSION_STRING("hwVersionString"),
+    SW_VERSION("swVersion"),
+    ARM_SW_VERSION("armSwVersion"),
+    DSP_SW_VERSION("dspSwVersion"),
+    API_VERSION("apiVersion"),
+    HW_NAME("hwName"),
+    BUS_MEMBER_TYPE("busMemberType"),
+    HAS_DEVICES("hasDevices"),
+    HAS_METERING("hasMetering"),
+    VDC_CONFIG_URL("VdcConfigURL"),
+    VDC_MODEL_UID("VdcModelUID"),
+    VDC_HARDWARE_GUID("VdcHardwareGuid"),
+    VDC_HARDWARE_MODEL_GUID("VdcHardwareModelGuid"),
+    VDC_VENDOR_GUID("VdcVendorGuid"),
+    VDC_OEM_GUID("VdcOemGuid"),
+    IGNORE_ACTIONS_FROM_NEW_DEVICES("ignoreActionsFromNewDevices"),
 
-    SYSTEM_GET_VERSION("version"),
-    SYSTEM_GET_TIME("time"),
-    SYSTEM_LOGIN("token"),
-    SYSTEM_LOGGED_IN_USER("name"),
-    SYSTEM_DSID("dSID"),
-    SYSTEM_APPLICATION_TOKEN("applicationToken"),
+    DS_METER_DSID("DSMeterDSID"),
+    HW_INFO_UPPER_HW("HWInfo"),
+    VALID("valid"),
+    VALUE_DS("valueDS"),
+    TIMESTAMP("timestamp"),
+    SENSOR_INPUTS("sensorInputs"),
+    GROUP("group"),
+    LAST_CALL_SCENE("lastCalledScene"),
+    ANGLE("angle"),
 
-    SET_FROM_APARTMENT("self"),
-    SET_BY_ZONE("self"),
-    SET_BY_GROUP("self"),
-    SET_BY_DSID("self"),
-    SET_ADD("self"),
-    SET_SUBTRACT("self"),
-    SET_GET_CONSUMPTION("consumption"),
-
-    STRUCTURE_PERSIST("groupID"),
-
-    METERING_GET_RESOLUTIONS("resolutions"),
-    METERING_GET_RESOLUTION("resolution"),
-    METERING_GET_SERIES("series"),
-    METERING_GET_SERIES_DSID("dsid"),
-    METERING_GET_SERIES_TYPE("type"),
-    METERING_GET_VALUES("result"),
-    METERING_GET_VALUES_METER_ID("meterID"),
-    METERING_GET_VALUES_TYPE("type"),
-    METERING_GET_VALUES_UNIT("unit"),
-    METERING_GET_VALUES_RESOLUTION("resolution"),
-    METERING_GET_VALUES_VALUES("values"),
-
-    METERING_GET_LATEST("values"),
-    METERING_GET_LATEST_DSID("dsid"),
-    METERING_GET_LATEST_VALUE("value"),
-    METERING_GET_LATEST_DATE("date"),
-
-    QUERY_ZONE_ID("ZoneID");
+    // Binary inputs
+    BINARY_INPUTS("binaryInputs"),
+    STATE("state"),
+    STATE_VALUE("stateValue"),
+    TARGET_GROUP_TYPE("targetGroupType"),
+    TARGET_GROUP("targetGroup"),
+    INPUT_TYPE("inputType"),
+    INPUT_ID("inputId");
 
     private final String key;
 

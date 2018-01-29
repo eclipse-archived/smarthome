@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.io.transport.mqtt;
 
@@ -11,7 +16,7 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import java.util.Dictionary;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -48,10 +53,10 @@ public class MqttServiceTests {
 
     // Tests extractBrokerConfigurations() and addBrokerConnection(map)
     @Test
-    public void textualConfigurationTests() throws ConfigurationException, MqttException {
+    public void extractBrokerConfigurationsTests() throws ConfigurationException, MqttException {
         MqttService service = new MqttService();
 
-        Dictionary<String, String> properties = new Hashtable<>();
+        Map<String, Object> properties = new Hashtable<>();
         properties.put("bam.name", "brokername");
         properties.put("bam.url", "tcp://123.123.123.123");
         Map<String, Map<String, String>> map = service.extractBrokerConfigurations(properties);
@@ -60,11 +65,35 @@ public class MqttServiceTests {
         assertNotNull(data);
         assertEquals("brokername", data.get("name"));
         assertEquals("tcp://123.123.123.123", data.get("url"));
+    }
 
-        assertThat(service.getAllBrokerConnections(), hasSize(0));
-        service.addBrokerConnection(data);
+    // Tests if updates to the textual configuration are processed correctly
+    @Test
+    public void textualConfigurationTests() throws ConfigurationException, MqttException {
+        MqttService service = new MqttService();
+
+        Map<String, Object> properties = new Hashtable<>();
+        properties.put("bam.name", "brokername");
+        properties.put("bam.url", "tcp://123.123.123.123");
+
+        // Test activate
+        service.activate(properties);
         assertThat(service.getAllBrokerConnections(), hasSize(1));
         assertNotNull(service.getBrokerConnection("brokername"));
+
+        Map<String, Object> properties2 = new Hashtable<>();
+        properties2.put("bam2.name", "brokername2");
+        properties2.put("bam2.url", "tcp://123.123.123.123");
+
+        // Test configuration change
+        service.modified(properties2);
+        assertThat(service.getAllBrokerConnections(), hasSize(1));
+        assertNull(service.getBrokerConnection("brokername"));
+        assertNotNull(service.getBrokerConnection("brokername2"));
+
+        // Test if old broker connections are freed correctly
+        service.modified(Collections.emptyMap());
+        assertThat(service.getAllBrokerConnections(), hasSize(0));
     }
 
     @Test

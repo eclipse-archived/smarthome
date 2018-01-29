@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2017 by Deutsche Telekom AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.core.internal;
 
@@ -29,8 +34,8 @@ public class RulePrefixTest {
      */
     @Test
     public void testEmptyPrefix() {
-        final Rule rule0 = new Rule();
-        Assert.assertNull("Returned an UID instead of null", rule0.getUID());
+        final Rule rule0 = new Rule(null);
+        Assert.assertNotNull("Returned UID is null instead of generated one", rule0.getUID());
         Assert.assertNull("Returned a prefix instead of null", RulePredicates.getPrefix(rule0));
 
         final String somethingWithoutSeparator = "something_without_separator";

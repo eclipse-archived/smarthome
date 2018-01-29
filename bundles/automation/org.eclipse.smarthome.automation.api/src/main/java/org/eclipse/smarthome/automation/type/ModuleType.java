@@ -1,72 +1,78 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.type;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Visibility;
-import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.core.common.registry.Identifiable;
 
 /**
- * Each {@link ModuleType} instance defines the meta-information needed for creation of {@link Module} instance which is
- * a building block for the {@link Rule}. The meta-information describes the {@link ConfigDescriptionParameter}s,
- * {@link Input}s and {@link Output}s of the {@link Module}s. Each {@link ModuleType} instance defines an unique id
- * which is used as reference from the {@link Module}s, to find their meta-information.
+ * Each {@link ModuleType} instance defines the meta-information needed for creation of a {@link Module} instance which
+ * is a building block for a {@link Rule}. The meta-information describes the {@link Configuration} of a {@link Module}
+ * providing list with {@link ConfigDescriptionParameter}s, {@link Input}s and {@link Output}s of a {@link Module}.
+ * Each {@link ModuleType} instance owns an unique id which is used as reference in the {@link Module}s, to find their
+ * meta-information.
  * <p>
- * Whether the {@link ModuleType}s can be used by anyone, depends from their visibility, but they can be modified only
- * by their creator.
+ * Whether the {@link ModuleType}s can be used by anyone, depends from their {@link Visibility} value, but they can be
+ * modified only by their creator.
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Initial Contribution
  *
  */
+@NonNullByDefault
 public abstract class ModuleType implements Identifiable<String> {
 
     /**
-     * This field is used as reference from the {@link Module}s, to find their meta-information.
+     * This field holds the {@link ModuleType}'s identifier, specified by its creator or randomly generated, and is
+     * used as reference in the {@link Module}s, to find their meta-information.
      */
-    private String uid;
+    private final String uid;
 
     /**
      * The value of this field determines whether the {@link ModuleType}s can be used by anyone if they are
      * {@link Visibility#VISIBLE} or only by their creator if they are {@link Visibility#HIDDEN}.
      */
-    private Visibility visibility = Visibility.VISIBLE;
+    private final Visibility visibility;
 
     /**
      * Tags define categories that fit the particular {@link ModuleType} and which can serve as criteria for searching
      * or filtering of {@link ModuleType}s.
      */
-    private Set<String> tags;
+    private final Set<String> tags;
 
     /**
-     * Short and accurate name of the {@link ModuleType}.
+     * Short and accurate, human-readable label of the {@link ModuleType}.
      */
-    private String label;
+    @Nullable
+    private final String label;
 
     /**
-     * Short and understandable description of that for what can be used the {@link ModuleType}.
+     * Detailed, human-readable description of usage of {@link ModuleType} and its benefits.
      */
-    private String description;
+    @Nullable
+    private final String description;
 
     protected List<ConfigDescriptionParameter> configDescriptions;
-
-    /**
-     * Default constructor for deserialization e.g. by Gson.
-     */
-    protected ModuleType() {
-    }
 
     /**
      * This constructor is responsible to initialize common base properties of the {@link ModuleType}s.
@@ -75,40 +81,39 @@ public abstract class ModuleType implements Identifiable<String> {
      *            meta-information.
      * @param configDescriptions is a {@link List} of meta-information configuration descriptions.
      */
-    public ModuleType(String UID, List<ConfigDescriptionParameter> configDescriptions) {
-        this.uid = UID;
-        this.configDescriptions = configDescriptions;
+    public ModuleType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions) {
+        this(UID, configDescriptions, null, null, null, null);
     }
 
     /**
      * This constructor is responsible to initialize all common properties of the {@link ModuleType}s.
      *
-     * @param UID unique id of the {@link ModuleType}.
-     * @param configDescriptions is a {@link List} of meta-information configuration descriptions.
-     * @param label is a short and accurate name of the {@link ModuleType}.
-     * @param description is a short and understandable description of which can be used the {@link ModuleType}.
+     * @param UID the {@link ModuleType}'s identifier, or {@code null} if a random identifier should be generated.
+     * @param configDescriptions describing metadata for the configuration of the future {@link Module} instances.
+     * @param label a short and accurate, human-readable label of the {@link ModuleType}.
+     * @param description a detailed, human-readable description of usage of {@link ModuleType} and its benefits.
      * @param tags defines categories that fit the {@link ModuleType} and which can serve as criteria for searching
      *            or filtering it.
      * @param visibility determines whether the {@link ModuleType} can be used by anyone if it is
      *            {@link Visibility#VISIBLE} or only by its creator if it is {@link Visibility#HIDDEN}.
      */
-    public ModuleType(String UID, List<ConfigDescriptionParameter> configDescriptions, String label, String description,
-            Set<String> tags, Visibility visibility) {
-        this(UID, configDescriptions);
+    public ModuleType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
+            @Nullable String label, @Nullable String description, @Nullable Set<String> tags,
+            @Nullable Visibility visibility) {
+        this.uid = UID == null ? UUID.randomUUID().toString() : UID;
         this.label = label;
         this.description = description;
-        this.tags = tags;
-        this.visibility = visibility;
+        this.configDescriptions = configDescriptions == null ? Collections.emptyList()
+                : Collections.unmodifiableList(configDescriptions);
+        this.tags = tags == null ? Collections.<String> emptySet() : Collections.unmodifiableSet(tags);
+        this.visibility = visibility == null ? Visibility.VISIBLE : visibility;
     }
 
     /**
-     * This method is used for getting the unique id (UID) of the {@link ModuleType}. It is unique in scope of
-     * RuleEngine. The UID
-     * can consists of segments separated by column. The first segment contains system {@link ModuleType}, which
-     * corresponds to the {@link ModuleHandler} of the same type, and the rest are optional and contains UIDs of custom
-     * the {@link ModuleType}s. It uses as reference from the {@link Module}s, to find their meta-information.
+     * This method is used to obtain the identifier of the {@link ModuleType}. It can be specified by the
+     * {@link ModuleType}'s creator, or randomly generated.
      *
-     * @return the unique id (UID) of the {@link ModuleType}, corresponding to the some type of {@link Module}s.
+     * @return an identifier of this {@link ModuleType}. Can't be {@code null}.
      */
     @Override
     public String getUID() {
@@ -116,36 +121,30 @@ public abstract class ModuleType implements Identifiable<String> {
     }
 
     /**
-     * This method is used for getting the Set of {@link ConfigDescriptionParameter}s defined by this
-     * {@link ModuleType}.
+     * This method is used to obtain the metadata for the configuration of the future {@link Module} instances.
      *
      * @return a {@link Set} of meta-information configuration descriptions.
      */
     public List<ConfigDescriptionParameter> getConfigurationDescriptions() {
-        return configDescriptions != null ? configDescriptions : Collections.<ConfigDescriptionParameter> emptyList();
+        return configDescriptions;
     }
 
     /**
-     * {@link ModuleType}s can have
-     * <ul>
-     * <li><code>tags</code> which are non-hierarchical keywords or terms for describing
-     * them. The tags are used to filter the ModuleTypes. This method is used for getting the tags assign to this
-     * {@link ModuleType}.</li>
-     * </ul>
+     * This method is used to obtain the assigned to the {@link ModuleType} - {@link #tags}.
      *
-     * @return {@link #tags} assign to this {@link ModuleType}
+     * @return a set of tags, assigned to this {@link ModuleType}.
      */
     public Set<String> getTags() {
-        return tags != null ? tags : Collections.<String> emptySet();
+        return tags;
     }
 
     /**
-     * This method is used for getting the label of the {@link ModuleType}. The label is a
-     * short, user friendly name of the {@link ModuleType}.
+     * This method is used to obtain the label of the {@link ModuleType}. The label is a short and accurate,
+     * human-readable label of the {@link ModuleType}.
      *
-     * @return the {@link #label} of the {@link ModuleType}.
+     * @return the {@link ModuleType}'s {@link #label}. Can be {@code null}.
      */
-    public String getLabel() {
+    public @Nullable String getLabel() {
         return label;
     }
 
@@ -153,23 +152,20 @@ public abstract class ModuleType implements Identifiable<String> {
      * This method is used for getting the description of the {@link ModuleType}. The description is a short and
      * understandable description of that for what can be used the {@link ModuleType}.
      *
-     * @return the {@link #description} of the ModuleType.
+     * @return the {@link ModuleType}'s {@link #description}. Can be {@code null}.
      */
-    public String getDescription() {
+    public @Nullable String getDescription() {
         return description;
     }
 
     /**
-     * This method is used for getting visibility of the {@link ModuleType}. The visibility determines whether the
+     * This method is used to obtain visibility of the {@link ModuleType}. The visibility determines whether the
      * {@link ModuleType}s can be used by anyone if they are {@link Visibility#VISIBLE} or only by their creator if they
      * are {@link Visibility#HIDDEN}. The default visibility is {@link Visibility#VISIBLE}.
      *
      * @return the {@link #visibility} of the {@link ModuleType}.
      */
     public Visibility getVisibility() {
-        if (visibility == null) {
-            return Visibility.VISIBLE;
-        }
         return visibility;
     }
 
@@ -177,12 +173,12 @@ public abstract class ModuleType implements Identifiable<String> {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((uid == null) ? 0 : uid.hashCode());
+        result = prime * result + uid.hashCode();
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;
         }
@@ -193,11 +189,7 @@ public abstract class ModuleType implements Identifiable<String> {
             return false;
         }
         ModuleType other = (ModuleType) obj;
-        if (uid == null) {
-            if (other.uid != null) {
-                return false;
-            }
-        } else if (!uid.equals(other.uid)) {
+        if (!uid.equals(other.uid)) {
             return false;
         }
         return true;

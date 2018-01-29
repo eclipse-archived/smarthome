@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.i18n;
 
@@ -11,14 +16,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
-import org.eclipse.smarthome.core.thing.type.TypeResolver;
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -31,9 +39,14 @@ import org.osgi.service.component.annotations.Reference;
  * @author Laurent Garnier - fix localized label and description for channel group definition
  */
 @Component(immediate = true, service = ThingTypeI18nLocalizationService.class)
+@NonNullByDefault
 public class ThingTypeI18nLocalizationService {
 
+    @NonNullByDefault({})
     private ThingTypeI18nUtil thingTypeI18nUtil;
+
+    @NonNullByDefault({})
+    private ChannelTypeRegistry channelTypeRegistry;
 
     @Reference
     protected void setTranslationProvider(TranslationProvider i18nProvider) {
@@ -42,6 +55,15 @@ public class ThingTypeI18nLocalizationService {
 
     protected void unsetTranslationProvider(TranslationProvider i18nProvider) {
         this.thingTypeI18nUtil = null;
+    }
+
+    @Reference
+    protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry;
+    }
+
+    protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null;
     }
 
     public ThingType createLocalizedThingType(Bundle bundle, ThingType thingType, Locale locale) {
@@ -58,14 +80,17 @@ public class ThingTypeI18nLocalizationService {
             String channelDescription = this.thingTypeI18nUtil.getChannelDescription(bundle, thingType.getUID(),
                     channelDefinition, channelDefinition.getDescription(), locale);
             if (channelLabel == null || channelDescription == null) {
-                ChannelType channelType = TypeResolver.resolve(channelDefinition.getChannelTypeUID(), locale);
-                if (channelLabel == null) {
-                    channelLabel = this.thingTypeI18nUtil.getChannelLabel(bundle, channelType.getUID(),
-                            channelType.getLabel(), locale);
-                }
-                if (channelDescription == null) {
-                    channelDescription = this.thingTypeI18nUtil.getChannelDescription(bundle, channelType.getUID(),
-                            channelType.getDescription(), locale);
+                ChannelType channelType = channelTypeRegistry.getChannelType(channelDefinition.getChannelTypeUID(),
+                        locale);
+                if (channelType != null) {
+                    if (channelLabel == null) {
+                        channelLabel = this.thingTypeI18nUtil.getChannelLabel(bundle, channelType.getUID(),
+                                channelType.getLabel(), locale);
+                    }
+                    if (channelDescription == null) {
+                        channelDescription = this.thingTypeI18nUtil.getChannelDescription(bundle, channelType.getUID(),
+                                channelType.getDescription(), locale);
+                    }
                 }
             }
             localizedChannelDefinitions
@@ -73,7 +98,7 @@ public class ThingTypeI18nLocalizationService {
                             channelDefinition.getProperties(), channelLabel, channelDescription));
         }
 
-        final List<ChannelGroupDefinition> localizedChannelGroupDefinitions = new ArrayList<>(
+        final List<@NonNull ChannelGroupDefinition> localizedChannelGroupDefinitions = new ArrayList<>(
                 thingType.getChannelGroupDefinitions().size());
         for (final ChannelGroupDefinition channelGroupDefinition : thingType.getChannelGroupDefinitions()) {
             String channelGroupLabel = this.thingTypeI18nUtil.getChannelGroupLabel(bundle, thingType.getUID(),
@@ -81,30 +106,32 @@ public class ThingTypeI18nLocalizationService {
             String channelGroupDescription = this.thingTypeI18nUtil.getChannelGroupDescription(bundle,
                     thingType.getUID(), channelGroupDefinition, channelGroupDefinition.getDescription(), locale);
             if (channelGroupLabel == null || channelGroupDescription == null) {
-                ChannelGroupType channelGroupType = TypeResolver.resolve(channelGroupDefinition.getTypeUID(), locale);
-                if (channelGroupLabel == null) {
-                    channelGroupLabel = this.thingTypeI18nUtil.getChannelGroupLabel(bundle, channelGroupType.getUID(),
-                            channelGroupType.getLabel(), locale);
-                }
-                if (channelGroupDescription == null) {
-                    channelGroupDescription = this.thingTypeI18nUtil.getChannelGroupDescription(bundle,
-                            channelGroupType.getUID(), channelGroupType.getDescription(), locale);
+                ChannelGroupType channelGroupType = channelTypeRegistry
+                        .getChannelGroupType(channelGroupDefinition.getTypeUID(), locale);
+                if (channelGroupType != null) {
+                    if (channelGroupLabel == null) {
+                        channelGroupLabel = this.thingTypeI18nUtil.getChannelGroupLabel(bundle,
+                                channelGroupType.getUID(), channelGroupType.getLabel(), locale);
+                    }
+                    if (channelGroupDescription == null) {
+                        channelGroupDescription = this.thingTypeI18nUtil.getChannelGroupDescription(bundle,
+                                channelGroupType.getUID(), channelGroupType.getDescription(), locale);
+                    }
                 }
             }
             localizedChannelGroupDefinitions.add(new ChannelGroupDefinition(channelGroupDefinition.getId(),
                     channelGroupDefinition.getTypeUID(), channelGroupLabel, channelGroupDescription));
         }
 
+        ThingTypeBuilder builder = ThingTypeBuilder.instance(thingType).withLabel(label).withDescription(description)
+                .withChannelDefinitions(localizedChannelDefinitions)
+                .withChannelGroupDefinitions(localizedChannelGroupDefinitions);
+
         if (thingType instanceof BridgeType) {
-            final BridgeType bridgeType = (BridgeType) thingType;
-            return new BridgeType(bridgeType.getUID(), bridgeType.getSupportedBridgeTypeUIDs(), label, description,
-                    thingType.isListed(), thingType.getRepresentationProperty(), localizedChannelDefinitions,
-                    localizedChannelGroupDefinitions, thingType.getProperties(), bridgeType.getConfigDescriptionURI());
-        } else {
-            return new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(), label, description,
-                    thingType.isListed(), thingType.getRepresentationProperty(), localizedChannelDefinitions,
-                    localizedChannelGroupDefinitions, thingType.getProperties(), thingType.getConfigDescriptionURI());
+            return builder.buildBridge();
         }
+
+        return builder.build();
     }
 
 }

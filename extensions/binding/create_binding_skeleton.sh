@@ -1,7 +1,7 @@
 #!/bin/bash
 
-bindingVersion=0.9.0-SNAPSHOT
-archetypeVersion=0.9.0-SNAPSHOT
+bindingVersion=0.10.0-SNAPSHOT
+archetypeVersion=0.10.0-SNAPSHOT
 
 camelcaseId=$1
 author="$2"

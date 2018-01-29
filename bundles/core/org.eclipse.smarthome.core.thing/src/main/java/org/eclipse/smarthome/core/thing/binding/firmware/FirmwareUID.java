@@ -1,15 +1,20 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.binding.firmware;
 
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import java.util.Objects;
 
-import com.google.common.base.Preconditions;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 /**
  * The {@link FirmwareUID} is the unique identifier for a {@link Firmware}. It consists of the {@link ThingTypeUID} and
@@ -39,10 +44,13 @@ public final class FirmwareUID {
      * @throws IllegalArgumentException if given firmware version is null or empty or consist of a colon
      */
     public FirmwareUID(ThingTypeUID thingTypeUID, String firmwareVersion) {
-        Preconditions.checkNotNull(thingTypeUID, "Thing type UID must not be null.");
-        Preconditions.checkArgument(firmwareVersion != null && !firmwareVersion.isEmpty(),
-                "Firmware version must not be null or empty.");
-        Preconditions.checkArgument(!firmwareVersion.contains(":"), "Firmware version must not consist of a colon.");
+        Objects.requireNonNull(thingTypeUID, "Thing type UID must not be null.");
+        if (firmwareVersion == null || firmwareVersion.isEmpty()) {
+            throw new IllegalArgumentException("Firmware version must not be null or empty.");
+        }
+        if (firmwareVersion.contains(":")) {
+            throw new IllegalArgumentException("Firmware version must not consist of a colon.");
+        }
         this.thingTypeUID = thingTypeUID;
         this.firmwareVersion = firmwareVersion;
     }

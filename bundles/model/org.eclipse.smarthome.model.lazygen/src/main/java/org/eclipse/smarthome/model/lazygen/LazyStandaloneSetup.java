@@ -1,14 +1,20 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.lazygen;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -28,8 +34,6 @@ import org.eclipse.emf.mwe.core.monitor.ProgressMonitor;
 import org.eclipse.emf.mwe.core.resources.ResourceLoaderFactory;
 import org.eclipse.emf.mwe.utils.GenModelHelper;
 
-import com.google.common.collect.Sets;
-
 /**
  *
  * @author Holger Schill, Simon Kaufmann - Initial contribution and API
@@ -38,11 +42,11 @@ import com.google.common.collect.Sets;
 public class LazyStandaloneSetup extends AbstractWorkflowComponent2 {
 
     private static ResourceSet resourceSet = GlobalResourceSet.getINSTANCE();
-    private Registry registry = EPackage.Registry.INSTANCE;
+    private final Registry registry = EPackage.Registry.INSTANCE;
 
-    Set<String> allgeneratedEPackages = Sets.newHashSet();
-    Set<String> allGenModelFiles = Sets.newHashSet();
-    Set<String> allEcoreFiles = Sets.newHashSet();
+    Set<String> allgeneratedEPackages = new HashSet<>();
+    Set<String> allGenModelFiles = new HashSet<>();
+    Set<String> allEcoreFiles = new HashSet<>();
 
     public void addGeneratedPackage(String packageName) {
         allgeneratedEPackages.add(packageName);
@@ -70,7 +74,7 @@ public class LazyStandaloneSetup extends AbstractWorkflowComponent2 {
 
     }
 
-    private org.apache.commons.logging.Log log = LogFactory.getLog(getClass());
+    private final org.apache.commons.logging.Log log = LogFactory.getLog(getClass());
 
     private void addRegisterGeneratedEPackage(String interfacename) {
         Class<?> clazz = ResourceLoaderFactory.createResourceLoader().loadClass(interfacename);

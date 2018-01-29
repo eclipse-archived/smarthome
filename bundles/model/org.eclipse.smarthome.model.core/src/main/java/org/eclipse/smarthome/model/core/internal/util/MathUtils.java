@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.core.internal.util;
 
@@ -25,7 +30,7 @@ public class MathUtils {
      *            second number
      * @return the gcd of m and n
      */
-    static public int gcd(int m, int n) {
+    public static int gcd(int m, int n) {
         if (m % n == 0)
             return n;
         return gcd(n, m % n);
@@ -40,7 +45,7 @@ public class MathUtils {
      *            second number
      * @return the lcm of m and n
      */
-    static public int lcm(int m, int n) {
+    public static int lcm(int m, int n) {
         return m * n / gcd(n, m);
     }
 
@@ -51,7 +56,7 @@ public class MathUtils {
      *            an array of n numbers
      * @return the gcd of the n numbers
      */
-    static public int gcd(Integer[] numbers) {
+    public static int gcd(Integer[] numbers) {
         int n = numbers[0];
         for (int m : numbers) {
             n = gcd(n, m);
@@ -66,7 +71,7 @@ public class MathUtils {
      *            an array of n numbers
      * @return the least common multiple of all numbers of the array
      */
-    static public int lcm(Integer[] numbers) {
+    public static int lcm(Integer[] numbers) {
         int n = numbers[0];
         for (int m : numbers) {
             n = lcm(n, m);

@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.setup.test.inbox
 
@@ -39,6 +44,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.test.AsyncResultWrapper
 import org.eclipse.smarthome.test.OSGiTest
@@ -97,7 +103,7 @@ class InboxOSGITest extends OSGiTest {
         "manufactured":new Date(12344)
     ]
     final DiscoveryResult testDiscoveryResult = DiscoveryResultBuilder.create(testThing.getUID()).withProperties(discoveryResultProperties).withLabel(discoveryResultLabel).build()
-    final ThingType testThingType = new ThingType(testTypeUID, null, "label", "", null, null, null, testURI)
+    final ThingType testThingType = ThingTypeBuilder.instance(testTypeUID, "label").withConfigDescriptionURI(testURI).build();
     final ConfigDescriptionParameter[] configDescriptionParameter = [
         [
             discoveryResultProperties.keySet().getAt(0),

@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.core.internal;
 
@@ -50,12 +55,12 @@ public class RuleEngineTest {
     @Test
     public void testAddRetrieveRules() {
         RuleEngine ruleEngine = createRuleEngine();
-        Rule rule0 = new Rule(ruleEngine.getUniqueId());
+        Rule rule0 = new Rule(null);
         ruleEngine.addRule(rule0, true);
         Collection<RuntimeRule> rules = ruleEngine.getRuntimeRules();
         Assert.assertNotNull("null returned instead of rules list", rules);
         Assert.assertEquals("empty rules list is returned", 1, rules.size());
-        Assert.assertEquals("Returned rule with wrong UID", "rule_1", rules.iterator().next().getUID());
+        Assert.assertNotNull("Returned rule with wrong UID", rules.iterator().next().getUID());
         Rule rule1 = createRule();
         ruleEngine.addRule(rule1, true);
         rules = ruleEngine.getRuntimeRules();

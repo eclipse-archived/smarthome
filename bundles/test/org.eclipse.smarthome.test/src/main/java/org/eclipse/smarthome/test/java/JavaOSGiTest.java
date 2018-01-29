@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.test.java;
 
@@ -13,13 +18,13 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
 import org.eclipse.smarthome.test.OSGiTest;
+import org.eclipse.smarthome.test.internal.java.MissingServiceAnalyzer;
 import org.eclipse.smarthome.test.storage.VolatileStorageService;
 import org.junit.After;
 import org.junit.Assert;
@@ -40,25 +45,24 @@ import org.osgi.framework.ServiceRegistration;
  */
 public class JavaOSGiTest extends JavaTest {
 
-    private final Map<String, ServiceRegistration<?>> registeredServices = new HashMap<>();
+    private final Map<String, List<ServiceRegistration<?>>> registeredServices = new HashMap<>();
     protected BundleContext bundleContext;
 
     @Before
     public void bindBundleContext() {
-        bundleContext = getBundleContext();
+        bundleContext = initBundleContext();
         assertThat(bundleContext, is(notNullValue()));
     }
 
     /**
-     * Get the {@link BundleContext}, which is used for registration and unregistration of OSGi services.
+     * Initialise the {@link BundleContext}, which is used for registration and unregistration of OSGi services.
      *
      * <p>
-     * By default it uses the bundle context of the test class itself. This method can be overridden by concrete
-     * implementations to provide another bundle context.
+     * This uses the bundle context of the test class itself.
      *
      * @return bundle context
      */
-    private BundleContext getBundleContext() {
+    private BundleContext initBundleContext() {
         final Bundle bundle = FrameworkUtil.getBundle(this.getClass());
         if (bundle != null) {
             return bundle.getBundleContext();
@@ -85,6 +89,11 @@ public class JavaOSGiTest extends JavaTest {
         @SuppressWarnings("unchecked")
         final ServiceReference<T> serviceReference = (ServiceReference<T>) bundleContext
                 .getServiceReference(clazz.getName());
+
+        if (serviceReference == null) {
+            new MissingServiceAnalyzer(System.out, bundleContext).printMissingServiceDetails(clazz);
+            return null;
+        }
 
         return unrefService(serviceReference);
     }
@@ -196,8 +205,17 @@ public class JavaOSGiTest extends JavaTest {
             final Dictionary<String, ?> properties) {
         assertThat(interfaceName, is(notNullValue()));
         final ServiceRegistration<?> srvReg = bundleContext.registerService(interfaceName, service, properties);
-        registeredServices.put(interfaceName, srvReg);
+        saveServiceRegistration(interfaceName, srvReg);
         return srvReg;
+    }
+
+    private void saveServiceRegistration(final String interfaceName, final ServiceRegistration<?> srvReg) {
+        List<ServiceRegistration<?>> regs = registeredServices.get(interfaceName);
+        if (regs == null) {
+            regs = new ArrayList<>();
+            registeredServices.put(interfaceName, regs);
+        }
+        regs.add(srvReg);
     }
 
     /**
@@ -218,7 +236,7 @@ public class JavaOSGiTest extends JavaTest {
         final ServiceRegistration<?> srvReg = bundleContext.registerService(interfaceNames, service, properties);
 
         for (final String interfaceName : interfaceNames) {
-            registeredServices.put(interfaceName, srvReg);
+            saveServiceRegistration(interfaceName, srvReg);
         }
 
         return srvReg;
@@ -241,19 +259,14 @@ public class JavaOSGiTest extends JavaTest {
      * Unregister an OSGi service by the given object, that was registered before.
      *
      * @param interfaceName the interface name of the service
-     * @return the service registration that was unregistered or null if no service could be found
+     * @return the first service registration that was unregistered or null if no service could be found
      */
     protected ServiceRegistration<?> unregisterService(final String interfaceName) {
-        final ServiceRegistration<?> reg = registeredServices.remove(interfaceName);
-        if (reg != null) {
-            reg.unregister();
-            Iterator<ServiceRegistration<?>> regs = registeredServices.values().iterator();
-            while (regs.hasNext()) {
-                final ServiceRegistration<?> otherReg = regs.next();
-                if (otherReg == reg) {
-                    regs.remove();
-                }
-            }
+        ServiceRegistration<?> reg = null;
+        List<ServiceRegistration<?>> regList = registeredServices.remove(interfaceName);
+        if (regList != null) {
+            reg = regList.get(0);
+            regList.forEach(r -> r.unregister());
         }
         return reg;
     }
@@ -282,7 +295,7 @@ public class JavaOSGiTest extends JavaTest {
 
     @After
     public void unregisterMocks() {
-        registeredServices.forEach((interfaceName, service) -> service.unregister());
+        registeredServices.forEach((interfaceName, services) -> services.forEach(service -> service.unregister()));
         registeredServices.clear();
     }
 

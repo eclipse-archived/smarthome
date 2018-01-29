@@ -1,19 +1,27 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.ntp.test;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -45,6 +53,10 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
+import org.eclipse.smarthome.core.thing.type.ChannelKind;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.eclipse.smarthome.test.storage.VolatileStorageService;
@@ -52,7 +64,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -60,6 +71,7 @@ import org.junit.Test;
  *
  * @author Petar Valchev - Initial Contribution
  * @author Markus Rathgeb - Migrated tests from Groovy to pure Java
+ * @author Erdoan Hadzhiyusein - Migrated tests to Java 8 and integrated the new DateTimeType
  */
 public class NtpOSGiTest extends JavaOSGiTest {
     private static TimeZone systemTimeZone;
@@ -74,8 +86,9 @@ public class NtpOSGiTest extends JavaOSGiTest {
     private ManagedThingProvider managedThingProvider;
     private ThingRegistry thingRegistry;
     private ItemRegistry itemRegistry;
+    private ChannelTypeProvider channelTypeProvider;
 
-    private static final String DEFAULT_TIME_ZONE_ID = "Europe/Helsinki";
+    private static final ZoneId DEFAULT_TIME_ZONE_ID = ZoneId.of("Europe/Bucharest");
     private static final String TEST_TIME_ZONE_ID = "America/Los_Angeles";
 
     private static final String TEST_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss z";
@@ -90,12 +103,13 @@ public class NtpOSGiTest extends JavaOSGiTest {
     private static final String TEST_HOSTNAME = "127.0.0.1";
     private static final int TEST_PORT = 9002;
     static SimpleNTPServer timeServer;
+    private ChannelTypeUID channelTypeUID;
 
     enum UpdateEventType {
         HANDLE_COMMAND("handleCommand"),
         CHANNEL_LINKED("channelLinked");
 
-        private String updateEventType;
+        private final String updateEventType;
 
         private UpdateEventType(String updateEventType) {
             this.updateEventType = updateEventType;
@@ -141,6 +155,13 @@ public class NtpOSGiTest extends JavaOSGiTest {
 
         itemRegistry = getService(ItemRegistry.class);
         assertThat("Could not get ItemRegistry", itemRegistry, is(notNullValue()));
+
+        channelTypeUID = new ChannelTypeUID(NtpBindingConstants.BINDING_ID + ":channelType");
+        channelTypeProvider = mock(ChannelTypeProvider.class);
+        when(channelTypeProvider.getChannelType(any(ChannelTypeUID.class), any(Locale.class)))
+                .thenReturn(new ChannelType(channelTypeUID, false, "Switch", ChannelKind.STATE, "label", null, null,
+                        null, null, null, null));
+        registerService(channelTypeProvider);
     }
 
     @After
@@ -186,48 +207,43 @@ public class NtpOSGiTest extends JavaOSGiTest {
                 is(anyOf(equalTo(expectedTimeZonePDT), equalTo(expectedTimeZonePST))));
     }
 
-    @Ignore("the dateTime channel is updated with a time from the system timezone")
     @Test
     public void testDateTimeChannelTimeZoneUpdate() {
-        final String expectedTimeZone = "-0700";
 
         Configuration configuration = new Configuration();
         configuration.put(NtpBindingConstants.PROPERTY_TIMEZONE, TEST_TIME_ZONE_ID);
         initialize(configuration, NtpBindingConstants.CHANNEL_DATE_TIME, ACCEPTED_ITEM_TYPE_DATE_TIME, null, null);
 
         String testItemState = getItemState(ACCEPTED_ITEM_TYPE_DATE_TIME).toString();
-        /*
-         * There is no way to format the date in the dateTime channel in
-         * advance(there is no property for formatting in the dateTime channel),
-         * so we will rely on the format, returned by the toString() method of
-         * the DateTimeType.
-         */
-        // FIXME: Adapt the tests if property for formatting in the dateTime
-        // channel is added.
         assertFormat(testItemState, DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS);
-        /*
-         * Because of the format from the toString() method, the time zone will
-         * be the last five symbols of the string from the item registry(e.g.
-         * "+0300" or "-0700").
-         */
-        String timeZoneFromItemRegistry = testItemState.substring(testItemState.length() - expectedTimeZone.length());
+        ZonedDateTime timeZoneFromItemRegistry = ((DateTimeType) getItemState(ACCEPTED_ITEM_TYPE_DATE_TIME))
+                .getZonedDateTime();
+        ZoneOffset expectedOffset;
+        if (timeZoneFromItemRegistry.getZone().getRules().isDaylightSavings(timeZoneFromItemRegistry.toInstant())) {
+            expectedOffset = ZoneOffset.of("-07:00");
+        } else {
+            expectedOffset = ZoneOffset.of("-08:00");
+        }
 
-        assertThat("The dateTime channel was not updated with the right timezone", timeZoneFromItemRegistry,
-                is(equalTo(expectedTimeZone)));
+        assertThat("The dateTime channel was not updated with the right timezone", timeZoneFromItemRegistry.getOffset(),
+                is(equalTo(expectedOffset)));
     }
 
-    @Ignore("the time zone in the calendar is lost after the serialization of the state")
     @Test
     public void testDateTimeChannelCalendarTimeZoneUpdate() {
         Configuration configuration = new Configuration();
         configuration.put(NtpBindingConstants.PROPERTY_TIMEZONE, TEST_TIME_ZONE_ID);
-        initialize(configuration, NtpBindingConstants.CHANNEL_DATE_TIME, ACCEPTED_ITEM_TYPE_DATE_TIME, null);
-
-        String timeZoneIdFromItemRegistry = ((DateTimeType) getItemState(ACCEPTED_ITEM_TYPE_DATE_TIME)).getCalendar()
-                .getTimeZone().getID();
-
-        assertThat("The dateTime channel calendar was not updated with the right timezone", timeZoneIdFromItemRegistry,
-                is(equalTo(TEST_TIME_ZONE_ID)));
+        initialize(configuration, NtpBindingConstants.CHANNEL_DATE_TIME, ACCEPTED_ITEM_TYPE_DATE_TIME, null, null);
+        ZonedDateTime timeZoneIdFromItemRegistry = ((DateTimeType) getItemState(ACCEPTED_ITEM_TYPE_DATE_TIME))
+                .getZonedDateTime();
+        ZoneOffset testZoneId;
+        if (timeZoneIdFromItemRegistry.getZone().getRules().isDaylightSavings(timeZoneIdFromItemRegistry.toInstant())) {
+            testZoneId = ZoneOffset.of("-07:00");
+        } else {
+            testZoneId = ZoneOffset.of("-08:00");
+        }
+        assertThat("The dateTime channel calendar was not updated with the right timezone",
+                timeZoneIdFromItemRegistry.getOffset(), is(equalTo(testZoneId)));
     }
 
     @Test
@@ -254,25 +270,16 @@ public class NtpOSGiTest extends JavaOSGiTest {
 
     @Test
     public void testDateTimeChannelDefaultTimeZoneUpdate() {
-        Calendar systemCalendar = Calendar.getInstance();
-        String expectedTimeZone = getDateTimeChannelTimeZone(new DateTimeType(systemCalendar).toString());
+        ZonedDateTime zoned = ZonedDateTime.now();
 
+        ZoneOffset expectedTimeZone = zoned.getOffset();
         Configuration configuration = new Configuration();
         // Initialize with configuration with no time zone property set.
         initialize(configuration, NtpBindingConstants.CHANNEL_DATE_TIME, ACCEPTED_ITEM_TYPE_DATE_TIME, null, null);
 
         String testItemState = getItemState(ACCEPTED_ITEM_TYPE_DATE_TIME).toString();
-        /*
-         * There is no way to format the date in the dateTime channel in
-         * advance(there is no property for formatting in the dateTime channel),
-         * so we will rely on the format, returned by the toString() method of
-         * the DateTimeType.
-         */
-        // FIXME: Adapt the tests if property for formatting in the dateTime
-        // channel is added.
         assertFormat(testItemState, DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS);
-
-        String timeZoneFromItemRegistry = getDateTimeChannelTimeZone(testItemState);
+        ZoneOffset timeZoneFromItemRegistry = new DateTimeType(testItemState).getZonedDateTime().getOffset();
 
         assertThat("The dateTime channel was not updated with the right timezone", timeZoneFromItemRegistry,
                 is(equalTo(expectedTimeZone)));
@@ -284,21 +291,27 @@ public class NtpOSGiTest extends JavaOSGiTest {
         // Initialize with configuration with no time zone property set.
         initialize(configuration, NtpBindingConstants.CHANNEL_DATE_TIME, ACCEPTED_ITEM_TYPE_DATE_TIME, null, null);
 
-        String timeZoneIdFromItemRegistry = ((DateTimeType) getItemState(ACCEPTED_ITEM_TYPE_DATE_TIME)).getCalendar()
-                .getTimeZone().getID();
+        ZonedDateTime timeZoneIdFromItemRegistry = ((DateTimeType) getItemState(ACCEPTED_ITEM_TYPE_DATE_TIME))
+                .getZonedDateTime();
+        ZoneOffset expectedOffset;
 
-        assertThat("The dateTime channel calendar was not updated with the right timezone", timeZoneIdFromItemRegistry,
-                is(equalTo(DEFAULT_TIME_ZONE_ID)));
+        if (timeZoneIdFromItemRegistry.getZone().getRules().isDaylightSavings(timeZoneIdFromItemRegistry.toInstant())) {
+            expectedOffset = ZoneOffset.of("+03:00");
+        } else {
+            expectedOffset = ZoneOffset.of("+02:00");
+        }
+
+        assertThat("The dateTime channel calendar was not updated with the right timezone",
+                timeZoneIdFromItemRegistry.getOffset(), is(equalTo(expectedOffset)));
     }
 
     @Test
     public void testStringChannelFormatting() {
-        final String formatPattern = "EEE, d MMM yyyy HH:mm:ss Z";
+        final String formatPattern = "EEE, d MMM yyyy HH:mm:ss z";
 
         Configuration configuration = new Configuration();
         Configuration channelConfig = new Configuration();
         channelConfig.put(NtpBindingConstants.PROPERTY_DATE_TIME_FORMAT, formatPattern);
-
         initialize(configuration, NtpBindingConstants.CHANNEL_STRING, ACCEPTED_ITEM_TYPE_STRING, channelConfig, null);
 
         String dateFromItemRegistry = getItemState(ACCEPTED_ITEM_TYPE_STRING).toString();
@@ -392,17 +405,14 @@ public class NtpOSGiTest extends JavaOSGiTest {
 
     private void initialize(Configuration configuration, String channelID, String acceptedItemType,
             Configuration channelConfiguration) {
+
+        configuration.put(NtpBindingConstants.PROPERTY_NTP_SERVER_PORT, TEST_PORT);
         ThingUID ntpUid = new ThingUID(NtpBindingConstants.THING_TYPE_NTP, TEST_THING_ID);
 
         ChannelUID channelUID = new ChannelUID(ntpUid, channelID);
-        Channel channel;
-        if (channelConfiguration != null) {
-            channel = new Channel(channelUID, acceptedItemType, channelConfiguration);
-        } else {
-            channel = new Channel(channelUID, acceptedItemType);
-        }
+        Channel channel = new Channel(channelUID, channelTypeUID, acceptedItemType, ChannelKind.STATE,
+                channelConfiguration, Collections.emptySet(), null, "label", null);
 
-        configuration.put(NtpBindingConstants.PROPERTY_NTP_SERVER_PORT, TEST_PORT);
         ntpThing = ThingBuilder.create(NtpBindingConstants.THING_TYPE_NTP, ntpUid).withConfiguration(configuration)
                 .withChannel(channel).build();
 
@@ -456,42 +466,19 @@ public class NtpOSGiTest extends JavaOSGiTest {
         }, 3 * DFL_TIMEOUT, 2 * DFL_SLEEP_TIME);
     }
 
-    private String getDateTimeChannelTimeZone(String date) {
-        /*
-         * Because of the format from the toString() method, the time zone will
-         * be the last five symbols of the string from the item registry(e.g.
-         * "+0300" or "-0700").
-         */
-        return date.substring(date.length() - 5);
-    }
-
     private String getStringChannelTimeZoneFromItemRegistry() {
         String itemState = getItemState(ACCEPTED_ITEM_TYPE_STRING).toString();
-        /*
-         * This method is used only in tests for the string channel, where we
-         * have set the format for the date in advance. Because of that format,
-         * we know that the time zone will be the last word of the string from
-         * the item registry.
-         */
-        // FIXME: This can happen a lot easier with Java 8 date time API, so
-        // tests can be adapted, if there is an
-        // upgrade to Java 8
         String timeZoneFromItemRegistry = StringUtils.substringAfterLast(itemState, " ");
         return timeZoneFromItemRegistry;
     }
 
     private void assertFormat(String initialDate, String formatPattern) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(formatPattern);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(formatPattern);
 
-        final Date date;
-        try {
-            date = dateFormat.parse(initialDate);
-        } catch (ParseException e) {
-            fail("An exception $e was thrown, while trying to parse the date $initialDate");
-            throw new IllegalStateException("already failed");
-        }
+        final ZonedDateTime date;
+        date = ZonedDateTime.parse(initialDate, formatter);
 
-        String formattedDate = dateFormat.format(date);
+        String formattedDate = formatter.format(date);
 
         assertThat("The default formatting was not used", formattedDate, is(equalTo(initialDate)));
     }
@@ -520,7 +507,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
         registerService(eventSubscriberMock, EventSubscriber.class.getName());
 
         if (updateEventType.equals(UpdateEventType.HANDLE_COMMAND)) {
-            ntpHandler.handleCommand(new ChannelUID("ntp:test:chan:1"), null);
+            ntpHandler.handleCommand(new ChannelUID("ntp:test:chan:1"), new StringType("test"));
         } else if (updateEventType.equals(UpdateEventType.CHANNEL_LINKED)) {
             ntpHandler.channelLinked(new ChannelUID("ntp:test:chan:1"));
         }

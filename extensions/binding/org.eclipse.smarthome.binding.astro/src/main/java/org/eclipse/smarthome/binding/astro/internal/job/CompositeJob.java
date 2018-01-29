@@ -1,13 +1,19 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.astro.internal.job;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * {@link CompositeJob} comprises multiple {@link Job}s to be executed in order
@@ -21,7 +27,7 @@ public final class CompositeJob extends AbstractJob {
 
     /**
      * Constructor
-     * 
+     *
      * @param thingUID thing UID
      * @param jobs the jobs to execute
      * @throws IllegalArgumentException
@@ -47,5 +53,10 @@ public final class CompositeJob extends AbstractJob {
                 logger.warn("Job execution failed.", ex);
             }
         });
+    }
+
+    @Override
+    public String toString() {
+        return jobs.stream().map(j -> j.toString()).collect(Collectors.joining(" + "));
     }
 }

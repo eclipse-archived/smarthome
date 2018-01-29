@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.items;
 
@@ -37,7 +42,7 @@ public interface Item extends Identifiable<String> {
      *
      * @return the current state
      */
-    public State getState();
+    public @NonNull State getState();
 
     /**
      * returns the current state of the item as a specific type
@@ -77,7 +82,7 @@ public interface Item extends Identifiable<String> {
      *
      * @return a list of data types that can be used to update the item state
      */
-    public List<Class<? extends State>> getAcceptedDataTypes();
+    public @NonNull List<@NonNull Class<? extends State>> getAcceptedDataTypes();
 
     /**
      * <p>
@@ -90,7 +95,7 @@ public interface Item extends Identifiable<String> {
      *
      * @return a list of all command types that can be used for this item
      */
-    public List<Class<? extends Command>> getAcceptedCommandTypes();
+    public @NonNull List<@NonNull Class<? extends Command>> getAcceptedCommandTypes();
 
     /**
      * Returns a list of the names of the groups this item belongs to.

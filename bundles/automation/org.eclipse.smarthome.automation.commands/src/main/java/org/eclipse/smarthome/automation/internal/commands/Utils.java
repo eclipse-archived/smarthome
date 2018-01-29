@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.internal.commands;
 
@@ -11,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * This class contains methods for facilitating sorting and filtering lists stored in {@link Hashtable}s.
@@ -53,8 +59,9 @@ public class Utils {
      */
     static Map<String, String> filterList(Map<String, ?> listObjects, Map<String, String> listUIDs) {
         Hashtable<String, String> filtered = new Hashtable<String, String>();
-        for (String id : listUIDs.keySet()) {
-            String uid = listUIDs.get(id);
+        for (final Entry<String, String> entry : listUIDs.entrySet()) {
+            final String id = entry.getKey();
+            final String uid = entry.getValue();
             Object obj = listObjects.get(uid);
             if (obj != null) {
                 filtered.put(id, uid);

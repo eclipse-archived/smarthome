@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices;
 
@@ -11,12 +16,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.config.Config;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.DeviceStatusListener;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DSID;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.event.types.EventItem;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DeviceSceneSpec;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DeviceStateUpdate;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.FunctionalColorGroupEnum;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.OutputModeEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.DeviceBinarayInputEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.FunctionalColorGroupEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.OutputModeEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.SensorEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.impl.DSID;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.impl.DeviceBinaryInput;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.impl.DeviceSensorValue;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.InternalScene;
 
 /**
@@ -26,96 +35,52 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.I
  * @author Michael Ochel - add methods for ESH, new functionalities and JavaDoc
  * @author Mathias Siegele - add methods for ESH, new functionalities and JavaDoc
  */
-public interface Device {
+public interface Device extends GeneralDeviceInformation {
 
     /**
-     * Returns the dSID of this device.
-     *
-     * @return {@link DSID} dSID
-     */
-    public DSID getDSID();
-
-    /**
-     * Returns the dSUID of this device.
-     *
-     * @return dSID
-     */
-    public String getDSUID();
-
-    /**
-     * Returns the id of the DS-Meter in which the device is registered.
+     * Returns the id of the dS-Meter in which the device is registered.
      *
      * @return meterDSID
      */
-    public DSID getMeterDSID();
+    DSID getMeterDSID();
 
     /**
-     * Sets the id of the DS-Meter in which the device is registered.
+     * Sets the id of the dS-Meter in which the device is registered.
      *
-     * @param meterDSID
+     * @param meterDSID to set
      */
 
-    public void setMeterDSID(String meterDSID);
+    void setMeterDSID(String meterDSID);
 
     /**
      * Returns the hardware info of this device.
-     * You can see all available hardware info here
-     * {@link http://www.digitalstrom.com/Partner/Support/Techn-Dokumentation/}
+     * You can see all available hardware info at
+     * http://www.digitalstrom.com/Partner/Support/Techn-Dokumentation/
      *
      * @return hardware info
      */
-    public String getHWinfo();
-
-    /**
-     * Returns the user defined name of this device.
-     *
-     * @return name of this device
-     */
-    public String getName();
-
-    /**
-     * Sets the name of this device;
-     *
-     * @param name
-     */
-    public void setName(String name);
+    String getHWinfo();
 
     /**
      * Returns the zone id in which this device is in.
      *
      * @return zoneID
      */
-    public int getZoneId();
+    int getZoneId();
 
     /**
      * Sets the zoneID of this device.
      *
-     * @parm zoneID
+     * @param zoneID to set
      */
-    public void setZoneId(int zoneID);
-
-    /**
-     * This device is available in his zone or not.
-     * Every 24h the dSM (meter) checks, if the devices are
-     * plugged in
-     *
-     * @return true, if device is available otherwise false
-     */
-    public boolean isPresent();
-
-    /**
-     * Sets this device is available in his zone or not.
-     *
-     * @param isPresent (true = available | false = not available)
-     */
-    public void setIsPresent(boolean isPresent);
+    void setZoneId(int zoneID);
 
     /**
      * Returns true, if this device is on, otherwise false.
      *
      * @return is on (true = on | false = off)
      */
-    public boolean isOn();
+    boolean isOn();
 
     /**
      * Adds an on command as {@link DeviceStateUpdate}, if the flag is true or off command, if it is false to the list
@@ -124,14 +89,14 @@ public interface Device {
      *
      * @param flag (true = on | false = off)
      */
-    public void setIsOn(boolean flag);
+    void setIsOn(boolean flag);
 
     /**
      * Returns true, if this shade device is open, otherwise false.
      *
      * @return is on (true = open | false = closed)
      */
-    public boolean isOpen();
+    boolean isOpen();
 
     /**
      * Adds an open command as {@link DeviceStateUpdate}, if the flag is true or closed command, if it is false to the
@@ -139,43 +104,43 @@ public interface Device {
      *
      * @param flag (true = open | false = closed)
      */
-    public void setIsOpen(boolean flag);
+    void setIsOpen(boolean flag);
 
     /**
      * Returns true, if this device is dimmable, otherwise false.
      *
      * @return is dimmable (true = yes | false = no)
      */
-    public boolean isDimmable();
+    boolean isDimmable();
 
     /**
      * Returns true, if this device is a shade device (grey), otherwise false.
      *
      * @return is shade (true = yes | false = no)
      */
-    public boolean isShade();
+    boolean isShade();
 
     /**
      * Returns true, if the device output mode isn't disabled.
      *
      * @return have output mode (true = yes | false = no)
      */
-    public boolean isDeviceWithOutput();
+    boolean isDeviceWithOutput();
 
     /**
      * Returns the current functional color group of this device.
-     * For more informations please have a look at {@link FunctionalColorGroup}.
+     * For more informations please have a look at {@link FunctionalColorGroupEnum}.
      *
      * @return current functional color group
      */
-    public FunctionalColorGroupEnum getFunctionalColorGroup();
+    FunctionalColorGroupEnum getFunctionalColorGroup();
 
     /**
      * Sets the functional color group of this device.
      *
-     * @param fuctionalColorGroup
+     * @param fuctionalColorGroup to set
      */
-    public void setFunctionalColorGroup(FunctionalColorGroupEnum fuctionalColorGroup);
+    void setFunctionalColorGroup(FunctionalColorGroupEnum fuctionalColorGroup);
 
     /**
      * Returns the current output mode of this device.
@@ -185,46 +150,46 @@ public interface Device {
      *
      * @return the current output mode of this device
      */
-    public OutputModeEnum getOutputMode();
+    OutputModeEnum getOutputMode();
 
     /**
      * Adds an increase command as {@link DeviceStateUpdate} to the list of outstanding commands.
      */
-    public void increase();
+    void increase();
 
     /**
      * Adds an decrease command as {@link DeviceStateUpdate} to the list of outstanding commands.
      */
-    public void decrease();
+    void decrease();
 
     /**
      * Returns the current slat position of this device.
      *
      * @return current slat position
      */
-    public int getSlatPosition();
+    int getSlatPosition();
 
     /**
      * Adds an set slat position command as {@link DeviceStateUpdate} with the given slat position to the list of
      * outstanding commands.
      *
-     * @return slat position
+     * @param slatPosition to set
      */
-    public void setSlatPosition(int slatPosition);
+    void setSlatPosition(int slatPosition);
 
     /**
      * Returns the maximal slat position value of this device.
      *
      * @return maximal slat position value
      */
-    public int getMaxSlatPosition();
+    int getMaxSlatPosition();
 
     /**
      * Returns the minimal slat position value of this device.
      *
      * @return minimal slat position value
      */
-    public int getMinSlatPosition();
+    int getMinSlatPosition();
 
     /**
      * Returns the current output value of this device.
@@ -232,102 +197,61 @@ public interface Device {
      *
      * @return current output value
      */
-    public short getOutputValue();
+    short getOutputValue();
 
     /**
      * Adds an set output value command as {@link DeviceStateUpdate} with the given output value to the list of
      * outstanding commands.
      *
-     * @param outputValue
+     * @param outputValue to set
      */
-    public void setOutputValue(short outputValue);
+    void setOutputValue(short outputValue);
 
     /**
      * Returns the maximal output value of this device.
      *
      * @return maximal output value
      */
-    public short getMaxOutputValue();
-
-    /**
-     * Returns the last recorded power consumption in watt of this device.
-     *
-     * @return current power consumption in watt
-     */
-    public int getActivePower();
-
-    /**
-     * Sets the current power consumption in watt to the given power consumption.
-     *
-     * @param powerConsumption in watt
-     */
-    public void setActivePower(int powerConsumption);
-
-    /**
-     * Returns the energy meter value in watt per hour of this device.
-     *
-     * @return energy meter value in watt per hour
-     */
-    public int getOutputCurrent();
-
-    /**
-     * Sets the last recorded energy meter value in watt per hour of this device.
-     *
-     * @param energy meter value in watt per hour
-     */
-    public void setOutputCurrent(int value);
-
-    /**
-     * Returns the last recorded electric meter value in ampere of this device.
-     *
-     * @return electric meter value in ampere
-     */
-    public int getElectricMeter();
-
-    /**
-     * Sets the last recorded electric meter value in ampere of this device.
-     *
-     * @param electric meter value in mA
-     */
-    public void setElectricMeter(int electricMeterValue);
+    short getMaxOutputValue();
 
     /**
      * Returns a list with group id's in which the device is part of.
      *
      * @return List of group id's
      */
-    public List<Short> getGroups();
+    List<Short> getGroups();
 
     /**
      * Adds the given groupID to the group list.
      *
-     * @param groupID
+     * @param groupID to add
      */
-    public void addGroup(Short groupID);
+    void addGroup(Short groupID);
 
     /**
      * Overrides the existing group list with the given new.
      *
-     * @param newGroupList
+     * @param newGroupList to set
      */
-    public void setGroups(List<Short> newGroupList);
+    void setGroups(List<Short> newGroupList);
 
     /**
      * Returns the scene output value of this device of the given scene id as {@link Integer} array. The first field is
      * the output value and the second is the angle value or -1 if no angle value exists.
      * If the method returns null, this scene id isn't read yet.
      *
+     * @param sceneID of the scene
      * @return scene output value and scene angle value or null, if it isn't read out yet
      */
-    public Integer[] getSceneOutputValue(short sceneID);
+    Integer[] getSceneOutputValue(short sceneID);
 
     /**
      * Sets the scene output value of this device for the given scene id and scene output value.
      *
-     * @param sceneId
-     * @param sceneOutputValue
+     * @param sceneId to set
+     * @param sceneOutputValue to set
      */
-    public void setSceneOutputValue(short sceneId, int sceneOutputValue);
+    void setSceneOutputValue(short sceneId, int sceneOutputValue);
 
     /**
      * This configuration is very important. The devices can
@@ -340,7 +264,7 @@ public interface Device {
      * @param sceneId the sceneID
      * @return true if this device has the configuration for this specific scene
      */
-    public boolean containsSceneConfig(short sceneId);
+    boolean containsSceneConfig(short sceneId);
 
     /**
      * Add the config for this scene. The config has the configuration
@@ -349,7 +273,7 @@ public interface Device {
      * @param sceneId scene call id
      * @param sceneSpec config for this sceneID
      */
-    public void addSceneConfig(short sceneId, DeviceSceneSpec sceneSpec);
+    void addSceneConfig(short sceneId, DeviceSceneSpec sceneSpec);
 
     /**
      * Get the config for this scene. The config has the configuration
@@ -358,7 +282,7 @@ public interface Device {
      * @param sceneId scene call id
      * @return sceneSpec config for this sceneID
      */
-    public DeviceSceneSpec getSceneConfig(short sceneId);
+    DeviceSceneSpec getSceneConfig(short sceneId);
 
     /**
      * Should the device react on this scene call or not .
@@ -366,268 +290,581 @@ public interface Device {
      * @param sceneId scene call id
      * @return true, if this device should react on this sceneID
      */
-    public boolean doIgnoreScene(short sceneId);
+    boolean doIgnoreScene(short sceneId);
 
     // follow methods added by Michael Ochel and Matthias Siegele
-
-    /**
-     * Returns true, if the power consumption is up to date or false if it has to be updated.
-     *
-     * @return is up to date (true = yes | false = no)
-     */
-    public boolean isActivePowerUpToDate();
-
-    /**
-     * Returns true, if the electric meter is up to date or false if it has to be updated.
-     *
-     * @return is up to date (true = yes | false = no)
-     */
-    public boolean isElectricMeterUpToDate();
-
-    /**
-     * Returns true, if the energy meter is up to date or false if it has to be updated.
-     *
-     * @return is up to date (true = yes | false = no)
-     */
-    public boolean isOutputCurrentUpToDate();
-
     /**
      * Returns true, if all sensor data are up to date or false if some have to be updated.
      *
      * @return is up to date (true = yes | false = no)
      */
-    public boolean isSensorDataUpToDate();
+    boolean isSensorDataUpToDate();
 
     /**
      * Sets the priority to refresh the data of the sensors to the given priorities.
      * They can be never, low, medium or high.
      *
-     * @param powerConsumptionRefreshPriority
-     * @param electricMeterRefreshPriority
-     * @param energyMeterRefreshPriority
+     * @param powerConsumptionRefreshPriority to set
+     * @param electricMeterRefreshPriority to set
+     * @param energyMeterRefreshPriority to set
      */
-    public void setSensorDataRefreshPriority(String powerConsumptionRefreshPriority,
-            String electricMeterRefreshPriority, String energyMeterRefreshPriority);
-
-    /**
-     * Returns the priority of the power consumption refresh.
-     *
-     * @return power consumption refresh priority
-     */
-    public String getActivePowerRefreshPriority();
-
-    /**
-     * Returns the priority of the electric meter refresh.
-     *
-     * @return electric meter refresh priority
-     */
-    public String getElectricMeterRefreshPriority();
-
-    /**
-     * Returns the priority of the energy meter refresh.
-     *
-     * @return energy meter refresh priority
-     */
-    public String getOutputCurrentRefreshPriority();
+    void setSensorDataRefreshPriority(String powerConsumptionRefreshPriority, String electricMeterRefreshPriority,
+            String energyMeterRefreshPriority);
 
     /**
      * Returns true, if the device is up to date.
      *
      * @return digitalSTROM-Device is up to date (true = yes | false = no)
      */
-    public boolean isDeviceUpToDate();
+    boolean isDeviceUpToDate();
 
     /**
-     * Returns the next {@linkDeviceStateUpdate} to update the digitalSTROM-Device on the digitalSTROM-Server.
+     * Returns the next {@link DeviceStateUpdate} to update the digitalSTROM-Device on the digitalSTROM-Server.
      *
      * @return DeviceStateUpdate for digitalSTROM-Device
      */
-    public DeviceStateUpdate getNextDeviceUpdateState();
+    DeviceStateUpdate getNextDeviceUpdateState();
 
     /**
      * Update the internal stored device object.
      *
-     * @param deviceStateUpdate
+     * @param deviceStateUpdate to update
      */
-    public void updateInternalDeviceState(DeviceStateUpdate deviceStateUpdate);
+    void updateInternalDeviceState(DeviceStateUpdate deviceStateUpdate);
 
     /**
      * Call the given {@link InternalScene} on this {@link Device} and updates it.
      *
-     * @param scene
+     * @param scene to call
      */
-    public void callInternalScene(InternalScene scene);
+    void callInternalScene(InternalScene scene);
 
     /**
      * Undo the given {@link InternalScene} on this {@link Device} and updates it.
      *
      * @param scene to undo
      */
-    public void undoInternalScene(InternalScene scene);
+    void undoInternalScene(InternalScene scene);
 
     /**
      * Initial a call scene for the given scene number.
      *
-     * @param sceneNumber
+     * @param sceneNumber to call
      */
-    public void callScene(Short sceneNumber);
+    void callScene(Short sceneNumber);
 
     /**
      * Returns the current active {@link InternalScene}, otherwise null.
      *
      * @return active {@link InternalScene} or null
      */
-    public InternalScene getAcitiveScene();
+    InternalScene getAcitiveScene();
 
     /**
      * Undo the active scene if a scene is active.
      */
-    public void undoScene();
+    void undoScene();
 
     /**
      * Checks the scene configuration for the given scene number and initial a scene configuration reading with the
      * given priority if no scene configuration exists.
      *
-     * @param sceneNumber
-     * @param prio
+     * @param sceneNumber to check
+     * @param prio to update
      */
-    public void checkSceneConfig(Short sceneNumber, int prio);
-
-    /**
-     * Register a {@link DeviceStatusListener} to this {@link Device}.
-     *
-     * @param deviceStatuslistener
-     */
-    public void registerDeviceStateListener(DeviceStatusListener deviceStatuslistener);
-
-    /**
-     * Unregister the {@link DeviceStatusListener} to this {@link Device} if it exists.
-     *
-     * @return the unregistered {@link DeviceStatusListener} or null if no one was registered
-     */
-    public DeviceStatusListener unregisterDeviceStateListener();
-
-    /**
-     * Returns true, if a {@link DeviceStatusListener} is registered to this {@link Device}, otherwise false.
-     *
-     * @return return true, if a lister is registered, otherwise false
-     */
-    public boolean isListenerRegisterd();
+    void checkSceneConfig(Short sceneNumber, short prio);
 
     /**
      * Sets the given output mode as new output mode of this {@link Device}.
      *
-     * @param newOutputMode
+     * @param newOutputMode to set
      */
-    public void setOutputMode(OutputModeEnum newOutputMode);
+    void setOutputMode(OutputModeEnum newOutputMode);
 
     /**
-     * Returns a {@link List} of all saved scene configurations.
+     * Returns a {@link List} of all saved scene-IDs configurations.
      *
-     * @return
+     * @return a {@link List} of all saved scene-IDs
      */
-    public List<Short> getSavedScenes();
+    List<Short> getSavedScenes();
 
     /**
      * Initializes a internal device update as call scene for the given scene number.
      *
-     * @param sceneNumber
+     * @param sceneNumber to call
      */
-    public void internalCallScene(Short sceneNumber);
+    void internalCallScene(Short sceneNumber);
 
     /**
      * Initializes a internal device update as undo scene.
      */
-    public void internalUndoScene();
+    void internalUndoScene();
 
     /**
      * Returns true, if this {@link Device} is a device with a switch output mode.
      *
      * @return true, if it is a switch otherwise false
      */
-    public boolean isSwitch();
+    boolean isSwitch();
 
     /**
-     * Sets the given {@link config} as new {@link config}.
+     * Sets the given {@link Config} as new {@link Config}.
      *
-     * @param config
+     * @param config to set
      */
-    public void setConfig(Config config);
+    void setConfig(Config config);
 
     /**
      * Returns the current angle position of the {@link Device}.
      *
      * @return current angle position
      */
-    public short getAnglePosition();
+    short getAnglePosition();
 
     /**
      * Adds an set angle value command as {@link DeviceStateUpdate} with the given angle value to the list of
      * outstanding commands.
      *
-     * @param angle
+     * @param angle to set
      */
-    public void setAnglePosition(int angle);
+    void setAnglePosition(int angle);
 
     /**
      * Sets the scene output value and scene output angle of this device for the given scene id, scene output value and
      * scene output angle.
      *
-     * @param sceneId
-     * @param value
-     * @param angle
+     * @param sceneId to set
+     * @param value to set
+     * @param angle to set
      */
-    public void setSceneOutputValue(short sceneId, int value, int angle);
+    void setSceneOutputValue(short sceneId, int value, int angle);
 
     /**
      * Returns the max angle value of the slat.
      *
      * @return max slat angle
      */
-    public int getMaxSlatAngle();
+    int getMaxSlatAngle();
 
     /**
      * Returns the min angle value of the slat.
      *
      * @return min slat angle
      */
-    public int getMinSlatAngle();
+    int getMinSlatAngle();
 
     /**
      * Returns true, if it is a blind device.
      *
      * @return is blind (true = yes | false = no
      */
-    public boolean isBlind();
+    boolean isBlind();
 
     /**
-     * Saves scene configurations from the given sceneProperties in the {@link Device]. <br>
+     * Saves scene configurations from the given sceneProperties in the {@link Device}. <br>
      * The {@link Map} has to be like the following format:
      * <ul>
      * <li><b>Key:</b> scene[sceneID]</li>
      * <li><b>Value:</b> {Scene: [sceneID], dontcare: [don't care flag], localPrio: [local prio flag], specialMode:
-     * [special mode flag]}(0..1),
-     * {sceneValue: [sceneValue]{, sceneAngle: [scene angle]}(0..1)}(0..1)</li>
+     * [special mode flag]}(0..1), {sceneValue: [scene value], sceneAngle: [scene angle]}(0..1))</li>
      * </ul>
      *
-     * @param sceneProperties
+     * @param sceneProperties to save
      */
-    public void saveConfigSceneSpecificationIntoDevice(Map<String, String> sceneProperties);
+    void saveConfigSceneSpecificationIntoDevice(Map<String, String> sceneProperties);
 
     /**
      * Returns the min output value.
      *
      * @return min output value
      */
-    public short getMinOutputValue();
+    short getMinOutputValue();
 
     /**
      * Adds a slat increase command as {@link DeviceStateUpdate} to the list of outstanding commands.
      */
-    public void increaseSlatAngle();
+    void increaseSlatAngle();
 
     /**
      * Adds a slat decrease command as {@link DeviceStateUpdate} to the list of outstanding commands.
      */
-    public void decreaseSlatAngle();
+    void decreaseSlatAngle();
+
+    /**
+     * Saves scene configurations from the given sceneProperties in the {@link Device}. <br>
+     * <br>
+     * <b>The {@link String} has to be like the following format:</b><br>
+     * {[sceneID] = }(1){Scene: [sceneID], dontcare: [don't care flag], localPrio: [local prio flag], specialMode:
+     * [special mode flag]}(0..1), {sceneValue: [sceneValue]{, sceneAngle: [scene angle]}(0..1)}{\n}(0..1)<br>
+     * <br>
+     * e.g. "10 = Scene: PRESET_4, dontcare: false, localPrio: false, specialMode: false, flashMode: false, sceneValue:
+     * 0\n"
+     *
+     * @param propertries to save
+     */
+    void saveConfigSceneSpecificationIntoDevice(String propertries);
+
+    /**
+     * Returns true, if this {@link Device} is a sensor device. That means, that this {@link Device} has no output
+     * channel
+     * ({@link OutputModeEnum#DISABLED}), but climate sensors.
+     *
+     * @return true, if it is a sensor device
+     */
+    boolean isSensorDevice();
+
+    /**
+     * Returns true, if this {@link Device} is a heating device. That means, that the output mode of this {@link Device}
+     * is one of the following modes {@link OutputModeEnum#PWM} or {@link OutputModeEnum#SWITCH} and the
+     * {@link FuncNameAndColorGroupEnum} is {@link FuncNameAndColorGroupEnum#HEATING}.
+     *
+     * @return true, if it is a heating device
+     */
+    boolean isHeatingDevice();
+
+    /**
+     * Sets the refresh priority for the given power sensor as {@link SensorEnum}. <br>
+     * <b>Note:</b><br>
+     * 1. The device must have this sensor type, otherwise the set has no effect.<br>
+     * <br>
+     * 2. Valid priorities are:<br>
+     * - {@link Config#REFRESH_PRIORITY_NEVER}<br>
+     * - {@link Config#REFRESH_PRIORITY_LOW}<br>
+     * - {@link Config#REFRESH_PRIORITY_MEDIUM}<br>
+     * - {@link Config#REFRESH_PRIORITY_HIGH}<br>
+     * <br>
+     * 3. Valid sensor types are:<br>
+     * - {@link SensorEnum#POWER_CONSUMPTION}<br>
+     * - {@link SensorEnum#OUTPUT_CURRENT}<br>
+     * - {@link SensorEnum#ELECTRIC_METER}<br>
+     * - {@link SensorEnum#ACTIVE_POWER}<br>
+     *
+     * @param powerSensorType the power sensor to set
+     * @param refreshPriority the new refresh priority
+     */
+    void setSensorDataRefreshPriority(SensorEnum powerSensorType, String refreshPriority);
+
+    /**
+     * Returns the refresh priority of the given power sensor type as {@link SensorEnum}. If the sensor type is not
+     * supported by
+     * this {@link Device} or it is not a power sensor it will be returned null.
+     *
+     * @param powerSensorType of the sensor
+     * @return the refresh priority
+     */
+    String getPowerSensorRefreshPriority(SensorEnum powerSensorType);
+
+    /**
+     * Returns a {@link List} with all power sensors, which are supported by this {@link Device}.
+     *
+     * @return all supported power sensors
+     */
+    List<SensorEnum> getPowerSensorTypes();
+
+    /**
+     * Returns a {@link List} with all climate sensors, which are supported by this {@link Device}.
+     *
+     * @return all supported climate sensors
+     */
+    List<SensorEnum> getClimateSensorTypes();
+
+    /**
+     * Returns all {@link DeviceSensorValue}'s of this {@link Device}.
+     *
+     * @return list of all {@link DeviceSensorValue}'s
+     */
+    List<DeviceSensorValue> getDeviceSensorValues();
+
+    /**
+     * Sets the given {@link DeviceSensorValue}. That means the given {@link DeviceSensorValue} will be added, if this
+     * type of {@link DeviceSensorValue} does not exist before, otherwise the existing {@link DeviceSensorValue} will be
+     * updated,
+     * if the given {@link DeviceSensorValue} is newer.
+     *
+     * @param deviceSensorValue the new device sensor value
+     */
+    void setDeviceSensorValue(DeviceSensorValue deviceSensorValue);
+
+    /**
+     * Returns the {@link DeviceSensorValue} of the given sensor type as {@link SensorEnum} or null, if no
+     * {@link DeviceSensorValue} exists for the given sensor type.
+     *
+     * @param sensorType of the sensor
+     * @return the {@link DeviceSensorValue} or null
+     */
+    DeviceSensorValue getDeviceSensorValue(SensorEnum sensorType);
+
+    /**
+     * Returns the {@link DeviceSensorValue} of the given sensor index as {@link Short} or null, if no
+     * {@link DeviceSensorValue} exists for the given sensor index.
+     *
+     * @param sensorIndex of the sensor
+     * @return the {@link DeviceSensorValue} or null
+     */
+    DeviceSensorValue getDeviceSensorValue(Short sensorIndex);
+
+    /**
+     * Returns the sensor index for the given sensor type as {@link SensorEnum} of the {@link Device} or null, if the
+     * sensor type does not exist. It will be needed to readout the current sensor value of the digitalSTROM device.
+     *
+     * @param sensorType of the sensor
+     * @return sensor index for the sensor type
+     */
+    Short getSensorIndex(SensorEnum sensorType);
+
+    /**
+     * Returns the sensor type as {@link SensorEnum} of the given sensor index or null, if the given sensor type does
+     * not exist.
+     *
+     * @param sensorIndex of the sensor
+     * @return the sensor type or null
+     */
+    SensorEnum getSensorType(Short sensorIndex);
+
+    /**
+     * Returns the internal digitalSTROM sensor value for the given sensor type as {@link SensorEnum}, if the sensor
+     * type exists and the value is valid. The resolution can be found at {@link SensorEnum}.
+     *
+     * @param sensorType of the sensor
+     * @return the internal digitalSTROM sensor value or null
+     */
+    Integer getDsSensorValue(SensorEnum sensorType);
+
+    /**
+     * Returns the internal digitalSTROM sensor value for the given sensor index as {@link Short}, if the sensor
+     * index exists and the value is valid. The resolution can be found at {@link SensorEnum}.
+     *
+     * @param sensorIndex of the sensor
+     * @return the internal digitalSTROM sensor value or null
+     */
+    Integer getDsSensorValue(Short sensorIndex);
+
+    /**
+     * Returns the float sensor value for the given sensor type as {@link SensorEnum}, if the sensor
+     * type exists and the value is valid. The resolution can be found at {@link SensorEnum}.
+     *
+     * @param sensorType of the sensor
+     * @return the float sensor value or null
+     */
+    Float getFloatSensorValue(SensorEnum sensorType);
+
+    /**
+     * Returns the float sensor value for the given sensor index as {@link Short}, if the sensor
+     * index exists and the value is valid. The resolution can be found at {@link SensorEnum}.
+     *
+     * @param sensorIndex of the sensor
+     * @return the float sensor value or null
+     */
+    Float getFloatSensorValue(Short sensorIndex);
+
+    /**
+     * Sets the float sensor value for a given sensor type as {@link SensorEnum}. If the sensor type does not exist, it
+     * will be returned false.
+     *
+     * @param sensorType of the sensor
+     * @param floatSensorValue the new float sensor value
+     * @return true, if it was successful, otherwise false
+     */
+    boolean setFloatSensorValue(SensorEnum sensorType, Float floatSensorValue);
+
+    /**
+     * Sets the float sensor value for a given sensor index as {@link Short}. If the sensor type does not exist, it
+     * will be returned false.
+     *
+     * @param sensorIndex of the sensor
+     * @param floatSensorValue the new float sensor value
+     * @return true, if it was successful, otherwise false
+     */
+    boolean setFloatSensorValue(Short sensorIndex, Float floatSensorValue);
+
+    /**
+     * Sets the internal digitalSTROM sensor value for a given sensor index as {@link Short}. If the sensor index does
+     * not exist, it will be returned false.
+     *
+     * @param sensorIndex of the sensor
+     * @param dSSensorValue the new internal digitalSTROM sensor value
+     * @return true, if it was successful, otherwise false
+     */
+    boolean setDsSensorValue(Short sensorIndex, Integer dSSensorValue);
+
+    /**
+     * Sets the internal digitalSTROM sensor value for a given sensor type as {@link SensorEnum}. If the sensor type
+     * does
+     * not exist, it will be returned false.
+     *
+     * @param sensorType of the sensor
+     * @param dSSensorValue the new internal digitalSTROM sensor value
+     * @return true, if it was successful, otherwise false
+     */
+    boolean setDsSensorValue(SensorEnum sensorType, Integer dSSensorValue);
+
+    /**
+     * Sets the internal digitalSTROM and float sensor value for a given sensor index as {@link Short}. If the sensor
+     * index does not exist, it will be returned false.
+     *
+     * @param sensorIndex of the sensor
+     * @param dSSensorValue the new internal digitalSTROM sensor value
+     * @param floatSensorValue the new float sensor value
+     * @return true, if it was successful, otherwise false
+     */
+    boolean setDsSensorValue(Short sensorIndex, Integer dSSensorValue, Float floatSensorValue);
+
+    /**
+     * Sets the internal digitalSTROM and float sensor value for a given sensor type as {@link SensorEnum}. If the
+     * sensor type does not exist, it will be returned false.
+     *
+     * @param sensorType of the sensor
+     * @param dSSensorValue the new internal digitalSTROM sensor value
+     * @param floatSensorValue the new float sensor value
+     * @return true, if it was successful, otherwise false
+     */
+    boolean setDsSensorValue(SensorEnum sensorType, Integer dSSensorValue, Float floatSensorValue);
+
+    /**
+     * Returns true, if this {@link Device} has sensors, otherwise false.
+     *
+     * @return true, if device has sensors
+     */
+    boolean hasSensors();
+
+    /**
+     * Returns true, if this {@link Device} has climate sensors, otherwise false.
+     *
+     * @return true, if device has climate sensors
+     */
+    boolean hasClimateSensors();
+
+    /**
+     * Returns true, if this {@link Device} has power sensors, otherwise false.
+     *
+     * @return true, if device has power sensors
+     */
+    boolean hasPowerSensors();
+
+    /**
+     * Only needed for {@link DeviceConsumptionSensorJob}'s. To set the internal digitalSTROM sensor value please use
+     * {@link #setDsSensorValue(SensorEnum, Integer)}.
+     *
+     * @param sensorType of the sensor
+     * @param value new value
+     */
+    void setDeviceSensorDsValueBySensorJob(SensorEnum sensorType, Integer value);
+
+    /**
+     * Enables the internal sensor echo box for {@link EventNames#DEVICE_SENSOR_VALUE} events.
+     */
+    void enableSensorEchoBox();
+
+    /**
+     * Disables the internal sensor echo box for {@link EventNames#DEVICE_SENSOR_VALUE} events.
+     */
+    void disableSensorEchoBox();
+
+    /**
+     * Returns true, if the internal sensor echo box is enabled, otherwise false.
+     *
+     * @return true, if the internal sensor echo box is enabled
+     */
+    boolean isSensorEchoBoxEnabled();
+
+    /**
+     * Sets the {@link DeviceSensorValue} through a {@link EventItem} of the type
+     * {@link EventNames#DEVICE_SENSOR_VALUE}.
+     *
+     * @param event of the sensor update
+     */
+    void setDeviceSensorByEvent(EventItem event);
+
+    /**
+     * Returns true, if the refresh priority of the given power sensor type as {@link SensorEnum} is equals
+     * {@link Config#REFRESH_PRIORITY_NEVER}, otherwise false.
+     *
+     * @param powerSensorType of the sensor
+     * @return true, if refresh priority is never
+     */
+    boolean checkPowerSensorRefreshPriorityNever(SensorEnum powerSensorType);
+
+    /**
+     * Returns true, if the given sensor type as {@link SensorEnum} is supported by this {@link Device}, otherwise
+     * false.
+     *
+     * @param sensorType of the sensor
+     * @return true, if the sensor type is supported
+     */
+    boolean supportsSensorType(SensorEnum sensorType);
+
+    /**
+     * Returns true, if this {@link Device} is a temperature controlled device, otherwise false. That means, that the
+     * output mode is one of the output modes in
+     * {@link OutputModeEnum#outputModeIsTemperationControlled(OutputModeEnum)}.
+     *
+     * @return true, if this {@link Device} is a temperature controlled
+     */
+    boolean isTemperatureControlledDevice();
+
+    /**
+     * Returns true, if this {@link Device} is a binary input device. That means it have no output mode
+     * ({@link OutputModeEnum#DISABLED}), but {@link DeviceBinaryInput}'s.
+     *
+     * @return true, if this {@link Device} is a binary input device
+     */
+    boolean isBinaryInputDevice();
+
+    /**
+     * Returns a {@link List} which contains all currently configured {@link DeviceBinaryInput}'s.
+     *
+     * @return list with all configured {@link DeviceBinaryInput}'s
+     */
+    List<DeviceBinaryInput> getBinaryInputs();
+
+    /**
+     * Returns the {@link DeviceBinaryInput} of the given binary input type as {@link DeviceBinarayInputEnum}} or null,
+     * if the binary input type does not exist.
+     *
+     * @param binaryInputType of the {@link DeviceBinaryInput}
+     * @return the {@link DeviceBinaryInput} or null
+     */
+    DeviceBinaryInput getBinaryInput(DeviceBinarayInputEnum binaryInputType);
+
+    /**
+     * Returns the state of the given binary input type as {@link DeviceBinarayInputEnum}} or null, if the binary input
+     * type does not exist.
+     *
+     * @param binaryInputType of the {@link DeviceBinaryInput}
+     * @return state of the given binary input type or null
+     */
+    Short getBinaryInputState(DeviceBinarayInputEnum binaryInputType);
+
+    /**
+     * Sets the state of an existing {@link DeviceBinaryInput}. If the given {@link DeviceBinarayInputEnum} does not
+     * exist, it will returned false, otherwise true.
+     *
+     * @param binaryInputType of the {@link DeviceBinaryInput}
+     * @param newState the new state
+     * @return true, if it was successful, otherwise false
+     */
+    boolean setBinaryInputState(DeviceBinarayInputEnum binaryInputType, Short newState);
+
+    /**
+     * Sets the given {@link List} of {@link DeviceBinaryInput}'s as supported binary inputs.
+     *
+     * @param newBinaryInputs to set
+     */
+    void setBinaryInputs(List<DeviceBinaryInput> newBinaryInputs);
+
+    /**
+     * Returns true, if the given power sensor type as {@link SensorEnum} is up to date and does not need a refresh,
+     * otherwise it will returned false.
+     *
+     * @param powerSensorType of the sensor
+     * @return true, if the power sensor is up to date
+     */
+    boolean isPowerSensorUpToDate(SensorEnum powerSensorType);
+
+    /**
+     * Returns a {@link List} of all supported sensor types as {@link SensorEnum}.
+     *
+     * @return all supported sensor types
+     */
+    List<SensorEnum> getSensorTypes();
 }

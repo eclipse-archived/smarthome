@@ -1,14 +1,21 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.link;
 
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
@@ -25,7 +32,7 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
-import org.eclipse.smarthome.core.thing.type.TypeResolver;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -54,18 +61,23 @@ import org.slf4j.LoggerFactory;
                 "service.pid:String=org.eclipse.smarthome.links" })
 public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusInfoChangedEvent> {
 
-    public ThingLinkManager() {
-        super(ThingStatusInfoChangedEvent.TYPE);
-    }
+    private static final String THREADPOOL_NAME = "thingLinkManager";
 
-    private Logger logger = LoggerFactory.getLogger(ThingLinkManager.class);
+    private final Logger logger = LoggerFactory.getLogger(ThingLinkManager.class);
+
+    private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(THREADPOOL_NAME);
 
     private ThingRegistry thingRegistry;
     private ManagedThingProvider managedThingProvider;
     private ItemRegistry itemRegistry;
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
+    private ChannelTypeRegistry channelTypeRegistry;
 
     private boolean autoLinks = true;
+
+    public ThingLinkManager() {
+        super(ThingStatusInfoChangedEvent.TYPE);
+    }
 
     @Activate
     protected void activate(ComponentContext context) {
@@ -125,6 +137,15 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
 
     protected void unsetManagedThingProvider(ManagedThingProvider managedThingProvider) {
         this.managedThingProvider = null;
+    }
+
+    @Reference
+    protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry;
+    }
+
+    protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null;
     }
 
     public boolean isAutoLinksEnabled() {
@@ -227,7 +248,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
         private void createLinkIfNotAdvanced(Channel channel) {
             if (autoLinks) {
                 if (channel.getChannelTypeUID() != null) {
-                    ChannelType type = TypeResolver.resolve(channel.getChannelTypeUID());
+                    ChannelType type = channelTypeRegistry.getChannelType(channel.getChannelTypeUID());
                     if (type != null && type.isAdvanced()) {
                         return;
                     }
@@ -270,42 +291,43 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
     };
 
     private void informHandlerAboutLinkedChannel(Thing thing, Channel channel) {
-        // Don't notify the thing if the thing isn't initialised
-        if (!ThingHandlerHelper.isHandlerInitialized(thing)) {
-            return;
-        }
-
-        ThingHandler handler = thing.getHandler();
-        if (handler != null) {
-            try {
-                handler.channelLinked(channel.getUID());
-            } catch (Exception ex) {
-                logger.error("Exception occurred while informing handler: {}", ex.getMessage(), ex);
+        scheduler.submit(() -> {
+            // Don't notify the thing if the thing isn't initialised
+            if (ThingHandlerHelper.isHandlerInitialized(thing)) {
+                ThingHandler handler = thing.getHandler();
+                if (handler != null) {
+                    try {
+                        handler.channelLinked(channel.getUID());
+                    } catch (Exception ex) {
+                        logger.error("Exception occurred while informing handler: {}", ex.getMessage(), ex);
+                    }
+                } else {
+                    logger.trace(
+                            "Can not inform handler about linked channel, because no handler is assigned to the thing {}.",
+                            thing.getUID());
+                }
             }
-        } else {
-            logger.trace("Can not inform handler about linked channel, because no handler is assigned to the thing {}.",
-                    thing.getUID());
-        }
+        });
     }
 
     private void informHandlerAboutUnlinkedChannel(Thing thing, Channel channel) {
-        // Don't notify the thing if the thing isn't initialised
-        if (!ThingHandlerHelper.isHandlerInitialized(thing)) {
-            return;
-        }
-
-        ThingHandler handler = thing.getHandler();
-        if (handler != null) {
-            try {
-                handler.channelUnlinked(channel.getUID());
-            } catch (Exception ex) {
-                logger.error("Exception occurred while informing handler: {}", ex.getMessage(), ex);
+        scheduler.submit(() -> {
+            // Don't notify the thing if the thing isn't initialised
+            if (ThingHandlerHelper.isHandlerInitialized(thing)) {
+                ThingHandler handler = thing.getHandler();
+                if (handler != null) {
+                    try {
+                        handler.channelUnlinked(channel.getUID());
+                    } catch (Exception ex) {
+                        logger.error("Exception occurred while informing handler: {}", ex.getMessage(), ex);
+                    }
+                } else {
+                    logger.trace(
+                            "Can not inform handler about unlinked channel, because no handler is assigned to the thing {}.",
+                            thing.getUID());
+                }
             }
-        } else {
-            logger.trace(
-                    "Can not inform handler about unlinked channel, because no handler is assigned to the thing {}.",
-                    thing.getUID());
-        }
+        });
     }
 
     @Override

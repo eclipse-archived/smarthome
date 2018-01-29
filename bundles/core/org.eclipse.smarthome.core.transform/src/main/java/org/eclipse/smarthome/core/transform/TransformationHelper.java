@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.transform;
 
@@ -24,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TransformationHelper {
 
-    private final static Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
+    private static final Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
 
     /* RegEx to extract and parse a function String <code>'(.*?)\((.*)\):(.*)'</code> */
     protected static final Pattern EXTRACT_TRANSFORMFUNCTION_PATTERN = Pattern.compile("(.*?)\\((.*)\\):(.*)");
@@ -35,7 +40,7 @@ public class TransformationHelper {
      * @param pattern the pattern to check
      * @return true, if the pattern contains a transformation
      */
-    static public boolean isTransform(String pattern) {
+    public static boolean isTransform(String pattern) {
         return EXTRACT_TRANSFORMFUNCTION_PATTERN.matcher(pattern).matches();
     }
 
@@ -46,7 +51,7 @@ public class TransformationHelper {
      * @param transformationType the desired transformation type
      * @return a service instance or null, if none could be found
      */
-    static public TransformationService getTransformationService(BundleContext context, String transformationType) {
+    public static TransformationService getTransformationService(BundleContext context, String transformationType) {
         if (context != null) {
             Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
             String filter = "(smarthome.transform=" + transformationType + ")";

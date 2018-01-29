@@ -1,14 +1,20 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.persistence;
 
 import java.util.Date;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.types.State;
 
@@ -24,11 +30,11 @@ public interface ModifiablePersistenceService extends QueryablePersistenceServic
     /**
      * <p>
      * Stores the historic item value. This allows the item, time and value to be specified.
-     * 
+     *
      * <p>
      * Adding data with the same time as an existing record should update the current record value rather than adding a
      * new record.
-     * 
+     *
      * <p>
      * Implementors should keep in mind that all registered {@link PersistenceService}s are called synchronously. Hence
      * long running operations should be processed asynchronously. E.g. <code>store</code> adds things to a queue which
@@ -38,7 +44,7 @@ public interface ModifiablePersistenceService extends QueryablePersistenceServic
      * @param date the date of the record
      * @param state the state to be recorded
      */
-    void store(Item item, Date date, State state);
+    void store(@NonNull Item item, @NonNull Date date, @NonNull State state);
 
     /**
      * Removes data associated with an item from a persistence service.
@@ -49,5 +55,5 @@ public interface ModifiablePersistenceService extends QueryablePersistenceServic
      * @return true if the query executed successfully
      * @throws {@link IllegalArgumentException} if item name is null.
      */
-    boolean remove(FilterCriteria filter) throws IllegalArgumentException;
+    boolean remove(@NonNull FilterCriteria filter) throws IllegalArgumentException;
 }

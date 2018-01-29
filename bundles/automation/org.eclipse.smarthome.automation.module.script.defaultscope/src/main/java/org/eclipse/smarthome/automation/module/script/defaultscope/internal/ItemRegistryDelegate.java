@@ -1,18 +1,23 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.module.script.defaultscope.internal;
 
+import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.keyvalue.DefaultMapEntry;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
@@ -26,7 +31,7 @@ import org.eclipse.smarthome.core.types.State;
  */
 public class ItemRegistryDelegate implements Map<String, State> {
 
-    private ItemRegistry itemRegistry;
+    private final ItemRegistry itemRegistry;
 
     public ItemRegistryDelegate(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
@@ -62,7 +67,11 @@ public class ItemRegistryDelegate implements Map<String, State> {
 
     @Override
     public State get(Object key) {
-        return itemRegistry.get((String) key).getState();
+        final Item item = itemRegistry.get((String) key);
+        if (item == null) {
+            return null;
+        }
+        return item.getState();
     }
 
     @Override
@@ -103,12 +112,11 @@ public class ItemRegistryDelegate implements Map<String, State> {
         return values;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Set<java.util.Map.Entry<String, State>> entrySet() {
         Set<Map.Entry<String, State>> entries = new HashSet<Map.Entry<String, State>>();
         for (Item item : itemRegistry.getAll()) {
-            entries.add(new DefaultMapEntry(item.getName(), item.getState()));
+            entries.add(new AbstractMap.SimpleEntry<>(item.getName(), item.getState()));
         }
         return entries;
     }

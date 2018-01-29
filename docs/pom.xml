@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.eclipse.smarthome</groupId>
     <artifactId>smarthome</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.10.0-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -139,8 +139,8 @@
                 File(simpleBindingNameDir.path, 'README.md')
                 if(readme.exists()) {
                 println readme
-                readme.renameTo(new File(simpleBindingNameDir.path, 'readme.md'))
                 readme.write('---\nlayout: documentation\n---\n\n&lt;!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source file --&gt;\n\n{% include base.html %}\n\n' + readme.text)
+                readme.renameTo(new File(simpleBindingNameDir.path, 'readme.md'))
                 }
                 }
                 }
@@ -170,8 +170,8 @@
                 File(simpleIconsetNameDir.path, 'README.md')
                 if(readme.exists()) {
                 println readme
-                readme.renameTo(new File(simpleIconsetNameDir.path, 'readme.md'))
                 readme.write('---\nlayout: documentation\n---\n\n&lt;!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source file --&gt;\n\n{% include base.html %}\n\n' + readme.text)
+                readme.renameTo(new File(simpleIconsetNameDir.path, 'readme.md'))
                 }
                 }
                 }
@@ -201,8 +201,8 @@
                 File(simpleUINameDir.path, 'README.md')
                 if(readme.exists()) {
                 println readme
-                readme.renameTo(new File(simpleUINameDir.path, 'readme.md'))
                 readme.write('---\nlayout: documentation\n---\n\n&lt;!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source file --&gt;\n\n{% include base.html %}\n\n' + readme.text)
+                readme.renameTo(new File(simpleUINameDir.path, 'readme.md'))
                 }
                 }
                 }

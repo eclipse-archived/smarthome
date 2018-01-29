@@ -1,16 +1,20 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.events;
 
+import java.util.Collections;
 import java.util.Set;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 
 /**
@@ -25,7 +29,7 @@ public abstract class AbstractEventFactory implements EventFactory {
 
     private final Set<String> supportedEventTypes;
 
-    private final static Gson jsonConverter = new Gson();
+    private static final Gson JSONCONVERTER = new Gson();
 
     /**
      * Must be called in subclass constructor to define the supported event types.
@@ -33,7 +37,7 @@ public abstract class AbstractEventFactory implements EventFactory {
      * @param supportedEventTypes the supported event types
      */
     public AbstractEventFactory(Set<String> supportedEventTypes) {
-        this.supportedEventTypes = ImmutableSet.copyOf(supportedEventTypes);
+        this.supportedEventTypes = Collections.unmodifiableSet(supportedEventTypes);
     }
 
     @Override
@@ -53,12 +57,9 @@ public abstract class AbstractEventFactory implements EventFactory {
     }
 
     private void assertValidArguments(String eventType, String topic, String payload) {
-        Preconditions.checkArgument(eventType != null && !eventType.isEmpty(),
-                "The argument 'eventType' must not be null or empty.");
-        Preconditions.checkArgument(topic != null && !topic.isEmpty(),
-                "The argument 'topic' must not be null or empty.");
-        Preconditions.checkArgument(payload != null && !payload.isEmpty(),
-                "The argument 'payload' must not be null or empty.");
+        checkNotNullOrEmpty(eventType, "eventType");
+        checkNotNullOrEmpty(topic, "topic");
+        checkNotNullOrEmpty(payload, "payload");
     }
 
     /**
@@ -84,7 +85,7 @@ public abstract class AbstractEventFactory implements EventFactory {
      * @return a serialized Json representation
      */
     protected static String serializePayload(Object payloadObject) {
-        return jsonConverter.toJson(payloadObject);
+        return JSONCONVERTER.toJson(payloadObject);
     }
 
     /**
@@ -96,7 +97,7 @@ public abstract class AbstractEventFactory implements EventFactory {
      * @return an object of type T from the payload
      */
     protected static <T> T deserializePayload(String payload, Class<T> classOfPayload) {
-        return jsonConverter.fromJson(payload, classOfPayload);
+        return JSONCONVERTER.fromJson(payload, classOfPayload);
     }
 
     /**
@@ -108,6 +109,18 @@ public abstract class AbstractEventFactory implements EventFactory {
      */
     protected String[] getTopicElements(String topic) {
         return topic.split("/");
+    }
+
+    protected static void checkNotNull(Object object, String argumentName) {
+        if (object == null) {
+            throw new IllegalArgumentException("The argument '" + argumentName + "' must not be null.");
+        }
+    }
+
+    protected static void checkNotNullOrEmpty(String string, String argumentName) {
+        if (string == null || string.isEmpty()) {
+            throw new IllegalArgumentException("The argument '" + argumentName + "' must not be null or empty.");
+        }
     }
 
 }

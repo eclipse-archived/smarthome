@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.internal;
 
@@ -26,6 +31,7 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.RegistryHook;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -34,7 +40,7 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
-import org.eclipse.smarthome.core.thing.type.TypeResolver;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -58,14 +64,15 @@ public class ChannelItemProvider implements ItemProvider {
 
     private final Logger logger = LoggerFactory.getLogger(ChannelItemProvider.class);
 
-    private Set<ProviderChangeListener<Item>> listeners = new HashSet<>();
+    private final Set<ProviderChangeListener<Item>> listeners = new HashSet<>();
 
     private LocaleProvider localeProvider;
     private ThingRegistry thingRegistry;
     private ItemChannelLinkRegistry linkRegistry;
     private ItemRegistry itemRegistry;
-    private Set<ItemFactory> itemFactories = new HashSet<>();
+    private final Set<ItemFactory> itemFactories = new HashSet<>();
     private Map<String, Item> items = null;
+    private ChannelTypeRegistry channelTypeRegistry;
 
     private boolean enabled = true;
     private boolean initialized = false;
@@ -146,6 +153,15 @@ public class ChannelItemProvider implements ItemProvider {
         this.linkRegistry = null;
     }
 
+    @Reference
+    protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry;
+    }
+
+    protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null;
+    }
+
     @Activate
     protected void activate(Map<String, Object> properties) {
         modified(properties);
@@ -212,12 +228,12 @@ public class ChannelItemProvider implements ItemProvider {
 
     private void addRegistryChangeListeners() {
         this.linkRegistry.addRegistryChangeListener(linkRegistryListener);
-        this.itemRegistry.addRegistryChangeListener(itemRegistryListener);
+        this.itemRegistry.addRegistryHook(itemRegistryListener);
         this.thingRegistry.addRegistryChangeListener(thingRegistryListener);
     }
 
     private void removeRegistryChangeListeners() {
-        this.itemRegistry.removeRegistryChangeListener(itemRegistryListener);
+        this.itemRegistry.removeRegistryHook(itemRegistryListener);
         this.linkRegistry.removeRegistryChangeListener(linkRegistryListener);
         this.thingRegistry.removeRegistryChangeListener(thingRegistryListener);
     }
@@ -261,7 +277,8 @@ public class ChannelItemProvider implements ItemProvider {
 
     private String getCategory(Channel channel) {
         if (channel.getChannelTypeUID() != null) {
-            ChannelType channelType = TypeResolver.resolve(channel.getChannelTypeUID(), localeProvider.getLocale());
+            ChannelType channelType = channelTypeRegistry.getChannelType(channel.getChannelTypeUID(),
+                    localeProvider.getLocale());
             if (channelType != null) {
                 return channelType.getCategory();
             }
@@ -275,7 +292,7 @@ public class ChannelItemProvider implements ItemProvider {
         } else {
             final Locale locale = localeProvider.getLocale();
             if (channel.getChannelTypeUID() != null) {
-                final ChannelType channelType = TypeResolver.resolve(channel.getChannelTypeUID(), locale);
+                final ChannelType channelType = channelTypeRegistry.getChannelType(channel.getChannelTypeUID(), locale);
                 if (channelType != null) {
                     return channelType.getLabel();
                 }
@@ -344,10 +361,10 @@ public class ChannelItemProvider implements ItemProvider {
         }
     };
 
-    RegistryChangeListener<Item> itemRegistryListener = new RegistryChangeListener<Item>() {
+    RegistryHook<Item> itemRegistryListener = new RegistryHook<Item>() {
 
         @Override
-        public void added(Item element) {
+        public void beforeAdding(Item element) {
             // check, if it is our own item
             for (Item item : items.values()) {
                 if (item == element) {
@@ -366,7 +383,7 @@ public class ChannelItemProvider implements ItemProvider {
         }
 
         @Override
-        public void removed(Item element) {
+        public void afterRemoving(Item element) {
             // check, if it is our own item
             for (Item item : items.values()) {
                 if (item == element) {
@@ -383,8 +400,5 @@ public class ChannelItemProvider implements ItemProvider {
             }
         }
 
-        @Override
-        public void updated(Item oldElement, Item element) {
-        }
     };
 }

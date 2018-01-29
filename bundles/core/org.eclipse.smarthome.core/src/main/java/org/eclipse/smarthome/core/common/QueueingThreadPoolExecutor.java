@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.common;
 
@@ -55,7 +60,7 @@ public class QueueingThreadPoolExecutor extends ThreadPoolExecutor {
     private Logger logger = LoggerFactory.getLogger(QueueingThreadPoolExecutor.class);
 
     /** we will use a core pool size of 1 since we allow to timeout core threads. */
-    final static int CORE_THREAD_POOL_SIZE = 1;
+    static final int CORE_THREAD_POOL_SIZE = 1;
 
     /** Our queue for queueing tasks that wait for a thread to become available */
     private LinkedTransferQueue<Runnable> taskQueue = new LinkedTransferQueue<>();
@@ -63,9 +68,9 @@ public class QueueingThreadPoolExecutor extends ThreadPoolExecutor {
     /** The thread for processing the queued tasks */
     private Thread queueThread;
 
-    final private Object semaphore = new Object();
+    private final Object semaphore = new Object();
 
-    final private String threadPoolName;
+    private final String threadPoolName;
 
     /**
      * Allows to subclass QueueingThreadPoolExecutor.

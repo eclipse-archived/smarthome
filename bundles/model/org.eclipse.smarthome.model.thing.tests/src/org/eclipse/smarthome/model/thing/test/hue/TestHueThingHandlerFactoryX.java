@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.thing.test.hue;
 
@@ -50,11 +55,10 @@ public class TestHueThingHandlerFactoryX extends BaseThingHandlerFactory {
     public static final String LIGHT_ID = "XlightId";
 
     public TestHueThingHandlerFactoryX(ComponentContext componentContext) {
-    	
-		super.activate(componentContext);
-	}
-    
-    
+
+        super.activate(componentContext);
+    }
+
     @Override
     public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID,
             ThingUID bridgeUID) {
@@ -75,21 +79,22 @@ public class TestHueThingHandlerFactoryX extends BaseThingHandlerFactory {
     }
 
     private ThingUID getBridgeThingUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration) {
-        if (thingUID == null) {
+        if (thingUID != null) {
+            return thingUID;
+        } else {
             String serialNumber = (String) configuration.get(SERIAL_NUMBER);
-            thingUID = new ThingUID(thingTypeUID, serialNumber);
+            return new ThingUID(thingTypeUID, serialNumber);
         }
-        return thingUID;
     }
 
     private ThingUID getLightUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration,
             ThingUID bridgeUID) {
-        String lightId = (String) configuration.get(LIGHT_ID);
-
-        if (thingUID == null) {
-            thingUID = new ThingUID(thingTypeUID, lightId, bridgeUID.getId());
+        if (thingUID != null) {
+            return thingUID;
+        } else {
+            String lightId = (String) configuration.get(LIGHT_ID);
+            return new ThingUID(thingTypeUID, lightId, bridgeUID.getId());
         }
-        return thingUID;
     }
 
     @Override

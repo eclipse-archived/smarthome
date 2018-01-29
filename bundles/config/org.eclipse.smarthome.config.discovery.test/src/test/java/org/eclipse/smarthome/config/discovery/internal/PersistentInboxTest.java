@@ -1,12 +1,18 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
+import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -27,6 +33,9 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
+import org.eclipse.smarthome.config.discovery.inbox.events.InboxAddedEvent;
+import org.eclipse.smarthome.config.discovery.inbox.events.InboxUpdatedEvent;
+import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.eclipse.smarthome.core.storage.StorageService;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
@@ -37,9 +46,11 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 /**
@@ -137,9 +148,56 @@ public class PersistentInboxTest {
         assertEquals("3", lastAddedThing.getConfiguration().get("foo"));
     }
 
+    @Test
+    public void testEmittedAddedResultIsReadFromStorage() {
+        DiscoveryResult result = DiscoveryResultBuilder.create(THING_UID).withProperty("foo", 3).build();
+
+        EventPublisher eventPublisher = mock(EventPublisher.class);
+        inbox.setEventPublisher(eventPublisher);
+
+        when(storage.get(THING_UID.toString())) //
+                .thenReturn(null) //
+                .thenReturn(DiscoveryResultBuilder.create(THING_UID).withProperty("foo", "bar").build());
+
+        inbox.add(result);
+
+        // 1st call checks existence of the result in the storage (returns null)
+        // 2nd call retrieves the stored instance before the event gets emitted
+        // (modified due to storage mock configuration)
+        verify(storage, times(2)).get(THING_UID.toString());
+
+        ArgumentCaptor<InboxAddedEvent> eventCaptor = ArgumentCaptor.forClass(InboxAddedEvent.class);
+        verify(eventPublisher).post(eventCaptor.capture());
+        assertThat(eventCaptor.getValue().getDiscoveryResult().properties, hasEntry("foo", "bar"));
+    }
+
+    @Test
+    public void testEmittedUpdatedResultIsReadFromStorage() {
+        DiscoveryResult result = DiscoveryResultBuilder.create(THING_UID).withProperty("foo", 3).build();
+
+        EventPublisher eventPublisher = mock(EventPublisher.class);
+        inbox.setEventPublisher(eventPublisher);
+
+        when(storage.get(THING_UID.toString())) //
+                .thenReturn(result) //
+                .thenReturn(DiscoveryResultBuilder.create(THING_UID).withProperty("foo", "bar").build());
+
+        inbox.add(result);
+
+        // 1st call checks existence of the result in the storage (returns the original result)
+        // 2nd call retrieves the stored instance before the event gets emitted
+        // (modified due to storage mock configuration)
+        verify(storage, times(2)).get(THING_UID.toString());
+
+        ArgumentCaptor<InboxUpdatedEvent> eventCaptor = ArgumentCaptor.forClass(InboxUpdatedEvent.class);
+        verify(eventPublisher).post(eventCaptor.capture());
+        assertThat(eventCaptor.getValue().getDiscoveryResult().properties, hasEntry("foo", "bar"));
+    }
+
     private void configureConfigDescriptionRegistryMock(String paramName, Type type) throws URISyntaxException {
         URI configDescriptionURI = new URI("thing-type:test:test");
-        ThingType thingType = new ThingType(THING_TYPE_UID, null, "Test", null, null, null, null, configDescriptionURI);
+        ThingType thingType = ThingTypeBuilder.instance(THING_TYPE_UID, "Test")
+                .withConfigDescriptionURI(configDescriptionURI).build();
         ConfigDescriptionParameter param = ConfigDescriptionParameterBuilder.create(paramName, type).build();
         ConfigDescription configDesc = new ConfigDescription(configDescriptionURI, Collections.singletonList(param));
 

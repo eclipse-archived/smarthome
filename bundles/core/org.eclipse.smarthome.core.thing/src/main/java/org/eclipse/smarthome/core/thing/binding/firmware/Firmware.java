@@ -1,11 +1,18 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.binding.firmware;
+
+import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_MODEL_ID;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +22,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -25,8 +33,6 @@ import org.eclipse.smarthome.core.thing.firmware.FirmwareUpdateService;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
 
 /**
  * <p>
@@ -72,6 +78,7 @@ public final class Firmware implements Comparable<Firmware> {
     private final FirmwareUID uid;
     private final String vendor;
     private final String model;
+    private final boolean modelRestricted;
     private final String description;
     private final String version;
     private final String prerequisiteVersion;
@@ -91,6 +98,7 @@ public final class Firmware implements Comparable<Firmware> {
         this.version = builder.uid.getFirmwareVersion();
         this.vendor = builder.vendor;
         this.model = builder.model;
+        this.modelRestricted = builder.modelRestricted;
         this.description = builder.description;
         this.prerequisiteVersion = builder.prerequisiteVersion;
         this.changelog = builder.changelog;
@@ -130,6 +138,15 @@ public final class Firmware implements Comparable<Firmware> {
      */
     public String getModel() {
         return model;
+    }
+
+    /**
+     * Returns whether this firmware is restricted to things with the model provided by the {@link #getModel()} method.
+     *
+     * @return whether the firmware is restricted to a particular model
+     */
+    public boolean isModelRestricted() {
+        return modelRestricted;
     }
 
     /**
@@ -285,9 +302,25 @@ public final class Firmware implements Comparable<Firmware> {
         return new Version(firmwareVersion).compare(internalPrerequisiteVersion) >= 0;
     }
 
+    public boolean isSuitableFor(Thing thing) {
+        return hasSameThingType(thing) && hasRequiredModel(thing);
+    }
+
     @Override
     public int compareTo(Firmware firmware) {
         return -internalVersion.compare(new Version(firmware.getVersion()));
+    }
+
+    private boolean hasSameThingType(Thing thing) {
+        return Objects.equals(this.getUID().getThingTypeUID(), thing.getThingTypeUID());
+    }
+
+    private boolean hasRequiredModel(Thing thing) {
+        if (isModelRestricted()) {
+            return Objects.equals(this.getModel(), thing.getProperties().get(PROPERTY_MODEL_ID));
+        } else {
+            return true;
+        }
     }
 
     private static class Version {
@@ -349,6 +382,7 @@ public final class Firmware implements Comparable<Firmware> {
         private final FirmwareUID uid;
         private String vendor;
         private String model;
+        private boolean modelRestricted;
         private String description;
         private String prerequisiteVersion;
         private String changelog;
@@ -365,7 +399,7 @@ public final class Firmware implements Comparable<Firmware> {
          * @throws NullPointerException if given uid is null
          */
         public Builder(FirmwareUID uid) {
-            Preconditions.checkNotNull(uid, "Firmware UID must not be null.");
+            Objects.requireNonNull(uid, "Firmware UID must not be null.");
             this.uid = uid;
         }
 
@@ -390,6 +424,18 @@ public final class Firmware implements Comparable<Firmware> {
          */
         public Builder withModel(String model) {
             this.model = model;
+            return this;
+        }
+
+        /**
+         * Sets the modelRestricted flag in the builder.
+         *
+         * @param modelRestricted the modelRestricted flag to be added to the builder
+         *
+         * @return the updated builder
+         */
+        public Builder withModelRestricted(boolean modelRestricted) {
+            this.modelRestricted = modelRestricted;
             return this;
         }
 
@@ -496,6 +542,7 @@ public final class Firmware implements Comparable<Firmware> {
         result = prime * result + ((description == null) ? 0 : description.hashCode());
         result = prime * result + ((md5Hash == null) ? 0 : md5Hash.hashCode());
         result = prime * result + ((model == null) ? 0 : model.hashCode());
+        result = prime * result + Boolean.hashCode(modelRestricted);
         result = prime * result + ((onlineChangelog == null) ? 0 : onlineChangelog.hashCode());
         result = prime * result + ((prerequisiteVersion == null) ? 0 : prerequisiteVersion.hashCode());
         result = prime * result + ((uid == null) ? 0 : uid.hashCode());
@@ -545,6 +592,9 @@ public final class Firmware implements Comparable<Firmware> {
         } else if (!model.equals(other.model)) {
             return false;
         }
+        if (modelRestricted != other.modelRestricted) {
+            return false;
+        }
         if (onlineChangelog == null) {
             if (other.onlineChangelog != null) {
                 return false;
@@ -592,9 +642,10 @@ public final class Firmware implements Comparable<Firmware> {
 
     @Override
     public String toString() {
-        return "Firmware [uid=" + uid + ", vendor=" + vendor + ", model=" + model + ", description=" + description
-                + ", version=" + version + ", prerequisiteVersion=" + prerequisiteVersion + ", changelog=" + changelog
-                + ", onlineChangelog=" + onlineChangelog + ", md5Hash=" + md5Hash + ", properties=" + properties + "]";
+        return "Firmware [uid=" + uid + ", vendor=" + vendor + ", model=" + model + ", isModelRestricted="
+                + modelRestricted + ", description=" + description + ", version=" + version + ", prerequisiteVersion="
+                + prerequisiteVersion + ", changelog=" + changelog + ", onlineChangelog=" + onlineChangelog
+                + ", md5Hash=" + md5Hash + ", properties=" + properties + "]";
     }
 
 }

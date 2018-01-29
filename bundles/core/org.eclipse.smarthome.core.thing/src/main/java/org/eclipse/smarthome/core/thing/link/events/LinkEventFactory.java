@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.link.events;
 
@@ -15,7 +20,6 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.dto.ItemChannelLinkDTO;
 import org.osgi.service.component.annotations.Component;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
 /**
@@ -72,7 +76,7 @@ public class LinkEventFactory extends AbstractEventFactory {
      * @throws IllegalArgumentException if item channel link is null
      */
     public static ItemChannelLinkAddedEvent createItemChannelLinkAddedEvent(ItemChannelLink itemChannelLink) {
-        assertValidArgument(itemChannelLink);
+        checkNotNull(itemChannelLink, "itemChannelLink");
         String topic = buildTopic(LINK_ADDED_EVENT_TOPIC, itemChannelLink);
         ItemChannelLinkDTO itemChannelLinkDTO = map(itemChannelLink);
         String payload = serializePayload(itemChannelLinkDTO);
@@ -89,15 +93,11 @@ public class LinkEventFactory extends AbstractEventFactory {
      * @throws IllegalArgumentException if item channel link is null
      */
     public static ItemChannelLinkRemovedEvent createItemChannelLinkRemovedEvent(ItemChannelLink itemChannelLink) {
-        assertValidArgument(itemChannelLink);
+        checkNotNull(itemChannelLink, "itemChannelLink");
         String topic = buildTopic(LINK_REMOVED_EVENT_TOPIC, itemChannelLink);
         ItemChannelLinkDTO itemChannelLinkDTO = map(itemChannelLink);
         String payload = serializePayload(itemChannelLinkDTO);
         return new ItemChannelLinkRemovedEvent(topic, payload, itemChannelLinkDTO);
-    }
-
-    private static void assertValidArgument(AbstractLink itemChannelLink) {
-        Preconditions.checkArgument(itemChannelLink != null, "The argument 'itemChannelLink' must not be null.");
     }
 
     private static String buildTopic(String topic, AbstractLink itemChannelLink) {
@@ -106,7 +106,8 @@ public class LinkEventFactory extends AbstractEventFactory {
     }
 
     private static ItemChannelLinkDTO map(ItemChannelLink itemChannelLink) {
-        return new ItemChannelLinkDTO(itemChannelLink.getItemName(), itemChannelLink.getLinkedUID().toString());
+        return new ItemChannelLinkDTO(itemChannelLink.getItemName(), itemChannelLink.getLinkedUID().toString(),
+                itemChannelLink.getConfiguration().getProperties());
     }
 
 }

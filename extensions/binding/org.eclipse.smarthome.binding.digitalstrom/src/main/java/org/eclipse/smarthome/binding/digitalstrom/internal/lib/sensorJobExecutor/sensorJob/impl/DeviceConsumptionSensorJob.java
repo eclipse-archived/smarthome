@@ -1,19 +1,22 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.impl;
 
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.SensorJob;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.DsAPI;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Device;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DSID;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DeviceStateUpdate;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DeviceStateUpdateImpl;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.SensorEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.SensorEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.impl.DSID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,16 +30,35 @@ import org.slf4j.LoggerFactory;
 public class DeviceConsumptionSensorJob implements SensorJob {
 
     private static final Logger logger = LoggerFactory.getLogger(DeviceConsumptionSensorJob.class);
-    private Device device = null;
-    private SensorEnum sensorType = null;
-    private DSID meterDSID = null;
+    private final Device device;
+    private final SensorEnum sensorType;
+    private final DSID meterDSID;
     private long initalisationTime = 0;
+    private boolean updateDevice = true;
 
     /**
-     * Creates a new {@link DeviceConsumptionSensorJob} with the given {@link SensorEnum} for the given {@link Device}.
+     * Creates a new {@link DeviceConsumptionSensorJob}. Through updateDevice you can set, if the {@link Device} will be
+     * updates automatically.
      *
-     * @param device
-     * @param type sensor index
+     * @param device to update
+     * @param type to update
+     * @param updateDevice (true = automatically device, otherwise false)
+     * @see #DeviceConsumptionSensorJob(Device, SensorEnum)
+     */
+    public DeviceConsumptionSensorJob(Device device, SensorEnum type, boolean updateDevice) {
+        this.device = device;
+        this.sensorType = type;
+        this.meterDSID = device.getMeterDSID();
+        this.initalisationTime = System.currentTimeMillis();
+        this.updateDevice = updateDevice;
+    }
+
+    /**
+     * Creates a new {@link DeviceConsumptionSensorJob} with the given {@link SensorEnum} for the given {@link Device}
+     * and automatically {@link Device} update.
+     *
+     * @param device to update
+     * @param type to update
      */
     public DeviceConsumptionSensorJob(Device device, SensorEnum type) {
         this.device = device;
@@ -47,23 +69,11 @@ public class DeviceConsumptionSensorJob implements SensorJob {
 
     @Override
     public void execute(DsAPI digitalSTROM, String token) {
-        int consumption = digitalSTROM.getDeviceSensorValue(token, this.device.getDSID(), null, this.sensorType);
+        int consumption = digitalSTROM.getDeviceSensorValue(token, this.device.getDSID(), null, null,
+                device.getSensorIndex(sensorType));
         logger.debug("Executes {} new device consumption is {}", this.toString(), consumption);
-        switch (this.sensorType) {
-            case ACTIVE_POWER:
-                this.device.updateInternalDeviceState(
-                        new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_ACTIVE_POWER, consumption));
-                break;
-            case OUTPUT_CURRENT:
-                this.device.updateInternalDeviceState(
-                        new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_OUTPUT_CURRENT, consumption));
-                break;
-            case ELECTRIC_METER:
-                this.device.updateInternalDeviceState(
-                        new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_ELECTRIC_METER, consumption));
-                break;
-            default:
-                break;
+        if (updateDevice) {
+            device.setDeviceSensorDsValueBySensorJob(sensorType, consumption);
         }
     }
 
@@ -104,7 +114,25 @@ public class DeviceConsumptionSensorJob implements SensorJob {
 
     @Override
     public String toString() {
-        return "DeviceConsumptionSensorJob [sensorType=" + sensorType + ", deviceDSID : " + device.getDSID().getValue()
-                + ", meterDSID=" + meterDSID + ", initalisationTime=" + initalisationTime + "]";
+        return "DeviceConsumptionSensorJob [sensorType=" + sensorType + ", sensorIndex="
+                + device.getSensorIndex(sensorType) + ", deviceDSID : " + device.getDSID().getValue() + ", meterDSID="
+                + meterDSID + ", initalisationTime=" + initalisationTime + "]";
+    }
+
+    @Override
+    public String getID() {
+        return getID(device, sensorType);
+    }
+
+    /**
+     * Returns the id for a {@link DeviceConsumptionSensorJob} with the given {@link Device} and {@link SensorEnum}.
+     *
+     * @param device to update
+     * @param sensorType to update
+     * @return id
+     */
+    public static String getID(Device device, SensorEnum sensorType) {
+        return DeviceConsumptionSensorJob.class.getSimpleName() + "-" + device.getDSID().getValue() + "-"
+                + sensorType.toString();
     }
 }

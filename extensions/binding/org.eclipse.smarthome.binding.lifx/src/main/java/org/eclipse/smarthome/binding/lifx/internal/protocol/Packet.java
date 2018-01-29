@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.lifx.internal.protocol;
 
@@ -120,7 +125,7 @@ public abstract class Packet {
     }
 
     public void setTarget(MACAddress lightAddress) {
-        this.target = lightAddress;
+        this.target = lightAddress != null ? lightAddress : MACAddress.BROADCAST_ADDRESS;
     }
 
     public ByteBuffer getReserved1() {
@@ -152,8 +157,10 @@ public abstract class Packet {
     }
 
     public void setSequence(int sequence) {
-        if (sequence < 255) {
+        if (0 <= sequence && sequence < 256) {
             this.sequence = sequence;
+        } else {
+            throw new IllegalArgumentException("Sequence number '" + sequence + "' is not in range [0, 255]");
         }
     }
 

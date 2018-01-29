@@ -115,13 +115,13 @@
 	<channel-type id="led" advanced="true">
 		<item-type>Switch</item-type>
 		<label>Led</label>
-		<description>Set or get the status of the white led on the front of the Zone Player </description>
+		<description>Set or get the status of the white led on the front of the Zone Player</description>
 	</channel-type>
 
 	<channel-type id="localcoordinator" advanced="true">
 		<item-type>Switch</item-type>
 		<label>Local Coordinator</label>
-		<description>Indicator set to ON if the this Zone Player is the Zone Group Coordinator</description>
+		<description>Indicator set to ON if this Zone Player is the Zone Group Coordinator</description>
 		<state readOnly="true" />
 	</channel-type>
 
@@ -183,7 +183,7 @@
 	<channel-type id="remove" advanced="true">
 		<item-type>String</item-type>
 		<label>Remove</label>
-		<description>Remove the given Zone Player to the group of this Zone Player</description>
+		<description>Remove the given Zone Player from the group of this Zone Player</description>
 	</channel-type>
 
 	<channel-type id="repeat" advanced="true">
@@ -225,7 +225,7 @@
 	<channel-type id="sleeptimer" advanced="true">
 		<item-type>Number</item-type>
 		<label>Sleep Timer</label>
-		<description>Set/show the duration of the SleepTimer in seconds</description>
+		<description>Set/show the duration of the sleep timer in seconds</description>
 		<state min="0" max="68399" step="1" readOnly="false" pattern="%d s" />
 	</channel-type>
 
@@ -239,7 +239,7 @@
 	<channel-type id="standalone" advanced="true">
 		<item-type>Switch</item-type>
 		<label>Stand Alone</label>
-		<description>Make the Zone Player leave its Group and become a standalone Zone Player</description>
+		<description>Make the Zone Player leave its group and become a standalone Zone Player</description>
 	</channel-type>
 
 	<!-- The Sonos State Type -->
@@ -253,7 +253,13 @@
 	<channel-type id="stop" advanced="true">
 		<item-type>Switch</item-type>
 		<label>Stop</label>
-		<description>Stop the Zone Player</description>
+		<description>Stop the Zone Player. ON if the player is stopped.</description>
+	</channel-type>
+
+	<channel-type id="tuneinstationid" advanced="true">
+		<item-type>String</item-type>
+		<label>TuneIn Station Id</label>
+		<description>Provide the current TuneIn station id or play the TuneIn radio given by its station id</description>
 	</channel-type>
 
 	<channel-type id="volume">
@@ -261,13 +267,6 @@
 		<label>Volume</label>
 		<description>Set or get the master volume</description>
 		<category>SoundVolume</category>
-	</channel-type>
-
-	<channel-type id="zonegroup" advanced="true">
-		<item-type>String</item-type>
-		<label>Zone Group</label>
-		<description>XML formatted string with the current zonegroup configuration</description>
-		<state readOnly="true" />
 	</channel-type>
 
 	<channel-type id="zonegroupid" advanced="true">
@@ -280,7 +279,7 @@
 	<channel-type id="zonename">
 		<item-type>String</item-type>
 		<label>Zone Name</label>
-		<description>Name of the Zone associated to the Zone Player</description>
+		<description>Name of the Zone Group associated to the Zone Player</description>
 		<state readOnly="true" />
 	</channel-type>
 
@@ -295,7 +294,7 @@
 	<channel-type id="playlinein" advanced="true">
 		<item-type>String</item-type>
 		<label>Play Line-in</label>
-		<description>Play the Line-in of the the Zone Player corresponding to the given UIN</description>
+		<description>Play the line-in of the the Zone Player corresponding to the given UIN</description>
 	</channel-type>
 
 </thing:thing-descriptions>

@@ -1,19 +1,23 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.core.status.events;
 
+import java.util.Collections;
 import java.util.Set;
 
 import org.eclipse.smarthome.config.core.status.ConfigStatusInfo;
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
-
-import com.google.common.collect.Sets;
 
 /**
  * The {@link ConfigStatusEventFactory} is the event factory implementation to create configuration status events, e.g.
@@ -23,7 +27,7 @@ import com.google.common.collect.Sets;
  */
 public final class ConfigStatusEventFactory extends AbstractEventFactory {
 
-    private static final Set<String> SUPPORTED_EVENT_TYPES = Sets.newHashSet(ConfigStatusInfoEvent.TYPE);
+    private static final Set<String> SUPPORTED_EVENT_TYPES = Collections.singleton(ConfigStatusInfoEvent.TYPE);
 
     /**
      * Creates a new {@link ConfigStatusEventFactory}.

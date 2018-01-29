@@ -20,7 +20,7 @@
 	<div ng-show="step==2 && parameters.length>0">
 		<h3 class="md-title-nospace">Configurations</h3>
 		<div ng-init="form={}">
-			<div ng-include="'partials/include.config.html'"></div>
+			<config-description configuration="configuration" parameters="parameters" />
 		</div>
 	</div>
 </div>

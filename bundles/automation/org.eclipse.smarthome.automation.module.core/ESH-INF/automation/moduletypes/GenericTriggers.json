@@ -12,7 +12,7 @@
                "label":"Topic",
                "description":"This is the topic, the trigger will listen to: >>smarthome/*<<",
                "required":true,
-               "defaultValue":"smarthome/*"
+               "default":"smarthome/*"
             },
             {
                "name":"eventSource",
@@ -20,7 +20,7 @@
                "label":"Source",
                "description":"This is the source of the event (eg. item name)",
                "required":true,
-               "defaultValue":""
+               "default":""
             },
             {
                "name":"eventTypes",
@@ -28,7 +28,7 @@
                "label":"Event Type",
                "description":"the event type, the trigger should listen to. Multiple types can be specified comma-separated",
                "required":true,
-               "defaultValue":""
+               "default":""
             }
          ],
          "outputs":[

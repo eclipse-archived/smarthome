@@ -1,12 +1,18 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.cache;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -23,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * specified duration has passed since the item was created, or the most recent replacement of the value.
  *
  * @author Christoph Weitkamp - Initial contribution and API.
+ * @author Martin van Wingerden - Added constructor accepting Duration and putIfAbsentAndGet
  *
  * @param <K> the type of the key
  * @param <V> the type of the value
@@ -33,6 +40,15 @@ public class ExpiringCacheMap<K, V> {
 
     private final long expiry;
     private final ConcurrentMap<K, ExpiringCache<V>> items;
+
+    /**
+     * Creates a new instance.
+     *
+     * @param expiry the duration for how long the value stays valid
+     */
+    public ExpiringCacheMap(Duration expiry) {
+        this(expiry.toMillis());
+    }
 
     /**
      * Creates a new instance.
@@ -69,6 +85,51 @@ public class ExpiringCacheMap<K, V> {
         }
 
         items.put(key, item);
+    }
+
+    /**
+     * If the specified key is not already associated with a value, associate it with the given {@link ExpiringCache}.
+     *
+     * @param key the key with which the specified value is to be associated
+     * @param item the item to be associated with the specified key
+     */
+    public void putIfAbsent(K key, ExpiringCache<V> item) {
+        if (key == null) {
+            throw new IllegalArgumentException("Item cannot be added as key is null.");
+        }
+        if (item == null) {
+            throw new IllegalArgumentException("Item cannot be added as item is null.");
+        }
+
+        items.putIfAbsent(key, item);
+    }
+
+    /**
+     * If the specified key is not already associated, associate it with the given action.
+     *
+     * Note that this method has the overhead of actually calling/performing the action
+     *
+     * @param key the key with which the specified value is to be associated
+     * @param action the action for the item to be associated with the specified key to retrieve/calculate the value
+     * @return the (cached) value for the specified key
+     */
+    public V putIfAbsentAndGet(K key, Supplier<V> action) {
+        return putIfAbsentAndGet(key, new ExpiringCache<>(expiry, action));
+    }
+
+    /**
+     * If the specified key is not already associated with a value, associate it with the given {@link ExpiringCache}.
+     *
+     * Note that this method has the overhead of actually calling/performing the action
+     *
+     * @param key the key with which the specified value is to be associated
+     * @param item the item to be associated with the specified key
+     * @return the (cached) value for the specified key
+     */
+    public V putIfAbsentAndGet(K key, ExpiringCache<V> item) {
+        putIfAbsent(key, item);
+
+        return this.get(key);
     }
 
     /**

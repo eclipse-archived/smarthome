@@ -1,0 +1,8 @@
+<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label>
+<md-input-container ng-class="{'md-input-invalid':form.configForm[parameter.name].$invalid}" class="col-xs-12 configContainer no-animation"> <input class="location-input" ng-init="focus=false" ng-pattern="parameter.pattern" name="{{parameter.name}}" ng-readonly="parameter.readOnly" ng-model="model" ng-required="parameter.required" type="text" ng-focus="focus=true" ng-blur="focus=false" aria-label="parameter.label">
+<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
+	<div ng-message="pattern">Input should satisfy expression {{parameter.pattern}}</div>
+	<div ng-message="required">Field is required</div>
+</div>
+<map-component model="model" read-only="parameter.readOnly" />
+<parameter-description description="parameter.description" /> </md-input-container>

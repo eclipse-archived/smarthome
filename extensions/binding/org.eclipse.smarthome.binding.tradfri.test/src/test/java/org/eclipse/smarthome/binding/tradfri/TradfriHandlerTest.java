@@ -1,11 +1,19 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.tradfri;
+
+import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
+import static org.eclipse.smarthome.binding.tradfri.internal.config.TradfriDeviceConfig.*;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.core.Is.is;
@@ -46,14 +54,16 @@ public class TradfriHandlerTest extends JavaOSGiTest {
         managedThingProvider = getService(ThingProvider.class, ManagedThingProvider.class);
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put(GatewayConfig.HOST, "1.2.3.4");
-        properties.put(GatewayConfig.CODE, "abc");
-        bridge = BridgeBuilder.create(TradfriBindingConstants.GATEWAY_TYPE_UID, "1").withLabel("My Gateway")
+        properties.put(GATEWAY_CONFIG_HOST, "1.2.3.4");
+        properties.put(GATEWAY_CONFIG_IDENTITY, "identity");
+        properties.put(GATEWAY_CONFIG_PRE_SHARED_KEY, "pre-shared-secret-key");
+        bridge = BridgeBuilder.create(GATEWAY_TYPE_UID, "1").withLabel("My Gateway")
                 .withConfiguration(new Configuration(properties)).build();
+
         properties = new HashMap<>();
-        properties.put(DeviceConfig.ID, "65537");
-        thing = ThingBuilder.create(TradfriBindingConstants.THING_TYPE_DIMMABLE_LIGHT, "1").withLabel("My Bulb")
-                .withBridge(bridge.getUID()).withConfiguration(new Configuration(properties)).build();
+        properties.put(CONFIG_ID, "65537");
+        thing = ThingBuilder.create(THING_TYPE_DIMMABLE_LIGHT, "1").withLabel("My Bulb").withBridge(bridge.getUID())
+                .withConfiguration(new Configuration(properties)).build();
     }
 
     @After
@@ -68,6 +78,17 @@ public class TradfriHandlerTest extends JavaOSGiTest {
         assertThat(bridge.getHandler(), is(nullValue()));
         managedThingProvider.add(bridge);
         waitForAssert(() -> assertThat(bridge.getHandler(), notNullValue()));
+
+        configurationOfTradfriGatewayHandler();
+    }
+
+    private void configurationOfTradfriGatewayHandler() {
+        Configuration configuration = bridge.getConfiguration();
+        assertThat(configuration, is(notNullValue()));
+
+        assertThat(configuration.get(GATEWAY_CONFIG_HOST), is("1.2.3.4"));
+        assertThat(configuration.get(GATEWAY_CONFIG_IDENTITY), is("identity"));
+        assertThat(configuration.get(GATEWAY_CONFIG_PRE_SHARED_KEY), is("pre-shared-secret-key"));
     }
 
     @Test
@@ -76,5 +97,14 @@ public class TradfriHandlerTest extends JavaOSGiTest {
         managedThingProvider.add(bridge);
         managedThingProvider.add(thing);
         waitForAssert(() -> assertThat(thing.getHandler(), notNullValue()));
+
+        configurationOfTradfriLightHandler();
+    }
+
+    private void configurationOfTradfriLightHandler() {
+        Configuration configuration = thing.getConfiguration();
+        assertThat(configuration, is(notNullValue()));
+
+        assertThat(configuration.get(CONFIG_ID), is("65537"));
     }
 }

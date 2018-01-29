@@ -1,17 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
-
-/**
- * Copyright (c) 2014-2016 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.service;
 
@@ -106,21 +103,6 @@ public abstract class AbstractWatchService {
      *         done.
      */
     protected abstract Kind<?>[] getWatchEventKinds(Path directory);
-
-    /**
-     * If the queue reader is watching the directory changes, all the watch events will be processed. Otherwise the
-     * events for changed directories will be skipped. For example, on some platforms an event for modified directory is
-     * generated when a new file is created within the directory. However, this behavior could vary a lot, depending on
-     * the platform (for more information see "Platform dependencies" section in the {@link WatchService} documentation)
-     *
-     * @param directory
-     *
-     * @param watchDirectoryChanges set to <code>true</code> if the directory events have to be processed and
-     *            <code>false</code> otherwise
-     */
-    protected boolean getWatchingDirectoryChanges(Path directory) {
-        return true;
-    }
 
     /**
      * Processes the given watch event. Note that the kind and the number of the events for the watched directory is a

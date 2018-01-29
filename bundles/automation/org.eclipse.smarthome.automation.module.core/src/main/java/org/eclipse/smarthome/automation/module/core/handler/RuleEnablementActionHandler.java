@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 1997, 2016 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.automation.module.core.handler;
 
@@ -42,17 +47,17 @@ public class RuleEnablementActionHandler extends BaseModuleHandler<Action> imple
     /**
      * This filed contains the type of this handler so it can be recognized from the factory.
      */
-    public final static String UID = "core.RuleEnablementAction";
+    public static final String UID = "core.RuleEnablementAction";
 
     /**
      * This field is a key to the 'enable' property of the {@link Action}.
      */
-    private final static String ENABLE_KEY = "enable";
+    private static final String ENABLE_KEY = "enable";
 
     /**
      * This field is a key to the 'rulesUIDs' property of the {@link Action}.
      */
-    private final static String RULE_UIDS_KEY = "ruleUIDs";
+    private static final String RULE_UIDS_KEY = "ruleUIDs";
 
     /**
      * This logger is used to log warning message if at some point {@link RuleRegistry} service becomes unavailable.

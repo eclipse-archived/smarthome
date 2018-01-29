@@ -1,10 +1,15 @@
 /**
-* Copyright (c) 2015, 2017 by Bosch Software Innovations and others.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*/
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
 package org.eclipse.smarthome.automation.rest.internal;
 
 import static org.eclipse.smarthome.automation.RulePredicates.*;
@@ -117,6 +122,7 @@ public class RuleResource implements RESTResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Creates a rule.")
+    @Produces(MediaType.APPLICATION_JSON)
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Created", responseHeaders = @ResponseHeader(name = "Location", description = "Newly created Rule", response = String.class)),
             @ApiResponse(code = 409, message = "Creation of the rule is refused. Rule with the same UID already exists."),

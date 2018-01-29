@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
@@ -14,16 +19,20 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxListener;
+import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.events.AbstractTypedEventSubscriber;
 import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
@@ -54,13 +63,17 @@ import org.slf4j.LoggerFactory;
 @Component(immediate = true, configurationPid = "org.eclipse.smarthome.inbox", service = EventSubscriber.class, property = {
         "service.config.description.uri=system:inbox", "service.config.label=Inbox", "service.config.category=system",
         "service.pid=org.eclipse.smarthome.inbox" })
+@NonNullByDefault
 public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingStatusInfoChangedEvent>
-        implements InboxListener {
+        implements InboxListener, RegistryChangeListener<Thing> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @NonNullByDefault({})
     private ThingRegistry thingRegistry;
+    @NonNullByDefault({})
     private ThingTypeRegistry thingTypeRegistry;
+    @NonNullByDefault({})
     private Inbox inbox;
     private boolean autoIgnore = true;
     private boolean autoApprove = false;
@@ -84,7 +97,8 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
             String value = getRepresentationValue(result);
             if (value != null) {
                 Thing thing = thingRegistry.stream()
-                        .filter(t -> Objects.equals(value, getRepresentationPropertyValueForThing(t))).findFirst()
+                        .filter(t -> Objects.equals(value, getRepresentationPropertyValueForThing(t)))
+                        .filter(t -> Objects.equals(t.getThingTypeUID(), result.getThingTypeUID())).findFirst()
                         .orElse(null);
                 if (thing != null) {
                     logger.debug("Auto-ignoring the inbox entry for the representation value {}", value);
@@ -97,12 +111,6 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
         }
     }
 
-    private String getRepresentationValue(DiscoveryResult result) {
-        return result.getRepresentationProperty() != null
-                ? Objects.toString(result.getProperties().get(result.getRepresentationProperty()), null)
-                : null;
-    }
-
     @Override
     public void thingUpdated(Inbox inbox, DiscoveryResult result) {
     }
@@ -111,45 +119,65 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
     public void thingRemoved(Inbox inbox, DiscoveryResult result) {
     }
 
-    private void autoIgnore(Thing thing, ThingStatus thingStatus) {
+    @Override
+    public void added(Thing element) {
+    }
+
+    @Override
+    public void removed(Thing element) {
+        removePossiblyIgnoredResultInInbox(element);
+    }
+
+    @Override
+    public void updated(Thing oldElement, Thing element) {
+    }
+
+    private @Nullable String getRepresentationValue(DiscoveryResult result) {
+        return result.getRepresentationProperty() != null
+                ? Objects.toString(result.getProperties().get(result.getRepresentationProperty()), null)
+                : null;
+    }
+
+    private void autoIgnore(@Nullable Thing thing, ThingStatus thingStatus) {
         if (ThingStatus.ONLINE.equals(thingStatus)) {
             checkAndIgnoreInInbox(thing);
-        } else if (ThingStatus.REMOVING.equals(thingStatus)) {
-            removePossiblyIgnoredResultInInbox(thing);
         }
     }
 
-    private void checkAndIgnoreInInbox(Thing thing) {
+    private void checkAndIgnoreInInbox(@Nullable Thing thing) {
         if (thing != null) {
             String representationValue = getRepresentationPropertyValueForThing(thing);
             if (representationValue != null) {
-                ignoreInInbox(representationValue);
+                ignoreInInbox(thing.getThingTypeUID(), representationValue);
             }
         }
     }
 
-    private void ignoreInInbox(String representationValue) {
+    private void ignoreInInbox(ThingTypeUID thingtypeUID, String representationValue) {
         List<DiscoveryResult> results = inbox.stream().filter(withRepresentationPropertyValue(representationValue))
-                .collect(Collectors.toList());
+                .filter(forThingTypeUID(thingtypeUID)).collect(Collectors.toList());
         if (results.size() == 1) {
             logger.debug("Auto-ignoring the inbox entry for the representation value {}", representationValue);
             inbox.setFlag(results.get(0).getThingUID(), DiscoveryResultFlag.IGNORED);
         }
     }
 
-    private void removePossiblyIgnoredResultInInbox(Thing thing) {
+    private void removePossiblyIgnoredResultInInbox(@Nullable Thing thing) {
         if (thing != null) {
             String representationValue = getRepresentationPropertyValueForThing(thing);
             if (representationValue != null) {
-                removeFromInbox(representationValue);
+                removeFromInbox(thing.getThingTypeUID(), representationValue);
             }
         }
     }
 
-    private String getRepresentationPropertyValueForThing(Thing thing) {
+    private @Nullable String getRepresentationPropertyValueForThing(Thing thing) {
         ThingType thingType = thingTypeRegistry.getThingType(thing.getThingTypeUID());
         if (thingType != null) {
             String representationProperty = thingType.getRepresentationProperty();
+            if (representationProperty == null) {
+                return null;
+            }
             Map<String, String> properties = thing.getProperties();
             if (properties.containsKey(representationProperty)) {
                 return properties.get(representationProperty);
@@ -162,9 +190,10 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
         return null;
     }
 
-    private void removeFromInbox(String representationValue) {
+    private void removeFromInbox(ThingTypeUID thingtypeUID, String representationValue) {
         List<DiscoveryResult> results = inbox.stream().filter(withRepresentationPropertyValue(representationValue))
-                .filter(withFlag(DiscoveryResultFlag.IGNORED)).collect(Collectors.toList());
+                .filter(forThingTypeUID(thingtypeUID)).filter(withFlag(DiscoveryResultFlag.IGNORED))
+                .collect(Collectors.toList());
         if (results.size() == 1) {
             logger.debug("Removing the ignored result from the inbox for the representation value {}",
                     representationValue);
@@ -180,7 +209,7 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
         }
     }
 
-    protected void activate(Map<String, Object> properties) {
+    protected void activate(@Nullable Map<String, @Nullable Object> properties) {
         if (properties != null) {
             Object value = properties.get("autoIgnore");
             autoIgnore = value == null || !value.toString().equals("false");
@@ -195,9 +224,11 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
     @Reference
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = thingRegistry;
+        thingRegistry.addRegistryChangeListener(this);
     }
 
     protected void unsetThingRegistry(ThingRegistry thingRegistry) {
+        thingRegistry.removeRegistryChangeListener(this);
         this.thingRegistry = null;
     }
 

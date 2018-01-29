@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.eclipse.smarthome</groupId>
     <artifactId>smarthome</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.10.0-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -27,5 +27,20 @@
     <module>org.eclipse.smarthome.feature.test</module>
     <module>karaf</module>
   </modules>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>${tycho-groupid}</groupId>
+          <artifactId>tycho-p2-plugin</artifactId>
+          <configuration>
+            <!-- fix to prevent double upload of p2metadata artifacts  -->
+            <defaultP2Metadata>false</defaultP2Metadata>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 
 </project>

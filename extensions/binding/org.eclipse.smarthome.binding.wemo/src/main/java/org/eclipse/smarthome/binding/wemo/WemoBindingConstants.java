@@ -1,17 +1,23 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.wemo;
 
+import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-
-import com.google.common.collect.ImmutableSet;
 
 /**
  * The {@link WemoBinding} class defines common constants, which are
@@ -24,56 +30,59 @@ public class WemoBindingConstants {
     public static final String BINDING_ID = "wemo";
 
     // List of all Thing Type UIDs
-    public final static ThingTypeUID THING_TYPE_SOCKET = new ThingTypeUID(BINDING_ID, "socket");
-    public final static ThingTypeUID THING_TYPE_INSIGHT = new ThingTypeUID(BINDING_ID, "insight");
-    public final static ThingTypeUID THING_TYPE_LIGHTSWITCH = new ThingTypeUID(BINDING_ID, "lightswitch");
-    public final static ThingTypeUID THING_TYPE_MOTION = new ThingTypeUID(BINDING_ID, "motion");
-    public final static ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, "bridge");
-    public final static ThingTypeUID THING_TYPE_MZ100 = new ThingTypeUID(BINDING_ID, "MZ100");
-    public final static ThingTypeUID THING_TYPE_MAKER = new ThingTypeUID(BINDING_ID, "Maker");
-    public final static ThingTypeUID THING_TYPE_COFFEE = new ThingTypeUID(BINDING_ID, "CoffeeMaker");
+    public static final ThingTypeUID THING_TYPE_SOCKET = new ThingTypeUID(BINDING_ID, "socket");
+    public static final ThingTypeUID THING_TYPE_INSIGHT = new ThingTypeUID(BINDING_ID, "insight");
+    public static final ThingTypeUID THING_TYPE_LIGHTSWITCH = new ThingTypeUID(BINDING_ID, "lightswitch");
+    public static final ThingTypeUID THING_TYPE_MOTION = new ThingTypeUID(BINDING_ID, "motion");
+    public static final ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, "bridge");
+    public static final ThingTypeUID THING_TYPE_MZ100 = new ThingTypeUID(BINDING_ID, "MZ100");
+    public static final ThingTypeUID THING_TYPE_MAKER = new ThingTypeUID(BINDING_ID, "Maker");
+    public static final ThingTypeUID THING_TYPE_COFFEE = new ThingTypeUID(BINDING_ID, "CoffeeMaker");
 
     // List of all Channel ids
-    public final static String CHANNEL_STATE = "state";
-    public final static String CHANNEL_MOTIONDETECTION = "motionDetection";
-    public final static String CHANNEL_LASTMOTIONDETECTED = "lastMotionDetected";
-    public final static String CHANNEL_LASTCHANGEDAT = "lastChangedAt";
-    public final static String CHANNEL_LASTONFOR = "lastOnFor";
-    public final static String CHANNEL_ONTODAY = "onToday";
-    public final static String CHANNEL_ONTOTAL = "onTotal";
-    public final static String CHANNEL_TIMESPAN = "timespan";
-    public final static String CHANNEL_AVERAGEPOWER = "averagePower";
-    public final static String CHANNEL_CURRENTPOWER = "currentPower";
-    public final static String CHANNEL_ENERGYTODAY = "energyToday";
-    public final static String CHANNEL_ENERGYTOTAL = "energyTotal";
-    public final static String CHANNEL_STANDBYLIMIT = "standByLimit";
+    public static final String CHANNEL_STATE = "state";
+    public static final String CHANNEL_MOTIONDETECTION = "motionDetection";
+    public static final String CHANNEL_LASTMOTIONDETECTED = "lastMotionDetected";
+    public static final String CHANNEL_LASTCHANGEDAT = "lastChangedAt";
+    public static final String CHANNEL_LASTONFOR = "lastOnFor";
+    public static final String CHANNEL_ONTODAY = "onToday";
+    public static final String CHANNEL_ONTOTAL = "onTotal";
+    public static final String CHANNEL_TIMESPAN = "timespan";
+    public static final String CHANNEL_AVERAGEPOWER = "averagePower";
+    public static final String CHANNEL_CURRENTPOWER = "currentPower";
+    public static final String CHANNEL_ENERGYTODAY = "energyToday";
+    public static final String CHANNEL_ENERGYTOTAL = "energyTotal";
+    public static final String CHANNEL_STANDBYLIMIT = "standByLimit";
     public static final String CHANNEL_BRIGHTNESS = "brightness";
-    public final static String CHANNEL_RELAY = "relay";
-    public final static String CHANNEL_SENSOR = "sensor";
+    public static final String CHANNEL_RELAY = "relay";
+    public static final String CHANNEL_SENSOR = "sensor";
 
-    public final static String CHANNEL_COFFEEMODE = "coffeeMode";
-    public final static String CHANNEL_MODETIME = "modeTime";
-    public final static String CHANNEL_TIMEREMAINING = "timeRemaining";
-    public final static String CHANNEL_WATERLEVELREACHED = "waterLevelReached";
-    public final static String CHANNEL_CLEANADVISE = "cleanAdvise";
-    public final static String CHANNEL_FILTERADVISE = "filterAdvise";
-    public final static String CHANNEL_BREWED = "brewed";
-    public final static String CHANNEL_LASTCLEANED = "lastCleaned";
+    public static final String CHANNEL_COFFEEMODE = "coffeeMode";
+    public static final String CHANNEL_MODETIME = "modeTime";
+    public static final String CHANNEL_TIMEREMAINING = "timeRemaining";
+    public static final String CHANNEL_WATERLEVELREACHED = "waterLevelReached";
+    public static final String CHANNEL_CLEANADVISE = "cleanAdvise";
+    public static final String CHANNEL_FILTERADVISE = "filterAdvise";
+    public static final String CHANNEL_BREWED = "brewed";
+    public static final String CHANNEL_LASTCLEANED = "lastCleaned";
 
     // List of thing configuration properties
     public static final String UDN = "udn";
     public static final String DEVICE_ID = "deviceID";
     public static final String POLLINGINTERVALL = "pollingInterval";
 
-    public final static Set<ThingTypeUID> SUPPORTED_BRIDGE_THING_TYPES = ImmutableSet.of(THING_TYPE_BRIDGE);
+    public static final Set<ThingTypeUID> SUPPORTED_BRIDGE_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
 
-    public final static Set<ThingTypeUID> SUPPORTED_LIGHT_THING_TYPES = ImmutableSet.of(THING_TYPE_MZ100);
+    public static final Set<ThingTypeUID> SUPPORTED_LIGHT_THING_TYPES = Collections.singleton(THING_TYPE_MZ100);
 
-    public final static Set<ThingTypeUID> SUPPORTED_DEVICE_THING_TYPES = ImmutableSet.of(THING_TYPE_SOCKET,
-            THING_TYPE_INSIGHT, THING_TYPE_LIGHTSWITCH, THING_TYPE_MOTION);
+    public static final Set<ThingTypeUID> SUPPORTED_DEVICE_THING_TYPES = Collections
+            .unmodifiableSet(Stream.of(THING_TYPE_SOCKET, THING_TYPE_INSIGHT, THING_TYPE_LIGHTSWITCH, THING_TYPE_MOTION)
+                    .collect(Collectors.toSet()));
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = ImmutableSet.of(THING_TYPE_SOCKET, THING_TYPE_INSIGHT,
-            THING_TYPE_LIGHTSWITCH, THING_TYPE_MOTION, THING_TYPE_BRIDGE, THING_TYPE_MZ100, THING_TYPE_MAKER,
-            THING_TYPE_COFFEE);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections
+            .unmodifiableSet(Stream
+                    .of(THING_TYPE_SOCKET, THING_TYPE_INSIGHT, THING_TYPE_LIGHTSWITCH, THING_TYPE_MOTION,
+                            THING_TYPE_BRIDGE, THING_TYPE_MZ100, THING_TYPE_MAKER, THING_TYPE_COFFEE)
+                    .collect(Collectors.toSet()));
 
 }

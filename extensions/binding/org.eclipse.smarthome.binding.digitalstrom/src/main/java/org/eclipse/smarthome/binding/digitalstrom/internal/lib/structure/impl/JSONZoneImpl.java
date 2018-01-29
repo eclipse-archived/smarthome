@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.impl;
 
@@ -14,7 +19,7 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.DetailedGroupInfo;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.Zone;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Device;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.impl.JSONDeviceImpl;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.impl.DeviceImpl;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -29,36 +34,39 @@ import com.google.gson.JsonObject;
 public class JSONZoneImpl implements Zone {
 
     private int zoneId = -1;
-    private String name = null;
+    private String name;
 
-    private List<DetailedGroupInfo> groupList = null;
-    private List<Device> deviceList = null;
+    private final List<DetailedGroupInfo> groupList;
+    private final List<Device> deviceList;
 
-    public JSONZoneImpl(JsonObject object) {
+    /**
+     * Creates a new {@link JSONZoneImpl} through the {@link JsonObject}.
+     *
+     * @param jObject of the server response, must not be null
+     */
+    public JSONZoneImpl(JsonObject jObject) {
         this.groupList = new LinkedList<DetailedGroupInfo>();
         this.deviceList = new LinkedList<Device>();
 
-        if (object.get(JSONApiResponseKeysEnum.APARTMENT_GET_STRUCTURE_ZONES_NAME.getKey()) != null) {
-            this.name = object.get(JSONApiResponseKeysEnum.APARTMENT_GET_STRUCTURE_ZONES_NAME.getKey()).getAsString();
+        if (jObject.get(JSONApiResponseKeysEnum.NAME.getKey()) != null) {
+            this.name = jObject.get(JSONApiResponseKeysEnum.NAME.getKey()).getAsString();
         }
-        if (object.get(JSONApiResponseKeysEnum.APARTMENT_GET_STRUCTURE_ZONES_ID.getKey()) != null) {
-            zoneId = object.get(JSONApiResponseKeysEnum.APARTMENT_GET_STRUCTURE_ZONES_ID.getKey()).getAsInt();
+        if (jObject.get(JSONApiResponseKeysEnum.ID.getKey()) != null) {
+            zoneId = jObject.get(JSONApiResponseKeysEnum.ID.getKey()).getAsInt();
         }
         if (zoneId == -1) {
-            if (object.get(JSONApiResponseKeysEnum.QUERY_ZONE_ID.getKey()) != null) {
-                zoneId = object.get(JSONApiResponseKeysEnum.QUERY_ZONE_ID.getKey()).getAsInt();
+            if (jObject.get(JSONApiResponseKeysEnum.ZONE_ID.getKey()) != null) {
+                zoneId = jObject.get(JSONApiResponseKeysEnum.ZONE_ID.getKey()).getAsInt();
             }
         }
-        if (object.get(JSONApiResponseKeysEnum.APARTMENT_GET_STRUCTURE_ZONES_DEVICES.getKey()) instanceof JsonArray) {
-            JsonArray list = (JsonArray) object
-                    .get(JSONApiResponseKeysEnum.APARTMENT_GET_STRUCTURE_ZONES_DEVICES.getKey());
+        if (jObject.get(JSONApiResponseKeysEnum.DEVICES.getKey()) instanceof JsonArray) {
+            JsonArray list = (JsonArray) jObject.get(JSONApiResponseKeysEnum.DEVICES.getKey());
             for (int i = 0; i < list.size(); i++) {
-                this.deviceList.add(new JSONDeviceImpl((JsonObject) list.get(i)));
+                this.deviceList.add(new DeviceImpl((JsonObject) list.get(i)));
             }
         }
-        if (object.get(JSONApiResponseKeysEnum.APARTMENT_GET_STRUCTURE_ZONES_GROUPS.getKey()) instanceof JsonArray) {
-            JsonArray groupList = (JsonArray) object
-                    .get(JSONApiResponseKeysEnum.APARTMENT_GET_STRUCTURE_ZONES_GROUPS.getKey());
+        if (jObject.get(JSONApiResponseKeysEnum.GROUPS.getKey()) instanceof JsonArray) {
+            JsonArray groupList = (JsonArray) jObject.get(JSONApiResponseKeysEnum.GROUPS.getKey());
             for (int i = 0; i < groupList.size(); i++) {
                 this.groupList.add(new JSONDetailedGroupInfoImpl((JsonObject) groupList.get(i)));
             }

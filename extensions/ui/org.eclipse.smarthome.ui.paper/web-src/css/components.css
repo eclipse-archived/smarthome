@@ -329,7 +329,8 @@ md-slider.md-default-theme.hue .md-thumb:after {
 }
 
 .fab-item .item-content .actions {
-	width: 160px;
+	flex-wrap: nowrap;
+	display: flex;
 }
 
 .fab-item .item-content .actions i:last-child {
@@ -930,6 +931,10 @@ md-input-container .md-errors-spacer {
     width: 100px;
 }
 
+button.extensible-thing {
+	margin-top: 0;
+}
+
 md-chips .md-chip-remove-container {
 	display: none;
 }
@@ -1457,7 +1462,8 @@ md-progress-circular.firmware {
 
 .binding :not(md-expansion-panel) .md-title {
 	padding-bottom: 10px;
-	flex-grow: 2
+	flex-grow: 2;
+	max-width: none;
 }
 .binding .things .search {
 	padding: 0 0 10px 0;
@@ -1467,6 +1473,10 @@ md-progress-circular.firmware {
     padding-bottom: 0;
 }
 
+.multi-services.white-bg {
+    padding-top: 80px;
+}
+
 search-field {
 	display: flex;
 	width: 100%;
@@ -1474,4 +1484,17 @@ search-field {
 
 search-field i {
 	margin-top: 4px;
+}
+
+md-input-container .md-input.location-input {
+	float: none;
+}
+
+.map-container {
+	margin-top: 10px;
+}
+
+.map-container > .map {
+	height: 300px; 
+	width: 100%;
 }

@@ -1,11 +1,19 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.core;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * The {@link ConfigDescriptionParameterGroup} specifies information about parameter groups.
@@ -20,31 +28,27 @@ package org.eclipse.smarthome.config.core;
  * @author Chris Jackson - Initial Contribution
  *
  */
+@NonNullByDefault
 public class ConfigDescriptionParameterGroup {
 
-    private String name;
-    private String context;
-    private boolean advanced;
-    private String label;
-    private String description;
+    private final String name;
+    private final @Nullable String context;
+    private final boolean advanced;
+    private final @Nullable String label;
+    private final @Nullable String description;
 
     /**
      * Create a Parameter Group. A group is used by the user interface to display groups
      * of parameters together.
      *
-     * @param name
-     *            the name, used to link the group, to the parameter
-     * @param context
-     *            a context string. Can be used to provide some context to the group
-     * @param advanced
-     *            a flag that is set to true if this group contains advanced settings
-     * @param label
-     *            the human readable group label
-     * @param description
-     *            a description that can be provided to the user
+     * @param name the name, used to link the group, to the parameter
+     * @param context a context string. Can be used to provide some context to the group
+     * @param advanced a flag that is set to true if this group contains advanced settings
+     * @param label the human readable group label
+     * @param description a description that can be provided to the user
      */
-    public ConfigDescriptionParameterGroup(String name, String context, Boolean advanced, String label,
-            String description) {
+    public ConfigDescriptionParameterGroup(String name, @Nullable String context, Boolean advanced,
+            @Nullable String label, @Nullable String description) {
         this.name = name;
         this.context = context;
         this.advanced = advanced;
@@ -66,7 +70,7 @@ public class ConfigDescriptionParameterGroup {
      *
      * @return group context as a string
      */
-    public String getContext() {
+    public @Nullable String getContext() {
         return context;
     }
 
@@ -84,6 +88,7 @@ public class ConfigDescriptionParameterGroup {
      *
      * @return group label as a string
      */
+    @Nullable
     public String getLabel() {
         return label;
     }
@@ -93,6 +98,7 @@ public class ConfigDescriptionParameterGroup {
      *
      * @return group description as a string
      */
+    @Nullable
     public String getDescription() {
         return description;
     }
@@ -100,6 +106,7 @@ public class ConfigDescriptionParameterGroup {
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + " [groupId=\"" + name + "\", context=\"" + context + "\", advanced=\""
-                + advanced + "\", label=\"" + label + "\", description=\"" + description + "\"]";
+                + advanced + "\"" + (label != null ? ", label=\"" + label + "\"" : "")
+                + (description != null ? ", description=\"" + description + "\"" : "") + "]";
     }
 }

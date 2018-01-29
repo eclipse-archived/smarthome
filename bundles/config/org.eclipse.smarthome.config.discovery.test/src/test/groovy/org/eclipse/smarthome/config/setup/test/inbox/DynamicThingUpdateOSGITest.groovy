@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.setup.test.inbox
 
@@ -29,6 +34,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder
 import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.State
 import org.eclipse.smarthome.test.OSGiTest
@@ -65,7 +71,7 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
     final ThingTypeUID THING_TYPE_UID = new ThingTypeUID(BINDING_ID, THING_TYPE_ID)
     final ThingUID THING_UID = new ThingUID(THING_TYPE_UID, THING_ID)
     final ThingUID THING_UID2 = new ThingUID(THING_TYPE_UID, THING_ID2)
-    final ThingType THING_TYPE = new ThingType(THING_TYPE_UID, null, "label", null, true, DEVICE_ID_KEY, null, null, null, null);
+    final ThingType THING_TYPE = ThingTypeBuilder.instance(THING_TYPE_UID, "label").withRepresentationProperty(DEVICE_ID_KEY).isListed(true).build();
 
     Inbox inbox
     DiscoveryServiceRegistry discoveryServiceRegistry

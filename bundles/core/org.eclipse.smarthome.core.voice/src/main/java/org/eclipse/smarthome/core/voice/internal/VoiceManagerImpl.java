@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.voice.internal;
 
@@ -97,7 +102,8 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
         if (config != null) {
             this.keyword = config.containsKey(CONFIG_KEYWORD) ? config.get(CONFIG_KEYWORD).toString() : DEFAULT_KEYWORD;
             this.listeningItem = config.containsKey(CONFIG_LISTENING_ITEM)
-                    ? config.get(CONFIG_LISTENING_ITEM).toString() : null;
+                    ? config.get(CONFIG_LISTENING_ITEM).toString()
+                    : null;
             this.defaultTTS = config.containsKey(CONFIG_DEFAULT_TTS) ? config.get(CONFIG_DEFAULT_TTS).toString() : null;
             this.defaultSTT = config.containsKey(CONFIG_DEFAULT_STT) ? config.get(CONFIG_DEFAULT_STT).toString() : null;
             this.defaultKS = config.containsKey(CONFIG_DEFAULT_KS) ? config.get(CONFIG_DEFAULT_KS).toString() : null;
@@ -125,22 +131,23 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
     }
 
     @Override
-    public void say(String text, String voiceId, String sinkId) {
+    public void say(String text, String voiceIda, String sinkId) {
         try {
             TTSService tts = null;
             Voice voice = null;
-            if (voiceId == null) {
+            String selectedVoiceId = voiceIda;
+            if (selectedVoiceId == null) {
                 // use the configured default, if set
-                voiceId = defaultVoice;
+                selectedVoiceId = defaultVoice;
             }
-            if (voiceId == null) {
+            if (selectedVoiceId == null) {
                 tts = getTTS();
                 if (tts != null) {
                     voice = getPreferredVoice(tts.getAvailableVoices());
                 }
-            } else if (voiceId.contains(":")) {
+            } else if (selectedVoiceId.contains(":")) {
                 // it is a fully qualified unique id
-                String[] segments = voiceId.split(":");
+                String[] segments = selectedVoiceId.split(":");
                 tts = getTTS(segments[0]);
                 if (tts != null) {
                     voice = getVoice(tts.getAvailableVoices(), segments[1]);
@@ -149,11 +156,11 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
                 // voiceId is not fully qualified
                 tts = getTTS();
                 if (tts != null) {
-                    voice = getVoice(tts.getAvailableVoices(), voiceId);
+                    voice = getVoice(tts.getAvailableVoices(), selectedVoiceId);
                 }
             }
             if (tts == null) {
-                throw new TTSException("No TTS service can be found for voice " + voiceId);
+                throw new TTSException("No TTS service can be found for voice " + selectedVoiceId);
             }
             if (voice == null) {
                 throw new TTSException(
@@ -339,15 +346,13 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
             locales.add(currentVoice.getLocale());
         }
 
-        // TODO: This can be activated for Java 8
         // Determine preferred locale based on RFC 4647
-        // String ranges = locale.toLanguageTag();
-        // List<Locale.LanguageRange> languageRanges = Locale.LanguageRange.parse(ranges);
-        // Locale preferedLocale = Locale.lookup(languageRanges,locales);
-        Locale preferredLocale = locale;
+        String ranges = locale.toLanguageTag();
+        List<Locale.LanguageRange> languageRanges = Locale.LanguageRange.parse(ranges + "-*");
+        Locale preferredLocale = Locale.lookup(languageRanges, locales);
 
         // As a last resort choose some Locale
-        if (null == preferredLocale) {
+        if (preferredLocale == null) {
             preferredLocale = locales.iterator().next();
         }
 
@@ -370,24 +375,25 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
     }
 
     @Override
-    public void startDialog(KSService ks, STTService stt, TTSService tts, HumanLanguageInterpreter hli,
-            AudioSource source, AudioSink sink, Locale locale, String keyword, String listeningItem) {
+    public void startDialog(KSService ksService, STTService sttService, TTSService ttsService,
+            HumanLanguageInterpreter interpreter, AudioSource audioSource, AudioSink audioSink, Locale locale,
+            String keyword, String listeningItem) {
 
         // use defaults, if null
-        ks = (ks == null) ? getKS() : ks;
-        stt = (stt == null) ? getSTT() : stt;
-        tts = (tts == null) ? getTTS() : tts;
-        hli = (hli == null) ? getHLI() : hli;
-        source = (source == null) ? audioManager.getSource() : source;
-        sink = (sink == null) ? audioManager.getSink() : sink;
-        locale = (locale == null) ? localeProvider.getLocale() : locale;
-        keyword = (keyword == null) ? this.keyword : keyword;
-        listeningItem = (listeningItem == null) ? this.listeningItem : listeningItem;
+        KSService ks = (ksService == null) ? getKS() : ksService;
+        STTService stt = (sttService == null) ? getSTT() : sttService;
+        TTSService tts = (ttsService == null) ? getTTS() : ttsService;
+        HumanLanguageInterpreter hli = (interpreter == null) ? getHLI() : interpreter;
+        AudioSource source = (audioSource == null) ? audioManager.getSource() : audioSource;
+        AudioSink sink = (audioSink == null) ? audioManager.getSink() : audioSink;
+        Locale loc = (locale == null) ? localeProvider.getLocale() : locale;
+        String kw = (keyword == null) ? this.keyword : keyword;
+        String item = (listeningItem == null) ? this.listeningItem : listeningItem;
 
-        if (ks != null && stt != null && tts != null && hli != null && source != null && sink != null && locale != null
-                && keyword != null) {
-            DialogProcessor processor = new DialogProcessor(ks, stt, tts, hli, source, sink, locale, keyword,
-                    listeningItem, this.eventPublisher);
+        if (ks != null && stt != null && tts != null && hli != null && source != null && sink != null && loc != null
+                && kw != null) {
+            DialogProcessor processor = new DialogProcessor(ks, stt, tts, hli, source, sink, loc, kw, item,
+                    this.eventPublisher);
             processor.start();
         } else {
             String msg = "Cannot start dialog as services are missing.";

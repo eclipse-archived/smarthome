@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.astro.handler;
 
@@ -40,7 +45,6 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +56,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AstroThingHandler extends BaseThingHandler {
 
-    private static final String DAILY_MIDNIGHT = "0 0 0 * * ? *";
+    private static final String DAILY_MIDNIGHT = "30 0 0 * * ? *";
 
     /** Logger Instance */
     protected final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -125,12 +129,6 @@ public abstract class AstroThingHandler extends BaseThingHandler {
         }
     }
 
-    @Override
-    public void handleUpdate(ChannelUID channelUID, State newState) {
-        logger.warn("The Astro-Binding is a read-only binding and can not handle channel updates");
-        super.handleUpdate(channelUID, newState);
-    }
-
     /**
      * Iterates all channels of the thing and updates their states.
      */
@@ -148,9 +146,13 @@ public abstract class AstroThingHandler extends BaseThingHandler {
      */
     public void publishChannelIfLinked(ChannelUID channelUID) {
         if (isLinked(channelUID.getId()) && getPlanet() != null) {
+            final Channel channel = getThing().getChannel(channelUID.getId());
+            if (channel == null) {
+                logger.error("Cannot find channel for {}", channelUID);
+                return;
+            }
             try {
-                AstroChannelConfig config = getThing().getChannel(channelUID.getId()).getConfiguration()
-                        .as(AstroChannelConfig.class);
+                AstroChannelConfig config = channel.getConfiguration().as(AstroChannelConfig.class);
                 updateState(channelUID, PropertyUtils.getState(channelUID, config, getPlanet()));
             } catch (Exception ex) {
                 logger.error("Can't update state for channel {} : {}", channelUID, ex.getMessage(), ex);
@@ -263,11 +265,12 @@ public abstract class AstroThingHandler extends BaseThingHandler {
      * Emits an event for the given channel.
      */
     public void triggerEvent(String channelId, String event) {
-        if (getThing().getChannel(channelId) == null) {
+        final Channel channel = getThing().getChannel(channelId);
+        if (channel == null) {
             logger.warn("Event {} in thing {} does not exist, please recreate the thing", event, getThing().getUID());
             return;
         }
-        triggerChannel(getThing().getChannel(channelId).getUID(), event);
+        triggerChannel(channel.getUID(), event);
     }
 
     /**

@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
@@ -38,13 +43,12 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
 import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.test.storage.VolatileStorageService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import com.google.common.collect.ImmutableMap;
 
 /**
  * @author Andre Fuechsel - Initial contribution
@@ -53,21 +57,30 @@ public class AutomaticInboxProcessorTest {
 
     private static final String DEVICE_ID = "deviceId";
     private static final String DEVICE_ID_KEY = "deviceIdKey";
+    private static final String OTHER_KEY = "otherKey";
+    private static final String OTHER_VALUE = "deviceId";
     private static final String CONFIG_KEY = "configKey";
     private static final String CONFIG_VALUE = "configValue";
 
     private static final ThingTypeUID THING_TYPE_UID = new ThingTypeUID("test", "test");
     private static final ThingTypeUID THING_TYPE_UID2 = new ThingTypeUID("test2", "test2");
+    private static final ThingTypeUID THING_TYPE_UID3 = new ThingTypeUID("test3", "test3");
+
     private static final ThingUID THING_UID = new ThingUID(THING_TYPE_UID, "test");
     private static final ThingUID THING_UID2 = new ThingUID(THING_TYPE_UID, "test2");
-    private static final ThingType THING_TYPE = new ThingType(THING_TYPE_UID, null, "label", null, true, DEVICE_ID_KEY,
-            null, null, null, null);
-    private static final ThingType THING_TYPE2 = new ThingType(THING_TYPE_UID2, null, "label", null, true, CONFIG_KEY,
-            null, null, null, null);
-    private final static Map<String, String> THING_PROPERTIES = new ImmutableMap.Builder<String, String>()
-            .put(DEVICE_ID_KEY, DEVICE_ID).build();
-    private final static Configuration CONFIG = new Configuration(
-            new ImmutableMap.Builder<String, Object>().put(CONFIG_KEY, CONFIG_VALUE).build());
+    private static final ThingUID THING_UID3 = new ThingUID(THING_TYPE_UID3, "test3");
+
+    private static final ThingType THING_TYPE = ThingTypeBuilder.instance(THING_TYPE_UID, "label").isListed(true)
+            .withRepresentationProperty(DEVICE_ID_KEY).build();
+    private static final ThingType THING_TYPE2 = ThingTypeBuilder.instance(THING_TYPE_UID2, "label").isListed(true)
+            .withRepresentationProperty(CONFIG_KEY).build();
+    private static final ThingType THING_TYPE3 = ThingTypeBuilder.instance(THING_TYPE_UID3, "label").isListed(true)
+            .withRepresentationProperty(OTHER_KEY).build();
+
+    private final static Map<String, String> THING_PROPERTIES = Collections.singletonMap(DEVICE_ID_KEY, DEVICE_ID);
+    private final static Map<String, String> OTHER_THING_PROPERTIES = Collections.singletonMap(OTHER_KEY, OTHER_VALUE);
+
+    private final static Configuration CONFIG = new Configuration(Collections.singletonMap(CONFIG_KEY, CONFIG_VALUE));
 
     private AutomaticInboxProcessor inboxAutoIgnore;
     private PersistentInbox inbox;
@@ -83,6 +96,9 @@ public class AutomaticInboxProcessorTest {
 
     @Mock
     private Thing thing2;
+
+    @Mock
+    private Thing thing3;
 
     @Mock
     private ThingStatusInfoChangedEvent thingStatusInfoChangedEvent;
@@ -107,15 +123,22 @@ public class AutomaticInboxProcessorTest {
         when(thing.getUID()).thenReturn(THING_UID);
 
         when(thing2.getConfiguration()).thenReturn(CONFIG);
-        when(thing2.getThingTypeUID()).thenReturn(THING_TYPE_UID2);
+        when(thing2.getThingTypeUID()).thenReturn(THING_TYPE_UID);
         when(thing2.getProperties()).thenReturn(THING_PROPERTIES);
         when(thing2.getStatus()).thenReturn(ThingStatus.ONLINE);
         when(thing2.getUID()).thenReturn(THING_UID2);
+
+        when(thing3.getConfiguration()).thenReturn(CONFIG);
+        when(thing3.getThingTypeUID()).thenReturn(THING_TYPE_UID3);
+        when(thing3.getProperties()).thenReturn(OTHER_THING_PROPERTIES);
+        when(thing3.getStatus()).thenReturn(ThingStatus.ONLINE);
+        when(thing3.getUID()).thenReturn(THING_UID3);
 
         when(thingRegistry.stream()).thenReturn(Stream.empty());
 
         when(thingTypeRegistry.getThingType(THING_TYPE_UID)).thenReturn(THING_TYPE);
         when(thingTypeRegistry.getThingType(THING_TYPE_UID2)).thenReturn(THING_TYPE2);
+        when(thingTypeRegistry.getThingType(THING_TYPE_UID3)).thenReturn(THING_TYPE3);
 
         when(thingHandlerFactory.supportsThingType(eq(THING_TYPE_UID))).thenReturn(true);
         when(thingHandlerFactory.createThing(eq(THING_TYPE_UID), any(Configuration.class), eq(THING_UID),
@@ -135,6 +158,62 @@ public class AutomaticInboxProcessorTest {
         inboxAutoIgnore.setThingRegistry(thingRegistry);
         inboxAutoIgnore.setThingTypeRegistry(thingTypeRegistry);
         inboxAutoIgnore.setInbox(inbox);
+    }
+
+    /**
+     * This test is just like the test testThingWentOnline in the AutomaticInboxProcessorTest, but in contrast to the
+     * above test (where a thing with the same binding ID and the same representation property value went online) here a
+     * thing with another binding ID and the same representation property value goes online.
+     * <p/>
+     * In this case, the discovery result should not be ignored, since it has a different thing type.
+     */
+    @Test
+    public void testThingWithOtherBindingIDButSameRepresentationPropertyWentOnline() {
+        // Add discovery result with thing type THING_TYPE_UID and representation property value DEVICE_ID
+        inbox.add(DiscoveryResultBuilder.create(THING_UID).withProperty(DEVICE_ID_KEY, DEVICE_ID)
+                .withRepresentationProperty(DEVICE_ID_KEY).build());
+
+        // Then there is a discovery result which is NEW
+        List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW))
+                .collect(Collectors.toList());
+        assertThat(results.size(), is(1));
+        assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID)));
+
+        // Now a thing with thing type THING_TYPE_UID3 goes online, with representation property value being also the
+        // device id
+        when(thingRegistry.get(THING_UID3)).thenReturn(thing3);
+        when(thingStatusInfoChangedEvent.getStatusInfo())
+                .thenReturn(new ThingStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, null));
+        when(thingStatusInfoChangedEvent.getThingUID()).thenReturn(THING_UID3);
+        inboxAutoIgnore.receive(thingStatusInfoChangedEvent);
+
+        // Then there should still be the NEW discovery result, but no IGNORED discovery result
+        results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW)).collect(Collectors.toList());
+        assertThat(results.size(), is(1));
+        assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID)));
+        results = inbox.stream().filter(withFlag(DiscoveryResultFlag.IGNORED)).collect(Collectors.toList());
+        assertThat(results.size(), is(0));
+    }
+
+    @Test
+    public void testThingWithOtherBindingIDButSameRepresentationPropertyIsDiscovered() {
+        // insert thing with thing type THING_TYPE_UID3 and representation property value DEVICE_ID in registry
+        when(thingRegistry.get(THING_UID)).thenReturn(thing);
+        when(thingRegistry.stream()).thenReturn(Stream.of(thing));
+
+        // Add discovery result with thing type THING_TYPE_UID3 and representation property value DEVICE_ID
+        inbox.add(DiscoveryResultBuilder.create(THING_UID3).withProperty(DEVICE_ID_KEY, DEVICE_ID)
+                .withRepresentationProperty(DEVICE_ID_KEY).build());
+
+        // Do NOT ignore this discovery result because it has a different binding ID
+        List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.IGNORED))
+                .collect(Collectors.toList());
+        assertThat(results.size(), is(0));
+
+        // Then there is a discovery result which is NEW
+        results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW)).collect(Collectors.toList());
+        assertThat(results.size(), is(1));
+        assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID3)));
     }
 
     @Test
@@ -159,14 +238,14 @@ public class AutomaticInboxProcessorTest {
         assertThat(results.size(), is(1));
         assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID)));
     }
-    
+
     @Test
     public void testNoDiscoveryResultIfNoRepresentationPropertySet() {
         List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW))
                 .collect(Collectors.toList());
         assertThat(results.size(), is(0));
     }
-    
+
     @Test
     public void testThingWhenNoRepresentationPropertySet() {
         inbox.add(DiscoveryResultBuilder.create(THING_UID).withProperty(DEVICE_ID_KEY, DEVICE_ID).build());
@@ -215,20 +294,37 @@ public class AutomaticInboxProcessorTest {
         assertThat(results.size(), is(1));
         assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID)));
 
-        when(thingRegistry.get(THING_UID)).thenReturn(thing);
-        when(thingStatusInfoChangedEvent.getStatusInfo())
-                .thenReturn(new ThingStatusInfo(ThingStatus.REMOVING, ThingStatusDetail.NONE, null));
-        when(thingStatusInfoChangedEvent.getThingUID()).thenReturn(THING_UID);
-        inboxAutoIgnore.receive(thingStatusInfoChangedEvent);
+        inboxAutoIgnore.removed(thing);
 
         results = inbox.getAll();
         assertThat(results.size(), is(0));
     }
 
     @Test
+    public void testOneThingOutOfTwoWithSameRepresentationPropertyButDifferentBindingIdIsBeingRemoved() {
+        inbox.add(DiscoveryResultBuilder.create(THING_UID).withProperty(DEVICE_ID_KEY, DEVICE_ID)
+                .withRepresentationProperty(DEVICE_ID_KEY).build());
+        inbox.setFlag(THING_UID, DiscoveryResultFlag.IGNORED);
+
+        inbox.add(DiscoveryResultBuilder.create(THING_UID3).withProperty(DEVICE_ID_KEY, DEVICE_ID)
+                .withRepresentationProperty(DEVICE_ID_KEY).build());
+        inbox.setFlag(THING_UID3, DiscoveryResultFlag.IGNORED);
+
+        List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.IGNORED))
+                .collect(Collectors.toList());
+        assertThat(results.size(), is(2));
+
+        inboxAutoIgnore.removed(thing);
+
+        results = inbox.getAll();
+        assertThat(results.size(), is(1));
+        assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID3)));
+    }
+
+    @Test
     public void testThingWithConfigWentOnline() {
-        inbox.add(DiscoveryResultBuilder.create(THING_UID2).withProperty(CONFIG_KEY, CONFIG_VALUE)
-                .withRepresentationProperty(CONFIG_KEY).build());
+        inbox.add(DiscoveryResultBuilder.create(THING_UID2).withProperty(OTHER_KEY, OTHER_VALUE)
+                .withRepresentationProperty(OTHER_KEY).build());
 
         List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW))
                 .collect(Collectors.toList());
@@ -256,8 +352,8 @@ public class AutomaticInboxProcessorTest {
         when(thingRegistry.get(THING_UID2)).thenReturn(thing2);
         when(thingRegistry.stream()).thenReturn(Stream.of(thing2));
 
-        inbox.add(DiscoveryResultBuilder.create(THING_UID).withProperty(CONFIG_KEY, CONFIG_VALUE)
-                .withRepresentationProperty(CONFIG_KEY).build());
+        inbox.add(DiscoveryResultBuilder.create(THING_UID).withProperty(OTHER_KEY, OTHER_VALUE)
+                .withRepresentationProperty(OTHER_KEY).build());
 
         List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW))
                 .collect(Collectors.toList());
@@ -269,8 +365,8 @@ public class AutomaticInboxProcessorTest {
 
     @Test
     public void testThingWithConfigIsBeingRemoved() {
-        inbox.add(DiscoveryResultBuilder.create(THING_UID2).withProperty(CONFIG_KEY, CONFIG_VALUE)
-                .withRepresentationProperty(CONFIG_KEY).build());
+        inbox.add(DiscoveryResultBuilder.create(THING_UID2).withProperty(OTHER_KEY, OTHER_VALUE)
+                .withRepresentationProperty(OTHER_KEY).build());
 
         inbox.setFlag(THING_UID2, DiscoveryResultFlag.IGNORED);
         List<DiscoveryResult> results = inbox.stream().filter(withFlag(DiscoveryResultFlag.IGNORED))
@@ -278,11 +374,7 @@ public class AutomaticInboxProcessorTest {
         assertThat(results.size(), is(1));
         assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID2)));
 
-        when(thingRegistry.get(THING_UID2)).thenReturn(thing2);
-        when(thingStatusInfoChangedEvent.getStatusInfo())
-                .thenReturn(new ThingStatusInfo(ThingStatus.REMOVING, ThingStatusDetail.NONE, null));
-        when(thingStatusInfoChangedEvent.getThingUID()).thenReturn(THING_UID2);
-        inboxAutoIgnore.receive(thingStatusInfoChangedEvent);
+        inboxAutoIgnore.removed(thing2);
 
         results = inbox.getAll();
         assertThat(results.size(), is(0));

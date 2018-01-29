@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.ui.basic.internal.servlet;
 
@@ -12,6 +17,8 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.io.net.http.HttpContextFactoryService;
+import org.osgi.framework.Bundle;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 
@@ -26,6 +33,7 @@ public abstract class BaseServlet implements Servlet {
     public static final String WEBAPP_ALIAS = "/basicui";
 
     protected HttpService httpService;
+    private HttpContextFactoryService httpContextFactoryService;
     protected ItemRegistry itemRegistry;
 
     public void setItemRegistry(ItemRegistry itemRegistry) {
@@ -44,14 +52,21 @@ public abstract class BaseServlet implements Servlet {
         this.httpService = null;
     }
 
+    public void setHttpContextFactoryService(HttpContextFactoryService httpContextFactoryService) {
+        this.httpContextFactoryService = httpContextFactoryService;
+    }
+
+    public void unsetHttpContextFactoryService(HttpContextFactoryService httpContextFactoryService) {
+        this.httpContextFactoryService = null;
+    }
+
     /**
      * Creates a {@link HttpContext}
      *
      * @return a {@link HttpContext}
      */
-    protected HttpContext createHttpContext() {
-        HttpContext defaultHttpContext = httpService.createDefaultHttpContext();
-        return defaultHttpContext;
+    protected HttpContext createHttpContext(Bundle bundle) {
+        return httpContextFactoryService.createDefaultHttpContext(bundle);
     }
 
     @Override

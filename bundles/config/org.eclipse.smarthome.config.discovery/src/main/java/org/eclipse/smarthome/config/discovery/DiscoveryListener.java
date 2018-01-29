@@ -1,14 +1,21 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.discovery;
 
 import java.util.Collection;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
@@ -23,6 +30,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  *
  * @see DiscoveryService
  */
+@NonNullByDefault
 public interface DiscoveryListener {
 
     /**
@@ -52,7 +60,7 @@ public interface DiscoveryListener {
     /**
      * Removes all results belonging to one of the given types that are older
      * than the given timestamp.
-     * 
+     *
      * @param source
      *            the discovery service which is the source of this event (not
      *            null)
@@ -64,6 +72,35 @@ public interface DiscoveryListener {
      *            {@link DiscoveryService#getSupportedThingTypes()} will be used
      *            instead
      * @return collection of thing UIDs of all removed things
+     * @deprecated use {@link #removeOlderResults(DiscoveryService, long, Collection, ThingUID)} instead
      */
-    Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp, Collection<ThingTypeUID> thingTypeUIDs);
+    @Deprecated
+    @Nullable
+    default Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
+            @Nullable Collection<ThingTypeUID> thingTypeUIDs) {
+        return removeOlderResults(source, timestamp, thingTypeUIDs, null);
+    }
+
+    /**
+     * Removes all results belonging to one of the given types that are older
+     * than the given timestamp.
+     *
+     * @param source
+     *            the discovery service which is the source of this event (not
+     *            null)
+     * @param timestamp
+     *            timestamp, all <b>older</b> results will be removed
+     * @param thingTypeUIDs
+     *            collection of {@code ThingType}s, only results of these
+     *            {@code ThingType}s will be removed; if {@code null} then
+     *            {@link DiscoveryService#getSupportedThingTypes()} will be used
+     *            instead
+     * @param bridgeUID
+     *            if not {@code null} only results of that bridge are being removed
+     * @return collection of thing UIDs of all removed things
+     */
+    @Nullable
+    Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
+            @Nullable Collection<ThingTypeUID> thingTypeUIDs, @Nullable ThingUID bridgeUID);
+
 }

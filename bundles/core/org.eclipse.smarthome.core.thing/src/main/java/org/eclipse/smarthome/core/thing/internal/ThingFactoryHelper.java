@@ -1,15 +1,22 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.internal;
 
 import java.math.BigDecimal;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
@@ -25,12 +32,13 @@ import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
-import org.eclipse.smarthome.core.thing.type.TypeResolver;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 /**
  * Utility methods for creation of Things.
@@ -56,7 +64,7 @@ public class ThingFactoryHelper {
      */
     public static List<Channel> createChannels(ThingType thingType, ThingUID thingUID,
             ConfigDescriptionRegistry configDescriptionRegistry) {
-        List<Channel> channels = Lists.newArrayList();
+        List<Channel> channels = new ArrayList<>();
         List<ChannelDefinition> channelDefinitions = thingType.getChannelDefinitions();
         for (ChannelDefinition channelDefinition : channelDefinitions) {
             Channel channel = createChannel(channelDefinition, thingUID, null, configDescriptionRegistry);
@@ -65,29 +73,56 @@ public class ThingFactoryHelper {
             }
         }
         List<ChannelGroupDefinition> channelGroupDefinitions = thingType.getChannelGroupDefinitions();
-        for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
-            ChannelGroupType channelGroupType = TypeResolver.resolve(channelGroupDefinition.getTypeUID());
-            if (channelGroupType != null) {
-                List<ChannelDefinition> channelGroupChannelDefinitions = channelGroupType.getChannelDefinitions();
-                for (ChannelDefinition channelDefinition : channelGroupChannelDefinitions) {
-                    Channel channel = createChannel(channelDefinition, thingUID, channelGroupDefinition.getId(),
-                            configDescriptionRegistry);
-                    if (channel != null) {
-                        channels.add(channel);
-                    }
+        withChannelTypeRegistry(channelTypeRegistry -> {
+            for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
+                ChannelGroupType channelGroupType = null;
+                if (channelTypeRegistry != null) {
+                    channelGroupType = channelTypeRegistry.getChannelGroupType(channelGroupDefinition.getTypeUID());
                 }
-            } else {
-                logger.warn(
-                        "Could not create channels for channel group '{}' for thing type '{}', because channel group type '{}' could not be found.",
-                        channelGroupDefinition.getId(), thingUID, channelGroupDefinition.getTypeUID());
+                if (channelGroupType != null) {
+                    List<ChannelDefinition> channelGroupChannelDefinitions = channelGroupType.getChannelDefinitions();
+                    for (ChannelDefinition channelDefinition : channelGroupChannelDefinitions) {
+                        Channel channel = createChannel(channelDefinition, thingUID, channelGroupDefinition.getId(),
+                                configDescriptionRegistry);
+                        if (channel != null) {
+                            channels.add(channel);
+                        }
+                    }
+                } else {
+                    logger.warn(
+                            "Could not create channels for channel group '{}' for thing type '{}', because channel group type '{}' could not be found.",
+                            channelGroupDefinition.getId(), thingUID, channelGroupDefinition.getTypeUID());
+                }
+            }
+            return null;
+        });
+        return channels;
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private static <T> T withChannelTypeRegistry(Function<ChannelTypeRegistry, T> consumer) {
+        BundleContext bundleContext = FrameworkUtil.getBundle(ThingFactoryHelper.class).getBundleContext();
+        ServiceReference ref = bundleContext.getServiceReference(ChannelTypeRegistry.class.getName());
+        try {
+            ChannelTypeRegistry channelTypeRegistry = null;
+            if (ref != null) {
+                channelTypeRegistry = (ChannelTypeRegistry) bundleContext.getService(ref);
+            }
+            return consumer.apply(channelTypeRegistry);
+        } finally {
+            if (ref != null) {
+                bundleContext.ungetService(ref);
             }
         }
-        return channels;
     }
 
     private static Channel createChannel(ChannelDefinition channelDefinition, ThingUID thingUID, String groupId,
             ConfigDescriptionRegistry configDescriptionRegistry) {
-        ChannelType type = TypeResolver.resolve(channelDefinition.getChannelTypeUID());
+        ChannelType type = withChannelTypeRegistry(channelTypeRegistry -> {
+            return (channelTypeRegistry != null)
+                    ? channelTypeRegistry.getChannelType(channelDefinition.getChannelTypeUID())
+                    : null;
+        });
         if (type == null) {
             logger.warn(
                     "Could not create channel '{}' for thing type '{}', because channel type '{}' could not be found.",
@@ -159,8 +194,9 @@ public class ThingFactoryHelper {
                     return null;
             }
         } catch (NumberFormatException ex) {
-            LoggerFactory.getLogger(ThingFactory.class).warn("Could not parse default value '{}' as type '{}': {}",
-                    defaultValue, parameterType, ex.getMessage(), ex);
+            LoggerFactory.getLogger(ThingFactoryHelper.class).warn(
+                    "Could not parse default value '{}' as type '{}': {}", defaultValue, parameterType, ex.getMessage(),
+                    ex);
             return null;
         }
     }

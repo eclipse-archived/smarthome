@@ -1,12 +1,18 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.tradfri.discovery;
 
+import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -14,14 +20,12 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import javax.jmdns.ServiceInfo;
 
-import org.eclipse.smarthome.binding.tradfri.GatewayConfig;
-import org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants;
 import org.eclipse.smarthome.binding.tradfri.internal.discovery.TradfriDiscoveryParticipant;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
-import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant;
+import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,14 +67,37 @@ public class TradfriDiscoveryParticipantOSGITest extends JavaOSGiTest {
     @Test
     public void correctSupportedTypes() {
         assertThat(discoveryParticipant.getSupportedThingTypeUIDs().size(), is(1));
-        assertThat(discoveryParticipant.getSupportedThingTypeUIDs().iterator().next(),
-                is(TradfriBindingConstants.GATEWAY_TYPE_UID));
+        assertThat(discoveryParticipant.getSupportedThingTypeUIDs().iterator().next(), is(GATEWAY_TYPE_UID));
     }
 
     @Test
     public void correctThingUID() {
+        when(tradfriGateway.getName()).thenReturn("gw:12-34-56-78-90-ab");
         assertThat(discoveryParticipant.getThingUID(tradfriGateway),
                 is(new ThingUID("tradfri:gateway:gw1234567890ab")));
+
+        when(tradfriGateway.getName()).thenReturn("gw:1234567890ab");
+        assertThat(discoveryParticipant.getThingUID(tradfriGateway),
+                is(new ThingUID("tradfri:gateway:gw1234567890ab")));
+
+        when(tradfriGateway.getName()).thenReturn("gw-12-34-56-78-90-ab");
+        assertThat(discoveryParticipant.getThingUID(tradfriGateway),
+                is(new ThingUID("tradfri:gateway:gw1234567890ab")));
+
+        when(tradfriGateway.getName()).thenReturn("gw:1234567890ab");
+        assertThat(discoveryParticipant.getThingUID(tradfriGateway),
+                is(new ThingUID("tradfri:gateway:gw1234567890ab")));
+
+        when(tradfriGateway.getName()).thenReturn("gw:1234567890abServiceInfo");
+        assertThat(discoveryParticipant.getThingUID(tradfriGateway),
+                is(new ThingUID("tradfri:gateway:gw1234567890ab")));
+
+        when(tradfriGateway.getName()).thenReturn("gw:12-34-56-78-90-ab-service-info");
+        assertThat(discoveryParticipant.getThingUID(tradfriGateway),
+                is(new ThingUID("tradfri:gateway:gw1234567890ab")));
+
+        // restore original value
+        when(tradfriGateway.getName()).thenReturn("gw:12-34-56-78-90-ab");
     }
 
     @Test
@@ -81,17 +108,30 @@ public class TradfriDiscoveryParticipantOSGITest extends JavaOSGiTest {
         assertThat(result.getProperties().get(Thing.PROPERTY_FIRMWARE_VERSION), is("1.1"));
         assertThat(result.getFlag(), is(DiscoveryResultFlag.NEW));
         assertThat(result.getThingUID(), is(new ThingUID("tradfri:gateway:gw1234567890ab")));
-        assertThat(result.getThingTypeUID(), is(TradfriBindingConstants.GATEWAY_TYPE_UID));
+        assertThat(result.getThingTypeUID(), is(GATEWAY_TYPE_UID));
         assertThat(result.getBridgeUID(), is(nullValue()));
         assertThat(result.getProperties().get(Thing.PROPERTY_VENDOR), is("IKEA of Sweden"));
-        assertThat(result.getProperties().get(GatewayConfig.HOST), is("192.168.0.5"));
-        assertThat(result.getProperties().get(GatewayConfig.PORT), is(1234));
-        assertThat(result.getRepresentationProperty(), is(GatewayConfig.HOST));
+        assertThat(result.getProperties().get(GATEWAY_CONFIG_HOST), is("192.168.0.5"));
+        assertThat(result.getProperties().get(GATEWAY_CONFIG_PORT), is(1234));
+        assertThat(result.getRepresentationProperty(), is(GATEWAY_CONFIG_HOST));
     }
 
     @Test
     public void noThingUIDForUnknownDevice() {
+        when(otherDevice.getName()).thenReturn("something");
         assertThat(discoveryParticipant.getThingUID(otherDevice), is(nullValue()));
+
+        when(otherDevice.getName()).thenReturn("gw_1234567890ab");
+        assertThat(discoveryParticipant.getThingUID(otherDevice), is(nullValue()));
+
+        when(otherDevice.getName()).thenReturn("gw:12-3456--7890-ab");
+        assertThat(discoveryParticipant.getThingUID(otherDevice), is(nullValue()));
+
+        when(otherDevice.getName()).thenReturn("gw1234567890ab");
+        assertThat(discoveryParticipant.getThingUID(otherDevice), is(nullValue()));
+
+        // restore original value
+        when(otherDevice.getName()).thenReturn("something");
     }
 
     @Test

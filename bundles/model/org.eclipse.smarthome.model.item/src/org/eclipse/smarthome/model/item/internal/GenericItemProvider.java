@@ -1,22 +1,32 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.item.internal;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractProvider;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
@@ -55,20 +65,17 @@ public class GenericItemProvider extends AbstractProvider<Item>
     private final Logger logger = LoggerFactory.getLogger(GenericItemProvider.class);
 
     /** to keep track of all binding config readers */
-    private Map<String, BindingConfigReader> bindingConfigReaders = new HashMap<String, BindingConfigReader>();
+    private final Map<String, BindingConfigReader> bindingConfigReaders = new HashMap<String, BindingConfigReader>();
 
     private ModelRepository modelRepository = null;
 
-    private Map<String, Collection<Item>> itemsMap = new ConcurrentHashMap<>();
+    private final Map<String, Collection<Item>> itemsMap = new ConcurrentHashMap<>();
 
-    private Collection<ItemFactory> itemFactorys = new ArrayList<ItemFactory>();
+    private final Collection<ItemFactory> itemFactorys = new ArrayList<ItemFactory>();
 
-    private Map<String, StateDescription> stateDescriptions = new ConcurrentHashMap<>();
+    private final Map<String, StateDescription> stateDescriptions = new ConcurrentHashMap<>();
 
     private Integer rank;
-
-    public GenericItemProvider() {
-    }
 
     protected void activate(Map<String, Object> properties) {
         Object serviceRanking = properties.get(Constants.SERVICE_RANKING);
@@ -86,6 +93,12 @@ public class GenericItemProvider extends AbstractProvider<Item>
 
     public void setModelRepository(ModelRepository modelRepository) {
         this.modelRepository = modelRepository;
+
+        // process models which are already parsed by modelRepository:
+        for (String modelName : modelRepository.getAllModelNamesOfType("items")) {
+            modelChanged(modelName, EventType.ADDED);
+        }
+
         modelRepository.addModelRepositoryChangeListener(this);
     }
 
@@ -157,6 +170,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
                 }
             }
         }
+
         return items;
     }
 
@@ -303,6 +317,9 @@ public class GenericItemProvider extends AbstractProvider<Item>
             String bindingType = binding.getType();
             String config = binding.getConfiguration();
 
+            Configuration configuration = new Configuration();
+            binding.getProperties().forEach(p -> configuration.put(p.getKey(), p.getValue()));
+
             BindingConfigReader localReader = reader;
             if (reader == null) {
                 logger.trace("Given binding config reader is null > query cache to find appropriate reader!");
@@ -322,7 +339,8 @@ public class GenericItemProvider extends AbstractProvider<Item>
             if (localReader != null) {
                 try {
                     localReader.validateItemType(item.getType(), config);
-                    localReader.processBindingConfiguration(modelName, item.getType(), item.getName(), config);
+                    localReader.processBindingConfiguration(modelName, item.getType(), item.getName(), config,
+                            configuration);
                 } catch (BindingConfigParseException e) {
                     logger.error("Binding configuration of type '{}' of item '{}' could not be parsed correctly.",
                             bindingType, item.getName(), e);
@@ -343,21 +361,14 @@ public class GenericItemProvider extends AbstractProvider<Item>
         if (modelName.endsWith("items")) {
             switch (type) {
                 case ADDED:
-                    Collection<Item> allNewItems = getItemsFromModel(modelName);
-                    itemsMap.put(modelName, allNewItems);
-                    for (Item item : allNewItems) {
-                        notifyListenersAboutAddedElement(item);
-                    }
-                    processBindingConfigsFromModel(modelName, type);
-                    break;
                 case MODIFIED:
                     Map<String, Item> oldItems = toItemMap(itemsMap.get(modelName));
-                    Map<String, Item> newItems = toItemMap(getAll());
+                    Map<String, Item> newItems = toItemMap(getItemsFromModel(modelName));
                     itemsMap.put(modelName, newItems.values());
                     for (Item newItem : newItems.values()) {
                         if (oldItems.containsKey(newItem.getName())) {
                             Item oldItem = oldItems.get(newItem.getName());
-                            if (!oldItem.equals(newItem)) {
+                            if (hasItemChanged(oldItem, newItem)) {
                                 notifyListenersAboutUpdatedElement(oldItem, newItem);
                             }
                         } else {
@@ -383,8 +394,60 @@ public class GenericItemProvider extends AbstractProvider<Item>
         }
     }
 
+    protected boolean hasItemChanged(Item item1, Item item2) {
+        return !Objects.equals(item1.getClass(), item2.getClass()) || //
+                !Objects.equals(item1.getName(), item2.getName()) || //
+                !Objects.equals(item1.getCategory(), item2.getCategory()) || //
+                !Objects.equals(item1.getGroupNames(), item2.getGroupNames()) || //
+                !Objects.equals(item1.getLabel(), item2.getLabel()) || //
+                !Objects.equals(item1.getTags(), item2.getTags()) || //
+                !Objects.equals(item1.getType(), item2.getType()) || //
+                hasGroupItemChanged(item1, item2);
+    }
+
+    private boolean hasGroupItemChanged(Item item1, Item item2) {
+        GroupItem gItem1 = null;
+        GroupItem gItem2 = null;
+
+        if (item1 instanceof GroupItem) {
+            gItem1 = (GroupItem) item1;
+        }
+        if (item2 instanceof GroupItem) {
+            gItem2 = (GroupItem) item2;
+        }
+
+        if (gItem1 == null && gItem2 == null) {
+            return false;
+        }
+
+        if ((gItem1 != null && gItem2 == null) || (gItem1 == null && gItem2 != null)) {
+            return true;
+        }
+
+        boolean sameBaseItemClass = Objects.equals(gItem1.getBaseItem(), gItem2.getBaseItem());
+
+        boolean sameFunction = false;
+        GroupFunction gf1 = gItem1.getFunction();
+        GroupFunction gf2 = gItem2.getFunction();
+        if (gf1 != null && gf2 != null) {
+            if (Objects.equals(gf1.getClass(), gf2.getClass())) {
+                sameFunction = Arrays.equals(gf1.getParameters(), gf2.getParameters());
+            }
+        } else if (gf1 == null && gf2 == null) {
+            sameFunction = true;
+        }
+
+        boolean sameMembers = Objects.equals(gItem1.getMembers(), gItem2.getMembers());
+
+        return !(sameBaseItemClass && sameFunction && sameMembers);
+    }
+
     private Map<String, Item> toItemMap(Collection<Item> items) {
-        Map<String, Item> ret = new HashMap<>();
+        if (items == null || items.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Map<String, Item> ret = new LinkedHashMap<>();
         for (Item item : items) {
             ret.put(item.getName(), item);
         }

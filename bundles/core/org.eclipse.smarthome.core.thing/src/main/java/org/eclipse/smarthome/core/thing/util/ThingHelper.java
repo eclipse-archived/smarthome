@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.util;
 
@@ -13,6 +18,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.iterators.ArrayIterator;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -28,9 +35,6 @@ import org.eclipse.smarthome.core.thing.dto.ChannelDTOMapper;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.internal.BridgeImpl;
 import org.eclipse.smarthome.core.thing.internal.ThingImpl;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Objects;
 
 /**
  * {@link ThingHelper} provides a utility method to create and bind items.
@@ -59,19 +63,19 @@ public class ThingHelper {
             return false;
         }
         // bridge
-        if (!Objects.equal(a.getBridgeUID(), b.getBridgeUID())) {
+        if (!Objects.equals(a.getBridgeUID(), b.getBridgeUID())) {
             return false;
         }
         // configuration
-        if (!Objects.equal(a.getConfiguration(), b.getConfiguration())) {
+        if (!Objects.equals(a.getConfiguration(), b.getConfiguration())) {
             return false;
         }
         // label
-        if (!Objects.equal(a.getLabel(), b.getLabel())) {
+        if (!Objects.equals(a.getLabel(), b.getLabel())) {
             return false;
         }
         // location
-        if (!Objects.equal(a.getLocation(), b.getLocation())) {
+        if (!Objects.equals(a.getLocation(), b.getLocation())) {
             return false;
         }
         // channels
@@ -92,7 +96,7 @@ public class ThingHelper {
             strings.add(channel.getUID().toString() + '#' + channel.getAcceptedItemType() + '#' + channel.getKind());
         }
         Collections.sort(strings);
-        return Joiner.on(',').join(strings);
+        return strings.stream().collect(Collectors.joining(","));
     }
 
     public static void addChannelsToThing(Thing thing, Collection<Channel> channels) {

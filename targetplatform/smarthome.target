@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="SmartHome" sequenceNumber="117">
+<?pde version="3.8"?><target name="SmartHome" sequenceNumber="124">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.google.inject" version="3.0.0.v201312141243"/>
@@ -40,9 +40,6 @@
 <unit id="org.apache.commons.net.source" version="3.2.0.v201305141515"/>
 <unit id="org.apache.commons.lang.source" version="2.6.0.v201404270220"/>
 <unit id="org.apache.commons.lang" version="2.6.0.v201404270220"/>
-<unit id="org.apache.httpcomponents.httpclient" version="4.2.6.v201311072007"/>
-<unit id="org.apache.httpcomponents.httpcore" version="4.2.5.v201311072007"/>
-<unit id="org.apache.httpcomponents.httpcore.nio" version="4.1.0.v201101201700"/>
 <unit id="org.codehaus.jackson.core" version="1.6.0.v20101005-0925"/>
 <unit id="org.codehaus.jackson.core.source" version="1.6.0.v20101005-0925"/>
 <unit id="org.codehaus.jackson.jaxrs" version="1.6.0.v20101005-1100"/>
@@ -81,14 +78,13 @@
 <repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20140525021250/repository/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.sdk.ide" version="4.7.0.I20170612-0950"/>
-<unit id="org.eclipse.pde.feature.group" version="3.13.0.v20170612-0950"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.7"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.xtext.sdk.feature.group" version="2.12.0.v20170519-1412"/>
 <unit id="org.eclipse.xtend.sdk.feature.group" version="2.12.0.v20170519-1412"/>
 <repository location="http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.12.0/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.xtend" version="2.2.0.v201605260315"/>
+<repository location="http://download.eclipse.org/releases/oxygen/201709271000"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.9.1.201705291011"/>
@@ -101,17 +97,21 @@
 <repository location="http://download.eclipse.org/modeling/emf/emf/updates/2.11/core/R201506010402"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.lsp4j.sdk.feature.group" version="0.0.0"/>
+<repository location="http://download.eclipse.org/lsp4j/updates/releases/0.2.1"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.codehaus.groovy23.feature.feature.group" version="2.9.1.xx-201411061335-e44-RELEASE"/>
-<repository location="http://dist.springsource.org/release/GRECLIPSE/e4.4/"/>
+<repository location="http://dist.springsource.org/release/GRECLIPSE/2.9.1/e4.4"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.sdk.feature.group" version="3.13.0.v20170531-1133"/>
 <unit id="org.eclipse.jdt.feature.group" version="3.13.0.v20170612-0950"/>
-<repository location="http://download.eclipse.org/releases/oxygen/"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.7/R-4.7-201706120950"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.jupnp.feature.feature.group" version="0.0.0"/>
-<repository location="http://www.jupnp.org/update-site/2.2.0"/>
+<repository location="http://www.jupnp.org/update-site/2.3.0"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.eclipsesource.jaxrs.provider.security.feature.source.feature.group" version="0.0.0"/>
@@ -176,7 +176,11 @@
 <unit id="org.eclipse.jetty.util" version="0.0.0"/>
 <unit id="org.eclipse.jetty.webapp" version="0.0.0"/>
 <unit id="org.eclipse.jetty.xml" version="0.0.0"/>
-<repository location="http://download.eclipse.org/jetty/updates/jetty-bundles-9.x/9.3.14.v20161028"/>
+<repository location="http://download.eclipse.org/jetty/updates/jetty-bundles-9.x/9.3.15.v20161220"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="nrjavaserial.feature.group" version="3.12.0"/>
+<repository location="http://dl.bintray.com/openhab/p2/nrjavaserial/3.12.0/"/>
 </location>
 <location path="${project_loc:targetplatform}/third-party" type="Directory"/>
 </locations>

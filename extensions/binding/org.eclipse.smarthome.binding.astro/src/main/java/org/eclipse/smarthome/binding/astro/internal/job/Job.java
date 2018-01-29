@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.binding.astro.internal.job;
 
@@ -96,8 +101,12 @@ public interface Job extends Runnable {
         }
         final Calendar instant;
         if (!configAlreadyApplied) {
-            AstroChannelConfig config = astroHandler.getThing().getChannel(channelId).getConfiguration()
-                    .as(AstroChannelConfig.class);
+            final Channel channel = astroHandler.getThing().getChannel(channelId);
+            if (channel == null) {
+                logger.warn("Cannot find channel '{}' for thing '{}'.", channelId, astroHandler.getThing().getUID());
+                return;
+            }
+            AstroChannelConfig config = channel.getConfiguration().as(AstroChannelConfig.class);
             instant = applyConfig(eventAt, config);
         } else {
             instant = eventAt;
@@ -132,8 +141,12 @@ public interface Job extends Runnable {
             return;
         }
 
-        AstroChannelConfig config = astroHandler.getThing().getChannel(channelId).getConfiguration()
-                .as(AstroChannelConfig.class);
+        final Channel channel = astroHandler.getThing().getChannel(channelId);
+        if (channel == null) {
+            logger.warn("Cannot find channel '{}' for thing '{}'.", channelId, astroHandler.getThing().getUID());
+            return;
+        }
+        AstroChannelConfig config = channel.getConfiguration().as(AstroChannelConfig.class);
         Calendar configStart = applyConfig(start, config);
         Calendar configEnd = applyConfig(end, config);
 

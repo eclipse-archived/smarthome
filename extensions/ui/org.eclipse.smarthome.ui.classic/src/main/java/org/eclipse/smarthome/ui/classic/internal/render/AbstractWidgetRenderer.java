@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.ui.classic.internal.render;
 
@@ -40,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-abstract public class AbstractWidgetRenderer implements WidgetRenderer {
+public abstract class AbstractWidgetRenderer implements WidgetRenderer {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractWidgetRenderer.class);
 
@@ -55,7 +60,7 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
     protected static final String SNIPPET_LOCATION = "snippets/";
 
     /* a local cache so we do not have to read the snippets over and over again from the bundle */
-    protected static final Map<String, String> snippetCache = new HashMap<String, String>();
+    protected static final Map<String, String> SNIPPET_CACHE = new HashMap<String, String>();
 
     public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
         this.itemUIRegistry = itemUIRegistry;
@@ -83,22 +88,22 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
      * @throws RenderException if snippet could not be read
      */
     protected synchronized String getSnippet(String elementType) throws RenderException {
-        elementType = elementType.toLowerCase();
-        String snippet = snippetCache.get(elementType);
+        String lowerCaseElementType = elementType.toLowerCase();
+        String snippet = SNIPPET_CACHE.get(lowerCaseElementType);
         if (snippet == null) {
-            String snippetLocation = SNIPPET_LOCATION + elementType + SNIPPET_EXT;
+            String snippetLocation = SNIPPET_LOCATION + lowerCaseElementType + SNIPPET_EXT;
             URL entry = WebAppActivator.getContext().getBundle().getEntry(snippetLocation);
             if (entry != null) {
                 try {
                     snippet = IOUtils.toString(entry.openStream());
                     if (!config.isHtmlCacheDisabled()) {
-                        snippetCache.put(elementType, snippet);
+                        SNIPPET_CACHE.put(lowerCaseElementType, snippet);
                     }
                 } catch (IOException e) {
-                    logger.warn("Cannot load snippet for element type '{}'", elementType, e);
+                    logger.warn("Cannot load snippet for element type '{}'", lowerCaseElementType, e);
                 }
             } else {
-                throw new RenderException("Cannot find a snippet for element type '" + elementType + "'");
+                throw new RenderException("Cannot find a snippet for element type '" + lowerCaseElementType + "'");
             }
         }
         return snippet;
@@ -122,7 +127,6 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
      * @return the label to use for the widget
      */
     public String getLabel(Widget w, String preferredValue) {
-
         String label = itemUIRegistry.getLabel(w);
         int index = label.indexOf('[');
         int index2 = label.lastIndexOf(']');
@@ -184,16 +188,16 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
         if (color != null) {
             style = "color:" + color;
         }
-        snippet = StringUtils.replace(snippet, "%labelstyle%", style);
+        String ret = StringUtils.replace(snippet, "%labelstyle%", style);
 
         style = "";
         color = itemUIRegistry.getValueColor(w);
         if (color != null) {
             style = "color:" + color;
         }
-        snippet = StringUtils.replace(snippet, "%valuestyle%", style);
+        ret = StringUtils.replace(ret, "%valuestyle%", style);
 
-        return snippet;
+        return ret;
     }
 
     protected String getFormat() {

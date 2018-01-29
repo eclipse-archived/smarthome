@@ -1,14 +1,13 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Model Core Tests
-Bundle-SymbolicName: org.eclipse.smarthome.model.core.test
-Bundle-Version: 0.9.0.qualifier
-Fragment-Host: org.eclipse.smarthome.model.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.junit,
- org.mockito,
- org.hamcrest
-Import-Package: org.eclipse.smarthome.config.core,
+Bundle-SymbolicName: org.eclipse.smarthome.model.core.test
+Bundle-Version: 0.10.0.qualifier
+Fragment-Host: org.eclipse.smarthome.model.core
+Import-Package: 
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.service,
  org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.java,
@@ -18,3 +17,7 @@ Import-Package: org.eclipse.smarthome.config.core,
  org.mockito,
  org.osgi.framework,
  org.slf4j
+Require-Bundle: 
+ org.hamcrest,
+ org.junit,
+ org.mockito

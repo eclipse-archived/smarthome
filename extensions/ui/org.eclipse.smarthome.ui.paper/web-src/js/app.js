@@ -1,4 +1,19 @@
-angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control', 'PaperUI.controllers.setup', 'PaperUI.controllers.configuration', 'PaperUI.controllers.configuration.bindings', 'PaperUI.controllers.extension', 'PaperUI.controllers.rules', 'PaperUI.services', 'PaperUI.services.rest', 'PaperUI.services.repositories', 'PaperUI.extensions', 'ngRoute', 'ngResource', 'ngMaterial', 'ngMessages', 'ngSanitize', 'ui.sortable', 'material.components.expansionPanels' ]).config([ '$routeProvider', '$httpProvider', 'globalConfig', '$mdDateLocaleProvider', 'moduleConfig', 'dateTimeProvider', function($routeProvider, httpProvider, globalConfig, $mdDateLocaleProvider, moduleConfig, dateTimeProvider) {
+angular.module('PaperUI', [//
+'PaperUI.controllers',//
+'PaperUI.controllers.control',// 
+'PaperUI.controllers.setup',//
+'PaperUI.controllers.configuration',//
+'PaperUI.controllers.things',//
+'PaperUI.controllers.configuration.bindings',//
+'PaperUI.controllers.extension',//
+'PaperUI.controllers.rules',//
+'PaperUI.services',//
+'PaperUI.services.rest',//
+'PaperUI.services.repositories', //
+'PaperUI.extensions',//
+'PaperUI.directive.configDescription',//
+'ngRoute', 'ngResource', 'ngMaterial', 'ngMessages', 'ngSanitize', 'ui.sortable', 'material.components.expansionPanels' ]) //
+.config([ '$routeProvider', '$httpProvider', 'globalConfig', '$mdDateLocaleProvider', 'moduleConfig', 'dateTimeProvider', function($routeProvider, httpProvider, globalConfig, $mdDateLocaleProvider, moduleConfig, dateTimeProvider) {
     $routeProvider.when('/control', {
         templateUrl : 'partials/control.html',
         controller : 'ControlPageController',
@@ -34,15 +49,27 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
         redirectTo : '/configuration/bindings'
     }).when('/configuration/services', {
         templateUrl : 'partials/configuration.html',
-        controller : 'ConfigurationPageController',
+        controller : 'ServicesController',
+        title : 'Configuration'
+    }).when('/configuration/services/:servicePID', {
+        templateUrl : 'partials/configuration.multiService.html',
+        controller : 'MultiServicesController',
         title : 'Configuration'
     }).when('/configuration/things', {
-        templateUrl : 'partials/configuration.html',
-        controller : 'ConfigurationPageController',
+        templateUrl : 'partials/configuration.things.html',
+        controller : 'ThingController',
+        title : 'Configuration'
+    }).when('/configuration/things/view/:thingUID', {
+        templateUrl : 'partials/configuration.things.html',
+        controller : 'ThingController',
+        title : 'Configuration'
+    }).when('/configuration/things/edit/:thingUID', {
+        templateUrl : 'partials/configuration.things.html',
+        controller : 'ThingController',
         title : 'Configuration'
     }).when('/configuration/items', {
         templateUrl : 'partials/configuration.html',
-        controller : 'ConfigurationPageController',
+        controller : 'ItemSetupController',
         title : 'Configuration'
     }).when('/configuration/item/edit/:itemName', {
         templateUrl : 'partials/item.config.html',
@@ -51,17 +78,9 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
         templateUrl : 'partials/item.config.html',
         controller : 'ItemSetupController',
         title : 'Create item'
-    }).when('/configuration/things/view/:thingUID', {
-        templateUrl : 'partials/configuration.html',
-        controller : 'ConfigurationPageController',
-        title : 'Configuration'
-    }).when('/configuration/things/edit/:thingUID', {
-        templateUrl : 'partials/configuration.html',
-        controller : 'ConfigurationPageController',
-        title : 'Configuration'
     }).when('/configuration/system', {
         templateUrl : 'partials/system.configuration.html',
-        controller : 'ConfigurationPageController',
+        controller : 'SystemController',
         title : 'Configuration'
     }).when('/extensions', {
         templateUrl : 'partials/extensions.html',

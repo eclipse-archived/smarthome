@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.rule.runtime.internal.engine;
 
@@ -11,7 +16,6 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
-import org.eclipse.smarthome.model.script.ScriptServiceUtil;
 import org.eclipse.smarthome.model.script.engine.Script;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
@@ -40,13 +44,16 @@ public class ExecuteRuleJob implements Job {
     @Inject
     private Injector injector;
 
+    @Inject
+    private ModelRepository modelRepository;
+
+    @Inject
+    private ScriptEngine scriptEngine;
+
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         String modelName = (String) context.getJobDetail().getJobDataMap().get(JOB_DATA_RULEMODEL);
         String ruleName = (String) context.getJobDetail().getJobDataMap().get(JOB_DATA_RULENAME);
-
-        ModelRepository modelRepository = ScriptServiceUtil.getModelRepository();
-        ScriptEngine scriptEngine = ScriptServiceUtil.getScriptEngine();
 
         if (modelRepository != null && scriptEngine != null) {
             EObject model = modelRepository.getModel(modelName);
@@ -59,7 +66,7 @@ public class ExecuteRuleJob implements Job {
                     try {
                         script.execute(RuleContextHelper.getContext(rule, injector));
                     } catch (ScriptExecutionException e) {
-                        logger.error("Error during the execution of rule {}: {}", rule.getName(), e.getMessage());
+                        logger.error("Error during the execution of rule '{}': {}", rule.getName(), e.getMessage());
                     }
                 } else {
                     logger.debug("Scheduled rule '{}' does not exist", ruleName);

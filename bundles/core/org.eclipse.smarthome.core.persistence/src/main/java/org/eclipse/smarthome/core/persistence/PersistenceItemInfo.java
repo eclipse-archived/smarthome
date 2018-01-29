@@ -1,13 +1,21 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.persistence;
 
 import java.util.Date;
+
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * This class provides information about an item that is stored in a persistence service.
@@ -25,6 +33,7 @@ public interface PersistenceItemInfo {
      *
      * @return Item name
      */
+    @NonNull
     String getName();
 
     /**
@@ -34,6 +43,7 @@ public interface PersistenceItemInfo {
      *
      * @return count of the number of rows of data. May return null if the persistence service doesn't support this.
      */
+    @Nullable
     Integer getCount();
 
     /**
@@ -42,6 +52,7 @@ public interface PersistenceItemInfo {
      * @return the earliest {@link Date} stored in the database. May return null if the persistence service doesn't
      *         support this.
      */
+    @Nullable
     Date getEarliest();
 
     /**
@@ -50,5 +61,6 @@ public interface PersistenceItemInfo {
      * @return the latest {@link Date} stored in the database. May return null if the persistence service doesn't
      *         support this.
      */
+    @Nullable
     Date getLatest();
 }

@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.core.thing.binding
 
@@ -37,6 +42,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelType
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.test.OSGiTest
@@ -393,7 +399,7 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
 
     private ThingType registerThingTypeAndConfigDescription(ThingTypeUID thingTypeUID) {
         def URI configDescriptionUri = new URI("test:" + thingTypeUID.getId());
-        def thingType = new ThingType(thingTypeUID, null, "label", null, getChannelDefinitions(thingTypeUID), null, null, configDescriptionUri)
+        def thingType = ThingTypeBuilder.instance(thingTypeUID, "label").withChannelDefinitions(getChannelDefinitions(thingTypeUID)).withConfigDescriptionURI(configDescriptionUri).build();
         def configDescription = new ConfigDescription(configDescriptionUri, [
             ConfigDescriptionParameterBuilder.create("parameter"+thingTypeUID.getId(), ConfigDescriptionParameter.Type.TEXT).withRequired(false).withDefault("default"+thingTypeUID.getId()).build(),
             ConfigDescriptionParameterBuilder.create("provided"+thingTypeUID.getId(), ConfigDescriptionParameter.Type.TEXT).withRequired(false).build()

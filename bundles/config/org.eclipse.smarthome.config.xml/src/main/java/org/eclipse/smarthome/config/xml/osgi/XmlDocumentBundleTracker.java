@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.config.xml.osgi;
 
@@ -19,20 +24,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.service.ReadyMarker;
-import org.eclipse.smarthome.core.service.ReadyUtil;
+import org.eclipse.smarthome.core.service.ReadyService;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.BundleTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,20 +58,22 @@ import org.slf4j.LoggerFactory;
  */
 public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
 
+    public static final String THREAD_POOL_NAME = "file-processing";
+
     private final Logger logger = LoggerFactory.getLogger(XmlDocumentBundleTracker.class);
-    private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool("xml-processing");
+    private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(THREAD_POOL_NAME);
     private final String xmlDirectory;
     private final XmlDocumentReader<T> xmlDocumentTypeReader;
     private final XmlDocumentProviderFactory<T> xmlDocumentProviderFactory;
     private final Map<Bundle, XmlDocumentProvider<T>> bundleDocumentProviderMap = new ConcurrentHashMap<>();
-    private final Map<Bundle, ScheduledFuture<?>> queue = new ConcurrentHashMap<>();
+    private final Map<Bundle, Future<?>> queue = new ConcurrentHashMap<>();
     private final Set<Bundle> finishedBundles = new CopyOnWriteArraySet<>();
-    @SuppressWarnings("rawtypes")
-    private final Map<String, ServiceRegistration> bundleReadyMarkerRegistrations = new ConcurrentHashMap<>();
+    private final Map<String, ReadyMarker> bundleReadyMarkerRegistrations = new ConcurrentHashMap<>();
     private final String readyMarkerKey;
 
     @SuppressWarnings("rawtypes")
     private BundleTracker relevantBundlesTracker;
+    private final ReadyService readyService;
 
     /**
      * Creates a new instance of this class with the specified parameters.
@@ -91,7 +96,7 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
      */
     public XmlDocumentBundleTracker(BundleContext bundleContext, String xmlDirectory,
             XmlDocumentReader<T> xmlDocumentTypeReader, XmlDocumentProviderFactory<T> xmlDocumentProviderFactory,
-            String readyMarkerKey) throws IllegalArgumentException {
+            String readyMarkerKey, ReadyService readyService) throws IllegalArgumentException {
         super(bundleContext, Bundle.ACTIVE, null);
 
         if (bundleContext == null) {
@@ -106,15 +111,23 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
         if (xmlDocumentProviderFactory == null) {
             throw new IllegalArgumentException("The XmlDocumentProviderFactory must not be null!");
         }
+        if (readyService == null) {
+            throw new IllegalArgumentException("The ReadyService must not be null!");
+        }
 
         this.readyMarkerKey = readyMarkerKey;
         this.xmlDirectory = xmlDirectory;
         this.xmlDocumentTypeReader = xmlDocumentTypeReader;
         this.xmlDocumentProviderFactory = xmlDocumentProviderFactory;
+        this.readyService = readyService;
     }
 
     private boolean isBundleRelevant(Bundle bundle) {
-        return bundle.getHeaders().get(Constants.FRAGMENT_HOST) == null && isResourcePresent(bundle, xmlDirectory);
+        return isNotFragment(bundle) && isResourcePresent(bundle, xmlDirectory);
+    }
+
+    private boolean isNotFragment(Bundle bundle) {
+        return bundle.getHeaders().get(Constants.FRAGMENT_HOST) == null;
     }
 
     private Set<Bundle> getRelevantBundles() {
@@ -144,13 +157,15 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
         super.close();
         unregisterReadyMarkers();
         bundleDocumentProviderMap.clear();
-        relevantBundlesTracker.close();
+        if (relevantBundlesTracker != null) {
+            relevantBundlesTracker.close();
+        }
         clearQueue();
         finishedBundles.clear();
     }
 
     private void clearQueue() {
-        for (ScheduledFuture<?> future : queue.values()) {
+        for (Future<?> future : queue.values()) {
             future.cancel(true);
         }
         queue.clear();
@@ -214,9 +229,9 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
 
     @Override
     public final synchronized void removedBundle(Bundle bundle, BundleEvent event, Bundle object) {
-        logger.debug("Removing the XML related objects from module '{}'...", bundle.getSymbolicName());
+        logger.trace("Removing the XML related objects from module '{}'...", bundle.getSymbolicName());
         finishedBundles.remove(bundle);
-        ScheduledFuture<?> future = queue.remove(bundle);
+        Future<?> future = queue.remove(bundle);
         if (future != null) {
             future.cancel(true);
         }
@@ -284,13 +299,14 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
      * @param bundle
      */
     private void addingBundle(Bundle bundle) {
-        if (!isBundleRelevant(bundle)) {
-            finishBundle(bundle);
-            return;
-        }
-        ScheduledFuture<?> future = scheduler.schedule(() -> {
-            processBundle(bundle);
-        }, 0, TimeUnit.SECONDS);
+        Future<?> future = scheduler.submit(new Runnable() {
+            // this should remain an anonymous class and not be converted to a lambda because of
+            // http://bugs.java.com/view_bug.do?bug_id=8073755
+            @Override
+            public void run() {
+                processBundle(bundle);
+            }
+        });
         queue.put(bundle, future);
     }
 
@@ -313,10 +329,12 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
     }
 
     private void processBundle(Bundle bundle) {
-        Enumeration<URL> xmlDocumentPaths = bundle.findEntries(xmlDirectory, "*.xml", true);
-        if (xmlDocumentPaths != null) {
-            Collection<URL> filteredPaths = filterPatches(xmlDocumentPaths, bundle);
-            parseDocuments(bundle, filteredPaths);
+        if (isNotFragment(bundle)) {
+            Enumeration<URL> xmlDocumentPaths = bundle.findEntries(xmlDirectory, "*.xml", true);
+            if (xmlDocumentPaths != null) {
+                Collection<URL> filteredPaths = filterPatches(xmlDocumentPaths, bundle);
+                parseDocuments(bundle, filteredPaths);
+            }
         }
         finishBundle(bundle);
     }
@@ -344,25 +362,23 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
     private void registerReadyMarker(Bundle bundle) {
         String bsn = bundle.getSymbolicName();
         if (!bundleReadyMarkerRegistrations.containsKey(bsn)) {
-            @SuppressWarnings("rawtypes")
-            ServiceRegistration reg = ReadyUtil.markAsReady(context, readyMarkerKey, bsn);
-            bundleReadyMarkerRegistrations.put(bsn, reg);
+            ReadyMarker readyMarker = new ReadyMarker(readyMarkerKey, bsn);
+            readyService.markReady(readyMarker);
+            bundleReadyMarkerRegistrations.put(bsn, readyMarker);
         }
     }
 
     private void unregisterReadyMarker(Bundle bundle) {
         String bsn = bundle.getSymbolicName();
-        @SuppressWarnings("rawtypes")
-        ServiceRegistration reg = bundleReadyMarkerRegistrations.remove(bsn);
-        if (reg != null) {
-            reg.unregister();
+        ReadyMarker readyMarker = bundleReadyMarkerRegistrations.remove(bsn);
+        if (readyMarker != null) {
+            readyService.unmarkReady(readyMarker);
         }
     }
 
     private void unregisterReadyMarkers() {
-        for (@SuppressWarnings("rawtypes")
-        ServiceRegistration reg : bundleReadyMarkerRegistrations.values()) {
-            reg.unregister();
+        for (ReadyMarker readyMarker : bundleReadyMarkerRegistrations.values()) {
+            readyService.unmarkReady(readyMarker);
         }
         bundleReadyMarkerRegistrations.clear();
     }

@@ -1,9 +1,14 @@
 /**
- * Copyright (c) 2014-2017 by the respective copyright holders.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.eclipse.smarthome.model.core.internal.folder;
 
@@ -21,6 +26,7 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -164,7 +170,8 @@ public class FolderObserverTest extends JavaOSGiTest {
         }
 
         waitForAssert(() -> assertThat(file.exists(), is(true)));
-        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)));
+        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)), DFL_TIMEOUT * 2,
+                DFL_SLEEP_TIME);
         waitForAssert(() -> assertThat(modelRepo.isRemoveModelMethodCalled, is(false)));
         waitForAssert(() -> assertThat(modelRepo.calledFileName, is(file.getName())));
     }
@@ -204,14 +211,16 @@ public class FolderObserverTest extends JavaOSGiTest {
         }
 
         waitForAssert(() -> assertThat(file.exists(), is(true)));
-        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)));
+        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)), DFL_TIMEOUT * 2,
+                DFL_SLEEP_TIME);
 
         modelRepo.clean();
 
         String text = "Additional content";
         FileUtils.writeStringToFile(file, text, true);
 
-        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)));
+        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)), DFL_TIMEOUT * 2,
+                DFL_SLEEP_TIME);
         waitForAssert(() -> assertThat(modelRepo.calledFileName, is(file.getName())));
 
         String finalFileContent;
@@ -346,12 +355,14 @@ public class FolderObserverTest extends JavaOSGiTest {
             FileUtils.writeStringToFile(mockFileWithValidExt, INITIAL_FILE_CONTENT);
         }
 
-        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)));
+        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)), DFL_TIMEOUT * 2,
+                DFL_SLEEP_TIME);
 
         modelRepo.clean();
         FileUtils.writeStringToFile(mockFileWithValidExt, "Additional content", true);
 
-        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)));
+        waitForAssert(() -> assertThat(modelRepo.isAddOrRefreshModelMethodCalled, is(true)), DFL_TIMEOUT * 2,
+                DFL_SLEEP_TIME);
     }
 
     /**
@@ -459,6 +470,11 @@ public class FolderObserverTest extends JavaOSGiTest {
             isRemoveModelMethodCalled = false;
             calledFileName = null;
             fileContent = null;
+        }
+
+        @Override
+        public Set<String> removeAllModelsOfType(String modelType) {
+            return null;
         }
     }
 
