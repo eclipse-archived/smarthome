@@ -52,7 +52,8 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
 
     private static final String[] COLOR_TEMP_MODELS = new String[] { "TRADFRI bulb E27 WS opal 980lm",
             "TRADFRI bulb E27 WS clear 950lm", "TRADFRI bulb GU10 WS 400lm", "TRADFRI bulb E14 WS opal 400lm",
-            "FLOALT panel WS 30x30", "FLOALT panel WS 60x60", "FLOALT panel WS 30x90" };
+            "FLOALT panel WS 30x30", "FLOALT panel WS 60x60", "FLOALT panel WS 30x90",
+            "TRADFRI bulb E12 WS opal 400lm" };
 
     private static final String COLOR_MODELS_IDENTIFIER = "CWS";
 
