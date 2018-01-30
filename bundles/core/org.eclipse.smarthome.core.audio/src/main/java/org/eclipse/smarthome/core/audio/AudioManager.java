@@ -14,6 +14,8 @@ package org.eclipse.smarthome.core.audio;
 
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.library.types.PercentType;
 
 /**
@@ -23,6 +25,7 @@ import org.eclipse.smarthome.core.library.types.PercentType;
  * @author Kai Kreuzer - removed unwanted dependencies
  * @author Christoph Weitkamp - Added parameter to adjust the volume
  */
+@NonNullByDefault
 public interface AudioManager {
 
     /**
@@ -34,7 +37,6 @@ public interface AudioManager {
      * Plays the passed audio stream using the default audio sink.
      *
      * @param audioStream The audio stream to play
-     * @throws NullPointerException If audioStream is null
      */
     void play(AudioStream audioStream);
 
@@ -43,9 +45,8 @@ public interface AudioManager {
      *
      * @param audioStream The audio stream to play
      * @param sinkId The id of the audio sink to use or null
-     * @throws NullPointerException If audioStream is null
      */
-    void play(AudioStream audioStream, String sinkId);
+    void play(AudioStream audioStream, @Nullable String sinkId);
 
     /**
      * Plays the passed audio stream on the given sink.
@@ -53,16 +54,14 @@ public interface AudioManager {
      * @param audioStream The audio stream to play
      * @param sinkId The id of the audio sink to use or null
      * @param volume The volume to be used or null
-     * @throws NullPointerException If audioStream is null
      */
-    void play(AudioStream audioStream, String sinkId, PercentType volume);
+    void play(AudioStream audioStream, @Nullable String sinkId, @Nullable PercentType volume);
 
     /**
      * Plays an audio file from the "sounds" folder using the default audio sink.
      *
      * @param fileName The file from the "sounds" folder
      * @throws AudioException in case the file does not exist or cannot be opened
-     * @throws NullPointerException If fileName is null
      */
     void playFile(String fileName) throws AudioException;
 
@@ -72,9 +71,8 @@ public interface AudioManager {
      * @param fileName The file from the "sounds" folder
      * @param volume The volume to be used or null
      * @throws AudioException in case the file does not exist or cannot be opened
-     * @throws NullPointerException If fileName is null
      */
-    void playFile(String fileName, PercentType volume) throws AudioException;
+    void playFile(String fileName, @Nullable PercentType volume) throws AudioException;
 
     /**
      * Plays an audio file from the "sounds" folder using the given audio sink.
@@ -82,9 +80,8 @@ public interface AudioManager {
      * @param fileName The file from the "sounds" folder
      * @param sink The id of the audio sink to use or null
      * @throws AudioException in case the file does not exist or cannot be opened
-     * @throws NullPointerException If fileName is null
      */
-    void playFile(String fileName, String sink) throws AudioException;
+    void playFile(String fileName, @Nullable String sink) throws AudioException;
 
     /**
      * Plays an audio file with the given volume from the "sounds" folder using the given audio sink.
@@ -93,9 +90,8 @@ public interface AudioManager {
      * @param sink The id of the audio sink to use or null
      * @param volume The volume to be used or null
      * @throws AudioException in case the file does not exist or cannot be opened
-     * @throws NullPointerException If fileName is null
      */
-    void playFile(String fileName, String sink, PercentType volume) throws AudioException;
+    void playFile(String fileName, @Nullable String sink, @Nullable PercentType volume) throws AudioException;
 
     /**
      * Stream audio from the passed url using the default audio sink.
@@ -103,7 +99,7 @@ public interface AudioManager {
      * @param url The url to stream from or null if streaming should be stopped
      * @throws AudioException in case the url stream cannot be opened
      */
-    void stream(String url) throws AudioException;
+    void stream(@Nullable String url) throws AudioException;
 
     /**
      * Stream audio with the given volume from the passed url using the default audio sink.
@@ -112,7 +108,7 @@ public interface AudioManager {
      * @param volume The volume to be used or null
      * @throws AudioException in case the url stream cannot be opened
      */
-    void stream(String url, PercentType volume) throws AudioException;
+    void stream(@Nullable String url, @Nullable PercentType volume) throws AudioException;
 
     /**
      * Stream audio from the passed url to the given sink
@@ -121,7 +117,7 @@ public interface AudioManager {
      * @param sinkId The id of the audio sink to use or null
      * @throws AudioException in case the url stream cannot be opened
      */
-    void stream(String url, String sinkId) throws AudioException;
+    void stream(@Nullable String url, @Nullable String sinkId) throws AudioException;
 
     /**
      * Stream audio with the given volume from the passed url to the given sink
@@ -131,7 +127,7 @@ public interface AudioManager {
      * @param volume The volume to be used or null
      * @throws AudioException in case the url stream cannot be opened
      */
-    void stream(String url, String sinkId, PercentType volume) throws AudioException;
+    void stream(@Nullable String url, @Nullable String sinkId, @Nullable PercentType volume) throws AudioException;
 
     /**
      * Retrieves the current volume of a sink
@@ -158,6 +154,7 @@ public interface AudioManager {
      * @return an AudioSource or null, if no service is available or if a default is configured, but no according
      *         service is found
      */
+    @Nullable
     AudioSource getSource();
 
     /**
@@ -169,6 +166,7 @@ public interface AudioManager {
      * @return an AudioSink or null, if no service is available or if a default is configured, but no according service
      *         is found
      */
+    @Nullable
     AudioSink getSink();
 
     /**
@@ -199,7 +197,7 @@ public interface AudioManager {
      * @param sinkId the id of the sink or null for the default
      * @return the sink instance for the id or the default sink
      */
-    AudioSink getSink(String sinkId);
+    AudioSink getSink(@Nullable String sinkId);
 
     /**
      * Get a list of sink ids that match a given pattern
