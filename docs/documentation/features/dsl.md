@@ -7,7 +7,7 @@ layout: documentation
 # Textual Configuration
 
 Eclipse SmartHome provides the possibility to do fully text-based system setups. This is done using domain specific languages (DSLs) for the different kinds of artifacts.
-In addition, configuration files can be used to configure a lot of system OSGi services.  
+In addition, configuration files can be used to configure OSGi services which are able to be configured by Configuration Admin.  
 
 ## Thing Configuration DSL
 
@@ -197,7 +197,7 @@ The framework will track exclusively marked service configurations for file or e
 
 To mark a configuration file exclusively for one service the _first line_ has to define the configuration PID in the format `pid:<configuration_pid>`.
 By giving this PID marker the framework creates an exclusive configuration for the contents of this file.
-Other files without this marker which also define configuration for the given PID will be ignored for this PID.
+Other files without this marker which also define configurations for the given PID will be ignored for this PID.
 
 The file `conf/myService.cfg` with contents
 
@@ -216,5 +216,5 @@ When removing the whole file the configuration will completely be deleted from t
 
 ### Factory Service Configuration
 
-Using the format of an exclusive service configuration it is also possible to create several instances of a specific services.
+Using the format of an exclusive service configuration it is also possible to create several instances of a specific service.
 By giving a unique context along with the exclusive PID in the format `pid:<configuration_pid>#<context>` the framework will create a new instance for this service.
