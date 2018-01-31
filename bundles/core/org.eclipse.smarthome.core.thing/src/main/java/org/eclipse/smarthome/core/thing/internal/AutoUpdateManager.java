@@ -1,0 +1,284 @@
+/**
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+package org.eclipse.smarthome.core.thing.internal;
+
+import static java.util.stream.Collectors.toSet;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.items.CommandResultPredictionListener;
+import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
+import org.eclipse.smarthome.core.items.events.ItemEventFactory;
+import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.binding.AutoUpdatePolicy;
+import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
+import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.State;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ *
+ * @author Simon Kaufmann - initial contribution and API
+ *
+ */
+@NonNullByDefault
+@Component(immediate = true, service = {
+        AutoUpdateManager.class }, configurationPid = "org.eclipse.smarthome.autoupdatemanager", configurationPolicy = ConfigurationPolicy.OPTIONAL)
+public class AutoUpdateManager {
+
+    protected static final String EVENT_SOURCE = "org.eclipse.smarthome.core.autoupdate";
+    protected static final String EVENT_SOURCE_OPTIMISTIC = "org.eclipse.smarthome.core.autoupdate.optimistic";
+
+    protected static final String PROPERTY_ENABLED = "enabled";
+    protected static final String PROPERTY_SEND_OPTIMISTIC_UPDATES = "sendOptimisticUpdates";
+
+    private final Logger logger = LoggerFactory.getLogger(AutoUpdateManager.class);
+
+    private @NonNullByDefault({}) ItemChannelLinkRegistry itemChannelLinkRegistry;
+    private @NonNullByDefault({}) ThingRegistry thingRegistry;
+    private @NonNullByDefault({}) EventPublisher eventPublisher;
+    private final Set<CommandResultPredictionListener> commandResultPredictionListeners = new HashSet<>();
+
+    private final Map<ChannelUID, @Nullable AutoUpdatePolicy> autoUpdatePolicies = new ConcurrentHashMap<>();
+
+    private boolean enabled = true;
+    private boolean sendOptimisticUpdates = false;
+
+    private static enum Recommendation {
+        /*
+         * An automatic state update must be sent because no channels are linked to the item.
+         */
+        REQUIRED,
+
+        /*
+         * An automatic state update should be sent because none of the linked channels are capable to retrieve the
+         * actual state for their device.
+         */
+        RECOMMENDED,
+
+        /*
+         * An automatic state update may be sent in the optimistic anticipation of what the handler is going to send
+         * soon anyway.
+         */
+        OPTIMISTIC,
+
+        /*
+         * No automatic state update should be sent because at least one channel claims it can handle it better.
+         */
+        DONT,
+
+        /*
+         * There are channels linked to the item which in theory would do the state update, but none of them is
+         * currently able to communicate with their devices, hence no automatic state update should be done and the
+         * previous item state should be sent instead in order to revert any control.
+         */
+        REVERT
+    }
+
+    @Activate
+    protected void activate(Map<String, @Nullable Object> configuration) {
+        modified(configuration);
+    }
+
+    @Modified
+    protected void modified(Map<String, @Nullable Object> configuration) {
+        Object valueEnabled = configuration.get(PROPERTY_ENABLED);
+        if (valueEnabled != null) {
+            enabled = Boolean.parseBoolean(valueEnabled.toString());
+        }
+
+        Object valueSendOptimisticUpdates = configuration.get(PROPERTY_SEND_OPTIMISTIC_UPDATES);
+        if (valueSendOptimisticUpdates != null) {
+            sendOptimisticUpdates = Boolean.parseBoolean(valueSendOptimisticUpdates.toString());
+        }
+    }
+
+    public void receiveCommand(ItemCommandEvent commandEvent, Item item) {
+        if (!enabled) {
+            return;
+        }
+        final String itemName = commandEvent.getItemName();
+        final Command command = commandEvent.getItemCommand();
+        if (command instanceof State) {
+            final State state = (State) command;
+
+            // TODO: consider user-override via item meta-data
+            // (see https://github.com/eclipse/smarthome/pull/4390)
+            Recommendation autoUpdate = shouldAutoUpdate(itemName);
+
+            switch (autoUpdate) {
+                case REQUIRED:
+                    logger.trace("Automatically updating item '{}' because no channel is linked", itemName);
+                    postUpdate(item, state, EVENT_SOURCE);
+                    break;
+                case RECOMMENDED:
+                    logger.trace("Automatically updating item '{}' because no channel does it", itemName);
+                    postUpdate(item, state, EVENT_SOURCE);
+                    break;
+                case OPTIMISTIC:
+                    logger.trace("Optimistically updating item '{}'", itemName);
+                    for (CommandResultPredictionListener listener : commandResultPredictionListeners) {
+                        listener.changeStateTo(item, state);
+                    }
+                    if (sendOptimisticUpdates) {
+                        postUpdate(item, state, EVENT_SOURCE_OPTIMISTIC);
+                    }
+                    break;
+                case DONT:
+                    logger.trace("Won't update item '{}' as it was vetoed.", itemName);
+                    break;
+                case REVERT:
+                    logger.trace("Sending current item state to revert controls '{}'", itemName);
+                    for (CommandResultPredictionListener listener : commandResultPredictionListeners) {
+                        listener.keepCurrentState(item);
+                    }
+                    break;
+            }
+        }
+    }
+
+    private Recommendation shouldAutoUpdate(String itemName) {
+        Recommendation ret = Recommendation.REQUIRED;
+
+        Set<ChannelUID> linkedChannelUIDs = itemChannelLinkRegistry.stream().filter(link -> {
+            return link.getItemName().equals(itemName);
+        }).map(link -> {
+            return link.getLinkedUID();
+        }).collect(toSet());
+        for (ChannelUID channelUID : linkedChannelUIDs) {
+            Thing thing = thingRegistry.get(channelUID.getThingUID());
+            if (thing == null //
+                    || thing.getChannel(channelUID.getId()) == null //
+                    || thing.getHandler() == null //
+                    || !ThingStatus.ONLINE.equals(thing.getStatus()) //
+            ) {
+                if (ret == Recommendation.REQUIRED) {
+                    ret = Recommendation.REVERT;
+                }
+                continue;
+            }
+
+            AutoUpdatePolicy policy = autoUpdatePolicies.get(channelUID);
+            if (policy == null) {
+                policy = AutoUpdatePolicy.DEFAULT;
+            }
+            switch (policy) {
+                case VETO:
+                    ret = Recommendation.DONT;
+                    break;
+                case DEFAULT:
+                    if (ret == Recommendation.REQUIRED || ret == Recommendation.RECOMMENDED) {
+                        ret = Recommendation.OPTIMISTIC;
+                    }
+                    break;
+                case RECOMMEND:
+                    if (ret == Recommendation.REQUIRED) {
+                        ret = Recommendation.RECOMMENDED;
+                    }
+                    break;
+            }
+        }
+        return ret;
+    }
+
+    private void postUpdate(Item item, State newState, String origin) {
+        boolean isAccepted = isAcceptedState(newState, item);
+        if (isAccepted) {
+            eventPublisher.post(ItemEventFactory.createStateEvent(item.getName(), newState, origin));
+        } else {
+            logger.debug("Received update of a not accepted type ({}) for item {}", newState.getClass().getSimpleName(),
+                    item.getName());
+        }
+    }
+
+    private boolean isAcceptedState(State newState, Item item) {
+        boolean isAccepted = false;
+        if (item.getAcceptedDataTypes().contains(newState.getClass())) {
+            isAccepted = true;
+        } else {
+            // Look for class hierarchy
+            for (Class<?> state : item.getAcceptedDataTypes()) {
+                try {
+                    if (!state.isEnum() && state.newInstance().getClass().isAssignableFrom(newState.getClass())) {
+                        isAccepted = true;
+                        break;
+                    }
+                } catch (InstantiationException e) {
+                    logger.warn("InstantiationException on {}", e.getMessage(), e); // Should never happen
+                } catch (IllegalAccessException e) {
+                    logger.warn("IllegalAccessException on {}", e.getMessage(), e); // Should never happen
+                }
+            }
+        }
+        return isAccepted;
+    }
+
+    protected void setAutoUpdatePolicy(ChannelUID channelUID, AutoUpdatePolicy policy) {
+        autoUpdatePolicies.put(channelUID, policy);
+    }
+
+    @Reference
+    protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
+        this.itemChannelLinkRegistry = itemChannelLinkRegistry;
+    }
+
+    protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
+        this.itemChannelLinkRegistry = null;
+    }
+
+    @Reference
+    protected void setThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = thingRegistry;
+    }
+
+    protected void unsetThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = null;
+    }
+
+    @Reference
+    protected void setEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
+
+    protected void unsetEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    protected void addStateRevertListener(CommandResultPredictionListener commandResultPredictionListener) {
+        commandResultPredictionListeners.add(commandResultPredictionListener);
+    }
+
+    protected void removeStateRevertListener(CommandResultPredictionListener commandResultPredictionListener) {
+        commandResultPredictionListeners.remove(commandResultPredictionListener);
+    }
+
+}
