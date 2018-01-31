@@ -134,4 +134,13 @@ public interface ThingHandlerCallback {
      * @return true if at least one item is linked, false otherwise
      */
     boolean isChannelLinked(ChannelUID channelUID);
+
+    /**
+     * Give advice to the framework whether automatic state updates should be sent for the given channel or not.
+     *
+     * @param channelUID
+     * @param policy
+     */
+    void setAutoUpdatePolicy(ChannelUID channelUID, AutoUpdatePolicy policy);
+
 }
