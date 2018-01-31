@@ -25,6 +25,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder
 import org.eclipse.smarthome.core.types.RefreshType
 import org.eclipse.smarthome.core.types.State
 import org.junit.Test
@@ -44,25 +45,25 @@ class AstroCommandTest {
     public void 'refresh command updates the state of the channels'(){
         ThingUID thingUID = new ThingUID(AstroBindingConstants.THING_TYPE_SUN, TEST_SUN_THING_ID)
         ChannelUID channelUID = new ChannelUID(thingUID,DEFAULT_TEST_CHANNEL_ID)
-        Channel channel = new Channel(channelUID, DEFAULT_IMEM_TYPE)
-        
+        Channel channel = ChannelBuilder.create(channelUID, DEFAULT_IMEM_TYPE).build()
+
         Configuration thingConfiguration = new Configuration()
         thingConfiguration.put(GEOLOCATION_PROPERTY, GEOLOCATION_VALUE)
         thingConfiguration.put(INTERVAL_PROPERTY, INTERVAL_DEFAULT_VALUE)
-        
+
         Thing thing = mock(Thing.class)
         when(thing.getConfiguration()).thenReturn(thingConfiguration)
         when(thing.getUID()).thenReturn(thingUID)
         when(thing.getChannel(DEFAULT_TEST_CHANNEL_ID)).thenReturn(channel)
-        
+
         ThingHandlerCallback callback = mock(ThingHandlerCallback.class)
         AstroThingHandler sunHandler = Mockito.spy(new SunHandler(thing))
-        
+
         // Required from the AstroThingHandler to send the status update
         Mockito.doReturn(new Sun()).when(sunHandler).getPlanet()
         Mockito.doReturn(true).when(sunHandler).isLinked(any(String.class))
         sunHandler.setCallback(callback);
-        
+
         sunHandler.handleCommand(channelUID, RefreshType.REFRESH)
         verify(callback, times(1)).stateUpdated(eq(channelUID), any(State.class))
     }

@@ -23,6 +23,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 
@@ -69,6 +70,10 @@ public class Channel {
         this.properties = Collections.unmodifiableMap(new HashMap<String, String>(0));
     }
 
+    /**
+     * @deprecated - use {@link ChannelBuilder} instead
+     */
+    @Deprecated
     public Channel(ChannelUID uid, String acceptedItemType) {
         this.uid = uid;
         this.acceptedItemType = acceptedItemType;
@@ -77,19 +82,35 @@ public class Channel {
         this.properties = Collections.unmodifiableMap(new HashMap<String, String>(0));
     }
 
+    /**
+     * @deprecated - use {@link ChannelBuilder} instead
+     */
+    @Deprecated
     public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration) {
         this(uid, null, acceptedItemType, ChannelKind.STATE, configuration, new HashSet<String>(0), null, null, null);
     }
 
+    /**
+     * @deprecated - use {@link ChannelBuilder} instead
+     */
+    @Deprecated
     public Channel(ChannelUID uid, String acceptedItemType, Set<String> defaultTags) {
         this(uid, null, acceptedItemType, ChannelKind.STATE, null, defaultTags, null, null, null);
     }
 
+    /**
+     * @deprecated - use {@link ChannelBuilder} instead
+     */
+    @Deprecated
     public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration, Set<String> defaultTags,
             Map<String, String> properties) {
         this(uid, null, acceptedItemType, ChannelKind.STATE, null, defaultTags, properties, null, null);
     }
 
+    /**
+     * @deprecated - use ChannelBuilder instead
+     */
+    @Deprecated
     public Channel(ChannelUID uid, @Nullable ChannelTypeUID channelTypeUID, @Nullable String acceptedItemType,
             ChannelKind kind, @Nullable Configuration configuration, Set<String> defaultTags,
             @Nullable Map<String, String> properties, @Nullable String label, @Nullable String description) {

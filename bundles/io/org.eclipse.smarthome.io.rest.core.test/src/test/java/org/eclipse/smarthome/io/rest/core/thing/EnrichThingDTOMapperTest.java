@@ -33,6 +33,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.firmware.dto.FirmwareStatusDTO;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -109,8 +110,8 @@ public class EnrichThingDTOMapperTest {
     private List<Channel> mockChannels() {
         List<Channel> channels = new ArrayList<>();
 
-        channels.add(new Channel(new ChannelUID(THING_TYPE_UID + ":" + UID + ":1"), ITEM_TYPE));
-        channels.add(new Channel(new ChannelUID(THING_TYPE_UID + ":" + UID + ":2"), ITEM_TYPE));
+        channels.add(ChannelBuilder.create(new ChannelUID(THING_TYPE_UID + ":" + UID + ":1"), ITEM_TYPE).build());
+        channels.add(ChannelBuilder.create(new ChannelUID(THING_TYPE_UID + ":" + UID + ":2"), ITEM_TYPE).build());
 
         return channels;
     }
