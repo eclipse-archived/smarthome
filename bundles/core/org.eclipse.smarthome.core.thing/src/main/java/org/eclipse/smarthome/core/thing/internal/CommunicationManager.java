@@ -110,6 +110,8 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     @NonNullByDefault({})
     private SafeCaller safeCaller;
     @NonNullByDefault({})
+    private AutoUpdateManager autoUpdateManager;
+    @NonNullByDefault({})
     private ItemStateConverter itemStateConverter;
 
     private final Set<ItemFactory> itemFactories = new CopyOnWriteArraySet<>();
@@ -258,6 +260,12 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     private void receiveCommand(ItemCommandEvent commandEvent) {
         final String itemName = commandEvent.getItemName();
         final Command command = commandEvent.getItemCommand();
+        final Item item = getItem(itemName);
+
+        if (item != null) {
+            autoUpdateManager.receiveCommand(commandEvent, item);
+        }
+
         handleEvent(itemName, command, commandEvent.getSource(), s -> acceptedCommandTypeMap.get(s),
                 (profile, thing, convertedCommand) -> {
                     if (profile instanceof StateProfile) {
@@ -603,6 +611,15 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
                 }
             }
         }
+    }
+
+    @Reference
+    public void setAutoUpdateManager(AutoUpdateManager autoUpdateManager) {
+        this.autoUpdateManager = autoUpdateManager;
+    }
+
+    public void unsetAutoUpdateManager(AutoUpdateManager autoUpdateManager) {
+        this.autoUpdateManager = null;
     }
 
     private static class NoOpProfile implements Profile {
