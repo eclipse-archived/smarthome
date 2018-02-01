@@ -23,6 +23,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.smarthome.core.items.CommandResultPredictionListener;
+import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.rest.sitemap.internal.PageChangeListener;
 import org.eclipse.smarthome.io.rest.sitemap.internal.SitemapEvent;
 import org.eclipse.smarthome.model.core.EventType;
@@ -53,7 +56,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  */
 @Component(service = SitemapSubscriptionService.class, configurationPid = "org.eclipse.smarthome.sitemapsubscription")
-public class SitemapSubscriptionService implements ModelRepositoryChangeListener {
+public class SitemapSubscriptionService implements ModelRepositoryChangeListener, CommandResultPredictionListener {
 
     private static final String SITEMAP_PAGE_SEPARATOR = "#";
     private static final String SITEMAP_SUFFIX = ".sitemap";
@@ -337,6 +340,20 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
         // Send an ALIVE event to all subscribers to trigger an exception for dead subscribers
         for (Entry<String, PageChangeListener> listenerEntry : pageChangeListeners.entrySet()) {
             listenerEntry.getValue().sendAliveEvent();
+        }
+    }
+
+    @Override
+    public void keepCurrentState(Item item) {
+        for (PageChangeListener pageChangeListener : pageChangeListeners.values()) {
+            pageChangeListener.keepCurrentState(item);
+        }
+    }
+
+    @Override
+    public void changeStateTo(Item item, State state) {
+        for (PageChangeListener pageChangeListener : pageChangeListeners.values()) {
+            pageChangeListener.changeStateTo(item, state);
         }
     }
 }
