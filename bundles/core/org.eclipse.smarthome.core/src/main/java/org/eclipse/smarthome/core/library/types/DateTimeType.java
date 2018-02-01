@@ -30,6 +30,7 @@ import org.eclipse.smarthome.core.types.State;
  *
  * @author Kai Kreuzer - Initial contribution
  * @author Erdoan Hadzhiyusein - Refactored to use ZonedDateTime
+ * @author Jan N. Klug - add ability to use time or date only
  */
 public class DateTimeType implements PrimitiveType, State, Command {
 
@@ -52,7 +53,7 @@ public class DateTimeType implements PrimitiveType, State, Command {
     /**
      * @deprecated The constructor uses Calendar object hence it doesn't store time zone. A new constructor is
      *             available. Use {@link #DateTimeType(ZonedDateTime)} instead.
-     * 
+     *
      * @param calendar - The Calendar object containing the time stamp.
      */
     @Deprecated
@@ -73,22 +74,19 @@ public class DateTimeType implements PrimitiveType, State, Command {
         ZonedDateTime date = null;
 
         try {
+            // direct parsing (date and time)
             try {
-                date = ZonedDateTime.parse(zonedValue, formatterTzMsRFC);
-            } catch (DateTimeParseException tzMsRfcException) {
+                date = parse(zonedValue);
+            } catch (DateTimeParseException fullDtException) {
+                // time only
                 try {
-                    date = ZonedDateTime.parse(zonedValue, formatterTzMsIso);
-                } catch (DateTimeParseException tzMsException) {
-                    try {
-                        date = ZonedDateTime.parse(zonedValue, formatterTz);
-                    } catch (DateTimeParseException tzException) {
-                        try {
-                            date = ZonedDateTime.parse(zonedValue, formatterTzMs);
-                        } catch (DateTimeParseException regularFormatException) {
-                            // A ZonedDateTime object cannot be creating by parsing directly a pattern without zone
-                            LocalDateTime localDateTime = LocalDateTime.parse(zonedValue, formatter);
-                            date = ZonedDateTime.of(localDateTime, ZoneId.systemDefault());
-                        }
+                    date = parse("1970-01-01T" + zonedValue);
+                } catch (DateTimeParseException timeOnlyException) {
+                    // date only
+                    if (zonedValue.length() == 10) {
+                        date = parse(zonedValue + "T00:00:00");
+                    } else {
+                        date = parse(zonedValue.substring(0, 10) + "T00:00:00" + zonedValue.substring(10));
                     }
                 }
             }
@@ -169,4 +167,30 @@ public class DateTimeType implements PrimitiveType, State, Command {
         }
         return true;
     }
+
+    private ZonedDateTime parse(String value) throws DateTimeParseException {
+        ZonedDateTime date = null;
+        try {
+            date = ZonedDateTime.parse(value, formatterTzMsRFC);
+        } catch (DateTimeParseException tzMsRfcException) {
+            try {
+                date = ZonedDateTime.parse(value, formatterTzMsIso);
+            } catch (DateTimeParseException tzMsIsoException) {
+                try {
+                    date = ZonedDateTime.parse(value, formatterTz);
+                } catch (DateTimeParseException tzException) {
+                    try {
+                        date = ZonedDateTime.parse(value, formatterTzMs);
+                    } catch (DateTimeParseException tzMsException) {
+                        // A ZonedDateTime object cannot be creating by parsing directly a pattern without zone
+                        LocalDateTime localDateTime = LocalDateTime.parse(value, formatter);
+                        date = ZonedDateTime.of(localDateTime, ZoneId.systemDefault());
+                    }
+                }
+            }
+        }
+
+        return date;
+    }
+
 }
