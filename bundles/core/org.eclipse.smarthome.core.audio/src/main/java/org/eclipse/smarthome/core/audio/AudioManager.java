@@ -53,7 +53,7 @@ public interface AudioManager {
      *
      * @param audioStream The audio stream to play
      * @param sinkId The id of the audio sink to use or null
-     * @param volume The volume to be used or null
+     * @param volume The volume to be used or null if the default notification volume should be used
      */
     void play(AudioStream audioStream, @Nullable String sinkId, @Nullable PercentType volume);
 
@@ -69,7 +69,7 @@ public interface AudioManager {
      * Plays an audio file with the given volume from the "sounds" folder using the default audio sink.
      *
      * @param fileName The file from the "sounds" folder
-     * @param volume The volume to be used or null
+     * @param volume The volume to be used or null if the default notification volume should be used
      * @throws AudioException in case the file does not exist or cannot be opened
      */
     void playFile(String fileName, @Nullable PercentType volume) throws AudioException;
@@ -88,7 +88,7 @@ public interface AudioManager {
      *
      * @param fileName The file from the "sounds" folder
      * @param sink The id of the audio sink to use or null
-     * @param volume The volume to be used or null
+     * @param volume The volume to be used or null if the default notification volume should be used
      * @throws AudioException in case the file does not exist or cannot be opened
      */
     void playFile(String fileName, @Nullable String sink, @Nullable PercentType volume) throws AudioException;
@@ -105,7 +105,7 @@ public interface AudioManager {
      * Stream audio with the given volume from the passed url using the default audio sink.
      *
      * @param url The url to stream from or null if streaming should be stopped
-     * @param volume The volume to be used or null
+     * @param volume The volume to be used or null if the default notification volume should be used
      * @throws AudioException in case the url stream cannot be opened
      */
     void stream(@Nullable String url, @Nullable PercentType volume) throws AudioException;
@@ -124,7 +124,7 @@ public interface AudioManager {
      *
      * @param url The url to stream from or null if streaming should be stopped
      * @param sinkId The id of the audio sink to use or null
-     * @param volume The volume to be used or null
+     * @param volume The volume to be used or null if the default notification volume should be used
      * @throws AudioException in case the url stream cannot be opened
      */
     void stream(@Nullable String url, @Nullable String sinkId, @Nullable PercentType volume) throws AudioException;

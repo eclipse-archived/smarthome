@@ -44,7 +44,7 @@ public interface VoiceManager {
      * Speaks the passed string with the given volume using the default TTS service and default audio sink.
      *
      * @param text The text to say
-     * @param volume The volume to be used or null
+     * @param volume The volume to be used or null if the default notification volume should be used
      */
     void say(String text, @Nullable PercentType volume);
 
@@ -65,7 +65,7 @@ public interface VoiceManager {
      *
      * @param text The text to say
      * @param voiceId The id of the voice to use (either with or without prefix)
-     * @param volume The volume to be used or null
+     * @param volume The volume to be used or null if the default notification volume should be used
      */
     void say(String text, String voiceId, @Nullable PercentType volume);
 
@@ -88,7 +88,7 @@ public interface VoiceManager {
      * @param text The text to say
      * @param voiceId The id of the voice to use (either with or without prefix) or null
      * @param sinkId The id of the audio sink to use or null
-     * @param volume The volume to be used or null
+     * @param volume The volume to be used or null if the default notification volume should be used
      */
     void say(String text, String voiceId, @Nullable String sinkId, @Nullable PercentType volume);
 

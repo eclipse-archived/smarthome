@@ -46,9 +46,9 @@ public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtensio
     @Override
     public List<String> getUsages() {
         return Arrays.asList(new String[] {
-                buildCommandUsage(SUBCMD_PLAY + " <sink> <filename> <volume>",
+                buildCommandUsage(SUBCMD_PLAY + " <sink> [<filename> [<volume>]]",
                         "plays a sound file from the sounds folder through the optionally specified audio sink(s)"),
-                buildCommandUsage(SUBCMD_STREAM + " <sink> <url> <volume>",
+                buildCommandUsage(SUBCMD_STREAM + " <sink> [<url> [<volume>]]",
                         "streams the sound from the url through the optionally specified audio sink(s)"),
                 buildCommandUsage(SUBCMD_SOURCES, "lists the audio sources"),
                 buildCommandUsage(SUBCMD_SINKS, "lists the audio sinks") });
