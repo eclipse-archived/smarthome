@@ -14,9 +14,10 @@ package org.eclipse.smarthome.core.voice.internal;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioSink;
@@ -34,18 +35,13 @@ import org.eclipse.smarthome.core.library.types.PercentType;
 public class SinkStub implements AudioSink {
 
     private boolean isStreamProcessed;
-    private static final Set<AudioFormat> SUPPORTED_AUDIO_FORMATS = new HashSet<>();
-    private static final Set<Class<? extends AudioStream>> SUPPORTED_AUDIO_STREAMS = new HashSet<>();
+    private static final Set<AudioFormat> SUPPORTED_AUDIO_FORMATS = Collections
+            .unmodifiableSet(Stream.of(AudioFormat.MP3, AudioFormat.WAV).collect(Collectors.toSet()));
+    private static final Set<Class<? extends AudioStream>> SUPPORTED_AUDIO_STREAMS = Collections
+            .singleton(AudioStream.class);
 
     private static final String SINK_STUB_ID = "sinkStubID";
     private static final String SINK_STUB_LABEL = "sinkStubLabel";
-
-    static {
-        SUPPORTED_AUDIO_FORMATS.add(AudioFormat.WAV);
-        SUPPORTED_AUDIO_FORMATS.add(AudioFormat.MP3);
-
-        SUPPORTED_AUDIO_STREAMS.add(AudioStream.class);
-    }
 
     @Override
     public String getId() {
@@ -68,7 +64,7 @@ public class SinkStub implements AudioSink {
 
     @Override
     public Set<AudioFormat> getSupportedFormats() {
-        return Collections.unmodifiableSet(SUPPORTED_AUDIO_FORMATS);
+        return SUPPORTED_AUDIO_FORMATS;
     }
 
     @Override
@@ -93,6 +89,6 @@ public class SinkStub implements AudioSink {
 
     @Override
     public Set<Class<? extends AudioStream>> getSupportedStreams() {
-        return Collections.unmodifiableSet(SUPPORTED_AUDIO_STREAMS);
+        return SUPPORTED_AUDIO_STREAMS;
     }
 }
