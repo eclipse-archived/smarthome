@@ -7,6 +7,7 @@ layout: documentation
 # Textual Configuration
 
 Eclipse SmartHome provides the possibility to do fully text-based system setups. This is done using domain specific languages (DSLs) for the different kinds of artifacts.
+In addition, configuration files can be used to configure OSGi services which are able to be configured by Configuration Admin.  
 
 ## Thing Configuration DSL
 
@@ -134,3 +135,86 @@ Thing yahooweather:weather:losangeles [ location=2442047, unit="us", refresh=120
 The `Type` keyword indicates a reference to an existing channel definition. The channel kind and accepted item types of course are takes from the channel definition, therefore they don't need to be specified here again. 
 
 You may optionally give the channel a proper label (like "Yesterday's Temperature" in the example above) so you can distinguish the channels easily. If you decide not to, then the label from the referenced channel type definition will be used.
+
+## Configuring OSGi Services
+
+In order to provide file based, static configuration for OSGi services, Eclipse SmartHome provides a way to read, parse and observe configuration files.
+The configuration which is read from these files will be passed to the OSGi Configuration Admin.
+The fundamentals of configuring OSGi services are described [here](http://enroute.osgi.org/doc/217-ds.html) in great detail.
+
+### Default Configuration File
+
+Eclipse SmartHome reads its basic configuration from the default configuration file `conf/smarthome.cfg` in the programs root folder.
+The path to this file can be altered using the program argument `smarthome.servicecfg`.
+In case only the `conf` folder path should be altered the program argument `smarthome.configdir` can be used (be aware that this will also change the location for the `things`, `items` and all other configuration folders).
+
+### Configuration File Format
+The basic configuration file format is very simple. This format is used in the `smarthome.cfg` to address different services from one file:
+
+```
+<configuration_pid1>:<key1>=<value1>
+<configuration_pid1>:<key2>=<value2>
+
+<configuration_pid2>:<key>=<value>
+
+<configuration_pid3>:<key>=<value>
+```
+
+The line prefix `configuration_pid[1-3]` correspond to the configuration PID which is configured for the specific OSGi service.
+`<key>` and `<value>` define the configuration option for the specific service.
+
+With every line denoting a specific configuration PID, several services can be configured using just one configuration file.
+In addition the configuration PID can also be derived from the filename.
+Given the configuration file `conf/org.eclipse.smarthome.basicui.cfg` with content `defaultSitemap=demo` will configure the `defaultSitemap` option of the Basic UI service, giving it the value `demo`.
+This way a service can be configured just by giving `<key>=<value>` pairs in the file.
+
+When providing the PID by filename or by line prefix there is one additional shortcut:
+The files are processed line-by-line from top to bottom.
+The last defined PID (either by file name or by line prefix) will be kept to be used for the next entry.
+This makes the following example a valid and fully functional service configuration for multiple services.
+
+Although not recommended, the file `conf/org.eclipse.smarthome.threadpool.cfg` with the following content:
+
+```property
+thingHandler=3
+discovery=3
+
+org.eclipse.smarthome.basicui:defaultSitemap=demo
+enableIcons=true
+condensedLayout=false
+```
+
+will configure the `org.eclipse.smarthome.threadpool` service to have the `thingHandler` and `discovery` option set to `3` and also configure the `org.eclipse.smarthome.basicui` service with three different options.
+
+All the above configuration files will be observed for changes.
+When the framework detects a change (or even a new *.cfg file) the changes will be read and applied to the specific service.
+Since a single service may be configured using multiple files this observation will _not delete_  configuration options from the Configuration Admin.
+In order to track deletion of configuration entries and files the configuration has to be marked as an exclusive service configuration.
+
+### Exclusive Service Configuration
+
+The framework will track exclusively marked service configurations for file or entry deletions. This way a configuration can be removed during runtime. For factory services even a whole service instance can be added and removed during runtime.
+
+To mark a configuration file exclusively for one service the _first line_ has to define the configuration PID in the format `pid:<configuration_pid>`.
+By giving this PID marker the framework creates an exclusive configuration for the contents of this file.
+Other files without this marker which also define configurations for the given PID will be ignored for this PID.
+
+The file `conf/myService.cfg` with contents
+
+```property
+pid:org.eclipse.smarthome.bundle.myService
+timeout=30
+callback=MyCallback
+
+```
+
+will exclusively configure the OSGi service with configuration_pid `org.eclipse.smarthome.bundle.myService` set.
+Any other configuration for this PID in other configuration files will be ignored now.
+In contrast, when removing the line `timeout=30` from the file, the service's `modified` method will be called with a new configuration which does not include the `timeout` option anymore.
+When removing the whole file the configuration will completely be deleted from the Configuration Admin.
+
+
+### Factory Service Configuration
+
+Using the format of an exclusive service configuration it is also possible to create several instances of a specific service.
+By giving a unique context along with the exclusive PID in the format `pid:<configuration_pid>#<context>` the framework will create a new instance for this service.
