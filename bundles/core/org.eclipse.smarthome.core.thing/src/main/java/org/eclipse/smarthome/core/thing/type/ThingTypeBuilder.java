@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -42,8 +41,8 @@ public class ThingTypeBuilder {
     private @Nullable String category;
     private @Nullable String description;
 
-    private String bindingId;
-    private String thingTypeId;
+    private final String bindingId;
+    private final String thingTypeId;
     private String label;
 
     /**
@@ -183,12 +182,12 @@ public class ThingTypeBuilder {
         return this;
     }
 
-    public ThingTypeBuilder withChannelGroupDefinitions(List<@NonNull ChannelGroupDefinition> channelGroupDefinitions) {
+    public ThingTypeBuilder withChannelGroupDefinitions(List<ChannelGroupDefinition> channelGroupDefinitions) {
         this.channelGroupDefinitions = channelGroupDefinitions;
         return this;
     }
 
-    public ThingTypeBuilder withProperties(Map<@NonNull String, String> properties) {
+    public ThingTypeBuilder withProperties(Map<String, String> properties) {
         this.properties = properties;
         return this;
     }
@@ -198,7 +197,7 @@ public class ThingTypeBuilder {
         return this;
     }
 
-    public ThingTypeBuilder withExtensibleChannelTypeIds(List<@NonNull String> extensibleChannelTypeIds) {
+    public ThingTypeBuilder withExtensibleChannelTypeIds(List<String> extensibleChannelTypeIds) {
         this.extensibleChannelTypeIds = extensibleChannelTypeIds;
         return this;
     }
