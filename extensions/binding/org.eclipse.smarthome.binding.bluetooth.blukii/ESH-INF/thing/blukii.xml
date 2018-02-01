@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="bluetooth" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<thing-type id="blukii_bts">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bluegiga"/>
+            <bridge-type-ref id="bluez"/>
+        </supported-bridge-type-refs>
+
+		<label>Blukii Button</label>
+		<description>A Blukii Button</description>
+
+        <channels>
+            <channel id="rssi" typeId="rssi" />
+            <channel id="BATTERY_LEVEL" typeId="system.battery-level" />
+
+            <channel id="accelReport" typeId="blukii_accel_report" />            
+            <channel id="accelX" typeId="blukii_accel">
+                <label>Acceleration X</label>
+            </channel>
+            <channel id="accelY" typeId="blukii_accel">
+                <label>Acceleration Y</label>
+            </channel>
+            <channel id="accelZ" typeId="blukii_accel">
+                <label>Acceleration Z</label>
+            </channel>
+        </channels>
+
+		<config-description>
+			<parameter name="address" type="text">
+				<label>Address</label>
+				<description>Bluetooth address in XX:XX:XX:XX:XX:XX format</description>
+			</parameter>
+		</config-description>
+
+	</thing-type>
+
+    <channel-type id="blukii_accel_report">
+        <item-type>Switch</item-type>
+        <label>Acceleration Reporting</label>
+    </channel-type>
+	<channel-type id="blukii_accel">
+        <item-type>Number</item-type>
+        <label>Acceleration</label>
+        <state readOnly="true"/>
+	</channel-type>
+
+</thing:thing-descriptions>
