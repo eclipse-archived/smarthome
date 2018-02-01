@@ -12,7 +12,6 @@
  */
 package org.eclipse.smarthome.config.core;
 
-import com.google.gson.annotations.SerializedName;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +20,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+import com.google.gson.annotations.SerializedName;
 
 /**
  * The {@link ConfigDescriptionParameter} class contains the description of a
@@ -95,7 +96,7 @@ public class ConfigDescriptionParameter {
     private List<ParameterOption> options = new ArrayList<ParameterOption>();
     private List<FilterCriteria> filterCriteria = new ArrayList<FilterCriteria>();
 
-    private boolean limitToOptions = false;
+    private boolean limitToOptions = true;
     private boolean advanced = false;
     private boolean verify = false;
 
