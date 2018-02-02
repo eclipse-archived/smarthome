@@ -44,6 +44,7 @@ public class ConfigDescriptionRegistry {
 
     private final List<ConfigOptionProvider> configOptionProviders = new CopyOnWriteArrayList<>();
     private final List<ConfigDescriptionProvider> configDescriptionProviders = new CopyOnWriteArrayList<>();
+    private final List<ConfigDescriptionAliasHandler> configDescriptionAliasHandlers = new CopyOnWriteArrayList<>();
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addConfigOptionProvider(ConfigOptionProvider configOptionProvider) {
@@ -68,6 +69,19 @@ public class ConfigDescriptionRegistry {
     protected void removeConfigDescriptionProvider(ConfigDescriptionProvider configDescriptionProvider) {
         if (configDescriptionProvider != null) {
             configDescriptionProviders.remove(configDescriptionProvider);
+        }
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    protected void addConfigDescriptionAliasHandler(ConfigDescriptionAliasHandler configDescriptionAliasHandler) {
+        if (configDescriptionAliasHandler != null) {
+            configDescriptionAliasHandlers.add(configDescriptionAliasHandler);
+        }
+    }
+
+    protected void removeConfigDescriptionAliasHandler(ConfigDescriptionAliasHandler configDescriptionAliasHandler) {
+        if (configDescriptionAliasHandler != null) {
+            configDescriptionAliasHandlers.remove(configDescriptionAliasHandler);
         }
     }
 
@@ -156,9 +170,18 @@ public class ConfigDescriptionRegistry {
         List<ConfigDescriptionParameter> parameters = new ArrayList<ConfigDescriptionParameter>();
         List<ConfigDescriptionParameterGroup> parameterGroups = new ArrayList<ConfigDescriptionParameterGroup>();
 
+        URI aliasedURI = uri;
+        for (ConfigDescriptionAliasHandler aliasHandler : configDescriptionAliasHandlers) {
+            URI alias = aliasHandler.getAlias(uri);
+            if (alias != null) {
+                aliasedURI = alias;
+                break;
+            }
+        }
+
         boolean found = false;
         for (ConfigDescriptionProvider configDescriptionProvider : this.configDescriptionProviders) {
-            ConfigDescription config = configDescriptionProvider.getConfigDescription(uri, locale);
+            ConfigDescription config = configDescriptionProvider.getConfigDescription(aliasedURI, locale);
 
             if (config != null) {
                 found = true;
@@ -173,11 +196,11 @@ public class ConfigDescriptionRegistry {
             List<ConfigDescriptionParameter> parametersWithOptions = new ArrayList<ConfigDescriptionParameter>(
                     parameters.size());
             for (ConfigDescriptionParameter parameter : parameters) {
-                parametersWithOptions.add(getConfigOptions(uri, parameter, locale));
+                parametersWithOptions.add(getConfigOptions(aliasedURI, parameter, locale));
             }
 
             // Return the new configuration description
-            return new ConfigDescription(uri, parametersWithOptions, parameterGroups);
+            return new ConfigDescription(aliasedURI, parametersWithOptions, parameterGroups);
         } else {
             // Otherwise null
             return null;
