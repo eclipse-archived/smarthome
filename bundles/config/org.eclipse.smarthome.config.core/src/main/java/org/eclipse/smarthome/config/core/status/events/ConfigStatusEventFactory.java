@@ -18,6 +18,8 @@ import java.util.Set;
 import org.eclipse.smarthome.config.core.status.ConfigStatusInfo;
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.events.EventFactory;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * The {@link ConfigStatusEventFactory} is the event factory implementation to create configuration status events, e.g.
@@ -25,6 +27,7 @@ import org.eclipse.smarthome.core.events.Event;
  *
  * @author Thomas Höfer - Initial contribution
  */
+@Component(immediate = true, service = { EventFactory.class })
 public final class ConfigStatusEventFactory extends AbstractEventFactory {
 
     private static final Set<String> SUPPORTED_EVENT_TYPES = Collections.singleton(ConfigStatusInfoEvent.TYPE);

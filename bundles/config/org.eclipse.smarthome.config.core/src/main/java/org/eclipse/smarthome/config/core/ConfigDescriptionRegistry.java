@@ -23,6 +23,10 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * {@link ConfigDescriptionRegistry} provides access to {@link ConfigDescription}s.
@@ -35,11 +39,13 @@ import org.eclipse.jdt.annotation.Nullable;
  * @author Chris Jackson - Added compatibility with multiple ConfigDescriptionProviders. Added Config OptionProvider.
  * @author Thomas Höfer - Added unit
  */
+@Component(immediate = true, service = { ConfigDescriptionRegistry.class })
 public class ConfigDescriptionRegistry {
 
     private final List<ConfigOptionProvider> configOptionProviders = new CopyOnWriteArrayList<>();
     private final List<ConfigDescriptionProvider> configDescriptionProviders = new CopyOnWriteArrayList<>();
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addConfigOptionProvider(ConfigOptionProvider configOptionProvider) {
         if (configOptionProvider != null) {
             configOptionProviders.add(configOptionProvider);
@@ -52,6 +58,7 @@ public class ConfigDescriptionRegistry {
         }
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addConfigDescriptionProvider(ConfigDescriptionProvider configDescriptionProvider) {
         if (configDescriptionProvider != null) {
             configDescriptionProviders.add(configDescriptionProvider);
