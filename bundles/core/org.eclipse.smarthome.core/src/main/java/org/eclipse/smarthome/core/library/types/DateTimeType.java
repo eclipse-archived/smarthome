@@ -34,8 +34,8 @@ import org.eclipse.smarthome.core.types.State;
  */
 public class DateTimeType implements PrimitiveType, State, Command {
 
-    public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
-    public static final String DATE_PATTERN_WITH_TZ = "yyyy-MM-dd'T'HH:mm:ssz";
+    public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm[:ss]";
+    public static final String DATE_PATTERN_WITH_TZ = "yyyy-MM-dd'T'HH:mm[:ss]z";
 
     // this pattern returns the time zone in RFC822 format
     public static final String DATE_PATTERN_WITH_TZ_AND_MS = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
