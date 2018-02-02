@@ -13,6 +13,12 @@
 				<context>serial-port</context>
 				<description>Serial Port</description>
 			</parameter>
+			<parameter name="discovery" type="boolean">
+				<label>Device Discovery</label>
+				<description>Whether this adapter actively participates in Bluetooth device discovery</description>
+				<advanced>true</advanced>
+				<default>true</default>
+			</parameter>
 		</config-description>
 	</bridge-type>
 

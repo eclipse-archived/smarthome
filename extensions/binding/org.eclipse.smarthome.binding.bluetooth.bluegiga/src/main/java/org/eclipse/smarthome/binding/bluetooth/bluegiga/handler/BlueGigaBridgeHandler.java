@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.binding.bluetooth.bluegiga.handler;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -134,6 +135,9 @@ public class BlueGigaBridgeHandler extends BaseBridgeHandler
     // Our BT address
     private BluetoothAddress address;
 
+    // internal flag for the discovery configuration
+    private boolean discoveryActive = true;
+
     // Map of Bluetooth devices known to this bridge.
     // This is all devices we have heard on the network - not just things bound to the bridge
     private final Map<BluetoothAddress, BluetoothDevice> devices = new ConcurrentHashMap<>();
@@ -164,69 +168,77 @@ public class BlueGigaBridgeHandler extends BaseBridgeHandler
 
     @Override
     public void initialize() {
+        Object discovery = getConfig().get(BlueGigaAdapterConstants.PROPERTY_DISCOVERY);
+        if (discovery != null && discovery.toString().equalsIgnoreCase(Boolean.FALSE.toString())) {
+            discoveryActive = false;
+            logger.debug("Deactivated discovery participation.");
+        }
+
         final String portId = (String) getConfig().get(BlueGigaAdapterConstants.CONFIGURATION_PORT);
 
         if (portId == null) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Serial port must be configured!");
             return;
         }
-        openSerialPort(portId, 115200);
-        bgHandler = new BlueGigaSerialHandler(inputStream, outputStream);
-        // Create and send the reset command to the dongle
-        bgHandler.addEventListener(this);
-        bgHandler.addHandlerListener(this);
+        if (openSerialPort(portId, 115200)) {
+            bgHandler = new BlueGigaSerialHandler(inputStream, outputStream);
+            // Create and send the reset command to the dongle
+            bgHandler.addEventListener(this);
+            bgHandler.addHandlerListener(this);
 
-        updateStatus(ThingStatus.UNKNOWN);
+            updateStatus(ThingStatus.UNKNOWN);
 
-        scheduler.submit(() -> {
-            // Stop any procedures that are running
-            bgStopProcedure();
+            scheduler.submit(() -> {
+                // Stop any procedures that are running
+                bgStopProcedure();
 
-            // Close all transactions
-            BlueGigaCommand command; // = new BlueGigaResetCommand();
-            command = new BlueGigaGetConnectionsCommand();
-            BlueGigaGetConnectionsResponse connectionsResponse = (BlueGigaGetConnectionsResponse) bgHandler
-                    .sendTransaction(command);
-            if (connectionsResponse != null) {
-                maxConnections = connectionsResponse.getMaxconn();
-            }
+                // Close all transactions
+                BlueGigaCommand command; // = new BlueGigaResetCommand();
+                command = new BlueGigaGetConnectionsCommand();
+                BlueGigaGetConnectionsResponse connectionsResponse = (BlueGigaGetConnectionsResponse) bgHandler
+                        .sendTransaction(command);
+                if (connectionsResponse != null) {
+                    maxConnections = connectionsResponse.getMaxconn();
+                }
 
-            // Close all connections so we start from a known position
-            for (int connection = 0; connection < maxConnections; connection++) {
-                bgDisconnect(connection);
-            }
+                // Close all connections so we start from a known position
+                for (int connection = 0; connection < maxConnections; connection++) {
+                    bgDisconnect(connection);
+                }
 
-            // Get our Bluetooth address
-            command = new BlueGigaAddressGetCommand();
-            BlueGigaAddressGetResponse addressResponse = (BlueGigaAddressGetResponse) bgHandler
-                    .sendTransaction(command);
-            if (addressResponse != null) {
-                address = new BluetoothAddress(addressResponse.getAddress());
-                updateStatus(ThingStatus.ONLINE);
-            } else {
-                updateStatus(ThingStatus.OFFLINE);
-            }
+                // Get our Bluetooth address
+                command = new BlueGigaAddressGetCommand();
+                BlueGigaAddressGetResponse addressResponse = (BlueGigaAddressGetResponse) bgHandler
+                        .sendTransaction(command);
+                if (addressResponse != null) {
+                    address = new BluetoothAddress(addressResponse.getAddress());
+                    updateStatus(ThingStatus.ONLINE);
+                } else {
+                    updateStatus(ThingStatus.OFFLINE);
+                }
 
-            command = new BlueGigaGetInfoCommand();
-            BlueGigaGetInfoResponse infoResponse = (BlueGigaGetInfoResponse) bgHandler.sendTransaction(command);
+                command = new BlueGigaGetInfoCommand();
+                BlueGigaGetInfoResponse infoResponse = (BlueGigaGetInfoResponse) bgHandler.sendTransaction(command);
 
-            // Set mode to non-discoverable etc.
-            // Not doing this will cause connection failures later
-            bgSetMode();
+                // Set mode to non-discoverable etc.
+                // Not doing this will cause connection failures later
+                bgSetMode();
 
-            // Start passive scan
-            bgStartScanning(false, passiveScanInterval, passiveScanWindow);
+                // Start passive scan
+                bgStartScanning(false, passiveScanInterval, passiveScanWindow);
 
-            Map<String, String> properties = editProperties();
-            properties.put(BluetoothBindingConstants.PROPERTY_MAXCONNECTIONS, Integer.toString(maxConnections));
-            properties.put(Thing.PROPERTY_FIRMWARE_VERSION,
-                    String.format("%d.%d", infoResponse.getMajor(), infoResponse.getMinor()));
-            properties.put(Thing.PROPERTY_HARDWARE_VERSION, Integer.toString(infoResponse.getHardware()));
-            properties.put(BlueGigaAdapterConstants.PROPERTY_PROTOCOL,
-                    Integer.toString(infoResponse.getProtocolVersion()));
-            properties.put(BlueGigaAdapterConstants.PROPERTY_LINKLAYER, Integer.toString(infoResponse.getLlVersion()));
-            updateProperties(properties);
-        });
+                Map<String, String> properties = editProperties();
+                properties.put(BluetoothBindingConstants.PROPERTY_MAXCONNECTIONS, Integer.toString(maxConnections));
+                properties.put(Thing.PROPERTY_FIRMWARE_VERSION,
+                        String.format("%d.%d", infoResponse.getMajor(), infoResponse.getMinor()));
+                properties.put(Thing.PROPERTY_HARDWARE_VERSION, Integer.toString(infoResponse.getHardware()));
+                properties.put(BlueGigaAdapterConstants.PROPERTY_PROTOCOL,
+                        Integer.toString(infoResponse.getProtocolVersion()));
+                properties.put(BlueGigaAdapterConstants.PROPERTY_LINKLAYER,
+                        Integer.toString(infoResponse.getLlVersion()));
+                updateProperties(properties);
+            });
+        }
     }
 
     @Override
@@ -234,11 +246,12 @@ public class BlueGigaBridgeHandler extends BaseBridgeHandler
         if (bgHandler != null) {
             bgHandler.removeEventListener(this);
             bgHandler.removeHandlerListener(this);
+            bgHandler.close();
         }
         closeSerialPort();
     }
 
-    private void openSerialPort(final String serialPortName, int baudRate) {
+    private boolean openSerialPort(final String serialPortName, int baudRate) {
         logger.debug("Connecting to serial port '{}'", serialPortName);
         try {
             CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(serialPortName);
@@ -258,47 +271,47 @@ public class BlueGigaBridgeHandler extends BaseBridgeHandler
             logger.info("Connected to serial port '{}'.", serialPortName);
         } catch (NoSuchPortException e) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Port does not exist");
-            return;
+            return false;
         } catch (PortInUseException e) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
                     "Serial Error: Port in use");
-            return;
+            return false;
         } catch (UnsupportedCommOperationException e) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR,
                     "Serial Error: Unsupported operation");
-            return;
+            return false;
         }
 
         try {
-            inputStream = serialPort.getInputStream();
+            inputStream = new BufferedInputStream(serialPort.getInputStream());
             outputStream = serialPort.getOutputStream();
         } catch (IOException e) {
             logger.error("Error getting serial streams", e);
+            return false;
         }
 
-        return;
+        return true;
     }
 
     private void closeSerialPort() {
-        try {
-            if (serialPort != null) {
-                serialPort.enableReceiveTimeout(1);
-
-                inputStream.close();
+        if (serialPort != null) {
+            try {
+                serialPort.disableReceiveTimeout();
+                serialPort.removeEventListener();
                 outputStream.flush();
                 outputStream.close();
-
+                inputStream.close();
+            } catch (Exception e) {
+                logger.error("Error closing serial port.", e);
+            } finally {
                 serialPort.close();
-
-                logger.debug("Closed serial port closed.", serialPort.getName());
-
+                logger.debug("Closed serial port {}.", serialPort.getName());
                 serialPort = null;
                 inputStream = null;
                 outputStream = null;
             }
-        } catch (Exception e) {
-            logger.error("Error closing serial port.", e);
         }
+
     }
 
     @SuppressWarnings({ "unused", "null" })
@@ -450,8 +463,10 @@ public class BlueGigaBridgeHandler extends BaseBridgeHandler
      * Device discovered. This simply passes the discover information to the discovery service for processing.
      */
     public void deviceDiscovered(BluetoothDevice device) {
-        for (BluetoothDiscoveryListener listener : discoveryListeners) {
-            listener.deviceDiscovered(device);
+        if (discoveryActive) {
+            for (BluetoothDiscoveryListener listener : discoveryListeners) {
+                listener.deviceDiscovered(device);
+            }
         }
     }
 

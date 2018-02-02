@@ -30,4 +30,5 @@ public class BlueGigaAdapterConstants {
     public static final String CONFIGURATION_PORT = "port";
     public static final String PROPERTY_LINKLAYER = "linklayer";
     public static final String PROPERTY_PROTOCOL = "protocol";
+    public static final String PROPERTY_DISCOVERY = "discovery";
 }
