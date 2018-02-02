@@ -12,7 +12,8 @@
  */
 package org.eclipse.smarthome.core.service;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * This is a token, identifying something to be completed.
@@ -31,25 +32,22 @@ import org.eclipse.jdt.annotation.NonNull;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
+@NonNullByDefault
 public final class ReadyMarker {
 
-    @NonNull
     private final String type;
 
-    @NonNull
     private final String identifier;
 
-    public ReadyMarker(@NonNull String type, @NonNull String identifier) {
+    public ReadyMarker(String type, String identifier) {
         this.type = type;
         this.identifier = identifier;
     }
 
-    @NonNull
     public String getType() {
         return type;
     }
 
-    @NonNull
     public String getIdentifier() {
         return identifier;
     }
@@ -64,7 +62,7 @@ public final class ReadyMarker {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;
         }
