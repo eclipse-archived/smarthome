@@ -34,9 +34,11 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
@@ -670,6 +672,22 @@ public abstract class BaseThingHandler implements ThingHandler {
             this.callback.migrateThingType(getThing(), thingTypeUID, configuration);
         } else {
             throw new IllegalStateException("Could not change thing type because callback is missing");
+        }
+    }
+
+    /**
+     * Create a {@link ChannelBuilder} which is preconfigured with values from the given channel type.
+     *
+     * @param channelId the ID of the channel to be created
+     * @param channelTypeUID the channel type UID for which the channel should be created
+     * @return a preconfigured ChannelBuilder
+     * @throw {@link IllegalArgumentException} if the referenced channel type is not known
+     */
+    protected ChannelBuilder createChannelBuilder(String channelId, ChannelTypeUID channelTypeUID) {
+        if (this.callback != null) {
+            return this.callback.createChannelBuilder(new ChannelUID(getThing().getUID(), channelId), channelTypeUID);
+        } else {
+            throw new IllegalStateException("Could not create channel builder because callback is missing");
         }
     }
 

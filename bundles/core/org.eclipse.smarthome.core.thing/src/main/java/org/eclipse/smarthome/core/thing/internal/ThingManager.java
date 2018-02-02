@@ -59,9 +59,13 @@ import org.eclipse.smarthome.core.thing.binding.BridgeHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.i18n.ThingStatusInfoI18nLocalizationService;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
@@ -125,6 +129,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
             .synchronizedSetMultimap(HashMultimap.<ThingHandlerFactory, ThingHandler> create());
 
     private ThingTypeRegistry thingTypeRegistry;
+    private ChannelTypeRegistry channelTypeRegistry;
 
     private ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService;
 
@@ -251,6 +256,15 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
                 final Configuration configuration) {
             ThingManager.this.migrateThingType(thing, thingTypeUID, configuration);
         }
+
+        @Override
+        public ChannelBuilder createChannelBuilder(ChannelUID channelUID, ChannelTypeUID channelTypeUID) {
+            ChannelType channelType = channelTypeRegistry.getChannelType(channelTypeUID);
+            if (channelType == null) {
+                throw new IllegalArgumentException("Channel type " + channelTypeUID + " is not known");
+            }
+            return ThingFactoryHelper.createChannelBuilder(channelUID, channelType, configDescriptionRegistry);
+        };
 
     };
 
@@ -1025,6 +1039,15 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
 
     protected void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = null;
+    }
+
+    @Reference
+    protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry;
+    }
+
+    protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null;
     }
 
     @Reference
