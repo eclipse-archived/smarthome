@@ -182,7 +182,7 @@ public class ThingImpl implements Thing {
         this.channels = channels;
     }
 
-    public void setConfiguration(Configuration configuration) {
+    public void setConfiguration(@Nullable Configuration configuration) {
         this.configuration = (configuration == null) ? new Configuration() : configuration;
     }
 
