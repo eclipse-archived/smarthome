@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.core.service;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Registry for {@link ReadyMarker}s.
@@ -27,6 +27,7 @@ import org.eclipse.jdt.annotation.NonNull;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
+@NonNullByDefault
 public interface ReadyService {
 
     /**
@@ -34,21 +35,21 @@ public interface ReadyService {
      *
      * @param readyMarker
      */
-    void markReady(@NonNull ReadyMarker readyMarker);
+    void markReady(ReadyMarker readyMarker);
 
     /**
      * Removes the given marker.
      *
      * @param readyMarker
      */
-    void unmarkReady(@NonNull ReadyMarker readyMarker);
+    void unmarkReady(ReadyMarker readyMarker);
 
     /**
      *
      * @param readyMarker
      * @return {@code true} if the given {@link ReadyMarker} is registered as being "ready".
      */
-    boolean isReady(@NonNull ReadyMarker readyMarker);
+    boolean isReady(ReadyMarker readyMarker);
 
     /**
      * Adds the given tracker.
@@ -57,7 +58,7 @@ public interface ReadyService {
      *
      * @param readyTracker
      */
-    void registerTracker(@NonNull ReadyTracker readyTracker);
+    void registerTracker(ReadyTracker readyTracker);
 
     /**
      * Adds the given tracker.
@@ -69,7 +70,7 @@ public interface ReadyService {
      * @param readyTracker
      * @param readyMarker
      */
-    void registerTracker(@NonNull ReadyTracker readyTracker, @NonNull ReadyMarkerFilter filter);
+    void registerTracker(ReadyTracker readyTracker, ReadyMarkerFilter filter);
 
     /**
      * Removes the given tracker.
@@ -78,7 +79,7 @@ public interface ReadyService {
      *
      * @param readyTracker
      */
-    void unregisterTracker(@NonNull ReadyTracker readyTracker);
+    void unregisterTracker(ReadyTracker readyTracker);
 
     /**
      * Tracker for changes related to {@link ReadyMarker} registrations.
@@ -93,14 +94,14 @@ public interface ReadyService {
          *
          * @param readyMarker
          */
-        void onReadyMarkerAdded(@NonNull ReadyMarker readyMarker);
+        void onReadyMarkerAdded(ReadyMarker readyMarker);
 
         /**
          * Gets called when a {@link ReadyMarker} was unregistered.
          *
          * @param readyMarker
          */
-        void onReadyMarkerRemoved(@NonNull ReadyMarker readyMarker);
+        void onReadyMarkerRemoved(ReadyMarker readyMarker);
 
     }
 
