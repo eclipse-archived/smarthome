@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.core.net;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
@@ -20,6 +21,7 @@ import org.eclipse.jdt.annotation.Nullable;
  * @author Stefan Triller - initial contribution
  *
  */
+@NonNullByDefault
 public interface NetworkAddressService {
 
     /**

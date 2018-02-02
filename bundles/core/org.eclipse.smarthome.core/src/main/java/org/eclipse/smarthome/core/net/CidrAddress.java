@@ -16,7 +16,8 @@ import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.util.Objects;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * The CIDR (Class-less interdomain routing) notation is an IP address
@@ -30,11 +31,12 @@ import org.eclipse.jdt.annotation.NonNull;
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public class CidrAddress {
     private final InetAddress address;
     private final int prefix;
 
-    public CidrAddress(@NonNull InetAddress address, short networkPrefixLength) {
+    public CidrAddress(InetAddress address, short networkPrefixLength) {
         this.address = address;
         this.prefix = networkPrefixLength;
     }
@@ -49,7 +51,7 @@ public class CidrAddress {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (!(o instanceof CidrAddress)) {
             return false;
         }
