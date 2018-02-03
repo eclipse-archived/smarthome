@@ -34,21 +34,25 @@ import org.eclipse.smarthome.core.types.State;
  */
 public class DateTimeType implements PrimitiveType, State, Command {
 
-    public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm[:ss]";
-    public static final String DATE_PATTERN_WITH_TZ = "yyyy-MM-dd'T'HH:mm[:ss]z";
-
+    // external format patterns for output
+    public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
+    public static final String DATE_PATTERN_WITH_TZ = "yyyy-MM-dd'T'HH:mm:ssz";
     // this pattern returns the time zone in RFC822 format
     public static final String DATE_PATTERN_WITH_TZ_AND_MS = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
-
     public static final String DATE_PATTERN_WITH_TZ_AND_MS_GENERAL = "yyyy-MM-dd'T'HH:mm:ss.SSSz";
     public static final String DATE_PATTERN_WITH_TZ_AND_MS_ISO = "yyyy-MM-dd'T'HH:mm:ss.SSSX";
 
+    // internal format patterns for parsing
+    private static final String DATE_PARSE_PATTERN_WITHOUT_TZ = "yyyy-MM-dd'T'HH:mm[:ss[.SSS]]";
+    private static final String DATE_PARSE_PATTERN_WITH_TZ = "yyyy-MM-dd'T'HH:mm[:ss[.SSS]]z";
+    private static final String DATE_PARSE_PATTERN_WITH_TZ_RFC = "yyyy-MM-dd'T'HH:mm[:ss[.SSS]]Z";
+    private static final String DATE_PARSE_PATTERN_WITH_TZ_ISO = "yyyy-MM-dd'T'HH:mm[:ss[.SSS]]X";
+
     private ZonedDateTime zonedDateTime;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_PATTERN);
-    private final DateTimeFormatter formatterTz = DateTimeFormatter.ofPattern(DATE_PATTERN_WITH_TZ);
-    private final DateTimeFormatter formatterTzMs = DateTimeFormatter.ofPattern(DATE_PATTERN_WITH_TZ_AND_MS_GENERAL);
-    private final DateTimeFormatter formatterTzMsRFC = DateTimeFormatter.ofPattern(DATE_PATTERN_WITH_TZ_AND_MS);
-    private final DateTimeFormatter formatterTzMsIso = DateTimeFormatter.ofPattern(DATE_PATTERN_WITH_TZ_AND_MS_ISO);
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_PARSE_PATTERN_WITHOUT_TZ);
+    private final DateTimeFormatter formatterTz = DateTimeFormatter.ofPattern(DATE_PARSE_PATTERN_WITH_TZ);
+    private final DateTimeFormatter formatterTzRFC = DateTimeFormatter.ofPattern(DATE_PARSE_PATTERN_WITH_TZ_RFC);
+    private final DateTimeFormatter formatterTzIso = DateTimeFormatter.ofPattern(DATE_PARSE_PATTERN_WITH_TZ_ISO);
 
     /**
      * @deprecated The constructor uses Calendar object hence it doesn't store time zone. A new constructor is
@@ -135,7 +139,7 @@ public class DateTimeType implements PrimitiveType, State, Command {
 
     @Override
     public String toFullString() {
-        return zonedDateTime.format(formatterTzMsRFC);
+        return zonedDateTime.format(formatterTzRFC);
     }
 
     @Override
@@ -171,21 +175,16 @@ public class DateTimeType implements PrimitiveType, State, Command {
     private ZonedDateTime parse(String value) throws DateTimeParseException {
         ZonedDateTime date = null;
         try {
-            date = ZonedDateTime.parse(value, formatterTzMsRFC);
+            date = ZonedDateTime.parse(value, formatterTzRFC);
         } catch (DateTimeParseException tzMsRfcException) {
             try {
-                date = ZonedDateTime.parse(value, formatterTzMsIso);
+                date = ZonedDateTime.parse(value, formatterTzIso);
             } catch (DateTimeParseException tzMsIsoException) {
                 try {
                     date = ZonedDateTime.parse(value, formatterTz);
                 } catch (DateTimeParseException tzException) {
-                    try {
-                        date = ZonedDateTime.parse(value, formatterTzMs);
-                    } catch (DateTimeParseException tzMsException) {
-                        // A ZonedDateTime object cannot be creating by parsing directly a pattern without zone
-                        LocalDateTime localDateTime = LocalDateTime.parse(value, formatter);
-                        date = ZonedDateTime.of(localDateTime, ZoneId.systemDefault());
-                    }
+                    LocalDateTime localDateTime = LocalDateTime.parse(value, formatter);
+                    date = ZonedDateTime.of(localDateTime, ZoneId.systemDefault());
                 }
             }
         }

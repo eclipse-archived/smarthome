@@ -149,8 +149,7 @@ public class DateTimeTypeTest {
                 { new ParameterSet(TimeZone.getTimeZone("UTC"), "10:58", "1970-01-01T10:58:00.000+0000") },
                 { new ParameterSet(TimeZone.getTimeZone("CET"), "10:58:47CET", "1970-01-01T10:58:47.000+0100") },
                 { new ParameterSet(TimeZone.getTimeZone("CET"), "10:58CET", "1970-01-01T10:58:00.000+0100") },
-                { new ParameterSet(TimeZone.getTimeZone("UTC"), "2014-03-30", "2014-03-30T00:00:00.000+0000") },
-                { new ParameterSet(TimeZone.getTimeZone("CET"), "2014-03-30CET", "2014-03-30T00:00:00.000+0100") }, });
+                { new ParameterSet(TimeZone.getTimeZone("UTC"), "2014-03-30", "2014-03-30T00:00:00.000+0000") }, });
     }
 
     private static Map<String, Integer> initTimeMap() {
