@@ -38,6 +38,7 @@ public class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
 
     private URI URI_DUMMY;
     private URI URI_DUMMY1;
+    private URI URI_ALIASED;
     private ConfigDescriptionRegistry configDescriptionRegistry;
     private ConfigDescription configDescription;
     private @Mock ConfigDescriptionProvider configDescriptionProviderMock;
@@ -45,6 +46,9 @@ public class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
     private @Mock ConfigDescriptionProvider configDescriptionProviderMock1;
     private ConfigDescription configDescription2;
     private @Mock ConfigDescriptionProvider configDescriptionProviderMock2;
+    private @Mock ConfigDescriptionAliasProvider aliasProvider;
+    private @Mock ConfigOptionProvider configOptionsProviderMockAliased;
+    private @Mock ConfigOptionProvider configOptionsProviderMock;
 
     @Before
     public void setUp() throws Exception {
@@ -52,6 +56,7 @@ public class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
 
         URI_DUMMY = new URI("config:Dummy");
         URI_DUMMY1 = new URI("config:Dummy1");
+        URI_ALIASED = new URI("config:Aliased");
 
         configDescriptionRegistry = getService(ConfigDescriptionRegistry.class);
         ConfigDescriptionParameter param1 = new ConfigDescriptionParameter("param1",
@@ -80,6 +85,20 @@ public class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
                 .thenReturn(Collections.singleton(configDescription2));
         when(configDescriptionProviderMock2.getConfigDescription(Matchers.eq(URI_DUMMY), Matchers.any(Locale.class)))
                 .thenReturn(configDescription2);
+
+        when(aliasProvider.getAlias(Matchers.eq(URI_ALIASED))).thenReturn(URI_DUMMY);
+
+        when(configOptionsProviderMockAliased.getParameterOptions(Matchers.eq(URI_ALIASED), Matchers.anyString(),
+                Matchers.anyString(), Matchers.any(Locale.class)))
+                        .thenReturn(Collections.singletonList(new ParameterOption("Option", "Aliased")));
+        when(configOptionsProviderMockAliased.getParameterOptions(Matchers.eq(URI_DUMMY), Matchers.anyString(),
+                Matchers.anyString(), Matchers.any(Locale.class))).thenReturn(null);
+
+        when(configOptionsProviderMock.getParameterOptions(Matchers.eq(URI_DUMMY), Matchers.anyString(),
+                Matchers.anyString(), Matchers.any(Locale.class)))
+                        .thenReturn(Collections.singletonList(new ParameterOption("Option", "Original")));
+        when(configOptionsProviderMock.getParameterOptions(Matchers.eq(URI_ALIASED), Matchers.anyString(),
+                Matchers.anyString(), Matchers.any(Locale.class))).thenReturn(null);
     }
 
     @Test
@@ -136,6 +155,42 @@ public class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
         assertThat(configDescriptionRegistry.getConfigDescriptions().size(), is(1));
 
         configDescriptionRegistry.removeConfigDescriptionProvider(configDescriptionProviderMock2);
+        assertThat(configDescriptionRegistry.getConfigDescriptions().size(), is(0));
+    }
+
+    @Test
+    public void testGetConfigDescriptions_aliasedOptions() throws Exception {
+        assertThat(configDescriptionRegistry.getConfigDescriptions().size(), is(0));
+
+        configDescriptionRegistry.addConfigDescriptionProvider(configDescriptionProviderMock);
+        registerService(aliasProvider);
+        registerService(configOptionsProviderMockAliased);
+
+        ConfigDescription res = configDescriptionRegistry.getConfigDescription(URI_ALIASED);
+        assertThat(res, is(notNullValue()));
+        assertThat(res.getParameters().get(0).getOptions().size(), is(1));
+        assertThat(res.getParameters().get(0).getOptions().get(0).getLabel(), is("Aliased"));
+        assertThat(res.getUID(), is(URI_ALIASED));
+
+        configDescriptionRegistry.removeConfigDescriptionProvider(configDescriptionProviderMock);
+        assertThat(configDescriptionRegistry.getConfigDescriptions().size(), is(0));
+    }
+
+    @Test
+    public void testGetConfigDescriptions_nonAliasOptions() throws Exception {
+        assertThat(configDescriptionRegistry.getConfigDescriptions().size(), is(0));
+
+        configDescriptionRegistry.addConfigDescriptionProvider(configDescriptionProviderMock);
+        registerService(aliasProvider);
+        registerService(configOptionsProviderMock);
+
+        ConfigDescription res = configDescriptionRegistry.getConfigDescription(URI_ALIASED);
+        assertThat(res, is(notNullValue()));
+        assertThat(res.getParameters().get(0).getOptions().size(), is(1));
+        assertThat(res.getParameters().get(0).getOptions().get(0).getLabel(), is("Original"));
+        assertThat(res.getUID(), is(URI_ALIASED));
+
+        configDescriptionRegistry.removeConfigDescriptionProvider(configDescriptionProviderMock);
         assertThat(configDescriptionRegistry.getConfigDescriptions().size(), is(0));
     }
 
