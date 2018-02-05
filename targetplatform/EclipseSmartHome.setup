@@ -124,7 +124,7 @@
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.nullUncheckedConversion"
-          value="ignore"/>
+          value="warning"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.parameterAssignment"
@@ -2421,6 +2421,12 @@
       <sourceLocator
           rootFolder="${git.clone.eclipsesmarthome.location/products}"
           locateNestedProjects="true"/>
+    </setupTask>
+    <setupTask
+        xsi:type="launching:LaunchTask"
+        id="launch.smarthome.downloadEEAs"
+        launcher="DownloadEEAs">
+      <description>Downloads Eclipse External Annotations and places them into eeas.jar in targetplatform</description>
     </setupTask>
     <setupTask
         xsi:type="pde:TargetPlatformTask"

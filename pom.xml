@@ -54,6 +54,10 @@
     <build.helper.maven.plugin.version>1.8</build.helper.maven.plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <sat.version>0.4.1</sat.version>
+    <!-- TODO: insert one project that contains ALL annotations here-->
+    <eea-groupId>org.lastnpe.eea</eea-groupId>
+    <eea-artifactId>jdk-eea</eea-artifactId>
+    <eea-version>0.0.1</eea-version>
   </properties>
 
   <packaging>pom</packaging>
@@ -199,10 +203,18 @@
                 <artifactId>org.eclipse.jdt.annotation</artifactId>
                 <version>${jdt-annotations.version}</version>
               </extraClasspathElement>
+              <extraClasspathElement>
+                <!-- TODO: insert one project that contains ALL annotations here-->
+                <groupId>${eea-groupId}</groupId>
+                <artifactId>${eea-artifactId}</artifactId>
+                <version>${eea-version}</version>
+              </extraClasspathElement>
             </extraClasspathElements>
             <compilerArgs>
               <!--<arg>-err:+nullAnnot(org.eclipse.jdt.annotation.Nullable|org.eclipse.jdt.annotation.NonNull|org.eclipse.jdt.annotation.NonNullByDefault),+inheritNullAnnot</arg>-->
-              <arg>-warn:+nullAnnot(org.eclipse.jdt.annotation.Nullable|org.eclipse.jdt.annotation.NonNull|org.eclipse.jdt.annotation.NonNullByDefault),+null,+inheritNullAnnot,+nullAnnotConflict,+nullUncheckedConversion,+nullAnnotRedundant,+nullDereference</arg>
+              <arg>-warn:+null,+nullAnnot(org.eclipse.jdt.annotation.Nullable|org.eclipse.jdt.annotation.NonNull|org.eclipse.jdt.annotation.NonNullByDefault),+inheritNullAnnot,+nullAnnotConflict,+nullUncheckedConversion,+nullAnnotRedundant,+nullDereference</arg>
+              <arg>-annotationpath</arg>
+              <arg>CLASSPATH</arg>
             </compilerArgs>
           </configuration>
         </plugin>
@@ -582,5 +594,14 @@
       </snapshots>
     </repository>
   </repositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>${eea-groupId}</groupId>
+      <artifactId>${eea-artifactId}</artifactId>
+      <version>${eea-version}</version>
+      <scope>provided</scope>
+    </dependency>
+ </dependencies>
 
 </project>
