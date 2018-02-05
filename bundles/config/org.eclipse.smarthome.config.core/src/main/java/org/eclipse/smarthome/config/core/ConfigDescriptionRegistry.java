@@ -175,9 +175,10 @@ public class ConfigDescriptionRegistry {
         List<ConfigDescriptionParameterGroup> parameterGroups = new ArrayList<ConfigDescriptionParameterGroup>();
 
         boolean found = fillFromProviders(uri, locale, parameters, parameterGroups);
+        URI alias = null;
         if (!found) {
             for (ConfigDescriptionAliasProvider aliasProvider : configDescriptionAliasProviders) {
-                URI alias = aliasProvider.getAlias(uri);
+                alias = aliasProvider.getAlias(uri);
                 if (alias != null) {
                     logger.debug("No config description found for '{}', using alias '{}' instead", uri, alias);
                     found = fillFromProviders(alias, locale, parameters, parameterGroups);
@@ -190,7 +191,7 @@ public class ConfigDescriptionRegistry {
             List<ConfigDescriptionParameter> parametersWithOptions = new ArrayList<ConfigDescriptionParameter>(
                     parameters.size());
             for (ConfigDescriptionParameter parameter : parameters) {
-                parametersWithOptions.add(getConfigOptions(uri, parameter, locale));
+                parametersWithOptions.add(getConfigOptions(uri, alias, parameter, locale));
             }
 
             // Return the new configuration description
@@ -249,23 +250,17 @@ public class ConfigDescriptionRegistry {
      *            locale
      * @return config description
      */
-    private ConfigDescriptionParameter getConfigOptions(URI uri, ConfigDescriptionParameter parameter, Locale locale) {
+    private ConfigDescriptionParameter getConfigOptions(URI uri, URI alias, ConfigDescriptionParameter parameter,
+            Locale locale) {
         List<ParameterOption> options = new ArrayList<ParameterOption>();
 
         // Add all the existing options that may be provided by the initial config description provider
         options.addAll(parameter.getOptions());
 
-        boolean found = false;
-        for (ConfigOptionProvider configOptionProvider : this.configOptionProviders) {
-            Collection<ParameterOption> newOptions = configOptionProvider.getParameterOptions(uri, parameter.getName(),
-                    parameter.getContext(), locale);
+        boolean found = fillFromProviders(uri, parameter, locale, options);
 
-            if (newOptions != null) {
-                found = true;
-
-                // Simply merge the options
-                options.addAll(newOptions);
-            }
+        if (!found && alias != null) {
+            found = fillFromProviders(alias, parameter, locale, options);
         }
 
         if (found) {
@@ -281,5 +276,22 @@ public class ConfigDescriptionRegistry {
             // Otherwise return the original parameter
             return parameter;
         }
+    }
+
+    private boolean fillFromProviders(URI alias, ConfigDescriptionParameter parameter, Locale locale,
+            List<ParameterOption> options) {
+        boolean found = false;
+        for (ConfigOptionProvider configOptionProvider : this.configOptionProviders) {
+            Collection<ParameterOption> newOptions = configOptionProvider.getParameterOptions(alias,
+                    parameter.getName(), parameter.getContext(), locale);
+
+            if (newOptions != null) {
+                found = true;
+
+                // Simply merge the options
+                options.addAll(newOptions);
+            }
+        }
+        return found;
     }
 }
