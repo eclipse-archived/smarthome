@@ -27,6 +27,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link ConfigDescriptionRegistry} provides access to {@link ConfigDescription}s.
@@ -42,9 +44,11 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 @Component(immediate = true, service = { ConfigDescriptionRegistry.class })
 public class ConfigDescriptionRegistry {
 
+    private final Logger logger = LoggerFactory.getLogger(ConfigDescriptionRegistry.class);
+
     private final List<ConfigOptionProvider> configOptionProviders = new CopyOnWriteArrayList<>();
     private final List<ConfigDescriptionProvider> configDescriptionProviders = new CopyOnWriteArrayList<>();
-    private final List<ConfigDescriptionAliasHandler> configDescriptionAliasHandlers = new CopyOnWriteArrayList<>();
+    private final List<ConfigDescriptionAliasProvider> configDescriptionAliasProviders = new CopyOnWriteArrayList<>();
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addConfigOptionProvider(ConfigOptionProvider configOptionProvider) {
@@ -73,15 +77,15 @@ public class ConfigDescriptionRegistry {
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    protected void addConfigDescriptionAliasHandler(ConfigDescriptionAliasHandler configDescriptionAliasHandler) {
-        if (configDescriptionAliasHandler != null) {
-            configDescriptionAliasHandlers.add(configDescriptionAliasHandler);
+    protected void addConfigDescriptionAliasProvider(ConfigDescriptionAliasProvider configDescriptionAliasProvider) {
+        if (configDescriptionAliasProvider != null) {
+            configDescriptionAliasProviders.add(configDescriptionAliasProvider);
         }
     }
 
-    protected void removeConfigDescriptionAliasHandler(ConfigDescriptionAliasHandler configDescriptionAliasHandler) {
-        if (configDescriptionAliasHandler != null) {
-            configDescriptionAliasHandlers.remove(configDescriptionAliasHandler);
+    protected void removeConfigDescriptionAliasProvider(ConfigDescriptionAliasProvider configDescriptionAliasProvider) {
+        if (configDescriptionAliasProvider != null) {
+            configDescriptionAliasProviders.remove(configDescriptionAliasProvider);
         }
     }
 
@@ -170,18 +174,38 @@ public class ConfigDescriptionRegistry {
         List<ConfigDescriptionParameter> parameters = new ArrayList<ConfigDescriptionParameter>();
         List<ConfigDescriptionParameterGroup> parameterGroups = new ArrayList<ConfigDescriptionParameterGroup>();
 
-        URI aliasedURI = uri;
-        for (ConfigDescriptionAliasHandler aliasHandler : configDescriptionAliasHandlers) {
-            URI alias = aliasHandler.getAlias(uri);
-            if (alias != null) {
-                aliasedURI = alias;
-                break;
+        boolean found = fillFromProviders(uri, locale, parameters, parameterGroups);
+        if (!found) {
+            for (ConfigDescriptionAliasProvider aliasProvider : configDescriptionAliasProviders) {
+                URI alias = aliasProvider.getAlias(uri);
+                if (alias != null) {
+                    logger.debug("No config description found for '{}', using alias '{}' instead", uri, alias);
+                    found = fillFromProviders(alias, locale, parameters, parameterGroups);
+                    break;
+                }
             }
         }
 
+        if (found) {
+            List<ConfigDescriptionParameter> parametersWithOptions = new ArrayList<ConfigDescriptionParameter>(
+                    parameters.size());
+            for (ConfigDescriptionParameter parameter : parameters) {
+                parametersWithOptions.add(getConfigOptions(uri, parameter, locale));
+            }
+
+            // Return the new configuration description
+            return new ConfigDescription(uri, parametersWithOptions, parameterGroups);
+        } else {
+            // Otherwise null
+            return null;
+        }
+    }
+
+    private boolean fillFromProviders(URI uri, Locale locale, List<ConfigDescriptionParameter> parameters,
+            List<ConfigDescriptionParameterGroup> parameterGroups) {
         boolean found = false;
         for (ConfigDescriptionProvider configDescriptionProvider : this.configDescriptionProviders) {
-            ConfigDescription config = configDescriptionProvider.getConfigDescription(aliasedURI, locale);
+            ConfigDescription config = configDescriptionProvider.getConfigDescription(uri, locale);
 
             if (config != null) {
                 found = true;
@@ -191,20 +215,7 @@ public class ConfigDescriptionRegistry {
                 parameterGroups.addAll(config.getParameterGroups());
             }
         }
-
-        if (found) {
-            List<ConfigDescriptionParameter> parametersWithOptions = new ArrayList<ConfigDescriptionParameter>(
-                    parameters.size());
-            for (ConfigDescriptionParameter parameter : parameters) {
-                parametersWithOptions.add(getConfigOptions(aliasedURI, parameter, locale));
-            }
-
-            // Return the new configuration description
-            return new ConfigDescription(aliasedURI, parametersWithOptions, parameterGroups);
-        } else {
-            // Otherwise null
-            return null;
-        }
+        return found;
     }
 
     /**

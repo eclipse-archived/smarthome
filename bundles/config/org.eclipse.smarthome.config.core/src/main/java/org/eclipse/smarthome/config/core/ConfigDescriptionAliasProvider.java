@@ -24,7 +24,7 @@ import org.eclipse.jdt.annotation.Nullable;
  *
  */
 @NonNullByDefault
-public interface ConfigDescriptionAliasHandler {
+public interface ConfigDescriptionAliasProvider {
 
     /**
      * Get an alias for the given config description URI (if applicable)

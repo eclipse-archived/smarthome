@@ -17,7 +17,7 @@ import java.net.URI;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.config.core.ConfigDescriptionAliasHandler;
+import org.eclipse.smarthome.config.core.ConfigDescriptionAliasProvider;
 import org.eclipse.smarthome.config.core.ConfigOptionProvider;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -45,7 +45,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component
 @NonNullByDefault
-public class ThingConfigDescriptionAliasHandler implements ConfigDescriptionAliasHandler {
+public class ThingConfigDescriptionAliasProvider implements ConfigDescriptionAliasProvider {
 
     private @NonNullByDefault({}) ThingRegistry thingRegistry;
     private @NonNullByDefault({}) ThingTypeRegistry thingTypeRegistry;
