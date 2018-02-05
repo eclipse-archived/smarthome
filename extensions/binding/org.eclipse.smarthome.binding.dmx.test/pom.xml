@@ -85,6 +85,9 @@
         <groupId>${tycho-groupid}</groupId>
         <artifactId>tycho-surefire-plugin</artifactId>
         <configuration>
+          <systemProperties>
+            <logback.configurationFile>${project.basedir}/src/test/resources/logback.xml</logback.configurationFile>
+          </systemProperties>
           <bundleStartLevel>
             <bundle>
               <id>org.eclipse.equinox.ds</id>
