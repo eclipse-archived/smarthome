@@ -13,13 +13,11 @@
 package org.eclipse.smarthome.core.thing.internal;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Locale;
 
-import org.eclipse.smarthome.config.core.ConfigDescription;
-import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
-import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.config.core.ConfigDescriptionAliasProvider;
 import org.eclipse.smarthome.config.core.ConfigOptionProvider;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -42,24 +40,16 @@ import org.osgi.service.component.annotations.Reference;
  *
  * @author Chris Jackson - Initial Implementation
  * @author Chris Jackson - Updated to separate thing type from thing name
- * @author Simon Kaufmann - Added support for channel config descriptions
+ * @author Simon Kaufmann - Added support for channel config descriptions, turned into alias handler
  *
  */
 @Component
-public class ThingConfigDescriptionProvider implements ConfigDescriptionProvider {
-    private ThingRegistry thingRegistry;
-    private ThingTypeRegistry thingTypeRegistry;
-    private ConfigDescriptionRegistry configDescriptionRegistry;
-    private ChannelTypeRegistry channelTypeRegistry;
+@NonNullByDefault
+public class ThingConfigDescriptionAliasProvider implements ConfigDescriptionAliasProvider {
 
-    @Reference
-    protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
-        this.configDescriptionRegistry = configDescriptionRegistry;
-    }
-
-    protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
-        this.configDescriptionRegistry = null;
-    }
+    private @NonNullByDefault({}) ThingRegistry thingRegistry;
+    private @NonNullByDefault({}) ThingTypeRegistry thingTypeRegistry;
+    private @NonNullByDefault({}) ChannelTypeRegistry channelTypeRegistry;
 
     @Reference
     protected void setThingRegistry(ThingRegistry thingRegistry) {
@@ -89,28 +79,23 @@ public class ThingConfigDescriptionProvider implements ConfigDescriptionProvider
     }
 
     @Override
-    public Collection<ConfigDescription> getConfigDescriptions(Locale locale) {
-        return Collections.emptySet();
-    }
-
-    @Override
-    public ConfigDescription getConfigDescription(URI uri, Locale locale) {
+    public @Nullable URI getAlias(@NonNull URI uri) {
         // If this is not a concrete thing, then return
-        if (uri == null || uri.getScheme() == null) {
+        if (uri.getScheme() == null) {
             return null;
         }
 
         switch (uri.getScheme()) {
             case "thing":
-                return getThingConfigDescription(uri, locale);
+                return getThingConfigDescriptionURI(uri);
             case "channel":
-                return getChannelConfigDescription(uri, locale);
+                return getChannelConfigDescriptionURI(uri);
             default:
                 return null;
         }
     }
 
-    private ConfigDescription getThingConfigDescription(URI uri, Locale locale) {
+    private @Nullable URI getThingConfigDescriptionURI(URI uri) {
         // First, get the thing type so we get the generic config descriptions
         ThingUID thingUID = new ThingUID(uri.getSchemeSpecificPart());
         Thing thing = thingRegistry.get(thingUID);
@@ -125,21 +110,10 @@ public class ThingConfigDescriptionProvider implements ConfigDescriptionProvider
 
         // Get the config description URI for this thing type
         URI configURI = thingType.getConfigDescriptionURI();
-        if (configURI == null) {
-            return null;
-        }
-
-        // Now call this again for the thing
-        ConfigDescription config = configDescriptionRegistry.getConfigDescription(configURI, locale);
-        if (config == null) {
-            return null;
-        }
-
-        // Return the new configuration description
-        return config;
+        return configURI;
     }
 
-    private ConfigDescription getChannelConfigDescription(URI uri, Locale locale) {
+    private @Nullable URI getChannelConfigDescriptionURI(URI uri) {
         String stringUID = uri.getSchemeSpecificPart();
         if (uri.getFragment() != null) {
             stringUID = stringUID + "#" + uri.getFragment();
@@ -165,18 +139,7 @@ public class ThingConfigDescriptionProvider implements ConfigDescriptionProvider
 
         // Get the config description URI for this channel type
         URI configURI = channelType.getConfigDescriptionURI();
-        if (configURI == null) {
-            return null;
-        }
-
-        // Now get the channel type's config description
-        ConfigDescription config = configDescriptionRegistry.getConfigDescription(configURI, locale);
-        if (config == null) {
-            return null;
-        }
-
-        // Return the new configuration description
-        return config;
+        return configURI;
     }
 
 }

@@ -15,7 +15,8 @@ package org.eclipse.smarthome.core.library.types;
 import static org.junit.Assert.*;
 
 import java.text.SimpleDateFormat;
-import java.time.*;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -143,7 +144,12 @@ public class DateTimeTypeTest {
                 { new ParameterSet(TimeZone.getTimeZone("GMT-2"), initTimeMap(), TimeZone.getTimeZone("GMT+3"),
                         "2014-03-30T05:58:47.033-0200") },
                 { new ParameterSet(TimeZone.getTimeZone("GMT-2"), initTimeMap(), TimeZone.getTimeZone("GMT-4"),
-                        "2014-03-30T12:58:47.033-0200") }, });
+                        "2014-03-30T12:58:47.033-0200") },
+                { new ParameterSet(TimeZone.getTimeZone("UTC"), "10:58:47", "1970-01-01T10:58:47.000+0000") },
+                { new ParameterSet(TimeZone.getTimeZone("UTC"), "10:58", "1970-01-01T10:58:00.000+0000") },
+                { new ParameterSet(TimeZone.getTimeZone("CET"), "10:58:47CET", "1970-01-01T10:58:47.000+0100") },
+                { new ParameterSet(TimeZone.getTimeZone("CET"), "10:58CET", "1970-01-01T10:58:00.000+0100") },
+                { new ParameterSet(TimeZone.getTimeZone("UTC"), "2014-03-30", "2014-03-30T00:00:00.000+0000") }, });
     }
 
     private static Map<String, Integer> initTimeMap() {
@@ -158,7 +164,7 @@ public class DateTimeTypeTest {
         return inputTimeMap;
     }
 
-    private ParameterSet parameterSet;
+    private final ParameterSet parameterSet;
 
     /**
      * setup Test class with current parameter map.
