@@ -64,10 +64,8 @@ public class ConfigDescription implements Identifiable<URI> {
      *
      * @param uri the URI of this description within the {@link ConfigDescriptionRegistry} (must neither be null nor
      *            empty)
-     *
      * @param parameters the list of configuration parameters that belong to the given URI
      *            (could be null or empty)
-     *
      * @throws IllegalArgumentException if the URI is null or invalid
      */
     public ConfigDescription(URI uri, List<ConfigDescriptionParameter> parameters) {
@@ -79,12 +77,9 @@ public class ConfigDescription implements Identifiable<URI> {
      *
      * @param uri the URI of this description within the {@link ConfigDescriptionRegistry} (must neither be null nor
      *            empty)
-     *
      * @param parameters the list of configuration parameters that belong to the given URI
      *            (could be null or empty)
-     *
      * @param groups the list of groups associated with the parameters
-     *
      * @throws IllegalArgumentException if the URI is null or invalid
      */
     public ConfigDescription(URI uri, List<ConfigDescriptionParameter> parameters,

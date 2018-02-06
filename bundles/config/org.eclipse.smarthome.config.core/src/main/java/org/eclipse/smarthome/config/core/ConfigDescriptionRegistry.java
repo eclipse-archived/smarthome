@@ -74,8 +74,7 @@ public class ConfigDescriptionRegistry {
      * the binding to ensure that multiple sources (eg static XML and dynamic binding data) do not contain overlapping
      * information.
      *
-     * @param locale
-     *            locale
+     * @param locale locale
      * @return all config descriptions or an empty collection if no config
      *         description exists
      */
@@ -137,11 +136,9 @@ public class ConfigDescriptionRegistry {
      * the binding to ensure that multiple sources (eg static XML and dynamic binding data) do not contain overlapping
      * information.
      *
-     * @param uri
-     *            the URI to which the config description to be returned (must
+     * @param uri the URI to which the config description to be returned (must
      *            not be null)
-     * @param locale
-     *            locale
+     * @param locale locale
      * @return config description or null if no config description exists for
      *         the given name
      */
@@ -180,8 +177,7 @@ public class ConfigDescriptionRegistry {
     /**
      * Returns a config description for a given URI.
      *
-     * @param uri
-     *            the URI to which the config description to be returned (must
+     * @param uri the URI to which the config description to be returned (must
      *            not be null)
      * @return config description or null if no config description exists for
      *         the given name
@@ -200,12 +196,9 @@ public class ConfigDescriptionRegistry {
      * the binding to ensure that multiple sources (eg static XML and dynamic binding data) do not contain overlapping
      * information.
      *
-     * @param uri
-     *            the URI to which the options to be returned (must not be null)
-     * @param parameter
-     *            the parameter requiring options to be updated
-     * @param locale
-     *            locale
+     * @param uri the URI to which the options to be returned (must not be null)
+     * @param parameter the parameter requiring options to be updated
+     * @param locale locale
      * @return config description
      */
     private ConfigDescriptionParameter getConfigOptions(URI uri, ConfigDescriptionParameter parameter, Locale locale) {

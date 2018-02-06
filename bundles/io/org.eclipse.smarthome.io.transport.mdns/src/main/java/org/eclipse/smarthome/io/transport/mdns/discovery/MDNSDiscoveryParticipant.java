@@ -50,7 +50,6 @@ public interface MDNSDiscoveryParticipant {
      * Creates a discovery result for a mDNS service
      *
      * @param device the mDNS service found on the network
-     *
      * @return the according discovery result or <code>null</code>, if device is not
      *         supported by this participant
      */
@@ -60,7 +59,6 @@ public interface MDNSDiscoveryParticipant {
      * Returns the thing UID for a mDNS service
      *
      * @param device the mDNS service on the network
-     *
      * @return a thing UID or <code>null</code>, if device is not supported
      *         by this participant
      */

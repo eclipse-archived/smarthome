@@ -255,7 +255,6 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
      * for a location given as parameter
      *
      * @param location the location to provide to the Weather Underground service
-     *
      * @return true if success or false in case of error
      */
     private boolean checkWeatherLocation(String location) {
@@ -267,7 +266,6 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
      * Request new weather data to the Weather Underground service
      *
      * @param features the list of features to be requested
-     *
      * @return the weather data object mapping the JSON response or null in case of error
      */
     private WeatherUndergroundJsonData getWeatherData(Set<String> features, String location) {
