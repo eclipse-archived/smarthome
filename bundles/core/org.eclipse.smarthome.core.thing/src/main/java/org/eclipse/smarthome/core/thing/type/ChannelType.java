@@ -46,7 +46,6 @@ public class ChannelType extends AbstractDescriptionType {
      *
      * @param uid the unique identifier which identifies this Channel type within
      *            the overall system (must neither be null, nor empty)
-     *
      * @param advanced true if this channel type contains advanced features, otherwise false
      * @param itemType the item type of this Channel type, e.g. {@code ColorItem} (must neither be null nor empty)
      * @param label the human readable label for the according type

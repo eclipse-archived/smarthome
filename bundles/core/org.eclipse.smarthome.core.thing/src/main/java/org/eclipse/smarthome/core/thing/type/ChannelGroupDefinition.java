@@ -38,7 +38,6 @@ public class ChannelGroupDefinition {
      * @param typeUID the type UID of the channel group (must not be null)
      * @param label the label for the channel group to override ChannelGroupType (could be null)
      * @param description the description for the channel group to override ChannelGroupType (could be null)
-     *
      * @throws IllegalArgumentException if the ID is null or empty, or the type is null
      */
     public ChannelGroupDefinition(String id, ChannelGroupTypeUID typeUID, String label, String description)
@@ -62,7 +61,6 @@ public class ChannelGroupDefinition {
      *
      * @param id the identifier of the channel group (must neither be null nor empty)
      * @param typeUID the type UID of the channel group (must not be null)
-     *
      * @throws IllegalArgumentException if the ID is null or empty, or the type is null
      */
     public ChannelGroupDefinition(String id, ChannelGroupTypeUID typeUID) throws IllegalArgumentException {

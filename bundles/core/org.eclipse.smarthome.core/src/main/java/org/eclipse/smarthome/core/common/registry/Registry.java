@@ -55,8 +55,7 @@ public interface Registry<E extends Identifiable<K>, K> {
     /**
      * This method retrieves a single element from the registry.
      *
-     * @param key
-     *            key of the element
+     * @param key key of the element
      * @return element or null if no element was found
      */
     public @Nullable E get(K key);
@@ -64,43 +63,36 @@ public interface Registry<E extends Identifiable<K>, K> {
     /**
      * Removes a {@link RegistryChangeListener} from the registry.
      *
-     * @param listener
-     *            registry change listener
+     * @param listener registry change listener
      */
     void removeRegistryChangeListener(@NonNull RegistryChangeListener<E> listener);
 
     /**
      * Adds the given element to the according {@link ManagedProvider}.
      *
-     * @param element
-     *            element to be added (must not be null)
+     * @param element element to be added (must not be null)
      * @return the added element or newly created object of the same type
-     * @throws IllegalStateException
-     *             if no ManagedProvider is available
+     * @throws IllegalStateException if no ManagedProvider is available
      */
     public @NonNull E add(@NonNull E element);
 
     /**
      * Updates the given element at the according {@link ManagedProvider}.
      *
-     * @param element
-     *            element to be updated (must not be null)
+     * @param element element to be updated (must not be null)
      * @return returns the old element or null if no element with the same key
      *         exists
-     * @throws IllegalStateException
-     *             if no ManagedProvider is available
+     * @throws IllegalStateException if no ManagedProvider is available
      */
     public @Nullable E update(@NonNull E element);
 
     /**
      * Removes the given element from the according {@link ManagedProvider}.
      *
-     * @param key
-     *            key of the element (must not be null)
+     * @param key key of the element (must not be null)
      * @return element that was removed, or null if no element with the given
      *         key exists
-     * @throws IllegalStateException
-     *             if no ManagedProvider is available
+     * @throws IllegalStateException if no ManagedProvider is available
      */
     public @Nullable E remove(@NonNull K key);
 }

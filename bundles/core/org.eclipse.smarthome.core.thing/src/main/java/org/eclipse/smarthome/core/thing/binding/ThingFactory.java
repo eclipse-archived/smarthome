@@ -48,8 +48,7 @@ public class ThingFactory {
     /**
      * Generates a random Thing UID for the given thingType
      *
-     * @param thingTypeUID
-     *            thing type (must not be null)
+     * @param thingTypeUID thing type (must not be null)
      * @return random Thing UID
      */
     public static ThingUID generateRandomThingUID(ThingTypeUID thingTypeUID) {
@@ -61,15 +60,11 @@ public class ThingFactory {
     /**
      * Creates a thing based on a given thing type.
      *
-     * @param thingType
-     *            thing type (must not be null)
-     * @param thingUID
-     *            thindUID (must not be null)
-     * @param configuration
-     *            (must not be null)
-     * @param bridge
-     *            (can be null)
-     * @return thing
+     * @param thingType thing type (must not be null)
+     * @param thingUID thindUID (must not be null)
+     * @param configuration (must not be null)
+     * @param bridge (can be null)
+     * @return thing the thing
      */
     public static Thing createThing(ThingType thingType, ThingUID thingUID, Configuration configuration,
             @Nullable ThingUID bridgeUID) {
@@ -81,17 +76,12 @@ public class ThingFactory {
      * default-configuration given in the configDescriptions if the
      * configDescriptionRegistry is not null
      *
-     * @param thingType
-     *            (must not be null)
-     * @param thingUID
-     *            (must not be null)
-     * @param configuration
-     *            (must not be null)
-     * @param bridgeUID
-     *            (can be null)
-     * @param configDescriptionRegistry
-     *            (can be null)
-     * @return thing
+     * @param thingType (must not be null)
+     * @param thingUID (must not be null)
+     * @param configuration (must not be null)
+     * @param bridgeUID (can be null)
+     * @param configDescriptionRegistry (can be null)
+     * @return thing the thing
      */
     public static Thing createThing(ThingType thingType, ThingUID thingUID, Configuration configuration,
             @Nullable ThingUID bridgeUID, @Nullable ConfigDescriptionRegistry configDescriptionRegistry) {
@@ -130,13 +120,10 @@ public class ThingFactory {
      *
      * Creates a thing based on given thing type.
      *
-     * @param thingType
-     *            thing type (must not be null)
-     * @param thingUID
-     *            thingUID (must not be null)
-     * @param configuration
-     *            (must not be null)
-     * @return thing
+     * @param thingType thing type (must not be null)
+     * @param thingUID thingUID (must not be null)
+     * @param configuration (must not be null)
+     * @return thing the thing
      */
     public static Thing createThing(ThingType thingType, ThingUID thingUID, Configuration configuration) {
         return createThing(thingType, thingUID, configuration, null);

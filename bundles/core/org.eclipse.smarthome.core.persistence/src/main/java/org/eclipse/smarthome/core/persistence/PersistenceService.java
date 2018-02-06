@@ -42,7 +42,6 @@ public interface PersistenceService {
      * This label provides a user friendly name for the {@link PersistenceService}.
      *
      * @param locale the language to return the label in, or null for the default language
-     *
      * @return the label of the {@link PersistenceService}.
      */
     String getLabel(@Nullable Locale locale);

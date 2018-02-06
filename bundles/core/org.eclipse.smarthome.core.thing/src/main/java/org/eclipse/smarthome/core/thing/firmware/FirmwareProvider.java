@@ -36,7 +36,6 @@ public interface FirmwareProvider {
      * Returns the firmware for the given UID.
      *
      * @param firmwareUID the firmware UID (not null)
-     *
      * @return the corresponding firmware or null if no firmware was found
      */
     Firmware getFirmware(FirmwareUID firmwareUID);
@@ -46,7 +45,6 @@ public interface FirmwareProvider {
      *
      * @param firmwareUID the firmware UID (not null)
      * @param locale the locale to be used (if null then the default locale is to be used)
-     *
      * @return the corresponding firmware for the given locale or null if no firmware was found
      */
     Firmware getFirmware(FirmwareUID firmwareUID, Locale locale);
@@ -55,7 +53,6 @@ public interface FirmwareProvider {
      * Returns the set of available firmwares for the given thing type UID.
      *
      * @param thingTypeUID the thing type UID for which the firmwares are to be provided (not null)
-     *
      * @return the set of available firmwares for the given thing type UID (can be null)
      */
     Set<Firmware> getFirmwares(ThingTypeUID thingTypeUID);
@@ -65,7 +62,6 @@ public interface FirmwareProvider {
      *
      * @param thingTypeUID the thing type UID for which the firmwares are to be provided (not null)
      * @param locale the locale to be used (if null then the default locale is to be used)
-     *
      * @return the set of available firmwares for the given thing type UID (can be null)
      */
     Set<Firmware> getFirmwares(ThingTypeUID thingTypeUID, Locale locale);

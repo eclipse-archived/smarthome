@@ -116,9 +116,7 @@ public abstract class GenericItem implements ActiveItem {
     /**
      * Adds a group name to the {@link GenericItem}.
      *
-     * @param groupItemName
-     *            group item name to add
-     *
+     * @param groupItemName group item name to add
      * @throws IllegalArgumentException if groupItemName is {@code null}
      */
     @Override
@@ -148,9 +146,7 @@ public abstract class GenericItem implements ActiveItem {
     /**
      * Removes a group item name from the {@link GenericItem}.
      *
-     * @param groupItemName
-     *            group item name to remove
-     *
+     * @param groupItemName group item name to remove
      * @throws IllegalArgumentException if groupItemName is {@code null}
      */
     @Override
@@ -182,8 +178,7 @@ public abstract class GenericItem implements ActiveItem {
      * Subclasses may override this method in order to do necessary conversions upfront. Afterwards,
      * {@link #applyState(State)} should be called by classes overriding this method.
      *
-     * @param state
-     *            new state of this item
+     * @param state new state of this item
      */
     public void setState(State state) {
         applyState(state);

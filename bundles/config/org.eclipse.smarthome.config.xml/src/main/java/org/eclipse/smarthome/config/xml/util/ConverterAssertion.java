@@ -34,7 +34,6 @@ public class ConverterAssertion {
      *
      * @param propertyName the name of the property to be checked (must neither be null, nor empty)
      * @param property the property to be checked (could be null or empty)
-     *
      * @throws ConversionException if the condition does not fit
      */
     public static void assertNeitherNullNorEmpty(String propertyName, String property) throws ConversionException {

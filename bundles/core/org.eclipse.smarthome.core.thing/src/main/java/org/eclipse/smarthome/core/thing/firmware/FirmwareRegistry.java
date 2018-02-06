@@ -57,9 +57,7 @@ public final class FirmwareRegistry {
      * Returns the firmware for the given UID using the locale provided by the {@link LocaleProvider}.
      *
      * @param firmwareUID the firmware UID (must not be null)
-     *
      * @return the corresponding firmware or null if no firmware was found
-     *
      * @throws NullPointerException if given firmware UID is null
      */
     public Firmware getFirmware(FirmwareUID firmwareUID) {
@@ -71,9 +69,7 @@ public final class FirmwareRegistry {
      *
      * @param firmwareUID the firmware UID (must not be null)
      * @param locale the locale to be used (if null then the locale provided by the {@link LocaleProvider} is used)
-     *
      * @return the corresponding firmware or null if no firmware was found
-     *
      * @throws NullPointerException if given firmware UID is null
      */
     public Firmware getFirmware(FirmwareUID firmwareUID, Locale locale) {
@@ -101,9 +97,7 @@ public final class FirmwareRegistry {
      * Returns the latest firmware for the given thing type UID using the locale provided by the {@link LocaleProvider}.
      *
      * @param thingTypeUID the thing type UID (must not be null)
-     *
      * @return the corresponding latest firmware or null if no firmware was found
-     *
      * @throws NullPointerException if given thing type UID is null
      */
     public Firmware getLatestFirmware(ThingTypeUID thingTypeUID) {
@@ -115,9 +109,7 @@ public final class FirmwareRegistry {
      *
      * @param thingTypeUID the thing type UID (must not be null)
      * @param locale the locale to be used (if null then the locale provided by the {@link LocaleProvider} is used)
-     *
      * @return the corresponding latest firmware or null if no firmware was found
-     *
      * @throws NullPointerException if given thing type UID is null
      */
     public Firmware getLatestFirmware(ThingTypeUID thingTypeUID, Locale locale) {
@@ -131,9 +123,7 @@ public final class FirmwareRegistry {
      * element in the collection.
      *
      * @param thingTypeUID the thing type UID for which the firmwares are to be provided (not null)
-     *
      * @return the collection of available firmwares for the given thing type UID (not null)
-     *
      * @throws NullPointerException if given thing type UID is null
      */
     public Collection<Firmware> getFirmwares(ThingTypeUID thingTypeUID) {
@@ -146,9 +136,7 @@ public final class FirmwareRegistry {
      *
      * @param thingTypeUID the thing type UID for which the firmwares are to be provided (not null)
      * @param locale the locale to be used (if null then the locale provided by the {@link LocaleProvider} is used)
-     *
      * @return the collection of available firmwares for the given thing type UID (not null)
-     *
      * @throws NullPointerException if given thing type UID is null
      */
     public Collection<Firmware> getFirmwares(ThingTypeUID thingTypeUID, Locale locale) {

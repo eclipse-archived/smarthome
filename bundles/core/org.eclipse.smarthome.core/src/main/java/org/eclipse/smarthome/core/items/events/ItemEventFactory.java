@@ -204,9 +204,7 @@ public class ItemEventFactory extends AbstractEventFactory {
      * @param itemName the name of the item to send the command for
      * @param command the command to send
      * @param source the name of the source identifying the sender (can be null)
-     *
      * @return the created item command event
-     *
      * @throws IllegalArgumentException if itemName or command is null
      */
     public static ItemCommandEvent createCommandEvent(String itemName, Command command, String source) {
@@ -222,9 +220,7 @@ public class ItemEventFactory extends AbstractEventFactory {
      *
      * @param itemName the name of the item to send the command for
      * @param command the command to send
-     *
      * @return the created item command event
-     *
      * @throws IllegalArgumentException if itemName or command is null
      */
     public static ItemCommandEvent createCommandEvent(String itemName, Command command) {
@@ -237,9 +233,7 @@ public class ItemEventFactory extends AbstractEventFactory {
      * @param itemName the name of the item to send the state update for
      * @param state the new state to send
      * @param source the name of the source identifying the sender (can be null)
-     *
      * @return the created item state event
-     *
      * @throws IllegalArgumentException if itemName or state is null
      */
     public static ItemStateEvent createStateEvent(String itemName, State state, String source) {
@@ -255,9 +249,7 @@ public class ItemEventFactory extends AbstractEventFactory {
      *
      * @param itemName the name of the item to send the state update for
      * @param state the new state to send
-     *
      * @return the created item state event
-     *
      * @throws IllegalArgumentException if itemName or state is null
      */
     public static ItemStateEvent createStateEvent(String itemName, State state) {
@@ -270,9 +262,7 @@ public class ItemEventFactory extends AbstractEventFactory {
      * @param itemName the name of the item to send the state changed event for
      * @param newState the new state to send
      * @param oldState the old state of the item
-     *
      * @return the created item state changed event
-     *
      * @throws IllegalArgumentException if itemName or state is null
      */
     public static ItemStateChangedEvent createStateChangedEvent(String itemName, State newState, State oldState) {
@@ -298,9 +288,7 @@ public class ItemEventFactory extends AbstractEventFactory {
      * Creates an item added event.
      *
      * @param item the item
-     *
      * @return the created item added event
-     *
      * @throws IllegalArgumentException if item is null
      */
     public static ItemAddedEvent createAddedEvent(Item item) {
@@ -315,9 +303,7 @@ public class ItemEventFactory extends AbstractEventFactory {
      * Creates an item removed event.
      *
      * @param item the item
-     *
      * @return the created item removed event
-     *
      * @throws IllegalArgumentException if item is null
      */
     public static ItemRemovedEvent createRemovedEvent(Item item) {
@@ -333,9 +319,7 @@ public class ItemEventFactory extends AbstractEventFactory {
      *
      * @param item the item
      * @param oldItem the old item
-     *
      * @return the created item updated event
-     *
      * @throws IllegalArgumentException if item or oldItem is null
      */
     public static ItemUpdatedEvent createUpdateEvent(Item item, Item oldItem) {

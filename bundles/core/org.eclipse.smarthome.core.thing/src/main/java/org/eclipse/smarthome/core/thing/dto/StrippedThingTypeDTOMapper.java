@@ -28,8 +28,7 @@ public class StrippedThingTypeDTOMapper {
     /**
      * Maps thing type into stripped thing type data transfer object.
      *
-     * @param thingType
-     *            the thing type to be mapped
+     * @param thingType the thing type to be mapped
      * @return the stripped thing type DTO object
      */
     public static StrippedThingTypeDTO map(ThingType thingType, Locale locale) {
