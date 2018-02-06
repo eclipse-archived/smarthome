@@ -14,7 +14,7 @@ package org.eclipse.smarthome.core.persistence;
 
 import java.util.Date;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.types.State;
 
@@ -26,6 +26,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author Chris Jackson - Initial implementation and API
  *
  */
+@NonNullByDefault
 public interface ModifiablePersistenceService extends QueryablePersistenceService {
     /**
      * <p>
@@ -44,7 +45,7 @@ public interface ModifiablePersistenceService extends QueryablePersistenceServic
      * @param date the date of the record
      * @param state the state to be recorded
      */
-    void store(@NonNull Item item, @NonNull Date date, @NonNull State state);
+    void store(Item item, Date date, State state);
 
     /**
      * Removes data associated with an item from a persistence service.
@@ -55,5 +56,5 @@ public interface ModifiablePersistenceService extends QueryablePersistenceServic
      * @return true if the query executed successfully
      * @throws {@link IllegalArgumentException} if item name is null.
      */
-    boolean remove(@NonNull FilterCriteria filter) throws IllegalArgumentException;
+    boolean remove(FilterCriteria filter) throws IllegalArgumentException;
 }

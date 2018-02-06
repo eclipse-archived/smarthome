@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -48,7 +47,7 @@ public class MissingServiceAnalyzer {
     }
 
     public <T> void printMissingServiceDetails(Class<T> clazz) {
-        ServiceReference<@NonNull ServiceComponentRuntime> scrReference = bundleContext
+        ServiceReference<ServiceComponentRuntime> scrReference = bundleContext
                 .getServiceReference(ServiceComponentRuntime.class);
         if (scrReference != null) {
             ServiceComponentRuntime scr = bundleContext.getService(scrReference);

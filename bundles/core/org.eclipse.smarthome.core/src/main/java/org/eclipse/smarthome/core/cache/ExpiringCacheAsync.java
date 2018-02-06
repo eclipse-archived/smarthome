@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
@@ -28,12 +28,12 @@ import org.eclipse.jdt.annotation.Nullable;
  *
  * @param <V> the type of the cached value
  */
+@NonNullByDefault
 public class ExpiringCacheAsync<V> {
     protected final long expiry;
     protected long expiresAt = 0;
-    protected CompletableFuture<V> currentNewValueRequest = null;
-    @Nullable
-    protected V value;
+    protected @Nullable CompletableFuture<V> currentNewValueRequest = null;
+    protected @Nullable V value;
 
     /**
      * Create a new instance.
@@ -58,7 +58,7 @@ public class ExpiringCacheAsync<V> {
      *         `getValue().get()`.
      */
     @SuppressWarnings("null")
-    public CompletableFuture<V> getValue(@NonNull Supplier<CompletableFuture<V>> requestNewValueFuture) {
+    public CompletableFuture<V> getValue(Supplier<CompletableFuture<V>> requestNewValueFuture) {
         if (isExpired()) {
             return refreshValue(requestNewValueFuture);
         } else {
@@ -90,8 +90,7 @@ public class ExpiringCacheAsync<V> {
      *            if there is already an ongoing refresh.
      * @return the new value in form of a CompletableFuture.
      */
-    public synchronized @NonNull CompletableFuture<V> refreshValue(
-            @NonNull Supplier<CompletableFuture<V>> requestNewValueFuture) {
+    public synchronized CompletableFuture<V> refreshValue(Supplier<CompletableFuture<V>> requestNewValueFuture) {
         expiresAt = 0;
         // There is already an ongoing refresh, just return that future
         if (currentNewValueRequest != null) {
@@ -110,7 +109,7 @@ public class ExpiringCacheAsync<V> {
             expiresAt = getCurrentNanoTime() + expiry;
             return value;
         });
-        // The @NonNull annotation forces us to check the return value of thenApply.
+        // The @NonNullbyDefault annotation forces us to check the return value of thenApply.
         if (t == null) {
             throw new IllegalArgumentException("We expect a CompletableFuture for refreshValue() to work!");
         }
@@ -130,8 +129,7 @@ public class ExpiringCacheAsync<V> {
      * Return the raw value, no matter if it is already
      * expired or still valid.
      */
-    @Nullable
-    public V getLastKnownValue() {
+    public @Nullable V getLastKnownValue() {
         return value;
     }
 }
