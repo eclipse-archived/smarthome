@@ -15,6 +15,9 @@ package org.eclipse.smarthome.core.items;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * An {@link ActiveItem} can be modified. It provides methods for adding and
  * removing tags, adding and removing group names and setting a label and a
@@ -22,6 +25,7 @@ import java.util.List;
  *
  * @author Dennis Nobel - Initial contribution
  */
+@NonNullByDefault
 public interface ActiveItem extends Item {
 
     /**
@@ -30,7 +34,7 @@ public interface ActiveItem extends Item {
      * @param label
      *            label (can be null)
      */
-    void setLabel(String label);
+    void setLabel(@Nullable String label);
 
     /**
      * Sets the category of the item (can be null)
@@ -38,7 +42,7 @@ public interface ActiveItem extends Item {
      * @param category
      *            category
      */
-    void setCategory(String category);
+    void setCategory(@Nullable String category);
 
     /**
      * Adds a tag to the item.
