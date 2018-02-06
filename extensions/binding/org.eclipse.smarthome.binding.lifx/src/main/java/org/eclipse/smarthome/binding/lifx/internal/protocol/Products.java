@@ -24,29 +24,34 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  */
 public enum Products {
 
-    OR1000(1, 1, "Original 1000", true, false, false),
-    C650(1, 3, "Color 650", true, false, false),
-    W800LV(1, 10, "White 800 (Low Voltage)", false, false, false),
-    W800HV(1, 11, "White 800 (High Voltage)", false, false, false),
-    W900LV(1, 18, "White 900 BR30 (Low Voltage)", false, false, false),
-    C1000BR30(1, 20, "Color 1000 BR30", true, false, false),
-    C1000(1, 22, "Color 1000", true, false, false),
-    LA19_1(1, 27, "LIFX A19", true, false, false),
-    LBR30_1(1, 28, "LIFX BR30", true, false, false),
-    LPA19_1(1, 29, "LIFX+ A19", true, true, false),
-    LPBR30_1(1, 30, "LIFX+ BR30", true, true, false),
-    LZ_1(1, 31, "LIFX Z", true, false, true),
-    LZ_2(1, 32, "LIFX Z 2", true, false, true),
-    LDL_1(1, 36, "LIFX Downlight", true, false, false),
-    LDL_2(1, 37, "LIFX Downlight", true, false, false),
-    LA19_2(1, 43, "LIFX A19", true, false, false),
-    LBR30_2(1, 44, "LIFX BR30", true, false, false),
-    LPA19_2(1, 45, "LIFX+ A19", true, true, false),
-    LPBR30_2(1, 46, "LIFX+ BR30", true, true, false),
-    LM(1, 49, "LIFX Mini", true, false, false),
-    LMDD(1, 50, "LIFX Mini Day and Dusk", false, false, false),
-    LMW(1, 51, "LIFX Mini White", false, false, false),
-    LGU10(1, 52, "LIFX GU10", true, false, false);
+    OR1000(1, 1, "Original 1000", true, false, false, false),
+    C650(1, 3, "Color 650", true, false, false, false),
+    W800LV(1, 10, "White 800 (Low Voltage)", false, false, false, false),
+    W800HV(1, 11, "White 800 (High Voltage)", false, false, false, false),
+    W900LV(1, 18, "White 900 BR30 (Low Voltage)", false, false, false, false),
+    C1000BR30(1, 20, "Color 1000 BR30", true, false, false, false),
+    C1000(1, 22, "Color 1000", true, false, false, false),
+    LA19_1(1, 27, "LIFX A19", true, false, false, false),
+    LBR30_1(1, 28, "LIFX BR30", true, false, false, false),
+    LPA19_1(1, 29, "LIFX+ A19", true, true, false, false),
+    LPBR30_1(1, 30, "LIFX+ BR30", true, true, false, false),
+    LZ_1(1, 31, "LIFX Z", true, false, true, false),
+    LZ_2(1, 32, "LIFX Z 2", true, false, true, false),
+    LDL_1(1, 36, "LIFX Downlight", true, false, false, false),
+    LDL_2(1, 37, "LIFX Downlight", true, false, false, false),
+    LA19_2(1, 43, "LIFX A19", true, false, false, false),
+    LBR30_2(1, 44, "LIFX BR30", true, false, false, false),
+    LPA19_2(1, 45, "LIFX+ A19", true, true, false, false),
+    LPBR30_2(1, 46, "LIFX+ BR30", true, true, false, false),
+    LM(1, 49, "LIFX Mini", true, false, false, false),
+    LMDD(1, 50, "LIFX Mini Day and Dusk", false, false, false, false),
+    LMW(1, 51, "LIFX Mini White", false, false, false, false),
+    LGU10(1, 52, "LIFX GU10", true, false, false, false),
+    LT(1, 55, "LIFX Tile", true, false, false, true),
+    LB(1, 56, "LIFX Beam", true, false, true, false),
+    LMC(1, 59, "LIFX Mini Color", true, false, false, false),
+    LMDD_2(1, 60, "LIFX Mini Day and Dusk", false, false, false, false),
+    LMW_2(1, 61, "LIFX Mini White", false, false, false, false);
 
     private final long vendorID;
     private final long productID;
@@ -54,14 +59,17 @@ public enum Products {
     private final boolean color;
     private boolean infrared;
     private boolean multiZone;
+    private boolean chain;
 
-    private Products(int vendorID, int productID, String name, boolean color, boolean infrared, boolean multiZone) {
+    private Products(int vendorID, int productID, String name, boolean color, boolean infrared, boolean multiZone,
+            boolean chain) {
         this.vendorID = vendorID;
         this.productID = productID;
         this.name = name;
         this.color = color;
         this.infrared = infrared;
         this.multiZone = multiZone;
+        this.chain = chain;
     }
 
     @Override
@@ -109,6 +117,10 @@ public enum Products {
 
     public boolean isMultiZone() {
         return multiZone;
+    }
+
+    public boolean isChain() {
+        return chain;
     }
 
     /**
