@@ -57,10 +57,8 @@ public final class ConfigStatusService implements ConfigStatusCallback {
      *            be null or empty)
      * @param locale the locale to be used for the corresponding configuration status messages; if null then the
      *            default local will be used
-     *
      * @return the {@link ConfigStatusInfo} or null if there is no {@link ConfigStatusProvider} registered that
      *         supports the given entity
-     *
      * @throws IllegalArgumentException if given entityId is null or empty
      */
     public ConfigStatusInfo getConfigStatus(String entityId, final Locale locale) {

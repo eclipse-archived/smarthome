@@ -61,7 +61,6 @@ public final class ConfigStatusInfo {
      * Retrieves all configuration status messages that have one of the given types.
      *
      * @param types the types to be filtered for; if empty then all messages are delivered
-     *
      * @return an unmodifiable collection of the corresponding configuration status messages
      */
     public Collection<ConfigStatusMessage> getConfigStatusMessages(Type... types) {
@@ -73,7 +72,6 @@ public final class ConfigStatusInfo {
      * Retrieves all configuration status messages that have one of the given parameter names.
      *
      * @param parameterNames the parameter names to be filtered for; if empty then all messages are delivered
-     *
      * @return an unmodifiable collection of the corresponding configuration status messages
      */
     public Collection<ConfigStatusMessage> getConfigStatusMessages(String... parameterNames) {
@@ -87,9 +85,7 @@ public final class ConfigStatusInfo {
      *
      * @param types the types to be filtered for (must not be null)
      * @param parameterNames the parameter names to be filtered for (must not be null)
-     *
      * @return an unmodifiable collection of the corresponding configuration status messages
-     *
      * @throws NullPointerException if one of types or parameter names collection is empty
      */
     public Collection<ConfigStatusMessage> getConfigStatusMessages(final Collection<Type> types,
@@ -105,7 +101,6 @@ public final class ConfigStatusInfo {
      * Adds the given {@link ConfigStatusMessage}.
      *
      * @param configStatusMessage the configuration status message to be added
-     *
      * @throws IllegalArgumentException if given configuration status message is null
      */
     public void add(ConfigStatusMessage configStatusMessage) {
@@ -119,7 +114,6 @@ public final class ConfigStatusInfo {
      * Adds the given given {@link ConfigStatusMessage}s.
      *
      * @param configStatusMessages the configuration status messages to be added
-     *
      * @throws IllegalArgumentException if given collection is null
      */
     public void add(Collection<ConfigStatusMessage> configStatusMessages) {

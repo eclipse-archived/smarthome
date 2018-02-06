@@ -43,7 +43,6 @@ public interface ConfigStatusProvider {
      * given entity.
      *
      * @param entityId the id of the entity whose configuration status information is to be provided
-     *
      * @return true, if the {@link ConfigStatusProvider} instance supports the given entity, otherwise false
      */
     boolean supportsEntity(String entityId);

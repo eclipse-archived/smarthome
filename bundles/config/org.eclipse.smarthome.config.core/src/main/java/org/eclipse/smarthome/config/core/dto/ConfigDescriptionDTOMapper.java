@@ -97,7 +97,6 @@ public class ConfigDescriptionDTOMapper {
      * Maps configuration description parameters into DTO objects.
      *
      * @param parameters the configuration description parameters (not null)
-     *
      * @return the parameter DTO objects (not null)
      */
     public static List<ConfigDescriptionParameterDTO> mapParameters(List<ConfigDescriptionParameter> parameters) {
@@ -127,7 +126,6 @@ public class ConfigDescriptionDTOMapper {
      * Maps configuration description parameter groups into DTO objects.
      *
      * @param parameterGroups the configuration description parameter groups (not null)
-     *
      * @return the parameter group DTO objects (not null)
      */
     public static List<ConfigDescriptionParameterGroupDTO> mapParameterGroups(
