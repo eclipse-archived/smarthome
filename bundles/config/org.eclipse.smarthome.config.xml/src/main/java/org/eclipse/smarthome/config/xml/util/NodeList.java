@@ -40,7 +40,6 @@ public class NodeList implements NodeName {
      * @param nodeName the name of the node this object belongs to (must neither be null, nor empty)
      * @param attributes all attributes of the node this object belongs to (could be null or empty)
      * @param list the list of the node this object belongs to (could be null or empty)
-     *
      * @throws IllegalArgumentException if the name of the node is null or empty
      */
     public NodeList(String nodeName, Map<String, String> attributes, List<?> list) throws IllegalArgumentException {
@@ -94,10 +93,8 @@ public class NodeList implements NodeName {
      * @param attributeName the attribute name to be considered (must neither be null, nor empty)
      * @param formattedText the format for the output text using the placeholder format
      *            of the Java String (could be null or empty)
-     *
      * @return the attributes of the specified XML node and attribute name for the whole list
      *         (could be null or empty)
-     *
      * @throws ConversionException if the attribute could not be found in the specified node
      */
     @SuppressWarnings("unchecked")

@@ -43,8 +43,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * "[%s]" for a string or "[%.3f]" for a decimal, this is replaced by the
      * current value of the item and padded by a "<span>" element.
      *
-     * @param w
-     *            the widget to retrieve the label for
+     * @param w the widget to retrieve the label for
      * @return the label to use for the widget
      */
     public String getLabel(@NonNull Widget w);
@@ -56,8 +55,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * checks all item UI providers for a category. If no category can be found, the
      * default category is the widget type name, e.g. "switch".
      *
-     * @param w
-     *            the widget to retrieve the category for
+     * @param w the widget to retrieve the category for
      * @return the category to use for the widget
      */
     public String getCategory(@NonNull Widget w);
@@ -65,8 +63,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
     /**
      * Retrieves the current state of the item of a widget or <code>UnDefType.UNDEF</code>.
      *
-     * @param w
-     *            the widget to retrieve the item state for
+     * @param w the widget to retrieve the item state for
      * @return the item state of the widget
      */
     public State getState(@NonNull Widget w);
@@ -74,10 +71,8 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
     /**
      * Retrieves the widget for a given id on a given sitemap.
      *
-     * @param sitemap
-     *            the sitemap to look for the widget
-     * @param id
-     *            the id of the widget to look for
+     * @param sitemap the sitemap to look for the widget
+     * @param id the id of the widget to look for
      * @return the widget for the given id
      */
     public Widget getWidget(@NonNull Sitemap sitemap, @NonNull String id);
@@ -91,8 +86,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * and not available in the sitemap, the name of its associated item is used
      * instead.
      *
-     * @param w
-     *            the widget to get the id for
+     * @param w the widget to get the id for
      * @return an id for this widget
      */
     public String getWidgetId(@NonNull Widget w);
@@ -101,8 +95,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * this should be used instead of Sitemap.getChildren() as the default
      * widgets have to be resolved to a concrete widget type.
      *
-     * @param w
-     *            the sitemap to retrieve the children for
+     * @param w the sitemap to retrieve the children for
      * @return the children of the sitemap
      */
     public EList<Widget> getChildren(@NonNull Sitemap sitemap);
@@ -112,8 +105,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * might be no children defined on the widget, but they should be
      * dynamically determined by looking at the members of the underlying item.
      *
-     * @param w
-     *            the widget to retrieve the children for
+     * @param w the widget to retrieve the children for
      * @return the (dynamically or statically defined) children of the widget
      */
     public EList<Widget> getChildren(@NonNull LinkableWidget w);
@@ -122,8 +114,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * this should be used instead of Widget.eContainer() as as the concrete
      * widgets created from default widgets have no parent.
      *
-     * @param w
-     *            the widget to retrieve the parent for
+     * @param w the widget to retrieve the parent for
      * @return the parent of the widget
      */
     public EObject getParent(@NonNull Widget w);
@@ -132,8 +123,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * Gets the label color for the widget. Checks conditional statements to
      * find the color based on the item value
      *
-     * @param w
-     *            Widget
+     * @param w Widget
      * @return String with the color
      */
     public String getLabelColor(@NonNull Widget w);
@@ -142,8 +132,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * Gets the value color for the widget. Checks conditional statements to
      * find the color based on the item value
      *
-     * @param w
-     *            Widget
+     * @param w Widget
      * @return String with the color
      */
     public String getValueColor(@NonNull Widget w);
@@ -151,8 +140,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
     /**
      * Gets the widget visibility based on the item state
      *
-     * @param w
-     *            Widget
+     * @param w Widget
      * @return true if the item is visible
      */
     public boolean getVisiblity(@NonNull Widget w);
@@ -160,8 +148,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
     /**
      * Gets the item state
      *
-     * @param itemName
-     *            item name
+     * @param itemName item name
      * @return State of the item
      */
     public State getItemState(@NonNull String itemName);

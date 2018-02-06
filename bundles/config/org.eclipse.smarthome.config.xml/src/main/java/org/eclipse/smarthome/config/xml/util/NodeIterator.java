@@ -95,10 +95,8 @@ public class NodeIterator implements Iterator<Object> {
      *
      * @param nodeName the name of the node to be read next (must neither be null, nor empty)
      * @param required true if the occurrence of the node has to be ensured
-     *
      * @return the next object if the specified name of the node fits to the next node,
      *         otherwise null
-     *
      * @throws ConversionException if the specified node could not be found in the next node
      *             however it was specified as required
      */
@@ -131,15 +129,11 @@ public class NodeIterator implements Iterator<Object> {
      * The next node must be of the type {@link NodeAttributes}.
      *
      * @param nodeName the name of the node to be read next (must neither be null, nor empty)
-     *
      * @param attributeName the name of the attribute of the node to be read next
      *            (must neither be null, nor empty)
-     *
      * @param required true if the occurrence of the node's attribute has to be ensured
-     *
      * @return the next attribute of the specified name of the node and attribute
      *         (could be null or empty)
-     *
      * @throws ConversionException if the specified node's attribute could not be found in the
      *             next node however it was specified as required
      */
@@ -174,9 +168,7 @@ public class NodeIterator implements Iterator<Object> {
      *
      * @param nodeName the name of the node to be read next (must neither be null, nor empty)
      * @param required true if the occurrence of the node's value has to be ensured
-     *
      * @return the next value of the specified name of the node (could be null or empty)
-     *
      * @throws ConversionException if the specified node's value could not be found in the
      *             next node however it was specified as required
      */
@@ -199,9 +191,7 @@ public class NodeIterator implements Iterator<Object> {
      *
      * @param nodeName the name of the node to be read next (must neither be null, nor empty)
      * @param required true if the occurrence of the node's list of values has to be ensured
-     *
      * @return the next list of values of the specified name of the node (could be null or empty)
-     *
      * @throws ConversionException if the specified node's list of values could not be found
      *             in the next node however it was specified as required
      */

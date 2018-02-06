@@ -334,7 +334,6 @@ public class NetUtil implements NetworkAddressService {
      * @param ipAddressString ipv4 address of the device (i.e. 192.168.5.1)
      * @param netMask netmask in bits (i.e. 24)
      * @return network a device is in (i.e. 192.168.5.0)
-     *
      * @throws IllegalArgumentException if parameters are wrong
      */
     public static String getIpv4NetAddress(String ipAddressString, short netMask) {
@@ -372,7 +371,6 @@ public class NetUtil implements NetworkAddressService {
      * @param ipAddressString ipv4 address of the device (i.e. 192.168.5.1)
      * @param prefix network prefix in bits (i.e. 24)
      * @return network broadcast address of the network the device is in (i.e. 192.168.5.255)
-     *
      * @throws IllegalArgumentException if parameters are wrong
      */
     public static String getIpv4NetBroadcastAddress(String ipAddressString, short prefix) {

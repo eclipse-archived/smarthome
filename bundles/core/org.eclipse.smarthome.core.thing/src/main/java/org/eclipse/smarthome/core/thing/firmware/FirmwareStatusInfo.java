@@ -75,9 +75,7 @@ public final class FirmwareStatusInfo {
      * given {@link FirmwareUID} represents the UID of the latest updatable firmware for the thing.
      *
      * @param updatableFirmwareUID the UID of the latest updatable firmware for the thing (must not be null)
-     *
      * @return the firmware status info (not null)
-     *
      * @throws NullPointerException if given firmware UID is null
      */
     static FirmwareStatusInfo createUpdateExecutableInfo(FirmwareUID updatableFirmwareUID) {

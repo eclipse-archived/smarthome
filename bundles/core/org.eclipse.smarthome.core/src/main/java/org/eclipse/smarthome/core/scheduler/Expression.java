@@ -63,8 +63,8 @@ public interface Expression {
      * Sets the time zone for which this <code>Expression</code> will be resolved.
      *
      * @param timeZone time zone to set
-     * @throws ParseException - when the expression can not be parsed correctly after setting the time zone
-     * @throws IllegalArgumentException - when the supplied timeZone is null
+     * @throws ParseException when the expression can not be parsed correctly after setting the time zone
+     * @throws IllegalArgumentException when the supplied timeZone is null
      */
     void setTimeZone(TimeZone timeZone) throws IllegalArgumentException, ParseException;
 

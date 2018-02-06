@@ -44,8 +44,8 @@ interface ExpressionPart extends Comparable<ExpressionPart> {
      * Apply the expression part to the set of given candidates. Expression parts can either modify the candidates,
      * expand the list of candidates, or reduce the list of candidates
      *
-     * @param startDate - the start date to take into consideration when applying the expression part
-     * @param candidates - the list of candidates
+     * @param startDate the start date to take into consideration when applying the expression part
+     * @param candidates the list of candidates
      * @return a list of candidates post application of the expression part
      */
     public List<Date> apply(Date startDate, List<Date> candidates);

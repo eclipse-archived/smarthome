@@ -47,7 +47,6 @@ public interface ProgressCallback {
      *
      * @param sequence the progress steps describing the sequence of the firmware update process (must not be null
      *            or empty)
-     *
      * @throws IllegalArgumentException if given sequence is null or empty
      */
     void defineSequence(ProgressStep... sequence);
@@ -73,7 +72,6 @@ public interface ProgressCallback {
      *
      * @param errorMessageKey the key of the error message to be internationalized (must not be null or empty)
      * @param arguments the arguments to be injected into the internationalized error message (can be null)
-     *
      * @throws IllegalArgumentException if given error message key is null or empty
      * @throws IllegalStateException if update is already finished
      */
@@ -106,7 +104,6 @@ public interface ProgressCallback {
      * previous defined sequence.
      * 
      * @param progress the progress between 0 and 100
-     * 
      * @throws IllegalArgumentException if given progress is < 0 or > 100
      * @throws IllegalArgumentException if given progress is smaller than old progress
      * @throws IllegalStateException if update is finished

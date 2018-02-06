@@ -140,8 +140,7 @@ public abstract class AbstractManagedProvider<E extends Identifiable<K>, K, PE> 
     /**
      * Transforms the key into a string representation.
      *
-     * @param key
-     *            key
+     * @param key key
      * @return string representation of the key
      */
     protected abstract @NonNull String keyToString(@NonNull K key);
@@ -164,8 +163,7 @@ public abstract class AbstractManagedProvider<E extends Identifiable<K>, K, PE> 
      * Converts the persistable element into the original element.
      *
      * @param key key
-     * @param persistableElement
-     *            persistable element
+     * @param persistableElement persistable element
      * @return original element
      */
     protected abstract E toElement(@NonNull String key, @NonNull PE persistableElement);
@@ -173,8 +171,7 @@ public abstract class AbstractManagedProvider<E extends Identifiable<K>, K, PE> 
     /**
      * Converts the original element into an element that can be persisted.
      *
-     * @param element
-     *            original element
+     * @param element original element
      * @return persistable element
      */
     protected abstract PE toPersistableElement(E element);

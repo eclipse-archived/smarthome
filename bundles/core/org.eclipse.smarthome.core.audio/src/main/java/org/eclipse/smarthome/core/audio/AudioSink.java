@@ -55,7 +55,6 @@ public interface AudioSink {
      * as a request to end any currently playing stream.
      *
      * @param audioStream the audio stream to play or null to keep quiet
-     *
      * @throws UnsupportedAudioFormatException If audioStream format is not supported
      * @throws UnsupportedAudioStreamException If audioStream is not supported
      */
