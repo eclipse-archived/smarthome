@@ -454,8 +454,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
      * </ul>
      * This method also cancels any previously scheduled restoration.
      *
-     * @param command
-     *            The {@link Command} sent to the item
+     * @param command The {@link Command} sent to the item
      */
     private void scheduleAlertStateRestore(Command command) {
         cancelScheduledFuture();
@@ -482,8 +481,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
      * This method returns the time in <strong>milliseconds</strong> after
      * which, the state of the alert item has to be restored to {@link LightStateConverter#ALERT_MODE_NONE}.
      *
-     * @param command
-     *            The initial command sent to the alert item.
+     * @param command The initial command sent to the alert item.
      * @return Based on the initial command will return:
      *         <ul>
      *         <li><strong>2000</strong> for {@link LightStateConverter#ALERT_MODE_SELECT}.

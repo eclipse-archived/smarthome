@@ -49,7 +49,6 @@ public final class ConfigValidationException extends RuntimeException {
      *
      * @param bundle the bundle from which this exception is thrown
      * @param configValidationMessages the configuration description validation messages
-     *
      * @throws NullPointException if given bundle or configuration description validation messages are null
      */
     public ConfigValidationException(Bundle bundle, TranslationProvider translationProvider,
@@ -85,7 +84,6 @@ public final class ConfigValidationException extends RuntimeException {
      * using {@link ConfigValidationException#getValidationMessages()}.
      *
      * @param locale the locale to be used; if null then the default locale will be used
-     *
      * @return an immutable map of internationalized validation messages having affected configuration parameter name as
      *         key and the internationalized message as value (in case of there was no text found to be
      *         internationalized then the default message (cp. {@link ConfigValidationMessage#defaultMessage}) is

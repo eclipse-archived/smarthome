@@ -82,20 +82,12 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
     /**
      * Creates a new instance of this class with the specified parameters.
      *
-     * @param supportedThingTypes
-     *            the list of Thing types which are supported (can be null)
-     *
-     * @param timeout
-     *            the discovery timeout in seconds after which the discovery
-     *            service automatically stops its forced discovery process (>=
-     *            0).
-     *
-     * @param backgroundDiscoveryEnabledByDefault
-     *            defines, whether the default for this discovery service is to
+     * @param supportedThingTypes the list of Thing types which are supported (can be null)
+     * @param timeout the discovery timeout in seconds after which the discovery
+     *            service automatically stops its forced discovery process (>= 0).
+     * @param backgroundDiscoveryEnabledByDefault defines, whether the default for this discovery service is to
      *            enable background discovery or not.
-     *
-     * @throws IllegalArgumentException
-     *             if the timeout < 0
+     * @throws IllegalArgumentException if the timeout < 0
      */
     public AbstractDiscoveryService(@Nullable Set<ThingTypeUID> supportedThingTypes, int timeout,
             boolean backgroundDiscoveryEnabledByDefault) throws IllegalArgumentException {
@@ -119,10 +111,8 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      * Creates a new instance of this class with the specified parameters.
      *
      * @param supportedThingTypes the list of Thing types which are supported (can be null)
-     *
      * @param timeout the discovery timeout in seconds after which the discovery service
      *            automatically stops its forced discovery process (>= 0).
-     *
      * @throws IllegalArgumentException if the timeout < 0
      */
     public AbstractDiscoveryService(@Nullable Set<ThingTypeUID> supportedThingTypes, int timeout)
@@ -135,7 +125,6 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      *
      * @param timeout the discovery timeout in seconds after which the discovery service
      *            automatically stops its forced discovery process (>= 0).
-     *
      * @throws IllegalArgumentException if the timeout < 0
      */
     public AbstractDiscoveryService(int timeout) throws IllegalArgumentException {
@@ -268,8 +257,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
     /**
      * Notifies the registered {@link DiscoveryListener}s about a discovered device.
      *
-     * @param discoveryResult
-     *            Holds the information needed to identify the discovered device.
+     * @param discoveryResult Holds the information needed to identify the discovered device.
      */
     protected void thingDiscovered(DiscoveryResult discoveryResult) {
         if (this.i18nProvider != null && this.localeProvider != null) {
@@ -302,8 +290,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
     /**
      * Notifies the registered {@link DiscoveryListener}s about a removed device.
      *
-     * @param thingUID
-     *            The UID of the removed thing.
+     * @param thingUID The UID of the removed thing.
      */
     protected void thingRemoved(ThingUID thingUID) {
         for (DiscoveryListener discoveryListener : discoveryListeners) {
@@ -325,8 +312,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      * full scan, this method could be called {@link #getTimestampOfLastScan()}
      * as timestamp.
      *
-     * @param timestamp
-     *            timestamp, older results will be removed
+     * @param timestamp timestamp, older results will be removed
      */
     protected void removeOlderResults(long timestamp) {
         removeOlderResults(timestamp, null, null);
@@ -338,10 +324,8 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      * full scan, this method could be called {@link #getTimestampOfLastScan()}
      * as timestamp.
      *
-     * @param timestamp
-     *            timestamp, older results will be removed
-     * @param bridgeUID
-     *            if not {@code null} only results of that bridge are being removed
+     * @param timestamp timestamp, older results will be removed
+     * @param bridgeUID if not {@code null} only results of that bridge are being removed
      */
     protected void removeOlderResults(long timestamp, @Nullable ThingUID bridgeUID) {
         removeOlderResults(timestamp, null, bridgeUID);
@@ -352,15 +336,12 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      * given timestamp. To remove all left over results after a full scan, this
      * method could be called {@link #getTimestampOfLastScan()} as timestamp.
      *
-     * @param timestamp
-     *            timestamp, older results will be removed
-     * @param thingTypeUIDs
-     *            collection of {@code ThingType}s, only results of these
+     * @param timestamp timestamp, older results will be removed
+     * @param thingTypeUIDs collection of {@code ThingType}s, only results of these
      *            {@code ThingType}s will be removed; if {@code null} then
      *            {@link DiscoveryService#getSupportedThingTypes()} will be used
      *            instead
-     * @param bridgeUID
-     *            if not {@code null} only results of that bridge are being removed
+     * @param bridgeUID if not {@code null} only results of that bridge are being removed
      */
     protected void removeOlderResults(long timestamp, @Nullable Collection<ThingTypeUID> thingTypeUIDs,
             @Nullable ThingUID bridgeUID) {
@@ -413,8 +394,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      * enabled, the method {@link AbstractDiscoveryService#stopBackgroundDiscovery()} is called. In
      * all other cases, nothing happens.
      *
-     * @param configProperties
-     *            configuration properties
+     * @param configProperties configuration properties
      */
     protected void modified(@Nullable Map<String, @Nullable Object> configProperties) {
         if (configProperties != null) {

@@ -35,7 +35,6 @@ public class RuleStatusInfo {
      * Constructs a status info.
      *
      * @param status the status (must not be null)
-     *
      * @throws IllegalArgumentException if status is null
      */
     public RuleStatusInfo(RuleStatus status) throws IllegalArgumentException {
@@ -47,7 +46,6 @@ public class RuleStatusInfo {
      *
      * @param status the status (must not be null)
      * @param statusDetail the detail of the status (must not be null)
-     *
      * @throws IllegalArgumentException if status or status detail is null
      */
     public RuleStatusInfo(RuleStatus status, RuleStatusDetail statusDetail) throws IllegalArgumentException {
@@ -60,7 +58,6 @@ public class RuleStatusInfo {
      * @param status the status (must not be null)
      * @param statusDetail the detail of the status (must not be null)
      * @param description the description of the status
-     *
      * @throws IllegalArgumentException if status or status detail is null
      */
     public RuleStatusInfo(RuleStatus status, RuleStatusDetail statusDetail, String description)
