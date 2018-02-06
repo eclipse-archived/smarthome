@@ -321,7 +321,7 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
             verify(handler3, times(1)).cancel();
         });
     }
-    
+
     @Test
     public void testCancelFirmwareUpdateIntheMiddleOfUpdate() {
         final long stepsTime = 10;
@@ -635,14 +635,16 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
             thing1.setProperty(Thing.PROPERTY_FIRMWARE_VERSION, firmware.getVersion());
             return null;
         }).when(handler1).updateFirmware(any(Firmware.class), any(ProgressCallback.class));
-
+        
+        //getFirmwareStatusInfo() method will internally generate and post one FirmwareStatusInfoEvent event.
         assertThat(firmwareUpdateService.getFirmwareStatusInfo(THING1_UID), is(updateExecutableInfoFw112));
         firmwareUpdateService.updateFirmware(THING1_UID, FW112_EN.getUID(), null);
 
         AtomicReference<List<Event>> events = new AtomicReference<>(new ArrayList<>());
         ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
         waitForAssert(() -> {
-            verify(mockPublisher, atLeast(SEQUENCE.length)).post(eventCaptor.capture());
+            //Wait for four FirmwareUpdateProgressInfoEvents plus one FirmwareStatusInfoEvent event.
+            verify(mockPublisher, atLeast(SEQUENCE.length + 1)).post(eventCaptor.capture());
         });
         events.get().addAll(eventCaptor.getAllValues());
         List<Event> list = events.get().stream().filter(event -> event instanceof FirmwareUpdateProgressInfoEvent)
@@ -723,8 +725,6 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
 
     @Test
     public void testIndependentHandlers() {
-        int expectedFirmwareUpdateHandlers = 3;
-
         FirmwareUpdateHandler firmwareUpdateHandler = mock(FirmwareUpdateHandler.class);
         when(firmwareUpdateHandler.getThing())
                 .thenReturn(ThingBuilder.create(THING_TYPE_UID3, UNKNOWN_THING_UID).build());
