@@ -32,7 +32,6 @@ import org.eclipse.smarthome.core.events.EventFilter
 import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.i18n.TranslationProvider
 import org.eclipse.smarthome.core.thing.Bridge
-import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
@@ -42,6 +41,7 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
@@ -366,7 +366,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         public void initialize() {
             ThingBuilder thingBuilder = editThing()
             thingBuilder.withChannels([
-                new Channel(new ChannelUID("bindingId:type:thingId:1"), "String")
+                ChannelBuilder.create(new ChannelUID("bindingId:type:thingId:1"), "String").build()
             ])
             updateThing(thingBuilder.build())
             updateStatus(ThingStatus.ONLINE)

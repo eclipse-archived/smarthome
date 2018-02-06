@@ -52,6 +52,7 @@ import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -792,7 +793,7 @@ public class FSInternetRadioHandlerJavaTest extends JavaTest {
     private Channel createChannel(ThingUID thingUID, String channelID, String acceptedItemType) {
         ChannelUID channelUID = new ChannelUID(thingUID, channelID);
 
-        Channel radioChannel = new Channel(channelUID, acceptedItemType);
+        Channel radioChannel = ChannelBuilder.create(channelUID, acceptedItemType).build();
         channels.add(radioChannel);
         return radioChannel;
     }

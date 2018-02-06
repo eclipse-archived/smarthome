@@ -30,6 +30,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.type.ChannelKind
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOParticipant
@@ -84,9 +85,7 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
         ThingUID thingUID = new ThingUID(thingTypeUID, TEST_THING_ID);
 
         ChannelUID channelUID = new ChannelUID(thingUID, channelID)
-        Channel channel = new Channel(channelUID, DEFAULT_CHANNEL_TYPE_UID, itemAcceptedType, ChannelKind.STATE,
-                null, Collections.emptySet(), null, "label", null);
-
+        Channel channel = ChannelBuilder.create(channelUID, itemAcceptedType).withType(DEFAULT_CHANNEL_TYPE_UID).withKind(ChannelKind.STATE).withLabel("label").build();
         ThingUID bridgeUID = new ThingUID(BRIDGE_TYPE_UID, WEMO_BRIDGE_ID);
 
         thing = ThingBuilder.create(thingTypeUID, thingUID)
