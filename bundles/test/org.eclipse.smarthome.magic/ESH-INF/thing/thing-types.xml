@@ -73,4 +73,12 @@
 		</config-description>
 	</thing-type>
 
+	<thing-type id="delayed-thing">
+        <label>Magic Delayed Online Thing</label>
+        <description>A thing that goes online after some time.</description>
+
+        <channels>
+            <channel id="switch" typeId="switch" />
+        </channels>
+    </thing-type>
 </thing:thing-descriptions>
