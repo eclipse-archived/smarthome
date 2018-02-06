@@ -36,8 +36,7 @@ public interface ThingRegistry extends Registry<Thing, ThingUID> {
     /**
      * Returns a thing for a given UID or null if no thing was found.
      *
-     * @param uid
-     *            thing UID
+     * @param uid thing UID
      * @return thing for a given UID or null if no thing was found
      */
     @Override
@@ -57,7 +56,6 @@ public interface ThingRegistry extends Registry<Thing, ThingUID> {
      *
      * @param thingUID thing UID
      * @param configurationParameters configuration parameters
-     *
      * @throws ConfigValidationException if one or more of the given configuration parameters do not match
      *             their declarations in the configuration description
      * @throws IllegalArgumentException if no thing with the given UID exists
@@ -96,16 +94,12 @@ public interface ThingRegistry extends Registry<Thing, ThingUID> {
     /**
      * Creates a thing based on the given configuration properties
      *
-     * @param thingTypeUID
-     *            thing type unique id
-     * @param thingUID
-     *            thing unique id which should be created. This id might be
+     * @param thingTypeUID thing type unique id
+     * @param thingUID thing unique id which should be created. This id might be
      *            null.
-     * @param bridge
-     *            the thing's bridge. Null if there is no bridge or if the thing
+     * @param bridge the thing's bridge. Null if there is no bridge or if the thing
      *            is a bridge by itself.
-     * @param configuration
-     *            the configuration
+     * @param configuration the configuration
      * @return the created thing
      */
     Thing createThingOfType(@NonNull ThingTypeUID thingTypeUID, ThingUID thingUIDObject, ThingUID bridgeUID,

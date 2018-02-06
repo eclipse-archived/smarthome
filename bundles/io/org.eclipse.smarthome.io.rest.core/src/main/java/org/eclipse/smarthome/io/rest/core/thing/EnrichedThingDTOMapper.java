@@ -41,7 +41,6 @@ public class EnrichedThingDTOMapper extends ThingDTOMapper {
      * @param firmwareStatus the firmwareStatus to be used for the enriched object
      * @param linkedItemsMap the map of linked items to be injected into the enriched object
      * @param editable true if this thing can be edited
-     *
      * @return the enriched thing DTO object
      */
     public static EnrichedThingDTO map(Thing thing, ThingStatusInfo thingStatusInfo, FirmwareStatusDTO firmwareStatus,

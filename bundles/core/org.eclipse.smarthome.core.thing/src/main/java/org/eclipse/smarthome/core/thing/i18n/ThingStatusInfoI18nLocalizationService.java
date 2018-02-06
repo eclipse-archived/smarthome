@@ -63,7 +63,6 @@ public final class ThingStatusInfoI18nLocalizationService {
      *         <li>there is nothing to be localized</li>
      *         <li>the thing does not have a handler</li>
      *         </ul>
-     *
      * @throws IllegalArgumentException if given thing is null
      */
     public ThingStatusInfo getLocalizedThingStatusInfo(Thing thing, Locale locale) {

@@ -40,8 +40,7 @@ public abstract class UID {
      * Parses a UID for a given string. The UID must be in the format
      * 'bindingId:segment:segment:...'.
      *
-     * @param uid
-     *            uid in form a string (must not be null)
+     * @param uid uid in form a string (must not be null)
      */
     public UID(String uid) {
         this(splitToSegments(uid));
@@ -57,8 +56,7 @@ public abstract class UID {
     /**
      * Creates a UID for list of segments.
      *
-     * @param segments
-     *            segments (must not be null)
+     * @param segments segments (must not be null)
      */
     public UID(String... segments) {
         if (segments == null) {

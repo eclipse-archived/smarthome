@@ -63,8 +63,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
      * Initializes the {@link BaseThingHandlerFactory}. If this method is overridden by a sub class, the implementing
      * method must call <code>super.activate(componentContext)</code> first.
      *
-     * @param componentContext
-     *            component context (must not be null)
+     * @param componentContext component context (must not be null)
      */
     protected void activate(ComponentContext componentContext) {
         this.bundleContext = componentContext.getBundleContext();
@@ -79,8 +78,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
      * Disposes the {@link BaseThingHandlerFactory}. If this method is overridden by a sub class, the implementing
      * method must call <code>super.deactivate(componentContext)</code> first.
      *
-     * @param componentContext
-     *            component context (must not be null)
+     * @param componentContext component context (must not be null)
      */
     protected void deactivate(ComponentContext componentContext) {
         for (ServiceRegistration<ConfigStatusProvider> serviceRegistration : configStatusProviders.values()) {
@@ -190,8 +188,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
      * implementing caller can override this method to release specific
      * resources.
      *
-     * @param thingHandler
-     *            thing handler to be removed
+     * @param thingHandler thing handler to be removed
      */
     protected void removeHandler(ThingHandler thingHandler) {
         // can be overridden
@@ -245,12 +242,9 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
     /**
      * Creates a thing based on given thing type uid.
      *
-     * @param thingTypeUID
-     *            thing type uid (can not be null)
-     * @param configuration
-     *            (can not be null)
-     * @param thingUID
-     *            thingUID (can not be null)
+     * @param thingTypeUID thing type uid (can not be null)
+     * @param configuration (can not be null)
+     * @param thingUID thingUID (can not be null)
      * @return thing (can be null, if thing type is unknown)
      */
     protected @Nullable Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID) {
@@ -260,14 +254,10 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
     /**
      * Creates a thing based on given thing type uid.
      *
-     * @param thingTypeUID
-     *            thing type uid (must not be null)
-     * @param thingUID
-     *            thingUID (can be null)
-     * @param configuration
-     *            (must not be null)
-     * @param bridgeUID
-     *            (can be null)
+     * @param thingTypeUID thing type uid (must not be null)
+     * @param thingUID thingUID (can be null)
+     * @param configuration (must not be null)
+     * @param bridgeUID (can be null)
      * @return thing (can be null, if thing type is unknown)
      */
     @Override

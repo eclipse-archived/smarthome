@@ -69,9 +69,7 @@ public abstract class AbstractEventFactory implements EventFactory {
      * @param topic the topic
      * @param payload the payload
      * @param source the source, can be null
-     *
      * @return the created event instance
-     *
      * @throws Exception if the creation of the event fails
      */
     protected abstract Event createEventByType(String eventType, String topic, String payload, String source)
@@ -81,7 +79,6 @@ public abstract class AbstractEventFactory implements EventFactory {
      * Serializes the payload object into its equivalent Json representation.
      *
      * @param payloadObject the payload object to serialize
-     *
      * @return a serialized Json representation
      */
     protected static String serializePayload(Object payloadObject) {
@@ -104,7 +101,6 @@ public abstract class AbstractEventFactory implements EventFactory {
      * Gets the elements of the topic (splitted by '/').
      *
      * @param topic the topic
-     *
      * @return the topic elements
      */
     protected String[] getTopicElements(String topic) {

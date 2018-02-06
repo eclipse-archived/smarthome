@@ -53,7 +53,6 @@ public class ThingTypeBuilder {
      * @param thingTypeId the thingTypeId the resulting {@link ThingType} will have (builds a {@link ThingTypeUID} with
      *            {@code bindingId:thingTypeId}. Must not be null or empty.
      * @param label the label of the resulting {@link ThingType}. Must not be null or empty.
-     *
      * @return the new {@link ThingTypeBuilder}.
      */
     public static ThingTypeBuilder instance(String bindingId, String thingTypeId, String label) {
@@ -66,7 +65,6 @@ public class ThingTypeBuilder {
      *
      * @param thingTypeUID the {@link ThingTypeUID} the resulting {@link ThingType} will have. Must not be null.
      * @param label the label of the resulting {@link ThingType}. Must not be null or empty.
-     *
      * @return the new {@link ThingTypeBuilder}.
      */
     public static ThingTypeBuilder instance(ThingTypeUID thingTypeUID, String label) {
@@ -78,7 +76,6 @@ public class ThingTypeBuilder {
      *
      * @param thingType take all properties from this {@link ThingType}.
      * @return a new {@link ThingTypeBuilder} configured with all properties from the given {@link ThingType};
-     *
      * @return the new {@link ThingTypeBuilder}.
      */
     public static ThingTypeBuilder instance(ThingType thingType) {
@@ -110,7 +107,6 @@ public class ThingTypeBuilder {
      * Builds and returns a new {@link ThingType} according to the given values from this builder.
      *
      * @return a new {@link ThingType} according to the given values from this builder.
-     *
      * @throws IllegalStateException if one of {@code bindingId}, {@code thingTypeId} or {@code label} are not given.
      */
     public ThingType build() {
@@ -133,7 +129,6 @@ public class ThingTypeBuilder {
      * Builds and returns a new {@link BridgeType} according to the given values from this builder.
      *
      * @return a new {@link BridgeType} according to the given values from this builder.
-     *
      * @throws IllegalStateException if one of {@code bindingId}, {@code thingTypeId} or {@code label} are not given.
      */
     public BridgeType buildBridge() {

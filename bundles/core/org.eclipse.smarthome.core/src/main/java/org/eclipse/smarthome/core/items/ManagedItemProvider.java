@@ -87,12 +87,9 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
     /**
      * Removes an item and it´s member if recursive flag is set to true.
      *
-     * @param itemName
-     *            item name to remove
-     * @param recursive
-     *            if set to true all members of the item will be removed, too.
-     * @return
-     *         removed item or null if no item with that name exists
+     * @param itemName item name to remove
+     * @param recursive if set to true all members of the item will be removed, too.
+     * @return removed item or null if no item with that name exists
      */
     public Item remove(String itemName, boolean recursive) {
         Item item = get(itemName);
@@ -139,8 +136,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
      * Translates the Items class simple name into a type name understandable by
      * the {@link ItemFactory}s.
      *
-     * @param item
-     *            the Item to translate the name
+     * @param item the Item to translate the name
      * @return the translated ItemTypeName understandable by the {@link ItemFactory}s
      */
     private @NonNull String toItemFactoryName(Item item) {

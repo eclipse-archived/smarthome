@@ -39,7 +39,6 @@ public final class FirmwareUID {
      *
      * @param thingTypeUID the thing type UID (must not be null)
      * @param firmwareVersion the version of the firmware (must not be null)
-     *
      * @throws NullPointerException if given thing type UID or firmware version is null
      * @throws IllegalArgumentException if given firmware version is null or empty or consist of a colon
      */
