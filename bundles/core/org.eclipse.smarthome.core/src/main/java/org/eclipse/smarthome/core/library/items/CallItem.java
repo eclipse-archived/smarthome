@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.StringListType;
@@ -30,6 +30,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * @author Thomas.Eichstaedt-Engelen / Initially CallItem
  * @author Gaël L'hopital - port to Eclipse SmartHome
  */
+@NonNullByDefault
 public class CallItem extends GenericItem {
 
     private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
@@ -40,7 +41,7 @@ public class CallItem extends GenericItem {
         acceptedDataTypes.add(UnDefType.class);
     }
 
-    public CallItem(@NonNull String name) {
+    public CallItem(String name) {
         super(CoreItemFactory.CALL, name);
     }
 

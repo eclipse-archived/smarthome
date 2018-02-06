@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -34,6 +34,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * @author Markus Rathgeb - Support more types for getStateAs
  *
  */
+@NonNullByDefault
 public class DimmerItem extends SwitchItem {
 
     private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
@@ -50,11 +51,11 @@ public class DimmerItem extends SwitchItem {
         acceptedCommandTypes.add(RefreshType.class);
     }
 
-    public DimmerItem(@NonNull String name) {
+    public DimmerItem(String name) {
         super(CoreItemFactory.DIMMER, name);
     }
 
-    /* package */ DimmerItem(@NonNull String type, @NonNull String name) {
+    /* package */ DimmerItem(String type, String name) {
         super(type, name);
     }
 

@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -34,6 +34,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@NonNullByDefault
 public class NumberItem extends GenericItem {
 
     private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
@@ -47,7 +48,7 @@ public class NumberItem extends GenericItem {
         acceptedCommandTypes.add(RefreshType.class);
     }
 
-    public NumberItem(@NonNull String name) {
+    public NumberItem(String name) {
         super(CoreItemFactory.NUMBER, name);
     }
 
