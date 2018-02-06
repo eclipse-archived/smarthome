@@ -30,9 +30,9 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.library.items.NumberItem;
-import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.junit.Before;
@@ -76,7 +76,8 @@ public class ChannelItemProviderTest {
         props.put("initialDelay", "false");
         provider.activate(props);
 
-        when(thingRegistry.getChannel(same(CHANNEL_UID))).thenReturn(new Channel(CHANNEL_UID, "Number"));
+        when(thingRegistry.getChannel(same(CHANNEL_UID)))
+                .thenReturn(ChannelBuilder.create(CHANNEL_UID, "Number").build());
         when(itemFactory.createItem("Number", ITEM_NAME)).thenReturn(ITEM);
         when(localeProvider.getLocale()).thenReturn(Locale.ENGLISH);
     }
