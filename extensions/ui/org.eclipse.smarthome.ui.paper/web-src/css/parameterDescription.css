@@ -3,7 +3,7 @@
 .ellipsis {
 	overflow: hidden;
 	position: relative;
-	height: 32px;
+	height: 48px;
 	line-height: 16px;
 	color: #777;
 	font-size: 85%;
@@ -18,7 +18,7 @@
 	content: "";
 	float: left;
 	width: 5px;
-	height: 32px;
+	height: 48px;
 }
 
 .ellipsis>*:first-child {
