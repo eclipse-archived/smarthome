@@ -66,4 +66,9 @@
 		<state readOnly="true"></state>
 	</channel-type>
 
+	<channel-type id="number">
+        <item-type>Number</item-type>
+        <label>Thing Online(&gt;0)/Offline(&lt;0) Delay</label>
+    </channel-type>
+
 </thing:thing-descriptions>

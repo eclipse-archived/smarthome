@@ -78,7 +78,7 @@
         <description>A thing that goes online after some time.</description>
 
         <channels>
-            <channel id="switch" typeId="switch" />
+            <channel id="number" typeId="number" />
         </channels>
     </thing-type>
 </thing:thing-descriptions>
