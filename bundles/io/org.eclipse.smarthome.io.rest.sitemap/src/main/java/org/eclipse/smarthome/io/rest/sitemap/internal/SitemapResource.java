@@ -405,6 +405,11 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
                 Item item = itemUIRegistry.getItem(widget.getItem());
                 if (item != null) {
                     bean.item = EnrichedItemDTOMapper.map(item, false, UriBuilder.fromUri(uri).build(), locale);
+                    bean.state = itemUIRegistry.getState(widget).toFullString();
+                    // In case the widget state is identical to the item state, its value is set to null.
+                    if (bean.state != null && bean.state.equals(bean.item.state)) {
+                        bean.state = null;
+                    }
                 }
             } catch (ItemNotFoundException e) {
                 logger.debug("{}", e.getMessage());

@@ -51,6 +51,7 @@ public class WidgetDTO {
     public String service;
     public String period;
     public Boolean legend;
+    public String state;
 
     public EnrichedItemDTO item;
     public PageDTO linkedPage;

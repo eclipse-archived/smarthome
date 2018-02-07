@@ -1869,7 +1869,11 @@
 						update;
 
 					if (widget.item !== undefined) {
-						state = widget.item.state;
+						if (widget.state === undefined) {
+							state = widget.item.state;
+						} else {
+							state = widget.state;
+						}
 					}
 					if (!w.visible || widget.item !== undefined) {
 						update = {
