@@ -32,7 +32,6 @@ public interface BindingInfoProvider {
      *
      * @param id the ID to be looked for (could be null or empty)
      * @param locale the locale to be used for the binding information (could be null)
-     *
      * @return a localized binding information object (could be null)
      */
     BindingInfo getBindingInfo(String id, Locale locale);

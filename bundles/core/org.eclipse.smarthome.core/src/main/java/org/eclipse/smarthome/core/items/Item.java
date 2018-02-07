@@ -123,7 +123,7 @@ public interface Item extends Identifiable<String> {
     /**
      * Returns true if the item's tags contains the specific tag, otherwise false.
      *
-     * @param tag - a tag whose presence in the item's tags is to be tested.
+     * @param tag a tag whose presence in the item's tags is to be tested.
      * @return true if the item's tags contains the specific tag, otherwise false.
      */
     public boolean hasTag(String tag);
@@ -147,8 +147,7 @@ public interface Item extends Identifiable<String> {
      * Returns the first provided state description for a given locale.
      * If options are defined on the channel, they are included in the returned state description.
      *
-     * @param locale
-     *            locale (can be null)
+     * @param locale locale (can be null)
      * @return state description (can be null)
      */
     public @Nullable StateDescription getStateDescription(@Nullable Locale locale);

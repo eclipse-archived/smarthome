@@ -55,10 +55,8 @@ public class ChannelBuilder {
     /**
      * Creates a channel builder for the given channel UID and item type.
      *
-     * @param channelUID
-     *            channel UID
-     * @param acceptedItemType
-     *            item type that is accepted by this channel
+     * @param channelUID channel UID
+     * @param acceptedItemType item type that is accepted by this channel
      * @return channel builder
      */
     public static ChannelBuilder create(ChannelUID channelUID, @Nullable String acceptedItemType) {
@@ -79,8 +77,7 @@ public class ChannelBuilder {
     /**
      * Appends a configuration to the channel to build.
      *
-     * @param configuration
-     *            configuration
+     * @param configuration configuration
      * @return channel builder
      */
     public ChannelBuilder withConfiguration(Configuration configuration) {
@@ -124,8 +121,7 @@ public class ChannelBuilder {
     /**
      * Appends default tags to the channel to build.
      *
-     * @param defaultTags
-     *            default tags
+     * @param defaultTags default tags
      * @return channel builder
      */
     public ChannelBuilder withDefaultTags(Set<String> defaultTags) {

@@ -42,8 +42,7 @@ public class ThingTypeRegistry {
     /**
      * Returns all thing types.
      *
-     * @param locale
-     *            locale (can be null)
+     * @param locale locale (can be null)
      * @return all thing types
      */
     public List<ThingType> getThingTypes(Locale locale) {
@@ -66,10 +65,8 @@ public class ThingTypeRegistry {
     /**
      * Returns thing types for a given binding id.
      *
-     * @param bindingId
-     *            binding id
-     * @param locale
-     *            locale (can be null)
+     * @param bindingId binding id
+     * @param locale locale (can be null)
      * @return thing types for given binding id
      */
     public List<ThingType> getThingTypes(String bindingId, Locale locale) {
@@ -87,8 +84,7 @@ public class ThingTypeRegistry {
     /**
      * Returns thing types for a given binding id.
      *
-     * @param bindingId
-     *            binding id
+     * @param bindingId binding id
      * @return thing types for given binding id
      */
     public List<ThingType> getThingTypes(String bindingId) {
@@ -98,10 +94,8 @@ public class ThingTypeRegistry {
     /**
      * Returns a thing type for a given thing type UID.
      *
-     * @param thingTypeUID
-     *            thing type UID
-     * @param locale
-     *            locale (can be null)
+     * @param thingTypeUID thing type UID
+     * @param locale locale (can be null)
      * @return thing type for given UID or null if no thing type with this UID
      *         was found
      */
@@ -119,8 +113,7 @@ public class ThingTypeRegistry {
     /**
      * Returns a thing type for a given thing type UID.
      *
-     * @param thingTypeUID
-     *            thing type UID
+     * @param thingTypeUID thing type UID
      * @return thing type for given UID or null if no thing type with this UID
      *         was found
      */

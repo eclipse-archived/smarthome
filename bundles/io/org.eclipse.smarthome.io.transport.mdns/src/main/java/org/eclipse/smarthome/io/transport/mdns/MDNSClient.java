@@ -74,7 +74,6 @@ public interface MDNSClient {
      * Returns a list of service infos of the specified type
      *
      * @param type: service type name
-     *
      * @return an array of service instance
      */
     public ServiceInfo[] list(String type);

@@ -28,7 +28,6 @@ public interface ItemFactory {
      *
      * @param itemTypeName
      * @param itemName
-     *
      * @return a new Item of type <code>itemTypeName</code> or <code>null</code> if no matching class is known.
      */
     @Nullable

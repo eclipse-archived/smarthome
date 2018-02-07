@@ -30,16 +30,14 @@ public interface ManagedProvider<E extends Identifiable<K>, K> extends Provider<
     /**
      * Adds an element.
      *
-     * @param element
-     *            element to be added
+     * @param element element to be added
      */
     void add(@NonNull E element);
 
     /**
      * Removes an element and returns the removed element.
      *
-     * @param key
-     *            key of the element that should be removed
+     * @param key key of the element that should be removed
      * @return element that was removed, or null if no element with the given
      *         key exists
      */
@@ -48,8 +46,7 @@ public interface ManagedProvider<E extends Identifiable<K>, K> extends Provider<
     /**
      * Updates an element.
      *
-     * @param element
-     *            element to be updated
+     * @param element element to be updated
      * @return returns the old element or null if no element with the same key
      *         exists
      */
@@ -59,8 +56,7 @@ public interface ManagedProvider<E extends Identifiable<K>, K> extends Provider<
      * Returns an element for the given key or null if no element for the given
      * key exists.
      *
-     * @param key
-     *            key
+     * @param key key
      * @return returns element or null, if no element for the given key exists
      */
     E get(K key);

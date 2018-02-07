@@ -41,7 +41,6 @@ public interface ModelRepository {
      *
      * @param name the model name to add/refresh
      * @param inputStream an input stream with the model's content, optional if the file already exists
-     *
      * @return true, if it was successfully processed, false otherwise
      */
     public boolean addOrRefreshModel(String name, InputStream inputStream);
@@ -50,7 +49,6 @@ public interface ModelRepository {
      * Removes a model from the repository
      *
      * @param name the name of the model to remove
-     *
      * @return true, if model was removed, false, if it did not exist
      */
     public boolean removeModel(String name);
@@ -59,7 +57,6 @@ public interface ModelRepository {
      * Returns all names of models of a given type (file extension)
      *
      * @param modelType the model type to get the names for
-     *
      * @return all names of available models
      */
     public Iterable<String> getAllModelNamesOfType(String modelType);

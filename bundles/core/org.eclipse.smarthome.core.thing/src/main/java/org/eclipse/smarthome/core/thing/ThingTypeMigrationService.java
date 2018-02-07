@@ -31,7 +31,6 @@ public interface ThingTypeMigrationService {
      * @param thing {@link Thing} whose type should be changed
      * @param thingTypeUID new {@link ThingTypeUID}
      * @param configuration new configuration
-     *
      * @throws RuntimeException, if the new thing type is not registered in the registry
      */
     void migrateThingType(Thing thing, ThingTypeUID thingTypeUID, @Nullable Configuration configuration);

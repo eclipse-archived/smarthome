@@ -50,7 +50,6 @@ public class ItemUtil {
      * </ul>
      *
      * @param itemName the name of the item to be checked (could be null or empty)
-     *
      * @return true if the specified name is a valid item name, otherwise false
      */
     public static boolean isValidItemName(final String itemName) {
@@ -72,7 +71,6 @@ public class ItemUtil {
      * </ul>
      *
      * @param itemName the name of the item to be checked (could be null or empty)
-     *
      * @throws IllegalArgumentException if the name of the item is invalid
      */
     public static void assertValidItemName(String itemName) throws IllegalArgumentException {

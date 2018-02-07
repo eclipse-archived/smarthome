@@ -49,7 +49,6 @@ public class BindingInfo implements Identifiable<String> {
      * @param author the author of the binding (must neither be null, nor empty)
      * @param serviceId the service id of the main service of the binding (can be null)
      * @param configDescriptionURI the link to a concrete ConfigDescription (could be null)
-     *
      * @throws IllegalArgumentException if the identifier, the name or the author is null or empty
      */
     public BindingInfo(String id, String name, String description, String author, String serviceId,

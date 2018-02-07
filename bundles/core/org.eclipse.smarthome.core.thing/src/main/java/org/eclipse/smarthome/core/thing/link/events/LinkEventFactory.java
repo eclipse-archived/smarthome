@@ -70,9 +70,7 @@ public class LinkEventFactory extends AbstractEventFactory {
      * Creates an item channel link added event.
      *
      * @param itemChannelLink item channel link
-     *
      * @return the created item channel link added event
-     *
      * @throws IllegalArgumentException if item channel link is null
      */
     public static ItemChannelLinkAddedEvent createItemChannelLinkAddedEvent(ItemChannelLink itemChannelLink) {
@@ -87,9 +85,7 @@ public class LinkEventFactory extends AbstractEventFactory {
      * Creates an item channel link removed event.
      *
      * @param itemChannelLink item channel link
-     *
      * @return the created item channel link removed event
-     *
      * @throws IllegalArgumentException if item channel link is null
      */
     public static ItemChannelLinkRemovedEvent createItemChannelLinkRemovedEvent(ItemChannelLink itemChannelLink) {

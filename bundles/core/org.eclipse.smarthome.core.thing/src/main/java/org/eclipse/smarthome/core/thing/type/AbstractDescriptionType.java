@@ -38,13 +38,10 @@ public abstract class AbstractDescriptionType implements Identifiable<UID> {
      *
      * @param uid the unique identifier which identifies the according type within
      *            the overall system (must neither be null, nor empty)
-     *
      * @param label the human readable label for the according type
      *            (must neither be null nor empty)
-     *
      * @param description the human readable description for the according type
      *            (could be null or empty)
-     *
      * @throws IllegalArgumentException if the UID is null, or the label is null or empty
      */
     public AbstractDescriptionType(UID uid, String label, @Nullable String description)

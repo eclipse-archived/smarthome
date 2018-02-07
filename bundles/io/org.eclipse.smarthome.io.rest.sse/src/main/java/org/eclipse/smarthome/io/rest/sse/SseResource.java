@@ -133,10 +133,8 @@ public class SseResource {
      * Broadcasts an event described by the given parameter to all currently
      * listening clients.
      *
-     * @param sseEventType
-     *            the SSE event type
-     * @param event
-     *            the event
+     * @param sseEventType the SSE event type
+     * @param event the event
      */
     public void broadcastEvent(final Event event) {
         executorService.execute(new Runnable() {

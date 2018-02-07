@@ -52,7 +52,6 @@ public final class FirmwareUpdateProgressInfo {
      *            (must not be null)
      * @param pending the flag indicating if the update is pending
      * @param progress the progress of the update in percent
-     *
      * @throws NullPointerException if firmware UID or current progress step is null
      * @throws IllegalArgumentException if sequence is null or empty or progress is not between 0 and 100
      */
@@ -78,7 +77,6 @@ public final class FirmwareUpdateProgressInfo {
      * @param sequence the collection of progress steps describing the sequence of the firmware update process
      *            (must not be null)
      * @param pending the flag indicating if the update is pending
-     *
      * @throws NullPointerException if firmware UID or current progress step is null
      * @throws NullPointerException if progressStep is null
      * @throws IllegalArgumentException if sequence is null or empty
