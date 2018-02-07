@@ -40,7 +40,6 @@ public class XPathTransformationService implements TransformationService {
 
     @Override
     public String transform(String xpathExpression, String source) throws TransformationException {
-
         if (xpathExpression == null || source == null) {
             throw new TransformationException("the given parameters 'xpath' and 'source' must not be null");
         }
@@ -76,7 +75,6 @@ public class XPathTransformationService implements TransformationService {
                 stringReader.close();
             }
         }
-
     }
 
 }

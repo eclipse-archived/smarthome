@@ -40,7 +40,6 @@ public class SatisfiableResourceFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext ctx) throws IOException {
-
         UriInfo uriInfo = ctx.getUriInfo();
 
         if (uriInfo != null) {

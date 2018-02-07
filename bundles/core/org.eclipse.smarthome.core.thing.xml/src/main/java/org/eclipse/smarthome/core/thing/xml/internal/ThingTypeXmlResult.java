@@ -64,7 +64,6 @@ public class ThingTypeXmlResult {
             String description, String category, boolean listed, List<String> extensibleChannelTypeIds,
             List<ChannelXmlResult>[] channelTypeReferenceObjects, List<NodeValue> properties,
             String representationProperty, Object[] configDescriptionObjects) {
-
         this.thingTypeUID = thingTypeUID;
         this.supportedBridgeTypeUIDs = supportedBridgeTypeUIDs;
         this.label = label;
@@ -86,7 +85,6 @@ public class ThingTypeXmlResult {
 
     protected List<ChannelDefinition> toChannelDefinitions(List<ChannelXmlResult> channelTypeReferences)
             throws ConversionException {
-
         List<ChannelDefinition> channelTypeDefinitions = null;
 
         if ((channelTypeReferences != null) && (channelTypeReferences.size() > 0)) {
@@ -102,7 +100,6 @@ public class ThingTypeXmlResult {
 
     protected List<ChannelGroupDefinition> toChannelGroupDefinitions(List<ChannelXmlResult> channelGroupTypeReferences)
             throws ConversionException {
-
         List<ChannelGroupDefinition> channelGroupTypeDefinitions = null;
 
         if ((channelGroupTypeReferences != null) && (channelGroupTypeReferences.size() > 0)) {

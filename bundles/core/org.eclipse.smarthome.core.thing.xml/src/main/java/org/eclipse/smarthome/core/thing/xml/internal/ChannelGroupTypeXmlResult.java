@@ -42,7 +42,6 @@ public class ChannelGroupTypeXmlResult {
 
     public ChannelGroupTypeXmlResult(ChannelGroupTypeUID channelGroupTypeUID, boolean advanced, String label,
             String description, String category, List<ChannelXmlResult> channelTypeReferences) {
-
         this.channelGroupTypeUID = channelGroupTypeUID;
         this.advanced = advanced;
         this.label = label;
@@ -57,7 +56,6 @@ public class ChannelGroupTypeXmlResult {
 
     protected List<ChannelDefinition> toChannelDefinitions(List<ChannelXmlResult> channelTypeReferences)
             throws ConversionException {
-
         List<ChannelDefinition> channelTypeDefinitions = null;
 
         if ((channelTypeReferences != null) && (channelTypeReferences.size() > 0)) {

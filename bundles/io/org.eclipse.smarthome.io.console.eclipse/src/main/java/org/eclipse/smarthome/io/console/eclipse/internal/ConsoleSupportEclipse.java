@@ -74,7 +74,6 @@ public class ConsoleSupportEclipse implements CommandProvider {
      * @return null, return parameter is not used
      */
     public Object _smarthome(final CommandInterpreter interpreter) {
-
         final Console console = new OSGiConsole(BASE, interpreter);
 
         final String cmd = interpreter.nextArgument();

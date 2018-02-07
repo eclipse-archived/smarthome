@@ -239,7 +239,6 @@ public class UpnpIOServiceImpl implements UpnpIOService, RegistryListener {
                 logger.trace("Could not find an upnp device for participant '{}'", participant.getUDN());
             }
         }
-
     }
 
     private Service searchSubService(String serviceID, Device device) {

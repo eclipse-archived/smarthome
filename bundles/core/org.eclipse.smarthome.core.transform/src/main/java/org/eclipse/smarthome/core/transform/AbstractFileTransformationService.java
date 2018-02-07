@@ -115,7 +115,6 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
      */
     @Override
     public String transform(String filename, String source) throws TransformationException {
-
         if (filename == null || source == null) {
             throw new TransformationException("the given parameters 'filename' and 'source' must not be null");
         }
@@ -139,7 +138,6 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
             logger.warn("Could not transform '{}' with the file '{}' : {}", source, filename, e.getMessage());
             return "";
         }
-
     }
 
     /**

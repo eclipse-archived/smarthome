@@ -37,7 +37,6 @@ public class RegExTransformationService implements TransformationService {
 
     @Override
     public String transform(String regExpression, String source) throws TransformationException {
-
         if (regExpression == null || source == null) {
             throw new TransformationException("the given parameters 'regex' and 'source' must not be null");
         }
@@ -72,7 +71,6 @@ public class RegExTransformationService implements TransformationService {
         matcher.reset();
 
         while (matcher.find()) {
-
             if (matcher.groupCount() == 0) {
                 logger.info(
                         "the given regular expression '^{}$' doesn't contain a group. No content will be extracted and returned!",

@@ -228,7 +228,6 @@ public class ItemResource implements RESTResource {
             @ApiResponse(code = 404, message = "Item not found") })
     public Response getPlainItemState(
             @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname) {
-
         // get item
         Item item = getItem(itemname);
 
@@ -264,19 +263,15 @@ public class ItemResource implements RESTResource {
 
         // if Item exists
         if (item != null) {
-
             // try to parse a State from the input
             State state = TypeParser.parseState(item.getAcceptedDataTypes(), value);
 
             if (state != null) {
-
                 // set State and report OK
                 logger.debug("Received HTTP PUT request at '{}' with value '{}'.", uriInfo.getPath(), value);
                 eventPublisher.post(ItemEventFactory.createStateEvent(itemname, state));
                 return getItemResponse(Status.ACCEPTED, null, locale, null);
-
             } else {
-
                 // State could not be parsed
                 logger.warn("Received HTTP PUT request at '{}' with an invalid status value '{}'.", uriInfo.getPath(),
                         value);
@@ -437,7 +432,6 @@ public class ItemResource implements RESTResource {
             @ApiResponse(code = 405, message = "Item not editable.") })
     public Response addTag(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
             @PathParam("tag") @ApiParam(value = "tag", required = true) String tag) {
-
         Item item = getItem(itemname);
 
         if (item == null) {
@@ -464,7 +458,6 @@ public class ItemResource implements RESTResource {
             @ApiResponse(code = 405, message = "Item not editable.") })
     public Response removeTag(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
             @PathParam("tag") @ApiParam(value = "tag", required = true) String tag) {
-
         Item item = getItem(itemname);
 
         if (item == null) {
@@ -522,7 +515,6 @@ public class ItemResource implements RESTResource {
             // item does not yet exist, create it
             managedItemProvider.add(newItem);
             return getItemResponse(Status.CREATED, newItem, locale, null);
-
         } else if (managedItemProvider.get(itemname) != null) {
             // item already exists as a managed item, update it
             managedItemProvider.update(newItem);
@@ -548,7 +540,6 @@ public class ItemResource implements RESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
             @ApiResponse(code = 400, message = "Item list is null.") })
     public Response createOrUpdateItems(@ApiParam(value = "array of item data", required = true) GroupItemDTO[] items) {
-
         // If we didn't get an item list bean, then return!
         if (items == null) {
             return Response.status(Status.BAD_REQUEST).build();

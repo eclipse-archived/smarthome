@@ -45,7 +45,6 @@ public class StatusConsoleCommandExtension extends AbstractConsoleCommandExtensi
 
     @Override
     public void execute(String[] args, Console console) {
-
         if (args.length > 0) {
             String itemName = args[0];
             try {

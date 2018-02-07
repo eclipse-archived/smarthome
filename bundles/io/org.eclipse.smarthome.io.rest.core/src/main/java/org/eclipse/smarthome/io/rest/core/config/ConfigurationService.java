@@ -96,7 +96,6 @@ public class ConfigurationService {
     public Configuration update(String configId, Configuration newConfiguration, boolean override) throws IOException {
         org.osgi.service.cm.Configuration configuration = null;
         if (newConfiguration.containsKey(ConfigConstants.SERVICE_CONTEXT)) {
-
             try {
                 configuration = getConfigurationWithContext(configId);
             } catch (InvalidSyntaxException e) {
@@ -136,7 +135,6 @@ public class ConfigurationService {
 
     private org.osgi.service.cm.Configuration getConfigurationWithContext(String serviceId)
             throws IOException, InvalidSyntaxException {
-
         org.osgi.service.cm.Configuration[] configs = configurationAdmin
                 .listConfigurations("(&(" + Constants.SERVICE_PID + "=" + serviceId + "))");
 

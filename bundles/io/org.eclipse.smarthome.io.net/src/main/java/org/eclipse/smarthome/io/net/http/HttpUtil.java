@@ -77,7 +77,6 @@ public class HttpUtil {
      * @param httpMethod the HTTP method to use
      * @param url the url to execute
      * @param timeout the socket timeout in milliseconds to wait for data
-     *
      * @return the response body or <code>NULL</code> when the request went wrong
      * @throws IOException when the request execution failed, timed out or it was interrupted
      */
@@ -96,13 +95,11 @@ public class HttpUtil {
      *            send.
      * @param contentType the content type of the given <code>content</code>
      * @param timeout the socket timeout in milliseconds to wait for data
-     *
      * @return the response body or <code>NULL</code> when the request went wrong
      * @throws IOException when the request execution failed, timed out or it was interrupted
      */
     public static String executeUrl(String httpMethod, String url, InputStream content, String contentType, int timeout)
             throws IOException {
-
         return executeUrl(httpMethod, url, null, content, contentType, timeout);
     }
 
@@ -118,13 +115,11 @@ public class HttpUtil {
      *            send.
      * @param contentType the content type of the given <code>content</code>
      * @param timeout the socket timeout in milliseconds to wait for data
-     *
      * @return the response body or <code>NULL</code> when the request went wrong
      * @throws IOException when the request execution failed, timed out or it was interrupted
      */
     public static String executeUrl(String httpMethod, String url, Properties httpHeaders, InputStream content,
             String contentType, int timeout) throws IOException {
-
         final ProxyParams proxyParams = prepareProxyParams();
 
         return executeUrl(httpMethod, url, httpHeaders, content, contentType, timeout, proxyParams.proxyHost,
@@ -146,14 +141,12 @@ public class HttpUtil {
      * @param proxyUser the username to authenticate with the proxy
      * @param proxyPassword the password to authenticate with the proxy
      * @param nonProxyHosts the hosts that won't be routed through the proxy
-     *
      * @return the response body or <code>NULL</code> when the request went wrong
      * @throws IOException when the request execution failed, timed out or it was interrupted
      */
     public static String executeUrl(String httpMethod, String url, Properties httpHeaders, InputStream content,
             String contentType, int timeout, String proxyHost, Integer proxyPort, String proxyUser,
             String proxyPassword, String nonProxyHosts) throws IOException {
-
         ContentResponse response = executeUrlAndGetReponse(httpMethod, url, httpHeaders, content, contentType, timeout,
                 proxyHost, proxyPort, proxyUser, proxyPassword, nonProxyHosts);
         String encoding = response.getEncoding() != null ? response.getEncoding().replaceAll("\"", "").trim() : "UTF-8";
@@ -181,14 +174,12 @@ public class HttpUtil {
      * @param proxyUser the username to authenticate with the proxy
      * @param proxyPassword the password to authenticate with the proxy
      * @param nonProxyHosts the hosts that won't be routed through the proxy
-     *
      * @return the response as a ContentResponse object or <code>NULL</code> when the request went wrong
      * @throws IOException when the request execution failed, timed out or it was interrupted
      */
     private static ContentResponse executeUrlAndGetReponse(String httpMethod, String url, Properties httpHeaders,
             InputStream content, String contentType, int timeout, String proxyHost, Integer proxyPort, String proxyUser,
             String proxyPassword, String nonProxyHosts) throws IOException {
-
         startHttpClient(CLIENT);
 
         HttpProxy proxy = null;
@@ -289,12 +280,10 @@ public class HttpUtil {
      *
      * @param urlString
      * @param nonProxyHosts
-     *
      * @return <code>false</code> if the host of the given <code>urlString</code> is contained in
      *         <code>nonProxyHosts</code>-list and <code>true</code> otherwise
      */
     private static boolean shouldUseProxy(String urlString, String nonProxyHosts) {
-
         if (StringUtils.isNotBlank(nonProxyHosts)) {
             String givenHost = urlString;
 
@@ -331,12 +320,10 @@ public class HttpUtil {
      * given String <code>httpMethodString</code>
      *
      * @param httpMethodString the name of the {@link HttpMethod} to create
-     *
      * @throws IllegalArgumentException if <code>httpMethod</code> is none of <code>GET</code>, <code>PUT</code>,
      *             <code>POST</POST> or <code>DELETE</code>
      */
     public static HttpMethod createHttpMethod(String httpMethodString) {
-
         if ("GET".equals(httpMethodString)) {
             return HttpMethod.GET;
         } else if ("PUT".equals(httpMethodString)) {
@@ -446,7 +433,6 @@ public class HttpUtil {
      */
     public static RawType downloadData(String url, String contentTypeRegex, boolean scanTypeInContent,
             long maxContentLength, int timeout) {
-
         final ProxyParams proxyParams = prepareProxyParams();
 
         RawType rawData = null;
@@ -505,7 +491,6 @@ public class HttpUtil {
      * Determine the content type from the data.
      *
      * @param data the data as a buffer of bytes
-     *
      * @return the MIME type of the content, null if the content type could not be found
      */
     public static String guessContentTypeFromData(byte[] data) {

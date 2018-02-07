@@ -90,13 +90,11 @@ public class ScaleTransformationService extends AbstractFileTransformationServic
      */
     @Override
     protected String internalTransform(Map<Range, String> data, String source) throws TransformationException {
-
         try {
             final BigDecimal value = new BigDecimal(source);
 
             return data.entrySet().stream().filter(e -> e.getKey().contains(value)).findFirst().map(Map.Entry::getValue)
                     .orElseThrow(() -> new TransformationException("No matching range for '" + source + "'"));
-
         } catch (NumberFormatException e) {
             throw new TransformationException("Scale can only be used with numeric inputs");
         }
@@ -114,7 +112,6 @@ public class ScaleTransformationService extends AbstractFileTransformationServic
                 final String value = properties.getProperty(entry);
                 final Matcher matcher = LIMITS_PATTERN.matcher(entry);
                 if (matcher.matches() && (matcher.groupCount() == 4)) {
-
                     final boolean lowerInclusive = matcher.group(1).equals("]") ? false : true;
                     final boolean upperInclusive = matcher.group(4).equals("[") ? false : true;
 
@@ -127,11 +124,9 @@ public class ScaleTransformationService extends AbstractFileTransformationServic
                         final Range range = Range.range(lowValue, lowerInclusive, highValue, upperInclusive);
 
                         data.put(range, value);
-
                     } catch (NumberFormatException ex) {
                         throw new TransformationException("Error parsing bounds: " + lowLimit + ".." + highLimit);
                     }
-
                 } else {
                     logger.warn("Scale transform file '{}' does not comply with syntax for entry : '{}', '{}'",
                             filename, entry, value);
