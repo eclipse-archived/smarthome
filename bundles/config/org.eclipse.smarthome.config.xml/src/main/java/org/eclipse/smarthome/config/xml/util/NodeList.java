@@ -43,7 +43,6 @@ public class NodeList implements NodeName {
      * @throws IllegalArgumentException if the name of the node is null or empty
      */
     public NodeList(String nodeName, Map<String, String> attributes, List<?> list) throws IllegalArgumentException {
-
         if ((nodeName == null) || (nodeName.isEmpty())) {
             throw new IllegalArgumentException("The name of the node must neither be null nor empty!");
         }
@@ -80,7 +79,6 @@ public class NodeList implements NodeName {
      * @see #getAttributes(String, String, String)
      */
     public List<String> getAttributes(String nodeName, String attributeName) throws ConversionException {
-
         return getAttributes(nodeName, attributeName, null);
     }
 
@@ -100,7 +98,6 @@ public class NodeList implements NodeName {
     @SuppressWarnings("unchecked")
     public List<String> getAttributes(String nodeName, String attributeName, String formattedText)
             throws ConversionException {
-
         List<String> attributes = null;
 
         if (this.list != null) {

@@ -58,7 +58,6 @@ public class ChannelDTO {
     }
 
     private Map<String, Object> toMap(Configuration configuration) {
-
         if (configuration == null) {
             return null;
         }

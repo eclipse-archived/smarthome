@@ -48,7 +48,6 @@ public abstract class BaseBridgeHandler extends BaseThingHandler implements Brid
      * @return child thing with the given uid or null if thing was not found
      */
     public @Nullable Thing getThingByUID(ThingUID uid) {
-
         Bridge bridge = getThing();
 
         List<Thing> things = bridge.getThings();

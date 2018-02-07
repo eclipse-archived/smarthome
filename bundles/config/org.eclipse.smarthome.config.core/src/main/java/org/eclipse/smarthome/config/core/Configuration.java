@@ -60,7 +60,6 @@ public class Configuration {
 
     public <T> T as(Class<T> configurationClass) {
         synchronized (this) {
-
             T configuration = null;
 
             try {

@@ -39,7 +39,6 @@ public class NodeValue implements NodeName {
      * @throws IllegalArgumentException if the name of the node is null or empty
      */
     public NodeValue(String nodeName, Map<String, String> attributes, Object value) throws IllegalArgumentException {
-
         if ((nodeName == null) || (nodeName.isEmpty())) {
             throw new IllegalArgumentException("The name of the node must neither be null nor empty!");
         }

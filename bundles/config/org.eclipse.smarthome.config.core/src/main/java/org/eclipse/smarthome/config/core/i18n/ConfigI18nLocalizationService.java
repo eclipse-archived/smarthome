@@ -62,7 +62,6 @@ public class ConfigI18nLocalizationService {
      */
     public ConfigDescription getLocalizedConfigDescription(final Bundle bundle,
             final ConfigDescription configDescription, final Locale locale) {
-
         final List<ConfigDescriptionParameter> localizedConfigDescriptionParameters = new ArrayList<>(
                 configDescription.getParameters().size());
 
@@ -99,7 +98,6 @@ public class ConfigI18nLocalizationService {
     public ConfigDescriptionParameter getLocalizedConfigDescriptionParameter(final Bundle bundle,
             final ConfigDescription configDescription, final ConfigDescriptionParameter parameter,
             final Locale locale) {
-
         final URI configDescriptionURI = configDescription.getUID();
         final String parameterName = parameter.getName();
 
@@ -144,7 +142,6 @@ public class ConfigI18nLocalizationService {
     public ConfigDescriptionParameterGroup getLocalizedConfigDescriptionGroup(final Bundle bundle,
             final ConfigDescription configDescription, final ConfigDescriptionParameterGroup group,
             final Locale locale) {
-
         final URI configDescriptionURI = configDescription.getUID();
         final String name = group.getName();
 

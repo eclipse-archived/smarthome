@@ -349,7 +349,6 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
 
     protected void removeProvider(Provider<E> provider) {
         if (elementMap.containsKey(provider)) {
-
             for (E element : elementMap.get(provider)) {
                 try {
                     onRemoveElement(element);

@@ -57,7 +57,6 @@ public class ResourceBundleClassLoader extends ClassLoader {
      * @throws IllegalArgumentException if the bundle is null
      */
     public ResourceBundleClassLoader(Bundle bundle, String path, String filePattern) throws IllegalArgumentException {
-
         if (bundle == null) {
             throw new IllegalArgumentException("The bundle must not be null!");
         }

@@ -44,7 +44,6 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Pro
      * @return true if linked, false otherwise
      */
     public boolean isLinked(String itemName, UID uid) {
-
         for (AbstractLink link : getAll()) {
             if (link.getLinkedUID().equals(uid) && link.getItemName().equals(itemName)) {
                 return true;

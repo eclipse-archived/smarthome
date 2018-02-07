@@ -138,7 +138,6 @@ public class NodeIterator implements Iterator<Object> {
      *             next node however it was specified as required
      */
     public String nextAttribute(String nodeName, String attributeName, boolean required) throws ConversionException {
-
         if (hasNext()) {
             Object nextNode = next();
 

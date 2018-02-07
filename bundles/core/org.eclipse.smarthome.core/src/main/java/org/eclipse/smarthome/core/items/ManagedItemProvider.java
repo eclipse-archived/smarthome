@@ -249,7 +249,6 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
     @Override
     protected PersistedItem toPersistableElement(Item item) {
-
         PersistedItem persistedItem = new PersistedItem(
                 item instanceof GroupItem ? ITEM_TYPE_GROUP : toItemFactoryName(item));
 

@@ -132,12 +132,10 @@ public class RuleResource implements RESTResource {
             final Rule newRule = ruleRegistry.add(RuleDTOMapper.map(rule));
             return Response.status(Status.CREATED)
                     .header("Location", "rules/" + URLEncoder.encode(newRule.getUID(), "UTF-8")).build();
-
         } catch (IllegalArgumentException e) {
             String errMessage = "Creation of the rule is refused: " + e.getMessage();
             logger.warn("{}", errMessage);
             return JSONResponse.createErrorResponse(Status.CONFLICT, errMessage);
-
         } catch (RuntimeException e) {
             String errMessage = "Creation of the rule is refused: " + e.getMessage();
             logger.warn("{}", errMessage);
@@ -203,7 +201,6 @@ public class RuleResource implements RESTResource {
             @ApiResponse(code = 404, message = "Rule corresponding to the given UID does not found.") })
     public Response getConfiguration(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID)
             throws IOException {
-
         Rule rule = ruleRegistry.get(ruleUID);
         if (rule == null) {
             logger.info("Received HTTP GET request for config at '{}' for the unknown rule '{}'.", uriInfo.getPath(),

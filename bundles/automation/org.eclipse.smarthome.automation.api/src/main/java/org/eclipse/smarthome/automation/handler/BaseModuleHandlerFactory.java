@@ -90,6 +90,5 @@ public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory {
                 handler = null;
             }
         }
-
     }
 }

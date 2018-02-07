@@ -38,7 +38,6 @@ public class BridgeTypeXmlResult extends ThingTypeXmlResult {
             String description, String category, boolean listed, List<String> extensibleChannelTypeIds,
             List<ChannelXmlResult>[] channelTypeReferenceObjects, List<NodeValue> properties,
             String representationProperty, Object[] configDescriptionObjects) {
-
         super(bridgeTypeUID, supportedBridgeTypeUIDs, label, description, category, listed, extensibleChannelTypeIds,
                 channelTypeReferenceObjects, properties, representationProperty, configDescriptionObjects);
     }

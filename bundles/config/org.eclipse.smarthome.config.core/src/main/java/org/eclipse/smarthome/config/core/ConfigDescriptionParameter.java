@@ -183,7 +183,6 @@ public class ConfigDescriptionParameter {
             String label, String description, List<ParameterOption> options, List<FilterCriteria> filterCriteria,
             String groupName, Boolean advanced, Boolean limitToOptions, Integer multipleLimit, String unit,
             String unitLabel, Boolean verify) throws IllegalArgumentException {
-
         if ((name == null) || (name.isEmpty())) {
             throw new IllegalArgumentException("The name must neither be null nor empty!");
         }

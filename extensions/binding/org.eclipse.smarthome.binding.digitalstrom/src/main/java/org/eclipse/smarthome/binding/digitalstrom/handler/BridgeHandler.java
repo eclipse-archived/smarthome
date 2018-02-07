@@ -170,7 +170,6 @@ public class BridgeHandler extends BaseBridgeHandler
                             tempContMan.registerTemperatureControlStatusListener(temperatureControlDiscovery);
                         }
                     }
-
                 }
                 structMan.generateZoneGroupNames(connMan);
                 devStatMan.start();
@@ -420,7 +419,6 @@ public class BridgeHandler extends BaseBridgeHandler
                 deviceDiscovery = deviceStatusListener;
             }
         }
-
     }
 
     /**
@@ -459,7 +457,6 @@ public class BridgeHandler extends BaseBridgeHandler
                 sceneDiscovery = sceneStatusListener;
             }
         }
-
     }
 
     /**

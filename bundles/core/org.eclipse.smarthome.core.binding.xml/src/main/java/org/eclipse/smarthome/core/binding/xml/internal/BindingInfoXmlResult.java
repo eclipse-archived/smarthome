@@ -31,7 +31,6 @@ public class BindingInfoXmlResult {
 
     public BindingInfoXmlResult(BindingInfo bindingInfo, ConfigDescription configDescription)
             throws IllegalArgumentException {
-
         if (bindingInfo == null) {
             throw new IllegalArgumentException("The BindingInfo must not be null!");
         }

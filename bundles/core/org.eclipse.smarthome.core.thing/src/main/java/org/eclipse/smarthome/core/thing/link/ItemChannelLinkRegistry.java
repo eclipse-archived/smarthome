@@ -56,7 +56,6 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
      * @return set of bound channels for the given item name
      */
     public Set<ChannelUID> getBoundChannels(String itemName) {
-
         Set<ChannelUID> channelUIDs = new HashSet<>();
 
         for (ItemChannelLink itemChannelLink : getAll()) {

@@ -99,7 +99,6 @@ public class ChannelUID extends UID {
     }
 
     private static String[] getArray(ThingUID thingUID, String groupId, String id) {
-
         String[] result = new String[thingUID.getSegments().length + 1];
         for (int i = 0; i < thingUID.getSegments().length; i++) {
             result[i] = thingUID.getSegments()[i];

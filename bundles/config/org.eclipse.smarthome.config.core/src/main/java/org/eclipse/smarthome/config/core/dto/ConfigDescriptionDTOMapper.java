@@ -100,7 +100,6 @@ public class ConfigDescriptionDTOMapper {
      * @return the parameter DTO objects (not null)
      */
     public static List<ConfigDescriptionParameterDTO> mapParameters(List<ConfigDescriptionParameter> parameters) {
-
         List<ConfigDescriptionParameterDTO> configDescriptionParameterBeans = new ArrayList<>(parameters.size());
         for (ConfigDescriptionParameter configDescriptionParameter : parameters) {
             ConfigDescriptionParameterDTO configDescriptionParameterBean = new ConfigDescriptionParameterDTO(
@@ -119,7 +118,6 @@ public class ConfigDescriptionDTOMapper {
             configDescriptionParameterBeans.add(configDescriptionParameterBean);
         }
         return configDescriptionParameterBeans;
-
     }
 
     /**
@@ -130,7 +128,6 @@ public class ConfigDescriptionDTOMapper {
      */
     public static List<ConfigDescriptionParameterGroupDTO> mapParameterGroups(
             List<ConfigDescriptionParameterGroup> parameterGroups) {
-
         List<ConfigDescriptionParameterGroupDTO> parameterGroupBeans = new ArrayList<>(parameterGroups.size());
 
         for (ConfigDescriptionParameterGroup parameterGroup : parameterGroups) {
