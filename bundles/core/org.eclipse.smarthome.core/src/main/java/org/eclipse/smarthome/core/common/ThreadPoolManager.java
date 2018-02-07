@@ -17,7 +17,6 @@ import java.util.Map.Entry;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
@@ -25,6 +24,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.eclipse.smarthome.core.internal.common.WrappedScheduledExecutorService;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +114,7 @@ public class ThreadPoolManager {
                 pool = pools.get(poolName);
                 if (pool == null) {
                     int cfg = getConfig(poolName);
-                    pool = Executors.newScheduledThreadPool(cfg, new NamedThreadFactory(poolName));
+                    pool = new WrappedScheduledExecutorService(cfg, new NamedThreadFactory(poolName));
                     ((ThreadPoolExecutor) pool).setKeepAliveTime(THREAD_TIMEOUT, TimeUnit.SECONDS);
                     ((ThreadPoolExecutor) pool).allowCoreThreadTimeOut(true);
                     pools.put(poolName, pool);
