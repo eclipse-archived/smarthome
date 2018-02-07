@@ -239,6 +239,10 @@ public class ChannelItemProvider implements ItemProvider {
         synchronized (this) {
             initialized = false;
             items = null;
+            if (executor != null) {
+                executor.shutdownNow();
+                executor = null;
+            }
         }
     }
 
