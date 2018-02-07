@@ -14,7 +14,7 @@ package org.eclipse.smarthome.core.persistence;
 
 import java.util.Set;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.items.Item;
 
 /**
@@ -24,6 +24,7 @@ import org.eclipse.smarthome.core.items.Item;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Chris Jackson - Added getItems method
  */
+@NonNullByDefault
 public interface QueryablePersistenceService extends PersistenceService {
 
     /**
@@ -32,8 +33,7 @@ public interface QueryablePersistenceService extends PersistenceService {
      * @param filter the filter to apply to the query
      * @return a time series of items
      */
-    @NonNull
-    Iterable<@NonNull HistoricItem> query(@NonNull FilterCriteria filter);
+    Iterable<HistoricItem> query(FilterCriteria filter);
 
     /**
      * Returns a list of items that are stored in the persistence service
@@ -43,6 +43,5 @@ public interface QueryablePersistenceService extends PersistenceService {
      *
      * @return list of strings of item names contained in the store. Not null.
      */
-    @NonNull
-    Set<@NonNull PersistenceItemInfo> getItemInfo();
+    Set<PersistenceItemInfo> getItemInfo();
 }

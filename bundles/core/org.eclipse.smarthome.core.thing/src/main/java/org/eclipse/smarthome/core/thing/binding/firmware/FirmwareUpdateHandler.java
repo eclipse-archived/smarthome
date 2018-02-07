@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.core.thing.binding.firmware;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.firmware.FirmwareUpdateService;
@@ -25,6 +26,7 @@ import org.eclipse.smarthome.core.thing.firmware.FirmwareUpdateService;
  *
  * @author Thomas Höfer - Initial contribution
  */
+@NonNullByDefault
 public interface FirmwareUpdateHandler {
 
     /**
@@ -46,8 +48,8 @@ public interface FirmwareUpdateHandler {
     /**
      * Cancels a previous started firmware update.
      */
-    void cancel(); 
-    
+    void cancel();
+
     /**
      * Returns true, if this firmware update handler is in a state in which the firmware update can be executed,
      * otherwise false (e.g. the thing is {@link ThingStatus#OFFLINE} or its status detail is already

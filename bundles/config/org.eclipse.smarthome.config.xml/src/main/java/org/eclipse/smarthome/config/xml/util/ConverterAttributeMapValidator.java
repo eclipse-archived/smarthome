@@ -92,9 +92,7 @@ public class ConverterAttributeMapValidator {
      *
      * @param reader the reader to be used to read-in all attributes of the node (must not be null)
      * @param validationMaskTemplate the key-required map (could be null or empty)
-     *
      * @return the key-value map (not null, could be empty)
-     *
      * @throws ConversionException if the validation check fails
      */
     public static Map<String, String> readValidatedAttributes(HierarchicalStreamReader reader,

@@ -15,7 +15,7 @@ package org.eclipse.smarthome.core.items;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 
@@ -24,6 +24,7 @@ import org.eclipse.smarthome.core.types.State;
  *
  * @author Christoph Knauf - Initial contribution
  */
+@NonNullByDefault
 public class TestItem extends GenericItem {
 
     public TestItem(String name) {
@@ -31,12 +32,12 @@ public class TestItem extends GenericItem {
     }
 
     @Override
-    public @NonNull List<@NonNull Class<? extends State>> getAcceptedDataTypes() {
+    public List<Class<? extends State>> getAcceptedDataTypes() {
         return Collections.emptyList();
     }
 
     @Override
-    public @NonNull List<@NonNull Class<? extends Command>> getAcceptedCommandTypes() {
+    public List<Class<? extends Command>> getAcceptedCommandTypes() {
         return Collections.emptyList();
     }
 }

@@ -119,7 +119,6 @@ public interface ThingHandler {
      * <p>
      *
      * @param configurationParameters map of changed configuration parameters
-     *
      * @throws ConfigValidationException if one or more of the given configuration parameters do not match
      *             their declarations in the configuration description
      */

@@ -12,7 +12,8 @@
  */
 package org.eclipse.smarthome.core.service;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Filter for {@link ReadyMarker}s which a ReadyTracker is interested in.
@@ -22,25 +23,26 @@ import org.eclipse.jdt.annotation.NonNull;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
+@NonNullByDefault
 public final class ReadyMarkerFilter {
 
-    private final String identifier;
-    private final String type;
+    private final @Nullable String identifier;
+    private final @Nullable String type;
 
     public ReadyMarkerFilter() {
         this(null, null);
     }
 
-    private ReadyMarkerFilter(String type, String identifier) {
+    private ReadyMarkerFilter(@Nullable String type, @Nullable String identifier) {
         this.type = type;
         this.identifier = identifier;
     }
 
-    public boolean apply(@NonNull ReadyMarker readyMarker) {
+    public boolean apply(ReadyMarker readyMarker) {
         return isTracked(type, readyMarker.getType()) && isTracked(identifier, readyMarker.getIdentifier());
     }
 
-    private boolean isTracked(String trackingSpec, String realValue) {
+    private boolean isTracked(@Nullable String trackingSpec, String realValue) {
         return trackingSpec == null || trackingSpec.equals(realValue);
     }
 
@@ -50,8 +52,7 @@ public final class ReadyMarkerFilter {
      * @param type
      * @return
      */
-    @NonNull
-    public ReadyMarkerFilter withType(String type) {
+    public ReadyMarkerFilter withType(@Nullable String type) {
         return new ReadyMarkerFilter(type, identifier);
     }
 
@@ -61,8 +62,7 @@ public final class ReadyMarkerFilter {
      * @param type
      * @return
      */
-    @NonNull
-    public ReadyMarkerFilter withIdentifier(String identifier) {
+    public ReadyMarkerFilter withIdentifier(@Nullable String identifier) {
         return new ReadyMarkerFilter(type, identifier);
     }
 

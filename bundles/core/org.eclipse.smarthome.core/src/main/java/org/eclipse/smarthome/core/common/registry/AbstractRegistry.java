@@ -314,10 +314,8 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      * If the method throws an {@link IllegalArgumentException} the element will not be added.
      * <p>
      *
-     * @param element
-     *            element to be added
-     * @throws IllegalArgumentException
-     *             if the element is invalid and should not be added
+     * @param element element to be added
+     * @throws IllegalArgumentException if the element is invalid and should not be added
      */
     protected void onAddElement(E element) throws IllegalArgumentException {
         // can be overridden by sub classes
@@ -327,8 +325,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      * This method is called before an element is removed. The implementing
      * class can override this method to perform specific logic.
      *
-     * @param element
-     *            element to be removed
+     * @param element element to be removed
      */
     protected void onRemoveElement(E element) {
         // can be overridden by sub classes
@@ -339,17 +336,12 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      * class can override this method to perform specific logic or check the
      * validity of the updated element.
      *
-     * @param oldElement
-     *            old element (before update)
-     * @param element
-     *            updated element (after update)
-     *
+     * @param oldElement old element (before update)
+     * @param element updated element (after update)
      *            <p>
      *            If the method throws an {@link IllegalArgumentException} the element will not be updated.
      *            <p>
-     *
-     * @throws IllegalArgumentException
-     *             if the updated element is invalid and should not be updated
+     * @throws IllegalArgumentException if the updated element is invalid and should not be updated
      */
     protected void onUpdateElement(E oldElement, E element) throws IllegalArgumentException {
         // can be overridden by sub classes

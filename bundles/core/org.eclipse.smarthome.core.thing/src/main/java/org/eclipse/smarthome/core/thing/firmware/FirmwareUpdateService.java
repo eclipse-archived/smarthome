@@ -165,10 +165,8 @@ public final class FirmwareUpdateService implements EventSubscriber {
      * Returns the {@link FirmwareStatusInfo} for the thing having the given thing UID.
      *
      * @param thingUID the UID of the thing (must not be null)
-     *
      * @return the firmware status info (is null if there is no {@link FirmwareUpdateHandler} for the thing
      *         available)
-     *
      * @throws NullPointerException if the given thing UID is null
      */
     public FirmwareStatusInfo getFirmwareStatusInfo(ThingUID thingUID) {
@@ -200,7 +198,6 @@ public final class FirmwareUpdateService implements EventSubscriber {
      * @param firmwareUID the UID of the firmware to be updated (must not be null)
      * @param locale the locale to be used to internationalize error messages (if null then the locale provided by the
      *            {@link LocaleProvider} is used)
-     *
      * @throws NullPointerException if given thing UID or firmware UID is null
      * @throws IllegalStateException if
      *             <ul>

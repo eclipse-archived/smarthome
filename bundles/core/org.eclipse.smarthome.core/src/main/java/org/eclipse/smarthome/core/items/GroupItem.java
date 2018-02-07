@@ -23,7 +23,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -34,29 +35,29 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution
  */
+@NonNullByDefault
 public class GroupItem extends GenericItem implements StateChangeListener {
 
-    @NonNull
     public static final String TYPE = "Group";
 
     private final Logger logger = LoggerFactory.getLogger(GroupItem.class);
 
-    protected final GenericItem baseItem;
+    protected @Nullable final GenericItem baseItem;
 
     protected final CopyOnWriteArrayList<Item> members;
 
-    protected GroupFunction function;
+    protected @Nullable GroupFunction function;
 
     /**
      * Creates a plain GroupItem
      *
      * @param name name of the group
      */
-    public GroupItem(@NonNull String name) {
+    public GroupItem(String name) {
         this(name, null, null);
     }
 
-    public GroupItem(@NonNull String name, GenericItem baseItem) {
+    public GroupItem(String name, @Nullable GenericItem baseItem) {
         // only baseItem but no function set -> use Equality
         this(name, baseItem, new GroupFunction.Equality());
     }
@@ -68,7 +69,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      * @param baseItem type of items in the group
      * @param function function to calculate group status out of member status
      */
-    public GroupItem(@NonNull String name, GenericItem baseItem, GroupFunction function) {
+    public GroupItem(String name, @Nullable GenericItem baseItem, @Nullable GroupFunction function) {
         super(TYPE, name);
 
         // we only allow GroupItem with BOTH, baseItem AND function set, or NONE of them set
@@ -90,7 +91,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      *
      * @return the base item of this GroupItem
      */
-    public Item getBaseItem() {
+    public @Nullable Item getBaseItem() {
         return baseItem;
     }
 
@@ -99,7 +100,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      *
      * @return the function of this GroupItem
      */
-    public GroupFunction getFunction() {
+    public @Nullable GroupFunction getFunction() {
         return function;
     }
 
@@ -283,7 +284,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     }
 
     @Override
-    public State getStateAs(Class<? extends State> typeClass) {
+    public @Nullable State getStateAs(Class<? extends State> typeClass) {
         // if a group does not have a function it cannot have a state
         State newState = null;
         if (function != null) {

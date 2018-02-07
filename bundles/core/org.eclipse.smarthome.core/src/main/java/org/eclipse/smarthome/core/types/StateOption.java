@@ -25,12 +25,9 @@ public final class StateOption {
     /**
      * Creates a {@link StateOption} object.
      *
-     * @param value
-     *            value of the item
-     * @param label
-     *            label
-     * @throws IllegalArgumentException
-     *             if value is null
+     * @param value value of the item
+     * @param label label
+     * @throws IllegalArgumentException if value is null
      */
     public StateOption(String value, String label) {
         if (value == null) {

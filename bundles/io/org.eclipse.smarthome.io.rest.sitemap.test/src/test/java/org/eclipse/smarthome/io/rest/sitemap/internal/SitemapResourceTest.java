@@ -32,7 +32,6 @@ import javax.ws.rs.core.UriInfo;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -361,12 +360,12 @@ public class SitemapResourceTest {
         }
 
         @Override
-        public @NonNull List<@NonNull Class<? extends State>> getAcceptedDataTypes() {
+        public List<Class<? extends State>> getAcceptedDataTypes() {
             return Collections.emptyList();
         }
 
         @Override
-        public @NonNull List<@NonNull Class<? extends Command>> getAcceptedCommandTypes() {
+        public List<Class<? extends Command>> getAcceptedCommandTypes() {
             return Collections.emptyList();
         }
     }

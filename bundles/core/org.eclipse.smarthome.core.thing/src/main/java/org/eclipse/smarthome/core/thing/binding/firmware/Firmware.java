@@ -217,7 +217,6 @@ public final class Firmware implements Comparable<Firmware> {
      * value then this operation will also validate the MD5 checksum of the firmware.
      *
      * @return the binary content of the firmware (can be null)
-     *
      * @throws IllegalStateException if the MD5 hash value of the firmware is invalid
      */
     public synchronized byte[] getBytes() {
@@ -274,7 +273,6 @@ public final class Firmware implements Comparable<Firmware> {
      * given firmware version is null, then this operation will return false.
      *
      * @param firmwareVersion the firmware version to be compared
-     *
      * @return true, if this firmware is a successor version for the given firmware version, otherwise false
      */
     public boolean isSuccessorVersion(String firmwareVersion) {
@@ -291,7 +289,6 @@ public final class Firmware implements Comparable<Firmware> {
      *
      * @param firmwareVersion the firmware version to be checked if this firmware is valid prerequisite version of the
      *            given firmware version
-     *
      * @return true, if this firmware is valid prerequisite version of the given firmware version, otherwise false
      */
     public boolean isPrerequisiteVersion(String firmwareVersion) {
@@ -395,7 +392,6 @@ public final class Firmware implements Comparable<Firmware> {
          * Creates a new builder.
          *
          * @param uid the UID of the firmware to be created (must not be null)
-         *
          * @throws NullPointerException if given uid is null
          */
         public Builder(FirmwareUID uid) {
@@ -407,7 +403,6 @@ public final class Firmware implements Comparable<Firmware> {
          * Adds the vendor to the builder.
          *
          * @param vendor the vendor to be added to the builder
-         *
          * @return the updated builder
          */
         public Builder withVendor(String vendor) {
@@ -419,7 +414,6 @@ public final class Firmware implements Comparable<Firmware> {
          * Adds the model to the builder.
          *
          * @param model the model to be added to the builder
-         *
          * @return the updated builder
          */
         public Builder withModel(String model) {
@@ -431,7 +425,6 @@ public final class Firmware implements Comparable<Firmware> {
          * Sets the modelRestricted flag in the builder.
          *
          * @param modelRestricted the modelRestricted flag to be added to the builder
-         *
          * @return the updated builder
          */
         public Builder withModelRestricted(boolean modelRestricted) {
@@ -443,7 +436,6 @@ public final class Firmware implements Comparable<Firmware> {
          * Adds the description to the builder.
          *
          * @param description the description to be added to the builder
-         *
          * @return the updated builder
          */
         public Builder withDescription(String description) {
@@ -455,7 +447,6 @@ public final class Firmware implements Comparable<Firmware> {
          * Adds the prerequisite version to the builder.
          *
          * @param prerequisiteVersion the prerequisite version to be added to the builder
-         *
          * @return the updated builder
          */
         public Builder withPrerequisiteVersion(String prerequisiteVersion) {
@@ -467,7 +458,6 @@ public final class Firmware implements Comparable<Firmware> {
          * Adds the changelog to the builder.
          *
          * @param changelog the changelog to be added to the builder
-         *
          * @return the updated builder
          */
         public Builder withChangelog(String changelog) {
@@ -479,7 +469,6 @@ public final class Firmware implements Comparable<Firmware> {
          * Adds the online changelog to the builder.
          *
          * @param onlineChangelog the online changelog to be added to the builder
-         *
          * @return the updated builder
          */
         public Builder withOnlineChangelog(URL onlineChangelog) {
@@ -491,7 +480,6 @@ public final class Firmware implements Comparable<Firmware> {
          * Adds the input stream for the binary content to the builder.
          *
          * @param inputStream the input stream for the binary content to be added to the builder
-         *
          * @return the updated builder
          */
         public Builder withInputStream(InputStream inputStream) {
@@ -503,7 +491,6 @@ public final class Firmware implements Comparable<Firmware> {
          * Adds the properties to the builder.
          *
          * @param properties the properties to be added to the builder
-         *
          * @return the updated builder
          */
         public Builder withProperties(Map<String, String> properties) {
@@ -515,7 +502,6 @@ public final class Firmware implements Comparable<Firmware> {
          * Adds the given md5 hash value to the builder.
          *
          * @param md5Hash the md5 hash value to be added to the builder
-         *
          * @return the updated builder
          */
         public Builder withMd5Hash(String md5Hash) {

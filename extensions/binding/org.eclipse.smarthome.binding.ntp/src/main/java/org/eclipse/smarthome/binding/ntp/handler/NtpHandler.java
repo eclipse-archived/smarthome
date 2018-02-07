@@ -216,7 +216,7 @@ public class NtpHandler extends BaseThingHandler {
      * Queries the given timeserver <code>hostname</code> and returns the time
      * in milliseconds.
      *
-     * @param hostname - the timeserver to query
+     * @param hostname the timeserver to query
      * @return the time in milliseconds or the current time of the system if an
      *         error occurs.
      */

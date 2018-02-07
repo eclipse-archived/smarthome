@@ -16,7 +16,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.common.registry.Identifiable;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -35,6 +36,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@NonNullByDefault
 public interface Item extends Identifiable<String> {
 
     /**
@@ -42,7 +44,7 @@ public interface Item extends Identifiable<String> {
      *
      * @return the current state
      */
-    public @NonNull State getState();
+    public State getState();
 
     /**
      * returns the current state of the item as a specific type
@@ -50,21 +52,21 @@ public interface Item extends Identifiable<String> {
      * @return the current state in the requested type or
      *         null, if state cannot be provided as the requested type
      */
-    public State getStateAs(Class<? extends State> typeClass);
+    public @Nullable State getStateAs(Class<? extends State> typeClass);
 
     /**
      * returns the name of the item
      *
      * @return the name of the item
      */
-    public @NonNull String getName();
+    public String getName();
 
     /**
      * returns the item type as defined by {@link ItemFactory}s
      *
      * @return the item type
      */
-    public @NonNull String getType();
+    public String getType();
 
     /**
      * <p>
@@ -82,7 +84,7 @@ public interface Item extends Identifiable<String> {
      *
      * @return a list of data types that can be used to update the item state
      */
-    public @NonNull List<@NonNull Class<? extends State>> getAcceptedDataTypes();
+    public List<Class<? extends State>> getAcceptedDataTypes();
 
     /**
      * <p>
@@ -95,7 +97,7 @@ public interface Item extends Identifiable<String> {
      *
      * @return a list of all command types that can be used for this item
      */
-    public @NonNull List<@NonNull Class<? extends Command>> getAcceptedCommandTypes();
+    public List<Class<? extends Command>> getAcceptedCommandTypes();
 
     /**
      * Returns a list of the names of the groups this item belongs to.
@@ -116,12 +118,12 @@ public interface Item extends Identifiable<String> {
      *
      * @return item label or null
      */
-    public String getLabel();
+    public @Nullable String getLabel();
 
     /**
      * Returns true if the item's tags contains the specific tag, otherwise false.
      *
-     * @param tag - a tag whose presence in the item's tags is to be tested.
+     * @param tag a tag whose presence in the item's tags is to be tested.
      * @return true if the item's tags contains the specific tag, otherwise false.
      */
     public boolean hasTag(String tag);
@@ -131,7 +133,7 @@ public interface Item extends Identifiable<String> {
      *
      * @return category or null
      */
-    public String getCategory();
+    public @Nullable String getCategory();
 
     /**
      * Returns the first provided state description (uses the default locale).
@@ -139,15 +141,14 @@ public interface Item extends Identifiable<String> {
      *
      * @return state description (can be null)
      */
-    public StateDescription getStateDescription();
+    public @Nullable StateDescription getStateDescription();
 
     /**
      * Returns the first provided state description for a given locale.
      * If options are defined on the channel, they are included in the returned state description.
      *
-     * @param locale
-     *            locale (can be null)
+     * @param locale locale (can be null)
      * @return state description (can be null)
      */
-    public StateDescription getStateDescription(Locale locale);
+    public @Nullable StateDescription getStateDescription(@Nullable Locale locale);
 }

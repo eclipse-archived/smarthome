@@ -40,7 +40,6 @@ import org.eclipse.smarthome.core.library.types.StringType
 import org.eclipse.smarthome.core.service.ReadyMarker
 import org.eclipse.smarthome.core.service.ReadyService
 import org.eclipse.smarthome.core.thing.Bridge
-import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
@@ -58,6 +57,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory
@@ -111,8 +111,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         def channelTypeUID = new ChannelTypeUID("binding:channelType")
 
         THING = ThingBuilder.create(THING_UID).withChannels([
-            new Channel(CHANNEL_UID, channelTypeUID, "Switch", ChannelKind.STATE,
-            null, Collections.emptySet(), null, null, null)
+            ChannelBuilder.create(CHANNEL_UID, "Switch").withKind(ChannelKind.STATE).withType(channelTypeUID).build()
         ]).build()
         registerVolatileStorageService()
 
@@ -274,7 +273,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         registerThingTypeProvider()
 
         Thing thing2 = ThingBuilder.create(THING_UID).withChannels([
-            new Channel(CHANNEL_UID, "Switch")
+            ChannelBuilder.create(CHANNEL_UID, "Switch").build()
         ]).build()
 
         boolean raceCondition = false
@@ -777,7 +776,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         receivedEvent = null
         itemUpdateEvent = null
         def thing = ThingBuilder.create(THING_UID).withChannels([
-            new Channel(CHANNEL_UID, "Switch")
+            ChannelBuilder.create(CHANNEL_UID, "Switch").build()
         ]).build()
         managedThingProvider.update(thing)
 

@@ -38,18 +38,13 @@ public class ChannelGroupType extends AbstractDescriptionType {
      *
      * @param uid the unique identifier which identifies this channel group type within the
      *            overall system (must neither be null, nor empty)
-     *
      * @param advanced true if this channel group type contains advanced features, otherwise false
-     *
      * @param label the human readable label for the according type
      *            (must neither be null nor empty)
-     *
      * @param description the human readable description for the according type
      *            (could be null or empty)
-     *
      * @param channelDefinitions the channel definitions this channel group forms
      *            (could be null or empty)
-     *
      * @throws IllegalArgumentException if the UID is null, or the label is null or empty
      */
     @Deprecated
@@ -73,20 +68,14 @@ public class ChannelGroupType extends AbstractDescriptionType {
      *
      * @param uid the unique identifier which identifies this channel group type within the
      *            overall system (must neither be null, nor empty)
-     *
      * @param advanced true if this channel group type contains advanced features, otherwise false
-     *
      * @param label the human readable label for the according type
      *            (must neither be null nor empty)
-     *
      * @param description the human readable description for the according type
      *            (could be null or empty)
-     *
      * @param category the category of this channel group type, e.g. Temperature (could be null or empty)
-     *
      * @param channelDefinitions the channel definitions this channel group forms
      *            (could be null or empty)
-     *
      * @throws IllegalArgumentException if the UID is null, or the label is null or empty
      */
     public ChannelGroupType(ChannelGroupTypeUID uid, boolean advanced, String label, String description,

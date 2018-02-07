@@ -78,21 +78,14 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
     /**
      * Creates a new instance of this class with the specified parameters.
      *
-     * @param bundleContext
-     *            the bundle context to be used for tracking bundles (must not
+     * @param bundleContext the bundle context to be used for tracking bundles (must not
      *            be null)
-     * @param xmlDirectory
-     *            the directory to search for XML files (must neither be null,
+     * @param xmlDirectory the directory to search for XML files (must neither be null,
      *            nor empty)
-     * @param xmlDocumentTypeReader
-     *            the XML converter to be used (must not be null)
-     * @param xmlDocumentProviderFactory
-     *            the result object processor to be used (must not be null)
-     * @param readyMarkerKey
-     *            the key to use for registering {@link ReadyMarker}s
-     *
-     * @throws IllegalArgumentException
-     *             if any of the arguments is null
+     * @param xmlDocumentTypeReader the XML converter to be used (must not be null)
+     * @param xmlDocumentProviderFactory the result object processor to be used (must not be null)
+     * @param readyMarkerKey the key to use for registering {@link ReadyMarker}s
+     * @throws IllegalArgumentException if any of the arguments is null
      */
     public XmlDocumentBundleTracker(BundleContext bundleContext, String xmlDirectory,
             XmlDocumentReader<T> xmlDocumentTypeReader, XmlDocumentProviderFactory<T> xmlDocumentProviderFactory,

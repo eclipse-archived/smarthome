@@ -30,7 +30,6 @@ import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.service.ReadyMarker;
 import org.eclipse.smarthome.core.service.ReadyService;
-import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -42,6 +41,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
@@ -76,7 +76,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
     @Before
     public void setUp() throws Exception {
         THING = ThingBuilder.create(THING_TYPE_UID, THING_UID)
-                .withChannels(Collections.singletonList(new Channel(CHANNEL_UID, "Switch"))).build();
+                .withChannels(Collections.singletonList(ChannelBuilder.create(CHANNEL_UID, "Switch").build())).build();
         registerVolatileStorageService();
 
         configureAutoLinking(false);

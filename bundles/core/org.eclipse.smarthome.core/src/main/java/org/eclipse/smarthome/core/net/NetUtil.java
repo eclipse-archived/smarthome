@@ -27,7 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
@@ -44,6 +45,7 @@ import org.slf4j.LoggerFactory;
 @Component(configurationPid = "org.eclipse.smarthome.network", property = { "service.pid=org.eclipse.smarthome.network",
         "service.config.description.uri=system:network", "service.config.label=Network Settings",
         "service.config.category=system" })
+@NonNullByDefault
 public class NetUtil implements NetworkAddressService {
 
     private static final String PRIMARY_ADDRESS = "primaryAddress";
@@ -53,8 +55,8 @@ public class NetUtil implements NetworkAddressService {
     private static final Pattern IPV4_PATTERN = Pattern
             .compile("^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
 
-    private String primaryAddress;
-    private String configuredBroadcastAddress;
+    private @Nullable String primaryAddress;
+    private @Nullable String configuredBroadcastAddress;
 
     @Activate
     protected void activate(Map<String, Object> props) {
@@ -81,7 +83,7 @@ public class NetUtil implements NetworkAddressService {
     }
 
     @Override
-    public String getPrimaryIpv4HostAddress() {
+    public @Nullable String getPrimaryIpv4HostAddress() {
         String primaryIP;
 
         if (primaryAddress != null) {
@@ -111,7 +113,7 @@ public class NetUtil implements NetworkAddressService {
      *             Get the first candidate for a local IPv4 host address (non loopback, non localhost).
      */
     @Deprecated
-    public static String getLocalIpv4HostAddress() {
+    public static @Nullable String getLocalIpv4HostAddress() {
         try {
             String hostAddress = null;
             final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -140,7 +142,7 @@ public class NetUtil implements NetworkAddressService {
         }
     }
 
-    private String getFirstLocalIPv4Address() {
+    private @Nullable String getFirstLocalIPv4Address() {
         try {
             String hostAddress = null;
             final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -195,7 +197,7 @@ public class NetUtil implements NetworkAddressService {
     }
 
     @Override
-    public String getConfiguredBroadcastAddress() {
+    public @Nullable String getConfiguredBroadcastAddress() {
         String broadcastAddr;
 
         if (configuredBroadcastAddress != null) {
@@ -207,7 +209,7 @@ public class NetUtil implements NetworkAddressService {
         return broadcastAddr;
     }
 
-    private String getPrimaryBroadcastAddress() {
+    private @Nullable String getPrimaryBroadcastAddress() {
         String primaryIp = getPrimaryIpv4HostAddress();
         String broadcastAddress = null;
         if (primaryIp != null) {
@@ -238,7 +240,7 @@ public class NetUtil implements NetworkAddressService {
      * @return broadcast address, null if no broadcast address is found
      */
     @Deprecated
-    public static String getBroadcastAddress() {
+    public static @Nullable String getBroadcastAddress() {
         final List<String> broadcastAddresses = getAllBroadcastAddresses();
         if (!broadcastAddresses.isEmpty()) {
             return broadcastAddresses.get(0);
@@ -247,7 +249,7 @@ public class NetUtil implements NetworkAddressService {
         }
     }
 
-    private static String getFirstIpv4BroadcastAddress() {
+    private static @Nullable String getFirstIpv4BroadcastAddress() {
         final List<String> broadcastAddresses = getAllBroadcastAddresses();
         if (!broadcastAddresses.isEmpty()) {
             return broadcastAddresses.get(0);
@@ -305,7 +307,7 @@ public class NetUtil implements NetworkAddressService {
      * @param prefixLength bits of the netmask
      * @return string representation of netmask (i.e. 255.255.255.0)
      */
-    public static @NonNull String networkPrefixLengthToNetmask(int prefixLength) {
+    public static String networkPrefixLengthToNetmask(int prefixLength) {
         if (prefixLength > 32 || prefixLength < 1) {
             throw new IllegalArgumentException("Network prefix length is not within bounds");
         }
@@ -332,10 +334,9 @@ public class NetUtil implements NetworkAddressService {
      * @param ipAddressString ipv4 address of the device (i.e. 192.168.5.1)
      * @param netMask netmask in bits (i.e. 24)
      * @return network a device is in (i.e. 192.168.5.0)
-     *
      * @throws IllegalArgumentException if parameters are wrong
      */
-    public static @NonNull String getIpv4NetAddress(@NonNull String ipAddressString, short netMask) {
+    public static String getIpv4NetAddress(String ipAddressString, short netMask) {
 
         String errorString = "IP '" + ipAddressString + "' is not a valid IPv4 address";
         if (!isValidIPConfig(ipAddressString)) {
@@ -370,10 +371,9 @@ public class NetUtil implements NetworkAddressService {
      * @param ipAddressString ipv4 address of the device (i.e. 192.168.5.1)
      * @param prefix network prefix in bits (i.e. 24)
      * @return network broadcast address of the network the device is in (i.e. 192.168.5.255)
-     *
      * @throws IllegalArgumentException if parameters are wrong
      */
-    public static @NonNull String getIpv4NetBroadcastAddress(@NonNull String ipAddressString, short prefix) {
+    public static String getIpv4NetBroadcastAddress(String ipAddressString, short prefix) {
 
         String errorString = "IP '" + ipAddressString + "' is not a valid IPv4 address";
         if (!isValidIPConfig(ipAddressString)) {
@@ -394,7 +394,7 @@ public class NetUtil implements NetworkAddressService {
         }
     }
 
-    private String getIPv4inSubnet(String ipAddress, String subnetMask) {
+    private @Nullable String getIPv4inSubnet(String ipAddress, String subnetMask) {
         try {
             final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {

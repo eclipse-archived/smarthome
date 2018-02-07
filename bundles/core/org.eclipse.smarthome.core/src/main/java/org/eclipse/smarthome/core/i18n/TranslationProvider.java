@@ -39,7 +39,6 @@ public interface TranslationProvider {
      * @param key the key to be translated (could be null or empty)
      * @param defaultText the default text to be used (could be null or empty)
      * @param locale the locale (language) to be used (could be null)
-     *
      * @return the translated text or the default text (could be null or empty)
      */
     String getText(Bundle bundle, String key, String defaultText, Locale locale);
@@ -57,7 +56,6 @@ public interface TranslationProvider {
      * @param defaultText the default text to be used (could be null or empty)
      * @param locale the locale (language) to be used (could be null)
      * @param arguments the arguments to be injected into the translation (could be null)
-     *
      * @return the translated text or the default text (could be null or empty)
      */
     String getText(Bundle bundle, String key, String defaultText, Locale locale, Object... arguments);

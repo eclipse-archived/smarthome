@@ -16,10 +16,13 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
@@ -27,9 +30,9 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.library.items.NumberItem;
-import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.junit.Before;
@@ -66,20 +69,15 @@ public class ChannelItemProviderTest {
     public void setup() throws Exception {
         initMocks(this);
 
-        provider = new ChannelItemProvider();
-        provider.setItemRegistry(itemRegistry);
-        provider.setThingRegistry(thingRegistry);
-        provider.setItemChannelLinkRegistry(linkRegistry);
-        provider.addItemFactory(itemFactory);
-        provider.setLocaleProvider(localeProvider);
-        provider.addProviderChangeListener(listener);
+        provider = createProvider();
 
         Map<String, Object> props = new HashMap<>();
-        props.put("enable", "true");
+        props.put("enabled", "true");
         props.put("initialDelay", "false");
         provider.activate(props);
 
-        when(thingRegistry.getChannel(same(CHANNEL_UID))).thenReturn(new Channel(CHANNEL_UID, "Number"));
+        when(thingRegistry.getChannel(same(CHANNEL_UID)))
+                .thenReturn(ChannelBuilder.create(CHANNEL_UID, "Number").build());
         when(itemFactory.createItem("Number", ITEM_NAME)).thenReturn(ITEM);
         when(localeProvider.getLocale()).thenReturn(Locale.ENGLISH);
     }
@@ -120,6 +118,38 @@ public class ChannelItemProviderTest {
         verify(listener, never()).added(same(provider), same(ITEM));
     }
 
+    @Test
+    public void testDisableBeforeDelayedInitialization() throws Exception {
+        provider = createProvider();
+        reset(linkRegistry);
+
+        // Set the initialization delay to 40ms so we don't have to wait 2000ms to do the assertion
+        Field field = ChannelItemProvider.class.getDeclaredField("INITIALIZATION_DELAY_NANOS");
+        field.setAccessible(true);
+        Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+        field.set(provider, TimeUnit.MILLISECONDS.toNanos(40));
+
+        Map<String, Object> props = new HashMap<>();
+        props.put("enabled", "true");
+        provider.activate(props);
+
+        provider.linkRegistryListener.added(new ItemChannelLink(ITEM_NAME, CHANNEL_UID));
+        verify(listener, never()).added(same(provider), same(ITEM));
+        verify(linkRegistry, never()).getAll();
+
+        props = new HashMap<>();
+        props.put("enabled", "false");
+        provider.modified(props);
+
+        Thread.sleep(100);
+
+        provider.linkRegistryListener.added(new ItemChannelLink(ITEM_NAME, CHANNEL_UID));
+        verify(listener, never()).added(same(provider), same(ITEM));
+        verify(linkRegistry, never()).getAll();
+    }
+
     @SuppressWarnings("unchecked")
     private void resetAndPrepareListener() {
         reset(listener);
@@ -136,6 +166,18 @@ public class ChannelItemProviderTest {
         when(linkRegistry.getBoundChannels(eq(ITEM_NAME))).thenReturn(Collections.singleton(CHANNEL_UID));
         when(linkRegistry.getLinks(eq(CHANNEL_UID)))
                 .thenReturn(Collections.singleton(new ItemChannelLink(ITEM_NAME, CHANNEL_UID)));
+    }
+
+    private ChannelItemProvider createProvider() {
+        ChannelItemProvider provider = new ChannelItemProvider();
+        provider.setItemRegistry(itemRegistry);
+        provider.setThingRegistry(thingRegistry);
+        provider.setItemChannelLinkRegistry(linkRegistry);
+        provider.addItemFactory(itemFactory);
+        provider.setLocaleProvider(localeProvider);
+        provider.addProviderChangeListener(listener);
+
+        return provider;
     }
 
 }

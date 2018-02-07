@@ -14,7 +14,8 @@ package org.eclipse.smarthome.core.persistence;
 
 import java.util.Locale;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.items.Item;
 
 /**
@@ -25,6 +26,7 @@ import org.eclipse.smarthome.core.items.Item;
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
+@NonNullByDefault
 public interface PersistenceService {
 
     /**
@@ -33,7 +35,6 @@ public interface PersistenceService {
      *
      * @return the id to uniquely identify the {@link PersistenceService}.
      */
-    @NonNull
     String getId();
 
     /**
@@ -41,11 +42,9 @@ public interface PersistenceService {
      * This label provides a user friendly name for the {@link PersistenceService}.
      *
      * @param locale the language to return the label in, or null for the default language
-     *
      * @return the label of the {@link PersistenceService}.
      */
-    @NonNull
-    String getLabel(Locale locale);
+    String getLabel(@Nullable Locale locale);
 
     /**
      * Stores the current value of the given item.
@@ -56,7 +55,7 @@ public interface PersistenceService {
      *
      * @param item the item which state should be persisted.
      */
-    void store(@NonNull Item item);
+    void store(Item item);
 
     /**
      * <p>
@@ -70,5 +69,5 @@ public interface PersistenceService {
      * @param item the item which state should be persisted.
      * @param alias the alias under which the item should be persisted.
      */
-    void store(@NonNull Item item, @NonNull String alias);
+    void store(Item item, String alias);
 }

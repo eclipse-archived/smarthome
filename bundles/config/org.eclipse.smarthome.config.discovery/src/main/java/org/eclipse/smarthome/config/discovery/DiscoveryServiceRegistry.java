@@ -42,11 +42,9 @@ public interface DiscoveryServiceRegistry {
      * Returns {@code true}, if at least one {@link DiscoveryService} could be found and forced to start a discovery,
      * otherwise {@code false}. If the discovery process has already been started before, {@code true} is returned.
      *
-     * @param thingTypeUID
-     *            the Thing type UID pointing to collection of discovery
+     * @param thingTypeUID the Thing type UID pointing to collection of discovery
      *            services to be forced to start a discovery
-     * @param listener
-     *            a callback to inform about errors or termination, can be null.
+     * @param listener a callback to inform about errors or termination, can be null.
      *            If more than one discovery service is started, the {@link ScanListener#onFinished()} callback is
      *            called after all
      *            discovery services finished their scan. If one discovery
@@ -65,18 +63,15 @@ public interface DiscoveryServiceRegistry {
      * Returns {@code true}, if a at least one {@link DiscoveryService} could be found and forced to start a discovery,
      * otherwise {@code false}.
      *
-     * @param bindingId
-     *            the binding id pointing to one or more discovery services to
+     * @param bindingId the binding id pointing to one or more discovery services to
      *            be forced to start a discovery
-     * @param listener
-     *            a callback to inform about errors or termination, can be null.
+     * @param listener a callback to inform about errors or termination, can be null.
      *            If more than one discovery service is started, the {@link ScanListener#onFinished()} callback is
      *            called after all
      *            discovery services finished their scan. If one discovery
      *            service raises an error, the method {@link ScanListener#onErrorOccurred(Exception)} is called
      *            directly. All other finished or error callbacks will be ignored
      *            and not forwarded to the listener.
-     *
      * @return true if a t least one discovery service could be found and forced
      *         to start a discovery, otherwise false
      */
@@ -90,9 +85,7 @@ public interface DiscoveryServiceRegistry {
      * aborted, otherwise {@code false} . If the discovery process has not been started before, {@code true} is
      * returned.
      *
-     * @param thingTypeUID
-     *            the Thing type UID whose discovery scans should be aborted
-     *
+     * @param thingTypeUID the Thing type UID whose discovery scans should be aborted
      * @return true if at least one discovery service could be found and all
      *         discoveries could be aborted, otherwise false
      */
@@ -106,9 +99,7 @@ public interface DiscoveryServiceRegistry {
      * aborted, otherwise {@code false} . If the discovery process has not been started before, {@code true} is
      * returned.
      *
-     * @param bindingId
-     *            the binding id whose discovery scans should be aborted
-     *
+     * @param bindingId the binding id whose discovery scans should be aborted
      * @return true if at least one discovery service could be found and all
      *         discoveries could be aborted, otherwise false
      */
@@ -118,8 +109,7 @@ public interface DiscoveryServiceRegistry {
      * Returns true if the given thing type UID supports discovery, false
      * otherwise.
      *
-     * @param thingTypeUID
-     *            thing type UID
+     * @param thingTypeUID thing type UID
      * @return true if the given thing type UID supports discovery, false
      *         otherwise
      */
@@ -129,8 +119,7 @@ public interface DiscoveryServiceRegistry {
      * Returns true if the given binding id supports discovery for at least one
      * thing type.
      *
-     * @param bindingId
-     *            bindingId
+     * @param bindingId bindingId
      * @return true if the given binding id supports discovery, false otherwise
      */
     boolean supportsDiscovery(String bindingId);
@@ -177,8 +166,7 @@ public interface DiscoveryServiceRegistry {
     /**
      * Returns the maximum discovery timeout from all discovery services registered for the specified thingTypeUID
      *
-     * @param thingTypeUID
-     *            thing type UID
+     * @param thingTypeUID thing type UID
      * @return the maximum amount of seconds which the discovery can take
      */
     int getMaxScanTimeout(ThingTypeUID thingTypeUID);
@@ -186,8 +174,7 @@ public interface DiscoveryServiceRegistry {
     /**
      * Returns the maximum discovery timeout from all discovery services registered for the specified binding id
      *
-     * @param bindingId
-     *            id of the binding
+     * @param bindingId id of the binding
      * @return the maximum amount of seconds which the discovery can take
      */
     int getMaxScanTimeout(String bindingId);

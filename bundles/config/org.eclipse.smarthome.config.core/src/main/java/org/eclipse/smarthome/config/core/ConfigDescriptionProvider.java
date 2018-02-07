@@ -44,7 +44,6 @@ public interface ConfigDescriptionProvider {
      *
      * @param uri uri of the config description
      * @param locale locale
-     *
      * @return config description or null if no config description could be found
      */
     @Nullable

@@ -107,12 +107,10 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
      * It expects the transformation to be read from a file which is stored
      * under the 'conf/transform'
      *
-     * @param filename
-     *            the name of the file which contains the transformation definition.
+     * @param filename the name of the file which contains the transformation definition.
      *            The name may contain subfoldernames
      *            as well
-     * @param source
-     *            the input to transform
+     * @param source the input to transform
      * @throws TransformationException
      */
     @Override
@@ -149,12 +147,8 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
      * Abstract method defined by subclasses to effectively operate the
      * transformation according to its rules
      *
-     * @param transform
-     *            transformation held by the file provided to <code>transform</code> method
-     *
-     * @param source
-     *            the input to transform
-     *
+     * @param transform transformation held by the file provided to <code>transform</code> method
+     * @param source the input to transform
      * @return the transformed result or null if the
      *         transformation couldn't be completed for any reason.
      *
@@ -166,15 +160,10 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
      * Abstract method defined by subclasses to effectively read the transformation
      * source file according to their own needs.
      *
-     * @param filename
-     *            Name of the file to be read. This filename may have been transposed
+     * @param filename Name of the file to be read. This filename may have been transposed
      *            to a localized one
-     *
-     * @return
-     *         An object containing the source file
-     *
-     * @throws TransformationException
-     *             file couldn't be read for any reason
+     * @return An object containing the source file
+     * @throws TransformationException file couldn't be read for any reason
      */
     protected abstract T internalLoadTransform(String filename) throws TransformationException;
 

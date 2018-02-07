@@ -43,6 +43,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
@@ -177,8 +178,7 @@ public abstract class GenericWemoOSGiTest extends OSGiTest {
         ThingUID thingUID = new ThingUID(thingTypeUID, TEST_THING_ID);
 
         ChannelUID channelUID = new ChannelUID(thingUID, channelID)
-        Channel channel = new Channel(channelUID, DEFAULT_CHANNEL_TYPE_UID, itemAcceptedType, ChannelKind.STATE,
-                null, Collections.emptySet(), null, "label", null);
+        Channel channel = ChannelBuilder.create(channelUID, itemAcceptedType).withType(DEFAULT_CHANNEL_TYPE_UID).withKind(ChannelKind.STATE).withLabel("label").build();
 
         thing = ThingBuilder.create(thingTypeUID, thingUID)
                 .withConfiguration(configuration)

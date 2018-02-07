@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -32,6 +32,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@NonNullByDefault
 public class SwitchItem extends GenericItem {
 
     private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
@@ -45,11 +46,11 @@ public class SwitchItem extends GenericItem {
         acceptedCommandTypes.add(RefreshType.class);
     }
 
-    public SwitchItem(@NonNull String name) {
+    public SwitchItem(String name) {
         super(CoreItemFactory.SWITCH, name);
     }
 
-    /* package */ SwitchItem(@NonNull String type, @NonNull String name) {
+    /* package */ SwitchItem(String type, String name) {
         super(type, name);
     }
 

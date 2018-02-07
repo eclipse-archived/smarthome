@@ -75,9 +75,7 @@ public class InboxEventFactory extends AbstractEventFactory {
      * Creates an inbox added event.
      *
      * @param discoveryResult the discovery result
-     *
      * @return the created inbox added event
-     *
      * @throws IllegalArgumentException if discoveryResult is null
      */
     public static InboxAddedEvent createAddedEvent(DiscoveryResult discoveryResult) {
@@ -92,9 +90,7 @@ public class InboxEventFactory extends AbstractEventFactory {
      * Creates an inbox removed event.
      *
      * @param discoveryResult the discovery result
-     *
      * @return the created inbox removed event
-     *
      * @throws IllegalArgumentException if discoveryResult is null
      */
     public static InboxRemovedEvent createRemovedEvent(DiscoveryResult discoveryResult) {
@@ -109,9 +105,7 @@ public class InboxEventFactory extends AbstractEventFactory {
      * Creates an inbox updated event.
      *
      * @param discoveryResult the discovery result
-     *
      * @return the created inbox updated event
-     *
      * @throws IllegalArgumentException if discoveryResult is null
      */
     public static InboxUpdatedEvent createUpdatedEvent(DiscoveryResult discoveryResult) {

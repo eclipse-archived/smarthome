@@ -18,7 +18,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.persistence.FilterCriteria;
@@ -92,7 +91,7 @@ public class TestPersistenceService implements QueryablePersistenceService {
     }
 
     @Override
-    public @NonNull Set<@NonNull PersistenceItemInfo> getItemInfo() {
+    public Set<PersistenceItemInfo> getItemInfo() {
         return Collections.emptySet();
     }
 

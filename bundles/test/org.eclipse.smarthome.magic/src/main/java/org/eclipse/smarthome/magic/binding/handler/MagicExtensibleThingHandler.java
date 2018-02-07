@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.magic.binding.handler;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -24,6 +24,7 @@ import org.eclipse.smarthome.core.types.Command;
  *
  * @author Henning Treu - Initial contribution
  */
+@NonNullByDefault
 public class MagicExtensibleThingHandler extends BaseThingHandler {
 
     public MagicExtensibleThingHandler(Thing thing) {
@@ -31,7 +32,7 @@ public class MagicExtensibleThingHandler extends BaseThingHandler {
     }
 
     @Override
-    public void handleCommand(@NonNull ChannelUID channelUID, @NonNull Command command) {
+    public void handleCommand(ChannelUID channelUID, Command command) {
         // nop
     }
 
