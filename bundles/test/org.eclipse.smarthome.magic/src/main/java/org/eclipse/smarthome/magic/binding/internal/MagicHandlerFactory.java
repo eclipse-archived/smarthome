@@ -24,6 +24,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.magic.binding.handler.MagicColorLightHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicConfigurableThingHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicContactHandler;
+import org.eclipse.smarthome.magic.binding.handler.MagicDelayedOnlineHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicDimmableLightHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicExtensibleThingHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicOnOffLightHandler;
@@ -42,7 +43,7 @@ public class MagicHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Sets.newHashSet(THING_TYPE_EXTENSIBLE_THING,
             THING_TYPE_ON_OFF_LIGHT, THING_TYPE_DIMMABLE_LIGHT, THING_TYPE_COLOR_LIGHT, THING_TYPE_CONTACT_SENSOR,
-            THING_TYPE_CONFIG_THING);
+            THING_TYPE_CONFIG_THING, THING_TYPE_DELAYED_THING);
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -70,6 +71,9 @@ public class MagicHandlerFactory extends BaseThingHandlerFactory {
         }
         if (thingTypeUID.equals(THING_TYPE_CONFIG_THING)) {
             return new MagicConfigurableThingHandler(thing);
+        }
+        if (thingTypeUID.equals(THING_TYPE_DELAYED_THING)) {
+            return new MagicDelayedOnlineHandler(thing);
         }
 
         return null;
