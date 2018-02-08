@@ -58,7 +58,7 @@ public class DateTimeType implements PrimitiveType, State, Command {
      * @deprecated The constructor uses Calendar object hence it doesn't store time zone. A new constructor is
      *             available. Use {@link #DateTimeType(ZonedDateTime)} instead.
      *
-     * @param calendar - The Calendar object containing the time stamp.
+     * @param calendar The Calendar object containing the time stamp.
      */
     @Deprecated
     public DateTimeType(Calendar calendar) {

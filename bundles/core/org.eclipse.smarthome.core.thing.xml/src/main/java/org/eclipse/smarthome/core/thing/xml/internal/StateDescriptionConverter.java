@@ -52,7 +52,6 @@ public class StateDescriptionConverter extends GenericUnmarshaller<StateDescript
 
     private BigDecimal toBigDecimal(Map<String, String> attributes, String attribute, BigDecimal defaultValue)
             throws ConversionException {
-
         String attrValueText = attributes.get(attribute);
 
         if (attrValueText != null) {
@@ -78,7 +77,6 @@ public class StateDescriptionConverter extends GenericUnmarshaller<StateDescript
     }
 
     private List<StateOption> toListOfChannelState(NodeList nodeList) throws ConversionException {
-
         if ("options".equals(nodeList.getNodeName())) {
             List<StateOption> stateOptions = new ArrayList<>();
 

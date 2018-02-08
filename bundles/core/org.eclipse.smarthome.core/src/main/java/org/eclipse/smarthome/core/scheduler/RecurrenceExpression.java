@@ -520,7 +520,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
 
     @Override
     public boolean isSatisfiedBy(final Date test) {
-
         getTimeAfter(test);
 
         Collections.sort(getCandidates());
@@ -545,7 +544,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
      * @return a boolean indicating whether the given expression will yield a valid <code>RecurrencExpression</code>
      */
     public static boolean isValidExpression(String expression) {
-
         try {
             new RecurrenceExpression(expression);
         } catch (ParseException pe) {
@@ -557,7 +555,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
 
     @Override
     public final Date getFinalFireTime() {
-
         boolean isUntil = getExpressionPart(UntilExpressionPart.class) != null ? true : false;
         boolean isCount = getExpressionPart(CountExpressionPart.class) != null ? true : false;
 
@@ -570,7 +567,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
 
     @Override
     protected void validateExpression() throws IllegalArgumentException {
-
         boolean isFrequency = getExpressionPart(FrequencyExpressionPart.class) != null ? true : false;
         boolean isUntil = getExpressionPart(UntilExpressionPart.class) != null ? true : false;
         boolean isCount = getExpressionPart(CountExpressionPart.class) != null ? true : false;
@@ -644,7 +640,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
             throw new IllegalArgumentException(
                     "The BYSETPOS rule part MUST only be used in conjunction with another BYxxx rule part.");
         }
-
     }
 
     @Override
@@ -717,7 +712,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
             default:
                 throw new IllegalArgumentException("Unknown expression part");
         }
-
     }
 
     protected abstract class RecurrenceExpressionPart extends AbstractExpressionPart {
@@ -787,7 +781,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
         }
 
         public boolean isNumeric() {
-
             if (dayList != null) {
                 for (Integer number : dayList.values()) {
                     if (number != 0) {
@@ -823,7 +816,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
 
         @Override
         public List<Date> apply(Date startDate, List<Date> candidates) {
-
             IntervalExpressionPart intervalPart = getExpressionPart(IntervalExpressionPart.class);
 
             Calendar cal = Calendar.getInstance(getTimeZone());
@@ -946,7 +938,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
 
         @Override
         public List<Date> apply(Date startDate, List<Date> candidates) {
-
             FrequencyExpressionPart freqpart = getExpressionPart(FrequencyExpressionPart.class);
             Frequency frequency = freqpart.getFrequency();
 
@@ -1001,7 +992,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
 
         @Override
         public List<Date> apply(Date startDate, List<Date> candidates) {
-
             FrequencyExpressionPart freqpart = getExpressionPart(FrequencyExpressionPart.class);
             Frequency frequency = freqpart.getFrequency();
 
@@ -1060,7 +1050,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
 
         @Override
         public List<Date> apply(Date startDate, List<Date> candidates) {
-
             FrequencyExpressionPart freqpart = getExpressionPart(FrequencyExpressionPart.class);
             Frequency frequency = freqpart.getFrequency();
 
@@ -1125,7 +1114,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
 
         @Override
         public List<Date> apply(Date startDate, List<Date> candidates) {
-
             FrequencyExpressionPart freqpart = getExpressionPart(FrequencyExpressionPart.class);
             Frequency frequency = freqpart.getFrequency();
 
@@ -1191,7 +1179,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
 
         @Override
         public List<Date> apply(Date startDate, List<Date> candidates) {
-
             FrequencyExpressionPart freqpart = getExpressionPart(FrequencyExpressionPart.class);
             Frequency frequency = freqpart.getFrequency();
 
@@ -1208,7 +1195,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
 
             if (frequency == Frequency.YEARLY) {
                 if (isByYearDay || isByMonthDay) {
-
                     List<Date> pruneCandidates = new ArrayList<>();
                     final Calendar cal = Calendar.getInstance(getTimeZone());
 
@@ -1220,7 +1206,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
                     }
                     candidates.removeAll(pruneCandidates);
                 } else if (isByWeekNumber) {
-
                     List<Date> newCandidates = new ArrayList<>();
                     List<Date> oldCandidates = candidates;
 
@@ -1237,7 +1222,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
                     candidates.removeAll(oldCandidates);
                     candidates.addAll(newCandidates);
                 } else if (isByMonth) {
-
                     List<Date> newCandidates = new ArrayList<>();
                     List<Date> oldCandidates = candidates;
 
@@ -1275,7 +1259,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
                     candidates.removeAll(oldCandidates);
                     candidates.addAll(newCandidates);
                 } else {
-
                     List<Date> newCandidates = new ArrayList<>();
                     List<Date> oldCandidates = candidates;
 
@@ -1345,7 +1328,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
                     candidates.removeAll(oldCandidates);
                     candidates.addAll(newCandidates);
                 } else {
-
                     List<Date> pruneCandidates = new ArrayList<>();
                     final Calendar cal = Calendar.getInstance(getTimeZone());
 
@@ -1358,7 +1340,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
                     candidates.removeAll(pruneCandidates);
                 }
             } else if (frequency == Frequency.WEEKLY) {
-
                 List<Date> newCandidates = new ArrayList<>();
                 List<Date> oldCandidates = candidates;
 
@@ -1375,7 +1356,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
                 candidates.removeAll(oldCandidates);
                 candidates.addAll(newCandidates);
             } else {
-
                 List<Date> pruneCandidates = new ArrayList<>();
                 final Calendar cal = Calendar.getInstance(getTimeZone());
 
@@ -1413,7 +1393,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
 
         @Override
         public List<Date> apply(Date startDate, List<Date> candidates) {
-
             FrequencyExpressionPart freqpart = getExpressionPart(FrequencyExpressionPart.class);
             Frequency frequency = freqpart.getFrequency();
 
@@ -1471,7 +1450,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
 
         @Override
         public List<Date> apply(Date startDate, List<Date> candidates) {
-
             FrequencyExpressionPart freqpart = getExpressionPart(FrequencyExpressionPart.class);
             Frequency frequency = freqpart.getFrequency();
 
@@ -1529,7 +1507,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
 
         @Override
         public List<Date> apply(Date startDate, List<Date> candidates) {
-
             FrequencyExpressionPart freqpart = getExpressionPart(FrequencyExpressionPart.class);
             Frequency frequency = freqpart.getFrequency();
 
@@ -1589,7 +1566,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
         @SuppressWarnings("null")
         @Override
         public List<Date> apply(Date startDate, List<Date> candidates) {
-
             List<Date> selectCandidates = new ArrayList<>();
 
             FrequencyExpressionPart freqpart = getExpressionPart(FrequencyExpressionPart.class);
@@ -1730,7 +1706,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
 
         @Override
         public List<Date> apply(Date startDate, List<Date> candidates) {
-
             List<Date> countedCandidates = new ArrayList<>();
 
             Collections.sort(candidates);
@@ -1773,7 +1748,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
 
         @Override
         public void parse() throws ParseException {
-
             DateFormat format = null;
 
             if (getPart().contains("T")) {
@@ -1801,7 +1775,6 @@ public class RecurrenceExpression extends AbstractExpression<RecurrenceExpressio
 
         @Override
         public List<Date> apply(Date startDate, List<Date> candidates) {
-
             List<Date> filtered = new ArrayList<>();
 
             Collections.sort(candidates);

@@ -180,7 +180,6 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
         channelTypes = Collections.unmodifiableCollection(Arrays.asList(new ChannelType[] {
                 SYSTEM_CHANNEL_SIGNAL_STRENGTH, SYSTEM_CHANNEL_LOW_BATTERY, SYSTEM_CHANNEL_BATTERY_LEVEL,
                 SYSTEM_TRIGGER, SYSTEM_RAWBUTTON, SYSTEM_BUTTON, SYSTEM_RAWROCKER }));
-
     }
 
     @Override
@@ -237,7 +236,6 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
     }
 
     private ChannelType createLocalizedChannelType(Bundle bundle, ChannelType channelType, Locale locale) {
-
         LocalizedChannelTypeKey localizedChannelTypeKey = getLocalizedChannelTypeKey(channelType.getUID(), locale);
 
         ChannelType cachedEntry = localizedChannelTypeCache.get(localizedChannelTypeKey);
@@ -246,7 +244,6 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
         }
 
         if (thingTypeI18nUtil != null) {
-
             ChannelTypeUID channelTypeUID = channelType.getUID();
 
             String label = thingTypeI18nUtil.getChannelLabel(bundle, channelTypeUID, channelType.getLabel(), locale);
@@ -269,7 +266,6 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
 
     private StateDescription createLocalizedChannelState(Bundle bundle, ChannelType channelType,
             ChannelTypeUID channelTypeUID, Locale locale) {
-
         StateDescription state = channelType.getState();
 
         if (state != null) {

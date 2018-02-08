@@ -96,7 +96,6 @@ public class SseResource {
             @ApiResponse(code = 400, message = "Topic is empty or contains invalid characters") })
     public Object getEvents(@QueryParam("topics") @ApiParam(value = "topics") String eventFilter)
             throws IOException, InterruptedException {
-
         if (!SseUtil.isValidTopicFilter(eventFilter)) {
             return Response.status(Status.BAD_REQUEST).build();
         }

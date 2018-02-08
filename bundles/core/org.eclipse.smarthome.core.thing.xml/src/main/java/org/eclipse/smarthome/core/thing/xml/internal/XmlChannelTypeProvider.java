@@ -76,7 +76,6 @@ public class XmlChannelTypeProvider extends AbstractXmlBasedProvider<UID, Channe
 
     private StateDescription createLocalizedChannelState(Bundle bundle, ChannelType channelType,
             ChannelTypeUID channelTypeUID, Locale locale) {
-
         StateDescription state = channelType.getState();
 
         if (state != null) {

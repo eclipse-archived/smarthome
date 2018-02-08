@@ -142,7 +142,6 @@ public class ThingType extends AbstractDescriptionType {
             @Nullable List<ChannelGroupDefinition> channelGroupDefinitions, @Nullable Map<String, String> properties,
             @Nullable URI configDescriptionURI, @Nullable List<String> extensibleChannelTypeIds)
             throws IllegalArgumentException {
-
         super(uid, label, description);
 
         this.category = category;

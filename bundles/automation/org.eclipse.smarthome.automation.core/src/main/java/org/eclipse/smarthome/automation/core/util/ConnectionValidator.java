@@ -98,7 +98,6 @@ public class ConnectionValidator {
      * @throws IllegalArgumentException when validation fails.
      */
     private static void validateActionConnections(RuntimeAction action, List<Trigger> triggers, List<Action> actions) {
-
         ActionType type = (ActionType) mtRegistry.get(action.getTypeUID()); // get module type of the condition
         if (type == null) {
             // if module type not exists in the system - throws exception
@@ -174,7 +173,6 @@ public class ConnectionValidator {
      * @throws IllegalArgumentException when validation fails.
      */
     private static void validateConditionConnections(RuntimeCondition condition, List<Trigger> triggers) {
-
         ConditionType type = (ConditionType) mtRegistry.get(condition.getTypeUID()); // get module type of the condition
         if (type == null) {
             // if module type not exists in the system - throws exception
@@ -219,7 +217,6 @@ public class ConnectionValidator {
      * @throws IllegalArgumentException when validation fails.
      */
     private static void checkConnection(Connection connection, Input input, List<Trigger> triggers) {
-
         Map<String, Trigger> triggersMap = new HashMap<String, Trigger>();
         for (Trigger trigger : triggers) {
             triggersMap.put(trigger.getId(), trigger);

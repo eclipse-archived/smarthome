@@ -86,11 +86,9 @@ public class CorsFilter implements ContainerResponseFilter {
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
             throws IOException {
-
         if (isEnabled && !processPreflight(requestContext, responseContext)) {
             processRequest(requestContext, responseContext);
         }
-
     }
 
     /**
@@ -104,7 +102,6 @@ public class CorsFilter implements ContainerResponseFilter {
         // (OPTIONS requests are not processed here)
         if (ACCEPTED_HTTP_METHODS_LIST.contains(requestContext.getMethod())
                 && !HTTP_OPTIONS_METHOD.equals(requestContext.getMethod())) {
-
             String origin = getValue(requestContext.getHeaders(), ORIGIN_HEADER);
             if (StringUtils.isNotBlank(origin)) {
                 responseContext.getHeaders().add(ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, origin);
@@ -123,7 +120,6 @@ public class CorsFilter implements ContainerResponseFilter {
         boolean isCorsPreflight = false;
 
         if (HTTP_OPTIONS_METHOD.equals(requestContext.getMethod())) {
-
             // Look for the mandatory CORS preflight request headers
             String origin = getValue(requestContext.getHeaders(), ORIGIN_HEADER);
             String realRequestMethod = getValue(requestContext.getHeaders(), ACCESS_CONTROL_REQUEST_METHOD);
@@ -136,7 +132,6 @@ public class CorsFilter implements ContainerResponseFilter {
 
                 // Add the accepted request headers
                 appendVaryHeader(responseContext);
-
             }
         }
 

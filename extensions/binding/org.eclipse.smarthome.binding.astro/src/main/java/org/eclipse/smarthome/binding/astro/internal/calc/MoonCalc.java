@@ -197,7 +197,6 @@ public class MoonCalc {
             }
             yminus = yplus;
             hour += 2;
-
         } while (hour < 25 && (utrise == -1 || utset == -1));
 
         double rise = prepareTime(utrise);

@@ -81,7 +81,6 @@ public class ConverterValueMap {
      */
     public static Map<String, Object> readValueMap(HierarchicalStreamReader reader, int numberOfValues,
             UnmarshallingContext context) throws ConversionException {
-
         Map<String, Object> valueMap = new HashMap<>((numberOfValues >= 0) ? numberOfValues : 10);
         int counter = 0;
 

@@ -67,7 +67,6 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
      * Then the RuleEngine will generate the UID for each provided rule.
      */
     public WelcomeHomeRulesProvider() {
-
         // initialize the "AirConditionerSwitchOnRule" rule from template by using UID, templateUID and configuration.
         Rule acSwitchOn = createACRule();
 
@@ -112,7 +111,6 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
      *            gives the new configuration of the rule
      */
     public void update(String uid, String template, Configuration config) {
-
         // specific for this application
         Rule oldelement = rules.get(uid);
         Rule element = new Rule(uid);

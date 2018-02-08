@@ -42,7 +42,6 @@ public class BridgeType extends ThingType {
      */
     @Deprecated
     public BridgeType(String bindingId, String thingTypeId, String label) throws IllegalArgumentException {
-
         this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, null, true, null, null, null, null, null);
     }
 
@@ -58,7 +57,6 @@ public class BridgeType extends ThingType {
     public BridgeType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
             List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions,
             Map<String, String> properties, URI configDescriptionURI) throws IllegalArgumentException {
-
         this(uid, supportedBridgeTypeUIDs, label, description, null, true, null, channelDefinitions,
                 channelGroupDefinitions, properties, configDescriptionURI);
     }
@@ -76,7 +74,6 @@ public class BridgeType extends ThingType {
             String category, boolean listed, List<ChannelDefinition> channelDefinitions,
             List<ChannelGroupDefinition> channelGroupDefinitions, Map<String, String> properties,
             URI configDescriptionURI) throws IllegalArgumentException {
-
         this(uid, supportedBridgeTypeUIDs, label, description, category, listed, null, channelDefinitions,
                 channelGroupDefinitions, properties, configDescriptionURI);
     }
@@ -95,7 +92,6 @@ public class BridgeType extends ThingType {
             @Nullable String representationProperty, @Nullable List<ChannelDefinition> channelDefinitions,
             @Nullable List<ChannelGroupDefinition> channelGroupDefinitions, @Nullable Map<String, String> properties,
             @Nullable URI configDescriptionURI) throws IllegalArgumentException {
-
         super(uid, supportedBridgeTypeUIDs, label, description, category, listed, representationProperty,
                 channelDefinitions, channelGroupDefinitions, properties, configDescriptionURI);
     }

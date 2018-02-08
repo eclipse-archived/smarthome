@@ -47,7 +47,6 @@ public class BindingInfoXmlProvider implements XmlDocumentProvider<BindingInfoXm
 
     public BindingInfoXmlProvider(Bundle bundle, XmlBindingInfoProvider bindingInfoProvider,
             AbstractXmlConfigDescriptionProvider configDescriptionProvider) throws IllegalArgumentException {
-
         if (bundle == null) {
             throw new IllegalArgumentException("The Bundle must not be null!");
         }

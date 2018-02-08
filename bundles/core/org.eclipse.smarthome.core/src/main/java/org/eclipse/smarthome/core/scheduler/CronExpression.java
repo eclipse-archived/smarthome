@@ -217,7 +217,6 @@ public final class CronExpression extends AbstractExpression<CronExpressionPart>
      * @return a boolean indicating whether the given expression is a valid cron expression
      */
     public static boolean isValidExpression(String cronExpression) {
-
         try {
             new CronExpression(cronExpression);
         } catch (ParseException pe) {
@@ -229,7 +228,6 @@ public final class CronExpression extends AbstractExpression<CronExpressionPart>
 
     @Override
     protected void validateExpression() throws IllegalArgumentException {
-
         DayOfMonthExpressionPart domPart = getExpressionPart(DayOfMonthExpressionPart.class);
         DayOfWeekExpressionPart dowPart = getExpressionPart(DayOfWeekExpressionPart.class);
 
@@ -257,7 +255,6 @@ public final class CronExpression extends AbstractExpression<CronExpressionPart>
 
     @Override
     protected void populateWithSeeds() {
-
         YearsExpressionPart thePart = null;
 
         for (ExpressionPart part : getExpressionParts()) {
@@ -396,7 +393,6 @@ public final class CronExpression extends AbstractExpression<CronExpressionPart>
                         }
                     } catch (Exception e) {
                         throw new ParseException("Increment '" + v + "' is not a valid value", 0);
-
                     }
                     int fromValue = from.equals("*") ? 0 : Integer.parseInt(from);
                     getValueSet().add(fromValue, MAX_SECOND, Integer.parseInt(increment));
@@ -495,7 +491,6 @@ public final class CronExpression extends AbstractExpression<CronExpressionPart>
                         }
                     } catch (Exception e) {
                         throw new ParseException("Increment '" + v + "' is not a valid value", 0);
-
                     }
                     int fromValue = from.equals("*") ? 0 : Integer.parseInt(from);
                     getValueSet().add(fromValue, MAX_MINUTE, Integer.parseInt(increment));
@@ -594,7 +589,6 @@ public final class CronExpression extends AbstractExpression<CronExpressionPart>
                         }
                     } catch (Exception e) {
                         throw new ParseException("Increment '" + v + "' is not a valid value", 0);
-
                     }
                     int fromValue = from.equals("*") ? 0 : Integer.parseInt(from);
                     getValueSet().add(fromValue, MAX_HOUR, Integer.parseInt(increment));
@@ -685,7 +679,6 @@ public final class CronExpression extends AbstractExpression<CronExpressionPart>
                     throw new ParseException("Invalid Month value: '" + monthAsString + "'", 0);
                 }
             }
-
         }
 
         @Override
@@ -706,7 +699,6 @@ public final class CronExpression extends AbstractExpression<CronExpressionPart>
                         }
                     } catch (Exception e) {
                         throw new ParseException("Increment '" + v + "' is not a valid value", 0);
-
                     }
                     int fromValue = from.equals("*") ? 0 : monthAsInteger(from);
                     getValueSet().add(fromValue, MAX_MONTH, monthAsInteger(increment));
@@ -885,7 +877,6 @@ public final class CronExpression extends AbstractExpression<CronExpressionPart>
 
         @Override
         public List<Date> apply(Date startDate, List<Date> candidates) {
-
             if (!isNotSpecific) {
                 final Calendar cal = Calendar.getInstance(getTimeZone());
 
@@ -974,7 +965,6 @@ public final class CronExpression extends AbstractExpression<CronExpressionPart>
 
         public DayOfWeekExpressionPart(String s) throws ParseException {
             super(s);
-
         }
 
         @Override
@@ -1083,7 +1073,6 @@ public final class CronExpression extends AbstractExpression<CronExpressionPart>
 
         @Override
         public List<Date> apply(Date startDate, List<Date> candidates) {
-
             if (!isNotSpecific) {
                 final Calendar cal = Calendar.getInstance(getTimeZone());
                 List<Date> oldCandidates = new ArrayList<>();

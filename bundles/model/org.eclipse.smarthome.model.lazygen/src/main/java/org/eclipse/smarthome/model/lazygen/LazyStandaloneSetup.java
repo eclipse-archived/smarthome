@@ -71,7 +71,6 @@ public class LazyStandaloneSetup extends AbstractWorkflowComponent2 {
         for (String ecoreFile : allEcoreFiles) {
             addRegisterEcoreFile(ecoreFile);
         }
-
     }
 
     private final org.apache.commons.logging.Log log = LogFactory.getLog(getClass());
@@ -87,7 +86,6 @@ public class LazyStandaloneSetup extends AbstractWorkflowComponent2 {
                 registry.put(pack.getNsURI(), pack);
                 log.info("Adding generated EPackage '" + interfacename + "'");
             }
-
         } catch (Exception e) {
             throw new ConfigurationException("Couldn't register " + interfacename
                     + ". Is it the generated EPackage interface? : " + e.getMessage());

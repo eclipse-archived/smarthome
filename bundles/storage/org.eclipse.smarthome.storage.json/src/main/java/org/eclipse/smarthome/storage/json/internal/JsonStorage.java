@@ -94,7 +94,6 @@ public class JsonStorage<T> implements Storage<T> {
 
         Map<String, StorageEntry> inputMap = null;
         if (file.exists()) {
-
             // Read the file
             inputMap = readDatabase(file);
         }
@@ -126,7 +125,6 @@ public class JsonStorage<T> implements Storage<T> {
             map.putAll(inputMap);
             logger.debug("Opened Json storage file at '{}'.", file.getAbsolutePath());
         }
-
     }
 
     @Override

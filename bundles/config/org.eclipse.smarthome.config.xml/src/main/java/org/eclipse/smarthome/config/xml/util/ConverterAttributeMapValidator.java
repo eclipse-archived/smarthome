@@ -79,7 +79,6 @@ public class ConverterAttributeMapValidator {
      * @throws ConversionException if the validation check fails
      */
     public Map<String, String> readValidatedAttributes(HierarchicalStreamReader reader) throws ConversionException {
-
         return readValidatedAttributes(reader, this.validationMaskTemplate);
     }
 
@@ -97,7 +96,6 @@ public class ConverterAttributeMapValidator {
      */
     public static Map<String, String> readValidatedAttributes(HierarchicalStreamReader reader,
             Map<String, Boolean> validationMaskTemplate) throws ConversionException {
-
         Map<String, String> attributeMap = new HashMap<>(reader.getAttributeCount());
 
         Map<String, Boolean> validationMask = null;

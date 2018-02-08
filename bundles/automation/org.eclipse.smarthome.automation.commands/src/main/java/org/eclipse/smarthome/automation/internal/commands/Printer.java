@@ -96,7 +96,6 @@ public class Printer {
      * @return
      */
     static String printRules(AutomationCommandsPluggable autoCommands, Map<String, String> ruleUIDs) {
-
         int[] columnWidths = new int[] { COLUMN_ID, COLUMN_RULE_UID, COLUMN_RULE_NAME, COLUMN_RULE_STATUS };
         List<String> columnValues = new ArrayList<String>();
         columnValues.add(ID);
@@ -126,7 +125,6 @@ public class Printer {
      * @return a formated string, representing the sorted list with indexed UIDs of the available {@link Template}s.
      */
     static String printTemplates(Map<String, String> templateUIDs) {
-
         int[] columnWidths = new int[] { COLUMN_ID, COLUMN_UID };
         List<String> columnTitles = new ArrayList<String>();
         columnTitles.add(ID);
@@ -145,7 +143,6 @@ public class Printer {
      * @return a formated string, representing the sorted list with indexed UIDs of the available {@link ModuleType}s.
      */
     static String printModuleTypes(Map<String, String> moduleTypeUIDs) {
-
         int[] columnWidths = new int[] { COLUMN_ID, COLUMN_UID };
         List<String> columnTitles = new ArrayList<String>();
         columnTitles.add(ID);
@@ -164,7 +161,6 @@ public class Printer {
      * @return a formated string, representing the {@link Rule} info.
      */
     static String printRule(Rule rule, RuleStatus status) {
-
         int[] columnWidths = new int[] { TABLE_WIDTH };
         List<String> ruleProperty = new ArrayList<String>();
         ruleProperty.add(rule.getUID() + " [ " + status + " ]");
@@ -207,7 +203,6 @@ public class Printer {
      * @return a formated string, representing the {@link Template} info.
      */
     static String printTemplate(Template template) {
-
         int[] columnWidths = new int[] { TABLE_WIDTH };
         List<String> templateProperty = new ArrayList<String>();
         templateProperty.add(template.getUID());
@@ -252,7 +247,6 @@ public class Printer {
      * @return a formated string, representing the {@link ModuleType} info.
      */
     static String printModuleType(ModuleType moduleType) {
-
         int[] columnWidths = new int[] { TABLE_WIDTH };
         List<String> moduleTypeProperty = new ArrayList<String>();
         moduleTypeProperty.add(moduleType.getUID());
@@ -401,7 +395,6 @@ public class Printer {
      * @return a formated string, representing the {@link Module}.
      */
     private static List<String> getModuleRecords(Module module) {
-
         int[] columnWidths = new int[] { COLUMN_PROPERTY_VALUE };
         List<String> columnValues = new ArrayList<String>();
         columnValues.add(module.getId());

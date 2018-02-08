@@ -76,7 +76,6 @@ public abstract class AbstractManagedProvider<E extends Identifiable<K>, K, PE> 
 
     @Override
     public E get(K key) {
-
         if (key == null) {
             throw new IllegalArgumentException("Cannot get null element");
         }

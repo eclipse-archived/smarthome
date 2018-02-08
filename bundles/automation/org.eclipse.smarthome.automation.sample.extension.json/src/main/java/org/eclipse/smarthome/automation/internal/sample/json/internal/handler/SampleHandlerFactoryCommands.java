@@ -97,7 +97,6 @@ public class SampleHandlerFactoryCommands extends AbstractConsoleCommandExtensio
         } else {
             console.println("No created TriggerHandler. List is Empty");
         }
-
     }
 
     private void executeTriggerHandler(String[] params, Console console) {
