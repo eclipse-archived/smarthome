@@ -429,13 +429,23 @@
 
   <feature name="esh-storage-mapdb" version="${project.version}">
     <feature>esh-base</feature>
+
     <bundle>mvn:org.eclipse.smarthome.storage/org.eclipse.smarthome.storage.mapdb/${project.version}</bundle>
+    <capability>
+      osgi.service;objectClass:List&lt;String&gt;="org.eclipse.smarthome.core.storage.StorageService,org.eclipse.smarthome.core.storage.DeletableStorageService";storage.format:String="mapdb"
+    </capability>
+
     <bundle dependency="true">mvn:org.mapdb/mapdb/1.0.9</bundle>
   </feature>
 
   <feature name="esh-storage-json" version="${project.version}">
     <feature>esh-base</feature>
+
     <bundle>mvn:org.eclipse.smarthome.storage/org.eclipse.smarthome.storage.json/${project.version}</bundle>
+    <capability>
+      osgi.service;objectClass:List&lt;String&gt;="org.eclipse.smarthome.core.storage.StorageService";storage.format:String="json"
+    </capability>
+
   </feature>
 
   <feature name="esh-ui" version="${project.version}">
