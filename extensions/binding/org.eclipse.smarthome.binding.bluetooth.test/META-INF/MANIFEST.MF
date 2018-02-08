@@ -14,8 +14,6 @@ Import-Package: org.eclipse.smarthome.binding.bluetooth,
  org.hamcrest;core=split,
  org.junit;version="4.0.0",
  org.mockito,
- org.objenesis,
  org.osgi.framework,
  org.osgi.service.device,
  org.slf4j
-Require-Bundle: org.junit,org.mockito,org.hamcrest
