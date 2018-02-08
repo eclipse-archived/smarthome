@@ -116,7 +116,33 @@
                   <id>org.osgi:org.osgi.annotation:6.0.0</id>
                   <transitive>false</transitive>
                   <source>true</source>
-                </artifact>                
+                </artifact>
+
+                <artifact>
+                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15481 -->                
+                  <id>org.mockito:mockito-core:2.13.0</id>
+                  <transitive>false</transitive>
+                  <source>true</source>
+                </artifact>
+                <artifact>
+                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15482 -->                
+                  <id>org.objenesis:objenesis:2.6</id>
+                  <transitive>false</transitive>
+                  <source>true</source>
+                </artifact>
+                <artifact>
+                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15483 -->                
+                  <id>net.bytebuddy:byte-buddy:1.7.10</id>
+                  <transitive>false</transitive>
+                  <source>true</source>
+                </artifact>
+                <artifact>
+                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15489 -->                
+                  <id>net.bytebuddy:byte-buddy-agent:1.7.10</id>
+                  <transitive>false</transitive>
+                  <source>true</source>
+                </artifact>
+                       
               </artifacts>
             </configuration>
           </execution>
