@@ -58,7 +58,6 @@ public final class SchedulerActivator implements BundleActivator {
         } catch (SchedulerException se) {
             logger.error("shutting down scheduler throws exception", se);
         }
-
     }
 
     /**

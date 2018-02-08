@@ -53,7 +53,6 @@ public class BindingInfo implements Identifiable<String> {
      */
     public BindingInfo(String id, String name, String description, String author, String serviceId,
             URI configDescriptionURI) throws IllegalArgumentException {
-
         if ((id == null) || (id.isEmpty())) {
             throw new IllegalArgumentException("The ID must neither be null nor empty!");
         }

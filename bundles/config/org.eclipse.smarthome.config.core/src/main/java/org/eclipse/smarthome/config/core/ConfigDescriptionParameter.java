@@ -119,8 +119,7 @@ public class ConfigDescriptionParameter {
      *            nor empty)
      * @param type the data type of the configuration parameter (must not be
      *            null)
-     * @throws IllegalArgumentException
-     *             if the name is null or empty, or the type is null
+     * @throws IllegalArgumentException if the name is null or empty, or the type is null
      */
     public ConfigDescriptionParameter(String name, Type type) throws IllegalArgumentException {
         this(name, type, null, null, null, null, false, false, false, null, null, null, null, null, null, null, false,
@@ -183,7 +182,6 @@ public class ConfigDescriptionParameter {
             String label, String description, List<ParameterOption> options, List<FilterCriteria> filterCriteria,
             String groupName, Boolean advanced, Boolean limitToOptions, Integer multipleLimit, String unit,
             String unitLabel, Boolean verify) throws IllegalArgumentException {
-
         if ((name == null) || (name.isEmpty())) {
             throw new IllegalArgumentException("The name must neither be null nor empty!");
         }

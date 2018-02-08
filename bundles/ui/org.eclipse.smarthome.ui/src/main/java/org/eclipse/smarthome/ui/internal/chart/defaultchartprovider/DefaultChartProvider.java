@@ -121,7 +121,6 @@ public class DefaultChartProvider implements ChartProvider {
     public BufferedImage createChart(String service, String theme, Date startTime, Date endTime, int height, int width,
             String items, String groups, Integer dpiValue, Boolean legend)
             throws ItemNotFoundException, IllegalArgumentException {
-
         logger.debug(
                 "Rendering chart: service: '{}', theme: '{}', startTime: '{}', endTime: '{}', width: '{}', height: '{}', items: '{}', groups: '{}', dpi: '{}', legend: '{}'",
                 service, theme, startTime, endTime, width, height, items, groups, dpiValue, legend);

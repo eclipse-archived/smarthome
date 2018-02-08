@@ -105,7 +105,6 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
     }
 
     private void printInboxEntries(Console console, List<DiscoveryResult> discoveryResults) {
-
         if (discoveryResults.isEmpty()) {
             console.println("No inbox entries found.");
         }
@@ -130,7 +129,6 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
     }
 
     private void clearInboxEntries(Console console, List<DiscoveryResult> discoveryResults) {
-
         if (discoveryResults.isEmpty()) {
             console.println("No inbox entries found.");
         }

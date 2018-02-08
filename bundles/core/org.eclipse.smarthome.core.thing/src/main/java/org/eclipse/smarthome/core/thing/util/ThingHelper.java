@@ -174,7 +174,6 @@ public class ThingHelper {
      * @return A Thing instance, which is the result of the merge
      */
     public static Thing merge(Thing thing, ThingDTO updatedContents) {
-
         ThingBuilder builder;
 
         if (thing instanceof Bridge) {

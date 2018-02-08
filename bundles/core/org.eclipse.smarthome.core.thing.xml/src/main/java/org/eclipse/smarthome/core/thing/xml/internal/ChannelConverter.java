@@ -54,7 +54,6 @@ public class ChannelConverter extends GenericUnmarshaller<ChannelXmlResult> {
 
     protected ChannelXmlResult unmarshalType(HierarchicalStreamReader reader, UnmarshallingContext context,
             Map<String, String> attributes, NodeIterator nodeIterator) throws ConversionException {
-
         String id = attributes.get("id");
         String typeId = attributes.get("typeId");
         String label = (String) nodeIterator.nextValue("label", false);

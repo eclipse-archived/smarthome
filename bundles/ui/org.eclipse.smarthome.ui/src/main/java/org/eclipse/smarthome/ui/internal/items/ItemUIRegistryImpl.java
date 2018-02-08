@@ -374,7 +374,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                         try {
                             formatPattern = fillFormatPattern(formatPattern, state);
                         } catch (IllegalArgumentException e) {
-
                             logger.warn("Exception while formatting value '{}' of item {} with format '{}': {}", state,
                                     itemName, formatPattern, e.getMessage());
                             formatPattern = new String("Err");
@@ -708,7 +707,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                     group.getLabel(), itemName);
         }
         return children;
-
     }
 
     private Class<? extends Item> getItemType(@NonNull String itemName) {
@@ -1214,7 +1212,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
     @Override
     public Item remove(String itemName, boolean recursive) {
-
         if (itemRegistry != null) {
             return itemRegistry.remove(itemName, recursive);
         } else {

@@ -196,7 +196,6 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     @Override
     public void handleConfigurationUpdate(Map<String, Object> configurationParameters) {
-
         if (!isModifyingCurrentConfig(configurationParameters)) {
             return;
         }

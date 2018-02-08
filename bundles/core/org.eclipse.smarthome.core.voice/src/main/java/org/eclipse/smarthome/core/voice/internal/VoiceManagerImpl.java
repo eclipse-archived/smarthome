@@ -378,7 +378,6 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
     public void startDialog(KSService ksService, STTService sttService, TTSService ttsService,
             HumanLanguageInterpreter interpreter, AudioSource audioSource, AudioSink audioSink, Locale locale,
             String keyword, String listeningItem) {
-
         // use defaults, if null
         KSService ks = (ksService == null) ? getKS() : ksService;
         STTService stt = (sttService == null) ? getSTT() : sttService;

@@ -130,7 +130,6 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
     @Override
     protected ChannelTypeXmlResult unmarshalType(HierarchicalStreamReader reader, UnmarshallingContext context,
             Map<String, String> attributes, NodeIterator nodeIterator) throws ConversionException {
-
         boolean advanced = readBoolean(attributes, "advanced", false);
         boolean system = readBoolean(attributes, "system", false);
 

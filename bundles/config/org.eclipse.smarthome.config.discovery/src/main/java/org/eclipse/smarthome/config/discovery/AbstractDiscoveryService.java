@@ -91,7 +91,6 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      */
     public AbstractDiscoveryService(@Nullable Set<ThingTypeUID> supportedThingTypes, int timeout,
             boolean backgroundDiscoveryEnabledByDefault) throws IllegalArgumentException {
-
         if (supportedThingTypes == null) {
             this.supportedThingTypes = Collections.emptySet();
         } else {
@@ -179,7 +178,6 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
     @Override
     public synchronized void startScan(@Nullable ScanListener listener) {
         synchronized (this) {
-
             // we first stop any currently running scan and its scheduled stop
             // call
             stopScan();

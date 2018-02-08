@@ -78,7 +78,6 @@ public class TradfriDiscoveryParticipant implements MDNSDiscoveryParticipant {
 
     @Override
     public DiscoveryResult createResult(ServiceInfo service) {
-
         ThingUID thingUID = getThingUID(service);
         if (thingUID != null) {
             if (service.getHostAddresses() != null && service.getHostAddresses().length > 0 && !service.getHostAddresses()[0].isEmpty()) {

@@ -110,7 +110,6 @@ abstract class AbstractExpressionPart implements ExpressionPart {
          * @return true if the addition of integers was successful
          */
         public boolean add(final Integer start, final Integer end, final Integer increment) {
-
             if (end != null && end > max) {
                 throw new IllegalArgumentException(
                         "Invalid integer value (end not in range [" + min + ", " + max + "])");

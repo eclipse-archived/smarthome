@@ -50,8 +50,7 @@ public class ExecUtil {
      * <p>
      * A possible {@link IOException} gets logged but no further processing is done.
      *
-     * @param commandLine
-     *            the command line to execute
+     * @param commandLine the command line to execute
      * @see http://www.peterfriese.de/running-applescript-from-java/
      */
     public static void executeCommandLine(String commandLine) {
@@ -80,10 +79,8 @@ public class ExecUtil {
      * <p>
      * A possible {@link IOException} gets logged but no further processing is done.
      *
-     * @param commandLine
-     *            the command line to execute
-     * @param timeout
-     *            timeout for execution in milliseconds
+     * @param commandLine the command line to execute
+     * @param timeout timeout for execution in milliseconds
      * @return response data from executed command line
      */
     public static String executeCommandLineAndWaitResponse(String commandLine, int timeout) {

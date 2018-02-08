@@ -97,7 +97,6 @@ public class FolderObserver extends AbstractWatchService {
 
         Enumeration<String> keys = config.keys();
         while (keys.hasMoreElements()) {
-
             String foldername = keys.nextElement();
             if (!StringUtils.isAlphanumeric(foldername)) {
                 // we allow only simple alphanumeric names for model folders - everything else might be other service

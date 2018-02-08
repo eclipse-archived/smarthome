@@ -120,7 +120,6 @@ public class PersistenceResource implements RESTResource {
     @ApiResponses(value = @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List"))
     public Response httpGetPersistenceServices(@Context HttpHeaders headers,
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
-
         Locale locale = LocaleUtil.getLocale(language);
 
         Object responseObject = getPersistenceServiceList(locale);
@@ -135,7 +134,6 @@ public class PersistenceResource implements RESTResource {
     @ApiResponses(value = @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List"))
     public Response httpGetPersistenceServiceItems(@Context HttpHeaders headers,
             @ApiParam(value = "Id of the persistence service. If not provided the default service will be used", required = false) @QueryParam("serviceId") String serviceId) {
-
         return getServiceItemList(serviceId);
     }
 
@@ -158,7 +156,6 @@ public class PersistenceResource implements RESTResource {
             @ApiParam(value = "Page number of data to return. This parameter will enable paging.", required = false) @QueryParam("page") int pageNumber,
             @ApiParam(value = "The length of each page.", required = false) @QueryParam("pagelength") int pageLength,
             @ApiParam(value = "Gets one value before and after the requested period.", required = false) @QueryParam("boundary") boolean boundary) {
-
         return getItemHistoryDTO(serviceId, itemName, startTime, endTime, pageNumber, pageLength, boundary);
     }
 
@@ -178,7 +175,6 @@ public class PersistenceResource implements RESTResource {
                     + "]", required = true) @QueryParam("starttime") String startTime,
             @ApiParam(value = "End time of the data to return. [" + DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS
                     + "]", required = true) @QueryParam("endtime") String endTime) {
-
         return deletePersistenceItemData(serviceId, itemName, startTime, endTime);
     }
 
@@ -195,7 +191,6 @@ public class PersistenceResource implements RESTResource {
             @ApiParam(value = "Time of the data to be stored. Will default to current time. ["
                     + DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS + "]", required = true) @QueryParam("time") String time,
             @ApiParam(value = "The state to store.", required = true) @QueryParam("state") String value) {
-
         return putItemState(serviceId, itemName, value, time);
     }
 

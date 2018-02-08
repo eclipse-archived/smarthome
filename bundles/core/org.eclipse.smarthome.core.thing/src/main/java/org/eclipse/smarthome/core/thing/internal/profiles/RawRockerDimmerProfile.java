@@ -59,7 +59,6 @@ public class RawRockerDimmerProfile implements TriggerProfile {
 
     @Override
     public void onStateUpdateFromItem(State state) {
-
     }
 
     @Override

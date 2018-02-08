@@ -48,7 +48,6 @@ public class EnrichedItemDTOMapper {
     }
 
     private static EnrichedItemDTO map(Item item, ItemDTO itemDTO, URI uri, boolean drillDown, Locale locale) {
-
         String state = item.getState().toFullString();
         String transformedState = considerTransformation(state, item.getStateDescription(locale));
         if (transformedState != null && transformedState.equals(state)) {

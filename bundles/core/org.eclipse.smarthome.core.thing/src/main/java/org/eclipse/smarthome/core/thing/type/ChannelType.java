@@ -93,7 +93,6 @@ public class ChannelType extends AbstractDescriptionType {
     public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, ChannelKind kind, String label,
             String description, String category, Set<String> tags, StateDescription state, EventDescription event,
             URI configDescriptionURI) throws IllegalArgumentException {
-
         super(uid, label, description);
 
         if (kind == null) {

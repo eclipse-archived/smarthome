@@ -337,7 +337,6 @@ public class NetUtil implements NetworkAddressService {
      * @throws IllegalArgumentException if parameters are wrong
      */
     public static String getIpv4NetAddress(String ipAddressString, short netMask) {
-
         String errorString = "IP '" + ipAddressString + "' is not a valid IPv4 address";
         if (!isValidIPConfig(ipAddressString)) {
             throw new IllegalArgumentException(errorString);
@@ -374,7 +373,6 @@ public class NetUtil implements NetworkAddressService {
      * @throws IllegalArgumentException if parameters are wrong
      */
     public static String getIpv4NetBroadcastAddress(String ipAddressString, short prefix) {
-
         String errorString = "IP '" + ipAddressString + "' is not a valid IPv4 address";
         if (!isValidIPConfig(ipAddressString)) {
             throw new IllegalArgumentException(errorString);
@@ -437,7 +435,6 @@ public class NetUtil implements NetworkAddressService {
      * @return true if it is a valid address
      */
     public static boolean isValidIPConfig(String ipAddress) {
-
         if (ipAddress.contains("/")) {
             String parts[] = ipAddress.split("/");
             boolean ipMatches = IPV4_PATTERN.matcher(parts[0]).matches();

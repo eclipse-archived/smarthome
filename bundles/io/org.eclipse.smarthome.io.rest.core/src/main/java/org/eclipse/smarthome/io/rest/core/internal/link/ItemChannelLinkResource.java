@@ -127,7 +127,6 @@ public class ItemChannelLinkResource implements RESTResource {
             @ApiResponse(code = 405, message = "Link not editable.") })
     public Response unlink(@PathParam("itemName") @ApiParam(value = "itemName") String itemName,
             @PathParam("channelUID") @ApiParam(value = "channelUID") String channelUid) {
-
         String linkId = AbstractLink.getIDFor(itemName, new ChannelUID(channelUid));
         if (itemChannelLinkRegistry.get(linkId) == null) {
             String message = "Link " + linkId + " does not exist!";

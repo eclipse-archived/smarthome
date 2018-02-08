@@ -48,7 +48,6 @@ public interface UpnpDiscoveryParticipant {
      * Creates a discovery result for a upnp device
      *
      * @param device the upnp device found on the network
-     *
      * @return the according discovery result or <code>null</code>, if device is not
      *         supported by this participant
      */
@@ -59,7 +58,6 @@ public interface UpnpDiscoveryParticipant {
      * Returns the thing UID for a upnp device
      *
      * @param device the upnp device on the network
-     *
      * @return a thing UID or <code>null</code>, if device is not supported
      *         by this participant
      */

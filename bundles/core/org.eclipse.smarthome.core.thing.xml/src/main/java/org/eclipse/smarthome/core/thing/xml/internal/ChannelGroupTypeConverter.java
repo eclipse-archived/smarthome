@@ -56,14 +56,12 @@ public class ChannelGroupTypeConverter extends AbstractDescriptionTypeConverter<
 
     @SuppressWarnings("unchecked")
     protected List<ChannelXmlResult> readChannelTypeDefinitions(NodeIterator nodeIterator) throws ConversionException {
-
         return (List<ChannelXmlResult>) nodeIterator.nextList("channels", true);
     }
 
     @Override
     protected ChannelGroupTypeXmlResult unmarshalType(HierarchicalStreamReader reader, UnmarshallingContext context,
             Map<String, String> attributes, NodeIterator nodeIterator) throws ConversionException {
-
         ChannelGroupTypeUID channelGroupTypeUID = new ChannelGroupTypeUID(super.getUID(attributes, context));
 
         boolean advanced = isAdvanced(attributes, false);

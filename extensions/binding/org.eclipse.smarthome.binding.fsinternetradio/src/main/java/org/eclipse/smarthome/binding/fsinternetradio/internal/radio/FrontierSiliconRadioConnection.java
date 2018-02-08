@@ -155,7 +155,6 @@ public class FrontierSiliconRadioConnection {
      * @throws IOException if the request failed.
      */
     public FrontierSiliconRadioApiResult doRequest(String requestString, String params) throws IOException {
-
         // 3 retries upon failure
         for (int i = 0; i < 3; i++) {
             if (!isLoggedIn && !doLogin()) {

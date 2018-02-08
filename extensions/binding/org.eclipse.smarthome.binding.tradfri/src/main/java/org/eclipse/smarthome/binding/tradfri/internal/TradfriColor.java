@@ -87,7 +87,6 @@ public class TradfriColor {
      * @return {@link TradfriColor} object with converted color spaces
      */
     public static TradfriColor fromCie(int xyX, int xyY, int xyBrightness) {
-
         // maximum brightness limited to 254
         int brightness = xyBrightness;
         if (brightness > 254) {
@@ -157,7 +156,6 @@ public class TradfriColor {
      * @return {@link TradfriColor} object with converted color spaces
      */
     public static TradfriColor fromHSBType(HSBType hsbType) {
-
         // hsbType gives 0 to 100, we need 0.0 to 255.0
         double red = hsbType.getRed().intValue() * 2.55;
         double green = hsbType.getGreen().intValue() * 2.55;

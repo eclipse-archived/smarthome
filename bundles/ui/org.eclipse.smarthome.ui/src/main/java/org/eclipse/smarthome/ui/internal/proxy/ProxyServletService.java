@@ -206,7 +206,6 @@ public class ProxyServletService extends HttpServlet {
      * @return the URI indicated by the request, or <code>null</code> if not possible
      */
     URI uriFromRequest(HttpServletRequest request) {
-
         try {
             // Return any URI we've already saved for this request
             URI uri = (URI) request.getAttribute(ATTR_URI);

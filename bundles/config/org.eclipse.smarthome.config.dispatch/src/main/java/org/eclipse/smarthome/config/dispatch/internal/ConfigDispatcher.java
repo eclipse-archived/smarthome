@@ -157,7 +157,6 @@ public class ConfigDispatcher {
 
     private Configuration getConfigurationWithContext(String pidWithContext)
             throws IOException, InvalidSyntaxException {
-
         if (!pidWithContext.contains(ConfigConstants.SERVICE_CONTEXT_MARKER)) {
             throw new IllegalArgumentException("Given PID should be followed by a context");
         }

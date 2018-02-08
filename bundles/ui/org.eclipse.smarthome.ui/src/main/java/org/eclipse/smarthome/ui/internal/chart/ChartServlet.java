@@ -133,7 +133,6 @@ public class ChartServlet extends HttpServlet {
 
             Hashtable<String, String> props = new Hashtable<String, String>();
             httpService.registerServlet(SERVLET_NAME, this, props, createHttpContext());
-
         } catch (NamespaceException e) {
             logger.error("Error during chart servlet startup", e);
         } catch (ServletException e) {
@@ -189,7 +188,6 @@ public class ChartServlet extends HttpServlet {
         if (maxWidthString != null) {
             maxWidth = Integer.parseInt(maxWidthString);
         }
-
     }
 
     @Override

@@ -39,7 +39,6 @@ public class ConfigDescriptionXmlProvider implements XmlDocumentProvider<List<Co
 
     public ConfigDescriptionXmlProvider(Bundle bundle, AbstractXmlConfigDescriptionProvider configDescriptionProvider)
             throws IllegalArgumentException {
-
         if (bundle == null) {
             throw new IllegalArgumentException("The Bundle must not be null!");
         }

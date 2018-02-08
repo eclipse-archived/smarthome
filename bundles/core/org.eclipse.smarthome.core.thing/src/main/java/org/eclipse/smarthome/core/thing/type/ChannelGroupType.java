@@ -50,7 +50,6 @@ public class ChannelGroupType extends AbstractDescriptionType {
     @Deprecated
     public ChannelGroupType(ChannelGroupTypeUID uid, boolean advanced, String label, String description,
             List<ChannelDefinition> channelDefinitions) throws IllegalArgumentException {
-
         super(uid, label, description);
 
         this.advanced = advanced;
@@ -80,7 +79,6 @@ public class ChannelGroupType extends AbstractDescriptionType {
      */
     public ChannelGroupType(ChannelGroupTypeUID uid, boolean advanced, String label, String description,
             String category, List<ChannelDefinition> channelDefinitions) throws IllegalArgumentException {
-
         super(uid, label, description);
 
         this.advanced = advanced;

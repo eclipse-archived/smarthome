@@ -111,7 +111,6 @@ public class IconServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
         if (req.getDateHeader("If-Modified-Since") > startupTime) {
             resp.setStatus(304);
             return;
