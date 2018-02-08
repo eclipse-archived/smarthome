@@ -19,6 +19,7 @@ Import-Package:
  org.eclipse.smarthome.test.java,
  org.hamcrest;core=split,
  org.junit,
+ org.junit.rules;version="4.7.0",
  org.junit.runner,
  org.junit.runners,
  org.mockito,
