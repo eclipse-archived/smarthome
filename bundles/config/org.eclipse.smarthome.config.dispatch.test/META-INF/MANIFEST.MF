@@ -12,10 +12,6 @@ Import-Package:
  org.hamcrest;core=split,
  org.junit,
  org.junit.rules,
+ org.mockito,
  org.osgi.framework,
  org.osgi.service.component
-Require-Bundle: 
- org.hamcrest,
- org.junit,
- org.mockito,
- org.objenesis

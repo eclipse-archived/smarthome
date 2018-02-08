@@ -23,9 +23,7 @@ Import-Package:
  org.eclipse.smarthome.test,
  org.glassfish.jersey.uri.internal,
  org.hamcrest;core=split,
+ org.hamcrest.core,
+ org.hamcrest.object,
  org.junit;version="4.0.0",
- org.mockito
-Require-Bundle: 
- org.hamcrest,
- org.junit,
  org.mockito

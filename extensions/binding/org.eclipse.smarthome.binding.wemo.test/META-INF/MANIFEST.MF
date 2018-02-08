@@ -29,15 +29,11 @@ Import-Package:
  org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
+ org.junit;version="4.0.0",
  org.junit.runner,
  org.junit.runners,
- org.junit;version="4.0.0",
  org.jupnp,
  org.jupnp.mock,
+ org.mockito,
  org.osgi.service.cm,
  org.osgi.service.http
-Require-Bundle: 
- org.hamcrest,
- org.junit,
- org.mockito,
- org.objenesis

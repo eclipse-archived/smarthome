@@ -22,9 +22,6 @@ Import-Package:
  org.junit.runner,
  org.junit.runners,
  org.mockito,
+ org.mockito.invocation,
+ org.mockito.stubbing,
  org.osgi.service.cm
-Require-Bundle: 
- org.hamcrest,
- org.junit,
- org.mockito,
- org.objenesis

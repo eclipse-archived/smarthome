@@ -15,9 +15,6 @@ Import-Package:
  org.hamcrest;core=split,
  org.junit;version="4.0.0",
  org.mockito,
+ org.mockito.stubbing,
  org.osgi.framework,
  org.slf4j
-Require-Bundle: 
- org.hamcrest,
- org.junit,
- org.mockito
