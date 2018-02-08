@@ -20,6 +20,17 @@
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.astro/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-binding-bluetooth" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.bluetooth/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-binding-bluetooth-bluez" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-binding-bluetooth</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.bluetooth.bluez/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-binding-digitalstrom" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-io-transport-mdns</feature>
