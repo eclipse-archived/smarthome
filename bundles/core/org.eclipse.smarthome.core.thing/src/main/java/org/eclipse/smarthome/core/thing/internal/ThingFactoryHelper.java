@@ -144,9 +144,7 @@ public class ThingFactoryHelper {
         }
 
         channelBuilder = channelBuilder.withProperties(channelDefinition.getProperties());
-
-        Channel channel = channelBuilder.build();
-        return channel;
+        return channelBuilder.build();
     }
 
     static ChannelBuilder createChannelBuilder(ChannelUID channelUID, ChannelType channelType,

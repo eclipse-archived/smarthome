@@ -77,11 +77,7 @@ public class ThingBuilder {
     }
 
     public ThingBuilder withChannels(Channel... channels) {
-        List<Channel> newChannels = Arrays.asList(channels);
-        validateChannelUIDs(newChannels);
-        ThingHelper.ensureUniqueChannels(newChannels);
-        this.thing.setChannels(new ArrayList<>(newChannels));
-        return this;
+        return withChannels(Arrays.asList(channels));
     }
 
     public ThingBuilder withChannels(List<Channel> channels) {
