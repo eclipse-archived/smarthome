@@ -179,7 +179,9 @@ public class ConfigDescriptionRegistry {
                 if (alias != null) {
                     logger.debug("No config description found for '{}', using alias '{}' instead", uri, alias);
                     found = fillFromProviders(alias, locale, parameters, parameterGroups);
-                    break;
+                    if (found) {
+                        break;
+                    }
                 }
             }
         }
