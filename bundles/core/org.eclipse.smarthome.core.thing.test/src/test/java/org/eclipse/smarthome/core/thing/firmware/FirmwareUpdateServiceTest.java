@@ -16,8 +16,8 @@ import static org.eclipse.smarthome.core.thing.firmware.Constants.*;
 import static org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -59,7 +59,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.osgi.framework.Bundle;
 
@@ -149,13 +149,14 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
 
         firmwareRegistry = new FirmwareRegistry();
         firmwareUpdateService.setFirmwareRegistry(firmwareRegistry);
+        firmwareUpdateService.setLocaleProvider(mockLocaleProvider);
         firmwareRegistry.setLocaleProvider(mockLocaleProvider);
 
-        when(mockProvider.getFirmware(eq(FW009_EN.getUID()), Matchers.any(Locale.class))).thenReturn(FW009_EN);
-        when(mockProvider.getFirmware(eq(FW111_EN.getUID()), Matchers.any(Locale.class))).thenReturn(FW111_EN);
-        when(mockProvider.getFirmware(eq(FW112_EN.getUID()), Matchers.any(Locale.class))).thenReturn(FW112_EN);
-        when(mockProvider.getFirmware(eq(FWALPHA_EN.getUID()), Matchers.any(Locale.class))).thenReturn(FWALPHA_EN);
-        when(mockProvider.getFirmwares(any(ThingTypeUID.class), any(Locale.class))).then(invocation -> {
+        when(mockProvider.getFirmware(eq(FW009_EN.getUID()), ArgumentMatchers.any())).thenReturn(FW009_EN);
+        when(mockProvider.getFirmware(eq(FW111_EN.getUID()), ArgumentMatchers.any())).thenReturn(FW111_EN);
+        when(mockProvider.getFirmware(eq(FW112_EN.getUID()), ArgumentMatchers.any())).thenReturn(FW112_EN);
+        when(mockProvider.getFirmware(eq(FWALPHA_EN.getUID()), ArgumentMatchers.any())).thenReturn(FWALPHA_EN);
+        when(mockProvider.getFirmwares(any(ThingTypeUID.class), any())).then(invocation -> {
             ThingTypeUID thingTypeUID = (ThingTypeUID) invocation.getArguments()[0];
             if (THING_TYPE_UID_WITHOUT_FW.equals(thingTypeUID) || THING_TYPE_UID2.equals(thingTypeUID)
                     || THING_TYPE_UID3.equals(thingTypeUID)) {
@@ -635,15 +636,15 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
             thing1.setProperty(Thing.PROPERTY_FIRMWARE_VERSION, firmware.getVersion());
             return null;
         }).when(handler1).updateFirmware(any(Firmware.class), any(ProgressCallback.class));
-        
-        //getFirmwareStatusInfo() method will internally generate and post one FirmwareStatusInfoEvent event.
+
+        // getFirmwareStatusInfo() method will internally generate and post one FirmwareStatusInfoEvent event.
         assertThat(firmwareUpdateService.getFirmwareStatusInfo(THING1_UID), is(updateExecutableInfoFw112));
         firmwareUpdateService.updateFirmware(THING1_UID, FW112_EN.getUID(), null);
 
         AtomicReference<List<Event>> events = new AtomicReference<>(new ArrayList<>());
         ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
         waitForAssert(() -> {
-            //Wait for four FirmwareUpdateProgressInfoEvents plus one FirmwareStatusInfoEvent event.
+            // Wait for four FirmwareUpdateProgressInfoEvents plus one FirmwareStatusInfoEvent event.
             verify(mockPublisher, atLeast(SEQUENCE.length + 1)).post(eventCaptor.capture());
         });
         events.get().addAll(eventCaptor.getAllValues());
@@ -835,8 +836,7 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
         firmwareUpdateService.addFirmwareUpdateHandler(handler1);
 
         when(mockLocaleProvider.getLocale()).thenReturn(locale);
-        when(mockTranslationProvider.getText(any(Bundle.class), eq(messageKey), any(String.class), eq(locale),
-                Matchers.anyVararg())).thenReturn(text);
+        when(mockTranslationProvider.getText(any(), eq(messageKey), any(), eq(locale), any())).thenReturn(text);
 
         firmwareUpdateService.updateFirmware(thingUID, firmware.getUID(), locale);
         waitForAssert(() -> {
@@ -856,8 +856,8 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
 
         when(mockLocaleProvider.getLocale()).thenReturn(locale);
 
-        when(mockTranslationProvider.getText(Matchers.isA(Bundle.class), eq(messageKey), any(String.class), eq(locale),
-                Matchers.anyVararg())).thenReturn(expectedEnglishMessage);
+        when(mockTranslationProvider.getText(ArgumentMatchers.isA(Bundle.class), eq(messageKey), any(), eq(locale),
+                ArgumentMatchers.any())).thenReturn(expectedEnglishMessage);
 
         Exception exception = new RuntimeException();
 

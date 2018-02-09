@@ -12,8 +12,7 @@ Import-Package:
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.extensionservice.marketplace,
  org.hamcrest;core=split,
- org.mockito
-Require-Bundle: 
- org.hamcrest,
- org.junit,
- org.mockito
+ org.hamcrest.core,
+ org.junit;version="4.0.0",
+ org.mockito,
+ org.mockito.stubbing

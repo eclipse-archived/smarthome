@@ -34,6 +34,5 @@ Import-Package:
  org.mockito.verification,
  org.osgi.service.component;version="1.2.2"
 Require-Bundle: 
- org.eclipse.core.runtime,
- org.hamcrest
+ org.eclipse.core.runtime
 Service-Component: OSGI-INF/*.xml

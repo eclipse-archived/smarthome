@@ -6,8 +6,6 @@ Bundle-SymbolicName: org.eclipse.smarthome.binding.fsinternetradio.test
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Fragment-Host: org.eclipse.smarthome.binding.fsinternetradio
-Require-Bundle: org.mockito,
- org.hamcrest
 Import-Package: javax.servlet,
  javax.servlet.http,
  org.apache.commons.io,
@@ -24,8 +22,11 @@ Import-Package: javax.servlet,
  org.eclipse.smarthome.core.thing.link,
  org.eclipse.smarthome.test.java,
  org.eclipse.smarthome.test.storage,
+ org.hamcrest;core=split,
+ org.hamcrest.core,
  org.junit,
  org.jupnp.model,
  org.jupnp.model.types,
+ org.mockito,
  org.osgi.framework,
  org.osgi.service.http
