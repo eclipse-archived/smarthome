@@ -19,4 +19,3 @@ Import-Package:
  org.junit;version="4.0.0",
  org.mockito,
  org.mockito.stubbing
-Require-Bundle: org.objenesis

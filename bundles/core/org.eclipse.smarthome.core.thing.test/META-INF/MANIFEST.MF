@@ -29,6 +29,8 @@ Import-Package:
  org.eclipse.smarthome.test.java,
  org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
+ org.hamcrest.collection,
+ org.hamcrest.core,
  org.junit;version="4.0.0",
  org.junit.rules,
  org.mockito,
@@ -38,4 +40,3 @@ Import-Package:
  org.osgi.framework,
  org.osgi.service.cm,
  org.osgi.service.component
-Require-Bundle: org.hamcrest

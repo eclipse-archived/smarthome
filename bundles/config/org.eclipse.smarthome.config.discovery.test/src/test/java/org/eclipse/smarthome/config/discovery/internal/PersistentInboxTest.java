@@ -14,7 +14,7 @@ package org.eclipse.smarthome.config.discovery.internal;
 
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -92,10 +92,9 @@ public class PersistentInboxTest {
         doAnswer(invocation -> lastAddedThing = (Thing) invocation.getArguments()[0]).when(thingRegistry)
                 .add(any(Thing.class));
         when(thingHandlerFactory.supportsThingType(eq(THING_TYPE_UID))).thenReturn(true);
-        when(thingHandlerFactory.createThing(eq(THING_TYPE_UID), any(Configuration.class), eq(THING_UID),
-                any(ThingUID.class)))
-                        .then(invocation -> ThingBuilder.create(THING_TYPE_UID, "test")
-                                .withConfiguration((Configuration) invocation.getArguments()[1]).build());
+        when(thingHandlerFactory.createThing(eq(THING_TYPE_UID), any(Configuration.class), eq(THING_UID), any()))
+                .then(invocation -> ThingBuilder.create(THING_TYPE_UID, "test")
+                        .withConfiguration((Configuration) invocation.getArguments()[1]).build());
 
         inbox = new PersistentInbox();
         inbox.setThingRegistry(thingRegistry);
