@@ -30,6 +30,7 @@ import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.service.ReadyMarker;
 import org.eclipse.smarthome.core.service.ReadyService;
+import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
