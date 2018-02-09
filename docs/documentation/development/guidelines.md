@@ -46,12 +46,11 @@ Test classes do not have to be annotated.
 1. Every bundle must contain a Maven pom.xml with a version and artifact name that is in sync with the manifest entry. The pom.xml must reference the correct parent pom (which is usually in the parent folder).
 1. Every bundle must contain a [NOTICE](https://www.eclipse.org/projects/handbook/#legaldoc) file, providing meta information about the bundle and license information about 3rd party content.
 1. Every bundle must contain a build.properties file, which lists all resources that should end up in the binary under `bin.includes`.
-1. The manifest must not contain any "Require-Bundle" entries (except for test fragment bundles, see below). Instead, "Import-Package" must be used.
+1. The manifest must not contain any "Require-Bundle" entries. Instead, "Import-Package" must be used.
 1. The manifest must not export any internal package.
 1. The manifest must not have any version constraint on package imports, unless this is thoughtfully added. Note that Eclipse automatically adds these constraints based on the version in the target platform, which might be too high in many cases.
 1. The manifest must include all services in the Service-Component entry. A good approach is to put OSGI-INF/*.xml in there.
 1. Every exported package of a bundle must be imported by the bundle itself again.
-1. Test fragments may have the bundles `org.junit`, `org.hamcrest` and `org.mockito` in the "Require-Bundle" section. This is the only exception to not having "Require-Bundle" at all.
 1. Any 3rd party content has to be added thoughtfully and version/license information has to be given in the NOTICE file.
 
 ## C. Language Levels and Libraries
