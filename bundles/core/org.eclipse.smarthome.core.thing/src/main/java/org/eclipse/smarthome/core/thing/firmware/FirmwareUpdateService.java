@@ -65,7 +65,7 @@ import com.google.common.collect.ImmutableSet;
  * central instance to start a firmware update.
  *
  * @author Thomas Höfer - Initial contribution
- * @authot Dimitar Ivanov - update and cancel operations are run with different safe caller identifiers in order to
+ * @author Dimitar Ivanov - update and cancel operations are run with different safe caller identifiers in order to
  *         execute asynchronously
  */
 @Component(immediate = true, service = { EventSubscriber.class, FirmwareUpdateService.class })
