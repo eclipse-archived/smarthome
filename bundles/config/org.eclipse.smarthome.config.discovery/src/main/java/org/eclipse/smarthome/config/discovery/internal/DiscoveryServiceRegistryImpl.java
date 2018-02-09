@@ -473,7 +473,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     private void addDiscoveryServiceActivated(final DiscoveryService discoveryService) {
         discoveryService.addDiscoveryListener(this);
         if (discoveryService instanceof ExtendedDiscoveryService) {
-            safeCaller.create((ExtendedDiscoveryService) discoveryService).build()
+            safeCaller.create((ExtendedDiscoveryService) discoveryService, ExtendedDiscoveryService.class).build()
                     .setDiscoveryServiceCallback(discoveryServiceCallback);
         }
         this.discoveryServices.add(discoveryService);

@@ -250,8 +250,9 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
                 if (handler != null) {
                     Profile profile = getProfile(link, item, thing);
                     if (profile instanceof StateProfile) {
-                        safeCaller.create(((StateProfile) profile)).withAsync().withIdentifier(thing)
-                                .withTimeout(THINGHANDLER_EVENT_TIMEOUT).build().onCommandFromItem(command);
+                        safeCaller.create(((StateProfile) profile), StateProfile.class).withAsync()
+                                .withIdentifier(thing).withTimeout(THINGHANDLER_EVENT_TIMEOUT).build()
+                                .onCommandFromItem(command);
                     }
                 }
             }
@@ -280,7 +281,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
                 ThingHandler handler = thing.getHandler();
                 if (handler != null) {
                     Profile profile = getProfile(link, item, thing);
-                    safeCaller.create(profile).withAsync().withIdentifier(handler)
+                    safeCaller.create(profile, Profile.class).withAsync().withIdentifier(handler)
                             .withTimeout(THINGHANDLER_EVENT_TIMEOUT).build().onStateUpdateFromItem(newState);
                 }
             }
