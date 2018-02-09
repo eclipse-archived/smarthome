@@ -407,6 +407,8 @@
 		};
 
 		_t.setValue = function() {};
+		_t.setLabelColor = function() {};
+		_t.setValueColor = function() {};
 		_t.suppressUpdate = function() {};
 	}
 
@@ -1589,7 +1591,9 @@
 			smarthome.dataModel = {};
 
 			function appendControl(control) {
-				smarthome.dataModel[control.id] = control;
+				if (control.id.length > 0) {
+					smarthome.dataModel[control.id] = control;
+				}
 			}
 
 			[].forEach.call(document.querySelectorAll(o.formControls), function(e) {
@@ -1893,19 +1897,11 @@
 				smarthome.dataModel[id].handled = false;
 			}
 
-			if (response.leaf) {
-				walkWidgets(response.widgets);
-			} else {
-				response.widgets.forEach(function(frameWidget) {
-					if (
-						frameWidget.widgetId !== undefined &&
-						smarthome.dataModel[frameWidget.widgetId] !== undefined
-					) {
-						smarthome.dataModel[frameWidget.widgetId].handled = true;
-					}
-					walkWidgets(frameWidget.widgets);
-				});
-			}
+			walkWidgets(response.widgets);
+			response.widgets.forEach(function(frameWidget) {
+				// Handle widgets in frame
+				walkWidgets(frameWidget.widgets);
+			});
 
 			for (id in smarthome.dataModel) {
 				var
