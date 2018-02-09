@@ -39,6 +39,6 @@ public interface SafeCaller {
      * @param interfaceType the interface which defines the relevant methods
      * @return a safe call builder instance.
      */
-    <T extends I, I> SafeCallerBuilder<T> create(T target, Class<I> interfaceType);
+    <T> SafeCallerBuilder<T> create(T target, Class<T> interfaceType);
 
 }

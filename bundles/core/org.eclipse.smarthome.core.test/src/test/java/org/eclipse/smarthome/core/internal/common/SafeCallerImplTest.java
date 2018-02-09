@@ -357,7 +357,7 @@ public class SafeCallerImplTest extends JavaTest {
             thingHandler.method();
         }, Runnable.class).build().run();
 
-        String res = safeCaller.create((Function<String, String>) name -> {
+        Object res = safeCaller.create((Function<String, String>) name -> {
             return "Hello " + name + "!";
         }, Function.class).build().apply("World");
         assertThat(res, is("Hello World!"));

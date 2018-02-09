@@ -71,7 +71,7 @@ public class SafeCallerImpl implements SafeCaller {
     }
 
     @Override
-    public <T extends I, I> SafeCallerBuilder<T> create(T target, Class<I> interfaceType) {
+    public <T> SafeCallerBuilder<T> create(T target, Class<T> interfaceType) {
         return new SafeCallerBuilderImpl<T>(target, new Class<?>[] { interfaceType }, manager);
     }
 
