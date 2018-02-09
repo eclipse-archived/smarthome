@@ -56,21 +56,19 @@ public class PersistenceModelManager implements ModelRepositoryChangeListener {
     public PersistenceModelManager() {
     }
 
-    protected void activate() {
-        modelRepository.addModelRepositoryChangeListener(this);
-        for (String modelName : modelRepository.getAllModelNamesOfType("persist")) {
-            String serviceName = modelName.substring(0, modelName.length() - ".persist".length());
-            manager.startEventHandling(serviceName);
-        }
-    }
+	protected void activate() {
+		modelRepository.addModelRepositoryChangeListener(this);
+		for (String modelName : modelRepository.getAllModelNamesOfType("persist")) {
+			addModel(modelName);
+		}
+	}
 
-    protected void deactivate() {
-        modelRepository.removeModelRepositoryChangeListener(this);
-        for (String modelName : modelRepository.getAllModelNamesOfType("persist")) {
-            String serviceName = modelName.substring(0, modelName.length() - ".persist".length());
-            manager.stopEventHandling(serviceName);
-        }
-    }
+	protected void deactivate() {
+		modelRepository.removeModelRepositoryChangeListener(this);
+		for (String modelName : modelRepository.getAllModelNamesOfType("persist")) {
+			removeModel(modelName);
+		}
+	}
 
     protected void setModelRepository(ModelRepository modelRepository) {
         this.modelRepository = modelRepository;
@@ -91,22 +89,34 @@ public class PersistenceModelManager implements ModelRepositoryChangeListener {
     @Override
     public void modelChanged(String modelName, EventType type) {
         if (modelName.endsWith(".persist")) {
-            final String dbId = modelName.substring(0, modelName.length() - ".persist".length());
             if (type == EventType.REMOVED || type == EventType.MODIFIED) {
-                manager.removeConfig(dbId);
+                removeModel(modelName);
             }
-
             if (type == EventType.ADDED || type == EventType.MODIFIED) {
-                final PersistenceModel model = (PersistenceModel) modelRepository.getModel(modelName);
-                if (model != null) {
-                    manager.addConfig(dbId, new PersistenceServiceConfiguration(mapConfigs(model.getConfigs()),
-                            mapStrategies(model.getDefaults()), mapStrategies(model.getStrategies())));
-                }
+                addModel(modelName);
             }
         }
     }
 
-    private List<SimpleItemConfiguration> mapConfigs(List<PersistenceConfiguration> configs) {
+	private void addModel(String modelName) {
+		final PersistenceModel model = (PersistenceModel) modelRepository.getModel(modelName);
+		if (model != null) {
+		    String serviceName = serviceName(modelName);
+			manager.addConfig(serviceName, new PersistenceServiceConfiguration(mapConfigs(model.getConfigs()),
+		            mapStrategies(model.getDefaults()), mapStrategies(model.getStrategies())));
+		}
+	}
+
+	private void removeModel(String modelName) {
+		String serviceName = serviceName(modelName);
+		manager.removeConfig(serviceName);
+	}
+
+    private String serviceName(String modelName) {
+		return modelName.substring(0, modelName.length() - ".persist".length());
+	}
+
+	private List<SimpleItemConfiguration> mapConfigs(List<PersistenceConfiguration> configs) {
         final List<SimpleItemConfiguration> lst = new LinkedList<>();
         for (final PersistenceConfiguration config : configs) {
             lst.add(mapConfig(config));
