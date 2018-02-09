@@ -289,10 +289,10 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
     /**
      * Creates and schedules a new quartz-job.
      *
-     * @param modelName the name of the model
+     * @param dbId the database id used by the persistence service
      * @param strategies a collection of strategies
      */
-    private void createTimers(final String modelName, List<SimpleStrategy> strategies) {
+    private void createTimers(final String dbId, List<SimpleStrategy> strategies) {
         for (SimpleStrategy strategy : strategies) {
             if (strategy instanceof SimpleCronStrategy) {
                 SimpleCronStrategy cronStrategy = (SimpleCronStrategy) strategy;
@@ -305,13 +305,13 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
                     continue;
                 }
 
-                final PersistItemsJob job = new PersistItemsJob(this, modelName, cronStrategy.getName());
-                if (persistenceJobs.containsKey(modelName)) {
-                    persistenceJobs.get(modelName).add(job);
+                final PersistItemsJob job = new PersistItemsJob(this, dbId, cronStrategy.getName());
+                if (persistenceJobs.containsKey(dbId)) {
+                    persistenceJobs.get(dbId).add(job);
                 } else {
                     final Set<Runnable> jobs = new HashSet<>();
                     jobs.add(job);
-                    persistenceJobs.put(modelName, jobs);
+                    persistenceJobs.put(dbId, jobs);
                 }
 
                 scheduler.schedule(job, expression);
@@ -321,23 +321,23 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
     }
 
     /**
-     * Delete all {@link Job}s of the group <code>persistModelName</code>
+     * Delete all {@link Job}s of the group <code>dbId</code>
      *
      * @throws SchedulerException if there is an internal Scheduler error.
      */
-    private void removeTimers(String persistModelName) {
-        if (!persistenceJobs.containsKey(persistModelName)) {
+    private void removeTimers(String dbId) {
+        if (!persistenceJobs.containsKey(dbId)) {
             return;
         }
-        for (final Runnable job : persistenceJobs.get(persistModelName)) {
+        for (final Runnable job : persistenceJobs.get(dbId)) {
             boolean success = scheduler.remove(job);
             if (success) {
-                logger.debug("Removed scheduled cron job for dbId '{}'", persistModelName);
+                logger.debug("Removed scheduled cron job for persistence service '{}'", dbId);
             } else {
-                logger.warn("Failed to delete cron job for dbId '{}'", persistModelName);
+                logger.warn("Failed to delete cron job for persistence service '{}'", dbId);
             }
         }
-        persistenceJobs.remove(persistModelName);
+        persistenceJobs.remove(dbId);
     }
 
     /*
@@ -384,9 +384,9 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
     }
 
     @Override
-    public void stopEventHandling(String modelName) {
+    public void stopEventHandling(String dbId) {
         synchronized (persistenceServiceConfigs) {
-            removeTimers(modelName);
+            removeTimers(dbId);
         }
     }
 
