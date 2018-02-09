@@ -14,6 +14,8 @@ package org.eclipse.smarthome.core.thing.internal;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
@@ -21,7 +23,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -56,7 +57,6 @@ import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -143,7 +143,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
                 doAnswer(a -> {
                     thc.set((ThingHandlerCallback) a.getArguments()[0]);
                     return null;
-                }).when(mockHandler).setCallback(Matchers.isA(ThingHandlerCallback.class));
+                }).when(mockHandler).setCallback(any(ThingHandlerCallback.class));
                 doAnswer(a -> {
                     initializeRunning.set(true);
 
@@ -190,7 +190,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
                 doAnswer(a -> {
                     thc.set((ThingHandlerCallback) a.getArguments()[0]);
                     return null;
-                }).when(mockHandler).setCallback(Matchers.isA(ThingHandlerCallback.class));
+                }).when(mockHandler).setCallback(any(ThingHandlerCallback.class));
                 when(mockHandler.getThing()).thenReturn(THING);
                 return mockHandler;
             }
@@ -219,12 +219,11 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
                 .withConfigDescriptionURI(configDescriptionUri).build();
 
         ThingTypeProvider mockThingTypeProvider = mock(ThingTypeProvider.class);
-        when(mockThingTypeProvider.getThingType(Matchers.isA(ThingTypeUID.class), Matchers.isA(Locale.class)))
-                .thenReturn(thingType);
+        when(mockThingTypeProvider.getThingType(any(ThingTypeUID.class), any())).thenReturn(thingType);
         registerService(mockThingTypeProvider);
 
         ThingTypeRegistry mockThingTypeRegistry = mock(ThingTypeRegistry.class);
-        when(mockThingTypeRegistry.getThingType(Matchers.isA(ThingTypeUID.class))).thenReturn(thingType);
+        when(mockThingTypeRegistry.getThingType(any(ThingTypeUID.class))).thenReturn(thingType);
         registerService(mockThingTypeRegistry);
     }
 
@@ -234,8 +233,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
                 new URI("test:channel"));
 
         ChannelTypeProvider mockChannelTypeProvider = mock(ChannelTypeProvider.class);
-        when(mockChannelTypeProvider.getChannelType(Matchers.eq(CHANNEL_TYPE_UID), Matchers.any(Locale.class)))
-                .thenReturn(channelType);
+        when(mockChannelTypeProvider.getChannelType(eq(CHANNEL_TYPE_UID), any())).thenReturn(channelType);
         registerService(mockChannelTypeProvider);
     }
 
