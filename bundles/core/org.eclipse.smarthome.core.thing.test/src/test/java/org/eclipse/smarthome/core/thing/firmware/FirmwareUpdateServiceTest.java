@@ -59,7 +59,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.osgi.framework.Bundle;
 
@@ -152,10 +151,10 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
         firmwareUpdateService.setLocaleProvider(mockLocaleProvider);
         firmwareRegistry.setLocaleProvider(mockLocaleProvider);
 
-        when(mockProvider.getFirmware(eq(FW009_EN.getUID()), ArgumentMatchers.any())).thenReturn(FW009_EN);
-        when(mockProvider.getFirmware(eq(FW111_EN.getUID()), ArgumentMatchers.any())).thenReturn(FW111_EN);
-        when(mockProvider.getFirmware(eq(FW112_EN.getUID()), ArgumentMatchers.any())).thenReturn(FW112_EN);
-        when(mockProvider.getFirmware(eq(FWALPHA_EN.getUID()), ArgumentMatchers.any())).thenReturn(FWALPHA_EN);
+        when(mockProvider.getFirmware(eq(FW009_EN.getUID()), any())).thenReturn(FW009_EN);
+        when(mockProvider.getFirmware(eq(FW111_EN.getUID()), any())).thenReturn(FW111_EN);
+        when(mockProvider.getFirmware(eq(FW112_EN.getUID()), any())).thenReturn(FW112_EN);
+        when(mockProvider.getFirmware(eq(FWALPHA_EN.getUID()), any())).thenReturn(FWALPHA_EN);
         when(mockProvider.getFirmwares(any(ThingTypeUID.class), any())).then(invocation -> {
             ThingTypeUID thingTypeUID = (ThingTypeUID) invocation.getArguments()[0];
             if (THING_TYPE_UID_WITHOUT_FW.equals(thingTypeUID) || THING_TYPE_UID2.equals(thingTypeUID)
@@ -856,8 +855,8 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
 
         when(mockLocaleProvider.getLocale()).thenReturn(locale);
 
-        when(mockTranslationProvider.getText(ArgumentMatchers.isA(Bundle.class), eq(messageKey), any(), eq(locale),
-                ArgumentMatchers.any())).thenReturn(expectedEnglishMessage);
+        when(mockTranslationProvider.getText(any(Bundle.class), eq(messageKey), any(), eq(locale), any()))
+                .thenReturn(expectedEnglishMessage);
 
         Exception exception = new RuntimeException();
 
