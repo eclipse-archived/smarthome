@@ -1,23 +1,94 @@
 <html>
 <head>
     <title>Eclipse SmartHome</title>
+    <!-- CSS -->
+    <link href="./css/materialize.css" type="text/css" rel="stylesheet"
+        media="screen,projection" />
+    <link href="./css/styles.css" rel="stylesheet" />
 </head>
-<body>
-    <h1>Welcome to Eclipse SmartHome</h1>
-	<p>
-	   Here are a few useful links to start exploring your local instance:
-	</p>
-	<p>
-	   <a href="basicui/app">BasicUI</a>
-	</p>
-	<p>
-	   <a href="classicui/app">ClassicUI</a>
-	</p>
-	<p>
-	   <a href="paperui/index.html">PaperUI</a>
-	</p>
-	<p>
-	   <a href="rest">REST API</a>
-	</p>
+<body class="landing">
+
+    <div id="header" class="navbar-fixed">
+        <nav role="navigation">
+            <div class="container">
+                <div class="nav-wrapper">
+                    <a href="./index.html"><img id="logo" src="img/eclipse_logo.png" /></a>
+                    <ul class="right hide-on-med-and-down">
+                        <li><a href="https://www.eclipse.org/smarthome/getting-started.html">Getting Started</a></li>
+                        <li><a href="https://www.eclipse.org/smarthome/documentation/index.html">Documentation</a></li>
+                        <li><a href="https://www.eclipse.org/smarthome/blog">Blog</a></li>
+                        <li><a href="https://github.com/eclipse/smarthome">GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    
+    <section id="references" class="z-depth-1">
+        <div class="container">
+        <br/>
+            <h1>Welcome to Eclipse SmartHome</h1>
+            <p>Here are a few useful links to start exploring your local instance:</p>
+            <div class="row scrollme animateme" data-when="enter" data-from="0.75"
+                data-to="0" data-crop="false" data-opacity="0" data-scale="1.125">
+                <div class="col s12 m6 l4">
+                    <a href="paperui/index.html"><div class="reference z-depth-1">
+                        <div class="logo center valign-wrapper">
+                            <img src="img/paperui.png" />
+                        </div>
+                        <div class="text center">
+                            <h2>Paper UI</h2>
+                            <p>Administrative Web Interface</p>
+                        </div>
+                        <div class="info valign-wrapper">
+                            <p class="valign center">Paper UI</p>
+                        </div>
+                    </div></a>
+                </div></a>
+                <div class="col s12 m6 l4">
+                    <a href="basicui/app"><div class="reference z-depth-1">
+                        <div class="logo center valign-wrapper">
+                            <img src="img/basicui.png" />
+                        </div>
+                        <div class="text center">
+                            <h2>Basic UI</h2>
+                            <p>New Web Control Interface</p>
+                        </div>
+                        <div class="info valign-wrapper">
+                            <p class="valign center">Basic UI</p>
+                        </div>
+                    </div></a>
+                </div>
+                <div class="col s12 m6 l4">
+                    <a href="classicui/app"><div class="reference z-depth-1">
+                        <div class="logo center valign-wrapper">
+                            <img src="img/classicui.png" />
+                        </div>
+                        <div class="text center">
+                            <h2>Classic UI</h2>
+                            <p>Legacy Web Control Interface</p>
+                        </div>
+                        <div class="info valign-wrapper">
+                            <p class="valign center">Classic UI</p>
+                        </div>
+                    </div></a>
+                </div>
+                <div class="col s12 m6 l4">
+                    <a href="rest"><div class="reference z-depth-1">
+                        <div class="logo center valign-wrapper">
+                            <img src="img/rest.png" />
+                        </div>
+                        <div class="text center">
+                            <h2>REST Interface</h2>
+                            <p>REST access to ressources</p>
+                        </div>
+                        <div class="info valign-wrapper">
+                            <p class="valign center">REST Interface</p>
+                        </div>
+                    </div></a>
+                </div>                
+            </div>
+        </div>
+    </section>    
 </body>
 </html>

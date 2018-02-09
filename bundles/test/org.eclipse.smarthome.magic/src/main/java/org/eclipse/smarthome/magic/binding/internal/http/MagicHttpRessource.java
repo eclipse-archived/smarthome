@@ -10,17 +10,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.magic.binding.internal.servlet;
+package org.eclipse.smarthome.magic.binding.internal.http;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -43,22 +38,21 @@ import org.slf4j.LoggerFactory;
  *
  */
 @Component(immediate = true)
-public class MagicServlet implements Servlet {
+public class MagicHttpRessource {
+    /** the root path of this web application */
+    private static final String WEBAPP_ALIAS = "/";
 
     protected HttpService httpService;
 
-    /** the root path of this web application */
-    public static final String WEBAPP_ALIAS = "/";
-
-    private final Logger logger = LoggerFactory.getLogger(MagicServlet.class);
+    private final Logger logger = LoggerFactory.getLogger(MagicHttpRessource.class);
 
     @Activate
     protected void activate(Map<String, Object> configProps, BundleContext bundleContext) {
         try {
-            httpService.registerResources(WEBAPP_ALIAS, "web", new MagicHttpContext(bundleContext.getBundle()));
+            httpService.registerResources(WEBAPP_ALIAS, WEBAPP_ALIAS, new MagicHttpContext(bundleContext.getBundle()));
             logger.info("Started Magic UI at " + WEBAPP_ALIAS);
         } catch (NamespaceException e) {
-            logger.error("Error during magic servlet startup", e);
+            logger.debug("Error during magic servlet startup", e);
         }
     }
 
@@ -91,38 +85,21 @@ public class MagicServlet implements Servlet {
 
         @Override
         /**
-         * Just return the main page with links
+         * Return the main page with links if empty
          */
-        public URL getResource(String name) {
-            return bundle.getResource("web/index.html");
+        public URL getResource(String pName) {
+            String name = "";
+            if ("".equals(pName)) {
+                name = "web/index.html";
+            } else {
+                name = "web/" + pName;
+            }
+            return bundle.getResource(name);
         }
 
         @Override
         public String getMimeType(String name) {
             return null;
         }
-    }
-
-    // These servlet methods are intentionally left blank because we only want to show the index site with links
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-    }
-
-    @Override
-    public ServletConfig getServletConfig() {
-        return null;
-    }
-
-    @Override
-    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-    }
-
-    @Override
-    public String getServletInfo() {
-        return null;
-    }
-
-    @Override
-    public void destroy() {
     }
 }
