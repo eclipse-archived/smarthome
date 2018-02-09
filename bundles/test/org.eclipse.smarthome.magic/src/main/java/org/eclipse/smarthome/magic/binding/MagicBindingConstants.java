@@ -34,11 +34,13 @@ public class MagicBindingConstants {
     public static final ThingTypeUID THING_TYPE_CONTACT_SENSOR = new ThingTypeUID(BINDING_ID, "contact-sensor");
     public static final ThingTypeUID THING_TYPE_CONFIG_THING = new ThingTypeUID(BINDING_ID, "configurable-thing");
     public static final ThingTypeUID THING_TYPE_DELAYED_THING = new ThingTypeUID(BINDING_ID, "delayed-thing");
+    public static final ThingTypeUID THING_TYPE_LOCATION = new ThingTypeUID(BINDING_ID, "location-thing");
 
     // List all channels
     public static final String CHANNEL_SWITCH = "switch";
     public static final String CHANNEL_BRIGHTNESS = "brightness";
     public static final String CHANNEL_COLOR = "color";
     public static final String CHANNEL_CONTACT = "contact";
+    public static final String CHANNEL_LOCATION = "location";
 
 }

@@ -65,6 +65,11 @@
 		<label>Contact</label>
 		<state readOnly="true"></state>
 	</channel-type>
+	
+	<channel-type id="location">
+		<item-type>Location</item-type>
+		<label>Location</label>
+	</channel-type>
 
 	<channel-type id="number">
         <item-type>Number</item-type>
