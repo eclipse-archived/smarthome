@@ -67,7 +67,8 @@ public class PersistenceModelManager implements ModelRepositoryChangeListener {
     protected void deactivate() {
         modelRepository.removeModelRepositoryChangeListener(this);
         for (String modelName : modelRepository.getAllModelNamesOfType("persist")) {
-            manager.stopEventHandling(modelName);
+            String serviceName = modelName.substring(0, modelName.length() - ".persist".length());
+            manager.stopEventHandling(serviceName);
         }
     }
 
