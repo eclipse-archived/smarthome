@@ -1,6 +1,7 @@
 {
   "exports": [
     "ol.Collection#extend",
+    "ol.ImageTile#getImage",
     "ol.Map",
     "ol.Map#addLayer",
     "ol.Map#getView",
