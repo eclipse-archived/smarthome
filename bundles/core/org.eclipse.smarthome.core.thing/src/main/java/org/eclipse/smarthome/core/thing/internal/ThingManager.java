@@ -388,7 +388,8 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
             if (thingHandlerFactory != null) {
                 unregisterAndDisposeHandler(thingHandlerFactory, thing, thingHandler);
                 if (thingTrackerEvent == ThingTrackerEvent.THING_REMOVED) {
-                    safeCaller.create(thingHandlerFactory).build().removeThing(thing.getUID());
+                    safeCaller.create(thingHandlerFactory, ThingHandlerFactory.class).build()
+                            .removeThing(thing.getUID());
                 }
             } else {
                 logger.warn("Cannot unregister handler. No handler factory for thing '{}' found.", thing.getUID());
@@ -413,7 +414,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
                 ThingHandler thingHandler = replaceThing(getThing(thingUID), thing);
                 if (thingHandler != null) {
                     if (ThingHandlerHelper.isHandlerInitialized(thing) || isInitializing(thing)) {
-                        safeCaller.create(thingHandler).build().thingUpdated(thing);
+                        safeCaller.create(thingHandler, ThingHandler.class).build().thingUpdated(thing);
                     } else {
                         logger.debug(
                                 "Cannot notify handler about updated thing '{}', because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE). Starting handler initialization instead.",
@@ -623,7 +624,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     private void doInitializeHandler(final ThingHandler thingHandler) {
         logger.debug("Calling initialize handler for thing '{}' at '{}'.", thingHandler.getThing().getUID(),
                 thingHandler);
-        safeCaller.create(thingHandler).onTimeout(() -> {
+        safeCaller.create(thingHandler, ThingHandler.class).onTimeout(() -> {
             logger.warn("Initializing handler for thing '{}' takes more than {}ms.", thingHandler.getThing().getUID(),
                     SafeCaller.DEFAULT_TIMEOUT);
         }).onException(e -> {
@@ -671,7 +672,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
 
     private void doUnregisterHandler(final Thing thing, final ThingHandlerFactory thingHandlerFactory) {
         logger.debug("Calling unregisterHandler handler for thing '{}' at '{}'.", thing.getUID(), thingHandlerFactory);
-        safeCaller.create((Runnable) () -> {
+        safeCaller.create(() -> {
             ThingHandler thingHandler = thing.getHandler();
             thingHandlerFactory.unregisterHandler(thing);
             if (thingHandler != null) {
@@ -681,7 +682,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
             setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR));
             thingHandlers.remove(thing.getUID());
             thingHandlersByFactory.remove(thingHandlerFactory, thingHandler);
-        }).build().run();
+        }, Runnable.class).build().run();
     }
 
     private void disposeHandler(Thing thing, ThingHandler thingHandler) {
@@ -700,7 +701,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     private void doDisposeHandler(final ThingHandler thingHandler) {
         logger.debug("Calling dispose handler for thing '{}' at '{}'.", thingHandler.getThing().getUID(), thingHandler);
         setThingStatus(thingHandler.getThing(), buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE));
-        safeCaller.create(thingHandler).onTimeout(() -> {
+        safeCaller.create(thingHandler, ThingHandler.class).onTimeout(() -> {
             logger.warn("Disposing handler for thing '{}' takes more than {}ms.", thingHandler.getThing().getUID(),
                     SafeCaller.DEFAULT_TIMEOUT);
         }).onException(e -> {

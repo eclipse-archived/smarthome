@@ -132,7 +132,7 @@ public class EventHandler {
         for (final EventSubscriber eventSubscriber : eventSubscribers) {
             EventFilter filter = eventSubscriber.getEventFilter();
             if (filter == null || filter.apply(event)) {
-                safeCaller.create(eventSubscriber).withAsync().onTimeout(() -> {
+                safeCaller.create(eventSubscriber, EventSubscriber.class).withAsync().onTimeout(() -> {
                     logger.warn("Dispatching event to subscriber '{}' takes more than {}ms.",
                             eventSubscriber.toString(), SafeCaller.DEFAULT_TIMEOUT);
                 }).onException(e -> {

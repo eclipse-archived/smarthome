@@ -14,7 +14,7 @@ package org.eclipse.smarthome.core.internal.common;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.isA;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -119,7 +119,7 @@ public class SafeCallerImplTest extends JavaTest {
     @Test
     public void testInterfaceDetection() throws Exception {
         ITarget target = new Target();
-        String result = safeCaller.create(target).build().method();
+        String result = safeCaller.create(target, ITarget.class).build().method();
         assertThat(result, is("Hello"));
     }
 
@@ -128,7 +128,7 @@ public class SafeCallerImplTest extends JavaTest {
         Runnable mock = mock(Runnable.class);
         doThrow(RuntimeException.class).when(mock).run();
 
-        safeCaller.create(mock).onException(mockErrorHandler).build().run();
+        safeCaller.create(mock, Runnable.class).onException(mockErrorHandler).build().run();
         waitForAssert(() -> {
             verify(mockErrorHandler).accept(isA(Throwable.class));
         });
@@ -139,7 +139,7 @@ public class SafeCallerImplTest extends JavaTest {
         Runnable mock = mock(Runnable.class);
         doAnswer(a -> sleep(BLOCK)).when(mock).run();
 
-        safeCaller.create(mock).withTimeout(TIMEOUT).onTimeout(mockTimeoutHandler).build().run();
+        safeCaller.create(mock, Runnable.class).withTimeout(TIMEOUT).onTimeout(mockTimeoutHandler).build().run();
         waitForAssert(() -> {
             verify(mockTimeoutHandler).run();
         });
@@ -162,13 +162,13 @@ public class SafeCallerImplTest extends JavaTest {
 
         spawn(() -> {
             assertDurationBetween(TIMEOUT - GRACE, BLOCK - GRACE, () -> {
-                safeCaller.create(mock).withTimeout(TIMEOUT).build().run();
+                safeCaller.create(mock, Runnable.class).withTimeout(TIMEOUT).build().run();
             });
         });
         sleep(GRACE); // give it a chance to start
         spawn(() -> {
             assertDurationBetween(TIMEOUT - GRACE, BLOCK - GRACE, () -> {
-                safeCaller.create(mock).withTimeout(TIMEOUT).build().run();
+                safeCaller.create(mock, Runnable.class).withTimeout(TIMEOUT).build().run();
             });
         });
         waitForAssert(() -> {
@@ -183,10 +183,10 @@ public class SafeCallerImplTest extends JavaTest {
         configureSingleThread();
 
         assertDurationBetween(TIMEOUT - GRACE, BLOCK - GRACE, () -> {
-            safeCaller.create(mock).withTimeout(TIMEOUT).build().run();
+            safeCaller.create(mock, Runnable.class).withTimeout(TIMEOUT).build().run();
         });
         assertDurationBelow(GRACE, () -> {
-            safeCaller.create(mock).withTimeout(TIMEOUT).build().run();
+            safeCaller.create(mock, Runnable.class).withTimeout(TIMEOUT).build().run();
         });
         assertDurationBetween(TIMEOUT - GRACE, BLOCK + GRACE, () -> {
             waitForAssert(() -> {
@@ -203,13 +203,13 @@ public class SafeCallerImplTest extends JavaTest {
 
         spawn(() -> {
             assertDurationBetween(TIMEOUT - GRACE, BLOCK - GRACE, () -> {
-                safeCaller.create(mock).withTimeout(TIMEOUT).build().run();
+                safeCaller.create(mock, Runnable.class).withTimeout(TIMEOUT).build().run();
             });
         });
         sleep(GRACE); // give it a chance to start
         spawn(() -> {
             assertDurationBelow(GRACE, () -> {
-                safeCaller.create(mock).withTimeout(TIMEOUT).build().run();
+                safeCaller.create(mock, Runnable.class).withTimeout(TIMEOUT).build().run();
             });
         });
         assertDurationBetween(BLOCK - 2 * GRACE, BLOCK + TIMEOUT + GRACE, () -> {
@@ -225,10 +225,10 @@ public class SafeCallerImplTest extends JavaTest {
         doAnswer(a -> sleep(TIMEOUT)).when(mock).run();
 
         assertDurationBelow(GRACE, () -> {
-            safeCaller.create(mock).withTimeout(TIMEOUT).withAsync().build().run();
+            safeCaller.create(mock, Runnable.class).withTimeout(TIMEOUT).withAsync().build().run();
         });
         assertDurationBelow(GRACE, () -> {
-            safeCaller.create(mock).withTimeout(TIMEOUT).withAsync().build().run();
+            safeCaller.create(mock, Runnable.class).withTimeout(TIMEOUT).withAsync().build().run();
         });
         waitForAssert(() -> {
             verify(mock, times(2)).run();
@@ -242,10 +242,10 @@ public class SafeCallerImplTest extends JavaTest {
         configureSingleThread();
 
         assertDurationBelow(GRACE, () -> {
-            safeCaller.create(mock).withTimeout(TIMEOUT).withAsync().build().run();
+            safeCaller.create(mock, Runnable.class).withTimeout(TIMEOUT).withAsync().build().run();
         });
         assertDurationBelow(GRACE, () -> {
-            safeCaller.create(mock).withTimeout(TIMEOUT).withAsync().build().run();
+            safeCaller.create(mock, Runnable.class).withTimeout(TIMEOUT).withAsync().build().run();
         });
         waitForAssert(() -> {
             verify(mock, times(2)).run();
@@ -259,10 +259,10 @@ public class SafeCallerImplTest extends JavaTest {
         Runnable mock2 = mock(Runnable.class);
 
         assertDurationBetween(TIMEOUT - GRACE, BLOCK - GRACE, () -> {
-            safeCaller.create(mock1).withTimeout(TIMEOUT).withIdentifier("id").build().run();
+            safeCaller.create(mock1, Runnable.class).withTimeout(TIMEOUT).withIdentifier("id").build().run();
         });
         assertDurationBelow(GRACE, () -> {
-            safeCaller.create(mock2).withTimeout(TIMEOUT).withIdentifier("id").build().run();
+            safeCaller.create(mock2, Runnable.class).withTimeout(TIMEOUT).withIdentifier("id").build().run();
         });
     }
 
@@ -274,10 +274,10 @@ public class SafeCallerImplTest extends JavaTest {
         doAnswer(a -> sleep(BLOCK)).when(mock2).run();
 
         assertDurationBetween(TIMEOUT - GRACE, BLOCK - GRACE, () -> {
-            safeCaller.create(mock1).withTimeout(TIMEOUT).withIdentifier(new Object()).build().run();
+            safeCaller.create(mock1, Runnable.class).withTimeout(TIMEOUT).withIdentifier(new Object()).build().run();
         });
         assertDurationBetween(TIMEOUT - GRACE, BLOCK - GRACE, () -> {
-            safeCaller.create(mock2).withTimeout(TIMEOUT).withIdentifier(new Object()).build().run();
+            safeCaller.create(mock2, Runnable.class).withTimeout(TIMEOUT).withIdentifier(new Object()).build().run();
         });
     }
 
@@ -287,7 +287,8 @@ public class SafeCallerImplTest extends JavaTest {
         doAnswer(a -> sleep(BLOCK)).when(mock).run();
 
         assertDurationAbove(BLOCK - GRACE, () -> {
-            safeCaller.create(mock).withTimeout(BLOCK + GRACE * 2).onTimeout(mockTimeoutHandler).build().run();
+            safeCaller.create(mock, Runnable.class).withTimeout(BLOCK + GRACE * 2).onTimeout(mockTimeoutHandler).build()
+                    .run();
         });
         verifyNoMoreInteractions(mockTimeoutHandler);
     }
@@ -347,18 +348,18 @@ public class SafeCallerImplTest extends JavaTest {
     public void testLambdas() throws Exception {
         ITarget thingHandler = new Target();
 
-        safeCaller.create((Callable<Void>) () -> {
+        safeCaller.create(() -> {
             thingHandler.method();
             return null;
-        }).build().call();
+        }, Callable.class).build().call();
 
-        safeCaller.create((Runnable) () -> {
+        safeCaller.create(() -> {
             thingHandler.method();
-        }).build().run();
+        }, Runnable.class).build().run();
 
-        String res = safeCaller.create((Function<String, String>) name -> {
+        Object res = safeCaller.create((Function<String, String>) name -> {
             return "Hello " + name + "!";
-        }).build().apply("World");
+        }, Function.class).build().apply("World");
         assertThat(res, is("Hello World!"));
     }
 
@@ -367,7 +368,7 @@ public class SafeCallerImplTest extends JavaTest {
         Runnable mock1 = mock(Runnable.class);
         doAnswer(a -> sleep(BLOCK)).when(mock1).run();
         assertDurationBelow(GRACE, () -> {
-            safeCaller.create(mock1).withTimeout(TIMEOUT).withAsync().build().run();
+            safeCaller.create(mock1, Runnable.class).withTimeout(TIMEOUT).withAsync().build().run();
         });
         waitForAssert(() -> verify(mock1, times(1)).run());
     }
@@ -379,7 +380,7 @@ public class SafeCallerImplTest extends JavaTest {
         doAnswer(a -> sleep(BLOCK)).when(mock1).run();
 
         assertDurationBelow(GRACE, () -> {
-            safeCaller.create(mock1).withTimeout(TIMEOUT).withAsync().withIdentifier(identifier)
+            safeCaller.create(mock1, Runnable.class).withTimeout(TIMEOUT).withAsync().withIdentifier(identifier)
                     .onTimeout(mockTimeoutHandler).onException(mockErrorHandler).build().run();
         });
         waitForAssert(() -> verify(mock1, times(1)).run());
@@ -394,7 +395,7 @@ public class SafeCallerImplTest extends JavaTest {
         doThrow(RuntimeException.class).when(mock1).run();
 
         assertDurationBelow(GRACE, () -> {
-            safeCaller.create(mock1).withTimeout(TIMEOUT).withAsync().withIdentifier(identifier)
+            safeCaller.create(mock1, Runnable.class).withTimeout(TIMEOUT).withAsync().withIdentifier(identifier)
                     .onTimeout(mockTimeoutHandler).onException(mockErrorHandler).build().run();
         });
         waitForAssert(() -> verify(mock1, times(1)).run());
@@ -411,8 +412,10 @@ public class SafeCallerImplTest extends JavaTest {
         doAnswer(a -> sleep(BLOCK)).when(mock2).run();
 
         assertDurationBelow(GRACE, () -> {
-            safeCaller.create(mock1).withTimeout(TIMEOUT).withAsync().withIdentifier(new Object()).build().run();
-            safeCaller.create(mock2).withTimeout(TIMEOUT).withAsync().withIdentifier(new Object()).build().run();
+            safeCaller.create(mock1, Runnable.class).withTimeout(TIMEOUT).withAsync().withIdentifier(new Object())
+                    .build().run();
+            safeCaller.create(mock2, Runnable.class).withTimeout(TIMEOUT).withAsync().withIdentifier(new Object())
+                    .build().run();
         });
         waitForAssert(() -> verify(mock1, times(1)).run());
         waitForAssert(() -> verify(mock2, times(1)).run());
@@ -427,8 +430,8 @@ public class SafeCallerImplTest extends JavaTest {
         doAnswer(a -> sleep(BLOCK)).when(mock2).run();
 
         assertDurationBelow(GRACE, () -> {
-            safeCaller.create(mock1).withTimeout(TIMEOUT).withAsync().build().run();
-            safeCaller.create(mock2).withTimeout(TIMEOUT).withAsync().build().run();
+            safeCaller.create(mock1, Runnable.class).withTimeout(TIMEOUT).withAsync().build().run();
+            safeCaller.create(mock2, Runnable.class).withTimeout(TIMEOUT).withAsync().build().run();
         });
         waitForAssert(() -> verify(mock1, times(1)).run());
         waitForAssert(() -> verify(mock2, times(1)).run());
@@ -444,8 +447,10 @@ public class SafeCallerImplTest extends JavaTest {
         doAnswer(a -> sleep(BLOCK)).when(mock2).run();
 
         assertDurationBelow(GRACE, () -> {
-            safeCaller.create(mock1).withAsync().withIdentifier(identifier).withTimeout(BLOCK + TIMEOUT).build().run();
-            safeCaller.create(mock2).withAsync().withIdentifier(identifier).withTimeout(BLOCK + TIMEOUT).build().run();
+            safeCaller.create(mock1, Runnable.class).withAsync().withIdentifier(identifier).withTimeout(BLOCK + TIMEOUT)
+                    .build().run();
+            safeCaller.create(mock2, Runnable.class).withAsync().withIdentifier(identifier).withTimeout(BLOCK + TIMEOUT)
+                    .build().run();
         });
         waitForAssert(() -> verify(mock1, times(1)).run());
         waitForAssert(() -> verify(mock2, times(1)).run());
@@ -459,7 +464,7 @@ public class SafeCallerImplTest extends JavaTest {
 
         for (int i = 0; i < THREAD_POOL_SIZE; i++) {
             assertDurationBelow(GRACE, () -> {
-                safeCaller.create(mock).withTimeout(TIMEOUT).withAsync().build().run();
+                safeCaller.create(mock, Runnable.class).withTimeout(TIMEOUT).withAsync().build().run();
             });
         }
 
@@ -477,7 +482,8 @@ public class SafeCallerImplTest extends JavaTest {
 
         for (int i = 0; i < THREAD_POOL_SIZE * 2; i++) {
             assertDurationBelow(GRACE, () -> {
-                safeCaller.create(mock).withTimeout(TIMEOUT).withIdentifier(new Object()).withAsync().build().run();
+                safeCaller.create(mock, Runnable.class).withTimeout(TIMEOUT).withIdentifier(new Object()).withAsync()
+                        .build().run();
             });
         }
         assertDurationBetween(BLOCK - GRACE, BLOCK + TIMEOUT + GRACE, () -> {
@@ -513,7 +519,7 @@ public class SafeCallerImplTest extends JavaTest {
     @Test
     public void testDuplicateInterface() {
         ITarget target = new DerivedTarget();
-        safeCaller.create(target).build().method();
+        safeCaller.create(target, ITarget.class).build().method();
     }
 
     private void assertDurationBelow(long high, Runnable runnable) {
