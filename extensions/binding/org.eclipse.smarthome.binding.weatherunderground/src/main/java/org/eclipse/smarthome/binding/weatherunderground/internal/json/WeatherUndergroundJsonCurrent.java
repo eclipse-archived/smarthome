@@ -93,7 +93,7 @@ public class WeatherUndergroundJsonCurrent {
     private String precip_today_in;
     private String precip_today_metric;
 
-    // private String icon;
+    private String icon;
     private String icon_url;
     // private String forecast_url;
     // private String history_url;
@@ -469,12 +469,23 @@ public class WeatherUndergroundJsonCurrent {
     /**
      * Get the icon URL representing the current weather conditions
      *
-     * Used to update the channel current#iconUrl
+     * Used to update the channel current#icon
      *
      * @return the icon URL representing the current weather conditions or null if not defined
      */
     public URL getIcon() {
         return WeatherUndergroundJsonUtils.getValidUrl(icon_url);
+    }
+
+    /**
+     * Get the icon key used in the URL representing the current weather conditions
+     *
+     * Used to update the channel current#iconKey
+     *
+     * @return the icon key used in the URL representing the current weather conditions
+     */
+    public String getIconKey() {
+        return icon;
     }
 
     class Location {
