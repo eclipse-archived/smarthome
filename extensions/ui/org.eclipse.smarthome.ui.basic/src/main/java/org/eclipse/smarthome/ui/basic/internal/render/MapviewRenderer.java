@@ -40,6 +40,8 @@ public class MapviewRenderer extends AbstractWidgetRenderer {
         Mapview mapview = (Mapview) w;
         String snippet = getSnippet("mapview");
         snippet = preprocessSnippet(snippet, mapview);
+        // Process the color tags
+        snippet = processColor(w, snippet);
 
         State state = itemUIRegistry.getState(mapview);
         if (state instanceof PointType) {
