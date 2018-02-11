@@ -24,6 +24,7 @@ import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.StateChangeListener;
+import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
 import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService.SitemapSubscriptionCallback;
@@ -199,7 +200,10 @@ public class PageChangeListener implements StateChangeListener {
                 event.widgetId = itemUIRegistry.getWidgetId(w);
                 event.visibility = itemUIRegistry.getVisiblity(w);
                 // event.item contains data from the item including its state (in event.item.state)
-                event.item = EnrichedItemDTOMapper.map(item, false, null, null);
+                String widgetTypeName = w.eClass().getInstanceTypeName()
+                        .substring(w.eClass().getInstanceTypeName().lastIndexOf(".") + 1);
+                event.item = EnrichedItemDTOMapper.map(item, "mapview".equalsIgnoreCase(widgetTypeName),
+                        CoreItemFactory.LOCATION, null, null);
 
                 // event.state is an adjustment of the item state to the widget type.
                 event.state = itemUIRegistry.getState(w).toFullString();

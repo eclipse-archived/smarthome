@@ -42,12 +42,13 @@ public class EnrichedItemDTOMapper {
      * @param uri the uri
      * @return item DTO object
      */
-    public static EnrichedItemDTO map(Item item, boolean drillDown, URI uri, Locale locale) {
+    public static EnrichedItemDTO map(Item item, boolean drillDown, String itemTypeFilter, URI uri, Locale locale) {
         ItemDTO itemDTO = ItemDTOMapper.map(item);
-        return map(item, itemDTO, uri, drillDown, locale);
+        return map(item, itemDTO, uri, drillDown, itemTypeFilter, locale);
     }
 
-    private static EnrichedItemDTO map(Item item, ItemDTO itemDTO, URI uri, boolean drillDown, Locale locale) {
+    private static EnrichedItemDTO map(Item item, ItemDTO itemDTO, URI uri, boolean drillDown, String itemTypeFilter,
+            Locale locale) {
         String state = item.getState().toFullString();
         String transformedState = considerTransformation(state, item.getStateDescription(locale));
         if (transformedState != null && transformedState.equals(state)) {
@@ -64,7 +65,9 @@ public class EnrichedItemDTOMapper {
             if (drillDown) {
                 Collection<EnrichedItemDTO> members = new LinkedHashSet<>();
                 for (Item member : groupItem.getMembers()) {
-                    members.add(map(member, drillDown, uri, locale));
+                    if (itemTypeFilter == null || itemTypeFilter.equals(member.getType())) {
+                        members.add(map(member, drillDown, itemTypeFilter, uri, locale));
+                    }
                 }
                 memberDTOs = members.toArray(new EnrichedItemDTO[members.size()]);
             } else {

@@ -297,6 +297,7 @@ public class SitemapResourceTest {
         Widget w1 = mock(Widget.class);
         EClass sliderEClass = mock(EClass.class);
         when(sliderEClass.getName()).thenReturn("slider");
+        when(sliderEClass.getInstanceTypeName()).thenReturn("org.eclipse.smarthome.model.sitemap.Slider");
         when(w1.eClass()).thenReturn(sliderEClass);
         when(w1.getLabel()).thenReturn(WIDGET1_LABEL);
         when(w1.getItem()).thenReturn(ITEM_NAME);
@@ -329,6 +330,7 @@ public class SitemapResourceTest {
         Widget w2 = mock(Widget.class);
         EClass switchEClass = mock(EClass.class);
         when(switchEClass.getName()).thenReturn("switch");
+        when(switchEClass.getInstanceTypeName()).thenReturn("org.eclipse.smarthome.model.sitemap.Switch");
         when(w2.eClass()).thenReturn(switchEClass);
         when(w2.getLabel()).thenReturn(WIDGET2_LABEL);
         when(w2.getItem()).thenReturn(ITEM_NAME);
