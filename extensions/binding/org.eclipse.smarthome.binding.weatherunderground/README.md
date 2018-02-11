@@ -73,6 +73,7 @@ The weather information that is retrieved is available as these channels:
 | Current | windSpeed | Number | Wind speed | SourceUnit: "kmh" or "mph"; default is "kmh" |
 | Current | windGust | Number | Wind gust | SourceUnit: "kmh" or "mph"; default is "kmh" |
 | Current | pressure | Number | Pressure | SourceUnit: "hPa" or "inHg"; default is "hPa" |
+| Current | pressureTrend | String | Pressure trend ("up", "stable" or "down") | |
 | Current | dewPoint | Number | Dew Point temperature | SourceUnit: "C" for degrees Celsius or "F" for degrees Fahrenheit; default is "C" |
 | Current | heatIndex | Number | Heat Index | SourceUnit: "C" for degrees Celsius or "F" for degrees Fahrenheit; default is "C" |
 | Current | windChill | Number | Wind chill temperature | SourceUnit: "C" for degrees Celsius or "F" for degrees Fahrenheit; default is "C" |
@@ -141,6 +142,7 @@ Number FeelTemp "Feeling temperature [%.1f °C]" <temperature>  {channel="weathe
 
 Number Humidity "Humidity [%d %%]" <humidity> {channel="weatherunderground:weather:CDG:current#relativeHumidity"}
 Number Pressure "Pressure [%.0f hPa]" {channel="weatherunderground:weather:CDG:current#pressure"}
+Number PressureTrend "Pressure trend [%s]" {channel="weatherunderground:weather:CDG:current#pressureTrend"}
 
 Number RainD "Rain [%.1f mm]" <rain> {channel="weatherunderground:weather:CDG:current#precipitationDay"}
 Number RainH "Rain [%.1f mm/h]" <rain> {channel="weatherunderground:weather:CDG:current#precipitationHour"}

@@ -62,7 +62,7 @@ public class WeatherUndergroundJsonCurrent {
 
     private String pressure_mb;
     private String pressure_in;
-    // private String pressure_trend;
+    private String pressure_trend;
 
     // private String dewpoint_string;
     private BigDecimal dewpoint_f;
@@ -270,6 +270,17 @@ public class WeatherUndergroundJsonCurrent {
      */
     public BigDecimal getPressureInHg() {
         return WeatherUndergroundJsonUtils.convertToBigDecimal(pressure_in);
+    }
+
+    /**
+     * Get the pressure trend
+     *
+     * Used to update the channel current#pressureTrend
+     *
+     * @return the pressure trend or null if not defined
+     */
+    public String getPressureTrend() {
+        return WeatherUndergroundJsonUtils.convertToTrend(pressure_trend);
     }
 
     /**
