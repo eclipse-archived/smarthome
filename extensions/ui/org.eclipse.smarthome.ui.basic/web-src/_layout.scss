@@ -32,6 +32,7 @@
 
 .navigation {
 	&__button-home {
+		cursor: default;
 		.navigation-page & {
 			display: none;
 		}
