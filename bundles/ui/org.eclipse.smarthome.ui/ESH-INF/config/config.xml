@@ -5,11 +5,6 @@
         http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
 
 	<config-description uri="ui:chart">
-		<parameter name="provider" type="text" required="false">
-			<label>Provider</label>
-			<description>Defines the chart provider to use.</description>
-			<default>default</default>
-		</parameter>
 		<parameter name="defaultHeight" type="text" required="false">
 			<label>Default Height</label>
 			<description>Defines the default height in pixels for the chart to build.</description>
@@ -24,10 +19,12 @@
 			<label>Scale</label>
 			<description>Defines the scale to apply to the requested chart height (0.5 to divide by 2 for example).</description>
 			<default>1</default>
+			<advanced>true</advanced>
 		</parameter>
 		<parameter name="maxWidth" type="text" required="false">
 			<label>Maximum Width</label>
 			<description>Defines the maximum width in pixels for the chart to build.</description>
+			<advanced>true</advanced>
 		</parameter>
 	</config-description>
 
