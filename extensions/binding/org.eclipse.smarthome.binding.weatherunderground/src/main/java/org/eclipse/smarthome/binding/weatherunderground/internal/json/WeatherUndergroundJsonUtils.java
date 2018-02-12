@@ -28,6 +28,10 @@ import org.slf4j.LoggerFactory;
  */
 public class WeatherUndergroundJsonUtils {
 
+    private static final String TREND_UP = "up";
+    private static final String TREND_DOWN = "down";
+    private static final String TREND_STABLE = "stable";
+
     /**
      * Returns the field value from the object data, nested fields are possible.
      * If the fieldName is for example current#humidity, the methods getCurrent().getHumidity() are called.
@@ -102,7 +106,6 @@ public class WeatherUndergroundJsonUtils {
                 result = Integer.valueOf(value.trim());
             } catch (NumberFormatException e) {
                 LoggerFactory.getLogger(WeatherUndergroundJsonUtils.class).debug("Cannot convert {} to Integer", value);
-                result = null;
             }
         }
         return result;
@@ -141,9 +144,34 @@ public class WeatherUndergroundJsonUtils {
             try {
                 validUrl = new URL(url);
             } catch (MalformedURLException e) {
-                validUrl = null;
             }
         }
         return validUrl;
+    }
+
+    /**
+     * Convert a string representing a decimal value into a pressure trend constant
+     *
+     * @param value the decimal value as a string
+     *
+     * @return the pressure trend constant representing the value or null in case of conversion error
+     */
+    public static String convertToTrend(String value) {
+        String result = null;
+        if (isValid(value)) {
+            try {
+                int val = Integer.valueOf(value.trim());
+                if (val < 0) {
+                    result = TREND_DOWN;
+                } else if (val > 0) {
+                    result = TREND_UP;
+                } else {
+                    result = TREND_STABLE;
+                }
+            } catch (NumberFormatException e) {
+                LoggerFactory.getLogger(WeatherUndergroundJsonUtils.class).debug("Cannot convert {} to Integer", value);
+            }
+        }
+        return result;
     }
 }
