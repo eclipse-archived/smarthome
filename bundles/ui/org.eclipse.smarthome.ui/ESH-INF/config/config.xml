@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0
         http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
 
-	<config-description uri="ui:chart">
+	<config-description uri="system:chart">
 		<parameter name="defaultHeight" type="text" required="false">
 			<label>Default Height</label>
 			<description>Defines the default height in pixels for the chart to build.</description>
