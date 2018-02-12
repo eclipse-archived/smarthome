@@ -28,8 +28,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Registers itself under "/" and provides links to other web UIs
@@ -44,22 +42,14 @@ public class MagicHttpRessource {
 
     protected HttpService httpService;
 
-    private final Logger logger = LoggerFactory.getLogger(MagicHttpRessource.class);
-
     @Activate
-    protected void activate(Map<String, Object> configProps, BundleContext bundleContext) {
-        try {
-            httpService.registerResources(WEBAPP_ALIAS, WEBAPP_ALIAS, new MagicHttpContext(bundleContext.getBundle()));
-            logger.info("Started Magic UI at " + WEBAPP_ALIAS);
-        } catch (NamespaceException e) {
-            logger.debug("Error during magic servlet startup", e);
-        }
+    protected void activate(Map<String, Object> configProps, BundleContext bundleContext) throws NamespaceException {
+        httpService.registerResources(WEBAPP_ALIAS, WEBAPP_ALIAS, new MagicHttpContext(bundleContext.getBundle()));
     }
 
     @Deactivate
     protected void deactivate() {
         httpService.unregister(WEBAPP_ALIAS);
-        logger.info("Stopped Magic UI");
     }
 
     @Reference
