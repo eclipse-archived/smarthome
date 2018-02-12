@@ -19,6 +19,7 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.sitemap.Mapview;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.classic.render.RenderException;
+import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
 
 /**
  * This is an implementation of the {@link WidgetRenderer} interface, which
@@ -38,6 +39,13 @@ public class MapviewRenderer extends AbstractWidgetRenderer {
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         Mapview mapview = (Mapview) w;
         String snippet = getSnippet("mapview");
+
+        snippet = StringUtils.replace(snippet, "%category%", getCategory(w));
+        snippet = StringUtils.replace(snippet, "%label%", getLabel(w));
+        snippet = StringUtils.replace(snippet, "%format%", getFormat());
+
+        // Process the color tags
+        snippet = processColor(w, snippet);
 
         State state = itemUIRegistry.getState(mapview);
         if (state instanceof PointType) {
