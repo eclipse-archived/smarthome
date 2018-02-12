@@ -91,20 +91,22 @@ public class ExpiringCacheAsync<V> {
      * @return the new value in form of a CompletableFuture.
      */
     public synchronized CompletableFuture<V> refreshValue(Supplier<CompletableFuture<V>> requestNewValueFuture) {
+        CompletableFuture<V> currentNewValueRequest = this.currentNewValueRequest;
+
         expiresAt = 0;
         // There is already an ongoing refresh, just return that future
         if (currentNewValueRequest != null) {
             return currentNewValueRequest;
         }
         // We request a value update from the supplier now
-        currentNewValueRequest = requestNewValueFuture.get();
+        currentNewValueRequest = this.currentNewValueRequest = requestNewValueFuture.get();
         if (currentNewValueRequest == null) {
             throw new IllegalArgumentException("We expect a CompletableFuture for refreshValue() to work!");
         }
         @SuppressWarnings("null")
         CompletableFuture<V> t = currentNewValueRequest.thenApply(newValue -> {
             // No request is ongoing anymore, update the value and expire time
-            currentNewValueRequest = null;
+            this.currentNewValueRequest = null;
             value = newValue;
             expiresAt = getCurrentNanoTime() + expiry;
             return value;
