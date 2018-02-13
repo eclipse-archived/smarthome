@@ -184,6 +184,7 @@
 			<channel id="precipitationDay" typeId="rainDay" />
 			<channel id="precipitationHour" typeId="rainHour" />
 			<channel id="icon" typeId="icon" />
+			<channel id="iconKey" typeId="iconKey" />
 		</channels>
 	</channel-group-type>
 
@@ -206,6 +207,7 @@
 			<channel id="averageWindDirectionDegrees" typeId="averageWindDirection-degrees" />
 			<channel id="averageWindSpeed" typeId="averageWindSpeed" />
 			<channel id="icon" typeId="icon" />
+			<channel id="iconKey" typeId="iconKey" />
 		</channels>
 	</channel-group-type>
 
@@ -656,6 +658,12 @@
 		<item-type>Image</item-type>
 		<label>Weather icon</label>
 		<description>Icon representing the weather conditions</description>
+	</channel-type>
+
+	<channel-type id="iconKey" advanced="true">
+		<item-type>String</item-type>
+		<label>Weather icon key</label>
+		<description>Key used in the icon URL</description>
 	</channel-type>
 
 </thing:thing-descriptions>
