@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Bock - initial API
  */
-@Component(service = HttpClientFactory.class, immediate = true, name = "org.eclipse.smarthome.io.net.http.internal.SecureHttpClientFactory", configurationPid = "org.eclipse.smarthome.io.net.http.HttpClientFactory")
+@Component(service = HttpClientFactory.class, immediate = true, name = "org.eclipse.smarthome.io.net.http.internal.SecureHttpClientFactory", configurationPid = "org.eclipse.smarthome.HttpClientFactory")
 public class SecureHttpClientFactory implements HttpClientFactory {
 
     private final Logger logger = LoggerFactory.getLogger(SecureHttpClientFactory.class);
@@ -56,7 +56,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     private static final int MAX_CONSUMER_NAME_LENGTH = 20;
     private static final Pattern CONSUMER_NAME_PATTERN = Pattern.compile("[a-zA-Z0-9_\\-]*");
 
-    private CustomTrustManagerProvider customTrustmanagerProvider;
+    private volatile CustomTrustManagerProvider customTrustmanagerProvider;
 
     private int minThreads;
     private int maxThreads;
@@ -67,10 +67,10 @@ public class SecureHttpClientFactory implements HttpClientFactory {
 
     @Activate
     protected void activate(Map<String, Object> parameters) {
-        minThreads = (Integer) parameters.get(CONFIG_MIN_THREADS);
-        maxThreads = (Integer) parameters.get(CONFIG_MAX_THREADS);
-        keepAliveTimeout = (Integer) parameters.get(CONFIG_KEEP_ALIVE);
-        queueSize = (Integer) parameters.get(CONFIG_QUEUE_SIZE);
+        minThreads = (int) parameters.get(CONFIG_MIN_THREADS);
+        maxThreads = (int) parameters.get(CONFIG_MAX_THREADS);
+        keepAliveTimeout = (int) parameters.get(CONFIG_KEEP_ALIVE);
+        queueSize = (int) parameters.get(CONFIG_QUEUE_SIZE);
         threadPool = new ThreadPoolExecutor(minThreads, maxThreads, keepAliveTimeout, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<Runnable>(queueSize), new NamedThreadFactory("jetty"));
         logger.info("jetty thread pool started with min threads {}, max threads {}", minThreads, maxThreads);
@@ -78,10 +78,10 @@ public class SecureHttpClientFactory implements HttpClientFactory {
 
     @Modified
     protected void modified(Map<String, Object> parameters) {
-        minThreads = (Integer) parameters.get(CONFIG_MIN_THREADS);
-        maxThreads = (Integer) parameters.get(CONFIG_MAX_THREADS);
-        keepAliveTimeout = (Integer) parameters.get(CONFIG_KEEP_ALIVE);
-        queueSize = (Integer) parameters.get(CONFIG_QUEUE_SIZE);
+        minThreads = (int) parameters.get(CONFIG_MIN_THREADS);
+        maxThreads = (int) parameters.get(CONFIG_MAX_THREADS);
+        keepAliveTimeout = (int) parameters.get(CONFIG_KEEP_ALIVE);
+        queueSize = (int) parameters.get(CONFIG_QUEUE_SIZE);
         threadPool.setCorePoolSize(minThreads);
         threadPool.setMaximumPoolSize(maxThreads);
         threadPool.setKeepAliveTime(keepAliveTimeout, TimeUnit.SECONDS);
@@ -95,7 +95,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     }
 
     @Override
-    public HttpClient getHttpClient(String consumerName, String endpoint) {
+    public HttpClient newHttpClient(String consumerName, String endpoint) {
         Objects.requireNonNull(endpoint, "endpoint must not be null");
         logger.debug("httpClient for endpoint {} requested", endpoint);
         checkConsumerName(consumerName);
@@ -103,7 +103,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     }
 
     @Override
-    public HttpClient getHttpClient(String consumerName) {
+    public HttpClient newHttpClient(String consumerName) {
         logger.debug("httpClient for requested");
         checkConsumerName(consumerName);
         return createHttpClient(consumerName, null);
@@ -166,6 +166,8 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     }
 
     protected void unbindCustomTrustmanagerProvider(CustomTrustManagerProvider customTrustmanagerProvider) {
-        this.customTrustmanagerProvider = null;
+        if (this.customTrustmanagerProvider == customTrustmanagerProvider) {
+            this.customTrustmanagerProvider = null;
+        }
     }
 }

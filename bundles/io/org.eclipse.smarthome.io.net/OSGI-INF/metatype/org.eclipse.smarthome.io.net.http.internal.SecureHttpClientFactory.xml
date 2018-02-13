@@ -20,7 +20,7 @@
 		    type="Integer" description="Queue size for operations" />
 	</OCD>
 
-	<Designate pid="org.eclipse.smarthome.io.net.http.HttpClientFactory">
+	<Designate pid="org.eclipse.smarthome.HttpClientFactory">
 		<Object ocdref="HttpClientFactory" />
 	</Designate>
 	
