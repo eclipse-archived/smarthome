@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.core.items.GenericItem;
@@ -202,8 +203,9 @@ public class PageChangeListener implements StateChangeListener {
                 // event.item contains data from the item including its state (in event.item.state)
                 String widgetTypeName = w.eClass().getInstanceTypeName()
                         .substring(w.eClass().getInstanceTypeName().lastIndexOf(".") + 1);
-                event.item = EnrichedItemDTOMapper.map(item, "mapview".equalsIgnoreCase(widgetTypeName),
-                        CoreItemFactory.LOCATION, null, null);
+                boolean drillDown = "mapview".equalsIgnoreCase(widgetTypeName);
+                Predicate<Item> itemFilter = (i -> i.getType().equals(CoreItemFactory.LOCATION));
+                event.item = EnrichedItemDTOMapper.map(item, drillDown, itemFilter, null, null);
 
                 // event.state is an adjustment of the item state to the widget type.
                 event.state = itemUIRegistry.getState(w).toFullString();
