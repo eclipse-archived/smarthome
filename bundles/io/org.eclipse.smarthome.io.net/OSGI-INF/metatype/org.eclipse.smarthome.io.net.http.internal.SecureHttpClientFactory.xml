@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.1.0 http://www.osgi.org/xmlns/metatype/v1.1.0">
+
+	<OCD name="HTTP Client Factory" id="HttpClientFactory" description="HTTP Client Factory for generting jetty http clients">
+		<AD name="minThreads" id="minThreads" 
+		    default="10" min="1"
+		    type="Integer" description="Minimal threads for thread pool" />
+
+		<AD name="maxThreads" id="maxThreads" 
+		    default="40" min="5"
+		    type="Integer" description="Maximal threads for thread pool" />
+
+		<AD name="keepAliveTimeout" id="keepAliveTimeout" 
+		    default="60" min="1"
+		    type="Integer" description="Timeout in seconds, after which idle threads are terminated" />
+
+		<AD name="queueSize" id="queueSize" 
+		    default="80" min="5"
+		    type="Integer" description="Queue size for operations" />
+	</OCD>
+
+	<Designate pid="org.eclipse.smarthome.io.net.http.HttpClientFactory">
+		<Object ocdref="HttpClientFactory" />
+	</Designate>
+	
+</metatype:MetaData>
