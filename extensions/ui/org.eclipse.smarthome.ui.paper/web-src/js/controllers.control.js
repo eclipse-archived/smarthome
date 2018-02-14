@@ -1,6 +1,9 @@
 angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
 .controller('ControlPageController', function($scope, $routeParams, $location, $timeout, $filter, itemRepository, thingTypeRepository, util, thingRepository, channelTypeRepository) {
     $scope.tabs = [];
+    $scope.selectedTabIndex;
+
+    var selectedTabName = $routeParams.tab;
 
     $scope.navigateTo = function(path) {
         $location.path(path);
@@ -16,15 +19,22 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
         });
     }
 
-    $scope.masonry = function(index) {
-        $timeout(function() {
-            new Masonry('#items-' + index, {});
-        }, 100, false);
+    $scope.onSelectedTab = function(tab) {
+        var index = $scope.tabs.indexOf(tab);
+        masonry(index);
+        $location.path('/control').search('tab', tab.name.toLowerCase());
     }
 
     function renderTabs() {
         thingRepository.getAll(function(things) {
             $scope.tabs = getTabs(things);
+            if (selectedTabName) {
+                var selectedTab = $scope.tabs.find(function(tab) {
+                    return tab.name === selectedTabName.toUpperCase();
+                });
+                $scope.selectedTabIndex = selectedTab ? $scope.tabs.indexOf(selectedTab) : 0;
+                masonry($scope.selectedTabIndex);
+            }
         })
     }
 
@@ -58,6 +68,12 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
                 hasThings : false
             }
         });
+    }
+
+    function masonry(index) {
+        $timeout(function() {
+            new Masonry('#items-' + index, {});
+        }, 100, false);
     }
 
     $scope.refresh();

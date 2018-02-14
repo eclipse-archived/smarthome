@@ -3,8 +3,8 @@
 		<md-button ng-click="refresh()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
 	</div>
 
-	<md-tabs md-stretch-tabs="always" class="section-tabs">
-	<md-tab ng-repeat="tab in tabs track by tab.name" ng-disabled="::tab.disabled" label="{{::tab.name}}" md-on-select="masonry($index)" layout-fill> 
+	<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedTabIndex">
+	<md-tab ng-repeat="tab in tabs track by tab.name" ng-disabled="::tab.disabled" label="{{::tab.name}}" md-on-select="onSelectedTab(tab)" layout-fill> 
 	<md-tab-content layout-fill="">
 	<p class="text-center" ng-if="!tab.hasThings">
 		No Things available.

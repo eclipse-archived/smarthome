@@ -4,7 +4,7 @@
 		<md-button ng-click="changeView(false)" aria-label="Refresh"> <i class="material-icons">view_list</i></md-button>
 		<md-button ng-click="changeView(true)" aria-label="Refresh"> <i class="material-icons">view_module</i></md-button>
 	</div>
-	<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedIndex"> <md-tab ng-repeat="extensionType in extensionTypes track by $index" ng-disabled="tab.disabled" label="{{extensionType.label}}" md-on-select="masonry(showCards)" layout-fill> <md-tab-content layout-fill="">
+	<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedIndex"> <md-tab ng-repeat="extensionType in extensionTypes track by $index" ng-disabled="tab.disabled" label="{{extensionType.label}}" md-on-select="onTabSelected(extensionType)" layout-fill> <md-tab-content layout-fill="">
 	<div class="search" layout="row" layout-align="center center">
 		<i ng-style="{'font-size': '24px'}" class="material-icons">search</i>
 		<md-input-container flex="auto" md-no-float class="md-block"> <input ng-model="searchText[$index]" ng-model-options="{ debounce: 200 }" type="text" placeholder="Search"> </md-input-container>
