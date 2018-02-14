@@ -2,6 +2,10 @@
 
 This extension supports Bluetooth access via BlueZ on Linux (ARMv6hf).
 
+Please note that at least BlueZ 5.43 is required, while 5.48 or above are [not (yet) supported](https://github.com/intel-iot-devkit/tinyb/issues/131) either.
+
+Also note that the OS user needs to be a member of the "bluetooth" group of Linux in order to have the rights to access the BlueZ stack.
+
 ## Supported Things
 
 It defines the following bridge type:
