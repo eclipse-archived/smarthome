@@ -36,6 +36,12 @@ import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.Video;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
@@ -67,6 +73,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  * @author John Cocula - added optional Image/Video item= support; refactored to allow use of later spec servlet
  */
+@Component(immediate=true, property={"service.pid=org.eclipse.smarthome.proxy"})
 public class ProxyServletService extends HttpServlet {
 
     /** the alias for this servlet */
@@ -87,6 +94,7 @@ public class ProxyServletService extends HttpServlet {
     protected ItemUIRegistry itemUIRegistry;
     protected ModelRepository modelRepository;
 
+    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.DYNAMIC)
     protected void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
         this.itemUIRegistry = itemUIRegistry;
     }
@@ -95,6 +103,7 @@ public class ProxyServletService extends HttpServlet {
         this.itemUIRegistry = null;
     }
 
+    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
     protected void setModelRepository(ModelRepository modelRepository) {
         this.modelRepository = modelRepository;
     }
@@ -103,6 +112,7 @@ public class ProxyServletService extends HttpServlet {
         this.modelRepository = null;
     }
 
+    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.DYNAMIC)
     protected void setHttpService(HttpService httpService) {
         this.httpService = httpService;
     }
@@ -151,6 +161,7 @@ public class ProxyServletService extends HttpServlet {
         return props;
     }
 
+    @Activate
     protected void activate(Map<String, Object> config) {
         try {
             Servlet servlet = getImpl();
@@ -164,6 +175,7 @@ public class ProxyServletService extends HttpServlet {
         }
     }
 
+    @Deactivate
     protected void deactivate() {
         try {
             httpService.unregister("/" + PROXY_ALIAS);

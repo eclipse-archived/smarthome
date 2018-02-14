@@ -12,7 +12,9 @@
  */
 package org.eclipse.smarthome.core.persistence;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.eclipse.smarthome.core.types.State;
 
@@ -33,6 +35,8 @@ import org.eclipse.smarthome.core.types.State;
  * a filter.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Lyubomir Papazov - Deprecate methods using java.util and add methods
+ *         that use Java8's ZonedDateTime
  */
 public class FilterCriteria {
 
@@ -60,10 +64,10 @@ public class FilterCriteria {
     private String itemName;
 
     /** filter result to only contain entries that are newer than the given date */
-    private Date beginDate;
+    private ZonedDateTime beginDate;
 
     /** filter result to only contain entries that are older than the given date */
-    private Date endDate;
+    private ZonedDateTime endDate;
 
     /** return the result list from starting index pageNumber*pageSize only */
     private int pageNumber = 0;
@@ -77,18 +81,44 @@ public class FilterCriteria {
     /** how to sort the result list by date */
     private Ordering ordering = Ordering.DESCENDING;
 
-    /** filter result to only contain entries that evaluate to true with the given operator and state */
+    /** Filter result to only contain entries that evaluate to true with the given operator and state */
     private State state;
 
     public String getItemName() {
         return itemName;
     }
 
+    /**
+     * @deprecated
+     * Please use {@link #getBeginDateZoned()} method which returns Java 8's
+     * ZonedDateTime. ZonedDateTime allows additional methods about time and time
+     * zone to be added for more specific filter queries.
+     *
+     * @return {@link java.util.Date} object that contains information about the
+     * date after which only newer entries are queried
+     */
     public Date getBeginDate() {
+        return Date.from(beginDate.toInstant());
+    }
+
+    public ZonedDateTime getBeginDateZoned() {
         return beginDate;
     }
 
+    /**
+     * @deprecated
+     * Please use {@link #getEndDateZoned()} method which returns Java 8's
+     * ZonedDateTime. ZonedDateTime allows additional methods about time and time
+     * zone to be added for more specific filter queries.
+     *
+     * @return {@link java.util.Date} object that contains information about the
+     * date after which only older entries are queried
+     */
     public Date getEndDate() {
+        return Date.from(endDate.toInstant());
+    }
+
+    public ZonedDateTime getEndDateZoned() {
         return endDate;
     }
 
@@ -117,12 +147,46 @@ public class FilterCriteria {
         return this;
     }
 
+    /**
+     * @deprecated
+     * Please use the {@link #setBeginDate(ZonedDateTime)} method which takes Java 8's
+     * ZonedDateTime as a parameter. The Date object will be converted to a
+     * ZonedDateTime using the default time zone. ZonedDateTime allows additional
+     * methods about time and time zone to be added for more specific filter
+     * queries.
+     *
+     * @param beginDate A date for which to filter only newer entries.
+     * @return this FilterCriteria instance, so that the methods can be easily
+     *         chained in order to define a filter
+     */
     public FilterCriteria setBeginDate(Date beginDate) {
+        this.beginDate = ZonedDateTime.ofInstant(beginDate.toInstant(), TimeZone.getDefault().toZoneId());
+        return this;
+    }
+
+    public FilterCriteria setBeginDate(ZonedDateTime beginDate) {
         this.beginDate = beginDate;
         return this;
     }
 
+    /**
+     * @deprecated
+     * Please use the {@link #setEndDate(ZonedDateTime)} method which takes Java 8's
+     * ZonedDateTime as a parameter. The Date object will be converted to a
+     * ZonedDateTime using the default time zone. ZonedDateTime allows additional
+     * methods about time and time zone to be added for more specific filter
+     * queries.
+     *
+     * @param endDate A date for which to filter only newer entries.
+     * @return this FilterCriteria instance, so that the methods can be easily
+     *         chained in order to define a filter
+     */
     public FilterCriteria setEndDate(Date endDate) {
+        this.endDate = ZonedDateTime.ofInstant(endDate.toInstant(), TimeZone.getDefault().toZoneId());
+        return this;
+    }
+
+    public FilterCriteria setEndDate(ZonedDateTime endDate) {
         this.endDate = endDate;
         return this;
     }
