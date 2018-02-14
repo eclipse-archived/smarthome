@@ -37,7 +37,7 @@ public interface ConfigDescriptionProvider {
      * @return the configuration descriptions provided by this provider (not
      *         null, could be empty)
      */
-    Collection<ConfigDescription> getConfigDescriptions(Locale locale);
+    Collection<ConfigDescription> getConfigDescriptions(@Nullable Locale locale);
 
     /**
      * Provides a {@link ConfigDescription} for the given URI.
@@ -47,6 +47,6 @@ public interface ConfigDescriptionProvider {
      * @return config description or null if no config description could be found
      */
     @Nullable
-    ConfigDescription getConfigDescription(URI uri, Locale locale);
+    ConfigDescription getConfigDescription(URI uri, @Nullable Locale locale);
 
 }
