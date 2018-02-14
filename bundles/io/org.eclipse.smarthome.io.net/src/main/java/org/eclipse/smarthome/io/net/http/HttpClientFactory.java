@@ -31,7 +31,7 @@ public interface HttpClientFactory {
      *            Must be between 4 and 20 characters long and must contain only the following characters [a-zA-Z0-9-_]
      * @param endpoint the desired endpoint, protocol and host are sufficient
      * @return the jetty client
-     * @throws NullPointerException if {@code endpoint} or {code consumerName} is {@code null}
+     * @throws NullPointerException if {@code endpoint} or {@code consumerName} is {@code null}
      * @throws IllegalArgumentException if {@code consumerName} is invalid
      */
     HttpClient newHttpClient(String consumerName, String endpoint);
