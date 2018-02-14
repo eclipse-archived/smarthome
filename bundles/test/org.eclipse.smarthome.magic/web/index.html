@@ -4,14 +4,35 @@
     <!-- CSS -->
     <!--<link href="./css/materialize.css" type="text/css" rel="stylesheet"
         media="screen,projection" />-->
-    <link href="./css/custom.css" type="text/css" rel="stylesheet"
+    <!--<link href="./css/custom.css" type="text/css" rel="stylesheet"
+        media="screen,projection" />-->
+    <link href="http://localhost:8080/paperui/css/angular-material.min.css" type="text/css" rel="stylesheet"
         media="screen,projection" />
     <link href="./css/styles.css" rel="stylesheet" />
 </head>
 <body class="landing">
 
-    <div id="header" class="navbar-fixed">
-        <nav role="navigation">
+    <!-- <div id="header" class="navbar-fixed">-->
+    <div id="header" class="md-toolbar-tools">
+    <button class="md-button md-ink-ripple" type="button" aria-label="Go Back">
+        <span class="ng-scope">
+          <a href="./index.html"><img id="logo" src="img/eclipse_logo.png" /></a>
+        </span></button>
+        <!--
+        <h2>
+          <span>Toolbar with Standard Buttons</span>
+        </h2>
+         -->
+        <span class="flex"></span>
+        <button class="md-button md-ink-ripple" type="button">
+            <span class="ng-binding ng-scope">
+                <a href="https://www.eclipse.org/smarthome/getting-started.html">Getting Started</a>
+            </span>
+        </button>
+        <button class="md-raised md-button md-ink-ripple" type="button" aria-label="Learn More"><span class="ng-scope">
+          Learn More
+        </span></button>
+        <!-- <nav role="navigation">
             <div class="container">
                 <div class="nav-wrapper">
                     <a href="./index.html"><img id="logo" src="img/eclipse_logo.png" /></a>
@@ -23,7 +44,7 @@
                     </ul>
                 </div>
             </div>
-        </nav>
+        </nav>-->
     </div>
     
     <section id="references" class="z-depth-1">
