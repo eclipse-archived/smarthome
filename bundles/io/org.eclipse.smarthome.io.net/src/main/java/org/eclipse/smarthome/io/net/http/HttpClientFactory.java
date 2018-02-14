@@ -34,7 +34,7 @@ public interface HttpClientFactory {
      * @throws NullPointerException if {@code endpoint} or {@code consumerName} is {@code null}
      * @throws IllegalArgumentException if {@code consumerName} is invalid
      */
-    HttpClient newHttpClient(String consumerName, String endpoint);
+    HttpClient createHttpClient(String consumerName, String endpoint);
 
     /**
      * Creates a new jetty http client.
@@ -47,5 +47,5 @@ public interface HttpClientFactory {
      * @return the jetty client
      * @throws NullPointerException if {@code endpoint} is {@code null}
      */
-    HttpClient newHttpClient(String consumerName);
+    HttpClient createHttpClient(String consumerName);
 }

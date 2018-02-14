@@ -11,4 +11,5 @@ Import-Package:
  org.hamcrest;core=split,
  org.hamcrest.core,
  org.junit;version="4.0.0",
- org.mockito
+ org.mockito,
+ org.mockito.stubbing

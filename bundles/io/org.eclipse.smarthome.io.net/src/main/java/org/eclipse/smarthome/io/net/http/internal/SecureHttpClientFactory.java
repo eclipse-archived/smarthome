@@ -25,8 +25,8 @@ import javax.net.ssl.TrustManager;
 
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.smarthome.io.net.http.CustomTrustManagerProvider;
 import org.eclipse.smarthome.io.net.http.HttpClientFactory;
+import org.eclipse.smarthome.io.net.http.TrustManagerProvider;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -56,7 +56,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     private static final int MAX_CONSUMER_NAME_LENGTH = 20;
     private static final Pattern CONSUMER_NAME_PATTERN = Pattern.compile("[a-zA-Z0-9_\\-]*");
 
-    private volatile CustomTrustManagerProvider customTrustmanagerProvider;
+    private volatile TrustManagerProvider trustmanagerProvider;
 
     private int minThreads;
     private int maxThreads;
@@ -95,26 +95,26 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     }
 
     @Override
-    public HttpClient newHttpClient(String consumerName, String endpoint) {
+    public HttpClient createHttpClient(String consumerName, String endpoint) {
         Objects.requireNonNull(endpoint, "endpoint must not be null");
         logger.debug("httpClient for endpoint {} requested", endpoint);
         checkConsumerName(consumerName);
-        return createHttpClient(consumerName, endpoint);
+        return createHttpClientInternal(consumerName, endpoint);
     }
 
     @Override
-    public HttpClient newHttpClient(String consumerName) {
+    public HttpClient createHttpClient(String consumerName) {
         logger.debug("httpClient for requested");
         checkConsumerName(consumerName);
-        return createHttpClient(consumerName, null);
+        return createHttpClientInternal(consumerName, null);
     }
 
-    private HttpClient createHttpClient(String consumerName, String endpoint) {
+    private HttpClient createHttpClientInternal(String consumerName, String endpoint) {
         logger.info("creating httpClient for endpoint {}", endpoint);
         SslContextFactory sslContextFactory = new SslContextFactory();
         sslContextFactory.setEndpointIdentificationAlgorithm("HTTPS");
-        if (endpoint != null && customTrustmanagerProvider != null) {
-            Stream<TrustManager> trustManagerStream = customTrustmanagerProvider.getTrustManagers(endpoint);
+        if (endpoint != null && trustmanagerProvider != null) {
+            Stream<TrustManager> trustManagerStream = trustmanagerProvider.getTrustManagers(endpoint);
             TrustManager[] trustManagers = trustManagerStream.toArray(TrustManager[]::new);
             if (trustManagers.length > 0) {
                 logger.info("using custom trustmanagers (certificate pinning) for httpClient for endpoint {}",
@@ -160,14 +160,14 @@ public class SecureHttpClientFactory implements HttpClientFactory {
         }
     }
 
-    @Reference(service = CustomTrustManagerProvider.class, cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    protected void bindCustomTrustmanagerProvider(CustomTrustManagerProvider customTrustmanagerProvider) {
-        this.customTrustmanagerProvider = customTrustmanagerProvider;
+    @Reference(service = TrustManagerProvider.class, cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setTrustmanagerProvider(TrustManagerProvider trustmanagerProvider) {
+        this.trustmanagerProvider = trustmanagerProvider;
     }
 
-    protected void unbindCustomTrustmanagerProvider(CustomTrustManagerProvider customTrustmanagerProvider) {
-        if (this.customTrustmanagerProvider == customTrustmanagerProvider) {
-            this.customTrustmanagerProvider = null;
+    protected void unsetTrustmanagerProvider(TrustManagerProvider trustmanagerProvider) {
+        if (this.trustmanagerProvider == trustmanagerProvider) {
+            this.trustmanagerProvider = null;
         }
     }
 }

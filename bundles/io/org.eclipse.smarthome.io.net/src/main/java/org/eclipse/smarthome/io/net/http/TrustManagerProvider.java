@@ -21,7 +21,7 @@ import javax.net.ssl.TrustManager;
  * 
  * @author Michael Bock - initial API
  */
-public interface CustomTrustManagerProvider {
+public interface TrustManagerProvider {
 
     /**
      * Provides a (potentially empty) list of trust managers to be used for an endpoint.
