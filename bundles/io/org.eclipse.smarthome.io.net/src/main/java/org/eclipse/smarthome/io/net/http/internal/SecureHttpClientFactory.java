@@ -14,7 +14,7 @@ package org.eclipse.smarthome.io.net.http.internal;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -72,7 +72,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
         keepAliveTimeout = (int) parameters.get(CONFIG_KEEP_ALIVE);
         queueSize = (int) parameters.get(CONFIG_QUEUE_SIZE);
         threadPool = new ThreadPoolExecutor(minThreads, maxThreads, keepAliveTimeout, TimeUnit.SECONDS,
-                new ArrayBlockingQueue<Runnable>(queueSize), new NamedThreadFactory("jetty"));
+                new LinkedBlockingQueue<Runnable>(queueSize), new NamedThreadFactory("jetty"));
         logger.info("jetty thread pool started with min threads {}, max threads {}", minThreads, maxThreads);
     }
 

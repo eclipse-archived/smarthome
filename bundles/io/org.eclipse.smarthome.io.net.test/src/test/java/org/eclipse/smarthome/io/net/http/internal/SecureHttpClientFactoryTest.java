@@ -7,13 +7,23 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
 import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.smarthome.io.net.http.TrustManagerProvider;
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -57,6 +67,52 @@ public class SecureHttpClientFactoryTest {
         verify(trustmanagerProvider).getTrustManagers("https://www.heise.de");
 
         client.stop();
+
+        secureHttpClientFactory.deactivate();
+    }
+
+    @Ignore("only for manual test")
+    @Test
+    public void testMultiThreaded() throws Exception {
+        secureHttpClientFactory.activate(createConfigMap(10, 40, 60, 1000));
+
+        ThreadPoolExecutor workers = new ThreadPoolExecutor(20, 80, 60, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<Runnable>(50 * 50), new NamedThreadFactory("workers"));
+
+        List<HttpClient> clients = new ArrayList<>();
+
+        // final int CLIENTS = 50;
+        // final int REQUESTS = 50;
+
+        final int CLIENTS = 2;
+        final int REQUESTS = 2;
+
+        for (int i = 0; i < CLIENTS; i++) {
+            clients.add(secureHttpClientFactory.createHttpClient("consumer" + i));
+        }
+
+        for (int i = 0; i < REQUESTS; i++) {
+            for (final HttpClient client : clients) {
+                workers.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            ContentResponse response = client.GET("https://www.heise.de");
+                            assertThat(response.getStatus(), is(200));
+                        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                            Assert.fail("Unexpected exception:" + e.getMessage());
+                        }
+                    }
+                });
+            }
+        }
+
+        workers.shutdown();
+        workers.awaitTermination(60, TimeUnit.SECONDS);
+
+        for (HttpClient client : clients) {
+            client.stop();
+        }
 
         secureHttpClientFactory.deactivate();
     }
