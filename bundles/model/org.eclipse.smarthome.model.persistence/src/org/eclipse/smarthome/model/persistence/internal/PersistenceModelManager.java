@@ -38,6 +38,10 @@ import org.eclipse.smarthome.model.persistence.persistence.ItemConfig;
 import org.eclipse.smarthome.model.persistence.persistence.PersistenceConfiguration;
 import org.eclipse.smarthome.model.persistence.persistence.PersistenceModel;
 import org.eclipse.smarthome.model.persistence.persistence.Strategy;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * This class is the central part of the persistence management and delegation. It reads the persistence
@@ -47,6 +51,7 @@ import org.eclipse.smarthome.model.persistence.persistence.Strategy;
  * @author Markus Rathgeb - Move non-model logic to core.persistence
  *
  */
+@Component(immediate=true)
 public class PersistenceModelManager implements ModelRepositoryChangeListener {
 
     private ModelRepository modelRepository;
@@ -70,6 +75,7 @@ public class PersistenceModelManager implements ModelRepositoryChangeListener {
 		}
 	}
 
+    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
     protected void setModelRepository(ModelRepository modelRepository) {
         this.modelRepository = modelRepository;
     }
@@ -78,6 +84,7 @@ public class PersistenceModelManager implements ModelRepositoryChangeListener {
         this.modelRepository = null;
     }
 
+    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
     protected void setPersistenceManager(final PersistenceManager manager) {
         this.manager = manager;
     }
