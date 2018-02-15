@@ -51,7 +51,7 @@ public class ReadyServiceImpl implements ReadyService {
             boolean isNew = markers.add(readyMarker);
             if (isNew) {
                 notifyTrackers(readyMarker, tracker -> tracker.onReadyMarkerAdded(readyMarker));
-                logger.debug("Added ready marker {}", readyMarker);
+                logger.trace("Added ready marker {}", readyMarker);
             }
         } finally {
             rwlTrackers.readLock().unlock();
@@ -65,7 +65,7 @@ public class ReadyServiceImpl implements ReadyService {
             boolean isRemoved = markers.remove(readyMarker);
             if (isRemoved) {
                 notifyTrackers(readyMarker, tracker -> tracker.onReadyMarkerRemoved(readyMarker));
-                logger.debug("Removed ready marker {}", readyMarker);
+                logger.trace("Removed ready marker {}", readyMarker);
             }
         } finally {
             rwlTrackers.readLock().unlock();
