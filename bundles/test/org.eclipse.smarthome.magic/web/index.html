@@ -1,118 +1,105 @@
 <html>
 <head>
-    <title>Eclipse SmartHome</title>
-    <!-- CSS -->
-    <!--<link href="./css/materialize.css" type="text/css" rel="stylesheet"
-        media="screen,projection" />-->
-    <!--<link href="./css/custom.css" type="text/css" rel="stylesheet"
-        media="screen,projection" />-->
-    <link href="http://localhost:8080/paperui/css/angular-material.min.css" type="text/css" rel="stylesheet"
-        media="screen,projection" />
-    <link href="./css/styles.css" rel="stylesheet" />
+<title>Eclipse SmartHome</title>
+<!-- CSS -->
+<link href="http://localhost:8080/paperui/css/bootstrap.min.css" type="text/css" rel="stylesheet" media="screen,projection" />
+<link href="./css/styles.css" rel="stylesheet" />
+<script src="http://localhost:8080/paperui/js/jquery.min.js"></script>
+<script src="http://localhost:8080/paperui/js/bootstrap.min.js"></script>
 </head>
 <body class="landing">
+	<nav class="navbar navbar-default navbar-fixed-top">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a href="./index.html">
+					<img id="logo" src="img/eclipse_logo.png" />
+				</a>
+			</div>
+			<div id="navbar" class="navbar-collapse collapse">
+				<ul class="nav navbar-nav navbar-right">
+					<li>
+						<a href="https://www.eclipse.org/smarthome/getting-started.html">Getting Started</a>
+					</li>
+					<li>
+						<a href="https://www.eclipse.org/smarthome/documentation/index.html">Documentation</a>
+					</li>
+					<li>
+						<a href="https://www.eclipse.org/smarthome/blog">Blog</a>
+					</li>
+					<li>
+						<a href="https://github.com/eclipse/smarthome">GitHub</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
 
-    <!-- <div id="header" class="navbar-fixed">-->
-    <div id="header" class="md-toolbar-tools">
-    <button class="md-button md-ink-ripple" type="button" aria-label="Go Back">
-        <span class="ng-scope">
-          <a href="./index.html"><img id="logo" src="img/eclipse_logo.png" /></a>
-        </span></button>
-        <!--
-        <h2>
-          <span>Toolbar with Standard Buttons</span>
-        </h2>
-         -->
-        <span class="flex"></span>
-        <button class="md-button md-ink-ripple" type="button">
-            <span class="ng-binding ng-scope">
-                <a href="https://www.eclipse.org/smarthome/getting-started.html">Getting Started</a>
-            </span>
-        </button>
-        <button class="md-raised md-button md-ink-ripple" type="button" aria-label="Learn More"><span class="ng-scope">
-          Learn More
-        </span></button>
-        <!-- <nav role="navigation">
-            <div class="container">
-                <div class="nav-wrapper">
-                    <a href="./index.html"><img id="logo" src="img/eclipse_logo.png" /></a>
-                    <ul class="right hide-on-med-and-down">
-                        <li><a href="https://www.eclipse.org/smarthome/getting-started.html">Getting Started</a></li>
-                        <li><a href="https://www.eclipse.org/smarthome/documentation/index.html">Documentation</a></li>
-                        <li><a href="https://www.eclipse.org/smarthome/blog">Blog</a></li>
-                        <li><a href="https://github.com/eclipse/smarthome">GitHub</a></li>
-                    </ul>
-                </div>
-            </div>
-        </nav>-->
-    </div>
-    
-    <section id="references" class="z-depth-1">
-        <div class="container">
-        <br/>
-        <br/>
-            <h1>Welcome to Eclipse SmartHome</h1>
-            <p>Here are a few useful links to start exploring your local instance:</p>
-            <div class="row scrollme animateme" data-when="enter" data-from="0.75"
-                data-to="0" data-crop="false" data-opacity="0" data-scale="1.125">
-                <div class="col s12 m6 l3">
-                    <a href="paperui/index.html"><div class="reference z-depth-1">
-                        <div class="logo center valign-wrapper">
-                            <img src="img/paperui.png" />
-                        </div>
-                        <div class="text center">
-                            <h2>Paper UI</h2>
-                            <p>Administrative Web Interface</p>
-                        </div>
-                        <div class="info valign-wrapper">
-                            <p class="valign center">Paper UI</p>
-                        </div>
-                    </div></a>
-                </div></a>
-                <div class="col s12 m6 l3">
-                    <a href="basicui/app"><div class="reference z-depth-1">
-                        <div class="logo center valign-wrapper">
-                            <img src="img/basicui.png" />
-                        </div>
-                        <div class="text center">
-                            <h2>Basic UI</h2>
-                            <p>New Web Control Interface</p>
-                        </div>
-                        <div class="info valign-wrapper">
-                            <p class="valign center">Basic UI</p>
-                        </div>
-                    </div></a>
-                </div>
-                <div class="col s12 m6 l3">
-                    <a href="classicui/app"><div class="reference z-depth-1">
-                        <div class="logo center valign-wrapper">
-                            <img src="img/classicui.png" />
-                        </div>
-                        <div class="text center">
-                            <h2>Classic UI</h2>
-                            <p>Legacy Web Control Interface</p>
-                        </div>
-                        <div class="info valign-wrapper">
-                            <p class="valign center">Classic UI</p>
-                        </div>
-                    </div></a>
-                </div>
-                <div class="col s12 m6 l3">
-                    <a href="rest"><div class="reference z-depth-1">
-                        <div class="logo center valign-wrapper">
-                            <img src="img/rest.png" />
-                        </div>
-                        <div class="text center">
-                            <h2>REST Interface</h2>
-                            <p>REST access to ressources</p>
-                        </div>
-                        <div class="info valign-wrapper">
-                            <p class="valign center">REST Interface</p>
-                        </div>
-                    </div></a>
-                </div>                
-            </div>
-        </div>
-    </section>    
+	<section id="references" class="z-depth-1">
+		<div class="container">
+			<h2>Welcome to Eclipse SmartHome</h2>
+			<p>Here are a few useful links to start exploring your local instance:</p>
+			<div class="row scrollme animateme" data-when="enter" data-from="0.75" data-to="0" data-crop="false" data-opacity="0" data-scale="1.125">
+				<div class="col-lg-3 col-sm-12 col-md-6">
+					<a href="paperui/index.html">
+						<div class="reference z-depth-1">
+							<div class="logo center valign-wrapper">
+								<img src="img/paperui.jpg" />
+							</div>
+							<div class="text center">
+								<h3>Paper UI</h3>
+								<p>Administrative Web Interface</p>
+							</div>
+						</div>
+					</a>
+				</div>
+				</a>
+				<div class="col-lg-3 col-sm-12 col-md-6">
+					<a href="basicui/app">
+						<div class="reference z-depth-1">
+							<div class="logo center valign-wrapper">
+								<img src="img/basicui.jpg" />
+							</div>
+							<div class="text center">
+								<h3>Basic UI</h3>
+								<p>New Web Control Interface</p>
+							</div>
+						</div>
+					</a>
+				</div>
+				<div class="col-lg-3 col-sm-12 col-md-6">
+					<a href="classicui/app">
+						<div class="reference z-depth-1">
+							<div class="logo center valign-wrapper">
+								<img src="img/classicui.jpg" />
+							</div>
+							<div class="text center">
+								<h3>Classic UI</h3>
+								<p>Legacy Web Control Interface</p>
+							</div>
+						</div>
+					</a>
+				</div>
+				<div class="col-lg-3 col-sm-12 col-md-6">
+					<a href="rest">
+						<div class="reference z-depth-1">
+							<div class="logo center valign-wrapper">
+								<img src="img/rest.jpg" />
+							</div>
+							<div class="text center">
+								<h3>REST Interface</h3>
+								<p>REST access to ressources</p>
+							</div>
+						</div>
+					</a>
+				</div>
+			</div>
+		</div>
+	</section>
 </body>
 </html>
