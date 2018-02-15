@@ -1,8 +1,12 @@
-angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).controller('ExtensionPageController', function($scope, extensionService, bindingRepository, thingTypeRepository, eventService, toastService, $filter, $window, $timeout, $location, templateRepository) {
+angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).controller('ExtensionPageController', function($scope, $routeParams, extensionService, bindingRepository, thingTypeRepository, eventService, toastService, $filter, $window, $timeout, $location, templateRepository) {
     $scope.navigateTo = function(path) {
         $location.path('extensions/' + path);
     };
+
+    $scope.selectedIndex;
+    var selectedTabName = $routeParams.tab;
     $scope.extensionTypes = [];
+
     var view = window.localStorage.getItem('paperui.extension.view')
     $scope.showCards = view ? view.toUpperCase() == 'LIST' ? false : true : false;
     $scope.searchText = [];
@@ -30,7 +34,19 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
                     extensionType.extensions = $filter('orderBy')(extensionType.extensions, "label")
                 });
             });
+
+            if (selectedTabName) {
+                var selectedTab = $scope.extensionTypes.find(function(tab) {
+                    return tab.typeId.toUpperCase() === selectedTabName.toUpperCase();
+                });
+                $scope.selectedIndex = selectedTab ? $scope.extensionTypes.indexOf(selectedTab) : 0;
+            }
         });
+    }
+
+    $scope.onTabSelected = function(extensionType) {
+        $scope.masonry($scope.showCards);
+        $location.path('/extensions').search('tab', extensionType.typeId);
     }
 
     $scope.changeView = function(showCards) {
