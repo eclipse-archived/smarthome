@@ -126,7 +126,6 @@ public abstract class BluetoothDevice {
      * Construct a Bluetooth device taking the Bluetooth address
      *
      * @param adapter
-     *
      * @param sender
      */
     public BluetoothDevice(BluetoothAdapter adapter, BluetoothAddress address) {

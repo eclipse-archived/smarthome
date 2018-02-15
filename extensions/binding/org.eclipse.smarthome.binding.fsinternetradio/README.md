@@ -5,6 +5,7 @@ This binding integrates internet radios based on the [Frontier Silicon chipset](
 ## Supported Things
 
 Successfully tested are internet radios 
+
  * [Hama IR100](https://de.hama.com/00054823/hama-internetradio-ir110)
  * [Medion MD87180](http://internetradio.medion.com/)
  * [MEDION MD86988](http://internetradio.medion.com/)
@@ -30,6 +31,7 @@ The binding itself does not need a configuration.
 ## Thing Configuration
 
 Each radio must be configured via its ip address, port, pin, and a refresh rate.
+
 * If the ip address is not discovered automatically, it must be manually set.
 * The default port is `80` which should work for most radios.
 * The default pin is `1234` for most radios, but if it does not work or if it was changed, look it up in the on-screen menu of the radio.

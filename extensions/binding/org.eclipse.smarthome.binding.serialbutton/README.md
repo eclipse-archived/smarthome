@@ -26,6 +26,7 @@ demo.items:
 ```
 Switch MyLight { channel="serialbutton:button:mybutton:button" }
 ```
+
 _Note:_ This is a trigger channel, so you will most likely bind a second (state) channel to your item, which will control your physical light, so you might end up with the following, if you want to use your button with a Hue bulb:
 
 ```

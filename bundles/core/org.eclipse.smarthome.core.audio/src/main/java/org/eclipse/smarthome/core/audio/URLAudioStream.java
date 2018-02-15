@@ -100,8 +100,8 @@ public class URLAudioStream extends AudioStream {
                 shoutCastSocket = new Socket(streamUrl.getHost(), port);
 
                 OutputStream os = shoutCastSocket.getOutputStream();
-                String user_agent = "WinampMPEG/5.09";
-                String req = "GET / HTTP/1.0\r\nuser-agent: " + user_agent
+                String userAgent = "WinampMPEG/5.09";
+                String req = "GET / HTTP/1.0\r\nuser-agent: " + userAgent
                         + "\r\nIcy-MetaData: 1\r\nConnection: keep-alive\r\n\r\n";
                 os.write(req.getBytes());
                 return shoutCastSocket.getInputStream();
