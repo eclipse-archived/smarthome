@@ -73,7 +73,6 @@ public class SecureHttpClientFactory implements HttpClientFactory {
         // SynchronousQueue is fine for this, because it is effectively an empty queue
         threadPool = new ThreadPoolExecutor(minThreads, maxThreads, keepAliveTimeout, TimeUnit.SECONDS,
                 new SynchronousQueue<Runnable>(), new NamedThreadFactory("jetty"));
-        threadPool.prestartAllCoreThreads();
         logger.info("jetty thread pool started with min threads {}, max threads {}", minThreads, maxThreads);
     }
 
