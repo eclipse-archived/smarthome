@@ -40,7 +40,6 @@ import org.eclipse.smarthome.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import tinyb.BluetoothException;
 import tinyb.BluetoothManager;
 
 /**
@@ -88,6 +87,14 @@ public class BlueZBridgeHandler extends BaseBridgeHandler implements BluetoothAd
             BluetoothManager.getBluetoothManager();
         } catch (UnsatisfiedLinkError e) {
             throw new IllegalStateException("BlueZ JNI connection cannot be established.", e);
+        } catch (RuntimeException e) {
+            // we do not get anything more specific from TinyB here
+            if (e.getMessage().contains("AccessDenied")) {
+                throw new IllegalStateException(
+                        "Cannot access BlueZ stack due to permission problems. Make sure that your OS user is part of the 'bluetooth' group of BlueZ.");
+            } else {
+                throw new IllegalStateException("Cannot access BlueZ layer.", e);
+            }
         }
 
         Object cfgAddress = getConfig().get(BlueZAdapterConstants.PROPERTY_ADDRESS);
@@ -109,7 +116,7 @@ public class BlueZBridgeHandler extends BaseBridgeHandler implements BluetoothAd
             if (a.getAddress().equals(address.toString())) {
                 adapter = a;
                 updateStatus(ThingStatus.ONLINE);
-                if (discoveryActive) {
+                if (!adapter.getDiscovering()) {
                     adapter.startDiscovery();
                 }
                 discoveryJob = scheduler.scheduleWithFixedDelay(() -> {
@@ -142,21 +149,25 @@ public class BlueZBridgeHandler extends BaseBridgeHandler implements BluetoothAd
 
     @Override
     public void scanStart() {
-        adapter.setRssiDiscoveryFilter(-96);
-        adapter.startDiscovery();
-        for (tinyb.BluetoothDevice tinybDevice : adapter.getDevices()) {
-            synchronized (devices) {
-                logger.debug("Device {} has RSSI {}", tinybDevice.getAddress(), tinybDevice.getRSSI());
-                BluetoothDevice device = devices.get(tinybDevice.getAddress());
-                if (device == null) {
-                    createAndRegisterBlueZDevice(tinybDevice);
-                } else {
-                    // let's update the rssi and txpower values
-                    device.setRssi(tinybDevice.getRSSI());
-                    device.setTxPower(tinybDevice.getTxPower());
-                    // The Bluetooth discovery expects a complete list on every scan,
-                    // so we also have to report the already known devices.
-                    notifyDiscoveryListeners(device);
+        if (adapter != null) {
+            if (!adapter.getDiscovering()) {
+                adapter.setRssiDiscoveryFilter(-96);
+                adapter.startDiscovery();
+            }
+            for (tinyb.BluetoothDevice tinybDevice : adapter.getDevices()) {
+                synchronized (devices) {
+                    logger.debug("Device {} has RSSI {}", tinybDevice.getAddress(), tinybDevice.getRSSI());
+                    BluetoothDevice device = devices.get(tinybDevice.getAddress());
+                    if (device == null) {
+                        createAndRegisterBlueZDevice(tinybDevice);
+                    } else {
+                        // let's update the rssi and txpower values
+                        device.setRssi(tinybDevice.getRSSI());
+                        device.setTxPower(tinybDevice.getTxPower());
+                        // The Bluetooth discovery expects a complete list on every scan,
+                        // so we also have to report the already known devices.
+                        notifyDiscoveryListeners(device);
+                    }
                 }
             }
         }
@@ -164,16 +175,8 @@ public class BlueZBridgeHandler extends BaseBridgeHandler implements BluetoothAd
 
     @Override
     public void scanStop() {
-        if (adapter != null && adapter.getDiscovering()) {
-            try {
-                adapter.stopDiscovery();
-            } catch (BluetoothException e) {
-                // tinyb often throws the exception
-                // tinyb.BluetoothException: GDBus.Error:org.bluez.Error.Failed: No discovery started
-                // here, although we first check whether discovery is active or not.
-                // As a workaround, we simply ignore this exception.
-            }
-        }
+        // nothing do do here, we need to keep the adapter in discovery mode as we otherwise won't get any RSSI updates
+        // either
     }
 
     @Override
