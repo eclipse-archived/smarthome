@@ -40,7 +40,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
@@ -73,7 +72,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  * @author John Cocula - added optional Image/Video item= support; refactored to allow use of later spec servlet
  */
-@Component(immediate=true, property={"service.pid=org.eclipse.smarthome.proxy"})
+@Component(immediate = true, property = { "service.pid=org.eclipse.smarthome.proxy" })
 public class ProxyServletService extends HttpServlet {
 
     /** the alias for this servlet */
@@ -94,7 +93,7 @@ public class ProxyServletService extends HttpServlet {
     protected ItemUIRegistry itemUIRegistry;
     protected ModelRepository modelRepository;
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.DYNAMIC)
+    @Reference(policy = ReferencePolicy.DYNAMIC)
     protected void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
         this.itemUIRegistry = itemUIRegistry;
     }
@@ -103,7 +102,7 @@ public class ProxyServletService extends HttpServlet {
         this.itemUIRegistry = null;
     }
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
+    @Reference
     protected void setModelRepository(ModelRepository modelRepository) {
         this.modelRepository = modelRepository;
     }
@@ -112,7 +111,7 @@ public class ProxyServletService extends HttpServlet {
         this.modelRepository = null;
     }
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.DYNAMIC)
+    @Reference(policy = ReferencePolicy.DYNAMIC)
     protected void setHttpService(HttpService httpService) {
         this.httpService = httpService;
     }

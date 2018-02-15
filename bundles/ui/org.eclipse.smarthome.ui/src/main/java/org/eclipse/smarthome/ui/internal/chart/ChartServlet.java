@@ -66,8 +66,9 @@ import org.slf4j.LoggerFactory;
  * @author Holger Reichert - Support for themes, DPI, legend hiding
  *
  */
-@Component(immediate=true, property={"service.pid=org.eclipse.smarthome.chart", 
-        "service.config.description.uri=system:chart", "service.config.label=Charts", "service.config.category=system"})
+@Component(immediate = true, property = { "service.pid=org.eclipse.smarthome.chart",
+        "service.config.description.uri=system:chart", "service.config.label=Charts",
+        "service.config.category=system" })
 public class ChartServlet extends HttpServlet {
 
     private static final long serialVersionUID = 7700873790924746422L;
@@ -108,7 +109,7 @@ public class ChartServlet extends HttpServlet {
     protected ItemUIRegistry itemUIRegistry;
     protected static Map<String, ChartProvider> chartProviders = new HashMap<String, ChartProvider>();
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.DYNAMIC)
+    @Reference(policy = ReferencePolicy.DYNAMIC)
     public void setHttpService(HttpService httpService) {
         this.httpService = httpService;
     }
@@ -117,7 +118,7 @@ public class ChartServlet extends HttpServlet {
         this.httpService = null;
     }
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.DYNAMIC)
+    @Reference(policy = ReferencePolicy.DYNAMIC)
     public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
         this.itemUIRegistry = itemUIRegistry;
     }
@@ -126,7 +127,7 @@ public class ChartServlet extends HttpServlet {
         this.itemUIRegistry = null;
     }
 
-    @Reference(cardinality=ReferenceCardinality.MULTIPLE, policy=ReferencePolicy.DYNAMIC)
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addChartProvider(ChartProvider provider) {
         chartProviders.put(provider.getName(), provider);
     }

@@ -107,13 +107,13 @@ public class PersistenceResource implements RESTResource {
     protected void unsetPersistenceServiceRegistry(PersistenceServiceRegistry persistenceServiceRegistry) {
         this.persistenceServiceRegistry = null;
     }
-    
-    @Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.STATIC)
+
+    @Reference
     protected void setTimeZoneProvider(TimeZoneProvider timeZoneProvider) {
         this.timeZoneProvider = timeZoneProvider;
     }
-    
-    protected void unsetTimeZoneProvider(TimeZoneProvider timeZoneProvider ) {
+
+    protected void unsetTimeZoneProvider(TimeZoneProvider timeZoneProvider) {
         this.timeZoneProvider = null;
     }
 
@@ -253,13 +253,15 @@ public class PersistenceResource implements RESTResource {
         if (dateTimeBegin.toEpochSecond() == 0) {
             // Default to 1 days data if the times are the same or the start time is newer
             // than the end time
-            dateTimeBegin = ZonedDateTime.of(dateTimeEnd.toLocalDateTime().plusDays(-1), timeZoneProvider.getTimeZone());
+            dateTimeBegin = ZonedDateTime.of(dateTimeEnd.toLocalDateTime().plusDays(-1),
+                    timeZoneProvider.getTimeZone());
         }
 
         // Default to 1 days data if the times are the same or the start time is newer
         // than the end time
         if (dateTimeBegin.isAfter(dateTimeEnd) || dateTimeBegin.isEqual(dateTimeEnd)) {
-            dateTimeBegin = ZonedDateTime.of(dateTimeEnd.toLocalDateTime().plusDays(-1), timeZoneProvider.getTimeZone());
+            dateTimeBegin = ZonedDateTime.of(dateTimeEnd.toLocalDateTime().plusDays(-1),
+                    timeZoneProvider.getTimeZone());
         }
 
         FilterCriteria filter;
