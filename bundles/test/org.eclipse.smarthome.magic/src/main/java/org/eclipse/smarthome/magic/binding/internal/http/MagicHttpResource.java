@@ -36,15 +36,16 @@ import org.osgi.service.http.NamespaceException;
  *
  */
 @Component(immediate = true)
-public class MagicHttpRessource {
+public class MagicHttpResource {
     /** the root path of this web application */
     private static final String WEBAPP_ALIAS = "/";
+    private static final String WEBAPP_NAME = "/";
 
     protected HttpService httpService;
 
     @Activate
     protected void activate(Map<String, Object> configProps, BundleContext bundleContext) throws NamespaceException {
-        httpService.registerResources(WEBAPP_ALIAS, WEBAPP_ALIAS, new MagicHttpContext(bundleContext.getBundle()));
+        httpService.registerResources(WEBAPP_ALIAS, WEBAPP_NAME, new MagicHttpContext(bundleContext.getBundle()));
     }
 
     @Deactivate
