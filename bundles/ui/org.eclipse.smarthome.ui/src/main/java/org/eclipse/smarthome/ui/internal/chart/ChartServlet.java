@@ -34,6 +34,13 @@ import org.apache.commons.lang.BooleanUtils;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.ui.chart.ChartProvider;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
@@ -59,6 +66,8 @@ import org.slf4j.LoggerFactory;
  * @author Holger Reichert - Support for themes, DPI, legend hiding
  *
  */
+@Component(immediate=true, property={"service.pid=org.eclipse.smarthome.chart", 
+        "service.config.description.uri=system:chart", "service.config.label=Charts", "service.config.category=system"})
 public class ChartServlet extends HttpServlet {
 
     private static final long serialVersionUID = 7700873790924746422L;
@@ -99,6 +108,7 @@ public class ChartServlet extends HttpServlet {
     protected ItemUIRegistry itemUIRegistry;
     protected static Map<String, ChartProvider> chartProviders = new HashMap<String, ChartProvider>();
 
+    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.DYNAMIC)
     public void setHttpService(HttpService httpService) {
         this.httpService = httpService;
     }
@@ -107,6 +117,7 @@ public class ChartServlet extends HttpServlet {
         this.httpService = null;
     }
 
+    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.DYNAMIC)
     public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
         this.itemUIRegistry = itemUIRegistry;
     }
@@ -115,6 +126,7 @@ public class ChartServlet extends HttpServlet {
         this.itemUIRegistry = null;
     }
 
+    @Reference(cardinality=ReferenceCardinality.MULTIPLE, policy=ReferencePolicy.DYNAMIC)
     public void addChartProvider(ChartProvider provider) {
         chartProviders.put(provider.getName(), provider);
     }
@@ -127,6 +139,7 @@ public class ChartServlet extends HttpServlet {
         return chartProviders;
     }
 
+    @Activate
     protected void activate(Map<String, Object> config) {
         try {
             logger.debug("Starting up chart servlet at " + SERVLET_NAME);
@@ -142,10 +155,12 @@ public class ChartServlet extends HttpServlet {
         applyConfig(config);
     }
 
+    @Deactivate
     protected void deactivate() {
         httpService.unregister(SERVLET_NAME);
     }
 
+    @Modified
     protected void modified(Map<String, Object> config) {
         applyConfig(config);
     }

@@ -14,11 +14,13 @@ package org.eclipse.smarthome.model.persistence.extensions;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 
+import org.eclipse.smarthome.core.i18n.TimeZoneProvider;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.persistence.FilterCriteria;
@@ -30,6 +32,10 @@ import org.eclipse.smarthome.core.persistence.QueryablePersistenceService;
 import org.eclipse.smarthome.core.types.State;
 import org.joda.time.DateTime;
 import org.joda.time.base.AbstractInstant;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -44,20 +50,32 @@ import org.slf4j.LoggerFactory;
  * @author John Cocula
  *
  */
+@Component(immediate=true)
 public class PersistenceExtensions {
 
     private static PersistenceServiceRegistry registry;
+    private static TimeZoneProvider timeZoneProvider;
 
     public PersistenceExtensions() {
         // default constructor, necessary for osgi-ds
     }
 
+    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
     protected void setPersistenceServiceRegistry(PersistenceServiceRegistry registry) {
         PersistenceExtensions.registry = registry;
     }
 
     protected void unsetPersistenceServiceRegistry(PersistenceServiceRegistry registry) {
         PersistenceExtensions.registry = null;
+    }
+
+    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
+    protected void setTimeZoneProvider(TimeZoneProvider timeZoneProvider) {
+        PersistenceExtensions.timeZoneProvider = timeZoneProvider;
+    }
+
+    protected void unsetTimeZoneProvider(TimeZoneProvider timeZoneProvider) {
+        PersistenceExtensions.timeZoneProvider = null;
     }
 
     private static PersistenceService getService(String serviceId) {
@@ -144,7 +162,7 @@ public class PersistenceExtensions {
         if (service instanceof QueryablePersistenceService) {
             QueryablePersistenceService qService = (QueryablePersistenceService) service;
             FilterCriteria filter = new FilterCriteria();
-            filter.setEndDate(timestamp.toDate());
+            filter.setEndDate(ZonedDateTime.ofInstant(timestamp.toDate().toInstant(), timeZoneProvider.getTimeZone()));
             filter.setItemName(item.getName());
             filter.setPageSize(1);
             filter.setOrdering(Ordering.DESCENDING);
@@ -497,7 +515,7 @@ public class PersistenceExtensions {
         if (service instanceof QueryablePersistenceService) {
             QueryablePersistenceService qService = (QueryablePersistenceService) service;
             FilterCriteria filter = new FilterCriteria();
-            filter.setBeginDate(timestamp.toDate());
+            filter.setBeginDate(ZonedDateTime.ofInstant(timestamp.toDate().toInstant(), timeZoneProvider.getTimeZone()));
             filter.setItemName(item.getName());
             filter.setOrdering(Ordering.ASCENDING);
             return qService.query(filter);

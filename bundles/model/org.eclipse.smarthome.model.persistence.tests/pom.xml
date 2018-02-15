@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
     <groupId>org.eclipse.smarthome.bundles</groupId>
@@ -32,6 +34,19 @@
       <plugin>
         <groupId>${tycho-groupid}</groupId>
         <artifactId>tycho-surefire-plugin</artifactId>
+          <configuration>
+                 <dependencies>
+                     <dependency>
+                         <type>eclipse-plugin</type>
+                         <artifactId>org.eclipse.equinox.ds</artifactId>
+                         <version>0.0.0</version>
+                     </dependency>
+                 </dependencies>
+             <defaultStartLevel>
+            <level>4</level>
+            <autoStart>true</autoStart>
+          </defaultStartLevel>
+        </configuration>
       </plugin>
     </plugins>
   </build>
