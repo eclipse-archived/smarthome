@@ -14,7 +14,7 @@ package org.eclipse.smarthome.io.net.http.internal;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -50,7 +50,6 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     private static final String CONFIG_MIN_THREADS = "minThreads";
     private static final String CONFIG_MAX_THREADS = "maxThreads";
     private static final String CONFIG_KEEP_ALIVE = "keepAliveTimeout";
-    private static final String CONFIG_QUEUE_SIZE = "queueSize";
 
     private static final int MIN_CONSUMER_NAME_LENGTH = 4;
     private static final int MAX_CONSUMER_NAME_LENGTH = 20;
@@ -61,7 +60,6 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     private int minThreads;
     private int maxThreads;
     private int keepAliveTimeout;
-    private int queueSize;
 
     private ThreadPoolExecutor threadPool;
 
@@ -70,9 +68,12 @@ public class SecureHttpClientFactory implements HttpClientFactory {
         minThreads = (int) parameters.get(CONFIG_MIN_THREADS);
         maxThreads = (int) parameters.get(CONFIG_MAX_THREADS);
         keepAliveTimeout = (int) parameters.get(CONFIG_KEEP_ALIVE);
-        queueSize = (int) parameters.get(CONFIG_QUEUE_SIZE);
+        // We need an "empty" queue, because otherwise jetty workers become queued instead of executed.
+        // This will cause jetty to hang!
+        // SynchronousQueue is fine for this, because it is effectively an empty queue
         threadPool = new ThreadPoolExecutor(minThreads, maxThreads, keepAliveTimeout, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(queueSize), new NamedThreadFactory("jetty"));
+                new SynchronousQueue<Runnable>(), new NamedThreadFactory("jetty"));
+        threadPool.prestartAllCoreThreads();
         logger.info("jetty thread pool started with min threads {}, max threads {}", minThreads, maxThreads);
     }
 
@@ -81,7 +82,6 @@ public class SecureHttpClientFactory implements HttpClientFactory {
         minThreads = (int) parameters.get(CONFIG_MIN_THREADS);
         maxThreads = (int) parameters.get(CONFIG_MAX_THREADS);
         keepAliveTimeout = (int) parameters.get(CONFIG_KEEP_ALIVE);
-        queueSize = (int) parameters.get(CONFIG_QUEUE_SIZE);
         threadPool.setCorePoolSize(minThreads);
         threadPool.setMaximumPoolSize(maxThreads);
         threadPool.setKeepAliveTime(keepAliveTimeout, TimeUnit.SECONDS);

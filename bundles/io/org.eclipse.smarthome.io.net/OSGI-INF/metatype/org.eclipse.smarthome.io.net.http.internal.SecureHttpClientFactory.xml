@@ -14,10 +14,6 @@
 		<AD name="keepAliveTimeout" id="keepAliveTimeout" 
 		    default="60" min="1"
 		    type="Integer" description="Timeout in seconds, after which idle threads are terminated" />
-
-		<AD name="queueSize" id="queueSize" 
-		    default="80" min="5"
-		    type="Integer" description="Queue size for operations" />
 	</OCD>
 
 	<Designate pid="org.eclipse.smarthome.HttpClientFactory">

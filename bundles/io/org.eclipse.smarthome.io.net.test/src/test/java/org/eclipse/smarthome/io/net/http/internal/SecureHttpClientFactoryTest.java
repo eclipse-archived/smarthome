@@ -3,6 +3,7 @@ package org.eclipse.smarthome.io.net.http.internal;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -21,7 +22,6 @@ import java.util.stream.Stream;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.smarthome.io.net.http.TrustManagerProvider;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class SecureHttpClientFactoryTest {
 
     @Test
     public void testGetClient() throws Exception {
-        secureHttpClientFactory.activate(createConfigMap(10, 40, 60, 80));
+        secureHttpClientFactory.activate(createConfigMap(10, 40, 60));
 
         HttpClient client = secureHttpClientFactory.createHttpClient("consumer");
 
@@ -56,7 +56,7 @@ public class SecureHttpClientFactoryTest {
 
     @Test
     public void testGetClientWithEndpoint() throws Exception {
-        secureHttpClientFactory.activate(createConfigMap(10, 40, 60, 80));
+        secureHttpClientFactory.activate(createConfigMap(2, 40, 60));
 
         when(trustmanagerProvider.getTrustManagers("https://www.heise.de")).thenReturn(Stream.empty());
 
@@ -74,33 +74,40 @@ public class SecureHttpClientFactoryTest {
     @Ignore("only for manual test")
     @Test
     public void testMultiThreaded() throws Exception {
-        secureHttpClientFactory.activate(createConfigMap(10, 40, 60, 1000));
+        secureHttpClientFactory.activate(createConfigMap(10, 200, 60));
 
         ThreadPoolExecutor workers = new ThreadPoolExecutor(20, 80, 60, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<Runnable>(50 * 50), new NamedThreadFactory("workers"));
 
         List<HttpClient> clients = new ArrayList<>();
 
-        // final int CLIENTS = 50;
-        // final int REQUESTS = 50;
-
-        final int CLIENTS = 2;
-        final int REQUESTS = 2;
+        final int CLIENTS = 30;
+        final int REQUESTS = 30;
 
         for (int i = 0; i < CLIENTS; i++) {
-            clients.add(secureHttpClientFactory.createHttpClient("consumer" + i));
+            HttpClient httpClient = secureHttpClientFactory.createHttpClient("consumer" + i);
+            clients.add(httpClient);
         }
 
+        final List<String> failures = new ArrayList<>();
+
         for (int i = 0; i < REQUESTS; i++) {
+            // System.out.println("Request " + i);
             for (final HttpClient client : clients) {
+                // System.out.println("Client " + client);
                 workers.execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
+                            // System.out.println("starting request " + client);
                             ContentResponse response = client.GET("https://www.heise.de");
-                            assertThat(response.getStatus(), is(200));
+                            if (response.getStatus() != 200) {
+                                System.out.println(response.getStatus());
+                                failures.add("Statuscode != 200");
+                            }
+                            // System.out.println("Content received for " + client);
                         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                            Assert.fail("Unexpected exception:" + e.getMessage());
+                            failures.add("Unexpected exception:" + e.getMessage());
                         }
                     }
                 });
@@ -108,7 +115,10 @@ public class SecureHttpClientFactoryTest {
         }
 
         workers.shutdown();
-        workers.awaitTermination(60, TimeUnit.SECONDS);
+        workers.awaitTermination(120, TimeUnit.SECONDS);
+        if (!failures.isEmpty()) {
+            fail(failures.toString());
+        }
 
         for (HttpClient client : clients) {
             client.stop();
@@ -117,12 +127,11 @@ public class SecureHttpClientFactoryTest {
         secureHttpClientFactory.deactivate();
     }
 
-    private Map<String, Object> createConfigMap(int minThreads, int maxThreads, int keepAliveTimeout, int queueSize) {
+    private Map<String, Object> createConfigMap(int minThreads, int maxThreads, int keepAliveTimeout) {
         Map<String, Object> configMap = new HashMap<>();
         configMap.put("minThreads", minThreads);
         configMap.put("maxThreads", maxThreads);
         configMap.put("keepAliveTimeout", keepAliveTimeout);
-        configMap.put("queueSize", queueSize);
         return configMap;
     }
 }
