@@ -9,4 +9,8 @@ Location DemoLocation
 String DemoString
 Contact DemoContact
 
+Color MagicColor { channel="magic:color-light:magicColor:color" }
+Switch MagicOnOff { channel="magic:onoff-light:magicOnOff:switch" }
+Dimmer MagicDimmer { channel="magic:dimmable-light:magicDimmer:brightness" }
+
 Number Weather_Temperature "Outside Temperature [%.1f °C]" <temperature> (Weather_Chart) { channel="yahooweather:weather:berlin:temperature" }
