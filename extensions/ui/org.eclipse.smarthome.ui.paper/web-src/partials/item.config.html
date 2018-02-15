@@ -63,10 +63,10 @@
 						<div class="parameter col-sm-6 col-xs-12">
 							<label for="groupFunction" class="config-textInput" style="vertical-align: super; margin-bottom: 0px;">Function</label>
 							<md-input-container class="col-xs-12 noPadding noMargin"> <md-select placeholder="select" isrequired="true" required name="groupFunction" ng-model="item.function.name"> <md-option ng-value="option.name" ng-repeat="option in functions"> <span style="display: inline-block;"> {{option.value}} </span> </md-option> </md-select>
-							<div ng-messages="form.itemForm.groupFunction.$error">
-                                <div ng-message="required">Field is required</div>
-                            </div>
-                             </md-input-container>
+								<div ng-messages="form.itemForm.groupFunction.$error">
+									<div ng-message="required">Field is required</div>
+								</div>
+							</md-input-container>
 						</div>
 					</div>
 <!-- 					<div class="row includeConfig" ng-show="item.type=='GroupItem'"> -->
