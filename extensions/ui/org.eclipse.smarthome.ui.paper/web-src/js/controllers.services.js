@@ -1,28 +1,50 @@
 angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'PaperUI.controllers.firmware', 'PaperUI.controllers.configurableServiceDialog' ]) //
-.controller('ServicesController', function($scope, $mdDialog, $location, serviceConfigService, toastService) {
+.controller('ServicesController', function($scope, $routeParams, $mdDialog, $location, serviceConfigService, toastService) {
     $scope.setSubtitle([ 'Services' ]);
     $scope.setHeaderText('Shows all configurable services.');
     $scope.tabs = [];
+    $scope.selectedTabIndex;
+
+    var selectedTabName = $routeParams.tab;
 
     $scope.navigateTo = function(path) {
         $location.path('/configuration/services/' + path);
     }
 
     $scope.refresh = function() {
+        var tempTabs = {};
         serviceConfigService.getAll(function(services) {
-            // $scope.services = services;
-            var arrOfIndex = [];
-            var index = 0;
-            angular.forEach(services, function(value) {
-                if (arrOfIndex[value.category] === undefined) {
-                    arrOfIndex[value.category] = index++;
+            angular.forEach(services, function(service) {
+                if (service.category === 'system') {
+                    return true;
                 }
-                if ($scope.tabs[arrOfIndex[value.category]] === undefined) {
-                    $scope.tabs[arrOfIndex[value.category]] = [];
-                    $scope.tabs[arrOfIndex[value.category]].category = value.category;
+
+                if (tempTabs[service.category] === undefined) {
+                    tempTabs[service.category] = {
+                        services : [],
+                        category : service.category
+                    }
                 }
-                $scope.tabs[arrOfIndex[value.category]].push(value);
+                tempTabs[service.category].services.push(service);
             });
+
+            var renderedTabs = [];
+            angular.forEach(tempTabs, function(tab) {
+                renderedTabs.push(tab);
+            });
+
+            renderedTabs = renderedTabs.sort(function(a, b) {
+                return a.category < b.category ? -1 : a.category > b.category ? 1 : 0
+            })
+
+            $scope.tabs = renderedTabs;
+
+            if (selectedTabName) {
+                var selectedTab = $scope.tabs.find(function(tab) {
+                    return tab.category.toUpperCase() === selectedTabName.toUpperCase();
+                });
+                $scope.selectedTabIndex = selectedTab ? $scope.tabs.indexOf(selectedTab) : 0;
+            }
         });
     };
 
@@ -38,6 +60,10 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
                 multiple : false
             }
         });
+    }
+
+    $scope.onSelectedTab = function(tab) {
+        $location.path('/configuration/services').search('tab', tab.category);
     }
 
     $scope.refresh();
