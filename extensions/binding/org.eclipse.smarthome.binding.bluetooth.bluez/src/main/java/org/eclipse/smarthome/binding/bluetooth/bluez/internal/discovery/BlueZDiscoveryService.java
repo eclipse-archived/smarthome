@@ -27,6 +27,8 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import tinyb.BluetoothAdapter;
 import tinyb.BluetoothManager;
@@ -40,6 +42,8 @@ import tinyb.BluetoothManager;
  */
 @Component(immediate = true, service = DiscoveryService.class, configurationPid = "discovery.bluetooth.bluez")
 public class BlueZDiscoveryService extends AbstractDiscoveryService {
+
+    private final Logger logger = LoggerFactory.getLogger(BlueZDiscoveryService.class);
 
     private BluetoothManager manager;
 
@@ -76,6 +80,14 @@ public class BlueZDiscoveryService extends AbstractDiscoveryService {
         } catch (UnsatisfiedLinkError e) {
             // we cannot initialize the BlueZ stack
             return;
+        } catch (RuntimeException e) {
+            // we do not get anything more specific from TinyB here
+            if (e.getMessage().contains("AccessDenied")) {
+                logger.error(
+                        "Cannot access BlueZ stack due to permission problems. Make sure that your OS user is part of the 'bluetooth' group of BlueZ.");
+            } else {
+                logger.error("Failed to scan for Bluetooth devices: {}", e.getMessage());
+            }
         }
     }
 
