@@ -368,7 +368,6 @@ angular.module('PaperUI', [//
     $rootScope.asArray = function(object) {
         return $.isArray(object) ? object : object ? [ object ] : [];
     }
-    $rootScope.itemUpdates = {};
     $rootScope.data = [];
     $rootScope.navigateToRoot = function() {
         $location.path('');
