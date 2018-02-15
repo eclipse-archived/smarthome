@@ -3,17 +3,30 @@
   xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.1.0 http://www.osgi.org/xmlns/metatype/v1.1.0">
 
 	<OCD name="HTTP Client Factory" id="HttpClientFactory" description="HTTP Client Factory for generting jetty http clients">
-		<AD name="minThreads" id="minThreads" 
+		<AD name="minThreadsShared" id="minThreadsShared" 
 		    default="10" min="1"
 		    type="Integer" description="Minimal threads for thread pool" />
 
-		<AD name="maxThreads" id="maxThreads" 
+		<AD name="maxThreadsShared" id="maxThreadsShared" 
 		    default="40" min="5"
 		    type="Integer" description="Maximal threads for thread pool" />
 
-		<AD name="keepAliveTimeout" id="keepAliveTimeout" 
+		<AD name="keepAliveTimeoutShared" id="keepAliveTimeoutShared" 
 		    default="60" min="1"
 		    type="Integer" description="Timeout in seconds, after which idle threads are terminated" />
+		    
+		<AD name="minThreadsCustom" id="minThreadsCustom" 
+		    default="5" min="1"
+		    type="Integer" description="Minimal threads for thread pool" />
+
+		<AD name="maxThreadsCustom" id="maxThreadsCustom" 
+		    default="10" min="5"
+		    type="Integer" description="Maximal threads for thread pool" />
+
+		<AD name="keepAliveTimeoutCustom" id="keepAliveTimeoutCustom" 
+		    default="60" min="1"
+		    type="Integer" description="Timeout in seconds, after which idle threads are terminated" />
+		    
 	</OCD>
 
 	<Designate pid="org.eclipse.smarthome.HttpClientFactory">

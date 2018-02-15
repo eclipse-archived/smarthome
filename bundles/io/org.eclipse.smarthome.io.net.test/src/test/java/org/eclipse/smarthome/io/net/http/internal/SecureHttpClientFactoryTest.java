@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
 package org.eclipse.smarthome.io.net.http.internal;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -21,9 +33,9 @@ import java.util.stream.Stream;
 
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.smarthome.io.net.http.HttpClientFacade;
 import org.eclipse.smarthome.io.net.http.TrustManagerProvider;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -43,20 +55,18 @@ public class SecureHttpClientFactoryTest {
 
     @Test
     public void testGetClient() throws Exception {
-        secureHttpClientFactory.activate(createConfigMap(10, 40, 60));
+        secureHttpClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
 
-        HttpClient client = secureHttpClientFactory.createHttpClient("consumer");
+        HttpClientFacade client = secureHttpClientFactory.getHttpClient();
 
         assertThat(client, is(notNullValue()));
-
-        client.stop();
 
         secureHttpClientFactory.deactivate();
     }
 
     @Test
     public void testGetClientWithEndpoint() throws Exception {
-        secureHttpClientFactory.activate(createConfigMap(2, 40, 60));
+        secureHttpClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
 
         when(trustmanagerProvider.getTrustManagers("https://www.heise.de")).thenReturn(Stream.empty());
 
@@ -71,41 +81,84 @@ public class SecureHttpClientFactoryTest {
         secureHttpClientFactory.deactivate();
     }
 
-    @Ignore("only for manual test")
+    // @Ignore("only for manual test")
     @Test
-    public void testMultiThreaded() throws Exception {
-        secureHttpClientFactory.activate(createConfigMap(10, 200, 60));
+    public void testMultiThreadedShared() throws Exception {
+        secureHttpClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
 
         ThreadPoolExecutor workers = new ThreadPoolExecutor(20, 80, 60, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<Runnable>(50 * 50), new NamedThreadFactory("workers"));
 
-        List<HttpClient> clients = new ArrayList<>();
+        List<HttpClientFacade> clients = new ArrayList<>();
 
-        final int CLIENTS = 30;
-        final int REQUESTS = 30;
+        final int CLIENTS = 2;
+        final int REQUESTS = 2;
 
         for (int i = 0; i < CLIENTS; i++) {
-            HttpClient httpClient = secureHttpClientFactory.createHttpClient("consumer" + i);
+            HttpClientFacade httpClient = secureHttpClientFactory.getHttpClient();
             clients.add(httpClient);
         }
 
         final List<String> failures = new ArrayList<>();
 
         for (int i = 0; i < REQUESTS; i++) {
-            // System.out.println("Request " + i);
-            for (final HttpClient client : clients) {
-                // System.out.println("Client " + client);
+            for (final HttpClientFacade client : clients) {
                 workers.execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            // System.out.println("starting request " + client);
                             ContentResponse response = client.GET("https://www.heise.de");
                             if (response.getStatus() != 200) {
                                 System.out.println(response.getStatus());
                                 failures.add("Statuscode != 200");
                             }
-                            // System.out.println("Content received for " + client);
+                        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                            failures.add("Unexpected exception:" + e.getMessage());
+                        }
+                    }
+                });
+            }
+        }
+
+        workers.shutdown();
+        workers.awaitTermination(120, TimeUnit.SECONDS);
+        if (!failures.isEmpty()) {
+            fail(failures.toString());
+        }
+
+        secureHttpClientFactory.deactivate();
+    }
+
+    @Test
+    public void testMultiThreadedCustom() throws Exception {
+        secureHttpClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
+
+        ThreadPoolExecutor workers = new ThreadPoolExecutor(20, 80, 60, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<Runnable>(50 * 50), new NamedThreadFactory("workers"));
+
+        List<HttpClient> clients = new ArrayList<>();
+
+        final int CLIENTS = 2;
+        final int REQUESTS = 2;
+
+        for (int i = 0; i < CLIENTS; i++) {
+            HttpClient httpClient = secureHttpClientFactory.createHttpClient("consumer" + i, "https://www.heise.de");
+            clients.add(httpClient);
+        }
+
+        final List<String> failures = new ArrayList<>();
+
+        for (int i = 0; i < REQUESTS; i++) {
+            for (final HttpClient client : clients) {
+                workers.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            ContentResponse response = client.GET("https://www.heise.de");
+                            if (response.getStatus() != 200) {
+                                System.out.println(response.getStatus());
+                                failures.add("Statuscode != 200");
+                            }
                         } catch (InterruptedException | ExecutionException | TimeoutException e) {
                             failures.add("Unexpected exception:" + e.getMessage());
                         }
@@ -127,11 +180,15 @@ public class SecureHttpClientFactoryTest {
         secureHttpClientFactory.deactivate();
     }
 
-    private Map<String, Object> createConfigMap(int minThreads, int maxThreads, int keepAliveTimeout) {
+    private Map<String, Object> createConfigMap(int minThreadsShared, int maxThreadsShared, int keepAliveTimeoutShared,
+            int minThreadsCustom, int maxThreadsCustom, int keepAliveTimeoutCustom) {
         Map<String, Object> configMap = new HashMap<>();
-        configMap.put("minThreads", minThreads);
-        configMap.put("maxThreads", maxThreads);
-        configMap.put("keepAliveTimeout", keepAliveTimeout);
+        configMap.put("minThreadsShared", minThreadsShared);
+        configMap.put("maxThreadsShared", maxThreadsShared);
+        configMap.put("keepAliveTimeoutShared", keepAliveTimeoutShared);
+        configMap.put("minThreadsCustom", minThreadsCustom);
+        configMap.put("maxThreadsCustom", maxThreadsCustom);
+        configMap.put("keepAliveTimeoutCustom", keepAliveTimeoutCustom);
         return configMap;
     }
 }

@@ -37,8 +37,8 @@ public interface HttpClientFactory {
     HttpClient createHttpClient(String consumerName, String endpoint);
 
     /**
-     * Creates a new jetty http client.
-     * The returned client is already started but must be stopped
+     * Returns the shared jetty http client.
+     * The returned client is already started
      * by the consumer after usage. The client lifecycle should be the same as for the consumer.
      * DO NOT CREATE NEW CLIENTS FOR EACH REQUEST!
      * 
@@ -47,5 +47,5 @@ public interface HttpClientFactory {
      * @return the jetty client
      * @throws NullPointerException if {@code endpoint} is {@code null}
      */
-    HttpClient createHttpClient(String consumerName);
+    HttpClientFacade getHttpClient();
 }
