@@ -287,7 +287,6 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
 }).controller('ItemController', function($rootScope, $scope, itemService, util) {
     $scope.editMode = false;
     $scope.sendCommand = function(command, updateState) {
-        $rootScope.itemUpdates[$scope.item.name] = new Date().getTime();
         itemService.sendCommand({
             itemName : $scope.item.name
         }, command);
