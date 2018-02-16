@@ -28,15 +28,10 @@ public class MqttBrokerBindingConstants {
     public static final ThingTypeUID BRIDGE_TYPE_CONNECTION = new ThingTypeUID(BINDING_ID, "brokerconnection");
     public static final ThingTypeUID THING_TYPE = new ThingTypeUID(BINDING_ID, "topic");
 
-    public static final String THING_EMBEDDED_ID = "embedded";
-
     // Bridge parameters
-
     public static final String PARAM_BRIDGE_name = "brokername";
-    public static final String PROPERTY_internal_status = "internal_status";
 
     // Channels
-
     public static final String TEXT_CHANNEL = "text";
     public static final String NUMBER_CHANNEL = "number";
     public static final String PERCENTAGE_CHANNEL = "percentage";

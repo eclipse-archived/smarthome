@@ -27,8 +27,8 @@ import org.eclipse.smarthome.core.types.State;
  * @author David Graeff - Initial contribution
  */
 public class NumberValue implements AbstractMqttThingValue {
-    DecimalType numberValue;
-    boolean isFloat;
+    private DecimalType numberValue;
+    private final boolean isFloat;
     private final double step;
 
     public NumberValue(Boolean isFloat, BigDecimal step) {

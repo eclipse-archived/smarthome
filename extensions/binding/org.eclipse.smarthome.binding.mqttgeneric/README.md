@@ -66,7 +66,7 @@ You can connect this channel to a Contact or Switch item.
 demo.Things:
 
 ```xtend
-mqttgeneric:brokerconnection:mybroker [ name="configured-broker" ]
+mqttgeneric:brokerconnection:mybroker [ brokername="configured-broker" ]
 mqttgeneric:mybroker:topic:mything {
     text [ mqttstate="lamp/state", mqttcommand="lamp/command" ]
 }

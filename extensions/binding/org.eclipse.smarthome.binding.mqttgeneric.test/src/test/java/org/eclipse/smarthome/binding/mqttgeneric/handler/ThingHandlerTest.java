@@ -56,12 +56,12 @@ public class ThingHandlerTest {
     private Thing thing;
 
     @Mock
-    MqttBrokerConnectionHandler bridgeHandler;
+    private MqttBrokerConnectionHandler bridgeHandler;
 
     @Mock
-    MqttBrokerConnection connection;
+    private MqttBrokerConnection connection;
 
-    MqttThingHandler subject;
+    private MqttThingHandler thingHandler;
 
     @Before
     public void setUp() throws ConfigurationException, MqttException {
@@ -78,14 +78,14 @@ public class ThingHandlerTest {
         // Return the mocked connection object if the bridge handler is asked for it
         when(bridgeHandler.getConnection()).thenReturn(connection);
 
-        subject = spy(new MqttThingHandler(thing, null));
-        subject.setCallback(callback);
+        thingHandler = spy(new MqttThingHandler(thing, null));
+        thingHandler.setCallback(callback);
         // Return the bridge handler if the thing handler asks for it
-        doReturn(bridgeHandler).when(subject).getBridgeHandler();
+        doReturn(bridgeHandler).when(thingHandler).getBridgeHandler();
 
         // We are by default online
         doReturn(true).when(connection).isConnected();
-        doReturn(thingStatus).when(subject).getBridgeStatus();
+        doReturn(thingStatus).when(thingHandler).getBridgeStatus();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -93,19 +93,19 @@ public class ThingHandlerTest {
         List<Channel> l = new ArrayList<>();
         l.add(cb("test", "TextItemType", textConfiguration(), unknownChannel));
         when(thing.getChannels()).thenReturn(l);
-        subject.initialize();
+        thingHandler.initialize();
     }
 
     @Test
     public void initialize() throws MqttException {
-        subject.initialize();
-        verify(subject).bridgeStatusChanged(anyObject());
+        thingHandler.initialize();
+        verify(thingHandler).bridgeStatusChanged(any());
 
-        ChannelConfig c = subject.channelDataByChannelUID.get(textChannelUID);
-        assertThat(c.stateTopic, is("test/state"));
-        assertThat(c.commandTopic, is("test/command"));
+        ChannelConfig channelConfig = thingHandler.channelDataByChannelUID.get(textChannelUID);
+        assertThat(channelConfig.stateTopic, is("test/state"));
+        assertThat(channelConfig.commandTopic, is("test/command"));
 
-        verify(connection).addConsumer(eq(c));
+        verify(connection).addConsumer(eq(channelConfig));
 
         ArgumentCaptor<ThingStatusInfo> statusInfoCaptor = ArgumentCaptor.forClass(ThingStatusInfo.class);
         verify(callback).statusUpdated(eq(thing), statusInfoCaptor.capture());
@@ -116,61 +116,61 @@ public class ThingHandlerTest {
 
     @Test
     public void handleCommandRefresh() {
-        subject.initialize();
-        ChannelConfig c = subject.channelDataByChannelUID.get(textChannelUID);
+        thingHandler.initialize();
+        ChannelConfig channelConfig = thingHandler.channelDataByChannelUID.get(textChannelUID);
         // Mock value
         TextValue value = spy(new TextValue("TEST"));
-        c.value = value;
-        c.connection = connection;
-        subject.connection = connection;
+        channelConfig.value = value;
+        channelConfig.connection = connection;
+        thingHandler.connection = connection;
 
-        subject.handleCommand(textChannelUID, RefreshType.REFRESH);
+        thingHandler.handleCommand(textChannelUID, RefreshType.REFRESH);
         verify(value).getValue();
     }
 
     @Test
     public void handleCommandUpdate() {
-        subject.initialize();
+        thingHandler.initialize();
         // Mock value
         TextValue value = spy(new TextValue("TEST"));
-        ChannelConfig c = subject.channelDataByChannelUID.get(textChannelUID);
-        c.value = value;
-        c.connection = connection;
-        subject.connection = connection;
+        ChannelConfig channelConfig = thingHandler.channelDataByChannelUID.get(textChannelUID);
+        channelConfig.value = value;
+        channelConfig.connection = connection;
+        thingHandler.connection = connection;
 
         StringType updateValue = new StringType("UPDATE");
-        subject.handleCommand(textChannelUID, updateValue);
+        thingHandler.handleCommand(textChannelUID, updateValue);
         verify(value).update(eq(updateValue));
-        assertThat(c.value.getValue().toString(), is("UPDATE"));
+        assertThat(channelConfig.value.getValue().toString(), is("UPDATE"));
     }
 
     @Test
     public void processMessage() {
-        subject.initialize();
+        thingHandler.initialize();
         byte payload[] = "UPDATE".getBytes();
-        ChannelConfig c = subject.channelDataByChannelUID.get(textChannelUID);
-        c.stateTopic = "test/state";
-        c.value = new TextValue("TEST");
+        ChannelConfig channelConfig = thingHandler.channelDataByChannelUID.get(textChannelUID);
+        channelConfig.stateTopic = "test/state";
+        channelConfig.value = new TextValue("TEST");
         // Test process message
-        c.processMessage("test/state", payload);
+        channelConfig.processMessage("test/state", payload);
 
         ArgumentCaptor<State> stateCaptor = ArgumentCaptor.forClass(State.class);
         verify(callback).stateUpdated(eq(textChannelUID), stateCaptor.capture());
         assertThat(stateCaptor.getValue().toString(), is("UPDATE"));
-        assertThat(c.value.getValue().toString(), is("UPDATE"));
+        assertThat(channelConfig.value.getValue().toString(), is("UPDATE"));
     }
 
     @Test
     public void processMessageNotMatching() {
-        subject.initialize();
+        thingHandler.initialize();
         byte payload[] = "UPDATE".getBytes();
-        ChannelConfig c = subject.channelDataByChannelUID.get(textChannelUID);
-        c.stateTopic = "test/state";
-        c.value = new TextValue("TEST");
+        ChannelConfig channelConfig = thingHandler.channelDataByChannelUID.get(textChannelUID);
+        channelConfig.stateTopic = "test/state";
+        channelConfig.value = new TextValue("TEST");
         // Test process message
-        c.processMessage("test/state2", payload);
+        channelConfig.processMessage("test/state2", payload);
 
-        verify(callback, times(0)).stateUpdated(eq(textChannelUID), anyObject());
-        assertThat(c.value.getValue().toString(), is("TEST"));
+        verify(callback, times(0)).stateUpdated(eq(textChannelUID), any());
+        assertThat(channelConfig.value.getValue().toString(), is("TEST"));
     }
 }

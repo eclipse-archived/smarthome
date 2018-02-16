@@ -22,7 +22,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author David Graeff - Initial contribution
  */
 public class TextValue implements AbstractMqttThingValue {
-    StringType strValue;
+    private StringType strValue;
 
     public TextValue() {
         strValue = new StringType();

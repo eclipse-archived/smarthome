@@ -17,11 +17,19 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.transform.TransformationService;
 
 /**
+ * Provide a transformation service which can be used during Mqtt topic transformation.
+ *
  * @author Simon Kaufmann - initial contribution and API
  */
 @NonNullByDefault
 public interface TransformationServiceProvider {
 
+    /**
+     * Provide a {@link TransformationService} matching the given type.
+     *
+     * @param type the type of the requested {@link TransformationService}.
+     * @return a {@link TransformationService} matching the given type.
+     */
     @Nullable
     TransformationService getTransformationService(String type);
 

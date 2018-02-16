@@ -46,15 +46,15 @@ import org.slf4j.LoggerFactory;
  * @author David Graeff - Initial contribution
  */
 public class MqttThingHandler extends BaseThingHandler implements ChannelStateUpdateListener {
-    final Logger logger = LoggerFactory.getLogger(MqttThingHandler.class);
-    MqttBrokerConnection connection;
-    Map<ChannelUID, ChannelConfig> channelDataByChannelUID = new HashMap<>();
+
+    private final Logger logger = LoggerFactory.getLogger(MqttThingHandler.class);
+
     private final TransformationServiceProvider transformationServiceProvider;
 
     private final MqttPublishCallback listener = new MqttPublishCallback() {
         @Override
         public void onSuccess(MqttPublishResult result) {
-            logger.info("Successfully published value to topic {}. ID: {}", result.getTopic(), result.getMessageID());
+            logger.debug("Successfully published value to topic {}. ID: {}", result.getTopic(), result.getMessageID());
         }
 
         @Override
@@ -63,6 +63,11 @@ public class MqttThingHandler extends BaseThingHandler implements ChannelStateUp
                     result.getMessageID(), error);
         }
     };
+
+    // package private for tests
+    final Map<ChannelUID, ChannelConfig> channelDataByChannelUID = new HashMap<>();
+    // package private for tests
+    MqttBrokerConnection connection;
 
     public MqttThingHandler(Thing thing, TransformationServiceProvider transformationServiceProvider) {
         super(thing);

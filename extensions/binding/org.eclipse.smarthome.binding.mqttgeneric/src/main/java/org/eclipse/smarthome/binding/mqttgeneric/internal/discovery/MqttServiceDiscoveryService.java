@@ -43,8 +43,10 @@ import org.slf4j.LoggerFactory;
  */
 @Component(service = DiscoveryService.class, immediate = true, name = "MqttServiceDiscoveryService")
 public class MqttServiceDiscoveryService extends AbstractDiscoveryService implements MqttBrokersObserver {
+
     private final Logger logger = LoggerFactory.getLogger(MqttServiceDiscoveryService.class);
-    MqttService mqttService;
+
+    private MqttService mqttService;
 
     public MqttServiceDiscoveryService() {
         super(Collections.singleton(MqttBrokerBindingConstants.BRIDGE_TYPE_CONNECTION), 500, true);

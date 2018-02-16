@@ -14,12 +14,18 @@ package org.eclipse.smarthome.binding.mqttgeneric.handler;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.naming.ConfigurationException;
 
+import org.eclipse.smarthome.binding.mqttgeneric.MqttBrokerBindingConstants;
 import org.eclipse.smarthome.binding.mqttgeneric.internal.discovery.MqttServiceDiscoveryService;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
@@ -33,7 +39,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 /**
  * Tests cases for {@link ThingHandler}.
@@ -59,10 +64,14 @@ public class MqttBrokerConnectionHandlerTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        initMocks(this);
         when(thing.getUID()).thenReturn(MqttServiceDiscoveryService.makeThingUID(BROKERNAME));
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MqttBrokerBindingConstants.PARAM_BRIDGE_name, BROKERNAME);
+        when(thing.getConfiguration()).thenReturn(new Configuration(properties));
         handler = new MqttBrokerConnectionHandler(thing, service);
         handler.setCallback(callback);
+        handler.initialize();
     }
 
     @Test
@@ -72,7 +81,9 @@ public class MqttBrokerConnectionHandlerTest {
         when(brokerConnection.getName()).thenReturn("something");
         handler.brokerAdded(brokerConnection);
         assertNull(handler.getConnection());
-        verify(callback, times(0)).statusUpdated(anyObject(), anyObject());
+
+        // the invocation is from handler#initialize in setup:
+        verify(callback, times(1)).statusUpdated(any(), any());
     }
 
     @Test
@@ -97,7 +108,9 @@ public class MqttBrokerConnectionHandlerTest {
         verify(brokerConnection, times(0)).start();
 
         ArgumentCaptor<ThingStatusInfo> statusInfoCaptor = ArgumentCaptor.forClass(ThingStatusInfo.class);
-        verify(callback).statusUpdated(eq(thing), statusInfoCaptor.capture());
+
+        // 1st invocation is from handler#initialize in setup:
+        verify(callback, times(2)).statusUpdated(eq(thing), statusInfoCaptor.capture());
         Assert.assertThat(statusInfoCaptor.getValue().getStatus(), is(ThingStatus.ONLINE));
     }
 
@@ -110,7 +123,9 @@ public class MqttBrokerConnectionHandlerTest {
         assertThat(handler.getConnection(), is(brokerConnection));
 
         ArgumentCaptor<ThingStatusInfo> statusInfoCaptor = ArgumentCaptor.forClass(ThingStatusInfo.class);
-        verify(callback).statusUpdated(eq(thing), statusInfoCaptor.capture());
+
+        // 1st invocation is from handler#initialize in setup:
+        verify(callback, times(2)).statusUpdated(eq(thing), statusInfoCaptor.capture());
         Assert.assertThat(statusInfoCaptor.getValue().getStatus(), is(ThingStatus.OFFLINE));
     }
 }

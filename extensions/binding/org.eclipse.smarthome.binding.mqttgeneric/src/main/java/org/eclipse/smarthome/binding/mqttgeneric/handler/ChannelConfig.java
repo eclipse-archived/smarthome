@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * @author David Graeff - Initial contribution
  */
 public class ChannelConfig implements MqttMessageSubscriber {
-    final Logger logger = LoggerFactory.getLogger(ChannelConfig.class);
+    private final Logger logger = LoggerFactory.getLogger(ChannelConfig.class);
     MqttBrokerConnection connection;
 
     String stateTopic;

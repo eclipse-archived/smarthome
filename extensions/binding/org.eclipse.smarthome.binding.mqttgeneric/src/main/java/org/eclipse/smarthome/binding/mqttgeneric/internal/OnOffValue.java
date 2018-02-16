@@ -24,10 +24,10 @@ import org.eclipse.smarthome.core.types.State;
  * @author David Graeff - Initial contribution
  */
 public class OnOffValue implements AbstractMqttThingValue {
-    OnOffType boolValue;
-    boolean isInversedOnOff = false;
-    String onValue;
-    String offValue;
+    private OnOffType boolValue;
+    private boolean isInversedOnOff = false;
+    private final String onValue;
+    private final String offValue;
 
     public OnOffValue(String onValue, String offValue, Boolean isInversedOnOff) {
         this.onValue = onValue == null ? "ON" : onValue;
@@ -72,7 +72,12 @@ public class OnOffValue implements AbstractMqttThingValue {
         } else {
             throw new IllegalArgumentException("Didn't recognise the on/off value " + updatedValue);
         }
-        return boolValue;
+
+        if (isInversedOnOff) {
+            return boolValue == OnOffType.OFF ? OnOffType.ON : OnOffType.OFF;
+        } else {
+            return boolValue == OnOffType.ON ? OnOffType.OFF : OnOffType.ON;
+        }
     }
 
     /**

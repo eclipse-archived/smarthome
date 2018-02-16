@@ -27,12 +27,12 @@ import org.eclipse.smarthome.core.types.State;
  * @author David Graeff - Initial contribution
  */
 public class PercentValue implements AbstractMqttThingValue {
-    private double min;
-    private double max;
-    private double step;
-    private Boolean isFloat;
+    private final double min;
+    private final double max;
+    private final double step;
+    private final Boolean isFloat;
 
-    PercentType percentValue;
+    private PercentType percentValue;
 
     public PercentValue(Boolean isFloat, BigDecimal min, BigDecimal max, BigDecimal step) {
         this.isFloat = isFloat == null ? true : isFloat;

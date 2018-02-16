@@ -14,10 +14,6 @@ package org.eclipse.smarthome.binding.mqttgeneric.handler;
 
 import static org.eclipse.smarthome.binding.mqttgeneric.MqttBrokerBindingConstants.PARAM_BRIDGE_name;
 
-import java.math.BigDecimal;
-import java.util.function.Consumer;
-
-import org.eclipse.smarthome.binding.mqttgeneric.MqttBrokerBindingConstants;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -39,8 +35,9 @@ import org.eclipse.smarthome.io.transport.mqtt.MqttService;
  */
 public class MqttBrokerConnectionHandler extends BaseBridgeHandler
         implements MqttConnectionObserver, MqttBrokersObserver {
-    protected final MqttService service;
-    protected String brokerID;
+
+    private final MqttService service;
+    private String brokerName;
     private MqttBrokerConnection connection;
 
     public MqttBrokerConnectionHandler(Bridge thing, MqttService service) {
@@ -49,7 +46,6 @@ public class MqttBrokerConnectionHandler extends BaseBridgeHandler
             throw new IllegalArgumentException("No MqttService provided!");
         }
         this.service = service;
-        this.brokerID = thing.getUID().getId();
     }
 
     /**
@@ -61,27 +57,18 @@ public class MqttBrokerConnectionHandler extends BaseBridgeHandler
     }
 
     /**
-     * Helper method to read an integer configuration value and provide it to the consumer if it is not null.
-     *
-     * @param configKey The configuration key
-     * @param consumer The consumer
-     */
-    protected void assignBigDecimal(String configKey, Consumer<Integer> consumer) {
-        BigDecimal v = (BigDecimal) getConfig().get(configKey);
-        if (v != null) {
-            consumer.accept(v.intValue());
-        }
-    }
-
-    /**
      * The base implementation will set the connection variable to the given broker
      * if it matches the brokerID and will start to connect to the broker if there
      * is no connection established yet.
      */
     @Override
     public void brokerAdded(MqttBrokerConnection broker) {
-        if (!broker.getName().equals(brokerID) || connection == broker) {
+        if (!broker.getName().equals(brokerName) || connection == broker) {
             return;
+        }
+
+        if (connection != null) {
+            connection.removeConnectionObserver(this);
         }
 
         connection = broker;
@@ -95,7 +82,6 @@ public class MqttBrokerConnectionHandler extends BaseBridgeHandler
         if (broker == connection) {
             connection.removeConnectionObserver(this);
             connection = null;
-            updateProperty(MqttBrokerBindingConstants.PROPERTY_internal_status, "");
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "@text/offline.sharedremoved");
             return;
         }
@@ -104,15 +90,10 @@ public class MqttBrokerConnectionHandler extends BaseBridgeHandler
     @Override
     public void connectionStateChanged(MqttConnectionState state, Throwable error) {
         if (state == MqttConnectionState.CONNECTED) {
-            updateProperty(MqttBrokerBindingConstants.PROPERTY_internal_status, "");
             updateStatus(ThingStatus.ONLINE);
         } else {
-            if (error == null) {
-                updateProperty(MqttBrokerBindingConstants.PROPERTY_internal_status, "Offline - Reason unknown");
-            } else {
-                updateProperty(MqttBrokerBindingConstants.PROPERTY_internal_status, error.getMessage());
-            }
-            updateStatus(ThingStatus.OFFLINE);
+            String message = error == null ? "Offline - Reason unknown" : error.getLocalizedMessage();
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, message);
         }
     }
 
@@ -133,19 +114,18 @@ public class MqttBrokerConnectionHandler extends BaseBridgeHandler
 
     @Override
     public void initialize() {
-        brokerID = (String) getConfig().get(PARAM_BRIDGE_name);
-        if (brokerID == null) {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                    "A url is required for a broker connection");
+        brokerName = (String) getConfig().get(PARAM_BRIDGE_name);
+        if (brokerName == null) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "The broker name is required.");
             return;
         }
 
         service.addBrokersListener(this);
 
-        connection = service.getBrokerConnection(brokerID);
+        connection = service.getBrokerConnection(brokerName);
         if (connection == null) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                    "The broker connection with the name " + brokerID + " not found");
+                    "The broker connection with the name '" + brokerName + "' could not be found.");
             return;
         }
 
