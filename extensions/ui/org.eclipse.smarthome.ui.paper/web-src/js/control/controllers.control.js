@@ -543,6 +543,6 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
 }).directive('itemStateDropdown', function() {
     return {
         restrict : 'A',
-        templateUrl : "partials/item.state.dropdown.html"
+        templateUrl : "partials/control/item.state.dropdown.html"
     };
 })

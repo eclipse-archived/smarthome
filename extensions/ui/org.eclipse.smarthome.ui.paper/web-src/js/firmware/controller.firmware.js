@@ -52,7 +52,7 @@ firmwareControllers.controller('FirmwareController', function($scope, $mdDialog,
 
         $mdDialog.show({
             controller : 'ChangelogDialogController',
-            templateUrl : 'partials/dialog.changelog.html',
+            templateUrl : 'partials/firmware/dialog.changelog.html',
             targetEvent : event,
             hasBackdrop : true,
             locals : {

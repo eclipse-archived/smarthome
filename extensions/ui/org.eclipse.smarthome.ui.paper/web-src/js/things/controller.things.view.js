@@ -25,7 +25,7 @@ angular.module('PaperUI.controllers.things') //
         event.stopImmediatePropagation();
         $mdDialog.show({
             controller : 'RemoveThingDialogController',
-            templateUrl : 'partials/dialog.removething.html',
+            templateUrl : 'partials/things/dialog.removething.html',
             targetEvent : event,
             hasBackdrop : true,
             locals : {
@@ -95,7 +95,7 @@ angular.module('PaperUI.controllers.things') //
         }
         $mdDialog.show({
             controller : 'LinkChannelDialogController',
-            templateUrl : 'partials/dialog.linkchannel.html',
+            templateUrl : 'partials/things/dialog.linkchannel.html',
             targetEvent : event,
             hasBackdrop : true,
             params : params
@@ -153,7 +153,7 @@ angular.module('PaperUI.controllers.things') //
         var channel = $scope.getChannelById(channelID);
         $mdDialog.show({
             controller : 'UnlinkChannelDialogController',
-            templateUrl : 'partials/dialog.unlinkchannel.html',
+            templateUrl : 'partials/things/dialog.unlinkchannel.html',
             targetEvent : event,
             hasBackdrop : true,
             locals : {
@@ -299,7 +299,7 @@ angular.module('PaperUI.controllers.things') //
         }, function(configDescription) {
             $mdDialog.show({
                 controller : 'ChannelConfigController',
-                templateUrl : 'partials/dialog.channelconfig.html',
+                templateUrl : 'partials/things/dialog.channelconfig.html',
                 targetEvent : event,
                 hasBackdrop : true,
                 locals : {
@@ -356,7 +356,7 @@ angular.module('PaperUI.controllers.things') //
     $scope.addChannel = function(event) {
         $mdDialog.show({
             controller : 'AddChannelController',
-            templateUrl : 'partials/dialog.addchannel.html',
+            templateUrl : 'partials/things/dialog.addchannel.html',
             targetEvent : event,
             hasBackdrop : true,
             locals : {
@@ -370,7 +370,7 @@ angular.module('PaperUI.controllers.things') //
         event.stopImmediatePropagation();
         $mdDialog.show({
             controller : 'RemoveChannelDialogController',
-            templateUrl : 'partials/dialog.removechannel.html',
+            templateUrl : 'partials/things/dialog.removechannel.html',
             targetEvent : event,
             hasBackdrop : true,
             locals : {

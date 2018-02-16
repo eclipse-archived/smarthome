@@ -21,7 +21,7 @@ angular.module('PaperUI.controllers.control') //
     return {
         restrict : 'E',
         scope : true,
-        templateUrl : 'partials/directive.control.location.html',
+        templateUrl : 'partials/control/directive.control.location.html',
         controller : controller
     }
 })
