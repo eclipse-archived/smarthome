@@ -25,6 +25,8 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  *
  */
 public class NtpBindingConstants {
+    
+    private NtpBindingConstants() {}
 
     public static final String BINDING_ID = "ntp";
 
