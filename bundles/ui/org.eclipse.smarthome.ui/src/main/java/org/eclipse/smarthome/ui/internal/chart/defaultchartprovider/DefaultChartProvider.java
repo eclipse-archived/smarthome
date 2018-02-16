@@ -68,7 +68,7 @@ import org.slf4j.LoggerFactory;
  * @author Holger Reichert - Support for themes, DPI, legend hiding
  *
  */
-@Component(immediate=true)
+@Component(immediate = true)
 public class DefaultChartProvider implements ChartProvider {
 
     private final Logger logger = LoggerFactory.getLogger(DefaultChartProvider.class);
@@ -86,7 +86,7 @@ public class DefaultChartProvider implements ChartProvider {
 
     public static final int DPI_DEFAULT = 96;
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.DYNAMIC)
+    @Reference(policy = ReferencePolicy.DYNAMIC)
     public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
         this.itemUIRegistry = itemUIRegistry;
     }
@@ -95,7 +95,7 @@ public class DefaultChartProvider implements ChartProvider {
         this.itemUIRegistry = null;
     }
 
-    @Reference(cardinality=ReferenceCardinality.MULTIPLE, policy=ReferencePolicy.DYNAMIC)
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addPersistenceService(PersistenceService service) {
         if (service instanceof QueryablePersistenceService) {
             persistenceServices.put(service.getId(), (QueryablePersistenceService) service);
@@ -119,11 +119,11 @@ public class DefaultChartProvider implements ChartProvider {
         logger.debug("Available themes for default chart provider: {}", themeNames);
     }
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
+    @Reference
     public void setTimeZoneProvider(TimeZoneProvider timeZoneProvider) {
         this.timeZoneProvider = timeZoneProvider;
     }
-    
+
     public void unsetTimeZoneProvider(TimeZoneProvider timeZoneProvider) {
         this.timeZoneProvider = null;
     }

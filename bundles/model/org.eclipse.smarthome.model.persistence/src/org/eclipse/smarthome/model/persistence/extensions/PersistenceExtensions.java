@@ -34,8 +34,6 @@ import org.joda.time.DateTime;
 import org.joda.time.base.AbstractInstant;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -50,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * @author John Cocula
  *
  */
-@Component(immediate=true)
+@Component(immediate = true)
 public class PersistenceExtensions {
 
     private static PersistenceServiceRegistry registry;
@@ -60,7 +58,7 @@ public class PersistenceExtensions {
         // default constructor, necessary for osgi-ds
     }
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
+    @Reference
     protected void setPersistenceServiceRegistry(PersistenceServiceRegistry registry) {
         PersistenceExtensions.registry = registry;
     }
@@ -69,7 +67,7 @@ public class PersistenceExtensions {
         PersistenceExtensions.registry = null;
     }
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
+    @Reference
     protected void setTimeZoneProvider(TimeZoneProvider timeZoneProvider) {
         PersistenceExtensions.timeZoneProvider = timeZoneProvider;
     }
@@ -515,7 +513,8 @@ public class PersistenceExtensions {
         if (service instanceof QueryablePersistenceService) {
             QueryablePersistenceService qService = (QueryablePersistenceService) service;
             FilterCriteria filter = new FilterCriteria();
-            filter.setBeginDate(ZonedDateTime.ofInstant(timestamp.toDate().toInstant(), timeZoneProvider.getTimeZone()));
+            filter.setBeginDate(
+                    ZonedDateTime.ofInstant(timestamp.toDate().toInstant(), timeZoneProvider.getTimeZone()));
             filter.setItemName(item.getName());
             filter.setOrdering(Ordering.ASCENDING);
             return qService.query(filter);

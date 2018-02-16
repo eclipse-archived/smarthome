@@ -83,7 +83,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ServiceScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,7 +122,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     public ItemUIRegistryImpl() {
     }
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.DYNAMIC)
+    @Reference(policy = ReferencePolicy.DYNAMIC)
     public void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
     }
@@ -132,7 +131,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         this.itemRegistry = null;
     }
 
-    @Reference(cardinality=ReferenceCardinality.MULTIPLE, policy=ReferencePolicy.DYNAMIC)
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addItemUIProvider(ItemUIProvider itemUIProvider) {
         itemUIProviders.add(itemUIProvider);
     }
