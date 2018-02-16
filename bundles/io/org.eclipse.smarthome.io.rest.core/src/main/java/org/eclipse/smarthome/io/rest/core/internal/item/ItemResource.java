@@ -184,7 +184,7 @@ public class ItemResource implements RESTResource {
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
         Stream<EnrichedItemDTO> itemStream = getItems(type, tags).stream()
-                .map(item -> EnrichedItemDTOMapper.map(item, recursive, uriInfo.getBaseUri(), locale));
+                .map(item -> EnrichedItemDTOMapper.map(item, recursive, null, uriInfo.getBaseUri(), locale));
         itemStream = dtoMapper.limitToFields(itemStream, fields);
         return Response.ok(new Stream2JSONInputStream(itemStream)).build();
     }
@@ -644,7 +644,7 @@ public class ItemResource implements RESTResource {
      * @return Response configured to represent the Item in depending on the status
      */
     private Response getItemResponse(Status status, Item item, Locale locale, String errormessage) {
-        Object entity = null != item ? EnrichedItemDTOMapper.map(item, true, uriInfo.getBaseUri(), locale) : null;
+        Object entity = null != item ? EnrichedItemDTOMapper.map(item, true, null, uriInfo.getBaseUri(), locale) : null;
         return JSONResponse.createResponse(status, entity, errormessage);
     }
 
