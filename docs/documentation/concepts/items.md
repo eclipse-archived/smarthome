@@ -77,9 +77,16 @@ Examples for derived states on group items when declared in the item DSL:
 `DateTimeType` objects are parsed using Java's `SimpleDateFormat.parse()` using the first matching pattern:
 
 1. `yyyy-MM-dd'T'HH:mm:ss.SSSZ`
-2. `yyyy-MM-dd'T'HH:mm:ss.SSSX`
-3. `yyyy-MM-dd'T'HH:mm:ssz`
-4. `yyyy-MM-dd'T'HH:mm:ss`
+2. `yyyy-MM-dd'T'HH:mm:ss.SSSz`
+3. `yyyy-MM-dd'T'HH:mm:ss.SSSX`
+4. `yyyy-MM-dd'T'HH:mm:ssz`
+5. `yyyy-MM-dd'T'HH:mm:ss`
+
+Literal | Standard | Example
+--------|----------|--------
+z | General time zone | Pacific Standard Time; PST; GMT-08:00
+Z | RFC 822 time zone | -0800
+X | ISO 8601 time zone | -08; -0800; -08:00
 
 ### DecimalType, PercentType
 
