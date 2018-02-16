@@ -36,6 +36,7 @@ import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.smarthome.io.net.http.HttpClientFacade;
 import org.eclipse.smarthome.io.net.http.TrustManagerProvider;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -81,7 +82,7 @@ public class SecureHttpClientFactoryTest {
         secureHttpClientFactory.deactivate();
     }
 
-    // @Ignore("only for manual test")
+    @Ignore("only for manual test")
     @Test
     public void testMultiThreadedShared() throws Exception {
         secureHttpClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
@@ -129,6 +130,7 @@ public class SecureHttpClientFactoryTest {
         secureHttpClientFactory.deactivate();
     }
 
+    @Ignore("only for manual test")
     @Test
     public void testMultiThreadedCustom() throws Exception {
         secureHttpClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
