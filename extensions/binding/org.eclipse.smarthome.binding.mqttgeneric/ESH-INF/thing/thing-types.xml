@@ -49,7 +49,7 @@
 			</parameter>
 		</config-description>
 	</channel-type>
-	
+
 	<channel-type id="number">
 		<item-type>Number</item-type>
 		<label>Number value</label>
@@ -83,7 +83,7 @@
 			</parameter>
 		</config-description>
 	</channel-type>
-	
+
 	<channel-type id="percentage">
 		<item-type>Number</item-type>
 		<label>Percentage value</label>
@@ -127,7 +127,7 @@
 			</parameter>
 		</config-description>
 	</channel-type>
-	
+
 	<channel-type id="onoff">
 		<item-type>Switch</item-type>
 		<label>On/Off value</label>

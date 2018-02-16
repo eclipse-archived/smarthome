@@ -12,12 +12,12 @@
  */
 package org.eclipse.smarthome.binding.mqttgeneric.handler;
 
-/**
- * @author David Graeff - Initial contribution
- */
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.types.State;
 
+/**
+ * @author David Graeff - Initial contribution
+ */
 public interface ChannelStateUpdateListener {
     void channelStateUpdated(ChannelUID channelUID, State value);
 }
