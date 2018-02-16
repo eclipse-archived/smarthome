@@ -20,6 +20,8 @@ import javax.measure.Quantity;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.internal.items.GroupFunctionHelper;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.items.ActiveItem;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
@@ -38,6 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author Stefan Bußweiler - Moved to core and renamed class to DTO mapper
  * @author Dennis Nobel - Removed dynamic data
  */
+@NonNullByDefault
 public class ItemDTOMapper {
 
     private final static GroupFunctionHelper GROUP_FUNCTION_HELPER = new GroupFunctionHelper();
@@ -49,7 +52,7 @@ public class ItemDTOMapper {
      * @param itemFactories the item factories in order to create the items
      * @return the item object
      */
-    public static ActiveItem map(ItemDTO itemDTO, Set<ItemFactory> itemFactories) {
+    public static @Nullable ActiveItem map(ItemDTO itemDTO, Set<ItemFactory> itemFactories) {
         if (itemDTO == null) {
             throw new IllegalArgumentException("The argument 'itemDTO' must no be null.");
         }
@@ -92,7 +95,7 @@ public class ItemDTOMapper {
         return newItem;
     }
 
-    public static GroupFunction mapFunction(Item baseItem, GroupFunctionDTO function) {
+    public static GroupFunction mapFunction(@Nullable Item baseItem, GroupFunctionDTO function) {
         List<State> args = parseStates(baseItem, function.params);
 
         return GROUP_FUNCTION_HELPER.createGroupFunction(function, args, getDimension(baseItem));
@@ -106,10 +109,10 @@ public class ItemDTOMapper {
         return null;
     }
 
-    private static List<State> parseStates(Item baseItem, String[] params) {
+    private static List<State> parseStates(@Nullable Item baseItem, String @Nullable [] params) {
         List<State> states = new ArrayList<State>();
 
-        if (params == null) {
+        if (params == null || baseItem == null) {
             return states;
         }
 
@@ -160,7 +163,11 @@ public class ItemDTOMapper {
         itemDTO.groupNames = item.getGroupNames();
     }
 
-    public static GroupFunctionDTO mapFunction(GroupFunction function) {
+    public static @Nullable GroupFunctionDTO mapFunction(@Nullable GroupFunction function) {
+        if (function == null) {
+            return null;
+        }
+
         GroupFunctionDTO dto = new GroupFunctionDTO();
         dto.name = function.getClass().getSimpleName().toUpperCase();
         List<String> params = new ArrayList<>();
@@ -181,7 +188,7 @@ public class ItemDTOMapper {
      * @param itemname name of the item
      * @return the newly created item
      */
-    private static GenericItem createItem(String itemType, String itemname, Set<ItemFactory> itemFactories) {
+    private static @Nullable GenericItem createItem(String itemType, String itemname, Set<ItemFactory> itemFactories) {
         GenericItem newItem = null;
         for (ItemFactory itemFactory : itemFactories) {
             newItem = itemFactory.createItem(itemType, itemname);
