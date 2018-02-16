@@ -119,7 +119,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
 
     @Override
     public HttpClientFacade getHttpClient() {
-        logger.debug("shared ttpClient requested");
+        logger.debug("shared httpClient requested");
         return sharedHttpClientFacade;
     }
 
