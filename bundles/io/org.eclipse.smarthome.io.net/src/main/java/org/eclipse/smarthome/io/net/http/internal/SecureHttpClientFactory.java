@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Bock - initial API
  */
-@Component(service = HttpClientFactory.class, immediate = true, name = "org.eclipse.smarthome.io.net.http.internal.SecureHttpClientFactory", configurationPid = "org.eclipse.smarthome.HttpClientFactory")
+@Component(service = HttpClientFactory.class, immediate = true, configurationPid = "org.eclipse.smarthome.HttpClientFactory")
 public class SecureHttpClientFactory implements HttpClientFactory {
 
     private final Logger logger = LoggerFactory.getLogger(SecureHttpClientFactory.class);

@@ -28,7 +28,7 @@ import org.eclipse.smarthome.io.net.http.HttpClientFacade;
 /**
  * A delegate to jetty {@link HttpClient}
  * 
- * @author m.bock
+ * @author Michael Bock - initial API
  */
 public class HttpClientDelegate implements HttpClientFacade {
 

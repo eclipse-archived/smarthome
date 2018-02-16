@@ -15,6 +15,7 @@ package org.eclipse.smarthome.io.net.http;
 /**
  * A facade to the jetty http client
  * 
+ * @author Michael Bock - initial API
  */
 import java.net.CookieStore;
 import java.net.URI;
@@ -32,7 +33,7 @@ import org.eclipse.jetty.util.Fields;
 /**
  * A facade to Jetty {@link HttpClient}
  * 
- * @author m.bock
+ * @author Michael Bock - initial API
  */
 public interface HttpClientFacade {
 
