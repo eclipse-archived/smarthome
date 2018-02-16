@@ -67,7 +67,7 @@ public class JSonPathTransformationServiceTest {
     @Test
     public void testPathMismatchReturnNull() throws TransformationException {
         String transformedResponse = processor.transform("$[5].id", jsonArray);
-        assert(transformedResponse == null);
+        assertEquals("NULL", transformedResponse);
     }
 
     @Test(expected = TransformationException.class)

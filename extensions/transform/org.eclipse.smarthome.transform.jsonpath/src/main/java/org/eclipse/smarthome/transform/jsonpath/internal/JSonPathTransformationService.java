@@ -65,7 +65,8 @@ public class JSonPathTransformationService implements TransformationService {
                 return transformationResult.toString();
             }
         } catch (PathNotFoundException e) {
-            return null;
+            logger.debug("path not found in JSON string (PathNotFoundException)");
+            return UnDefType.NULL.toFullString();
         } catch (InvalidPathException | InvalidJsonException e) {
             throw new TransformationException("An error occurred while transforming JSON expression.", e);
         }
