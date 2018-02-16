@@ -75,15 +75,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
 
     @Activate
     protected void activate(Map<String, Object> parameters) {
-        minThreadsShared = (int) parameters.get(CONFIG_MIN_THREADS_SHARED);
-        maxThreadsShared = (int) parameters.get(CONFIG_MAX_THREADS_SHARED);
-        keepAliveTimeoutShared = (int) parameters.get(CONFIG_KEEP_ALIVE_SHARED);
-        minThreadsCustom = (int) parameters.get(CONFIG_MIN_THREADS_CUSTOM);
-        maxThreadsCustom = (int) parameters.get(CONFIG_MAX_THREADS_CUSTOM);
-        keepAliveTimeoutCustom = (int) parameters.get(CONFIG_KEEP_ALIVE_CUSTOM);
-        // We need an "empty" queue, because otherwise jetty workers become queued instead of executed.
-        // This will cause jetty to hang!
-        // SynchronousQueue is fine for this, because it is effectively an empty queue
+        getConfigParameters(parameters);
         threadPool = createThreadPool("common", minThreadsShared, maxThreadsShared, keepAliveTimeoutShared);
 
         sharedHttpClient = createHttpClientInternal("common", null);
@@ -94,12 +86,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
 
     @Modified
     protected void modified(Map<String, Object> parameters) {
-        minThreadsShared = (int) parameters.get(CONFIG_MIN_THREADS_SHARED);
-        maxThreadsShared = (int) parameters.get(CONFIG_MAX_THREADS_SHARED);
-        keepAliveTimeoutShared = (int) parameters.get(CONFIG_KEEP_ALIVE_SHARED);
-        minThreadsCustom = (int) parameters.get(CONFIG_MIN_THREADS_CUSTOM);
-        maxThreadsCustom = (int) parameters.get(CONFIG_MAX_THREADS_CUSTOM);
-        keepAliveTimeoutCustom = (int) parameters.get(CONFIG_KEEP_ALIVE_CUSTOM);
+        getConfigParameters(parameters);
         threadPool.setCorePoolSize(minThreadsShared);
         threadPool.setMaximumPoolSize(maxThreadsShared);
         threadPool.setKeepAliveTime(keepAliveTimeoutShared, TimeUnit.SECONDS);
@@ -136,6 +123,15 @@ public class SecureHttpClientFactory implements HttpClientFactory {
         return sharedHttpClientFacade;
     }
 
+    private void getConfigParameters(Map<String, Object> parameters) {
+        minThreadsShared = (int) parameters.get(CONFIG_MIN_THREADS_SHARED);
+        maxThreadsShared = (int) parameters.get(CONFIG_MAX_THREADS_SHARED);
+        keepAliveTimeoutShared = (int) parameters.get(CONFIG_KEEP_ALIVE_SHARED);
+        minThreadsCustom = (int) parameters.get(CONFIG_MIN_THREADS_CUSTOM);
+        maxThreadsCustom = (int) parameters.get(CONFIG_MAX_THREADS_CUSTOM);
+        keepAliveTimeoutCustom = (int) parameters.get(CONFIG_KEEP_ALIVE_CUSTOM);
+    }
+
     private HttpClient createHttpClientInternal(String consumerName, String endpoint) {
         logger.info("creating httpClient for endpoint {}", endpoint);
         SslContextFactory sslContextFactory = new SslContextFactory();
@@ -161,12 +157,16 @@ public class SecureHttpClientFactory implements HttpClientFactory {
         HttpClient httpClient = new HttpClient(sslContextFactory);
         final ThreadPoolExecutor threadPoolExecutor = createThreadPool(consumerName, minThreadsCustom, maxThreadsCustom,
                 keepAliveTimeoutCustom);
+
+        // we need to add this thread pool to the client as managed object,
+        // so that it will become shutdown when the client is stopped
         httpClient.addManaged(new AbstractLifeCycle() {
             @Override
             protected void doStop() throws Exception {
                 threadPoolExecutor.shutdown();
             }
         });
+
         httpClient.setExecutor(threadPoolExecutor);
 
         try {
@@ -181,6 +181,9 @@ public class SecureHttpClientFactory implements HttpClientFactory {
 
     private ThreadPoolExecutor createThreadPool(String consumerName, int minThreads, int maxThreads,
             int keepAliveTimeout) {
+        // We need an "empty" queue, because otherwise jetty workers become queued instead of executed.
+        // This will cause jetty to hang!
+        // SynchronousQueue is fine for this, because it is effectively an empty queue
         ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(minThreads, maxThreads, keepAliveTimeout,
                 TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new NamedThreadFactory("jetty-" + consumerName));
         logger.info("jetty thread pool started with min threads {}, max threads {}", minThreads, maxThreads);
