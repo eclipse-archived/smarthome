@@ -164,6 +164,25 @@
 		});
 	}
 
+	function EventMapper() {
+		var
+			_t = this;
+
+		function processEvents(callable, table) {
+			table.forEach(function(entry) {
+				var
+					element = entry[0],
+					event = entry[1],
+					handler = entry[2];
+
+				callable.call(element, event, handler);
+			});
+		}
+
+		_t.map = processEvents.bind(null, Node.prototype.addEventListener);
+		_t.unmap = processEvents.bind(null, Node.prototype.removeEventListener);
+	}
+
 	function HistoryStack() {
 		var
 			_t = this;
@@ -379,6 +398,18 @@
 		_t.setValueColor = function(color) {
 			_t.parentNode.style.color = color;
 		};
+
+		_t.destroy = function() {
+			if (_t.icon !== null) {
+				_t.icon.removeEventListener("error", replaceImageWithNone);
+			}
+
+			[].forEach.call(_t.parentNode.querySelectorAll("video, audio"), function(media) {
+				if (media instanceof HTMLMediaElement) {
+					media.pause();
+				}
+			});
+		};
 	}
 
 	/* class Frame */
@@ -410,6 +441,7 @@
 		_t.setLabelColor = function() {};
 		_t.setValueColor = function() {};
 		_t.suppressUpdate = function() {};
+		_t.destroy = function() {};
 	}
 
 	/* class ControlImage */
@@ -418,6 +450,9 @@
 		// other classes, so calling Control is conditional
 		if (callSuper) {
 			Control.call(this, parentNode);
+		} else {
+			this.parentNode = parentNode;
+			this.id = this.parentNode.getAttribute(o.idAttribute);
 		}
 
 		var
@@ -489,6 +524,14 @@
 				}
 				_t.image.setAttribute("src", _t.url + "&t=" + Date.now());
 			}, _t.updateInterval);
+		};
+
+		_t.destroy = function() {
+			var
+				imageParent = _t.image.parentNode;
+
+			_t.image.setAttribute("src", urlNoneIcon);
+			imageParent.removeChild(_t.image);
 		};
 
 		if (_t.visible) {
@@ -582,6 +625,13 @@
 			_t.valueMap[value] = button;
 			button.addEventListener("click", _t.onclick);
 		});
+
+		_t.destroy = function() {
+			_t.buttons.forEach(function(button) {
+				button.removeEventListener("click", _t.onclick);
+			});
+			componentHandler.downgradeElements(_t.buttons);
+		};
 	}
 
 	/* class ControlRadio extends Control */
@@ -627,6 +677,17 @@
 
 			_t.modal = new Modal(content);
 			_t.modal.show();
+			_t.modal.onHide = function() {
+				var
+					items = [].slice.call(_t.modal.container.querySelectorAll(o.formRadio));
+
+				componentHandler.downgradeElements(items);
+				items.forEach(function(control) {
+					control.removeEventListener("click", onRadioChange);
+				});
+
+				_t.modal = null;
+			};
 
 			var
 				controls = [].slice.call(_t.modal.container.querySelectorAll(o.formRadio));
@@ -661,6 +722,10 @@
 
 		_t.setValueColor = function(color) {
 			_t.valueNode.style.color = color;
+		};
+
+		_t.destroy = function() {
+			_t.parentNode.parentNode.removeEventListener("click", _t.showModal);
 		};
 
 		_t.parentNode.parentNode.addEventListener("click", _t.showModal);
@@ -747,25 +812,36 @@
 			downButtonMouseUp = onMouseUp.bind(null, "DOWN"),
 			downButtonMouseDown = onMouseDown.bind(null, "DOWN");
 
-		// Up button
-		_t.buttonUp.addEventListener("touchstart", upButtonMouseDown);
-		_t.buttonUp.addEventListener("mousedown", upButtonMouseDown);
+		var
+			eventMap = [
+				// Up button
+				[ _t.buttonUp,   "touchstart", upButtonMouseDown ],
+				[ _t.buttonUp,   "mousedown",  upButtonMouseDown ],
+				[ _t.buttonUp,   "touchend",   upButtonMouseUp   ],
+				[ _t.buttonUp,   "mouseup",    upButtonMouseUp   ],
+				[ _t.buttonUp,   "mouseleave", upButtonMouseUp   ],
+				// Down button
+				[ _t.buttonDown, "touchstart", downButtonMouseDown ],
+				[ _t.buttonDown, "mousedown",  downButtonMouseDown ],
+				[ _t.buttonDown, "touchend",   downButtonMouseUp   ],
+				[ _t.buttonDown, "mouseup",    downButtonMouseUp   ],
+				[ _t.buttonDown, "mouseleave", downButtonMouseUp   ],
+				// Stop button
+				[ _t.buttonStop, "mousedown",  onStop ],
+				[ _t.buttonStop, "touchstart", onStop ]
+			];
 
-		_t.buttonUp.addEventListener("touchend", upButtonMouseUp);
-		_t.buttonUp.addEventListener("mouseup", upButtonMouseUp);
-		_t.buttonUp.addEventListener("mouseleave", upButtonMouseUp);
+		_t.destroy = function() {
+			componentHandler.downgradeElements([
+				_t.buttonUp,
+				_t.buttonDown,
+				_t.buttonStop
+			]);
 
-		// Down button
-		_t.buttonDown.addEventListener("touchstart", downButtonMouseDown);
-		_t.buttonDown.addEventListener("mousedown", downButtonMouseDown);
+			smarthome.eventMapper.unmap(eventMap);
+		};
 
-		_t.buttonDown.addEventListener("touchend", downButtonMouseUp);
-		_t.buttonDown.addEventListener("mouseup", downButtonMouseUp);
-		_t.buttonDown.addEventListener("mouseleave", downButtonMouseUp);
-
-		// Stop button
-		_t.buttonStop.addEventListener("mousedown", onStop);
-		_t.buttonStop.addEventListener("touchstart", onStop);
+		smarthome.eventMapper.map(eventMap);
 	}
 
 	/* class ControlSetpoint extends Control */
@@ -814,11 +890,24 @@
 			increaseHandler = onMouseDown.bind(null, true),
 			decreaseHandler = onMouseDown.bind(null, false);
 
-		_t.up.addEventListener("mousedown", increaseHandler);
-		_t.up.addEventListener("touchstart", increaseHandler);
+		var
+			eventMap = [
+				[ _t.up,   "mousedown",  increaseHandler ],
+				[ _t.up,   "touchstart", increaseHandler ],
+				[ _t.down, "mousedown",  decreaseHandler ],
+				[ _t.down, "touchstart", decreaseHandler ]
+			];
 
-		_t.down.addEventListener("mousedown", decreaseHandler);
-		_t.down.addEventListener("touchstart", decreaseHandler);
+		_t.destroy = function() {
+			componentHandler.downgradeElements([
+				_t.up,
+				_t.down
+			]);
+
+			smarthome.eventMapper.unmap(eventMap);
+		};
+
+		smarthome.eventMapper.map(eventMap);
 	}
 	/* class Colorpicker */
 	function Colorpicker(parentNode, color, callback) {
@@ -1061,23 +1150,27 @@
 			_t.debounceProxy.finish();
 		}
 
-		_t.slider.addEventListener("change", onSliderChange);
+		var
+			eventMap = [
+				[ _t.slider, "change",     onSliderChange ],
+				[ _t.slider, "touchend",   onSliderFinish ],
+				[ _t.slider, "mouseup",    onSliderFinish ],
+				[ _t.image,  "mousedown",  onMove ],
+				[ _t.image,  "mousemove",  onMove ],
+				[ _t.image,  "touchmove",  onMove ],
+				[ _t.image,  "touchstart", onMove ],
+				[ _t.image,  "touchend",   onMouseUp ],
+				[ _t.image,  "mouseup",    onMouseUp ],
+				[ _t.image,  "mousedown",  onMouseDown ],
+				[ _t.image,  "touchstart", onMouseDown ]
+			];
 
-		_t.slider.addEventListener("touchend", onSliderFinish);
-		_t.slider.addEventListener("mouseup", onSliderFinish);
+		_t.destroy = function() {
+			smarthome.eventMapper.unmap(eventMap);
+			componentHandler.downgradeElements([ _t.button ]);
+		};
 
-		_t.image.addEventListener("mousedown", onMove);
-		_t.image.addEventListener("mousemove", onMove);
-
-		_t.image.addEventListener("touchmove", onMove);
-		_t.image.addEventListener("touchstart", onMove);
-
-		_t.image.addEventListener("touchend", onMouseUp);
-		_t.image.addEventListener("mouseup", onMouseUp);
-
-		_t.image.addEventListener("mousedown", onMouseDown);
-		_t.image.addEventListener("touchstart", onMouseDown);
-
+		smarthome.eventMapper.map(eventMap);
 		setColor(color);
 	}
 
@@ -1211,10 +1304,19 @@
 		}
 
 		function onPick() {
+			var
+				button;
+
+			function onClick() {
+				_t.modal.hide();
+			}
+
 			_t.modal = new Modal(renderTemplate("template-colorpicker"));
 			_t.modal.show();
 			_t.modal.container.classList.add(o.colorpicker.modalClass);
 			_t.modal.onHide = function() {
+				button.removeEventListener("click", onClick);
+				_t.modalControl.destroy();
 				_t.modalControl = null;
 				_t.modal = null;
 			};
@@ -1228,9 +1330,8 @@
 				);
 			});
 
-			_t.modal.container.querySelector(o.colorpicker.button).addEventListener("click", function() {
-				_t.modal.hide();
-			});
+			button = _t.modal.container.querySelector(o.colorpicker.button);
+			button.addEventListener("click", onClick);
 		}
 
 		var
@@ -1239,24 +1340,31 @@
 			upButtonMouseUp = onMouseUp.bind(null, "ON"),
 			downButtonMouseUp = onMouseUp.bind(null, "OFF");
 
-		// Up button
-		_t.buttonUp.addEventListener("touchstart", upButtonMouseDown);
-		_t.buttonUp.addEventListener("mousedown", upButtonMouseDown);
+		var
+			eventMap = [
+				[ _t.buttonUp,   "touchstart", upButtonMouseDown ],
+				[ _t.buttonUp,   "mousedown",  upButtonMouseDown ],
+				[ _t.buttonUp,   "mouseleave", upButtonMouseUp ],
+				[ _t.buttonUp,   "touchend",   upButtonMouseUp ],
+				[ _t.buttonUp,   "mouseup",    upButtonMouseUp ],
+				[ _t.buttonDown, "touchstart", downButtonMouseDown ],
+				[ _t.buttonDown, "mousedown",  downButtonMouseDown ],
+				[ _t.buttonDown, "touchend",   downButtonMouseUp ],
+				[ _t.buttonDown, "mouseup",    downButtonMouseUp ],
+				[ _t.buttonDown, "mouseleave", downButtonMouseUp ],
+				[ _t.buttonPick, "click",      onPick ]
+			];
 
-		_t.buttonUp.addEventListener("mouseleave", upButtonMouseUp);
-		_t.buttonUp.addEventListener("touchend", upButtonMouseUp);
-		_t.buttonUp.addEventListener("mouseup", upButtonMouseUp);
+		_t.destroy = function() {
+			smarthome.eventMapper.unmap(eventMap);
+			componentHandler.downgradeElements([
+				_t.buttonUp,
+				_t.buttonDown,
+				_t.buttonPick
+			]);
+		};
 
-		// Down button
-		_t.buttonDown.addEventListener("touchstart", downButtonMouseDown);
-		_t.buttonDown.addEventListener("mousedown", downButtonMouseDown);
-
-		_t.buttonDown.addEventListener("touchend", downButtonMouseUp);
-		_t.buttonDown.addEventListener("mouseup", downButtonMouseUp);
-		_t.buttonDown.addEventListener("mouseleave", downButtonMouseUp);
-
-		// Stop button
-		_t.buttonPick.addEventListener("click", onPick);
+		smarthome.eventMapper.map(eventMap);
 	}
 	/* class ControlSwitch extends Control */
 	function ControlSwitch(parentNode) {
@@ -1266,15 +1374,16 @@
 			_t = this;
 
 		_t.input = _t.parentNode.querySelector("input[type=checkbox]");
-		_t.input.addEventListener("change", function() {
+
+		_t.hasValue = _t.parentNode.getAttribute("data-has-value") === "true";
+		_t.valueNode = _t.parentNode.parentNode.querySelector(o.formValue);
+
+		function onChange() {
 			_t.parentNode.dispatchEvent(createEvent("control-change", {
 				item: _t.item,
 				value: _t.input.checked ? "ON" : "OFF"
 			}));
-		});
-
-		_t.hasValue = _t.parentNode.getAttribute("data-has-value") === "true";
-		_t.valueNode = _t.parentNode.parentNode.querySelector(o.formValue);
+		}
 
 		_t.setValuePrivate = function(value, itemState) {
 			var
@@ -1297,6 +1406,13 @@
 		_t.setValueColor = function(color) {
 			_t.valueNode.style.color = color;
 		};
+
+		_t.destroy = function() {
+			_t.input.removeEventListener("change", onChange);
+			componentHandler.downgradeElements([ _t.parentNode ]);
+		};
+
+		_t.input.addEventListener("change", onChange);
 	}
 
 	/* class ControlSlider extends Control */
@@ -1337,10 +1453,6 @@
 			emitEvent();
 		}, 200);
 
-		_t.input.addEventListener("change", function() {
-			_t.debounceProxy.call();
-		});
-
 		_t.setValuePrivate = function(value, itemState) {
 			if (_t.hasValue) {
 				_t.valueNode.innerHTML = value;
@@ -1359,6 +1471,10 @@
 
 		var
 			unlockTimeout = null;
+
+		function onChange() {
+			_t.debounceProxy.call();
+		}
 
 		function onChangeStart() {
 			if (unlockTimeout !== null) {
@@ -1381,11 +1497,21 @@
 			_t.debounceProxy.finish();
 		}
 
-		_t.input.addEventListener("touchstart", onChangeStart);
-		_t.input.addEventListener("mousedown", onChangeStart);
+		var
+			eventMap = [
+				[ _t.input, "touchstart", onChangeStart ],
+				[ _t.input, "mousedown",  onChangeStart ],
+				[ _t.input, "touchend",   onChangeEnd ],
+				[ _t.input, "mouseup",    onChangeEnd ],
+				[ _t.input, "change",     onChange ]
+			];
 
-		_t.input.addEventListener("touchend", onChangeEnd);
-		_t.input.addEventListener("mouseup", onChangeEnd);
+		_t.destroy = function() {
+			smarthome.eventMapper.unmap(eventMap);
+			componentHandler.downgradeElements([ _t.input ]);
+		};
+
+		smarthome.eventMapper.map(eventMap);
 	}
 
 	/* class ControlLink */
@@ -1409,9 +1535,15 @@
 			_t.container.style.color = color;
 		};
 
-		parentNode.parentNode.addEventListener("click", function() {
+		function onClick() {
 			smarthome.UI.navigate(_t.target, true);
-		});
+		}
+
+		_t.destroy = function() {
+			parentNode.parentNode.removeEventListener("click", onClick);
+		};
+
+		parentNode.parentNode.addEventListener("click", onClick);
 	}
 
 	function controlChangeHandler(event) {
@@ -1534,6 +1666,14 @@
 
 			if (_t.pushState) {
 				historyStack.push(_t.page);
+			}
+
+			[].forEach.call(document.querySelectorAll(o.formControls), function(e) {
+				e.removeEventListener("control-change", controlChangeHandler);
+			});
+
+			for (var id in smarthome.dataModel) {
+				smarthome.dataModel[id].destroy();
 			}
 
 			replaceContent(request.responseXML);
@@ -2071,6 +2211,7 @@
 		smarthome.UI.layoutChangeProxy = new VisibilityChangeProxy(100, 50);
 		smarthome.UI.initControls();
 		smarthome.changeListener = new ChangeListener();
+		smarthome.eventMapper = new EventMapper();
 
 		window.addEventListener("beforeunload", function() {
 			smarthome.changeListener.suppressErrors();
