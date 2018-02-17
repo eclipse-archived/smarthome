@@ -44,6 +44,8 @@ public class SecureHttpClientFactoryTest {
 
     private SecureHttpClientFactory secureHttpClientFactory;
 
+    private static final String TEST_URL = "https://www.eclipse.org/";
+
     @Mock
     private TrustManagerProvider trustmanagerProvider;
 
@@ -71,11 +73,11 @@ public class SecureHttpClientFactoryTest {
 
         when(trustmanagerProvider.getTrustManagers("https://www.heise.de")).thenReturn(Stream.empty());
 
-        HttpClient client = secureHttpClientFactory.createHttpClient("consumer", "https://www.heise.de");
+        HttpClient client = secureHttpClientFactory.createHttpClient("consumer", TEST_URL);
 
         assertThat(client, is(notNullValue()));
 
-        verify(trustmanagerProvider).getTrustManagers("https://www.heise.de");
+        verify(trustmanagerProvider).getTrustManagers(TEST_URL);
 
         client.stop();
 
@@ -108,7 +110,7 @@ public class SecureHttpClientFactoryTest {
                     @Override
                     public void run() {
                         try {
-                            ContentResponse response = client.GET("https://www.heise.de");
+                            ContentResponse response = client.GET(TEST_URL);
                             if (response.getStatus() != 200) {
                                 System.out.println(response.getStatus());
                                 failures.add("Statuscode != 200");
@@ -156,7 +158,7 @@ public class SecureHttpClientFactoryTest {
                     @Override
                     public void run() {
                         try {
-                            ContentResponse response = client.GET("https://www.heise.de");
+                            ContentResponse response = client.GET(TEST_URL);
                             if (response.getStatus() != 200) {
                                 System.out.println(response.getStatus());
                                 failures.add("Statuscode != 200");
