@@ -38,14 +38,9 @@ public interface HttpClientFactory {
 
     /**
      * Returns the shared jetty http client.
-     * The returned client is already started
-     * by the consumer after usage. The client lifecycle should be the same as for the consumer.
-     * DO NOT CREATE NEW CLIENTS FOR EACH REQUEST!
+     * The returned client is already started.
      * 
-     * @param consumerName the for identifying the consumer in the jetty thread pool.
-     *            Must be between 4 and 20 characters long and must contain only the following characters [a-zA-Z0-9-_]
      * @return the jetty client
-     * @throws NullPointerException if {@code endpoint} is {@code null}
      */
     HttpClientFacade getHttpClient();
 }
