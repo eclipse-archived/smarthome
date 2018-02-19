@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +70,7 @@ public class QueueingThreadPoolExecutor extends ThreadPoolExecutor {
 
     /** The thread for processing the queued tasks */
     private volatile Thread queueThread;
-    private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
+    private final ReadWriteLock queueThreadLock = new ReentrantReadWriteLock(true);
 
     private final Object semaphore = new Object();
 
@@ -87,23 +88,24 @@ public class QueueingThreadPoolExecutor extends ThreadPoolExecutor {
             RejectedExecutionHandler rejectionHandler) {
         super(CORE_THREAD_POOL_SIZE, threadPoolSize, 10L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(),
                 threadFactory, rejectionHandler);
+
+        if (threadPoolName == null || threadPoolName.trim().isEmpty()) {
+            throw new IllegalArgumentException("A thread pool name must be provided!");
+        }
+
         this.threadPoolName = threadPoolName;
         allowCoreThreadTimeOut(true);
     }
 
     /**
-     * Creates a new instance of {@link QueueingThreadPoolExecutor}
+     * Creates a new instance of {@link QueueingThreadPoolExecutor}.
      *
      * @param name the name of the thread pool, will be used as a prefix for the name of the threads
      * @param threadPoolSize the maximum size of the pool
      * @return the {@link QueueingThreadPoolExecutor} instance
      */
     public static QueueingThreadPoolExecutor createInstance(String name, int threadPoolSize) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("A thread pool name must be provided!");
-        }
-        return new QueueingThreadPoolExecutor(name, new CommonThreadFactory(name), threadPoolSize,
-                new QueueingThreadPoolExecutor.QueueingRejectionHandler());
+        return new QueueingThreadPoolExecutor(name, threadPoolSize);
     }
 
     /**
@@ -113,13 +115,13 @@ public class QueueingThreadPoolExecutor extends ThreadPoolExecutor {
      */
     protected void addToQueue(Runnable runnable) {
         try {
-            lock.readLock().lock();
+            queueThreadLock.readLock().lock();
             taskQueue.add(runnable);
 
             if (queueThread == null || !queueThread.isAlive()) {
                 try {
-                    lock.readLock().unlock();
-                    lock.writeLock().lock();
+                    queueThreadLock.readLock().unlock();
+                    queueThreadLock.writeLock().lock();
                     // check again to make sure it has not been created by another thread
                     if (queueThread == null || !queueThread.isAlive()) {
                         logger.trace("Thread pool '{}' exhausted, queueing tasks now.", threadPoolName);
@@ -127,12 +129,12 @@ public class QueueingThreadPoolExecutor extends ThreadPoolExecutor {
                         queueThread.start();
                     }
                 } finally {
-                    lock.writeLock().unlock();
-                    lock.readLock().lock();
+                    queueThreadLock.writeLock().unlock();
+                    queueThreadLock.readLock().lock();
                 }
             }
         } finally {
-            lock.readLock().unlock();
+            queueThreadLock.readLock().unlock();
         }
     }
 
@@ -181,25 +183,30 @@ public class QueueingThreadPoolExecutor extends ThreadPoolExecutor {
 
             @Override
             public void run() {
+                final QueueingThreadPoolExecutor tpe = QueueingThreadPoolExecutor.this;
+                final Consumer<Runnable> parentExecute = QueueingThreadPoolExecutor.super::execute;
+
                 while (true) {
                     // check if some thread from the pool is idle
-                    if (QueueingThreadPoolExecutor.this.getActiveCount() < QueueingThreadPoolExecutor.this
-                            .getMaximumPoolSize()) {
+                    if (tpe.getActiveCount() < tpe.getMaximumPoolSize()) {
                         try {
                             // keep waiting for max 2 seconds if further tasks are pushed to the queue
-                            Runnable runnable = taskQueue.poll(2, TimeUnit.SECONDS);
+                            final Runnable runnable = taskQueue.poll(2, TimeUnit.SECONDS);
                             if (runnable != null) {
                                 logger.trace("Executing queued task of thread pool '{}'.", threadPoolName);
-                                QueueingThreadPoolExecutor.super.execute(runnable);
+                                parentExecute.accept(runnable);
                             } else {
                                 try {
-                                    lock.writeLock().lock();
+                                    queueThreadLock.writeLock().lock();
                                     if (taskQueue.isEmpty()) {
+                                        // Set the queueThread member to null while holding the writeLock, so we signal
+                                        // that the thread will die. Without this approach the thread could be still
+                                        // alive and only the thread itself knows that he is dyeing.
                                         queueThread = null;
                                         break;
                                     }
                                 } finally {
-                                    lock.writeLock().unlock();
+                                    queueThreadLock.writeLock().unlock();
                                 }
                             }
                         } catch (InterruptedException e) {
