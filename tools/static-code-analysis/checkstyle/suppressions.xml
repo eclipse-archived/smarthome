@@ -24,4 +24,6 @@
     <suppress files="build.properties" checks="AboutHtmlCheck" />
 
     <suppress files=".+org.eclipse.smarthome.ui.paper.+" checks="OutsideOfLibExternalLibrariesCheck|ManifestExternalLibrariesCheck|BuildPropertiesExternalLibrariesCheck" />
+    
+    <suppress files=".+org.eclipse.smarthome.binding.tradfri.internal.TradfriColor.java" checks="LocalVariableNameCheck"/>
 </suppressions>
