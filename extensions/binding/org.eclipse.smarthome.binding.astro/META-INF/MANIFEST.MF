@@ -16,6 +16,8 @@ Import-Package:
  org.apache.commons.lang.reflect,
  org.apache.commons.lang.time,
  org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.binding.astro,
+ org.eclipse.smarthome.binding.astro.handler,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.config.discovery,
  org.eclipse.smarthome.core.i18n,

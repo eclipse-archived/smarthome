@@ -10,4 +10,4 @@ Import-Package:
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.automation,
  org.eclipse.smarthome.test.storage
-Require-Bundle: org.junit;bundle-version="4.8.1"
+Require-Bundle: org.junit

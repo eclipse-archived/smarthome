@@ -218,7 +218,7 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
         BigDecimal h = hue.divide(BigDecimal.valueOf(100), 10, BigDecimal.ROUND_HALF_UP);
         BigDecimal s = saturation.divide(BigDecimal.valueOf(100));
 
-        int h_int = h.multiply(BigDecimal.valueOf(5)).divide(BigDecimal.valueOf(3), 10, BigDecimal.ROUND_HALF_UP)
+        int hInt = h.multiply(BigDecimal.valueOf(5)).divide(BigDecimal.valueOf(3), 10, BigDecimal.ROUND_HALF_UP)
                 .intValue();
         BigDecimal f = h.multiply(BigDecimal.valueOf(5)).divide(BigDecimal.valueOf(3), 10, BigDecimal.ROUND_HALF_UP)
                 .remainder(BigDecimal.ONE);
@@ -227,32 +227,40 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
         PercentType c = new PercentType(
                 value.multiply(BigDecimal.ONE.subtract((BigDecimal.ONE.subtract(f)).multiply(s))));
 
-        if (h_int == 0 || h_int == 6) {
-            red = getBrightness();
-            green = c;
-            blue = a;
-        } else if (h_int == 1) {
-            red = b;
-            green = getBrightness();
-            blue = a;
-        } else if (h_int == 2) {
-            red = a;
-            green = getBrightness();
-            blue = c;
-        } else if (h_int == 3) {
-            red = a;
-            green = b;
-            blue = getBrightness();
-        } else if (h_int == 4) {
-            red = c;
-            green = a;
-            blue = getBrightness();
-        } else if (h_int == 5) {
-            red = getBrightness();
-            green = a;
-            blue = b;
-        } else {
-            throw new RuntimeException();
+        switch (hInt) {
+            case 0:
+            case 6:
+                red = getBrightness();
+                green = c;
+                blue = a;
+                break;
+            case 1:
+                red = b;
+                green = getBrightness();
+                blue = a;
+                break;
+            case 2:
+                red = a;
+                green = getBrightness();
+                blue = c;
+                break;
+            case 3:
+                red = a;
+                green = b;
+                blue = getBrightness();
+                break;
+            case 4:
+                red = c;
+                green = a;
+                blue = getBrightness();
+                break;
+            case 5:
+                red = getBrightness();
+                green = a;
+                blue = b;
+                break;
+            default:
+                throw new RuntimeException();
         }
         return new PercentType[] { red, green, blue };
     }

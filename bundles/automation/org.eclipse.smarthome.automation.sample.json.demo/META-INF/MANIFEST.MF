@@ -3,6 +3,7 @@ Automation-ResourceType: json
 Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Automation Json Demo
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.automation.sample.json.demo
 Bundle-Vendor: Bosch Software Innovations GmbH
 Bundle-Version: 0.10.0.qualifier
