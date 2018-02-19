@@ -20,6 +20,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,16 +59,17 @@ import org.slf4j.LoggerFactory;
  */
 public class QueueingThreadPoolExecutor extends ThreadPoolExecutor {
 
-    private Logger logger = LoggerFactory.getLogger(QueueingThreadPoolExecutor.class);
+    private final Logger logger = LoggerFactory.getLogger(QueueingThreadPoolExecutor.class);
 
     /** we will use a core pool size of 1 since we allow to timeout core threads. */
     static final int CORE_THREAD_POOL_SIZE = 1;
 
     /** Our queue for queueing tasks that wait for a thread to become available */
-    private LinkedTransferQueue<Runnable> taskQueue = new LinkedTransferQueue<>();
+    private final BlockingQueue<Runnable> taskQueue = new LinkedTransferQueue<>();
 
     /** The thread for processing the queued tasks */
-    private Thread queueThread;
+    private volatile Thread queueThread;
+    private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     private final Object semaphore = new Object();
 
@@ -109,17 +112,27 @@ public class QueueingThreadPoolExecutor extends ThreadPoolExecutor {
      * @param runnable the task to add
      */
     protected void addToQueue(Runnable runnable) {
-        taskQueue.add(runnable);
+        try {
+            lock.readLock().lock();
+            taskQueue.add(runnable);
 
-        if (queueThread == null || !queueThread.isAlive()) {
-            synchronized (this) {
-                // check again to make sure it has not been created by another thread
-                if (queueThread == null || !queueThread.isAlive()) {
-                    logger.trace("Thread pool '{}' exhausted, queueing tasks now.", threadPoolName);
-                    queueThread = createNewQueueThread();
-                    queueThread.start();
+            if (queueThread == null || !queueThread.isAlive()) {
+                try {
+                    lock.readLock().unlock();
+                    lock.writeLock().lock();
+                    // check again to make sure it has not been created by another thread
+                    if (queueThread == null || !queueThread.isAlive()) {
+                        logger.trace("Thread pool '{}' exhausted, queueing tasks now.", threadPoolName);
+                        queueThread = createNewQueueThread();
+                        queueThread.start();
+                    }
+                } finally {
+                    lock.writeLock().unlock();
+                    lock.readLock().lock();
                 }
             }
+        } finally {
+            lock.readLock().unlock();
         }
     }
 
@@ -179,7 +192,15 @@ public class QueueingThreadPoolExecutor extends ThreadPoolExecutor {
                                 logger.trace("Executing queued task of thread pool '{}'.", threadPoolName);
                                 QueueingThreadPoolExecutor.super.execute(runnable);
                             } else {
-                                break;
+                                try {
+                                    lock.writeLock().lock();
+                                    if (taskQueue.isEmpty()) {
+                                        queueThread = null;
+                                        break;
+                                    }
+                                } finally {
+                                    lock.writeLock().unlock();
+                                }
                             }
                         } catch (InterruptedException e) {
                         }
