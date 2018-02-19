@@ -116,20 +116,20 @@ public class SeasonCalc {
      * Calculate an initial guess of the Equinox or Solstice of a given year.
      */
     private double calcInitial(int season, int year) {
-        double Y = (year - 2000) / 1000d;
+        double y = (year - 2000) / 1000d;
         switch (season) {
             case 0:
-                return 2451623.80984 + 365242.37404 * Y + 0.05169 * Math.pow(Y, 2) - 0.00411 * Math.pow(Y, 3)
-                        - 0.00057 * Math.pow(Y, 4);
+                return 2451623.80984 + 365242.37404 * y + 0.05169 * Math.pow(y, 2) - 0.00411 * Math.pow(y, 3)
+                        - 0.00057 * Math.pow(y, 4);
             case 1:
-                return 2451716.56767 + 365241.62603 * Y + 0.00325 * Math.pow(Y, 2) + 0.00888 * Math.pow(Y, 3)
-                        - 0.00030 * Math.pow(Y, 4);
+                return 2451716.56767 + 365241.62603 * y + 0.00325 * Math.pow(y, 2) + 0.00888 * Math.pow(y, 3)
+                        - 0.00030 * Math.pow(y, 4);
             case 2:
-                return 2451810.21715 + 365242.01767 * Y - 0.11575 * Math.pow(Y, 2) + 0.00337 * Math.pow(Y, 3)
-                        + 0.00078 * Math.pow(Y, 4);
+                return 2451810.21715 + 365242.01767 * y - 0.11575 * Math.pow(y, 2) + 0.00337 * Math.pow(y, 3)
+                        + 0.00078 * Math.pow(y, 4);
             case 3:
-                return 2451900.05952 + 365242.74049 * Y - 0.06223 * Math.pow(Y, 2) - 0.00823 * Math.pow(Y, 3)
-                        + 0.00032 * Math.pow(Y, 4);
+                return 2451900.05952 + 365242.74049 * y - 0.06223 * Math.pow(y, 2) - 0.00823 * Math.pow(y, 3)
+                        + 0.00032 * Math.pow(y, 4);
         }
         return 0;
     }

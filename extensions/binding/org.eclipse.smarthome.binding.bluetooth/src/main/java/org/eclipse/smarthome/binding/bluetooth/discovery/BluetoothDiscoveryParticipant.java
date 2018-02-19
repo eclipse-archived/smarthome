@@ -42,7 +42,6 @@ public interface BluetoothDiscoveryParticipant {
      * Creates a discovery result for a Bluetooth device
      *
      * @param device the Bluetooth device found on the network
-     *
      * @return the according discovery result or <code>null</code>, if device is not
      *         supported by this participant
      */
@@ -53,7 +52,6 @@ public interface BluetoothDiscoveryParticipant {
      * Returns the thing UID for a Bluetooth device
      *
      * @param device the Bluetooth device
-     *
      * @return a thing UID or <code>null</code>, if the device is not supported by this participant
      */
     @Nullable

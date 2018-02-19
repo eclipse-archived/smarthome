@@ -29,4 +29,4 @@ Require-Bundle:
  org.eclipse.smarthome.automation.module.core,
  org.eclipse.smarthome.automation.parser.gson,
  org.eclipse.smarthome.automation.providers,
- org.junit;bundle-version="4.0.0"
+ org.junit

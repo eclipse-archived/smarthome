@@ -124,14 +124,14 @@ public class NetUtil implements NetworkAddressService {
                 }
                 final Enumeration<InetAddress> addresses = current.getInetAddresses();
                 while (addresses.hasMoreElements()) {
-                    final InetAddress current_addr = addresses.nextElement();
-                    if (current_addr.isLoopbackAddress() || (current_addr instanceof Inet6Address)) {
+                    final InetAddress currentAddr = addresses.nextElement();
+                    if (currentAddr.isLoopbackAddress() || (currentAddr instanceof Inet6Address)) {
                         continue;
                     }
                     if (hostAddress != null) {
-                        LOGGER.warn("Found multiple local interfaces - ignoring {}", current_addr.getHostAddress());
+                        LOGGER.warn("Found multiple local interfaces - ignoring {}", currentAddr.getHostAddress());
                     } else {
-                        hostAddress = current_addr.getHostAddress();
+                        hostAddress = currentAddr.getHostAddress();
                     }
                 }
             }
@@ -153,14 +153,14 @@ public class NetUtil implements NetworkAddressService {
                 }
                 final Enumeration<InetAddress> addresses = current.getInetAddresses();
                 while (addresses.hasMoreElements()) {
-                    final InetAddress current_addr = addresses.nextElement();
-                    if (current_addr.isLoopbackAddress() || (current_addr instanceof Inet6Address)) {
+                    final InetAddress currentAddr = addresses.nextElement();
+                    if (currentAddr.isLoopbackAddress() || (currentAddr instanceof Inet6Address)) {
                         continue;
                     }
                     if (hostAddress != null) {
-                        LOGGER.warn("Found multiple local interfaces - ignoring {}", current_addr.getHostAddress());
+                        LOGGER.warn("Found multiple local interfaces - ignoring {}", currentAddr.getHostAddress());
                     } else {
-                        hostAddress = current_addr.getHostAddress();
+                        hostAddress = currentAddr.getHostAddress();
                     }
                 }
             }

@@ -24,6 +24,8 @@ Import-Package:
  org.eclipse.paho.client.mqttv3.util,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.io.transport.mqtt,
+ org.eclipse.smarthome.io.transport.mqtt.reconnect,
+ org.eclipse.smarthome.io.transport.mqtt.sslcontext,
  org.osgi.service.cm,
  org.osgi.service.component,
  org.slf4j

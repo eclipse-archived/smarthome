@@ -25,6 +25,7 @@ Import-Package:
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.io.rest,
  org.eclipse.smarthome.io.rest.core.item,
+ org.eclipse.smarthome.io.rest.sitemap,
  org.eclipse.smarthome.model.core,
  org.eclipse.smarthome.model.sitemap,
  org.eclipse.smarthome.ui.items,
