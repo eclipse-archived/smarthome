@@ -95,17 +95,17 @@ public class Lib485BridgeHandlerTest extends JavaOSGiTest {
     public void initializationOfDimmerThing() {
         assertThat(thing.getHandler(), is(nullValue()));
         managedThingProvider.add(bridge);
-        waitForAssert(() -> assertThat("bridge handler missing", bridge.getHandler(), notNullValue()));
+        waitForAssert(() -> assertThat(bridge.getHandler(), notNullValue()));
         managedThingProvider.add(thing);
 
-        waitForAssert(() -> assertThat("child could not be initialized", thing.getHandler(), notNullValue()));
+        waitForAssert(() -> assertThat(thing.getHandler(), notNullValue()));
     }
 
     public void retrievingOfChannels() {
         managedThingProvider.add(bridge);
         DmxBridgeHandler bridgeHandler = (DmxBridgeHandler) waitForAssert(() -> {
             final ThingHandler thingHandler = bridge.getHandler();
-            assertThat("Bridge handle is null", thingHandler, notNullValue());
+            assertThat(thingHandler, notNullValue());
             return thingHandler;
         });
         managedThingProvider.add(thing);
@@ -114,7 +114,7 @@ public class Lib485BridgeHandlerTest extends JavaOSGiTest {
         BaseDmxChannel returnedChannel = bridgeHandler.getDmxChannel(channel, thing);
 
         Integer channelId = returnedChannel.getChannelId();
-        assertThat("channel could not properly created", channelId, is(TEST_CHANNEL));
+        assertThat(channelId, is(TEST_CHANNEL));
     }
 
 }

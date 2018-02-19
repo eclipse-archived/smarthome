@@ -84,10 +84,10 @@ public class TunableWhiteThingHandlerTest extends JavaOSGiTest {
     public void setUp() {
         registerService(volatileStorageService);
         managedThingProvider = getService(ThingProvider.class, ManagedThingProvider.class);
-        assertThat("Could not get ManagedThingProvider", managedThingProvider, is(notNullValue()));
+        assertThat(managedThingProvider, is(notNullValue()));
 
         itemRegistry = getService(ItemRegistry.class);
-        assertThat("Could not get ItemRegistry", itemRegistry, is(notNullValue()));
+        assertThat(itemRegistry, is(notNullValue()));
 
         bridgeProperties = new HashMap<>();
         bridge = BridgeBuilder.create(THING_TYPE_TEST_BRIDGE, "testbridge").withLabel("Test Bridge")
@@ -128,11 +128,9 @@ public class TunableWhiteThingHandlerTest extends JavaOSGiTest {
 
         // check that thing properly follows bridge status
         dmxBridgeHandler.updateBridgeStatus(ThingStatus.OFFLINE);
-        waitForAssert(() -> assertThat("thing not OFFLINE after bridge OFFLINE", dimmerThing.getStatus(),
-                is(ThingStatus.OFFLINE)));
+        waitForAssert(() -> assertThat(dimmerThing.getStatus(), is(ThingStatus.OFFLINE)));
         dmxBridgeHandler.updateBridgeStatus(ThingStatus.ONLINE);
-        waitForAssert(() -> assertThat("thing not ONLINE after bridge ONLINE", dimmerThing.getStatus(),
-                is(ThingStatus.ONLINE)));
+        waitForAssert(() -> assertThat(dimmerThing.getStatus(), is(ThingStatus.ONLINE)));
 
         // check that thing is offline if no bridge found
         managedThingProvider.remove(dimmerThing.getUID());
@@ -140,9 +138,8 @@ public class TunableWhiteThingHandlerTest extends JavaOSGiTest {
         dimmerThing = ThingBuilder.create(THING_TYPE_DIMMER, "testdimmer").withLabel("Dimmer Thing")
                 .withConfiguration(new Configuration(thingProperties)).build();
         managedThingProvider.add(dimmerThing);
-        waitForAssert(() -> assertThat("bridgeless thing has no handler", dimmerThing.getHandler(), notNullValue()));
-        waitForAssert(() -> assertThat("thing not OFFLINE if bridge is missing", dimmerThing.getStatus(),
-                is(ThingStatus.OFFLINE)));
+        waitForAssert(() -> assertThat(dimmerThing.getHandler(), notNullValue()));
+        waitForAssert(() -> assertThat(dimmerThing.getStatus(), is(ThingStatus.OFFLINE)));
     }
 
     @Test
@@ -155,23 +152,19 @@ public class TunableWhiteThingHandlerTest extends JavaOSGiTest {
         dimmerThingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_BRIGHTNESS), OnOffType.ON);
         currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
 
-        waitForAssert(() -> assertThat("DimmerItem (brightness) is not updated to ON  after ON command",
-                getItemOnOffType(brightnessItem), is(OnOffType.ON)));
-        waitForAssert(() -> assertThat("DimmerItem (cool white) is not updated to 50% after ON command",
-                ((PercentType) brightnessCWItem.getState()).doubleValue(), is(closeTo(50, 0.5))));
-        waitForAssert(() -> assertThat("DimmerItem (warmw hite) is not updated to 50% after ON command%",
-                ((PercentType) brightnessWWItem.getState()).doubleValue(), is(closeTo(50, 0.5))));
+        waitForAssert(() -> assertThat(getItemOnOffType(brightnessItem), is(OnOffType.ON)));
+        waitForAssert(
+                () -> assertThat(((PercentType) brightnessCWItem.getState()).doubleValue(), is(closeTo(50, 0.5))));
+        waitForAssert(
+                () -> assertThat(((PercentType) brightnessWWItem.getState()).doubleValue(), is(closeTo(50, 0.5))));
 
         // off
         dimmerThingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_BRIGHTNESS), OnOffType.OFF);
         currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
 
-        waitForAssert(() -> assertThat("DimmerItem (brightness) is not updated to OFF after OFF command",
-                getItemOnOffType(brightnessItem), is(OnOffType.OFF)));
-        waitForAssert(() -> assertThat("DimmerItem (cool white) is not updated to 0% after OFF command",
-                brightnessCWItem.getState(), is(PercentType.ZERO)));
-        waitForAssert(() -> assertThat("DimmerItem (warm white) is not updated to 0% after OFF command",
-                brightnessWWItem.getState(), is(PercentType.ZERO)));
+        waitForAssert(() -> assertThat(getItemOnOffType(brightnessItem), is(OnOffType.OFF)));
+        waitForAssert(() -> assertThat(brightnessCWItem.getState(), is(PercentType.ZERO)));
+        waitForAssert(() -> assertThat(brightnessWWItem.getState(), is(PercentType.ZERO)));
     }
 
     @Test
@@ -183,22 +176,20 @@ public class TunableWhiteThingHandlerTest extends JavaOSGiTest {
         dimmerThingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_BRIGHTNESS), new PercentType(30));
         currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
 
-        waitForAssert(() -> assertThat("DimmerItem is not updated to 30%",
-                getItemPercentType(brightnessItem).doubleValue(), is(closeTo(30.0, 1.0))));
+        waitForAssert(() -> assertThat(getItemPercentType(brightnessItem).doubleValue(), is(closeTo(30.0, 1.0))));
 
         // set 0%
         dimmerThingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_BRIGHTNESS), PercentType.ZERO);
         currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
 
-        waitForAssert(() -> assertThat("DimmerItem is not updated to 0%", brightnessItem.getState(),
-                is(equalTo(PercentType.ZERO))));
+        waitForAssert(() -> assertThat(brightnessItem.getState(), is(equalTo(PercentType.ZERO))));
 
         // set 100%
         dimmerThingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_BRIGHTNESS), PercentType.HUNDRED);
         currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
 
-        waitForAssert(() -> assertThat("DimmerItem is not updated to 100%",
-                ((PercentType) brightnessItem.getState()).doubleValue(), is(closeTo(100.0, 0.5))));
+        waitForAssert(
+                () -> assertThat(((PercentType) brightnessItem.getState()).doubleValue(), is(closeTo(100.0, 0.5))));
     }
 
     @Test
@@ -209,60 +200,46 @@ public class TunableWhiteThingHandlerTest extends JavaOSGiTest {
         dimmerThingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_BRIGHTNESS), OnOffType.ON);
         currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
 
-        waitForAssert(() -> assertThat("DimmerItem is not updated to 100%",
-                getItemPercentType(brightnessItem).doubleValue(), is(closeTo(100.0, 0.5))));
-        waitForAssert(() -> assertThat("ColorTemperatureItem is not 50%",
-                getItemPercentType(colorTemperatureItem).doubleValue(), is(closeTo(50.0, 0.5))));
+        waitForAssert(() -> assertThat(getItemPercentType(brightnessItem).doubleValue(), is(closeTo(100.0, 0.5))));
+        waitForAssert(() -> assertThat(getItemPercentType(colorTemperatureItem).doubleValue(), is(closeTo(50.0, 0.5))));
 
         // cool white
         dimmerThingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_COLOR_TEMPERATURE),
                 PercentType.ZERO);
         currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
 
-        waitForAssert(() -> assertThat("ColorTemperatureItem is not 0% after cool white",
-                getItemPercentType(colorTemperatureItem).doubleValue(), is(closeTo(0.0, 0.1))));
-        waitForAssert(() -> assertThat("DimmerItem is not updated to 100%",
-                getItemPercentType(brightnessItem).doubleValue(), is(closeTo(100.0, 0.5))));
-        waitForAssert(() -> assertThat("DimmerItem (cool white) is not updated to 100% after cool white command",
-                getItemPercentType(brightnessCWItem).doubleValue(), is(closeTo(100.0, 0.5))));
-        waitForAssert(() -> assertThat("DimmerItem (warm white) is not updated to 0% after cool white command",
-                getItemPercentType(brightnessWWItem).doubleValue(), is(closeTo(0.0, 0.5))));
+        waitForAssert(() -> assertThat(getItemPercentType(colorTemperatureItem).doubleValue(), is(closeTo(0.0, 0.1))));
+        waitForAssert(() -> assertThat(getItemPercentType(brightnessItem).doubleValue(), is(closeTo(100.0, 0.5))));
+        waitForAssert(() -> assertThat(getItemPercentType(brightnessCWItem).doubleValue(), is(closeTo(100.0, 0.5))));
+        waitForAssert(() -> assertThat(getItemPercentType(brightnessWWItem).doubleValue(), is(closeTo(0.0, 0.5))));
 
         // warm white
         dimmerThingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_COLOR_TEMPERATURE),
                 PercentType.HUNDRED);
         currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
 
-        waitForAssert(() -> assertThat("ColorTemperatureItem is not 100% after warm white command",
-                getItemPercentType(colorTemperatureItem).doubleValue(), is(closeTo(100.0, 0.1))));
-        waitForAssert(() -> assertThat("DimmerItem is not updated to 100%",
-                getItemPercentType(brightnessItem).doubleValue(), is(closeTo(100.0, 0.5))));
-        waitForAssert(() -> assertThat("DimmerItem (cool white) is not updated to 0% after warm white command",
-                getItemPercentType(brightnessCWItem).doubleValue(), is(closeTo(0.0, 0.5))));
-        waitForAssert(() -> assertThat("DimmerItem (warm white) is not updated to 100% after warm white command",
-                getItemPercentType(brightnessWWItem).doubleValue(), is(closeTo(100.0, 0.5))));
+        waitForAssert(
+                () -> assertThat(getItemPercentType(colorTemperatureItem).doubleValue(), is(closeTo(100.0, 0.1))));
+        waitForAssert(() -> assertThat(getItemPercentType(brightnessItem).doubleValue(), is(closeTo(100.0, 0.5))));
+        waitForAssert(() -> assertThat(getItemPercentType(brightnessCWItem).doubleValue(), is(closeTo(0.0, 0.5))));
+        waitForAssert(() -> assertThat(getItemPercentType(brightnessWWItem).doubleValue(), is(closeTo(100.0, 0.5))));
 
         // intermediate white
         dimmerThingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_COLOR_TEMPERATURE),
                 new PercentType(75));
         currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
 
-        waitForAssert(() -> assertThat("ColorTemperatureItem is not 75% after intermediate white command",
-                getItemPercentType(colorTemperatureItem).doubleValue(), is(closeTo(75.0, 0.1))));
-        waitForAssert(() -> assertThat("DimmerItem is not updated to 100%",
-                getItemPercentType(brightnessItem).doubleValue(), is(closeTo(100.0, 1.0))));
-        waitForAssert(() -> assertThat("DimmerItem (cool white) is not updated to 0% after intermediate white command",
-                getItemPercentType(brightnessCWItem).doubleValue(), is(closeTo(25.0, 0.5))));
-        waitForAssert(
-                () -> assertThat("DimmerItem (warm white) is not updated to 100% after intermediate white command",
-                        getItemPercentType(brightnessWWItem).doubleValue(), is(closeTo(75.0, 0.5))));
+        waitForAssert(() -> assertThat(getItemPercentType(colorTemperatureItem).doubleValue(), is(closeTo(75.0, 0.1))));
+        waitForAssert(() -> assertThat(getItemPercentType(brightnessItem).doubleValue(), is(closeTo(100.0, 1.0))));
+        waitForAssert(() -> assertThat(getItemPercentType(brightnessCWItem).doubleValue(), is(closeTo(25.0, 0.5))));
+        waitForAssert(() -> assertThat(getItemPercentType(brightnessWWItem).doubleValue(), is(closeTo(75.0, 0.5))));
     }
 
     private void initialize() {
         managedThingProvider.add(bridge);
         dmxBridgeHandler = (TestBridgeHandler) waitForAssert(() -> {
             final ThingHandler thingHandler = bridge.getHandler();
-            assertThat("Bridge is null", thingHandler, notNullValue());
+            assertThat(thingHandler, notNullValue());
             return thingHandler;
         });
 
@@ -270,13 +247,13 @@ public class TunableWhiteThingHandlerTest extends JavaOSGiTest {
         dimmerThing = managedThingProvider.get(dimmerThing.getUID());
         dimmerThingHandler = (TunableWhiteThingHandler) waitForAssert(() -> {
             final ThingHandler thingHandler = dimmerThing.getHandler();
-            assertThat("dimmerThing is null", thingHandler, notNullValue());
+            assertThat(thingHandler, notNullValue());
             return thingHandler;
         });
 
         final ManagedItemChannelLinkProvider itemChannelLinkProvider = waitForAssert(() -> {
             final ManagedItemChannelLinkProvider tmp = getService(ManagedItemChannelLinkProvider.class);
-            assertThat("Could not get ManagedItemChannelLinkProvider", tmp, is(notNullValue()));
+            assertThat(tmp, is(notNullValue()));
             return tmp;
         });
 
@@ -305,7 +282,7 @@ public class TunableWhiteThingHandlerTest extends JavaOSGiTest {
     private PercentType getItemPercentType(GenericItem item) {
         return (PercentType) waitForAssert(() -> {
             final State state = item.getStateAs(PercentType.class);
-            assertThat("state is not PercentType", state, instanceOf(PercentType.class));
+            assertThat(state, instanceOf(PercentType.class));
             return state;
         });
     }
@@ -313,7 +290,7 @@ public class TunableWhiteThingHandlerTest extends JavaOSGiTest {
     private OnOffType getItemOnOffType(GenericItem item) {
         return (OnOffType) waitForAssert(() -> {
             final State state = item.getStateAs(OnOffType.class);
-            assertThat("state is not OnOffType", state, instanceOf(OnOffType.class));
+            assertThat(state, instanceOf(OnOffType.class));
             return state;
         });
     }

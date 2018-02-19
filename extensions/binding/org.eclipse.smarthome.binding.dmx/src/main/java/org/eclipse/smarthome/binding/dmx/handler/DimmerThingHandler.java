@@ -102,6 +102,7 @@ public class DimmerThingHandler extends DmxThingHandler {
                     }
                 } else if (command instanceof RefreshType) {
                     logger.trace("sending update on refresh to channel {}:brightness", this.thing.getUID());
+                    currentBrightness = Util.toPercentValue(channels.get(0).getValue());
                     updateState(channelUID, currentBrightness);
                     return;
                 } else {
@@ -159,8 +160,6 @@ public class DimmerThingHandler extends DmxThingHandler {
             return;
         }
 
-        channels.get(0).addListener(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS), this, ListenerType.VALUE);
-
         if (configuration.get(CONFIG_DIMMER_FADE_TIME) != null) {
             fadeTime = ((BigDecimal) configuration.get(CONFIG_DIMMER_FADE_TIME)).intValue();
             logger.debug("setting fadeTime to {} ms in {}", fadeTime, this.thing.getUID());
@@ -200,6 +199,9 @@ public class DimmerThingHandler extends DmxThingHandler {
             }
         }
         this.turnOffValue.setFadeTime(fadeTime);
+
+        // register feedback listener
+        channels.get(0).addListener(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS), this, ListenerType.VALUE);
 
         if (bridge.getStatus().equals(ThingStatus.ONLINE)) {
             updateStatus(ThingStatus.ONLINE);

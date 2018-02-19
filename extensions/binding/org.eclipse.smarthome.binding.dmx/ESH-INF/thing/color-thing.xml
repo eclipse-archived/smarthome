@@ -49,7 +49,6 @@
                 <advanced>true</advanced>
             </parameter>
         </config-description>
-   
     </thing-type>
 
 </thing:thing-descriptions>

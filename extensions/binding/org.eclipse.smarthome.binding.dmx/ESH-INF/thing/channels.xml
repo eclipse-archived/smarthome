@@ -21,7 +21,7 @@
     <channel-type id="color_temperature">
         <item-type>Dimmer</item-type>
         <label>Color temperature</label>
-        <description>Controls the relative intensity of two adjacent DMX channels</description>
+        <description>Relative intensity of two adjacent DMX channels</description>
         <category>ColorLight</category>
         <tags>
             <tag>Lighting</tag>

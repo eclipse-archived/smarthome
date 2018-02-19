@@ -107,6 +107,9 @@ public class TunableWhiteThingHandler extends DmxThingHandler {
                     }
                 } else if (command instanceof RefreshType) {
                     logger.trace("sending update on refresh to channel {}:brightness", this.thing.getUID());
+                    currentValues.set(0, channels.get(0).getValue());
+                    currentValues.set(1, channels.get(1).getValue());
+                    updateCurrentBrightnessAndTemperature();
                     updateState(channelUID, currentBrightness);
                     return;
                 } else {
@@ -119,6 +122,7 @@ public class TunableWhiteThingHandler extends DmxThingHandler {
             case CHANNEL_BRIGHTNESS_CW:
                 if (command instanceof RefreshType) {
                     logger.trace("sending update on refresh to channel {}:brightness_cw", this.thing.getUID());
+                    currentValues.set(0, channels.get(0).getValue());
                     updateState(channelUID, Util.toPercentValue(currentValues.get(0)));
                     return;
                 } else {
@@ -129,6 +133,7 @@ public class TunableWhiteThingHandler extends DmxThingHandler {
             case CHANNEL_BRIGHTNESS_WW:
                 if (command instanceof RefreshType) {
                     logger.trace("sending update on refresh to channel {}:brightness_ww", this.thing.getUID());
+                    currentValues.set(1, channels.get(1).getValue());
                     updateState(channelUID, Util.toPercentValue(currentValues.get(1)));
                     return;
                 } else {
@@ -145,6 +150,9 @@ public class TunableWhiteThingHandler extends DmxThingHandler {
                             Util.toDmxValue(Util.toDmxValue(currentBrightness) * colorTemperature.intValue() / 100));
                 } else if (command instanceof RefreshType) {
                     logger.trace("sending update on refresh to channel {}:colortemperature", this.thing.getUID());
+                    currentValues.set(0, channels.get(0).getValue());
+                    currentValues.set(1, channels.get(1).getValue());
+                    updateCurrentBrightnessAndTemperature();
                     updateState(channelUID, currentColorTemperature);
                     return;
                 } else {
@@ -208,10 +216,7 @@ public class TunableWhiteThingHandler extends DmxThingHandler {
             dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
             return;
         }
-        channels.get(0).addListener(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS_CW), this,
-                ListenerType.VALUE);
-        channels.get(1).addListener(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS_WW), this,
-                ListenerType.VALUE);
+
         currentValues.add(DmxChannel.MIN_VALUE);
         currentValues.add(DmxChannel.MIN_VALUE);
 
@@ -255,6 +260,12 @@ public class TunableWhiteThingHandler extends DmxThingHandler {
         }
         this.turnOffValue.setFadeTime(fadeTime);
 
+        // register feedback listeners
+        channels.get(0).addListener(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS_CW), this,
+                ListenerType.VALUE);
+        channels.get(1).addListener(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS_WW), this,
+                ListenerType.VALUE);
+
         if (bridge.getStatus().equals(ThingStatus.ONLINE)) {
             updateStatus(ThingStatus.ONLINE);
             dmxHandlerStatus = ThingStatusDetail.NONE;
@@ -295,14 +306,20 @@ public class TunableWhiteThingHandler extends DmxThingHandler {
                 logger.debug("don't know how to handle {} in tunable white type", channelUID.getId());
                 return;
         }
-        currentBrightness = Util.toPercentValue(Util.toDmxValue(currentValues.get(0) + currentValues.get(1)));
+
+        updateCurrentBrightnessAndTemperature();
         updateState(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS), currentBrightness);
-        if (currentBrightness != PercentType.ZERO) {
-            currentColorTemperature = new PercentType(
-                    100 * currentValues.get(1) / (currentValues.get(0) + currentValues.get(1)));
-            updateState(new ChannelUID(this.thing.getUID(), CHANNEL_COLOR_TEMPERATURE), currentColorTemperature);
-        }
+        updateState(new ChannelUID(this.thing.getUID(), CHANNEL_COLOR_TEMPERATURE), currentColorTemperature);
         logger.trace("received update {} for channel {}, resulting in b={}, ct={}", value, channelUID,
                 currentBrightness, currentColorTemperature);
     }
+
+    private void updateCurrentBrightnessAndTemperature() {
+        currentBrightness = Util.toPercentValue(Util.toDmxValue(currentValues.get(0) + currentValues.get(1)));
+        if (currentBrightness != PercentType.ZERO) {
+            currentColorTemperature = new PercentType(
+                    100 * currentValues.get(1) / (currentValues.get(0) + currentValues.get(1)));
+        }
+    }
+
 }

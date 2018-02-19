@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.library.types.PercentType;
 
 /**
@@ -146,7 +145,7 @@ public class ValueSet {
      * @param valueSetConfig a string holding a complete value set configuration fadeTime:value,value2,...:holdTime
      * @return a new ValueSet
      */
-    public static @NonNull ValueSet fromString(String valueSetConfig) {
+    public static ValueSet fromString(String valueSetConfig) {
         Matcher valueSetMatch = VALUESET_PATTERN.matcher(valueSetConfig);
         if (valueSetMatch.matches()) {
             ValueSet step = new ValueSet(Integer.valueOf(valueSetMatch.group(1)),

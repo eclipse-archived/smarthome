@@ -30,7 +30,6 @@
                     <option value="tunablewhite">Tunable white</option>
                 </options>
                 <default>normal</default>
-                <required>true</required>
             </parameter>
             <parameter name="dmxid" type="text">
                 <label>DMX channel configuration</label>

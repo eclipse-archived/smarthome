@@ -66,7 +66,8 @@ public class ColorThingHandler extends DmxThingHandler {
     private ValueSet turnOnValue = new ValueSet(0, -1, DmxChannel.MAX_VALUE);
     private ValueSet turnOffValue = new ValueSet(0, -1, DmxChannel.MIN_VALUE);
 
-    private int fadeTime = 0, dimTime = 0;
+    private int fadeTime = 0;
+    private int dimTime = 0;
 
     private boolean isDimming = false;
 
@@ -82,6 +83,8 @@ public class ColorThingHandler extends DmxThingHandler {
             case CHANNEL_BRIGHTNESS_R:
                 if (command instanceof RefreshType) {
                     logger.trace("sending update on refresh to channel {}:brightness_r", this.thing.getUID());
+                    currentValues.set(0, channels.get(0).getValue());
+                    updateCurrentColor();
                     updateState(channelUID, Util.toPercentValue(currentValues.get(0)));
                     return;
                 } else {
@@ -92,6 +95,8 @@ public class ColorThingHandler extends DmxThingHandler {
             case CHANNEL_BRIGHTNESS_G:
                 if (command instanceof RefreshType) {
                     logger.trace("sending update on refresh to channel {}:brightness_g", this.thing.getUID());
+                    currentValues.set(1, channels.get(1).getValue());
+                    updateCurrentColor();
                     updateState(channelUID, Util.toPercentValue(currentValues.get(1)));
                     return;
                 } else {
@@ -102,6 +107,8 @@ public class ColorThingHandler extends DmxThingHandler {
             case CHANNEL_BRIGHTNESS_B:
                 if (command instanceof RefreshType) {
                     logger.trace("sending update on refresh to channel {}:brightness_b", this.thing.getUID());
+                    currentValues.set(2, channels.get(2).getValue());
+                    updateCurrentColor();
                     updateState(channelUID, Util.toPercentValue(currentValues.get(2)));
                     return;
                 } else {
@@ -150,6 +157,10 @@ public class ColorThingHandler extends DmxThingHandler {
                     }
                 } else if (command instanceof RefreshType) {
                     logger.trace("sending update on refresh to channel {}:color", this.thing.getUID());
+                    currentValues.set(0, channels.get(0).getValue());
+                    currentValues.set(1, channels.get(1).getValue());
+                    currentValues.set(2, channels.get(2).getValue());
+                    updateCurrentColor();
                     updateState(channelUID, currentColor);
                     return;
                 } else {
@@ -206,12 +217,7 @@ public class ColorThingHandler extends DmxThingHandler {
             dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
             return;
         }
-        channels.get(0).addListener(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS_R), this,
-                ListenerType.VALUE);
-        channels.get(1).addListener(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS_G), this,
-                ListenerType.VALUE);
-        channels.get(2).addListener(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS_B), this,
-                ListenerType.VALUE);
+
         currentValues.add(DmxChannel.MIN_VALUE);
         currentValues.add(DmxChannel.MIN_VALUE);
         currentValues.add(DmxChannel.MIN_VALUE);
@@ -256,6 +262,14 @@ public class ColorThingHandler extends DmxThingHandler {
         }
         this.turnOffValue.setFadeTime(fadeTime);
 
+        // register feedback listeners
+        channels.get(0).addListener(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS_R), this,
+                ListenerType.VALUE);
+        channels.get(1).addListener(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS_G), this,
+                ListenerType.VALUE);
+        channels.get(2).addListener(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS_B), this,
+                ListenerType.VALUE);
+
         if (bridge.getStatus().equals(ThingStatus.ONLINE)) {
             updateStatus(ThingStatus.ONLINE);
             dmxHandlerStatus = ThingStatusDetail.NONE;
@@ -293,8 +307,12 @@ public class ColorThingHandler extends DmxThingHandler {
                 logger.debug("don't know how to handle {} in RGB type", channelUID.getId());
                 return;
         }
-        currentColor = HSBType.fromRGB(currentValues.get(0), currentValues.get(1), currentValues.get(2));
+        updateCurrentColor();
         updateState(new ChannelUID(this.thing.getUID(), CHANNEL_COLOR), currentColor);
         logger.trace("received update {} in channel {}, result is {}", value, channelUID, currentColor);
+    }
+
+    private void updateCurrentColor() {
+        currentColor = HSBType.fromRGB(currentValues.get(0), currentValues.get(1), currentValues.get(2));
     }
 }
