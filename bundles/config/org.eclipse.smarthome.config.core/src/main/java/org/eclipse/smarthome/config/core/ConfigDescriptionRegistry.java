@@ -17,9 +17,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.jdt.annotation.Nullable;
@@ -171,26 +173,20 @@ public class ConfigDescriptionRegistry {
         List<ConfigDescriptionParameter> parameters = new ArrayList<ConfigDescriptionParameter>();
         List<ConfigDescriptionParameterGroup> parameterGroups = new ArrayList<ConfigDescriptionParameterGroup>();
 
-        boolean found = fillFromProviders(uri, locale, parameters, parameterGroups);
-        URI alias = null;
-        if (!found) {
-            for (ConfigDescriptionAliasProvider aliasProvider : configDescriptionAliasProviders) {
-                alias = aliasProvider.getAlias(uri);
-                if (alias != null) {
-                    logger.debug("No config description found for '{}', using alias '{}' instead", uri, alias);
-                    found = fillFromProviders(alias, locale, parameters, parameterGroups);
-                    if (found) {
-                        break;
-                    }
-                }
-            }
+        boolean found = false;
+        Set<URI> aliases = getAliases(uri);
+        for (URI alias : aliases) {
+            logger.debug("No config description found for '{}', using alias '{}' instead", uri, alias);
+            found |= fillFromProviders(alias, locale, parameters, parameterGroups);
         }
+
+        found |= fillFromProviders(uri, locale, parameters, parameterGroups);
 
         if (found) {
             List<ConfigDescriptionParameter> parametersWithOptions = new ArrayList<ConfigDescriptionParameter>(
                     parameters.size());
             for (ConfigDescriptionParameter parameter : parameters) {
-                parametersWithOptions.add(getConfigOptions(uri, alias, parameter, locale));
+                parametersWithOptions.add(getConfigOptions(uri, aliases, parameter, locale));
             }
 
             // Return the new configuration description
@@ -199,6 +195,17 @@ public class ConfigDescriptionRegistry {
             // Otherwise null
             return null;
         }
+    }
+
+    private Set<URI> getAliases(URI original) {
+        Set<URI> ret = new LinkedHashSet<>();
+        for (ConfigDescriptionAliasProvider aliasProvider : configDescriptionAliasProviders) {
+            URI alias = aliasProvider.getAlias(original);
+            if (alias != null) {
+                ret.add(alias);
+            }
+        }
+        return ret;
     }
 
     private boolean fillFromProviders(URI uri, Locale locale, List<ConfigDescriptionParameter> parameters,
@@ -245,7 +252,7 @@ public class ConfigDescriptionRegistry {
      * @param locale locale
      * @return config description
      */
-    private ConfigDescriptionParameter getConfigOptions(URI uri, URI alias, ConfigDescriptionParameter parameter,
+    private ConfigDescriptionParameter getConfigOptions(URI uri, Set<URI> aliases, ConfigDescriptionParameter parameter,
             Locale locale) {
         List<ParameterOption> options = new ArrayList<ParameterOption>();
 
@@ -254,8 +261,14 @@ public class ConfigDescriptionRegistry {
 
         boolean found = fillFromProviders(uri, parameter, locale, options);
 
-        if (!found && alias != null) {
-            found = fillFromProviders(alias, parameter, locale, options);
+        if (!found && aliases != null) {
+            for (URI alias : aliases) {
+                found = fillFromProviders(alias, parameter, locale, options);
+                if (found) {
+                    break;
+                }
+            }
+
         }
 
         if (found) {
