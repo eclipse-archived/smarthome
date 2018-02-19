@@ -90,7 +90,7 @@ public class SecureHttpClientFactoryTest {
         secureHttpClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
 
         ThreadPoolExecutor workers = new ThreadPoolExecutor(20, 80, 60, TimeUnit.SECONDS,
-                new ArrayBlockingQueue<Runnable>(50 * 50), new NamedThreadFactory("workers"));
+                new ArrayBlockingQueue<Runnable>(50 * 50));
 
         List<CommonHttpClient> clients = new ArrayList<>();
 
@@ -138,7 +138,7 @@ public class SecureHttpClientFactoryTest {
         secureHttpClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
 
         ThreadPoolExecutor workers = new ThreadPoolExecutor(20, 80, 60, TimeUnit.SECONDS,
-                new ArrayBlockingQueue<Runnable>(50 * 50), new NamedThreadFactory("workers"));
+                new ArrayBlockingQueue<Runnable>(50 * 50));
 
         List<HttpClient> clients = new ArrayList<>();
 
