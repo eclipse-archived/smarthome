@@ -17,9 +17,6 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -27,8 +24,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.util.component.AbstractLifeCycle;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.smarthome.io.net.http.CommonHttpClient;
 import org.eclipse.smarthome.io.net.http.HttpClientFactory;
 import org.eclipse.smarthome.io.net.http.TrustManagerProvider;
@@ -65,7 +62,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
 
     private volatile TrustManagerProvider trustmanagerProvider;
 
-    private ThreadPoolExecutor threadPool = null;
+    private QueuedThreadPool threadPool = null;
     private HttpClient sharedHttpClient = null;
     private CommonHttpClient sharedHttpClientFacade = null;
 
@@ -85,9 +82,9 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     protected void modified(Map<String, Object> parameters) {
         getConfigParameters(parameters);
         if (threadPool != null) {
-            threadPool.setCorePoolSize(minThreadsShared);
-            threadPool.setMaximumPoolSize(maxThreadsShared);
-            threadPool.setKeepAliveTime(keepAliveTimeoutShared, TimeUnit.SECONDS);
+            threadPool.setMinThreads(minThreadsShared);
+            threadPool.setMaxThreads(maxThreadsShared);
+            threadPool.setIdleTimeout(keepAliveTimeoutShared * 1000);
         }
     }
 
@@ -98,6 +95,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
                 sharedHttpClient.stop();
                 sharedHttpClientFacade = null;
                 sharedHttpClient = null;
+                threadPool = null;
                 logger.info("jetty shared http client stopped");
             }
         } catch (Exception e) {
@@ -105,11 +103,6 @@ public class SecureHttpClientFactory implements HttpClientFactory {
             // nothing else we can do here
         }
 
-        if (threadPool != null) {
-            threadPool.shutdown();
-            threadPool = null;
-            logger.info("jetty thread pool shutdown");
-        }
     }
 
     @Override
@@ -197,19 +190,10 @@ public class SecureHttpClientFactory implements HttpClientFactory {
                     sslContextFactory.setExcludeCipherSuites(excludeCipherSuites);
 
                     HttpClient httpClient = new HttpClient(sslContextFactory);
-                    final ThreadPoolExecutor threadPoolExecutor = createThreadPool(consumerName, minThreadsCustom,
+                    final QueuedThreadPool queuedThreadPool = createThreadPool(consumerName, minThreadsCustom,
                             maxThreadsCustom, keepAliveTimeoutCustom);
 
-                    // we need to add this thread pool to the client as managed object,
-                    // so that it will become shutdown when the client is stopped
-                    httpClient.addManaged(new AbstractLifeCycle() {
-                        @Override
-                        protected void doStop() throws Exception {
-                            threadPoolExecutor.shutdown();
-                        }
-                    });
-
-                    httpClient.setExecutor(threadPoolExecutor);
+                    httpClient.setExecutor(queuedThreadPool);
 
                     try {
                         httpClient.start();
@@ -231,15 +215,12 @@ public class SecureHttpClientFactory implements HttpClientFactory {
         }
     }
 
-    private ThreadPoolExecutor createThreadPool(String consumerName, int minThreads, int maxThreads,
+    private QueuedThreadPool createThreadPool(String consumerName, int minThreads, int maxThreads,
             int keepAliveTimeout) {
-        // We need an "empty" queue, because otherwise jetty workers become queued instead of executed.
-        // This will cause jetty to hang!
-        // SynchronousQueue is fine for this, because it is effectively an empty queue
-        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(minThreads, maxThreads, keepAliveTimeout,
-                TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new NamedThreadFactory("jetty-" + consumerName));
-        logger.info("jetty thread pool started with min threads {}, max threads {}", minThreads, maxThreads);
-        return threadPoolExecutor;
+        QueuedThreadPool queuedThreadPool = new QueuedThreadPool(maxThreads, minThreads, keepAliveTimeout);
+        queuedThreadPool.setName(consumerName);
+        queuedThreadPool.setDaemon(true);
+        return queuedThreadPool;
     }
 
     private void checkConsumerName(String consumerName) {
