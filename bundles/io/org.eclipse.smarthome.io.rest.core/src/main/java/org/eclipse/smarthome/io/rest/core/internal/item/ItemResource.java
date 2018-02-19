@@ -501,7 +501,7 @@ public class ItemResource implements RESTResource {
     public Response createOrUpdateItem(
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
-            @ApiParam(value = "item data", required = true) @Nullable GroupItemDTO item) {
+            @ApiParam(value = "item data", required = true) GroupItemDTO item) {
         final Locale locale = LocaleUtil.getLocale(language);
 
         // If we didn't get an item bean, then return!
@@ -546,8 +546,7 @@ public class ItemResource implements RESTResource {
     @ApiOperation(value = "Adds a list of items to the registry or updates the existing items.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
             @ApiResponse(code = 400, message = "Item list is null.") })
-    public Response createOrUpdateItems(
-            @ApiParam(value = "array of item data", required = true) GroupItemDTO @Nullable [] items) {
+    public Response createOrUpdateItems(@ApiParam(value = "array of item data", required = true) GroupItemDTO[] items) {
         // If we didn't get an item list bean, then return!
         if (items == null) {
             return Response.status(Status.BAD_REQUEST).build();
