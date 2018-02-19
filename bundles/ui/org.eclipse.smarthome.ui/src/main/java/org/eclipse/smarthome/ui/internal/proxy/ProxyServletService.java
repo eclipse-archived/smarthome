@@ -13,7 +13,10 @@
 package org.eclipse.smarthome.ui.internal.proxy;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -269,27 +272,33 @@ public class ProxyServletService extends HttpServlet {
                 State state = itemUIRegistry.getItemState(itemName);
                 if (state != null && state instanceof StringType) {
                     try {
-                        uri = URI.create(state.toString());
+                        uri = createURIFromString(state.toString());
                         request.setAttribute(ATTR_URI, uri);
                         return uri;
-                    } catch (IllegalArgumentException ex) {
+                    } catch (MalformedURLException | URISyntaxException ex) {
                         // fall thru
                     }
                 }
             }
 
             try {
-                uri = URI.create(uriString);
+                uri = createURIFromString(uriString);
                 request.setAttribute(ATTR_URI, uri);
                 return uri;
-            } catch (IllegalArgumentException iae) {
+            } catch (MalformedURLException | URISyntaxException iae) {
                 throw new ProxyServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                        String.format("URI '%s' is not a valid URI.", uriString));
+                        String.format("URL '%s' is not a valid URL.", uriString));
             }
         } catch (ProxyServletException pse) {
             request.setAttribute(ATTR_SERVLET_EXCEPTION, pse);
             return null;
         }
+    }
+
+    private URI createURIFromString(String url) throws MalformedURLException, URISyntaxException {
+        // URI in this context should be valid URL. Therefore before creating URI, create URL,
+        // which validates the string.
+        return new URL(url).toURI();
     }
 
     /**

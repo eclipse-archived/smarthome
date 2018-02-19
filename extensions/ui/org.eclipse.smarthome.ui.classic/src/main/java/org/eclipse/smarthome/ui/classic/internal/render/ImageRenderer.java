@@ -12,7 +12,6 @@
  */
 package org.eclipse.smarthome.ui.classic.internal.render;
 
-import java.net.URI;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
@@ -58,14 +57,7 @@ public class ImageRenderer extends AbstractWidgetRenderer {
         if (w.eResource() != null) {
             sitemap = w.eResource().getURI().path();
         }
-        boolean validUrl = false;
-        if (image.getUrl() != null && !image.getUrl().isEmpty()) {
-            try {
-                URI.create(image.getUrl());
-                validUrl = true;
-            } catch (IllegalArgumentException ex) {
-            }
-        }
+        boolean validUrl = isValidURL(image.getUrl());
         String proxiedUrl = "../proxy?sitemap=" + sitemap + "&widgetId=" + widgetId;
         State state = itemUIRegistry.getState(w);
         String url;
