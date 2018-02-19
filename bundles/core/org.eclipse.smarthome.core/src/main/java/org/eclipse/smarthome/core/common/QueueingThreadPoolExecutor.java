@@ -68,7 +68,7 @@ public class QueueingThreadPoolExecutor extends ThreadPoolExecutor {
     private final BlockingQueue<Runnable> taskQueue = new LinkedTransferQueue<>();
 
     /** The thread for processing the queued tasks */
-    private Thread queueThread;
+    private volatile Thread queueThread;
     private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     private final Object semaphore = new Object();
