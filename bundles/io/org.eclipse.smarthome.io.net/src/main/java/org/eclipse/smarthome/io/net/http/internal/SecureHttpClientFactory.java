@@ -129,34 +129,35 @@ public class SecureHttpClientFactory implements HttpClientFactory {
         keepAliveTimeoutCustom = (int) parameters.get(CONFIG_KEEP_ALIVE_CUSTOM);
     }
 
-    private void initialize() {
-        try {
-            AccessController.doPrivileged(new PrivilegedExceptionAction<Void>() {
-                @Override
-                public synchronized Void run() {
+    private synchronized void initialize() {
+        if (threadPool == null || sharedHttpClient == null) {
+            try {
+                AccessController.doPrivileged(new PrivilegedExceptionAction<Void>() {
+                    @Override
+                    public Void run() {
 
-                    if (threadPool == null) {
-                        threadPool = createThreadPool("common", minThreadsShared, maxThreadsShared,
-                                keepAliveTimeoutShared);
+                        if (threadPool == null) {
+                            threadPool = createThreadPool("common", minThreadsShared, maxThreadsShared,
+                                    keepAliveTimeoutShared);
+                        }
+
+                        if (sharedHttpClient == null) {
+                            sharedHttpClient = createHttpClientInternal("common", null);
+                            sharedHttpClientFacade = new HttpClientDelegate(sharedHttpClient);
+                            logger.info("jetty shared http client created");
+                        }
+
+                        return null;
                     }
-
-                    if (sharedHttpClient == null) {
-                        sharedHttpClient = createHttpClientInternal("common", null);
-                        sharedHttpClientFacade = new HttpClientDelegate(sharedHttpClient);
-                        logger.info("jetty shared http client created");
-                    }
-
-                    return null;
+                });
+            } catch (PrivilegedActionException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof RuntimeException) {
+                    throw (RuntimeException) cause;
+                } else {
+                    throw new RuntimeException(cause);
                 }
-            });
-        } catch (PrivilegedActionException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof RuntimeException) {
-                throw (RuntimeException) cause;
-            } else {
-                throw new RuntimeException(cause);
             }
-
         }
     }
 
