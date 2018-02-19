@@ -42,5 +42,5 @@ public interface HttpClientFactory {
      * 
      * @return the jetty client
      */
-    HttpClientFacade getHttpClient();
+    CommonHttpClient getHttpClient();
 }

@@ -35,7 +35,7 @@ import org.eclipse.jetty.util.Fields;
  * 
  * @author Michael Bock - initial API
  */
-public interface HttpClientFacade {
+public interface CommonHttpClient {
 
     /**
      * @return the cookie store associated with this instance

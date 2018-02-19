@@ -12,6 +12,9 @@
  */
 package org.eclipse.smarthome.io.net.http.internal;
 
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.SynchronousQueue;
@@ -26,7 +29,7 @@ import javax.net.ssl.TrustManager;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.util.component.AbstractLifeCycle;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.smarthome.io.net.http.HttpClientFacade;
+import org.eclipse.smarthome.io.net.http.CommonHttpClient;
 import org.eclipse.smarthome.io.net.http.HttpClientFactory;
 import org.eclipse.smarthome.io.net.http.TrustManagerProvider;
 import org.osgi.service.component.annotations.Activate;
@@ -62,9 +65,9 @@ public class SecureHttpClientFactory implements HttpClientFactory {
 
     private volatile TrustManagerProvider trustmanagerProvider;
 
-    private ThreadPoolExecutor threadPool;
-    private HttpClient sharedHttpClient;
-    private HttpClientFacade sharedHttpClientFacade;
+    private ThreadPoolExecutor threadPool = null;
+    private HttpClient sharedHttpClient = null;
+    private CommonHttpClient sharedHttpClientFacade = null;
 
     private int minThreadsShared;
     private int maxThreadsShared;
@@ -76,37 +79,37 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     @Activate
     protected void activate(Map<String, Object> parameters) {
         getConfigParameters(parameters);
-        threadPool = createThreadPool("common", minThreadsShared, maxThreadsShared, keepAliveTimeoutShared);
-
-        sharedHttpClient = createHttpClientInternal("common", null);
-        sharedHttpClientFacade = new HttpClientDelegate(sharedHttpClient);
-
-        logger.info("jetty shared http client created");
     }
 
     @Modified
     protected void modified(Map<String, Object> parameters) {
         getConfigParameters(parameters);
-        threadPool.setCorePoolSize(minThreadsShared);
-        threadPool.setMaximumPoolSize(maxThreadsShared);
-        threadPool.setKeepAliveTime(keepAliveTimeoutShared, TimeUnit.SECONDS);
+        if (threadPool != null) {
+            threadPool.setCorePoolSize(minThreadsShared);
+            threadPool.setMaximumPoolSize(maxThreadsShared);
+            threadPool.setKeepAliveTime(keepAliveTimeoutShared, TimeUnit.SECONDS);
+        }
     }
 
     @Deactivate
     protected void deactivate() {
         try {
-            sharedHttpClient.stop();
-            sharedHttpClientFacade = null;
-            sharedHttpClient = null;
-            logger.info("jetty shared http client stopped");
+            if (sharedHttpClient != null) {
+                sharedHttpClient.stop();
+                sharedHttpClientFacade = null;
+                sharedHttpClient = null;
+                logger.info("jetty shared http client stopped");
+            }
         } catch (Exception e) {
             logger.error("error while stppping jetty shared http client", e);
             // nothing else we can do here
         }
 
-        threadPool.shutdown();
-        threadPool = null;
-        logger.info("jetty thread pool shutdown");
+        if (threadPool != null) {
+            threadPool.shutdown();
+            threadPool = null;
+            logger.info("jetty thread pool shutdown");
+        }
     }
 
     @Override
@@ -118,7 +121,8 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     }
 
     @Override
-    public HttpClientFacade getHttpClient() {
+    public CommonHttpClient getHttpClient() {
+        initialize();
         logger.debug("shared httpClient requested");
         return sharedHttpClientFacade;
     }
@@ -132,51 +136,99 @@ public class SecureHttpClientFactory implements HttpClientFactory {
         keepAliveTimeoutCustom = (int) parameters.get(CONFIG_KEEP_ALIVE_CUSTOM);
     }
 
-    private HttpClient createHttpClientInternal(String consumerName, String endpoint) {
-        logger.info("creating httpClient for endpoint {}", endpoint);
-        SslContextFactory sslContextFactory = new SslContextFactory();
-        sslContextFactory.setEndpointIdentificationAlgorithm("HTTPS");
-        if (endpoint != null && trustmanagerProvider != null) {
-            Stream<TrustManager> trustManagerStream = trustmanagerProvider.getTrustManagers(endpoint);
-            TrustManager[] trustManagers = trustManagerStream.toArray(TrustManager[]::new);
-            if (trustManagers.length > 0) {
-                logger.info("using custom trustmanagers (certificate pinning) for httpClient for endpoint {}",
-                        endpoint);
-                try {
-                    SSLContext sslContext = SSLContext.getInstance("TLS");
-                    sslContext.init(null, trustManagers, null);
-                    sslContextFactory.setSslContext(sslContext);
-                } catch (Exception ex) {
-                    throw new RuntimeException("Cannot create an TLS context for the endpoint '" + endpoint + "'!", ex);
-                }
-            }
-        }
-        String excludeCipherSuites[] = { "^.*_(MD5)$" };
-        sslContextFactory.setExcludeCipherSuites(excludeCipherSuites);
-
-        HttpClient httpClient = new HttpClient(sslContextFactory);
-        final ThreadPoolExecutor threadPoolExecutor = createThreadPool(consumerName, minThreadsCustom, maxThreadsCustom,
-                keepAliveTimeoutCustom);
-
-        // we need to add this thread pool to the client as managed object,
-        // so that it will become shutdown when the client is stopped
-        httpClient.addManaged(new AbstractLifeCycle() {
-            @Override
-            protected void doStop() throws Exception {
-                threadPoolExecutor.shutdown();
-            }
-        });
-
-        httpClient.setExecutor(threadPoolExecutor);
-
+    private void initialize() {
         try {
-            httpClient.start();
-        } catch (Exception e) {
-            logger.error("Could not start jetty client", e);
-            throw new RuntimeException("Could not start jetty client", e);
-        }
+            AccessController.doPrivileged(new PrivilegedExceptionAction<Void>() {
+                @Override
+                public synchronized Void run() {
 
-        return httpClient;
+                    if (threadPool == null) {
+                        threadPool = createThreadPool("common", minThreadsShared, maxThreadsShared,
+                                keepAliveTimeoutShared);
+                    }
+
+                    if (sharedHttpClient == null) {
+                        sharedHttpClient = createHttpClientInternal("common", null);
+                        sharedHttpClientFacade = new HttpClientDelegate(sharedHttpClient);
+                        logger.info("jetty shared http client created");
+                    }
+
+                    return null;
+                }
+            });
+        } catch (PrivilegedActionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            } else {
+                throw new RuntimeException(cause);
+            }
+
+        }
+    }
+
+    private HttpClient createHttpClientInternal(String consumerName, String endpoint) {
+        try {
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<HttpClient>() {
+                @Override
+                public HttpClient run() {
+
+                    logger.info("creating httpClient for endpoint {}", endpoint);
+                    SslContextFactory sslContextFactory = new SslContextFactory();
+                    sslContextFactory.setEndpointIdentificationAlgorithm("HTTPS");
+                    if (endpoint != null && trustmanagerProvider != null) {
+                        Stream<TrustManager> trustManagerStream = trustmanagerProvider.getTrustManagers(endpoint);
+                        TrustManager[] trustManagers = trustManagerStream.toArray(TrustManager[]::new);
+                        if (trustManagers.length > 0) {
+                            logger.info(
+                                    "using custom trustmanagers (certificate pinning) for httpClient for endpoint {}",
+                                    endpoint);
+                            try {
+                                SSLContext sslContext = SSLContext.getInstance("TLS");
+                                sslContext.init(null, trustManagers, null);
+                                sslContextFactory.setSslContext(sslContext);
+                            } catch (Exception ex) {
+                                throw new RuntimeException(
+                                        "Cannot create an TLS context for the endpoint '" + endpoint + "'!", ex);
+                            }
+                        }
+                    }
+                    String excludeCipherSuites[] = { "^.*_(MD5)$" };
+                    sslContextFactory.setExcludeCipherSuites(excludeCipherSuites);
+
+                    HttpClient httpClient = new HttpClient(sslContextFactory);
+                    final ThreadPoolExecutor threadPoolExecutor = createThreadPool(consumerName, minThreadsCustom,
+                            maxThreadsCustom, keepAliveTimeoutCustom);
+
+                    // we need to add this thread pool to the client as managed object,
+                    // so that it will become shutdown when the client is stopped
+                    httpClient.addManaged(new AbstractLifeCycle() {
+                        @Override
+                        protected void doStop() throws Exception {
+                            threadPoolExecutor.shutdown();
+                        }
+                    });
+
+                    httpClient.setExecutor(threadPoolExecutor);
+
+                    try {
+                        httpClient.start();
+                    } catch (Exception e) {
+                        logger.error("Could not start jetty client", e);
+                        throw new RuntimeException("Could not start jetty client", e);
+                    }
+
+                    return httpClient;
+                }
+            });
+        } catch (PrivilegedActionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            } else {
+                throw new RuntimeException(cause);
+            }
+        }
     }
 
     private ThreadPoolExecutor createThreadPool(String consumerName, int minThreads, int maxThreads,

@@ -23,14 +23,14 @@ import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Destination;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.util.Fields;
-import org.eclipse.smarthome.io.net.http.HttpClientFacade;
+import org.eclipse.smarthome.io.net.http.CommonHttpClient;
 
 /**
  * A delegate to jetty {@link HttpClient}
  * 
  * @author Michael Bock - initial API
  */
-public class HttpClientDelegate implements HttpClientFacade {
+public class HttpClientDelegate implements CommonHttpClient {
 
     private HttpClient delegate;
 

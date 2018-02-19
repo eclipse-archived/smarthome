@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.smarthome.io.net.http.HttpClientFacade;
+import org.eclipse.smarthome.io.net.http.CommonHttpClient;
 import org.eclipse.smarthome.io.net.http.TrustManagerProvider;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -60,7 +60,7 @@ public class SecureHttpClientFactoryTest {
     public void testGetClient() throws Exception {
         secureHttpClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
 
-        HttpClientFacade client = secureHttpClientFactory.getHttpClient();
+        CommonHttpClient client = secureHttpClientFactory.getHttpClient();
 
         assertThat(client, is(notNullValue()));
 
@@ -92,20 +92,20 @@ public class SecureHttpClientFactoryTest {
         ThreadPoolExecutor workers = new ThreadPoolExecutor(20, 80, 60, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<Runnable>(50 * 50), new NamedThreadFactory("workers"));
 
-        List<HttpClientFacade> clients = new ArrayList<>();
+        List<CommonHttpClient> clients = new ArrayList<>();
 
         final int CLIENTS = 2;
         final int REQUESTS = 2;
 
         for (int i = 0; i < CLIENTS; i++) {
-            HttpClientFacade httpClient = secureHttpClientFactory.getHttpClient();
+            CommonHttpClient httpClient = secureHttpClientFactory.getHttpClient();
             clients.add(httpClient);
         }
 
         final List<String> failures = new ArrayList<>();
 
         for (int i = 0; i < REQUESTS; i++) {
-            for (final HttpClientFacade client : clients) {
+            for (final CommonHttpClient client : clients) {
                 workers.execute(new Runnable() {
                     @Override
                     public void run() {
