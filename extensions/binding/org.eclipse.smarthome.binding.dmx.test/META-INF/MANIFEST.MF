@@ -29,6 +29,7 @@ Import-Package:
  org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
  org.hamcrest.core,
+ org.hamcrest.number,
  org.junit;version="4.0.0",
  org.osgi.framework,
  org.osgi.service.component,
