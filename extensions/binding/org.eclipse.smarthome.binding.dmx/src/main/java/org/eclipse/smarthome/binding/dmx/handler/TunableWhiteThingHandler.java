@@ -149,14 +149,14 @@ public class TunableWhiteThingHandler extends DmxThingHandler {
                     targetValueSet.addValue(
                             Util.toDmxValue(Util.toDmxValue(currentBrightness) * colorTemperature.intValue() / 100));
                 } else if (command instanceof RefreshType) {
-                    logger.trace("sending update on refresh to channel {}:colortemperature", this.thing.getUID());
+                    logger.trace("sending update on refresh to channel {}:color_temperature", this.thing.getUID());
                     currentValues.set(0, channels.get(0).getValue());
                     currentValues.set(1, channels.get(1).getValue());
                     updateCurrentBrightnessAndTemperature();
                     updateState(channelUID, currentColorTemperature);
                     return;
                 } else {
-                    logger.debug("command {} not supported in channel {}:colortemperature", command.getClass(),
+                    logger.debug("command {} not supported in channel {}:color_temperature", command.getClass(),
                             this.thing.getUID());
                     return;
                 }
