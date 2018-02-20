@@ -30,6 +30,7 @@ import org.jupnp.model.meta.ManufacturerDetails;
 import org.jupnp.model.meta.ModelDetails;
 import org.jupnp.model.meta.RemoteDevice;
 import org.jupnp.model.meta.RemoteDeviceIdentity;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * This is the discovery service for internet radios based on the fontier silicon chipset. Unfortunately, it is not
@@ -40,6 +41,7 @@ import org.jupnp.model.meta.RemoteDeviceIdentity;
  * @author Patrick Koenemann - Initial contribution
  * @author Mihaela Memova - removed the getLabel(RemoteDevice device) method due to its unreachable code lines
  */
+@Component(immediate = true)
 public class FSInternetRadioDiscoveryParticipant implements UpnpDiscoveryParticipant {
 
     /** Map from UPnP manufacturer to model number for supported radios; filled in static initializer below. */

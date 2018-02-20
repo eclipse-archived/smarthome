@@ -34,6 +34,7 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.eclipse.smarthome.io.net.http.CommonHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,15 +48,16 @@ import org.slf4j.LoggerFactory;
  */
 public class FSInternetRadioHandler extends BaseThingHandler {
 
-    private Logger logger = LoggerFactory.getLogger(FSInternetRadioHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(FSInternetRadioHandler.class);
 
-    FrontierSiliconRadio radio;
+    private FrontierSiliconRadio radio;
+    private CommonHttpClient httpClient;
 
     /** Job that runs {@link #updateRunnable}. */
     private ScheduledFuture<?> updateJob;
 
     /** Runnable for job {@link #updateJob} for periodic refresh. */
-    private Runnable updateRunnable = new Runnable() {
+    private final Runnable updateRunnable = new Runnable() {
         @Override
         public void run() {
             if (!radio.isLoggedIn()) {
@@ -114,7 +116,7 @@ public class FSInternetRadioHandler extends BaseThingHandler {
         }
     };
 
-    public FSInternetRadioHandler(Thing thing) {
+    public FSInternetRadioHandler(Thing thing, CommonHttpClient httpClient) {
         super(thing);
     }
 
@@ -129,7 +131,7 @@ public class FSInternetRadioHandler extends BaseThingHandler {
             // configuration incomplete
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Configuration incomplete");
         } else {
-            radio = new FrontierSiliconRadio(ip, port.intValue(), pin);
+            radio = new FrontierSiliconRadio(ip, port.intValue(), pin, httpClient);
             logger.debug("Initializing connection to {}:{}", ip, port);
 
             // Long running initialization should be done asynchronously in background
@@ -170,10 +172,6 @@ public class FSInternetRadioHandler extends BaseThingHandler {
             updateJob.cancel(true);
         }
         updateJob = null;
-
-        if (radio != null) {
-            radio.closeClient();
-        }
         radio = null;
     }
 

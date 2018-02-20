@@ -15,11 +15,11 @@ package org.eclipse.smarthome.binding.fsinternetradio.internal.radio;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
+import org.eclipse.smarthome.io.net.http.CommonHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,23 +52,20 @@ public class FrontierSiliconRadioConnection {
     private String sessionId;
 
     /** http clients, store cookies, so it is kept in connection class. */
-    private HttpClient httpClient = null;
+    private CommonHttpClient httpClient = null;
 
     /** Flag indicating if we are successfully logged in. */
     private boolean isLoggedIn = false;
 
-    public FrontierSiliconRadioConnection(String hostname, int port, String pin) {
+    public FrontierSiliconRadioConnection(String hostname, int port, String pin, CommonHttpClient httpClient) {
         this.hostname = hostname;
         this.port = port;
         this.pin = pin;
+        this.httpClient = httpClient;
     }
 
     public boolean isLoggedIn() {
         return isLoggedIn;
-    }
-
-    protected void close() {
-        stopHttpClient(httpClient);
     }
 
     /**
@@ -80,12 +77,6 @@ public class FrontierSiliconRadioConnection {
      */
     public boolean doLogin() throws IOException {
         isLoggedIn = false; // reset login flag
-
-        if (httpClient == null) {
-            httpClient = new HttpClient();
-        }
-
-        startHttpClient(httpClient);
 
         final String url = "http://" + hostname + ":" + port + FrontierSiliconRadioConstants.CONNECTION_PATH
                 + "/CREATE_SESSION?pin=" + pin;
@@ -167,9 +158,6 @@ public class FrontierSiliconRadioConnection {
 
             logger.trace("calling url: '{}'", url);
 
-            // HttpClient can not be null, instance is created in doLogin() method
-            startHttpClient(httpClient);
-
             Request request = httpClient.newRequest(url).method(HttpMethod.GET).timeout(SOCKET_TIMEOUT,
                     TimeUnit.MILLISECONDS);
 
@@ -215,23 +203,4 @@ public class FrontierSiliconRadioConnection {
         return null;
     }
 
-    private void startHttpClient(HttpClient client) {
-        if (!client.isStarted()) {
-            try {
-                client.start();
-            } catch (Exception e1) {
-                logger.warn("Can not start HttpClient !", e1);
-            }
-        }
-    }
-
-    private void stopHttpClient(HttpClient client) {
-        if (client.isStarted()) {
-            try {
-                client.stop();
-            } catch (Exception e) {
-                logger.error("Unable to stop HttpClient !", e);
-            }
-        }
-    }
 }
