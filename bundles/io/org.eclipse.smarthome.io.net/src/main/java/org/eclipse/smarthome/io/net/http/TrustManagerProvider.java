@@ -16,6 +16,8 @@ import java.util.stream.Stream;
 
 import javax.net.ssl.TrustManager;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 /**
  * Service to get custom trust managers for a given endpoint
  * 
@@ -30,5 +32,5 @@ public interface TrustManagerProvider {
      * @param endpoint the desired endpoint, protocol and host are sufficient
      * @return a (potentially empty) list of trust managers
      */
-    Stream<TrustManager> getTrustManagers(String endpoint);
+    Stream<TrustManager> getTrustManagers(@NonNull String endpoint);
 }

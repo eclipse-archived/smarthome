@@ -60,7 +60,7 @@ public class SecureHttpClientFactoryTest {
     public void testGetClient() throws Exception {
         secureHttpClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
 
-        CommonHttpClient client = secureHttpClientFactory.getHttpClient();
+        CommonHttpClient client = secureHttpClientFactory.getCommonHttpClient();
 
         assertThat(client, is(notNullValue()));
 
@@ -98,7 +98,7 @@ public class SecureHttpClientFactoryTest {
         final int REQUESTS = 2;
 
         for (int i = 0; i < CLIENTS; i++) {
-            CommonHttpClient httpClient = secureHttpClientFactory.getHttpClient();
+            CommonHttpClient httpClient = secureHttpClientFactory.getCommonHttpClient();
             clients.add(httpClient);
         }
 

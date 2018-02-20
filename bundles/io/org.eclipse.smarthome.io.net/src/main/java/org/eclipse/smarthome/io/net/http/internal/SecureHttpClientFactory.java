@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -63,8 +64,8 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     private volatile TrustManagerProvider trustmanagerProvider;
 
     private QueuedThreadPool threadPool = null;
-    private HttpClient sharedHttpClient = null;
-    private CommonHttpClient sharedHttpClientFacade = null;
+    private HttpClient commonHttpClient = null;
+    private CommonHttpClient commonHttpClientFacade = null;
 
     private int minThreadsShared;
     private int maxThreadsShared;
@@ -91,22 +92,22 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     @Deactivate
     protected void deactivate() {
         try {
-            if (sharedHttpClient != null) {
-                sharedHttpClient.stop();
-                sharedHttpClientFacade = null;
-                sharedHttpClient = null;
+            if (commonHttpClient != null) {
+                commonHttpClient.stop();
+                commonHttpClientFacade = null;
+                commonHttpClient = null;
                 threadPool = null;
                 logger.info("jetty shared http client stopped");
             }
         } catch (Exception e) {
-            logger.error("error while stppping jetty shared http client", e);
+            logger.error("error while stopping jetty shared http client", e);
             // nothing else we can do here
         }
 
     }
 
     @Override
-    public HttpClient createHttpClient(String consumerName, String endpoint) {
+    public HttpClient createHttpClient(@NonNull String consumerName, @NonNull String endpoint) {
         Objects.requireNonNull(endpoint, "endpoint must not be null");
         logger.debug("httpClient for endpoint {} requested", endpoint);
         checkConsumerName(consumerName);
@@ -114,10 +115,10 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     }
 
     @Override
-    public CommonHttpClient getHttpClient() {
+    public CommonHttpClient getCommonHttpClient() {
         initialize();
         logger.debug("shared httpClient requested");
-        return sharedHttpClientFacade;
+        return commonHttpClientFacade;
     }
 
     private void getConfigParameters(Map<String, Object> parameters) {
@@ -130,20 +131,19 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     }
 
     private synchronized void initialize() {
-        if (threadPool == null || sharedHttpClient == null) {
+        if (threadPool == null || commonHttpClient == null) {
             try {
                 AccessController.doPrivileged(new PrivilegedExceptionAction<Void>() {
                     @Override
                     public Void run() {
-
                         if (threadPool == null) {
                             threadPool = createThreadPool("common", minThreadsShared, maxThreadsShared,
                                     keepAliveTimeoutShared);
                         }
 
-                        if (sharedHttpClient == null) {
-                            sharedHttpClient = createHttpClientInternal("common", null);
-                            sharedHttpClientFacade = new HttpClientDelegate(sharedHttpClient);
+                        if (commonHttpClient == null) {
+                            commonHttpClient = createHttpClientInternal("common", null);
+                            commonHttpClientFacade = new HttpClientDelegate(commonHttpClient);
                             logger.info("jetty shared http client created");
                         }
 

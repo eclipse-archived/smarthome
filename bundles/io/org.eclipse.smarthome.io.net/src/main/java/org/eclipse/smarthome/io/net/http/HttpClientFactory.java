@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.io.net.http;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jetty.client.HttpClient;
 
 /**
@@ -22,7 +23,7 @@ import org.eclipse.jetty.client.HttpClient;
 public interface HttpClientFactory {
 
     /**
-     * Creates a new jetty http client..
+     * Creates a new jetty http client.
      * The returned client is already started but must be stopped
      * by the consumer after usage. The client lifecycle should be the same as for the consumer.
      * DO NOT CREATE NEW CLIENTS FOR EACH REQUEST!
@@ -34,7 +35,7 @@ public interface HttpClientFactory {
      * @throws NullPointerException if {@code endpoint} or {@code consumerName} is {@code null}
      * @throws IllegalArgumentException if {@code consumerName} is invalid
      */
-    HttpClient createHttpClient(String consumerName, String endpoint);
+    HttpClient createHttpClient(@NonNull String consumerName, @NonNull String endpoint);
 
     /**
      * Returns the shared jetty http client.
@@ -42,5 +43,5 @@ public interface HttpClientFactory {
      * 
      * @return the jetty client
      */
-    CommonHttpClient getHttpClient();
+    CommonHttpClient getCommonHttpClient();
 }
