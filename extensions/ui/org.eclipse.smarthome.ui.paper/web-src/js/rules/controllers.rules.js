@@ -302,7 +302,7 @@ angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ])
     $scope.moduleData;
     $scope.triggerData;
 
-    getModulesByType(type, type == 'trigger' ? setConfigurations : null);
+    getModulesByType(type, type === 'trigger' ? setConfigurations : null);
 
     function getModulesByType(mtype, callback) {
         moduleTypeService.getByType({
@@ -311,7 +311,7 @@ angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ])
             var modules = objectFilter(data, {
                 visibility : 'VISIBLE'
             });
-            if (mtype != 'trigger' || type == 'trigger') {
+            if (mtype !== 'trigger' || type === 'trigger') {
                 $scope.moduleData = modules;
             }
             if (callback) {
@@ -337,7 +337,7 @@ angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ])
     $scope.items = [];
 
     $scope.selectChip = function(chip, textAreaName) {
-        var textArea = $("textarea[name=" + textAreaName + "]")[0];
+        var textArea = $('textarea[name="' + textAreaName + '"]')[0];
         var textBefore = textArea.value.substring(0, textArea.selectionStart);
         var textAfter = textArea.value.substring(textArea.selectionStart, textArea.value.length);
         $scope.configuration[textAreaName] = textBefore + chip.name + textAfter;
@@ -359,25 +359,26 @@ angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ])
             });
 
             var index = sharedProperties.searchArray(sharedProperties.getModuleArray(type), $scope.id);
-            if (index != -1) {
+            if (index !== -1) {
                 $scope.configuration = configService.convertValues(sharedProperties.getModuleArray(type)[index].configuration);
                 angular.copy($scope.configuration, originalConfiguration);
             }
             $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
-            if (hasScript && type != 'trigger') {
+            if (hasScript && type !== 'trigger') {
                 var triggers = sharedProperties.getModuleArray('trigger');
                 angular.forEach(triggers, function(trigger, i) {
                     var moduleType = filterByUid($scope.triggerData, trigger.type);
-                    if (moduleType && moduleType.length > 0) {
+                    if (moduleType && moduleType.length) {
                         $scope.items = $scope.items.concat(moduleType[0].outputs);
                     }
                 });
                 if (type == 'action') {
                     var actions = sharedProperties.getModuleArray('action');
-                    for (var i = 0; i < sharedProperties.searchArray(actions, $scope.id); i++) {
-                        var moduleType = filterByUid($scope.moduleData, actions[i].type);
-                        if (moduleType[0] && moduleType[0].outputs && moduleType[0].outputs.length > 0) {
-                            $scope.items = $scope.items.concat(moduleType[0].outputs);
+                    var actionIndex = sharedProperties.searchArray(actions, $scope.id);
+                    for (var i = 0; i < actionIndex; i++) {
+                        var moduleType = filterByUid($scope.moduleData, actions[i].type)[0];
+                        if (moduleType && moduleType.outputs && moduleType.outputs.length) {
+                            $scope.items.push(moduleType.outputs);
                         }
                     }
                 }
@@ -399,7 +400,7 @@ angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ])
     $scope.close = function() {
         sharedProperties.resetParams();
         var index = sharedProperties.searchArray(sharedProperties.getModuleArray(type), $scope.id);
-        if (index != -1) {
+        if (index !== -1) {
             sharedProperties.getModuleArray(type)[index].configuration = originalConfiguration;
         }
         $mdDialog.hide();
@@ -432,7 +433,7 @@ angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ])
 
     $scope.secondStep = function() {
         var tempModule = filterByUid($scope.moduleData, $scope.module);
-        if (tempModule != null && tempModule.length > 0) {
+        if (tempModule !== null && tempModule.length) {
             $scope.name = tempModule[0].label;
             $scope.description = tempModule[0].description;
             setConfigurations();
