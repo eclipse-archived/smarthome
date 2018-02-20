@@ -378,7 +378,7 @@ angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ])
                     for (var i = 0; i < actionIndex; i++) {
                         var moduleType = filterByUid($scope.moduleData, actions[i].type)[0];
                         if (moduleType && moduleType.outputs && moduleType.outputs.length) {
-                            $scope.items.push(moduleType.outputs);
+                            $scope.items = $scope.items.concat(moduleType.outputs);
                         }
                     }
                 }
