@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.io.net.http;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jetty.client.HttpClient;
 
 /**
@@ -20,6 +20,7 @@ import org.eclipse.jetty.client.HttpClient;
  *
  * @author Michael Bock - initial API
  */
+@NonNullByDefault
 public interface HttpClientFactory {
 
     /**
@@ -35,7 +36,7 @@ public interface HttpClientFactory {
      * @throws NullPointerException if {@code endpoint} or {@code consumerName} is {@code null}
      * @throws IllegalArgumentException if {@code consumerName} is invalid
      */
-    HttpClient createHttpClient(@NonNull String consumerName, @NonNull String endpoint);
+    HttpClient createHttpClient(String consumerName, String endpoint);
 
     /**
      * Returns the shared jetty http client.

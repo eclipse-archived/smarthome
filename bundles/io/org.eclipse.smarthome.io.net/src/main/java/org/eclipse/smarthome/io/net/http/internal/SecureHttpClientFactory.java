@@ -122,12 +122,37 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     }
 
     private void getConfigParameters(Map<String, Object> parameters) {
-        minThreadsShared = (int) parameters.get(CONFIG_MIN_THREADS_SHARED);
-        maxThreadsShared = (int) parameters.get(CONFIG_MAX_THREADS_SHARED);
-        keepAliveTimeoutShared = (int) parameters.get(CONFIG_KEEP_ALIVE_SHARED);
-        minThreadsCustom = (int) parameters.get(CONFIG_MIN_THREADS_CUSTOM);
-        maxThreadsCustom = (int) parameters.get(CONFIG_MAX_THREADS_CUSTOM);
-        keepAliveTimeoutCustom = (int) parameters.get(CONFIG_KEEP_ALIVE_CUSTOM);
+        minThreadsShared = getConfigParameter(parameters, CONFIG_MIN_THREADS_SHARED, 10);
+        maxThreadsShared = getConfigParameter(parameters, CONFIG_MAX_THREADS_SHARED, 40);
+        keepAliveTimeoutShared = getConfigParameter(parameters, CONFIG_KEEP_ALIVE_SHARED, 60);
+        minThreadsCustom = getConfigParameter(parameters, CONFIG_MIN_THREADS_CUSTOM, 5);
+        maxThreadsCustom = getConfigParameter(parameters, CONFIG_MAX_THREADS_CUSTOM, 10);
+        keepAliveTimeoutCustom = getConfigParameter(parameters, CONFIG_KEEP_ALIVE_CUSTOM, 60);
+    }
+
+    private int getConfigParameter(Map<String, Object> parameters, String parameter, int defaultValue) {
+        if (parameters == null) {
+            return defaultValue;
+        }
+        Object value = parameters.get(parameter);
+        if (value == null) {
+            return defaultValue;
+        }
+        if (value instanceof Integer) {
+            return (Integer) value;
+        }
+        if (value instanceof String) {
+            try {
+                return Integer.parseInt((String) value);
+            } catch (NumberFormatException e) {
+                logger.warn("ignoring invalid value {} for parameter {}", value, parameter);
+                return defaultValue;
+            }
+        } else {
+            logger.warn("ignoring invalid type {} for parameter {}", value.getClass().getName(), parameter);
+            return defaultValue;
+        }
+
     }
 
     private synchronized void initialize() {
