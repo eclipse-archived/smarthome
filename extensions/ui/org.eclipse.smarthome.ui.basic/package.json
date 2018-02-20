@@ -11,6 +11,6 @@
     "gulp-sass": "^3.1.0",
     "gulp-uglify": "^1.5.1",
     "material-design-icons": "2.0.0",
-    "roboto-fontface": "0.4.2"
+    "roboto-fontface": "0.4.3"
   }
 }
