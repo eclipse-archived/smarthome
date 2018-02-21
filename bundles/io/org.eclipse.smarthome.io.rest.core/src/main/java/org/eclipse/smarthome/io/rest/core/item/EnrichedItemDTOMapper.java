@@ -54,7 +54,7 @@ public class EnrichedItemDTOMapper {
     private static EnrichedItemDTO map(Item item, ItemDTO itemDTO, URI uri, boolean drillDown,
             Predicate<Item> itemFilter, Locale locale) {
         String state = item.getState().toFullString();
-        String transformedState = considerTransformation(state, item.getStateDescription(locale));
+        String transformedState = considerTransformation(state, item.getStateDescription(locale), item.getName());
         if (transformedState != null && transformedState.equals(state)) {
             transformedState = null;
         }
@@ -101,11 +101,11 @@ public class EnrichedItemDTOMapper {
         }
     }
 
-    private static String considerTransformation(String state, StateDescription stateDescription) {
+    private static String considerTransformation(String state, StateDescription stateDescription, String itemName) {
         if (stateDescription != null && stateDescription.getPattern() != null && state != null) {
             try {
                 return TransformationHelper.transform(RESTCoreActivator.getBundleContext(),
-                        stateDescription.getPattern(), state.toString());
+                        stateDescription.getPattern(), state.toString(), itemName);
             } catch (NoClassDefFoundError ex) {
                 // TransformationHelper is optional dependency, so ignore if class not found
                 // return state as it is without transformation

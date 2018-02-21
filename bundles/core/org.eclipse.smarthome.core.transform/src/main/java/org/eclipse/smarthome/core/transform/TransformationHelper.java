@@ -81,6 +81,19 @@ public class TransformationHelper {
      * @return the result of the transformation. If no transformation was done, the state is returned
      */
     public static String transform(BundleContext context, String stateDescPattern, String state) {
+        return transform(context, stateDescPattern, state, null);
+    }
+
+    /**
+     * Transforms a state string using transformation functions within a given pattern.
+     *
+     * @param context a valid bundle context, required for accessing the services
+     * @param stateDescPattern the pattern that contains the transformation instructions
+     * @param state the state to be formatted before being passed into the transformation function
+     * @param itemName the name if the item whose state should be converted or null
+     * @return the result of the transformation. If no transformation was done, the state is returned
+     */
+    public static String transform(BundleContext context, String stateDescPattern, String state, String itemName) {
         Matcher matcher = EXTRACT_TRANSFORMFUNCTION_PATTERN.matcher(stateDescPattern);
         if (matcher.find()) {
             String type = matcher.group(1);
@@ -93,12 +106,13 @@ public class TransformationHelper {
                     try {
                         pattern = transformation.transform(pattern, value);
                     } catch (TransformationException e) {
-                        logger.warn("Transformation '{}' with value '{}' failed: {}", transformation, value,
-                                e.getMessage());
+                        logger.warn("Transformation '{}' with value '{}' on item '{}' failed: {}", transformation,
+                                value, itemName, e.getMessage());
                         pattern = state;
                     }
                 } catch (IllegalFormatException e) {
-                    logger.warn("Cannot format state '{}' to format '{}': {}", state, value, e.getMessage());
+                    logger.warn("Cannot format state '{}' to format '{}' for item '{}': {}", state, value, itemName,
+                            e.getMessage());
                     pattern = state;
                 }
             } else {
