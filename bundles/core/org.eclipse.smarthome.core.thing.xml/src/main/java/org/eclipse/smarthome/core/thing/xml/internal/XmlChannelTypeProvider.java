@@ -65,6 +65,7 @@ public class XmlChannelTypeProvider extends AbstractXmlBasedProvider<UID, Channe
         if (channelTypeI18nLocalizationService == null) {
             return null;
         }
+
         return channelTypeI18nLocalizationService.createLocalizedChannelType(bundle, channelType, locale);
     }
 

@@ -94,6 +94,9 @@ public class ChannelTypeI18nLocalizationService {
                 if (description != null) {
                     stateBuilder.withDescription(description);
                 }
+                if (state == null && channelType.getCommandOptions() != null) {
+                    stateBuilder.withCommandOptions(channelType.getCommandOptions());
+                }
                 return stateBuilder.build();
             case TRIGGER:
                 TriggerChannelTypeBuilder triggerBuilder = ChannelTypeBuilder

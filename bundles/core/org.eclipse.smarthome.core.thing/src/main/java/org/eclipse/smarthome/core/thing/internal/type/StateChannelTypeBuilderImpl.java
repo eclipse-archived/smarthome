@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.core.thing.internal.type;
 
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -20,6 +22,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.StateChannelTypeBuilder;
+import org.eclipse.smarthome.core.types.CommandOption;
 import org.eclipse.smarthome.core.types.StateDescription;
 
 /**
@@ -35,6 +38,7 @@ public class StateChannelTypeBuilderImpl extends AbstractChannelTypeBuilder<Stat
     private final String itemType;
     private @Nullable StateDescription stateDescription;
     private @Nullable AutoUpdatePolicy autoUpdatePolicy;
+    private @Nullable List<CommandOption> commandOptions;
 
     public StateChannelTypeBuilderImpl(ChannelTypeUID channelTypeUID, String label, String itemType) {
         super(channelTypeUID, label);
@@ -59,9 +63,20 @@ public class StateChannelTypeBuilderImpl extends AbstractChannelTypeBuilder<Stat
     }
 
     @Override
+    public StateChannelTypeBuilder withCommandOptions(List<CommandOption> commandOptions) {
+        this.commandOptions = commandOptions;
+        return this;
+    }
+
+    @Override
     public ChannelType build() {
-        return new ChannelType(channelTypeUID, advanced, itemType, ChannelKind.STATE, label, description, category,
-                tags.isEmpty() ? null : tags, stateDescription, null, configDescriptionURI, autoUpdatePolicy);
+        if (stateDescription != null) {
+            return new ChannelType(channelTypeUID, advanced, itemType, ChannelKind.STATE, label, description, category,
+                    tags.isEmpty() ? null : tags, stateDescription, null, configDescriptionURI, autoUpdatePolicy);
+        }
+
+        return new ChannelType(channelTypeUID, advanced, itemType, label, description, category,
+                tags.isEmpty() ? null : tags, commandOptions, configDescriptionURI, autoUpdatePolicy);
     }
 
 }

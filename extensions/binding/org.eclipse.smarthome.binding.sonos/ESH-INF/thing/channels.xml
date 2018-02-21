@@ -2,7 +2,7 @@
 <thing:thing-descriptions bindingId="sonos"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
-	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 /Users/henning/work/smarthome-master2/git/smarthome/bundles/core/org.eclipse.smarthome.core.thing.xml/thing-description-1.0.0.xsd">
 
 	<!-- Channels common for all SONOS devices -->
 	<channel-type id="add" advanced="true">
@@ -32,9 +32,12 @@
 	</channel-type>
 
 	<channel-type id="clearqueue" advanced="true">
-		<item-type>Switch</item-type>
+		<item-type>String</item-type>
 		<label>Clear Queue</label>
 		<description>Suppress all songs from the current queue</description>
+		<command-options>
+				<option value="clear">Clear Queue</option>
+		</command-options>
 	</channel-type>
 
 	<channel-type id="coordinator" advanced="true">
