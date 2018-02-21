@@ -90,7 +90,7 @@ public class TransformationHelper {
      * @param context a valid bundle context, required for accessing the services
      * @param stateDescPattern the pattern that contains the transformation instructions
      * @param state the state to be formatted before being passed into the transformation function
-     * @param itemName the name if the item whose state should be converted or null
+     * @param itemName the name of the item whose state should be converted or null (i.e. an optional parameter)
      * @return the result of the transformation. If no transformation was done, the state is returned
      */
     public static String transform(BundleContext context, String stateDescPattern, String state, String itemName) {
