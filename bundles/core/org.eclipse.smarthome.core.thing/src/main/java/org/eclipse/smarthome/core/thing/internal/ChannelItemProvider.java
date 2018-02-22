@@ -277,13 +277,11 @@ public class ChannelItemProvider implements ItemProvider {
                     }
                 }
             }
-            if (item != null) {
-                if (item instanceof GenericItem) {
-                    GenericItem gItem = (GenericItem) item;
-                    gItem.setLabel(getLabel(channel));
-                    gItem.setCategory(getCategory(channel));
-                    gItem.addTags(channel.getDefaultTags());
-                }
+            if (item instanceof GenericItem) {
+                GenericItem gItem = (GenericItem) item;
+                gItem.setLabel(getLabel(channel));
+                gItem.setCategory(getCategory(channel));
+                gItem.addTags(channel.getDefaultTags());
             }
             if (item != null) {
                 items.put(item.getName(), item);

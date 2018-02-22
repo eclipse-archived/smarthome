@@ -75,6 +75,8 @@ public class SetpointRenderer extends AbstractWidgetRenderer {
             newHigherState = newHigher.toString();
         }
 
+        String unit = getUnitForWidget(w);
+
         String snippetName = "setpoint";
         String snippet = getSnippet(snippetName);
 
@@ -85,6 +87,7 @@ public class SetpointRenderer extends AbstractWidgetRenderer {
         snippet = StringUtils.replace(snippet, "%minValue%", minValue.toString());
         snippet = StringUtils.replace(snippet, "%maxValue%", maxValue.toString());
         snippet = StringUtils.replace(snippet, "%step%", step.toString());
+        snippet = StringUtils.replace(snippet, "%unit%", unit);
 
         // Process the color tags
         snippet = processColor(w, snippet);
@@ -92,4 +95,5 @@ public class SetpointRenderer extends AbstractWidgetRenderer {
         sb.append(snippet);
         return null;
     }
+
 }

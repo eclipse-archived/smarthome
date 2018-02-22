@@ -12,10 +12,13 @@
  */
 package org.eclipse.smarthome.ui.items;
 
+import javax.measure.Unit;
+
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.sitemap.LinkableWidget;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
@@ -46,7 +49,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * @param w the widget to retrieve the label for
      * @return the label to use for the widget
      */
-    public String getLabel(@NonNull Widget w);
+    String getLabel(@NonNull Widget w);
 
     /**
      * Retrieves the category for a widget.
@@ -58,7 +61,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * @param w the widget to retrieve the category for
      * @return the category to use for the widget
      */
-    public String getCategory(@NonNull Widget w);
+    String getCategory(@NonNull Widget w);
 
     /**
      * Retrieves the current state of the item of a widget or <code>UnDefType.UNDEF</code>.
@@ -66,7 +69,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * @param w the widget to retrieve the item state for
      * @return the item state of the widget
      */
-    public State getState(@NonNull Widget w);
+    State getState(@NonNull Widget w);
 
     /**
      * Retrieves the widget for a given id on a given sitemap.
@@ -75,7 +78,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * @param id the id of the widget to look for
      * @return the widget for the given id
      */
-    public Widget getWidget(@NonNull Sitemap sitemap, @NonNull String id);
+    Widget getWidget(@NonNull Sitemap sitemap, @NonNull String id);
 
     /**
      * Provides an id for a widget.
@@ -89,7 +92,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * @param w the widget to get the id for
      * @return an id for this widget
      */
-    public String getWidgetId(@NonNull Widget w);
+    String getWidgetId(@NonNull Widget w);
 
     /**
      * this should be used instead of Sitemap.getChildren() as the default
@@ -98,7 +101,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * @param w the sitemap to retrieve the children for
      * @return the children of the sitemap
      */
-    public EList<Widget> getChildren(@NonNull Sitemap sitemap);
+    EList<Widget> getChildren(@NonNull Sitemap sitemap);
 
     /**
      * this should be used instead of LinkableWidget.getChildren() as there
@@ -108,7 +111,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * @param w the widget to retrieve the children for
      * @return the (dynamically or statically defined) children of the widget
      */
-    public EList<Widget> getChildren(@NonNull LinkableWidget w);
+    EList<Widget> getChildren(@NonNull LinkableWidget w);
 
     /**
      * this should be used instead of Widget.eContainer() as as the concrete
@@ -117,7 +120,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * @param w the widget to retrieve the parent for
      * @return the parent of the widget
      */
-    public EObject getParent(@NonNull Widget w);
+    EObject getParent(@NonNull Widget w);
 
     /**
      * Gets the label color for the widget. Checks conditional statements to
@@ -126,7 +129,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * @param w Widget
      * @return String with the color
      */
-    public String getLabelColor(@NonNull Widget w);
+    String getLabelColor(@NonNull Widget w);
 
     /**
      * Gets the value color for the widget. Checks conditional statements to
@@ -135,7 +138,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * @param w Widget
      * @return String with the color
      */
-    public String getValueColor(@NonNull Widget w);
+    String getValueColor(@NonNull Widget w);
 
     /**
      * Gets the widget visibility based on the item state
@@ -143,7 +146,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * @param w Widget
      * @return true if the item is visible
      */
-    public boolean getVisiblity(@NonNull Widget w);
+    boolean getVisiblity(@NonNull Widget w);
 
     /**
      * Gets the item state
@@ -151,5 +154,24 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * @param itemName item name
      * @return State of the item
      */
-    public State getItemState(@NonNull String itemName);
+    State getItemState(@NonNull String itemName);
+
+    /**
+     * Provide a widget specific String representation of a {@link Unit}.
+     *
+     * @param widget
+     * @return a widget specific String representation of a {@link Unit}.
+     */
+    String getUnitForWidget(Widget widget);
+
+    /**
+     * Convert the given state to the unit found in label. The label must be in the format "<value> <unit>" with unit
+     * being a valid unit symbol.
+     *
+     * @param state the state to be converted.
+     * @param label the label containing the target unit.
+     * @return the converted state.
+     */
+    State convertStateToLabelUnit(QuantityType<?> state, String label);
+
 }

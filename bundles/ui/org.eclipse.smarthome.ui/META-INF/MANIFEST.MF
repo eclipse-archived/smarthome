@@ -14,6 +14,7 @@ Export-Package:
 Ignore-Package: org.eclipse.smarthome.ui.internal
 Import-Package: 
  javax.imageio,
+ javax.measure,
  javax.servlet,
  javax.servlet.http,
  org.apache.commons.io,
@@ -38,6 +39,7 @@ Import-Package:
  org.eclipse.smarthome.core.persistence,
  org.eclipse.smarthome.core.transform,
  org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.core.types.util,
  org.eclipse.smarthome.model.core,
  org.eclipse.smarthome.model.items,
  org.eclipse.smarthome.model.sitemap,

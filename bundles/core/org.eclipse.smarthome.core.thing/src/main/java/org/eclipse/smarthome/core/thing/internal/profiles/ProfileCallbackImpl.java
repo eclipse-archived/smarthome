@@ -17,7 +17,7 @@ import java.util.function.Function;
 import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.items.ItemUtil;
+import org.eclipse.smarthome.core.items.ItemStateConverter;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -46,11 +46,14 @@ public class ProfileCallbackImpl implements ProfileCallback {
     private final Function<ThingUID, Thing> thingProvider;
     private final Function<String, Item> itemProvider;
     private final SafeCaller safeCaller;
+    private final ItemStateConverter itemStateConverter;
 
-    public ProfileCallbackImpl(EventPublisher eventPublisher, SafeCaller safeCaller, ItemChannelLink link,
-            Function<ThingUID, Thing> thingProvider, Function<String, Item> itemProvider) {
+    public ProfileCallbackImpl(EventPublisher eventPublisher, SafeCaller safeCaller,
+            ItemStateConverter itemStateConverter, ItemChannelLink link, Function<ThingUID, Thing> thingProvider,
+            Function<String, Item> itemProvider) {
         this.eventPublisher = eventPublisher;
         this.safeCaller = safeCaller;
+        this.itemStateConverter = itemStateConverter;
         this.link = link;
         this.thingProvider = thingProvider;
         this.itemProvider = itemProvider;
@@ -129,7 +132,7 @@ public class ProfileCallbackImpl implements ProfileCallback {
     @Override
     public void sendUpdate(State state) {
         Item item = itemProvider.apply(link.getItemName());
-        State acceptedState = ItemUtil.convertToAcceptedState(state, item);
+        State acceptedState = itemStateConverter.convertToAcceptedState(state, item);
         eventPublisher.post(
                 ItemEventFactory.createStateEvent(link.getItemName(), acceptedState, link.getLinkedUID().toString()));
     }

@@ -35,6 +35,7 @@ import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -176,6 +177,7 @@ public class ChannelItemProviderTest {
         provider.addItemFactory(itemFactory);
         provider.setLocaleProvider(localeProvider);
         provider.addProviderChangeListener(listener);
+        provider.setChannelTypeRegistry(mock(ChannelTypeRegistry.class));
 
         return provider;
     }
