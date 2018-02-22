@@ -2,7 +2,7 @@
 layout: post
 title: "Units of Measurement with Eclipse SmartHome"
 date:   2018-02-22
-image: "2018-02-22-uom.png"
+image: "2018-02-22-units-of-measurement.png"
 published: false
 ---
 
