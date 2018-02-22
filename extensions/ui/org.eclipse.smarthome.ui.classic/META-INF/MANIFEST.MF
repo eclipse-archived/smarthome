@@ -12,6 +12,7 @@ Bundle-Version: 0.10.0.qualifier
 Export-Package: org.eclipse.smarthome.ui.classic.render
 Ignore-Package: org.eclipse.smarthome.ui.webapp.internal
 Import-Package: 
+ javax.measure,
  javax.servlet,
  org.apache.commons.io,
  org.apache.commons.lang,
@@ -20,11 +21,13 @@ Import-Package:
  org.eclipse.emf.ecore.resource,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.i18n,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.items.events,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.core.types.util,
  org.eclipse.smarthome.io.net.http,
  org.eclipse.smarthome.model.sitemap,
  org.eclipse.smarthome.ui.classic.render,

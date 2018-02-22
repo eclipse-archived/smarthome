@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -82,6 +83,15 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         }
 
         members = new CopyOnWriteArrayList<Item>();
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        for (Item member : getMembers()) {
+            unregisterStateListener(member);
+        }
+        members.clear();
     }
 
     /**
@@ -208,6 +218,14 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         }
         members.remove(item);
         unregisterStateListener(item);
+    }
+
+    @Override
+    public void setUnitProvider(@Nullable UnitProvider unitProvider) {
+        super.setUnitProvider(unitProvider);
+        if (baseItem != null) {
+            baseItem.setUnitProvider(unitProvider);
+        }
     }
 
     /**
@@ -351,7 +369,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         State oldState = this.state;
         if (function != null && baseItem != null) {
             State calculatedState = function.calculate(getStateMembers(getMembers()));
-            calculatedState = ItemUtil.convertToAcceptedState(calculatedState, baseItem);
+            calculatedState = itemStateConverter.convertToAcceptedState(calculatedState, baseItem);
             setState(calculatedState);
         }
         if (!oldState.equals(this.state)) {

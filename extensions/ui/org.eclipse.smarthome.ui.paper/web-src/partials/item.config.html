@@ -58,6 +58,11 @@
 							</div>
 							</md-input-container>
 						</div>
+						<div class="parameter col-sm-6 col-xs-12" ng-if="item.type=='Number'">
+							<label for="itemDimension" class="config-textInput" style="vertical-align: super; margin-bottom: 0px;">Dimension</label>
+							<md-input-container class="col-xs-12 noPadding noMargin"> <md-select placeholder="select" isrequired="false" required name="itemDimension" ng-model="item.dimension"> <md-option ng-value="option" ng-repeat="option in dimensions"> <span style="display: inline-block;"> {{option}} </span> </md-option> </md-select>
+							</md-input-container>
+						</div>
 					</div>
 					<div class="row" ng-if="item.type=='Group' && item.groupType && item.groupType!='None'">
 						<div class="parameter col-sm-6 col-xs-12">

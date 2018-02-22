@@ -48,9 +48,12 @@ public class SliderRenderer extends AbstractWidgetRenderer {
         // set the default send-update frequency to 200ms
         String frequency = s.getFrequency() == 0 ? "200" : Integer.toString(s.getFrequency());
 
+        String unit = getUnitForWidget(w);
+
         snippet = preprocessSnippet(snippet, w);
         snippet = StringUtils.replace(snippet, "%frequency%", frequency);
         snippet = StringUtils.replace(snippet, "%switch%", s.isSwitchEnabled() ? "1" : "0");
+        snippet = StringUtils.replace(snippet, "%unit%", unit);
 
         // Process the color tags
         snippet = processColor(w, snippet);
@@ -58,4 +61,5 @@ public class SliderRenderer extends AbstractWidgetRenderer {
         sb.append(snippet);
         return null;
     }
+
 }

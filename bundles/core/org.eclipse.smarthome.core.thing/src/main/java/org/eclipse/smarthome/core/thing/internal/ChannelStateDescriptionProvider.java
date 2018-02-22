@@ -49,7 +49,7 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
 
     private final Logger logger = LoggerFactory.getLogger(ChannelStateDescriptionProvider.class);
 
-    private List<DynamicStateDescriptionProvider> dynamicStateDescriptionProviders = new CopyOnWriteArrayList<>();
+    private final List<DynamicStateDescriptionProvider> dynamicStateDescriptionProviders = new CopyOnWriteArrayList<>();
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private ThingTypeRegistry thingTypeRegistry;
     private ThingRegistry thingRegistry;
@@ -86,7 +86,7 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
                         String pattern = null;
                         if (channelType.getItemType().equalsIgnoreCase(CoreItemFactory.STRING)) {
                             pattern = "%s";
-                        } else if (channelType.getItemType().equalsIgnoreCase(CoreItemFactory.NUMBER)) {
+                        } else if (channelType.getItemType().startsWith(CoreItemFactory.NUMBER)) {
                             pattern = "%.0f";
                         }
                         if (pattern != null) {

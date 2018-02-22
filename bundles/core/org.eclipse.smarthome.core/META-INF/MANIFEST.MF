@@ -15,28 +15,32 @@ Export-Package:
  org.eclipse.smarthome.core.common,
  org.eclipse.smarthome.core.common.osgi,
  org.eclipse.smarthome.core.common.registry,
- org.eclipse.smarthome.core.events;uses:="org.eclipse.smarthome.core.ite
- ms,org.osgi.service.event,org.eclipse.smarthome.core.types",
+ org.eclipse.smarthome.core.events;uses:="org.eclipse.smarthome.core.items,org.osgi.service.event,org.eclipse.smarthome.core.types",
  org.eclipse.smarthome.core.extension,
  org.eclipse.smarthome.core.i18n,
+ org.eclipse.smarthome.core.items;uses:="org.eclipse.smarthome.core.types,org.eclipse.smarthome.core.events",
  org.eclipse.smarthome.core.items.dto,
  org.eclipse.smarthome.core.items.events,
- org.eclipse.smarthome.core.items;uses:="org.eclipse.smarthome.core.type
- s,org.eclipse.smarthome.core.events",
  org.eclipse.smarthome.core.library,
+ org.eclipse.smarthome.core.library.dimension,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.library.unit,
  org.eclipse.smarthome.core.net,
  org.eclipse.smarthome.core.scheduler,
  org.eclipse.smarthome.core.service,
  org.eclipse.smarthome.core.storage,
- org.eclipse.smarthome.core.types
+ org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.core.types.util
 Ignore-Package: org.eclipse.smarthome.core.internal.items,org.eclipse.sm
  arthome.core.internal,org.eclipse.smarthome.core.internal.events,org.ec
  lipse.smarthome.core.internal.logging
 Import-Package: 
  com.google.common.collect,
  com.google.gson,
+ javax.measure,
+ javax.measure.quantity,
+ javax.measure.spi,
  org.apache.commons.io,
  org.apache.commons.lang,
  org.eclipse.jdt.annotation;resolution:=optional,
@@ -54,20 +58,29 @@ Import-Package:
  org.eclipse.smarthome.core.items.dto,
  org.eclipse.smarthome.core.items.events,
  org.eclipse.smarthome.core.library,
+ org.eclipse.smarthome.core.library.dimension,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.library.unit,
  org.eclipse.smarthome.core.net,
  org.eclipse.smarthome.core.scheduler,
  org.eclipse.smarthome.core.service,
  org.eclipse.smarthome.core.storage,
  org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.core.types.util,
  org.osgi.framework,
  org.osgi.service.component,
  org.osgi.service.event,
  org.osgi.service.packageadmin,
  org.osgi.util.tracker,
- org.slf4j
+ org.slf4j,
+ tec.uom.lib.common,
+ tec.uom.se,
+ tec.uom.se.format,
+ tec.uom.se.function,
+ tec.uom.se.quantity,
+ tec.uom.se.unit
 Private-Package: org.eclipse.smarthome.core.internal,org.eclipse.smartho
  me.core.internal.events,org.eclipse.smarthome.core.internal.items,org.e
- clipse.smarthome.core.internal.logging
+ clipse.smarthome.core.internal.logging,org.eclipse.smarthome.core.internal.items.group
 Service-Component: OSGI-INF/*.xml

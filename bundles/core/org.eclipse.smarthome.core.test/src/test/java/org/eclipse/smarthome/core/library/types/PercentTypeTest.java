@@ -14,6 +14,7 @@ package org.eclipse.smarthome.core.library.types;
 
 import static org.junit.Assert.assertEquals;
 
+import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.junit.Test;
 
@@ -68,6 +69,13 @@ public class PercentTypeTest {
         assertEquals(new DecimalType("1.0"), new PercentType("100.0").as(DecimalType.class));
         assertEquals(new DecimalType("0.01"), new PercentType("1.0").as(DecimalType.class));
         assertEquals(DecimalType.ZERO, new PercentType("0.0").as(DecimalType.class));
+    }
+
+    @Test
+    public void testConversionToQuantityType() {
+        assertEquals(new QuantityType<>("100 %"), PercentType.HUNDRED.as(QuantityType.class));
+        assertEquals(new QuantityType<>("1 one"),
+                ((QuantityType<?>) PercentType.HUNDRED.as(QuantityType.class)).toUnit(SmartHomeUnits.ONE));
     }
 
     @Test

@@ -305,7 +305,7 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
 
         assertThat itemProvider.getAll().size(), is(0)
 
-        def item1 = new GroupItem('GroupItem', new NumberItem(), new Avg())
+        def item1 = new GroupItem('GroupItem', new NumberItem("Number"), new Avg())
         itemProvider.add item1
 
         def items = itemProvider.getAll()
@@ -328,7 +328,7 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
         def function1 = new And(OnOffType.ON, OnOffType.OFF)
         def function2 = new Sum()
         def item1 = new GroupItem('GroupItem1', new SwitchItem('Switch'), function1)
-        def item2 = new GroupItem('GroupItem2', new NumberItem(), function2)
+        def item2 = new GroupItem('GroupItem2', new NumberItem("Number"), function2)
 
         assertThat item1.name, is('GroupItem1')
         assertThat item1.function, isA(And.class)

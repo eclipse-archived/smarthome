@@ -18,6 +18,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.measure.quantity.Temperature;
+
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -27,6 +29,7 @@ import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.PlayPauseType;
 import org.eclipse.smarthome.core.library.types.PointType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.types.RawType;
 import org.eclipse.smarthome.core.library.types.RewindFastforwardType;
 import org.eclipse.smarthome.core.library.types.StringListType;
@@ -87,6 +90,9 @@ public class StateUtil {
 
         states.add(UpDownType.UP);
         states.add(UpDownType.DOWN);
+
+        QuantityType<Temperature> quantityType = new QuantityType<Temperature>("12 °C");
+        states.add(quantityType);
 
         return states;
     }

@@ -216,4 +216,5 @@ public class Channel {
     public Set<String> getDefaultTags() {
         return defaultTags;
     }
+
 }

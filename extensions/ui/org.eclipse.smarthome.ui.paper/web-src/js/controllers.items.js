@@ -60,6 +60,7 @@ angular.module('PaperUI.controllers.configuration')//
     $scope.oldCategory;
     $scope.types = itemConfig.types;
     $scope.groupTypes = itemConfig.groupTypes;
+    $scope.dimensions = itemConfig.dimensions;
     $scope.functions = [];
     $scope.selectedMember = null;
     $scope.selectedParent = null;
@@ -91,6 +92,11 @@ angular.module('PaperUI.controllers.configuration')//
                 }
                 if (!$scope.item.groupType) {
                     $scope.item.groupType = "None";
+                }
+
+                if ($scope.item.type.indexOf("Number:") === 0) {
+                    $scope.item.dimension = $scope.item.type.substring(7, $scope.item.type.length);
+                    $scope.item.type = "Number";
                 }
                 $scope.configMode = "edit";
                 $scope.srcURL = $scope.getSrcURL($scope.item.category, $scope.item.type);
@@ -144,6 +150,10 @@ angular.module('PaperUI.controllers.configuration')//
             delete $scope.item.groupType;
         } else {
             setItemToFunction();
+        }
+        if ($scope.item.dimension) {
+            $scope.item.type = $scope.item.type + ":" + $scope.item.dimension;
+            delete $scope.item.dimension;
         }
         if (JSON.stringify($scope.item) !== JSON.stringify(originalItem)) {
             if ($scope.item.category == "") {

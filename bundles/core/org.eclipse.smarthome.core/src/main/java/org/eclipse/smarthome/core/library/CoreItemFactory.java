@@ -16,6 +16,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemFactory;
+import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.library.items.CallItem;
 import org.eclipse.smarthome.core.library.items.ColorItem;
 import org.eclipse.smarthome.core.library.items.ContactItem;
@@ -59,7 +60,9 @@ public class CoreItemFactory implements ItemFactory {
         if (itemTypeName == null) {
             return null;
         }
-        switch (itemTypeName) {
+
+        String itemType = ItemUtil.getMainItemType(itemTypeName);
+        switch (itemType) {
             case CALL:
                 return new CallItem(itemName);
             case COLOR:
@@ -75,7 +78,7 @@ public class CoreItemFactory implements ItemFactory {
             case LOCATION:
                 return new LocationItem(itemName);
             case NUMBER:
-                return new NumberItem(itemName);
+                return new NumberItem(itemTypeName, itemName);
             case PLAYER:
                 return new PlayerItem(itemName);
             case ROLLERSHUTTER:

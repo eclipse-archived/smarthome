@@ -14,6 +14,7 @@ package org.eclipse.smarthome.core.items;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.types.Command;
@@ -29,6 +30,10 @@ public class TestItem extends GenericItem {
 
     public TestItem(String name) {
         super("Test", name);
+    }
+
+    public Set<StateChangeListener> getListeners() {
+        return listeners;
     }
 
     @Override

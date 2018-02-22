@@ -25,6 +25,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import javax.measure.Unit;
+
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
@@ -56,6 +59,7 @@ import org.eclipse.smarthome.core.library.types.NextPreviousType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.PlayPauseType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationHelper;
@@ -65,6 +69,7 @@ import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.core.types.Type;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.eclipse.smarthome.core.types.util.UnitUtils;
 import org.eclipse.smarthome.model.sitemap.ColorArray;
 import org.eclipse.smarthome.model.sitemap.Default;
 import org.eclipse.smarthome.model.sitemap.Group;
@@ -111,7 +116,9 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             .compile("(.*?)\\((.*)\\):(.*)");
 
     /* RegEx to identify format patterns. See java.util.Formatter#formatSpecifier (without the '%' at the very end). */
-    protected static final String IDENTIFY_FORMAT_PATTERN_PATTERN = "%(\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z])";
+    protected static final String IDENTIFY_FORMAT_PATTERN_PATTERN = "%((unit%)|((\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z])))";
+
+    private static final Pattern LABEL_PATTERN = Pattern.compile(".*?\\[.*? (.*?)\\]");
 
     protected Set<ItemUIProvider> itemUIProviders = new HashSet<ItemUIProvider>();
 
@@ -289,116 +296,135 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     @Override
     public String getLabel(Widget w) {
         String label = getLabelFromWidget(w);
+
+        String itemName = w.getItem();
+        if (StringUtils.isBlank(itemName)) {
+            return transform(label, null);
+        }
+
         String labelMappedOption = null;
+        State state = null;
+        StateDescription stateDescription = null;
+        String formatPattern = getFormatPattern(label);
 
         // now insert the value, if the state is a string or decimal value and there is some formatting pattern defined
         // in the label
         // (i.e. it contains at least a %)
-        String itemName = w.getItem();
-        if (itemName != null) {
-            State state = null;
-            String formatPattern = getFormatPattern(label);
-            StateDescription stateDescription = null;
-
-            try {
-                final Item item = getItem(itemName);
-                // There is a known issue in the implementation of the method getStateDescription() of class Item
-                // in the following case:
-                // - the item provider returns as expected a state description without pattern but with for
-                // example a min value because a min value is set in the item definition but no label with
-                // pattern is set.
-                // - the channel state description provider returns as expected a state description with a pattern
-                // In this case, the result is no display of value by UIs because no pattern is set in the
-                // returned StateDescription. What is expected is the display of a value using the pattern
-                // provided by the channel state description provider.
-                stateDescription = item.getStateDescription();
-                if (formatPattern == null) {
-                    if (stateDescription != null) {
-                        final String pattern = stateDescription.getPattern();
-                        if (pattern != null) {
-                            label = label + " [" + pattern + "]";
-                        }
-                    }
-                }
-
-                String updatedPattern = getFormatPattern(label);
-                if (updatedPattern != null) {
-                    formatPattern = updatedPattern;
-
-                    if (!formatPattern.isEmpty()) {
-                        // TODO: TEE: we should find a more generic solution here! When
-                        // using indexes in formatString this 'contains' will fail again
-                        // and will cause an 'java.util.IllegalFormatConversionException:
-                        // d != java.lang.String' later on when trying to format a String
-                        // as %d (number).
-                        if (label.contains("%d")) {
-                            // a number is requested
-                            state = item.getState();
-                            if (!(state instanceof DecimalType)) {
-                                state = item.getStateAs(DecimalType.class);
-                            }
-                        } else {
-                            state = item.getState();
-                        }
-                    }
-                }
-            } catch (ItemNotFoundException e) {
-                logger.error("Cannot retrieve item for widget {}", w.eClass().getInstanceTypeName());
+        try {
+            final Item item = getItem(itemName);
+            // There is a known issue in the implementation of the method getStateDescription() of class Item
+            // in the following case:
+            // - the item provider returns as expected a state description without pattern but with for
+            // example a min value because a min value is set in the item definition but no label with
+            // pattern is set.
+            // - the channel state description provider returns as expected a state description with a pattern
+            // In this case, the result is no display of value by UIs because no pattern is set in the
+            // returned StateDescription. What is expected is the display of a value using the pattern
+            // provided by the channel state description provider.
+            stateDescription = item.getStateDescription();
+            if (formatPattern == null && stateDescription != null && stateDescription.getPattern() != null) {
+                label = label + " [" + stateDescription.getPattern() + "]";
             }
 
-            if (formatPattern != null) {
-                if (formatPattern.isEmpty()) {
-                    label = label.substring(0, label.indexOf("[")).trim();
-                } else {
-                    if (state == null || state instanceof UnDefType) {
-                        formatPattern = formatUndefined(formatPattern);
-                    } else if (state instanceof Type) {
-                        // if the channel contains options, we build a label with the mapped option value
-                        if (stateDescription != null && stateDescription.getOptions() != null) {
-                            for (StateOption option : stateDescription.getOptions()) {
-                                if (option.getValue().equals(state.toString()) && option.getLabel() != null) {
-                                    State stateOption = new StringType(option.getLabel());
-                                    try {
-                                        String formatPatternOption = stateOption.format(formatPattern);
-                                        labelMappedOption = label.trim();
-                                        labelMappedOption = labelMappedOption.substring(0,
-                                                labelMappedOption.indexOf("[") + 1) + formatPatternOption + "]";
-                                    } catch (IllegalArgumentException e) {
-                                        logger.debug(
-                                                "Mapping option value '{}' for item {} using format '{}' failed ({}); mapping is ignored",
-                                                stateOption, itemName, formatPattern, e.getMessage());
-                                        labelMappedOption = null;
-                                    }
-                                    break;
-                                }
-                            }
-                        }
+            String updatedPattern = getFormatPattern(label);
+            if (updatedPattern != null) {
+                formatPattern = updatedPattern;
 
-                        // The following exception handling has been added to work around a Java bug with formatting
-                        // numbers. See http://bugs.sun.com/view_bug.do?bug_id=6476425
-                        // Without this catch, the whole sitemap, or page can not be displayed!
-                        // This also handles IllegalFormatConversionException, which is a subclass of IllegalArgument.
-                        try {
-                            formatPattern = fillFormatPattern(formatPattern, state);
-                        } catch (IllegalArgumentException e) {
-                            logger.warn("Exception while formatting value '{}' of item {} with format '{}': {}", state,
-                                    itemName, formatPattern, e.getMessage());
-                            formatPattern = new String("Err");
+                // TODO: TEE: we should find a more generic solution here! When
+                // using indexes in formatString this 'contains' will fail again
+                // and will cause an 'java.util.IllegalFormatConversionException:
+                // d != java.lang.String' later on when trying to format a String
+                // as %d (number).
+                //
+                // a number is requested, PercentType must not be converted to DecimalType:
+                if (formatPattern.contains("%d") && !(item.getState() instanceof PercentType)) {
+                    state = item.getStateAs(DecimalType.class);
+                } else {
+                    state = item.getState();
+                }
+            }
+        } catch (ItemNotFoundException e) {
+            logger.error("Cannot retrieve item for widget {}", w.eClass().getInstanceTypeName());
+        }
+
+        if (formatPattern != null) {
+            if (formatPattern.isEmpty()) {
+                label = label.substring(0, label.indexOf("[")).trim();
+            } else {
+                if (state == null || state instanceof UnDefType) {
+                    formatPattern = formatUndefined(formatPattern);
+                } else if (state instanceof Type) {
+                    // if the channel contains options, we build a label with the mapped option value
+                    if (stateDescription != null && stateDescription.getOptions() != null) {
+                        for (StateOption option : stateDescription.getOptions()) {
+                            if (option.getValue().equals(state.toString()) && option.getLabel() != null) {
+                                State stateOption = new StringType(option.getLabel());
+                                try {
+                                    String formatPatternOption = stateOption.format(formatPattern);
+                                    labelMappedOption = label.trim();
+                                    labelMappedOption = labelMappedOption.substring(0,
+                                            labelMappedOption.indexOf("[") + 1) + formatPatternOption + "]";
+                                } catch (IllegalArgumentException e) {
+                                    logger.debug(
+                                            "Mapping option value '{}' for item {} using format '{}' failed ({}); mapping is ignored",
+                                            stateOption, itemName, formatPattern, e.getMessage());
+                                    labelMappedOption = null;
+                                }
+                                break;
+                            }
                         }
                     }
 
-                    label = label.trim();
-                    label = label.substring(0, label.indexOf("[") + 1) + formatPattern + "]";
+                    if (state instanceof QuantityType) {
+                        QuantityType<?> quantityState = (QuantityType<?>) state;
+                        // sanity convert current state to the item state description unit in case it was updated in the
+                        // meantime. The item state is still in the "original" unit while the state description will
+                        // display the new unit:
+                        Unit<?> patternUnit = UnitUtils.parseUnit(formatPattern);
+                        if (patternUnit != null && !quantityState.getUnit().equals(patternUnit)) {
+                            quantityState = quantityState.toUnit(patternUnit);
+                        }
+
+                        // The widget may define its own unit in the widget label. Convert to this unit:
+                        quantityState = convertStateToWidgetUnit(quantityState, w);
+                        state = quantityState;
+                    }
+
+                    // The following exception handling has been added to work around a Java bug with formatting
+                    // numbers. See http://bugs.sun.com/view_bug.do?bug_id=6476425
+                    // Without this catch, the whole sitemap, or page can not be displayed!
+                    // This also handles IllegalFormatConversionException, which is a subclass of IllegalArgument.
+                    try {
+                        formatPattern = fillFormatPattern(formatPattern, state);
+                    } catch (IllegalArgumentException e) {
+                        logger.warn("Exception while formatting value '{}' of item {} with format '{}': {}", state,
+                                itemName, formatPattern, e.getMessage());
+                        formatPattern = new String("Err");
+                    }
                 }
+
+                label = label.trim();
+                label = label.substring(0, label.indexOf("[") + 1) + formatPattern + "]";
             }
         }
 
-        label = transform(label, labelMappedOption);
+        return transform(label, labelMappedOption);
+    }
 
-        return label;
+    private QuantityType<?> convertStateToWidgetUnit(QuantityType<?> quantityState, @NonNull Widget w) {
+        Unit<?> widgetUnit = UnitUtils.parseUnit(getFormatPattern(w.getLabel()));
+        if (widgetUnit != null && !widgetUnit.equals(quantityState.getUnit())) {
+            return quantityState.toUnit(widgetUnit);
+        }
+
+        return quantityState;
+
     }
 
     private String getFormatPattern(String label) {
+        if (label == null) {
+            return null;
+        }
         String pattern = label.trim();
         int indexOpenBracket = pattern.indexOf("[");
         int indexCloseBracket = pattern.endsWith("]") ? pattern.length() - 1 : -1;
@@ -555,26 +581,31 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     private State convertState(Widget w, Item i) {
         State returnState = null;
 
+        State itemState = i.getState();
+        if (itemState instanceof QuantityType) {
+            itemState = convertStateToWidgetUnit((QuantityType<?>) itemState, w);
+        }
+
         if (w instanceof Switch && i instanceof RollershutterItem) {
             // RollerShutter are represented as Switch in a Sitemap but need a PercentType state
-            returnState = i.getStateAs(PercentType.class);
+            returnState = itemState.as(PercentType.class);
         } else if (w instanceof Slider) {
             if (i.getAcceptedDataTypes().contains(PercentType.class)) {
-                returnState = i.getStateAs(PercentType.class);
+                returnState = itemState.as(PercentType.class);
             } else {
-                returnState = i.getStateAs(DecimalType.class);
+                returnState = itemState.as(DecimalType.class);
             }
         } else if (w instanceof Switch) {
             Switch sw = (Switch) w;
             if (sw.getMappings().size() == 0) {
-                returnState = i.getStateAs(OnOffType.class);
+                returnState = itemState.as(OnOffType.class);
             }
         }
 
         // if returnState is null, a conversion was not possible
         if (returnState == null) {
             // we return the original state to not break anything
-            returnState = i.getState();
+            returnState = itemState;
         }
         return returnState;
     }
@@ -1239,6 +1270,48 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         if (itemRegistry != null) {
             itemRegistry.removeRegistryHook(hook);
         }
+    }
+
+    @Override
+    public String getUnitForWidget(Widget w) {
+        String unit = getUnitFromLabel(w.getLabel());
+        if (StringUtils.isNotBlank(unit) && !UnitUtils.UNIT_PLACEHOLDER.equals(unit)) {
+            return unit;
+        }
+
+        try {
+            Item item = getItem(w.getItem());
+            if (item instanceof NumberItem && ((NumberItem) item).getDimension() != null) {
+                return ((NumberItem) item).getUnitSymbol();
+            }
+        } catch (ItemNotFoundException e) {
+            logger.debug("Failed to retrieve item during widget rendering: {}", e.getMessage());
+        }
+
+        return "";
+    }
+
+    @Override
+    public State convertStateToLabelUnit(QuantityType<?> state, String label) {
+        String labelUnit = label.lastIndexOf(" ") > 0 ? label.substring(label.lastIndexOf(" ")) : null;
+        if (labelUnit != null && !state.getUnit().toString().equals(labelUnit)) {
+            return state.toUnit(labelUnit);
+        }
+
+        return state;
+    }
+
+    private String getUnitFromLabel(String label) {
+        if (StringUtils.isBlank(label)) {
+            return null;
+        }
+
+        Matcher m = LABEL_PATTERN.matcher(label);
+        if (m.matches()) {
+            return m.group(1);
+        }
+
+        return null;
     }
 
 }
