@@ -17,13 +17,13 @@ import static org.eclipse.smarthome.binding.fsinternetradio.FSInternetRadioBindi
 import java.util.Collections;
 import java.util.Set;
 
+import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.smarthome.binding.fsinternetradio.handler.FSInternetRadioHandler;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
-import org.eclipse.smarthome.io.net.http.CommonHttpClient;
 import org.eclipse.smarthome.io.net.http.HttpClientFactory;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -39,7 +39,7 @@ import org.osgi.service.component.annotations.Reference;
 public class FSInternetRadioHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(THING_TYPE_RADIO);
-    private CommonHttpClient httpClient;
+    private HttpClient httpClient;
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {

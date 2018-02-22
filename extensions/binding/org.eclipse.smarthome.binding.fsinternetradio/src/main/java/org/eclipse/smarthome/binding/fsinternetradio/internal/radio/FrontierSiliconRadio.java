@@ -16,7 +16,7 @@ import static org.eclipse.smarthome.binding.fsinternetradio.internal.radio.Front
 
 import java.io.IOException;
 
-import org.eclipse.smarthome.io.net.http.CommonHttpClient;
+import org.eclipse.jetty.client.HttpClient;
 
 /**
  * Class representing a internet radio based on the frontier silicon chipset. Tested with "hama IR110" and Medion
@@ -44,7 +44,7 @@ public class FrontierSiliconRadio {
      *
      * @author Rainer Ostendorf
      */
-    public FrontierSiliconRadio(String hostname, int port, String pin, CommonHttpClient httpClient) {
+    public FrontierSiliconRadio(String hostname, int port, String pin, HttpClient httpClient) {
         this.conn = new FrontierSiliconRadioConnection(hostname, port, pin, httpClient);
     }
 

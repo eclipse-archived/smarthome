@@ -15,11 +15,11 @@ package org.eclipse.smarthome.binding.fsinternetradio.internal.radio;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
-import org.eclipse.smarthome.io.net.http.CommonHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,12 +52,12 @@ public class FrontierSiliconRadioConnection {
     private String sessionId;
 
     /** http clients, store cookies, so it is kept in connection class. */
-    private CommonHttpClient httpClient = null;
+    private HttpClient httpClient = null;
 
     /** Flag indicating if we are successfully logged in. */
     private boolean isLoggedIn = false;
 
-    public FrontierSiliconRadioConnection(String hostname, int port, String pin, CommonHttpClient httpClient) {
+    public FrontierSiliconRadioConnection(String hostname, int port, String pin, HttpClient httpClient) {
         this.hostname = hostname;
         this.port = port;
         this.pin = pin;

@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.util.concurrent.ScheduledFuture;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSiliconRadio;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
@@ -34,7 +35,6 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.UnDefType;
-import org.eclipse.smarthome.io.net.http.CommonHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,8 +50,8 @@ public class FSInternetRadioHandler extends BaseThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(FSInternetRadioHandler.class);
 
-    private FrontierSiliconRadio radio;
-    private CommonHttpClient httpClient;
+    FrontierSiliconRadio radio;
+    private HttpClient httpClient;
 
     /** Job that runs {@link #updateRunnable}. */
     private ScheduledFuture<?> updateJob;
@@ -116,7 +116,7 @@ public class FSInternetRadioHandler extends BaseThingHandler {
         }
     };
 
-    public FSInternetRadioHandler(Thing thing, CommonHttpClient httpClient) {
+    public FSInternetRadioHandler(Thing thing, HttpClient httpClient) {
         super(thing);
     }
 

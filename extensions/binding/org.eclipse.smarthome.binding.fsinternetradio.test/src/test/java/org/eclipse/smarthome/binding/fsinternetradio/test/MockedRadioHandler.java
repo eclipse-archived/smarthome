@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.binding.fsinternetradio.test;
 
+import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.smarthome.binding.fsinternetradio.handler.FSInternetRadioHandler;
 import org.eclipse.smarthome.core.thing.Thing;
 
@@ -23,8 +24,8 @@ import org.eclipse.smarthome.core.thing.Thing;
  */
 public class MockedRadioHandler extends FSInternetRadioHandler {
 
-    public MockedRadioHandler(Thing thing) {
-        super(thing);
+    public MockedRadioHandler(Thing thing, HttpClient client) {
+        super(thing, client);
     }
 
     @Override

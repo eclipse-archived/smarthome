@@ -12,6 +12,9 @@
  */
 package org.eclipse.smarthome.io.net.http.internal;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
@@ -27,7 +30,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.eclipse.smarthome.io.net.http.CommonHttpClient;
 import org.eclipse.smarthome.io.net.http.HttpClientFactory;
 import org.eclipse.smarthome.io.net.http.TrustManagerProvider;
 import org.osgi.service.component.annotations.Activate;
@@ -65,7 +67,6 @@ public class SecureHttpClientFactory implements HttpClientFactory {
 
     private QueuedThreadPool threadPool = null;
     private HttpClient commonHttpClient = null;
-    private CommonHttpClient commonHttpClientFacade = null;
 
     private int minThreadsShared;
     private int maxThreadsShared;
@@ -94,7 +95,6 @@ public class SecureHttpClientFactory implements HttpClientFactory {
         try {
             if (commonHttpClient != null) {
                 commonHttpClient.stop();
-                commonHttpClientFacade = null;
                 commonHttpClient = null;
                 threadPool = null;
                 logger.info("jetty shared http client stopped");
@@ -115,10 +115,22 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     }
 
     @Override
-    public CommonHttpClient getCommonHttpClient() {
+    public HttpClient getCommonHttpClient() {
         initialize();
         logger.debug("shared httpClient requested");
-        return commonHttpClientFacade;
+        return (HttpClient) Proxy.newProxyInstance(HttpClient.class.getClassLoader(), new Class[] { HttpClient.class },
+                new InvocationHandler() {
+                    @Override
+                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                        if (method != null && !method.getName().startsWith("set") && !method.getName().equals("stop")) {
+                            // invoke the method on the shared http client
+                            return method.invoke(commonHttpClient, args);
+                        } else {
+                            // do not allow the invocation on the shared client
+                            throw new UnsupportedOperationException();
+                        }
+                    }
+                });
     }
 
     private void getConfigParameters(Map<String, Object> parameters) {
@@ -168,7 +180,6 @@ public class SecureHttpClientFactory implements HttpClientFactory {
 
                         if (commonHttpClient == null) {
                             commonHttpClient = createHttpClientInternal("common", null);
-                            commonHttpClientFacade = new HttpClientDelegate(commonHttpClient);
                             logger.info("jetty shared http client created");
                         }
 
