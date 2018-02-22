@@ -4,7 +4,8 @@
 
     angular.module('PaperUI.control').component('switchControl', {
         bindings : {
-            item : '<'
+            item : '<',
+            channel : '<'
         },
         templateUrl : 'partials/control/switch/component.control.switch.html',
         controller : SwitchItemController
@@ -19,6 +20,7 @@
         this.getIcon = controlItemService.getIcon;
         this.getLabel = controlItemService.getLabel;
         this.isOptionList = controlItemService.isOptionList;
+        this.isCommandOptions = isCommandOptions;
 
         this.$onInit = activate;
 
@@ -36,6 +38,10 @@
 
         function updateState() {
             controlItemService.sendCommand(ctrl.item, ctrl.item.state);
+        }
+
+        function isCommandOptions() {
+            return ctrl.channel.channelType && ctrl.channel.channelType.commandOptions && ctrl.channel.channelType.commandOptions.length > 0;
         }
     }
 

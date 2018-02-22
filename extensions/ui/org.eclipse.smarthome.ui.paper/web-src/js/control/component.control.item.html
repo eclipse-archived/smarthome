@@ -1,6 +1,6 @@
 <div class="icontrol">
 	<div ng-if="::($ctrl.item.type === 'Switch')">
-		<switch-control item="$ctrl.item"></switch-control>
+		<switch-control item="$ctrl.item" channel="$ctrl.channel"></switch-control>
 	</div>
 	<div ng-if="::($ctrl.item.type === 'Dimmer')">
 		<dimmer-control item="$ctrl.item"></dimmer-control>
@@ -27,6 +27,6 @@
 		<image-control item="$ctrl.item"></image-control>
 	</div>
 	<div ng-if="::($ctrl.item.type === 'DateTime' || $ctrl.item.type === 'String')">
-		<string-control item="$ctrl.item"></string-control>
+		<string-control item="$ctrl.item" channel="$ctrl.channel"></string-control>
 	</div>
 </div>

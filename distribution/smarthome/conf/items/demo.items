@@ -11,9 +11,9 @@ Contact DemoContact
 Number DemoNumber
 Image DemoImage
 
-Color MagicColor { channel="magic:color-light:magicColor:color" }
-Switch MagicOnOff { channel="magic:onoff-light:magicOnOff:switch" }
-Dimmer MagicDimmer { channel="magic:dimmable-light:magicDimmer:brightness" }
+Color MagicColor "Color" { channel="magic:color-light:magicColor:color" }
+Switch MagicOnOff "Switch" { channel="magic:onoff-light:magicOnOff:switch" }
+Dimmer MagicDimmer "Dimmer" { channel="magic:dimmable-light:magicDimmer:brightness" }
 
 Group Weather "Weather Information"
 
