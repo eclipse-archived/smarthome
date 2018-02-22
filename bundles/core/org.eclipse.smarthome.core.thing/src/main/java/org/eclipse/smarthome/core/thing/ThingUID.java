@@ -94,9 +94,7 @@ public class ThingUID extends UID {
         String[] result = new String[3 + bridgeIds.length];
         result[0] = bindingId;
         result[1] = thingTypeId;
-        for (int i = 0; i < bridgeIds.length; i++) {
-            result[i + 2] = bridgeIds[i];
-        }
+        System.arraycopy(bridgeIds, 0, result, 2, bridgeIds.length);
         result[result.length - 1] = id;
         return result;
     }

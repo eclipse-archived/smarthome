@@ -19,6 +19,8 @@ Import-Package:
  org.eclipse.jetty.client.util,
  org.eclipse.jetty.http,
  org.eclipse.jetty.util.component,
+ org.eclipse.smarthome.binding.fsinternetradio,
+ org.eclipse.smarthome.binding.fsinternetradio.handler,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.config.discovery,
  org.eclipse.smarthome.config.discovery.upnp,

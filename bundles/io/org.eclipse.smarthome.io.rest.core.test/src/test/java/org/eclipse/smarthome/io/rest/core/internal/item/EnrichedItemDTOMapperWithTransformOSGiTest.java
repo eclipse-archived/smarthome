@@ -59,7 +59,7 @@ public class EnrichedItemDTOMapperWithTransformOSGiTest extends JavaOSGiTest {
         item1.setState(new DecimalType("12.34"));
         item1.setStateDescriptionProviders(stateDescriptionProviders);
 
-        EnrichedItemDTO enrichedDTO = EnrichedItemDTOMapper.map(item1, false, null, null);
+        EnrichedItemDTO enrichedDTO = EnrichedItemDTOMapper.map(item1, false, null, null, null);
         assertThat(enrichedDTO, is(notNullValue()));
         assertThat(enrichedDTO.name, is("Item1"));
         assertThat(enrichedDTO.state, is("12.34"));

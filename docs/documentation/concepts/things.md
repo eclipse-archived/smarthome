@@ -15,7 +15,7 @@ Such properties can be basic information like an IP address, an access token for
 
 Things provide "channels", which represent the different functions the thing provides.
 Where the thing is the physical entity or source of information, the channel is a concrete function from this thing.
-A physical light bulb might have a dimmer channel and a color channel, both providing functionality of the one light bulb thing to the system.
+A physical light bulb might have a color temperature channel and a color channel, both providing functionality of the one light bulb thing to the system.
 For sources of information the thing might be the local weather with information from a web service with different channels like temperature, pressure and humidity.
 
 Channels are linked to items, where such links are the glue between the virtual and the physical layer.

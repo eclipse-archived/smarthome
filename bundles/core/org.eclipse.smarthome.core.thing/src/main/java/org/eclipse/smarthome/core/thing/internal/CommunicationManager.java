@@ -23,6 +23,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.events.Event;
@@ -72,6 +74,7 @@ import org.slf4j.LoggerFactory;
  * @author Simon Kaufmann - initial contribution and API, factored out of ThingManger
  *
  */
+@NonNullByDefault
 @Component(service = { EventSubscriber.class, CommunicationManager.class }, immediate = true)
 public class CommunicationManager implements EventSubscriber, RegistryChangeListener<ItemChannelLink> {
 
@@ -83,12 +86,19 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
 
     private final Logger logger = LoggerFactory.getLogger(CommunicationManager.class);
 
+    @NonNullByDefault({})
     private SystemProfileFactory defaultProfileFactory;
+    @NonNullByDefault({})
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
+    @NonNullByDefault({})
     private ThingRegistry thingRegistry;
+    @NonNullByDefault({})
     private ItemRegistry itemRegistry;
+    @NonNullByDefault({})
     private EventPublisher eventPublisher;
+    @NonNullByDefault({})
     private SafeCaller safeCaller;
+    @NonNullByDefault({})
     private ItemStateConverter itemStateConverter;
 
     // link UID -> profile
@@ -105,7 +115,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     }
 
     @Override
-    public EventFilter getEventFilter() {
+    public @Nullable EventFilter getEventFilter() {
         return null;
     }
 
@@ -120,11 +130,11 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         }
     }
 
-    private Thing getThing(ThingUID thingUID) {
+    private @Nullable Thing getThing(ThingUID thingUID) {
         return thingRegistry.get(thingUID);
     }
 
-    private Profile getProfile(ItemChannelLink link, Item item, Thing thing) {
+    private Profile getProfile(ItemChannelLink link, Item item, @Nullable Thing thing) {
         synchronized (profiles) {
             Profile profile = profiles.get(link.getUID());
             if (profile != null) {
@@ -147,7 +157,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
                 thingUID -> getThing(thingUID), itemName -> getItem(itemName));
     }
 
-    private ProfileTypeUID determineProfileTypeUID(ItemChannelLink link, Item item, Thing thing) {
+    private @Nullable ProfileTypeUID determineProfileTypeUID(ItemChannelLink link, Item item, @Nullable Thing thing) {
         ProfileTypeUID profileTypeUID = getConfiguredProfileTypeUID(link);
         Channel channel = null;
         if (profileTypeUID == null) {
@@ -172,7 +182,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         return profileTypeUID;
     }
 
-    private ProfileTypeUID getAdvice(ItemChannelLink link, Item item, Channel channel) {
+    private @Nullable ProfileTypeUID getAdvice(ItemChannelLink link, Item item, Channel channel) {
         ProfileTypeUID ret;
         for (ProfileAdvisor advisor : profileAdvisors) {
             ret = advisor.getSuggestedProfileTypeUID(channel, item.getType());
@@ -183,7 +193,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         return null;
     }
 
-    private ProfileTypeUID getConfiguredProfileTypeUID(ItemChannelLink link) {
+    private @Nullable ProfileTypeUID getConfiguredProfileTypeUID(ItemChannelLink link) {
         String profileName = (String) link.getConfiguration()
                 .get(ItemChannelLinkConfigDescriptionProvider.PARAM_PROFILE);
         if (profileName != null && !profileName.trim().isEmpty()) {
@@ -200,7 +210,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         return profileName;
     }
 
-    private Profile getProfileFromFactories(ProfileTypeUID profileTypeUID, ItemChannelLink link,
+    private @Nullable Profile getProfileFromFactories(ProfileTypeUID profileTypeUID, ItemChannelLink link,
             ProfileCallback callback) {
         ProfileContextImpl context = new ProfileContextImpl(link.getConfiguration());
         if (supportsProfileTypeUID(defaultProfileFactory, profileTypeUID)) {
@@ -290,7 +300,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         });
     }
 
-    private Item getItem(final String itemName) {
+    private @Nullable Item getItem(final String itemName) {
         return itemRegistry.get(itemName);
     }
 

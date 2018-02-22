@@ -14,6 +14,7 @@ package org.eclipse.smarthome.core.common.registry;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
@@ -126,9 +127,13 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         if (elements != null) {
             try {
                 K uid = element.getUID();
-                if (uid != null && get(uid) != null) {
-                    logger.warn("{} with key '{}' already exists! Failed to add a second with the same UID!",
-                            element.getClass().getName(), uid);
+                E existingElement = get(uid);
+                if (uid != null && existingElement != null) {
+                    logger.warn(
+                            "{} with key '{}' already exists from provider {}! Failed to add a second with the same UID from provider {}!",
+                            element.getClass().getSimpleName(), uid,
+                            getProvider(existingElement).getClass().getSimpleName(),
+                            provider.getClass().getSimpleName());
                     return;
                 }
                 onAddElement(element);
@@ -281,9 +286,13 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
             for (E element : elementsOfProvider) {
                 try {
                     K uid = element.getUID();
-                    if (uid != null && get(uid) != null) {
-                        logger.warn("{} with key'{}' already exists! Failed to add a second with the same UID!",
-                                element.getClass().getName(), uid);
+                    E existingElement = get(uid);
+                    if (uid != null && existingElement != null) {
+                        logger.warn(
+                                "{} with key '{}' already exists from provider {}! Failed to bulk-add a second with the same UID from provider {}!",
+                                element.getClass().getSimpleName(), uid,
+                                getProvider(existingElement).getClass().getSimpleName(),
+                                provider.getClass().getSimpleName());
                         continue;
                     }
                     onAddElement(element);
@@ -295,6 +304,15 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
             }
             logger.debug("Provider '{}' has been added.", provider.getClass().getName());
         }
+    }
+
+    public Provider<E> getProvider(E element) {
+        for (Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
+            if (entry.getValue().contains(element)) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     protected void setManagedProvider(ManagedProvider<E, K> provider) {

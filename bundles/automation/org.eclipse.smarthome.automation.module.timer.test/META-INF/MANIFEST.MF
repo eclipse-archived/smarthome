@@ -35,7 +35,7 @@ Import-Package:
  org.osgi.framework,
  org.osgi.service.event,
  org.osgi.util.tracker,
- org.slf4j;version="1.7.2"
+ org.slf4j
 Require-Bundle: 
  org.eclipse.smarthome.automation.api,
  org.eclipse.smarthome.automation.core,
@@ -43,4 +43,4 @@ Require-Bundle:
  org.eclipse.smarthome.automation.module.timer,
  org.eclipse.smarthome.automation.parser.gson,
  org.eclipse.smarthome.automation.providers,
- org.junit;bundle-version="4.0.0"
+ org.junit

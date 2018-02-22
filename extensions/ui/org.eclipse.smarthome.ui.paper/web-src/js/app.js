@@ -18,7 +18,8 @@ angular.module('PaperUI', [//
         templateUrl : 'partials/control.html',
         controller : 'ControlPageController',
         title : 'Control',
-        simpleHeader : true
+        simpleHeader : true,
+        reloadOnSearch : false
     }).when('/setup', {
         redirectTo : '/inbox/search'
     }).when('/inbox', {
@@ -50,7 +51,8 @@ angular.module('PaperUI', [//
     }).when('/configuration/services', {
         templateUrl : 'partials/configuration.html',
         controller : 'ServicesController',
-        title : 'Configuration'
+        title : 'Configuration',
+        reloadOnSearch : false
     }).when('/configuration/services/:servicePID', {
         templateUrl : 'partials/configuration.multiService.html',
         controller : 'MultiServicesController',
@@ -85,7 +87,8 @@ angular.module('PaperUI', [//
     }).when('/extensions', {
         templateUrl : 'partials/extensions.html',
         controller : 'ExtensionPageController',
-        title : moduleConfig.extensions && moduleConfig.extensions.hasOwnProperty('label') && moduleConfig.extensions['label'] ? moduleConfig.extensions['label'] : 'Extensions'
+        title : moduleConfig.extensions && moduleConfig.extensions.hasOwnProperty('label') && moduleConfig.extensions['label'] ? moduleConfig.extensions['label'] : 'Extensions',
+        reloadOnSearch : false
     }).when('/rules', {
         templateUrl : 'partials/rules.html',
         controller : 'RulesPageController',
@@ -368,7 +371,6 @@ angular.module('PaperUI', [//
     $rootScope.asArray = function(object) {
         return $.isArray(object) ? object : object ? [ object ] : [];
     }
-    $rootScope.itemUpdates = {};
     $rootScope.data = [];
     $rootScope.navigateToRoot = function() {
         $location.path('');
