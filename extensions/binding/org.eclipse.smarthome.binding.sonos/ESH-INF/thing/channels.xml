@@ -32,7 +32,7 @@
 	</channel-type>
 
 	<channel-type id="clearqueue" advanced="true">
-		<item-type>String</item-type>
+		<item-type>Switch</item-type>
 		<label>Clear Queue</label>
 		<description>Suppress all songs from the current queue</description>
 		<command-options>
