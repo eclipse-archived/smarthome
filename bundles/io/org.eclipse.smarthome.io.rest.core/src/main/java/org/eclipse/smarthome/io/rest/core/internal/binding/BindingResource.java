@@ -46,7 +46,6 @@ import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 import org.eclipse.smarthome.io.rest.core.config.ConfigurationService;
-import org.eclipse.smarthome.io.rest.core.internal.service.ConfigurableServiceResource;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;

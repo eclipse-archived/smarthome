@@ -38,6 +38,8 @@ import org.eclipse.smarthome.model.persistence.persistence.ItemConfig;
 import org.eclipse.smarthome.model.persistence.persistence.PersistenceConfiguration;
 import org.eclipse.smarthome.model.persistence.persistence.PersistenceModel;
 import org.eclipse.smarthome.model.persistence.persistence.Strategy;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * This class is the central part of the persistence management and delegation. It reads the persistence
@@ -47,6 +49,7 @@ import org.eclipse.smarthome.model.persistence.persistence.Strategy;
  * @author Markus Rathgeb - Move non-model logic to core.persistence
  *
  */
+@Component(immediate = true)
 public class PersistenceModelManager implements ModelRepositoryChangeListener {
 
     private ModelRepository modelRepository;
@@ -56,20 +59,21 @@ public class PersistenceModelManager implements ModelRepositoryChangeListener {
     public PersistenceModelManager() {
     }
 
-	protected void activate() {
-		modelRepository.addModelRepositoryChangeListener(this);
-		for (String modelName : modelRepository.getAllModelNamesOfType("persist")) {
-			addModel(modelName);
-		}
-	}
+    protected void activate() {
+        modelRepository.addModelRepositoryChangeListener(this);
+        for (String modelName : modelRepository.getAllModelNamesOfType("persist")) {
+            addModel(modelName);
+        }
+    }
 
-	protected void deactivate() {
-		modelRepository.removeModelRepositoryChangeListener(this);
-		for (String modelName : modelRepository.getAllModelNamesOfType("persist")) {
-			removeModel(modelName);
-		}
-	}
+    protected void deactivate() {
+        modelRepository.removeModelRepositoryChangeListener(this);
+        for (String modelName : modelRepository.getAllModelNamesOfType("persist")) {
+            removeModel(modelName);
+        }
+    }
 
+    @Reference
     protected void setModelRepository(ModelRepository modelRepository) {
         this.modelRepository = modelRepository;
     }
@@ -78,6 +82,7 @@ public class PersistenceModelManager implements ModelRepositoryChangeListener {
         this.modelRepository = null;
     }
 
+    @Reference
     protected void setPersistenceManager(final PersistenceManager manager) {
         this.manager = manager;
     }
@@ -98,25 +103,25 @@ public class PersistenceModelManager implements ModelRepositoryChangeListener {
         }
     }
 
-	private void addModel(String modelName) {
-		final PersistenceModel model = (PersistenceModel) modelRepository.getModel(modelName);
-		if (model != null) {
-		    String serviceName = serviceName(modelName);
-			manager.addConfig(serviceName, new PersistenceServiceConfiguration(mapConfigs(model.getConfigs()),
-		            mapStrategies(model.getDefaults()), mapStrategies(model.getStrategies())));
-		}
-	}
+    private void addModel(String modelName) {
+        final PersistenceModel model = (PersistenceModel) modelRepository.getModel(modelName);
+        if (model != null) {
+            String serviceName = serviceName(modelName);
+            manager.addConfig(serviceName, new PersistenceServiceConfiguration(mapConfigs(model.getConfigs()),
+                    mapStrategies(model.getDefaults()), mapStrategies(model.getStrategies())));
+        }
+    }
 
-	private void removeModel(String modelName) {
-		String serviceName = serviceName(modelName);
-		manager.removeConfig(serviceName);
-	}
+    private void removeModel(String modelName) {
+        String serviceName = serviceName(modelName);
+        manager.removeConfig(serviceName);
+    }
 
     private String serviceName(String modelName) {
-		return modelName.substring(0, modelName.length() - ".persist".length());
-	}
+        return modelName.substring(0, modelName.length() - ".persist".length());
+    }
 
-	private List<SimpleItemConfiguration> mapConfigs(List<PersistenceConfiguration> configs) {
+    private List<SimpleItemConfiguration> mapConfigs(List<PersistenceConfiguration> configs) {
         final List<SimpleItemConfiguration> lst = new LinkedList<>();
         for (final PersistenceConfiguration config : configs) {
             lst.add(mapConfig(config));

@@ -67,10 +67,8 @@ public class ParsingException extends Exception {
         StackTraceElement[] st = new StackTraceElement[size];
         for (int n = 0; n < exceptions.size(); n++) {
             StackTraceElement[] ste = exceptions.get(n).getStackTrace();
-            for (int i = 0; i < ste.length; i++) {
-                st[index] = ste[i];
-                index++;
-            }
+            System.arraycopy(ste, 0, st, index, ste.length);
+            index += ste.length;
         }
         return st;
     }

@@ -97,14 +97,14 @@ public class SunCalc {
         // At sunrise/sunset - calculations limits are reached
         double rOut = (elevation > 3) ? SC * (0.034 * Math.cos(DEG2RAD * (360 * dayOfYear / daysInYear)) + 1) : 0;
         double altitudeRatio = (altitude != null) ? 1 / Math.pow((1 - (6.5 / 288) * (altitude / 1000.0)), 5.256) : 1;
-        double M = (Math.sqrt(1229 + Math.pow(614 * sinAlpha, 2)) - 614 * sinAlpha) * altitudeRatio;
+        double m = (Math.sqrt(1229 + Math.pow(614 * sinAlpha, 2)) - 614 * sinAlpha) * altitudeRatio;
 
         // Direct radiation after atmospheric layer
         // 0.6 = Coefficient de transmissivité
-        double rDir = rOut * Math.pow(0.6, M) * sinAlpha;
+        double rDir = rOut * Math.pow(0.6, m) * sinAlpha;
 
         // Diffuse Radiation
-        double rDiff = rOut * (0.271 - 0.294 * Math.pow(0.6, M)) * sinAlpha;
+        double rDiff = rOut * (0.271 - 0.294 * Math.pow(0.6, m)) * sinAlpha;
         double rTot = rDir + rDiff;
 
         Radiation radiation = sun.getRadiation();
@@ -155,7 +155,7 @@ public class SunCalc {
         double jriseend = getSunriseJulianDate(jtransit, jsetstart);
         double w2 = getHourAngle(H1, phi, d);
         double jnau = getSunsetJulianDate(w2, m, lsun, lw, n);
-        double Jciv2 = getSunriseJulianDate(jtransit, jnau);
+        double jciv2 = getSunriseJulianDate(jtransit, jnau);
 
         double w3 = getHourAngle(H2, phi, d);
         double w4 = getHourAngle(H3, phi, d);
@@ -177,10 +177,10 @@ public class SunCalc {
         sun.setRise(new Range(DateTimeUtils.toCalendar(jrise), DateTimeUtils.toCalendar(jriseend)));
         sun.setSet(new Range(DateTimeUtils.toCalendar(jsetstart), DateTimeUtils.toCalendar(jset)));
 
-        sun.setCivilDawn(new Range(DateTimeUtils.toCalendar(Jciv2), DateTimeUtils.toCalendar(jrise)));
+        sun.setCivilDawn(new Range(DateTimeUtils.toCalendar(jciv2), DateTimeUtils.toCalendar(jrise)));
         sun.setCivilDusk(new Range(DateTimeUtils.toCalendar(jset), DateTimeUtils.toCalendar(jnau)));
 
-        sun.setNauticDawn(new Range(DateTimeUtils.toCalendar(jnau2), DateTimeUtils.toCalendar(Jciv2)));
+        sun.setNauticDawn(new Range(DateTimeUtils.toCalendar(jnau2), DateTimeUtils.toCalendar(jciv2)));
         sun.setNauticDusk(new Range(DateTimeUtils.toCalendar(jnau), DateTimeUtils.toCalendar(jastro)));
 
         boolean isSunUpAllDay = isSunUpAllDay(calendar, latitude, longitude, altitude);
@@ -308,8 +308,8 @@ public class SunCalc {
     }
 
     private double getAzimuth(double th, double a, double phi, double d) {
-        double H = th - a;
-        return Math.atan2(Math.sin(H), Math.cos(H) * Math.sin(phi) - Math.tan(d) * Math.cos(phi));
+        double h = th - a;
+        return Math.atan2(Math.sin(h), Math.cos(h) * Math.sin(phi) - Math.tan(d) * Math.cos(phi));
     }
 
     private double getElevation(double th, double a, double phi, double d) {

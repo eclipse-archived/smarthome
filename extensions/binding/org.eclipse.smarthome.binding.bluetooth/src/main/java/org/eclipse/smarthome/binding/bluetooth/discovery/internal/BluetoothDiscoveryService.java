@@ -54,7 +54,7 @@ public class BluetoothDiscoveryService extends AbstractDiscoveryService {
 
     private final Logger logger = LoggerFactory.getLogger(BluetoothDiscoveryService.class);
 
-    private final static int SEARCH_TIME = 15;
+    private static final int SEARCH_TIME = 15;
 
     private final Set<BluetoothAdapter> adapters = new CopyOnWriteArraySet<>();
     private final Set<BluetoothDiscoveryParticipant> participants = new CopyOnWriteArraySet<>();

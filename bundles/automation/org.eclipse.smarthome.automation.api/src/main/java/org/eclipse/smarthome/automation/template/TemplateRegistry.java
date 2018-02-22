@@ -26,7 +26,7 @@ import org.eclipse.smarthome.core.common.registry.Registry;
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
- * @param <T>
+ * @param <E>
  */
 public interface TemplateRegistry<E extends Template> extends Registry<E, String> {
 

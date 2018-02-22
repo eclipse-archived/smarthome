@@ -84,6 +84,10 @@ import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.internal.UIActivator;
 import org.eclipse.smarthome.ui.items.ItemUIProvider;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,6 +102,7 @@ import org.slf4j.LoggerFactory;
  * @author Erdoan Hadzhiyusein - Adapted the class to work with the new DateTimeType
  *
  */
+@Component
 public class ItemUIRegistryImpl implements ItemUIRegistry {
 
     private final Logger logger = LoggerFactory.getLogger(ItemUIRegistryImpl.class);
@@ -124,6 +129,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     public ItemUIRegistryImpl() {
     }
 
+    @Reference(policy = ReferencePolicy.DYNAMIC)
     public void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
     }
@@ -132,6 +138,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         this.itemRegistry = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addItemUIProvider(ItemUIProvider itemUIProvider) {
         itemUIProviders.add(itemUIProvider);
     }

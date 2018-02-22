@@ -27,4 +27,6 @@
 
     <!-- Remove this after thing-description-1.0.0.xsd is published from https://github.com/eclipse/smarthome/pull/4818 -->
     <suppress files=".+xml" checks="EshInfXmlValidationCheck" />
+    
+    <suppress files=".+org.eclipse.smarthome.binding.tradfri.internal.TradfriColor.java" checks="LocalVariableNameCheck"/>
 </suppressions>

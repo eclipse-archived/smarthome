@@ -91,7 +91,7 @@ public class AutomationResourceBundlesEventQueue<E> implements Runnable {
     public void run() {
         boolean waitForEvents = true;
         while (true) {
-            List<BundleEvent> l_queue = null;
+            List<BundleEvent> lQueue = null;
             synchronized (this) {
                 if (closed) {
                     notifyAll();
@@ -111,10 +111,10 @@ public class AutomationResourceBundlesEventQueue<E> implements Runnable {
                     notifyAll();
                     return;
                 }
-                l_queue = queue;
+                lQueue = queue;
                 shared = true;
             }
-            Iterator<BundleEvent> events = l_queue.iterator();
+            Iterator<BundleEvent> events = lQueue.iterator();
             while (events.hasNext()) {
                 BundleEvent event = events.next();
                 try {
