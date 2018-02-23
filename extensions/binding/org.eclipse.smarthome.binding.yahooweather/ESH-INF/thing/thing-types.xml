@@ -17,9 +17,9 @@
 		<config-description>
 			<parameter name="location" type="integer" required="true">
 				<label>Location</label>
-				<description>Location for the weather information.
-                    Syntax is WOEID, see https://en.wikipedia.org/wiki/WOEID.
-                </description>
+				<description>Location for the weather information
+					Syntax is WOEID, see https://en.wikipedia.org/wiki/WOEID.
+				</description>
 			</parameter>
 			<parameter name="refresh" type="integer" min="60">
 				<label>Refresh interval</label>
@@ -30,27 +30,30 @@
 	</thing-type>
 
 	<channel-type id="temperature">
-		<item-type>Number:Temperature</item-type>
+		<item-type>Number</item-type>
 		<label>Temperature</label>
-		<description>Current temperature</description>
+		<description>Current temperature in degrees celsius</description>
 		<category>Temperature</category>
-		<state readOnly="true" pattern="%.1f %unit%"/>
+		<state readOnly="true" pattern="%.1f °C">
+		</state>
 	</channel-type>
 
 	<channel-type id="humidity">
-		<item-type>Number:Dimensionless</item-type>
+		<item-type>Number</item-type>
 		<label>Humidity</label>
 		<description>Current humidity in %</description>
 		<category>Humidity</category>
-		<state readOnly="true" pattern="%d %%" />
+		<state readOnly="true" pattern="%d %%">
+		</state>
 	</channel-type>
 
 	<channel-type id="pressure">
-		<item-type>Number:Pressure</item-type>
+		<item-type>Number</item-type>
 		<label>Pressure</label>
-		<description>Current pressure</description>
+		<description>Current pressure in millibar</description>
 		<category>Pressure</category>
-		<state readOnly="true" pattern="%.1f %unit%"/>
+		<state readOnly="true" pattern="%.1f hPa">
+		</state>
 	</channel-type>
 
 </thing:thing-descriptions>
