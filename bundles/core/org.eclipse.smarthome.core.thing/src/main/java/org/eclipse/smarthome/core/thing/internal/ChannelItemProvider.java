@@ -64,6 +64,8 @@ public class ChannelItemProvider implements ItemProvider {
 
     private final Logger logger = LoggerFactory.getLogger(ChannelItemProvider.class);
 
+    private final long INITIALIZATION_DELAY_NANOS = TimeUnit.SECONDS.toNanos(2);
+
     private final Set<ProviderChangeListener<Item>> listeners = new HashSet<>();
 
     private LocaleProvider localeProvider;
@@ -75,22 +77,16 @@ public class ChannelItemProvider implements ItemProvider {
     private ChannelTypeRegistry channelTypeRegistry;
 
     private boolean enabled = true;
-    private boolean initialized = false;
+    private volatile boolean initialized = false;
     private volatile long lastUpdate = System.nanoTime();
+    private ScheduledExecutorService executor;
 
     @Override
     public Collection<Item> getAll() {
         if (!enabled || !initialized) {
             return Collections.emptySet();
         } else {
-            synchronized (this) {
-                if (items == null) {
-                    items = new ConcurrentHashMap<>();
-                    for (ItemChannelLink link : linkRegistry.getAll()) {
-                        createItemForLink(link);
-                    }
-                }
-            }
+            initializeItems();
             return new HashSet<>(items.values());
         }
     }
@@ -179,51 +175,74 @@ public class ChannelItemProvider implements ItemProvider {
         }
 
         if (enabled) {
+            addRegistryChangeListeners();
+
             boolean initialDelay = properties == null
                     || !"false".equalsIgnoreCase((String) properties.get("initialDelay"));
             if (initialDelay) {
-                delayedInitialize(Executors.newSingleThreadScheduledExecutor());
+                executor = Executors.newSingleThreadScheduledExecutor();
+                delayedInitialize();
             } else {
                 initialize();
             }
         } else {
             logger.debug("Disabling channel item provider.");
-            for (ProviderChangeListener<Item> listener : listeners) {
-                for (Item item : getAll()) {
-                    listener.removed(this, item);
-                }
-            }
-            removeRegistryChangeListeners();
+            disableChannelItemProvider();
         }
     }
 
-    private void delayedInitialize(ScheduledExecutorService executor) {
+    private synchronized void disableChannelItemProvider() {
+        if (executor != null) {
+            executor.shutdownNow();
+            executor = null;
+        }
+
+        for (ProviderChangeListener<Item> listener : listeners) {
+            for (Item item : getAll()) {
+                listener.removed(this, item);
+            }
+        }
+        removeRegistryChangeListeners();
+
+        initialized = false;
+        items = null;
+    }
+
+    private synchronized void delayedInitialize() {
+        if (Thread.currentThread().isInterrupted()) {
+            return;
+        }
         // we wait until no further new links or items are announced in order to avoid creation of
         // items which then must be removed again immediately.
-        final long diff = System.nanoTime() - lastUpdate - TimeUnit.SECONDS.toNanos(2);
+        final long diff = System.nanoTime() - lastUpdate - INITIALIZATION_DELAY_NANOS;
         if (diff < 0) {
-            executor.schedule(() -> delayedInitialize(executor), -diff, TimeUnit.NANOSECONDS);
+            executor.schedule(() -> delayedInitialize(), -diff, TimeUnit.NANOSECONDS);
         } else {
             executor.shutdown();
+            executor = null;
+
             initialize();
         }
     }
 
     private void initialize() {
-        logger.debug("Enabling channel item provider.");
+        initializeItems();
         initialized = true;
-        // simply call getAll() will create the items and notify all registered listeners automatically
-        getAll();
-        addRegistryChangeListeners();
+    }
+
+    private synchronized void initializeItems() {
+        if (items != null) {
+            return;
+        }
+        items = new ConcurrentHashMap<>();
+        for (ItemChannelLink link : linkRegistry.getAll()) {
+            createItemForLink(link);
+        }
     }
 
     @Deactivate
     protected void deactivate() {
-        removeRegistryChangeListeners();
-        synchronized (this) {
-            initialized = false;
-            items = null;
-        }
+        disableChannelItemProvider();
     }
 
     private void addRegistryChangeListeners() {
@@ -258,13 +277,11 @@ public class ChannelItemProvider implements ItemProvider {
                     }
                 }
             }
-            if (item != null) {
-                if (item instanceof GenericItem) {
-                    GenericItem gItem = (GenericItem) item;
-                    gItem.setLabel(getLabel(channel));
-                    gItem.setCategory(getCategory(channel));
-                    gItem.addTags(channel.getDefaultTags());
-                }
+            if (item instanceof GenericItem) {
+                GenericItem gItem = (GenericItem) item;
+                gItem.setLabel(getLabel(channel));
+                gItem.setCategory(getCategory(channel));
+                gItem.addTags(channel.getDefaultTags());
             }
             if (item != null) {
                 items.put(item.getName(), item);
@@ -322,6 +339,9 @@ public class ChannelItemProvider implements ItemProvider {
 
         @Override
         public void added(Thing element) {
+            if (!initialized) {
+                return;
+            }
             for (Channel channel : element.getChannels()) {
                 for (ItemChannelLink link : linkRegistry.getLinks(channel.getUID())) {
                     createItemForLink(link);
@@ -331,6 +351,9 @@ public class ChannelItemProvider implements ItemProvider {
 
         @Override
         public void removed(Thing element) {
+            if (!initialized) {
+                return;
+            }
             removeItem(element.getUID().toString());
         }
 
@@ -345,12 +368,18 @@ public class ChannelItemProvider implements ItemProvider {
 
         @Override
         public void added(ItemChannelLink element) {
+            if (!initialized) {
+                lastUpdate = System.nanoTime();
+                return;
+            }
             createItemForLink(element);
-            lastUpdate = System.nanoTime();
         }
 
         @Override
         public void removed(ItemChannelLink element) {
+            if (!initialized) {
+                return;
+            }
             removeItem(element.getItemName());
         }
 
@@ -365,6 +394,10 @@ public class ChannelItemProvider implements ItemProvider {
 
         @Override
         public void beforeAdding(Item element) {
+            if (!initialized) {
+                lastUpdate = System.nanoTime();
+                return;
+            }
             // check, if it is our own item
             for (Item item : items.values()) {
                 if (item == element) {
@@ -379,11 +412,13 @@ public class ChannelItemProvider implements ItemProvider {
                 }
                 items.remove(element.getName());
             }
-            lastUpdate = System.nanoTime();
         }
 
         @Override
         public void afterRemoving(Item element) {
+            if (!initialized) {
+                return;
+            }
             // check, if it is our own item
             for (Item item : items.values()) {
                 if (item == element) {
@@ -401,4 +436,5 @@ public class ChannelItemProvider implements ItemProvider {
         }
 
     };
+
 }

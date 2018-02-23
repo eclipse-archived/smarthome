@@ -140,7 +140,6 @@ public class ResourceFilterImpl implements ResourceFilter {
             line = reader.readLine();
         }
         return ret;
-
     }
 
 }

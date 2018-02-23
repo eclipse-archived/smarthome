@@ -14,7 +14,7 @@ package org.eclipse.smarthome.magic.binding.handler;
 
 import java.util.Map;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -27,14 +27,15 @@ import org.eclipse.smarthome.core.types.Command;
  * @author Stefan Triller
  *
  */
+@NonNullByDefault
 public class MagicConfigurableThingHandler extends BaseThingHandler {
 
-    public MagicConfigurableThingHandler(@NonNull Thing thing) {
+    public MagicConfigurableThingHandler(Thing thing) {
         super(thing);
     }
 
     @Override
-    public void handleCommand(@NonNull ChannelUID channelUID, Command command) {
+    public void handleCommand(ChannelUID channelUID, Command command) {
     }
 
     @Override

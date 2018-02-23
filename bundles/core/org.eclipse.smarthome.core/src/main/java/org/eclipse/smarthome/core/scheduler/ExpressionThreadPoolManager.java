@@ -251,7 +251,6 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
                                         earliestExecution = time;
                                     }
                                 }
-
                             } else {
                                 logger.debug("Expression '{}' has no future executions anymore", e);
                                 finishedExpressions.add(e);
@@ -280,7 +279,6 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
                                     monitoringLock.unlock();
                                 }
                             }
-
                         } else {
                             logger.trace("Putting the monitor thread '{}' to sleep for {} ms",
                                     Thread.currentThread().getName(), THREAD_MONITOR_SLEEP);
@@ -355,7 +353,6 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
             } else {
                 return super.remove(task);
             }
-
         }
 
         public boolean removeFutures(Runnable task) {

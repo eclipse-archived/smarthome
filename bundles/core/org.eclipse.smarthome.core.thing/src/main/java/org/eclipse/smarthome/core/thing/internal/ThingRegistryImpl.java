@@ -15,13 +15,11 @@ package org.eclipse.smarthome.core.thing.internal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
-import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -54,11 +52,11 @@ import org.slf4j.LoggerFactory;
 @Component(immediate = true)
 public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingProvider> implements ThingRegistry {
 
-    private Logger logger = LoggerFactory.getLogger(ThingRegistryImpl.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(ThingRegistryImpl.class.getName());
 
-    private List<ThingTracker> thingTrackers = new CopyOnWriteArrayList<>();
+    private final List<ThingTracker> thingTrackers = new CopyOnWriteArrayList<>();
 
-    private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
+    private final List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
 
     public ThingRegistryImpl() {
         super(ThingProvider.class);
@@ -265,15 +263,6 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
 
     protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         this.thingHandlerFactories.remove(thingHandlerFactory);
-    }
-
-    public Provider<Thing> getProvider(Thing thing) {
-        for (Entry<Provider<Thing>, Collection<Thing>> entry : elementMap.entrySet()) {
-            if (entry.getValue().contains(thing)) {
-                return entry.getKey();
-            }
-        }
-        return null;
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)

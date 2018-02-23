@@ -91,7 +91,6 @@ public class Connection {
     @Override
     public boolean equals(Object obj) {
         return (inputName != null && obj instanceof Connection) && inputName.equals(((Connection) obj).getInputName());
-
     };
 
     @Override
@@ -139,7 +138,6 @@ public class Connection {
                     outputName = output;
                     Connection connection = new Connection(inputName, null, outputName);
                     connections.add(connection);
-
                 } else {
                     int index = output.indexOf('.');
                     if (index != -1) {
@@ -147,7 +145,6 @@ public class Connection {
                         outputName = output.substring(index + 1);
                         Connection connection = new Connection(inputName, outputId, outputName);
                         connections.add(connection);
-
                     } else {
                         log.error("Wrong format of Output : {}: {}", inputName, output);
                         continue;

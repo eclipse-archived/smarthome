@@ -12,20 +12,39 @@
  */
 package org.eclipse.smarthome.core.internal.i18n;
 
+import static org.eclipse.smarthome.core.library.unit.MetricPrefix.HECTO;
+
 import java.text.MessageFormat;
 import java.time.DateTimeException;
 import java.time.ZoneId;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.TimeZone;
 
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.Pressure;
+import javax.measure.quantity.Speed;
+import javax.measure.quantity.Temperature;
+import javax.measure.spi.SystemOfUnits;
+
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.i18n.LocationProvider;
 import org.eclipse.smarthome.core.i18n.TimeZoneProvider;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
+import org.eclipse.smarthome.core.i18n.UnitProvider;
+import org.eclipse.smarthome.core.library.dimension.Intensity;
 import org.eclipse.smarthome.core.library.types.PointType;
+import org.eclipse.smarthome.core.library.unit.ImperialUnits;
+import org.eclipse.smarthome.core.library.unit.SIUnits;
+import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -59,7 +78,8 @@ import org.slf4j.LoggerFactory;
 @Component(immediate = true, configurationPid = "org.eclipse.smarthome.core.i18nprovider", property = {
         "service.pid=org.eclipse.smarthome.core.i18nprovider", "service.config.description.uri:String=system:i18n",
         "service.config.label:String=Regional Settings", "service.config.category:String=system" })
-public class I18nProviderImpl implements TranslationProvider, LocaleProvider, LocationProvider, TimeZoneProvider {
+public class I18nProviderImpl
+        implements TranslationProvider, LocaleProvider, LocationProvider, TimeZoneProvider, UnitProvider {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -81,9 +101,15 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
     static final String TIMEZONE = "timezone";
     private ZoneId timeZone;
 
+    // UnitProvider
+    private static final String MEASUREMENT_SYSTEM = "measurementSystem";
+    private SystemOfUnits measurementSystem;
+    private final Map<Class<? extends Quantity<?>>, Map<SystemOfUnits, Unit<? extends Quantity<?>>>> dimensionMap = new HashMap<>();
+
     @Activate
     @SuppressWarnings("unchecked")
     protected void activate(ComponentContext componentContext) {
+        initDimensionMap();
         modified((Map<String, Object>) componentContext.getProperties());
 
         this.resourceBundleTracker = new ResourceBundleTracker(componentContext.getBundleContext(), this);
@@ -103,14 +129,46 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
         final String variant = toStringOrNull(config.get(VARIANT));
         final String location = toStringOrNull(config.get(LOCATION));
         final String zoneId = toStringOrNull(config.get(TIMEZONE));
+        final String measurementSystem = toStringOrNull(config.get(MEASUREMENT_SYSTEM));
 
         setTimeZone(zoneId);
         setLocation(location);
+        setLocale(language, script, region, variant);
+        setMeasurementSystem(measurementSystem);
+    }
 
+    private void setMeasurementSystem(String measurementSystem) {
+        SystemOfUnits oldMeasurementSystem = this.measurementSystem;
+
+        String ms = StringUtils.isBlank(measurementSystem) ? "" : measurementSystem;
+        switch (ms) {
+            case "SI":
+                this.measurementSystem = SIUnits.getInstance();
+                break;
+            case "US":
+                this.measurementSystem = ImperialUnits.getInstance();
+                break;
+            default:
+                logger.debug("Error setting measurement system for value '{}'.", measurementSystem);
+                this.measurementSystem = null;
+        }
+
+        if (oldMeasurementSystem != null && this.measurementSystem == null) {
+            logger.info("Measurement system is not set, falling back to locale based system.");
+        } else if (this.measurementSystem != null && !this.measurementSystem.equals(oldMeasurementSystem)) {
+            logger.info("Measurement system set to '{}'.", this.measurementSystem.getName());
+        }
+    }
+
+    private void setLocale(String language, String script, String region, String variant) {
+        Locale oldLocale = this.locale;
         if (StringUtils.isEmpty(language)) {
             // at least the language must be defined otherwise the system default locale is used
-            logger.debug("No language set, falling back to the default locale");
+            logger.debug("No language set, setting locale to 'null'.");
             locale = null;
+            if (oldLocale != null) {
+                logger.info("Locale is not set, falling back to the default locale");
+            }
             return;
         }
 
@@ -145,7 +203,9 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
 
         locale = builder.build();
 
-        logger.info("Locale set to {}, Location set to {}, Time zone set to {}", locale, this.location, this.timeZone);
+        if (!this.locale.equals(oldLocale)) {
+            logger.info("Locale set to '{}'.", this.locale);
+        }
     }
 
     private String toStringOrNull(Object value) {
@@ -153,6 +213,7 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
     }
 
     private void setLocation(final String location) {
+        PointType oldLocation = this.location;
         if (location != null) {
             try {
                 this.location = PointType.valueOf(location);
@@ -161,21 +222,31 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
                 logger.warn("Could not set new location: {}, keeping old one, error message: {}", location,
                         e.getMessage());
             }
+            if (!this.location.equals(oldLocation)) {
+                logger.info("Location set to '{}'.", this.location);
+            }
         }
+
     }
 
     private void setTimeZone(final String zoneId) {
+        ZoneId oldTimeZone = this.timeZone;
         if (StringUtils.isBlank(zoneId)) {
-            timeZone = TimeZone.getDefault().toZoneId();
-            logger.debug("No time zone set, falling back to the default time zone '{}'.", timeZone.toString());
+            timeZone = null;
         } else {
             try {
                 timeZone = ZoneId.of(zoneId);
             } catch (DateTimeException e) {
-                timeZone = TimeZone.getDefault().toZoneId();
-                logger.warn("Error setting time zone '{}', falling back to the default time zone '{}': {}", zoneId,
-                        timeZone.toString(), e.getMessage());
+                logger.warn("Error setting time zone '{}', falling back to the default time zone: {}", zoneId,
+                        e.getMessage());
+                timeZone = null;
             }
+        }
+
+        if (oldTimeZone != null && this.timeZone == null) {
+            logger.info("Time zone is not set, falling back to the default time zone.");
+        } else if (this.timeZone != null && !this.timeZone.equals(oldTimeZone)) {
+            logger.info("Time zone set to '{}'.", this.timeZone);
         }
     }
 
@@ -186,6 +257,9 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
 
     @Override
     public ZoneId getTimeZone() {
+        if (timeZone == null) {
+            return TimeZone.getDefault().toZoneId();
+        }
         return this.timeZone;
     }
 
@@ -221,4 +295,67 @@ public class I18nProviderImpl implements TranslationProvider, LocaleProvider, Lo
 
         return text;
     }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends @NonNull Quantity<T>> Unit<T> getUnit(Class<T> dimension) {
+        Map<SystemOfUnits, Unit<? extends Quantity<?>>> map = dimensionMap.get(dimension);
+
+        if (map != null) {
+            return (Unit<T>) map.get(getMeasurementSystem());
+        }
+
+        return null;
+    }
+
+    @Override
+    public SystemOfUnits getMeasurementSystem() {
+        if (measurementSystem != null) {
+            return measurementSystem;
+        }
+
+        // Only US and Liberia use the Imperial System.
+        if (Locale.US.equals(locale) || Locale.forLanguageTag("en-LR").equals(locale)) {
+            return ImperialUnits.getInstance();
+        }
+        return SIUnits.getInstance();
+    }
+
+    private void initDimensionMap() {
+        Map<SystemOfUnits, Unit<? extends Quantity<?>>> temperatureMap = new HashMap<>();
+        temperatureMap.put(SIUnits.getInstance(), SIUnits.CELSIUS);
+        temperatureMap.put(ImperialUnits.getInstance(), ImperialUnits.FAHRENHEIT);
+        dimensionMap.put(Temperature.class, temperatureMap);
+
+        Map<SystemOfUnits, Unit<? extends Quantity<?>>> pressureMap = new HashMap<>();
+        pressureMap.put(SIUnits.getInstance(), HECTO(SIUnits.PASCAL));
+        pressureMap.put(ImperialUnits.getInstance(), ImperialUnits.INCH_OF_MERCURY);
+        dimensionMap.put(Pressure.class, pressureMap);
+
+        Map<SystemOfUnits, Unit<? extends Quantity<?>>> speedMap = new HashMap<>();
+        speedMap.put(SIUnits.getInstance(), SIUnits.KILOMETRE_PER_HOUR);
+        speedMap.put(ImperialUnits.getInstance(), ImperialUnits.MILES_PER_HOUR);
+        dimensionMap.put(Speed.class, speedMap);
+
+        Map<SystemOfUnits, Unit<? extends Quantity<?>>> lengthMap = new HashMap<>();
+        lengthMap.put(SIUnits.getInstance(), SIUnits.METRE);
+        lengthMap.put(ImperialUnits.getInstance(), ImperialUnits.INCH);
+        dimensionMap.put(Length.class, lengthMap);
+
+        Map<SystemOfUnits, Unit<? extends Quantity<?>>> intensityMap = new HashMap<>();
+        intensityMap.put(SIUnits.getInstance(), SmartHomeUnits.IRRADIANCE);
+        intensityMap.put(ImperialUnits.getInstance(), SmartHomeUnits.IRRADIANCE);
+        dimensionMap.put(Intensity.class, intensityMap);
+
+        Map<SystemOfUnits, Unit<? extends Quantity<?>>> percentMap = new HashMap<>();
+        percentMap.put(SIUnits.getInstance(), SmartHomeUnits.ONE);
+        percentMap.put(ImperialUnits.getInstance(), SmartHomeUnits.ONE);
+        dimensionMap.put(Dimensionless.class, percentMap);
+
+        Map<SystemOfUnits, Unit<? extends Quantity<?>>> angleMap = new HashMap<>();
+        angleMap.put(SIUnits.getInstance(), SmartHomeUnits.DEGREE_ANGLE);
+        angleMap.put(ImperialUnits.getInstance(), SmartHomeUnits.DEGREE_ANGLE);
+        dimensionMap.put(Angle.class, angleMap);
+    }
+
 }

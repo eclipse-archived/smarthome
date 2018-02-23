@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -42,8 +41,8 @@ public class ThingTypeBuilder {
     private @Nullable String category;
     private @Nullable String description;
 
-    private String bindingId;
-    private String thingTypeId;
+    private final String bindingId;
+    private final String thingTypeId;
     private String label;
 
     /**
@@ -54,7 +53,6 @@ public class ThingTypeBuilder {
      * @param thingTypeId the thingTypeId the resulting {@link ThingType} will have (builds a {@link ThingTypeUID} with
      *            {@code bindingId:thingTypeId}. Must not be null or empty.
      * @param label the label of the resulting {@link ThingType}. Must not be null or empty.
-     *
      * @return the new {@link ThingTypeBuilder}.
      */
     public static ThingTypeBuilder instance(String bindingId, String thingTypeId, String label) {
@@ -67,7 +65,6 @@ public class ThingTypeBuilder {
      *
      * @param thingTypeUID the {@link ThingTypeUID} the resulting {@link ThingType} will have. Must not be null.
      * @param label the label of the resulting {@link ThingType}. Must not be null or empty.
-     *
      * @return the new {@link ThingTypeBuilder}.
      */
     public static ThingTypeBuilder instance(ThingTypeUID thingTypeUID, String label) {
@@ -79,7 +76,6 @@ public class ThingTypeBuilder {
      *
      * @param thingType take all properties from this {@link ThingType}.
      * @return a new {@link ThingTypeBuilder} configured with all properties from the given {@link ThingType};
-     *
      * @return the new {@link ThingTypeBuilder}.
      */
     public static ThingTypeBuilder instance(ThingType thingType) {
@@ -111,7 +107,6 @@ public class ThingTypeBuilder {
      * Builds and returns a new {@link ThingType} according to the given values from this builder.
      *
      * @return a new {@link ThingType} according to the given values from this builder.
-     *
      * @throws IllegalStateException if one of {@code bindingId}, {@code thingTypeId} or {@code label} are not given.
      */
     public ThingType build() {
@@ -134,7 +129,6 @@ public class ThingTypeBuilder {
      * Builds and returns a new {@link BridgeType} according to the given values from this builder.
      *
      * @return a new {@link BridgeType} according to the given values from this builder.
-     *
      * @throws IllegalStateException if one of {@code bindingId}, {@code thingTypeId} or {@code label} are not given.
      */
     public BridgeType buildBridge() {
@@ -183,12 +177,12 @@ public class ThingTypeBuilder {
         return this;
     }
 
-    public ThingTypeBuilder withChannelGroupDefinitions(List<@NonNull ChannelGroupDefinition> channelGroupDefinitions) {
+    public ThingTypeBuilder withChannelGroupDefinitions(List<ChannelGroupDefinition> channelGroupDefinitions) {
         this.channelGroupDefinitions = channelGroupDefinitions;
         return this;
     }
 
-    public ThingTypeBuilder withProperties(Map<@NonNull String, String> properties) {
+    public ThingTypeBuilder withProperties(Map<String, String> properties) {
         this.properties = properties;
         return this;
     }
@@ -198,7 +192,7 @@ public class ThingTypeBuilder {
         return this;
     }
 
-    public ThingTypeBuilder withExtensibleChannelTypeIds(List<@NonNull String> extensibleChannelTypeIds) {
+    public ThingTypeBuilder withExtensibleChannelTypeIds(List<String> extensibleChannelTypeIds) {
         this.extensibleChannelTypeIds = extensibleChannelTypeIds;
         return this;
     }

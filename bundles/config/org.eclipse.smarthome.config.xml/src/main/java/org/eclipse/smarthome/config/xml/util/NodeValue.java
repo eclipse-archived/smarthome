@@ -36,11 +36,9 @@ public class NodeValue implements NodeName {
      * @param nodeName the name of the node this object belongs to (must neither be null, nor empty)
      * @param attributes the attributes of the node this object belongs to (could be null or empty)
      * @param value the value of the node this object belongs to (could be null or empty)
-     *
      * @throws IllegalArgumentException if the name of the node is null or empty
      */
     public NodeValue(String nodeName, Map<String, String> attributes, Object value) throws IllegalArgumentException {
-
         if ((nodeName == null) || (nodeName.isEmpty())) {
             throw new IllegalArgumentException("The name of the node must neither be null nor empty!");
         }

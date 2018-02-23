@@ -14,7 +14,7 @@ package org.eclipse.smarthome.binding.weatherunderground.internal.json;
 
 import java.math.BigDecimal;
 import java.net.URL;
-import java.util.Calendar;
+import java.time.ZonedDateTime;
 
 /**
  * The {@link WeatherUndergroundJsonForecastDay} is the Java class used
@@ -35,7 +35,7 @@ public class WeatherUndergroundJsonForecastDay {
 
     private String conditions;
 
-    // private String icon;
+    private String icon;
     private String icon_url;
     // private String skyicon;
 
@@ -65,8 +65,8 @@ public class WeatherUndergroundJsonForecastDay {
      *
      * @return the forecast date and time or null if not defined
      */
-    public Calendar getForecastTime() {
-        return WeatherUndergroundJsonUtils.convertToCalendar((date == null) ? null : date.getEpoch());
+    public ZonedDateTime getForecastTime() {
+        return WeatherUndergroundJsonUtils.convertToZonedDateTime((date == null) ? null : date.getEpoch());
     }
 
     /**
@@ -92,12 +92,23 @@ public class WeatherUndergroundJsonForecastDay {
     /**
      * Get the icon URL representing the weather forecast conditions
      *
-     * Used to update the channel forecastDayX#iconUrl
+     * Used to update the channel forecastDayX#icon
      *
      * @return the icon URL representing the weather forecast conditions or null if not defined
      */
     public URL getIcon() {
         return WeatherUndergroundJsonUtils.getValidUrl(icon_url);
+    }
+
+    /**
+     * Get the icon key used in the URL representing the weather forecast conditions
+     *
+     * Used to update the channel forecastDayX#iconKey
+     *
+     * @return the icon key used in the URL representing the weather forecast conditions
+     */
+    public String getIconKey() {
+        return icon;
     }
 
     /**

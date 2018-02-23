@@ -25,12 +25,9 @@ public final class EventOption {
     /**
      * Creates a {@link EventOption} object.
      *
-     * @param value
-     *            value of the event
-     * @param label
-     *            label
-     * @throws IllegalArgumentException
-     *             if value is null
+     * @param value value of the event
+     * @param label label
+     * @throws IllegalArgumentException if value is null
      */
     public EventOption(String value, String label) {
         if (value == null) {

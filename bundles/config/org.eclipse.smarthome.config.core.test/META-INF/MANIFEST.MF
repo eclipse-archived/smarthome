@@ -15,5 +15,9 @@ Import-Package:
  org.codehaus.groovy.runtime.typehandling,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.test,
+ org.eclipse.smarthome.test.java,
  org.hamcrest;core=split,
- org.junit;version="4.0.0"
+ org.junit;version="4.0.0",
+ org.mockito,
+ org.mockito.invocation,
+ org.mockito.stubbing

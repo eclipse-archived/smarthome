@@ -24,6 +24,8 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.osgi.framework.Bundle;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * This OSGi service could be used to localize a config description using the I18N mechanism of the Eclipse SmartHome
@@ -32,11 +34,13 @@ import org.osgi.framework.Bundle;
  * @author Markus Rathgeb - Move code from XML config description provider to separate service
  *
  */
+@Component(immediate = true, service = { ConfigI18nLocalizationService.class })
 public class ConfigI18nLocalizationService {
 
     private ConfigDescriptionI18nUtil configDescriptionParamI18nUtil;
     private ConfigDescriptionGroupI18nUtil configDescriptionGroupI18nUtil;
 
+    @Reference
     protected void setTranslationProvider(final TranslationProvider i18nProvider) {
         this.configDescriptionParamI18nUtil = new ConfigDescriptionI18nUtil(i18nProvider);
         this.configDescriptionGroupI18nUtil = new ConfigDescriptionGroupI18nUtil(i18nProvider);
@@ -58,7 +62,6 @@ public class ConfigI18nLocalizationService {
      */
     public ConfigDescription getLocalizedConfigDescription(final Bundle bundle,
             final ConfigDescription configDescription, final Locale locale) {
-
         final List<ConfigDescriptionParameter> localizedConfigDescriptionParameters = new ArrayList<>(
                 configDescription.getParameters().size());
 
@@ -95,7 +98,6 @@ public class ConfigI18nLocalizationService {
     public ConfigDescriptionParameter getLocalizedConfigDescriptionParameter(final Bundle bundle,
             final ConfigDescription configDescription, final ConfigDescriptionParameter parameter,
             final Locale locale) {
-
         final URI configDescriptionURI = configDescription.getUID();
         final String parameterName = parameter.getName();
 
@@ -140,7 +142,6 @@ public class ConfigI18nLocalizationService {
     public ConfigDescriptionParameterGroup getLocalizedConfigDescriptionGroup(final Bundle bundle,
             final ConfigDescription configDescription, final ConfigDescriptionParameterGroup group,
             final Locale locale) {
-
         final URI configDescriptionURI = configDescription.getUID();
         final String name = group.getName();
 

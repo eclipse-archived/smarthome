@@ -47,24 +47,16 @@ public class ResourceBundleClassLoader extends ClassLoader {
     /**
      * Creates a new instance of this class with the specified parameters.
      *
-     * @param bundle
-     *            the bundle whose files should be mapped (must not be null)
-     *
-     * @param path
-     *            the path within the bundle which should be considered to be
+     * @param bundle the bundle whose files should be mapped (must not be null)
+     * @param path the path within the bundle which should be considered to be
      *            mapped. If null is set, all files within the bundle are
      *            considered.
-     *
-     * @param filePattern
-     *            the pattern for files to be considered within the specified
+     * @param filePattern the pattern for files to be considered within the specified
      *            path. If null is set, all files within the specified path are
      *            considered.
-     *
-     * @throws IllegalArgumentException
-     *             if the bundle is null
+     * @throws IllegalArgumentException if the bundle is null
      */
     public ResourceBundleClassLoader(Bundle bundle, String path, String filePattern) throws IllegalArgumentException {
-
         if (bundle == null) {
             throw new IllegalArgumentException("The bundle must not be null!");
         }

@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.binding.yahooweather.handler;
 
 import static org.eclipse.smarthome.binding.yahooweather.YahooWeatherBindingConstants.*;
+import static org.eclipse.smarthome.core.library.unit.MetricPrefix.HECTO;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -20,12 +21,18 @@ import java.util.Collection;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Pressure;
+import javax.measure.quantity.Temperature;
+
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.yahooweather.internal.connection.YahooWeatherConnection;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusMessage;
 import org.eclipse.smarthome.core.cache.ExpiringCacheMap;
-import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
+import org.eclipse.smarthome.core.library.unit.SIUnits;
+import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -46,6 +53,8 @@ import org.slf4j.LoggerFactory;
  * @author Stefan Bußweiler - Integrate new thing status handling
  * @author Thomas Höfer - Added config status provider
  * @author Christoph Weitkamp - Changed use of caching utils to ESH ExpiringCacheMap
+ * @author Gaël L'hopital - Added usage of QuantityType
+ * @author Henning Treu - Added usage of QuantityType
  *
  */
 public class YahooWeatherHandler extends ConfigStatusThingHandler {
@@ -202,23 +211,30 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
         if (weatherData != null) {
             String humidity = getValue(weatherData, "atmosphere", "humidity");
             if (humidity != null) {
-                return new DecimalType(humidity);
+                return new QuantityType<Dimensionless>(Double.parseDouble(humidity), SmartHomeUnits.PERCENT);
             }
         }
         return UnDefType.UNDEF;
     }
 
     private State getPressure() {
+        State result = UnDefType.UNDEF;
         if (weatherData != null) {
             String pressure = getValue(weatherData, "atmosphere", "pressure");
             if (pressure != null) {
-                DecimalType ret = new DecimalType(pressure);
-                if (ret.doubleValue() > 10000.0) {
-                    // Unreasonably high, record so far was 1085,8 hPa
-                    // The Yahoo API currently returns inHg values although it claims they are mbar - therefore convert
-                    ret = new DecimalType(BigDecimal.valueOf((long) (ret.doubleValue() / 0.3386388158), 2));
+                double pressDouble = Double.parseDouble(pressure);
+                if (pressDouble > 10000) {
+                    // The Yahoo! waether API delivers wrong pressure values. Instead of the requested mbar
+                    // it responds with mbar * 33.86 which is somehow inHg*1000.
+                    // This is documented in several issues:
+                    // https://github.com/pvizeli/yahooweather/issues/2
+                    // https://github.com/monkeecreate/jquery.simpleWeather/issues/227
+                    // So we provide a "special" unit here:
+                    result = new QuantityType<Pressure>(pressDouble / 33.86d, HECTO(SIUnits.PASCAL));
+                } else {
+                    result = new QuantityType<Pressure>(pressDouble, HECTO(SIUnits.PASCAL));
                 }
-                return ret;
+                return result;
             }
         }
         return UnDefType.UNDEF;
@@ -228,7 +244,7 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
         if (weatherData != null) {
             String temp = getValue(weatherData, "condition", "temp");
             if (temp != null) {
-                return new DecimalType(temp);
+                return new QuantityType<Temperature>(Double.parseDouble(temp), SIUnits.CELSIUS);
             }
         }
         return UnDefType.UNDEF;

@@ -30,8 +30,8 @@ public interface UpnpIOParticipant {
     /**
      * Called to notify if a GENA subscription succeeded or failed.
      *
-     * @param service - the UPnP service subscribed
-     * @param succeeded - true if the subscription succeeded; false if failed
+     * @param service the UPnP service subscribed
+     * @param succeeded true if the subscription succeeded; false if failed
      */
     public void onServiceSubscribed(String service, boolean succeeded);
 
@@ -39,7 +39,7 @@ public interface UpnpIOParticipant {
      * Called when the UPNP IO service is unable to poll the UDN of the participant, given that
      * a addStatusListener is registered.
      *
-     * @param status - false, if the poll fails when the polling was previously successful; true if the poll succeeds
+     * @param status false, if the poll fails when the polling was previously successful; true if the poll succeeds
      *            when the polling was previously failing
      */
     public void onStatusChanged(boolean status);

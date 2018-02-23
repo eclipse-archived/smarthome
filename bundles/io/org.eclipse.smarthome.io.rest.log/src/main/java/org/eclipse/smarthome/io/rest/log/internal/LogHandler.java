@@ -106,7 +106,6 @@ public class LogHandler implements RESTResource {
             Collections.reverse(result);
             return Response.ok(result).build();
         }
-
     }
 
     @POST

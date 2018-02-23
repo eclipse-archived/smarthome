@@ -21,7 +21,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -50,6 +49,7 @@ import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
@@ -410,8 +410,8 @@ public class NtpOSGiTest extends JavaOSGiTest {
         ThingUID ntpUid = new ThingUID(NtpBindingConstants.THING_TYPE_NTP, TEST_THING_ID);
 
         ChannelUID channelUID = new ChannelUID(ntpUid, channelID);
-        Channel channel = new Channel(channelUID, channelTypeUID, acceptedItemType, ChannelKind.STATE,
-                channelConfiguration, Collections.emptySet(), null, "label", null);
+        Channel channel = ChannelBuilder.create(channelUID, acceptedItemType).withType(channelTypeUID)
+                .withConfiguration(channelConfiguration).withLabel("label").withKind(ChannelKind.STATE).build();
 
         ntpThing = ThingBuilder.create(NtpBindingConstants.THING_TYPE_NTP, ntpUid).withConfiguration(configuration)
                 .withChannel(channel).build();

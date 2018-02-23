@@ -63,7 +63,6 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
     }
 
     protected List<String> readSupportedBridgeTypeUIDs(NodeIterator nodeIterator, UnmarshallingContext context) {
-
         Object nextNode = nodeIterator.next("supported-bridge-type-refs", false);
 
         if (nextNode != null) {
@@ -80,7 +79,6 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
     @SuppressWarnings("unchecked")
     protected List<ChannelXmlResult>[] getChannelTypeReferenceObjects(NodeIterator nodeIterator)
             throws ConversionException {
-
         List<ChannelXmlResult> channelTypeReferences = null;
         List<ChannelXmlResult> channelGroupTypeReferences = null;
 
@@ -100,7 +98,6 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
     @Override
     protected ThingTypeXmlResult unmarshalType(HierarchicalStreamReader reader, UnmarshallingContext context,
             Map<String, String> attributes, NodeIterator nodeIterator) throws ConversionException {
-
         ThingTypeXmlResult thingTypeXmlResult = new ThingTypeXmlResult(
                 new ThingTypeUID(super.getUID(attributes, context)), readSupportedBridgeTypeUIDs(nodeIterator, context),
                 super.readLabel(nodeIterator), super.readDescription(nodeIterator), readCategory(nodeIterator),

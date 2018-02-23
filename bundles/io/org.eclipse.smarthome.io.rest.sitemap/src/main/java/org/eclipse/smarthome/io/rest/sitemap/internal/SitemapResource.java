@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletResponse;
@@ -48,6 +49,7 @@ import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.StateChangeListener;
+import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
@@ -125,9 +127,9 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
 
     private SitemapSubscriptionService subscriptions;
 
-    private java.util.List<SitemapProvider> sitemapProviders = new ArrayList<>();
+    private final java.util.List<SitemapProvider> sitemapProviders = new ArrayList<>();
 
-    private Map<String, EventOutput> eventOutputs = new MapMaker().weakValues().makeMap();
+    private final Map<String, EventOutput> eventOutputs = new MapMaker().weakValues().makeMap();
 
     protected void activate() {
         broadcaster = new SseBroadcaster();
@@ -403,8 +405,16 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
         if (widget.getItem() != null) {
             try {
                 Item item = itemUIRegistry.getItem(widget.getItem());
-                if (item != null) {
-                    bean.item = EnrichedItemDTOMapper.map(item, false, UriBuilder.fromUri(uri).build(), locale);
+                String widgetTypeName = widget.eClass().getInstanceTypeName()
+                        .substring(widget.eClass().getInstanceTypeName().lastIndexOf(".") + 1);
+                boolean isMapview = "mapview".equalsIgnoreCase(widgetTypeName);
+                Predicate<Item> itemFilter = (i -> i.getType().equals(CoreItemFactory.LOCATION));
+                bean.item = EnrichedItemDTOMapper.map(item, isMapview, itemFilter, UriBuilder.fromUri(uri).build(),
+                        locale);
+                bean.state = itemUIRegistry.getState(widget).toFullString();
+                // In case the widget state is identical to the item state, its value is set to null.
+                if (bean.state != null && bean.state.equals(bean.item.state)) {
+                    bean.state = null;
                 }
             } catch (ItemNotFoundException e) {
                 logger.debug("{}", e.getMessage());

@@ -36,10 +36,8 @@ public class ThingUID extends UID {
     /**
      * Instantiates a new thing UID.
      *
-     * @param thingType
-     *            the thing type
-     * @param id
-     *            the id
+     * @param thingType the thing type
+     * @param id the id
      */
     public ThingUID(ThingTypeUID thingTypeUID, String id) {
         super(thingTypeUID.getBindingId(), thingTypeUID.getId(), id);
@@ -48,12 +46,9 @@ public class ThingUID extends UID {
     /**
      * Instantiates a new thing UID.
      *
-     * @param thingType
-     *            the thing type
-     * @param bridgeUID
-     *            the bridge UID through which the thing is accessed
-     * @param id
-     *            the id of the thing
+     * @param thingType the thing type
+     * @param bridgeUID the bridge UID through which the thing is accessed
+     * @param id the id of the thing
      */
     public ThingUID(ThingTypeUID thingTypeUID, ThingUID bridgeUID, String id) {
         super(getArray(thingTypeUID.getBindingId(), thingTypeUID.getId(), id, bridgeUID.getBridgeIds(),
@@ -63,10 +58,8 @@ public class ThingUID extends UID {
     /**
      * Instantiates a new thing UID.
      *
-     * @param thingType
-     *            the thing type
-     * @param id
-     *            the id
+     * @param thingType the thing type
+     * @param id the id
      */
     public ThingUID(ThingTypeUID thingTypeUID, String id, String... bridgeIds) {
         super(getArray(thingTypeUID.getBindingId(), thingTypeUID.getId(), id, bridgeIds));
@@ -75,10 +68,8 @@ public class ThingUID extends UID {
     /**
      * Instantiates a new thing UID.
      *
-     * @param bindingId
-     *            the binding id
-     * @param id
-     *            the id
+     * @param bindingId the binding id
+     * @param id the id
      */
     public ThingUID(String bindingId, String id) {
         super(bindingId, NO_THING_TYPE, id);
@@ -87,12 +78,9 @@ public class ThingUID extends UID {
     /**
      * Instantiates a new thing UID.
      *
-     * @param bindingId
-     *            the binding id
-     * @param bridgeUID
-     *            the bridge UID through which the thing is accessed
-     * @param id
-     *            the id
+     * @param bindingId the binding id
+     * @param bridgeUID the bridge UID through which the thing is accessed
+     * @param id the id
      */
     public ThingUID(String bindingId, ThingUID bridgeUID, String id) {
         super(getArray(bindingId, NO_THING_TYPE, id, bridgeUID.getBridgeIds(), bridgeUID.getId()));
@@ -106,9 +94,7 @@ public class ThingUID extends UID {
         String[] result = new String[3 + bridgeIds.length];
         result[0] = bindingId;
         result[1] = thingTypeId;
-        for (int i = 0; i < bridgeIds.length; i++) {
-            result[i + 2] = bridgeIds[i];
-        }
+        System.arraycopy(bridgeIds, 0, result, 2, bridgeIds.length);
         result[result.length - 1] = id;
         return result;
     }
@@ -123,12 +109,9 @@ public class ThingUID extends UID {
     /**
      * Instantiates a new thing UID.
      *
-     * @param bindingId
-     *            the binding id
-     * @param thingTypeId
-     *            the thing type id
-     * @param id
-     *            the id
+     * @param bindingId the binding id
+     * @param thingTypeId the thing type id
+     * @param id the id
      */
     public ThingUID(String bindingId, String thingTypeId, String id) {
         super(bindingId, thingTypeId, id);
@@ -137,8 +120,7 @@ public class ThingUID extends UID {
     /**
      * Instantiates a new thing UID.
      *
-     * @param thingUID
-     *            the thing UID
+     * @param thingUID the thing UID
      */
     public ThingUID(String thingUID) {
         super(thingUID);
@@ -147,8 +129,7 @@ public class ThingUID extends UID {
     /**
      * Instantiates a new thing UID.
      *
-     * @param segments
-     *            segments (must not be null)
+     * @param segments segments (must not be null)
      */
     public ThingUID(String... segments) {
         super(segments);
@@ -203,7 +184,7 @@ public class ThingUID extends UID {
     /**
      * Returns the id.
      *
-     * @return id
+     * @return id the id
      */
     public String getId() {
         String[] segments = getSegments();

@@ -16,7 +16,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
@@ -32,6 +33,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * @author Thomas Höfer - Added thing and thing type properties
  * @author Andre Fuechsel - Added representationProperty
  */
+@NonNullByDefault
 public class BridgeType extends ThingType {
 
     /**
@@ -40,7 +42,6 @@ public class BridgeType extends ThingType {
      */
     @Deprecated
     public BridgeType(String bindingId, String thingTypeId, String label) throws IllegalArgumentException {
-
         this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, null, true, null, null, null, null, null);
     }
 
@@ -56,7 +57,6 @@ public class BridgeType extends ThingType {
     public BridgeType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
             List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions,
             Map<String, String> properties, URI configDescriptionURI) throws IllegalArgumentException {
-
         this(uid, supportedBridgeTypeUIDs, label, description, null, true, null, channelDefinitions,
                 channelGroupDefinitions, properties, configDescriptionURI);
     }
@@ -74,7 +74,6 @@ public class BridgeType extends ThingType {
             String category, boolean listed, List<ChannelDefinition> channelDefinitions,
             List<ChannelGroupDefinition> channelGroupDefinitions, Map<String, String> properties,
             URI configDescriptionURI) throws IllegalArgumentException {
-
         this(uid, supportedBridgeTypeUIDs, label, description, category, listed, null, channelDefinitions,
                 channelGroupDefinitions, properties, configDescriptionURI);
     }
@@ -88,11 +87,11 @@ public class BridgeType extends ThingType {
      *             or the the meta information is null
      */
     @Deprecated
-    public BridgeType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
-            String category, boolean listed, String representationProperty, List<ChannelDefinition> channelDefinitions,
-            List<ChannelGroupDefinition> channelGroupDefinitions, Map<String, String> properties,
-            URI configDescriptionURI) throws IllegalArgumentException {
-
+    public BridgeType(ThingTypeUID uid, @Nullable List<String> supportedBridgeTypeUIDs, String label,
+            @Nullable String description, @Nullable String category, boolean listed,
+            @Nullable String representationProperty, @Nullable List<ChannelDefinition> channelDefinitions,
+            @Nullable List<ChannelGroupDefinition> channelGroupDefinitions, @Nullable Map<String, String> properties,
+            @Nullable URI configDescriptionURI) throws IllegalArgumentException {
         super(uid, supportedBridgeTypeUIDs, label, description, category, listed, representationProperty,
                 channelDefinitions, channelGroupDefinitions, properties, configDescriptionURI);
     }
@@ -112,6 +111,7 @@ public class BridgeType extends ThingType {
      *            (must neither be null nor empty)
      * @param description the human readable description for the according type
      *            (could be null or empty)
+     * @param category the category of the bridge (could be null)
      * @param listed determines whether it should be listed for manually pairing or not
      * @param representationProperty name of the property that uniquely identifies this Thing
      * @param channelDefinitions the channels this Thing type provides (could be null or empty)
@@ -120,14 +120,14 @@ public class BridgeType extends ThingType {
      * @param properties the properties this Thing type provides (could be null)
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
      * @param extensibleChannelTypeIds the channel-type ids this thing-type is extensible with (could be null or empty).
-     *
-     * @throws IllegalArgumentException
-     *             if the UID is null or empty, or the the meta information is null
+     * @throws IllegalArgumentException if the UID is null or empty, or the the meta information is null
      */
-    BridgeType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
-            String category, boolean listed, String representationProperty, List<ChannelDefinition> channelDefinitions,
-            List<ChannelGroupDefinition> channelGroupDefinitions, Map<@NonNull String, String> properties,
-            URI configDescriptionURI, List<String> extensibleChannelTypeIds) throws IllegalArgumentException {
+    BridgeType(ThingTypeUID uid, @Nullable List<String> supportedBridgeTypeUIDs, String label,
+            @Nullable String description, @Nullable String category, boolean listed,
+            @Nullable String representationProperty, @Nullable List<ChannelDefinition> channelDefinitions,
+            @Nullable List<ChannelGroupDefinition> channelGroupDefinitions, @Nullable Map<String, String> properties,
+            @Nullable URI configDescriptionURI, @Nullable List<String> extensibleChannelTypeIds)
+            throws IllegalArgumentException {
         super(uid, supportedBridgeTypeUIDs, label, description, category, listed, representationProperty,
                 channelDefinitions, channelGroupDefinitions, properties, configDescriptionURI,
                 extensibleChannelTypeIds);

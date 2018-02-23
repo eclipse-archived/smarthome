@@ -117,25 +117,38 @@ public class NtpHandler extends BaseThingHandler {
             logger.debug("Initializing NTP handler for '{}'.", getThing().getUID());
 
             Configuration config = getThing().getConfiguration();
-            hostname = (String) config.get(PROPERTY_NTP_SERVER_HOST);
+            hostname = config.get(PROPERTY_NTP_SERVER_HOST).toString();
             port = (BigDecimal) config.get(PROPERTY_NTP_SERVER_PORT);
             refreshInterval = (BigDecimal) config.get(PROPERTY_REFRESH_INTERVAL);
             refreshNtp = (BigDecimal) config.get(PROPERTY_REFRESH_NTP);
             refreshNtpCount = 0;
 
             try {
-                timeZone = TimeZone.getTimeZone((String) config.get(PROPERTY_TIMEZONE));
+                String timeZoneConfigValue = config.get(PROPERTY_TIMEZONE).toString();
+                if (timeZoneConfigValue != null) {
+                    timeZone = TimeZone.getTimeZone(timeZoneConfigValue);
+                } else {
+                    timeZone = TimeZone.getDefault();
+                    logger.debug("{} using default TZ '{}', because configuration property '{}' is null.",
+                            getThing().getUID(), timeZone, PROPERTY_TIMEZONE);
+                }
             } catch (Exception e) {
                 timeZone = TimeZone.getDefault();
-                logger.debug("{} using default TZ: {}", getThing().getUID(), timeZone);
+                logger.debug("{} using default TZ '{}' due to an occurred exception: ", getThing().getUID(), timeZone, e);
             }
 
             try {
-                String localeString = (String) config.get(PROPERTY_LOCALE);
-                locale = new Locale(localeString);
+                String localeStringConfigValue = config.get(PROPERTY_LOCALE).toString();
+                if (localeStringConfigValue != null) {
+                    locale = new Locale(localeStringConfigValue);
+                } else {
+                    locale = localeProvider.getLocale();
+                    logger.debug("{} using default locale '{}', because configuration property '{}' is null.",
+                            getThing().getUID(), locale, PROPERTY_LOCALE);
+                }
             } catch (Exception e) {
                 locale = localeProvider.getLocale();
-                logger.debug("{} using default locale: {}", getThing().getUID(), locale);
+                logger.debug("{} using default locale '{}' due to an occurred exception: ", getThing().getUID(), locale, e);
             }
             dateTimeChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_DATE_TIME);
             stringChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_STRING);
@@ -143,7 +156,7 @@ public class NtpHandler extends BaseThingHandler {
                 Channel stringChannel = getThing().getChannel(stringChannelUID.getId());
                 if (stringChannel != null) {
                     Configuration cfg = stringChannel.getConfiguration();
-                    String dateTimeFormatString = (String) cfg.get(PROPERTY_DATE_TIME_FORMAT);
+                    String dateTimeFormatString = cfg.get(PROPERTY_DATE_TIME_FORMAT).toString();
                     if (!(dateTimeFormatString == null || dateTimeFormatString.isEmpty())) {
                         dateTimeFormat = new SimpleDateFormat(dateTimeFormatString);
                     } else {
@@ -216,7 +229,7 @@ public class NtpHandler extends BaseThingHandler {
      * Queries the given timeserver <code>hostname</code> and returns the time
      * in milliseconds.
      *
-     * @param hostname - the timeserver to query
+     * @param hostname the timeserver to query
      * @return the time in milliseconds or the current time of the system if an
      *         error occurs.
      */

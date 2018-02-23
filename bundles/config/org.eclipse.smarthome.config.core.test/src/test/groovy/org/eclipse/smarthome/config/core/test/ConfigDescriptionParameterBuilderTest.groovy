@@ -145,7 +145,7 @@ class ConfigDescriptionParameterBuilderTest {
         assertFalse param.isReadOnly()
         assertFalse param.isMultiple()
         assertFalse param.isAdvanced()
-        assertFalse param.getLimitToOptions()
+        assertTrue param.getLimitToOptions()
         def param2 = new ConfigDescriptionParameter("Dummy", Type.BOOLEAN, null, null,
                 null, null, null, null, null, null,
                 null, null, null, null,
@@ -155,7 +155,7 @@ class ConfigDescriptionParameterBuilderTest {
         assertFalse param2.isReadOnly()
         assertFalse param2.isMultiple()
         assertFalse param2.isAdvanced()
-        assertFalse param2.getLimitToOptions()
+        assertTrue param2.getLimitToOptions()
         assertTrue param2.getFilterCriteria().isEmpty()
         assertTrue param2.getOptions().isEmpty()
     }

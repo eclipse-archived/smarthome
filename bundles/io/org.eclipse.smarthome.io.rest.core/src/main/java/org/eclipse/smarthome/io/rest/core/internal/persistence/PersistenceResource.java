@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.io.rest.core.internal.persistence;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -34,6 +36,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.smarthome.core.auth.Role;
+import org.eclipse.smarthome.core.i18n.TimeZoneProvider;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
@@ -75,6 +78,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Kai Kreuzer - Refactored to use PersistenceServiceRegistryImpl
  * @author Franck Dechavanne - Added DTOs to ApiResponses
  * @author Erdoan Hadzhiyusein - Adapted the convertTime() method to work with the new DateTimeType
+ * @author Lyubomir Papazov - Change java.util.Date references to be of type java.time.ZonedDateTime
  *
  */
 @Path(PersistenceResource.PATH)
@@ -83,7 +87,6 @@ import io.swagger.annotations.ApiResponses;
 public class PersistenceResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceResource.class);
-    private final int MILLISECONDS_PER_DAY = 86400000;
 
     private final String MODIFYABLE = "Modifiable";
     private final String QUERYABLE = "Queryable";
@@ -94,6 +97,7 @@ public class PersistenceResource implements RESTResource {
 
     private ItemRegistry itemRegistry;
     private PersistenceServiceRegistry persistenceServiceRegistry;
+    private TimeZoneProvider timeZoneProvider;
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setPersistenceServiceRegistry(PersistenceServiceRegistry persistenceServiceRegistry) {
@@ -102,6 +106,15 @@ public class PersistenceResource implements RESTResource {
 
     protected void unsetPersistenceServiceRegistry(PersistenceServiceRegistry persistenceServiceRegistry) {
         this.persistenceServiceRegistry = null;
+    }
+
+    @Reference
+    protected void setTimeZoneProvider(TimeZoneProvider timeZoneProvider) {
+        this.timeZoneProvider = timeZoneProvider;
+    }
+
+    protected void unsetTimeZoneProvider(TimeZoneProvider timeZoneProvider) {
+        this.timeZoneProvider = null;
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
@@ -120,7 +133,6 @@ public class PersistenceResource implements RESTResource {
     @ApiResponses(value = @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List"))
     public Response httpGetPersistenceServices(@Context HttpHeaders headers,
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
-
         Locale locale = LocaleUtil.getLocale(language);
 
         Object responseObject = getPersistenceServiceList(locale);
@@ -135,7 +147,6 @@ public class PersistenceResource implements RESTResource {
     @ApiResponses(value = @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List"))
     public Response httpGetPersistenceServiceItems(@Context HttpHeaders headers,
             @ApiParam(value = "Id of the persistence service. If not provided the default service will be used", required = false) @QueryParam("serviceId") String serviceId) {
-
         return getServiceItemList(serviceId);
     }
 
@@ -158,7 +169,6 @@ public class PersistenceResource implements RESTResource {
             @ApiParam(value = "Page number of data to return. This parameter will enable paging.", required = false) @QueryParam("page") int pageNumber,
             @ApiParam(value = "The length of each page.", required = false) @QueryParam("pagelength") int pageLength,
             @ApiParam(value = "Gets one value before and after the requested period.", required = false) @QueryParam("boundary") boolean boundary) {
-
         return getItemHistoryDTO(serviceId, itemName, startTime, endTime, pageNumber, pageLength, boundary);
     }
 
@@ -178,7 +188,6 @@ public class PersistenceResource implements RESTResource {
                     + "]", required = true) @QueryParam("starttime") String startTime,
             @ApiParam(value = "End time of the data to return. [" + DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS
                     + "]", required = true) @QueryParam("endtime") String endTime) {
-
         return deletePersistenceItemData(serviceId, itemName, startTime, endTime);
     }
 
@@ -195,13 +204,12 @@ public class PersistenceResource implements RESTResource {
             @ApiParam(value = "Time of the data to be stored. Will default to current time. ["
                     + DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS + "]", required = true) @QueryParam("time") String time,
             @ApiParam(value = "The state to store.", required = true) @QueryParam("state") String value) {
-
         return putItemState(serviceId, itemName, value, time);
     }
 
-    private Date convertTime(String sTime) {
+    private ZonedDateTime convertTime(String sTime) {
         DateTimeType dateTime = new DateTimeType(sTime);
-        return Date.from(dateTime.getZonedDateTime().toInstant());
+        return dateTime.getZonedDateTime();
     }
 
     private Response getItemHistoryDTO(String serviceId, String itemName, String timeBegin, String timeEnd,
@@ -228,8 +236,8 @@ public class PersistenceResource implements RESTResource {
 
         QueryablePersistenceService qService = (QueryablePersistenceService) service;
 
-        Date dateTimeBegin = new Date();
-        Date dateTimeEnd = dateTimeBegin;
+        ZonedDateTime dateTimeBegin = ZonedDateTime.now();
+        ZonedDateTime dateTimeEnd = dateTimeBegin;
         if (timeBegin != null) {
             dateTimeBegin = convertTime(timeBegin);
         }
@@ -239,16 +247,21 @@ public class PersistenceResource implements RESTResource {
         }
 
         // End now...
-        if (dateTimeEnd.getTime() == 0) {
-            dateTimeEnd = new Date();
+        if (dateTimeEnd.toEpochSecond() == 0) {
+            dateTimeEnd = ZonedDateTime.of(LocalDateTime.now(), timeZoneProvider.getTimeZone());
         }
-        if (dateTimeBegin.getTime() == 0) {
-            dateTimeBegin = new Date(dateTimeEnd.getTime() - MILLISECONDS_PER_DAY);
+        if (dateTimeBegin.toEpochSecond() == 0) {
+            // Default to 1 days data if the times are the same or the start time is newer
+            // than the end time
+            dateTimeBegin = ZonedDateTime.of(dateTimeEnd.toLocalDateTime().plusDays(-1),
+                    timeZoneProvider.getTimeZone());
         }
 
-        // Default to 1 days data if the times are the same or the start time is newer than the end time
-        if (dateTimeBegin.getTime() >= dateTimeEnd.getTime()) {
-            dateTimeBegin = new Date(dateTimeEnd.getTime() - MILLISECONDS_PER_DAY);
+        // Default to 1 days data if the times are the same or the start time is newer
+        // than the end time
+        if (dateTimeBegin.isAfter(dateTimeEnd) || dateTimeBegin.isEqual(dateTimeEnd)) {
+            dateTimeBegin = ZonedDateTime.of(dateTimeEnd.toLocalDateTime().plusDays(-1),
+                    timeZoneProvider.getTimeZone());
         }
 
         FilterCriteria filter;
@@ -273,7 +286,7 @@ public class PersistenceResource implements RESTResource {
             filter.setOrdering(Ordering.DESCENDING);
             result = qService.query(filter);
             if (result != null && result.iterator().hasNext()) {
-                dto.addData(dateTimeBegin.getTime(), result.iterator().next().getState());
+                dto.addData(dateTimeBegin.toInstant().toEpochMilli(), result.iterator().next().getState());
                 quantity++;
             }
         }
@@ -317,7 +330,7 @@ public class PersistenceResource implements RESTResource {
             filter.setOrdering(Ordering.ASCENDING);
             result = qService.query(filter);
             if (result != null && result.iterator().hasNext()) {
-                dto.addData(dateTimeEnd.getTime(), result.iterator().next().getState());
+                dto.addData(dateTimeEnd.toInstant().toEpochMilli(), result.iterator().next().getState());
                 quantity++;
             }
         }
@@ -406,9 +419,9 @@ public class PersistenceResource implements RESTResource {
             return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "The start and end time must be set");
         }
 
-        Date dateTimeBegin = convertTime(timeBegin);
-        Date dateTimeEnd = convertTime(timeEnd);
-        if (dateTimeEnd.before(dateTimeBegin)) {
+        ZonedDateTime dateTimeBegin = convertTime(timeBegin);
+        ZonedDateTime dateTimeEnd = convertTime(timeEnd);
+        if (dateTimeEnd.isBefore(dateTimeBegin)) {
             return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "Start time must be earlier than end time");
         }
 
@@ -462,11 +475,11 @@ public class PersistenceResource implements RESTResource {
             return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "State could not be parsed: " + value);
         }
 
-        Date dateTime = null;
+        ZonedDateTime dateTime = null;
         if (time != null && time.length() != 0) {
             dateTime = convertTime(time);
         }
-        if (dateTime == null || dateTime.getTime() == 0) {
+        if (dateTime == null || dateTime.toEpochSecond() == 0) {
             logger.warn("Error with persistence store to {}. Time badly formatted {}.", itemName, time);
             return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "Time badly formatted.");
         }
@@ -479,7 +492,7 @@ public class PersistenceResource implements RESTResource {
 
         ModifiablePersistenceService mService = (ModifiablePersistenceService) service;
 
-        mService.store(item, dateTime, state);
+        mService.store(item, Date.from(dateTime.toInstant()), state);
         return Response.status(Status.OK).build();
     }
 

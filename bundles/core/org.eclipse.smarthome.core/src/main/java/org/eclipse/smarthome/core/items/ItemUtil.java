@@ -12,11 +12,15 @@
  */
 package org.eclipse.smarthome.core.items;
 
+import java.util.Objects;
+
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.types.State;
-import org.eclipse.smarthome.core.types.UnDefType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 
 /**
  * The {@link ItemUtil} class contains utility methods for {@link Item} objects.
@@ -27,8 +31,10 @@ import org.slf4j.LoggerFactory;
  * @author Simon Kaufmann - added type conversion
  * @author Martin van Wingerden - when converting types convert null to UnDefType.NULL
  */
+@NonNullByDefault
 public class ItemUtil {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ItemUtil.class);
+
+    public static final String EXTENSION_SEPARATOR = ":";
 
     /**
      * The constructor is private.
@@ -50,7 +56,6 @@ public class ItemUtil {
      * </ul>
      *
      * @param itemName the name of the item to be checked (could be null or empty)
-     *
      * @return true if the specified name is a valid item name, otherwise false
      */
     public static boolean isValidItemName(final String itemName) {
@@ -72,7 +77,6 @@ public class ItemUtil {
      * </ul>
      *
      * @param itemName the name of the item to be checked (could be null or empty)
-     *
      * @throws IllegalArgumentException if the name of the item is invalid
      */
     public static void assertValidItemName(String itemName) throws IllegalArgumentException {
@@ -81,27 +85,57 @@ public class ItemUtil {
         }
     }
 
-    public static State convertToAcceptedState(State state, Item item) {
-        if (state == null) {
-            LOGGER.error("A conversion of null was requested", new NullPointerException("state should not be null")); // NOPMD
-            return UnDefType.NULL;
+    /**
+     * Get the main item type from an item type name. The name may consist of an extended item type where an extension
+     * is separated by ":".
+     *
+     * @param itemTypeName the item type name, e.g. "Number:Temperature" or "Switch".
+     * @return the main item type without the extension.
+     */
+    public static String getMainItemType(String itemTypeName) {
+        Objects.requireNonNull(itemTypeName);
+
+        if (itemTypeName.contains(EXTENSION_SEPARATOR)) {
+            return itemTypeName.substring(0, itemTypeName.indexOf(EXTENSION_SEPARATOR));
         }
 
-        if (item != null && !isAccepted(item, state)) {
-            for (Class<? extends State> acceptedType : item.getAcceptedDataTypes()) {
-                State convertedState = state.as(acceptedType);
-                if (convertedState != null) {
-                    LOGGER.debug("Converting {} '{}' to {} '{}' for item '{}'", state.getClass().getSimpleName(), state,
-                            convertedState.getClass().getSimpleName(), convertedState, item.getName());
-                    return convertedState;
-                }
-            }
-        }
-        return state;
+        return itemTypeName;
     }
 
-    private static boolean isAccepted(Item item, State state) {
-        return item.getAcceptedDataTypes().contains(state.getClass());
+    /**
+     * Get the optional extension from an item type name.
+     *
+     * @param itemTypeName the item type name, e.g. "Number:Temperature" or "Switch".
+     * @return the extension from the item type name, {@code null} in case no extension is defined.
+     */
+    public static @Nullable String getItemTypeExtension(@Nullable String itemTypeName) {
+        if (itemTypeName == null) {
+            return null;
+        }
+        if (itemTypeName.contains(ItemUtil.EXTENSION_SEPARATOR)) {
+            return itemTypeName.substring(itemTypeName.indexOf(ItemUtil.EXTENSION_SEPARATOR) + 1);
+        }
+
+        return null;
+    }
+
+    /**
+     * @deprecated use DS service {@link ItemStateConverter#convertToAcceptedState(State, Item)} instead.
+     */
+    @Deprecated
+    public static @Nullable State convertToAcceptedState(@Nullable State state, Item item) {
+        BundleContext bundleContext = FrameworkUtil.getBundle(ItemUtil.class).getBundleContext();
+        ServiceReference<ItemStateConverter> service = bundleContext.getServiceReference(ItemStateConverter.class);
+        if (service == null) {
+            return null;
+        }
+
+        ItemStateConverter itemStateConverter = bundleContext.getService(service);
+        if (itemStateConverter == null) {
+            return null;
+        }
+
+        return itemStateConverter.convertToAcceptedState(state, item);
     }
 
 }

@@ -171,7 +171,6 @@ public class DiscoveryResultImpl implements DiscoveryResult {
      */
     public void synchronize(DiscoveryResult sourceResult) {
         if ((sourceResult != null) && (sourceResult.getThingUID().equals(this.thingUID))) {
-
             this.properties = sourceResult.getProperties();
             this.representationProperty = sourceResult.getRepresentationProperty();
             this.label = sourceResult.getLabel();

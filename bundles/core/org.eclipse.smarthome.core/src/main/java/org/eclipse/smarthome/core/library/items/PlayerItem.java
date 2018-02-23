@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.NextPreviousType;
@@ -32,6 +32,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
  *
  * @author Alex Tugarev
  */
+@NonNullByDefault
 public class PlayerItem extends GenericItem {
 
     private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
@@ -48,11 +49,11 @@ public class PlayerItem extends GenericItem {
         acceptedCommandTypes.add(RefreshType.class);
     }
 
-    public PlayerItem(@NonNull String name) {
+    public PlayerItem(String name) {
         super(CoreItemFactory.PLAYER, name);
     }
 
-    /* package */ PlayerItem(@NonNull String type, @NonNull String name) {
+    /* package */ PlayerItem(String type, String name) {
         super(type, name);
     }
 

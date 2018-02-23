@@ -75,7 +75,6 @@ public class BlockingProxyServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         URI uri = service.uriFromRequest(request);
 
         if (uri == null) {

@@ -39,7 +39,6 @@ public class LazyGenerator extends Generator {
 
     @Override
     protected void checkConfigurationInternal(Issues issues) {
-
     }
 
 }

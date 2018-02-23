@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.core.common.registry;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * {@link RegistryChangeListener} can be added to {@link Registry} services, to
  * listen for changes.
@@ -20,6 +22,7 @@ package org.eclipse.smarthome.core.common.registry;
  *
  * @param <E> type of the element in the registry
  */
+@NonNullByDefault
 public interface RegistryChangeListener<E> {
 
     /**

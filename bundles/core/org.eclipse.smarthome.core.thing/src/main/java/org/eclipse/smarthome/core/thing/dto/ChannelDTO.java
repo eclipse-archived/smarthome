@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
@@ -58,7 +59,6 @@ public class ChannelDTO {
     }
 
     private Map<String, Object> toMap(Configuration configuration) {
-
         if (configuration == null) {
             return null;
         }

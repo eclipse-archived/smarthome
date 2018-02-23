@@ -43,7 +43,6 @@ public class BridgeTypeConverter extends ThingTypeConverter {
     @Override
     protected BridgeTypeXmlResult unmarshalType(HierarchicalStreamReader reader, UnmarshallingContext context,
             Map<String, String> attributes, NodeIterator nodeIterator) throws ConversionException {
-
         BridgeTypeXmlResult bridgeTypeXmlResult = new BridgeTypeXmlResult(new ThingTypeUID(getUID(attributes, context)),
                 readSupportedBridgeTypeUIDs(nodeIterator, context), readLabel(nodeIterator),
                 readDescription(nodeIterator), readCategory(nodeIterator), getListed(attributes),

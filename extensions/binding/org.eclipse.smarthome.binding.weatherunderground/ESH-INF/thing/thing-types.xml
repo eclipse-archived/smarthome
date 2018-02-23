@@ -173,6 +173,7 @@
 			<channel id="windSpeed" typeId="windSpeed" />
 			<channel id="windGust" typeId="windGust" />
 			<channel id="pressure" typeId="pressure" />
+			<channel id="pressureTrend" typeId="pressureTrend" />
 			<channel id="dewPoint" typeId="dewPoint" />
 			<channel id="heatIndex" typeId="heatIndex" />
 			<channel id="windChill" typeId="windChill" />
@@ -183,6 +184,7 @@
 			<channel id="precipitationDay" typeId="rainDay" />
 			<channel id="precipitationHour" typeId="rainHour" />
 			<channel id="icon" typeId="icon" />
+			<channel id="iconKey" typeId="iconKey" />
 		</channels>
 	</channel-group-type>
 
@@ -205,6 +207,7 @@
 			<channel id="averageWindDirectionDegrees" typeId="averageWindDirection-degrees" />
 			<channel id="averageWindSpeed" typeId="averageWindSpeed" />
 			<channel id="icon" typeId="icon" />
+			<channel id="iconKey" typeId="iconKey" />
 		</channels>
 	</channel-group-type>
 
@@ -251,140 +254,63 @@
 	</channel-type>
 
 	<channel-type id="temperature">
-		<item-type>Number</item-type>
+		<item-type>Number:Temperature</item-type>
 		<label>Temperature</label>
 		<description>Current temperature</description>
 		<category>Temperature</category>
-		<state readOnly="true" pattern="%.1f" />
-		<config-description>
-			<parameter name="SourceUnit" type="text" required="true">
-				<label>Temperature Source Unit</label>
-				<description>Select the temperature unit provided by the Weather Underground service</description>
-				<options>
-					<option value="C">Degree Celsius</option>
-					<option value="F">Degree Fahrenheit</option>
-				</options>
-				<default>C</default>
-			</parameter>
-		</config-description>
+		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 
 	<channel-type id="minTemperature">
-		<item-type>Number</item-type>
+		<item-type>Number:Temperature</item-type>
 		<label>Minimum Temperature</label>
 		<description>Minimum temperature</description>
 		<category>Temperature</category>
-		<state readOnly="true" pattern="%.1f" />
-		<config-description>
-			<parameter name="SourceUnit" type="text" required="true">
-				<label>Minimum Temperature Source Unit</label>
-				<description>Select the minimum temperature unit provided by the Weather Underground service</description>
-				<options>
-					<option value="C">Degree Celsius</option>
-					<option value="F">Degree Fahrenheit</option>
-				</options>
-				<default>C</default>
-			</parameter>
-		</config-description>
+		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 
 	<channel-type id="maxTemperature">
-		<item-type>Number</item-type>
+		<item-type>Number:Temperature</item-type>
 		<label>Maximum Temperature</label>
 		<description>Maximum temperature</description>
 		<category>Temperature</category>
-		<state readOnly="true" pattern="%.1f" />
-		<config-description>
-			<parameter name="SourceUnit" type="text" required="true">
-				<label>Maximum Temperature Source Unit</label>
-				<description>Select the maximum temperature unit provided by the Weather Underground service</description>
-				<options>
-					<option value="C">Degree Celsius</option>
-					<option value="F">Degree Fahrenheit</option>
-				</options>
-				<default>C</default>
-			</parameter>
-		</config-description>
+		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 
 	<channel-type id="dewPoint" advanced="true">
-		<item-type>Number</item-type>
+		<item-type>Number:Temperature</item-type>
 		<label>Dew Point Temperature</label>
 		<description>Dew Point temperature</description>
 		<category>Temperature</category>
-		<state readOnly="true" pattern="%.1f" />
-		<config-description>
-			<parameter name="SourceUnit" type="text" required="true">
-				<label>Dew Point Temperature Source Unit</label>
-				<description>Select the dew Point temperature unit provided by the Weather Underground service</description>
-				<options>
-					<option value="C">Degree Celsius</option>
-					<option value="F">Degree Fahrenheit</option>
-				</options>
-				<default>C</default>
-			</parameter>
-		</config-description>
+		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 
 	<channel-type id="heatIndex" advanced="true">
-		<item-type>Number</item-type>
+		<item-type>Number:Temperature</item-type>
 		<label>Heat Index</label>
 		<description>Heat index</description>
 		<category>Temperature</category>
-		<state readOnly="true" pattern="%.1f" />
-		<config-description>
-			<parameter name="SourceUnit" type="text" required="true">
-				<label>Heat Index Source Unit</label>
-				<description>Select the heat index unit provided by the Weather Underground service</description>
-				<options>
-					<option value="C">Degree Celsius</option>
-					<option value="F">Degree Fahrenheit</option>
-				</options>
-				<default>C</default>
-			</parameter>
-		</config-description>
+		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 
 	<channel-type id="windChill" advanced="true">
-		<item-type>Number</item-type>
+		<item-type>Number:Temperature</item-type>
 		<label>Wind Chill Temperature</label>
 		<description>Wind chill temperature</description>
 		<category>Temperature</category>
-		<state readOnly="true" pattern="%.1f" />
-		<config-description>
-			<parameter name="SourceUnit" type="text" required="true">
-				<label>Wind Chill Temperature Source Unit</label>
-				<description>Select the wind chill temperature unit provided by the Weather Underground service</description>
-				<options>
-					<option value="C">Degree Celsius</option>
-					<option value="F">Degree Fahrenheit</option>
-				</options>
-				<default>C</default>
-			</parameter>
-		</config-description>
+		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 
 	<channel-type id="feelingTemperature" advanced="true">
-		<item-type>Number</item-type>
+		<item-type>Number:Temperature</item-type>
 		<label>Feeling Temperature</label>
 		<description>Feeling temperature</description>
 		<category>Temperature</category>
-		<state readOnly="true" pattern="%.1f" />
-		<config-description>
-			<parameter name="SourceUnit" type="text" required="true">
-				<label>Feeling Temperature Source Unit</label>
-				<description>Select the Feeling temperature unit provided by the Weather Underground service</description>
-				<options>
-					<option value="C">Degree Celsius</option>
-					<option value="F">Degree Fahrenheit</option>
-				</options>
-				<default>C</default>
-			</parameter>
-		</config-description>
+		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 
 	<channel-type id="relativeHumidity">
-		<item-type>Number</item-type>
+		<item-type>Number:Dimensionless</item-type>
 		<label>Relative Humidity</label>
 		<description>Relative humidity in %</description>
 		<category>Humidity</category>
@@ -417,7 +343,7 @@
 	</channel-type>
 
 	<channel-type id="windDirection-degrees" advanced="true">
-		<item-type>Number</item-type>
+		<item-type>Number:Angle</item-type>
 		<label>Wind Direction (°)</label>
 		<description>Wind direction in degrees</description>
 		<category>Wind</category>
@@ -426,7 +352,7 @@
 	</channel-type>
 
 	<channel-type id="maxWindDirection-degrees" advanced="true">
-		<item-type>Number</item-type>
+		<item-type>Number:Angle</item-type>
 		<label>Maximum Wind Direction (°)</label>
 		<description>Maximum wind direction in degrees</description>
 		<category>Wind</category>
@@ -435,7 +361,7 @@
 	</channel-type>
 
 	<channel-type id="averageWindDirection-degrees" advanced="true">
-		<item-type>Number</item-type>
+		<item-type>Number:Angle</item-type>
 		<label>Average Wind Direction (°)</label>
 		<description>Average wind direction in degrees</description>
 		<category>Wind</category>
@@ -444,120 +370,68 @@
 	</channel-type>
 
 	<channel-type id="windSpeed">
-		<item-type>Number</item-type>
+		<item-type>Number:Speed</item-type>
 		<label>Wind Speed</label>
 		<description>Wind speed</description>
 		<category>Wind</category>
-		<state readOnly="true" pattern="%.1f" />
-		<config-description>
-			<parameter name="SourceUnit" type="text" required="true">
-				<label>Wind Speed Source Unit</label>
-				<description>Select the wind speed unit provided by the Weather Underground service</description>
-				<options>
-					<option value="kmh">Kilometers per hour</option>
-					<option value="mph">Miles per hour</option>
-				</options>
-				<default>kmh</default>
-			</parameter>
-		</config-description>
+		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 
 	<channel-type id="maxWindSpeed">
-		<item-type>Number</item-type>
+		<item-type>Number:Speed</item-type>
 		<label>Maximum Wind Speed</label>
 		<description>Maximum wind speed</description>
 		<category>Wind</category>
-		<state readOnly="true" pattern="%.1f" />
-		<config-description>
-			<parameter name="SourceUnit" type="text" required="true">
-				<label>Maximum Wind Speed Source Unit</label>
-				<description>Select the maximum wind speed unit provided by the Weather Underground service</description>
-				<options>
-					<option value="kmh">Kilometers per hour</option>
-					<option value="mph">Miles per hour</option>
-				</options>
-				<default>kmh</default>
-			</parameter>
-		</config-description>
+		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 
 	<channel-type id="averageWindSpeed">
-		<item-type>Number</item-type>
+		<item-type>Number:Speed</item-type>
 		<label>Average Wind Speed</label>
 		<description>Average wind speed</description>
 		<category>Wind</category>
-		<state readOnly="true" pattern="%.1f" />
-		<config-description>
-			<parameter name="SourceUnit" type="text" required="true">
-				<label>Average Wind Speed Source Unit</label>
-				<description>Select the average wind speed unit provided by the Weather Underground service</description>
-				<options>
-					<option value="kmh">Kilometers per hour</option>
-					<option value="mph">Miles per hour</option>
-				</options>
-				<default>kmh</default>
-			</parameter>
-		</config-description>
+		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 
 	<channel-type id="windGust">
-		<item-type>Number</item-type>
+		<item-type>Number:Speed</item-type>
 		<label>Wind Gust</label>
 		<description>Wind gust</description>
 		<category>Wind</category>
-		<state readOnly="true" pattern="%.1f" />
-		<config-description>
-			<parameter name="SourceUnit" type="text" required="true">
-				<label>Wind Gust Source Unit</label>
-				<description>Select the wind Gust unit provided by the Weather Underground service</description>
-				<options>
-					<option value="kmh">Kilometers per hour</option>
-					<option value="mph">Miles per hour</option>
-				</options>
-				<default>kmh</default>
-			</parameter>
-		</config-description>
+		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 
 	<channel-type id="pressure">
-		<item-type>Number</item-type>
+		<item-type>Number:Pressure</item-type>
 		<label>Pressure</label>
 		<description>Pressure</description>
 		<category>Pressure</category>
-		<state readOnly="true" pattern="%.3f" />
-		<config-description>
-			<parameter name="SourceUnit" type="text" required="true">
-				<label>Pressure Source Unit</label>
-				<description>Select the pressure unit provided by the Weather Underground service</description>
-				<options>
-					<option value="hPa">Hectopascal</option>
-					<option value="inHg">Inch of mercury</option>
-				</options>
-				<default>hPa</default>
-			</parameter>
-		</config-description>
+		<state readOnly="true" pattern="%.3f %unit%" />
+	</channel-type>
+
+	<channel-type id="pressureTrend" advanced="true">
+		<item-type>String</item-type>
+		<label>Pressure Trend</label>
+		<description>Pressure evolution trend (up, down, stable)</description>
+		<category>Pressure</category>
+		<state readOnly="true" pattern="%s">
+			<options>
+				<option value="up">up</option>
+				<option value="stable">stable</option>
+				<option value="down">down</option>
+			</options>
+		</state>
 	</channel-type>
 
 	<channel-type id="visibility" advanced="true">
-		<item-type>Number</item-type>
+		<item-type>Number:Length</item-type>
 		<label>Visibility</label>
 		<description>Visibility</description>
-		<state readOnly="true" pattern="%.1f" />
-		<config-description>
-			<parameter name="SourceUnit" type="text" required="true">
-				<label>Visibility Source Unit</label>
-				<description>Select the visibility unit provided by the Weather Underground service</description>
-				<options>
-					<option value="km">Kilometers</option>
-					<option value="mi">Miles</option>
-				</options>
-				<default>km</default>
-			</parameter>
-		</config-description>
+		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 
 	<channel-type id="solarRadiation" advanced="true">
-		<item-type>Number</item-type>
+		<item-type>Number:Intensity</item-type>
 		<label>Solar Radiation</label>
 		<description>Solar radiation in W/m2</description>
 		<state readOnly="true" pattern="%.2f W/m2">
@@ -573,64 +447,31 @@
 	</channel-type>
 
 	<channel-type id="rainDay">
-		<item-type>Number</item-type>
+		<item-type>Number:Length</item-type>
 		<label>Rain Fall Day</label>
 		<description>Rain fall during the day</description>
 		<category>Rain</category>
-		<state readOnly="true" pattern="%.2f" />
-		<config-description>
-			<parameter name="SourceUnit" type="text" required="true">
-				<label>Rain fall Source Unit</label>
-				<description>Select the rain fall unit provided by the Weather Underground service</description>
-				<options>
-					<option value="mm">Millimeters</option>
-					<option value="in">Inches</option>
-				</options>
-				<default>mm</default>
-			</parameter>
-		</config-description>
+		<state readOnly="true" pattern="%.2f %unit%" />
 	</channel-type>
 
 	<channel-type id="rainHour">
-		<item-type>Number</item-type>
+		<item-type>Number:Length</item-type>
 		<label>Rain Fall Hour</label>
 		<description>Rain fall during the last hour</description>
 		<category>Rain</category>
-		<state readOnly="true" pattern="%.2f" />
-		<config-description>
-			<parameter name="SourceUnit" type="text" required="true">
-				<label>Rain fall Source Unit</label>
-				<description>Select the rain fall unit provided by the Weather Underground service</description>
-				<options>
-					<option value="mm">Millimeters</option>
-					<option value="in">Inches</option>
-				</options>
-				<default>mm</default>
-			</parameter>
-		</config-description>
+		<state readOnly="true" pattern="%.2f %unit%" />
 	</channel-type>
 
 	<channel-type id="snow">
-		<item-type>Number</item-type>
+		<item-type>Number:Length</item-type>
 		<label>Snow Fall</label>
 		<description>Snow fall</description>
 		<category>Rain</category>
-		<state readOnly="true" pattern="%.2f" />
-		<config-description>
-			<parameter name="SourceUnit" type="text" required="true">
-				<label>Snow fall Source Unit</label>
-				<description>Select the snow fall unit provided by the Weather Underground service</description>
-				<options>
-					<option value="cm">Centimeters</option>
-					<option value="in">Inches</option>
-				</options>
-				<default>cm</default>
-			</parameter>
-		</config-description>
+		<state readOnly="true" pattern="%.2f %unit%" />
 	</channel-type>
 
 	<channel-type id="probaPrecipitation">
-		<item-type>Number</item-type>
+		<item-type>Number:Dimensionless</item-type>
 		<label>Precipitation Probability</label>
 		<description>Probability of precipitation in %</description>
 		<state readOnly="true" min="0" max="100" pattern="%d %%">
@@ -641,6 +482,12 @@
 		<item-type>Image</item-type>
 		<label>Weather icon</label>
 		<description>Icon representing the weather conditions</description>
+	</channel-type>
+
+	<channel-type id="iconKey" advanced="true">
+		<item-type>String</item-type>
+		<label>Weather icon key</label>
+		<description>Key used in the icon URL</description>
 	</channel-type>
 
 </thing:thing-descriptions>

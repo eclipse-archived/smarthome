@@ -116,7 +116,6 @@ public class MDNSServiceImpl implements MDNSService {
     }
 
     public void activate() {
-
     }
 
     public void deactivate() {

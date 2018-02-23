@@ -200,7 +200,6 @@ public class JSONResponse {
 
         @Override
         public Response toResponse(Exception e) {
-
             logger.debug("exception during REST Handling", e);
 
             Response.Status status = Response.Status.INTERNAL_SERVER_ERROR;

@@ -139,7 +139,6 @@ public class SceneDiscovery {
             for (int i = 0; i < zones.size(); i++) {
 
                 if (((JsonObject) zones.get(i)).get(JSONApiResponseKeysEnum.GROUPS.getKey()).isJsonArray()) {
-
                     JsonArray groups = ((JsonObject) zones.get(i)).get(JSONApiResponseKeysEnum.GROUPS.getKey())
                             .getAsJsonArray();
 
@@ -147,11 +146,9 @@ public class SceneDiscovery {
 
                         if (((JsonObject) groups.get(j)).get("scenes") != null
                                 && ((JsonObject) groups.get(j)).get("scenes").isJsonArray()) {
-
                             JsonArray scenes = ((JsonObject) groups.get(j)).get("scenes").getAsJsonArray();
                             for (int k = 0; k < scenes.size(); k++) {
                                 if (scenes.get(k).isJsonObject()) {
-
                                     JsonObject sceneJsonObject = ((JsonObject) scenes.get(k));
                                     int zoneID = ((JsonObject) zones.get(i)).get("ZoneID").getAsInt();
                                     short groupID = ((JsonObject) groups.get(j)).get("group").getAsShort();

@@ -25,9 +25,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
@@ -49,13 +51,14 @@ import org.slf4j.LoggerFactory;
  * @author Stefan Bußweiler - Migration to new ESH event concept
  *
  */
+@NonNullByDefault
 public abstract class GenericItem implements ActiveItem {
 
     private final Logger logger = LoggerFactory.getLogger(GenericItem.class);
 
     private static final String ITEM_THREADPOOLNAME = "items";
 
-    protected EventPublisher eventPublisher;
+    protected @Nullable EventPublisher eventPublisher;
 
     protected Set<StateChangeListener> listeners = new CopyOnWriteArraySet<StateChangeListener>(
             Collections.newSetFromMap(new WeakHashMap<StateChangeListener, Boolean>()));
@@ -64,21 +67,23 @@ public abstract class GenericItem implements ActiveItem {
 
     protected Set<String> tags = new HashSet<String>();
 
-    @NonNull
     protected final String name;
 
-    @NonNull
     protected final String type;
 
     protected State state = UnDefType.NULL;
 
-    protected String label;
+    protected @Nullable String label;
 
-    protected String category;
+    protected @Nullable String category;
 
-    private List<StateDescriptionProvider> stateDescriptionProviders;
+    private @Nullable List<StateDescriptionProvider> stateDescriptionProviders;
 
-    public GenericItem(@NonNull String type, @NonNull String name) {
+    protected @Nullable UnitProvider unitProvider;
+
+    protected @Nullable ItemStateConverter itemStateConverter;
+
+    public GenericItem(String type, String name) {
         this.name = name;
         this.type = type;
     }
@@ -89,7 +94,7 @@ public abstract class GenericItem implements ActiveItem {
     }
 
     @Override
-    public State getStateAs(Class<? extends State> typeClass) {
+    public @Nullable State getStateAs(Class<? extends State> typeClass) {
         return state.as(typeClass);
     }
 
@@ -116,9 +121,7 @@ public abstract class GenericItem implements ActiveItem {
     /**
      * Adds a group name to the {@link GenericItem}.
      *
-     * @param groupItemName
-     *            group item name to add
-     *
+     * @param groupItemName group item name to add
      * @throws IllegalArgumentException if groupItemName is {@code null}
      */
     @Override
@@ -148,9 +151,7 @@ public abstract class GenericItem implements ActiveItem {
     /**
      * Removes a group item name from the {@link GenericItem}.
      *
-     * @param groupItemName
-     *            group item name to remove
-     *
+     * @param groupItemName group item name to remove
      * @throws IllegalArgumentException if groupItemName is {@code null}
      */
     @Override
@@ -161,12 +162,33 @@ public abstract class GenericItem implements ActiveItem {
         groupNames.remove(groupItemName);
     }
 
-    public void setEventPublisher(EventPublisher eventPublisher) {
+    /**
+     * Disposes this item. Clears all injected services and unregisters all change listeners.
+     * This does not remove this item from its groups. Removing from groups should be done externally to retain the
+     * member order in case this item is exchanged in a group.
+     */
+    public void dispose() {
+        this.listeners.clear();
+        this.eventPublisher = null;
+        this.stateDescriptionProviders = null;
+        this.unitProvider = null;
+        this.itemStateConverter = null;
+    }
+
+    public void setEventPublisher(@Nullable EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
 
-    public void setStateDescriptionProviders(List<StateDescriptionProvider> stateDescriptionProviders) {
+    public void setStateDescriptionProviders(@Nullable List<StateDescriptionProvider> stateDescriptionProviders) {
         this.stateDescriptionProviders = stateDescriptionProviders;
+    }
+
+    public void setUnitProvider(@Nullable UnitProvider unitProvider) {
+        this.unitProvider = unitProvider;
+    }
+
+    public void setItemStateConverter(@Nullable ItemStateConverter itemStateConverter) {
+        this.itemStateConverter = itemStateConverter;
     }
 
     protected void internalSend(Command command) {
@@ -182,8 +204,7 @@ public abstract class GenericItem implements ActiveItem {
      * Subclasses may override this method in order to do necessary conversions upfront. Afterwards,
      * {@link #applyState(State)} should be called by classes overriding this method.
      *
-     * @param state
-     *            new state of this item
+     * @param state new state of this item
      */
     public void setState(State state) {
         applyState(state);
@@ -292,7 +313,7 @@ public abstract class GenericItem implements ActiveItem {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;
         }
@@ -349,32 +370,32 @@ public abstract class GenericItem implements ActiveItem {
     }
 
     @Override
-    public String getLabel() {
+    public @Nullable String getLabel() {
         return this.label;
     }
 
     @Override
-    public void setLabel(String label) {
+    public void setLabel(@Nullable String label) {
         this.label = label;
     }
 
     @Override
-    public String getCategory() {
+    public @Nullable String getCategory() {
         return category;
     }
 
     @Override
-    public void setCategory(String category) {
+    public void setCategory(@Nullable String category) {
         this.category = category;
     }
 
     @Override
-    public StateDescription getStateDescription() {
+    public @Nullable StateDescription getStateDescription() {
         return getStateDescription(null);
     }
 
     @Override
-    public StateDescription getStateDescription(Locale locale) {
+    public @Nullable StateDescription getStateDescription(@Nullable Locale locale) {
         StateDescription result = null;
         List<StateOption> stateOptions = Collections.emptyList();
         if (stateDescriptionProviders != null) {

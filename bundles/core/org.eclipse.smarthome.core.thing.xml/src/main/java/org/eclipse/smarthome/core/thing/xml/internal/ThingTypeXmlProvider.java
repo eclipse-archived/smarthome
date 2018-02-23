@@ -74,7 +74,6 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
     public ThingTypeXmlProvider(Bundle bundle, AbstractXmlConfigDescriptionProvider configDescriptionProvider,
             XmlThingTypeProvider thingTypeProvider, XmlChannelTypeProvider channelTypeProvider,
             XmlChannelGroupTypeProvider channelGroupTypeProvider) throws IllegalArgumentException {
-
         if (bundle == null) {
             throw new IllegalArgumentException("The Bundle must not be null!");
         }
@@ -132,7 +131,6 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
 
     @Override
     public synchronized void addingFinished() {
-
         Map<String, ChannelType> channelTypes = new HashMap<>(10);
         // create channel types
         for (ChannelTypeXmlResult type : this.channelTypeRefs) {

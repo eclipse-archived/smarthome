@@ -14,6 +14,7 @@ package org.eclipse.smarthome.core.common.registry;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
@@ -126,9 +127,13 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         if (elements != null) {
             try {
                 K uid = element.getUID();
-                if (uid != null && get(uid) != null) {
-                    logger.warn("{} with key '{}' already exists! Failed to add a second with the same UID!",
-                            element.getClass().getName(), uid);
+                E existingElement = get(uid);
+                if (uid != null && existingElement != null) {
+                    logger.warn(
+                            "{} with key '{}' already exists from provider {}! Failed to add a second with the same UID from provider {}!",
+                            element.getClass().getSimpleName(), uid,
+                            getProvider(existingElement).getClass().getSimpleName(),
+                            provider.getClass().getSimpleName());
                     return;
                 }
                 onAddElement(element);
@@ -281,9 +286,13 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
             for (E element : elementsOfProvider) {
                 try {
                     K uid = element.getUID();
-                    if (uid != null && get(uid) != null) {
-                        logger.warn("{} with key'{}' already exists! Failed to add a second with the same UID!",
-                                element.getClass().getName(), uid);
+                    E existingElement = get(uid);
+                    if (uid != null && existingElement != null) {
+                        logger.warn(
+                                "{} with key '{}' already exists from provider {}! Failed to bulk-add a second with the same UID from provider {}!",
+                                element.getClass().getSimpleName(), uid,
+                                getProvider(existingElement).getClass().getSimpleName(),
+                                provider.getClass().getSimpleName());
                         continue;
                     }
                     onAddElement(element);
@@ -295,6 +304,15 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
             }
             logger.debug("Provider '{}' has been added.", provider.getClass().getName());
         }
+    }
+
+    public Provider<E> getProvider(E element) {
+        for (Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
+            if (entry.getValue().contains(element)) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     protected void setManagedProvider(ManagedProvider<E, K> provider) {
@@ -314,10 +332,8 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      * If the method throws an {@link IllegalArgumentException} the element will not be added.
      * <p>
      *
-     * @param element
-     *            element to be added
-     * @throws IllegalArgumentException
-     *             if the element is invalid and should not be added
+     * @param element element to be added
+     * @throws IllegalArgumentException if the element is invalid and should not be added
      */
     protected void onAddElement(E element) throws IllegalArgumentException {
         // can be overridden by sub classes
@@ -327,8 +343,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      * This method is called before an element is removed. The implementing
      * class can override this method to perform specific logic.
      *
-     * @param element
-     *            element to be removed
+     * @param element element to be removed
      */
     protected void onRemoveElement(E element) {
         // can be overridden by sub classes
@@ -339,17 +354,12 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      * class can override this method to perform specific logic or check the
      * validity of the updated element.
      *
-     * @param oldElement
-     *            old element (before update)
-     * @param element
-     *            updated element (after update)
-     *
+     * @param oldElement old element (before update)
+     * @param element updated element (after update)
      *            <p>
      *            If the method throws an {@link IllegalArgumentException} the element will not be updated.
      *            <p>
-     *
-     * @throws IllegalArgumentException
-     *             if the updated element is invalid and should not be updated
+     * @throws IllegalArgumentException if the updated element is invalid and should not be updated
      */
     protected void onUpdateElement(E oldElement, E element) throws IllegalArgumentException {
         // can be overridden by sub classes
@@ -357,7 +367,6 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
 
     protected void removeProvider(Provider<E> provider) {
         if (elementMap.containsKey(provider)) {
-
             for (E element : elementMap.get(provider)) {
                 try {
                     onRemoveElement(element);

@@ -36,7 +36,6 @@ public class ChannelDefinitionDTO {
     public String typeUID;
 
     public ChannelDefinitionDTO() {
-
     }
 
     public ChannelDefinitionDTO(String id, String typeUID, String label, String description, Set<String> tags,

@@ -47,7 +47,6 @@ public class JSonPathTransformationService implements TransformationService {
      */
     @Override
     public String transform(String jsonPathExpression, String source) throws TransformationException {
-
         if (jsonPathExpression == null || source == null) {
             throw new TransformationException("the given parameters 'JSonPath' and 'source' must not be null");
         }
@@ -69,7 +68,6 @@ public class JSonPathTransformationService implements TransformationService {
         } catch (InvalidPathException | InvalidJsonException e) {
             throw new TransformationException("An error occurred while transforming JSON expression.", e);
         }
-
     }
 
     private String flattenList(List<?> list) {

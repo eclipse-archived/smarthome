@@ -23,6 +23,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.events.Event;
@@ -31,6 +33,7 @@ import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.ItemStateConverter;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -71,6 +74,7 @@ import org.slf4j.LoggerFactory;
  * @author Simon Kaufmann - initial contribution and API, factored out of ThingManger
  *
  */
+@NonNullByDefault
 @Component(service = { EventSubscriber.class, CommunicationManager.class }, immediate = true)
 public class CommunicationManager implements EventSubscriber, RegistryChangeListener<ItemChannelLink> {
 
@@ -82,12 +86,20 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
 
     private final Logger logger = LoggerFactory.getLogger(CommunicationManager.class);
 
+    @NonNullByDefault({})
     private SystemProfileFactory defaultProfileFactory;
+    @NonNullByDefault({})
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
+    @NonNullByDefault({})
     private ThingRegistry thingRegistry;
+    @NonNullByDefault({})
     private ItemRegistry itemRegistry;
+    @NonNullByDefault({})
     private EventPublisher eventPublisher;
+    @NonNullByDefault({})
     private SafeCaller safeCaller;
+    @NonNullByDefault({})
+    private ItemStateConverter itemStateConverter;
 
     // link UID -> profile
     private final Map<String, Profile> profiles = new ConcurrentHashMap<>();
@@ -103,7 +115,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     }
 
     @Override
-    public EventFilter getEventFilter() {
+    public @Nullable EventFilter getEventFilter() {
         return null;
     }
 
@@ -118,11 +130,11 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         }
     }
 
-    private Thing getThing(ThingUID thingUID) {
+    private @Nullable Thing getThing(ThingUID thingUID) {
         return thingRegistry.get(thingUID);
     }
 
-    private Profile getProfile(ItemChannelLink link, Item item, Thing thing) {
+    private Profile getProfile(ItemChannelLink link, Item item, @Nullable Thing thing) {
         synchronized (profiles) {
             Profile profile = profiles.get(link.getUID());
             if (profile != null) {
@@ -141,11 +153,11 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     }
 
     private ProfileCallback createCallback(ItemChannelLink link) {
-        return new ProfileCallbackImpl(eventPublisher, safeCaller, link, thingUID -> getThing(thingUID),
-                itemName -> getItem(itemName));
+        return new ProfileCallbackImpl(eventPublisher, safeCaller, itemStateConverter, link,
+                thingUID -> getThing(thingUID), itemName -> getItem(itemName));
     }
 
-    private ProfileTypeUID determineProfileTypeUID(ItemChannelLink link, Item item, Thing thing) {
+    private @Nullable ProfileTypeUID determineProfileTypeUID(ItemChannelLink link, Item item, @Nullable Thing thing) {
         ProfileTypeUID profileTypeUID = getConfiguredProfileTypeUID(link);
         Channel channel = null;
         if (profileTypeUID == null) {
@@ -170,7 +182,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         return profileTypeUID;
     }
 
-    private ProfileTypeUID getAdvice(ItemChannelLink link, Item item, Channel channel) {
+    private @Nullable ProfileTypeUID getAdvice(ItemChannelLink link, Item item, Channel channel) {
         ProfileTypeUID ret;
         for (ProfileAdvisor advisor : profileAdvisors) {
             ret = advisor.getSuggestedProfileTypeUID(channel, item.getType());
@@ -181,7 +193,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         return null;
     }
 
-    private ProfileTypeUID getConfiguredProfileTypeUID(ItemChannelLink link) {
+    private @Nullable ProfileTypeUID getConfiguredProfileTypeUID(ItemChannelLink link) {
         String profileName = (String) link.getConfiguration()
                 .get(ItemChannelLinkConfigDescriptionProvider.PARAM_PROFILE);
         if (profileName != null && !profileName.trim().isEmpty()) {
@@ -198,7 +210,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         return profileName;
     }
 
-    private Profile getProfileFromFactories(ProfileTypeUID profileTypeUID, ItemChannelLink link,
+    private @Nullable Profile getProfileFromFactories(ProfileTypeUID profileTypeUID, ItemChannelLink link,
             ProfileCallback callback) {
         ProfileContextImpl context = new ProfileContextImpl(link.getConfiguration());
         if (supportsProfileTypeUID(defaultProfileFactory, profileTypeUID)) {
@@ -250,8 +262,9 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
                 if (handler != null) {
                     Profile profile = getProfile(link, item, thing);
                     if (profile instanceof StateProfile) {
-                        safeCaller.create(((StateProfile) profile)).withAsync().withIdentifier(thing)
-                                .withTimeout(THINGHANDLER_EVENT_TIMEOUT).build().onCommandFromItem(command);
+                        safeCaller.create(((StateProfile) profile), StateProfile.class).withAsync()
+                                .withIdentifier(thing).withTimeout(THINGHANDLER_EVENT_TIMEOUT).build()
+                                .onCommandFromItem(command);
                     }
                 }
             }
@@ -280,14 +293,14 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
                 ThingHandler handler = thing.getHandler();
                 if (handler != null) {
                     Profile profile = getProfile(link, item, thing);
-                    safeCaller.create(profile).withAsync().withIdentifier(handler)
+                    safeCaller.create(profile, Profile.class).withAsync().withIdentifier(handler)
                             .withTimeout(THINGHANDLER_EVENT_TIMEOUT).build().onStateUpdateFromItem(newState);
                 }
             }
         });
     }
 
-    private Item getItem(final String itemName) {
+    private @Nullable Item getItem(final String itemName) {
         return itemRegistry.get(itemName);
     }
 
@@ -446,6 +459,15 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
 
     protected void unsetSafeCaller(SafeCaller safeCaller) {
         this.safeCaller = null;
+    }
+
+    @Reference
+    public void setItemStateConverter(ItemStateConverter itemStateConverter) {
+        this.itemStateConverter = itemStateConverter;
+    }
+
+    public void unsetItemStateConverter(ItemStateConverter itemStateConverter) {
+        this.itemStateConverter = null;
     }
 
     private static class NoOpProfile implements Profile {

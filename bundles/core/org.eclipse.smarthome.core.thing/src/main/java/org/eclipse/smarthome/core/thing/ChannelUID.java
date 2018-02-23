@@ -39,10 +39,8 @@ public class ChannelUID extends UID {
     }
 
     /**
-     * @param thingUID
-     *            the unique identifier of the thing the channel belongs to
-     * @param id
-     *            the channel's id
+     * @param thingUID the unique identifier of the thing the channel belongs to
+     * @param id the channel's id
      */
     public ChannelUID(ThingUID thingUID, String id) {
         super(getArray(thingUID, null, id));
@@ -54,11 +52,9 @@ public class ChannelUID extends UID {
     }
 
     /**
-     * @param thingUID
-     *            the unique identifier of the thing the channel belongs to
+     * @param thingUID the unique identifier of the thing the channel belongs to
      * @param groupId the channel's group id
-     * @param id
-     *            the channel's id
+     * @param id the channel's id
      */
     public ChannelUID(ThingUID thingUID, String groupId, String id) {
         super(getArray(thingUID, groupId, id));
@@ -103,7 +99,6 @@ public class ChannelUID extends UID {
     }
 
     private static String[] getArray(ThingUID thingUID, String groupId, String id) {
-
         String[] result = new String[thingUID.getSegments().length + 1];
         for (int i = 0; i < thingUID.getSegments().length; i++) {
             result[i] = thingUID.getSegments()[i];

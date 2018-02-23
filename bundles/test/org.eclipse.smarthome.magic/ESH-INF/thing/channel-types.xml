@@ -8,10 +8,10 @@
 		<label>Switch</label>
 		<description>The on/off channel allows to toggle between on and off.</description>
 		<config-description>
-          <parameter name="invert" type="boolean">
-              <label>Invert operation</label>
-          </parameter>
-        </config-description>
+			<parameter name="invert" type="boolean">
+				<label>Invert operation</label>
+			</parameter>
+		</config-description>
 	</channel-type>
 
 	<channel-type id="brightness">
@@ -32,18 +32,18 @@
 			<tag>Lighting</tag>
 		</tags>
 		<config-description>
-		  <parameter name="boostRed" type="decimal" min="0" max="100">
-		      <label>Red boost</label>
-		      <description>Boost the red color channel (in percent)</description>
-		  </parameter>
-		  <parameter name="boostGreen" type="decimal" min="0" max="100">
-		      <label>Green boost</label>
-              <description>Boost the green color channel (in percent)</description>
-		  </parameter>
-		  <parameter name="boostBlue" type="decimal" min="0" max="100">
-		      <label>Blue boost</label>
-              <description>Boost the blue color channel (in percent)</description>
-		  </parameter>
+			<parameter name="boostRed" type="decimal" min="0" max="100">
+				<label>Red boost</label>
+				<description>Boost the red color channel (in percent)</description>
+			</parameter>
+			<parameter name="boostGreen" type="decimal" min="0" max="100">
+				<label>Green boost</label>
+				<description>Boost the green color channel (in percent)</description>
+			</parameter>
+			<parameter name="boostBlue" type="decimal" min="0" max="100">
+				<label>Blue boost</label>
+				<description>Boost the blue color channel (in percent)</description>
+			</parameter>
 		</config-description>
 	</channel-type>
 
@@ -64,6 +64,28 @@
 		<item-type>Contact</item-type>
 		<label>Contact</label>
 		<state readOnly="true"></state>
+	</channel-type>
+	
+	<channel-type id="location">
+		<item-type>Location</item-type>
+		<label>Location</label>
+	</channel-type>
+
+	<channel-type id="number">
+        <item-type>Number</item-type>
+        <label>Thing Online(&gt;0)/Offline(&lt;0) Delay</label>
+    </channel-type>
+
+	<channel-type id="temperature">
+		<item-type>Number:Temperature</item-type>
+		<label>Current Temperature</label>
+		<state readOnly="true" pattern="%.1f %unit%" />
+	</channel-type>
+
+	<channel-type id="set-temperature">
+		<item-type>Number:Temperature</item-type>
+		<label>Set Point</label>
+		<state readOnly="false" pattern="%.1f %unit%" min="12" max="38" />
 	</channel-type>
 
 </thing:thing-descriptions>

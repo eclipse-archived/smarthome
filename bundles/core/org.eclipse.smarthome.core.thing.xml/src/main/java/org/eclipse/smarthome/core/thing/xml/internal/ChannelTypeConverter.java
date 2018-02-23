@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.xml.util.ConverterAttributeMapValidator;
 import org.eclipse.smarthome.config.xml.util.NodeIterator;
@@ -26,6 +27,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.EventDescription;
 import org.eclipse.smarthome.core.types.StateDescription;
+
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
@@ -130,7 +132,6 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
     @Override
     protected ChannelTypeXmlResult unmarshalType(HierarchicalStreamReader reader, UnmarshallingContext context,
             Map<String, String> attributes, NodeIterator nodeIterator) throws ConversionException {
-
         boolean advanced = readBoolean(attributes, "advanced", false);
         boolean system = readBoolean(attributes, "system", false);
 

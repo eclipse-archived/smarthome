@@ -16,6 +16,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -28,6 +29,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.smarthome.core.i18n.TimeZoneProvider;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
@@ -48,6 +50,12 @@ import org.knowm.xchart.ChartBuilder;
 import org.knowm.xchart.Series;
 import org.knowm.xchart.SeriesMarker;
 import org.knowm.xchart.StyleManager.LegendPosition;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,10 +68,12 @@ import org.slf4j.LoggerFactory;
  * @author Holger Reichert - Support for themes, DPI, legend hiding
  *
  */
+@Component(immediate = true)
 public class DefaultChartProvider implements ChartProvider {
 
     private final Logger logger = LoggerFactory.getLogger(DefaultChartProvider.class);
 
+    private TimeZoneProvider timeZoneProvider;
     protected ItemUIRegistry itemUIRegistry;
     protected static Map<String, QueryablePersistenceService> persistenceServices = new HashMap<String, QueryablePersistenceService>();
 
@@ -76,6 +86,7 @@ public class DefaultChartProvider implements ChartProvider {
 
     public static final int DPI_DEFAULT = 96;
 
+    @Reference(policy = ReferencePolicy.DYNAMIC)
     public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
         this.itemUIRegistry = itemUIRegistry;
     }
@@ -84,6 +95,7 @@ public class DefaultChartProvider implements ChartProvider {
         this.itemUIRegistry = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addPersistenceService(PersistenceService service) {
         if (service instanceof QueryablePersistenceService) {
             persistenceServices.put(service.getId(), (QueryablePersistenceService) service);
@@ -98,6 +110,7 @@ public class DefaultChartProvider implements ChartProvider {
         return persistenceServices;
     }
 
+    @Activate
     protected void activate() {
         logger.debug("Starting up default chart provider.");
         String themeNames = Arrays.stream(CHART_THEMES_AVAILABLE) //
@@ -106,6 +119,16 @@ public class DefaultChartProvider implements ChartProvider {
         logger.debug("Available themes for default chart provider: {}", themeNames);
     }
 
+    @Reference
+    public void setTimeZoneProvider(TimeZoneProvider timeZoneProvider) {
+        this.timeZoneProvider = timeZoneProvider;
+    }
+
+    public void unsetTimeZoneProvider(TimeZoneProvider timeZoneProvider) {
+        this.timeZoneProvider = null;
+    }
+
+    @Deactivate
     protected void deactivate() {
     }
 
@@ -121,7 +144,6 @@ public class DefaultChartProvider implements ChartProvider {
     public BufferedImage createChart(String service, String theme, Date startTime, Date endTime, int height, int width,
             String items, String groups, Integer dpiValue, Boolean legend)
             throws ItemNotFoundException, IllegalArgumentException {
-
         logger.debug(
                 "Rendering chart: service: '{}', theme: '{}', startTime: '{}', endTime: '{}', width: '{}', height: '{}', items: '{}', groups: '{}', dpi: '{}', legend: '{}'",
                 service, theme, startTime, endTime, width, height, items, groups, dpiValue, legend);
@@ -323,7 +345,7 @@ public class DefaultChartProvider implements ChartProvider {
         // This is necessary for values that don't change often otherwise data will start
         // after the start of the graph (or not at all if there's no change during the graph period)
         filter = new FilterCriteria();
-        filter.setEndDate(timeBegin);
+        filter.setEndDate(ZonedDateTime.ofInstant(timeBegin.toInstant(), timeZoneProvider.getTimeZone()));
         filter.setItemName(item.getName());
         filter.setPageSize(1);
         filter.setOrdering(Ordering.DESCENDING);
@@ -337,8 +359,8 @@ public class DefaultChartProvider implements ChartProvider {
         }
 
         // Now, get all the data between the start and end time
-        filter.setBeginDate(timeBegin);
-        filter.setEndDate(timeEnd);
+        filter.setBeginDate(ZonedDateTime.ofInstant(timeBegin.toInstant(), timeZoneProvider.getTimeZone()));
+        filter.setEndDate(ZonedDateTime.ofInstant(timeEnd.toInstant(), timeZoneProvider.getTimeZone()));
         filter.setPageSize(Integer.MAX_VALUE);
         filter.setOrdering(Ordering.ASCENDING);
 

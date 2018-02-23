@@ -15,10 +15,10 @@ package org.eclipse.smarthome.core.thing.binding
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
-import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.junit.Test
 
@@ -30,8 +30,8 @@ class ThingBuilderTest {
     @Test(expected=IllegalArgumentException)
     void 'assert that no duplicate channels can be added individually'() {
         ThingBuilder thingBuilder = ThingBuilder.create(THING_TYPE_UID, THING_UID)
-        thingBuilder.withChannel(new Channel(new ChannelUID(THING_UID, "channel1"), ""))
-        thingBuilder.withChannel(new Channel(new ChannelUID(THING_UID, "channel1"), ""))
+        thingBuilder.withChannel(ChannelBuilder.create(new ChannelUID(THING_UID, "channel1"), "").build())
+        thingBuilder.withChannel(ChannelBuilder.create(new ChannelUID(THING_UID, "channel1"), "").build())
     }
 
     @Test(expected=IllegalArgumentException)
@@ -39,8 +39,8 @@ class ThingBuilderTest {
         ThingBuilder thingBuilder = ThingBuilder.create(THING_TYPE_UID, THING_UID)
         thingBuilder.withChannels(
                 [
-                    new Channel(new ChannelUID(THING_UID, "channel1"), ""),
-                    new Channel(new ChannelUID(THING_UID, "channel1"), "")
+                    ChannelBuilder.create(new ChannelUID(THING_UID, "channel1"), "").build(),
+                    ChannelBuilder.create(new ChannelUID(THING_UID, "channel1"), "").build()
                 ])
     }
 
@@ -48,8 +48,8 @@ class ThingBuilderTest {
     void 'assert that no duplicate channels can be added as varargs'() {
         ThingBuilder thingBuilder = ThingBuilder.create(THING_TYPE_UID, THING_UID)
         thingBuilder.withChannels(
-                new Channel(new ChannelUID(THING_UID, "channel1"), ""),
-                new Channel(new ChannelUID(THING_UID, "channel1"), "")
+                ChannelBuilder.create(new ChannelUID(THING_UID, "channel1"), "").build(),
+                ChannelBuilder.create(new ChannelUID(THING_UID, "channel1"), "").build()
                 )
     }
 
@@ -57,8 +57,8 @@ class ThingBuilderTest {
     void 'assert that channel can be removed'() {
         ThingBuilder thingBuilder = ThingBuilder.create(THING_TYPE_UID, THING_UID)
         thingBuilder.withChannels(
-                new Channel(new ChannelUID(THING_UID, "channel1"), ""),
-                new Channel(new ChannelUID(THING_UID, "channel2"), "")
+                ChannelBuilder.create(new ChannelUID(THING_UID, "channel1"), "").build(),
+                ChannelBuilder.create(new ChannelUID(THING_UID, "channel2"), "").build()
                 )
         thingBuilder.withoutChannel(new ChannelUID(THING_UID, "channel1"))
         assertThat thingBuilder.build().getChannels().size(), is(equalTo(1))
@@ -69,8 +69,8 @@ class ThingBuilderTest {
     void 'assert that removing a missing channel fails silently'() {
         ThingBuilder thingBuilder = ThingBuilder.create(THING_TYPE_UID, THING_UID)
         thingBuilder.withChannels(
-                new Channel(new ChannelUID(THING_UID, "channel1"), ""),
-                new Channel(new ChannelUID(THING_UID, "channel2"), "")
+                ChannelBuilder.create(new ChannelUID(THING_UID, "channel1"), "").build(),
+                ChannelBuilder.create(new ChannelUID(THING_UID, "channel2"), "").build()
                 )
         thingBuilder.withoutChannel(new ChannelUID(THING_UID, "channel3"))
         assertThat thingBuilder.build().getChannels().size(), is(equalTo(2))

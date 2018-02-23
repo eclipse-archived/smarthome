@@ -169,8 +169,8 @@
 
   <feature name="esh-tp-measurement" version="${project.version}">
     <bundle>mvn:javax.measure/unit-api/1.0</bundle>
-    <bundle>mvn:tec.uom/uom-se/1.0.3</bundle>
-    <bundle>mvn:tec.uom.lib/uom-lib-common/1.0.1</bundle>
+    <bundle>mvn:tec.uom/uom-se/1.0.8</bundle>
+    <bundle>mvn:tec.uom.lib/uom-lib-common/1.0.2</bundle>
   </feature>
 
   <feature name="esh-tp-paho" description="MQTT v3 Client" version="${project.version}">

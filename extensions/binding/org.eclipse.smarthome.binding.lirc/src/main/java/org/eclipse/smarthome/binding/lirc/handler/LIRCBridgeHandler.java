@@ -133,8 +133,7 @@ public class LIRCBridgeHandler extends BaseBridgeHandler {
     /**
      * Registers a message listener
      *
-     * @param listener
-     *            message listener to add
+     * @param listener message listener to add
      * @return true if listener as added successfully; false otherwise
      */
     public boolean registerMessageListener(LIRCMessageListener listener) {
@@ -147,8 +146,7 @@ public class LIRCBridgeHandler extends BaseBridgeHandler {
     /**
      * Unregisters a message listener
      *
-     * @param listener
-     *            message listener to remove
+     * @param listener message listener to remove
      * @return true if listener as removed successfully; false otherwise
      */
     public boolean unregisterMessageListener(LIRCMessageListener listener) {
@@ -161,10 +159,8 @@ public class LIRCBridgeHandler extends BaseBridgeHandler {
     /**
      * Transmits the button press for the specified remote.
      *
-     * @param remote
-     *            Name of the remote
-     * @param button
-     *            Button to press
+     * @param remote Name of the remote
+     * @param button Button to press
      */
     public void transmit(String remote, String button) {
         connector.transmit(remote, button);

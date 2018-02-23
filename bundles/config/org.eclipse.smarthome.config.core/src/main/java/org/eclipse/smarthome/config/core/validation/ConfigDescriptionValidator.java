@@ -35,7 +35,6 @@ public interface ConfigDescriptionValidator {
      * @param configurationParameters the configuration parameters to be validated
      * @param configDescriptionURI the URI of the configuration description against which the configuration parameters
      *            are to be validated
-     *
      * @throws ConfigValidationException if one or more configuration parameters do not match with the configuration
      *             description having the given URI
      * @throws NullPointerException if given config description URI or configuration parameters are null

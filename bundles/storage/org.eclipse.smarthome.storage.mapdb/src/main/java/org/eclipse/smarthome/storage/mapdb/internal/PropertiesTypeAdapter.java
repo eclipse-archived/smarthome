@@ -125,7 +125,6 @@ public class PropertiesTypeAdapter extends TypeAdapter<Map<String, Object>> {
         }
 
         return value;
-
     }
 
 }

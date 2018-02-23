@@ -49,7 +49,6 @@ public class ProxyFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext ctx) throws IOException {
-
         String host = getValue(ctx.getHeaders(), HOST_PROXY_HEADER);
         String scheme = getValue(ctx.getHeaders(), PROTO_PROXY_HEADER);
 

@@ -8,23 +8,27 @@ Bundle-Version: 0.10.0.qualifier
 Fragment-Host: org.eclipse.smarthome.core
 Import-Package: 
  groovy.lang,
+ javax.measure.quantity,
  org.codehaus.groovy.reflection,
  org.codehaus.groovy.runtime,
  org.codehaus.groovy.runtime.callsite,
  org.codehaus.groovy.runtime.typehandling,
  org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.java,
  org.hamcrest;core=split,
+ org.hamcrest.collection,
+ org.hamcrest.core,
+ org.hamcrest.number,
  org.junit,
+ org.junit.rules;version="4.7.0",
  org.junit.runner,
  org.junit.runners,
  org.mockito,
+ org.mockito.invocation,
+ org.mockito.stubbing,
  org.osgi.service.cm
-Require-Bundle: 
- org.hamcrest,
- org.junit,
- org.mockito,
- org.objenesis

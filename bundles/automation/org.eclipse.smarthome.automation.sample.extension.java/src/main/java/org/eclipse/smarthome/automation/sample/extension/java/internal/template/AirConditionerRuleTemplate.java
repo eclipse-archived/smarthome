@@ -48,7 +48,6 @@ public class AirConditionerRuleTemplate extends RuleTemplate {
     public static final String TRIGGER_ID = "AirConditionerRuleTrigger";
 
     public static AirConditionerRuleTemplate initialize() {
-
         // initialize triggers
         List<Trigger> triggers = new ArrayList<Trigger>();
         triggers.add(new Trigger(TRIGGER_ID, AirConditionerTriggerType.UID, null));

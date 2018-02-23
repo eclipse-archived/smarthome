@@ -39,7 +39,6 @@ public class ExecTransformationService implements TransformationService {
      */
     @Override
     public String transform(String commandLine, String source) throws TransformationException {
-
         if (commandLine == null || source == null) {
             throw new TransformationException("the given parameters 'commandLine' and 'source' must not be null");
         }

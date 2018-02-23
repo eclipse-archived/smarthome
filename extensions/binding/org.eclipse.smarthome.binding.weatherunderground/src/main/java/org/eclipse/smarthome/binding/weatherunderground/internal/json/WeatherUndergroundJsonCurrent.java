@@ -14,7 +14,7 @@ package org.eclipse.smarthome.binding.weatherunderground.internal.json;
 
 import java.math.BigDecimal;
 import java.net.URL;
-import java.util.Calendar;
+import java.time.ZonedDateTime;
 
 /**
  * The {@link WeatherUndergroundJsonCurrent} is the Java class used
@@ -62,7 +62,7 @@ public class WeatherUndergroundJsonCurrent {
 
     private String pressure_mb;
     private String pressure_in;
-    // private String pressure_trend;
+    private String pressure_trend;
 
     // private String dewpoint_string;
     private BigDecimal dewpoint_f;
@@ -93,7 +93,7 @@ public class WeatherUndergroundJsonCurrent {
     private String precip_today_in;
     private String precip_today_metric;
 
-    // private String icon;
+    private String icon;
     private String icon_url;
     // private String forecast_url;
     // private String history_url;
@@ -133,8 +133,8 @@ public class WeatherUndergroundJsonCurrent {
      *
      * @return the observation date and time or null if not defined
      */
-    public Calendar getObservationTime() {
-        return WeatherUndergroundJsonUtils.convertToCalendar(observation_epoch);
+    public ZonedDateTime getObservationTime() {
+        return WeatherUndergroundJsonUtils.convertToZonedDateTime(observation_epoch);
     }
 
     /**
@@ -270,6 +270,17 @@ public class WeatherUndergroundJsonCurrent {
      */
     public BigDecimal getPressureInHg() {
         return WeatherUndergroundJsonUtils.convertToBigDecimal(pressure_in);
+    }
+
+    /**
+     * Get the pressure trend
+     *
+     * Used to update the channel current#pressureTrend
+     *
+     * @return the pressure trend or null if not defined
+     */
+    public String getPressureTrend() {
+        return WeatherUndergroundJsonUtils.convertToTrend(pressure_trend);
     }
 
     /**
@@ -469,12 +480,23 @@ public class WeatherUndergroundJsonCurrent {
     /**
      * Get the icon URL representing the current weather conditions
      *
-     * Used to update the channel current#iconUrl
+     * Used to update the channel current#icon
      *
      * @return the icon URL representing the current weather conditions or null if not defined
      */
     public URL getIcon() {
         return WeatherUndergroundJsonUtils.getValidUrl(icon_url);
+    }
+
+    /**
+     * Get the icon key used in the URL representing the current weather conditions
+     *
+     * Used to update the channel current#iconKey
+     *
+     * @return the icon key used in the URL representing the current weather conditions
+     */
+    public String getIconKey() {
+        return icon;
     }
 
     class Location {

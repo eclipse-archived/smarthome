@@ -196,7 +196,6 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     @Override
     public void handleConfigurationUpdate(Map<String, Object> configurationParameters) {
-
         if (!isModifyingCurrentConfig(configurationParameters)) {
             return;
         }
@@ -295,7 +294,6 @@ public abstract class BaseThingHandler implements ThingHandler {
      * Validates the given configuration parameters against the configuration description.
      *
      * @param configurationParameters the configuration parameters to be validated
-     *
      * @throws ConfigValidationException if one or more of the given configuration parameters do not match
      *             their declarations in the configuration description
      */
@@ -319,8 +317,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      * Returns the configuration of the thing and transforms it to the given
      * class.
      *
-     * @param configurationClass
-     *            configuration class
+     * @param configurationClass configuration class
      * @return configuration of thing in form of the given class
      */
     protected <T> T getConfigAs(Class<T> configurationClass) {
@@ -331,12 +328,9 @@ public abstract class BaseThingHandler implements ThingHandler {
      *
      * Updates the state of the thing.
      *
-     * @param channelUID
-     *            unique id of the channel, which was updated
-     * @param state
-     *            new state
-     * @throws IllegalStateException
-     *             if handler is not initialized correctly, because no callback is present
+     * @param channelUID unique id of the channel, which was updated
+     * @param state new state
+     * @throws IllegalStateException if handler is not initialized correctly, because no callback is present
      */
     protected void updateState(ChannelUID channelUID, State state) {
         synchronized (this) {
@@ -353,12 +347,9 @@ public abstract class BaseThingHandler implements ThingHandler {
      * Updates the state of the thing. Will use the thing UID to infer the
      * unique channel UID from the given ID.
      *
-     * @param channel
-     *            ID id of the channel, which was updated
-     * @param state
-     *            new state
-     * @throws IllegalStateException
-     *             if handler is not initialized correctly, because no callback is present
+     * @param channel ID id of the channel, which was updated
+     * @param state new state
+     * @throws IllegalStateException if handler is not initialized correctly, because no callback is present
      */
     protected void updateState(String channelID, State state) {
         ChannelUID channelUID = new ChannelUID(this.getThing().getUID(), channelID);
@@ -415,12 +406,9 @@ public abstract class BaseThingHandler implements ThingHandler {
     /**
      * Sends a command for a channel of the thing.
      *
-     * @param channelID
-     *            id of the channel, which sends the command
-     * @param command
-     *            command
-     * @throws IllegalStateException
-     *             if handler is not initialized correctly, because no callback is present
+     * @param channelID id of the channel, which sends the command
+     * @param command command
+     * @throws IllegalStateException if handler is not initialized correctly, because no callback is present
      */
     protected void postCommand(String channelID, Command command) {
         ChannelUID channelUID = new ChannelUID(this.getThing().getUID(), channelID);
@@ -430,12 +418,9 @@ public abstract class BaseThingHandler implements ThingHandler {
     /**
      * Sends a command for a channel of the thing.
      *
-     * @param channelUID
-     *            unique id of the channel, which sends the command
-     * @param command
-     *            command
-     * @throws IllegalStateException
-     *             if handler is not initialized correctly, because no callback is present
+     * @param channelUID unique id of the channel, which sends the command
+     * @param command command
+     * @throws IllegalStateException if handler is not initialized correctly, because no callback is present
      */
     protected void postCommand(ChannelUID channelUID, Command command) {
         synchronized (this) {
@@ -453,9 +438,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      * @param status the status
      * @param statusDetail the detail of the status
      * @param description the description of the status
-     *
-     * @throws IllegalStateException
-     *             if handler is not initialized correctly, because no callback is present
+     * @throws IllegalStateException if handler is not initialized correctly, because no callback is present
      */
     protected void updateStatus(ThingStatus status, ThingStatusDetail statusDetail, @Nullable String description) {
         synchronized (this) {
@@ -474,9 +457,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      *
      * @param status the status
      * @param statusDetail the detail of the status
-     *
-     * @throws IllegalStateException
-     *             if handler is not initialized correctly, because no callback is present
+     * @throws IllegalStateException if handler is not initialized correctly, because no callback is present
      */
     protected void updateStatus(ThingStatus status, ThingStatusDetail statusDetail) {
         updateStatus(status, statusDetail, null);
@@ -486,9 +467,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      * Updates the status of the thing. The detail of the status will be 'NONE'.
      *
      * @param status the status
-     *
-     * @throws IllegalStateException
-     *             if handler is not initialized correctly, because no callback is present
+     * @throws IllegalStateException if handler is not initialized correctly, because no callback is present
      */
     protected void updateStatus(ThingStatus status) {
         updateStatus(status, ThingStatusDetail.NONE, null);
@@ -511,11 +490,8 @@ public abstract class BaseThingHandler implements ThingHandler {
      * Informs the framework, that a thing was updated. This method must be called after the configuration or channels
      * was changed.
      *
-     * @param thing
-     *            thing, that was updated and should be persisted
-     *
-     * @throws IllegalStateException
-     *             if handler is not initialized correctly, because no callback is present
+     * @param thing thing, that was updated and should be persisted
+     * @throws IllegalStateException if handler is not initialized correctly, because no callback is present
      */
     protected void updateThing(Thing thing) {
         if (thing == this.thing) {
@@ -546,11 +522,8 @@ public abstract class BaseThingHandler implements ThingHandler {
     /**
      * Updates the configuration of the thing and informs the framework about it.
      *
-     * @param configuration
-     *            configuration, that was updated and should be persisted
-     *
-     * @throws IllegalStateException
-     *             if handler is not initialized correctly, because no callback is present
+     * @param configuration configuration, that was updated and should be persisted
+     * @throws IllegalStateException if handler is not initialized correctly, because no callback is present
      */
     protected void updateConfiguration(Configuration configuration) {
         Map<String, Object> old = this.thing.getConfiguration().getProperties();
@@ -587,11 +560,8 @@ public abstract class BaseThingHandler implements ThingHandler {
      * Informs the framework, that the given properties map of the thing was updated. This method performs a check, if
      * the properties were updated. If the properties did not change, the framework is not informed about changes.
      *
-     * @param properties
-     *            properties map, that was updated and should be persisted
-     *
-     * @throws IllegalStateException
-     *             if handler is not initialized correctly, because no callback is present
+     * @param properties properties map, that was updated and should be persisted
+     * @throws IllegalStateException if handler is not initialized correctly, because no callback is present
      */
     protected void updateProperties(Map<String, String> properties) {
         boolean propertiesUpdated = false;

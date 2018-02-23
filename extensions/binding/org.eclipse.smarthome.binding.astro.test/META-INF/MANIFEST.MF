@@ -29,8 +29,5 @@ Import-Package:
  org.junit.runner,
  org.junit.runners,
  org.mockito,
+ org.mockito.stubbing,
  org.osgi.framework
-Require-Bundle: 
- org.hamcrest,
- org.junit,
- org.mockito

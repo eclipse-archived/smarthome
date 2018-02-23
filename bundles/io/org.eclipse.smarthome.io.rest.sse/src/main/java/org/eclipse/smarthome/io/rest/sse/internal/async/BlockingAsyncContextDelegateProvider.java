@@ -78,7 +78,6 @@ public class BlockingAsyncContextDelegateProvider implements AsyncContextDelegat
                             outputStream.write('\n');
                             response.flushBuffer();
                         } catch (Exception exception) {
-
                             // If an exception has occurred during write and
                             // flush we consider the connection closed, attempt
                             // to close the outputstream and stop blocking.

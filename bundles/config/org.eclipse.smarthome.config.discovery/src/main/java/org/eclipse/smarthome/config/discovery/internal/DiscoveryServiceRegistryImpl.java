@@ -203,7 +203,6 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     @Override
     public boolean abortScan(ThingTypeUID thingTypeUID) throws IllegalStateException {
-
         Set<DiscoveryService> discoveryServicesForThingType = getDiscoveryServices(thingTypeUID);
 
         if (discoveryServicesForThingType.isEmpty()) {
@@ -216,7 +215,6 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     @Override
     public boolean abortScan(String bindingId) throws IllegalStateException {
-
         Set<DiscoveryService> discoveryServicesForBinding = getDiscoveryServices(bindingId);
 
         if (discoveryServicesForBinding.isEmpty()) {
@@ -252,7 +250,6 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     @Override
     public boolean startScan(String bindingId, final @Nullable ScanListener listener) throws IllegalStateException {
-
         final Set<DiscoveryService> discoveryServicesForBinding = getDiscoveryServices(bindingId);
 
         if (discoveryServicesForBinding.isEmpty()) {
@@ -396,7 +393,6 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     }
 
     private boolean startScans(Set<DiscoveryService> discoveryServices, @Nullable ScanListener listener) {
-
         boolean atLeastOneDiscoveryServiceHasBeenStarted = false;
 
         if (discoveryServices.size() > 1) {
@@ -439,7 +435,6 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     private synchronized Set<DiscoveryService> getDiscoveryServices(ThingTypeUID thingTypeUID)
             throws IllegalStateException {
-
         Set<DiscoveryService> discoveryServices = new HashSet<>();
 
         for (DiscoveryService discoveryService : this.discoveryServices) {
@@ -453,7 +448,6 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     }
 
     private synchronized Set<DiscoveryService> getDiscoveryServices(String bindingId) throws IllegalStateException {
-
         Set<DiscoveryService> discoveryServices = new HashSet<>();
 
         for (DiscoveryService discoveryService : this.discoveryServices) {
@@ -479,7 +473,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     private void addDiscoveryServiceActivated(final DiscoveryService discoveryService) {
         discoveryService.addDiscoveryListener(this);
         if (discoveryService instanceof ExtendedDiscoveryService) {
-            safeCaller.create((ExtendedDiscoveryService) discoveryService).build()
+            safeCaller.create((ExtendedDiscoveryService) discoveryService, ExtendedDiscoveryService.class).build()
                     .setDiscoveryServiceCallback(discoveryServiceCallback);
         }
         this.discoveryServices.add(discoveryService);

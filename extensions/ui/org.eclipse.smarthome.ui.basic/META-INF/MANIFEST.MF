@@ -12,6 +12,7 @@ Bundle-Version: 0.10.0.qualifier
 Export-Package: org.eclipse.smarthome.ui.basic.render
 Import-Package: 
  com.google.gson,
+ javax.measure,
  javax.servlet,
  org.apache.commons.io,
  org.apache.commons.lang,
@@ -28,6 +29,7 @@ Import-Package:
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.transform,
  org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.core.types.util,
  org.eclipse.smarthome.io.net.http,
  org.eclipse.smarthome.io.rest.sitemap,
  org.eclipse.smarthome.model.core,

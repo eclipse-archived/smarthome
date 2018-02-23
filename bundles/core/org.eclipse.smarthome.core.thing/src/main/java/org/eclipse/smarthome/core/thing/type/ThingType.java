@@ -57,8 +57,7 @@ public class ThingType extends AbstractDescriptionType {
     /**
      * @deprecated Use the {@link ThingTypeBuilder} instead.
      *
-     * @throws IllegalArgumentException
-     *             if the UID is null or empty, or the the meta information is null
+     * @throws IllegalArgumentException if the UID is null or empty, or the the meta information is null
      */
     @Deprecated
     public ThingType(String bindingId, String thingTypeId, String label) throws IllegalArgumentException {
@@ -70,8 +69,7 @@ public class ThingType extends AbstractDescriptionType {
      *
      * @deprecated Use the {@link ThingTypeBuilder} instead.
      *
-     * @throws IllegalArgumentException
-     *             if the UID is null or empty, or the the meta information is null
+     * @throws IllegalArgumentException if the UID is null or empty, or the the meta information is null
      */
     @Deprecated
     @SuppressWarnings("null")
@@ -88,8 +86,7 @@ public class ThingType extends AbstractDescriptionType {
      *
      * @deprecated Use the {@link ThingTypeBuilder} instead.
      *
-     * @throws IllegalArgumentException
-     *             if the UID is null or empty, or the the meta information is null
+     * @throws IllegalArgumentException if the UID is null or empty, or the the meta information is null
      */
     @Deprecated
     @SuppressWarnings("null")
@@ -106,8 +103,7 @@ public class ThingType extends AbstractDescriptionType {
      *
      * @deprecated Use the {@link ThingTypeBuilder} instead.
      *
-     * @throws IllegalArgumentException
-     *             if the UID is null or empty, or the the meta information is null
+     * @throws IllegalArgumentException if the UID is null or empty, or the the meta information is null
      */
     @Deprecated
     public ThingType(ThingTypeUID uid, @Nullable List<String> supportedBridgeTypeUIDs, String label,
@@ -138,9 +134,7 @@ public class ThingType extends AbstractDescriptionType {
      * @param properties the properties this Thing type provides (could be null)
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
      * @param extensibleChannelTypeIds the channel-type ids this thing-type is extensible with (could be null or empty).
-     *
-     * @throws IllegalArgumentException
-     *             if the UID is null or empty, or the the meta information is null
+     * @throws IllegalArgumentException if the UID is null or empty, or the the meta information is null
      */
     ThingType(ThingTypeUID uid, @Nullable List<String> supportedBridgeTypeUIDs, String label,
             @Nullable String description, @Nullable String category, boolean listed,
@@ -148,7 +142,6 @@ public class ThingType extends AbstractDescriptionType {
             @Nullable List<ChannelGroupDefinition> channelGroupDefinitions, @Nullable Map<String, String> properties,
             @Nullable URI configDescriptionURI, @Nullable List<String> extensibleChannelTypeIds)
             throws IllegalArgumentException {
-
         super(uid, label, description);
 
         this.category = category;

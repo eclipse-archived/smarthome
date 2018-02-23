@@ -12,7 +12,7 @@ angular.module('PaperUI.services').factory('util', function($filter, dateTime) {
                     }
                 }
             }
-            var state = item.type === 'Number' ? parseFloat(item.state) : item.state;
+            var state = item.type.indexOf('Number') === 0 ? parseFloat(item.state) : item.state;
 
             if (item.type === 'DateTime') {
                 var dateArr = item.state.split(/[^0-9]/);
@@ -34,7 +34,12 @@ angular.module('PaperUI.services').factory('util', function($filter, dateTime) {
                 }
                 return state;
             } else {
-                return sprintf(item.stateDescription.pattern, state);
+                var unit = item.unit;
+                if ("%" === unit) {
+                    unit = "%%";
+                }
+                var pattern = item.stateDescription.pattern.replace('%unit%', unit)
+                return sprintf(pattern, state);
             }
         }
     }

@@ -80,7 +80,6 @@ public class XmlThingTypeProvider extends AbstractXmlBasedProvider<UID, ThingTyp
         trackerJob = scheduler.submit(() -> {
             thingTypeTracker.open();
         });
-
     }
 
     @Deactivate

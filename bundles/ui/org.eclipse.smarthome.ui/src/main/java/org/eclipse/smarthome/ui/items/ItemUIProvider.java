@@ -49,7 +49,6 @@ public interface ItemUIProvider {
      *
      * @param itemType the class of the item or null, if unknown
      * @param itemName the item name to get the default widget for
-     *
      * @return a widget implementation that can be used for the given item or null, if no default is available for the
      *         type
      */

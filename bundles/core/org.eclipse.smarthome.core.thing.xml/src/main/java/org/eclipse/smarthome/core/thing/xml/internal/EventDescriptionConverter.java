@@ -43,7 +43,6 @@ public class EventDescriptionConverter extends GenericUnmarshaller<EventDescript
     }
 
     private List<EventOption> toListOfEventOptions(NodeList nodeList) throws ConversionException {
-
         if ("options".equals(nodeList.getNodeName())) {
             List<EventOption> eventOptions = new ArrayList<>();
 

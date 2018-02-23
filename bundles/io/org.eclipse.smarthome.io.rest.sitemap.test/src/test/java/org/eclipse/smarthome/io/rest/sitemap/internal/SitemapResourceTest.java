@@ -31,10 +31,12 @@ import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.sitemap.ColorArray;
@@ -62,9 +64,14 @@ public class SitemapResourceTest {
     private static final String SITEMAP_PATH = "/sitemaps";
     private static final String SITEMAP_MODEL_NAME = "sitemapModel";
     private static final String SITEMAP_NAME = "defaultSitemap";
+    private static final String SITEMAP_TITLE = "Default Sitemap";
     private static final String VISIBILITY_RULE_ITEM_NAME = "visibilityRuleItem";
     private static final String LABEL_COLOR_ITEM_NAME = "labelColorItemName";
     private static final String VALUE_COLOR_ITEM_NAME = "valueColorItemName";
+    private static final String WIDGET1_LABEL = "widget 1";
+    private static final String WIDGET2_LABEL = "widget 2";
+    private static final String WIDGET1_ID = "00";
+    private static final String WIDGET2_ID = "01";
 
     private SitemapResource sitemapResource;
 
@@ -88,6 +95,8 @@ public class SitemapResourceTest {
     private GenericItem labelColorItem;
     private GenericItem valueColorItem;
 
+    private EList<Widget> widgets;
+
     @Before
     public void setup() throws Exception {
         initMocks(this);
@@ -106,11 +115,12 @@ public class SitemapResourceTest {
         configureSitemapMock();
         sitemapResource.addSitemapProvider(sitemapProvider);
 
-        configureItemUIRegistry();
+        widgets = initSitemapWidgets();
+        configureItemUIRegistry(PercentType.HUNDRED, OnOffType.ON);
         sitemapResource.setItemUIRegistry(itemUIRegistry);
 
-        // non-null is sufficient here.
-        when(headers.getRequestHeader(HTTP_HEADER_X_ATMOSPHERE_TRANSPORT)).thenReturn(Collections.emptyList());
+        // Disable long polling
+        when(headers.getRequestHeader(HTTP_HEADER_X_ATMOSPHERE_TRANSPORT)).thenReturn(null);
     }
 
     @Test
@@ -140,10 +150,13 @@ public class SitemapResourceTest {
             try {
                 Thread.sleep(STATE_UPDATE_WAIT_TIME); // wait for the #getPageData call and listeners to attach to the
                                                       // item
-                item.setState(new DecimalType(BigDecimal.ONE));
+                item.setState(PercentType.ZERO);
             } catch (InterruptedException e) {
             }
         }).start();
+
+        // non-null is sufficient here.
+        when(headers.getRequestHeader(HTTP_HEADER_X_ATMOSPHERE_TRANSPORT)).thenReturn(Collections.emptyList());
 
         Response response = sitemapResource.getPageData(headers, null, SITEMAP_MODEL_NAME, SITEMAP_NAME, null);
 
@@ -163,6 +176,9 @@ public class SitemapResourceTest {
             }
         }).start();
 
+        // non-null is sufficient here.
+        when(headers.getRequestHeader(HTTP_HEADER_X_ATMOSPHERE_TRANSPORT)).thenReturn(Collections.emptyList());
+
         Response response = sitemapResource.getPageData(headers, null, SITEMAP_MODEL_NAME, SITEMAP_NAME, null);
 
         PageDTO pageDTO = (PageDTO) response.getEntity();
@@ -180,6 +196,9 @@ public class SitemapResourceTest {
             } catch (InterruptedException e) {
             }
         }).start();
+
+        // non-null is sufficient here.
+        when(headers.getRequestHeader(HTTP_HEADER_X_ATMOSPHERE_TRANSPORT)).thenReturn(Collections.emptyList());
 
         Response response = sitemapResource.getPageData(headers, null, SITEMAP_MODEL_NAME, SITEMAP_NAME, null);
 
@@ -199,6 +218,9 @@ public class SitemapResourceTest {
             }
         }).start();
 
+        // non-null is sufficient here.
+        when(headers.getRequestHeader(HTTP_HEADER_X_ATMOSPHERE_TRANSPORT)).thenReturn(Collections.emptyList());
+
         Response response = sitemapResource.getPageData(headers, null, SITEMAP_MODEL_NAME, SITEMAP_NAME, null);
 
         PageDTO pageDTO = (PageDTO) response.getEntity();
@@ -206,17 +228,78 @@ public class SitemapResourceTest {
                                                 // return
     }
 
-    private void configureItemUIRegistry() throws ItemNotFoundException {
-        EList<Widget> widgets = initSitemapWidgets();
+    @Test
+    public void whenGetPageData_ShouldReturnPageBean() throws ItemNotFoundException {
+        item.setState(new PercentType(50));
+        configureItemUIRegistry(item.getState(), OnOffType.ON);
+
+        // Disable long polling
+        when(headers.getRequestHeader(HTTP_HEADER_X_ATMOSPHERE_TRANSPORT)).thenReturn(null);
+
+        Response response = sitemapResource.getPageData(headers, null, SITEMAP_MODEL_NAME, SITEMAP_NAME, null);
+
+        PageDTO pageDTO = (PageDTO) response.getEntity();
+        assertThat(pageDTO.id, is(SITEMAP_NAME));
+        assertThat(pageDTO.title, is(SITEMAP_TITLE));
+        assertThat(pageDTO.leaf, is(true));
+        assertThat(pageDTO.timeout, is(false));
+
+        assertThat(pageDTO.widgets, notNullValue());
+        assertThat((Collection<?>) pageDTO.widgets, hasSize(2));
+
+        assertThat(pageDTO.widgets.get(0).widgetId, is(WIDGET1_ID));
+        assertThat(pageDTO.widgets.get(0).label, is(WIDGET1_LABEL));
+        assertThat(pageDTO.widgets.get(0).labelcolor, is("GREEN"));
+        assertThat(pageDTO.widgets.get(0).valuecolor, is("BLUE"));
+        assertThat(pageDTO.widgets.get(0).state, nullValue());
+        assertThat(pageDTO.widgets.get(0).item, notNullValue());
+        assertThat(pageDTO.widgets.get(0).item.name, is(ITEM_NAME));
+        assertThat(pageDTO.widgets.get(0).item.state, is("50"));
+
+        assertThat(pageDTO.widgets.get(1).widgetId, is(WIDGET2_ID));
+        assertThat(pageDTO.widgets.get(1).label, is(WIDGET2_LABEL));
+        assertThat(pageDTO.widgets.get(1).labelcolor, nullValue());
+        assertThat(pageDTO.widgets.get(1).valuecolor, nullValue());
+        assertThat(pageDTO.widgets.get(1).state, is("ON"));
+        assertThat(pageDTO.widgets.get(1).item, notNullValue());
+        assertThat(pageDTO.widgets.get(1).item.name, is(ITEM_NAME));
+        assertThat(pageDTO.widgets.get(1).item.state, is("50"));
+    }
+
+    private void configureItemUIRegistry(State state1, State state2) throws ItemNotFoundException {
         when(itemUIRegistry.getChildren(defaultSitemap)).thenReturn(widgets);
         when(itemUIRegistry.getItem(ITEM_NAME)).thenReturn(item);
         when(itemUIRegistry.getItem(VISIBILITY_RULE_ITEM_NAME)).thenReturn(visibilityRuleItem);
         when(itemUIRegistry.getItem(LABEL_COLOR_ITEM_NAME)).thenReturn(labelColorItem);
         when(itemUIRegistry.getItem(VALUE_COLOR_ITEM_NAME)).thenReturn(valueColorItem);
+
+        when(itemUIRegistry.getWidgetId(widgets.get(0))).thenReturn(WIDGET1_ID);
+        when(itemUIRegistry.getCategory(widgets.get(0))).thenReturn("");
+        when(itemUIRegistry.getLabel(widgets.get(0))).thenReturn(WIDGET1_LABEL);
+        when(itemUIRegistry.getVisiblity(widgets.get(0))).thenReturn(true);
+        when(itemUIRegistry.getLabelColor(widgets.get(0))).thenReturn("GREEN");
+        when(itemUIRegistry.getValueColor(widgets.get(0))).thenReturn("BLUE");
+        when(itemUIRegistry.getState(widgets.get(0))).thenReturn(state1);
+
+        when(itemUIRegistry.getWidgetId(widgets.get(1))).thenReturn(WIDGET2_ID);
+        when(itemUIRegistry.getCategory(widgets.get(1))).thenReturn("");
+        when(itemUIRegistry.getLabel(widgets.get(1))).thenReturn(WIDGET2_LABEL);
+        when(itemUIRegistry.getVisiblity(widgets.get(1))).thenReturn(true);
+        when(itemUIRegistry.getLabelColor(widgets.get(1))).thenReturn(null);
+        when(itemUIRegistry.getValueColor(widgets.get(1))).thenReturn(null);
+        when(itemUIRegistry.getState(widgets.get(1))).thenReturn(state2);
     }
 
     private EList<Widget> initSitemapWidgets() {
+        // Initialize a sitemap containing 2 widgets linked to the same number item,
+        // one slider and one switch
+
         Widget w1 = mock(Widget.class);
+        EClass sliderEClass = mock(EClass.class);
+        when(sliderEClass.getName()).thenReturn("slider");
+        when(sliderEClass.getInstanceTypeName()).thenReturn("org.eclipse.smarthome.model.sitemap.Slider");
+        when(w1.eClass()).thenReturn(sliderEClass);
+        when(w1.getLabel()).thenReturn(WIDGET1_LABEL);
         when(w1.getItem()).thenReturn(ITEM_NAME);
 
         // add visibility rules to the mock widget:
@@ -240,13 +323,31 @@ public class SitemapResourceTest {
         valueColors.add(valueColor);
         when(w1.getValueColor()).thenReturn(valueColors);
 
-        BasicEList<Widget> widgets = new BasicEList<>(1);
+        visibilityRules = new BasicEList<>();
+        labelColors = new BasicEList<>();
+        valueColors = new BasicEList<>();
+
+        Widget w2 = mock(Widget.class);
+        EClass switchEClass = mock(EClass.class);
+        when(switchEClass.getName()).thenReturn("switch");
+        when(switchEClass.getInstanceTypeName()).thenReturn("org.eclipse.smarthome.model.sitemap.Switch");
+        when(w2.eClass()).thenReturn(switchEClass);
+        when(w2.getLabel()).thenReturn(WIDGET2_LABEL);
+        when(w2.getItem()).thenReturn(ITEM_NAME);
+        when(w2.getVisibility()).thenReturn(visibilityRules);
+        when(w2.getLabelColor()).thenReturn(labelColors);
+        when(w2.getValueColor()).thenReturn(valueColors);
+
+        BasicEList<Widget> widgets = new BasicEList<>(2);
         widgets.add(w1);
+        widgets.add(w2);
         return widgets;
     }
 
     private void configureSitemapMock() {
         when(defaultSitemap.getName()).thenReturn(SITEMAP_NAME);
+        when(defaultSitemap.getLabel()).thenReturn(SITEMAP_TITLE);
+        when(defaultSitemap.getIcon()).thenReturn("");
     }
 
     private void configureSitemapProviderMock() {
@@ -261,12 +362,12 @@ public class SitemapResourceTest {
         }
 
         @Override
-        public @NonNull List<@NonNull Class<? extends State>> getAcceptedDataTypes() {
+        public List<Class<? extends State>> getAcceptedDataTypes() {
             return Collections.emptyList();
         }
 
         @Override
-        public @NonNull List<@NonNull Class<? extends Command>> getAcceptedCommandTypes() {
+        public List<Class<? extends Command>> getAcceptedCommandTypes() {
             return Collections.emptyList();
         }
     }

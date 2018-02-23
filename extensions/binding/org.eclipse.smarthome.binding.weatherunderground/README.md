@@ -73,6 +73,7 @@ The weather information that is retrieved is available as these channels:
 | Current | windSpeed | Number | Wind speed | SourceUnit: "kmh" or "mph"; default is "kmh" |
 | Current | windGust | Number | Wind gust | SourceUnit: "kmh" or "mph"; default is "kmh" |
 | Current | pressure | Number | Pressure | SourceUnit: "hPa" or "inHg"; default is "hPa" |
+| Current | pressureTrend | String | Pressure trend ("up", "stable" or "down") | |
 | Current | dewPoint | Number | Dew Point temperature | SourceUnit: "C" for degrees Celsius or "F" for degrees Fahrenheit; default is "C" |
 | Current | heatIndex | Number | Heat Index | SourceUnit: "C" for degrees Celsius or "F" for degrees Fahrenheit; default is "C" |
 | Current | windChill | Number | Wind chill temperature | SourceUnit: "C" for degrees Celsius or "F" for degrees Fahrenheit; default is "C" |
@@ -83,6 +84,7 @@ The weather information that is retrieved is available as these channels:
 | Current | precipitationDay | Number | Rain fall during the day | SourceUnit: "mm" or "in"; default is "mm" |
 | Current | precipitationHour | Number | Rain fall during the last hour | SourceUnit: "mm" or "in"; default is "mm" |
 | Current | icon | Image | Icon representing the weather current conditions | |
+| Current | iconKey | String | Key used in the icon URL | |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | forecastTime | DateTime | Forecast date and time | |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | conditions | String | Weather forecast conditions | |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | minTemperature | Number | Minimum temperature | SourceUnit: "C" for degrees Celsius or "F" for degrees Fahrenheit; default is "C" |
@@ -98,6 +100,7 @@ The weather information that is retrieved is available as these channels:
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | averageWindDirectionDegrees | Number | Average wind direction in degrees | |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | averageWindSpeed | Number | Average wind speed | SourceUnit: "kmh" or "mph"; default is "kmh" |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | icon | Image | Icon representing the weather forecast conditions | |
+| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | iconKey | String | Key used in the icon URL | |
 
 
 ## Full Example
@@ -132,6 +135,7 @@ demo.items:
 ```
 String Conditions "Conditions [%s]" {channel="weatherunderground:weather:CDG:current#conditions"}
 Image Icon "Icon" {channel="weatherunderground:weather:CDG:current#icon"}
+String IconKey "Icon key [%s]" {channel="weatherunderground:weather:CDG:current#iconKey"}
 DateTime ObservationTime "Observation time [%1$tH:%1$tM]" <clock>  {channel="weatherunderground:weather:CDG:current#observationTime"}
 String ObservationLocation "Location [%s]" {channel="weatherunderground:weather:CDG:current#location"}
 String Station "Station [%s]" {channel="weatherunderground:weather:CDG:current#stationId"}
@@ -141,6 +145,7 @@ Number FeelTemp "Feeling temperature [%.1f °C]" <temperature>  {channel="weathe
 
 Number Humidity "Humidity [%d %%]" <humidity> {channel="weatherunderground:weather:CDG:current#relativeHumidity"}
 Number Pressure "Pressure [%.0f hPa]" {channel="weatherunderground:weather:CDG:current#pressure"}
+Number PressureTrend "Pressure trend [%s]" {channel="weatherunderground:weather:CDG:current#pressureTrend"}
 
 Number RainD "Rain [%.1f mm]" <rain> {channel="weatherunderground:weather:CDG:current#precipitationDay"}
 Number RainH "Rain [%.1f mm/h]" <rain> {channel="weatherunderground:weather:CDG:current#precipitationHour"}
@@ -160,6 +165,7 @@ Number UV "UV Index [%.1f]" {channel="weatherunderground:weather:CDG:current#UVI
 DateTime ForecastTime "Forecast time [%1$tH:%1$tM]" <clock>  {channel="weatherunderground:weather:CDG:forecastToday#forecastTime"}
 String ForecastCondition "Forecast conditions [%s]"  {channel="weatherunderground:weather:CDG:forecastToday#conditions"}
 Image ForecastIcon "Forecast icon"  {channel="weatherunderground:weather:CDG:forecastToday#icon"}
+String ForecastIconKey "Forecast icon key [%s]"  {channel="weatherunderground:weather:CDG:forecastToday#iconKey"}
 Number ForecastTempMin "Forecast min temp [%.1f °C]" <temperature>  {channel="weatherunderground:weather:CDG:forecastToday#minTemperature"}
 Number ForecastTempMax "Forecast max temp [%.1f °C]" <temperature>  {channel="weatherunderground:weather:CDG:forecastToday#maxTemperature"}
 Number ForecastHumidity "Forecast Humidity [%d %%]" <humidity>  {channel="weatherunderground:weather:CDG:forecastToday#relativeHumidity"}

@@ -52,7 +52,6 @@ public class ConverterValueMap {
      * @param reader the reader to be used to read-in all children (must not be null)
      * @param numberOfValues the number of children to be read-in (< 0 = until end of section)
      * @param context
-     *
      * @throws ConversionException if not all children could be read-in
      */
     public ConverterValueMap(HierarchicalStreamReader reader, int numberOfValues, UnmarshallingContext context)
@@ -77,14 +76,11 @@ public class ConverterValueMap {
      * @param reader the reader to be used to read-in the children (must not be null)
      * @param numberOfValues the number of children to be read in (< 0 = until end of section)
      * @param context
-     *
      * @return the key-value map containing the read-in children (not null, could be empty)
-     *
      * @throws ConversionException if not all children could be read-in
      */
     public static Map<String, Object> readValueMap(HierarchicalStreamReader reader, int numberOfValues,
             UnmarshallingContext context) throws ConversionException {
-
         Map<String, Object> valueMap = new HashMap<>((numberOfValues >= 0) ? numberOfValues : 10);
         int counter = 0;
 
@@ -122,7 +118,6 @@ public class ConverterValueMap {
      *
      * @param nodeName the name of the child's node (must not be null)
      * @param defaultValue the value to be returned if the node could not be found (could be null)
-     *
      * @return the object associated with the specified name of the child's node (could be null)
      */
     public Object getObject(String nodeName, Object defaultValue) {
@@ -150,7 +145,6 @@ public class ConverterValueMap {
      *
      * @param nodeName the name of the child's node (must not be null)
      * @param defaultValue the text to be returned if the node could not be found (could be null)
-     *
      * @return the text associated with the specified name of the child's node (could be null)
      */
     public String getString(String nodeName, String defaultValue) {
@@ -179,7 +173,6 @@ public class ConverterValueMap {
      *
      * @param nodeName the name of the child's node (must not be null)
      * @param defaultValue the boolean to be returned if the node could not be found (could be null)
-     *
      * @return the boolean associated with the specified name of the child's node (could be null)
      */
     public Boolean getBoolean(String nodeName, Boolean defaultValue) {
@@ -196,10 +189,8 @@ public class ConverterValueMap {
      * Returns the numeric value associated with the specified name of the child's node.
      *
      * @param nodeName the name of the child's node (must not be null)
-     *
      * @return the numeric value associated with the specified name of the child's node
      *         (could be null)
-     *
      * @throws ConversionException if the value could not be converted to a numeric value
      */
     public Integer getInteger(String nodeName) throws ConversionException {
@@ -212,10 +203,8 @@ public class ConverterValueMap {
      * @param nodeName the name of the child's node (must not be null)
      * @param defaultValue the numeric value to be returned if the node could not be found
      *            (could be null)
-     *
      * @return the numeric value associated with the specified name of the child's node
      *         (could be null)
-     *
      * @throws ConversionException if the value could not be converted to a numeric value
      */
     public Integer getInteger(String nodeName, Integer defaultValue) throws ConversionException {

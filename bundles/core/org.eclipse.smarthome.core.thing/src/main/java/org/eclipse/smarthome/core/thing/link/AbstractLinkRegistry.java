@@ -39,14 +39,11 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Pro
      * Returns if an item for a given item name is linked to a channel or thing for a
      * given UID.
      *
-     * @param itemName
-     *            item name
-     * @param uid
-     *            UID
+     * @param itemName item name
+     * @param uid UID
      * @return true if linked, false otherwise
      */
     public boolean isLinked(String itemName, UID uid) {
-
         for (AbstractLink link : getAll()) {
             if (link.getLinkedUID().equals(uid) && link.getItemName().equals(itemName)) {
                 return true;

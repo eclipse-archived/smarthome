@@ -61,7 +61,6 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
      */
     public AbstractExpression(String expression, String delimiters, Date startDate, TimeZone timeZone,
             int minimumCandidates, int maximumCandidates) throws ParseException {
-
         if (expression == null) {
             throw new IllegalArgumentException("The expression cannot be null");
         }
@@ -159,7 +158,6 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
      */
     public final void parseExpression(String expression, boolean searchMode)
             throws ParseException, IllegalArgumentException {
-
         StringTokenizer expressionTokenizer = new StringTokenizer(expression, delimiters, false);
         int position = 0;
 
@@ -264,7 +262,6 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
 
     @Override
     public Date getTimeAfter(Date afterTime) {
-
         Date currentStartDate = getStartDate();
 
         if (hasFloatingStartDate()) {
@@ -287,13 +284,11 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
                 return getCandidates().get(0);
             } else {
                 while (getCandidates().size() > 1) {
-
                     Collections.sort(getCandidates());
 
                     Date newStartDate = null;
 
                     try {
-
                         for (Date candidate : getCandidates()) {
                             newStartDate = candidate;
                             if (candidate.after(afterTime)) {
@@ -316,7 +311,6 @@ public abstract class AbstractExpression<E extends AbstractExpressionPart> imple
 
     @Override
     public Date getFinalFireTime() {
-
         try {
             parseExpression(getExpression(), false);
         } catch (ParseException e) {

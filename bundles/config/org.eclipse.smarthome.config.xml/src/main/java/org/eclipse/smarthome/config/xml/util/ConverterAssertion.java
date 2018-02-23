@@ -34,11 +34,9 @@ public class ConverterAssertion {
      *
      * @param propertyName the name of the property to be checked (must neither be null, nor empty)
      * @param property the property to be checked (could be null or empty)
-     *
      * @throws ConversionException if the condition does not fit
      */
     public static void assertNeitherNullNorEmpty(String propertyName, String property) throws ConversionException {
-
         if ((property == null) || (property.isEmpty())) {
             throw new ConversionException("The " + propertyName + " must neither be null nor empty!");
         }
@@ -64,7 +62,6 @@ public class ConverterAssertion {
      * @throws ConversionException if the condition does not fit
      */
     public static void assertNoAttribute(HierarchicalStreamReader reader) throws ConversionException {
-
         if (reader.getAttributeCount() > 0) {
             throw new ConversionException("The parameter '" + reader.getNodeName() + "' uses unknown attributes!");
         }

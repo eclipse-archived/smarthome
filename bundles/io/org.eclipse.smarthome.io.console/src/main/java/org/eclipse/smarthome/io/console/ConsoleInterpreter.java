@@ -31,7 +31,6 @@ public class ConsoleInterpreter {
 
     public static String getHelp(final String base, final String separator,
             Collection<ConsoleCommandExtension> extensions) {
-
         final List<String> usages = ConsoleInterpreter.getUsages(extensions);
         final StringBuffer buffer = new StringBuffer();
 

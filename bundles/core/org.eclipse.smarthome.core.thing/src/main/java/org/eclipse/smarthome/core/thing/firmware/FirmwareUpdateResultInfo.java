@@ -38,7 +38,6 @@ public final class FirmwareUpdateResultInfo {
      * @param result the result of the firmware update (must not be null)
      * @param errorMessage the error message in case of result is {@link FirmwareUpdateResult#ERROR} (must not be null
      *            or empty for erroneous firmware updates; ignored for successful firmware updates)
-     *
      * @throws NullPointerException if result is null
      * @throws IllegalArgumentException if error message is null or empty for erroneous firmware updates
      */

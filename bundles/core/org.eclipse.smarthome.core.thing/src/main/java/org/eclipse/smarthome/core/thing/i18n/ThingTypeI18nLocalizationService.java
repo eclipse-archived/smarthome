@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
@@ -98,7 +97,7 @@ public class ThingTypeI18nLocalizationService {
                             channelDefinition.getProperties(), channelLabel, channelDescription));
         }
 
-        final List<@NonNull ChannelGroupDefinition> localizedChannelGroupDefinitions = new ArrayList<>(
+        final List<ChannelGroupDefinition> localizedChannelGroupDefinitions = new ArrayList<>(
                 thingType.getChannelGroupDefinitions().size());
         for (final ChannelGroupDefinition channelGroupDefinition : thingType.getChannelGroupDefinitions()) {
             String channelGroupLabel = this.thingTypeI18nUtil.getChannelGroupLabel(bundle, thingType.getUID(),

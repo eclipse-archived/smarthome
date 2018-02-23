@@ -16,7 +16,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -33,6 +34,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * @author Gaël L'hopital
  *
  */
+@NonNullByDefault
 public class LocationItem extends GenericItem {
 
     private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
@@ -46,7 +48,7 @@ public class LocationItem extends GenericItem {
         acceptedCommandTypes.add(PointType.class);
     }
 
-    public LocationItem(@NonNull String name) {
+    public LocationItem(String name) {
         super(CoreItemFactory.LOCATION, name);
     }
 
@@ -72,7 +74,7 @@ public class LocationItem extends GenericItem {
      * @param away : the point to calculate the distance with
      * @return distance between the two points in meters
      */
-    public DecimalType distanceFrom(LocationItem awayItem) {
+    public DecimalType distanceFrom(@Nullable LocationItem awayItem) {
         if (awayItem != null && awayItem.state instanceof PointType && this.state instanceof PointType) {
             PointType thisPoint = (PointType) this.state;
             PointType awayPoint = (PointType) awayItem.state;

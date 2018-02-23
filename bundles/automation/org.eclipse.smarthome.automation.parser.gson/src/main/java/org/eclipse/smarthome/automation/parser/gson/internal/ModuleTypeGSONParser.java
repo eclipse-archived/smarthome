@@ -77,7 +77,6 @@ public class ModuleTypeGSONParser extends AbstractGSONParser<ModuleType> {
                                 mt.getDescription(), mt.getTags(), mt.getVisibility(),
                                 ((TriggerType) mt).getOutputs()));
                     }
-
                 } else if (mt instanceof CompositeConditionType) {
                     List<Condition> children = ((CompositeConditionType) mt).getChildren();
                     if (children != null && !children.isEmpty()) {
@@ -87,7 +86,6 @@ public class ModuleTypeGSONParser extends AbstractGSONParser<ModuleType> {
                                 mt.getDescription(), mt.getTags(), mt.getVisibility(),
                                 ((ConditionType) mt).getInputs()));
                     }
-
                 } else if (mt instanceof CompositeActionType) {
                     List<Action> children = ((CompositeActionType) mt).getChildren();
                     if (children != null && !children.isEmpty()) {

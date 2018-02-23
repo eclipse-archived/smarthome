@@ -52,10 +52,8 @@ public class ThingHelper {
     /**
      * Indicates whether two {@link Thing}s are technical equal.
      *
-     * @param a
-     *            Thing object
-     * @param b
-     *            another Thing object
+     * @param a Thing object
+     * @param b another Thing object
      * @return true whether a and b are equal, otherwise false
      */
     public static boolean equals(Thing a, Thing b) {
@@ -173,11 +171,9 @@ public class ThingHelper {
      *
      * @param thing the Thing instance to merge the new content into
      * @param updatedContents a DTO which carries the updated content
-     *
      * @return A Thing instance, which is the result of the merge
      */
     public static Thing merge(Thing thing, ThingDTO updatedContents) {
-
         ThingBuilder builder;
 
         if (thing instanceof Bridge) {

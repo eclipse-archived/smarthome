@@ -224,7 +224,6 @@ public class WatchQueueReader implements Runnable {
 
                     Path resolvedPath = resolvePath(key, event);
                     if (resolvedPath != null) {
-
                         // Process the event only when a relative path to it is resolved
                         AbstractWatchService service;
                         synchronized (this) {

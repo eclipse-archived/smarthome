@@ -403,7 +403,6 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
                     executor = null;
                 }
             }
-
         } else {
             // change state to NOTINITIALIZED
             setRuleStatusInfo(rUID,
@@ -597,7 +596,6 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
                     mt instanceof CompositeActionType) {
                 mhf = compositeFactory;
             }
-
         }
         return mhf;
     }

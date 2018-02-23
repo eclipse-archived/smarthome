@@ -16,6 +16,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.function.Predicate;
 
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
@@ -38,17 +39,20 @@ public class EnrichedItemDTOMapper {
      * Maps item into enriched item DTO object.
      *
      * @param item the item
-     * @param drillDown the drill down
+     * @param drillDown defines whether the whole tree should be traversed or only direct members are considered
+     * @param itemFilter a predicate that filters items while traversing the tree (true means that an item is
+     *            considered)
      * @param uri the uri
      * @return item DTO object
      */
-    public static EnrichedItemDTO map(Item item, boolean drillDown, URI uri, Locale locale) {
+    public static EnrichedItemDTO map(Item item, boolean drillDown, Predicate<Item> itemFilter, URI uri,
+            Locale locale) {
         ItemDTO itemDTO = ItemDTOMapper.map(item);
-        return map(item, itemDTO, uri, drillDown, locale);
+        return map(item, itemDTO, uri, drillDown, itemFilter, locale);
     }
 
-    private static EnrichedItemDTO map(Item item, ItemDTO itemDTO, URI uri, boolean drillDown, Locale locale) {
-
+    private static EnrichedItemDTO map(Item item, ItemDTO itemDTO, URI uri, boolean drillDown,
+            Predicate<Item> itemFilter, Locale locale) {
         String state = item.getState().toFullString();
         String transformedState = considerTransformation(state, item.getStateDescription(locale));
         if (transformedState != null && transformedState.equals(state)) {
@@ -65,7 +69,9 @@ public class EnrichedItemDTOMapper {
             if (drillDown) {
                 Collection<EnrichedItemDTO> members = new LinkedHashSet<>();
                 for (Item member : groupItem.getMembers()) {
-                    members.add(map(member, drillDown, uri, locale));
+                    if (itemFilter == null || itemFilter.test(member)) {
+                        members.add(map(member, drillDown, itemFilter, uri, locale));
+                    }
                 }
                 memberDTOs = members.toArray(new EnrichedItemDTO[members.size()]);
             } else {

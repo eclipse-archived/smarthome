@@ -53,10 +53,8 @@ public final class InboxFilterCriteria {
     /**
      * Creates a new instance of this class with the specified parameters.
      *
-     * @param thingTypeUID
-     *            the Thing type UID to be filtered (could be null or empty)
-     * @param flag
-     *            the discovery result flag to be filtered (could be null)
+     * @param thingTypeUID the Thing type UID to be filtered (could be null or empty)
+     * @param flag the discovery result flag to be filtered (could be null)
      */
     public InboxFilterCriteria(ThingTypeUID thingTypeUID, DiscoveryResultFlag flag) {
         this.bindingId = null;
@@ -68,10 +66,8 @@ public final class InboxFilterCriteria {
     /**
      * Creates a new instance of this class with the specified parameters.
      *
-     * @param thingUID
-     *            the Thing UID to be filtered (could be null or empty)
-     * @param flag
-     *            the discovery result flag to be filtered (could be null)
+     * @param thingUID the Thing UID to be filtered (could be null or empty)
+     * @param flag the discovery result flag to be filtered (could be null)
      */
     public InboxFilterCriteria(ThingUID thingUID, DiscoveryResultFlag flag) {
         this.bindingId = null;
@@ -83,8 +79,7 @@ public final class InboxFilterCriteria {
     /**
      * Creates a new instance of this class with the specified parameters.
      *
-     * @param flag
-     *            the discovery result flag to be filtered (could be null)
+     * @param flag the discovery result flag to be filtered (could be null)
      */
     public InboxFilterCriteria(DiscoveryResultFlag flag) {
         this.bindingId = null;

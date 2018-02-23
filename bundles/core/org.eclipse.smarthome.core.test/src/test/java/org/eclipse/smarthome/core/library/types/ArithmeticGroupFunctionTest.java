@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.Item;
@@ -220,7 +219,7 @@ public class ArithmeticGroupFunctionTest {
         assertEquals(new DecimalType("2"), state);
     }
 
-    class TestItem extends GenericItem {
+    private class TestItem extends GenericItem {
 
         public TestItem(String name, State state) {
             super("Test", name);
@@ -228,12 +227,12 @@ public class ArithmeticGroupFunctionTest {
         }
 
         @Override
-        public @NonNull List<@NonNull Class<? extends State>> getAcceptedDataTypes() {
+        public List<Class<? extends State>> getAcceptedDataTypes() {
             return Collections.emptyList();
         }
 
         @Override
-        public @NonNull List<@NonNull Class<? extends Command>> getAcceptedCommandTypes() {
+        public List<Class<? extends Command>> getAcceptedCommandTypes() {
             return Collections.emptyList();
         }
 

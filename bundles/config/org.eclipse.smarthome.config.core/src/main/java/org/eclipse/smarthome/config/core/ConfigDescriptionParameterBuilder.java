@@ -272,7 +272,6 @@ public class ConfigDescriptionParameterBuilder {
      * Sets the unit of the configuration parameter.
      *
      * @param unit the unit to be set
-     *
      * @return the updated builder instance
      */
     public ConfigDescriptionParameterBuilder withUnit(String unit) {
@@ -284,7 +283,6 @@ public class ConfigDescriptionParameterBuilder {
      * Sets the unit label of the configuration parameter.
      *
      * @param unitLabel the unit label to be set
-     *
      * @return the updated builder instance
      */
     public ConfigDescriptionParameterBuilder withUnitLabel(String unitLabel) {

@@ -22,6 +22,7 @@ Import-Package:
  org.eclipse.jetty.util,
  org.eclipse.jetty.util.component,
  org.eclipse.jetty.util.ssl,
+ org.eclipse.jetty.util.thread,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.io.net.exec,
  org.eclipse.smarthome.io.net.http,

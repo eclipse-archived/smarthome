@@ -84,8 +84,8 @@ angular.module('PaperUI.controllers.things') //
             linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
             acceptedItemTypes : channel.acceptedItemTypes,
             category : channelType.category ? channelType.category : '',
-            suggestedName : getItemNameSuggestion(channelID, channelType.label),
-            suggestedLabel : channelType.label,
+            suggestedName : getItemNameSuggestion(channelID, channel.label),
+            suggestedLabel : channel.label,
             suggestedCategory : channelType.category ? channelType.category : '',
             preSelectCreate : preSelect,
             allowNewItemCreation : $scope.advancedMode && channel.kind !== 'TRIGGER' // allow "Create new Item" in

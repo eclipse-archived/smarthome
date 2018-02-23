@@ -1,6 +1,9 @@
 angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
 .controller('ControlPageController', function($scope, $routeParams, $location, $timeout, $filter, itemRepository, thingTypeRepository, util, thingRepository, channelTypeRepository) {
     $scope.tabs = [];
+    $scope.selectedTabIndex;
+
+    var selectedTabName = $routeParams.tab;
 
     $scope.navigateTo = function(path) {
         $location.path(path);
@@ -16,15 +19,22 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
         });
     }
 
-    $scope.masonry = function(index) {
-        $timeout(function() {
-            new Masonry('#items-' + index, {});
-        }, 100, false);
+    $scope.onSelectedTab = function(tab) {
+        var index = $scope.tabs.indexOf(tab);
+        masonry(index);
+        $location.path('/control').search('tab', tab.name.toLowerCase());
     }
 
     function renderTabs() {
         thingRepository.getAll(function(things) {
             $scope.tabs = getTabs(things);
+            if (selectedTabName) {
+                var selectedTab = $scope.tabs.find(function(tab) {
+                    return tab.name === selectedTabName.toUpperCase();
+                });
+                $scope.selectedTabIndex = selectedTab ? $scope.tabs.indexOf(selectedTab) : 0;
+                masonry($scope.selectedTabIndex);
+            }
         })
     }
 
@@ -58,6 +68,12 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
                 hasThings : false
             }
         });
+    }
+
+    function masonry(index) {
+        $timeout(function() {
+            new Masonry('#items-' + index, {});
+        }, 100, false);
     }
 
     $scope.refresh();
@@ -119,11 +135,14 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
         })
         angular.forEach(items, function(item) {
 
-            if (item.type && (item.type == "Number" || item.groupType == "Number" || item.type == "Rollershutter")) {
-                var parsedValue = Number(item.state);
-                if (isNaN(parsedValue)) {
-                    item.state = null;
-                } else {
+            if ((item.type && (item.type.indexOf("Number") === 0 || item.type == "Rollershutter")) || (item.groupType && item.groupType.indexOf("Number") === 0)) {
+                var state = '' + item.state;
+                if (state.indexOf(' ') > 0) {
+                    item.unit = state.substring(state.indexOf(' ') + 1);
+                    state = state.substring(0, state.indexOf(' '));
+                }
+                var parsedValue = Number(state);
+                if (!isNaN(parsedValue)) {
                     item.state = parsedValue;
                 }
             }
@@ -271,7 +290,6 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
 }).controller('ItemController', function($rootScope, $scope, itemService, util) {
     $scope.editMode = false;
     $scope.sendCommand = function(command, updateState) {
-        $rootScope.itemUpdates[$scope.item.name] = new Date().getTime();
         itemService.sendCommand({
             itemName : $scope.item.name
         }, command);
@@ -308,6 +326,12 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
         }
     };
 
+}).controller('NumberItemController', function($scope) {
+    $scope.updateState = function() {
+        var state = $scope.item.unit ? $scope.item.state + ' ' + $scope.item.unit : $scope.item.state;
+        $scope.sendCommand(state, false);
+        $scope.editMode = false;
+    };
 }).controller('ImageItemController', function($scope, itemService) {
 
     $scope.refreshCameraImage = function() {

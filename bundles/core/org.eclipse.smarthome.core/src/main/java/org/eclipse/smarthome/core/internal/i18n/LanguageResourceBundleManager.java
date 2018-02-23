@@ -137,7 +137,6 @@ public class LanguageResourceBundleManager {
      */
     public String getText(String resource, String key, Locale locale) {
         if ((key != null) && (!key.isEmpty())) {
-
             Locale effectiveLocale = locale != null ? locale : localeProvider.getLocale();
 
             if (resource != null) {

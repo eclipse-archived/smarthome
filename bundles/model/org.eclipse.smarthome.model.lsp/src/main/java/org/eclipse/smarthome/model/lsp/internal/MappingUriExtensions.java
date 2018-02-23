@@ -94,7 +94,6 @@ public class MappingUriExtensions extends UriExtensions {
             }
 
             clientLocation = pathWithScheme;
-
         } catch (UnsupportedEncodingException e) {
             logger.error("Charset {} is not supported. You're seriously in trouble.", PATH_ENCODING);
         }

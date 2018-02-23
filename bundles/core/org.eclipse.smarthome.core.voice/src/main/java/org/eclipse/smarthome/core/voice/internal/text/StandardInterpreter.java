@@ -38,7 +38,6 @@ public class StandardInterpreter extends AbstractRuleBasedInterpreter {
 
     @Override
     public void createRules() {
-
         /****************************** ENGLISH ******************************/
 
         Expression onOff = alt(cmd("on", OnOffType.ON), cmd("off", OnOffType.OFF));
@@ -221,7 +220,6 @@ public class StandardInterpreter extends AbstractRuleBasedInterpreter {
                 itemRule(seq(cmd("rafraîchir", RefreshType.REFRESH), lela) /* item */)
 
         );
-
     }
 
     @Override

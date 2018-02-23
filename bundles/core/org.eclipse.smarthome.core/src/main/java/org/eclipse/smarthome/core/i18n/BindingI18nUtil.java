@@ -32,7 +32,6 @@ public class BindingI18nUtil {
     }
 
     public String getDescription(Bundle bundle, String bindingId, String defaultDescription, Locale locale) {
-
         String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription) : inferKey(
                 bindingId, "description");
 

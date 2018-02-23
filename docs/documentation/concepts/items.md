@@ -13,20 +13,21 @@ Items have a state and are used through events.
   
 The following item types are currently available (alphabetical order):
 
-| Item Name      | Description | Command Types |
-|----------------|-------------|---------------|
-| Color          | Color information (RGB) | OnOff, IncreaseDecrease, Percent, HSB |
-| Contact        | Item storing status of e.g. door/window contacts | OpenClose |
-| DateTime       | Stores date and time | - |
-| Dimmer         | Item carrying a percentage value for dimmers | OnOff, IncreaseDecrease, Percent |
-| Group          | Item to nest other items / collect them in groups | - |
-| Image          | Holds the binary data of an image | - |
-| Location       | Stores GPS coordinates | Point |
-| Number         | Stores values in number format | Decimal |
-| Player         | Allows to control players (e.g. audio players) | PlayPause, NextPrevious, RewindFastforward |
-| Rollershutter  | Typically used for blinds | UpDown, StopMove, Percent |
-| String         | Stores texts | String |
-| Switch         | Typically used for lights (on/off) | OnOff |
+| Item Name          | Description | Command Types |
+|--------------------|-------------|---------------|
+| Color              | Color information (RGB) | OnOff, IncreaseDecrease, Percent, HSB |
+| Contact            | Item storing status of e.g. door/window contacts | OpenClose |
+| DateTime           | Stores date and time | - |
+| Dimmer             | Item carrying a percentage value for dimmers | OnOff, IncreaseDecrease, Percent |
+| Group              | Item to nest other items / collect them in groups | - |
+| Image              | Holds the binary data of an image | - |
+| Location           | Stores GPS coordinates | Point |
+| Number             | Stores values in number format, takes an optional dimension suffix  | Decimal |
+| Number:<dimension> | like Number, additional dimension information for unit support | Quantity |
+| Player             | Allows to control players (e.g. audio players) | PlayPause, NextPrevious, RewindFastforward |
+| Rollershutter      | Typically used for blinds | UpDown, StopMove, Percent |
+| String             | Stores texts | String |
+| Switch             | Typically used for lights (on/off) | OnOff |
 
 ## Group Items
 
@@ -77,14 +78,27 @@ Examples for derived states on group items when declared in the item DSL:
 `DateTimeType` objects are parsed using Java's `SimpleDateFormat.parse()` using the first matching pattern:
 
 1. `yyyy-MM-dd'T'HH:mm:ss.SSSZ`
-2. `yyyy-MM-dd'T'HH:mm:ss.SSSX`
-3. `yyyy-MM-dd'T'HH:mm:ssz`
-4. `yyyy-MM-dd'T'HH:mm:ss`
+2. `yyyy-MM-dd'T'HH:mm:ss.SSSz`
+3. `yyyy-MM-dd'T'HH:mm:ss.SSSX`
+4. `yyyy-MM-dd'T'HH:mm:ssz`
+5. `yyyy-MM-dd'T'HH:mm:ss`
+
+Literal | Standard | Example
+--------|----------|--------
+z | General time zone | Pacific Standard Time; PST; GMT-08:00
+Z | RFC 822 time zone | -0800
+X | ISO 8601 time zone | -08; -0800; -08:00
 
 ### DecimalType, PercentType
 
 `DecimalType` and `PercentType` objects use Java's `BigDecimal` constructor for conversion.
 `PercentType` values range from 0 to 100.
+
+### QuantityType
+
+A numerical type which carries a unit in addition to its value.
+The framework is capable of automatic conversion between units depending on the users locale settings.
+See the concept on [Units of Measurement](units-of-measurement.html) for more details.
 
 ### HSBType
 

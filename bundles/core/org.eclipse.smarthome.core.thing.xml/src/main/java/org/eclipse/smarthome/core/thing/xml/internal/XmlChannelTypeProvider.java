@@ -39,6 +39,8 @@ import org.osgi.service.component.annotations.Reference;
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - fixed concurrency issues
  * @author Simon Kaufmann - factored out common aspects into {@link AbstractXmlBasedProvider}
+ * @author Henning Treu - QuantityType implementation
+ *
  */
 @Component(immediate = true, property = { "esh.scope=core.xml.channels" })
 public class XmlChannelTypeProvider extends AbstractXmlBasedProvider<UID, ChannelType> implements ChannelTypeProvider {
@@ -76,7 +78,6 @@ public class XmlChannelTypeProvider extends AbstractXmlBasedProvider<UID, Channe
 
     private StateDescription createLocalizedChannelState(Bundle bundle, ChannelType channelType,
             ChannelTypeUID channelTypeUID, Locale locale) {
-
         StateDescription state = channelType.getState();
 
         if (state != null) {

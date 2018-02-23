@@ -45,7 +45,6 @@ public class RawRockerOnOffProfile implements TriggerProfile {
      */
     @Override
     public void onStateUpdateFromItem(State state) {
-
     }
 
     @Override

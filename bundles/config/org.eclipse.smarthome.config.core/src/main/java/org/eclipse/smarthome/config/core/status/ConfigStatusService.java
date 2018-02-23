@@ -25,6 +25,10 @@ import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +41,7 @@ import org.slf4j.LoggerFactory;
  * @author Chris Jackson - Allow null messages
  * @author Markus Rathgeb - Add locale provider support
  */
+@Component(immediate = true, service = { ConfigStatusService.class })
 public final class ConfigStatusService implements ConfigStatusCallback {
 
     private final Logger logger = LoggerFactory.getLogger(ConfigStatusService.class);
@@ -57,10 +62,8 @@ public final class ConfigStatusService implements ConfigStatusCallback {
      *            be null or empty)
      * @param locale the locale to be used for the corresponding configuration status messages; if null then the
      *            default local will be used
-     *
      * @return the {@link ConfigStatusInfo} or null if there is no {@link ConfigStatusProvider} registered that
      *         supports the given entity
-     *
      * @throws IllegalArgumentException if given entityId is null or empty
      */
     public ConfigStatusInfo getConfigStatus(String entityId, final Locale locale) {
@@ -133,6 +136,7 @@ public final class ConfigStatusService implements ConfigStatusCallback {
         return info;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addConfigStatusProvider(ConfigStatusProvider configStatusProvider) {
         configStatusProvider.setConfigStatusCallback(this);
         configStatusProviders.add(configStatusProvider);
@@ -143,6 +147,7 @@ public final class ConfigStatusService implements ConfigStatusCallback {
         configStatusProviders.remove(configStatusProvider);
     }
 
+    @Reference(policy = ReferencePolicy.DYNAMIC)
     protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
@@ -151,6 +156,7 @@ public final class ConfigStatusService implements ConfigStatusCallback {
         this.eventPublisher = null;
     }
 
+    @Reference
     protected void setLocaleProvider(LocaleProvider localeProvider) {
         this.localeProvider = localeProvider;
     }
@@ -159,6 +165,7 @@ public final class ConfigStatusService implements ConfigStatusCallback {
         this.localeProvider = null;
     }
 
+    @Reference
     protected void setTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
     }
