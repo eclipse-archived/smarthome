@@ -2,12 +2,10 @@
 
 Transforms an [XML](https://www.w3.org/XML/) input using an [XPath](https://www.w3.org/TR/xpath/#section-Expressions) expression.
 
-
-
 ## Advanced Example
 Given a retrived XML e.g. from an HIK Vision device with the namespace `xmlns="http://www.hikvision.com/ver20/XMLSchema"`.
 
-**hikvision.xml**
+**Input XML**
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <PTZStatus version="2.0" xmlns="http://www.hikvision.com/ver20/XMLSchema">
@@ -20,14 +18,14 @@ Given a retrived XML e.g. from an HIK Vision device with the namespace `xmlns="h
 ```
 A simple xpath query to fetch the Azimut value does not work as it does not adress the namespace.
 
-**.rules**
+** Rules File**
 ```php
 val azimuth = transform("XPATH", "/PTZStatus/AbsoluteHigh/azimuth/text()", testXml.toString)
 ```
 
-To Adress the namespace in the query there are two ways, one simple which may not work in complex xml and one full qualified.
+To Address the namespace in the query there are two ways one full qualified path and a simple paht which may not work in complex XML.
 
-**.rules**
+**Rules File**
 ```php
 val testXml ="<PTZStatus version=\"2.0\" xmlns=\"http://www.hikvision.com/ver20/XMLSchema\" ><AbsoluteHigh><elevation>0</elevation><azimuth>450</azimuth><absoluteZoom>10</absoluteZoom></AbsoluteHigh></PTZStatus>"
 // Simple
@@ -41,6 +39,11 @@ val mytest = transform("XPATH", "/*[local-name()='PTZStatus'    and namespace-ur
                                  /*[local-name()='azimuth'      and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
                                  /text()[1]", testXml.toString)
 logInfo('debug','mytest : ' + mytest )
+```
+
+**Value in mytest**
+```
+450
 ```
 
 ## Further Reading
