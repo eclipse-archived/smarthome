@@ -14,7 +14,7 @@ General transformation rule summary:
 * The `xsl:template` tag contains the rule which specifies what should be done.
 
 The Rule uses XPath to gather the XML node information.
-For more information have a look at the [XPath transformaton](https://docs.openhab.org/addons/transformations/jsonpath/readme.html) .
+For more information have a look at the [XPath transformaton](https://docs.openhab.org/addons/transformations/xpath/readme.html) .
 
 ## Simple Example
 
