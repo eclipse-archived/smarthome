@@ -11,7 +11,7 @@ The regular expression in the format `s/<regex>/result/` (without `g`), replaces
 If the regular expression contains a [capture group](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#cg), it returns the captured string.
 The regular expression in this case is further restricted to isolate a complete line by adding `^` to the beginning and `$` to the end.
 
-** Consider **
+**To Consider**
 The special characters `\.[]{}()*+-?^$|` have to be escaped when they should be used as literal, as character to find.
 The regex is embedded in a string so when double qoutes `"` are used in an regex they need to be escaped `\"` to keep the string intact.
 
@@ -25,3 +25,10 @@ There are plenty online regex evaluater which allows fast checking of an regex.
 | `My network does not work.` | `.*(\snot).*` | `" not"` | Returns only first match, strips of rest |
 | `temp=44.0'C` | `temp=(.*?)'C)`          | `44.0` | Matches whole string, retuns captcha group (.?) |
 | `48312` | `s/(.{2})(.{3})/$1.$2/g` | `48.312` | Captures 2 and 3 character, retuns first capture group adds a dot and the second capture group. This devides by 1000. |
+
+
+## Further Reading
+A full [introduction](https://www.w3schools.com/jsref/jsref_obj_regexp.asp) for regular expression can be found at W3School.
+Online validator help to chack the syntax of an regex fast and give information how to design it.
+[Regex 101](https://regex101.com/)
+[Regex R](https://regexr.com/)
