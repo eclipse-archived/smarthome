@@ -1,9 +1,13 @@
 # XPath Transformation Service
 
-Transforms XML input using an [XPath expression](https://www.w3.org/TR/xpath/#section-Expressions).
+Transforms an [XML](https://www.w3.org/XML/) input using an [XPath](https://www.w3.org/TR/xpath/#section-Expressions) expression.
 
+
+
+## Advanced Example
 Given a retrived XML e.g. from an HIK Vision device with the namespace `xmlns="http://www.hikvision.com/ver20/XMLSchema"`.
 
+**hikvision.xml**
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <PTZStatus version="2.0" xmlns="http://www.hikvision.com/ver20/XMLSchema">
@@ -14,12 +18,11 @@ Given a retrived XML e.g. from an HIK Vision device with the namespace `xmlns="h
 	</AbsoluteHigh>
 </PTZStatus>
 ```
-
 A simple xpath query to fetch the Azimut value does not work as it does not adress the namespace.
 
 **.rules**
 ```php
-val azimuth = transform("XPATH", "/PTZStatus/AbsoluteHigh/azimuth/text()[1]", testXml.toString)
+val azimuth = transform("XPATH", "/PTZStatus/AbsoluteHigh/azimuth/text()", testXml.toString)
 ```
 
 To Adress the namespace in the query there are two ways, one simple which may not work in complex xml and one full qualified.
@@ -39,3 +42,8 @@ val mytest = transform("XPATH", "/*[local-name()='PTZStatus'    and namespace-ur
                                  /text()[1]", testXml.toString)
 logInfo('debug','mytest : ' + mytest )
 ```
+
+## Further Reading
+For a [introduction](https://www.w3schools.com/xml/xpath_intro.asp) of XPath have a look at W3School.
+A informative explanation of [common mistakes](https://qxf2.com/blog/common-xpath-mistakes/).
+Online validation tools like [this](https://www.freeformatter.com/xpath-tester.html) can help to check your syntax.
