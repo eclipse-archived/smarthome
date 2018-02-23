@@ -2,12 +2,10 @@
 
 Transform input using the XML Stylesheet Language for Transformations (XSLT).
 
-XSLT is a standard method to transform an XML structure into a document with the structure other structure.
+XSLT is a standard method to transform an XML structures from one documentt into a new document with a other structure.
 
-Trhe transformation expects the transformation rule to be read from a file which is stored under the `transform` folder. 
+Teh transformation expects the rule to be read from a file which is stored under the `transform` folder. 
 To organize the various transformations one should use subfolders.
-
-You can find a very good tutorial here: [XSLT tutorial at W3Schools](https://www.w3schools.com/xml/xsl_intro.asp)
 
 General transformation rule summary:
 
@@ -19,7 +17,7 @@ General transformation rule summary:
 
 ## Simple Example
 
-(from [here](https://en.wikipedia.org/wiki/Java_API_for_XML_Processing#Example))
+A simple but complete XLST transformation looks like follows, taken from [here](https://en.wikipedia.org/wiki/Java_API_for_XML_Processing#Example).
 
 **input XML**
 
@@ -27,12 +25,10 @@ General transformation rule summary:
 <?xml version='1.0' encoding='UTF-8'?>
 <root><node val='hello'/></root>
 ```
-
+**transform/helloworld.xsl**
 * `xsl:output`: transform incoming document into another XML-like document, without intendation.
 * `xsl:template`: `match="/"` "any type of node", so the whole document.
-* Rule: extract value from the selected node
-
-**transform/helloworld.xsl**
+* The `xsl` rule does `select` the node `/root/node` and extracts the `value-of` attribute `val`.
 
 ```xml
 <?xml version='1.0' encoding='UTF-8'?>
@@ -52,9 +48,9 @@ General transformation rule summary:
 
 ## Advanced Example
 
-**input XML**
-
 This example has an namespace defined, as you would find in real world applications, which has to be matched in the rule.
+
+**input XML**
 
 * The tag `<PTZStatus>` contains a namespace `xmlns=` 
 
@@ -69,9 +65,9 @@ This example has an namespace defined, as you would find in real world applicati
 </PTZStatus>
 ```
 
-**transform/azimut.xsl**
 
-In the rule the tag `<xsl:stylesheet>` has to have the  `xmlns:xsl="http://www.w3.org/1999/XSL/Transform"` attribute and a second attribut `xmlns:` which has to be the same as the namespace for the input document. In the rule each step traversed along the path to the next tag has to prepend the `xmlns` namespace, here defined as `h`.
+**transform/azimut.xsl**
+In the rule the tag `<xsl:stylesheet>` has to have the  `xmlns:xsl="http://www.w3.org/1999/XSL/Transform"` attribute and a second attribut `xmlns:` which has to be the same as the namespace for the input document. In the rule each step traversed along the path to the next tag has to prepended with the `xmlns` namespace, here defined as `h`.
 
 * `xsl:output` transform incoming document into another XML-like document, no intendation, **without XML**.
 * `xsl:template`: `match="/"` whole document.
@@ -92,12 +88,15 @@ xmlns:h="http://www.hikvision.com/ver20/XMLSchema">
 </xsl:stylesheet>
 ```
 
-**Output XML**
+**Output Document**
 
-```xml
+```
 Fri, 18 Dec 2009 9:38 am PST
 450
 ```
+## Further Reading
 
-Other examples may be found [here](https://en.wikipedia.org/wiki/XSLT#XSLT_examples).
+You can find a very good [introduction](https://www.w3schools.com/xml/xsl_intro.asp) and [tutorial](https://www.w3schools.com/xml/xsl_transformation.asp) at W3School.
+Extended introduction and more [examples](https://en.wikipedia.org/wiki/XSLT#XSLT_examples) at Wikipidia.
+A informative [tutorial](https://www.ibm.com/developerworks/library/x-xsltmistakes/) of common mistakes.
 
