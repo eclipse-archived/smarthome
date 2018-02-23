@@ -67,7 +67,8 @@ This example has an namespace defined, as you would find in real world applicati
 
 
 **transform/azimut.xsl**
-In the rule the tag `<xsl:stylesheet>` has to have the  `xmlns:xsl="http://www.w3.org/1999/XSL/Transform"` attribute and a second attribut `xmlns:` which has to be the same as the namespace for the input document. In the rule each step traversed along the path to the next tag has to prepended with the `xmlns` namespace, here defined as `h`.
+In the rule the tag `<xsl:stylesheet>` has to have the  `xmlns:xsl="http://www.w3.org/1999/XSL/Transform"` attribute and a second attribut `xmlns:` which has to be the same as the namespace for the input document.
+In the rule each step traversed along the path to the next tag has to prepended with the `xmlns` namespace, here defined as `h`.
 
 * `xsl:output` transform incoming document into another XML-like document, no intendation, **without XML**.
 * `xsl:template`: `match="/"` whole document.
