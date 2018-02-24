@@ -39,6 +39,7 @@ public enum Products {
     LZ_2(1, 32, "LIFX Z 2", true, false, true, false),
     LDL_1(1, 36, "LIFX Downlight", true, false, false, false),
     LDL_2(1, 37, "LIFX Downlight", true, false, false, false),
+    LB(1, 38, "LIFX Beam", true, false, true, false),
     LA19_2(1, 43, "LIFX A19", true, false, false, false),
     LBR30_2(1, 44, "LIFX BR30", true, false, false, false),
     LPA19_2(1, 45, "LIFX+ A19", true, true, false, false),
@@ -48,7 +49,6 @@ public enum Products {
     LMW(1, 51, "LIFX Mini White", false, false, false, false),
     LGU10(1, 52, "LIFX GU10", true, false, false, false),
     LT(1, 55, "LIFX Tile", true, false, false, true),
-    LB(1, 56, "LIFX Beam", true, false, true, false),
     LMC(1, 59, "LIFX Mini Color", true, false, false, false),
     LMDD_2(1, 60, "LIFX Mini Day and Dusk", false, false, false, false),
     LMW_2(1, 61, "LIFX Mini White", false, false, false, false);
