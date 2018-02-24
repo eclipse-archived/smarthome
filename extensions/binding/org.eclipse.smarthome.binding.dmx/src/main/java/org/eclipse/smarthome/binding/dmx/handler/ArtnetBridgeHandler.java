@@ -80,9 +80,8 @@ public class ArtnetBridgeHandler extends DmxOverEthernetHandler {
         }
         logger.debug("refresh mode set to always: {}", refreshAlways);
 
+        updateStatus(ThingStatus.UNKNOWN);
         super.updateConfiguration();
-
-        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE);
 
         logger.debug("updated configuration for ArtNet bridge {}", this.thing.getUID());
     }

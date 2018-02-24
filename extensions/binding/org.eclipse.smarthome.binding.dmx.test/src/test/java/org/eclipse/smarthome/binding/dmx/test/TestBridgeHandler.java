@@ -62,6 +62,7 @@ public class TestBridgeHandler extends DmxBridgeHandler {
     @Override
     protected void updateConfiguration() {
         universe = new Universe(MIN_UNIVERSE_ID);
+        universe.setRefreshTime(0);
 
         super.updateConfiguration();
 
@@ -78,27 +79,21 @@ public class TestBridgeHandler extends DmxBridgeHandler {
     }
 
     /**
-     *
-     * get single channel data
+     * calc buffer for timestamp after timespam
      *
      * @param time UNIX timestamp of calculation time
      *
-     * @param index channel number
-     *
-     * @return channel value
+     * @return new timestamp
      */
-    public byte getBufferValue(long time, int index) {
+    public long calcBuffer(long time, long timespan) {
         universe.calculateBuffer(time);
-        byte[] buffer = universe.getBuffer();
-        if ((index > 1) && (index - 1) < buffer.length) {
-            return buffer[index - 1];
-        } else {
-            throw new IllegalArgumentException("index not available");
-        }
+        universe.calculateBuffer(time + timespan);
+        logger.debug("calculated buffer for {} to {} (difference {})", time, time + timespan, timespan);
+        return time + timespan;
     }
 
     /**
-     * update briudge status manually
+     * update bridge status manually
      *
      * @param status a ThingStatus to set the bridge to
      */

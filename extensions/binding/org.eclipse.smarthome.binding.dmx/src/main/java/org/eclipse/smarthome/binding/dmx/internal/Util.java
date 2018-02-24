@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.binding.dmx.internal;
 
+import java.math.BigDecimal;
+
 import org.eclipse.smarthome.binding.dmx.internal.multiverse.DmxChannel;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.slf4j.Logger;
@@ -101,7 +103,8 @@ public class Util {
      * @return value as Integer (0-255)
      */
     public static int toDmxValue(PercentType value) {
-        int intValue = value.intValue() * (DmxChannel.MAX_VALUE - DmxChannel.MIN_VALUE) / 100 + DmxChannel.MIN_VALUE;
+        int intValue = (int) (value.doubleValue() * (DmxChannel.MAX_VALUE - DmxChannel.MIN_VALUE) / 100.0
+                + DmxChannel.MIN_VALUE);
         return coerceToRange(intValue, DmxChannel.MIN_VALUE, DmxChannel.MAX_VALUE);
     }
 
@@ -145,7 +148,8 @@ public class Util {
         if (value == DmxChannel.MIN_VALUE) {
             return PercentType.ZERO;
         } else {
-            return new PercentType(((value - DmxChannel.MIN_VALUE) * 100) / (DmxChannel.MAX_VALUE - DmxChannel.MIN_VALUE));
+            return new PercentType(new BigDecimal(
+                    ((value - DmxChannel.MIN_VALUE) * 100.0) / (DmxChannel.MAX_VALUE - DmxChannel.MIN_VALUE)));
         }
     }
 

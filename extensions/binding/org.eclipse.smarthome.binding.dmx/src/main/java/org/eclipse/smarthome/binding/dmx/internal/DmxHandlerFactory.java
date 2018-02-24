@@ -17,9 +17,11 @@ import static org.eclipse.smarthome.binding.dmx.DmxBindingConstants.*;
 import org.eclipse.smarthome.binding.dmx.DmxBindingConstants;
 import org.eclipse.smarthome.binding.dmx.handler.ArtnetBridgeHandler;
 import org.eclipse.smarthome.binding.dmx.handler.ChaserThingHandler;
+import org.eclipse.smarthome.binding.dmx.handler.ColorThingHandler;
 import org.eclipse.smarthome.binding.dmx.handler.DimmerThingHandler;
 import org.eclipse.smarthome.binding.dmx.handler.Lib485BridgeHandler;
 import org.eclipse.smarthome.binding.dmx.handler.SacnBridgeHandler;
+import org.eclipse.smarthome.binding.dmx.handler.TunableWhiteThingHandler;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -57,6 +59,12 @@ public class DmxHandlerFactory extends BaseThingHandlerFactory {
             return handler;
         } else if (thingTypeUID.equals(THING_TYPE_DIMMER)) {
             DimmerThingHandler handler = new DimmerThingHandler(thing);
+            return handler;
+        } else if (thingTypeUID.equals(THING_TYPE_COLOR)) {
+            ColorThingHandler handler = new ColorThingHandler(thing);
+            return handler;
+        } else if (thingTypeUID.equals(THING_TYPE_TUNABLEWHITE)) {
+            TunableWhiteThingHandler handler = new TunableWhiteThingHandler(thing);
             return handler;
         } else if (thingTypeUID.equals(THING_TYPE_CHASER)) {
             ChaserThingHandler handler = new ChaserThingHandler(thing);
