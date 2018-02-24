@@ -20,7 +20,7 @@ For more information have a look at the [XPath transformaton](https://docs.openh
 
 ### Basic Example
 
-A simple but complete XSLT transformaion looks like following example, which was taken from [here](https://en.wikipedia.org/wiki/Java_API_for_XML_Processing#Example).
+A simple but complete XSLT transformation looks like following example, which was taken from [here](https://en.wikipedia.org/wiki/Java_API_for_XML_Processing#Example).
 
 **input XML**
 
@@ -29,6 +29,7 @@ A simple but complete XSLT transformaion looks like following example, which was
 <root><node val='hello'/></root>
 ```
 **transform/helloworld.xsl**
+
 * `xsl:output`: transform incoming document into another XML-like document, without indentation.
 * `xsl:template`: `match="/"` "any type of node", so the whole document.
 * The `xsl` rule does `select` the node `/root/node` and extracts the `value-of` attribute `val`.
@@ -102,7 +103,7 @@ Fri, 18 Dec 2009 9:38 am PST
 
 ## Further Reading
 
-You can find a very good [introduction](https://www.w3schools.com/xml/xsl_intro.asp) and [tutorial](https://www.w3schools.com/xml/xsl_transformation.asp) at W3School.
-Extended introduction and more [examples](https://en.wikipedia.org/wiki/XSLT#XSLT_examples) at Wikipedia.
-An informative [tutorial](https://www.ibm.com/developerworks/library/x-xsltmistakes/) of common mistakes.
+* Extended introduction and more [examples](https://en.wikipedia.org/wiki/XSLT#XSLT_examples) at Wikipedia.
+* A good [introduction](https://www.w3schools.com/xml/xsl_intro.asp) and [tutorial](https://www.w3schools.com/xml/xsl_transformation.asp) at W3School.
+* An informative [tutorial](https://www.ibm.com/developerworks/library/x-xsltmistakes/) of common mistakes.
 
