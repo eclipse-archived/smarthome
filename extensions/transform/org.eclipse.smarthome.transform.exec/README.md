@@ -1,12 +1,17 @@
 # Exec Transformation Service
 
-Execute an external program, substituting the placeholder `%s` in the given command line with the input value, and returning the output of the external program.
+Transforms an input string with an external program.
 
-The external program must either be in the executable search path of the server process, or an absolute path can be used.
+Executes an external program and returns the output as a string.
+In the given command line the placeholder `%s` is substituted with the input value.
 
-## Example
+The external program must either be in the executable search path of the server process, or an absolute path has to be used.
 
-**.items**
+## Examples
+
+### General Setup
+
+**Item**
 
 This will replace the visible label in the UI with the transformation you apply with the command <YourCommand>.
   
@@ -14,7 +19,7 @@ This will replace the visible label in the UI with the transformation you apply 
 String yourItem "Some info  [EXEC(/absolute/path/to/your/TransformProgram %s):%s]"
 ```
 
-**.rules**
+**Rule**
 
 ```java
 rule "Your Rule Name"
@@ -26,7 +31,7 @@ then
 end
 ```
 
-**Example with a program**
+### Example with a program
 
 Substitute the `/absolute/path/to/your/TransformProgram` with
 
@@ -34,8 +39,27 @@ Substitute the `/absolute/path/to/your/TransformProgram` with
 /bin/date -v1d -v+1m -v-1d -v-%s
 ```
 
-The execution returns a string showing the last weekday of the month.
+When the input argument for `%s` is `fri` the execution returns a string with the last weekday of the month, formated as readable text.
 
-| input | output                         |
-|-------|--------------------------------|
-| `fri` | `Fri 31 Mar 2017 13:58:47 IST` |
+```
+Fri 31 Mar 2017 13:58:47 IST`
+```
+
+Or with replace it with
+
+```shell
+numfmt --to=iec-i --suffix=B --padding=7 %s
+```
+
+When the input argument for `%s` is 1234567 it will return the bytes formated in a better readable form
+
+```shell
+1.2MiB
+```
+
+# Further Reading
+
+* (Manual](http://man7.org/linux/man-pages/man1/date.1.html) and [tutorial](https://linode.com/docs/tools-reference/tools/use-the-date-command-in-linux/) for date.
+* [Manual](http://man7.org/linux/man-pages/man1/numfmt.1.html) and [tutorial](http://www.pixelbeat.org/docs/numfmt.html) for numfmt.
+* 
+
