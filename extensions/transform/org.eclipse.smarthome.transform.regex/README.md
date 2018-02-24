@@ -15,7 +15,7 @@ The special characters `\.[]{}()*+-?^$|` have to be escaped when they should be 
 
 ## Examples
 
-### In general
+### Basic Examples
 
 |         Input String        |    Regular Expression    |         Output String        | Explanation              |
 |---------------------------|------------------------|----------------------------|--------------------------|
@@ -24,7 +24,7 @@ The special characters `\.[]{}()*+-?^$|` have to be escaped when they should be 
 | `temp=44.0'C` | `temp=(.*?)'C)`          | `44.0` | Matches whole string, retuns captcha group (.?) |
 | `48312` | `s/(.{2})(.{3})/$1.$2/g` | `48.312` | Captures 2 and 3 character, retuns first capture group adds a dot and the second capture group. This devides by 1000. |
 
-### In Setup
+### Example In Setup
 
 **Input String**
 
@@ -36,9 +36,9 @@ the regex transformation can be used to extract the value to display it on the l
 
 **Item**
 
-
 ```csv
-String  Temperature "Temperature [REGEX(.*=(\\d*.\\d*).*):%s °C]"
+String  Temperature_str "Temperature [REGEX(.*=(\\d*.\\d*).*):%s °C]" {...}
+Number  Temperature "Temperature [%.1f °C]"
 ```
 
 The regex pattern is is defined as follows
@@ -54,17 +54,10 @@ The result will be `44.0` and displayed on the label as `Temperature 44.0°C`.
 A better solution would be to use the regex on the result from the binding eiter in a rule or when the binding allows it on the output channel. 
 Thus the value `44.0` would be saved as number.
 
-**Item**
-
-```csv
-String  Temperature_str {...}
-Number  Temperature "Temperature [%.1f °C]"
-```
-
 **Rule**
 
 ```php
-rule "Convert String to Item Type"
+rule "Convert String to Item Number"
   when
     Item Temperature_str changed
  then
@@ -88,6 +81,7 @@ The first backslash escapes the second backslash in the string so it can be used
 Using a backslash in a Regex as litteral `\\` will have this form `"\\\\"`.
 
 ## Further Reading
+
 A full [introduction](https://www.w3schools.com/jsref/jsref_obj_regexp.asp) for regular expression can be found at W3School.
 Online validator help to chack the syntax of an regex fast and give information how to design it.
 [Regex 101](https://regex101.com/)
