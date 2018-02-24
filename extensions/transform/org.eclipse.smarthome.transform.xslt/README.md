@@ -70,7 +70,6 @@ This example has a namespace defined, as you would find in real world applicatio
 </PTZStatus>
 ```
 
-
 **transform/azimut.xsl**
 
 In the rule, the tag `<xsl:stylesheet>` has to have an attribute `xmlns:xsl="http://www.w3.org/1999/XSL/Transform"` and a second attribute `xmlns:`. 
