@@ -28,6 +28,7 @@ A simple but complete XSLT transformation looks like following example, which wa
 <?xml version='1.0' encoding='UTF-8'?>
 <root><node val='hello'/></root>
 ```
+
 **transform/helloworld.xsl**
 
 * `xsl:output`: transform incoming document into another XML-like document, without indentation.
@@ -71,6 +72,7 @@ This example has a namespace defined, as you would find in real world applicatio
 
 
 **transform/azimut.xsl**
+
 In the rule, the tag `<xsl:stylesheet>` has to have an attribute `xmlns:xsl="http://www.w3.org/1999/XSL/Transform"` and a second attribute `xmlns:`. 
 This attribute has to be the same as the namespace for the input document.
 In the rule each step traversed along the path to the next tag has to be prepended with the `xmlns` namespace, here defined as `h`.
