@@ -71,7 +71,6 @@ rule "Convert String to Item Number"
 
 Now the resulting Number can also be used in the label to [change the color](https://docs.openhab.org/configuration/sitemaps.html#label-and-value-colors) or in a rule as value to compare.
 
-
 ## Differences to plain Regex
 
 The regex is embedded in a string so when double qoutes `"` are used in an regex they need to be escaped `\"` to keep the string intact.
@@ -82,7 +81,7 @@ Using a backslash in a Regex as litteral `\\` will have this form `"\\\\"`.
 
 ## Further Reading
 
-A full [introduction](https://www.w3schools.com/jsref/jsref_obj_regexp.asp) for regular expression can be found at W3School.
-Online validator help to chack the syntax of an regex fast and give information how to design it.
-[Regex 101](https://regex101.com/)
-[Regex R](https://regexr.com/)
+* A full [introduction](https://www.w3schools.com/jsref/jsref_obj_regexp.asp) for regular expression at W3School.
+* Online validator help to check the syntax of an regex and give information how to design it.
+    * [Regex 101](https://regex101.com/)
+    * [Regex R](https://regexr.com/)
