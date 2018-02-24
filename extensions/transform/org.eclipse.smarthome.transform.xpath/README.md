@@ -2,6 +2,31 @@
 
 Transforms an [XML](https://www.w3.org/XML/) input using an [XPath](https://www.w3.org/TR/xpath/#section-Expressions) expression.
 
+## Examples
+
+### Basic Example
+
+Given a retrieved XML 
+
+**Input XML**
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<PTZStatus version="2.0" >
+	<AbsoluteHigh>
+		<elevation>0</elevation>
+		<azimuth>450</azimuth>
+		<absoluteZoom>10</absoluteZoom>
+	</AbsoluteHigh>
+</PTZStatus>
+```
+
+The XPath `/PTZStatus/AbsoluteHigh/azimuth/text()` returns the document
+
+```
+<azimuth>450</azimuth>
+```
+
 ## Advanced Example
 
 Given a retrieved XML (e.g. from an HIK Vision device with the namespace `xmlns="http://www.hikvision.com/ver20/XMLSchema"`):
@@ -21,40 +46,57 @@ Given a retrieved XML (e.g. from an HIK Vision device with the namespace `xmlns=
 
 A simple xpath query to fetch the Azimut value does not work as it does not address the namespace.
 
-** Rules File**
-
-```php
-val azimuth = transform("XPATH", "/PTZStatus/AbsoluteHigh/azimuth/text()", testXml.toString)
-```
-
 To Address the namespace in the query there are two ways  and .
 
 There are two ways to address the namespace.
-* With full qualified path.
 * Simple path which may not work in complex XML.
+* With full qualified path.
+* 
+The XPath 
+* `[name()='PTZStatus']/*[name()='AbsoluteHigh']/*[name()='azimuth']/`
+* `/*[local-name()='PTZStatus' and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']/*[local-name()='AbsoluteHigh' and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']/*[local-name()='azimuth' and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']`
 
-**Rules File**
+returns 
+
+```
+<azimuth>450</azimuth>
+```
+
+### In Setup
+
+**Item**
+
+```csv
+String  Temperature_xml "Temperature [JSONPATH([name()='PTZStatus']/*[name()='AbsoluteHigh']/*[name()='azimuth']/):%s °C]" {...}
+Number  Temperature "Temperature [%.1f °C]"
+```
+
+**Rule**
 
 ```php
-val testXml ="<PTZStatus version=\"2.0\" xmlns=\"http://www.hikvision.com/ver20/XMLSchema\" ><AbsoluteHigh><elevation>0</elevation><azimuth>450</azimuth><absoluteZoom>10</absoluteZoom></AbsoluteHigh></PTZStatus>"
-// Simple
-val mytest = transform("XPATH", "/*[name()='PTZStatus']
-                                 /*[name()='AbsoluteHigh']
-                                 /*[name()='azimuth']
-                                 /text()[1]", testXml.toString)  
-// Full qualified
-val mytest = transform("XPATH", "/*[local-name()='PTZStatus'    and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
-                                 /*[local-name()='AbsoluteHigh' and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
-                                 /*[local-name()='azimuth'      and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
-                                 /text()[1]", testXml.toString)
-logInfo('debug','mytest : ' + mytest )
+rule "Convert XML to Item Type Number"
+  when
+    Item Temperature_xml changed
+ then
+    // use the transformation service to retrieve the value
+	// Simple
+	val mytest = transform("XPATH", "/*[name()='PTZStatus']
+									 /*[name()='AbsoluteHigh']
+									 /*[name()='azimuth']
+									 /text()", testXml.toString)  
+	// Full qualified
+	val mytest = transform("XPATH", "/*[local-name()='PTZStatus'    and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
+									 /*[local-name()='AbsoluteHigh' and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
+									 /*[local-name()='azimuth'      and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
+									 /text()",
+									 Temperature_xml.state.toString)
+									 
+    // post the new value to the Number Item
+    Temperature.postUpdate( newValue )
+ end
 ```
 
-**Value in mytest**
-
-```
-450
-```
+Now the resulting Number can also be used in the label to [change the color](https://docs.openhab.org/configuration/sitemaps.html#label-and-value-colors) or in a rule as value to compare.
 
 ## Further Reading
 
