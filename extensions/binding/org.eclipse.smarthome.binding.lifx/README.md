@@ -17,15 +17,21 @@ The following table lists the thing types of the supported LIFX devices:
 | LIFX A19                     | colorlight   |
 | LIFX BR30                    | colorlight   |
 | LIFX Downlight               | colorlight   |
+| LIFX GU10                    | colorlight   |
+| LIFX Mini Color              | colorlight   |
+| LIFX Tile                    | colorlight   |
 |                              |              |
 | LIFX+ A19                    | colorirlight |
 | LIFX+ BR30                   | colorirlight |
 |                              |              |
+| LIFX Beam                    | colormzlight |
 | LIFX Z                       | colormzlight |
 |                              |              |
 | White 800 (Low Voltage)      | whitelight   |
 | White 800 (High Voltage)     | whitelight   |
 | White 900 BR30 (Low Voltage) | whitelight   |
+| LIFX Mini Day and Dusk       | whitelight   |
+| LIFX Mini White              | whitelight   |
 
 The thing type determines the capability of a device and with that the possible ways of interacting with it. The following matrix lists the capabilities (channels) for each type:
 
