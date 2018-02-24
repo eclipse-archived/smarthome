@@ -18,7 +18,7 @@ For more information have a look at the [XPath transformaton](https://docs.openh
 
 ## Examples
 
-### Simple Example
+### Basic Example
 
 A simple but complete XSLT transformaion looks like following example, which was taken from [here](https://en.wikipedia.org/wiki/Java_API_for_XML_Processing#Example).
 
