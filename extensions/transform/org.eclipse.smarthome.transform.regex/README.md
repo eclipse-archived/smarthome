@@ -1,6 +1,6 @@
 # RegEx Transformation Service
 
-Transforms a source string on basis of the regular expression pattern to a defined result.
+Transforms a source string on basis of the regular expression (regex) search pattern to a defined result string.
 
 The simplest regex is in the form `<regex>` and transforms the input string on basis of the regex patern to a result string.
 A full regex is in the form `s/<regex>/<result>/g` whereat the delimiter `s` and the regex flag `g` have special meaning.
@@ -11,13 +11,11 @@ The regular expression in the format `s/<regex>/result/` (without `g`), replaces
 If the regular expression contains a [capture group](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#cg), it returns the captured string.
 The regular expression in this case is further restricted to isolate a complete line by adding `^` to the beginning and `$` to the end.
 
-**To Consider**
-The special characters `\.[]{}()*+-?^$|` have to be escaped when they should be used as literal, as character to find.
-The regex is embedded in a string so when double qoutes `"` are used in an regex they need to be escaped `\"` to keep the string intact.
-
-There are plenty online regex evaluater which allows fast checking of an regex.
+The special characters `\.[]{}()*+-?^$|` have to be escaped when they should be used as literal character.
 
 ## Examples
+
+### In general
 
 |         Input String        |    Regular Expression    |         Output String        | Explanation              |
 |---------------------------|------------------------|----------------------------|--------------------------|
@@ -26,6 +24,68 @@ There are plenty online regex evaluater which allows fast checking of an regex.
 | `temp=44.0'C` | `temp=(.*?)'C)`          | `44.0` | Matches whole string, retuns captcha group (.?) |
 | `48312` | `s/(.{2})(.{3})/$1.$2/g` | `48.312` | Captures 2 and 3 character, retuns first capture group adds a dot and the second capture group. This devides by 1000. |
 
+### In Setup
+
+**Input String**
+
+```shell
+temp=44.0'C
+```
+
+the regex transformation can be used to extract the value to display it on the label.
+
+**Item**
+
+
+```csv
+String  Temperature "Temperature [REGEX(.*=(\\d*.\\d*).*):%s °C]"
+```
+
+The regex pattern is is defined as follows
+* `.*` match any character, zero and unlimited times
+* `=` match the equal sign litterally, used to find the position
+*  `()` capture group match 
+    * `\d*` match a digit (equal to [0-9]), zero and unlimited times, the backslash has to be escaped see [string vs plain](#Differences-to-plain-Regex)
+    * `.` match the dot litterally
+    * `\d*` match a digit (equal to [0-9]), zero and unlimited times, the backslash has to be escaped see [string vs plain](#Differences-to-plain-Regex)
+* `.*` match any character, zero and unlimited times
+
+The result will be `44.0` and displayed on the label as `Temperature 44.0°C`.
+A better solution would be to use the regex on the result from the binding eiter in a rule or when the binding allows it on the output channel. 
+Thus the value `44.0` would be saved as number.
+
+**Item**
+
+```csv
+String  Temperature_str {...}
+Number  Temperature "Temperature [%.1f °C]"
+```
+
+**Rule**
+
+```php
+rule "Convert String to Item Type"
+  when
+    Item Temperature_str changed
+ then
+    // use the transformation service to retrieve teh value
+    val newValue = transform("REGEX", ".*=(\\d*.\\d*).*", Temperature_str.state.toString)
+
+    // post the new value to the Number Item
+    Temperature.postUpdate( newValue )
+ end
+```
+
+Now the resulting Number can also be used in the label to [change the color](https://docs.openhab.org/configuration/sitemaps.html#label-and-value-colors) or in a rule as value to compare.
+
+
+## Differences to plain Regex
+
+The regex is embedded in a string so when double qoutes `"` are used in an regex they need to be escaped `\"` to keep the string intact.
+As the escape character of strings is the backslash this has to be escaped additionally.
+To use a dot as litteral in the regex it has to be escape `\.` but in a string it has to be escaped twice `"\\."`.
+The first backslash escapes the second backslash in the string so it can be used in the regex.
+Using a backslash in a Regex as litteral `\\` will have this form `"\\\\"`.
 
 ## Further Reading
 A full [introduction](https://www.w3schools.com/jsref/jsref_obj_regexp.asp) for regular expression can be found at W3School.
