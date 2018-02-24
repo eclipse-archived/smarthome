@@ -100,6 +100,6 @@ Now the resulting Number can also be used in the label to [change the color](htt
 
 ## Further Reading
 
-An [introduction](https://www.w3schools.com/xml/xpath_intro.asp) to XPath can be found at W3School
-A informative explanation of [common mistakes](https://qxf2.com/blog/common-xpath-mistakes/).
-Online validation tools like [this](https://www.freeformatter.com/xpath-tester.html) can help to check your syntax.
+* An [introduction](https://www.w3schools.com/xml/xpath_intro.asp) to XPath at W3School
+* A informative explanation of [common mistakes](https://qxf2.com/blog/common-xpath-mistakes/).
+* Online validation tools like [this](https://www.freeformatter.com/xpath-tester.html) to check the syntax.
