@@ -16,7 +16,9 @@ General transformation rule summary:
 The Rule uses XPath to gather the XML node information.
 For more information have a look at the [XPath transformaton](https://docs.openhab.org/addons/transformations/xpath/readme.html) .
 
-## Simple Example
+## Examples
+
+### Simple Example
 
 A simple but complete XSLT transformaion looks like following example, which was taken from [here](https://en.wikipedia.org/wiki/Java_API_for_XML_Processing#Example).
 
@@ -47,7 +49,7 @@ A simple but complete XSLT transformaion looks like following example, which was
 <reRoot><reNode>hello world</reNode></reRoot>
 ```
 
-## Advanced Example
+### Advanced Example
 
 This example has a namespace defined, as you would find in real world applications, which has to be matched in the rule.
 
