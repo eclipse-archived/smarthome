@@ -2,7 +2,7 @@
 
 Transform input using the XML Stylesheet Language for Transformations (XSLT).
 
-XSLT is a standard method to transform an XML structure from one document into a new document with an other structure.
+XSLT is a standard method to transform an XML structure from one document into a new document with a different structure.
 
 The transformation expects the rule to be read from a file which is stored under the `transform` folder. 
 To organize the various transformations one should use subfolders.
@@ -27,7 +27,7 @@ A simple but complete XSLT transformaion looks like following example, which was
 <root><node val='hello'/></root>
 ```
 **transform/helloworld.xsl**
-* `xsl:output`: transform incoming document into another XML-like document, without indendation.
+* `xsl:output`: transform incoming document into another XML-like document, without indentation.
 * `xsl:template`: `match="/"` "any type of node", so the whole document.
 * The `xsl` rule does `select` the node `/root/node` and extracts the `value-of` attribute `val`.
 
@@ -53,7 +53,7 @@ This example has a namespace defined, as you would find in real world applicatio
 
 **input XML**
 
-* The tag `<PTZStatus>` contains a attribute `xmlns=` which defines the namespace `http://www.hikvision.com/ver20/XMLSchema`.
+* The tag `<PTZStatus>` contains an attribute `xmlns=` which defines the namespace `http://www.hikvision.com/ver20/XMLSchema`.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -72,7 +72,7 @@ In the rule, the tag `<xsl:stylesheet>` has to have an attribute `xmlns:xsl="htt
 This attribute has to be the same as the namespace for the input document.
 In the rule each step traversed along the path to the next tag has to be prepended with the `xmlns` namespace, here defined as `h`.
 
-* `xsl:output` transform incoming document into another XML-like document, no indendation, **without XML**.
+* `xsl:output` transform incoming document into another XML-like document, no indentation, **without XML**.
 * `xsl:template`: `match="/"` whole document.
 * Full path to node `azimuth` reading out `date` attribute.
 * Search for node `azimuth` by prepending `//` and get the `text`.
