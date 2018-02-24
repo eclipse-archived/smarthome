@@ -40,6 +40,15 @@ public abstract class DmxThingHandler extends BaseThingHandler {
         super.updateState(channelUID, state);
     }
 
+    /**
+     * updates the internal values from the DMX channels
+     *
+     * @param channelUID channelUID provided in channel registration
+     * @param value (0-255)
+     */
+    public void updateChannelValue(ChannelUID channelUID, int value) {
+    }
+
     @Override
     public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
         super.bridgeStatusChanged(bridgeStatusInfo);

@@ -1,32 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <thing:thing-descriptions bindingId="dmx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0" xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 	<!-- Dimmer -->
-	<thing-type id="dimmer">
+	<thing-type id="tunablewhite">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="artnet-bridge"/>
 			<bridge-type-ref id="lib485-bridge"/>
 			<bridge-type-ref id="sacn-bridge"/>
 		</supported-bridge-type-refs>
-		<label>DMX Dimmer</label>
-		<description>A single/multi-channel dimmer</description>
+		<label>DMX Tunable White Dimmer</label>
+		<description>A tunable white capable dimmer</description>
 		<channels>
 			<channel id="brightness" typeId="brightness"/>
-			<channel id="switch" typeId="switch" />
+			<channel id="brightness_cw" typeId="brightness"/>
+			<channel id="brightness_ww" typeId="brightness"/>
+			<channel id="color_temperature" typeId="color_temperature" />
 		</channels>
 		<config-description>
-			<parameter name="dimmertype" type="text">
-				<label>Dimmer Type</label>
-				<description>Type of connected dimmer: normal, three-channel color light (RGB), two-channel tunable white (Tunable white)</description>
-				<options>
-					<option value="normal">Normal</option>
-					<option value="rgb">RGB</option>
-					<option value="tunablewhite">Tunable white</option>
-				</options>
-				<default>normal</default>
-			</parameter>
 			<parameter name="dmxid" type="text">
 				<label>DMX channel configuration</label>
-				<description>Format is channel[,channel, ...] or channel[/width]</description>
+				<description>Format is channel[,channel, ...] or channel[/width], has to be an even number</description>
 				<required>true</required>
 			</parameter>
 			<parameter name="fadetime" type="integer" min="0">

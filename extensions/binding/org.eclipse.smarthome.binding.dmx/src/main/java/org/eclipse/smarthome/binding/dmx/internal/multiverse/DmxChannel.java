@@ -48,6 +48,7 @@ public class DmxChannel extends BaseDmxChannel {
     private int lastStateValue = -1;
 
     private boolean isSuspended;
+    private final int refreshTime;
     private long lastStateTimestamp = 0;
 
     private final List<BaseAction> actions = new ArrayList<BaseAction>();
@@ -58,12 +59,14 @@ public class DmxChannel extends BaseDmxChannel {
     private final HashMap<ChannelUID, DmxThingHandler> valueListeners = new HashMap<ChannelUID, DmxThingHandler>();
     private Entry<ChannelUID, DmxThingHandler> actionListener = null;
 
-    public DmxChannel(int universeId, int dmxChannelId) {
+    public DmxChannel(int universeId, int dmxChannelId, int refreshTime) {
         super(universeId, dmxChannelId);
+        this.refreshTime = refreshTime;
     }
 
-    public DmxChannel(BaseDmxChannel dmxChannel) {
+    public DmxChannel(BaseDmxChannel dmxChannel, int refreshTime) {
         super(dmxChannel);
+        this.refreshTime = refreshTime;
     }
 
     /**
@@ -267,12 +270,13 @@ public class DmxChannel extends BaseDmxChannel {
         }
 
         // send updates not more than once in a second, and only on value change
-        if ((lastStateValue != value) && (calculationTime - lastStateTimestamp > 1000)) {
+        if ((lastStateValue != value) && (calculationTime - lastStateTimestamp > refreshTime)) {
             // notify value listeners if value changed
             for (Entry<ChannelUID, DmxThingHandler> listener : valueListeners.entrySet()) {
-                PercentType state = Util.toPercentValue(Util.toDmxValue(value >> 8));
-                (listener.getValue()).updateState(listener.getKey(), state);
-                logger.trace("sending VALUE status update to listener {}", listener.getKey());
+                int dmxValue = Util.toDmxValue(value >> 8);
+                (listener.getValue()).updateChannelValue(listener.getKey(), dmxValue);
+                logger.trace("sending VALUE={} (raw={}) status update to listener {} ({})", dmxValue, value,
+                        listener.getValue(), listener.getKey());
             }
 
             // notify on/off listeners if on/off state changed
@@ -280,7 +284,8 @@ public class DmxChannel extends BaseDmxChannel {
                 OnOffType state = (value == 0) ? OnOffType.OFF : OnOffType.ON;
                 for (Entry<ChannelUID, DmxThingHandler> listener : onOffListeners.entrySet()) {
                     (listener.getValue()).updateState(listener.getKey(), state);
-                    logger.trace("sending ONOFF status update to listener {}", listener.getKey());
+                    logger.trace("sending ONOFF={} (raw={}), status update to listener {}", state, value,
+                            listener.getKey());
                 }
             }
 
@@ -299,14 +304,6 @@ public class DmxChannel extends BaseDmxChannel {
      */
     public void addListener(ChannelUID thingChannel, DmxThingHandler listener, ListenerType type) {
         switch (type) {
-            case ONOFF:
-                if (onOffListeners.containsKey(thingChannel)) {
-                    logger.trace("ONOFF listener {} already exists in channel {}", thingChannel, this);
-                } else {
-                    onOffListeners.put(thingChannel, listener);
-                    logger.debug("adding ONOFF listener {} to channel {}", thingChannel, this);
-                }
-                break;
             case VALUE:
                 if (valueListeners.containsKey(thingChannel)) {
                     logger.trace("VALUE listener {} already exists in channel {}", thingChannel, this);

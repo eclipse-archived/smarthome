@@ -31,6 +31,7 @@ import org.eclipse.smarthome.binding.dmx.internal.multiverse.DmxChannel;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.StringType;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -54,7 +55,7 @@ public class ChaserThingHandler extends DmxThingHandler {
 
     private static Logger logger = LoggerFactory.getLogger(ChaserThingHandler.class);
 
-    private List<DmxChannel> channels = new ArrayList<DmxChannel>();
+    private final List<DmxChannel> channels = new ArrayList<DmxChannel>();
     private List<ValueSet> values = new ArrayList<ValueSet>();
 
     private boolean resumeAfter = false;
@@ -130,7 +131,7 @@ public class ChaserThingHandler extends DmxThingHandler {
         String strippedConfig = configString.replaceAll("(\\s)+", "");
         for (String singleStepString : strippedConfig.split("\\|")) {
             ValueSet value = ValueSet.fromString(singleStepString);
-            if (value != null) {
+            if (!value.isEmpty()) {
                 values.add(value);
                 logger.trace("added step value {} to thing {}", value, this.thing.getUID());
             } else {
@@ -144,58 +145,74 @@ public class ChaserThingHandler extends DmxThingHandler {
     @Override
     public void initialize() {
         Configuration configuration = getConfig();
-        if (getBridge() == null) {
+        Bridge bridge = getBridge();
+        DmxBridgeHandler bridgeHandler;
+        if (bridge == null) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "no bridge assigned");
+            dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
             return;
-        }
-        if (configuration.get(CONFIG_DMX_ID) != null) {
-            channels.clear();
-            DmxBridgeHandler bridgeHandler = (DmxBridgeHandler) getBridge().getHandler();
-            try {
-                List<BaseDmxChannel> configChannels = BaseDmxChannel
-                        .fromString((String) configuration.get(CONFIG_DMX_ID), bridgeHandler.getUniverseId());
-                logger.trace("found {} channels in {}", configChannels.size(), this.thing.getUID());
-                for (BaseDmxChannel channel : configChannels) {
-                    channels.add(bridgeHandler.getDmxChannel(channel, this.thing));
-                }
-            } catch (IllegalArgumentException e) {
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
+        } else {
+            bridgeHandler = (DmxBridgeHandler) bridge.getHandler();
+            if (bridgeHandler == null) {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "no bridge handler available");
                 dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
                 return;
             }
-            if (configuration.get(CONFIG_CHASER_STEPS) != null) {
-                if (parseChaserConfig((String) configuration.get(CONFIG_CHASER_STEPS))) {
-                    if (this.getBridge().getStatus().equals(ThingStatus.ONLINE)) {
-                        updateStatus(ThingStatus.ONLINE);
-                        dmxHandlerStatus = ThingStatusDetail.NONE;
-                    } else {
-                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
-                    }
-                } else {
-                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                            "Chase configuration malformed");
-                    dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
-                }
-            } else {
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Chase configuration missing");
-                dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
-            }
-            if (configuration.get(CONFIG_CHASER_RESUME_AFTER) != null) {
-                resumeAfter = (Boolean) configuration.get(CONFIG_CHASER_RESUME_AFTER);
-                logger.trace("set resumeAfter to {}", resumeAfter);
-            }
-        } else {
+        }
+
+        if (configuration.get(CONFIG_DMX_ID) == null) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                     "DMX channel configuration missing");
             dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
+            return;
+        }
+
+        try {
+            List<BaseDmxChannel> configChannels = BaseDmxChannel.fromString((String) configuration.get(CONFIG_DMX_ID),
+                    bridgeHandler.getUniverseId());
+            logger.trace("found {} channels in {}", configChannels.size(), this.thing.getUID());
+            for (BaseDmxChannel channel : configChannels) {
+                channels.add(bridgeHandler.getDmxChannel(channel, this.thing));
+            }
+        } catch (IllegalArgumentException e) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
+            dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
+            return;
+        }
+        if (configuration.get(CONFIG_CHASER_STEPS) != null) {
+            if (parseChaserConfig((String) configuration.get(CONFIG_CHASER_STEPS))) {
+                if (bridge.getStatus().equals(ThingStatus.ONLINE)) {
+                    updateStatus(ThingStatus.ONLINE);
+                    dmxHandlerStatus = ThingStatusDetail.NONE;
+                } else {
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
+                }
+            } else {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                        "Chase configuration malformed");
+                dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
+            }
+        } else {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Chase configuration missing");
+            dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
+        }
+        if (configuration.get(CONFIG_CHASER_RESUME_AFTER) != null) {
+            resumeAfter = (Boolean) configuration.get(CONFIG_CHASER_RESUME_AFTER);
+            logger.trace("set resumeAfter to {}", resumeAfter);
         }
     }
 
     @Override
     public void dispose() {
         if (channels.size() != 0) {
-            ((DmxBridgeHandler) getBridge().getHandler()).unregisterDmxChannels(this.thing);
-            logger.debug("removing {} channels from {}", channels.size(), this.thing.getUID());
+            Bridge bridge = getBridge();
+            if (bridge != null) {
+                DmxBridgeHandler bridgeHandler = (DmxBridgeHandler) bridge.getHandler();
+                if (bridgeHandler != null) {
+                    bridgeHandler.unregisterDmxChannels(this.thing);
+                    logger.debug("removing {} channels from {}", channels.size(), this.thing.getUID());
+                }
+            }
             channels.clear();
         }
     }

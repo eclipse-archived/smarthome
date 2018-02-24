@@ -30,6 +30,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingProvider;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.BridgeHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
@@ -50,7 +51,7 @@ public class SacnBridgeHandlerTest extends JavaOSGiTest {
     private static final int TEST_CHANNEL = 100;
 
     private ManagedThingProvider managedThingProvider;
-    private VolatileStorageService volatileStorageService = new VolatileStorageService();
+    private final VolatileStorageService volatileStorageService = new VolatileStorageService();
 
     Map<String, Object> bridgeProperties;
     Map<String, Object> thingProperties;
@@ -95,7 +96,12 @@ public class SacnBridgeHandlerTest extends JavaOSGiTest {
     @Test
     public void renamingOfUniverses() {
         managedThingProvider.add(bridge);
-        DmxBridgeHandler bridgeHandler = (DmxBridgeHandler) bridge.getHandler();
+        DmxBridgeHandler bridgeHandler = (DmxBridgeHandler) waitForAssert(() -> {
+            final ThingHandler thingHandler = bridge.getHandler();
+            assertThat(thingHandler, notNullValue());
+            return thingHandler;
+        });
+
         waitForAssert(() -> assertThat(bridgeHandler.getUniverseId(), is(TEST_UNIVERSE)));
 
         bridgeProperties.replace(CONFIG_UNIVERSE, 2);
@@ -119,9 +125,12 @@ public class SacnBridgeHandlerTest extends JavaOSGiTest {
 
     public void retrievingOfChannels() {
         managedThingProvider.add(bridge);
-        waitForAssert(() -> assertThat(bridge.getHandler(), notNullValue()));
+        DmxBridgeHandler bridgeHandler = (DmxBridgeHandler) waitForAssert(() -> {
+            final ThingHandler thingHandler = bridge.getHandler();
+            assertThat(thingHandler, notNullValue());
+            return thingHandler;
+        });
         managedThingProvider.add(thing);
-        DmxBridgeHandler bridgeHandler = (DmxBridgeHandler) bridge.getHandler();
 
         BaseDmxChannel channel = new BaseDmxChannel(TEST_UNIVERSE, TEST_CHANNEL);
         BaseDmxChannel returnedChannel = bridgeHandler.getDmxChannel(channel, thing);
@@ -129,4 +138,5 @@ public class SacnBridgeHandlerTest extends JavaOSGiTest {
         Integer channelId = returnedChannel.getChannelId();
         assertThat(channelId, is(TEST_CHANNEL));
     }
+
 }

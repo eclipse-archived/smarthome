@@ -89,8 +89,8 @@ public class SacnBridgeHandler extends DmxOverEthernetHandler {
         }
         logger.debug("refresh mode set to always: {}", refreshAlways);
 
-        super.updateConfiguration();
         updateStatus(ThingStatus.UNKNOWN);
+        super.updateConfiguration();
 
         logger.debug("updated configuration for sACN/E1.31 bridge {}", this.thing.getUID());
     }
