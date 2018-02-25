@@ -13,28 +13,24 @@
 package org.eclipse.smarthome.binding.dmx;
 
 import static org.eclipse.smarthome.binding.dmx.DmxBindingConstants.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.smarthome.binding.dmx.handler.Lib485BridgeHandler;
-import org.eclipse.smarthome.binding.dmx.internal.DmxBridgeHandler;
-import org.eclipse.smarthome.binding.dmx.internal.multiverse.BaseDmxChannel;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
-import org.eclipse.smarthome.core.thing.ManagedThingProvider;
+import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingProvider;
 import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.eclipse.smarthome.core.thing.binding.BridgeHandler;
-import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
-import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
-import org.eclipse.smarthome.test.java.JavaOSGiTest;
-import org.eclipse.smarthome.test.storage.VolatileStorageService;
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
+import org.eclipse.smarthome.test.java.JavaTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,77 +40,51 @@ import org.junit.Test;
  *
  * @author Jan N. Klug - Initial contribution
  */
-public class Lib485BridgeHandlerTest extends JavaOSGiTest {
+public class Lib485BridgeHandlerTest extends JavaTest {
 
     private static final String TEST_ADDRESS = "localhost";
-    private static final int TEST_CHANNEL = 100;
 
-    private ManagedThingProvider managedThingProvider;
-    private final VolatileStorageService volatileStorageService = new VolatileStorageService();
+    private final ThingUID BRIDGE_UID_LIB485 = new ThingUID(THING_TYPE_LIB485_BRIDGE, "lib485bridge");
+    private final ChannelUID CHANNEL_UID_MUTE = new ChannelUID(BRIDGE_UID_LIB485, CHANNEL_MUTE);
 
     Map<String, Object> bridgeProperties;
-    Map<String, Object> thingProperties;
 
     private Bridge bridge;
-    private Thing thing;
+    private Lib485BridgeHandler bridgeHandler;
 
     @Before
     public void setUp() {
-        registerService(volatileStorageService);
-        managedThingProvider = getService(ThingProvider.class, ManagedThingProvider.class);
-
         bridgeProperties = new HashMap<>();
         bridgeProperties.put(CONFIG_ADDRESS, TEST_ADDRESS);
-        bridge = BridgeBuilder.create(THING_TYPE_LIB485_BRIDGE, "lib485bridge").withLabel("Lib486 Bridge")
+        bridge = BridgeBuilder.create(THING_TYPE_LIB485_BRIDGE, "lib485bridge").withLabel("Lib485 Bridge")
+                .withChannel(ChannelBuilder.create(CHANNEL_UID_MUTE, "Switch").withType(MUTE_CHANNEL_TYPEUID).build())
                 .withConfiguration(new Configuration(bridgeProperties)).build();
 
-        thingProperties = new HashMap<>();
-        thingProperties.put(CONFIG_DMX_ID, String.format("%d", TEST_CHANNEL));
-        thing = ThingBuilder.create(THING_TYPE_DIMMER, "testdimmer").withLabel("Dimmer Thing")
-                .withBridge(bridge.getUID()).withConfiguration(new Configuration(thingProperties)).build();
+        ThingHandlerCallback mockCallback = mock(ThingHandlerCallback.class);
+        doAnswer(answer -> {
+            ((Thing) answer.getArgument(0)).setStatusInfo(answer.getArgument(1));
+            return null;
+        }).when(mockCallback).statusUpdated(any(), any());
+
+        bridgeHandler = new Lib485BridgeHandler(bridge) {
+            @Override
+            protected void validateConfigurationParameters(Map<String, Object> configurationParameters) {
+            }
+        };
+
+        bridgeHandler.getThing().setHandler(bridgeHandler);
+        bridgeHandler.setCallback(mockCallback);
+        bridgeHandler.initialize();
     }
 
     @After
     public void tearDown() {
-        managedThingProvider.remove(thing.getUID());
-        managedThingProvider.remove(bridge.getUID());
-        unregisterService(volatileStorageService);
+        bridgeHandler.dispose();
     }
 
     @Test
-    public void initializationOfBridgeHandler() {
-        assertThat(bridge.getHandler(), is(nullValue()));
-        managedThingProvider.add(bridge);
-        BridgeHandler bridgeHandler = bridge.getHandler();
-
-        waitForAssert(() -> assertThat(bridgeHandler, notNullValue()));
-        waitForAssert(() -> assertThat(bridge.getStatus(), is(ThingStatus.OFFLINE)));
-    }
-
-    @Test
-    public void initializationOfDimmerThing() {
-        assertThat(thing.getHandler(), is(nullValue()));
-        managedThingProvider.add(bridge);
-        waitForAssert(() -> assertThat(bridge.getHandler(), notNullValue()));
-        managedThingProvider.add(thing);
-
-        waitForAssert(() -> assertThat(thing.getHandler(), notNullValue()));
-    }
-
-    public void retrievingOfChannels() {
-        managedThingProvider.add(bridge);
-        DmxBridgeHandler bridgeHandler = (DmxBridgeHandler) waitForAssert(() -> {
-            final ThingHandler thingHandler = bridge.getHandler();
-            assertThat(thingHandler, notNullValue());
-            return thingHandler;
-        });
-        managedThingProvider.add(thing);
-
-        BaseDmxChannel channel = new BaseDmxChannel(0, TEST_CHANNEL);
-        BaseDmxChannel returnedChannel = bridgeHandler.getDmxChannel(channel, thing);
-
-        Integer channelId = returnedChannel.getChannelId();
-        assertThat(channelId, is(TEST_CHANNEL));
+    public void assertBridgeStatus() {
+        waitForAssert(() -> assertEquals(ThingStatus.OFFLINE, bridge.getStatusInfo().getStatus()));
     }
 
 }

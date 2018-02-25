@@ -49,7 +49,7 @@ public abstract class DmxOverEthernetHandler extends DmxBridgeHandler {
 
     @Override
     protected void openConnection() {
-        if (!this.thing.getStatus().equals(ThingStatus.ONLINE)) {
+        if (getThing().getStatus() != ThingStatus.ONLINE) {
             try {
                 if (senderNode.getAddress() == null) {
                     if (senderNode.getPort() == 0) {
@@ -87,7 +87,7 @@ public abstract class DmxOverEthernetHandler extends DmxBridgeHandler {
 
     @Override
     protected void sendDmxData() {
-        if (this.thing.getStatus().equals(ThingStatus.ONLINE)) {
+        if (getThing().getStatus() == ThingStatus.ONLINE) {
             boolean needsSending = false;
             long now = System.currentTimeMillis();
             universe.calculateBuffer(now);

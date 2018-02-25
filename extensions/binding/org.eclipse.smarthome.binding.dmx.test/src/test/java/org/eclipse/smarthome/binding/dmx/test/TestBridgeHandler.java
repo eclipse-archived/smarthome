@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.eclipse.smarthome.binding.dmx.internal.DmxBridgeHandler;
+import org.eclipse.smarthome.binding.dmx.internal.multiverse.BaseDmxChannel;
 import org.eclipse.smarthome.binding.dmx.internal.multiverse.Universe;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -86,10 +87,25 @@ public class TestBridgeHandler extends DmxBridgeHandler {
      * @return new timestamp
      */
     public long calcBuffer(long time, long timespan) {
+        logger.debug("calculating buffer for {}", time);
         universe.calculateBuffer(time);
+        logger.debug("calculating buffer for {}", time + timespan);
         universe.calculateBuffer(time + timespan);
-        logger.debug("calculated buffer for {} to {} (difference {})", time, time + timespan, timespan);
         return time + timespan;
+    }
+
+    /**
+     * get a single value from the dmxBuffer
+     *
+     * @param dmxChannel channel number (1-512)
+     * @return channel value
+     */
+    public int getDmxChannelValue(int dmxChannel) {
+        return universe.getBuffer()[dmxChannel - 1] & 0xFF;
+    }
+
+    public void setDmxChannelValue(int dmxChannel, int value) {
+        this.getDmxChannel(new BaseDmxChannel(MIN_UNIVERSE_ID, dmxChannel), null).setValue(value);
     }
 
     /**

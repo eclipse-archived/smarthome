@@ -85,9 +85,7 @@ public class ChaserThingHandler extends DmxThingHandler {
                             if (resumeAfter) {
                                 channel.addChannelAction(new ResumeAction());
                             }
-                            if (isLinked(channelUID.getId())) {
-                                channel.addListener(channelUID, this, ListenerType.ACTION);
-                            }
+                            channel.addListener(channelUID, this, ListenerType.ACTION);
                             channelCounter++;
                         }
                     } else {
@@ -212,31 +210,21 @@ public class ChaserThingHandler extends DmxThingHandler {
                     bridgeHandler.unregisterDmxChannels(this.thing);
                     logger.debug("removing {} channels from {}", channels.size(), this.thing.getUID());
                 }
+                ChannelUID switchChannelUID = new ChannelUID(this.thing.getUID(), CHANNEL_SWITCH);
+                for (DmxChannel channel : channels) {
+                    channel.removeListener(switchChannelUID);
+                }
             }
             channels.clear();
         }
     }
 
     @Override
-    public void channelUnlinked(ChannelUID channelUID) {
-        switch (channelUID.getId()) {
-            case CHANNEL_SWITCH:
-                for (DmxChannel channel : channels) {
-                    channel.removeListener(channelUID);
-                }
-                break;
-            case CHANNEL_CONTROL:
-                break;
-            default:
-                logger.debug("channel {} not supported in thing {}", channelUID.getId(), this.thing.getUID());
-        }
-    }
-
-    @Override
-    public void updateState(ChannelUID channelUID, State state) {
+    public void updateSwitchState(ChannelUID channelUID, State state) {
+        logger.trace("received {} for {}", state, channelUID);
         if (channelUID.getId().equals(CHANNEL_SWITCH) && (state instanceof OnOffType)) {
             this.isRunning = (OnOffType) state;
-            super.updateState(channelUID, state);
+            updateState(channelUID, state);
         } else {
             logger.debug("unknown state received: {} in channel {} thing {}", state, channelUID, this.thing.getUID());
         }

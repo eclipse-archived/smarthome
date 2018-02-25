@@ -35,9 +35,14 @@ public abstract class DmxThingHandler extends BaseThingHandler {
         super(thing);
     }
 
-    @Override
-    public void updateState(ChannelUID channelUID, State state) {
-        super.updateState(channelUID, state);
+    /**
+     * updates the switch state (if any)
+     *
+     * @param channelUID channelUID provided in channel registration
+     * @param state (ON / OFF)
+     */
+    public void updateSwitchState(ChannelUID channelUID, State state) {
+        updateState(channelUID, state);
     }
 
     /**
