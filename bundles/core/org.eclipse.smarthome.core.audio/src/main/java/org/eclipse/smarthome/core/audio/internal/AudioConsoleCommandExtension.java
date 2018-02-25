@@ -134,8 +134,7 @@ public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtensio
     }
 
     private void playOnSinks(String sinkIds, String fileName, PercentType volume, Console console) {
-        Set<String> sinks = audioManager.getSinks(sinkIds);
-        for (String sink : sinks) {
+        for (String sink : audioManager.getSinks(sinkIds)) {
             playOnSink(sink, fileName, volume, console);
         }
     }
@@ -172,8 +171,7 @@ public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtensio
     }
 
     private void streamOnSinks(String sinkIds, String url, PercentType volume, Console console) {
-        Set<String> sinks = audioManager.getSinks(sinkIds);
-        for (String sink : sinks) {
+        for (String sink : audioManager.getSinks(sinkIds)) {
             streamOnSink(sink, url, volume, console);
         }
     }
