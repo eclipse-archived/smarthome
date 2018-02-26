@@ -11,7 +11,9 @@ The regular expression in the format `s/<regex>/result/` (without `g`), replaces
 If the regular expression contains a [capture group](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#cg), it returns the captured string. 
 Multiple capture groups can be used to retrieve multiple strings and can be combined as defined in the substitution. 
 
-A search pattern can be restricted to only be isolated when it beginns at a point by adding `^` to the beginning of a pattern or to only match when it ends at a a point by adding `$` at the end of the pattern.
+The transformation can be set to be restricted to only match when the input string beginns with an character by prepending `^` to the beginning of a pattern or to only match when the input string ends with a specified charactger by appending `$` at the end.
+So the regex `^I.*b$` only matches when the input string starts with `I` and ends with `b`, like in `I'm Bob`. Both can be used alone or in combination.
+
 
 The special characters `\.[]{}()*+-?^$|` have to be escaped when they should be used as literal characters.
 
