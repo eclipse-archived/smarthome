@@ -30,4 +30,5 @@
     <suppress files=".+xml" checks="EshInfXmlValidationCheck" />
     
     <suppress files=".+org.eclipse.smarthome.binding.tradfri.internal.TradfriColor.java" checks="LocalVariableNameCheck"/>
+    <suppress files=".+org.eclipse.smarthome.config.discovery.mdns.internal.MDNSDiscoveryService.java|.+org.eclipse.smarthome.config.discovery.upnp.internal.UpnpDiscoveryService.java" checks="MethodNameCheck"/>
 </suppressions>
