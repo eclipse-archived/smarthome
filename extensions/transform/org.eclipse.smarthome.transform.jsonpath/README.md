@@ -56,7 +56,7 @@ Returns `null` if the JsonPath expression could not be found.
 Compared to standard JSON the transformation it returns evaluated values when a single alement is retrieved from the querry.
 Means it does not return a valid JSON `[ 23.2 ]` but `23.2`, `[ "Outside" ]` but `Outside`.
 This makes it possible to use it in lables or output channel of things and get Numbers or strings instead of JSON arrays.
-A querry which returns multiple elements as lsit is not supported.
+A querry which returns multiple elements as list is not supported.
 
 ## Further Reading
 * An extended [introduction](https://www.w3schools.com/js/js_json_intro.asp) can be found at W3School.
