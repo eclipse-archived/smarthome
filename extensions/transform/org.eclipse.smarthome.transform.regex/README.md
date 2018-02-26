@@ -2,16 +2,18 @@
 
 Transforms a source string on basis of the regular expression (regex) search pattern to a defined result string.
 
-The simplest regex is in the form `<regex>` and transforms the input string on basis of the regex patern to a result string.
-A full regex is in the form `s/<regex>/<result>/g` whereat the delimiter `s` and the regex flag `g` have special meaning.
+The simplest regex is in the form `<regex>` and transforms the input string on basis of the regex pattern to a result string.
+A full regex is in the form `s/<regex>/<result>/g` whereat the delimiter `s` and the regex flag `g` have a special meaning.
 
 The regular expression in the format `s/<regex>/result/g`, replaces all occurrences of `<regex>` in the source string with `result`.
 The regular expression in the format `s/<regex>/result/` (without `g`), replaces the first occurrence of `<regex>` in the source string with `result`.
 
-If the regular expression contains a [capture group](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#cg), it returns the captured string.
-The regular expression in this case is further restricted to isolate a complete line by adding `^` to the beginning and `$` to the end.
+If the regular expression contains a [capture group](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#cg), it returns the captured string. 
+Multiple capture groups can be used to retrieve multiple strings and can be combined as defined in the substitution. 
 
-The special characters `\.[]{}()*+-?^$|` have to be escaped when they should be used as literal character.
+A search pattern can be restricted to only be isolated when it beginns at a point by adding `^` to the beginning of a pattern or to only match when it ends at a a point by adding `$` at the end of the pattern.
+
+The special characters `\.[]{}()*+-?^$|` have to be escaped when they should be used as literal characters.
 
 ## Examples
 
@@ -19,7 +21,7 @@ The special characters `\.[]{}()*+-?^$|` have to be escaped when they should be 
 
 |         Input String        |    Regular Expression    |         Output String        | Explanation              |
 |---------------------------|------------------------|----------------------------|--------------------------|
-| `My network does not work.` | `s/work/cast/g` | `"My netcastdoes not cast."` | Replaces all matches with regex |
+| `My network does not work.` | `s/work/cast/g` | `"My netcast does not cast."` | Replaces all matches of the string "work" with the string "cast" |
 | `My network does not work.` | `.*(\snot).*` | `" not"` | Returns only first match, strips of rest |
 | `temp=44.0'C` | `temp=(.*?)'C)`          | `44.0` | Matches whole string, retuns captcha group (.?) |
 | `48312` | `s/(.{2})(.{3})/$1.$2/g` | `48.312` | Captures 2 and 3 character, retuns first capture group adds a dot and the second capture group. This devides by 1000. |
@@ -61,7 +63,7 @@ rule "Convert String to Item Number"
   when
     Item Temperature_str changed
  then
-    // use the transformation service to retrieve teh value
+    // use the transformation service to retrieve the value
     val newValue = transform("REGEX", ".*=(\\d*.\\d*).*", Temperature_str.state.toString)
 
     // post the new value to the Number Item
@@ -69,19 +71,19 @@ rule "Convert String to Item Number"
  end
 ```
 
-Now the resulting Number can also be used in the label to [change the color](https://docs.openhab.org/configuration/sitemaps.html#label-and-value-colors) or in a rule as value to compare.
+Now the resulting Number can also be used in the label to [change the color](https://docs.openhab.org/configuration/sitemaps.html#label-and-value-colors) or in a rule as value for comparison.
 
 ## Differences to plain Regex
 
 The regex is embedded in a string so when double qoutes `"` are used in an regex they need to be escaped `\"` to keep the string intact.
 As the escape character of strings is the backslash this has to be escaped additionally.
-To use a dot as litteral in the regex it has to be escape `\.` but in a string it has to be escaped twice `"\\."`.
+To use a dot as litteral in the regex it has to be escape `\.`, but in a string it has to be escaped twice `"\\."`.
 The first backslash escapes the second backslash in the string so it can be used in the regex.
-Using a backslash in a Regex as litteral `\\` will have this form `"\\\\"`.
+Using a backslash in a Regex as literal `\\` will have this form `"\\\\"`.
 
 ## Further Reading
 
-* A full [introduction](https://www.w3schools.com/jsref/jsref_obj_regexp.asp) for regular expression at W3School.
+* A full [introduction](https://www.w3schools.com/jsref/jsref_obj_regexp.asp) for regular expression is availabel at W3School.
 * Online validator help to check the syntax of an regex and give information how to design it.
     * [Regex 101](https://regex101.com/)
     * [Regex R](https://regexr.com/)
