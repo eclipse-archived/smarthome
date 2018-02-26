@@ -8,6 +8,7 @@
     <suppress files=".+[\\/]internal[\\/].+\.java" checks="JavadocType|JavadocVariable|JavadocMethod|JavadocFilterCheck"/>
     <suppress files=".+DTO\.java" checks="JavadocType|JavadocVariable|JavadocMethod|JavadocFilterCheck" />
     <suppress files=".+Impl\.java" checks="JavadocType|JavadocVariable|JavadocMethod|JavadocFilterCheck"/>
+	<suppress files=".+\\pom\.xml" checks="OnlyTabIdentationInXmlFilesCheck"/>
     <!-- All generated files will skip the author tag check -->
     <suppress files=".+[\\/]gen[\\/].+\.java" checks="AuthorTagCheck"/>
     <!-- Some checks will be supressed for test bundles -->
