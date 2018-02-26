@@ -62,14 +62,14 @@ returns
 
 ### In Setup
 
-**.item**
+**.items**
 
 ```csv
 String  Temperature_xml "Temperature [JSONPATH([name()='PTZStatus']/*[name()='AbsoluteHigh']/*[name()='azimuth']/):%s °C]" {...}
 Number  Temperature "Temperature [%.1f °C]"
 ```
 
-**.rule**
+**.rules**
 
 ```php
 rule "Convert XML to Item Type Number"
