@@ -21,10 +21,10 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
+import org.eclipse.smarthome.config.core.internal.validation.ConfigDescriptionValidatorImpl
+import org.eclipse.smarthome.config.core.internal.validation.MessageKey
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException
 import org.eclipse.smarthome.config.core.validation.ConfigValidationMessage
-import org.eclipse.smarthome.config.core.validation.internal.ConfigDescriptionValidatorImpl
-import org.eclipse.smarthome.config.core.validation.internal.MessageKey
 import org.junit.Before
 import org.junit.Test
 import org.osgi.framework.Bundle

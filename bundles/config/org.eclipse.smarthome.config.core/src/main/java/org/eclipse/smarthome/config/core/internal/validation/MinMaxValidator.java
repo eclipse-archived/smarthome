@@ -10,15 +10,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.config.core.validation.internal;
+package org.eclipse.smarthome.config.core.internal.validation;
 
 import java.math.BigDecimal;
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
+import org.eclipse.smarthome.config.core.internal.validation.TypeIntrospections.TypeIntrospection;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationMessage;
-import org.eclipse.smarthome.config.core.validation.internal.TypeIntrospections.TypeIntrospection;
 
 /**
  * The {@link ConfigDescriptionParameterValidator} for the minimum and maximum attribute of a

@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.config.core.validation.internal;
+package org.eclipse.smarthome.config.core.internal.validation;
 
 import java.math.BigDecimal;
 import java.util.Map;

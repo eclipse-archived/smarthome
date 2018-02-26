@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.config.core.net.internal;
+package org.eclipse.smarthome.config.core.internal.net;
 
 import java.net.Inet4Address;
 import java.net.URI;
