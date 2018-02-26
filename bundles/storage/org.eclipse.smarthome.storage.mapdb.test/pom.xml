@@ -7,11 +7,6 @@
     <version>0.10.0-SNAPSHOT</version>
   </parent>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.storage.mapdb.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.storage.mapdb.test</bundle.namespace>
-  </properties>
-
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eclipse.smarthome.storage</groupId>
   <artifactId>org.eclipse.smarthome.storage.mapdb.test</artifactId>
