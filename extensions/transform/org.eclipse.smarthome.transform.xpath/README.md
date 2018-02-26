@@ -46,8 +46,6 @@ Given a retrieved XML (e.g. from an HIK Vision device with the namespace `xmlns=
 
 A simple xpath query to fetch the Azimut value does not work as it does not address the namespace.
 
-To Address the namespace in the query there are two ways  and .
-
 There are two ways to address the namespace.
 * Simple path which may not work in complex XML.
 * With full qualified path.
@@ -64,14 +62,14 @@ returns
 
 ### In Setup
 
-**Item**
+**.item**
 
 ```csv
 String  Temperature_xml "Temperature [JSONPATH([name()='PTZStatus']/*[name()='AbsoluteHigh']/*[name()='azimuth']/):%s °C]" {...}
 Number  Temperature "Temperature [%.1f °C]"
 ```
 
-**Rule**
+**.rule**
 
 ```php
 rule "Convert XML to Item Type Number"
@@ -83,20 +81,21 @@ rule "Convert XML to Item Type Number"
 	val mytest = transform("XPATH", "/*[name()='PTZStatus']
 									 /*[name()='AbsoluteHigh']
 									 /*[name()='azimuth']
-									 /text()", testXml.toString)  
-	// Full qualified
+									 /text()", 
+									 Temperature_xml.state.toString )  
+	// Fully qualified
 	val mytest = transform("XPATH", "/*[local-name()='PTZStatus'    and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
 									 /*[local-name()='AbsoluteHigh' and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
 									 /*[local-name()='azimuth'      and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
 									 /text()",
-									 Temperature_xml.state.toString)
+									 Temperature_xml.state.toString )
 									 
     // post the new value to the Number Item
     Temperature.postUpdate( newValue )
  end
 ```
 
-Now the resulting Number can also be used in the label to [change the color](https://docs.openhab.org/configuration/sitemaps.html#label-and-value-colors) or in a rule as value to compare.
+Now the resulting Number can also be used in the label to [change the color](https://docs.openhab.org/configuration/sitemaps.html#label-and-value-colors) or in a rule as value for compare.
 
 ## Further Reading
 
