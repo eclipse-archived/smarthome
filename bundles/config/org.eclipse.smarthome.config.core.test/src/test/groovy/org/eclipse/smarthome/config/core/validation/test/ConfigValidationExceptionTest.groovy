@@ -18,9 +18,9 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import java.text.MessageFormat
 
+import org.eclipse.smarthome.config.core.internal.validation.MessageKey
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException
 import org.eclipse.smarthome.config.core.validation.ConfigValidationMessage
-import org.eclipse.smarthome.config.core.validation.internal.MessageKey
 import org.eclipse.smarthome.core.i18n.TranslationProvider
 import org.junit.After
 import org.junit.Before
