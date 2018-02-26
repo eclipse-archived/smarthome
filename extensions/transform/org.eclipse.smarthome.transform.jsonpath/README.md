@@ -12,16 +12,16 @@ Given the JSON
 [{ "device": { "location": "Outside", "status": { "temperature": 23.2 }}}]
 ```
 
-the JsonPath expression `$.device.location` exstracts the JSON
+the JsonPath expression `$.device.location` exstracts the string instead a valid JSON `[ "Outside" ]`, see [differences](#differences-to-standard-jsonpath).
 
 ```
-[ "Outside" ]
+Outside
 ```
 
-the JsonPath expression `$.device.status.temperature` exstracts the JSON
+the JsonPath expression `$.device.status.temperature` exstracts the number instead a valid JSON `[ 23.2 ]`, see [differences](#differences-to-standard-jsonpath).
 
 ```
-[ 23.2 ]
+23.2
 ```
 
 ### In Setup
