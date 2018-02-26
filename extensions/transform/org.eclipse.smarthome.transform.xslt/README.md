@@ -14,13 +14,13 @@ General transformation rule summary:
 * The `xsl:template` tag contains the rule which specifies what should be done.
 
 The Rule uses XPath to gather the XML node information.
-For more information have a look at the [XPath transformaton](https://docs.openhab.org/addons/transformations/xpath/readme.html) .
+For more information have a look at the [XPath transformation](https://docs.openhab.org/addons/transformations/xpath/readme.html) .
 
 ## Examples
 
 ### Basic Example
 
-A simple but complete XSLT transformation looks like following example, which was taken from [here](https://en.wikipedia.org/wiki/Java_API_for_XML_Processing#Example).
+A simple but complete XSLT transformation looks like in the following example, which was taken from [here](https://en.wikipedia.org/wiki/Java_API_for_XML_Processing#Example).
 
 **input XML**
 
@@ -79,6 +79,7 @@ In the rule each step traversed along the path to the next tag has to be prepend
 * `xsl:output` transform incoming document into another XML-like document, no indentation, **without XML**.
 * `xsl:template`: `match="/"` whole document.
 * Full path to node `azimuth` reading out `date` attribute.
+* Add a linebreak by setting `&#10;` as text.
 * Search for node `azimuth` by prepending `//` and get the `text`.
 
 ```xml
