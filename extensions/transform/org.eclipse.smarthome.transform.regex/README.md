@@ -3,13 +3,13 @@
 Transforms a source string on basis of the regular expression (regex) search pattern to a defined result string.
 
 The simplest regex is in the form `<regex>` and transforms the input string on basis of the regex pattern to a result string.
-A full regex is in the form `s/<regex>/<result>/g` whereat the delimiter `s` and the regex flag `g` have a special meaning.
+A full regex is in the form `s/<regex>/<substitution>/g` whereat the delimiter `s` and the regex flag `g` have a special meaning.
 
 The regular expression in the format `s/<regex>/result/g`, replaces all occurrences of `<regex>` in the source string with `result`.
 The regular expression in the format `s/<regex>/result/` (without `g`), replaces the first occurrence of `<regex>` in the source string with `result`.
 
-If the regular expression contains a [capture group](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#cg), it returns the captured string. 
-Multiple capture groups can be used to retrieve multiple strings and can be combined as defined in the substitution. 
+If the regular expression contains a [capture group](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#cg) defined by `()`, it returns the captured string. 
+Multiple capture groups can be used to retrieve multiple strings and can be combined as a result string defined in the `substitution`.
 
 The transformation can be set to be restricted to only match when the input string beginns with an character by prepending `^` to the beginning of a pattern or to only match when the input string ends with a specified charactger by appending `$` at the end.
 So the regex `^I.*b$` only matches when the input string starts with `I` and ends with `b`, like in `I'm Bob`. Both can be used alone or in combination.
@@ -23,9 +23,9 @@ The special characters `\.[]{}()*+-?^$|` have to be escaped when they should be 
 
 |         Input String        |    Regular Expression    |         Output String        | Explanation              |
 |---------------------------|------------------------|----------------------------|--------------------------|
-| `My network does not work.` | `s/work/cast/g` | `"My netcast does not cast."` | Replaces all matches of the string "work" with the string "cast" |
-| `My network does not work.` | `.*(\snot).*` | `" not"` | Returns only first match, strips of rest |
-| `temp=44.0'C` | `temp=(.*?)'C)`          | `44.0` | Matches whole string, retuns captcha group (.?) |
+| `My network does not work.` | `s/work/cast/g` | `"My netcast does not cast."` | Replaces all matches of the string "work" with the string "cast". |
+| `My network does not work.` | `.*(\snot).*` | `" not"` | Returns only the first match and strips of the rest, "\s" defines a  whitespace. |
+| `temp=44.0'C` | `temp=(.*?)'C)`          | `44.0` | Matches whole string and retuns the content of teh captcha group `(.?)`. |
 | `48312` | `s/(.{2})(.{3})/$1.$2/g` | `48.312` | Captures 2 and 3 character, retuns first capture group adds a dot and the second capture group. This devides by 1000. |
 
 ### Example In Setup
