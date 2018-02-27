@@ -55,8 +55,8 @@ The regex pattern is is defined as follows
 * `.*` match any character, zero and unlimited times
 
 The result will be `44.0` and displayed on the label as `Temperature 44.0°C`.
-A better solution would be to use the regex on the result from the binding eiter in a rule or when the binding allows it on the output channel. 
-Thus the value `44.0` would be saved as number.
+A better solution would be to use the regex on the result from the binding either in a rule or when the binding allows it on the output channel. 
+Thus the value `44.0` would be saved as a number.
 
 **.rules**
 
