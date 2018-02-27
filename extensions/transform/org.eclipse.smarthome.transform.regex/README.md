@@ -85,7 +85,7 @@ Using a backslash in a Regex as literal `\\` will have this form `"\\\\"`.
 
 ## Further Reading
 
-* A full [introduction](https://www.w3schools.com/jsref/jsref_obj_regexp.asp) for regular expression is availabel at W3School.
+* A full [introduction](https://www.w3schools.com/jsref/jsref_obj_regexp.asp) for regular expression is available at W3School.
 * Online validator help to check the syntax of an regex and give information how to design it.
     * [Regex 101](https://regex101.com/)
     * [Regex R](https://regexr.com/)
