@@ -47,8 +47,10 @@ import org.eclipse.smarthome.core.thing.ChannelGroupUID;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingManager;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
@@ -61,6 +63,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
+import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
@@ -97,6 +100,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
     private ItemRegistry itemRegistry;
     private ReadyService readyService;
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
+    private ThingManager thingManager;
 
     private static final String CONFIG_PARAM_NAME = "test";
 
@@ -145,6 +149,9 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
 
         readyService = getService(ReadyService.class);
         assertNotNull(readyService);
+
+        thingManager = getService(ThingManager.class);
+        assertNotNull(thingManager);
 
         waitForAssert(() -> {
             try {
@@ -218,7 +225,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
         AtomicReference<ThingHandlerCallback> thc = initializeThingHandlerCallback();
 
         assertFalse(thc.get().isChannelLinked(CHANNEL_UID));
-    }
+            }
 
     @Test
     public void testThatIsLinkedReturnsTrue() throws Exception {
@@ -231,7 +238,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
         managedItemChannelLinkProvider.add(new ItemChannelLink("item", CHANNEL_UID));
 
         assertTrue(thc.get().isChannelLinked(CHANNEL_UID));
-    }
+            }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateChannelBuilderThrowsIllegalArgumentException() throws Exception {
@@ -556,6 +563,156 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
         assertEquals(0, thingUpdatedSemapthore.availablePermits());
     }
 
+    @Test
+    public void testSetsDisabledThingStatus() {
+        AtomicReference<ThingHandlerCallback> thc = new AtomicReference<>();
+        AtomicReference<Boolean> initializeRunning = new AtomicReference<>(false);
+        AtomicReference<Boolean> disposeRunning = new AtomicReference<>(false);
+
+        registerThingHandlerFactory(THING_TYPE_UID, thing -> {
+            ThingHandler mockHandler = mock(ThingHandler.class);
+            doAnswer(a -> {
+                thc.set((ThingHandlerCallback) a.getArguments()[0]);
+                return null;
+            }).when(mockHandler).setCallback(ArgumentMatchers.isA(ThingHandlerCallback.class));
+            doAnswer(a -> {
+                initializeRunning.set(true);
+                // call thingUpdated() from within initialize()
+                thc.get().thingUpdated(THING);
+                // hang on a little to provoke a potential dead-lock
+                Thread.sleep(1000);
+                initializeRunning.set(false);
+                return null;
+            }).when(mockHandler).initialize();
+            doAnswer(a -> {
+                disposeRunning.set(true);
+                // hang on a little to provoke a potential dead-lock
+                Thread.sleep(1000);
+                disposeRunning.set(false);
+                return null;
+            }).when(mockHandler).dispose();
+            when(mockHandler.getThing()).thenReturn(THING);
+            return mockHandler;
+        });
+
+        new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
+
+        waitForAssert(() -> {
+            assertThat(THING.getStatus(), is(ThingStatus.INITIALIZING));
+        });
+
+        // ensure it didn't run into a dead-lock which gets resolved by the SafeCaller.
+        waitForAssert(() -> {
+            assertThat(initializeRunning.get(), is(false));
+        }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
+
+        // disable the thing
+        new Thread((Runnable) () -> thingManager.setEnabled(THING.getUID(), false)).start();
+
+        waitForAssert(() -> {
+            assertThat(THING.getStatus(), is(ThingStatus.UNINITIALIZED));
+            assertThat(THING.getStatusInfo().getStatusDetail(), is(ThingStatusDetail.DISABLED));
+        });
+
+        // enable the thing
+        new Thread((Runnable) () -> thingManager.setEnabled(THING.getUID(), true)).start();
+
+        waitForAssert(() -> {
+            assertThat(THING.getStatus(), is(ThingStatus.INITIALIZING));
+        });
+
+        waitForAssert(() -> {
+            assertThat(initializeRunning.get(), is(false));
+        }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
+    }
+
+    @Test
+    public void testDisabledThingAdded() {
+        AtomicReference<ThingHandlerCallback> thc = new AtomicReference<>();
+        AtomicReference<Boolean> initializeRunning = new AtomicReference<>(false);
+        AtomicReference<Boolean> disposeRunning = new AtomicReference<>(false);
+
+        registerThingHandlerFactory(THING_TYPE_UID, thing -> {
+            ThingHandler mockHandler = mock(ThingHandler.class);
+            doAnswer(a -> {
+                thc.set((ThingHandlerCallback) a.getArguments()[0]);
+                return null;
+            }).when(mockHandler).setCallback(ArgumentMatchers.isA(ThingHandlerCallback.class));
+            doAnswer(a -> {
+                initializeRunning.set(true);
+                // call thingUpdated() from within initialize()
+                thc.get().thingUpdated(THING);
+                // hang on a little to provoke a potential dead-lock
+                Thread.sleep(1000);
+                initializeRunning.set(false);
+                return null;
+            }).when(mockHandler).initialize();
+            doAnswer(a -> {
+                disposeRunning.set(true);
+                // hang on a little to provoke a potential dead-lock
+                Thread.sleep(1000);
+                disposeRunning.set(false);
+                return null;
+            }).when(mockHandler).dispose();
+            when(mockHandler.getThing()).thenReturn(THING);
+            return mockHandler;
+        });
+
+        ThingStatusInfo disabledStatusInfo = ThingStatusInfoBuilder
+                .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.DISABLED).build();
+        THING.setStatusInfo(disabledStatusInfo);
+
+        new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
+
+        // ensure it didn't run into a dead-lock which gets resolved by the SafeCaller.
+        waitForAssert(() -> {
+            assertThat(initializeRunning.get(), is(false));
+        }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
+    }
+
+    @Test
+    public void testEnabledThingAdded() {
+        AtomicReference<ThingHandlerCallback> thc = new AtomicReference<>();
+        AtomicReference<Boolean> initializeRunning = new AtomicReference<>(false);
+        AtomicReference<Boolean> disposeRunning = new AtomicReference<>(false);
+
+        registerThingHandlerFactory(THING_TYPE_UID, thing -> {
+            ThingHandler mockHandler = mock(ThingHandler.class);
+            doAnswer(a -> {
+                thc.set((ThingHandlerCallback) a.getArguments()[0]);
+                return null;
+            }).when(mockHandler).setCallback(ArgumentMatchers.isA(ThingHandlerCallback.class));
+            doAnswer(a -> {
+                initializeRunning.set(true);
+                // call thingUpdated() from within initialize()
+                thc.get().thingUpdated(THING);
+                // hang on a little to provoke a potential dead-lock
+                Thread.sleep(1000);
+                initializeRunning.set(false);
+                return null;
+            }).when(mockHandler).initialize();
+            doAnswer(a -> {
+                disposeRunning.set(true);
+                // hang on a little to provoke a potential dead-lock
+                Thread.sleep(1000);
+                disposeRunning.set(false);
+                return null;
+            }).when(mockHandler).dispose();
+            when(mockHandler.getThing()).thenReturn(THING);
+            return mockHandler;
+        });
+
+        ThingStatusInfo disabledStatusInfo = ThingStatusInfoBuilder
+                .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build();
+        THING.setStatusInfo(disabledStatusInfo);
+
+        new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
+        // ensure it didn't run into a dead-lock which gets resolved by the SafeCaller.
+        waitForAssert(() -> {
+            assertThat(initializeRunning.get(), is(true));
+        }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
+    }
+
     private void assertThingStatus(Map<String, Object> propsThing, Map<String, Object> propsChannel, ThingStatus status,
             ThingStatusDetail statusDetail) {
         Configuration configThing = new Configuration(propsThing);
@@ -666,7 +823,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
             @Override
             public boolean supportsThingType(@NonNull ThingTypeUID thingTypeUID) {
                 return true;
-            }
+}
 
             @Override
             protected @Nullable ThingHandler createHandler(@NonNull Thing thing) {

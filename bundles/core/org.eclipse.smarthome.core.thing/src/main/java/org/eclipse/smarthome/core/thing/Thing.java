@@ -33,6 +33,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
  * @author Thomas Höfer - Added thing and thing type properties
  * @author Simon Kaufmann - Added label, location
  * @author Kai Kreuzer - Removed linked items from Thing
+ * @author Yordan Zhelev - Added method for getting the enabled status
  */
 @NonNullByDefault
 public interface Thing extends Identifiable<ThingUID> {
@@ -214,4 +215,10 @@ public interface Thing extends Identifiable<ThingUID> {
      */
     void setLocation(@Nullable String location);
 
+    /**
+     * Returns information whether the {@link Thing} is enabled or not.
+     * 
+     * @return Returns {@code true} if the thing is enabled. Return {@code false} otherwise.
+     */
+    boolean isEnabled();
 }

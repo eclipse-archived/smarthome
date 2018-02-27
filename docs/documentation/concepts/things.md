@@ -38,7 +38,7 @@ As many Things can be automatically discovered, there are special mechanisms ava
 Each Thing has a status object, which helps to identify possible problems with the device or service.
 The following table provides an overview of the different statuses:
 
-| Status        | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Status        | Description |
 |---------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | UNINITIALIZED | This is the initial status of a Thing, when it is added or the framework is being started. This status is also assigned, if the initializing process failed or the binding is not available. Commands, which are sent to Channels will not be processed.                                                                                                                                                                                                                                  |
 | INITIALIZING  | This state is assigned while the binding initializes the Thing. It depends on the binding how long the initializing process takes. Commands, which are sent to Channels will not be processed.                                                                                                                                                                                                                                                                                            |
@@ -71,12 +71,13 @@ A status is detailed further with a status detail object.
 The following table lists the different status details for each status:
 
 <table>
-<tr valign="top"><td rowspan="6">UNINITIALIZED</td><td>NONE</td><td>No further status details available.</td></tr>
+<tr valign="top"><td rowspan="7">UNINITIALIZED</td><td>NONE</td><td>No further status details available.</td></tr>
 <tr valign="top">                                  <td>HANDLER_MISSING_ERROR</td><td>The handler cannot be initialized, because the responsible binding is not available or started.</td></tr>
 <tr valign="top">                                  <td>HANDLER_REGISTERING_ERROR</td><td>The handler failed in the service registration phase.</td></tr>
 <tr valign="top">                                  <td>HANDLER_CONFIGURATION_PENDING</td><td>The handler is registered but can not be initialized caused by missing configuration parameters.</td></tr>
 <tr valign="top">                                  <td>HANDLER_INITIALIZING_ERROR</td><td>The handler failed in the initialization phase.</td></tr>
 <tr valign="top">                                  <td>BRIDGE_UNINITIALIZED</td><td>The bridge associated with this Thing is not initialized.</td></tr>
+<tr valign="top">                                  <td>DISABLED</td><td>The thing was explicitly disabled.</td></tr>
 <tr valign="top"><td>INITIALIZING</td>             <td>NONE</td><td>No further status details available.</td></tr>
 <tr valign="top"><td>UNKNOWN</td>                  <td>NONE</td><td>No further status details available.</td></tr>
 <tr valign="top"><td rowspan="2">ONLINE</td>       <td>NONE</td><td>No further status details available.</td></tr>

@@ -35,7 +35,8 @@ public enum ThingStatusDetail {
      * Device has been removed. Used for example when the device has been removed from its bridge and
      * the thing handler should be removed.
      */
-    GONE;
+    GONE,
+    DISABLED;
 
     public static final UninitializedStatus UNINITIALIZED = new UninitializedStatus();
     public static final NoneOnlyStatus INITIALIZING = new NoneOnlyStatus();

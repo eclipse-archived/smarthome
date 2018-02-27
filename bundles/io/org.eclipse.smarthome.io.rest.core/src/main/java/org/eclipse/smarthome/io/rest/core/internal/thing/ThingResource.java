@@ -62,6 +62,7 @@ import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingManager;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -146,6 +147,7 @@ public class ThingResource implements RESTResource {
     private ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService;
     private FirmwareUpdateService firmwareUpdateService;
     private FirmwareRegistry firmwareRegistry;
+    private ThingManager thingManager;
 
     private LocaleService localeService;
 
@@ -473,6 +475,34 @@ public class ThingResource implements RESTResource {
         return Response.ok().entity(thingStatusInfo).build();
     }
 
+    @PUT
+    @RolesAllowed({ Role.USER, Role.ADMIN })
+    @Path("/{thingUID}/enable")
+    @ApiOperation(value = "Sets the thing enabled status.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
+            @ApiResponse(code = 400, message = "Thing could not be disabled as it does not have a handler."),
+            @ApiResponse(code = 404, message = "Thing not found.") })
+    public Response setEnabled(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
+            @PathParam("thingUID") @ApiParam(value = "thing") String thingUID,
+            @ApiParam(value = "enabled") String enabled) throws IOException {
+        final Locale locale = LocaleUtil.getLocale(language);
+
+        ThingUID thingUIDObject = new ThingUID(thingUID);
+
+        // Check if the Thing exists, 404 if not
+        Thing thing = thingRegistry.get(thingUIDObject);
+        if (null == thing) {
+            logger.info("Received HTTP PUT request for set enabled at '{}' for the unknown thing '{}'.",
+                    uriInfo.getPath(), thingUID);
+            return getThingNotFoundResponse(thingUID);
+        }
+
+        thingManager.setEnabled(thingUIDObject, Boolean.valueOf(enabled));
+
+        // everything went well
+        return getThingResponse(Status.OK, thing, locale, null);
+    }
+
     @GET
     @RolesAllowed({ Role.USER, Role.ADMIN })
     @Path("/{thingUID}/config/status")
@@ -778,6 +808,15 @@ public class ThingResource implements RESTResource {
         this.firmwareUpdateService = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setThingManager(ThingManager thingManager) {
+        this.thingManager = thingManager;
+    }
+
+    protected void unsetThingManager(ThingManager thingManager) {
+        this.thingManager = null;
+    }
+
     private Map<String, Object> normalizeConfiguration(Map<String, Object> properties, ThingTypeUID thingTypeUID,
             ThingUID thingUID) {
         if (properties == null || properties.isEmpty()) {
@@ -881,7 +920,7 @@ public class ThingResource implements RESTResource {
                 && managedItemChannelLinkProvider != null && managedItemProvider != null && managedThingProvider != null
                 && thingRegistry != null && configStatusService != null && configDescRegistry != null
                 && thingTypeRegistry != null && channelTypeRegistry != null && firmwareUpdateService != null
-                && thingStatusInfoI18nLocalizationService != null && firmwareRegistry != null && localeService != null;
+                && thingStatusInfoI18nLocalizationService != null && firmwareRegistry != null && localeService != null && thingManager != null;
     }
 
 }
