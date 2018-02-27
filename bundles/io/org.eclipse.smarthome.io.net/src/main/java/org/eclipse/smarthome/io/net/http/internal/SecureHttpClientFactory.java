@@ -12,9 +12,6 @@
  */
 package org.eclipse.smarthome.io.net.http.internal;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
@@ -118,19 +115,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     public HttpClient getCommonHttpClient() {
         initialize();
         logger.debug("shared httpClient requested");
-        return (HttpClient) Proxy.newProxyInstance(HttpClient.class.getClassLoader(), new Class[] { HttpClient.class },
-                new InvocationHandler() {
-                    @Override
-                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                        if (method != null && !method.getName().startsWith("set") && !method.getName().equals("stop")) {
-                            // invoke the method on the shared http client
-                            return method.invoke(commonHttpClient, args);
-                        } else {
-                            // do not allow the invocation on the shared client
-                            throw new UnsupportedOperationException();
-                        }
-                    }
-                });
+        return commonHttpClient;
     }
 
     private void getConfigParameters(Map<String, Object> parameters) {
