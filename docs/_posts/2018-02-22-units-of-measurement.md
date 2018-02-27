@@ -36,7 +36,7 @@ QuantityType<Pressure> state = new QuantityType<>(pressDouble, HECTO(SIUnits.PAS
 updateState(pressureChannelUID, state);
 ```
 
-In the temperature example the state is marked to be a "<Temperature>" typed QuantitType. It will only accept units which correspond to the dimension type, like degree Celsius, degree Fahrenheit or kelvin.
+In the temperature example the state is marked to be a "\<Temperature\>" typed QuantityType. It will only accept units which correspond to the dimension type, like degree Celsius, degree Fahrenheit or kelvin.
 In the same way the Thing's Channels and the linked Number items have to be typed to match against each other. Both Channel and Item definition use an extended item type format which passes the expected dimension to a Number item.
 
 The temperature channel definition for Yahoo Weather looks like this:
