@@ -95,7 +95,7 @@ rule "Convert XML to Item Type Number"
  end
 ```
 
-Now the resulting Number can also be used in the label to [change the color](https://docs.openhab.org/configuration/sitemaps.html#label-and-value-colors) or in a rule as value for compare.
+Now the resulting Number can also be used in the label to [change the color](https://docs.openhab.org/configuration/sitemaps.html#label-and-value-colors) or in a rule as value for comparison.
 
 ## Further Reading
 
