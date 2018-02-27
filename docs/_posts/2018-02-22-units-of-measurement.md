@@ -106,8 +106,13 @@ will create a new QuantityType and update the Number item `myTemperature`.
 Note that a QuantityType in scripts must be written as `<value> [<unit>]`.
 
 ##### Coding the UoM
+###### Packages
 When using units, metric prefixes (like MILLI, CENTI, HECTO, ...) and dimensions please make sure to use the following package imports:
-For units and metric prefixes use `org.eclipse.smarthome.core.library.unit` package, for dimensions use the `org.eclipse.smarthome.core.library.dimension` or the official `javax.measure.quantity` package. 
+For units and metric prefixes use `org.eclipse.smarthome.core.library.unit` package, for dimensions use the `org.eclipse.smarthome.core.library.dimension` or the official `javax.measure.quantity` package.
+###### Classes
+Prominent classes are `SIUnits` for units unique to the SI standard measurement system, `ImperialUnits` for units unique to the imperial system and `SmartHomeUnits` which are used in both systems.
+The `MetricPrefix` class provides wrapper methods to generate prefixed units.
+All interfaces from the dimension packages mentioned above should be used to type the generic `QuantityType` and respective units. 
 
 ##### Extend UoM
 At the time of releasing the UoM support there are only physical units and the two measurement systems SI and Imperial available. While these will already cover the majority of use cases there might be the need for solutions to extend the available units and measurement systems. The start point for extension is to provide an individual implementation of the `org.eclipse.smarthome.core.i18n.UnitProvider`. This way also device dependent units and conversion of those to physical units may be implemented. 
