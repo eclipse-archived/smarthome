@@ -3,7 +3,7 @@ layout: post
 title: "Units of Measurement with Eclipse SmartHome"
 date:   2018-02-22
 image: "2018-02-22-units-of-measurement.png"
-published: false
+published: true
 ---
 
 A lot of functionality in a smart home setup is based on environmental conditions which until now are measured without an explicit unit. Now Eclipse SmartHome comes with full "Units of Measurement" support to make the unit part of the item state and provide automatic or specific unit conversion. <!--more--> 
