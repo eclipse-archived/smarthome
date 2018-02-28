@@ -74,12 +74,19 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected final ScheduledExecutorService scheduler = ThreadPoolManager
             .getScheduledPool(THING_HANDLER_THREADPOOL_NAME);
 
+    @Deprecated // this must not be used by bindings!
     @NonNullByDefault({})
     protected ThingRegistry thingRegistry;
+
+    @Deprecated // this must not be used by bindings!
     @NonNullByDefault({})
     protected ItemChannelLinkRegistry linkRegistry;
+
+    @Deprecated // this must not be used by bindings!
     @NonNullByDefault({})
     protected ThingTypeRegistry thingTypeRegistry;
+
+    @Deprecated // this must not be used by bindings!
     @NonNullByDefault({})
     protected ConfigDescriptionValidator configDescriptionValidator;
 
