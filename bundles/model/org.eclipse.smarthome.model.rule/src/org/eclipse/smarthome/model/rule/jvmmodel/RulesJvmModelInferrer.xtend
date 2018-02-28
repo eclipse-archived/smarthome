@@ -170,8 +170,7 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 
     def private boolean containsParam (EList<JvmFormalParameter> params, String param) {
         for(JvmFormalParameter listParam : params) {
-            if(param.equals(listParam.name))
-            {
+            if(param.equals(listParam.name)) {
                 return true;
             }
         }
