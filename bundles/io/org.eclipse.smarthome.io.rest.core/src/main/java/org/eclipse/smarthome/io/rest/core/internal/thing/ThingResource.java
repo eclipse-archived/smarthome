@@ -183,14 +183,7 @@ public class ThingResource implements RESTResource {
         // turn the ThingDTO's configuration into a Configuration
         Configuration configuration = new Configuration(
                 normalizeConfiguration(thingBean.configuration, thingTypeUID, thingUID));
-        if (thingBean.channels != null) {
-            for (ChannelDTO channelBean : thingBean.channels) {
-                if (channelBean.channelTypeUID != null) {
-                    channelBean.configuration = normalizeConfiguration(channelBean.configuration,
-                            new ChannelTypeUID(channelBean.channelTypeUID), new ChannelUID(thingUID, channelBean.id));
-                }
-            }
-        }
+        normalizeChannels(thingBean, thingUID);
 
         Thing thing = thingRegistry.createThingOfType(thingTypeUID, thingUID, bridgeUID, thingBean.label,
                 configuration);
@@ -362,15 +355,7 @@ public class ThingResource implements RESTResource {
         // check configuration
         thingBean.configuration = normalizeConfiguration(thingBean.configuration, thing.getThingTypeUID(),
                 thing.getUID());
-        if (thingBean.channels != null) {
-            for (ChannelDTO channelBean : thingBean.channels) {
-                if (channelBean.channelTypeUID != null) {
-                    channelBean.configuration = normalizeConfiguration(channelBean.configuration,
-                            new ChannelTypeUID(channelBean.channelTypeUID),
-                            new ChannelUID(thing.getUID(), channelBean.id));
-                }
-            }
-        }
+        normalizeChannels(thingBean, thing.getUID());
 
         thing = ThingHelper.merge(thing, thingBean);
 
@@ -816,6 +801,17 @@ public class ThingResource implements RESTResource {
         }
 
         return ConfigUtil.normalizeTypes(properties, configDescriptions);
+    }
+
+    private void normalizeChannels(ThingDTO thingBean, ThingUID thingUID) {
+        if (thingBean.channels != null) {
+            for (ChannelDTO channelBean : thingBean.channels) {
+                if (channelBean.channelTypeUID != null) {
+                    channelBean.configuration = normalizeConfiguration(channelBean.configuration,
+                            new ChannelTypeUID(channelBean.channelTypeUID), new ChannelUID(thingUID, channelBean.id));
+                }
+            }
+        }
     }
 
     private URI getConfigDescriptionURI(ThingUID thingUID) {
