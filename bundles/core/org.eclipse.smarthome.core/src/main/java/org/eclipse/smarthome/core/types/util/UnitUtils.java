@@ -111,11 +111,11 @@ public class UnitUtils {
     }
 
     public static boolean isDifferentMeasurementSystem(Unit<? extends Quantity<?>> thisUnit, Unit<?> thatUnit) {
-        Set<? extends Unit<?>> SI = SIUnits.getInstance().getUnits();
-        Set<? extends Unit<?>> US = ImperialUnits.getInstance().getUnits();
+        Set<? extends Unit<?>> si = SIUnits.getInstance().getUnits();
+        Set<? extends Unit<?>> us = ImperialUnits.getInstance().getUnits();
 
-        boolean differentSystems = (SI.contains(thisUnit) && US.contains(thatUnit)) //
-                || (SI.contains(thatUnit) && US.contains(thisUnit));
+        boolean differentSystems = (si.contains(thisUnit) && us.contains(thatUnit)) //
+                || (si.contains(thatUnit) && us.contains(thisUnit));
 
         if (!differentSystems) {
             if (thisUnit instanceof TransformedUnit

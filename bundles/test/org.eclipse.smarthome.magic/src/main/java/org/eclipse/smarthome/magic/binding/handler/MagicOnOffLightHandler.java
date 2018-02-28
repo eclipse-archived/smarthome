@@ -12,8 +12,6 @@
  */
 package org.eclipse.smarthome.magic.binding.handler;
 
-import static org.eclipse.smarthome.magic.binding.MagicBindingConstants.CHANNEL_SWITCH;
-
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -34,8 +32,9 @@ public class MagicOnOffLightHandler extends BaseThingHandler {
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        if (channelUID.getId().equals(CHANNEL_SWITCH)) {
-        }
+        // process the command for the switch channel here
+        // if (channelUID.getId().equals(MagicBindingConstants.CHANNEL_SWITCH)) {
+        // }
     }
 
     @Override

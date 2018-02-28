@@ -37,7 +37,6 @@ public class WelcomeHomeActionHandler extends BaseModuleHandler<Action> implemen
     public Map<String, Object> execute(Map<String, Object> context) {
         String device = getDevice(module.getConfiguration());
         String result = getResult(module.getConfiguration());
-        System.out.println("[Automation Java API Demo : " + module.getTypeUID() + "] " + device + ": " + result);
         return null;
     }
 

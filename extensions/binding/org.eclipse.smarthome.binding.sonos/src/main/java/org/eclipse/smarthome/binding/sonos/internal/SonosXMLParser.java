@@ -612,8 +612,6 @@ public class SonosXMLParser {
                 } else {
                     textField = null;
                 }
-            } else if (qName.equals("logo")) {
-                // logo = attributes.getValue("UUID");
             }
         }
 

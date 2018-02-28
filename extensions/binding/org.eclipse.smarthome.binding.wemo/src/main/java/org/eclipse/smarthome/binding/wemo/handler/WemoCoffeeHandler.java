@@ -213,9 +213,9 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                                 e.getMessage());
                         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
                     }
-                } else if (command.equals(OnOffType.OFF)) {
-                    // do nothing, as WeMo Coffee Maker cannot be switched off remotely
                 }
+                // if command.equals(OnOffType.OFF) we do nothing because WeMo Coffee Maker cannot be switched off
+                // remotely
                 updateStatus(ThingStatus.ONLINE);
             }
         }

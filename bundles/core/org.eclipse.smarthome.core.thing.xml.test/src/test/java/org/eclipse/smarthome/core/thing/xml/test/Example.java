@@ -42,11 +42,6 @@ public class Example {
         thingList.stream().forEach(it -> {
             if (it instanceof ChannelTypeXmlResult) {
                 ChannelType channelType = ((ChannelTypeXmlResult) it).toChannelType();
-
-                System.out.println(channelType + ", advanced=" + channelType.isAdvanced() + ", itemType="
-                        + channelType.getItemType() + ", label=" + channelType.getLabel() + ", description="
-                        + channelType.getDescription() + ", category=" + channelType.getCategory() + ", tags="
-                        + channelType.getTags() + ", state=" + channelType.getState());
             }
         });
     }

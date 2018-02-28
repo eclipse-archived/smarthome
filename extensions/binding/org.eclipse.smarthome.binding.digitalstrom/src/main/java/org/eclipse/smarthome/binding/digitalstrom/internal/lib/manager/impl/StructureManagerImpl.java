@@ -78,7 +78,7 @@ public class StructureManagerImpl implements StructureManager {
     private final Map<Integer, HashMap<Short, List<Device>>> zoneGroupDeviceMap = Collections
             .synchronizedMap(new HashMap<Integer, HashMap<Short, List<Device>>>());
     private final Map<DSID, Device> deviceMap = Collections.synchronizedMap(new HashMap<DSID, Device>());
-    private final Map<DSID, Circuit> circuitMap = Collections.synchronizedMap(new HashMap<DSID, Circuit>());;
+    private final Map<DSID, Circuit> circuitMap = Collections.synchronizedMap(new HashMap<DSID, Circuit>());
     private final Map<String, DSID> dSUIDToDSIDMap = Collections.synchronizedMap(new HashMap<String, DSID>());
 
     private Map<Integer, ZoneGroupsNameAndIDMap> zoneGroupIdNameMap;

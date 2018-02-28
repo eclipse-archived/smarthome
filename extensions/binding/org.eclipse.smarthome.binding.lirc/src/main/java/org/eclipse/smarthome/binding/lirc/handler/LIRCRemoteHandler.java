@@ -28,7 +28,6 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.RefreshType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,9 +58,8 @@ public class LIRCRemoteHandler extends BaseThingHandler implements LIRCMessageLi
             return;
         }
         if (channelUID.getId().equals(LIRCBindingConstants.CHANNEL_TRANSMIT)) {
-            if (command instanceof RefreshType) {
-                // not supported
-            } else if (command instanceof StringType) {
+            // command instanceof RefreshType is not supported
+            if (command instanceof StringType) {
                 bridgeHandler.transmit(remoteName, command.toString());
             }
         }

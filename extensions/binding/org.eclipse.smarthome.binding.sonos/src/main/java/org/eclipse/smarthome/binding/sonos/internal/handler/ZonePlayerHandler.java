@@ -52,7 +52,6 @@ import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.PlayPauseType;
 import org.eclipse.smarthome.core.library.types.RawType;
-import org.eclipse.smarthome.core.library.types.RewindFastforwardType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -331,9 +330,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                                 getCoordinatorHandler().previous();
                             }
                         }
-                        if (command instanceof RewindFastforwardType) {
-                            // Rewind and Fast Forward are currently not implemented by the binding
-                        }
+                        // Rewind and Fast Forward are currently not implemented by the binding
                     } catch (IllegalStateException e) {
                         logger.debug("Cannot handle control command ({})", e.getMessage());
                     }
@@ -969,95 +966,93 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         String stationID = null;
         boolean needsUpdating = false;
 
-        if (currentURI == null) {
-            // Do nothing
-        }
+        // if currentURI == null, we do nothing
+        if (currentURI != null) {
+            if (currentURI.isEmpty()) {
+                // Reset data
+                needsUpdating = true;
+            }
 
-        else if (currentURI.isEmpty()) {
-            // Reset data
-            needsUpdating = true;
-        }
-
-        else if (currentURI.contains(GROUP_URI)) {
-            // The Sonos is a slave member of a group, we do nothing
+            // if (currentURI.contains(GROUP_URI)) we do nothing, because
+            // The Sonos is a slave member of a group
             // The media information will be updated by the coordinator
             // Notification of group change occurs later, so we just check the URI
-        }
 
-        else if (isPlayingStream(currentURI)) {
-            // Radio stream (tune-in)
-            boolean opmlUrlSucceeded = false;
-            stationID = StringUtils.substringBetween(currentURI, ":s", "?sid");
-            if (opmlUrl != null) {
-                String mac = getMACAddress();
-                if (stationID != null && !stationID.isEmpty() && mac != null && !mac.isEmpty()) {
-                    String url = opmlUrl;
-                    url = StringUtils.replace(url, "%id", stationID);
-                    url = StringUtils.replace(url, "%serial", mac);
+            else if (isPlayingStream(currentURI)) {
+                // Radio stream (tune-in)
+                boolean opmlUrlSucceeded = false;
+                stationID = StringUtils.substringBetween(currentURI, ":s", "?sid");
+                if (opmlUrl != null) {
+                    String mac = getMACAddress();
+                    if (stationID != null && !stationID.isEmpty() && mac != null && !mac.isEmpty()) {
+                        String url = opmlUrl;
+                        url = StringUtils.replace(url, "%id", stationID);
+                        url = StringUtils.replace(url, "%serial", mac);
 
-                    String response = null;
-                    try {
-                        response = HttpUtil.executeUrl("GET", url, SOCKET_TIMEOUT);
-                    } catch (IOException e) {
-                        logger.debug("Request to device failed: {}", e);
-                    }
+                        String response = null;
+                        try {
+                            response = HttpUtil.executeUrl("GET", url, SOCKET_TIMEOUT);
+                        } catch (IOException e) {
+                            logger.debug("Request to device failed: {}", e);
+                        }
 
-                    if (response != null) {
-                        List<String> fields = SonosXMLParser.getRadioTimeFromXML(response);
+                        if (response != null) {
+                            List<String> fields = SonosXMLParser.getRadioTimeFromXML(response);
 
-                        if (fields != null && fields.size() > 0) {
-                            opmlUrlSucceeded = true;
+                            if (fields != null && fields.size() > 0) {
+                                opmlUrlSucceeded = true;
 
-                            resultString = new String();
-                            // radio name should be first field
-                            title = fields.get(0);
+                                resultString = new String();
+                                // radio name should be first field
+                                title = fields.get(0);
 
-                            Iterator<String> listIterator = fields.listIterator();
-                            while (listIterator.hasNext()) {
-                                String field = listIterator.next();
-                                resultString = resultString + field;
-                                if (listIterator.hasNext()) {
-                                    resultString = resultString + " - ";
+                                Iterator<String> listIterator = fields.listIterator();
+                                while (listIterator.hasNext()) {
+                                    String field = listIterator.next();
+                                    resultString = resultString + field;
+                                    if (listIterator.hasNext()) {
+                                        resultString = resultString + " - ";
+                                    }
                                 }
-                            }
 
-                            needsUpdating = true;
+                                needsUpdating = true;
+                            }
                         }
                     }
                 }
-            }
-            if (!opmlUrlSucceeded) {
-                if (currentUriMetaData != null) {
-                    title = currentUriMetaData.getTitle();
-                    if ((currentTrack == null) || (currentTrack.getStreamContent() == null)
-                            || currentTrack.getStreamContent().isEmpty()) {
-                        resultString = title;
-                    } else {
-                        resultString = title + " - " + currentTrack.getStreamContent();
+                if (!opmlUrlSucceeded) {
+                    if (currentUriMetaData != null) {
+                        title = currentUriMetaData.getTitle();
+                        if ((currentTrack == null) || (currentTrack.getStreamContent() == null)
+                                || currentTrack.getStreamContent().isEmpty()) {
+                            resultString = title;
+                        } else {
+                            resultString = title + " - " + currentTrack.getStreamContent();
+                        }
+                        needsUpdating = true;
                     }
+                }
+            }
+
+            else if (isPlayingLineIn(currentURI)) {
+                if (currentTrack != null) {
+                    title = currentTrack.getTitle();
+                    resultString = title;
                     needsUpdating = true;
                 }
             }
-        }
 
-        else if (isPlayingLineIn(currentURI)) {
-            if (currentTrack != null) {
-                title = currentTrack.getTitle();
-                resultString = title;
-                needsUpdating = true;
-            }
-        }
-
-        else if (isPlayingRadio(currentURI)
-                || (!currentURI.contains("x-rincon-mp3") && !currentURI.contains("x-sonosapi"))) {
-            // isPlayingRadio(currentURI) is true for Google Play Music radio or Apple Music radio
-            if (currentTrack != null) {
-                artist = !currentTrack.getAlbumArtist().isEmpty() ? currentTrack.getAlbumArtist()
-                        : currentTrack.getCreator();
-                album = currentTrack.getAlbum();
-                title = currentTrack.getTitle();
-                resultString = artist + " - " + album + " - " + title;
-                needsUpdating = true;
+            else if (isPlayingRadio(currentURI)
+                    || (!currentURI.contains("x-rincon-mp3") && !currentURI.contains("x-sonosapi"))) {
+                // isPlayingRadio(currentURI) is true for Google Play Music radio or Apple Music radio
+                if (currentTrack != null) {
+                    artist = !currentTrack.getAlbumArtist().isEmpty() ? currentTrack.getAlbumArtist()
+                            : currentTrack.getCreator();
+                    album = currentTrack.getAlbum();
+                    title = currentTrack.getTitle();
+                    resultString = artist + " - " + album + " - " + title;
+                    needsUpdating = true;
+                }
             }
         }
 
