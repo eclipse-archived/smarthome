@@ -65,3 +65,9 @@ In order to match `NumberItems` and channels and define a default state descript
     </channel-type>
 
 The state description pattern "%.1f %unit%" describes the value format as floating point with one decimal place and also the special placeholder for the unit.
+
+## Implementing UoM
+When creating QuantityType states the framework offers some useful packages and classes:
+The `org.eclipse.smarthome.core.library.unit` package contains the classes `SIUnits`, `ImperialUnits` and `SmartHomeUnits` which provide units unique to either of the measurement systems and common units used in both systems.
+The `MetricPrefix` class provides prefixes like MILLI, CENTI, HECTO, etc. which are wrappers to create derived units.
+The `org.eclipse.smarthome.core.library.dimension` and `javax.measure.quantity` packages provide interfaces which are used to type the generic QuantityType and units. 
