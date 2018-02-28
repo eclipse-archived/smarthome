@@ -19,9 +19,9 @@ import java.util.Set;
 import javax.measure.Quantity;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.smarthome.core.internal.items.GroupFunctionHelper;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.internal.items.GroupFunctionHelper;
 import org.eclipse.smarthome.core.items.ActiveItem;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
@@ -101,7 +101,7 @@ public class ItemDTOMapper {
         return GROUP_FUNCTION_HELPER.createGroupFunction(function, args, getDimension(baseItem));
     }
 
-    private static Class<? extends Quantity<?>> getDimension(Item baseItem) {
+    private static @Nullable Class<? extends Quantity<?>> getDimension(@Nullable Item baseItem) {
         if (baseItem instanceof NumberItem) {
             return ((NumberItem) baseItem).getDimension();
         }
