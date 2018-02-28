@@ -168,13 +168,8 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
         ]
     }
 
-    def private boolean containsParam (EList<JvmFormalParameter> params, String param) {
-        for(JvmFormalParameter listParam : params) {
-            if(param.equals(listParam.name)) {
-                return true;
-            }
-        }
-        return false;
+    def private boolean containsParam(EList<JvmFormalParameter> params, String param) {
+        return params.map[name].contains(param);
     }
 
     def private boolean containsCommandTrigger(Rule rule) {
