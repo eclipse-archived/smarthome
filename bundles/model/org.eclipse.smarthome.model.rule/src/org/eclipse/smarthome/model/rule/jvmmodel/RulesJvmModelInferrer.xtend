@@ -38,6 +38,8 @@ import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.eclipse.xtext.common.types.JvmFormalParameter
+import org.eclipse.emf.common.util.EList
 
 /**
  * <p>Infers a JVM model from the source model.</p> 
@@ -147,7 +149,7 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
                         val commandTypeRef = ruleModel.newTypeRef(Command)
                         parameters += rule.toParameter(VAR_RECEIVED_COMMAND, commandTypeRef)
                     }
-                    if (containsStateChangeTrigger(rule)) {
+                    if (containsStateChangeTrigger(rule) && !containsParam(parameters, VAR_PREVIOUS_STATE)) {
                         val stateTypeRef = ruleModel.newTypeRef(State)
                         parameters += rule.toParameter(VAR_PREVIOUS_STATE, stateTypeRef)
                     }
@@ -155,7 +157,7 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
                         val eventTypeRef = ruleModel.newTypeRef(ChannelTriggeredEvent)
                         parameters += rule.toParameter(VAR_RECEIVED_EVENT, eventTypeRef)
                     }
-                    if (containsThingStateChangedEventTrigger(rule)) {
+                    if (containsThingStateChangedEventTrigger(rule) && !containsParam(parameters, VAR_PREVIOUS_STATE)) {
                         val stateTypeRef = ruleModel.newTypeRef(State)
                         parameters += rule.toParameter(VAR_PREVIOUS_STATE, stateTypeRef)
                     }
@@ -164,6 +166,10 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
                 ]
             ]
         ]
+    }
+
+    def private boolean containsParam(EList<JvmFormalParameter> params, String param) {
+        return params.map[name].contains(param);
     }
 
     def private boolean containsCommandTrigger(Rule rule) {
