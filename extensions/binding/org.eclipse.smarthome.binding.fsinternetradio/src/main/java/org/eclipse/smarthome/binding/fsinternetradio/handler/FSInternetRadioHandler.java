@@ -51,7 +51,7 @@ public class FSInternetRadioHandler extends BaseThingHandler {
     private final Logger logger = LoggerFactory.getLogger(FSInternetRadioHandler.class);
 
     FrontierSiliconRadio radio;
-    private HttpClient httpClient;
+    private final HttpClient httpClient;
 
     /** Job that runs {@link #updateRunnable}. */
     private ScheduledFuture<?> updateJob;
@@ -118,6 +118,7 @@ public class FSInternetRadioHandler extends BaseThingHandler {
 
     public FSInternetRadioHandler(Thing thing, HttpClient httpClient) {
         super(thing);
+        this.httpClient = httpClient;
     }
 
     @Override
