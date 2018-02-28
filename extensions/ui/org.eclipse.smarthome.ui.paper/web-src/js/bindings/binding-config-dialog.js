@@ -1,12 +1,13 @@
+;
 (function() {
     'use strict';
 
-    angular //
-    .module('PaperUI.bindings') //
+    angular.module('PaperUI.bindings') //
     .controller('ConfigureBindingDialogController', ConfigureBindingDialogController);
 
-    function ConfigureBindingDialogController($scope, $mdDialog, bindingRepository, bindingService, configService, configDescriptionService, toastService, binding) {
+    ConfigureBindingDialogController.$inject = [ '$scope', '$mdDialog', 'bindingRepository', 'bindingService', 'configService', 'configDescriptionService', 'toastService', 'binding' ];
 
+    function ConfigureBindingDialogController($scope, $mdDialog, bindingRepository, bindingService, configService, configDescriptionService, toastService, binding) {
         $scope.binding = binding;
         $scope.parameters = [];
         $scope.config = {};
@@ -73,4 +74,4 @@
             }
         });
     }
-})()
+})();

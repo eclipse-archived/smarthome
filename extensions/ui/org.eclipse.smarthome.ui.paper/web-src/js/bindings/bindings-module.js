@@ -1,6 +1,7 @@
+;
 (function() {
     'use strict';
 
-    angular.module('PaperUI.bindings', [ 'ngRoute', 'PaperUI.directive.searchField' ])
+    angular.module('PaperUI.bindings', [ 'ngRoute', 'PaperUI.directive.searchField' ]);
 
-})()
+})();

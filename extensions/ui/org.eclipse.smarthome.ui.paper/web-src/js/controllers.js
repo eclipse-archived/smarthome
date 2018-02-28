@@ -1,5 +1,5 @@
 angular.module('PaperUI.controllers', [ 'PaperUI.constants' ])//
-.controller('BodyController', function($rootScope, $scope, $http, $location, $timeout, eventService, toastService, discoveryResultRepository, thingTypeRepository, bindingRepository, itemRepository, restConfig, util) {
+.controller('BodyController', function($rootScope, $scope, $http, $location, $timeout, eventService, toastService, discoveryResultRepository, thingTypeRepository, bindingRepository, itemRepository, restConfig, util, titleService) {
     $scope.scrollTop = 0;
     $(window).scroll(function() {
         $scope.$apply(function(scope) {
@@ -9,10 +9,18 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ])//
     $scope.isBigTitle = function() {
         return $scope.scrollTop < 80 && !$rootScope.simpleHeader;
     }
+
+    titleService.onTitle(function(title) {
+        $rootScope.title = title;
+    })
+    titleService.onSubtitles(function(subtitles) {
+        $scope.subtitles = subtitles;
+    })
+
     $scope.setTitle = function(title) {
         $rootScope.title = title;
     }
-    $scope.subtitles = [];
+
     $scope.setSubtitle = function(args) {
         $scope.subtitles = [];
         $.each(args, function(i, subtitle) {

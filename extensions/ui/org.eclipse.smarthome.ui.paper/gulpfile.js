@@ -38,7 +38,9 @@ var paths = {
     }, {
         'src': [
             './web-src/js/services/controller*.js',
-            './web-src/js/bindings/controller*.js',
+            './web-src/js/bindings/bindings-module.js',
+            './web-src/js/bindings/route-config.js',
+            './web-src/js/bindings/binding-config-dialog.js',
             './web-src/js/items/controller*.js',
             './web-src/js/system/controller*.js',
             './web-src/js/things/controller*.js',
@@ -203,7 +205,7 @@ function browserSyncInit(baseDir) {
     });
 }
 
-gulp.task('serve', ['inject'], function () {
+gulp.task('serve', ['test'], function () {
     browserSyncInit(isDevelopment ? ['./web-src', './web'] : './web');
 });
 
@@ -231,7 +233,6 @@ gulp.task('inject', ['build'], function () {
                      './web-src/js/services/controller*.js',
                      './web-src/js/bindings/bindings-module.js',
                      './web-src/js/bindings/route-config.js',
-                     './web-src/js/bindings/binding-details.js',
                      './web-src/js/bindings/binding-config-dialog.js',
                      './web-src/js/items/controller*.js',
                      './web-src/js/system/controller*.js',
