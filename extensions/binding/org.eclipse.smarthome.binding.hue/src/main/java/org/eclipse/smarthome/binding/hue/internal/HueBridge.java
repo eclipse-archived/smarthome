@@ -687,12 +687,11 @@ public class HueBridge {
         try {
             scheduleCommand = null;
             callback.onScheduleCommand(this);
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
             // Command will automatically fail to return a result because of deferred execution
-        } finally {
-            if (scheduleCommand != null && Util.stringSize(scheduleCommand.getBody()) > 90) {
-                throw new InvalidCommandException("Commmand body is larger than 90 bytes");
-            }
+        }
+        if (scheduleCommand != null && Util.stringSize(scheduleCommand.getBody()) > 90) {
+            throw new InvalidCommandException("Commmand body is larger than 90 bytes");
         }
 
         // Restore HTTP client
