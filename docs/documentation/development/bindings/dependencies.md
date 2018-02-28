@@ -45,6 +45,8 @@ You might also have the need to use other libraries for specific use cases like 
  - org.eclipse.jetty.http.*  
  - org.eclipse.jetty.util.*  
  
+Note: HttpClient instances should be obtained through the `HttpClientFactory` service and unless there are specific configuration requirements, the shared instance should be used.
+ 
 ## 3rd Party Libraries
 
 If you want your binding to rely on a custom library that might not even be an OSGi bundle, you can embed it in your bundle as a jar file following these steps: 

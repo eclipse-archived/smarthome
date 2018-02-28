@@ -27,7 +27,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.eclipse.smarthome.io.net.http.CommonHttpClient;
 import org.eclipse.smarthome.io.net.http.HttpClientFactory;
 import org.eclipse.smarthome.io.net.http.TrustManagerProvider;
 import org.osgi.service.component.annotations.Activate;
@@ -65,7 +64,6 @@ public class SecureHttpClientFactory implements HttpClientFactory {
 
     private QueuedThreadPool threadPool = null;
     private HttpClient commonHttpClient = null;
-    private CommonHttpClient commonHttpClientFacade = null;
 
     private int minThreadsShared;
     private int maxThreadsShared;
@@ -94,7 +92,6 @@ public class SecureHttpClientFactory implements HttpClientFactory {
         try {
             if (commonHttpClient != null) {
                 commonHttpClient.stop();
-                commonHttpClientFacade = null;
                 commonHttpClient = null;
                 threadPool = null;
                 logger.info("jetty shared http client stopped");
@@ -115,10 +112,10 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     }
 
     @Override
-    public CommonHttpClient getCommonHttpClient() {
+    public HttpClient getCommonHttpClient() {
         initialize();
         logger.debug("shared httpClient requested");
-        return commonHttpClientFacade;
+        return commonHttpClient;
     }
 
     private void getConfigParameters(Map<String, Object> parameters) {
@@ -168,7 +165,6 @@ public class SecureHttpClientFactory implements HttpClientFactory {
 
                         if (commonHttpClient == null) {
                             commonHttpClient = createHttpClientInternal("common", null);
-                            commonHttpClientFacade = new HttpClientDelegate(commonHttpClient);
                             logger.info("jetty shared http client created");
                         }
 

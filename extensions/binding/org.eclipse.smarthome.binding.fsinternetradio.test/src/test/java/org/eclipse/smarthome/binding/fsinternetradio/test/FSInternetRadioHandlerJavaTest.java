@@ -15,7 +15,7 @@ package org.eclipse.smarthome.binding.fsinternetradio.test;
 import static org.eclipse.smarthome.binding.fsinternetradio.FSInternetRadioBindingConstants.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.isA;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
@@ -23,10 +23,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.servlet.ServletException;
-
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.smarthome.binding.fsinternetradio.FSInternetRadioBindingConstants;
 import org.eclipse.smarthome.binding.fsinternetradio.handler.FSInternetRadioHandler;
@@ -63,7 +62,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.osgi.service.http.NamespaceException;
 
 /**
  * OSGi tests for the {@link FSInternetRadioHandler}.
@@ -111,6 +109,8 @@ public class FSInternetRadioHandlerJavaTest extends JavaTest {
     private FSInternetRadioHandler radioHandler;
     private Thing radioThing;
 
+    private static HttpClient httpClient;
+
     // default configuration properties
     private static final String DEFAULT_CONFIG_PROPERTY_IP = "127.0.0.1";
     private static final String DEFAULT_CONFIG_PROPERTY_PIN = "1234";
@@ -126,16 +126,19 @@ public class FSInternetRadioHandlerJavaTest extends JavaTest {
         server = new TestServer(DEFAULT_CONFIG_PROPERTY_IP, DEFAULT_CONFIG_PROPERTY_PORT, TIMEOUT, holder);
         setTheChannelsMap();
         server.startServer();
+        httpClient = new HttpClient();
+        httpClient.start();
     }
 
     @Before
-    public void setUp() throws ServletException, NamespaceException {
+    public void setUp() {
         createThePowerChannel();
     }
 
     @AfterClass
-    public static void tearDownClass() {
+    public static void tearDownClass() throws Exception {
         server.stopServer();
+        httpClient.stop();
     }
 
     private static @NonNull Channel getChannel(final @NonNull Thing thing, final @NonNull String channelId) {
@@ -829,7 +832,7 @@ public class FSInternetRadioHandlerJavaTest extends JavaTest {
 
         callback = mock(ThingHandlerCallback.class);
 
-        radioHandler = new FSInternetRadioHandler(radioThing);
+        radioHandler = new FSInternetRadioHandler(radioThing, httpClient);
         radioHandler.setCallback(callback);
         radioThing.setHandler(radioHandler);
         radioThing.getHandler().initialize();
@@ -844,7 +847,7 @@ public class FSInternetRadioHandlerJavaTest extends JavaTest {
 
         callback = mock(ThingHandlerCallback.class);
 
-        radioHandler = new MockedRadioHandler(radioThing);
+        radioHandler = new MockedRadioHandler(radioThing, httpClient);
         radioHandler.setCallback(callback);
         radioThing.setHandler(radioHandler);
         radioThing.getHandler().initialize();

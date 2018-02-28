@@ -16,6 +16,8 @@ import static org.eclipse.smarthome.binding.fsinternetradio.internal.radio.Front
 
 import java.io.IOException;
 
+import org.eclipse.jetty.client.HttpClient;
+
 /**
  * Class representing a internet radio based on the frontier silicon chipset. Tested with "hama IR110" and Medion
  * MD87180" internet radios.
@@ -27,7 +29,7 @@ import java.io.IOException;
 public class FrontierSiliconRadio {
 
     /** The http connection/session used for controlling the radio. */
-    private FrontierSiliconRadioConnection conn;
+    private final FrontierSiliconRadioConnection conn;
 
     /** the volume of the radio. we cache it for fast increase/decrease. */
     private int currentVolume = 0;
@@ -35,17 +37,15 @@ public class FrontierSiliconRadio {
     /**
      * Constructor for the Radio class
      *
-     * @param hostname
-     *            Host name of the Radio addressed, e.g. "192.168.0.100"
-     * @param port
-     *            Port number, default: 80 (http)
-     * @param pin
-     *            Access PIN number of the radio. Must be 4 digits, e.g. "1234"
+     * @param hostname Host name of the Radio addressed, e.g. "192.168.0.100"
+     * @param port Port number, default: 80 (http)
+     * @param pin Access PIN number of the radio. Must be 4 digits, e.g. "1234"
+     * @param httpClient http client instance to use
      *
      * @author Rainer Ostendorf
      */
-    public FrontierSiliconRadio(String hostname, int port, String pin) {
-        this.conn = new FrontierSiliconRadioConnection(hostname, port, pin);
+    public FrontierSiliconRadio(String hostname, int port, String pin, HttpClient httpClient) {
+        this.conn = new FrontierSiliconRadioConnection(hostname, port, pin, httpClient);
     }
 
     public boolean isLoggedIn() {
@@ -239,10 +239,4 @@ public class FrontierSiliconRadio {
         conn.doRequest(REQUEST_SET_MUTE, params);
     }
 
-    /**
-     * Closes the Http Client used to make requests to the radio
-     */
-    public void closeClient() {
-        conn.close();
-    }
 }
