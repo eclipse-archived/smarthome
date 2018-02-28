@@ -1,29 +1,25 @@
 describe('module PaperUI.bindings', function() {
     beforeEach(function() {
-        module('PaperUI');
+        module('PaperUI.bindings');
     });
-    describe('tests for BindingController', function() {
-        var bindingController, scope, mdDialog;
-        beforeEach(inject(function($injector, $rootScope, $controller, $mdDialog) {
-            scope = $rootScope.$new();
-            mdDialog = $mdDialog
-            $controller('BodyController', {
-                '$scope' : scope
-            });
-            bindingController = $controller('BindingController', {
-                '$scope' : scope
-            });
+    describe('the BindingList directive', function() {
+        var bindingsList;
+        beforeEach(inject(function($compile, $rootScope) {
+            bindingsList = $compile('<bindings-list />')($rootScope)
         }));
-        it('should require BindingController', function() {
-            expect(bindingController).toBeDefined();
-        });
+
+        it('should compile', function() {
+            expect(bindingsList).toBeDefined();
+        })
     });
 
-    describe('tests for ConfigureBindingDialogController', function() {
+    describe('the ConfigureBindingDialogController', function() {
         var configureBindingDialogController, scope, bindingService;
         var restConfig;
         beforeEach(inject(function($injector, $rootScope, $controller) {
+            $rootScope.data = {};
             scope = $rootScope.$new();
+
             var bindingRepository = $injector.get('bindingRepository');
             restConfig = $injector.get('restConfig');
             $rootScope.data.bindings = [ {
