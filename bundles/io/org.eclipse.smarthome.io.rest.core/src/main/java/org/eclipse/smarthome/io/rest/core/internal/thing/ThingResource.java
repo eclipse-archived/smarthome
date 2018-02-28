@@ -77,6 +77,9 @@ import org.eclipse.smarthome.core.thing.i18n.ThingStatusInfoI18nLocalizationServ
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHelper;
@@ -134,6 +137,7 @@ public class ThingResource implements RESTResource {
     private ConfigStatusService configStatusService;
     private ConfigDescriptionRegistry configDescRegistry;
     private ThingTypeRegistry thingTypeRegistry;
+    private ChannelTypeRegistry channelTypeRegistry;
     private ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService;
     private FirmwareUpdateService firmwareUpdateService;
 
@@ -179,6 +183,7 @@ public class ThingResource implements RESTResource {
         // turn the ThingDTO's configuration into a Configuration
         Configuration configuration = new Configuration(
                 normalizeConfiguration(thingBean.configuration, thingTypeUID, thingUID));
+        normalizeChannels(thingBean, thingUID);
 
         Thing thing = thingRegistry.createThingOfType(thingTypeUID, thingUID, bridgeUID, thingBean.label,
                 configuration);
@@ -350,6 +355,7 @@ public class ThingResource implements RESTResource {
         // check configuration
         thingBean.configuration = normalizeConfiguration(thingBean.configuration, thing.getThingTypeUID(),
                 thing.getUID());
+        normalizeChannels(thingBean, thing.getUID());
 
         thing = ThingHelper.merge(thing, thingBean);
 
@@ -712,6 +718,15 @@ public class ThingResource implements RESTResource {
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry;
+    }
+
+    protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setFirmwareUpdateService(FirmwareUpdateService firmwareUpdateService) {
         this.firmwareUpdateService = firmwareUpdateService;
     }
@@ -754,8 +769,62 @@ public class ThingResource implements RESTResource {
         return ConfigUtil.normalizeTypes(properties, configDescriptions);
     }
 
+    private Map<String, Object> normalizeConfiguration(Map<String, Object> properties, ChannelTypeUID channelTypeUID,
+            ChannelUID channelUID) {
+        if (properties == null || properties.isEmpty()) {
+            return properties;
+        }
+
+        ChannelType channelType = channelTypeRegistry.getChannelType(channelTypeUID);
+        if (channelType == null) {
+            return properties;
+        }
+
+        List<ConfigDescription> configDescriptions = new ArrayList<>(2);
+        if (channelType.getConfigDescriptionURI() != null) {
+            ConfigDescription typeConfigDesc = configDescRegistry
+                    .getConfigDescription(channelType.getConfigDescriptionURI());
+            if (typeConfigDesc != null) {
+                configDescriptions.add(typeConfigDesc);
+            }
+        }
+        if (getConfigDescriptionURI(channelUID) != null) {
+            ConfigDescription channelConfigDesc = configDescRegistry
+                    .getConfigDescription(getConfigDescriptionURI(channelUID));
+            if (channelConfigDesc != null) {
+                configDescriptions.add(channelConfigDesc);
+            }
+        }
+
+        if (configDescriptions.isEmpty()) {
+            return properties;
+        }
+
+        return ConfigUtil.normalizeTypes(properties, configDescriptions);
+    }
+
+    private void normalizeChannels(ThingDTO thingBean, ThingUID thingUID) {
+        if (thingBean.channels != null) {
+            for (ChannelDTO channelBean : thingBean.channels) {
+                if (channelBean.channelTypeUID != null) {
+                    channelBean.configuration = normalizeConfiguration(channelBean.configuration,
+                            new ChannelTypeUID(channelBean.channelTypeUID), new ChannelUID(thingUID, channelBean.id));
+                }
+            }
+        }
+    }
+
     private URI getConfigDescriptionURI(ThingUID thingUID) {
         String uriString = "thing:" + thingUID;
+        try {
+            return new URI(uriString);
+        } catch (URISyntaxException e) {
+            throw new BadRequestException("Invalid URI syntax: " + uriString);
+        }
+    }
+
+    private URI getConfigDescriptionURI(ChannelUID channelUID) {
+        String uriString = "channel:" + channelUID;
         try {
             return new URI(uriString);
         } catch (URISyntaxException e) {
@@ -768,7 +837,7 @@ public class ThingResource implements RESTResource {
         return itemChannelLinkRegistry != null && itemFactory != null && itemRegistry != null
                 && managedItemChannelLinkProvider != null && managedItemProvider != null && managedThingProvider != null
                 && thingRegistry != null && configStatusService != null && configDescRegistry != null
-                && thingTypeRegistry != null && firmwareUpdateService != null
+                && thingTypeRegistry != null && channelTypeRegistry != null && firmwareUpdateService != null
                 && thingStatusInfoI18nLocalizationService != null;
     }
 
