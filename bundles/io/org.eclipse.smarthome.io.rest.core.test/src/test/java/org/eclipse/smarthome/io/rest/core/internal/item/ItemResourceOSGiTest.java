@@ -31,7 +31,6 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
@@ -49,9 +48,9 @@ import com.jayway.jsonpath.JsonPath;
 
 public class ItemResourceOSGiTest extends JavaOSGiTest {
 
-    private static final @NonNull String ITEM_NAME1 = "Item1";
-    private static final @NonNull String ITEM_NAME2 = "Item2";
-    private static final @NonNull String ITEM_NAME3 = "Item3";
+    private static final String ITEM_NAME1 = "Item1";
+    private static final String ITEM_NAME2 = "Item2";
+    private static final String ITEM_NAME3 = "Item3";
 
     private GenericItem item1;
     private GenericItem item2;
