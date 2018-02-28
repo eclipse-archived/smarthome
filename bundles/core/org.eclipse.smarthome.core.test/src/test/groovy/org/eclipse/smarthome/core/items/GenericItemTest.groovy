@@ -132,7 +132,7 @@ class GenericItemTest {
         def item = new TestItem("test");
         item.setEventPublisher(mock(EventPublisher.class));
         item.setItemStateConverter(mock(ItemStateConverter.class));
-        item.setStateDescriptionProviders(Collections.emptyList());
+        item.setStateDescriptionService(null);
         item.setUnitProvider(mock(UnitProvider.class));
 
         item.addStateChangeListener(mock(StateChangeListener.class));
