@@ -40,6 +40,10 @@ public class MagicConfigurableThingHandler extends BaseThingHandler {
 
     @Override
     public void initialize() {
+        Map<String, String> properties = editProperties();
+        properties.put(Thing.PROPERTY_SERIAL_NUMBER, "345987UH230923JHDS");
+        properties.put(Thing.PROPERTY_FIRMWARE_VERSION, "v3.0.123-beta5");
+        updateProperties(properties);
         updateStatus(ThingStatus.ONLINE);
     }
 
