@@ -1,0 +1,3 @@
+eclipse.preferences.version=1
+groovy.compiler.level=-1
+groovy.script.filters=**/*.dsld,y,**/*.gradle,n

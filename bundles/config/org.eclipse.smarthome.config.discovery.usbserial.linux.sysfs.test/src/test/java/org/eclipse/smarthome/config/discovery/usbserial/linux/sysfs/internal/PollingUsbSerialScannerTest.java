@@ -1,0 +1,122 @@
+package org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs.internal;
+
+import static com.google.common.collect.Sets.newHashSet;
+import static org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs.internal.PollingUsbSerialScanner.PAUSE_BETWEEN_SCANS_IN_SECONDS_ATTRIBUTE;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDeviceInformation;
+import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDiscoveryListener;
+import org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs.UsbSerialDeviceInformationGenerator;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.google.common.collect.ImmutableMap;
+
+/**
+ * Unit tests for the {@link PollingUsbSerialScanner}.
+ *
+ * @author Henning Sudbrock - initial contribution
+ */
+public class PollingUsbSerialScannerTest {
+
+    UsbSerialDeviceInformationGenerator usbDeviceInfoGenerator = new UsbSerialDeviceInformationGenerator();
+
+    UsbSerialScanner usbSerialScanner;
+    PollingUsbSerialScanner pollingScanner;
+    UsbSerialDiscoveryListener discoveryListener;
+
+    @Before
+    public void setup() {
+        usbSerialScanner = mock(UsbSerialScanner.class);
+        pollingScanner = new PollingUsbSerialScanner();
+        pollingScanner.setUsbSerialScanner(usbSerialScanner);
+
+        discoveryListener = mock(UsbSerialDiscoveryListener.class);
+        pollingScanner.registerDiscoveryListener(discoveryListener);
+
+        pollingScanner.modified(
+                ImmutableMap.<String, Object> builder().put(PAUSE_BETWEEN_SCANS_IN_SECONDS_ATTRIBUTE, "1").build());
+    }
+
+    @Test
+    public void testNoScansWithoutBackgroundDiscovery() throws Exception {
+        // Wait a little more than one second to give background scanning a chance to kick in.
+        Thread.sleep(1200);
+
+        verify(usbSerialScanner, never()).scan();
+    }
+
+    @Test
+    public void testSingleScanReportsResultsCorrectAfterOneScan() throws Exception {
+        UsbSerialDeviceInformation usb1 = usbDeviceInfoGenerator.generate();
+        UsbSerialDeviceInformation usb2 = usbDeviceInfoGenerator.generate();
+        UsbSerialDeviceInformation usb3 = usbDeviceInfoGenerator.generate();
+
+        when(usbSerialScanner.scan()).thenReturn(newHashSet(usb1, usb2));
+
+        pollingScanner.doSingleScan();
+
+        // Expectation: discovery listener called with newly discovered devices usb1 and usb2; not called with removed
+        // devices.
+
+        verify(discoveryListener, times(1)).usbSerialDeviceDiscovered(usb1);
+        verify(discoveryListener, times(1)).usbSerialDeviceDiscovered(usb2);
+        verify(discoveryListener, never()).usbSerialDeviceDiscovered(usb3);
+
+        verify(discoveryListener, never()).usbSerialDeviceRemoved(any(UsbSerialDeviceInformation.class));
+    }
+
+    @Test
+    public void testSingleScanReportsResultsCorrectlyAfterTwoScans() throws Exception {
+        UsbSerialDeviceInformation usb1 = usbDeviceInfoGenerator.generate();
+        UsbSerialDeviceInformation usb2 = usbDeviceInfoGenerator.generate();
+        UsbSerialDeviceInformation usb3 = usbDeviceInfoGenerator.generate();
+
+        when(usbSerialScanner.scan()).thenReturn(newHashSet(usb1, usb2)).thenReturn(newHashSet(usb2, usb3));
+
+        pollingScanner.unregisterDiscoveryListener(discoveryListener);
+        pollingScanner.doSingleScan();
+
+        pollingScanner.registerDiscoveryListener(discoveryListener);
+        pollingScanner.doSingleScan();
+
+        // Expectation: discovery listener called once for removing usb1, and once for adding usb2/usb3 each.
+
+        verify(discoveryListener, never()).usbSerialDeviceDiscovered(usb1);
+        verify(discoveryListener, times(1)).usbSerialDeviceRemoved(usb1);
+
+        verify(discoveryListener, times(1)).usbSerialDeviceDiscovered(usb2);
+        verify(discoveryListener, never()).usbSerialDeviceRemoved(usb2);
+
+        verify(discoveryListener, times(1)).usbSerialDeviceDiscovered(usb3);
+        verify(discoveryListener, never()).usbSerialDeviceRemoved(usb3);
+    }
+
+    @Test
+    public void testBackgroundScanning() throws Exception {
+        UsbSerialDeviceInformation usb1 = usbDeviceInfoGenerator.generate();
+        UsbSerialDeviceInformation usb2 = usbDeviceInfoGenerator.generate();
+        UsbSerialDeviceInformation usb3 = usbDeviceInfoGenerator.generate();
+
+        when(usbSerialScanner.scan()).thenReturn(newHashSet(usb1, usb2)).thenReturn(newHashSet(usb2, usb3));
+
+        pollingScanner.startBackgroundScanning();
+
+        Thread.sleep(1500);
+
+        pollingScanner.stopBackgroundScanning();
+
+        // Expectation: discovery listener called once for each discovered deviec; once for removal of usb1
+
+        verify(discoveryListener, times(1)).usbSerialDeviceDiscovered(usb1);
+        verify(discoveryListener, times(1)).usbSerialDeviceRemoved(usb1);
+
+        verify(discoveryListener, times(1)).usbSerialDeviceDiscovered(usb2);
+        verify(discoveryListener, never()).usbSerialDeviceRemoved(usb2);
+
+        verify(discoveryListener, times(1)).usbSerialDeviceDiscovered(usb3);
+        verify(discoveryListener, never()).usbSerialDeviceRemoved(usb3);
+    }
+
+}
