@@ -73,7 +73,7 @@ public class ThingPropertiesTest extends JavaOSGiTest {
         assertEquals("value2", value);
         assertEquals(2, thing.getProperties().size());
         assertEquals("value1", thing.getProperties().get("key1"));
-        assertEquals("value2", thing.getProperties().get("key3"));
+        assertEquals("value3", thing.getProperties().get("key2"));
     }
 
     @Test
