@@ -16,19 +16,22 @@ angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ])
         });
     };
 
-    $scope.getRuleJSON = function(sharedProperties, uid, name, desc) {
+    $scope.getRuleJSON = function(sharedProperties, uid, name, desc, config) {
+
         var rule = {
             tags : [],
             conditions : sharedProperties.getModuleJSON('condition'),
             description : desc,
             name : name,
             triggers : sharedProperties.getModuleJSON('trigger'),
-            configDescriptions : [],
             actions : sharedProperties.getModuleJSON('action')
         };
 
         if (uid) {
             rule.uid = uid;
+        }
+        if (config) {
+            rule.configurations = config;
         }
 
         return rule;
@@ -128,7 +131,7 @@ angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ])
             toastService.showDefaultToast('Rule executed.');
         });
     }
-}).controller('NewRuleController', function($scope, itemRepository, ruleService, ruleRepository, toastService, $mdDialog, sharedProperties, moduleTypeService) {
+}).controller('NewRuleController', function($scope, itemRepository, ruleService, ruleRepository, toastService, $mdDialog, sharedProperties, moduleTypeService, configService) {
     $scope.setSubtitle([ 'New Rule' ]);
     itemRepository.getAll();
     sharedProperties.reset();
@@ -142,6 +145,8 @@ angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ])
             $scope.name = data.name;
             $scope.description = data.description;
             $scope.status = data.status;
+            $scope.parameters = configService.getRenderingModel(data.configDescriptions);
+            $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
             setModuleArrays(data);
         });
         $scope.setTitle('Edit ' + ruleUID);
@@ -176,7 +181,7 @@ angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ])
 
     $scope.updateUserRule = function() {
 
-        var rule = $scope.getRuleJSON(sharedProperties, $scope.path[3], $scope.name, $scope.description);
+        var rule = $scope.getRuleJSON(sharedProperties, $scope.path[3], $scope.name, $scope.description, $scope.configuration);
         ruleService.update({
             ruleUID : $scope.path[3]
         }, rule).$promise.then(function() {
