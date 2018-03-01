@@ -12,8 +12,7 @@
  */
 package org.eclipse.smarthome.core.thing;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,38 +51,38 @@ public class ThingPropertiesTest extends JavaOSGiTest {
 
     @Test
     public void gestGetProperties() {
-        assertThat(thing.getProperties().size(), is(2));
-        assertThat(thing.getProperties().get("key1"), is("value1"));
-        assertThat(thing.getProperties().get("key2"), is("value2"));
+        assertEquals(2, thing.getProperties().size());
+        assertEquals("value1", thing.getProperties().get("key1"));
+        assertEquals("value2", thing.getProperties().get("key2"));
     }
 
     @Test
     public void testSetProperty_newKey() {
         thing.setProperty("key3", "value3");
 
-        assertThat(thing.getProperties().size(), is(3));
-        assertThat(thing.getProperties().get("key1"), is("value1"));
-        assertThat(thing.getProperties().get("key2"), is("value2"));
-        assertThat(thing.getProperties().get("key3"), is("value3"));
+        assertEquals(3, thing.getProperties().size());
+        assertEquals("value1", thing.getProperties().get("key1"));
+        assertEquals("value2", thing.getProperties().get("key2"));
+        assertEquals("value3", thing.getProperties().get("key3"));
     }
 
     @Test
     public void testSetProperty_newValue() {
         String value = thing.setProperty("key2", "value3");
 
-        assertThat(value, is("value2"));
-        assertThat(thing.getProperties().size(), is(2));
-        assertThat(thing.getProperties().get("key1"), is("value1"));
-        assertThat(thing.getProperties().get("key2"), is("value3"));
+        assertEquals("value2", value);
+        assertEquals(2, thing.getProperties().size());
+        assertEquals("value1", thing.getProperties().get("key1"));
+        assertEquals("value2", thing.getProperties().get("key3"));
     }
 
     @Test
     public void testRemoveProperty() {
         String value = thing.setProperty("key1", null);
 
-        assertThat(value, is("value1"));
-        assertThat(thing.getProperties().size(), is(1));
-        assertThat(thing.getProperties().get("key2"), is("value2"));
+        assertEquals("value1", value);
+        assertEquals(1, thing.getProperties().size());
+        assertEquals("value2", thing.getProperties().get("key2"));
     }
 
     @Test(expected = IllegalArgumentException.class)

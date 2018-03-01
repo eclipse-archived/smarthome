@@ -13,7 +13,7 @@
 package org.eclipse.smarthome.core.thing.events;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -68,22 +68,22 @@ public class ThingEventFactoryTest extends JavaOSGiTest {
 
         assertThat(event, is(instanceOf(ThingStatusInfoEvent.class)));
         ThingStatusInfoEvent statusEvent = (ThingStatusInfoEvent) event;
-        assertThat(statusEvent.getType(), is(ThingStatusInfoEvent.TYPE));
-        assertThat(statusEvent.getTopic(), is(THING_STATUS_EVENT_TOPIC));
-        assertThat(statusEvent.getPayload(), is(THING_STATUS_EVENT_PAYLOAD));
-        assertThat(statusEvent.getStatusInfo(), is(THING_STATUS_INFO));
-        assertThat(statusEvent.getThingUID(), is(THING_UID));
+        assertEquals(ThingStatusInfoEvent.TYPE, statusEvent.getType());
+        assertEquals(THING_STATUS_EVENT_TOPIC, statusEvent.getTopic());
+        assertEquals(THING_STATUS_EVENT_PAYLOAD, statusEvent.getPayload());
+        assertEquals(THING_STATUS_INFO, statusEvent.getStatusInfo());
+        assertEquals(THING_UID, statusEvent.getThingUID());
     }
 
     @Test
     public void testCreateStatusInfoEvent() {
         ThingStatusInfoEvent event = ThingEventFactory.createStatusInfoEvent(THING_UID, THING_STATUS_INFO);
 
-        assertThat(event.getType(), is(ThingStatusInfoEvent.TYPE));
-        assertThat(event.getTopic(), is(THING_STATUS_EVENT_TOPIC));
-        assertThat(event.getPayload(), is(THING_STATUS_EVENT_PAYLOAD));
-        assertThat(event.getStatusInfo(), is(THING_STATUS_INFO));
-        assertThat(event.getThingUID(), is(THING_UID));
+        assertEquals(ThingStatusInfoEvent.TYPE, event.getType());
+        assertEquals(THING_STATUS_EVENT_TOPIC, event.getTopic());
+        assertEquals(THING_STATUS_EVENT_PAYLOAD, event.getPayload());
+        assertEquals(THING_STATUS_INFO, event.getStatusInfo());
+        assertEquals(THING_UID, event.getThingUID());
     }
 
     @Test
@@ -93,33 +93,33 @@ public class ThingEventFactoryTest extends JavaOSGiTest {
 
         assertThat(event, is(instanceOf(ThingAddedEvent.class)));
         ThingAddedEvent addedEvent = (ThingAddedEvent) event;
-        assertThat(addedEvent.getType(), is(ThingAddedEvent.TYPE));
-        assertThat(addedEvent.getTopic(), is(THING_ADDED_EVENT_TOPIC));
-        assertThat(addedEvent.getPayload(), is(THING_ADDED_EVENT_PAYLOAD));
-        assertThat(addedEvent.getThing(), not(nullValue()));
-        assertThat(addedEvent.getThing().UID, is(THING_UID.getAsString()));
+        assertEquals(ThingAddedEvent.TYPE, addedEvent.getType());
+        assertEquals(THING_ADDED_EVENT_TOPIC, addedEvent.getTopic());
+        assertEquals(THING_ADDED_EVENT_PAYLOAD, addedEvent.getPayload());
+        assertNotNull(addedEvent.getThing());
+        assertEquals(THING_UID.getAsString(), addedEvent.getThing().UID);
     }
 
     @Test
     public void testCreateAddedEvent() {
         ThingAddedEvent event = ThingEventFactory.createAddedEvent(THING);
 
-        assertThat(event.getType(), is(ThingAddedEvent.TYPE));
-        assertThat(event.getTopic(), is(THING_ADDED_EVENT_TOPIC));
-        assertThat(event.getPayload(), is(THING_ADDED_EVENT_PAYLOAD));
-        assertThat(event.getThing(), not(nullValue()));
-        assertThat(event.getThing().UID, is(THING_UID.getAsString()));
+        assertEquals(ThingAddedEvent.TYPE, event.getType());
+        assertEquals(THING_ADDED_EVENT_TOPIC, event.getTopic());
+        assertEquals(THING_ADDED_EVENT_PAYLOAD, event.getPayload());
+        assertNotNull(event.getThing());
+        assertEquals(THING_UID.getAsString(), event.getThing().UID);
     }
 
     @Test
     public void testCreateTriggerEvent() {
         ChannelTriggeredEvent event = ThingEventFactory.createTriggerEvent(CommonTriggerEvents.PRESSED, CHANNEL_UID);
 
-        assertThat(event.getType(), is(ChannelTriggeredEvent.TYPE));
-        assertThat(event.getTopic(), is(CHANNEL_TRIGGERED_EVENT_TOPIC));
-        assertThat(event.getPayload(), is(CHANNEL_TRIGGERED_EVENT_PAYLOAD));
-        assertThat(event.getEvent(), not(nullValue()));
-        assertThat(event.getEvent(), is(CommonTriggerEvents.PRESSED));
+        assertEquals(ChannelTriggeredEvent.TYPE, event.getType());
+        assertEquals(CHANNEL_TRIGGERED_EVENT_TOPIC, event.getTopic());
+        assertEquals(CHANNEL_TRIGGERED_EVENT_PAYLOAD, event.getPayload());
+        assertNotNull(event.getEvent());
+        assertEquals(CommonTriggerEvents.PRESSED, event.getEvent());
     }
 
     @Test
@@ -129,10 +129,10 @@ public class ThingEventFactoryTest extends JavaOSGiTest {
 
         assertThat(event, is(instanceOf(ChannelTriggeredEvent.class)));
         ChannelTriggeredEvent triggeredEvent = (ChannelTriggeredEvent) event;
-        assertThat(triggeredEvent.getType(), is(ChannelTriggeredEvent.TYPE));
-        assertThat(triggeredEvent.getTopic(), is(CHANNEL_TRIGGERED_EVENT_TOPIC));
-        assertThat(triggeredEvent.getPayload(), is(CHANNEL_TRIGGERED_EVENT_PAYLOAD));
-        assertThat(triggeredEvent.getEvent(), not(nullValue()));
-        assertThat(triggeredEvent.getEvent(), is(CommonTriggerEvents.PRESSED));
+        assertEquals(ChannelTriggeredEvent.TYPE, triggeredEvent.getType());
+        assertEquals(CHANNEL_TRIGGERED_EVENT_TOPIC, triggeredEvent.getTopic());
+        assertEquals(CHANNEL_TRIGGERED_EVENT_PAYLOAD, triggeredEvent.getPayload());
+        assertNotNull(triggeredEvent.getEvent());
+        assertEquals(CommonTriggerEvents.PRESSED, triggeredEvent.getEvent());
     }
 }

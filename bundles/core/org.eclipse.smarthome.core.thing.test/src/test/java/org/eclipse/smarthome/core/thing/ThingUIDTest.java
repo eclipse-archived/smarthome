@@ -12,8 +12,7 @@
  */
 package org.eclipse.smarthome.core.thing;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
@@ -24,17 +23,17 @@ public class ThingUIDTest {
         ThingTypeUID thingType = new ThingTypeUID("fake", "type");
         ThingUID t = new ThingUID(thingType, "gaga");
 
-        assertThat(t.getThingTypeId(), is("type"));
-        assertThat(t.getId(), is("gaga"));
-        assertThat(t.getAsString(), is("fake:type:gaga"));
+        assertEquals("type", t.getThingTypeId());
+        assertEquals("gaga", t.getId());
+        assertEquals("fake:type:gaga", t.getAsString());
     }
 
     @Test
     public void testTwoSegments() {
         ThingUID t = new ThingUID("fake", "gaga");
 
-        assertThat(t.getThingTypeId(), is(nullValue()));
-        assertThat(t.getId(), is("gaga"));
-        assertThat(t.getAsString(), is("fake::gaga"));
+        assertNull(t.getThingTypeId());
+        assertEquals("gaga", t.getId());
+        assertEquals("fake::gaga", t.getAsString());
     }
 }

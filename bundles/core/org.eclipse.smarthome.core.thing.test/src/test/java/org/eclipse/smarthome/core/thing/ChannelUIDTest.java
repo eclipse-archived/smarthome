@@ -12,8 +12,7 @@
  */
 package org.eclipse.smarthome.core.thing;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
@@ -22,10 +21,10 @@ public class ChannelUIDTest {
     @Test
     public void testChannelUID() {
         ChannelUID channelUID = new ChannelUID("binding", "thing-type", "thing", "group", "id");
-        assertThat(channelUID.toString(), is("binding:thing-type:thing:group#id"));
-        assertThat(channelUID.isInGroup(), is(true));
-        assertThat(channelUID.getId(), is("group#id"));
-        assertThat(channelUID.getIdWithoutGroup(), is("id"));
+        assertEquals("binding:thing-type:thing:group#id", channelUID.toString());
+        assertTrue(channelUID.isInGroup());
+        assertEquals("group#id", channelUID.getId());
+        assertEquals("id", channelUID.getIdWithoutGroup());
     }
 
 }
