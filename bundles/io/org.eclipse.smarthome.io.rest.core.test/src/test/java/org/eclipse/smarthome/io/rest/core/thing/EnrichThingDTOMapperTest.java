@@ -35,6 +35,8 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.firmware.dto.FirmwareStatusDTO;
+import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,6 +49,7 @@ public class EnrichThingDTOMapperTest {
     private static final String UID = "thing:uid:1";
     private static final String THING_LABEL = "label";
     private static final String LOCATION = "location";
+    private static final String REPRESENTATION_PROPERTY = "uniqueProperty";
 
     @Mock
     private Thing thing;
@@ -82,8 +85,10 @@ public class EnrichThingDTOMapperTest {
     public void shouldMapEnrichedThingDTO() {
         when(linkedItemsMap.get("1")).thenReturn(Stream.of("linkedItem1", "linkedItem2").collect(Collectors.toSet()));
 
+        ThingType thingType = ThingTypeBuilder.instance(new ThingTypeUID(THING_TYPE_UID), "label")
+                .withRepresentationProperty(REPRESENTATION_PROPERTY).build();
         EnrichedThingDTO enrichedThingDTO = EnrichedThingDTOMapper.map(thing, thingStatusInfo, firmwareStatus,
-                linkedItemsMap, true);
+                linkedItemsMap, true, thingType);
 
         assertThat(enrichedThingDTO.editable, is(true));
         assertThat(enrichedThingDTO.firmwareStatus, is(equalTo(firmwareStatus)));
@@ -97,6 +102,7 @@ public class EnrichThingDTOMapperTest {
         assertThat(enrichedThingDTO.configuration.values(), is(empty()));
         assertThat(enrichedThingDTO.properties, is(equalTo(properties)));
         assertThat(enrichedThingDTO.location, is(equalTo(LOCATION)));
+        assertThat(enrichedThingDTO.representationProperty, is(equalTo(REPRESENTATION_PROPERTY)));
     }
 
     private void assertChannels(EnrichedThingDTO enrichedThingDTO) {

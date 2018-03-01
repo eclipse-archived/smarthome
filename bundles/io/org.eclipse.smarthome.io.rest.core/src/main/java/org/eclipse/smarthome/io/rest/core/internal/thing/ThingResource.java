@@ -564,9 +564,10 @@ public class ThingResource implements RESTResource {
         ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
                 locale);
         boolean managed = managedThingProvider.get(thing.getUID()) != null;
+        ThingType thingType = thingTypeRegistry.getThingType(thing.getThingTypeUID());
         EnrichedThingDTO enrichedThingDTO = thing != null
                 ? EnrichedThingDTOMapper.map(thing, thingStatusInfo, this.getThingFirmwareStatus(thing.getUID()),
-                        getLinkedItemsMap(thing), managed)
+                        getLinkedItemsMap(thing), managed, thingType)
                 : null;
 
         return JSONResponse.createResponse(status, enrichedThingDTO, errormessage);
@@ -659,8 +660,9 @@ public class ThingResource implements RESTResource {
         boolean managed = managedThingProvider.get(thing.getUID()) != null;
         ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
                 locale);
+        ThingType thingType = thingTypeRegistry.getThingType(thing.getThingTypeUID());
         return EnrichedThingDTOMapper.map(thing, thingStatusInfo, this.getThingFirmwareStatus(thing.getUID()),
-                getLinkedItemsMap(thing), managed);
+                getLinkedItemsMap(thing), managed, thingType);
     }
 
     private Map<String, Set<String>> getLinkedItemsMap(Thing thing) {

@@ -24,6 +24,7 @@ import org.eclipse.smarthome.core.thing.dto.ChannelDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper;
 import org.eclipse.smarthome.core.thing.firmware.dto.FirmwareStatusDTO;
+import org.eclipse.smarthome.core.thing.type.ThingType;
 
 /**
  * The {@link EnrichedThingDTOMapper} is an utility class to map things into enriched thing data transfer objects
@@ -41,10 +42,11 @@ public class EnrichedThingDTOMapper extends ThingDTOMapper {
      * @param firmwareStatus the firmwareStatus to be used for the enriched object
      * @param linkedItemsMap the map of linked items to be injected into the enriched object
      * @param editable true if this thing can be edited
+     * @param thingType the thingType for the given Thing
      * @return the enriched thing DTO object
      */
     public static EnrichedThingDTO map(Thing thing, ThingStatusInfo thingStatusInfo, FirmwareStatusDTO firmwareStatus,
-            Map<String, Set<String>> linkedItemsMap, boolean editable) {
+            Map<String, Set<String>> linkedItemsMap, boolean editable, ThingType thingType) {
         ThingDTO thingDTO = ThingDTOMapper.map(thing);
 
         List<ChannelDTO> channels = new ArrayList<>();
@@ -53,7 +55,7 @@ public class EnrichedThingDTOMapper extends ThingDTOMapper {
             channels.add(new EnrichedChannelDTO(channel, linkedItems));
         }
 
-        return new EnrichedThingDTO(thingDTO, channels, thingStatusInfo, firmwareStatus, editable);
+        return new EnrichedThingDTO(thingDTO, channels, thingStatusInfo, firmwareStatus, editable, thingType);
     }
 
 }
