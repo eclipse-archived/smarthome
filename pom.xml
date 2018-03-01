@@ -533,6 +533,7 @@
                 </execution>
               </executions>
               <configuration>
+                <pmdFilter>${basedirRoot}/tools/static-code-analysis/pmd/suppressions.properties</pmdFilter>
                 <checkstyleProperties>${basedirRoot}/tools/static-code-analysis/checkstyle/ruleset.properties</checkstyleProperties>
                 <checkstyleFilter>${basedirRoot}/tools/static-code-analysis/checkstyle/suppressions.xml</checkstyleFilter>
                 <findbugsExclude>${basedirRoot}/tools/static-code-analysis/findbugs/suppressions.xml</findbugsExclude>
