@@ -18,7 +18,6 @@ import static org.junit.matchers.JUnitMatchers.*
 import javax.servlet.http.HttpServletResponse
 
 import org.eclipse.smarthome.binding.wemo.WemoBindingConstants
-import org.eclipse.smarthome.binding.wemo.handler.WemoBridgeHandler
 import org.eclipse.smarthome.binding.wemo.handler.WemoLightHandler
 import org.eclipse.smarthome.binding.wemo.test.GenericWemoHttpServlet
 import org.eclipse.smarthome.binding.wemo.test.GenericWemoLightOSGiTest
@@ -71,9 +70,6 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
 
         Thing bridge = createBridge(BRIDGE_TYPE_UID)
         Thing thing = createDefaultThing(THING_TYPE_UID)
-
-        WemoLightHandler handler
-        WemoBridgeHandler bridgeHandler
 
         waitForAssert {
             assertThat bridge.getStatus(), is(ThingStatus.ONLINE)
@@ -184,9 +180,6 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
     private assertRequestForCommand(String channelID, Command command, String action, String value, String capitability) {
         Thing bridge = createBridge(BRIDGE_TYPE_UID)
         Thing thing = createDefaultThing(THING_TYPE_UID)
-
-        WemoLightHandler handler
-        WemoBridgeHandler bridgeHandler
 
         waitForAssert {
             assertThat bridge.getStatus(), is(ThingStatus.ONLINE)
