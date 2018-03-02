@@ -186,7 +186,10 @@ public class NetUtil implements NetworkAddressService {
                 for (InterfaceAddress interfaceAddress : interfaceAddresses) {
                     final InetAddress addr = interfaceAddress.getAddress();
                     if (addr instanceof Inet4Address && !addr.isLinkLocalAddress() && !addr.isLoopbackAddress()) {
-                        broadcastAddresses.add(interfaceAddress.getBroadcast().getHostAddress());
+                        InetAddress broadCast = interfaceAddress.getBroadcast();
+                        if (broadCast != null) {
+                            broadcastAddresses.add(broadCast.getHostAddress());
+                        }
                     }
                 }
             }
