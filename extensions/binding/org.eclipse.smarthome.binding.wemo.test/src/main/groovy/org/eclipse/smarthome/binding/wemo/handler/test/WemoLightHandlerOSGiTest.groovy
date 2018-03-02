@@ -45,8 +45,6 @@ import groovy.xml.XmlUtil
  */
 class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
 
-    def BRIDGE_HANDLER_INITIALIZE_TIMEOUT = 1000;
-
     @Before
     public void setUp() {
         setUpServices()
@@ -72,8 +70,6 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
         addUpnpDevice(SERVICE_ID, SERVICE_NUMBER, DEVICE_MODEL_NAME)
 
         Thing bridge = createBridge(BRIDGE_TYPE_UID)
-        //Without this sleep a NPE could occur in the WemoBridgeHandler#initialize() method
-        sleep(BRIDGE_HANDLER_INITIALIZE_TIMEOUT)
         Thing thing = createDefaultThing(THING_TYPE_UID)
 
         WemoLightHandler handler
@@ -187,8 +183,6 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
 
     private assertRequestForCommand(String channelID, Command command, String action, String value, String capitability) {
         Thing bridge = createBridge(BRIDGE_TYPE_UID)
-        //Without this sleep a NPE could occur in the WemoBridgeHandler#initialize() method
-        sleep(BRIDGE_HANDLER_INITIALIZE_TIMEOUT)
         Thing thing = createDefaultThing(THING_TYPE_UID)
 
         WemoLightHandler handler
