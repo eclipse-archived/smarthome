@@ -19,7 +19,6 @@ import static org.junit.matchers.JUnitMatchers.*
 import javax.servlet.http.HttpServlet
 
 import org.eclipse.smarthome.binding.wemo.WemoBindingConstants
-import org.eclipse.smarthome.binding.wemo.handler.WemoMakerHandler
 import org.eclipse.smarthome.binding.wemo.test.GenericWemoHttpServlet
 import org.eclipse.smarthome.binding.wemo.test.GenericWemoOSGiTest
 import org.eclipse.smarthome.core.items.Item
@@ -27,7 +26,6 @@ import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingStatus
-import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.types.RefreshType
 import org.eclipse.smarthome.core.types.UnDefType
 import org.junit.After
@@ -85,12 +83,10 @@ class WemoMakerHandlerOSGiTest extends GenericWemoOSGiTest {
 
         addUpnpDevice(DEVICE_EVENT_SERVICE_ID, SERVICE_NUMBER, MODEL)
 
-        createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE);
+        Thing thing = createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE);
 
         waitForAssert {
-            WemoMakerHandler handler = getThingHandler(WemoMakerHandler.class)
-            assertThat handler, is(notNullValue())
-            assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
+            assertThat thing.getStatus(), is(ThingStatus.ONLINE)
         }
 
         waitForAssert{
@@ -109,12 +105,10 @@ class WemoMakerHandlerOSGiTest extends GenericWemoOSGiTest {
         def command = OnOffType.OFF
         def expectedState = "0"
 
-        createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE)
+        Thing thing = createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE)
 
         waitForAssert {
-            WemoMakerHandler handler = getThingHandler(WemoMakerHandler.class)
-            assertThat handler, is(notNullValue())
-            assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
+            assertThat thing.getStatus(), is(ThingStatus.ONLINE)
         }
 
         // The Device is registered as UPnP Device after the initialization, this will ensure that the polling job will not start
@@ -136,12 +130,10 @@ class WemoMakerHandlerOSGiTest extends GenericWemoOSGiTest {
         def expectedState = OnOffType.ON
         def command = RefreshType.REFRESH
 
-        createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE)
+        Thing thing = createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE)
 
         waitForAssert {
-            WemoMakerHandler handler = getThingHandler(WemoMakerHandler.class)
-            assertThat handler, is(notNullValue())
-            assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
+            assertThat thing.getStatus(), is(ThingStatus.ONLINE)
         }
 
         waitForAssert{
@@ -174,8 +166,7 @@ class WemoMakerHandlerOSGiTest extends GenericWemoOSGiTest {
         }
 
         waitForAssert {
-            ThingHandler thingHandler = getThingHandler(WemoMakerHandler)
-            assertThat thingHandler, is(nullValue())
+            assertThat thing.getStatus(), is(ThingStatus.UNINITIALIZED)
         }
 
         waitForAssert {
