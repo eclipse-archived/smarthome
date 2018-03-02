@@ -11,8 +11,7 @@
 		</div>
 	</div>
 	<div class="container">
-		<div class="h3" style="font-weight:300;display:inline-block">{{thing.label}}</div>
-		<div class="small" style="display:inline-block" ng-if="thing.representationProperty"> ({{thing.properties[thing.representationProperty]}})</div>
+		<h3>{{thing.label}}</h3>
 		<p>{{thingType.label}}</p>
 		<p ng-bind-html="thingType.description"></p>
 		<hr />
