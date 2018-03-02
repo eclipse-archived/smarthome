@@ -29,7 +29,7 @@ angular.module('PaperUI.controllers.things') //
         event.stopImmediatePropagation();
         $mdDialog.show({
             controller : 'RemoveThingDialogController',
-            templateUrl : 'partials/dialog.removething.html',
+            templateUrl : 'partials/things/dialog.removething.html',
             targetEvent : event,
             hasBackdrop : true,
             locals : {

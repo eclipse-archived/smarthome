@@ -52,7 +52,7 @@
 			</div>
 		</div>
 	</div>
-	<div ng-if="path[3] === 'view'" class="thing-view white-bg" ng-include="'partials/configuration.things.view.html'" ></div>
+	<div ng-if="path[3] === 'view'" class="thing-view white-bg" ng-include="'partials/things/configuration.things.view.html'" ></div>
 	<div class="thing-edit white-bg" ng-if="path[3] === 'edit'" ng-controller="EditThingController">
 		<div class="header-toolbar">
 			<md-button ng-click="navigateTo('view/' + thing.UID)" aria-label="Close"> <i class="material-icons">close</i></md-button>

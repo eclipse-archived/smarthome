@@ -1,4 +1,5 @@
-angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyController', function($rootScope, $scope, $http, $location, $timeout, eventService, toastService, discoveryResultRepository, thingTypeRepository, bindingRepository, itemRepository, restConfig, util) {
+angular.module('PaperUI.controllers', [ 'PaperUI.constants' ])//
+.controller('BodyController', function($rootScope, $scope, $http, $location, $timeout, eventService, toastService, discoveryResultRepository, thingTypeRepository, bindingRepository, itemRepository, restConfig, util) {
     $scope.scrollTop = 0;
     $(window).scroll(function() {
         $scope.$apply(function(scope) {

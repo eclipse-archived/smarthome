@@ -12,7 +12,7 @@
 			</div>
 		</div>
 		<div>
-			<div ng-include="'partials/include.inbox.html'"></div>
+			<div ng-include="'partials/setup/include.inbox.html'"></div>
 			<div class="text-center" ng-if="data.discoveryResults.length == 0">
 				<h3>Inbox is empty.</h3>
 			</div>
@@ -73,7 +73,7 @@
 					<button class="md-button" ng-click="navigateTo('setup/thing-types/' + bindingId)">Manually Add Thing</button>
 				</p>
 			</div>
-			<div ng-include="'partials/include.inbox.html'"></div>
+			<div ng-include="'partials/setup/include.inbox.html'"></div>
 			<hr />
 			<p class="text-center">
 				<span>Thing not listed?</span>

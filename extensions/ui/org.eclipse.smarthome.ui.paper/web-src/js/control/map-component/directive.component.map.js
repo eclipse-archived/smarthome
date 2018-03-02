@@ -211,7 +211,7 @@ angular.module('PaperUI.component', []) //
             model : '=',
             readOnly : '='
         },
-        templateUrl : 'partials/directive.component.map.html',
+        templateUrl : 'partials/control/map-component/directive.component.map.html',
         controller : [ '$scope', createController(mapSourceService) ],
         link : function($scope) {
             $scope.redrawMap()

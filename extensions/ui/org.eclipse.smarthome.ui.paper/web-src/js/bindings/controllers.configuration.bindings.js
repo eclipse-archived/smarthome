@@ -1,15 +1,5 @@
-angular.module('PaperUI.controllers.configuration.bindings', [ 'ngRoute', 'PaperUI.directive.searchField' ]).config([ '$routeProvider', function($routeProvider) {
-    // Configure the routes for this controller
-    $routeProvider.when('/configuration/bindings', {
-        templateUrl : 'partials/configuration.bindings.html',
-        controller : 'BindingController',
-        title : 'Configuration'
-    }).when('/configuration/bindings/:bindingId', {
-        templateUrl : 'partials/configuration.binding.html',
-        controller : 'BindingDetailController',
-        title : 'Configuration'
-    });
-} ]).controller('BindingController', function($scope, $location, $mdDialog, bindingRepository, extensionService) {
+angular.module('PaperUI.controllers.configuration.bindings', [ 'PaperUI.directive.searchField' ])//
+.controller('BindingController', function($scope, $location, $mdDialog, bindingRepository, extensionService) {
     /**
      * This is the main binding controller to display all bindings
      */
@@ -36,7 +26,7 @@ angular.module('PaperUI.controllers.configuration.bindings', [ 'ngRoute', 'Paper
         event.stopPropagation();
         $mdDialog.show({
             controller : 'ConfigureBindingDialogController',
-            templateUrl : 'partials/dialog.configurebinding.html',
+            templateUrl : 'partials/bindings/dialog.configurebinding.html',
             targetEvent : event,
             hasBackdrop : true,
             locals : {
@@ -102,7 +92,7 @@ angular.module('PaperUI.controllers.configuration.bindings', [ 'ngRoute', 'Paper
     $scope.configure = function(event) {
         $mdDialog.show({
             controller : 'ConfigureBindingDialogController',
-            templateUrl : 'partials/dialog.configurebinding.html',
+            templateUrl : 'partials/bindings/dialog.configurebinding.html',
             targetEvent : event,
             hasBackdrop : true,
             locals : {

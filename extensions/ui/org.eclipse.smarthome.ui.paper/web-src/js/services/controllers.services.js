@@ -51,7 +51,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
     $scope.configure = function(serviceId, configDescriptionURI, event) {
         $mdDialog.show({
             controller : 'ConfigurableServiceDialogController',
-            templateUrl : 'partials/dialog.configureservice.html',
+            templateUrl : 'partials/services/dialog.configureservice.html',
             targetEvent : event,
             hasBackdrop : true,
             locals : {
@@ -80,7 +80,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants', 'Pape
     $scope.configure = function(serviceId, event) {
         $mdDialog.show({
             controller : 'ConfigurableServiceDialogController',
-            templateUrl : 'partials/dialog.configureservice.html',
+            templateUrl : 'partials/services/dialog.configureservice.html',
             targetEvent : event,
             hasBackdrop : true,
             locals : {

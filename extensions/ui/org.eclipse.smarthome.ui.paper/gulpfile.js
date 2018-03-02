@@ -13,6 +13,7 @@ var angularFilesort = require('gulp-angular-filesort'),
     util = require('gulp-util'),
     Server = require('karma').Server;
 var isDevelopment = !!util.env.development;
+var noMinify = util.env.noMinify
 
 var paths = {
     scripts: [
@@ -32,15 +33,23 @@ var paths = {
         './web-src/index.html'
     ],
     concat: [{
-        'src': './web-src/js/services*.js',
+        'src': './web-src/js/**/services*.js',
         'name': 'services.js'
     }, {
         'src': [
-            './web-src/js/controllers*.js',
-            './web-src/js/controllers/*.js',
-            './web-src/js/directives/*.js',
-            './web-src/js/widget.multiselect.js',
+            './web-src/js/services/controller*.js',
+            './web-src/js/bindings/controller*.js',
+            './web-src/js/items/controller*.js',
+            './web-src/js/system/controller*.js',
+            './web-src/js/things/controller*.js',
+            './web-src/js/extensions/controller*.js',
+            './web-src/js/rules/controller*.js',
+            './web-src/js/firmware/controller*.js',
+            './web-src/js/control/controller*.js',
+            './web-src/js/setup/controller*.js',
+            './web-src/js/**/directive*.js',
             './web-src/js/filters/*.js',
+            './web-src/js/controller*.js',
             '!./web-src/js/**/*.spec.js'],
         'name': 'controllers.js'
     }, {
@@ -59,7 +68,8 @@ var paths = {
         ],
         'name': 'angular-bundle.js'
     }],
-    partials: ['./web-src/partials/*.html'],
+    partials: ['./web-src/js/**/*.html',
+               './web-src/partials/*.html'],
     JSLibs: [
         './node_modules/jquery/dist/jquery.min.js',
         './node_modules/angular/angular.min.js',
@@ -154,16 +164,20 @@ gulp.task('copyFontLibs', function () {
 
 gulp.task('concat', function () {
     return paths.concat.forEach(function (obj) {
-        return gulp.src(obj.src)
+        var result = gulp.src(obj.src)
             .pipe(angularFilesort())
             .pipe(concat(obj.name))
             .pipe(rename(function (path) {
                 path.basename += '.min';
                 return path;
-            }))
-            .pipe(ngAnnotate())
-            .pipe(uglify())
-            .pipe(gulp.dest('./web/js'));
+            }));
+        
+        if (!noMinify) {
+            result = result.pipe(ngAnnotate()).pipe(uglify());
+        }
+        result = result.pipe(gulp.dest('./web/js'));
+            
+        return result;
     });
 });
 
@@ -213,27 +227,25 @@ gulp.task('inject', ['build'], function () {
     else
     {
         files = [
-                     './web-src/js/app.js',
                      './web-src/js/constants.js',
-                     './web-src/js/controllers.services.js',
-                     './web-src/js/controllers.configuration.bindings.js',
-                     './web-src/js/controllers.system.js',
-                     './web-src/js/controllers.items.js',
-                     './web-src/js/controllers.control.js',
-                     './web-src/js/controllers.extension.js',
-                     './web-src/js/controllers.js',
-                     './web-src/js/controllers.rules.js',
-                     './web-src/js/controllers.module.js',
-                     './web-src/js/controllers.setup.js',
-                     './web-src/js/controllers/*',
-                     './web-src/js/directives/*',
-                     './web-src/js/extensions.js',
-                     './web-src/js/main.js',
-                     './web-src/js/services.js',
-                     './web-src/js/services.repositories.js',
-                     './web-src/js/services.rest.js',
-                     './web-src/js/shared.properties.js',
+                     './web-src/js/services/controller*.js',
+                     './web-src/js/bindings/controller*.js',
+                     './web-src/js/items/controller*.js',
+                     './web-src/js/system/controller*.js',
+                     './web-src/js/things/controller*.js',
+                     './web-src/js/extensions/controller*.js',
+                     './web-src/js/rules/controller*.js',
+                     './web-src/js/firmware/controller*.js',
+                     './web-src/js/control/controller*.js',
+                     './web-src/js/setup/controller*.js',
+                     './web-src/js/**/directive*.js',
+                     './web-src/js/**/service*.js',
                      './web-src/js/filters/*',
+                     './web-src/js/extensions.js',
+                     './web-src/js/controller*.js',
+                     './web-src/js/main.js',
+                     './web-src/js/shared.properties.js',
+                     './web-src/js/app.js',
                      '!./web-src/js/**/*.spec.js'
                      ]
     }    
