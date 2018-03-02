@@ -284,6 +284,16 @@ public abstract class BaseThingHandler implements ThingHandler {
         }
     }
 
+    /**
+     * Get the {@link ThingHandlerCallback} instance.
+     *
+     * @return the {@link ThingHandlerCallback} instance. Only returns {@code null} while the handler is not
+     *         initialized.
+     */
+    protected @Nullable ThingHandlerCallback getCallback() {
+        return this.callback;
+    }
+
     @Override
     public void channelLinked(ChannelUID channelUID) {
         // can be overridden by subclasses

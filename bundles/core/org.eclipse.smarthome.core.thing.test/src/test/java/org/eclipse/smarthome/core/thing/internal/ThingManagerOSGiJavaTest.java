@@ -14,6 +14,8 @@ package org.eclipse.smarthome.core.thing.internal;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
@@ -21,7 +23,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -30,6 +31,7 @@ import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.service.ReadyMarker;
 import org.eclipse.smarthome.core.service.ReadyService;
+import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -44,6 +46,10 @@ import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
+import org.eclipse.smarthome.core.thing.type.ChannelKind;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
@@ -51,7 +57,6 @@ import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -71,6 +76,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
     private final ThingTypeUID THING_TYPE_UID = new ThingTypeUID("binding:type");
     private final ThingUID THING_UID = new ThingUID(THING_TYPE_UID, "id");
     private final ChannelUID CHANNEL_UID = new ChannelUID(THING_UID, "channel");
+    private final ChannelTypeUID CHANNEL_TYPE_UID = new ChannelTypeUID("binding", "channel");
     private Thing THING;
 
     @Before
@@ -137,7 +143,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
                 doAnswer(a -> {
                     thc.set((ThingHandlerCallback) a.getArguments()[0]);
                     return null;
-                }).when(mockHandler).setCallback(Matchers.isA(ThingHandlerCallback.class));
+                }).when(mockHandler).setCallback(any(ThingHandlerCallback.class));
                 doAnswer(a -> {
                     initializeRunning.set(true);
 
@@ -167,19 +173,68 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
         }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
     }
 
+    @Test
+    public void testCreateChannelBuilder() throws Exception {
+        registerThingTypeProvider();
+        registerChannelTypeProvider();
+        AtomicReference<ThingHandlerCallback> thc = new AtomicReference<>();
+        ThingHandlerFactory thingHandlerFactory = new BaseThingHandlerFactory() {
+            @Override
+            public boolean supportsThingType(@NonNull ThingTypeUID thingTypeUID) {
+                return true;
+            }
+
+            @Override
+            protected @Nullable ThingHandler createHandler(@NonNull Thing thing) {
+                ThingHandler mockHandler = mock(ThingHandler.class);
+                doAnswer(a -> {
+                    thc.set((ThingHandlerCallback) a.getArguments()[0]);
+                    return null;
+                }).when(mockHandler).setCallback(any(ThingHandlerCallback.class));
+                when(mockHandler.getThing()).thenReturn(THING);
+                return mockHandler;
+            }
+        };
+        registerService(thingHandlerFactory, ThingHandlerFactory.class.getName());
+        new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
+
+        waitForAssert(() -> {
+            assertNotNull(thc.get());
+        });
+
+        ChannelBuilder channelBuilder = thc.get().createChannelBuilder(new ChannelUID(THING_UID, "test"),
+                CHANNEL_TYPE_UID);
+        Channel channel = channelBuilder.build();
+
+        assertThat(channel.getLabel(), is("Test Label"));
+        assertThat(channel.getDescription(), is("Test Description"));
+        assertThat(channel.getAcceptedItemType(), is("Switch"));
+        assertThat(channel.getDefaultTags().size(), is(1));
+        assertThat(channel.getDefaultTags().iterator().next(), is("Test Tag"));
+    }
+
     private void registerThingTypeProvider() throws Exception {
         URI configDescriptionUri = new URI("test:test");
         ThingType thingType = ThingTypeBuilder.instance(new ThingTypeUID("binding", "type"), "label")
                 .withConfigDescriptionURI(configDescriptionUri).build();
 
         ThingTypeProvider mockThingTypeProvider = mock(ThingTypeProvider.class);
-        when(mockThingTypeProvider.getThingType(Matchers.isA(ThingTypeUID.class), Matchers.isA(Locale.class)))
-                .thenReturn(thingType);
+        when(mockThingTypeProvider.getThingType(any(ThingTypeUID.class), any())).thenReturn(thingType);
         registerService(mockThingTypeProvider);
 
         ThingTypeRegistry mockThingTypeRegistry = mock(ThingTypeRegistry.class);
-        when(mockThingTypeRegistry.getThingType(Matchers.isA(ThingTypeUID.class))).thenReturn(thingType);
+        when(mockThingTypeRegistry.getThingType(any(ThingTypeUID.class))).thenReturn(thingType);
         registerService(mockThingTypeRegistry);
+    }
+
+    private void registerChannelTypeProvider() throws Exception {
+        ChannelType channelType = new ChannelType(CHANNEL_TYPE_UID, false, "Switch", ChannelKind.STATE, "Test Label",
+                "Test Description", "Test Category", Collections.singleton("Test Tag"), null, null,
+                new URI("test:channel"));
+
+        ChannelTypeProvider mockChannelTypeProvider = mock(ChannelTypeProvider.class);
+        when(mockChannelTypeProvider.getChannelType(eq(CHANNEL_TYPE_UID), any())).thenReturn(channelType);
+        registerService(mockChannelTypeProvider);
     }
 
     private void configureAutoLinking(Boolean on) throws IOException {

@@ -130,9 +130,8 @@ public class ThingFactoryHelper {
             return null;
         }
 
-        ChannelBuilder channelBuilder = ChannelBuilder
-                .create(new ChannelUID(thingUID, groupId, channelDefinition.getId()), type.getItemType())
-                .withType(type.getUID()).withDefaultTags(type.getTags()).withKind(type.getKind());
+        ChannelUID channelUID = new ChannelUID(thingUID, groupId, channelDefinition.getId());
+        ChannelBuilder channelBuilder = createChannelBuilder(channelUID, type, configDescriptionRegistry);
 
         // If we want to override the label, add it...
         if (channelDefinition.getLabel() != null) {
@@ -144,8 +143,25 @@ public class ThingFactoryHelper {
             channelBuilder = channelBuilder.withDescription(channelDefinition.getDescription());
         }
 
+        channelBuilder = channelBuilder.withProperties(channelDefinition.getProperties());
+        return channelBuilder.build();
+    }
+
+    static ChannelBuilder createChannelBuilder(ChannelUID channelUID, ChannelType channelType,
+            ConfigDescriptionRegistry configDescriptionRegistry) {
+        ChannelBuilder channelBuilder = ChannelBuilder.create(channelUID, channelType.getItemType()) //
+                .withType(channelType.getUID()) //
+                .withDefaultTags(channelType.getTags()) //
+                .withKind(channelType.getKind()) //
+                .withLabel(channelType.getLabel());
+
+        String description = channelType.getDescription();
+        if (description != null) {
+            channelBuilder = channelBuilder.withDescription(description);
+        }
+
         // Initialize channel configuration with default-values
-        URI channelConfigDescriptionURI = type.getConfigDescriptionURI();
+        URI channelConfigDescriptionURI = channelType.getConfigDescriptionURI();
         if (configDescriptionRegistry != null && channelConfigDescriptionURI != null) {
             ConfigDescription cd = configDescriptionRegistry.getConfigDescription(channelConfigDescriptionURI);
             if (cd != null) {
@@ -163,10 +179,7 @@ public class ThingFactoryHelper {
             }
         }
 
-        channelBuilder = channelBuilder.withProperties(channelDefinition.getProperties());
-
-        Channel channel = channelBuilder.build();
-        return channel;
+        return channelBuilder;
     }
 
     /**
