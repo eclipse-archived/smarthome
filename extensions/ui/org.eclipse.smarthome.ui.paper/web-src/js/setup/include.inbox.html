@@ -18,7 +18,7 @@
 		<div class="item-content">
 			<div class="description">
 				<h3>
-					{{discoveryResult.label}} <small ng-show="discoveryResult.flag === 'IGNORED'" class="badge">IGNORED</small>
+					{{discoveryResult.label}}<small ng-if="key === discoveryResult.representationProperty" ng-repeat="(key, value) in discoveryResult.properties")> {{value}}</small> <small ng-show="discoveryResult.flag === 'IGNORED'" class="badge">IGNORED</small>
 				</h3>
 				<p>{{getThingTypeLabel(discoveryResult.thingTypeUID)}}</p>
 				<p>{{discoveryResult.thingUID}}</p>
