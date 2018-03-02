@@ -31,6 +31,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Function;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
@@ -38,6 +39,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
+import org.eclipse.smarthome.core.common.registry.Identifiable;
 import org.eclipse.smarthome.core.common.registry.ManagedProvider;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.events.EventPublisher;
@@ -55,6 +57,7 @@ import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeMigrationService;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.binding.BridgeHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
@@ -593,24 +596,49 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     }
 
     private boolean isInitializable(Thing thing, ThingType thingType) {
-        // determines if all 'required' configuration parameters are available in the configuration
-        if (thingType == null) {
-            logger.debug("Thing type for thing {} is not known, assuming it is initializable", thing.getUID());
+        if (!isComplete(thingType, thing.getUID(), tt -> tt.getConfigDescriptionURI(), thing.getConfiguration())) {
+            return false;
+        }
+
+        for (Channel channel : thing.getChannels()) {
+            ChannelType channelType = channelTypeRegistry.getChannelType(channel.getChannelTypeUID());
+            if (!isComplete(channelType, channel.getUID(), ct -> ct.getConfigDescriptionURI(),
+                    channel.getConfiguration())) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Determines if all 'required' configuration parameters are available in the configuration
+     *
+     * @param prototype
+     * @param targetUID
+     * @param configDescriptionURIFunction
+     * @param configuration
+     * @return
+     */
+    private <T extends Identifiable<?>> boolean isComplete(T prototype, UID targetUID,
+            Function<T, URI> configDescriptionURIFunction, Configuration configuration) {
+        if (prototype == null) {
+            logger.debug("Prototype for '{}' is not known, assuming it is initializable", targetUID);
             return true;
         }
 
-        ConfigDescription description = resolve(thingType.getConfigDescriptionURI(), null);
+        ConfigDescription description = resolve(configDescriptionURIFunction.apply(prototype), null);
         if (description == null) {
-            logger.debug("Config description for thingtype {} is not resolvable, assuming thing {} is initializable",
-                    thingType.getUID(), thing.getUID());
+            logger.debug("Config description for '{}' is not resolvable, assuming '{}' is initializable",
+                    prototype.getUID(), targetUID);
             return true;
         }
 
         List<String> requiredParameters = getRequiredParameters(description);
-        Map<String, Object> properties = thing.getConfiguration().getProperties();
+        Map<String, Object> properties = configuration.getProperties();
         if (logger.isDebugEnabled()) {
-            logger.debug("Configuration of thing {} needs {}, has {}.", thing.getUID(), requiredParameters,
-                    thing.getConfiguration().getProperties().keySet());
+            logger.debug("Configuration of '{}' needs {}, has {}.", targetUID, requiredParameters,
+                    configuration.getProperties().keySet());
         }
         return properties.keySet().containsAll(requiredParameters);
     }
