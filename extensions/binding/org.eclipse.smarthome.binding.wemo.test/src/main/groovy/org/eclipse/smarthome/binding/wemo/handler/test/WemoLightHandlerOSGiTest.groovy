@@ -80,13 +80,13 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
         }
 
         waitForAssert {
-            assertThat "Invalid SOAP action sent to the device: ${servlet.actions}", servlet.actions.contains(WemoLightHttpServlet.GET_ACTION), is(true)
+            assertThat servlet.actions.contains(WemoLightHttpServlet.GET_ACTION), is(true)
         }
 
         waitForAssert{
             Item item = itemRegistry.get(DEFAULT_TEST_ITEM_NAME)
-            assertThat "Item with name ${DEFAULT_TEST_ITEM_NAME} may not be created. Check the createItem() method.", item, is(notNullValue())
-            assertThat "The state of the item ${DEFAULT_TEST_ITEM_NAME} was not updated at start.", item.getState(), is(expectedState)
+            assertThat item, is(notNullValue())
+            assertThat item.getState(), is(expectedState)
         }
     }
 
@@ -197,9 +197,9 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
         thing.getHandler().handleCommand(channelUID, command)
 
         waitForAssert{
-            assertThat "Invalid SOAP action sent to the device: ${servlet.actions}", servlet.actions.contains(action), is(true)
-            assertThat "No request received for capitability: ${servlet.capitability}, after command ${command}", servlet.capitability, is(capitability)
-            assertThat "Incorrect value recevied for capitability ${servlet.capitability} ", servlet.value, is(value)
+            assertThat servlet.actions.contains(action), is(true)
+            assertThat servlet.capitability, is(capitability)
+            assertThat servlet.value, is(value)
         }
     }
 

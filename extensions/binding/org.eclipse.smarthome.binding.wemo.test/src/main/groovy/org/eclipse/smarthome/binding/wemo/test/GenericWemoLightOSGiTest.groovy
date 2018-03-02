@@ -103,7 +103,7 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
     protected void removeThing() {
         if(thing != null) {
             Thing removedThing = thingRegistry.remove(thing.getUID())
-            assertThat("The thing ${thing.getUID()} cannot be deleted", removedThing, is(notNullValue()))
+            assertThat(removedThing, is(notNullValue()))
         }
 
         waitForAssert {
@@ -112,7 +112,7 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
 
         if(bridge != null) {
             Bridge bridgeThing = thingRegistry.remove(bridge.getUID())
-            assertThat "The bridge ${bridge.getUID()} cannot be deleted", bridgeThing, is(notNullValue())
+            assertThat bridgeThing, is(notNullValue())
         }
 
         waitForAssert {
@@ -121,7 +121,7 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
 
         waitForAssert {
             Set<UpnpIOParticipant> participants  = upnpIOService.participants;
-            assertThat "UPnP Registry is not clear: ${participants}", participants.size(), is(0)
+            assertThat participants.size(), is(0)
         }
 
         itemRegistry.remove(DEFAULT_TEST_ITEM_NAME)
