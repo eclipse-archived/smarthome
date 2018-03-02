@@ -19,7 +19,7 @@ angular.module('PaperUI.directive.configDescription', []) //
             configArray : '=?',
             form : '=?'
         },
-        templateUrl : 'partials/directive.configDescription.html',
+        templateUrl : 'partials/configuration/directive.configDescription.html',
         controller : controller
     }
 });

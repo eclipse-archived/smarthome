@@ -6,6 +6,6 @@ angular.module('PaperUI.directive.locationParameter', [ 'PaperUI.component' ]) /
             model : '=',
             parameter : '='
         },
-        templateUrl : 'partials/directive.locationParameter.html'
+        templateUrl : 'partials/configuration/directive.locationParameter.html'
     }
 });

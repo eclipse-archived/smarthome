@@ -6,7 +6,8 @@
     "install": "node node_modules/openlayers/tasks/build.js openlayers-esh.json node_modules/openlayers/ol-esh.js",
     "start": "gulp serve --development",
     "build": "gulp default",
-    "test": "gulp test"
+    "test" : "gulp test",
+    "dev"  : "gulp serve --development --noMinify"
   },
   "dependencies": {
     "angular": "1.4.8",

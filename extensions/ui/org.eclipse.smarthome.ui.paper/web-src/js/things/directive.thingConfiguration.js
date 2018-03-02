@@ -37,6 +37,6 @@ angular.module('PaperUI.directive.thingConfiguration', []) //
             form : '=?'
         },
         controller : controller,
-        templateUrl : 'partials/directive.thingConfiguration.html'
+        templateUrl : 'partials/things/directive.thingConfiguration.html'
     }
 });

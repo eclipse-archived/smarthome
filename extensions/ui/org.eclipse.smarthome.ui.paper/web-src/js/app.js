@@ -15,7 +15,7 @@ angular.module('PaperUI', [//
 'ngRoute', 'ngResource', 'ngMaterial', 'ngMessages', 'ngSanitize', 'ui.sortable', 'material.components.expansionPanels' ]) //
 .config([ '$routeProvider', '$httpProvider', 'globalConfig', '$mdDateLocaleProvider', 'moduleConfig', 'dateTimeProvider', function($routeProvider, httpProvider, globalConfig, $mdDateLocaleProvider, moduleConfig, dateTimeProvider) {
     $routeProvider.when('/control', {
-        templateUrl : 'partials/control.html',
+        templateUrl : 'partials/control/control.html',
         controller : 'ControlPageController',
         title : 'Control',
         simpleHeader : true,
@@ -27,86 +27,94 @@ angular.module('PaperUI', [//
     }).when('/inbox/setup', {
         redirectTo : '/inbox/setup/bindings'
     }).when('/inbox/search', {
-        templateUrl : 'partials/setup.html',
+        templateUrl : 'partials/setup/setup.html',
         controller : 'SetupWizardController',
         title : 'Inbox'
     }).when('/inbox/setup/bindings', {
-        templateUrl : 'partials/setup.html',
+        templateUrl : 'partials/setup/setup.html',
         controller : 'SetupWizardController',
         title : 'Inbox'
     }).when('/inbox/setup/search/:bindingId', {
-        templateUrl : 'partials/setup.html',
+        templateUrl : 'partials/setup/setup.html',
         controller : 'SetupWizardController',
         title : 'Inbox'
     }).when('/inbox/setup/thing-types/:bindingId', {
-        templateUrl : 'partials/setup.html',
+        templateUrl : 'partials/setup/setup.html',
         controller : 'SetupWizardController',
         title : 'Inbox'
     }).when('/inbox/setup/add/:thingTypeUID', {
-        templateUrl : 'partials/setup.html',
+        templateUrl : 'partials/setup/setup.html',
         controller : 'SetupWizardController',
         title : 'Inbox'
     }).when('/configuration', {
         redirectTo : '/configuration/bindings'
+    }).when('/configuration/bindings', {
+        templateUrl : 'partials/bindings/configuration.bindings.html',
+        controller : 'BindingController',
+        title : 'Configuration'
+    }).when('/configuration/bindings/:bindingId', {
+        templateUrl : 'partials/bindings/configuration.binding.html',
+        controller : 'BindingDetailController',
+        title : 'Configuration'
     }).when('/configuration/services', {
-        templateUrl : 'partials/configuration.html',
+        templateUrl : 'partials/services/configuration.services.html',
         controller : 'ServicesController',
         title : 'Configuration',
         reloadOnSearch : false
     }).when('/configuration/services/:servicePID', {
-        templateUrl : 'partials/configuration.multiService.html',
+        templateUrl : 'partials/services/configuration.multiService.html',
         controller : 'MultiServicesController',
         title : 'Configuration'
     }).when('/configuration/things', {
-        templateUrl : 'partials/configuration.things.html',
+        templateUrl : 'partials/things/configuration.things.html',
         controller : 'ThingController',
         title : 'Configuration'
     }).when('/configuration/things/view/:thingUID', {
-        templateUrl : 'partials/configuration.things.html',
+        templateUrl : 'partials/things/configuration.things.html',
         controller : 'ThingController',
         title : 'Configuration'
     }).when('/configuration/things/edit/:thingUID', {
-        templateUrl : 'partials/configuration.things.html',
+        templateUrl : 'partials/things/configuration.things.html',
         controller : 'ThingController',
         title : 'Configuration'
     }).when('/configuration/items', {
-        templateUrl : 'partials/configuration.html',
+        templateUrl : 'partials/items/configuration.items.html',
         controller : 'ItemSetupController',
         title : 'Configuration'
     }).when('/configuration/item/edit/:itemName', {
-        templateUrl : 'partials/item.config.html',
+        templateUrl : 'partials/items/item.config.html',
         controller : 'ItemSetupController'
     }).when('/configuration/item/create', {
-        templateUrl : 'partials/item.config.html',
+        templateUrl : 'partials/items/item.config.html',
         controller : 'ItemSetupController',
         title : 'Create item'
     }).when('/configuration/system', {
-        templateUrl : 'partials/system.configuration.html',
+        templateUrl : 'partials/system/system.configuration.html',
         controller : 'SystemController',
         title : 'Configuration'
     }).when('/extensions', {
-        templateUrl : 'partials/extensions.html',
+        templateUrl : 'partials/extensions/extensions.html',
         controller : 'ExtensionPageController',
         title : moduleConfig.extensions && moduleConfig.extensions.hasOwnProperty('label') && moduleConfig.extensions['label'] ? moduleConfig.extensions['label'] : 'Extensions',
         reloadOnSearch : false
     }).when('/rules', {
-        templateUrl : 'partials/rules.html',
+        templateUrl : 'partials/rules/rules.html',
         controller : 'RulesPageController',
         title : 'Rules'
     }).when('/rules/new', {
-        templateUrl : 'partials/rules.html',
+        templateUrl : 'partials/rules/rules.html',
         controller : 'RulesPageController',
         title : 'Rules'
     }).when('/rules/catalog', {
-        templateUrl : 'partials/rules.html',
+        templateUrl : 'partials/rules/rules.html',
         controller : 'ExtensionPageController',
         title : 'Rules'
     }).when('/rules/template/:templateUID', {
-        templateUrl : 'partials/rules.html',
+        templateUrl : 'partials/rules/rules.html',
         controller : 'RuleTemplateController',
         title : 'Rules'
     }).when('/rules/configure/:ruleUID', {
-        templateUrl : 'partials/rules.html',
+        templateUrl : 'partials/rules/rules.html',
         controller : 'RulesPageController',
         title : 'Rules'
     }).when('/preferences', {

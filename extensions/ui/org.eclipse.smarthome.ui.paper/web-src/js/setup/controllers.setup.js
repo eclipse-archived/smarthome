@@ -31,7 +31,7 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
     $scope.showScanDialog = function(event) {
         $mdDialog.show({
             controller : 'ScanDialogController',
-            templateUrl : 'partials/dialog.scan.html',
+            templateUrl : 'partials/setup/dialog.scan.html',
             targetEvent : event,
         });
     }
@@ -44,7 +44,7 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
     $scope.approve = function(thingUID, thingTypeUID, event) {
         $mdDialog.show({
             controller : 'ApproveInboxEntryDialogController',
-            templateUrl : 'partials/dialog.approveinboxentry.html',
+            templateUrl : 'partials/setup/dialog.approveinboxentry.html',
             targetEvent : event,
             locals : {
                 discoveryResult : discoveryResultRepository.find(function(discoveryResult) {

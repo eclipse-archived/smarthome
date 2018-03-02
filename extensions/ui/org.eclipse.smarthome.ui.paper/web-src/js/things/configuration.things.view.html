@@ -26,10 +26,10 @@
 		<div ng-init="details=false" ng-if="thing.hasProperties">
 			<md-button ng-click="details=!details">{{details?'hide':'show'}} properties</md-button>
 			<div ng-show="details">
-				<div ng-include="'partials/configuration.thingproperties.html'" class="thing-properties"></div>
+				<div ng-include="'partials/things/configuration.thingproperties.html'" class="thing-properties"></div>
 			</div>
 		</div>
-		<div ng-include="'partials/configuration.firmware.html'"></div>
+		<div ng-include="'partials/firmware/configuration.firmware.html'"></div>
 		<br />
 		<h2 class="inline" ng-show="thing.channels.length > 0 || isExtensible()">Channels
 		<button ng-if="isExtensible()" class="extensible-thing md-fab md-custom-plus md-button md-ink-ripple" type="button" ng-click="addChannel($event)" aria-label="Add">

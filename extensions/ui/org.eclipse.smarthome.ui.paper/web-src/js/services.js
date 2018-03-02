@@ -90,6 +90,15 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
     };
 }).factory('configService', function(itemService, thingRepository, ruleRepository, $filter, itemRepository) {
 
+    var insertEmptyOption = function(parameter) {
+        if (!parameter.required && ((parameter.options && parameter.options.length > 0) || parameter.context)) {
+            parameter.options.splice(0, 0, {
+                label : '',
+                value : null
+            })
+        }
+    }
+
     var applyParameterContext = function(parameter) {
         if (!parameter.context) {
             return false;
@@ -687,11 +696,3 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
         }
     }
 });
-function insertEmptyOption(parameter) {
-    if (!parameter.required && ((parameter.options && parameter.options.length > 0) || parameter.context)) {
-        parameter.options.splice(0, 0, {
-            label : '',
-            value : null
-        })
-    }
-}
