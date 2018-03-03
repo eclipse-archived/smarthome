@@ -18,18 +18,15 @@ import static org.junit.Assert.*
 
 import org.eclipse.smarthome.binding.wemo.WemoBindingConstants
 import org.eclipse.smarthome.binding.wemo.handler.WemoHandler
-import org.eclipse.smarthome.core.library.types.DateTimeType
 import org.eclipse.smarthome.core.library.types.DecimalType
 import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
-import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.types.State
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 /**
@@ -135,7 +132,7 @@ public class WemoHandlerTest {
 
         handler.onValueReceived(PARAMS_NAME, insightParams, SERVICE_ID);
         assertThat handler.channelState, is(notNullValue())
-        assertThat "Incorrect channel state for channel {$expectedChannel} on received value {$insightParams}.", handler.channelState, is(expectedState)
+        assertThat handler.channelState, is(expectedState)
     }
 
     class MockWemoHandler extends WemoHandler {
@@ -164,7 +161,6 @@ public class WemoHandlerTest {
 
         @Override
         protected void updateStatus(ThingStatus status) {
-            
         }
     }
 

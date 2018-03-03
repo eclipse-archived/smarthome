@@ -84,7 +84,7 @@ class WemoLinkDiscoveryServiceOSGiTest extends GenericWemoLightOSGiTest{
 
         waitForAssert {
             List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID, null))
-            assertFalse "No Thing with UID " + thingUID.getAsString() + " in inbox. However found:" + Arrays.toString(results.toArray()), results.isEmpty()
+            assertFalse results.isEmpty()
         }
 
     }

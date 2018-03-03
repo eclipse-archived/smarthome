@@ -17,7 +17,6 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.binding.wemo.WemoBindingConstants
-import org.eclipse.smarthome.binding.wemo.handler.WemoHandler
 import org.eclipse.smarthome.binding.wemo.test.GenericWemoHttpServlet
 import org.eclipse.smarthome.binding.wemo.test.GenericWemoOSGiTest
 import org.eclipse.smarthome.core.items.Item
@@ -25,7 +24,6 @@ import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingStatus
-import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.types.RefreshType
 import org.eclipse.smarthome.core.types.State
 import org.eclipse.smarthome.core.types.UnDefType
@@ -76,12 +74,10 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
         // Binary state 0 is equivalent to OFF
         def exptectedBinaryState = "0"
 
-        createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE)
+        Thing thing = createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE)
 
         waitForAssert {
-            WemoHandler handler = getThingHandler(WemoHandler.class)
-            assertThat handler, is(notNullValue())
-            assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
+            assertThat thing.getStatus(), is(ThingStatus.ONLINE)
         }
 
         // The device is registered as UPnP Device after the initialization, this will ensure that the polling job will not start
@@ -91,8 +87,8 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
         thing.getHandler().handleCommand(channelUID, command)
 
         waitForAssert{
-            assertThat "Invalid SOAP action sent to the device: ${servlet.actions}", servlet.actions.contains(WemoHttpServlet.SET_ACTION) ,is (true)
-            assertThat "The state of the device after the command ${command} was not updated with the expected value.", servlet.binaryState, is(exptectedBinaryState)
+            assertThat servlet.actions.contains(WemoHttpServlet.SET_ACTION) ,is (true)
+            assertThat servlet.binaryState, is(exptectedBinaryState)
         }
     }
 
@@ -103,18 +99,16 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
         def expectedState = OnOffType.OFF
         def command = RefreshType.REFRESH;
 
-        createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE);
+        Thing thing = createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE);
 
         waitForAssert {
-            WemoHandler handler = getThingHandler(WemoHandler.class)
-            assertThat handler, is(notNullValue())
-            assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
+            assertThat thing.getStatus(), is(ThingStatus.ONLINE)
         }
 
         waitForAssert{
             Item item = itemRegistry.get(DEFAULT_TEST_ITEM_NAME)
-            assertThat "Item with name ${DEFAULT_TEST_ITEM_NAME} may not be created. Check the createItem() method.", item, is(notNullValue())
-            assertThat "The state of the item ${DEFAULT_TEST_ITEM_NAME} was updated at start.", item.getState(), is(UnDefType.NULL)
+            assertThat item, is(notNullValue())
+            assertThat item.getState(), is(UnDefType.NULL)
         }
 
         // The device is registered as UPnP Device after the initialization, this will ensure that the polling job will not start
@@ -124,13 +118,13 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
         thing.getHandler().handleCommand(channelUID, command)
 
         waitForAssert{
-            assertThat "Invalid SOAP action sent to the device: ${servlet.actions}", servlet.actions.contains(WemoHttpServlet.GET_ACTION),is (true)
+            assertThat servlet.actions.contains(WemoHttpServlet.GET_ACTION),is (true)
         }
 
         waitForAssert{
             Item item = itemRegistry.get(DEFAULT_TEST_ITEM_NAME)
-            assertThat "Item with name ${DEFAULT_TEST_ITEM_NAME} may not be created. Check the createItem() method.", item, is(notNullValue())
-            assertThat "The state of the item ${DEFAULT_TEST_ITEM_NAME} was not updated after command ${command}.", item.getState(), is(expectedState)
+            assertThat item, is(notNullValue())
+            assertThat item.getState(), is(expectedState)
         }
 
     }
@@ -143,34 +137,31 @@ public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
         // The device is registered as UPnP Device before the initialization and the polling job will start
         addUpnpDevice(SERVICE_ID, SERVICE_NUMBER, MODEL_NAME)
 
-        createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE);
+        Thing thing = createThing(THING_TYPE_UID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE);
 
         waitForAssert {
-            WemoHandler handler = getThingHandler(WemoHandler.class)
-            assertThat handler, is(notNullValue())
-            assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
+            assertThat thing.getStatus(), is(ThingStatus.ONLINE)
         }
 
         waitForAssert{
-            assertThat "Invalid SOAP action sent to the device: ${servlet.actions}", servlet.actions.contains(WemoHttpServlet.GET_ACTION), is(true)
+            assertThat servlet.actions.contains(WemoHttpServlet.GET_ACTION), is(true)
         }
 
         waitForAssert{
             Item item = itemRegistry.get(DEFAULT_TEST_ITEM_NAME)
-            assertThat "Item with name ${DEFAULT_TEST_ITEM_NAME} is not be created. Check the createItem() method.", item, is(notNullValue())
-            assertThat "The state of the item ${DEFAULT_TEST_ITEM_NAME} was not updated at start.", item.getState(), is(expectedState)
+            assertThat item, is(notNullValue())
+            assertThat item.getState(), is(expectedState)
         }
     }
 
     private void removeThing() {
         if(thing != null) {
             Thing removedThing = thingRegistry.remove(thing.getUID())
-            assertThat("The thing cannot be deleted", removedThing, is(notNullValue()))
+            assertThat(removedThing, is(notNullValue()))
         }
 
         waitForAssert {
-            ThingHandler thingHandler = getThingHandler(WemoHandler)
-            assertThat thingHandler, is(nullValue())
+            assertThat thing.getStatus(), is(ThingStatus.UNINITIALIZED)
         }
 
         waitForAssert {

@@ -19,16 +19,14 @@ import static org.junit.matchers.JUnitMatchers.*
 import javax.servlet.http.HttpServlet
 
 import org.eclipse.smarthome.binding.wemo.WemoBindingConstants
-import org.eclipse.smarthome.binding.wemo.handler.WemoBridgeHandler
-import org.eclipse.smarthome.binding.wemo.handler.WemoLightHandler
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.Thing
+import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
-import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
@@ -60,7 +58,7 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
     Bridge bridge;
     HttpServlet servlet;
 
-    protected void createBridge(ThingTypeUID bridgeTypeUID) {
+    protected Bridge createBridge(ThingTypeUID bridgeTypeUID) {
         Configuration configuration = new Configuration();
         configuration.put(WemoBindingConstants.UDN, DEVICE_UDN)
 
@@ -71,14 +69,15 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
                 .build();
 
         managedThingProvider.add(bridge)
+        return bridge;
     }
 
-    protected void createDefaultThing(ThingTypeUID thingTypeUID) {
-        createThing(thingTypeUID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE)
+    protected Thing createDefaultThing(ThingTypeUID thingTypeUID) {
+        return createThing(thingTypeUID, DEFAULT_TEST_CHANNEL, DEFAULT_TEST_CHANNEL_TYPE)
     }
 
     @Override
-    protected void createThing(ThingTypeUID thingTypeUID, String channelID, String itemAcceptedType) {
+    protected Thing createThing(ThingTypeUID thingTypeUID, String channelID, String itemAcceptedType) {
         Configuration configuration = new Configuration();
         configuration.put(WemoBindingConstants.DEVICE_ID, WEMO_LIGHT_ID)
 
@@ -97,33 +96,32 @@ class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
         managedThingProvider.add(thing)
 
         createItem(channelUID,DEFAULT_TEST_ITEM_NAME,itemAcceptedType)
+        return thing;
     }
 
 
     protected void removeThing() {
         if(thing != null) {
             Thing removedThing = thingRegistry.remove(thing.getUID())
-            assertThat("The thing ${thing.getUID()} cannot be deleted", removedThing, is(notNullValue()))
+            assertThat(removedThing, is(notNullValue()))
         }
 
         waitForAssert {
-            ThingHandler thingHandler = getThingHandler(WemoLightHandler)
-            assertThat thingHandler, is(nullValue())
+            assertThat thing.getStatus(), is(ThingStatus.UNINITIALIZED)
         }
 
         if(bridge != null) {
             Bridge bridgeThing = thingRegistry.remove(bridge.getUID())
-            assertThat "The bridge ${bridge.getUID()} cannot be deleted", bridgeThing, is(notNullValue())
+            assertThat bridgeThing, is(notNullValue())
         }
 
         waitForAssert {
-            ThingHandler bridgeHandler = getThingHandler(WemoBridgeHandler)
-            assertThat bridgeHandler, is(nullValue())
+            assertThat bridge.getStatus(), is(ThingStatus.UNINITIALIZED)
         }
 
         waitForAssert {
             Set<UpnpIOParticipant> participants  = upnpIOService.participants;
-            assertThat "UPnP Registry is not clear: ${participants}", participants.size(), is(0)
+            assertThat participants.size(), is(0)
         }
 
         itemRegistry.remove(DEFAULT_TEST_ITEM_NAME)
