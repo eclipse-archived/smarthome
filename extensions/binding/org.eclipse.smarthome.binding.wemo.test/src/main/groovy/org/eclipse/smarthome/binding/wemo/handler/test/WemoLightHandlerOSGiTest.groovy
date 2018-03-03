@@ -14,12 +14,10 @@ package org.eclipse.smarthome.binding.wemo.handler.test
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
-import groovy.xml.XmlUtil
 
 import javax.servlet.http.HttpServletResponse
 
 import org.eclipse.smarthome.binding.wemo.WemoBindingConstants
-import org.eclipse.smarthome.binding.wemo.handler.WemoBridgeHandler
 import org.eclipse.smarthome.binding.wemo.handler.WemoLightHandler
 import org.eclipse.smarthome.binding.wemo.test.GenericWemoHttpServlet
 import org.eclipse.smarthome.binding.wemo.test.GenericWemoLightOSGiTest
@@ -28,6 +26,7 @@ import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType
 import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.library.types.PercentType
 import org.eclipse.smarthome.core.thing.ChannelUID
+import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.types.Command
@@ -36,14 +35,14 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
+import groovy.xml.XmlUtil
+
 /**
  * Tests for {@link WemoLightHandler}.
  *
  * @author Svilen Valkanov - Initial contribution
  */
 class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
-
-    def BRIDGE_HANDLER_INITIALIZE_TIMEOUT = 1000;
 
     @Before
     public void setUp() {
@@ -69,34 +68,25 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
 
         addUpnpDevice(SERVICE_ID, SERVICE_NUMBER, DEVICE_MODEL_NAME)
 
-        createBridge(BRIDGE_TYPE_UID)
-        //Without this sleep a NPE could occur in the WemoBridgeHandler#initialize() method
-        sleep(BRIDGE_HANDLER_INITIALIZE_TIMEOUT)
-        createDefaultThing(THING_TYPE_UID)
-
-        WemoLightHandler handler
-        WemoBridgeHandler bridgeHandler
+        Thing bridge = createBridge(BRIDGE_TYPE_UID)
+        Thing thing = createDefaultThing(THING_TYPE_UID)
 
         waitForAssert {
-            bridgeHandler = getThingHandler(WemoBridgeHandler.class)
-            assertThat bridgeHandler, is(notNullValue())
-            assertThat bridgeHandler.getThing().getStatus(), is(ThingStatus.ONLINE)
+            assertThat bridge.getStatus(), is(ThingStatus.ONLINE)
         }
 
         waitForAssert {
-            handler = getThingHandler(WemoLightHandler.class)
-            assertThat handler, is(notNullValue())
-            assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
+            assertThat thing.getStatus(), is(ThingStatus.ONLINE)
         }
 
         waitForAssert {
-            assertThat "Invalid SOAP action sent to the device: ${servlet.actions}", servlet.actions.contains(WemoLightHttpServlet.GET_ACTION), is(true)
+            assertThat servlet.actions.contains(WemoLightHttpServlet.GET_ACTION), is(true)
         }
 
         waitForAssert{
             Item item = itemRegistry.get(DEFAULT_TEST_ITEM_NAME)
-            assertThat "Item with name ${DEFAULT_TEST_ITEM_NAME} may not be created. Check the createItem() method.", item, is(notNullValue())
-            assertThat "The state of the item ${DEFAULT_TEST_ITEM_NAME} was not updated at start.", item.getState(), is(expectedState)
+            assertThat item, is(notNullValue())
+            assertThat item.getState(), is(expectedState)
         }
     }
 
@@ -188,24 +178,15 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
     }
 
     private assertRequestForCommand(String channelID, Command command, String action, String value, String capitability) {
-        createBridge(BRIDGE_TYPE_UID)
-        //Without this sleep a NPE could occur in the WemoBridgeHandler#initialize() method
-        sleep(BRIDGE_HANDLER_INITIALIZE_TIMEOUT)
-        createDefaultThing(THING_TYPE_UID)
-
-        WemoLightHandler handler
-        WemoBridgeHandler bridgeHandler
+        Thing bridge = createBridge(BRIDGE_TYPE_UID)
+        Thing thing = createDefaultThing(THING_TYPE_UID)
 
         waitForAssert {
-            bridgeHandler = getThingHandler(WemoBridgeHandler.class)
-            assertThat bridgeHandler, is(notNullValue())
-            assertThat bridgeHandler.getThing().getStatus(), is(ThingStatus.ONLINE)
+            assertThat bridge.getStatus(), is(ThingStatus.ONLINE)
         }
 
         waitForAssert {
-            handler = getThingHandler(WemoLightHandler.class)
-            assertThat handler, is(notNullValue())
-            assertThat handler.getThing().getStatus(), is(ThingStatus.ONLINE)
+            assertThat thing.getStatus(), is(ThingStatus.ONLINE)
         }
 
         // The device is registered as UPnP Device after the initialization, this will ensure that the polling job will not start
@@ -213,12 +194,12 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
 
         ThingUID thingUID = new ThingUID(THING_TYPE_UID, TEST_THING_ID);
         ChannelUID channelUID = new ChannelUID(thingUID, channelID)
-        handler.handleCommand(channelUID, command)
+        thing.getHandler().handleCommand(channelUID, command)
 
         waitForAssert{
-            assertThat "Invalid SOAP action sent to the device: ${servlet.actions}", servlet.actions.contains(action), is(true)
-            assertThat "No request received for capitability: ${servlet.capitability}, after command ${command}", servlet.capitability, is(capitability)
-            assertThat "Incorrect value recevied for capitability ${servlet.capitability} ", servlet.value, is(value)
+            assertThat servlet.actions.contains(action), is(true)
+            assertThat servlet.capitability, is(capitability)
+            assertThat servlet.value, is(value)
         }
     }
 
