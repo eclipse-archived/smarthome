@@ -30,6 +30,7 @@ import org.eclipse.smarthome.core.types.State;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Stefan Bußweiler - Added new thing status info, added new configuration update info
+ * @author Christoph Weitkamp - Moved OSGI ServiceTracker from BaseThingHandler to ThingHandlerCallback
  */
 @NonNullByDefault
 public interface ThingHandlerCallback {
@@ -85,6 +86,7 @@ public interface ThingHandlerCallback {
     /**
      * Informs the framework that a channel has been triggered.
      *
+     * @param thing thing (must not be null)
      * @param channelUID UID of the channel over which has been triggered.
      * @param event Event.
      */
@@ -100,4 +102,11 @@ public interface ThingHandlerCallback {
      */
     ChannelBuilder createChannelBuilder(ChannelUID channelUID, ChannelTypeUID channelTypeUID);
 
+    /**
+     * Returns whether at least one item is linked for the given UID of the channel.
+     *
+     * @param channelUID UID of the channel (must not be null)
+     * @return true if at least one item is linked, false otherwise
+     */
+    boolean isChannelLinked(ChannelUID channelUID);
 }

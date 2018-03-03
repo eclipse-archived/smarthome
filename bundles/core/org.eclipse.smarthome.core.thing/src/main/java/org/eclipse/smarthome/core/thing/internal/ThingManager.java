@@ -63,6 +63,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.i18n.ThingStatusInfoI18nLocalizationService;
+import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
@@ -104,6 +105,7 @@ import com.google.common.collect.SetMultimap;
  * @author Kai Kreuzer - Removed usage of itemRegistry and thingLinkRegistry, fixed vetoing mechanism
  * @author Andre Fuechsel - Added the {@link ThingTypeMigrationService} 
  * @author Thomas Höfer - Added localization of thing status info
+ * @author Christoph Weitkamp - Moved OSGI ServiceTracker from BaseThingHandler to ThingHandlerCallback
  */
 @Component(immediate = true, service = { ThingTypeMigrationService.class })
 public class ThingManager implements ThingTracker, ThingTypeMigrationService, ReadyService.ReadyTracker {
@@ -130,6 +132,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
 
     private ThingTypeRegistry thingTypeRegistry;
     private ChannelTypeRegistry channelTypeRegistry;
+    private ItemChannelLinkRegistry itemChannelLinkRegistry;
 
     private ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService;
 
@@ -266,6 +269,10 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
             return ThingFactoryHelper.createChannelBuilder(channelUID, channelType, configDescriptionRegistry);
         };
 
+        @Override
+        public boolean isChannelLinked(ChannelUID channelUID) {
+            return itemChannelLinkRegistry.getLinks(channelUID).isEmpty();
+        }
     };
 
     private ThingRegistryImpl thingRegistry;
@@ -1049,6 +1056,15 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
 
     protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
         this.channelTypeRegistry = null;
+    }
+
+    @Reference
+    protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
+        this.itemChannelLinkRegistry = itemChannelLinkRegistry;
+    }
+
+    protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
+        this.itemChannelLinkRegistry = null;
     }
 
     @Reference
