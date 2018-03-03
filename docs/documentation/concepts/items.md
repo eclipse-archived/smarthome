@@ -58,6 +58,7 @@ Available group functions:
 | AND, OR, NAND, NOR | <activeState>, <passiveState> | \<all\> (must match active & passive state) | Sets the \<activeState\>, if the member state \<activeState\> evaluates to `true` under the boolean term. Otherwise the \<passiveState\> is set.|
 | SUM, AVG, MIN, MAX | -                             | Number                                      | Sets the state according to the arithmetic function over all member states.                                                                     |
 | COUNT              | <regular expression>          | Number                                      | Sets the state to the number of members matching the given regular expression with their states.                                                |
+| LATEST, EARLIEST | - | DateTime | Sets the state to the latest/earliest date from all member states 
 
 
 Examples for derived states on group items when declared in the item DSL:
@@ -66,6 +67,7 @@ Examples for derived states on group items when declared in the item DSL:
 - `Group:Number:AVG` calculates the average value over all member states which can be interpreted as `DecimalTypes`.
 - `Group:Switch:OR(ON,OFF)` sets the group state to `ON` if any of its members has the state `ON`, `OFF` if all are off.    
 - `Group:Switch:AND(ON,OFF)` sets the group state to `ON` if all of its members have the state `ON`, `OFF` if any of the group members has a different state than `ON`.
+- `Group:DateTime:LATEST` sets the group state to the latest date from all its members states.
 
 ## State and Command Type Formatting
 
