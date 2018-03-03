@@ -7,6 +7,6 @@
     <name>YahooWeather Binding</name>
     <description>The Yahoo Weather Binding requests the Yahoo Weather Service
 		to show the current temperature, humidity and pressure.</description>
-    <author>Kai Kreuzer</author>
+    <author>Kai Kreuzer and friends</author>
 
 </binding:binding>

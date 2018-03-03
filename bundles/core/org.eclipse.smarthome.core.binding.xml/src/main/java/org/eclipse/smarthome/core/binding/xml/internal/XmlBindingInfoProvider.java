@@ -47,6 +47,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Michael Grammling - Initial Contribution
  * @author Michael Grammling - Refactoring: Provider/Registry pattern is used, added locale support
  * @author Simon Kaufmann - factored out common aspects into {@link AbstractXmlBasedProvider}
+ * @author Christoph Weitkamp - Added translation for author
  */
 @Component
 public class XmlBindingInfoProvider extends AbstractXmlBasedProvider<String, BindingInfo>
@@ -131,9 +132,10 @@ public class XmlBindingInfoProvider extends AbstractXmlBasedProvider<String, Bin
         String name = this.bindingI18nUtil.getName(bundle, bindingInfo.getUID(), bindingInfo.getName(), locale);
         String description = this.bindingI18nUtil.getDescription(bundle, bindingInfo.getUID(),
                 bindingInfo.getDescription(), locale);
+        String author = this.bindingI18nUtil.getAuthor(bundle, bindingInfo.getUID(), bindingInfo.getAuthor(), locale);
 
-        return new BindingInfo(bindingInfo.getUID(), name, description, bindingInfo.getAuthor(),
-                bindingInfo.getServiceId(), bindingInfo.getConfigDescriptionURI());
+        return new BindingInfo(bindingInfo.getUID(), name, description, author, bindingInfo.getServiceId(),
+                bindingInfo.getConfigDescriptionURI());
     }
 
     @Override
