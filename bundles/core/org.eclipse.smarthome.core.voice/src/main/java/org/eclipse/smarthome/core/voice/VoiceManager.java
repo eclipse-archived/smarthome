@@ -64,10 +64,10 @@ public interface VoiceManager {
      * voiceId is assumed to be available on the default TTS service.
      *
      * @param text The text to say
-     * @param voiceId The id of the voice to use (either with or without prefix)
+     * @param voiceId The id of the voice to use (either with or without prefix) or null
      * @param volume The volume to be used or null if the default notification volume should be used
      */
-    void say(String text, String voiceId, @Nullable PercentType volume);
+    void say(String text, @Nullable String voiceId, @Nullable PercentType volume);
 
     /**
      * Speaks the passed string using the provided voiceId and the given audio sink.
@@ -78,7 +78,7 @@ public interface VoiceManager {
      * @param voiceId The id of the voice to use (either with or without prefix) or null
      * @param sinkId The id of the audio sink to use or null
      */
-    void say(String text, String voiceId, @Nullable String sinkId);
+    void say(String text, @Nullable String voiceId, @Nullable String sinkId);
 
     /**
      * Speaks the passed string with the given volume using the provided voiceId and the given audio sink.
@@ -90,7 +90,7 @@ public interface VoiceManager {
      * @param sinkId The id of the audio sink to use or null
      * @param volume The volume to be used or null if the default notification volume should be used
      */
-    void say(String text, String voiceId, @Nullable String sinkId, @Nullable PercentType volume);
+    void say(String text, @Nullable String voiceId, @Nullable String sinkId, @Nullable PercentType volume);
 
     /**
      * Interprets the passed string using the default services for HLI and locale.
@@ -105,11 +105,11 @@ public interface VoiceManager {
      * Interprets the passed string using a particular HLI service and the default locale.
      *
      * @param text The text to interpret
-     * @param hliId The id of the HLI service to use
+     * @param hliId The id of the HLI service to use or null
      * @throws InterpretationException
      * @return a human language response
      */
-    String interpret(String text, String hliId) throws InterpretationException;
+    String interpret(String text, @Nullable String hliId) throws InterpretationException;
 
     /**
      * Determines the preferred voice for the currently set locale
@@ -131,8 +131,9 @@ public interface VoiceManager {
      *
      * @throws IllegalStateException if required services are not available
      */
-    void startDialog(KSService ks, STTService stt, TTSService tts, HumanLanguageInterpreter hli, AudioSource source,
-            AudioSink sink, Locale locale, String keyword, String listeningItem);
+    void startDialog(@Nullable KSService ks, @Nullable STTService stt, @Nullable TTSService tts,
+            @Nullable HumanLanguageInterpreter hli, @Nullable AudioSource source, @Nullable AudioSink sink,
+            @Nullable Locale locale, @Nullable String keyword, @Nullable String listeningItem);
 
     /**
      * Retrieves a TTS service.
