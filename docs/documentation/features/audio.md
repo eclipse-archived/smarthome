@@ -40,12 +40,12 @@ playStream("sonos:PLAY5:kitchen", "http://wdr-1live-diggi.icecast.wdr.de/wdr/1li
 
 ### Text console commands
 
-| Command                                               | Description                                                                                     |
-|-------------------------------------------------------|-------------------------------------------------------------------------------------------------|
-| `smarthome:audio play [<sink>] <filename> [<volume>]` | plays a sound file from the `conf/sounds` folder through the optionally specified audio sink(s) |
-| `smarthome:audio stream [<sink>] <url> [<volume>]`    | streams the sound from the url through the optionally specified audio sink(s)                   |
-| `smarthome:audio sources`                             | lists the audio sources                                                                         |
-| `smarthome:audio sinks`                               | lists the audio sinks                                                                           |
+| Command                                               | Description                                                                                                                          |
+|-------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| `smarthome:audio play [<sink>] <filename> [<volume>]` | plays a sound file from the `conf/sounds` folder through the optionally specified audio sink(s) with the optionally specified volume |
+| `smarthome:audio stream [<sink>] <url> [<volume>]`    | streams the sound from the url through the optionally specified audio sink(s) with the optionally specified volume                   |
+| `smarthome:audio sources`                             | lists the audio sources                                                                                                              |
+| `smarthome:audio sinks`                               | lists the audio sinks                                                                                                                |
 
 ## Voice
 
