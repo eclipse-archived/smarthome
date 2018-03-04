@@ -48,7 +48,7 @@ public class Voice {
      * @param text The text to speak
      * @param volume The volume to be used
      */
-    @ActionDoc(text = "says a given text with the default voice")
+    @ActionDoc(text = "says a given text with the default voice and the given volume")
     public static void say(@ParamDoc(name = "text") Object text,
             @ParamDoc(name = "volume", text = "the volume to be used") PercentType volume) {
         say(text, null, null, volume);
@@ -80,7 +80,7 @@ public class Voice {
      *            voiceId is assumed to be available on the default TTS service.
      * @param volume The volume to be used
      */
-    @ActionDoc(text = "says a given text with a given voice")
+    @ActionDoc(text = "says a given text with a given voice and the given volume")
     public static void say(@ParamDoc(name = "text") Object text, @ParamDoc(name = "voice") String voice,
             @ParamDoc(name = "volume", text = "the volume to be used") PercentType volume) {
         say(text, voice, null, volume);
@@ -113,7 +113,7 @@ public class Voice {
      *            be used
      * @param volume The volume to be used
      */
-    @ActionDoc(text = "says a given text with a given voice through the given sink")
+    @ActionDoc(text = "says a given text with a given voice and the given volume through the given sink")
     public static void say(@ParamDoc(name = "text") Object text, @ParamDoc(name = "voice") String voice,
             @ParamDoc(name = "sink") String sink,
             @ParamDoc(name = "volume", text = "the volume to be used") PercentType volume) {

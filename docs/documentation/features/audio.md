@@ -24,19 +24,21 @@ There are two different ways to play or stream audio:
 
 ### Built-in functions within DSL rules
 
-```java
-playSound("doorbell.mp3")
-playSound("doorbell.mp3", 25)
-playSound("sonos:PLAY5:kitchen", "doorbell.mp3")
-playSound("sonos:PLAY5:kitchen", "doorbell.mp3", 25)
-```
-
-```java
-playStream("http://wdr-1live-diggi.icecast.wdr.de/wdr/1live/diggi/mp3/128/stream.mp3")
-playStream("http://wdr-1live-diggi.icecast.wdr.de/wdr/1live/diggi/mp3/128/stream.mp3", 25)
-playStream("sonos:PLAY5:kitchen", "http://wdr-1live-diggi.icecast.wdr.de/wdr/1live/diggi/mp3/128/stream.mp3")
-playStream("sonos:PLAY5:kitchen", "http://wdr-1live-diggi.icecast.wdr.de/wdr/1live/diggi/mp3/128/stream.mp3", 25)
-```
+| Command                                                   | Description                                                                      |
+|-----------------------------------------------------------|----------------------------------------------------------------------------------|
+| `playSound(String filename)`                              | plays a sound from the sounds folder to the default sink                         |
+| `playSound(String filename, PercentType volume)`          | plays a sound with the given volume from the sounds folder to the default sink   |
+| `playSound(String sink, filename)`                        | plays a sound from the sounds folder to the given sink(s)                        |
+| `playSound(String sink, filename, PercentType volume)`    | plays a sound with the given volume from the sounds folder to the given sink(s)` |
+| `playStream(String url)`                                  | plays an audio stream from an url to the default sink                            |
+| `playStream(String url, PercentType volume)`              | plays an audio stream with the given volume from an url to the default sink      |
+| `playStream(String sink, String url)`                     | plays an audio stream from an url to the given sink(s)                           |
+| `playStream(String sink, String url, PercentType volume)` | plays an audio stream with the given volume from an url to the given sink(s)     |
+| `float getMasterVolume()`                                 | gets the master volume, returns the volume as a float in the range [0,1]         |
+| `setMasterVolume(float volume)`                           | sets the master volume, `volume` in the range [0,1]                              |
+| `setMasterVolume(PercentType percent)`                    | sets the master volume                                                           |
+| `increaseMasterVolume(float percent)`                     | increases the master volume, `percent` in the range (0,100]                      |
+| `decreaseMasterVolume(float percent)`                     | increases the master volume, `percent` in the range (0,100]                      |
 
 ### Text console commands
 
@@ -62,14 +64,16 @@ How to use TTS:
 
 ### Built-in functions within DSL rules
 
-```java
-say("Hello world!")
-say("Hello world!", 25)
-say("Hello world!", "voicerss:enGB")
-say("Hello world!", "voicerss:enGB", 25)
-say("Hello world!", "voicerss:enUS", "sonos:PLAY5:kitchen")
-say("Hello world!", "voicerss:enUS", "sonos:PLAY5:kitchen", 25)
-```
+| Command                                                           | Description                                                                                |
+|-------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| `String interpret(Object text)`                                   | interprets a given text by the default human language interpreter, human language response |
+| `String interpret(Object text, String interpreter)`               | interprets a given text by a given human language interpreter, human language response     |
+| `say(Object text)`                                                | says a given text with the default voice                                                   |
+| `say(Object text, PercentType volume)`                            | says a given text with the default voice and the given volume                              |
+| `say(Object text, String voice)`                                  | says a given text with a given voice                                                       |
+| `say(Object text, String voice, PercentType volume)`              | says a given text with a given voice and the given volume                                  |
+| `say(Object text, String voice, String sink)`                     | says a given text with a given voice through the given sink                                |
+| `say(Object text, String voice, String sink, PercentType volume)` | says a given text with a given voice and the given volume through the given sink           |
 
 ### Text console commands
 
