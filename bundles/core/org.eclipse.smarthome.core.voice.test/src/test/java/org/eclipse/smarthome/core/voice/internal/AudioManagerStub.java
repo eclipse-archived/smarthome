@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.core.voice.internal;
 
+import java.util.Collections;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.audio.AudioException;
@@ -24,7 +25,8 @@ import org.eclipse.smarthome.core.library.types.PercentType;
 /**
  * Only the get source and get sink methods are used in the tests.
  *
- * @author Velin Yordanov - initial contribution
+ * @author Velin Yordanov - Initial contribution
+ * @author Christoph Weitkamp - Added parameter to adjust the volume
  *
  */
 public class AudioManagerStub implements AudioManager {
@@ -98,7 +100,7 @@ public class AudioManagerStub implements AudioManager {
 
     @Override
     public PercentType getVolume(String sinkId) {
-        return null;
+        return PercentType.ZERO;
     }
 
     @Override
@@ -108,27 +110,26 @@ public class AudioManagerStub implements AudioManager {
 
     @Override
     public Set<String> getSourceIds() {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override
     public Set<String> getSinkIds() {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override
     public Set<String> getSourceIds(String pattern) {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override
     public AudioSink getSink(String sinkId) {
-        return null;
+        return getSink();
     }
 
     @Override
     public Set<String> getSinks(String pattern) {
-        return null;
+        return Collections.emptySet();
     }
-
 }

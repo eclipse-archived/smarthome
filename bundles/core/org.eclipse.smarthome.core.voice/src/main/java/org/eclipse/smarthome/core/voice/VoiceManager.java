@@ -29,6 +29,7 @@ import org.eclipse.smarthome.core.voice.text.InterpretationException;
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Christoph Weitkamp - Added parameter to adjust the volume
+ *
  */
 @NonNullByDefault
 public interface VoiceManager {

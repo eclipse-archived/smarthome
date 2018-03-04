@@ -29,6 +29,7 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  * @author Karel Goderis - Initial contribution and API
  * @author Kai Kreuzer - refactored to match AudioManager implementation
  * @author Christoph Weitkamp - Added parameter to adjust the volume
+ *
  */
 public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtension {
 

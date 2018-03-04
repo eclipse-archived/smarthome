@@ -24,6 +24,7 @@ import org.eclipse.smarthome.core.library.types.PercentType;
  * @author Karel Goderis - Initial contribution and API
  * @author Kai Kreuzer - removed unwanted dependencies
  * @author Christoph Weitkamp - Added parameter to adjust the volume
+ *
  */
 @NonNullByDefault
 public interface AudioManager {
@@ -197,6 +198,7 @@ public interface AudioManager {
      * @param sinkId the id of the sink or null for the default
      * @return the sink instance for the id or the default sink
      */
+    @Nullable
     AudioSink getSink(@Nullable String sinkId);
 
     /**

@@ -27,6 +27,7 @@ import org.junit.Test
  *
  * @author Petar Valchev - Initial contribution and API
  * @author Christoph Weitkamp - Added parameter to adjust the volume
+ *
  */
 public class AudioManagerTest extends AudioOSGiTest {
     @Test

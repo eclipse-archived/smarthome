@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - removed unwanted dependencies
  * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
  * @author Christoph Weitkamp - Added parameter to adjust the volume
+ *
  */
 public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
 
@@ -243,7 +244,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     @Override
     public Set<String> getSourceIds(String pattern) {
         String regex = pattern.replace("?", ".?").replace("*", ".*?");
-        Set<String> matchedSources = new HashSet<String>();
+        Set<String> matchedSources = new HashSet<>();
 
         for (String aSource : audioSources.keySet()) {
             if (aSource.matches(regex)) {
@@ -256,19 +257,13 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
 
     @Override
     public AudioSink getSink(String sinkId) {
-        AudioSink sink = null;
-        if (sinkId == null) {
-            sink = getSink();
-        } else {
-            sink = audioSinks.get(sinkId);
-        }
-        return sink;
+        return (sinkId == null) ? getSink() : audioSinks.get(sinkId);
     }
 
     @Override
     public Set<String> getSinks(String pattern) {
         String regex = pattern.replace("?", ".?").replace("*", ".*?");
-        Set<String> matchedSinks = new HashSet<String>();
+        Set<String> matchedSinks = new HashSet<>();
 
         for (String aSink : audioSinks.keySet()) {
             if (aSink.matches(regex)) {

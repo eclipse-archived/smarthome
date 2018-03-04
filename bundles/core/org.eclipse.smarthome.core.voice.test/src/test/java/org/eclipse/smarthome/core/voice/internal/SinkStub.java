@@ -31,6 +31,8 @@ import org.eclipse.smarthome.core.library.types.PercentType;
  *
  * @author Mihaela Memova - initial contribution
  * @author Velin Yordanov - migrated from groovy to java
+ * @author Christoph Weitkamp - Added parameter to adjust the volume
+ *
  */
 public class SinkStub implements AudioSink {
 

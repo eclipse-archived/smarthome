@@ -53,6 +53,7 @@ import org.slf4j.LoggerFactory;
  * @author Yannick Schaus - Added ability to provide a item for feedback during listening phases
  * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
  * @author Christoph Weitkamp - Added parameter to adjust the volume
+ *
  */
 public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
 
