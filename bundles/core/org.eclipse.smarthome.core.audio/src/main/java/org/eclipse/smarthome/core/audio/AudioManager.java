@@ -132,18 +132,18 @@ public interface AudioManager {
     /**
      * Retrieves the current volume of a sink
      *
-     * @param sinkId the sink to get the volume for
+     * @param sinkId the sink to get the volume for or null
      * @return the volume as a value between 0 and 100
      */
-    PercentType getVolume(String sinkId);
+    PercentType getVolume(@Nullable String sinkId);
 
     /**
      * Sets the volume for a sink.
      *
      * @param volume the volume to set as a value between 0 and 100
-     * @param sinkId the sink to set the volume
+     * @param sinkId the sink to set the volume or null
      */
-    void setVolume(PercentType volume, String sinkId);
+    void setVolume(PercentType volume, @Nullable String sinkId);
 
     /**
      * Retrieves an AudioSource.
