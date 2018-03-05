@@ -18,10 +18,10 @@
 		<div class="item-content">
 			<div class="description">
 				<h3>
-					{{discoveryResult.label}}<small ng-if="key === discoveryResult.representationProperty" ng-repeat="(key, value) in discoveryResult.properties")> {{value}}</small> <small ng-show="discoveryResult.flag === 'IGNORED'" class="badge">IGNORED</small>
+					{{discoveryResult.label}} <small ng-show="discoveryResult.flag === 'IGNORED'" class="badge">IGNORED</small>
 				</h3>
 				<p>{{getThingTypeLabel(discoveryResult.thingTypeUID)}}</p>
-				<p>{{discoveryResult.thingUID}}</p>
+				<p ng-if="key === discoveryResult.representationProperty" ng-repeat="(key, value) in discoveryResult.properties")> {{value}}</p>
 			</div>
 			<div class="actions">
 				<i class="material-icons" ng-show="discoveryResult.flag === 'IGNORED'" ng-click="unignore(discoveryResult.thingUID)" aria-label="Unignore">visibility</i> <i class="material-icons" ng-show="discoveryResult.flag !== 'IGNORED'" ng-click="ignore(discoveryResult.thingUID)" aria-label="Ignore">visibility_off</i> <i class="material-icons" ng-click="remove(discoveryResult.thingUID, $event)" aria-label="Delete">delete</i>
