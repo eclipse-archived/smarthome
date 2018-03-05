@@ -1,9 +1,6 @@
 <table class="thing-properties-table table">
 	<tr ng-show="key != 'firmwareVersion'" ng-repeat="(key,value) in thing.properties">
-		<td>{{key}}<span ng-if="key === thing.representationProperty"> *</span></td>
+		<td>{{key}}</td>
 		<td>{{value}}</td>
 	</tr>
 </table>
-<div ng-if="key === thing.representationProperty" ng-repeat="(key,value) in thing.properties">
-   <span>* the unique representation property for this thing.</span>
-</div>

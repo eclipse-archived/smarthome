@@ -34,7 +34,6 @@ public class EnrichedThingDTO extends ThingDTO {
     public ThingStatusInfo statusInfo;
     public final FirmwareStatusDTO firmwareStatus;
     public boolean editable;
-    public String representationProperty;
 
     /**
      * Creates an enriched thing data transfer object.
@@ -47,13 +46,12 @@ public class EnrichedThingDTO extends ThingDTO {
      * @param thingType the {@link ThingType} for this {@link Thing}.
      */
     EnrichedThingDTO(ThingDTO thingDTO, List<ChannelDTO> channels, ThingStatusInfo statusInfo,
-            FirmwareStatusDTO firmwareStatus, boolean editable, ThingType thingType) {
+            FirmwareStatusDTO firmwareStatus, boolean editable) {
         super(thingDTO.thingTypeUID, thingDTO.UID, thingDTO.label, thingDTO.bridgeUID, channels, thingDTO.configuration,
                 thingDTO.properties, thingDTO.location);
         this.statusInfo = statusInfo;
         this.firmwareStatus = firmwareStatus;
         this.editable = editable;
-        this.representationProperty = thingType != null ? thingType.getRepresentationProperty() : null;
     }
 
 }
