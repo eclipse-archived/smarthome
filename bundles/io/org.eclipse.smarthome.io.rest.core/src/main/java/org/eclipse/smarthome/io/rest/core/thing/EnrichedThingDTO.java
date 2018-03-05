@@ -14,12 +14,10 @@ package org.eclipse.smarthome.io.rest.core.thing;
 
 import java.util.List;
 
-import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.dto.ChannelDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.firmware.dto.FirmwareStatusDTO;
-import org.eclipse.smarthome.core.thing.type.ThingType;
 
 /**
  * This is a data transfer object that is used to serialize things with dynamic data like the status.
@@ -43,7 +41,6 @@ public class EnrichedThingDTO extends ThingDTO {
      * @param statusInfo {@link ThingStatusInfo} for this thing
      * @param firmwareStatus {@link FirmwareStatusDTO} for this thing
      * @param editable true if this thing can be edited
-     * @param thingType the {@link ThingType} for this {@link Thing}.
      */
     EnrichedThingDTO(ThingDTO thingDTO, List<ChannelDTO> channels, ThingStatusInfo statusInfo,
             FirmwareStatusDTO firmwareStatus, boolean editable) {
