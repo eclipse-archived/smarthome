@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.binding.fsinternetradio.test;
+package org.eclipse.smarthome.test;
 
 import java.io.IOException;
 import java.net.ServerSocket;

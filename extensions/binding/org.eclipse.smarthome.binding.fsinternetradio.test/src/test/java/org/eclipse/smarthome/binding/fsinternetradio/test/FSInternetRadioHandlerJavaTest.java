@@ -55,6 +55,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.eclipse.smarthome.test.TestPortUtil;
 import org.eclipse.smarthome.test.java.JavaTest;
 import org.junit.AfterClass;
 import org.junit.Assert;
