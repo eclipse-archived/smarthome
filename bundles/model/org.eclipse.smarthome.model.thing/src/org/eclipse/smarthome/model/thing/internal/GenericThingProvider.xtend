@@ -599,8 +599,10 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         newThings.forEach [ newThing |
             val oldThing = oldThings.findFirst[it.UID == newThing.UID]
             if (oldThing != null) {
-                logger.debug("Updating thing '{}' from model '{}'.", newThing.UID, modelName);
-                notifyListenersAboutUpdatedElement(oldThing, newThing)
+                if (!ThingHelper.equals(oldThing, newThing)) {
+                    logger.debug("Updating thing '{}' from model '{}'.", newThing.UID, modelName);
+                    notifyListenersAboutUpdatedElement(oldThing, newThing)
+                }
             } else {
                 logger.debug("Adding thing '{}' from model '{}'.", newThing.UID, modelName);
                 thingsMap.get(modelName).add(newThing)
