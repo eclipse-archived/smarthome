@@ -104,6 +104,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     private SafeCaller safeCaller;
     @NonNullByDefault({})
     private ItemStateConverter itemStateConverter;
+    private final Set<ItemFactory> itemFactories = new CopyOnWriteArraySet<>();
 
     // link UID -> profile
     private final Map<String, Profile> profiles = new ConcurrentHashMap<>();
@@ -516,22 +517,29 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
 
     @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, policy = ReferencePolicy.DYNAMIC)
     protected void addItemFactory(ItemFactory itemFactory) {
-        for (String itemTypeName : itemFactory.getSupportedItemTypes()) {
-            Item item = itemFactory.createItem(itemTypeName, "tmp");
-            if (item != null) {
-                acceptedCommandTypeMap.put(itemTypeName, item.getAcceptedCommandTypes());
-                acceptedStateTypeMap.put(itemTypeName, item.getAcceptedDataTypes());
-            } else {
-                logger.error("Item factory {} suggested it can create items of type {} but returned null", itemFactory,
-                        itemTypeName);
-            }
-        }
+        itemFactories.add(itemFactory);
+        calculateAcceptedTypes();
     }
 
     protected void removeItemFactory(ItemFactory itemFactory) {
-        for (String itemTypeName : itemFactory.getSupportedItemTypes()) {
-            acceptedCommandTypeMap.remove(itemTypeName);
-            acceptedStateTypeMap.remove(itemTypeName);
+        itemFactories.remove(itemFactory);
+        calculateAcceptedTypes();
+    }
+
+    private synchronized void calculateAcceptedTypes() {
+        acceptedCommandTypeMap.clear();
+        acceptedStateTypeMap.clear();
+        for (ItemFactory itemFactory : itemFactories) {
+            for (String itemTypeName : itemFactory.getSupportedItemTypes()) {
+                Item item = itemFactory.createItem(itemTypeName, "tmp");
+                if (item != null) {
+                    acceptedCommandTypeMap.put(itemTypeName, item.getAcceptedCommandTypes());
+                    acceptedStateTypeMap.put(itemTypeName, item.getAcceptedDataTypes());
+                } else {
+                    logger.error("Item factory {} suggested it can create items of type {} but returned null",
+                            itemFactory, itemTypeName);
+                }
+            }
         }
     }
 
