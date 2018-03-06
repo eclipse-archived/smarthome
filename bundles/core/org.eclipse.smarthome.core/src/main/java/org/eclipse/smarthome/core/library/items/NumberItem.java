@@ -111,9 +111,11 @@ public class NumberItem extends GenericItem {
 
         // QuantityType update, check unit and convert if necessary:
         if (state instanceof QuantityType) {
-            Unit<?> unit = getUnit();
-            if (unit != null && !((QuantityType<?>) state).getUnit().getSystemUnit().equals(unit.getSystemUnit())) {
-                QuantityType<?> convertedState = ((QuantityType<?>) state).toUnit(unit);
+            Unit<?> itemUnit = getUnit();
+            Unit<?> stateUnit = ((QuantityType<?>) state).getUnit();
+            if (itemUnit != null && (!stateUnit.getSystemUnit().equals(itemUnit.getSystemUnit())
+                    || UnitUtils.isDifferentMeasurementSystem(itemUnit, stateUnit))) {
+                QuantityType<?> convertedState = ((QuantityType<?>) state).toUnit(itemUnit);
                 if (convertedState != null) {
                     super.setState(convertedState);
                     return;

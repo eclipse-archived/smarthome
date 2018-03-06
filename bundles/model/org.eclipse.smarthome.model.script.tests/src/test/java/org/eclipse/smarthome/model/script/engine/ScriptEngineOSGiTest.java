@@ -17,6 +17,7 @@ import static org.junit.Assert.*;
 
 import java.util.Collection;
 
+import javax.measure.quantity.Length;
 import javax.measure.quantity.Temperature;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -27,6 +28,7 @@ import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
+import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.State;
@@ -41,7 +43,9 @@ import com.google.common.collect.Lists;
 public class ScriptEngineOSGiTest extends JavaOSGiTest {
 
     private static final String ITEM_NAME = "Switch1";
-    private static final String NUMBER_ITEM_NAME = "NumberA";
+    private static final String NUMBER_ITEM_TEMPERATURE = "NumberA";
+    private static final String NUMBER_ITEM_DECIMAL = "NumberB";
+    private static final String NUMBER_ITEM_LENGTH = "NumberC";
 
     private ItemProvider itemProvider;
 
@@ -70,7 +74,8 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
             @Override
             public Collection<Item> getAll() {
                 return Lists.newArrayList(new SwitchItem(ITEM_NAME),
-                        createNumberItem(NUMBER_ITEM_NAME, Temperature.class));
+                        createNumberItem(NUMBER_ITEM_TEMPERATURE, Temperature.class),
+                        createNumberItem(NUMBER_ITEM_LENGTH, Length.class), new NumberItem(NUMBER_ITEM_DECIMAL));
             }
 
             @Override
@@ -104,10 +109,72 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
     public void testAssignQuantityType() throws ScriptParsingException, ScriptExecutionException {
         runScript("NumberA.state = 20.0 [°C] as org.eclipse.smarthome.core.types.State");
 
-        State numberState = itemRegistry.get(NUMBER_ITEM_NAME).getState();
+        State numberState = itemRegistry.get(NUMBER_ITEM_TEMPERATURE).getState();
         assertNotNull(numberState);
         assertEquals("org.eclipse.smarthome.core.library.types.QuantityType", numberState.getClass().getName());
         assertEquals("20.0 ℃", numberState.toString());
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    public void testGreaterThanWithItemState() throws ScriptExecutionException, ScriptParsingException {
+        Item numberItem = itemRegistry.get(NUMBER_ITEM_TEMPERATURE);
+        ((NumberItem) numberItem).setState(new QuantityType<>("20 °C"));
+
+        assertTrue(runScript("NumberA.state > 20 [°F]"));
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    public void testGreaterEqualsWithItemState() throws ScriptExecutionException, ScriptParsingException {
+        Item numberItem = itemRegistry.get(NUMBER_ITEM_TEMPERATURE);
+        ((NumberItem) numberItem).setState(new QuantityType<>("20 °C"));
+
+        assertTrue(runScript("NumberA.state >= 20 [°C]"));
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    public void testLessThanWithItemState() throws ScriptExecutionException, ScriptParsingException {
+        Item numberItem = itemRegistry.get(NUMBER_ITEM_TEMPERATURE);
+        ((NumberItem) numberItem).setState(new QuantityType<>("20 °F"));
+
+        assertTrue(runScript("NumberA.state < 20 [°C]"));
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    public void testLessEqualsWithItemState() throws ScriptExecutionException, ScriptParsingException {
+        Item numberItem = itemRegistry.get(NUMBER_ITEM_TEMPERATURE);
+        ((NumberItem) numberItem).setState(new QuantityType<>("19 °F"));
+
+        assertTrue(runScript("NumberA.state <= 20 [°F]"));
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    public void testEqualsWithItemState() throws ScriptExecutionException, ScriptParsingException {
+        Item numberItem = itemRegistry.get(NUMBER_ITEM_TEMPERATURE);
+        ((NumberItem) numberItem).setState(new QuantityType<>("20 °C"));
+
+        assertTrue(runScript("NumberA.state == 20 [°C]"));
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    public void testNotEqualsWithItemState() throws ScriptExecutionException, ScriptParsingException {
+        Item numberItem = itemRegistry.get(NUMBER_ITEM_TEMPERATURE);
+        ((NumberItem) numberItem).setState(new QuantityType<>("20 °C"));
+
+        assertTrue(runScript("NumberA.state != 10 [°C]"));
+    }
+
+    @Test
+    public void testGreaterThan_Number_Number() throws ScriptParsingException, ScriptExecutionException {
+        Item numberItem = itemRegistry.get(NUMBER_ITEM_DECIMAL);
+        ((NumberItem) numberItem).setState(new DecimalType(20));
+
+        assertTrue(runScript("NumberB.state > new DecimalType(19)"));
     }
 
     @Test
@@ -177,6 +244,16 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
         assertThat((QuantityType<?>) runScript("1 [m] / 2 [cm]"), is(QuantityType.valueOf("50")));
     }
 
+    @SuppressWarnings("null")
+    @Test
+    public void testDivideItemState_QuantityType() throws ScriptParsingException, ScriptExecutionException {
+        Item numberItem = itemRegistry.get(NUMBER_ITEM_LENGTH);
+        ((NumberItem) numberItem).setState(new QuantityType<>("1 m"));
+
+        assertThat((QuantityType<?>) runScript("val length = NumberC.state as QuantityType; return length / 2 [cm];"),
+                is(QuantityType.valueOf("50")));
+    }
+
     @Test
     public void testDivideQuantityType_Number() throws ScriptParsingException, ScriptExecutionException {
         assertThat((QuantityType<?>) runScript("1 [m] / 2"), is(QuantityType.valueOf("0.5 m")));
@@ -193,6 +270,11 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
     }
 
     @Test
+    public void testDivide_Length_Time() throws ScriptParsingException, ScriptExecutionException {
+        assertThat((QuantityType<?>) runScript("100 [km] / 1 [h]"), is(new QuantityType<>("100 km/h")));
+    }
+
+    @Test
     public void testToUnit_QuantityType() throws ScriptParsingException, ScriptExecutionException {
         assertThat(runScript("20 [°C].toUnit(\"°F\")"), is(new QuantityType<>("68 °F")));
     }
@@ -202,7 +284,7 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
         assertThat(runScript("20 [m].equals(20)"), is(false));
     }
 
-    private Item createNumberItem(String numberItemName, Class<@NonNull Temperature> dimension) {
+    private Item createNumberItem(String numberItemName, Class<@NonNull ?> dimension) {
         return new NumberItem("Number:" + dimension.getSimpleName(), numberItemName);
     }
 

@@ -16,8 +16,11 @@ package
  */
 org.eclipse.smarthome.model.rule
 
+import com.google.inject.Binder
+import com.google.inject.name.Names
 import org.eclipse.smarthome.model.rule.scoping.RulesImplicitlyImportedTypes
 import org.eclipse.smarthome.model.script.interpreter.ScriptInterpreter
+import org.eclipse.smarthome.model.script.jvmmodel.ScriptTypeComputer
 import org.eclipse.smarthome.model.script.scoping.ActionClassLoader
 import org.eclipse.smarthome.model.script.scoping.ScriptImportSectionNamespaceScopeProvider
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider
@@ -32,14 +35,18 @@ import org.eclipse.xtext.scoping.IScopeProvider
 import org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider
 import org.eclipse.xtext.xbase.interpreter.IExpressionInterpreter
 import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedFeatures
-import com.google.inject.Binder
-import com.google.inject.name.Names
+import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputer
 
 /** 
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  * @author Oliver Libutzki - Initial contribution
  */
-@SuppressWarnings("restriction") class RulesRuntimeModule extends org.eclipse.smarthome.model.rule.AbstractRulesRuntimeModule {
+@SuppressWarnings("restriction") class RulesRuntimeModule extends AbstractRulesRuntimeModule {
+
+    def Class<? extends ITypeComputer> bindITypeComputer() {
+        return ScriptTypeComputer
+    }
+
     def Class<? extends ImplicitlyImportedFeatures> bindImplicitlyImportedTypes() {
         return RulesImplicitlyImportedTypes
     }
