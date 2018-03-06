@@ -614,11 +614,12 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     /**
      * Determines if all 'required' configuration parameters are available in the configuration
      *
-     * @param prototype
-     * @param targetUID
-     * @param configDescriptionURIFunction
-     * @param configuration
-     * @return
+     * @param prototype the "prototype", i.e. thing type or channel type
+     * @param targetUID the UID of the thing or channel entity
+     * @param configDescriptionURIFunction a function to determine the the config description UID for the given
+     *            prototype
+     * @param configuration the current configuration
+     * @return true if all required configuration parameters are given, false otherwise
      */
     private <T extends Identifiable<?>> boolean isComplete(T prototype, UID targetUID,
             Function<T, URI> configDescriptionURIFunction, Configuration configuration) {
@@ -635,12 +636,11 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
         }
 
         List<String> requiredParameters = getRequiredParameters(description);
-        Map<String, Object> properties = configuration.getProperties();
+        Set<String> propertyKeys = configuration.getProperties().keySet();
         if (logger.isDebugEnabled()) {
-            logger.debug("Configuration of '{}' needs {}, has {}.", targetUID, requiredParameters,
-                    configuration.getProperties().keySet());
+            logger.debug("Configuration of '{}' needs {}, has {}.", targetUID, requiredParameters, propertyKeys);
         }
-        return properties.keySet().containsAll(requiredParameters);
+        return propertyKeys.containsAll(requiredParameters);
     }
 
     private ConfigDescription resolve(URI configDescriptionURI, Locale locale) {
