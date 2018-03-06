@@ -16,6 +16,7 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.Channel
@@ -499,8 +500,11 @@ class GenericThingProviderTest extends OSGiTest {
         assertThat thingRegistry.getAll().size(), is(2)
 
         waitForAssert {
-            assertThat receivedEvents.size(), is(equalTo(2))
-            receivedEvents.each { assertThat it, isA(ThingUpdatedEvent) }
+            assertEquals(1, receivedEvents.size());
+            Event event = receivedEvents.get(0);
+            assertEquals(ThingUpdatedEvent.class, event.getClass());
+            ThingUpdatedEvent thingUpdatedEvent = (ThingUpdatedEvent) event;
+            assertEquals("hue:LCT001:myBridge:bulb1", thingUpdatedEvent.getThing().UID.toString());
         }
 
     }
