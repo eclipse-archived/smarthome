@@ -16,8 +16,6 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -37,7 +35,7 @@ import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.items.RegistryHook;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
-import org.eclipse.smarthome.core.types.StateDescriptionProvider;
+import org.eclipse.smarthome.core.service.StateDescriptionService;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -57,9 +55,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 @Component(immediate = true)
 public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvider> implements ItemRegistry {
 
-    private final List<StateDescriptionProvider> stateDescriptionProviders = Collections
-            .synchronizedList(new ArrayList<StateDescriptionProvider>());
     private final List<RegistryHook<Item>> registryHooks = new CopyOnWriteArrayList<>();
+    private StateDescriptionService stateDescriptionService;
 
     private UnitProvider unitProvider;
     private ItemStateConverter itemStateConverter;
@@ -187,7 +184,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         if (item instanceof GenericItem) {
             GenericItem genericItem = (GenericItem) item;
             genericItem.setEventPublisher(eventPublisher);
-            genericItem.setStateDescriptionProviders(stateDescriptionProviders);
+            genericItem.setStateDescriptionService(stateDescriptionService);
             genericItem.setUnitProvider(unitProvider);
             genericItem.setItemStateConverter(itemStateConverter);
         }
@@ -423,29 +420,20 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         super.deactivate();
     }
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    protected void addStateDescriptionProvider(StateDescriptionProvider provider) {
-        synchronized (stateDescriptionProviders) {
-            stateDescriptionProviders.add(provider);
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setStateDescriptionService(StateDescriptionService stateDescriptionService) {
+        this.stateDescriptionService = stateDescriptionService;
 
-            Collections.sort(stateDescriptionProviders, new Comparator<StateDescriptionProvider>() {
-                // sort providers by service ranking in a descending order
-                @Override
-                public int compare(StateDescriptionProvider provider1, StateDescriptionProvider provider2) {
-                    return provider2.getRank().compareTo(provider1.getRank());
-                }
-            });
-
-            for (Item item : getItems()) {
-                ((GenericItem) item).setStateDescriptionProviders(stateDescriptionProviders);
-            }
+        for (Item item : getItems()) {
+            ((GenericItem) item).setStateDescriptionService(stateDescriptionService);
         }
     }
 
-    protected void removeStateDescriptionProvider(StateDescriptionProvider provider) {
-        stateDescriptionProviders.remove(provider);
+    protected void unsetStateDescriptionService(StateDescriptionService stateDescriptionService) {
+        this.stateDescriptionService = null;
+
         for (Item item : getItems()) {
-            ((GenericItem) item).setStateDescriptionProviders(stateDescriptionProviders);
+            ((GenericItem) item).setStateDescriptionService(null);
         }
     }
 
