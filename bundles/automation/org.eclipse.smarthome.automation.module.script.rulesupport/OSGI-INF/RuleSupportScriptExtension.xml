@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+	Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
 
-    See the NOTICE file(s) distributed with this work for additional
-    information regarding copyright ownership.
+	See the NOTICE file(s) distributed with this work for additional
+	information regarding copyright ownership.
 
-    This program and the accompanying materials are made available under the
-    terms of the Eclipse Public License 2.0 which is available at
-    http://www.eclipse.org/legal/epl-2.0
+	This program and the accompanying materials are made available under the
+	terms of the Eclipse Public License 2.0 which is available at
+	http://www.eclipse.org/legal/epl-2.0
 
-    SPDX-License-Identifier: EPL-2.0
+	SPDX-License-Identifier: EPL-2.0
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.automation.module.script.rulesupport.internal.LoaderScriptExtension">
-   <implementation class="org.eclipse.smarthome.automation.module.script.rulesupport.internal.RuleSupportScriptExtension"/>
-   <service>
-      <provide interface="org.eclipse.smarthome.automation.module.script.ScriptExtensionProvider"/>
-   </service>
-   
-   <reference bind="setRuleRegistry" cardinality="1..1" interface="org.eclipse.smarthome.automation.RuleRegistry" name="RuleRegistry" policy="static"/>
-   <reference bind="setRuleProvider" cardinality="1..1" interface="org.eclipse.smarthome.automation.module.script.rulesupport.shared.ScriptedRuleProvider" name="RuleProvider" policy="static"/>
-   <reference bind="setScriptedCustomModuleHandlerFactory" cardinality="1..1" interface="org.eclipse.smarthome.automation.module.script.rulesupport.internal.ScriptedCustomModuleHandlerFactory" name="ScriptedCustomModuleHandlerFactory" policy="static"/>
-   <reference bind="setScriptedCustomModuleTypeProvider" cardinality="1..1" interface="org.eclipse.smarthome.automation.module.script.rulesupport.internal.ScriptedCustomModuleTypeProvider" name="ScriptedCustomModuleTypeProvider" policy="static"/>
-   <reference bind="setScriptedPrivateModuleHandlerFactory" cardinality="1..1" interface="org.eclipse.smarthome.automation.module.script.rulesupport.internal.ScriptedPrivateModuleHandlerFactory" name="ScriptedPrivateModuleHandlerFactory" policy="static"/>
+	<implementation class="org.eclipse.smarthome.automation.module.script.rulesupport.internal.RuleSupportScriptExtension"/>
+	<service>
+		<provide interface="org.eclipse.smarthome.automation.module.script.ScriptExtensionProvider"/>
+	</service>
+
+	<reference bind="setRuleRegistry" cardinality="1..1" interface="org.eclipse.smarthome.automation.RuleRegistry" name="RuleRegistry" policy="static"/>
+	<reference bind="setRuleProvider" cardinality="1..1" interface="org.eclipse.smarthome.automation.module.script.rulesupport.shared.ScriptedRuleProvider" name="RuleProvider" policy="static"/>
+	<reference bind="setScriptedCustomModuleHandlerFactory" cardinality="1..1" interface="org.eclipse.smarthome.automation.module.script.rulesupport.internal.ScriptedCustomModuleHandlerFactory" name="ScriptedCustomModuleHandlerFactory" policy="static"/>
+	<reference bind="setScriptedCustomModuleTypeProvider" cardinality="1..1" interface="org.eclipse.smarthome.automation.module.script.rulesupport.internal.ScriptedCustomModuleTypeProvider" name="ScriptedCustomModuleTypeProvider" policy="static"/>
+	<reference bind="setScriptedPrivateModuleHandlerFactory" cardinality="1..1" interface="org.eclipse.smarthome.automation.module.script.rulesupport.internal.ScriptedPrivateModuleHandlerFactory" name="ScriptedPrivateModuleHandlerFactory" policy="static"/>
 </scr:component>
