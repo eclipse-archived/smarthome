@@ -10,27 +10,30 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.binding.fsinternetradio.test;
+package org.eclipse.smarthome.test;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 
 /**
- * Look up a free TCP/IP port on localhost for test execution. This ensures collision free parallel test execution using
- * embedded jetty on dynamic ports.
+ * {@link TestPortUtil} provides helper methods for working with ports in tests.
  *
  * @author Henning Treu - initial contribution
- *
+ * @author Wouter Born - Increase reusability
  */
-public class TestPortUtil {
+public final class TestPortUtil {
+
+    private TestPortUtil() {
+        // Hidden utility class constructor
+    }
 
     /**
-     * Returns a free port number on localhost.
+     * Returns a free TCP/IP port number on localhost.
      *
      * Heavily inspired from org.eclipse.jdt.launching.SocketUtil (to avoid a dependency to JDT just because of this).
      * Slightly improved with close() missing in JDT. And throws exception instead of returning -1.
      *
-     * @return a free port number on localhost
+     * @return a free TCP/IP port number on localhost
      * @throws IllegalStateException if unable to find a free port
      */
     public static int findFreePort() {
@@ -38,8 +41,7 @@ public class TestPortUtil {
             socket.setReuseAddress(true);
             return socket.getLocalPort();
         } catch (final IOException ex) {
-            throw new IllegalStateException("Could not find a free TCP/IP port to start embedded Jetty HTTP Server on",
-                    ex);
+            throw new IllegalStateException("Could not find a free TCP/IP port", ex);
         }
     }
 }
