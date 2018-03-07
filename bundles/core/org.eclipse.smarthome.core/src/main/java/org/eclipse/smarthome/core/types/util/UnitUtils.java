@@ -113,11 +113,11 @@ public class UnitUtils {
     }
 
     public static boolean isDifferentMeasurementSystem(Unit<? extends Quantity<?>> thisUnit, Unit<?> thatUnit) {
-        Set<? extends Unit<?>> si = SIUnits.getInstance().getUnits();
-        Set<? extends Unit<?>> us = ImperialUnits.getInstance().getUnits();
+        Set<? extends Unit<?>> siUnits = SIUnits.getInstance().getUnits();
+        Set<? extends Unit<?>> usUnits = ImperialUnits.getInstance().getUnits();
 
-        boolean differentSystems = (si.contains(thisUnit) && us.contains(thatUnit)) //
-                || (si.contains(thatUnit) && us.contains(thisUnit));
+        boolean differentSystems = (siUnits.contains(thisUnit) && usUnits.contains(thatUnit)) //
+                || (siUnits.contains(thatUnit) && usUnits.contains(thisUnit));
 
         if (!differentSystems) {
             if (thisUnit instanceof TransformedUnit
@@ -133,8 +133,8 @@ public class UnitUtils {
 
         // Compare the unit symbols. For product units (e.g. 1km / 1h) the equality is not given in the Sets above.
         if (!differentSystems) {
-            Set<String> siSymbols = SI.stream().map(Unit::getSymbol).collect(toSet());
-            Set<String> usSymbols = US.stream().map(Unit::getSymbol).collect(toSet());
+            Set<String> siSymbols = siUnits.stream().map(Unit::getSymbol).collect(toSet());
+            Set<String> usSymbols = usUnits.stream().map(Unit::getSymbol).collect(toSet());
 
             differentSystems = (siSymbols.contains(thisUnit.getSymbol()) && usSymbols.contains(thatUnit.getSymbol())) //
                     || (siSymbols.contains(thatUnit.getSymbol()) && usSymbols.contains(thisUnit.getSymbol()));
