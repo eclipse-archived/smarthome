@@ -45,7 +45,6 @@ public class GroupFunctionHelper {
      */
     public GroupFunction createGroupFunction(GroupFunctionDTO function, List<State> args,
             @Nullable Class<? extends Quantity<?>> dimension) {
-
         if (dimension != null) {
             return createDimensionGroupFunction(function, args, dimension);
         }

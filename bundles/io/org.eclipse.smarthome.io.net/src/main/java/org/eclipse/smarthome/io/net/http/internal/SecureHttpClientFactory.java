@@ -100,7 +100,6 @@ public class SecureHttpClientFactory implements HttpClientFactory {
             logger.error("error while stopping jetty shared http client", e);
             // nothing else we can do here
         }
-
     }
 
     @Override
@@ -149,7 +148,6 @@ public class SecureHttpClientFactory implements HttpClientFactory {
             logger.warn("ignoring invalid type {} for parameter {}", value.getClass().getName(), parameter);
             return defaultValue;
         }
-
     }
 
     private synchronized void initialize() {
@@ -187,7 +185,6 @@ public class SecureHttpClientFactory implements HttpClientFactory {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<HttpClient>() {
                 @Override
                 public HttpClient run() {
-
                     logger.info("creating httpClient for endpoint {}", endpoint);
                     SslContextFactory sslContextFactory = new SslContextFactory();
                     sslContextFactory.setEndpointIdentificationAlgorithm("HTTPS");

@@ -12,8 +12,6 @@
  */
 package org.eclipse.smarthome.magic.binding.handler;
 
-import static org.eclipse.smarthome.magic.binding.MagicBindingConstants.CHANNEL_COLOR;
-
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -34,8 +32,9 @@ public class MagicColorLightHandler extends BaseThingHandler {
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        if (channelUID.getId().equals(CHANNEL_COLOR)) {
-        }
+        // process the command for the color channel here
+        // if (channelUID.getId().equals(MagicBindingConstants.CHANNEL_COLOR)) {
+        // }
     }
 
     @Override
