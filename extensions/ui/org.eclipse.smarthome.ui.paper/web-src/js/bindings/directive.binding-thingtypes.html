@@ -1,12 +1,12 @@
 <div class="things">
 	<div class="md-title">Supported Things</div>
 	
-	<div class="search" layout="row" ng-if="binding.thingTypes.length > 3">
-	    <search-field model="filter.text" placeholder="Filter"/>
+	<div class="search" layout="row" ng-if="$ctrl.binding.thingTypes.length > 3">
+	    <search-field model="$ctrl.filter.text" placeholder="Filter"/>
 	</div>
 
 	<md-expansion-panel-group multiple> 
-	    <md-expansion-panel md-component-id="thing-type" ng-repeat="thingType in binding.thingTypes | filter:filterItems(['uid','label'], filter.text) track by thingType.UID"> 
+	    <md-expansion-panel md-component-id="thing-type" ng-repeat="thingType in $ctrl.binding.thingTypes | filter:$ctrl.filterItems(['uid','label'], $ctrl.filter.text) track by thingType.UID"> 
 	        <md-expansion-panel-collapsed>
 	             <div class="md-title">{{::thingType.label}}</div>
 	             <div class="md-summary">{{::thingType.UID}}</div>
