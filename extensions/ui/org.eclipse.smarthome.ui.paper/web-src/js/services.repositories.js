@@ -128,7 +128,7 @@ var Repository = function($q, $rootScope, remoteService, dataType, staticData, g
     };
 }
 
-angular.module('PaperUI.services.repositories', []).factory('bindingRepository', function($q, $rootScope, bindingService) {
+angular.module('PaperUI.services.repositories', [ 'PaperUI.services.rest' ]).factory('bindingRepository', function($q, $rootScope, bindingService) {
     $rootScope.data.bindings = [];
     return new Repository($q, $rootScope, bindingService, 'bindings', true);
 }).factory('thingTypeRepository', function($q, $rootScope, thingTypeService) {
