@@ -108,7 +108,6 @@ public class SecureHttpClientFactoryTest {
                         try {
                             ContentResponse response = client.GET(TEST_URL);
                             if (response.getStatus() != 200) {
-                                System.out.println(response.getStatus());
                                 failures.add("Statuscode != 200");
                             }
                         } catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -156,7 +155,6 @@ public class SecureHttpClientFactoryTest {
                         try {
                             ContentResponse response = client.GET(TEST_URL);
                             if (response.getStatus() != 200) {
-                                System.out.println(response.getStatus());
                                 failures.add("Statuscode != 200");
                             }
                         } catch (InterruptedException | ExecutionException | TimeoutException e) {

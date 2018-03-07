@@ -86,8 +86,7 @@ public class ImperialUnits extends SmartHomeUnits {
     /**
      * Adds a new unit not mapped to any specified quantity type.
      *
-     * @param unit
-     *            the unit being added.
+     * @param unit the unit being added.
      * @return <code>unit</code>.
      */
     private static <U extends Unit<?>> U addUnit(U unit) {

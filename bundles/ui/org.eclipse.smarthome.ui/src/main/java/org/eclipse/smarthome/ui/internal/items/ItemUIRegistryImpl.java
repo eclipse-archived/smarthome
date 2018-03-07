@@ -418,7 +418,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
 
         return quantityState;
-
     }
 
     private String getFormatPattern(String label) {

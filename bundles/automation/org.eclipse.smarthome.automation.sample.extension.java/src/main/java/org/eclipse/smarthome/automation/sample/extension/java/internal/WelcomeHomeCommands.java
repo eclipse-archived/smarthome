@@ -92,7 +92,6 @@ public class WelcomeHomeCommands extends AbstractConsoleCommandExtension {
             activate(params, console);
         } else if (COMMAND_ACTIVATE_L.equalsIgnoreCase(command) || COMMAND_ACTIVATE_L_SHORT.equalsIgnoreCase(command)) {
             activateLights(params, console);
-        } else {
         }
     }
 

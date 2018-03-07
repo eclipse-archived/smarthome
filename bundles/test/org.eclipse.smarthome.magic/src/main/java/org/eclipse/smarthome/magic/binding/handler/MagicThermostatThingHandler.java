@@ -40,7 +40,6 @@ public class MagicThermostatThingHandler extends BaseThingHandler {
     public void handleCommand(@NonNull ChannelUID channelUID, @NonNull Command command) {
         if (channelUID.getId().equals(CHANNEL_SET_TEMPERATURE)) {
             if (command instanceof DecimalType || command instanceof QuantityType) {
-
                 String state = command.toFullString() + (command instanceof DecimalType ? " °C" : "");
                 scheduler.schedule(() -> {
                     updateState(CHANNEL_TEMPERATURE, new QuantityType<>(state));

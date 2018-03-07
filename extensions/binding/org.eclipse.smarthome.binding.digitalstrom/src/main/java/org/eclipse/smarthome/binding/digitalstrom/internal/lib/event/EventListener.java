@@ -65,7 +65,7 @@ public class EventListener {
 
     private int subscriptionID = 15;
     private final int timeout = 500;
-    private final List<String> subscribedEvents = Collections.synchronizedList(new LinkedList<String>());;
+    private final List<String> subscribedEvents = Collections.synchronizedList(new LinkedList<String>());
     private boolean subscribed = false;
 
     // error message

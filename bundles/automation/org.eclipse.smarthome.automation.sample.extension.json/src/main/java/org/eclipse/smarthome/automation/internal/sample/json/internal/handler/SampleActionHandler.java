@@ -46,7 +46,6 @@ public class SampleActionHandler extends BaseModuleHandler<Action> implements Ac
         if (message == null) {
             message = "";
         }
-        System.out.println("[Automation demo] " + module.getTypeUID() + "/" + module.getId() + ": " + message);
         return null;
     }
 

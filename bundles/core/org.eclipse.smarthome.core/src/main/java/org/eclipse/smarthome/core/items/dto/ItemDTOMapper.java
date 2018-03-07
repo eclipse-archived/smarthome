@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class ItemDTOMapper {
 
-    private final static GroupFunctionHelper GROUP_FUNCTION_HELPER = new GroupFunctionHelper();
+    private static final GroupFunctionHelper GROUP_FUNCTION_HELPER = new GroupFunctionHelper();
 
     /**
      * Maps item DTO into item object.
