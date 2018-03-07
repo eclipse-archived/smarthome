@@ -1,36 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.1.0 http://www.osgi.org/xmlns/metatype/v1.1.0">
+	xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.1.0 http://www.osgi.org/xmlns/metatype/v1.1.0">
 
 	<OCD name="HTTP Client Factory" id="HttpClientFactory" description="HTTP Client Factory for generting jetty http clients">
-		<AD name="minThreadsShared" id="minThreadsShared" 
-		    default="10" min="1"
-		    type="Integer" description="Minimal threads for thread pool" />
+		<AD name="minThreadsShared" id="minThreadsShared" default="10" min="1" type="Integer" description="Minimal threads for thread pool" />
 
-		<AD name="maxThreadsShared" id="maxThreadsShared" 
-		    default="40" min="5"
-		    type="Integer" description="Maximal threads for thread pool" />
+		<AD name="maxThreadsShared" id="maxThreadsShared" default="40" min="5" type="Integer" description="Maximal threads for thread pool" />
 
-		<AD name="keepAliveTimeoutShared" id="keepAliveTimeoutShared" 
-		    default="60" min="1"
-		    type="Integer" description="Timeout in seconds, after which idle threads are terminated" />
-		    
-		<AD name="minThreadsCustom" id="minThreadsCustom" 
-		    default="5" min="1"
-		    type="Integer" description="Minimal threads for thread pool" />
+		<AD name="keepAliveTimeoutShared" id="keepAliveTimeoutShared" default="60" min="1" type="Integer"
+			description="Timeout in seconds, after which idle threads are terminated" />
 
-		<AD name="maxThreadsCustom" id="maxThreadsCustom" 
-		    default="10" min="5"
-		    type="Integer" description="Maximal threads for thread pool" />
+		<AD name="minThreadsCustom" id="minThreadsCustom" default="5" min="1" type="Integer" description="Minimal threads for thread pool" />
 
-		<AD name="keepAliveTimeoutCustom" id="keepAliveTimeoutCustom" 
-		    default="60" min="1"
-		    type="Integer" description="Timeout in seconds, after which idle threads are terminated" />
-		    
+		<AD name="maxThreadsCustom" id="maxThreadsCustom" default="10" min="5" type="Integer" description="Maximal threads for thread pool" />
+
+		<AD name="keepAliveTimeoutCustom" id="keepAliveTimeoutCustom" default="60" min="1" type="Integer"
+			description="Timeout in seconds, after which idle threads are terminated" />
+
 	</OCD>
 
 	<Designate pid="org.eclipse.smarthome.HttpClientFactory">
 		<Object ocdref="HttpClientFactory" />
 	</Designate>
-	
+
 </metatype:MetaData>

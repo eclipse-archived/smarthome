@@ -25,7 +25,7 @@
 		<item-type>Color</item-type>
 		<label>Color</label>
 		<description>The color channel allows to control the color of a light.
-            It is also possible to dim values and switch the light on and off.
+			It is also possible to dim values and switch the light on and off.
 		</description>
 		<category>ColorLight</category>
 		<tags>
@@ -72,9 +72,9 @@
 	</channel-type>
 
 	<channel-type id="number">
-        <item-type>Number</item-type>
-        <label>Thing Online(&gt;0)/Offline(&lt;0) Delay</label>
-    </channel-type>
+		<item-type>Number</item-type>
+		<label>Thing Online(&gt;0)/Offline(&lt;0) Delay</label>
+	</channel-type>
 
 	<channel-type id="temperature">
 		<item-type>Number:Temperature</item-type>
