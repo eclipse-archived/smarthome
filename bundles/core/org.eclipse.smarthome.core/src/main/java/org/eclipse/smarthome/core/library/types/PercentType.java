@@ -62,31 +62,31 @@ public class PercentType extends DecimalType {
     }
 
     @Override
-    public State as(Class<? extends State> target) {
+    public <T extends State> T as(Class<T> target) {
         if (target == OnOffType.class) {
-            return equals(ZERO) ? OnOffType.OFF : OnOffType.ON;
+            return target.cast(equals(ZERO) ? OnOffType.OFF : OnOffType.ON);
         } else if (target == DecimalType.class) {
-            return new DecimalType(toBigDecimal().divide(BigDecimal.valueOf(100), 8, RoundingMode.UP));
+            return target.cast(new DecimalType(toBigDecimal().divide(BigDecimal.valueOf(100), 8, RoundingMode.UP)));
         } else if (target == UpDownType.class) {
             if (equals(ZERO)) {
-                return UpDownType.UP;
+                return target.cast(UpDownType.UP);
             } else if (equals(HUNDRED)) {
-                return UpDownType.DOWN;
+                return target.cast(UpDownType.DOWN);
             } else {
-                return UnDefType.UNDEF;
+                return target.cast(UnDefType.UNDEF);
             }
         } else if (target == OpenClosedType.class) {
             if (equals(ZERO)) {
-                return OpenClosedType.CLOSED;
+                return target.cast(OpenClosedType.CLOSED);
             } else if (equals(HUNDRED)) {
-                return OpenClosedType.OPEN;
+                return target.cast(OpenClosedType.OPEN);
             } else {
-                return UnDefType.UNDEF;
+                return target.cast(UnDefType.UNDEF);
             }
         } else if (target == HSBType.class) {
-            return new HSBType(DecimalType.ZERO, PercentType.ZERO, this);
+            return target.cast(new HSBType(DecimalType.ZERO, PercentType.ZERO, this));
         } else if (target == QuantityType.class) {
-            return new QuantityType<>(toBigDecimal().doubleValue(), SmartHomeUnits.PERCENT);
+            return target.cast(new QuantityType<>(toBigDecimal().doubleValue(), SmartHomeUnits.PERCENT));
         } else {
             return defaultConversion(target);
         }

@@ -93,7 +93,7 @@ public abstract class GenericItem implements ActiveItem {
     }
 
     @Override
-    public @Nullable State getStateAs(Class<? extends State> typeClass) {
+    public <T extends State> @Nullable T getStateAs(Class<T> typeClass) {
         return state.as(typeClass);
     }
 

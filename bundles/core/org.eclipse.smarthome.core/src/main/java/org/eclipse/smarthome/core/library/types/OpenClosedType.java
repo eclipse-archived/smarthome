@@ -40,11 +40,11 @@ public enum OpenClosedType implements PrimitiveType, State, Command {
     }
 
     @Override
-    public State as(Class<? extends State> target) {
+    public <T extends State> T as(Class<T> target) {
         if (target == DecimalType.class) {
-            return this == OPEN ? new DecimalType(1) : DecimalType.ZERO;
+            return target.cast(this == OPEN ? new DecimalType(1) : DecimalType.ZERO);
         } else if (target == PercentType.class) {
-            return this == OPEN ? PercentType.HUNDRED : PercentType.ZERO;
+            return target.cast(this == OPEN ? PercentType.HUNDRED : PercentType.ZERO);
         } else {
             return State.super.as(target);
         }

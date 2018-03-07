@@ -271,14 +271,15 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
     }
 
     @Override
-    public State as(Class<? extends State> target) {
+    public <T extends State> T as(Class<T> target) {
         if (target == OnOffType.class) {
             // if brightness is not completely off, we consider the state to be on
-            return getBrightness().equals(PercentType.ZERO) ? OnOffType.OFF : OnOffType.ON;
+            return target.cast(getBrightness().equals(PercentType.ZERO) ? OnOffType.OFF : OnOffType.ON);
         } else if (target == DecimalType.class) {
-            return new DecimalType(getBrightness().toBigDecimal().divide(BigDecimal.valueOf(100), 8, RoundingMode.UP));
+            return target.cast(new DecimalType(
+                    getBrightness().toBigDecimal().divide(BigDecimal.valueOf(100), 8, RoundingMode.UP)));
         } else if (target == PercentType.class) {
-            return new PercentType(getBrightness().toBigDecimal());
+            return target.cast(new PercentType(getBrightness().toBigDecimal()));
         } else {
             return defaultConversion(target);
         }

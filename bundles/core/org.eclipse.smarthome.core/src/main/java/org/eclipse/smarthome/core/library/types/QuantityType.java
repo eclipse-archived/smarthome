@@ -261,43 +261,43 @@ public class QuantityType<T extends Quantity<T>> extends Number
     }
 
     @Override
-    public State as(@Nullable Class<? extends @Nullable State> target) {
+    public <U extends State> U as(@Nullable Class<U> target) {
         if (target == OnOffType.class) {
             if (intValue() == 0) {
-                return OnOffType.OFF;
+                return target.cast(OnOffType.OFF);
             } else if (SmartHomeUnits.PERCENT.equals(getUnit())) {
-                return toBigDecimal().compareTo(BigDecimal.ZERO) > 0 ? OnOffType.ON : OnOffType.OFF;
+                return target.cast(toBigDecimal().compareTo(BigDecimal.ZERO) > 0 ? OnOffType.ON : OnOffType.OFF);
             } else if (toBigDecimal().compareTo(BigDecimal.ONE) == 0) {
-                return OnOffType.ON;
+                return target.cast(OnOffType.ON);
             } else {
-                return UnDefType.UNDEF;
+                return target.cast(UnDefType.UNDEF);
             }
         } else if (target == UpDownType.class) {
             if (doubleValue() == 0) {
-                return UpDownType.UP;
+                return target.cast(UpDownType.UP);
             } else if (toBigDecimal().compareTo(BigDecimal.ONE) == 0) {
-                return UpDownType.DOWN;
+                return target.cast(UpDownType.DOWN);
             } else {
-                return UnDefType.UNDEF;
+                return target.cast(UnDefType.UNDEF);
             }
         } else if (target == OpenClosedType.class) {
             if (doubleValue() == 0) {
-                return OpenClosedType.CLOSED;
+                return target.cast(OpenClosedType.CLOSED);
             } else if (toBigDecimal().compareTo(BigDecimal.ONE) == 0) {
-                return OpenClosedType.OPEN;
+                return target.cast(OpenClosedType.OPEN);
             } else {
-                return UnDefType.UNDEF;
+                return target.cast(UnDefType.UNDEF);
             }
         } else if (target == HSBType.class) {
-            return new HSBType(DecimalType.ZERO, PercentType.ZERO,
-                    new PercentType(this.toBigDecimal().multiply(HUNDRED)));
+            return target.cast(new HSBType(DecimalType.ZERO, PercentType.ZERO,
+                    new PercentType(this.toBigDecimal().multiply(HUNDRED))));
         } else if (target == PercentType.class) {
             if (SmartHomeUnits.PERCENT.equals(getUnit())) {
-                return new PercentType(toBigDecimal());
+                return target.cast(new PercentType(toBigDecimal()));
             }
-            return new PercentType(toBigDecimal().multiply(HUNDRED));
+            return target.cast(new PercentType(toBigDecimal().multiply(HUNDRED)));
         } else if (target == DecimalType.class) {
-            return new DecimalType(toBigDecimal());
+            return target.cast(new DecimalType(toBigDecimal()));
         } else {
             return State.super.as(target);
         }
