@@ -55,7 +55,7 @@ public class ${bindingIdCamelCase}HandlerFactory extends BaseThingHandlerFactory
     protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (thingTypeUID.equals(THING_TYPE_SAMPLE)) {
+        if (THING_TYPE_SAMPLE.equals(thingTypeUID)) {
             return new ${bindingIdCamelCase}Handler(thing);
         }
 
