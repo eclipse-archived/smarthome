@@ -13,44 +13,27 @@
 package org.eclipse.smarthome.binding.dmx;
 
 import static org.eclipse.smarthome.binding.dmx.DmxBindingConstants.*;
-import static org.eclipse.smarthome.binding.dmx.test.TestBridgeHandler.THING_TYPE_TEST_BRIDGE;
-import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.number.IsCloseTo.closeTo;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.dmx.handler.ColorThingHandler;
 import org.eclipse.smarthome.binding.dmx.handler.DimmerThingHandler;
-import org.eclipse.smarthome.binding.dmx.test.TestBridgeHandler;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.items.GenericItem;
-import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.core.library.items.ColorItem;
-import org.eclipse.smarthome.core.library.items.DimmerItem;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingProvider;
-import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
-import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
-import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
-import org.eclipse.smarthome.core.types.State;
-import org.eclipse.smarthome.test.java.JavaOSGiTest;
-import org.eclipse.smarthome.test.storage.VolatileStorageService;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -59,241 +42,138 @@ import org.junit.Test;
  *
  * @author Jan N. Klug - Initial contribution
  */
-public class ColorThingHandlerTest extends JavaOSGiTest {
+public class ColorThingHandlerTest extends AbstractDmxThingTest {
 
     private static final String TEST_CHANNEL_CONFIG = "100/3";
     private static final int TEST_FADE_TIME = 1500;
     private static final HSBType TEST_COLOR = new HSBType(new DecimalType(280), new PercentType(100),
             new PercentType(100));
 
-    private static final String TEST_BRIGHTNESS_R_ITEM_NAME = "brightnessRItem";
-    private static final String TEST_BRIGHTNESS_G_ITEM_NAME = "brightnessGItem";
-    private static final String TEST_BRIGHTNESS_B_ITEM_NAME = "brightnessBItem";
-    private static final String TEST_DIMMER_ITEM_NAME = "dimmerItem";
-    private static final String TEST_COLOR_ITEM_NAME = "colorItem";
-
-    private ManagedThingProvider managedThingProvider;
-    private ItemRegistry itemRegistry;
-    private final VolatileStorageService volatileStorageService = new VolatileStorageService();
-
-    Map<String, Object> bridgeProperties;
-    Map<String, Object> thingProperties;
-
-    private Bridge bridge;
+    private Map<String, Object> thingProperties;
     private Thing dimmerThing;
-    private GenericItem dimmerItem, brightnessRItem, brightnessGItem, brightnessBItem, colorItem;
-
-    private TestBridgeHandler dmxBridgeHandler;
     private ColorThingHandler dimmerThingHandler;
+
+    private final ThingUID THING_UID_DIMMER = new ThingUID(THING_TYPE_COLOR, "testdimmer");
+    private final ChannelUID CHANNEL_UID_COLOR = new ChannelUID(THING_UID_DIMMER, CHANNEL_COLOR);
+    private final ChannelUID CHANNEL_UID_BRIGHTNESS_R = new ChannelUID(THING_UID_DIMMER, CHANNEL_BRIGHTNESS_R);
+    private final ChannelUID CHANNEL_UID_BRIGHTNESS_G = new ChannelUID(THING_UID_DIMMER, CHANNEL_BRIGHTNESS_G);
+    private final ChannelUID CHANNEL_UID_BRIGHTNESS_B = new ChannelUID(THING_UID_DIMMER, CHANNEL_BRIGHTNESS_B);
 
     @Before
     public void setUp() {
-        registerService(volatileStorageService);
-        managedThingProvider = getService(ThingProvider.class, ManagedThingProvider.class);
-        assertThat(managedThingProvider, is(notNullValue()));
-
-        itemRegistry = getService(ItemRegistry.class);
-        assertThat(itemRegistry, is(notNullValue()));
-
-        bridgeProperties = new HashMap<>();
-        bridge = BridgeBuilder.create(THING_TYPE_TEST_BRIDGE, "testbridge").withLabel("Test Bridge")
-                .withConfiguration(new Configuration(bridgeProperties)).build();
-
+        super.setup();
         thingProperties = new HashMap<>();
         thingProperties.put(CONFIG_DMX_ID, TEST_CHANNEL_CONFIG);
         thingProperties.put(CONFIG_DIMMER_FADE_TIME, TEST_FADE_TIME);
         thingProperties.put(CONFIG_DIMMER_TURNONVALUE, "255,128,0");
-        ThingUID thingUID = new ThingUID(THING_TYPE_COLOR, "testdimmer");
         dimmerThing = ThingBuilder.create(THING_TYPE_COLOR, "testdimmer").withLabel("Dimmer Thing")
                 .withBridge(bridge.getUID()).withConfiguration(new Configuration(thingProperties))
-                .withChannel(ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_BRIGHTNESS_R), "Brightness R")
+                .withChannel(ChannelBuilder.create(CHANNEL_UID_BRIGHTNESS_R, "Brightness R")
                         .withType(BRIGHTNESS_CHANNEL_TYPEUID).build())
-                .withChannel(ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_BRIGHTNESS_G), "Brightness G")
+                .withChannel(ChannelBuilder.create(CHANNEL_UID_BRIGHTNESS_G, "Brightness G")
                         .withType(BRIGHTNESS_CHANNEL_TYPEUID).build())
-                .withChannel(ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_BRIGHTNESS_B), "Brightness B")
+                .withChannel(ChannelBuilder.create(CHANNEL_UID_BRIGHTNESS_B, "Brightness B")
                         .withType(BRIGHTNESS_CHANNEL_TYPEUID).build())
-                .withChannel(ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_COLOR), "Color")
-                        .withType(COLOR_CHANNEL_TYPEUID).build())
+                .withChannel(ChannelBuilder.create(CHANNEL_UID_COLOR, "Color").withType(COLOR_CHANNEL_TYPEUID).build())
                 .build();
-    }
-
-    @After
-    public void tearDown() {
-        managedThingProvider.remove(dimmerThing.getUID());
-        managedThingProvider.remove(bridge.getUID());
-        unregisterService(volatileStorageService);
+        dimmerThingHandler = new ColorThingHandler(dimmerThing) {
+            @Override
+            protected @Nullable Bridge getBridge() {
+                return bridge;
+            }
+        };
+        initializeHandler(dimmerThingHandler);
     }
 
     @Test
-    public void statusOfDimmerThing() {
-        initialize();
+    public void testThingStatus() {
+        assertThingStatus(dimmerThing);
+    }
 
-        // check that thing turns online if properly configured
-        waitForAssert(() -> assertThat(dimmerThing.getStatus(), is(ThingStatus.ONLINE)));
-
-        // check that thing properly follows bridge status
-        dmxBridgeHandler.updateBridgeStatus(ThingStatus.OFFLINE);
-        waitForAssert(() -> assertThat(dimmerThing.getStatus(), is(ThingStatus.OFFLINE)));
-        dmxBridgeHandler.updateBridgeStatus(ThingStatus.ONLINE);
-        waitForAssert(() -> assertThat(dimmerThing.getStatus(), is(ThingStatus.ONLINE)));
-
+    @Test
+    public void testThingStatus_noBridge() {
         // check that thing is offline if no bridge found
-        managedThingProvider.remove(dimmerThing.getUID());
-        assertThat(dimmerThing.getHandler(), is(nullValue()));
-        dimmerThing = ThingBuilder.create(THING_TYPE_DIMMER, "testdimmer").withLabel("Dimmer Thing")
-                .withConfiguration(new Configuration(thingProperties)).build();
-        managedThingProvider.add(dimmerThing);
-        waitForAssert(() -> assertThat(dimmerThing.getHandler(), notNullValue()));
-        waitForAssert(() -> assertThat(dimmerThing.getStatus(), is(ThingStatus.OFFLINE)));
+        ColorThingHandler dimmerHandlerWithoutBridge = new ColorThingHandler(dimmerThing) {
+            @Override
+            protected @Nullable Bridge getBridge() {
+                return null;
+            }
+        };
+        assertThingStatusWithoutBridge(dimmerHandlerWithoutBridge);
     }
 
     @Test
     public void testOnOffCommand() {
-        initialize();
-
         // on
         long currentTime = System.currentTimeMillis();
 
-        dimmerThingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_COLOR), OnOffType.ON);
+        dimmerThingHandler.handleCommand(CHANNEL_UID_COLOR, OnOffType.ON);
         currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
 
-        waitForAssert(() -> assertThat(getItemOnOffType(colorItem), is(OnOffType.ON)));
-        waitForAssert(() -> assertThat(brightnessRItem.getState(), is(PercentType.HUNDRED)));
-        waitForAssert(() -> assertThat(getItemPercentType(brightnessGItem).doubleValue(), is(closeTo(50, 0.5))));
-        waitForAssert(() -> assertThat(brightnessBItem.getState(), is(PercentType.ZERO)));
+        waitForAssert(() -> {
+            assertChannelStateUpdate(CHANNEL_UID_COLOR, state -> assertEquals(OnOffType.ON, state.as(OnOffType.class)));
+            assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS_R, state -> assertEquals(PercentType.HUNDRED, state));
+            assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS_G,
+                    state -> assertThat(((PercentType) state).doubleValue(), is(closeTo(50.0, 0.5))));
+            assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS_B, state -> assertEquals(PercentType.ZERO, state));
+        });
 
         // off
-        dimmerThingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_COLOR), OnOffType.OFF);
+        dimmerThingHandler.handleCommand(CHANNEL_UID_COLOR, OnOffType.OFF);
         currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
 
-        waitForAssert(() -> assertThat(getItemOnOffType(colorItem), is(OnOffType.OFF)));
-        waitForAssert(() -> assertThat(brightnessRItem.getState(), is(PercentType.ZERO)));
-        waitForAssert(() -> assertThat(brightnessGItem.getState(), is(PercentType.ZERO)));
-        waitForAssert(() -> assertThat(brightnessBItem.getState(), is(PercentType.ZERO)));
+        waitForAssert(() -> {
+            assertChannelStateUpdate(CHANNEL_UID_COLOR,
+                    state -> assertEquals(OnOffType.OFF, state.as(OnOffType.class)));
+            assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS_R, state -> assertEquals(PercentType.ZERO, state));
+            assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS_G, state -> assertEquals(PercentType.ZERO, state));
+            assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS_B, state -> assertEquals(PercentType.ZERO, state));
+        });
     }
 
     @Test
     public void testPercentTypeCommand() {
-        initialize();
-        long currentTime = System.currentTimeMillis();
-
-        // set 50%
-        dimmerThingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_COLOR), new PercentType(30));
-        currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
-        waitForAssert(() -> assertThat(getItemPercentType(dimmerItem).doubleValue(), is(closeTo(30.0, 1.0))));
-
-        // set 0%
-        dimmerThingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_COLOR), PercentType.ZERO);
-        currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
-
-        waitForAssert(() -> assertThat((PercentType) dimmerItem.getState(), is(equalTo(PercentType.ZERO))));
-
-        // set 100%
-        dimmerThingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_COLOR), PercentType.HUNDRED);
-        currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
-
-        waitForAssert(() -> assertThat((PercentType) dimmerItem.getState(), is(equalTo(PercentType.HUNDRED))));
+        assertPercentTypeCommands(dimmerThingHandler, CHANNEL_UID_COLOR, TEST_FADE_TIME);
     }
 
     @Test
     public void testColorCommand() {
-        initialize();
-
         // setting of color
         long currentTime = System.currentTimeMillis();
-        dimmerThingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_COLOR), TEST_COLOR);
+
+        dimmerThingHandler.handleCommand(CHANNEL_UID_COLOR, TEST_COLOR);
         currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
 
-        waitForAssert(() -> assertThat(colorItem.getState(), instanceOf(HSBType.class)));
-
-        waitForAssert(() -> assertThat(((HSBType) colorItem.getState()).getHue().doubleValue(), is(closeTo(280, 1))));
-        waitForAssert(() -> assertThat(((HSBType) colorItem.getState()).getSaturation().doubleValue(),
-                is(closeTo(100, 0.5))));
-        waitForAssert(() -> assertThat(((HSBType) colorItem.getState()).getBrightness().doubleValue(),
-                is(closeTo(100, 0.5))));
-
-        waitForAssert(() -> assertThat(getItemPercentType(brightnessRItem).doubleValue(), is(closeTo(66.5, 0.5))));
-        waitForAssert(() -> assertThat(brightnessGItem.getState(), is(PercentType.ZERO)));
-        waitForAssert(() -> assertThat(brightnessBItem.getState(), is(PercentType.HUNDRED)));
+        waitForAssert(() -> {
+            assertChannelStateUpdate(CHANNEL_UID_COLOR,
+                    state -> assertThat(((HSBType) state).getHue().doubleValue(), is(closeTo(280, 1))));
+            assertChannelStateUpdate(CHANNEL_UID_COLOR,
+                    state -> assertThat(((HSBType) state).getSaturation().doubleValue(), is(closeTo(100.0, 0.5))));
+            assertChannelStateUpdate(CHANNEL_UID_COLOR,
+                    state -> assertThat(((HSBType) state).getBrightness().doubleValue(), is(closeTo(100.0, 0.5))));
+            assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS_R,
+                    state -> assertThat(((PercentType) state).doubleValue(), is(closeTo(66.5, 0.5))));
+            assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS_G, state -> assertEquals(PercentType.ZERO, state));
+            assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS_B, state -> assertEquals(PercentType.HUNDRED, state));
+        });
 
         // color dimming
-        dimmerThingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_COLOR), new PercentType(30));
+        dimmerThingHandler.handleCommand(CHANNEL_UID_COLOR, new PercentType(30));
         currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
 
-        waitForAssert(() -> assertThat(((HSBType) colorItem.getState()).getHue().doubleValue(), is(closeTo(280, 2))));
-        waitForAssert(
-                () -> assertThat(((HSBType) colorItem.getState()).getSaturation().doubleValue(), is(closeTo(100, 1))));
-        waitForAssert(
-                () -> assertThat(((HSBType) colorItem.getState()).getBrightness().doubleValue(), is(closeTo(30, 1))));
-
-        waitForAssert(
-                () -> assertThat(((PercentType) brightnessRItem.getState()).doubleValue(), is(closeTo(19.2, 0.5))));
-        waitForAssert(() -> assertThat(brightnessGItem.getState(), is(PercentType.ZERO)));
-        waitForAssert(
-                () -> assertThat(((PercentType) brightnessBItem.getState()).doubleValue(), is(closeTo(29.8, 0.5))));
-    }
-
-    private void initialize() {
-        managedThingProvider.add(bridge);
-        dmxBridgeHandler = (TestBridgeHandler) waitForAssert(() -> {
-            final ThingHandler thingHandler = bridge.getHandler();
-            assertThat(thingHandler, notNullValue());
-            return thingHandler;
-        });
-
-        managedThingProvider.add(dimmerThing);
-        dimmerThing = managedThingProvider.get(dimmerThing.getUID());
-        dimmerThingHandler = (ColorThingHandler) waitForAssert(() -> {
-            final ThingHandler thingHandler = dimmerThing.getHandler();
-            assertThat(thingHandler, notNullValue());
-            return thingHandler;
-        });
-
-        final ManagedItemChannelLinkProvider itemChannelLinkProvider = waitForAssert(() -> {
-            final ManagedItemChannelLinkProvider tmp = getService(ManagedItemChannelLinkProvider.class);
-            assertThat(tmp, is(notNullValue()));
-            return tmp;
-        });
-
-        brightnessRItem = new DimmerItem(TEST_BRIGHTNESS_R_ITEM_NAME);
-        itemRegistry.add(brightnessRItem);
-        itemChannelLinkProvider.add(new ItemChannelLink(TEST_BRIGHTNESS_R_ITEM_NAME,
-                new ChannelUID(dimmerThing.getUID(), CHANNEL_BRIGHTNESS_R)));
-
-        brightnessGItem = new DimmerItem(TEST_BRIGHTNESS_G_ITEM_NAME);
-        itemRegistry.add(brightnessGItem);
-        itemChannelLinkProvider.add(new ItemChannelLink(TEST_BRIGHTNESS_G_ITEM_NAME,
-                new ChannelUID(dimmerThing.getUID(), CHANNEL_BRIGHTNESS_G)));
-
-        brightnessBItem = new DimmerItem(TEST_BRIGHTNESS_B_ITEM_NAME);
-        itemRegistry.add(brightnessBItem);
-        itemChannelLinkProvider.add(new ItemChannelLink(TEST_BRIGHTNESS_B_ITEM_NAME,
-                new ChannelUID(dimmerThing.getUID(), CHANNEL_BRIGHTNESS_B)));
-
-        dimmerItem = new DimmerItem(TEST_DIMMER_ITEM_NAME);
-        itemRegistry.add(dimmerItem);
-        itemChannelLinkProvider
-                .add(new ItemChannelLink(TEST_DIMMER_ITEM_NAME, new ChannelUID(dimmerThing.getUID(), CHANNEL_COLOR)));
-
-        colorItem = new ColorItem(TEST_COLOR_ITEM_NAME);
-        itemRegistry.add(colorItem);
-        itemChannelLinkProvider
-                .add(new ItemChannelLink(TEST_COLOR_ITEM_NAME, new ChannelUID(dimmerThing.getUID(), CHANNEL_COLOR)));
-    }
-
-    private PercentType getItemPercentType(GenericItem item) {
-        return (PercentType) waitForAssert(() -> {
-            final State state = item.getStateAs(PercentType.class);
-            assertThat(state, instanceOf(PercentType.class));
-            return state;
+        waitForAssert(() -> {
+            assertChannelStateUpdate(CHANNEL_UID_COLOR,
+                    state -> assertThat(((HSBType) state).getHue().doubleValue(), is(closeTo(280, 2))));
+            assertChannelStateUpdate(CHANNEL_UID_COLOR,
+                    state -> assertThat(((HSBType) state).getSaturation().doubleValue(), is(closeTo(100.0, 1))));
+            assertChannelStateUpdate(CHANNEL_UID_COLOR,
+                    state -> assertThat(((HSBType) state).getBrightness().doubleValue(), is(closeTo(30.0, 1))));
+            assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS_R,
+                    state -> assertThat(((PercentType) state).doubleValue(), is(closeTo(19.2, 0.5))));
+            assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS_G, state -> assertEquals(PercentType.ZERO, state));
+            assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS_B,
+                    state -> assertThat(((PercentType) state).doubleValue(), is(closeTo(29.8, 0.5))));
         });
     }
 
-    private OnOffType getItemOnOffType(GenericItem item) {
-        return (OnOffType) waitForAssert(() -> {
-            final State state = item.getStateAs(OnOffType.class);
-            assertThat(state, instanceOf(OnOffType.class));
-            return state;
-        });
-    }
 }
