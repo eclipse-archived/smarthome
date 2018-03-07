@@ -308,7 +308,7 @@ public class ThingResource implements RESTResource {
             }
         }
 
-        return Response.ok().build();
+        return Response.ok(null, MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -452,7 +452,7 @@ public class ThingResource implements RESTResource {
 
         ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
                 LocaleUtil.getLocale(language));
-        return Response.ok().entity(thingStatusInfo).build();
+        return Response.ok(null, MediaType.APPLICATION_JSON).entity(thingStatusInfo).build();
     }
 
     @GET
@@ -475,9 +475,9 @@ public class ThingResource implements RESTResource {
 
         ConfigStatusInfo info = configStatusService.getConfigStatus(thingUID, LocaleUtil.getLocale(language));
         if (info != null) {
-            return Response.ok().entity(info.getConfigStatusMessages()).build();
+            return Response.ok(null, MediaType.APPLICATION_JSON).entity(info.getConfigStatusMessages()).build();
         }
-        return Response.ok().entity(Collections.EMPTY_SET).build();
+        return Response.ok(null, MediaType.APPLICATION_JSON).entity(Collections.EMPTY_SET).build();
     }
 
     @PUT
@@ -522,7 +522,7 @@ public class ThingResource implements RESTResource {
             return Response.status(Status.NO_CONTENT).build();
         }
 
-        return Response.ok().entity(buildFirmwareStatusDTO(info)).build();
+        return Response.ok(null, MediaType.APPLICATION_JSON).entity(buildFirmwareStatusDTO(info)).build();
     }
 
     private FirmwareStatusDTO getThingFirmwareStatus(ThingUID thingUID) {
