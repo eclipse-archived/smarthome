@@ -22,6 +22,7 @@ import org.osgi.framework.Bundle;
  * constant.
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Christoph Weitkamp - Added translation for author
  */
 public class BindingI18nUtil {
 
@@ -31,16 +32,23 @@ public class BindingI18nUtil {
         this.i18nProvider = i18nProvider;
     }
 
+    public String getAuthor(Bundle bundle, String bindingId, String defaultDescription, Locale locale) {
+        String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription)
+                : inferKey(bindingId, "author");
+
+        return i18nProvider.getText(bundle, key, defaultDescription, locale);
+    }
+
     public String getDescription(Bundle bundle, String bindingId, String defaultDescription, Locale locale) {
-        String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription) : inferKey(
-                bindingId, "description");
+        String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription)
+                : inferKey(bindingId, "description");
 
         return i18nProvider.getText(bundle, key, defaultDescription, locale);
     }
 
     public String getName(Bundle bundle, String bindingId, String defaultLabel, Locale locale) {
-        String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel) : inferKey(bindingId,
-                "name");
+        String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel)
+                : inferKey(bindingId, "name");
 
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
@@ -48,5 +56,4 @@ public class BindingI18nUtil {
     private String inferKey(String bindingId, String lastSegment) {
         return "binding." + bindingId + "." + lastSegment;
     }
-
 }

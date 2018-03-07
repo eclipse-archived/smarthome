@@ -7,14 +7,16 @@ layout: documentation
 In this chapter the Eclipse SmartHome support for internationalization is described. 
 Translations
 
-All texts can be internationalized by using Java I18N properties files. For each language a specific file with a postfix notation is used. The postfix consists of a language code and an optional region code (country code).
+All texts can be internationalized by using Java I18N properties files. For each language a specific file with a postfix notation is used.
+The postfix consists of a language code and an optional region code (country code).
 
 ```
 Format:     any_<language-code>_<country-code>.properties
 Example:    any_de_DE.properties
 ```
 
-The language code is either two or three lowercase letters that are conform to the ISO 639 standard. The region code (country code) consists of two uppercase letters that are conform to the ISO 3166 standard or to the UN M.49 standard.
+The language code is either two or three lowercase letters that are conform to the ISO 639 standard.
+The region code (country code) consists of two uppercase letters that are conform to the ISO 3166 standard or to the UN M.49 standard.
 
 The search order for those files is the following:
 
@@ -44,21 +46,24 @@ Example files:
 
 ## Internationalize Binding XML files
 
-In Eclipse SmartHome a binding developer has to provide different XML files. In these XML files label and description texts must be specified. To Internationalize these texts Java I18N properties files must be defined.
+In Eclipse SmartHome a binding developer has to provide different XML files.
+In these XML files label and description texts must be specified.
+To Internationalize these texts Java I18N properties files must be defined.
 
-For the binding definition and the thing types XML files Eclipse SmartHome defines a standard key scheme, that allows to easily reference the XML nodes. Inside the XML nodes the text must be specified in the default language English. Typically all texts for a binding are put into one file with name of the binding, but they can also be split into multiple files.
+For the binding definition and the thing types XML files Eclipse SmartHome defines a standard key scheme, that allows to easily reference the XML nodes.
+Inside the XML nodes the text must be specified in the default language English.
+Typically all texts for a binding are put into one file with name of the binding, but they can also be split into multiple files.
 
 ### Binding Definition
 
-The following snippet shows the binding XML file of the Yahoo Weather Binding and its language file that localizes the binding name and description for the German language.
+The following snippet shows the binding XML file of the Yahoo Weather Binding and its language file that localizes the binding name, description and author for the German language.
 
 XML file (binding.xml):
 
 ```xml
 <binding:binding id="yahooweather">
     <name>YahooWeather Binding</name>
-    <description>The Yahoo Weather Binding requests the Yahoo Weather Service
-		to show the current temperature, humidity and pressure.</description>
+    <description>The Yahoo Weather Binding requests the Yahoo Weather Service to show the current temperature, humidity and pressure.</description>
     <author>Kai Kreuzer</author>
 </binding:binding>
 ```
@@ -68,9 +73,10 @@ Language file (yahooweather_de.properties):
 ```ini
 binding.yahooweather.name = Yahoo Wetter Binding
 binding.yahooweather.description = Das Yahoo Wetter Binding stellt verschiedene Wetterdaten wie die Temperatur, die Luftfeuchtigkeit und den Luftdruck für konfigurierbare Orte vom yahoo Wetterdienst bereit.
+binding.yahooweather.author = Kai Kreuzer
 ```
 
-So the key for referencing the name of a binding is `binding.<binding-id>.name` and `binding.<binding-id>.description` for the description text. 
+So the key for referencing the name of a binding is `binding.<binding-id>.name`, `binding.<binding-id>.description` for the description text and `binding.<binding-id>.author` for the author tag.
 
 ### Thing Types
 
@@ -80,9 +86,11 @@ XML file (thing-types.xml):
 
 ```xml
 <thing:thing-descriptions bindingId="yahooweather">
+
     <thing-type id="weather">
         <label>Weather Information</label>
         <description>Provides various weather data from the Yahoo service</description>
+
         <channels>
             <channel id="precipitation" typeId="precipitation" />
             <channel id="temperature" typeId="temperature" />
@@ -91,6 +99,7 @@ XML file (thing-types.xml):
                 <description>Minimum temperature in degrees celsius (metric) or fahrenheit (imperial).</description>
             </channel>
         </channels>
+
         <config-description>
             <parameter name="location" type="text">
                 <label>Location</label>
@@ -100,6 +109,7 @@ XML file (thing-types.xml):
             </parameter>
         </config-description>
     </thing-type>
+
     <channel-type id="precipitation">
         <item-type>String</item-type>
         <label>Precipitation</label>
@@ -112,6 +122,7 @@ XML file (thing-types.xml):
             </options>
         </state>
     </channel-type>
+
     <channel-type id="temperature">
         <item-type>Number</item-type>
         <label>Temperature</label>
@@ -129,6 +140,7 @@ XML file (thing-types.xml):
             </parameter>
         </config-description>
     </channel-type>
+
 </thing:thing-descriptions>
 
 ```
@@ -340,7 +352,11 @@ So the label of a channel group type can be referenced with `channel-group-type.
 
 ### Using custom Keys
 
-In addition to the default keys the developer can also specify custom keys inside the XML file. But with this approach the XML file cannot longer contain the English texts. So it is mandatory to define a language file for the English language. The syntax for custom keys is `@text/<key>`. The keys are unique across the whole bundle, so a constant can reference any key in all files inside the `ESH-INF/i18n` folder.
+In addition to the default keys the developer can also specify custom keys inside the XML file.
+But with this approach the XML file cannot longer contain the English texts.
+So it is mandatory to define a language file for the English language.
+The syntax for custom keys is `@text/<key>`.
+The keys are unique across the whole bundle, so a constant can reference any key in all files inside the `ESH-INF/i18n` folder.
 
 The following snippet shows a binding XML that uses custom keys:
 
@@ -350,7 +366,7 @@ XML file (binding.xml):
 <binding:binding id="yahooweather">
     <name>@text/bindingName</name>
     <description>@text/bindingName</description>
-    <author>Kai Kreuzer</author>
+    <author>@text/bindingAuthor</author>
 </binding:binding>
 ```
 
@@ -358,16 +374,18 @@ Language file (yahooweather_en.properties):
 
 ```ini
 bindingName = Yahoo Weather Binding
+bindingAuthor = Kai Kreuzer
 
-offline.communication-error=The Yahoo Weather API is currently not available.
+offline.communication-error = The Yahoo Weather API is currently not available.
 ```
 
 Language file (yahooweather_de.properties):
 
 ```ini
 bindingName = Yahoo Wetter Binding
+bindingAuthor = Kai Kreuzer
 
-offline.communication-error=Die Yahoo Wetter API ist zur Zeit nicht verfügbar.
+offline.communication-error = Die Yahoo Wetter API ist zur Zeit nicht verfügbar.
 ```
 
 The custom keys are a very good practice to translate bundle dependent error messages.
@@ -378,7 +396,10 @@ updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR,
 
 ## I18n Text Provider API
 
-To programmatically resolve texts for certain languages Eclipse SmartHome provides the OSGi service `TranslationProvider`. The service parses every file inside the `ESH-INF/i18n` folder and caches all texts. A localized text can be retrieved via the method `getText(Bundle bundle, String key, String default, Locale locale)` (or via the method `getText(Bundle bundle, String key, String default, Locale locale, Object... arguments)` if additional arguments are to be injected into the localized text), where bundle must be the reference to the bundle, in which the file is stored. The BundleContext from the Activator provides a method to get the bundle.
+To programmatically resolve texts for certain languages Eclipse SmartHome provides the OSGi service `TranslationProvider`.
+The service parses every file inside the `ESH-INF/i18n` folder and caches all texts.
+A localized text can be retrieved via the method `getText(Bundle bundle, String key, String default, Locale locale)` (or via the method `getText(Bundle bundle, String key, String default, Locale locale, Object... arguments)` if additional arguments are to be injected into the localized text), where bundle must be the reference to the bundle, in which the file is stored.
+The BundleContext from the Activator provides a method to get the bundle.
 
 ```java
 String text = i18nProvider.getText(bundleContext.getBundle(), "my.key", "DefaultValue", Locale.GERMAN);
@@ -386,11 +407,14 @@ String text = i18nProvider.getText(bundleContext.getBundle(), "my.key", "Default
 
 ## Locale Provider
 
-To programmatically fetch the locale used by the Eclipse SmartHome system an OSGi service `LocaleProvider` is offered. The service contains a `getLocale()` method that can be used to choose a configurable locale.
+To programmatically fetch the locale used by the Eclipse SmartHome system an OSGi service `LocaleProvider` is offered.
+The service contains a `getLocale()` method that can be used to choose a configurable locale.
 
 ## Getting Thing Types and Binding Definitions in different languages
 
-Thing types can be retrieved through the `ThingTypeRegistry` OSGi service. Every method takes a `Locale` as last argument. If no locale is specified the thing types are returned for the default locale which is determined by using the `LocaleProvider`, or the default text, which is specified in the XML file, if no language file for the default locale exists.
+Thing types can be retrieved through the `ThingTypeRegistry` OSGi service.
+Every method takes a `Locale` as last argument.
+If no locale is specified the thing types are returned for the default locale which is determined by using the `LocaleProvider`, or the default text, which is specified in the XML file, if no language file for the default locale exists.
 
 The following snippet shows how to retrieve the list of Thing Types for the German locale:
 

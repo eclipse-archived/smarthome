@@ -62,6 +62,7 @@ class BindingInfoI18nTest extends OSGiTest {
         assertEquals("""
         name = Yahoo Wetter Binding
         description = Das Yahoo Wetter Binding stellt verschiedene Wetterdaten wie die Temperatur, die Luftfeuchtigkeit und den Luftdruck für konfigurierbare Orte vom yahoo Wetterdienst bereit
+        author = Kai Kreuzer und Freunde
         """, asString(bindingInfo))
     }
 
@@ -82,6 +83,7 @@ class BindingInfoI18nTest extends OSGiTest {
         assertEquals("""
         name = Yahoo Weer Binding
         description = De Yahoo Weer Binding biedt verschillende meteorologische gegevens zoals temperatuur, vochtigheid en luchtdruk voor configureerbare locaties uit yahoo weerdienst klaar
+        author = Kai Kreuzer and friends
         """, asString(bindingInfo))
     }
 
@@ -102,6 +104,7 @@ class BindingInfoI18nTest extends OSGiTest {
         assertEquals("""
         name = YahooWeather Binding
         description = The Yahoo Weather Binding requests the Yahoo Weather Service to show the current temperature, humidity and pressure.
+        author = Kai Kreuzer and friends
         """, asString(bindingInfo))
     }
 
@@ -136,15 +139,18 @@ class BindingInfoI18nTest extends OSGiTest {
         assertEquals("""
         name = Yahoo Wetter Binding
         description = Das Yahoo Wetter Binding stellt verschiedene Wetterdaten wie die Temperatur, die Luftfeuchtigkeit und den Luftdruck für konfigurierbare Orte vom yahoo Wetterdienst bereit
+        author = Kai Kreuzer und Freunde
         """, asString(bindingInfo))
     }
 
     String asString(final BindingInfo self) {
         def name = self.getName()
         def description = self.getDescription()
+        def author = self.getAuthor();
         return """
         name = ${name}
         description = ${description}
+        author = ${author}
         """
     }
 }
