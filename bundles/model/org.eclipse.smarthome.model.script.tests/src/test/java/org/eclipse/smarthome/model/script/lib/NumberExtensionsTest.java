@@ -164,7 +164,7 @@ public class NumberExtensionsTest {
 
     @Test
     public void operatorLessEqualsThan_Type_Quantity() {
-        assertFalse(NumberExtensions.operator_lessEqualsThan((Type) Q_LENGTH_1m, Q_LENGTH_1m));
+        assertTrue(NumberExtensions.operator_lessEqualsThan((Type) Q_LENGTH_1m, Q_LENGTH_1m));
     }
 
     @Test
@@ -185,8 +185,7 @@ public class NumberExtensionsTest {
 
     @Test
     public void operatorGreaterEqualsThan_Type_Quantity() {
-        assertFalse(
-                NumberExtensions.operator_greaterEqualsThan((Type) Q_LENGTH_1m, new QuantityType<Length>("100 cm")));
+        assertTrue(NumberExtensions.operator_greaterEqualsThan((Type) Q_LENGTH_1m, new QuantityType<Length>("100 cm")));
     }
 
     @Test

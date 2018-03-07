@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.core.types.util;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.util.Set;
 
 import javax.measure.Quantity;
@@ -127,6 +129,15 @@ public class UnitUtils {
                     && isMetricConversion(((TransformedUnit<?>) thatUnit).getConverter())) {
                 return isDifferentMeasurementSystem(thisUnit, ((TransformedUnit<?>) thatUnit).getParentUnit());
             }
+        }
+
+        // Compare the unit symbols. For product units (e.g. 1km / 1h) the equality is not given in the Sets above.
+        if (!differentSystems) {
+            Set<String> siSymbols = SI.stream().map(Unit::getSymbol).collect(toSet());
+            Set<String> usSymbols = US.stream().map(Unit::getSymbol).collect(toSet());
+
+            differentSystems = (siSymbols.contains(thisUnit.getSymbol()) && usSymbols.contains(thatUnit.getSymbol())) //
+                    || (siSymbols.contains(thatUnit.getSymbol()) && usSymbols.contains(thisUnit.getSymbol()));
         }
 
         return differentSystems;
