@@ -15,12 +15,15 @@ package org.eclipse.smarthome.core.thing.internal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -32,6 +35,7 @@ import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemStateConverter;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
@@ -42,7 +46,6 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.UID;
-import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.internal.link.ItemChannelLinkConfigDescriptionProvider;
@@ -59,6 +62,7 @@ import org.eclipse.smarthome.core.thing.profiles.StateProfile;
 import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.Type;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -100,6 +104,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     private SafeCaller safeCaller;
     @NonNullByDefault({})
     private ItemStateConverter itemStateConverter;
+    private final Set<ItemFactory> itemFactories = new CopyOnWriteArraySet<>();
 
     // link UID -> profile
     private final Map<String, Profile> profiles = new ConcurrentHashMap<>();
@@ -108,6 +113,9 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     private final Map<ProfileFactory, Set<String>> profileFactories = new ConcurrentHashMap<>();
 
     private final Set<ProfileAdvisor> profileAdvisors = new CopyOnWriteArraySet<>();
+
+    private final Map<String, @Nullable List<Class<? extends Command>>> acceptedCommandTypeMap = new ConcurrentHashMap<>();
+    private final Map<String, @Nullable List<Class<? extends State>>> acceptedStateTypeMap = new ConcurrentHashMap<>();
 
     @Override
     public Set<String> getSubscribedEventTypes() {
@@ -223,15 +231,15 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
                 logger.trace("using ProfileFactory '{}' to create profile '{}'", factory, profileTypeUID);
                 Profile profile = factory.createProfile(profileTypeUID, callback, context);
                 if (profile == null) {
-                    logger.error("ProfileFactory {} returned 'null' although it claimed it supports {}", factory,
-                            profileTypeUID);
+                    logger.error("ProfileFactory '{}' returned 'null' although it claimed it supports item type '{}'",
+                            factory, profileTypeUID);
                 } else {
                     entry.getValue().add(link.getUID());
                     return profile;
                 }
             }
         }
-        logger.warn("no ProfileFactory found which supports '{}'", profileTypeUID);
+        logger.debug("no ProfileFactory found which supports '{}'", profileTypeUID);
         return null;
     }
 
@@ -242,9 +250,42 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     private void receiveCommand(ItemCommandEvent commandEvent) {
         final String itemName = commandEvent.getItemName();
         final Command command = commandEvent.getItemCommand();
+        handleEvent(itemName, command, commandEvent.getSource(), s -> acceptedCommandTypeMap.get(s),
+                (profile, thing, convertedCommand) -> {
+                    if (profile instanceof StateProfile) {
+                        safeCaller.create(((StateProfile) profile), StateProfile.class) //
+                                .withAsync() //
+                                .withIdentifier(thing) //
+                                .withTimeout(THINGHANDLER_EVENT_TIMEOUT) //
+                                .build().onCommandFromItem(convertedCommand);
+                    }
+                });
+    }
+
+    private void receiveUpdate(ItemStateEvent updateEvent) {
+        final String itemName = updateEvent.getItemName();
+        final State newState = updateEvent.getItemState();
+        handleEvent(itemName, newState, updateEvent.getSource(), s -> acceptedStateTypeMap.get(s),
+                (profile, thing, convertedState) -> {
+                    safeCaller.create(profile, Profile.class) //
+                            .withAsync() //
+                            .withIdentifier(thing) //
+                            .withTimeout(THINGHANDLER_EVENT_TIMEOUT) //
+                            .build().onStateUpdateFromItem(convertedState);
+                });
+    }
+
+    @FunctionalInterface
+    private static interface ProfileAction<T extends Type> {
+        void handle(Profile profile, Thing thing, T type);
+    }
+
+    private <T extends Type> void handleEvent(String itemName, T type, String source,
+            Function<@Nullable String, @Nullable List<Class<? extends T>>> acceptedTypesFunction,
+            ProfileAction<T> action) {
         final Item item = getItem(itemName);
         if (item == null) {
-            logger.debug("Received an ItemCommandEvent for item {} which does not exist", itemName);
+            logger.debug("Received an event for item {} which does not exist", itemName);
             return;
         }
 
@@ -253,51 +294,63 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
             return link.getItemName().equals(itemName);
         }).filter(link -> {
             // make sure the command event is not sent back to its source
-            return !link.getLinkedUID().toString().equals(commandEvent.getSource());
+            return !link.getLinkedUID().toString().equals(source);
         }).forEach(link -> {
             ChannelUID channelUID = link.getLinkedUID();
             Thing thing = getThing(channelUID.getThingUID());
             if (thing != null) {
-                ThingHandler handler = thing.getHandler();
-                if (handler != null) {
-                    Profile profile = getProfile(link, item, thing);
-                    if (profile instanceof StateProfile) {
-                        safeCaller.create(((StateProfile) profile), StateProfile.class).withAsync()
-                                .withIdentifier(thing).withTimeout(THINGHANDLER_EVENT_TIMEOUT).build()
-                                .onCommandFromItem(command);
+                Channel channel = thing.getChannel(channelUID.getId());
+                if (channel != null) {
+                    @Nullable
+                    T convertedType = toAcceptedType(type, channel, acceptedTypesFunction);
+                    if (convertedType != null) {
+                        if (thing.getHandler() != null) {
+                            Profile profile = getProfile(link, item, thing);
+                            action.handle(profile, thing, convertedType);
+                        }
+                    } else {
+                        logger.debug(
+                                "Received event '{}' ({}) could not be converted to any type accepted by item '{}' ({})",
+                                type, type.getClass().getSimpleName(), itemName, item.getType());
                     }
+                } else {
+                    logger.debug("Received  event '{}' for non-existing channel '{}', not forwarding it to the handler",
+                            type, channelUID);
                 }
+            } else {
+                logger.debug("Received  event '{}' for non-existing thing '{}', not forwarding it to the handler", type,
+                        channelUID.getThingUID());
             }
         });
     }
 
-    private void receiveUpdate(ItemStateEvent updateEvent) {
-        final String itemName = updateEvent.getItemName();
-        final State newState = updateEvent.getItemState();
-        final Item item = getItem(itemName);
-        if (item == null) {
-            logger.debug("Received an ItemStateEvent for item {} which does not exist", itemName);
-            return;
+    private <T extends Type> @Nullable T toAcceptedType(T originalType, Channel channel,
+            Function<@Nullable String, @Nullable List<Class<? extends T>>> acceptedTypesFunction) {
+        List<Class<? extends T>> acceptedTypes = acceptedTypesFunction.apply(channel.getAcceptedItemType());
+        if (acceptedTypes == null) {
+            return originalType;
         }
 
-        itemChannelLinkRegistry.stream().filter(link -> {
-            // all links for the item
-            return link.getItemName().equals(itemName);
-        }).filter(link -> {
-            // make sure the update event is not sent back to its source
-            return !link.getLinkedUID().toString().equals(updateEvent.getSource());
-        }).forEach(link -> {
-            ChannelUID channelUID = link.getLinkedUID();
-            Thing thing = getThing(channelUID.getThingUID());
-            if (thing != null) {
-                ThingHandler handler = thing.getHandler();
-                if (handler != null) {
-                    Profile profile = getProfile(link, item, thing);
-                    safeCaller.create(profile, Profile.class).withAsync().withIdentifier(handler)
-                            .withTimeout(THINGHANDLER_EVENT_TIMEOUT).build().onStateUpdateFromItem(newState);
+        if (acceptedTypes.contains(originalType.getClass())) {
+            return originalType;
+        } else {
+            // Look for class hierarchy and convert appropriately
+            for (Class<? extends T> typeClass : acceptedTypes) {
+                if (!typeClass.isEnum() && typeClass.isAssignableFrom(originalType.getClass()) //
+                        && State.class.isAssignableFrom(typeClass) && originalType instanceof State) {
+                    T ret = (T) ((State) originalType).as((Class<? extends State>) typeClass);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Converted '{}' ({}) to accepted type '{}' ({}) for channel '{}' ", originalType,
+                                originalType.getClass().getSimpleName(), ret, ret.getClass().getName(),
+                                channel.getUID());
+                    }
+                    return ret;
                 }
             }
-        });
+        }
+        logger.debug("Received not accepted type '{}' for channel '{}'", originalType.getClass().getSimpleName(),
+                channel.getUID());
+        return null;
     }
 
     private @Nullable Item getItem(final String itemName) {
@@ -309,16 +362,9 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         final String event = channelTriggeredEvent.getEvent();
         final Thing thing = getThing(channelUID.getThingUID());
 
-        itemChannelLinkRegistry.stream().filter(link -> {
-            // all links for the channel
-            return link.getLinkedUID().equals(channelUID);
-        }).forEach(link -> {
-            Item item = getItem(link.getItemName());
-            if (item != null) {
-                Profile profile = getProfile(link, item, thing);
-                if (profile instanceof TriggerProfile) {
-                    ((TriggerProfile) profile).onTriggerFromHandler(event);
-                }
+        handleCallFromHandler(channelUID, thing, profile -> {
+            if (profile instanceof TriggerProfile) {
+                ((TriggerProfile) profile).onTriggerFromHandler(event);
             }
         });
     }
@@ -326,16 +372,9 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     public void stateUpdated(ChannelUID channelUID, State state) {
         final Thing thing = getThing(channelUID.getThingUID());
 
-        itemChannelLinkRegistry.stream().filter(link -> {
-            // all links for the channel
-            return link.getLinkedUID().equals(channelUID);
-        }).forEach(link -> {
-            Item item = getItem(link.getItemName());
-            if (item != null) {
-                Profile profile = getProfile(link, item, thing);
-                if (profile instanceof StateProfile) {
-                    ((StateProfile) profile).onStateUpdateFromHandler(state);
-                }
+        handleCallFromHandler(channelUID, thing, profile -> {
+            if (profile instanceof StateProfile) {
+                ((StateProfile) profile).onStateUpdateFromHandler(state);
             }
         });
     }
@@ -343,6 +382,14 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     public void postCommand(ChannelUID channelUID, Command command) {
         final Thing thing = getThing(channelUID.getThingUID());
 
+        handleCallFromHandler(channelUID, thing, profile -> {
+            if (profile instanceof StateProfile) {
+                ((StateProfile) profile).onCommandFromHandler(command);
+            }
+        });
+    }
+
+    void handleCallFromHandler(ChannelUID channelUID, @Nullable Thing thing, Consumer<Profile> action) {
         itemChannelLinkRegistry.stream().filter(link -> {
             // all links for the channel
             return link.getLinkedUID().equals(channelUID);
@@ -350,9 +397,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
             Item item = getItem(link.getItemName());
             if (item != null) {
                 Profile profile = getProfile(link, item, thing);
-                if (profile instanceof StateProfile) {
-                    ((StateProfile) profile).onCommandFromHandler(command);
-                }
+                action.accept(profile);
             }
         });
     }
@@ -468,6 +513,34 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
 
     public void unsetItemStateConverter(ItemStateConverter itemStateConverter) {
         this.itemStateConverter = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, policy = ReferencePolicy.DYNAMIC)
+    protected void addItemFactory(ItemFactory itemFactory) {
+        itemFactories.add(itemFactory);
+        calculateAcceptedTypes();
+    }
+
+    protected void removeItemFactory(ItemFactory itemFactory) {
+        itemFactories.remove(itemFactory);
+        calculateAcceptedTypes();
+    }
+
+    private synchronized void calculateAcceptedTypes() {
+        acceptedCommandTypeMap.clear();
+        acceptedStateTypeMap.clear();
+        for (ItemFactory itemFactory : itemFactories) {
+            for (String itemTypeName : itemFactory.getSupportedItemTypes()) {
+                Item item = itemFactory.createItem(itemTypeName, "tmp");
+                if (item != null) {
+                    acceptedCommandTypeMap.put(itemTypeName, item.getAcceptedCommandTypes());
+                    acceptedStateTypeMap.put(itemTypeName, item.getAcceptedDataTypes());
+                } else {
+                    logger.error("Item factory {} suggested it can create items of type {} but returned null",
+                            itemFactory, itemTypeName);
+                }
+            }
+        }
     }
 
     private static class NoOpProfile implements Profile {

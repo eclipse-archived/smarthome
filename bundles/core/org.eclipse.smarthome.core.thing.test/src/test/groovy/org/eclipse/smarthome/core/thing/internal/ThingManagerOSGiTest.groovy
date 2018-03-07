@@ -35,7 +35,7 @@ import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.items.events.ItemEventFactory
 import org.eclipse.smarthome.core.items.events.ItemStateEvent
 import org.eclipse.smarthome.core.library.items.StringItem
-import org.eclipse.smarthome.core.library.types.DecimalType
+import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.library.types.StringType
 import org.eclipse.smarthome.core.service.ReadyMarker
 import org.eclipse.smarthome.core.service.ReadyService
@@ -709,13 +709,13 @@ class ThingManagerOSGiTest extends OSGiTest {
         callback.statusUpdated(THING, ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build())
 
         // event should be delivered
-        eventPublisher.post(ItemEventFactory.createCommandEvent(itemName, new DecimalType(10)))
+        eventPublisher.post(ItemEventFactory.createCommandEvent(itemName, OnOffType.ON))
         waitForAssert { assertThat handleCommandWasCalled, is(true) }
 
         handleCommandWasCalled = false
 
         // event should not be delivered, because the source is the same
-        eventPublisher.post(ItemEventFactory.createCommandEvent(itemName, new DecimalType(10), CHANNEL_UID.toString()))
+        eventPublisher.post(ItemEventFactory.createCommandEvent(itemName, OnOffType.ON, CHANNEL_UID.toString()))
         waitFor({handleCommandWasCalled == true}, 1000)
         assertThat handleCommandWasCalled, is(false)
     }
@@ -1591,7 +1591,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         itemChannelLinkRegistry.add(new ItemChannelLink("testItem", new ChannelUID(THING.getUID(), "channel")))
         waitForAssert { assertThat itemRegistry.get("testItem"), is(notNullValue()) }
 
-        eventPublisher.post(ItemEventFactory.createCommandEvent("testItem", new StringType("TEST")))
+        eventPublisher.post(ItemEventFactory.createCommandEvent("testItem", OnOffType.ON))
 
         assertThat handleCommandCalled, is(false)
 
@@ -1599,13 +1599,13 @@ class ThingManagerOSGiTest extends OSGiTest {
         callback.statusUpdated(THING, statusInfo)
         assertThat THING.statusInfo, is(statusInfo)
 
-        eventPublisher.post(ItemEventFactory.createCommandEvent("testItem", new StringType("TEST")))
+        eventPublisher.post(ItemEventFactory.createCommandEvent("testItem", OnOffType.ON))
 
         waitForAssert {
             assertThat handleCommandCalled, is(true)
         }
         assertThat calledChannelUID, is(equalTo(new ChannelUID(THING.getUID(), "channel")))
-        assertThat calledCommand, is(equalTo(new StringType("TEST")))
+        assertThat calledCommand, is(equalTo(OnOffType.ON))
     }
 
     private void registerThingTypeProvider() {

@@ -12,8 +12,8 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.*;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -25,8 +25,11 @@ import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
+import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
+import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -48,9 +51,12 @@ import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
 import org.eclipse.smarthome.core.thing.profiles.StateProfile;
 import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
+import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 /**
@@ -166,6 +172,8 @@ public class CommunicationManagerTest extends JavaOSGiTest {
 
         when(thingRegistry.get(eq(THING_UID))).thenReturn(THING);
         manager.setThingRegistry(thingRegistry);
+
+        manager.addItemFactory(new CoreItemFactory());
     }
 
     @Test
@@ -406,6 +414,46 @@ public class CommunicationManagerTest extends JavaOSGiTest {
         });
         verifyNoMoreInteractions(mockProfileFactory);
         verifyNoMoreInteractions(mockProfileAdvisor);
+    }
+
+    @Test
+    public void testItemCommandEvent_typeDowncast() {
+        Thing thing = ThingBuilder.create(THING_TYPE_UID, THING_UID)
+                .withChannels(ChannelBuilder.create(STATE_CHANNEL_UID_2, "Dimmer").withKind(ChannelKind.STATE).build())
+                .build();
+        thing.setHandler(mockHandler);
+        when(thingRegistry.get(eq(THING_UID))).thenReturn(thing);
+
+        manager.receive(ItemEventFactory.createCommandEvent(ITEM_NAME_2, HSBType.fromRGB(128, 128, 128)));
+        waitForAssert(() -> {
+            ArgumentCaptor<Command> commandCaptor = ArgumentCaptor.forClass(Command.class);
+            verify(stateProfile).onCommandFromItem(commandCaptor.capture());
+            Command command = commandCaptor.getValue();
+            assertNotNull(command);
+            assertEquals(PercentType.class, command.getClass());
+        });
+        verifyNoMoreInteractions(stateProfile);
+        verifyNoMoreInteractions(triggerProfile);
+    }
+
+    @Test
+    public void testItemStateEvent_typeDowncast() {
+        Thing thing = ThingBuilder.create(THING_TYPE_UID, THING_UID)
+                .withChannels(ChannelBuilder.create(STATE_CHANNEL_UID_2, "Dimmer").withKind(ChannelKind.STATE).build())
+                .build();
+        thing.setHandler(mockHandler);
+        when(thingRegistry.get(eq(THING_UID))).thenReturn(thing);
+
+        manager.receive(ItemEventFactory.createStateEvent(ITEM_NAME_2, HSBType.fromRGB(128, 128, 128)));
+        waitForAssert(() -> {
+            ArgumentCaptor<State> stateCaptor = ArgumentCaptor.forClass(State.class);
+            verify(stateProfile).onStateUpdateFromItem(stateCaptor.capture());
+            State state = stateCaptor.getValue();
+            assertNotNull(state);
+            assertEquals(PercentType.class, state.getClass());
+        });
+        verifyNoMoreInteractions(stateProfile);
+        verifyNoMoreInteractions(triggerProfile);
     }
 
 }
