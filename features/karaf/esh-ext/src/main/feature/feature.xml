@@ -31,6 +31,12 @@
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.bluetooth.bluez/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-binding-bluetooth-blukii" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-binding-bluetooth</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.bluetooth.blukii/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-binding-digitalstrom" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-io-transport-mdns</feature>
