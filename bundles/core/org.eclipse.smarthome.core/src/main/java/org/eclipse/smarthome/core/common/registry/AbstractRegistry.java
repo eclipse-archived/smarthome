@@ -168,8 +168,11 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         Collection<E> elements = elementMap.get(provider);
         if (elements != null) {
             try {
-                onRemoveElement(element);
-                elements.remove(element);
+                // the given "element" might not be the live instance but
+                // loaded from storage. operate on the real element:
+                E existingElement = get(element.getUID());
+                onRemoveElement(existingElement);
+                elements.remove(existingElement);
                 notifyListenersAboutRemovedElement(element);
             } catch (Exception ex) {
                 logger.warn("Could not remove element: {}", ex.getMessage(), ex);
@@ -187,10 +190,13 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         Collection<E> elements = elementMap.get(provider);
         if (elements != null && elements.contains(oldElement) && oldElement.getUID().equals(element.getUID())) {
             try {
-                onUpdateElement(oldElement, element);
-                elements.remove(oldElement);
+                // the given "oldElement" might not be the live instance but
+                // loaded from storage. operate on the real element:
+                E existingElement = get(oldElement.getUID());
+                onUpdateElement(existingElement, element);
+                elements.remove(existingElement);
                 elements.add(element);
-                notifyListenersAboutUpdatedElement(oldElement, element);
+                notifyListenersAboutUpdatedElement(existingElement, element);
             } catch (Exception ex) {
                 logger.warn("Could not update element: {}", ex.getMessage(), ex);
             }
