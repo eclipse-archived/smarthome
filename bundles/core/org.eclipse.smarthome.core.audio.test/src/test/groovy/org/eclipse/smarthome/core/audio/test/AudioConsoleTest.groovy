@@ -122,42 +122,6 @@ public class AudioConsoleTest extends AudioOSGiTest {
     }
 
     @Test
-    public void 'audio console plays stream for a specified sink with a specified volume'(){
-        initializeAudioServlet()
-
-        audioStream = getByteArrayAudioStream(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED)
-
-        String path = audioServlet.serve(audioStream, testTimeout)
-        String url = generateURL(AUDIO_SERVLET_PROTOCOL, AUDIO_SERVLET_HOSTNAME, AUDIO_SERVLET_PORT, path)
-
-        String[] args = [audioConsoleCommandExtension.SUBCMD_STREAM, audioSinkFake.getId(), url, "25"]
-        audioConsoleCommandExtension.execute(args, consoleMock)
-
-        assertThat "The streamed url was not as expected",
-                audioSinkFake.audioStream.getURL(),
-                is(url)
-    }
-
-    @Test
-    public void 'audio console plays stream for a specified sink with an invalid volume'(){
-        initializeAudioServlet()
-
-        audioStream = getByteArrayAudioStream(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED)
-
-        String path = audioServlet.serve(audioStream, testTimeout)
-        String url = generateURL(AUDIO_SERVLET_PROTOCOL, AUDIO_SERVLET_HOSTNAME, AUDIO_SERVLET_PORT, path)
-
-        String[] args = [audioConsoleCommandExtension.SUBCMD_STREAM, audioSinkFake.getId(), url, "invalid"]
-        audioConsoleCommandExtension.execute(args, consoleMock)
-
-        waitForAssert({
-            assertThat "The given volume was invalid",
-                consoleOutput,
-                is(null)
-        })
-    }
-
-    @Test
     public void 'audio console lists sinks'(){
         String[] args = [audioConsoleCommandExtension.SUBCMD_SINKS]
         audioConsoleCommandExtension.execute(args, consoleMock)

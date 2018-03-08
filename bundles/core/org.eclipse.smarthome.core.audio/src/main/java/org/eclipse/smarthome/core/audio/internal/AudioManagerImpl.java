@@ -151,22 +151,14 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
 
     @Override
     public void stream(String url) throws AudioException {
-        stream(url, null, null);
+        stream(url, null);
     }
 
-    @Override
-    public void stream(String url, PercentType volume) throws AudioException {
-        stream(url, null, volume);
-    }
 
     @Override
     public void stream(String url, String sinkId) throws AudioException {
-        stream(url, sinkId, null);
-    }
-
-    public void stream(String url, String sinkId, PercentType volume) throws AudioException {
         AudioStream audioStream = url != null ? new URLAudioStream(url) : null;
-        play(audioStream, sinkId, volume);
+        play(audioStream, sinkId);
     }
 
     @Override

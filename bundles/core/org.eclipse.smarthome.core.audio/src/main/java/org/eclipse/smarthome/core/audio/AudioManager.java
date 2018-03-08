@@ -45,7 +45,7 @@ public interface AudioManager {
      * Plays the passed audio stream on the given sink.
      *
      * @param audioStream The audio stream to play
-     * @param sinkId The id of the audio sink to use or null
+     * @param sinkId The id of the audio sink to use or null for the default
      */
     void play(AudioStream audioStream, @Nullable String sinkId);
 
@@ -53,7 +53,7 @@ public interface AudioManager {
      * Plays the passed audio stream on the given sink.
      *
      * @param audioStream The audio stream to play
-     * @param sinkId The id of the audio sink to use or null
+     * @param sinkId The id of the audio sink to use or null for the default
      * @param volume The volume to be used or null if the default notification volume should be used
      */
     void play(AudioStream audioStream, @Nullable String sinkId, @Nullable PercentType volume);
@@ -79,7 +79,7 @@ public interface AudioManager {
      * Plays an audio file from the "sounds" folder using the given audio sink.
      *
      * @param fileName The file from the "sounds" folder
-     * @param sink The id of the audio sink to use or null
+     * @param sink The id of the audio sink to use or null for the default
      * @throws AudioException in case the file does not exist or cannot be opened
      */
     void playFile(String fileName, @Nullable String sink) throws AudioException;
@@ -88,7 +88,7 @@ public interface AudioManager {
      * Plays an audio file with the given volume from the "sounds" folder using the given audio sink.
      *
      * @param fileName The file from the "sounds" folder
-     * @param sink The id of the audio sink to use or null
+     * @param sink The id of the audio sink to use or null for the default
      * @param volume The volume to be used or null if the default notification volume should be used
      * @throws AudioException in case the file does not exist or cannot be opened
      */
@@ -103,32 +103,13 @@ public interface AudioManager {
     void stream(@Nullable String url) throws AudioException;
 
     /**
-     * Stream audio with the given volume from the passed url using the default audio sink.
-     *
-     * @param url The url to stream from or null if streaming should be stopped
-     * @param volume The volume to be used or null if the default notification volume should be used
-     * @throws AudioException in case the url stream cannot be opened
-     */
-    void stream(@Nullable String url, @Nullable PercentType volume) throws AudioException;
-
-    /**
      * Stream audio from the passed url to the given sink
      *
      * @param url The url to stream from or null if streaming should be stopped
-     * @param sinkId The id of the audio sink to use or null
+     * @param sinkId The id of the audio sink to use or null for the default
      * @throws AudioException in case the url stream cannot be opened
      */
     void stream(@Nullable String url, @Nullable String sinkId) throws AudioException;
-
-    /**
-     * Stream audio with the given volume from the passed url to the given sink
-     *
-     * @param url The url to stream from or null if streaming should be stopped
-     * @param sinkId The id of the audio sink to use or null
-     * @param volume The volume to be used or null if the default notification volume should be used
-     * @throws AudioException in case the url stream cannot be opened
-     */
-    void stream(@Nullable String url, @Nullable String sinkId, @Nullable PercentType volume) throws AudioException;
 
     /**
      * Retrieves the current volume of a sink

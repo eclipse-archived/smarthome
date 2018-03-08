@@ -84,32 +84,11 @@ public class Audio {
         }
     }
 
-    @ActionDoc(text = "plays an audio stream with the given volume from an url to the default sink")
-    public static synchronized void playStream(@ParamDoc(name = "url", text = "the url of the audio stream") String url,
-            @ParamDoc(name = "volume", text = "the volume to be used") PercentType volume) {
-        try {
-            AudioActionService.audioManager.stream(url, volume);
-        } catch (AudioException e) {
-            logger.warn("Failed streaming audio url: {}", e.getMessage());
-        }
-    }
-
     @ActionDoc(text = "plays an audio stream from an url to the given sink(s)")
     public static synchronized void playStream(@ParamDoc(name = "sink", text = "the id of the sink") String sink,
             @ParamDoc(name = "url", text = "the url of the audio stream") String url) {
         try {
             AudioActionService.audioManager.stream(url, sink);
-        } catch (AudioException e) {
-            logger.warn("Failed streaming audio url: {}", e.getMessage());
-        }
-    }
-
-    @ActionDoc(text = "plays an audio stream with the given volume from an url to the given sink(s)")
-    public static synchronized void playStream(@ParamDoc(name = "sink", text = "the id of the sink") String sink,
-            @ParamDoc(name = "url", text = "the url of the audio stream") String url,
-            @ParamDoc(name = "volume", text = "the volume to be used") PercentType volume) {
-        try {
-            AudioActionService.audioManager.stream(url, sink, volume);
         } catch (AudioException e) {
             logger.warn("Failed streaming audio url: {}", e.getMessage());
         }

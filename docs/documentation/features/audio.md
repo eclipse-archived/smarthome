@@ -31,9 +31,7 @@ There are two different ways to play or stream audio:
 | `playSound(String sink, filename)`                        | plays a sound from the sounds folder to the given sink(s)                        |
 | `playSound(String sink, filename, PercentType volume)`    | plays a sound with the given volume from the sounds folder to the given sink(s)` |
 | `playStream(String url)`                                  | plays an audio stream from an url to the default sink                            |
-| `playStream(String url, PercentType volume)`              | plays an audio stream with the given volume from an url to the default sink      |
 | `playStream(String sink, String url)`                     | plays an audio stream from an url to the given sink(s)                           |
-| `playStream(String sink, String url, PercentType volume)` | plays an audio stream with the given volume from an url to the given sink(s)     |
 | `float getMasterVolume()`                                 | gets the master volume, returns the volume as a float in the range [0,1]         |
 | `setMasterVolume(float volume)`                           | sets the master volume, `volume` in the range [0,1]                              |
 | `setMasterVolume(PercentType percent)`                    | sets the master volume                                                           |

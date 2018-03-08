@@ -53,8 +53,6 @@ public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtensio
                         "plays a sound file from the sounds folder through the specified audio sink(s) with the specified volume"),
                 buildCommandUsage(SUBCMD_STREAM + " [<sink>] <url>",
                         "streams the sound from the url through the optionally specified audio sink(s)"),
-                buildCommandUsage(SUBCMD_STREAM + " <sink> <url> <volume>",
-                        "streams the sound from the url through the specified audio sink(s) with the specified volume"),
                 buildCommandUsage(SUBCMD_SOURCES, "lists the audio sources"),
                 buildCommandUsage(SUBCMD_SINKS, "lists the audio sinks") });
 
@@ -155,35 +153,25 @@ public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtensio
     private void stream(String[] args, Console console) {
         switch (args.length) {
             case 1:
-                streamOnSink(null, args[0], null, console);
+                streamOnSink(null, args[0], console);
                 break;
             case 2:
-                streamOnSinks(args[0], args[1], null, console);
-                break;
-            case 3:
-                PercentType volume = null;
-                try {
-                    volume = PercentType.valueOf(args[2]);
-                } catch (Exception e) {
-                    console.println(e.getMessage());
-                    break;
-                }
-                streamOnSinks(args[0], args[1], volume, console);
+                streamOnSinks(args[0], args[1], console);
                 break;
             default:
                 break;
         }
     }
 
-    private void streamOnSinks(String sinkIds, String url, PercentType volume, Console console) {
+    private void streamOnSinks(String sinkIds, String url, Console console) {
         for (String sink : audioManager.getSinks(sinkIds)) {
-            streamOnSink(sink, url, volume, console);
+            streamOnSink(sink, url, console);
         }
     }
 
-    private void streamOnSink(String sinkId, String url, PercentType volume, Console console) {
+    private void streamOnSink(String sinkId, String url, Console console) {
         try {
-            audioManager.stream(url, sinkId, volume);
+            audioManager.stream(url, sinkId);
         } catch (AudioException e) {
             console.println(e.getMessage());
         }

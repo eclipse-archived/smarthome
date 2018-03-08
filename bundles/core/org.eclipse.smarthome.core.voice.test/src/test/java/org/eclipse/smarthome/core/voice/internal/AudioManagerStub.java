@@ -84,17 +84,7 @@ public class AudioManagerStub implements AudioManager {
     }
 
     @Override
-    public void stream(String url, PercentType volume) throws AudioException {
-
-    }
-
-    @Override
     public void stream(String url, String sinkId) throws AudioException {
-
-    }
-
-    @Override
-    public void stream(String url, String sinkId, PercentType volume) throws AudioException {
 
     }
 
