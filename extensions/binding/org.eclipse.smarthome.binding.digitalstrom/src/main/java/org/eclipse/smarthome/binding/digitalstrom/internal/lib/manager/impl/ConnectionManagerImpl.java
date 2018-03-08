@@ -41,7 +41,7 @@ public class ConnectionManagerImpl implements ConnectionManager {
      * {@link DsAPI#query2(String, String)}.
      */
     public final String QUERY_GET_ENABLED_APPLICATION_TOKENS = "/system/security/applicationTokens/enabled/*(*)";
-    private static final Logger logger = LoggerFactory.getLogger(ConnectionManagerImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(ConnectionManagerImpl.class);
 
     private Config config;
     private ConnectionListener connListener;

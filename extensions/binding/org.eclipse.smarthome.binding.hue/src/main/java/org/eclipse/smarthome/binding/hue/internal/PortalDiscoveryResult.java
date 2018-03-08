@@ -23,7 +23,7 @@ import com.google.gson.reflect.TypeToken;
  * @author Denis Dudnik - moved Jue library source code inside the smarthome Hue binding
  */
 class PortalDiscoveryResult {
-    public static final Type gsonType = new TypeToken<List<PortalDiscoveryResult>>() {
+    public static final Type GSON_TYPE = new TypeToken<List<PortalDiscoveryResult>>() {
     }.getType();
 
     private String internalipaddress;

@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DeviceOutputValueSensorJob implements SensorJob {
 
-    private static final Logger logger = LoggerFactory.getLogger(DeviceOutputValueSensorJob.class);
+    private final Logger logger = LoggerFactory.getLogger(DeviceOutputValueSensorJob.class);
     private final Device device;
     private short index = 0;
     private final DSID meterDSID;

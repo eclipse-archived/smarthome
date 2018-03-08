@@ -62,7 +62,7 @@ import com.google.gson.JsonObject;
  */
 public class DeviceImpl extends AbstractGeneralDeviceInformations implements Device {
 
-    private static final Logger logger = LoggerFactory.getLogger(DeviceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(DeviceImpl.class);
 
     private Config config;
 

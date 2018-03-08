@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceUUID {
 
-    private static final Logger logger = LoggerFactory.getLogger(InstanceUUID.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InstanceUUID.class);
 
     private static final String UUID_FILE_NAME = "uuid";
 
@@ -56,16 +56,16 @@ public class InstanceUUID {
                 } else {
                     uuid = readFirstLine(file);
                     if (StringUtils.isNotEmpty(uuid)) {
-                        logger.debug("UUID '{}' has been restored from file '{}'", file.getAbsolutePath(), uuid);
+                        LOGGER.debug("UUID '{}' has been restored from file '{}'", file.getAbsolutePath(), uuid);
                     } else {
                         uuid = java.util.UUID.randomUUID().toString();
-                        logger.warn("UUID file '{}' has no content, rewriting it now with '{}'", file.getAbsolutePath(),
+                        LOGGER.warn("UUID file '{}' has no content, rewriting it now with '{}'", file.getAbsolutePath(),
                                 uuid);
                         writeFile(file, uuid);
                     }
                 }
             } catch (IOException e) {
-                logger.error("Failed writing instance uuid file: {}", e.getMessage());
+                LOGGER.error("Failed writing instance uuid file: {}", e.getMessage());
                 return null;
             }
         }
@@ -86,7 +86,7 @@ public class InstanceUUID {
         try {
             lines = IOUtils.readLines(new FileInputStream(file));
         } catch (IOException ioe) {
-            logger.warn("Failed reading the UUID file '{}': {}", file.getAbsolutePath(), ioe.getMessage());
+            LOGGER.warn("Failed reading the UUID file '{}': {}", file.getAbsolutePath(), ioe.getMessage());
         }
         return lines != null && lines.size() > 0 ? lines.get(0) : "";
     }

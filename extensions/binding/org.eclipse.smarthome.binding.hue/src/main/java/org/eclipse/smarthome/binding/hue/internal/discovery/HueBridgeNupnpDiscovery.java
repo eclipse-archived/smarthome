@@ -72,7 +72,7 @@ public class HueBridgeNupnpDiscovery extends AbstractDiscoveryService {
 
     @Override
     protected void startScan() {
-        scheduler.schedule(new Runnable() {
+        SCHEDULER.schedule(new Runnable() {
             @Override
             public void run() {
                 discoverHueBridges();

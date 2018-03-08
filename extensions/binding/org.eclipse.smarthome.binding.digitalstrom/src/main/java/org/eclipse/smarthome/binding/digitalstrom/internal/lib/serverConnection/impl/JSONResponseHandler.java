@@ -30,7 +30,7 @@ import com.google.gson.JsonParser;
  */
 public class JSONResponseHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(JSONResponseHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JSONResponseHandler.class);
 
     /**
      * Checks the digitalSTROM-JSON response and return true if it was successful, otherwise false.
@@ -48,7 +48,7 @@ public class JSONResponseHandler {
             if (jsonResponse.get(JSONApiResponseKeysEnum.MESSAGE.getKey()) != null) {
                 message = jsonResponse.get(JSONApiResponseKeysEnum.MESSAGE.getKey()).getAsString();
             }
-            logger.error("JSONResponseHandler: error in json request. Error message : {}", message);
+            LOGGER.error("JSONResponseHandler: error in json request. Error message : {}", message);
         }
         return false;
     }
@@ -65,7 +65,7 @@ public class JSONResponseHandler {
             try {
                 return (JsonObject) new JsonParser().parse(jsonResponse);
             } catch (JsonParseException e) {
-                logger.error("An JsonParseException occurred by parsing jsonRequest: {}", jsonResponse, e);
+                LOGGER.error("An JsonParseException occurred by parsing jsonRequest: {}", jsonResponse, e);
             }
         }
         return null;

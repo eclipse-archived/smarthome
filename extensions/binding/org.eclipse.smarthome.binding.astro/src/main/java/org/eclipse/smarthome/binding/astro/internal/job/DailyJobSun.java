@@ -49,11 +49,11 @@ public final class DailyJobSun extends AbstractJob {
     public void run() {
         handler.publishDailyInfo();
         String thingUID = getThingUID();
-        logger.info("Scheduled Astro event-jobs for thing {}", thingUID);
+        LOGGER.info("Scheduled Astro event-jobs for thing {}", thingUID);
 
         Planet planet = handler.getPlanet();
         if (planet == null) {
-            logger.error("Planet not instantiated");
+            LOGGER.error("Planet not instantiated");
             return;
         }
         Sun sun = (Sun) planet;

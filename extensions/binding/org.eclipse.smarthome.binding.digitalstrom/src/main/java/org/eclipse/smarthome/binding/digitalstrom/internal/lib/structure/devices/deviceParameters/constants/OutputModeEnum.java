@@ -89,11 +89,11 @@ public enum OutputModeEnum {
 
     private final int mode;
 
-    static final HashMap<Integer, OutputModeEnum> outputModes = new HashMap<Integer, OutputModeEnum>();
+    static final HashMap<Integer, OutputModeEnum> OUTPUT_MODES = new HashMap<Integer, OutputModeEnum>();
 
     static {
         for (OutputModeEnum out : OutputModeEnum.values()) {
-            outputModes.put(out.getMode(), out);
+            OUTPUT_MODES.put(out.getMode(), out);
         }
     }
 
@@ -104,7 +104,7 @@ public enum OutputModeEnum {
      * @return true, if contains, otherwise false
      */
     public static boolean containsMode(Integer modeID) {
-        return outputModes.keySet().contains(modeID);
+        return OUTPUT_MODES.keySet().contains(modeID);
     }
 
     /**
@@ -204,7 +204,7 @@ public enum OutputModeEnum {
      * @return OutputModeEnum or null
      */
     public static OutputModeEnum getMode(Integer modeID) {
-        return outputModes.get(modeID);
+        return OUTPUT_MODES.get(modeID);
     }
 
     private OutputModeEnum(int outputMode) {

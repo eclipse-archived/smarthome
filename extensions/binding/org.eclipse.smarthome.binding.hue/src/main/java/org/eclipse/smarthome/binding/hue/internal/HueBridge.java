@@ -130,7 +130,7 @@ public class HueBridge {
 
         handleErrors(result);
 
-        Map<String, Light> lightMap = safeFromJson(result.getBody(), Light.gsonType);
+        Map<String, Light> lightMap = safeFromJson(result.getBody(), Light.GSON_TYPE);
 
         ArrayList<Light> lightList = new ArrayList<>();
 
@@ -242,7 +242,7 @@ public class HueBridge {
 
         handleErrors(result);
 
-        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.gsonType);
+        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.GSON_TYPE);
         SuccessResponse response = entries.get(0);
 
         return (String) response.success.get("/lights/" + enc(light.getId()) + "/name");
@@ -290,7 +290,7 @@ public class HueBridge {
 
         handleErrors(result);
 
-        Map<String, Group> groupMap = safeFromJson(result.getBody(), Group.gsonType);
+        Map<String, Group> groupMap = safeFromJson(result.getBody(), Group.GSON_TYPE);
         ArrayList<Group> groupList = new ArrayList<>();
 
         groupList.add(new Group());
@@ -324,7 +324,7 @@ public class HueBridge {
 
         handleErrors(result);
 
-        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.gsonType);
+        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.GSON_TYPE);
         SuccessResponse response = entries.get(0);
 
         Group group = new Group();
@@ -354,7 +354,7 @@ public class HueBridge {
 
         handleErrors(result);
 
-        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.gsonType);
+        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.GSON_TYPE);
         SuccessResponse response = entries.get(0);
 
         Group group = new Group();
@@ -405,7 +405,7 @@ public class HueBridge {
 
         handleErrors(result);
 
-        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.gsonType);
+        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.GSON_TYPE);
         SuccessResponse response = entries.get(0);
 
         return (String) response.success.get("/groups/" + enc(group.getId()) + "/name");
@@ -454,7 +454,7 @@ public class HueBridge {
 
         handleErrors(result);
 
-        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.gsonType);
+        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.GSON_TYPE);
         SuccessResponse response = entries.get(0);
 
         return (String) response.success.get("/groups/" + enc(group.getId()) + "/name");
@@ -509,7 +509,7 @@ public class HueBridge {
 
         handleErrors(result);
 
-        Map<String, Schedule> scheduleMap = safeFromJson(result.getBody(), Schedule.gsonType);
+        Map<String, Schedule> scheduleMap = safeFromJson(result.getBody(), Schedule.GSON_TYPE);
 
         ArrayList<Schedule> scheduleList = new ArrayList<>();
 
@@ -767,7 +767,7 @@ public class HueBridge {
 
         handleErrors(result);
 
-        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.gsonType);
+        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.GSON_TYPE);
         SuccessResponse response = entries.get(0);
 
         return (String) response.success.get("username");
@@ -867,7 +867,7 @@ public class HueBridge {
             throw new IOException();
         } else {
             try {
-                List<ErrorResponse> errors = gson.fromJson(result.getBody(), ErrorResponse.gsonType);
+                List<ErrorResponse> errors = gson.fromJson(result.getBody(), ErrorResponse.GSON_TYPE);
                 if (errors == null) {
                     return;
                 }

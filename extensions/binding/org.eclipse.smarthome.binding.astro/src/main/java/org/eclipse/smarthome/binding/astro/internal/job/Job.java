@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 public interface Job extends Runnable {
 
     /** Logger Instance */
-    public final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    public final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     /**
      * Schedules the provided {@link Job} instance
@@ -61,7 +61,7 @@ public interface Job extends Runnable {
                 astroHandler.schedule(job, eventAt);
             }
         } catch (Exception ex) {
-            logger.error("{}", ex.getMessage(), ex);
+            LOGGER.error("{}", ex.getMessage(), ex);
         }
     }
 
@@ -103,7 +103,7 @@ public interface Job extends Runnable {
         if (!configAlreadyApplied) {
             final Channel channel = astroHandler.getThing().getChannel(channelId);
             if (channel == null) {
-                logger.warn("Cannot find channel '{}' for thing '{}'.", channelId, astroHandler.getThing().getUID());
+                LOGGER.warn("Cannot find channel '{}' for thing '{}'.", channelId, astroHandler.getThing().getUID());
                 return;
             }
             AstroChannelConfig config = channel.getConfiguration().as(AstroChannelConfig.class);
@@ -143,7 +143,7 @@ public interface Job extends Runnable {
 
         final Channel channel = astroHandler.getThing().getChannel(channelId);
         if (channel == null) {
-            logger.warn("Cannot find channel '{}' for thing '{}'.", channelId, astroHandler.getThing().getUID());
+            LOGGER.warn("Cannot find channel '{}' for thing '{}'.", channelId, astroHandler.getThing().getUID());
             return;
         }
         AstroChannelConfig config = channel.getConfiguration().as(AstroChannelConfig.class);
@@ -220,7 +220,7 @@ public interface Job extends Runnable {
      */
     public static <T> boolean checkNull(T obj, String message) {
         if (isNull(obj)) {
-            logger.trace("{}", message);
+            LOGGER.trace("{}", message);
             return true;
         }
         return false;

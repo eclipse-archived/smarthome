@@ -57,7 +57,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractDiscoveryService.class);
 
-    protected static final ScheduledExecutorService scheduler = ThreadPoolManager
+    protected static final ScheduledExecutorService SCHEDULER = ThreadPoolManager
             .getScheduledPool(DISCOVERY_THREADPOOL_NAME);
 
     private final Set<DiscoveryListener> discoveryListeners = new CopyOnWriteArraySet<>();
@@ -201,7 +201,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
                     }
                 };
 
-                scheduledStop = scheduler.schedule(runnable, getScanTimeout(), TimeUnit.SECONDS);
+                scheduledStop = SCHEDULER.schedule(runnable, getScanTimeout(), TimeUnit.SECONDS);
             }
             this.timestampOfLastScan = new Date().getTime();
 

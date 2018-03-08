@@ -34,7 +34,7 @@ public class ConfigDescriptionI18nUtil {
 
     private final TranslationProvider i18nProvider;
 
-    private static final Pattern delimiter = Pattern.compile("[:=\\s]");
+    private static final Pattern DELIMITER = Pattern.compile("[:=\\s]");
 
     public ConfigDescriptionI18nUtil(TranslationProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
@@ -93,7 +93,7 @@ public class ConfigDescriptionI18nUtil {
 
     private boolean isValidPropertyKey(String key) {
         if (key != null) {
-            return !delimiter.matcher(key).find();
+            return !DELIMITER.matcher(key).find();
         }
         return false;
     }

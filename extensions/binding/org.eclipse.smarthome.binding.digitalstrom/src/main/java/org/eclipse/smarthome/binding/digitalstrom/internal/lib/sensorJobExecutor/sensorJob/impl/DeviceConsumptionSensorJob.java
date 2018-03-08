@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DeviceConsumptionSensorJob implements SensorJob {
 
-    private static final Logger logger = LoggerFactory.getLogger(DeviceConsumptionSensorJob.class);
+    private final Logger logger = LoggerFactory.getLogger(DeviceConsumptionSensorJob.class);
     private final Device device;
     private final SensorEnum sensorType;
     private final DSID meterDSID;

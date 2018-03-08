@@ -42,7 +42,7 @@ import tec.uom.se.unit.TransformedUnit;
 @NonNullByDefault
 public class UnitUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(UnitUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UnitUtils.class);
 
     public static final String UNIT_PLACEHOLDER = "%unit%";
     public static final String UNIT_PERCENT_FORMAT_STRING = "%%";
@@ -105,7 +105,7 @@ public class UnitUtils {
                 return quantity.getUnit();
             } catch (IllegalArgumentException e) {
                 // we expect this exception in case the extracted string does not match any known unit
-                logger.debug("Unknown unit from pattern: {}", unitSymbol);
+                LOGGER.debug("Unknown unit from pattern: {}", unitSymbol);
             }
         }
 

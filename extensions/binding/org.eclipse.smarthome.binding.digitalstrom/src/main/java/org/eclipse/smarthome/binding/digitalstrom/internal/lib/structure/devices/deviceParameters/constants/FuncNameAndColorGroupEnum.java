@@ -61,11 +61,11 @@ public enum FuncNameAndColorGroupEnum {
     private final short colorGroup;
     private final FunctionalColorGroupEnum color;
 
-    static final HashMap<Short, FuncNameAndColorGroupEnum> colorGroups = new HashMap<Short, FuncNameAndColorGroupEnum>();
+    static final HashMap<Short, FuncNameAndColorGroupEnum> COLOR_GROUPS = new HashMap<Short, FuncNameAndColorGroupEnum>();
 
     static {
         for (FuncNameAndColorGroupEnum colorGroup : FuncNameAndColorGroupEnum.values()) {
-            colorGroups.put(colorGroup.getFunctionalColorGroup(), colorGroup);
+            COLOR_GROUPS.put(colorGroup.getFunctionalColorGroup(), colorGroup);
         }
     }
 
@@ -76,7 +76,7 @@ public enum FuncNameAndColorGroupEnum {
      * @return true, if contains
      */
     public static boolean containsColorGroup(Short functionalNameGroupID) {
-        return colorGroups.keySet().contains(functionalNameGroupID);
+        return COLOR_GROUPS.keySet().contains(functionalNameGroupID);
     }
 
     /**
@@ -86,7 +86,7 @@ public enum FuncNameAndColorGroupEnum {
      * @return FunctionalNameAndColorGroupEnum
      */
     public static FuncNameAndColorGroupEnum getMode(Short functionalNameGroupID) {
-        return colorGroups.get(functionalNameGroupID);
+        return COLOR_GROUPS.get(functionalNameGroupID);
     }
 
     private FuncNameAndColorGroupEnum(short functionalColorGroupID, FunctionalColorGroupEnum functionalColorGroup) {
