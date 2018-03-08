@@ -35,6 +35,9 @@ import com.google.inject.Binder
 import com.google.inject.name.Names
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputer
 import org.eclipse.smarthome.model.script.jvmmodel.ScriptTypeComputer
+import org.eclipse.xtext.parser.IEncodingProvider
+import org.eclipse.smarthome.model.script.internal.ScriptEncodingProvider
+import org.eclipse.xtext.service.DispatchingProvider
 
 /** 
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
@@ -47,6 +50,10 @@ import org.eclipse.smarthome.model.script.jvmmodel.ScriptTypeComputer
     
     def Class<? extends ITypeComputer> bindITypeComputer() {
         return ScriptTypeComputer
+    }
+
+    override configureRuntimeEncodingProvider(Binder binder) {
+        binder.bind(IEncodingProvider).annotatedWith(DispatchingProvider.Runtime).to(ScriptEncodingProvider)
     }
 
     override Class<? extends IExpressionInterpreter> bindIExpressionInterpreter() {
