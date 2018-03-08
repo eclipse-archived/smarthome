@@ -173,7 +173,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
                 E existingElement = get(element.getUID());
                 onRemoveElement(existingElement);
                 elements.remove(existingElement);
-                notifyListenersAboutRemovedElement(element);
+                notifyListenersAboutRemovedElement(existingElement);
             } catch (Exception ex) {
                 logger.warn("Could not remove element: {}", ex.getMessage(), ex);
             }
