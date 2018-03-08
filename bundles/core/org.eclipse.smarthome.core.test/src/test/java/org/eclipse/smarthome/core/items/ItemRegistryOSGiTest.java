@@ -15,12 +15,14 @@ package org.eclipse.smarthome.core.items;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.items.events.ItemAddedEvent;
@@ -274,21 +276,41 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
     public void assertItemIsBeingDisposedOnRemove() {
         GenericItem item = spy(new SwitchItem("Item1"));
         itemProvider.add(item);
+
+        @SuppressWarnings("unchecked")
+        RegistryChangeListener<Item> registryChangeListener = mock(RegistryChangeListener.class);
+        itemRegistry.addRegistryChangeListener(registryChangeListener);
+
         itemProvider.remove(item.getUID());
 
         verify(item).dispose();
+
+        ArgumentCaptor<Item> itemCaptor = ArgumentCaptor.forClass(Item.class);
+        verify(registryChangeListener).removed(itemCaptor.capture());
+        assertTrue(itemCaptor.getValue() == item);
     }
 
     @Test
     public void assertOldItemIsBeingDisposedOnUpdate() {
         GenericItem item = new SwitchItem("Item1");
         itemProvider.add(item);
-        itemProvider.update(new SwitchItem("Item1"));
+
+        @SuppressWarnings("unchecked")
+        RegistryChangeListener<Item> registryChangeListener = mock(RegistryChangeListener.class);
+        itemRegistry.addRegistryChangeListener(registryChangeListener);
+
+        GenericItem newItem = new SwitchItem("Item1");
+        itemProvider.update(newItem);
 
         assertNull(item.eventPublisher);
         assertNull(item.itemStateConverter);
         assertNull(item.unitProvider);
         assertThat(item.listeners, hasSize(0));
+
+        ArgumentCaptor<Item> itemCaptor = ArgumentCaptor.forClass(Item.class);
+        verify(registryChangeListener).updated(itemCaptor.capture(), eq(newItem));
+        assertTrue(itemCaptor.getValue() == item);
+
     }
 
 }
