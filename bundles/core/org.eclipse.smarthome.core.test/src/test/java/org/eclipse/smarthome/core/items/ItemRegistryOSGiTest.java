@@ -20,7 +20,6 @@ import static org.mockito.Mockito.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BooleanSupplier;
 
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventSubscriber;
@@ -199,32 +198,20 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
     public void assertItemRegistryIsThreadSafe() {
         AtomicInteger numberOfSuccessfulGetItemCalls = new AtomicInteger(0);
         for (int i = 0; i < 10; i++) {
-            new Thread(new Runnable() {
-
-                @Override
-                public void run() {
-                    for (int j = 0; j < 10; j++) {
-                        // get item throws an exception if item is not present and counter is not incremented
-                        try {
-                            itemRegistry.getItem(ITEM_NAME);
-                            numberOfSuccessfulGetItemCalls.incrementAndGet();
-                        } catch (ItemNotFoundException e) {
-                            // bad, but counter will not incremented -> test fails.
-                        }
+            new Thread(() -> {
+                for (int j = 0; j < 10; j++) {
+                    // get item throws an exception if item is not present and counter is not incremented
+                    try {
+                        itemRegistry.getItem(ITEM_NAME);
+                        numberOfSuccessfulGetItemCalls.incrementAndGet();
+                    } catch (ItemNotFoundException e) {
+                        // bad, but counter will not incremented -> test fails.
                     }
                 }
             }).start();
         }
 
-        waitFor(new BooleanSupplier() {
-
-            @Override
-            public boolean getAsBoolean() {
-                return numberOfSuccessfulGetItemCalls.get() >= 100;
-            }
-
-        });
-
+        waitFor(() -> numberOfSuccessfulGetItemCalls.get() >= 100);
         assertThat(numberOfSuccessfulGetItemCalls.get(), is(100));
     }
 
