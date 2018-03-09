@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TransformationHelper {
 
-    private static final Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransformationHelper.class);
 
     /* RegEx to extract and parse a function String <code>'(.*?)\((.*)\):(.*)'</code> */
     protected static final Pattern EXTRACT_TRANSFORMFUNCTION_PATTERN = Pattern.compile("(.*?)\\((.*)\\):(.*)");
@@ -93,16 +93,16 @@ public class TransformationHelper {
                     try {
                         pattern = transformation.transform(pattern, value);
                     } catch (TransformationException e) {
-                        logger.warn("Transformation '{}' with value '{}' failed: {}", transformation, value,
+                        LOGGER.warn("Transformation '{}' with value '{}' failed: {}", transformation, value,
                                 e.getMessage());
                         pattern = state;
                     }
                 } catch (IllegalFormatException e) {
-                    logger.warn("Cannot format state '{}' to format '{}': {}", state, value, e.getMessage());
+                    LOGGER.warn("Cannot format state '{}' to format '{}': {}", state, value, e.getMessage());
                     pattern = state;
                 }
             } else {
-                logger.warn("Couldn't transform value because transformation service of type '{}' is not available.",
+                LOGGER.warn("Couldn't transform value because transformation service of type '{}' is not available.",
                         type);
                 pattern = state;
             }

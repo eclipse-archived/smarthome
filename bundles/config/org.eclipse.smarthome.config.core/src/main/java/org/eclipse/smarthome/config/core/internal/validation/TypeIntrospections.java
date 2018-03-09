@@ -27,7 +27,7 @@ import com.google.common.collect.ImmutableMap;
  */
 final class TypeIntrospections {
 
-    private static final Map<Type, TypeIntrospection> introspections = new ImmutableMap.Builder<Type, TypeIntrospection>()
+    private static final Map<Type, TypeIntrospection> INTROSPECTIONS = new ImmutableMap.Builder<Type, TypeIntrospection>()
             .put(Type.BOOLEAN, new BooleanIntrospection()).put(Type.TEXT, new StringIntrospection())
             .put(Type.INTEGER, new IntegerIntrospection()).put(Type.DECIMAL, new FloatIntrospection()).build();
 
@@ -45,7 +45,7 @@ final class TypeIntrospections {
      * @throws IllegalArgumentException if no {@link TypeIntrospection} was found for the given type
      */
     static TypeIntrospection get(Type type) {
-        TypeIntrospection typeIntrospection = introspections.get(type);
+        TypeIntrospection typeIntrospection = INTROSPECTIONS.get(type);
         if (typeIntrospection == null) {
             throw new IllegalArgumentException("There is no type introspection for type " + type);
         }

@@ -33,7 +33,7 @@ public class RegExTransformationService implements TransformationService {
 
     private final Logger logger = LoggerFactory.getLogger(RegExTransformationService.class);
 
-    private static final Pattern substPattern = Pattern.compile("^s/(.*?[^\\\\])/(.*?[^\\\\])/(.*)$");
+    private static final Pattern SUBSTR_PATTERN = Pattern.compile("^s/(.*?[^\\\\])/(.*?[^\\\\])/(.*)$");
 
     @Override
     public String transform(String regExpression, String source) throws TransformationException {
@@ -45,7 +45,7 @@ public class RegExTransformationService implements TransformationService {
 
         String result = "";
 
-        Matcher substMatcher = substPattern.matcher(regExpression);
+        Matcher substMatcher = SUBSTR_PATTERN.matcher(regExpression);
         if (substMatcher.matches()) {
             logger.debug("Using substitution form of regex transformation");
             String regex = substMatcher.group(1);

@@ -239,7 +239,7 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
         logger.trace("Start WeMo device background discovery");
 
         if (scanningJob == null || scanningJob.isCancelled()) {
-            this.scanningJob = AbstractDiscoveryService.scheduler.scheduleWithFixedDelay(this.scanningRunnable,
+            this.scanningJob = AbstractDiscoveryService.SCHEDULER.scheduleWithFixedDelay(this.scanningRunnable,
                     INITIAL_DELAY, SCAN_INTERVAL, TimeUnit.SECONDS);
         } else {
             logger.trace("scanningJob active");

@@ -73,7 +73,7 @@ public final class Firmware implements Comparable<Firmware> {
     /** The key for the requires a factory reset property. */
     public static final String PROPERTY_REQUIRES_FACTORY_RESET = "requiresFactoryReset";
 
-    private static final Logger logger = LoggerFactory.getLogger(Firmware.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Firmware.class);
 
     private final FirmwareUID uid;
     private final String vendor;
@@ -231,7 +231,7 @@ public final class Firmware implements Comparable<Firmware> {
                 try (DigestInputStream dis = new DigestInputStream(inputStream, md)) {
                     bytes = IOUtils.toByteArray(dis);
                 } catch (IOException ioEx) {
-                    logger.error("Cannot read firmware with UID {}.", uid, ioEx);
+                    LOGGER.error("Cannot read firmware with UID {}.", uid, ioEx);
                     return null;
                 }
 
@@ -250,7 +250,7 @@ public final class Firmware implements Comparable<Firmware> {
                     }
                 }
             } catch (NoSuchAlgorithmException e) {
-                logger.error("Cannot calculate MD5 checksum.", e);
+                LOGGER.error("Cannot calculate MD5 checksum.", e);
                 bytes = null;
                 return null;
             }

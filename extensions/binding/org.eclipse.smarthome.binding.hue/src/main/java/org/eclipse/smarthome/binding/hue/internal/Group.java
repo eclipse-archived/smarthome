@@ -24,7 +24,7 @@ import com.google.gson.reflect.TypeToken;
  * @author Denis Dudnik - moved Jue library source code inside the smarthome Hue binding
  */
 public class Group {
-    public static final Type gsonType = new TypeToken<Map<String, Group>>() {
+    public static final Type GSON_TYPE = new TypeToken<Map<String, Group>>() {
     }.getType();
 
     private String id;

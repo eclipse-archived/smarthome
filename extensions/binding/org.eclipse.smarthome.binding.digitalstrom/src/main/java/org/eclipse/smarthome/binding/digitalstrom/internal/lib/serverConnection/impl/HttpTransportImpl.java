@@ -81,8 +81,8 @@ public class HttpTransportImpl implements HttpTransport {
     private static final String BEGIN_CERT = "-----BEGIN CERTIFICATE-----" + LINE_SEPERATOR;
     private static final String END_CERT = LINE_SEPERATOR + "-----END CERTIFICATE-----" + LINE_SEPERATOR;
 
-    private static final Logger logger = LoggerFactory.getLogger(HttpTransportImpl.class);
-    private static final short mayANewSessionTokenIsNeeded = 1;
+    private final Logger logger = LoggerFactory.getLogger(HttpTransportImpl.class);
+    private static final short MAY_A_NEW_SESSION_TOKEN_IS_NEEDED = 1;
 
     private String uri;
 
@@ -266,7 +266,7 @@ public class HttpTransportImpl implements HttpTransport {
                     }
                 }
                 connection.disconnect();
-                if (response == null && connectionManager != null && loginCounter <= mayANewSessionTokenIsNeeded) {
+                if (response == null && connectionManager != null && loginCounter <= MAY_A_NEW_SESSION_TOKEN_IS_NEEDED) {
                     if (connection.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {
                         execute(addSessionToken(request, connectionManager.getNewSessionToken()), connectTimeout,
                                 readTimeout);
@@ -300,7 +300,7 @@ public class HttpTransportImpl implements HttpTransport {
     }
 
     private boolean informConnectionManager(int code) {
-        if (connectionManager != null && loginCounter < mayANewSessionTokenIsNeeded) {
+        if (connectionManager != null && loginCounter < MAY_A_NEW_SESSION_TOKEN_IS_NEEDED) {
             connectionManager.checkConnection(code);
             return true;
         }

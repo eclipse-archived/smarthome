@@ -44,7 +44,7 @@ public class AstroHandlerFactory extends BaseThingHandlerFactory {
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream
             .concat(SunHandler.SUPPORTED_THING_TYPES.stream(), MoonHandler.SUPPORTED_THING_TYPES.stream())
             .collect(Collectors.toSet());
-    private static final Map<String, AstroThingHandler> astroThingHandlers = new HashMap<>();
+    private static final Map<String, AstroThingHandler> ASTRO_THING_HANDLERS = new HashMap<>();
     private TimeZoneProvider timeZoneProvider;
 
     @Override
@@ -62,7 +62,7 @@ public class AstroHandlerFactory extends BaseThingHandlerFactory {
             thingHandler = new MoonHandler(thing);
         }
         if (thingHandler != null) {
-            astroThingHandlers.put(thing.getUID().toString(), thingHandler);
+            ASTRO_THING_HANDLERS.put(thing.getUID().toString(), thingHandler);
         }
         return thingHandler;
     }
@@ -70,7 +70,7 @@ public class AstroHandlerFactory extends BaseThingHandlerFactory {
     @Override
     public void unregisterHandler(Thing thing) {
         super.unregisterHandler(thing);
-        astroThingHandlers.remove(thing.getUID().toString());
+        ASTRO_THING_HANDLERS.remove(thing.getUID().toString());
     }
 
     @Reference
@@ -83,6 +83,6 @@ public class AstroHandlerFactory extends BaseThingHandlerFactory {
     }
     
     public static AstroThingHandler getHandler(String thingUid) {
-        return astroThingHandlers.get(thingUid);
+        return ASTRO_THING_HANDLERS.get(thingUid);
     }
 }

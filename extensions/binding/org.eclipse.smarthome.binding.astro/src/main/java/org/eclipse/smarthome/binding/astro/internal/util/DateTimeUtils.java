@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * @author Gerhard Riegler - Initial contribution
  */
 public class DateTimeUtils {
-    private static final Logger logger = LoggerFactory.getLogger(DateTimeUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DateTimeUtils.class);
     private static final Pattern HHMM_PATTERN = Pattern.compile("^([0-1][0-9]|2[0-3])(:[0-5][0-9])$");
 
     public static final double J1970 = 2440588.0;
@@ -229,7 +229,7 @@ public class DateTimeUtils {
                     return (hour * 60) + minutes;
                 }
             } catch (Exception ex) {
-                logger.warn(
+                LOGGER.warn(
                         "Can not parse astro channel configuration '{}' to hour and minutes, use pattern hh:mm, ignoring!",
                         time);
             }

@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 @Component(configurationPid = "org.eclipse.smarthome.threadpool")
 public class ThreadPoolManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(ThreadPoolManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ThreadPoolManager.class);
 
     protected static final int DEFAULT_THREAD_POOL_SIZE = 5;
 
@@ -83,15 +83,15 @@ public class ThreadPoolManager {
                     ThreadPoolExecutor pool = (ThreadPoolExecutor) pools.get(poolName);
                     if (pool instanceof ScheduledThreadPoolExecutor) {
                         pool.setCorePoolSize(poolSize);
-                        logger.debug("Updated scheduled thread pool '{}' to size {}",
+                        LOGGER.debug("Updated scheduled thread pool '{}' to size {}",
                                 new Object[] { poolName, poolSize });
                     } else if (pool instanceof QueueingThreadPoolExecutor) {
                         pool.setMaximumPoolSize(poolSize);
-                        logger.debug("Updated queuing thread pool '{}' to size {}",
+                        LOGGER.debug("Updated queuing thread pool '{}' to size {}",
                                 new Object[] { poolName, poolSize });
                     }
                 } catch (NumberFormatException e) {
-                    logger.warn("Ignoring invalid configuration for pool '{}': {} - value must be an integer",
+                    LOGGER.warn("Ignoring invalid configuration for pool '{}': {} - value must be an integer",
                             new Object[] { poolName, config });
                     continue;
                 }
@@ -118,7 +118,7 @@ public class ThreadPoolManager {
                     ((ThreadPoolExecutor) pool).setKeepAliveTime(THREAD_TIMEOUT, TimeUnit.SECONDS);
                     ((ThreadPoolExecutor) pool).allowCoreThreadTimeOut(true);
                     pools.put(poolName, pool);
-                    logger.debug("Created scheduled thread pool '{}' of size {}", new Object[] { poolName, cfg });
+                    LOGGER.debug("Created scheduled thread pool '{}' of size {}", new Object[] { poolName, cfg });
                 }
             }
         }
@@ -148,7 +148,7 @@ public class ThreadPoolManager {
                     ((ThreadPoolExecutor) pool).setKeepAliveTime(THREAD_TIMEOUT, TimeUnit.SECONDS);
                     ((ThreadPoolExecutor) pool).allowCoreThreadTimeOut(true);
                     pools.put(poolName, pool);
-                    logger.debug("Created thread pool '{}' with size {}", new Object[] { poolName, cfg });
+                    LOGGER.debug("Created thread pool '{}' with size {}", new Object[] { poolName, cfg });
                 }
             }
         }

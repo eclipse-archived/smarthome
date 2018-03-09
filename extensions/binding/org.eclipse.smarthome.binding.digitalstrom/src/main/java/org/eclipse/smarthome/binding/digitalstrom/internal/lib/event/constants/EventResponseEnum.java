@@ -66,11 +66,11 @@ public enum EventResponseEnum {
     INPUT_INDEX("inputIndex");
 
     private final String id;
-    static final HashMap<String, EventResponseEnum> eventResponseFields = new HashMap<String, EventResponseEnum>();
+    static final HashMap<String, EventResponseEnum> EVENT_RESPONSE_FIELDS = new HashMap<String, EventResponseEnum>();
 
     static {
         for (EventResponseEnum ev : EventResponseEnum.values()) {
-            eventResponseFields.put(ev.getId(), ev);
+            EVENT_RESPONSE_FIELDS.put(ev.getId(), ev);
         }
     }
 
@@ -81,7 +81,7 @@ public enum EventResponseEnum {
      * @return contains property (true = yes | false = no)
      */
     public static boolean containsId(String property) {
-        return eventResponseFields.keySet().contains(property);
+        return EVENT_RESPONSE_FIELDS.keySet().contains(property);
     }
 
     /**
@@ -91,7 +91,7 @@ public enum EventResponseEnum {
      * @return EventPropertyEnum
      */
     public static EventResponseEnum getProperty(String property) {
-        return eventResponseFields.get(property);
+        return EVENT_RESPONSE_FIELDS.get(property);
     }
 
     private EventResponseEnum(String id) {
