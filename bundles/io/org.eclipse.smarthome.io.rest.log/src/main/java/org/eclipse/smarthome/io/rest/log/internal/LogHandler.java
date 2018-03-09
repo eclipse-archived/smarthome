@@ -132,7 +132,7 @@ public class LogHandler implements RESTResource {
             LOG_BUFFER.pollLast(); // Remove last element of Deque
         }
 
-        return Response.ok(null, MediaType.APPLICATION_JSON).build();
+        return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
     /**
