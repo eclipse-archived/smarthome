@@ -10,30 +10,30 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.binding.bluetooth;
+package org.eclipse.smarthome.core.util;
 
 /**
- * Static utility methods that are helpful when dealing with Bluetooth data.
+ * Static utility methods that are helpful when dealing with hex data and byte arrays.
  *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public class BluetoothUtils {
+public class HexUtils {
 
     // used for hex conversions
     private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
     // private constructor as we only have static methods
-    private BluetoothUtils() {
+    private HexUtils() {
     }
 
     /**
-     * Converts a byte array into a hex string (in format "01 23 45 67 89 0A BC DE").
+     * Converts a byte array into a hex string (in format "01 23 45 67 89 AB CD EF").
      *
      * @param bytes the byte array
      * @return the corresponding hex string
      */
-    public static String bytesToHex(byte[] bytes) {
+    public static String bytesToHexWithSpaces(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 3];
         for (int j = 0; j < bytes.length; j++) {
             int v = bytes[j] & 0xFF;
@@ -42,5 +42,15 @@ public class BluetoothUtils {
             hexChars[j * 3 + 2] = ' ';
         }
         return new String(hexChars).trim();
+    }
+
+    /**
+     * Converts a byte array into a hex string (in format "0123456789ABCDEF").
+     *
+     * @param bytes the byte array
+     * @return the corresponding hex string
+     */
+    public static String bytesToHex(byte[] bytes) {
+        return bytesToHexWithSpaces(bytes).replaceAll(" ", "");
     }
 }

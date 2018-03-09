@@ -25,11 +25,11 @@ import org.eclipse.smarthome.binding.bluetooth.BluetoothCompletionStatus;
 import org.eclipse.smarthome.binding.bluetooth.BluetoothDescriptor;
 import org.eclipse.smarthome.binding.bluetooth.BluetoothDevice;
 import org.eclipse.smarthome.binding.bluetooth.BluetoothService;
-import org.eclipse.smarthome.binding.bluetooth.BluetoothUtils;
 import org.eclipse.smarthome.binding.bluetooth.bluez.handler.BlueZBridgeHandler;
 import org.eclipse.smarthome.binding.bluetooth.notification.BluetoothConnectionStatusNotification;
 import org.eclipse.smarthome.binding.bluetooth.notification.BluetoothScanNotification;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
+import org.eclipse.smarthome.core.util.HexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,7 +145,7 @@ public class BlueZBluetoothDevice extends BluetoothDevice {
                 data[0] = (byte) (entry.getKey() & 0xFF);
                 data[1] = (byte) (entry.getKey() >> 8);
                 System.arraycopy(entry.getValue(), 0, data, 2, entry.getValue().length);
-                logger.debug("Received manufacturer data for '{}': {}", address, BluetoothUtils.bytesToHex(data));
+                logger.debug("Received manufacturer data for '{}': {}", address, HexUtils.bytesToHexWithSpaces(data));
                 notification.setManufacturerData(data);
                 notifyListeners(BluetoothEventType.SCAN_RECORD, notification);
             }
@@ -167,7 +167,7 @@ public class BlueZBluetoothDevice extends BluetoothDevice {
             if (logger.isDebugEnabled()) {
                 logger.debug("Received service data for '{}':", address);
                 for (Map.Entry<String, byte[]> entry : data.entrySet()) {
-                    logger.debug("{} : {}", entry.getKey(), BluetoothUtils.bytesToHex(entry.getValue()));
+                    logger.debug("{} : {}", entry.getKey(), HexUtils.bytesToHexWithSpaces(entry.getValue()));
                 }
             }
         });

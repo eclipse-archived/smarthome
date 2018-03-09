@@ -30,7 +30,8 @@ Export-Package:
  org.eclipse.smarthome.core.service,
  org.eclipse.smarthome.core.storage,
  org.eclipse.smarthome.core.types,
- org.eclipse.smarthome.core.types.util
+ org.eclipse.smarthome.core.types.util,
+ org.eclipse.smarthome.core.util
 Ignore-Package: org.eclipse.smarthome.core.internal.items,org.eclipse.sm
  arthome.core.internal,org.eclipse.smarthome.core.internal.events,org.ec
  lipse.smarthome.core.internal.logging
