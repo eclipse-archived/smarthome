@@ -104,6 +104,6 @@ public class BridgeDiscoveryService extends AbstractDiscoveryService {
 
     @Override
     protected void startScan() {
-        scheduler.execute(resultCreater);
+        SCHEDULER.execute(resultCreater);
     }
 }

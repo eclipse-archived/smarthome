@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DeviceDiscoveryService extends AbstractDiscoveryService {
 
-    private static final Logger logger = LoggerFactory.getLogger(DeviceDiscoveryService.class);
+    private final Logger logger = LoggerFactory.getLogger(DeviceDiscoveryService.class);
 
     private final BridgeHandler bridgeHandler;
     private final String deviceType;

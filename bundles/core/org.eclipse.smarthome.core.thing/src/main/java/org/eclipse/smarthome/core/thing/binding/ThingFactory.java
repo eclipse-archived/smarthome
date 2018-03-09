@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  */
 @NonNullByDefault
 public class ThingFactory {
-    private static final Logger logger = LoggerFactory.getLogger(ThingFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ThingFactory.class);
 
     /**
      * Generates a random Thing UID for the given thingType
@@ -100,7 +100,7 @@ public class ThingFactory {
             if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
                 Thing thing = thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
                 if (thing == null) {
-                    logger.error(
+                    LOGGER.error(
                             "Thing factory ({}) returned null on create thing when it reports to support the thing type ({}).",
                             thingHandlerFactory.getClass(), thingTypeUID);
                 } else {

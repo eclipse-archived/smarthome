@@ -92,7 +92,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
 
     private static final String DISABLED_RULE_STORAGE = "automation_rules_disabled";
     private static final String SOURCE = RuleRegistryImpl.class.getSimpleName();
-    private static final Logger logger = LoggerFactory.getLogger(RuleRegistryImpl.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(RuleRegistryImpl.class.getName());
 
     private final RuleEngine ruleEngine = new RuleEngine();
     private Storage<Boolean> disabledRulesStorage;

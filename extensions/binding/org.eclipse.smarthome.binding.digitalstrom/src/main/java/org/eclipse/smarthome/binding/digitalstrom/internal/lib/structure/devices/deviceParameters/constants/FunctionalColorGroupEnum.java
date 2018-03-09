@@ -56,12 +56,12 @@ public enum FunctionalColorGroupEnum {
 
     private final List<Short> colorGroup;
 
-    static final HashMap<Short, FunctionalColorGroupEnum> colorGroups = new HashMap<Short, FunctionalColorGroupEnum>();
+    static final HashMap<Short, FunctionalColorGroupEnum> COLOR_GROUPS = new HashMap<Short, FunctionalColorGroupEnum>();
 
     static {
         for (FunctionalColorGroupEnum colorGroup : FunctionalColorGroupEnum.values()) {
             for (Short colorGroupID : colorGroup.getFunctionalColorGroup()) {
-                colorGroups.put(colorGroupID, colorGroup);
+                COLOR_GROUPS.put(colorGroupID, colorGroup);
             }
         }
     }
@@ -73,7 +73,7 @@ public enum FunctionalColorGroupEnum {
      * @return true, if contains
      */
     public static boolean containsColorGroup(Short functionalColorGroupID) {
-        return colorGroups.keySet().contains(functionalColorGroupID);
+        return COLOR_GROUPS.keySet().contains(functionalColorGroupID);
     }
 
     /**
@@ -83,7 +83,7 @@ public enum FunctionalColorGroupEnum {
      * @return {@link FunctionalColorGroupEnum} of the id
      */
     public static FunctionalColorGroupEnum getColorGroup(Short functionalColorGroupID) {
-        return colorGroups.get(functionalColorGroupID);
+        return COLOR_GROUPS.get(functionalColorGroupID);
     }
 
     private FunctionalColorGroupEnum(List<Short> functionalColorGroupID) {

@@ -128,11 +128,11 @@ public enum SceneEnum implements Scene {
     NO_HAIL((short) 91);
 
     private final short sceneNumber;
-    static final HashMap<Short, SceneEnum> digitalstromScenes = new HashMap<Short, SceneEnum>();
+    static final HashMap<Short, SceneEnum> DIGITALSTROM_SCENES = new HashMap<Short, SceneEnum>();
 
     static {
         for (SceneEnum zs : SceneEnum.values()) {
-            digitalstromScenes.put(zs.getSceneNumber(), zs);
+            DIGITALSTROM_SCENES.put(zs.getSceneNumber(), zs);
         }
     }
 
@@ -147,7 +147,7 @@ public enum SceneEnum implements Scene {
      * @return SceneEnum
      */
     public static SceneEnum getScene(short sceneNumber) {
-        return digitalstromScenes.get(sceneNumber);
+        return DIGITALSTROM_SCENES.get(sceneNumber);
     }
 
     /**
@@ -157,7 +157,7 @@ public enum SceneEnum implements Scene {
      * @return true, if contains otherwise false
      */
     public static boolean containsScene(Short sceneNumber) {
-        return digitalstromScenes.keySet().contains(sceneNumber);
+        return DIGITALSTROM_SCENES.keySet().contains(sceneNumber);
     }
 
     @Override

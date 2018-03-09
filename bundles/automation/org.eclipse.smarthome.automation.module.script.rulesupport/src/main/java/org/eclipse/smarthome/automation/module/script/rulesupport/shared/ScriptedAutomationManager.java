@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class ScriptedAutomationManager {
-    private static final Logger logger = LoggerFactory.getLogger(ScriptedAutomationManager.class);
+    private final Logger logger = LoggerFactory.getLogger(ScriptedAutomationManager.class);
 
     private RuleSupportRuleRegistryDelegate ruleRegistryDelegate;
 

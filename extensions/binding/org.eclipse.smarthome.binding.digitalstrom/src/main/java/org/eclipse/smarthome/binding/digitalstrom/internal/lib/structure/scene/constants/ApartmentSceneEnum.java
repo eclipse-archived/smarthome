@@ -51,11 +51,11 @@ public enum ApartmentSceneEnum implements Scene {
     NO_HAIL((short) 91);
 
     private final short sceneNumber;
-    static final HashMap<Short, ApartmentSceneEnum> apartmentScenes = new HashMap<Short, ApartmentSceneEnum>();
+    static final HashMap<Short, ApartmentSceneEnum> APARTAMENT_SCENES = new HashMap<Short, ApartmentSceneEnum>();
 
     static {
         for (ApartmentSceneEnum as : ApartmentSceneEnum.values()) {
-            apartmentScenes.put(as.getSceneNumber(), as);
+            APARTAMENT_SCENES.put(as.getSceneNumber(), as);
         }
     }
 
@@ -70,7 +70,7 @@ public enum ApartmentSceneEnum implements Scene {
      * @return apartment scene
      */
     public static ApartmentSceneEnum getApartmentScene(short sceneNumber) {
-        return apartmentScenes.get(sceneNumber);
+        return APARTAMENT_SCENES.get(sceneNumber);
     }
 
     /**
@@ -80,7 +80,7 @@ public enum ApartmentSceneEnum implements Scene {
      * @return true, if contains, otherwise false
      */
     public static boolean containsScene(Short sceneNumber) {
-        return apartmentScenes.keySet().contains(sceneNumber);
+        return APARTAMENT_SCENES.keySet().contains(sceneNumber);
     }
 
     @Override

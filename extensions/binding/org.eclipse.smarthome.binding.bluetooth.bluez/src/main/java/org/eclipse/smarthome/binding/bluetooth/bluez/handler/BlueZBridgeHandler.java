@@ -51,7 +51,7 @@ import tinyb.BluetoothManager;
  */
 public class BlueZBridgeHandler extends BaseBridgeHandler implements BluetoothAdapter {
 
-    private static final Logger logger = LoggerFactory.getLogger(BlueZBridgeHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(BlueZBridgeHandler.class);
 
     private tinyb.BluetoothAdapter adapter;
 

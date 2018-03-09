@@ -47,12 +47,12 @@ public class HandlerFactory extends BaseModuleHandlerFactory implements ModuleHa
     /**
      * This field contains the types that are supported by this factory.
      */
-    private static final Collection<String> types;
+    private static final Collection<String> TYPES;
 
     /**
      * For error logging if there is a query for a type that is not supported.
      */
-    private static final Logger logger;
+    private static final Logger LOGGER;
 
     /**
      * This blocks fills the Collection ,which contains the types supported by this factory, with supported types and
@@ -63,9 +63,9 @@ public class HandlerFactory extends BaseModuleHandlerFactory implements ModuleHa
         temp.add(CompareCondition.UID);
         temp.add(ConsoleTrigger.UID);
         temp.add(ConsolePrintAction.UID);
-        types = Collections.unmodifiableCollection(temp);
+        TYPES = Collections.unmodifiableCollection(temp);
 
-        logger = LoggerFactory.getLogger(HandlerFactory.class);
+        LOGGER = LoggerFactory.getLogger(HandlerFactory.class);
     }
 
     /**
@@ -81,7 +81,7 @@ public class HandlerFactory extends BaseModuleHandlerFactory implements ModuleHa
         } else if (ConsoleTrigger.UID.equals(module.getTypeUID())) {
             return new ConsoleTrigger((Trigger) module, bundleContext);
         } else {
-            logger.error(MODULE_HANDLER_FACTORY_NAME + "Not supported moduleHandler: {}", module.getTypeUID());
+            LOGGER.error(MODULE_HANDLER_FACTORY_NAME + "Not supported moduleHandler: {}", module.getTypeUID());
         }
 
         return null;
@@ -93,7 +93,7 @@ public class HandlerFactory extends BaseModuleHandlerFactory implements ModuleHa
      */
     @Override
     public Collection<String> getTypes() {
-        return types;
+        return TYPES;
     }
 
     /**

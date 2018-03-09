@@ -49,7 +49,7 @@ public class SimpleRequestBuilder {
 
     private String request;
     private static SimpleRequestBuilder builder;
-    private static final Lock lock = new ReentrantLock();
+    private static final Lock LOCK = new ReentrantLock();
 
     private SimpleRequestBuilder() {
 
@@ -66,7 +66,7 @@ public class SimpleRequestBuilder {
         if (builder == null) {
             builder = new SimpleRequestBuilder();
         }
-        lock.lock();
+        LOCK.lock();
         return builder.buildNewRequestInt(interfaceKey);
     }
 
@@ -259,7 +259,7 @@ public class SimpleRequestBuilder {
      */
     public String buildRequestString() throws IllegalArgumentException {
         String request = builder.buildRequestStringInt();
-        lock.unlock();
+        LOCK.unlock();
         return request;
     }
 

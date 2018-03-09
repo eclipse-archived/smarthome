@@ -28,11 +28,11 @@ public enum ZoneSceneEnum implements Scene {
     WAKEUP((short) 70);
 
     private final short sceneNumber;
-    static final HashMap<Short, ZoneSceneEnum> zoneScenes = new HashMap<Short, ZoneSceneEnum>();
+    static final HashMap<Short, ZoneSceneEnum> ZONE_SCENES = new HashMap<Short, ZoneSceneEnum>();
 
     static {
         for (ZoneSceneEnum zs : ZoneSceneEnum.values()) {
-            zoneScenes.put(zs.getSceneNumber(), zs);
+            ZONE_SCENES.put(zs.getSceneNumber(), zs);
         }
     }
 
@@ -47,7 +47,7 @@ public enum ZoneSceneEnum implements Scene {
      * @return ZoneSceneEnum
      */
     public static ZoneSceneEnum getZoneScene(short sceneNumber) {
-        return zoneScenes.get(sceneNumber);
+        return ZONE_SCENES.get(sceneNumber);
     }
 
     /**
@@ -57,7 +57,7 @@ public enum ZoneSceneEnum implements Scene {
      * @return true, if contains, otherwise false
      */
     public static boolean containsScene(Short sceneNumber) {
-        return zoneScenes.keySet().contains(sceneNumber);
+        return ZONE_SCENES.keySet().contains(sceneNumber);
     }
 
     @Override

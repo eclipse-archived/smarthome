@@ -80,18 +80,18 @@ public class SampleExtensionService implements ExtensionService {
         }
     }
 
-    private static final Random random = new Random();
+    private static final Random RANDOM = new Random();
 
     private String createRandomColor() {
         StringBuilder ret = new StringBuilder("#");
         for (int i = 0; i < 3; i++) {
-            ret.append(COLOR_VALUES[random.nextInt(COLOR_VALUES.length)]);
+            ret.append(COLOR_VALUES[RANDOM.nextInt(COLOR_VALUES.length)]);
         }
         return ret.toString();
     }
 
     private String createDescription() {
-        int index = StringUtils.indexOf(LOREM_IPSUM, ' ', random.nextInt(LOREM_IPSUM.length()));
+        int index = StringUtils.indexOf(LOREM_IPSUM, ' ', RANDOM.nextInt(LOREM_IPSUM.length()));
         if (index < 0) {
             index = LOREM_IPSUM.length();
         }

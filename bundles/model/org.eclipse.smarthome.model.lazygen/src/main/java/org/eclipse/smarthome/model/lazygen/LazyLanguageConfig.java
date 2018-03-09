@@ -34,7 +34,7 @@ import org.eclipse.xtext.resource.XtextResource;
  */
 public class LazyLanguageConfig extends LanguageConfig {
 
-    private static final Logger LOG = Logger.getLogger(LazyLanguageConfig.class);
+    private final Logger logger = Logger.getLogger(LazyLanguageConfig.class);
     String uri = null;
     boolean isUI = false;
 
@@ -94,17 +94,17 @@ public class LazyLanguageConfig extends LanguageConfig {
                         Class<?> xcore = Class.forName("org.eclipse.emf.ecore.xcore.XcoreStandaloneSetup");
                         xcore.getDeclaredMethod("doSetup", new Class[0]).invoke(null);
                     } catch (ClassNotFoundException e) {
-                        LOG.error("Couldn't initialize Xcore support. Is it on the classpath?");
+                        logger.error("Couldn't initialize Xcore support. Is it on the classpath?");
                     } catch (Exception e) {
-                        LOG.error("Couldn't initialize Xcore support.", e);
+                        logger.error("Couldn't initialize Xcore support.", e);
                     }
                 }
             }
             Resource res = rs.getResource(loadedResourceUri, true);
             if (res == null || res.getContents().isEmpty()) {
-                LOG.error("Error loading '" + loadedResource + "'");
+                logger.error("Error loading '" + loadedResource + "'");
             } else if (!res.getErrors().isEmpty()) {
-                LOG.error("Error loading '" + loadedResource + "': " + res.getErrors().toString());
+                logger.error("Error loading '" + loadedResource + "': " + res.getErrors().toString());
             }
         }
         EcoreUtil.resolveAll(rs);
@@ -113,7 +113,7 @@ public class LazyLanguageConfig extends LanguageConfig {
             throw new IllegalArgumentException("Couldn't load grammar for '" + uri + "'.");
         }
         if (!resource.getErrors().isEmpty()) {
-            LOG.error(resource.getErrors());
+            logger.error(resource.getErrors());
             throw new IllegalStateException("Problem parsing '" + uri + "':" + resource.getErrors().toString());
         }
 
