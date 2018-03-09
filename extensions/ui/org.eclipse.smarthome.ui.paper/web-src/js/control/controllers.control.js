@@ -248,8 +248,6 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
             var category = categories[item.category];
             if (category) {
                 return category.label ? category.label : item.category;
-            } else {
-                return defaultLabel;
             }
         }
 

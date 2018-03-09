@@ -106,10 +106,11 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ])//
                         updateState = false;
                     }
                 }
-                if (item.type.indexOf("Number") === 0 || item.groupType.indexOf("Number") === 0) {
-                    if (state.indexOf(' ') > 0) {
-                        item.unit = state.substring(state.indexOf(' ') + 1);
-                        state = state.substring(0, state.indexOf(' '));
+                if (item.type.indexOf("Number") === 0 || (item.groupType && item.groupType.indexOf("Number") === 0)) {
+                    var strState = '' + state;
+                    if (strState.indexOf(' ') > 0) {
+                        item.unit = strState.substring(strState.indexOf(' ') + 1);
+                        state = strState.substring(0, strState.indexOf(' '));
                     }
                     var parsedValue = Number(state);
                     if (!isNaN(parsedValue)) {

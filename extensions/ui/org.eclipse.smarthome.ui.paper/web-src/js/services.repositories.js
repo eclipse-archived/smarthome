@@ -186,13 +186,14 @@ angular.module('PaperUI.services.repositories', [ 'PaperUI.services.rest' ]).fac
         });
     });
     eventService.onEvent('smarthome/things/*/updated', function(topic, thing) {
+        var newThing = thing[0];
         updateInRepository(topic.split('/')[2], true, function(existingThing) {
-            if (thing.length > 0) {
-                existingThing.label = thing[0].label;
-                existingThing.configuration = existingThing.configuration;
+            if (newThing) {
+                existingThing.label = newThing.label;
+                existingThing.configuration = newThing.configuration;
                 var updatedArr = [];
-                if (thing[0].channels) {
-                    angular.forEach(thing[0].channels, function(newChannel) {
+                if (newThing.channels) {
+                    angular.forEach(newThing.channels, function(newChannel) {
                         var channel = $.grep(existingThing.channels, function(existingChannel) {
                             return existingChannel.uid == newChannel.uid;
                         });
