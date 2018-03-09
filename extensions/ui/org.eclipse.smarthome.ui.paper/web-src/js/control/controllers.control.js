@@ -248,8 +248,6 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
             var category = categories[item.category];
             if (category) {
                 return category.label ? category.label : item.category;
-            } else {
-                return defaultLabel;
             }
         }
 
@@ -390,7 +388,7 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
         $scope.item.state = '-';
     }
     function getStateAsObject(state) {
-        var stateParts = state.split(",");
+        var stateParts = state ? state.split(",") : [];
         if (stateParts.length == 3) {
             return {
                 h : parseInt(stateParts[0]),
