@@ -15,7 +15,7 @@ package org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.constants.JSONApiResponseKeysEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.constants.JSONApiResponseKeysEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.Apartment;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.Zone;
 
