@@ -41,6 +41,6 @@ public class BluetoothUtils {
             hexChars[j * 3 + 1] = hexArray[v & 0x0F];
             hexChars[j * 3 + 2] = ' ';
         }
-        return new String(hexChars);
+        return new String(hexChars).trim();
     }
 }
