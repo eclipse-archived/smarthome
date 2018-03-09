@@ -212,6 +212,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
                     final QueuedThreadPool queuedThreadPool = createThreadPool(consumerName, minThreadsCustom,
                             maxThreadsCustom, keepAliveTimeoutCustom);
 
+                    httpClient.setMaxConnectionsPerDestination(2);
                     httpClient.setExecutor(queuedThreadPool);
 
                     try {
