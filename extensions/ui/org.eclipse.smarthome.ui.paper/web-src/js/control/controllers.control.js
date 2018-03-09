@@ -388,7 +388,7 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
         $scope.item.state = '-';
     }
     function getStateAsObject(state) {
-        var stateParts = state ? state.split(",") : [];
+        var stateParts = state.split(",");
         if (stateParts.length == 3) {
             return {
                 h : parseInt(stateParts[0]),
