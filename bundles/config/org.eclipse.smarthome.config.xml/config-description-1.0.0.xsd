@@ -56,6 +56,7 @@
             <xs:element name="verify" type="xs:boolean" minOccurs="0" />
 			<xs:element name="multipleLimit" type="xs:integer" minOccurs="0" />
             <xs:element name="unitLabel" type="xs:string" minOccurs="0" />
+            <xs:element name="properties" type="config-description:properties" minOccurs="0"/>
 		</xs:all>
 		<xs:attribute name="name" type="xs:string" use="required" />
 		<xs:attribute name="type" type="config-description:parameterType"
@@ -169,5 +170,19 @@
 		<xs:attribute name="uri"
 			type="config-description:uriRestrictionPattern" use="required" />
 	</xs:complexType>
-
+	
+	<xs:complexType name="properties">
+		<xs:sequence>
+            <xs:element name="property" type="config-description:property" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="property">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string" use="required" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	
 </xs:schema>
