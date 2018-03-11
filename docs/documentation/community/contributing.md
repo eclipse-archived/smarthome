@@ -58,7 +58,7 @@ We recommend discussing your plans in the [Discussion Forum](https://www.eclipse
 
 * Submit unit tests for your changes. Eclipse SmartHome has a great test framework built in - use it! Take a look at existing tests for inspiration. Run the full test suite on your branch before submitting a pull request.
 * Update the documentation when creating or modifying features. Test your documentation changes for clarity, concision and correctness, as well as a clean documentation build.
-* Write clean code. Universally formatted code promotes ease of writing, reading and maintenance. Check our [Coding Guidelines](../development/guidelines.html).
+* Write clean code. Universally formatted code promotes ease of writing, reading and maintenance. Check our [Coding Guidelines](https://www.eclipse.org/smarthome/documentation/development/guidelines.html).
 * Pull requests' descriptions should be as clear as possible and include a reference to all the issues that they address.
 * Pull requests must not contain commits from other users or branches.
 
