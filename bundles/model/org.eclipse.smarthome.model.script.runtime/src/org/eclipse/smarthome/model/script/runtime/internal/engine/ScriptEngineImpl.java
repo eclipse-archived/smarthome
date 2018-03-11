@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.model.script.runtime.internal.engine;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -118,7 +119,8 @@ public class ScriptEngineImpl implements ScriptEngine, ModelParser {
         XtextResourceSet resourceSet = getResourceSet();
         Resource resource = resourceSet.createResource(computeUnusedUri(resourceSet)); // IS-A XtextResource
         try {
-            resource.load(new StringInputStream(scriptAsString), resourceSet.getLoadOptions());
+            resource.load(new StringInputStream(scriptAsString, StandardCharsets.UTF_8.name()),
+                    resourceSet.getLoadOptions());
         } catch (IOException e) {
             throw new ScriptParsingException(
                     "Unexpected IOException; from close() of a String-based ByteArrayInputStream, no real I/O; how is that possible???",
