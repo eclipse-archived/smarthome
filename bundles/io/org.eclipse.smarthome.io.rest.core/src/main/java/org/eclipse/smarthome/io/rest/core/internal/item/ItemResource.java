@@ -371,7 +371,7 @@ public class ItemResource implements RESTResource {
             genericMemberItem.addGroupName(groupItem.getName());
             managedItemProvider.update(genericMemberItem);
 
-            return Response.ok().build();
+            return Response.ok(null, MediaType.TEXT_PLAIN).build();
         } catch (ItemNotFoundException e) {
             return Response.status(Status.NOT_FOUND).build();
         }
@@ -409,7 +409,7 @@ public class ItemResource implements RESTResource {
             genericMemberItem.removeGroupName(groupItem.getName());
             managedItemProvider.update(genericMemberItem);
 
-            return Response.ok().build();
+            return Response.ok(null, MediaType.TEXT_PLAIN).build();
         } catch (ItemNotFoundException e) {
             return Response.status(Status.NOT_FOUND).build();
         }
@@ -427,7 +427,7 @@ public class ItemResource implements RESTResource {
             return Response.status(Status.NOT_FOUND).build();
         }
 
-        return Response.ok().build();
+        return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
     @PUT
@@ -453,7 +453,7 @@ public class ItemResource implements RESTResource {
         ((ActiveItem) item).addTag(tag);
         managedItemProvider.update(item);
 
-        return Response.ok().build();
+        return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
     @DELETE
@@ -479,7 +479,7 @@ public class ItemResource implements RESTResource {
         ((ActiveItem) item).removeTag(tag);
         managedItemProvider.update(item);
 
-        return Response.ok().build();
+        return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
     /**

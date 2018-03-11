@@ -121,7 +121,7 @@ public class VoiceResource implements RESTResource {
         if (hli != null) {
             try {
                 hli.interpret(locale, text);
-                return Response.ok().build();
+                return Response.ok(null, MediaType.TEXT_PLAIN).build();
             } catch (InterpretationException e) {
                 return JSONResponse.createErrorResponse(Status.BAD_REQUEST, e.getMessage());
             }
@@ -144,7 +144,7 @@ public class VoiceResource implements RESTResource {
         if (hli != null) {
             try {
                 hli.interpret(locale, text);
-                return Response.ok().build();
+                return Response.ok(null, MediaType.TEXT_PLAIN).build();
             } catch (InterpretationException e) {
                 return JSONResponse.createErrorResponse(Status.BAD_REQUEST, e.getMessage());
             }

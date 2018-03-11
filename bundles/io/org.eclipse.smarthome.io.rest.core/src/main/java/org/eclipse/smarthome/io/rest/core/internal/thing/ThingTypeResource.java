@@ -180,7 +180,7 @@ public class ThingTypeResource implements RESTResource {
         }
 
         Stream<FirmwareDTO> firmwareStream = firmwares.stream().map(this::convertToFirmwareDTO);
-        return Response.ok().entity(new Stream2JSONInputStream(firmwareStream)).build();
+        return Response.ok(null, MediaType.TEXT_PLAIN).entity(new Stream2JSONInputStream(firmwareStream)).build();
     }
 
     private ThingTypeDTO convertToThingTypeDTO(ThingType thingType, Locale locale) {
