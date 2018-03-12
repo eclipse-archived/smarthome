@@ -17,6 +17,7 @@ When implementing a binding, you should make sure that you do not introduce too 
  - org.eclipse.smarthome.core.thing.binding.builder  
  - org.eclipse.smarthome.core.thing.type  
  - org.eclipse.smarthome.core.types  
+ - org.eclipse.smarthome.core.util  
  
 Depending on the kind of communication that you need to implement, you can optionally also add any exported packages from these bundles:
 

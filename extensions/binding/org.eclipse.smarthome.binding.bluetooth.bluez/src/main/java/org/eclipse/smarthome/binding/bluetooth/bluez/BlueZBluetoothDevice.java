@@ -143,9 +143,12 @@ public class BlueZBluetoothDevice extends BluetoothDevice {
                 BluetoothScanNotification notification = new BluetoothScanNotification();
                 byte[] data = new byte[entry.getValue().length + 2];
                 data[0] = (byte) (entry.getKey() & 0xFF);
-                data[1] = (byte) (entry.getKey() >> 8);
+                data[1] = (byte) (entry.getKey() >>> 8);
                 System.arraycopy(entry.getValue(), 0, data, 2, entry.getValue().length);
-                logger.debug("Received manufacturer data for '{}': {}", address, HexUtils.bytesToHexWithSpaces(data));
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Received manufacturer data for '{}': {}", address,
+                            HexUtils.bytesToHexWithSpaces(data));
+                }
                 notification.setManufacturerData(data);
                 notifyListeners(BluetoothEventType.SCAN_RECORD, notification);
             }
