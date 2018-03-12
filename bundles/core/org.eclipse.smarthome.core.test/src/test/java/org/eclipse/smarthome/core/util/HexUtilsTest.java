@@ -33,21 +33,14 @@ public class HexUtilsTest {
     @Test
     public void test_bytesToHex_withDelimiter() {
         byte[] bytes = "ABCD".getBytes();
-        String result = HexUtils.bytesToHex(bytes, " ", null);
+        String result = HexUtils.bytesToHex(bytes, " ");
         assertEquals("41 42 43 44", result);
     }
 
     @Test
-    public void test_bytesToHex_withPrefix() {
+    public void test_bytesToHex_withMultiCharDelimiter() {
         byte[] bytes = "ABCD".getBytes();
-        String result = HexUtils.bytesToHex(bytes, null, "0x");
-        assertEquals("0x410x420x430x44", result);
-    }
-
-    @Test
-    public void test_bytesToHex_withDelimiterAndPrefix() {
-        byte[] bytes = "ABCD".getBytes();
-        String result = HexUtils.bytesToHex(bytes, "-", "0x");
-        assertEquals("0x41-0x42-0x43-0x44", result);
+        String result = HexUtils.bytesToHex(bytes, "-:-");
+        assertEquals("41-:-42-:-43-:-44", result);
     }
 }

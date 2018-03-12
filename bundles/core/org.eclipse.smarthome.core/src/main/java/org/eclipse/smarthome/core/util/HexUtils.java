@@ -35,18 +35,17 @@ public class HexUtils {
     }
 
     /**
-     * Converts a byte array into a hex string with a given delimiter and prefix.
-     * Example: Delimiter "-" and prefix "0x" results in Strings like "0x01-0x23-0x45".
+     * Converts a byte array into a hex string with a given delimiter.
+     * Example: Delimiter "-" results in Strings like "01-23-45".
      *
      * @param bytes the byte array
      * @param delimiter a delimiter that is placed between every two bytes
-     * @param prefix a prefix that is added to every byte
      * @return the corresponding hex string
      */
-    public static String bytesToHex(byte[] bytes, @Nullable CharSequence delimiter, @Nullable CharSequence prefix) {
+    public static String bytesToHex(byte[] bytes, @Nullable CharSequence delimiter) {
         return Arrays.stream(toObjects(bytes)).map(b -> {
             int v = b & 0xFF;
-            return ((prefix != null) ? prefix.toString() : "") + hexArray[v >>> 4] + hexArray[v & 0x0F];
+            return "" + hexArray[v >>> 4] + hexArray[v & 0x0F];
         }).collect(Collectors.joining(delimiter != null ? delimiter : ""));
     }
 
@@ -57,7 +56,7 @@ public class HexUtils {
      * @return the corresponding hex string
      */
     public static String bytesToHex(byte[] bytes) {
-        return bytesToHex(bytes, null, null);
+        return bytesToHex(bytes, null);
     }
 
     private static Byte[] toObjects(byte[] bytes) {
