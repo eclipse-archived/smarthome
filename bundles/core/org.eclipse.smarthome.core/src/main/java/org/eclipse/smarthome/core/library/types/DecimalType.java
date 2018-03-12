@@ -18,7 +18,6 @@ import java.util.IllegalFormatConversionException;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
-import org.eclipse.smarthome.core.types.UnDefType;
 
 /**
  * The decimal type uses a BigDecimal internally and thus can be used for
@@ -162,7 +161,7 @@ public class DecimalType extends Number implements PrimitiveType, State, Command
             } else if (toBigDecimal().compareTo(BigDecimal.valueOf(1)) == 0) {
                 return target.cast(UpDownType.DOWN);
             } else {
-                return target.cast(UnDefType.UNDEF);
+                return null;
             }
         } else if (target == OpenClosedType.class) {
             if (equals(ZERO)) {
@@ -170,7 +169,7 @@ public class DecimalType extends Number implements PrimitiveType, State, Command
             } else if (toBigDecimal().compareTo(BigDecimal.valueOf(1)) == 0) {
                 return target.cast(OpenClosedType.OPEN);
             } else {
-                return target.cast(UnDefType.UNDEF);
+                return null;
             }
         } else if (target == HSBType.class) {
             return target.cast(new HSBType(DecimalType.ZERO, PercentType.ZERO,

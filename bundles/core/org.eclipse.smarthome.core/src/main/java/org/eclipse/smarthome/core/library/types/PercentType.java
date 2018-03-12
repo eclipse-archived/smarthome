@@ -17,7 +17,6 @@ import java.math.RoundingMode;
 
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.types.State;
-import org.eclipse.smarthome.core.types.UnDefType;
 
 /**
  * The PercentType extends the {@link DecimalType} by putting constraints for its value on top (0-100).
@@ -73,7 +72,7 @@ public class PercentType extends DecimalType {
             } else if (equals(HUNDRED)) {
                 return target.cast(UpDownType.DOWN);
             } else {
-                return target.cast(UnDefType.UNDEF);
+                return null;
             }
         } else if (target == OpenClosedType.class) {
             if (equals(ZERO)) {
@@ -81,7 +80,7 @@ public class PercentType extends DecimalType {
             } else if (equals(HUNDRED)) {
                 return target.cast(OpenClosedType.OPEN);
             } else {
-                return target.cast(UnDefType.UNDEF);
+                return null;
             }
         } else if (target == HSBType.class) {
             return target.cast(new HSBType(DecimalType.ZERO, PercentType.ZERO, this));

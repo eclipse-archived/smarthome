@@ -27,7 +27,6 @@ import org.eclipse.smarthome.core.library.unit.ImperialUnits;
 import org.eclipse.smarthome.core.library.unit.MetricPrefix;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
-import org.eclipse.smarthome.core.types.UnDefType;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -152,14 +151,14 @@ public class QuantityTypeTest {
     public void testConversionToOpenCloseType() {
         assertEquals(OpenClosedType.OPEN, new QuantityType<>("1.0").as(OpenClosedType.class));
         assertEquals(OpenClosedType.CLOSED, new QuantityType<>("0.0").as(OpenClosedType.class));
-        assertEquals(UnDefType.UNDEF, new QuantityType<>("0.5").as(OpenClosedType.class));
+        assertNull(new QuantityType<>("0.5").as(OpenClosedType.class));
     }
 
     @Test
     public void testConversionToUpDownType() {
         assertEquals(UpDownType.UP, new QuantityType<>("0.0").as(UpDownType.class));
         assertEquals(UpDownType.DOWN, new QuantityType<>("1.0").as(UpDownType.class));
-        assertEquals(UnDefType.UNDEF, new QuantityType<>("0.5").as(OpenClosedType.class));
+        assertNull(new QuantityType<>("0.5").as(OpenClosedType.class));
     }
 
     @Test

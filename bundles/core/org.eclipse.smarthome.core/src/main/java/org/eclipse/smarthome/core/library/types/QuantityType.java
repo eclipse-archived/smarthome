@@ -31,7 +31,6 @@ import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
-import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.core.types.util.UnitUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -270,7 +269,7 @@ public class QuantityType<T extends Quantity<T>> extends Number
             } else if (toBigDecimal().compareTo(BigDecimal.ONE) == 0) {
                 return target.cast(OnOffType.ON);
             } else {
-                return target.cast(UnDefType.UNDEF);
+                return null;
             }
         } else if (target == UpDownType.class) {
             if (doubleValue() == 0) {
@@ -278,7 +277,7 @@ public class QuantityType<T extends Quantity<T>> extends Number
             } else if (toBigDecimal().compareTo(BigDecimal.ONE) == 0) {
                 return target.cast(UpDownType.DOWN);
             } else {
-                return target.cast(UnDefType.UNDEF);
+                return null;
             }
         } else if (target == OpenClosedType.class) {
             if (doubleValue() == 0) {
@@ -286,7 +285,7 @@ public class QuantityType<T extends Quantity<T>> extends Number
             } else if (toBigDecimal().compareTo(BigDecimal.ONE) == 0) {
                 return target.cast(OpenClosedType.OPEN);
             } else {
-                return target.cast(UnDefType.UNDEF);
+                return null;
             }
         } else if (target == HSBType.class) {
             return target.cast(new HSBType(DecimalType.ZERO, PercentType.ZERO,
