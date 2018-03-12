@@ -115,6 +115,13 @@ public class DateTimeType implements PrimitiveType, State, Command {
         return zonedDateTime;
     }
 
+    /*
+     * Returns the zonedDateTime object for a given time zone
+     */
+    public ZonedDateTime getZonedDateTimeAtZone(ZoneId zone) {
+        return zonedDateTime.withZoneSameInstant(zone);
+    }
+
     public static DateTimeType valueOf(String value) {
         return new DateTimeType(value);
     }
