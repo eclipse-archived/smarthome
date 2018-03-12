@@ -259,16 +259,20 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             @ApiResponse(code = 404, message = "Subscription not found.") })
     public Object getSitemapEvents(
             @PathParam("subscriptionid") @ApiParam(value = "subscription id") String subscriptionId,
-            @QueryParam("sitemap") @ApiParam(value = "sitemap name", required = false) String sitemapname,
-            @QueryParam("pageid") @ApiParam(value = "page id", required = false) String pageId) {
+            @QueryParam("sitemap") @ApiParam(value = "sitemap name", required = true) String sitemapname,
+            @QueryParam("pageid") @ApiParam(value = "page id", required = true) String pageId) {
         EventOutput eventOutput = eventOutputs.get(subscriptionId);
         if (!subscriptions.exists(subscriptionId) || eventOutput == null) {
             return JSONResponse.createResponse(Status.NOT_FOUND, null,
                     "Subscription id " + subscriptionId + " does not exist.");
         }
-        if (sitemapname != null && pageId != null) {
-            subscriptions.setPageId(subscriptionId, sitemapname, pageId);
+
+        if (sitemapname == null || pageId == null) {
+            return JSONResponse.createErrorResponse(Response.Status.BAD_REQUEST,
+                    "sitemap name and page ID are mandatory");
         }
+
+        subscriptions.setPageId(subscriptionId, sitemapname, pageId);
         logger.debug("Client requested sitemap event stream for subscription {}.", subscriptionId);
 
         // Disables proxy buffering when using an nginx http server proxy for this response.
