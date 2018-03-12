@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.binding.bluetooth.bluez;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +29,7 @@ import org.eclipse.smarthome.binding.bluetooth.bluez.handler.BlueZBridgeHandler;
 import org.eclipse.smarthome.binding.bluetooth.notification.BluetoothConnectionStatusNotification;
 import org.eclipse.smarthome.binding.bluetooth.notification.BluetoothScanNotification;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
+import org.eclipse.smarthome.core.util.HexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,6 +138,20 @@ public class BlueZBluetoothDevice extends BluetoothDevice {
             notification.setRssi(n);
             notifyListeners(BluetoothEventType.SCAN_RECORD, notification);
         });
+        device.enableManufacturerDataNotifications(n -> {
+            for (Map.Entry<Short, byte[]> entry : n.entrySet()) {
+                BluetoothScanNotification notification = new BluetoothScanNotification();
+                byte[] data = new byte[entry.getValue().length + 2];
+                data[0] = (byte) (entry.getKey() & 0xFF);
+                data[1] = (byte) (entry.getKey() >>> 8);
+                System.arraycopy(entry.getValue(), 0, data, 2, entry.getValue().length);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Received manufacturer data for '{}': {}", address, HexUtils.bytesToHex(data, " "));
+                }
+                notification.setManufacturerData(data);
+                notifyListeners(BluetoothEventType.SCAN_RECORD, notification);
+            }
+        });
         device.enableConnectedNotifications(connected -> {
             connectionState = connected ? ConnectionState.CONNECTED : ConnectionState.DISCONNECTED;
             logger.debug("Connection state of '{}' changed to {}", address, connectionState);
@@ -150,7 +166,12 @@ public class BlueZBluetoothDevice extends BluetoothDevice {
             }
         });
         device.enableServiceDataNotifications(data -> {
-            logger.debug("Received service data for '{}': {}", address, data);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Received service data for '{}':", address);
+                for (Map.Entry<String, byte[]> entry : data.entrySet()) {
+                    logger.debug("{} : {}", entry.getKey(), HexUtils.bytesToHex(entry.getValue(), " "));
+                }
+            }
         });
     }
 
