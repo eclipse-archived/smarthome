@@ -25,7 +25,7 @@ public interface HttpClientFactory {
 
     /**
      * Creates a new jetty http client.
-     * The returned client is already started but must be stopped
+     * The returned client is must be started before and stopped
      * by the consumer after usage. The client lifecycle should be the same as for the consumer.
      * DO NOT CREATE NEW CLIENTS FOR EACH REQUEST!
      *
