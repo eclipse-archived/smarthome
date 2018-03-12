@@ -21,7 +21,7 @@ Apart from SI there are other systems in use like the imperial unit system. The 
 Depending on the users locale or cultural preference a specific unit might fit the users needs. For temperature it is common to use degree Celsius (°C) in most places around the globe but degree Fahrenheit (°F) is used in the United States of America.
 
 ##### UoM data with QuantityType
-Sensor devices and internet services connected to Eclipse SmartHome as Things provide their scalar values in an implicit unit of measurement. The binding developer knows what exact unit the sensor or service data uses and can pass those values to the framework using the new [`QuantityType`](../documentation/concepts/units-of-measurement.html). QuantityType represents the scalar value with the corresponding unit. It also serves as the main API to convert between different units.
+Sensor devices and internet services connected to Eclipse SmartHome as Things provide their scalar values in an implicit unit of measurement. The binding developer knows what exact unit the sensor or service data uses and can pass those values to the framework using the new [`QuantityType`]({{ site.baseurl }}{% link documentation/concepts/units-of-measurement.md %}). QuantityType represents the scalar value with the corresponding unit. It also serves as the main API to convert between different units.
 The Yahoo Weather binding makes use of `QuantityType` and publishes state updates in the following form:
 
 ```(java)
