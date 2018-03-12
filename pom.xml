@@ -334,7 +334,11 @@
             <mapping>
               <xtend>JAVADOC_STYLE</xtend>
               <mwe2>JAVADOC_STYLE</mwe2>
+              <xml>xml-header-style</xml>
             </mapping>
+            <headerDefinitions>
+              <headerDefinition>src/etc/xml-header-style.xml</headerDefinition>
+            </headerDefinitions>
             <includes>
               <include>src/**/*.java</include>
               <include>src/**/*.groovy</include>
