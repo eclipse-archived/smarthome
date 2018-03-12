@@ -18,7 +18,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.event.constants.EventResponseEnum;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.constants.JSONApiResponseKeysEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.constants.JSONApiResponseKeysEnum;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

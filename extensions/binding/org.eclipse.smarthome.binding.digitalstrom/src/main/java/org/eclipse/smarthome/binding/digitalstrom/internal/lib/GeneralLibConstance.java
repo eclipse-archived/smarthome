@@ -41,7 +41,7 @@ public class GeneralLibConstance {
 
     /**
      * The highest read out priority for
-     * {@link org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.SensorJob}s.
+     * {@link org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorjobexecutor.sensorjob.SensorJob}s.
      */
     public static final int HIGHEST_READ_OUT_PRIORITY = 0;
 }

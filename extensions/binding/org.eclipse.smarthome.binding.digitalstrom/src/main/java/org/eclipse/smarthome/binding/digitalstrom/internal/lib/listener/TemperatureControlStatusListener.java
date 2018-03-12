@@ -13,7 +13,7 @@
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener;
 
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.climate.TemperatureControlSensorTransmitter;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.climate.jsonResponseContainer.impl.TemperatureControlStatus;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.climate.jsonresponsecontainer.impl.TemperatureControlStatus;
 
 /**
  * The {@link TemperatureControlStatusListener} can be implemented to get informed by configuration and status changes.
