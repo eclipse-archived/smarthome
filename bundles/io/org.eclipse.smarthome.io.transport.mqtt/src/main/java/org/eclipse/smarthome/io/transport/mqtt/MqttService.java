@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.io.transport.mqtt;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -62,6 +63,10 @@ public class MqttService {
         public final @Nullable Integer qos;
         public final @Nullable Boolean retain;
         public final @Nullable String lwt;
+        public final @Nullable String lwtTopic;
+        public final byte @Nullable [] lwtMessage;
+        public final @Nullable Integer lwtQos;
+        public final @Nullable Boolean lwtRetain;
 
         public Config(final Map<String, String> cfg) {
             name = cfg.get(NAME_PROPERTY);
@@ -72,7 +77,25 @@ public class MqttService {
             keepAlive = asInt(cfg.get("keepAlive"));
             qos = asInt(cfg.get("qos"));
             retain = asBool(cfg.get("retain"));
+
+            // Check for Last Will and Testament
             lwt = cfg.get("lwt");
+
+            // Inspect explicit given LWT values
+            lwtTopic = cfg.get("lwtTopic");
+            String tmp = cfg.get("lwtMessage");
+            if (tmp != null) {
+                lwtMessage = tmp.getBytes(StandardCharsets.UTF_8);
+            } else {
+                lwtMessage = null;
+            }
+            Integer tmpInt = asInt(cfg.get("lwtQos"));
+            if (tmpInt != null && tmpInt >= 0 && tmpInt <= 2) {
+                lwtQos = tmpInt;
+            } else {
+                lwtQos = null;
+            }
+            lwtRetain = asBool(cfg.get("lwtRetain"));
         }
 
         private static @Nullable Integer asInt(final @Nullable String value) {
@@ -320,7 +343,8 @@ public class MqttService {
         if (cfg.retain != null) {
             connection.setRetain(cfg.retain);
         }
-        MqttWillAndTestament will = MqttWillAndTestament.fromString(cfg.lwt);
+        MqttWillAndTestament will = MqttWillAndTestament.fromString(cfg.lwt, cfg.lwtTopic, cfg.lwtMessage, cfg.lwtQos,
+                cfg.lwtRetain);
         if (will != null) {
             logger.debug("Setting last will: {}", will);
             connection.setLastWill(will);

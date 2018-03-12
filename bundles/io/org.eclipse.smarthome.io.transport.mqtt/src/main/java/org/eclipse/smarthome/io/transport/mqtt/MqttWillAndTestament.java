@@ -49,11 +49,17 @@ public class MqttWillAndTestament {
      * @return the will instance, will be null only if parameter is null
      */
     public static @Nullable MqttWillAndTestament fromString(@Nullable String string) {
+        return fromString(string, null, null, null, null);
+    }
+
+    public static @Nullable MqttWillAndTestament fromString(@Nullable String string, @Nullable String topic,
+            byte @Nullable [] payload, @Nullable Integer qos, @Nullable Boolean retain) {
         String tmpTopic = null;
         byte[] tmpPayload = null;
         int tmpQos = DFL_QOS;
         boolean tmpRetain = DFL_RETAIN;
 
+        // Parse string if given.
         if (string != null) {
             String[] components = string.split(":");
             for (int i = 0; i < Math.min(components.length, 4); i++) {
@@ -67,9 +73,9 @@ public class MqttWillAndTestament {
                         break;
                     case 2:
                         if (!"".equals(value)) {
-                            int qos = Integer.valueOf(value);
-                            if (qos >= 0 && qos <= 2) {
-                                tmpQos = qos;
+                            int tmp = Integer.valueOf(value);
+                            if (tmp >= 0 && tmp <= 2) {
+                                tmpQos = tmp;
                             }
                         }
                         break;
@@ -80,11 +86,26 @@ public class MqttWillAndTestament {
             }
         }
 
+        // Use explicit given values.
+        if (topic != null) {
+            tmpTopic = topic;
+        }
+        if (payload != null) {
+            tmpPayload = payload;
+        }
+        if (qos != null) {
+            tmpQos = qos;
+        }
+        if (retain != null) {
+            tmpRetain = retain;
+        }
+
         // Check if valid
         if (tmpTopic == null || tmpTopic.isEmpty()) {
             return null;
         }
 
+        // Create MQTT Last Will and Testament object
         return new MqttWillAndTestament(tmpTopic, tmpPayload, tmpQos, tmpRetain);
     }
 
