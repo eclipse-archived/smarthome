@@ -27,19 +27,19 @@ public class BlukiiBindingConstants {
     public static final ThingTypeUID THING_TYPE_BEACON = new ThingTypeUID(BluetoothBindingConstants.BINDING_ID,
             "blukii_beacon");
 
-    public final static String BLUKII_PREFIX = "blukii ";
+    public static final String BLUKII_PREFIX = "blukii ";
 
     // Channel IDs
-    public final static String CHANNEL_ID_BATTERY = "battery";
-    public final static String CHANNEL_ID_TEMPERATURE = "temperature";
-    public final static String CHANNEL_ID_HUMIDITY = "humidity";
-    public final static String CHANNEL_ID_PRESSURE = "pressure";
-    public final static String CHANNEL_ID_LUMINANCE = "luminance";
+    public static final String CHANNEL_ID_BATTERY = "battery";
+    public static final String CHANNEL_ID_TEMPERATURE = "temperature";
+    public static final String CHANNEL_ID_HUMIDITY = "humidity";
+    public static final String CHANNEL_ID_PRESSURE = "pressure";
+    public static final String CHANNEL_ID_LUMINANCE = "luminance";
 
-    public final static String CHANNEL_ID_TILTX = "tiltx";
-    public final static String CHANNEL_ID_TILTY = "tilty";
-    public final static String CHANNEL_ID_TILTZ = "tiltz";
+    public static final String CHANNEL_ID_TILTX = "tiltx";
+    public static final String CHANNEL_ID_TILTY = "tilty";
+    public static final String CHANNEL_ID_TILTZ = "tiltz";
 
-    public final static String CHANNEL_ID_SWITCH = "switch";
+    public static final String CHANNEL_ID_SWITCH = "switch";
 
 }

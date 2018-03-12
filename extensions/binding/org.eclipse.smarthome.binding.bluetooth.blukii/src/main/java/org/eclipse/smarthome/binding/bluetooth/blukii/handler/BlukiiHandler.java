@@ -14,12 +14,12 @@ package org.eclipse.smarthome.binding.bluetooth.blukii.handler;
 
 import org.eclipse.smarthome.binding.bluetooth.BeaconBluetoothHandler;
 import org.eclipse.smarthome.binding.bluetooth.BluetoothDeviceListener;
-import org.eclipse.smarthome.binding.bluetooth.BluetoothUtils;
 import org.eclipse.smarthome.binding.bluetooth.blukii.BlukiiBindingConstants;
 import org.eclipse.smarthome.binding.bluetooth.notification.BluetoothScanNotification;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.util.HexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ public class BlukiiHandler extends BeaconBluetoothHandler implements BluetoothDe
     public void onScanRecordReceived(BluetoothScanNotification scanNotification) {
         byte[] data = scanNotification.getManufacturerData();
         if (data != null && data[0] == 0x4F) { // only data starting with 0x4F is Blukii-specific data
-            logger.debug("Manufacturer data: {}", BluetoothUtils.bytesToHex(scanNotification.getManufacturerData()));
+            logger.debug("Manufacturer data: {}", HexUtils.bytesToHex(scanNotification.getManufacturerData(), " "));
 
             int battery = scanNotification.getManufacturerData()[12] & 0x7F;
             updateState(BlukiiBindingConstants.CHANNEL_ID_BATTERY, new DecimalType(battery));
