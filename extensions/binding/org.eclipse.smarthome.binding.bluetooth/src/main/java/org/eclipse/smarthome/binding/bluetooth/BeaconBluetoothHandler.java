@@ -121,8 +121,10 @@ public class BeaconBluetoothHandler extends BaseThingHandler implements Bluetoot
     @Override
     public void onScanRecordReceived(BluetoothScanNotification scanNotification) {
         int rssi = scanNotification.getRssi();
-        device.setRssi(rssi);
-        updateRSSI();
+        if (rssi != Integer.MIN_VALUE) {
+            device.setRssi(rssi);
+            updateRSSI();
+        }
     }
 
     @Override
