@@ -95,7 +95,7 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
     @Override
     protected void startBackgroundDiscovery() {
         if (astroDiscoveryJob == null) {
-            astroDiscoveryJob = SCHEDULER.scheduleWithFixedDelay(() -> {
+            astroDiscoveryJob = scheduler.scheduleWithFixedDelay(() -> {
                 PointType currentLocation = locationProvider.getLocation();
                 if (!Objects.equals(currentLocation, previousLocation)) {
                     logger.debug("Location has been changed from {} to {}: Creating new discovery results",

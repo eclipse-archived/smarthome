@@ -55,7 +55,7 @@ public class NtpDiscovery extends AbstractDiscoveryService {
 
     @Override
     protected void startBackgroundDiscovery() {
-        SCHEDULER.schedule(() -> {
+        scheduler.schedule(() -> {
             discoverNtp();
         }, 1, TimeUnit.SECONDS);
     }
