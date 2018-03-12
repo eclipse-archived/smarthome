@@ -144,7 +144,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
 
         ScheduledFuture<?> localDiscoveryJob = discoveryJob;
         if (localDiscoveryJob == null || localDiscoveryJob.isCancelled()) {
-            discoveryJob = SCHEDULER.scheduleWithFixedDelay(this::doScan, 0, REFRESH_INTERVAL, TimeUnit.SECONDS);
+            discoveryJob = scheduler.scheduleWithFixedDelay(this::doScan, 0, REFRESH_INTERVAL, TimeUnit.SECONDS);
         }
     }
 
@@ -191,7 +191,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                 selector = localSelector;
 
                 broadcastKey = openBroadcastChannel(localSelector, LOG_ID, BROADCAST_PORT);
-                networkJob = SCHEDULER.schedule(this::receiveAndHandlePackets, 0, TimeUnit.MILLISECONDS);
+                networkJob = scheduler.schedule(this::receiveAndHandlePackets, 0, TimeUnit.MILLISECONDS);
 
                 LifxSelectorContext selectorContext = new LifxSelectorContext(localSelector, sourceId,
                         sequenceNumberSupplier, LOG_ID, broadcastKey);
