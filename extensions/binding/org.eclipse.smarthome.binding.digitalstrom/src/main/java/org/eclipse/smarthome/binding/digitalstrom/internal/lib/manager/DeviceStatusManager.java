@@ -18,11 +18,11 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.DeviceSt
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.ManagerStatusListener;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.SceneStatusListener;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.TotalPowerConsumptionListener;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.stateEnums.ManagerStates;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.stateEnums.ManagerTypes;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.SensorJob;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.stateenums.ManagerStates;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.stateenums.ManagerTypes;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorjobexecutor.sensorjob.SensorJob;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Device;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DeviceStateUpdate;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.DeviceStateUpdate;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.InternalScene;
 
 /**

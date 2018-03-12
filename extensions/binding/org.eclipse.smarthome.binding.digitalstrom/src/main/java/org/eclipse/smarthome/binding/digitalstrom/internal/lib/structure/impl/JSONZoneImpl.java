@@ -15,7 +15,7 @@ package org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.impl;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.constants.JSONApiResponseKeysEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.constants.JSONApiResponseKeysEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.DetailedGroupInfo;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.Zone;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Device;

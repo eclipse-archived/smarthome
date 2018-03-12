@@ -13,7 +13,7 @@
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices;
 
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.DeviceStatusListener;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.impl.DSID;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.impl.DSID;
 
 /**
  * The {@link GeneralDeviceInformations} interface contains all informations of digitalSTROM devices, which are

@@ -12,8 +12,8 @@
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener;
 
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.stateEnums.ManagerStates;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.stateEnums.ManagerTypes;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.stateenums.ManagerStates;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.stateenums.ManagerTypes;
 
 /**
  * The {@link ManagerStatusListener} is notified, if the state of digitalSTROM-Manager has changed.
