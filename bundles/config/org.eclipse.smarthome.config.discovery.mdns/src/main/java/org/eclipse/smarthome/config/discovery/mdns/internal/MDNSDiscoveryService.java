@@ -104,7 +104,7 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
 
     @Override
     protected void startScan() {
-        SCHEDULER.schedule(new Runnable() {
+        scheduler.schedule(new Runnable() {
             @Override
             public void run() {
                 scan();

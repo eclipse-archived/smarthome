@@ -88,7 +88,7 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
     @Override
     protected void startBackgroundDiscovery() {
         if (discoveryJob == null) {
-            discoveryJob = SCHEDULER.scheduleWithFixedDelay(() -> {
+            discoveryJob = scheduler.scheduleWithFixedDelay(() -> {
                 PointType currentLocation = locationProvider.getLocation();
                 if (!Objects.equals(currentLocation, previousLocation)) {
                     logger.debug("Location has been changed from {} to {}: Creating new discovery results",
