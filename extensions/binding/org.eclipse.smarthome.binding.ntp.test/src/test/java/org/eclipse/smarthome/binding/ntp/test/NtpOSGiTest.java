@@ -14,7 +14,7 @@ package org.eclipse.smarthome.binding.ntp.test;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.time.ZoneId;
@@ -64,6 +64,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -208,6 +209,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
     }
 
     @Test
+    @Ignore("https://github.com/eclipse/smarthome/issues/5224")
     public void testDateTimeChannelTimeZoneUpdate() {
 
         Configuration configuration = new Configuration();
@@ -230,6 +232,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
     }
 
     @Test
+    @Ignore("https://github.com/eclipse/smarthome/issues/5224")
     public void testDateTimeChannelCalendarTimeZoneUpdate() {
         Configuration configuration = new Configuration();
         configuration.put(NtpBindingConstants.PROPERTY_TIMEZONE, TEST_TIME_ZONE_ID);
