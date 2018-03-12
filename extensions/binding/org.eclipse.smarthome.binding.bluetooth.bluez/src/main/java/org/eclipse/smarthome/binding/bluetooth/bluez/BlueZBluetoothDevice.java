@@ -146,8 +146,7 @@ public class BlueZBluetoothDevice extends BluetoothDevice {
                 data[1] = (byte) (entry.getKey() >>> 8);
                 System.arraycopy(entry.getValue(), 0, data, 2, entry.getValue().length);
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Received manufacturer data for '{}': {}", address,
-                            HexUtils.bytesToHexWithSpaces(data));
+                    logger.debug("Received manufacturer data for '{}': {}", address, HexUtils.bytesToHex(data, " "));
                 }
                 notification.setManufacturerData(data);
                 notifyListeners(BluetoothEventType.SCAN_RECORD, notification);
@@ -170,7 +169,7 @@ public class BlueZBluetoothDevice extends BluetoothDevice {
             if (logger.isDebugEnabled()) {
                 logger.debug("Received service data for '{}':", address);
                 for (Map.Entry<String, byte[]> entry : data.entrySet()) {
-                    logger.debug("{} : {}", entry.getKey(), HexUtils.bytesToHexWithSpaces(entry.getValue()));
+                    logger.debug("{} : {}", entry.getKey(), HexUtils.bytesToHex(entry.getValue(), " "));
                 }
             }
         });
