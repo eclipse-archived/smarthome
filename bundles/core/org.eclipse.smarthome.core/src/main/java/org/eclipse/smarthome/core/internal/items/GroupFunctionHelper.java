@@ -21,6 +21,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.dto.GroupFunctionDTO;
 import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction;
+import org.eclipse.smarthome.core.library.types.DateTimeGroupFunction;
 import org.eclipse.smarthome.core.library.types.QuantityTypeArithmeticGroupFunction;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.types.State;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
  * Creates {@link GroupFunction}s according to the given parameters.
  *
  * @author Henning Treu - initial contribution and API
+ * @author Robert Michalak - LATEST and EARLIEST group functions
  *
  */
 public class GroupFunctionHelper {
@@ -121,6 +123,10 @@ public class GroupFunctionHelper {
                 return new ArithmeticGroupFunction.Min();
             case "MAX":
                 return new ArithmeticGroupFunction.Max();
+            case "LATEST":
+                return new DateTimeGroupFunction.Latest();
+            case "EARLIEST":
+                return new DateTimeGroupFunction.Earliest();
             case "EQUAL":
                 return new GroupFunction.Equality();
             default:

@@ -273,6 +273,9 @@ angular.module('PaperUI.controllers.configuration')//
             case 'Contact':
                 $scope.functions = itemConfig.logicalOpenClosedFunctions;
                 break;
+            case 'DateTime':
+                $scope.functions = itemConfig.dateTimeFunctions;
+                break;
             default:
                 $scope.functions = itemConfig.logicalOnOffFunctions;
         }
