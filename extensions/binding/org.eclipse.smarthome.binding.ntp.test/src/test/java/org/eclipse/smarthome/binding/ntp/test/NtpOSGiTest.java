@@ -149,13 +149,13 @@ public class NtpOSGiTest extends JavaOSGiTest {
         registerService(volatileStorageService);
 
         managedThingProvider = getService(ThingProvider.class, ManagedThingProvider.class);
-        assertThat("Could not get ManagedThingProvider", managedThingProvider, is(notNullValue()));
+        assertThat(managedThingProvider, is(notNullValue()));
 
         thingRegistry = getService(ThingRegistry.class);
-        assertThat("Could not get ThingRegistry", thingRegistry, is(notNullValue()));
+        assertThat(thingRegistry, is(notNullValue()));
 
         itemRegistry = getService(ItemRegistry.class);
-        assertThat("Could not get ItemRegistry", itemRegistry, is(notNullValue()));
+        assertThat(itemRegistry, is(notNullValue()));
 
         channelTypeUID = new ChannelTypeUID(NtpBindingConstants.BINDING_ID + ":channelType");
         channelTypeProvider = mock(ChannelTypeProvider.class);
@@ -169,7 +169,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
     public void tearDown() {
         if (ntpThing != null) {
             Thing removedThing = thingRegistry.forceRemove(ntpThing.getUID());
-            assertThat("The ntp thing was not deleted", removedThing, is(notNullValue()));
+            assertThat(removedThing, is(notNullValue()));
         }
 
         if (testItem != null) {
@@ -204,8 +204,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
 
         String timeZoneFromItemRegistry = getStringChannelTimeZoneFromItemRegistry();
 
-        assertThat("The string channel was not updated with the right timezone", timeZoneFromItemRegistry,
-                is(anyOf(equalTo(expectedTimeZonePDT), equalTo(expectedTimeZonePST))));
+        assertThat(timeZoneFromItemRegistry, is(anyOf(equalTo(expectedTimeZonePDT), equalTo(expectedTimeZonePST))));
     }
 
     @Test
@@ -227,8 +226,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
             expectedOffset = ZoneOffset.of("-08:00");
         }
 
-        assertThat("The dateTime channel was not updated with the right timezone", timeZoneFromItemRegistry.getOffset(),
-                is(equalTo(expectedOffset)));
+        assertThat(timeZoneFromItemRegistry.getOffset(), is(equalTo(expectedOffset)));
     }
 
     @Test
@@ -267,8 +265,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
 
         String timeZoneFromItemRegistry = getStringChannelTimeZoneFromItemRegistry();
 
-        assertThat("The string channel was not updated with the right timezone", timeZoneFromItemRegistry,
-                is(anyOf(equalTo(expectedTimeZoneEEST), equalTo(expectedTimeZoneEET))));
+        assertThat(timeZoneFromItemRegistry, is(anyOf(equalTo(expectedTimeZoneEEST), equalTo(expectedTimeZoneEET))));
     }
 
     @Test
@@ -284,8 +281,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
         assertFormat(testItemState, DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS);
         ZoneOffset timeZoneFromItemRegistry = new DateTimeType(testItemState).getZonedDateTime().getOffset();
 
-        assertThat("The dateTime channel was not updated with the right timezone", timeZoneFromItemRegistry,
-                is(equalTo(expectedTimeZone)));
+        assertThat(timeZoneFromItemRegistry, is(equalTo(expectedTimeZone)));
     }
 
     @Test
@@ -440,7 +436,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
         // ManagedThingProvider.
         final ManagedItemChannelLinkProvider itemChannelLinkProvider = waitForAssert(() -> {
             final ManagedItemChannelLinkProvider tmp = getService(ManagedItemChannelLinkProvider.class);
-            assertThat("Could not get ManagedItemChannelLinkProvider", tmp, is(notNullValue()));
+            assertThat(tmp, is(notNullValue()));
             return tmp;
         });
         itemChannelLinkProvider.add(new ItemChannelLink(TEST_ITEM_NAME, channelUID));
@@ -454,16 +450,16 @@ public class NtpOSGiTest extends JavaOSGiTest {
             } catch (ItemNotFoundException e) {
                 tmp = null;
             }
-            assertThat("The item was null", tmp, is(notNullValue()));
+            assertThat(tmp, is(notNullValue()));
             return tmp;
         });
 
         return waitForAssert(() -> {
             final State testItemState = testItem.getState();
             if (acceptedItemType.equals(ACCEPTED_ITEM_TYPE_STRING)) {
-                assertThat("The item was not of type StringType", testItemState, is(instanceOf(StringType.class)));
+                assertThat(testItemState, is(instanceOf(StringType.class)));
             } else if (acceptedItemType.equals(ACCEPTED_ITEM_TYPE_DATE_TIME)) {
-                assertThat("The item was not of type DateTimeType", testItemState, is(instanceOf(DateTimeType.class)));
+                assertThat(testItemState, is(instanceOf(DateTimeType.class)));
             }
             return testItemState;
         }, 3 * DFL_TIMEOUT, 2 * DFL_SLEEP_TIME);
@@ -483,7 +479,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
 
         String formattedDate = formatter.format(date);
 
-        assertThat("The default formatting was not used", formattedDate, is(equalTo(initialDate)));
+        assertThat(formattedDate, is(equalTo(initialDate)));
     }
 
     private void assertCommunicationError(String acceptedItemType) {
@@ -497,8 +493,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
                     WRONG_HOSTNAME);
         }
         waitForAssert(() -> {
-            assertThat("The thing status was not communication error", ntpThing.getStatusInfo().getStatusDetail(),
-                    is(equalTo(ThingStatusDetail.COMMUNICATION_ERROR)));
+            assertThat(ntpThing.getStatusInfo().getStatusDetail(), is(equalTo(ThingStatusDetail.COMMUNICATION_ERROR)));
         });
     }
 
