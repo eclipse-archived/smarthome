@@ -1,16 +1,28 @@
-var Repository = function($q, $rootScope, remoteService, dataType, staticData, getOneFunction, idParameterName, elmentId) {
+function Repository($q, $rootScope, remoteService, dataType, staticData, getOneFunction, idParameterName, elmentId) {
     var self = this;
 
     this.cacheEnabled = true;
     this.dirty = false;
     this.initialFetch = false;
     this.staticData = staticData
-    this.setDirty = function() {
+    this.singleElements = getOneFunction ? {} : null;
+
+    return {
+        add : add,
+        remove : remove,
+        update : update,
+        getAll : getAll,
+        getOne : getOne,
+        find : find,
+        findByIndex : findByIndex,
+        setDirty : setDirty
+    };
+
+    function setDirty() {
         self.dirty = true;
     }
 
-    this.singleElements = getOneFunction ? {} : null;
-    this.getAll = function(callback, refresh) {
+    function getAll(callback, refresh) {
         if (typeof callback === 'boolean') {
             refresh = true;
             callback = null;
@@ -55,15 +67,16 @@ var Repository = function($q, $rootScope, remoteService, dataType, staticData, g
             }
         }
         return deferred.promise;
-    };
-    this.getOne = function(condition, callback, refresh) {
-        var element = self.find(condition);
-        if (element != null && !this.dirty && !refresh) {
-            self.resolveSingleElement(callback, element)
+    }
+
+    function getOne(condition, callback, refresh) {
+        var element = find(condition);
+        if (element != null && !self.dirty && !refresh) {
+            resolveSingleElement(callback, element)
         } else {
-            self.getAll(null, true).then(function(res) {
+            getAll(null, true).then(function(res) {
                 if (callback) {
-                    self.resolveSingleElement(callback, self.find(condition));
+                    resolveSingleElement(callback, find(condition));
                     return;
                 } else {
                     return;
@@ -75,9 +88,9 @@ var Repository = function($q, $rootScope, remoteService, dataType, staticData, g
                 return;
             });
         }
-    };
+    }
 
-    this.resolveSingleElement = function(callback, element) {
+    function resolveSingleElement(callback, element) {
         if (!element) {
             callback(undefined);
         } else if (getOneFunction && self.singleElements[element.UID]) {
@@ -94,7 +107,7 @@ var Repository = function($q, $rootScope, remoteService, dataType, staticData, g
         }
     }
 
-    this.find = function(condition) {
+    function find(condition) {
         for (var i = 0; i < $rootScope.data[dataType].length; i++) {
             var element = $rootScope.data[dataType][i];
             if (condition(element)) {
@@ -102,8 +115,9 @@ var Repository = function($q, $rootScope, remoteService, dataType, staticData, g
             }
         }
         return null;
-    };
-    this.findByIndex = function(condition) {
+    }
+
+    function findByIndex(condition) {
         for (var i = 0; i < $rootScope.data[dataType].length; i++) {
             var element = $rootScope.data[dataType][i];
             if (condition(element)) {
@@ -111,21 +125,24 @@ var Repository = function($q, $rootScope, remoteService, dataType, staticData, g
             }
         }
         return -1;
-    };
-    this.add = function(element) {
+    }
+
+    function add(element) {
         $rootScope.data[dataType].push(element);
-    };
-    this.remove = function(element, index) {
+    }
+
+    function remove(element, index) {
         if (typeof (index) === 'undefined' && $rootScope.data[dataType].indexOf(element) !== -1) {
             $rootScope.data[dataType].splice($rootScope.data[dataType].indexOf(element), 1);
         } else if (typeof (index) !== 'undefined' && index !== -1) {
             $rootScope.data[dataType].splice(index, 1);
         }
-    };
-    this.update = function(element) {
+    }
+
+    function update(element) {
         var index = $rootScope.data[dataType].indexOf(element);
         $rootScope.data[dataType][index] = element;
-    };
+    }
 }
 
 angular.module('PaperUI.services.repositories', [ 'PaperUI.services.rest' ]).factory('bindingRepository', function($q, $rootScope, bindingService) {
