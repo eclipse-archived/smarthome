@@ -134,7 +134,8 @@ public class NtpHandler extends BaseThingHandler {
                 }
             } catch (Exception e) {
                 timeZone = TimeZone.getDefault();
-                logger.debug("{} using default TZ '{}' due to an occurred exception: ", getThing().getUID(), timeZone, e);
+                logger.debug("{} using default TZ '{}' due to an occurred exception: ", getThing().getUID(), timeZone,
+                        e);
             }
 
             try {
@@ -148,7 +149,8 @@ public class NtpHandler extends BaseThingHandler {
                 }
             } catch (Exception e) {
                 locale = localeProvider.getLocale();
-                logger.debug("{} using default locale '{}' due to an occurred exception: ", getThing().getUID(), locale, e);
+                logger.debug("{} using default locale '{}' due to an occurred exception: ", getThing().getUID(), locale,
+                        e);
             }
             dateTimeChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_DATE_TIME);
             stringChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_STRING);
