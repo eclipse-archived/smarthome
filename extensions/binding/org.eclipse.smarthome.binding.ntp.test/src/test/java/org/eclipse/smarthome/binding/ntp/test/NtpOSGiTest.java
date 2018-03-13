@@ -21,6 +21,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -35,7 +36,7 @@ import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
+import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.library.items.DateTimeItem;
 import org.eclipse.smarthome.core.library.items.StringItem;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
@@ -66,6 +67,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 
 /**
  * OSGi tests for the {@link NtpHandler}
@@ -77,8 +79,6 @@ import org.junit.Test;
 public class NtpOSGiTest extends JavaOSGiTest {
     private static TimeZone systemTimeZone;
     private static Locale locale;
-
-    private EventSubscriberMock eventSubscriberMock;
 
     private NtpHandler ntpHandler;
     private Thing ntpThing;
@@ -499,8 +499,9 @@ public class NtpOSGiTest extends JavaOSGiTest {
         Configuration configuration = new Configuration();
         initialize(configuration, channelID, acceptedItemType, null, null);
 
-        eventSubscriberMock = new EventSubscriberMock();
-        registerService(eventSubscriberMock, EventSubscriber.class.getName());
+        EventSubscriber eventSubscriberMock = mock(EventSubscriber.class);
+        when(eventSubscriberMock.getSubscribedEventTypes()).thenReturn(Collections.singleton(ItemStateEvent.TYPE));
+        registerService(eventSubscriberMock);
 
         if (updateEventType.equals(UpdateEventType.HANDLE_COMMAND)) {
             ntpHandler.handleCommand(new ChannelUID("ntp:test:chan:1"), new StringType("test"));
@@ -508,16 +509,8 @@ public class NtpOSGiTest extends JavaOSGiTest {
             ntpHandler.channelLinked(new ChannelUID("ntp:test:chan:1"));
         }
         waitForAssert(() -> {
-            assertTrue(eventSubscriberMock.isEventReceived);
+            verify(eventSubscriberMock, atLeastOnce()).receive(ArgumentMatchers.any(Event.class));
         });
     }
 
-    private class EventSubscriberMock extends AbstractItemEventSubscriber {
-        public boolean isEventReceived = false;
-
-        @Override
-        public void receive(Event event) {
-            isEventReceived = true;
-        }
-    }
 }
