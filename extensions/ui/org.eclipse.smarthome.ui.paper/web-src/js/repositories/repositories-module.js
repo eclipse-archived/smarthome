@@ -37,7 +37,7 @@
 
         function getAll(callback, refresh) {
             if (typeof callback === 'boolean') {
-                refresh = true;
+                refresh = callback;
                 callback = null;
             }
             var deferred = $q.defer();
