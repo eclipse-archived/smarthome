@@ -33,7 +33,11 @@ var paths = {
         './web-src/index.html'
     ],
     concat: [{
-        'src': './web-src/js/**/services*.js',
+        'src': [
+            './web-src/js/**/services*.js',
+            './web-src/js/repositories/repositories-module.js',
+            './web-src/js/repositories/repositories-services.js'
+            ],
         'name': 'services.js'
     }, {
         'src': [
@@ -244,6 +248,8 @@ gulp.task('inject', ['build'], function () {
                      './web-src/js/setup/controller*.js',
                      './web-src/js/**/directive*.js',
                      './web-src/js/**/service*.js',
+                     './web-src/js/repositories/repositories-module.js',
+                     './web-src/js/repositories/repositories-services.js',
                      './web-src/js/filters/*',
                      './web-src/js/extensions.js',
                      './web-src/js/controller*.js',
