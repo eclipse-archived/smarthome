@@ -107,7 +107,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
         Objects.requireNonNull(endpoint, "endpoint must not be null");
         logger.debug("httpClient for endpoint {} requested", endpoint);
         checkConsumerName(consumerName);
-        return createHttpClientInternal(consumerName, endpoint);
+        return createHttpClientInternal(consumerName, endpoint, false);
     }
 
     @Override
@@ -162,7 +162,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
                         }
 
                         if (commonHttpClient == null) {
-                            commonHttpClient = createHttpClientInternal("common", null);
+                            commonHttpClient = createHttpClientInternal("common", null, true);
                             logger.info("jetty shared http client created");
                         }
 
@@ -180,7 +180,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
         }
     }
 
-    private HttpClient createHttpClientInternal(String consumerName, String endpoint) {
+    private HttpClient createHttpClientInternal(String consumerName, String endpoint, boolean startClient) {
         try {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<HttpClient>() {
                 @Override
@@ -215,11 +215,13 @@ public class SecureHttpClientFactory implements HttpClientFactory {
                     httpClient.setMaxConnectionsPerDestination(2);
                     httpClient.setExecutor(queuedThreadPool);
 
-                    try {
-                        httpClient.start();
-                    } catch (Exception e) {
-                        logger.error("Could not start jetty client", e);
-                        throw new RuntimeException("Could not start jetty client", e);
+                    if (startClient) {
+                        try {
+                            httpClient.start();
+                        } catch (Exception e) {
+                            logger.error("Could not start jetty client", e);
+                            throw new RuntimeException("Could not start jetty client", e);
+                        }
                     }
 
                     return httpClient;
