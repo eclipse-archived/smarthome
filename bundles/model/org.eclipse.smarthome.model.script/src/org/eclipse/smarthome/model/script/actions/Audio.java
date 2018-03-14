@@ -27,7 +27,8 @@ import org.slf4j.LoggerFactory;
  * The static methods of this class are made available as functions in the scripts.
  * This allows a script to use audio features.
  *
- * @author Kai Kreuzer
+ * @author Kai Kreuzer - Initial contribution and API
+ * @author Christoph Weitkamp - Added parameter to adjust the volume
  */
 public class Audio {
 
@@ -42,11 +43,32 @@ public class Audio {
         }
     }
 
+    @ActionDoc(text = "plays a sound with the given volume from the sounds folder to the default sink")
+    public static void playSound(@ParamDoc(name = "filename", text = "the filename with extension") String filename,
+            @ParamDoc(name = "volume", text = "the volume to be used") PercentType volume) {
+        try {
+            AudioActionService.audioManager.playFile(filename, volume);
+        } catch (AudioException e) {
+            logger.warn("Failed playing audio file: {}", e.getMessage());
+        }
+    }
+
     @ActionDoc(text = "plays a sound from the sounds folder to the given sink(s)")
     public static void playSound(@ParamDoc(name = "sink", text = "the id of the sink") String sink,
             @ParamDoc(name = "filename", text = "the filename with extension") String filename) {
         try {
             AudioActionService.audioManager.playFile(filename, sink);
+        } catch (AudioException e) {
+            logger.warn("Failed playing audio file: {}", e.getMessage());
+        }
+    }
+
+    @ActionDoc(text = "plays a sound with the given volume from the sounds folder to the given sink(s)")
+    public static void playSound(@ParamDoc(name = "sink", text = "the id of the sink") String sink,
+            @ParamDoc(name = "filename", text = "the filename with extension") String filename,
+            @ParamDoc(name = "volume", text = "the volume to be used") PercentType volume) {
+        try {
+            AudioActionService.audioManager.playFile(filename, sink, volume);
         } catch (AudioException e) {
             logger.warn("Failed playing audio file: {}", e.getMessage());
         }

@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -46,7 +47,8 @@ import org.slf4j.LoggerFactory;
  * @author Karel Goderis - Initial contribution and API
  * @author Kai Kreuzer - removed unwanted dependencies
  * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
- * 
+ * @author Christoph Weitkamp - Added parameter to adjust the volume
+ *
  */
 public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
 
@@ -77,7 +79,8 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     protected void modified(Map<String, Object> config) {
         if (config != null) {
             this.defaultSource = config.containsKey(CONFIG_DEFAULT_SOURCE)
-                    ? config.get(CONFIG_DEFAULT_SOURCE).toString() : null;
+                    ? config.get(CONFIG_DEFAULT_SOURCE).toString()
+                    : null;
             this.defaultSink = config.containsKey(CONFIG_DEFAULT_SINK) ? config.get(CONFIG_DEFAULT_SINK).toString()
                     : null;
         }
@@ -90,32 +93,60 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
 
     @Override
     public void play(AudioStream audioStream, String sinkId) {
-        if (audioStream != null) {
-            AudioSink sink = getSink(sinkId);
+        play(audioStream, sinkId, null);
+    }
 
-            if (sink != null) {
-                try {
-                    sink.process(audioStream);
-                } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
-                    logger.error("Error playing '{}': {}", audioStream.toString(), e.getMessage());
-                }
-            } else {
-                logger.warn("Failed playing audio stream '{}' as no audio sink was found.", audioStream.toString());
+    public void play(AudioStream audioStream, String sinkId, PercentType volume) {
+        Objects.requireNonNull(audioStream, "Audio stream cannot be played as it is null.");
+
+        AudioSink sink = getSink(sinkId);
+        if (sink != null && sink.getSupportedStreams().stream().anyMatch(clazz -> clazz.isInstance(audioStream))) {
+            // get current volume
+            PercentType oldVolume = getVolume(sinkId);
+            // set notification sound volume
+            if (volume != null) {
+                setVolume(volume, sinkId);
             }
+            try {
+                sink.process(audioStream);
+            } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
+                logger.warn("Error playing '{}': {}", audioStream, e.getMessage(), e);
+            } finally {
+                // restore volume
+                if (oldVolume != null) {
+                    setVolume(oldVolume, sinkId);
+                }
+            }
+        } else {
+            logger.warn(
+                    "Failed playing audio stream '{}' as no audio sink was found or audio sink doesn't support the stream.",
+                    audioStream);
         }
     }
 
     @Override
     public void playFile(String fileName) throws AudioException {
-        playFile(fileName, null);
+        playFile(fileName, null, null);
+    }
+
+    @Override
+    public void playFile(String fileName, PercentType volume) throws AudioException {
+        playFile(fileName, null, volume);
     }
 
     @Override
     public void playFile(String fileName, String sink) throws AudioException {
+        playFile(fileName, sink, null);
+    }
+
+    @Override
+    public void playFile(String fileName, String sink, PercentType volume) throws AudioException {
+        Objects.requireNonNull(fileName, "File cannot be played as fileName is null.");
+
         File file = new File(
                 ConfigConstants.getConfigFolder() + File.separator + SOUND_DIR + File.separator + fileName);
         FileAudioStream is = new FileAudioStream(file);
-        play(is, sink);
+        play(is, sink, volume);
     }
 
     @Override
@@ -123,18 +154,11 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
         stream(url, null);
     }
 
+
     @Override
     public void stream(String url, String sinkId) throws AudioException {
         AudioStream audioStream = url != null ? new URLAudioStream(url) : null;
-        AudioSink sink = getSink(sinkId);
-
-        if (sink != null) {
-            try {
-                sink.process(audioStream);
-            } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
-                logger.error("Error playing '{}': {}", url, e.getMessage());
-            }
-        }
+        play(audioStream, sinkId);
     }
 
     @Override
@@ -145,8 +169,8 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             try {
                 return sink.getVolume();
             } catch (IOException e) {
-                logger.error("An exception occurred while getting the volume of sink {} : '{}'", sink.getId(),
-                        e.getMessage());
+                logger.warn("An exception occurred while getting the volume of sink {} : '{}'", sink.getId(),
+                        e.getMessage(), e);
             }
         }
 
@@ -161,8 +185,8 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             try {
                 sink.setVolume(volume);
             } catch (IOException e) {
-                logger.error("An exception occurred while setting the volume of sink {} : '{}'", sink.getId(),
-                        e.getMessage());
+                logger.warn("An exception occurred while setting the volume of sink {} : '{}'", sink.getId(),
+                        e.getMessage(), e);
             }
         }
     }
@@ -212,7 +236,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     @Override
     public Set<String> getSourceIds(String pattern) {
         String regex = pattern.replace("?", ".?").replace("*", ".*?");
-        Set<String> matchedSources = new HashSet<String>();
+        Set<String> matchedSources = new HashSet<>();
 
         for (String aSource : audioSources.keySet()) {
             if (aSource.matches(regex)) {
@@ -225,19 +249,13 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
 
     @Override
     public AudioSink getSink(String sinkId) {
-        AudioSink sink = null;
-        if (sinkId == null) {
-            sink = getSink();
-        } else {
-            sink = audioSinks.get(sinkId);
-        }
-        return sink;
+        return (sinkId == null) ? getSink() : audioSinks.get(sinkId);
     }
 
     @Override
     public Set<String> getSinks(String pattern) {
         String regex = pattern.replace("?", ".?").replace("*", ".*?");
-        Set<String> matchedSinks = new HashSet<String>();
+        Set<String> matchedSinks = new HashSet<>();
 
         for (String aSink : audioSinks.keySet()) {
             if (aSink.matches(regex)) {
