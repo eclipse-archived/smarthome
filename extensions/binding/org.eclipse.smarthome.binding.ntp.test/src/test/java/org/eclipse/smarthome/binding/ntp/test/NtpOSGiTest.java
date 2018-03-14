@@ -219,7 +219,8 @@ public class NtpOSGiTest extends JavaOSGiTest {
         String testItemState = getItemState(ACCEPTED_ITEM_TYPE_DATE_TIME).toString();
         assertFormat(testItemState, DateTimeType.DATE_PATTERN_WITH_TZ_AND_MS);
         ZonedDateTime timeZoneFromItemRegistry = ((DateTimeType) getItemState(ACCEPTED_ITEM_TYPE_DATE_TIME))
-                .getZonedDateTime();
+                .getZonedDateTimeAtZone(ZoneId.of(TEST_TIME_ZONE_ID));
+        ;
         ZoneOffset expectedOffset;
         if (timeZoneFromItemRegistry.getZone().getRules().isDaylightSavings(timeZoneFromItemRegistry.toInstant())) {
             expectedOffset = ZoneOffset.of("-07:00");
@@ -238,7 +239,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
         configuration.put(NtpBindingConstants.PROPERTY_TIMEZONE, TEST_TIME_ZONE_ID);
         initialize(configuration, NtpBindingConstants.CHANNEL_DATE_TIME, ACCEPTED_ITEM_TYPE_DATE_TIME, null, null);
         ZonedDateTime timeZoneIdFromItemRegistry = ((DateTimeType) getItemState(ACCEPTED_ITEM_TYPE_DATE_TIME))
-                .getZonedDateTime();
+                .getZonedDateTimeAtZone(ZoneId.of(TEST_TIME_ZONE_ID));
         ZoneOffset testZoneId;
         if (timeZoneIdFromItemRegistry.getZone().getRules().isDaylightSavings(timeZoneIdFromItemRegistry.toInstant())) {
             testZoneId = ZoneOffset.of("-07:00");
