@@ -6,3 +6,4 @@ web-src/bower_components/
 web/
 web-src/index.html
 PaperUI-tests.xml
+package-lock.json
