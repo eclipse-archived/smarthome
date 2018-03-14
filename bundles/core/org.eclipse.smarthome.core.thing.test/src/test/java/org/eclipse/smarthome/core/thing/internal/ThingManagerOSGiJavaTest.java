@@ -25,6 +25,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
@@ -40,6 +41,7 @@ import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.service.ReadyMarker;
 import org.eclipse.smarthome.core.service.ReadyService;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
@@ -48,12 +50,14 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
+import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
@@ -88,8 +92,12 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
 
     private final String CONFIG_PARAM_NAME = "test";
     private final ChannelTypeUID CHANNEL_TYPE_UID = new ChannelTypeUID("binding", "channel");
-    private final ThingTypeUID THING_TYPE_UID = new ThingTypeUID("binding:type");
-    private final ThingUID THING_UID = new ThingUID(THING_TYPE_UID, "id");
+    private final ThingTypeUID THING_TYPE_UID = new ThingTypeUID("binding:thing");
+    private final ThingUID THING_UID = new ThingUID(THING_TYPE_UID, "thing");
+
+    private final ThingTypeUID BRIDGE_TYPE_UID = new ThingTypeUID("binding:bridge");
+    private final ThingUID BRIDGE_UID = new ThingUID(BRIDGE_TYPE_UID, "bridge");
+
     private final ChannelUID CHANNEL_UID = new ChannelUID(THING_UID, "channel");
     private Thing THING;
     private URI CONFIG_DESCRIPTION_THING;
@@ -255,6 +263,228 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
         // verify a satisfied config does not prevent it from getting initialized anymore
         assertThingStatus(Collections.singletonMap(CONFIG_PARAM_NAME, "value"),
                 Collections.singletonMap(CONFIG_PARAM_NAME, "value"), ThingStatus.ONLINE, ThingStatusDetail.NONE);
+    }
+
+    @Test
+    public void testChildHandlerInitialized_replacedUnitializedThing() {
+        Semaphore childHandlerInitializedSemaphore = new Semaphore(1);
+        Semaphore thingUpdatedSemapthore = new Semaphore(1);
+
+        registerThingHandlerFactory(BRIDGE_TYPE_UID, bridge -> new BaseBridgeHandler((Bridge) bridge) {
+            @Override
+            public void handleCommand(@NonNull ChannelUID channelUID, @NonNull Command command) {
+            }
+
+            @Override
+            public void initialize() {
+                updateStatus(ThingStatus.ONLINE);
+            }
+
+            @Override
+            public void childHandlerInitialized(ThingHandler childHandler, Thing childThing) {
+                try {
+                    childHandlerInitializedSemaphore.acquire();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            };
+        });
+        registerThingHandlerFactory(THING_TYPE_UID, thing -> new BaseThingHandler(thing) {
+            @Override
+            public void handleCommand(@NonNull ChannelUID channelUID, @NonNull Command command) {
+            }
+
+            @Override
+            public void initialize() {
+                if (getBridge() == null) {
+                    throw new RuntimeException("Fail because of missing bridge");
+                }
+                updateStatus(ThingStatus.ONLINE);
+            }
+
+            @Override
+            public void thingUpdated(Thing thing) {
+                this.thing = thing;
+                try {
+                    thingUpdatedSemapthore.acquire();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            };
+        });
+
+        Bridge bridge = BridgeBuilder.create(BRIDGE_TYPE_UID, BRIDGE_UID).build();
+        managedThingProvider.add(bridge);
+        waitForAssert(() -> {
+            assertEquals(ThingStatus.ONLINE, bridge.getStatus());
+        });
+
+        Thing thing = ThingBuilder.create(THING_TYPE_UID, THING_UID).build();
+        managedThingProvider.add(thing);
+        waitForAssert(() -> {
+            assertEquals(ThingStatus.UNINITIALIZED, thing.getStatus());
+        });
+
+        assertEquals(1, childHandlerInitializedSemaphore.availablePermits());
+
+        Thing thing2 = ThingBuilder.create(THING_TYPE_UID, THING_UID).withBridge(BRIDGE_UID).build();
+        managedThingProvider.update(thing2);
+        waitForAssert(() -> {
+            assertEquals(ThingStatus.ONLINE, thing2.getStatus());
+        });
+
+        // childHandlerInitialized(...) must be called
+        assertEquals(0, childHandlerInitializedSemaphore.availablePermits());
+
+        // thingUpdated(...) is not called
+        assertEquals(1, thingUpdatedSemapthore.availablePermits());
+    }
+
+    @Test
+    public void testChildHandlerInitialized_modifiedUninitializedThing() {
+        Semaphore childHandlerInitializedSemaphore = new Semaphore(1);
+        Semaphore thingUpdatedSemapthore = new Semaphore(1);
+
+        registerThingHandlerFactory(BRIDGE_TYPE_UID, bridge -> new BaseBridgeHandler((Bridge) bridge) {
+            @Override
+            public void handleCommand(@NonNull ChannelUID channelUID, @NonNull Command command) {
+            }
+
+            @Override
+            public void initialize() {
+                updateStatus(ThingStatus.ONLINE);
+            }
+
+            @Override
+            public void childHandlerInitialized(ThingHandler childHandler, Thing childThing) {
+                try {
+                    childHandlerInitializedSemaphore.acquire();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            };
+        });
+        registerThingHandlerFactory(THING_TYPE_UID, thing -> new BaseThingHandler(thing) {
+            @Override
+            public void handleCommand(@NonNull ChannelUID channelUID, @NonNull Command command) {
+            }
+
+            @Override
+            public void initialize() {
+                if (getBridge() == null) {
+                    throw new RuntimeException("Fail because of missing bridge");
+                }
+                updateStatus(ThingStatus.ONLINE);
+            }
+
+            @Override
+            public void thingUpdated(Thing thing) {
+                this.thing = thing;
+                try {
+                    thingUpdatedSemapthore.acquire();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            };
+        });
+
+        Bridge bridge = BridgeBuilder.create(BRIDGE_TYPE_UID, BRIDGE_UID).build();
+        managedThingProvider.add(bridge);
+        waitForAssert(() -> {
+            assertEquals(ThingStatus.ONLINE, bridge.getStatus());
+        });
+
+        Thing thing = ThingBuilder.create(THING_TYPE_UID, THING_UID).build();
+        managedThingProvider.add(thing);
+        waitForAssert(() -> {
+            assertEquals(ThingStatus.UNINITIALIZED, thing.getStatus());
+        });
+
+        assertEquals(1, childHandlerInitializedSemaphore.availablePermits());
+
+        thing.setBridgeUID(bridge.getUID());
+        managedThingProvider.update(thing);
+        waitForAssert(() -> {
+            assertEquals(ThingStatus.ONLINE, thing.getStatus());
+        });
+
+        // childHandlerInitialized(...) must be called
+        assertEquals(0, childHandlerInitializedSemaphore.availablePermits());
+
+        // thingUpdated(...) is not called
+        assertEquals(1, thingUpdatedSemapthore.availablePermits());
+    }
+
+    @Test
+    public void testChildHandlerInitialized_replacedInitializedThing() {
+        Semaphore childHandlerInitializedSemaphore = new Semaphore(1);
+        Semaphore thingUpdatedSemapthore = new Semaphore(1);
+
+        registerThingHandlerFactory(BRIDGE_TYPE_UID, bridge -> new BaseBridgeHandler((Bridge) bridge) {
+            @Override
+            public void handleCommand(@NonNull ChannelUID channelUID, @NonNull Command command) {
+            }
+
+            @Override
+            public void initialize() {
+                updateStatus(ThingStatus.ONLINE);
+            }
+
+            @Override
+            public void childHandlerInitialized(ThingHandler childHandler, Thing childThing) {
+                try {
+                    childHandlerInitializedSemaphore.acquire();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            };
+        });
+        registerThingHandlerFactory(THING_TYPE_UID, thing -> new BaseThingHandler(thing) {
+            @Override
+            public void handleCommand(@NonNull ChannelUID channelUID, @NonNull Command command) {
+            }
+
+            @Override
+            public void initialize() {
+                updateStatus(ThingStatus.ONLINE);
+            }
+
+            @Override
+            public void thingUpdated(Thing thing) {
+                this.thing = thing;
+                try {
+                    thingUpdatedSemapthore.acquire();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            };
+        });
+
+        Bridge bridge = BridgeBuilder.create(BRIDGE_TYPE_UID, BRIDGE_UID).build();
+        managedThingProvider.add(bridge);
+        waitForAssert(() -> {
+            assertEquals(ThingStatus.ONLINE, bridge.getStatus());
+        });
+
+        Thing thing = ThingBuilder.create(THING_TYPE_UID, THING_UID).build();
+        managedThingProvider.add(thing);
+        waitForAssert(() -> {
+            assertEquals(ThingStatus.ONLINE, thing.getStatus());
+        });
+
+        assertEquals(1, childHandlerInitializedSemaphore.availablePermits());
+
+        Thing thing2 = ThingBuilder.create(THING_TYPE_UID, THING_UID).withBridge(BRIDGE_UID).build();
+        managedThingProvider.update(thing2);
+        waitForAssert(() -> {
+            assertEquals(ThingStatus.ONLINE, thing2.getStatus());
+        });
+
+        // childHandlerInitialized(...) is not be called - framework calls ThingHandler.thingUpdated(...) instead.
+        assertEquals(1, childHandlerInitializedSemaphore.availablePermits());
+
+        // ThingHandler.thingUpdated(...) must be called
+        assertEquals(0, thingUpdatedSemapthore.availablePermits());
     }
 
     private void assertThingStatus(Map<String, Object> propsThing, Map<String, Object> propsChannel, ThingStatus status,
