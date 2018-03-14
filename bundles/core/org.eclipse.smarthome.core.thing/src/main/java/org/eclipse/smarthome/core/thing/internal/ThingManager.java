@@ -428,15 +428,33 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
             Lock lock1 = getLockForThing(thing.getUID());
             try {
                 lock1.lock();
-                ThingHandler thingHandler = replaceThing(getThing(thingUID), thing);
+                Thing oldThing = getThing(thingUID);
+                ThingHandler thingHandler = replaceThing(oldThing, thing);
                 if (thingHandler != null) {
                     if (ThingHandlerHelper.isHandlerInitialized(thing) || isInitializing(thing)) {
+                        if (oldThing != null) {
+                            oldThing.setHandler(null);
+                        }
+                        thing.setHandler(thingHandler);
                         safeCaller.create(thingHandler, ThingHandler.class).build().thingUpdated(thing);
                     } else {
                         logger.debug(
-                                "Cannot notify handler about updated thing '{}', because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE). Starting handler initialization instead.",
+                                "Cannot notify handler about updated thing '{}', because handler is not initialized (thing must be in status UNKNOWN, ONLINE or OFFLINE).",
                                 thing.getThingTypeUID());
-                        initializeHandler(thing);
+                        if (thingHandler.getThing() == thing) {
+                            logger.debug("Initializing handler of thing '{}'", thing.getThingTypeUID());
+                            if (oldThing != null) {
+                                oldThing.setHandler(null);
+                            }
+                            thing.setHandler(thingHandler);
+                            initializeHandler(thing);
+                        } else {
+                            logger.debug("Replacing uninitialized handler for updated thing '{}'",
+                                    thing.getThingTypeUID());
+                            ThingHandlerFactory thingHandlerFactory = getThingHandlerFactory(thing);
+                            unregisterHandler(thingHandler.getThing(), thingHandlerFactory);
+                            registerAndInitializeHandler(thing, thingHandlerFactory);
+                        }
                     }
                 } else {
                     registerAndInitializeHandler(thing, getThingHandlerFactory(thing));
@@ -453,12 +471,6 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
         if (oldThing != newThing) {
             this.things.remove(oldThing);
             this.things.add(newThing);
-            if (thingHandler != null) {
-                newThing.setHandler(thingHandler);
-            }
-            if (oldThing != null) {
-                oldThing.setHandler(null);
-            }
         }
         return thingHandler;
     }
@@ -569,7 +581,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
                 throw new IllegalStateException("Handler should not be null here");
             } else {
                 if (handler.getThing() != thing) {
-                    logger.debug("The model of {} is inconsistent [thing.getHandler().getThing() != thing]",
+                    logger.warn("The model of {} is inconsistent [thing.getHandler().getThing() != thing]",
                             thing.getUID());
                 }
             }
