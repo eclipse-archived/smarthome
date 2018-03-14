@@ -59,12 +59,12 @@ public class MqttServiceTests {
         Map<String, Object> properties = new Hashtable<>();
         properties.put("bam.name", "brokername");
         properties.put("bam.url", "tcp://123.123.123.123");
-        Map<String, Map<String, String>> map = service.extractBrokerConfigurations(properties);
+        Map<String, MqttService.Config> map = service.extractBrokerConfigurations(properties);
         assertEquals(map.size(), 1);
-        Map<String, String> data = map.get("bam");
+        MqttService.Config data = map.get("bam");
         assertNotNull(data);
-        assertEquals("brokername", data.get("name"));
-        assertEquals("tcp://123.123.123.123", data.get("url"));
+        assertEquals("brokername", data.name);
+        assertEquals("tcp://123.123.123.123", data.url);
     }
 
     // Tests if updates to the textual configuration are processed correctly
