@@ -15,18 +15,16 @@ package org.eclipse.smarthome.io.rest.internal.resources.beans;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.smarthome.io.rest.internal.RESTActivator;
-
 /**
  * This is a java bean that is used to define the root entry
  * page of the REST interface.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public class RootBean {
 
-    public final String version = RESTActivator.getContext().getBundle().getVersion().toString();
+    public final String version = "1";
 
     public final List<Links> links = new ArrayList<Links>();
 
