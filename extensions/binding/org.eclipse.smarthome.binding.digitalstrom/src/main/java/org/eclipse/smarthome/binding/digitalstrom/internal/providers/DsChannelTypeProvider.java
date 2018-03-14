@@ -25,6 +25,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Device;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.DeviceBinarayInputEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.FunctionalColorGroupEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.MeteringTypeEnum;
@@ -302,7 +303,7 @@ public class DsChannelTypeProvider extends BaseDsI18n implements ChannelTypeProv
         if (sensorType.toString().contains("TEMPERATURE")) {
             unitShortCut = "°C";
         }
-        return new StateDescription(null, null, null, sensorType.getPattern() + " " + unitShortCut, true, null);
+        return new StateDescription(null, null, null, sensorType.getPattern() + " " + unitShortCut, Boolean.TRUE, null);
     }
 
     private String getStageChannelOption(String type, String option) {
@@ -339,7 +340,7 @@ public class DsChannelTypeProvider extends BaseDsI18n implements ChannelTypeProv
                             locale)));
                 }
             }
-            return new StateDescription(null, null, null, null, false, stateOptions);
+            return new StateDescription(null, null, null, null, Boolean.FALSE, stateOptions);
         }
         if (channelID.contains(TEMPERATURE_CONTROLLED)) {
             return new StateDescription(new BigDecimal(0), new BigDecimal(50), new BigDecimal(0.1), "%.1f °C", false,
@@ -474,7 +475,7 @@ public class DsChannelTypeProvider extends BaseDsI18n implements ChannelTypeProv
                     return new ChannelType(channelTypeUID, false, NUMBER, getLabelText(channelID, locale),
                             getDescText(channelID, locale), CATEGORY_ENERGY,
                             new HashSet<>(Arrays.asList(getLabelText(channelID, locale), getText(DS, locale))),
-                            new StateDescription(null, null, null, pattern, true, null), null);
+                            new StateDescription(null, null, null, pattern, Boolean.TRUE, null), null);
                 }
                 try {
                     DeviceBinarayInputEnum binarayInputType = DeviceBinarayInputEnum
@@ -482,7 +483,7 @@ public class DsChannelTypeProvider extends BaseDsI18n implements ChannelTypeProv
                     return new ChannelType(channelTypeUID, false, getItemType(channelID),
                             getLabelText(channelID, locale), getDescText(channelID, locale),
                             getBinaryInputCategory(binarayInputType), getSimpleTags(channelTypeUID.getId(), locale),
-                            new StateDescription(null, null, null, null, true, null), null);
+                            new StateDescription(null, null, null, null, Boolean.TRUE, null), null);
                 } catch (IllegalArgumentException e1) {
                     // ignore
                 }

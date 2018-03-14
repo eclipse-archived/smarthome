@@ -86,7 +86,7 @@ class ThingLinkManagerOSGiTest extends OSGiTest {
         thingHandlerFactory.activate(componentContext)
         registerService(thingHandlerFactory, ThingHandlerFactory.class.getName())
 
-        def StateDescription state = new StateDescription(0, 100, 10, "%d Peek", true, [new StateOption("SOUND", "My great sound.")])
+        def StateDescription state = new StateDescription(0, 100, 10, "%d Peek", Boolean.TRUE, [new StateOption("SOUND", "My great sound.")])
 
         def ChannelType channelType = new ChannelType(new ChannelTypeUID("hue:alarm"), false, "Number", " ", "", null, null, state, null)
         def channelTypes = [channelType]

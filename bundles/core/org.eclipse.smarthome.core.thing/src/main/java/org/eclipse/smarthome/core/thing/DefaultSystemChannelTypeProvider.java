@@ -60,7 +60,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
     public static final ChannelType SYSTEM_CHANNEL_SIGNAL_STRENGTH = new ChannelType(
             new ChannelTypeUID("system:signal-strength"), false, "Number", "Signal Strength", null, "QualityOfService",
             null,
-            new StateDescription(BigDecimal.ZERO, new BigDecimal(4), BigDecimal.ONE, null, true,
+            new StateDescription(BigDecimal.ZERO, new BigDecimal(4), BigDecimal.ONE, null, Boolean.TRUE,
                     Arrays.asList(new StateOption("0", "no signal"), new StateOption("1", "weak"),
                             new StateOption("2", "average"), new StateOption("3", "good"),
                             new StateOption("4", "excellent"))),
@@ -72,14 +72,15 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      */
     public static final ChannelType SYSTEM_CHANNEL_LOW_BATTERY = new ChannelType(
             new ChannelTypeUID("system:low-battery"), false, "Switch", "Low Battery", null, "Battery", null,
-            new StateDescription(null, null, null, null, true, null), null);
+            new StateDescription(null, null, null, null, Boolean.TRUE, null), null);
 
     /**
      * Battery level default system wide {@link ChannelType}. Represents the battery level as a percentage.
      */
     public static final ChannelType SYSTEM_CHANNEL_BATTERY_LEVEL = new ChannelType(
             new ChannelTypeUID("system:battery-level"), false, "Number", "Battery Level", null, "Battery", null,
-            new StateDescription(BigDecimal.ZERO, new BigDecimal(100), BigDecimal.ONE, "%.0f %%", true, null), null);
+            new StateDescription(BigDecimal.ZERO, new BigDecimal(100), BigDecimal.ONE, "%.0f %%", Boolean.TRUE, null),
+            null);
 
     /**
      * System wide trigger {@link ChannelType} without event options.

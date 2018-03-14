@@ -12,8 +12,7 @@
  */
 package org.eclipse.smarthome.io.rest.core.internal.item;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -45,7 +44,8 @@ public class EnrichedItemDTOMapperWithTransformOSGiTest extends JavaOSGiTest {
         initMocks(this);
 
         StateDescription stateDescription = new StateDescription(BigDecimal.ZERO, BigDecimal.valueOf(100),
-                BigDecimal.TEN, "%d °C", true, Collections.singletonList(new StateOption("SOUND", "My great sound.")));
+                BigDecimal.TEN, "%d °C", Boolean.TRUE,
+                Collections.singletonList(new StateOption("SOUND", "My great sound.")));
         when(stateDescriptionService.getStateDescription(ITEM_NAME, null)).thenReturn(stateDescription);
     }
 

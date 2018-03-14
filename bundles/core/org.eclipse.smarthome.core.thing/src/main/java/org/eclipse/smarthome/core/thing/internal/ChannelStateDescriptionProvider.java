@@ -92,7 +92,7 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
                         if (pattern != null) {
                             logger.trace("Provide a default pattern {} for item {}", pattern, itemName);
                             if (stateDescription == null) {
-                                stateDescription = new StateDescription(null, null, null, pattern, false, null);
+                                stateDescription = new StateDescription(null, null, null, pattern, Boolean.FALSE, null);
                             } else {
                                 stateDescription = new StateDescription(stateDescription.getMinimum(),
                                         stateDescription.getMaximum(), stateDescription.getStep(), pattern,
