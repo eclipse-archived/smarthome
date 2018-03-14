@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * Describes restrictions of an item state and gives information how to interpret
  * it.
@@ -29,7 +31,7 @@ public class StateDescription {
     private final BigDecimal maximum;
     private final BigDecimal step;
     private final String pattern;
-    private final boolean readOnly;
+    private final Boolean readOnly;
     private final List<StateOption> options;
 
     /**
@@ -42,7 +44,7 @@ public class StateDescription {
      * @param readOnly if the state can be changed by the system
      * @param options predefined list of options
      */
-    public StateDescription(BigDecimal minimum, BigDecimal maximum, BigDecimal step, String pattern, boolean readOnly,
+    public StateDescription(BigDecimal minimum, BigDecimal maximum, BigDecimal step, String pattern, Boolean readOnly,
             List<StateOption> options) {
         this.minimum = minimum;
         this.maximum = maximum;
@@ -98,7 +100,7 @@ public class StateDescription {
      *
      * @return true, if the state can only be read but not written
      */
-    public boolean isReadOnly() {
+    public @Nullable Boolean isReadOnly() {
         return readOnly;
     }
 

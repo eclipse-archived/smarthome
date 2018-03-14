@@ -33,7 +33,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
  * This service contains different StateDescriptionProviders and provides a
  * getStateDescription method that returns a single StateDescription using all
  * of the providers.
- * 
+ *
  * @author Lyubomir Papazov - Initial contribution
  *
  */
@@ -61,29 +61,35 @@ public class StateDescriptionServiceImpl implements StateDescriptionService {
     public @Nullable StateDescription getStateDescription(String itemName, Locale locale) {
         StateDescription result = null;
         List<StateOption> stateOptions = Collections.emptyList();
-        if (stateDescriptionProviders != null) {
-            for (StateDescriptionProvider stateDescriptionProvider : stateDescriptionProviders) {
-                StateDescription stateDescription = stateDescriptionProvider.getStateDescription(itemName, locale);
+        Boolean readOnly = null;
+        for (StateDescriptionProvider stateDescriptionProvider : stateDescriptionProviders) {
+            StateDescription stateDescription = stateDescriptionProvider.getStateDescription(itemName, locale);
+            if (stateDescription == null) {
+                continue;
+            }
 
-                // as long as no valid StateDescription is provided we reassign here:
-                if (result == null) {
-                    result = stateDescription;
-                }
+            // we pick up the first valid StateDescription here:
+            if (result == null) {
+                result = stateDescription;
+            }
 
-                // if the current StateDescription does provide options and we don't already
-                // have some, we pick them up
-                // here
-                if (stateDescription != null && !stateDescription.getOptions().isEmpty() && stateOptions.isEmpty()) {
-                    stateOptions = stateDescription.getOptions();
-                }
+            // if the current StateDescription does provide options
+            // and we don't already have some, we pick them up here:
+            if (!stateDescription.getOptions().isEmpty() && stateOptions.isEmpty()) {
+                stateOptions = stateDescription.getOptions();
+            }
+
+            // as long as readOnly is undefined we reassign here:
+            if (readOnly == null) {
+                readOnly = stateDescription.isReadOnly();
             }
         }
 
-        // we recreate the StateDescription if we found a valid one and state options
-        // are given:
-        if (result != null && !stateOptions.isEmpty()) {
+        // we recreate the StateDescription in case we found a valid one and state options are given,
+        // or readOnly is set:
+        if (result != null && (!stateOptions.isEmpty() || readOnly != null)) {
             result = new StateDescription(result.getMinimum(), result.getMaximum(), result.getStep(),
-                    result.getPattern(), result.isReadOnly(), stateOptions);
+                    result.getPattern(), readOnly, stateOptions);
         }
 
         return result;

@@ -42,7 +42,7 @@ public class StateDescriptionServiceImplTest {
     private static final BigDecimal STATE_DESCRIPTION_PROVIDER_DEFAULT_MAX_VALUE = new BigDecimal("0");
     private static final BigDecimal STATE_DESCRIPTION_PROVIDER_DEFAULT_STEP = new BigDecimal("0");
     private static final String STATE_DESCRIPTION_PROVIDER_DEFAULT_PATTERN = "pattern1";
-    private static final boolean STATE_DESCRIPTION_PROVIDER_DEFAULT_IS_READONLY = false;
+    private static final Boolean STATE_DESCRIPTION_PROVIDER_DEFAULT_IS_READONLY = Boolean.FALSE;
     private static final List<StateOption> STATE_DESCRIPTION_PROVIDER_DEFAULT_OPTIONS = Collections.emptyList();
 
     private final StateDescriptionServiceImpl mergingService = new StateDescriptionServiceImpl();
@@ -76,9 +76,9 @@ public class StateDescriptionServiceImplTest {
     public void testMinValueMaxValueStepAndPatternTwoDescriptionProviders() {
 
         StateDescription stateDescription1 = new StateDescription(new BigDecimal("-1"), new BigDecimal("-1"),
-                new BigDecimal("-1"), "pattern1", false, null);
+                new BigDecimal("-1"), "pattern1", Boolean.FALSE, null);
         StateDescription stateDescription2 = new StateDescription(new BigDecimal("-2"), new BigDecimal("-2"),
-                new BigDecimal("-2"), "pattern2", false, null);
+                new BigDecimal("-2"), "pattern2", Boolean.FALSE, null);
 
         int stateDescriptionProvider1ServiceRanking = -1;
         int stateDescriptionProvider2ServiceRanking = -2;
@@ -93,9 +93,9 @@ public class StateDescriptionServiceImplTest {
     }
 
     @Test
-    public void testCorrectIsReadOnlyWhenTwoDescriptionProvidersHigherRankingIsNotReadOnly() {
-        StateDescription stateDescription1 = new StateDescription(null, null, null, null, false, null);
-        StateDescription stateDescription2 = new StateDescription(null, null, null, null, true, null);
+    public void testIsReadOnlyWhenTwoDescriptionProvidersHigherRankingIsNotReadOnly() {
+        StateDescription stateDescription1 = new StateDescription(null, null, null, null, Boolean.FALSE, null);
+        StateDescription stateDescription2 = new StateDescription(null, null, null, null, Boolean.TRUE, null);
 
         int stateDescriptionProvider1ServiceRanking = -1;
         int stateDescriptionProvider2ServiceRanking = -2;
@@ -107,9 +107,9 @@ public class StateDescriptionServiceImplTest {
     }
 
     @Test
-    public void testCorrectIsReadOnlyWhenTwoDescriptionProvidersHigherRankingIsReadOnly() {
-        StateDescription stateDescription1 = new StateDescription(null, null, null, null, true, null);
-        StateDescription stateDescription2 = new StateDescription(null, null, null, null, false, null);
+    public void testIsReadOnlyWhenTwoDescriptionProvidersHigherRankingIsReadOnly() {
+        StateDescription stateDescription1 = new StateDescription(null, null, null, null, Boolean.TRUE, null);
+        StateDescription stateDescription2 = new StateDescription(null, null, null, null, Boolean.FALSE, null);
 
         int stateDescriptionProvider1ServiceRanking = -1;
         int stateDescriptionProvider2ServiceRanking = -2;
@@ -121,10 +121,24 @@ public class StateDescriptionServiceImplTest {
     }
 
     @Test
-    public void testCorrectOptionsWhenTwoDescriptionProvidersHigherRankingProvidesOptions() {
-        StateDescription stateDescription1 = new StateDescription(null, null, null, null, false,
+    public void testIsReadOnlyWhenTwoDescriptionProvidersHigherRankingIsNull() {
+        StateDescription stateDescription1 = new StateDescription(null, null, null, null, null, null);
+        StateDescription stateDescription2 = new StateDescription(null, null, null, null, Boolean.FALSE, null);
+
+        int stateDescriptionProvider1ServiceRanking = -1;
+        int stateDescriptionProvider2ServiceRanking = -2;
+
+        StateDescription finalStateDescription = mergeStateDescriptions(stateDescription1, stateDescription2,
+                stateDescriptionProvider1ServiceRanking, stateDescriptionProvider2ServiceRanking);
+
+        assertThat(finalStateDescription.isReadOnly(), is(stateDescription2.isReadOnly()));
+    }
+
+    @Test
+    public void testOptionsWhenTwoDescriptionProvidersHigherRankingProvidesOptions() {
+        StateDescription stateDescription1 = new StateDescription(null, null, null, null, Boolean.FALSE,
                 Arrays.asList(new StateOption("value", "label")));
-        StateDescription stateDescription2 = new StateDescription(null, null, null, null, false,
+        StateDescription stateDescription2 = new StateDescription(null, null, null, null, Boolean.FALSE,
                 Collections.emptyList());
 
         int stateDescriptionProvider1ServiceRanking = -1;
@@ -137,10 +151,10 @@ public class StateDescriptionServiceImplTest {
     }
 
     @Test
-    public void testCorrectOptionsWhenTwoDescriptionProvidersHigherRankingDoesntProvideOptions() {
-        StateDescription stateDescription1 = new StateDescription(null, null, null, null, false,
+    public void testOptionsWhenTwoDescriptionProvidersHigherRankingDoesntProvideOptions() {
+        StateDescription stateDescription1 = new StateDescription(null, null, null, null, Boolean.FALSE,
                 Collections.emptyList());
-        StateDescription stateDescription2 = new StateDescription(null, null, null, null, false,
+        StateDescription stateDescription2 = new StateDescription(null, null, null, null, Boolean.FALSE,
                 Arrays.asList(new StateOption("value", "label")));
 
         int stateDescriptionProvider1ServiceRanking = -1;

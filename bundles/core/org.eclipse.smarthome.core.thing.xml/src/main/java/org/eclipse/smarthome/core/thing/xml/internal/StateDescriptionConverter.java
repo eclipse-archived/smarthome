@@ -58,15 +58,15 @@ public class StateDescriptionConverter extends GenericUnmarshaller<StateDescript
             try {
                 return new BigDecimal(attrValueText);
             } catch (NumberFormatException nfe) {
-                throw new ConversionException("The attribute '" + attribute
-                        + "' has not a valid decimal number format!", nfe);
+                throw new ConversionException(
+                        "The attribute '" + attribute + "' has not a valid decimal number format!", nfe);
             }
         }
 
         return defaultValue;
     }
 
-    private boolean toBoolean(Map<String, String> attributes, String attribute, boolean defaultValue) {
+    private Boolean extractReadOnly(Map<String, String> attributes, String attribute, Boolean defaultValue) {
         String attrValueText = attributes.get(attribute);
 
         if (attrValueText != null) {
@@ -118,7 +118,7 @@ public class StateDescriptionConverter extends GenericUnmarshaller<StateDescript
         BigDecimal maximum = toBigDecimal(attributes, "max", null);
         BigDecimal step = toBigDecimal(attributes, "step", null);
         String pattern = attributes.get("pattern");
-        boolean readOnly = toBoolean(attributes, "readOnly", false);
+        Boolean readOnly = extractReadOnly(attributes, "readOnly", Boolean.FALSE);
 
         List<StateOption> channelOptions = null;
 
