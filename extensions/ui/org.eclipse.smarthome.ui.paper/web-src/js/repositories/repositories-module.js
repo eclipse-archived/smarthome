@@ -6,7 +6,7 @@
 
     function Repository() {
         return {
-            Repository : RepositoryImpl
+            create : RepositoryImpl
         }
     }
 

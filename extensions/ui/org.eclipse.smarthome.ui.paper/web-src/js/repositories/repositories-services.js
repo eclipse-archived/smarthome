@@ -1,15 +1,15 @@
 angular.module('PaperUI.services.repositories')//
 .factory('bindingRepository', function(Repository, $q, $rootScope, bindingService) {
     $rootScope.data.bindings = [];
-    return new Repository.Repository($q, $rootScope, bindingService, 'bindings', true);
+    return new Repository.create($q, $rootScope, bindingService, 'bindings', true);
 }).factory('thingTypeRepository', function(Repository, $q, $rootScope, thingTypeService) {
     $rootScope.data.thingTypes = [];
-    return new Repository.Repository($q, $rootScope, thingTypeService, 'thingTypes', true, thingTypeService.getByUid, 'thingTypeUID', 'UID');
+    return new Repository.create($q, $rootScope, thingTypeService, 'thingTypes', true, thingTypeService.getByUid, 'thingTypeUID', 'UID');
 }).factory('channelTypeRepository', function(Repository, $q, $rootScope, channelTypeService) {
     $rootScope.data.channelTypes = [];
-    return new Repository.Repository($q, $rootScope, channelTypeService, 'channelTypes', true);
+    return new Repository.create($q, $rootScope, channelTypeService, 'channelTypes', true);
 }).factory('discoveryResultRepository', function(Repository, $q, $rootScope, inboxService, eventService) {
-    var repository = new Repository.Repository($q, $rootScope, inboxService, 'discoveryResults')
+    var repository = new Repository.create($q, $rootScope, inboxService, 'discoveryResults')
     $rootScope.data.discoveryResults = [];
     eventService.onEvent('smarthome/inbox/*', function(topic, discoveryResult) {
         var index = repository.findByIndex(function(result) {
@@ -29,7 +29,7 @@ angular.module('PaperUI.services.repositories')//
     });
     return repository;
 }).factory('thingRepository', function(Repository, $q, $rootScope, thingService, eventService) {
-    var repository = new Repository.Repository($q, $rootScope, thingService, 'things')
+    var repository = new Repository.create($q, $rootScope, thingService, 'things')
     $rootScope.data.things = [];
 
     var itemNameToThingUID = function(itemName) {
@@ -131,7 +131,7 @@ angular.module('PaperUI.services.repositories')//
 
     return repository;
 }).factory('itemRepository', function(Repository, $q, $rootScope, itemService, eventService) {
-    var repository = new Repository.Repository($q, $rootScope, itemService, 'items')
+    var repository = new Repository.create($q, $rootScope, itemService, 'items')
     $rootScope.data.items = [];
     eventService.onEvent('smarthome/items/*/updated', function(topic, itemUpdate) {
         if (topic.split('/').length > 2) {
@@ -175,7 +175,7 @@ angular.module('PaperUI.services.repositories')//
     });
     return repository;
 }).factory('ruleRepository', function(Repository, $q, $rootScope, ruleService, eventService) {
-    var repository = new Repository.Repository($q, $rootScope, ruleService, 'rules', true)
+    var repository = new Repository.create($q, $rootScope, ruleService, 'rules', true)
     $rootScope.data.rules = [];
 
     eventService.onEvent('smarthome/rules/*/updated', function(topic, ruleUpdate) {
@@ -227,7 +227,7 @@ angular.module('PaperUI.services.repositories')//
 
     return repository;
 }).factory('templateRepository', function(Repository, $q, $rootScope, templateService) {
-    var repository = new Repository.Repository($q, $rootScope, templateService, 'templates')
+    var repository = new Repository.create($q, $rootScope, templateService, 'templates')
     $rootScope.data.templates = [];
     return repository;
 });
