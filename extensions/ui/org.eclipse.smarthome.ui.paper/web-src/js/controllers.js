@@ -89,15 +89,15 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ])//
 
         console.log('Item ' + itemName + ' updated: ' + state);
 
-        itemRepository.getAll(function(items) {
-            angular.forEach(items, function(item) {
-                if (item.name === itemName) {
-                    changeState(item);
-                }
+        itemRepository.filter(function condition(item) {
+            return item.name === itemName;
+        }, function callback(items) {
+            items.forEach(function(item) {
+                changeState(item);
             });
-        }, false);
+        });
 
-        var changeState = function(item) {
+        function changeState(item) {
             var updateState = true;
             if (item.name === itemName) {
                 // ignore ON and OFF update for Dimmer
@@ -127,9 +127,11 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ])//
 
                 updateState = updateState && item.state !== state;
                 if (updateState) {
-                    console.log('Updating ' + itemName + ' to ' + state)
-                    item.state = state;
-                    item.stateText = util.getItemStateText(item);
+                    $scope.$apply(function() {
+                        item.state = state;
+                        item.stateText = util.getItemStateText(item);
+                    });
+                    console.log('Updating ' + itemName + ' to ' + item.stateText)
                 } else {
                     console.log('Ignoring state ' + state + ' for ' + itemName)
                 }

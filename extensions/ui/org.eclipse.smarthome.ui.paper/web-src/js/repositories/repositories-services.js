@@ -1,144 +1,15 @@
-var Repository = function($q, $rootScope, remoteService, dataType, staticData, getOneFunction, idParameterName, elmentId) {
-    var self = this;
-
-    this.cacheEnabled = true;
-    this.dirty = false;
-    this.initialFetch = false;
-    this.staticData = staticData
-    this.setDirty = function() {
-        self.dirty = true;
-    }
-
-    this.singleElements = getOneFunction ? {} : null;
-    this.getAll = function(callback, refresh) {
-        if (typeof callback === 'boolean') {
-            refresh = true;
-            callback = null;
-        }
-        var deferred = $q.defer();
-        deferred.promise.then(function(res) {
-            if (callback && res !== 'No update') {
-                return callback(res);
-            } else {
-                return;
-            }
-        }, function(res) {
-            return;
-        }, function(res) {
-            if (callback) {
-                return callback(res);
-            } else {
-                return;
-            }
-        });
-        if (self.cacheEnabled && self.staticData && self.initialFetch && !refresh && !self.dirty) {
-            deferred.resolve($rootScope.data[dataType]);
-        } else {
-            remoteService.getAll(function(data) {
-                if ((!self.cacheEnabled || (data.length != $rootScope.data[dataType].length) || self.dirty || refresh)) {
-                    self.initialFetch = true;
-                    $rootScope.data[dataType] = data;
-                    self.dirty = false;
-                    deferred.resolve(data);
-                } else {
-                    // set initial data
-                    if (!self.initialFetch) {
-                        self.initialFetch = true;
-                        $rootScope.data[dataType] = data;
-                        self.dirty = false;
-                    }
-                    deferred.resolve('No update');
-                }
-            });
-            if (self.cacheEnabled && self.initialFetch) {
-                deferred.notify($rootScope.data[dataType]);
-            }
-        }
-        return deferred.promise;
-    };
-    this.getOne = function(condition, callback, refresh) {
-        var element = self.find(condition);
-        if (element != null && !this.dirty && !refresh) {
-            self.resolveSingleElement(callback, element)
-        } else {
-            self.getAll(null, true).then(function(res) {
-                if (callback) {
-                    self.resolveSingleElement(callback, self.find(condition));
-                    return;
-                } else {
-                    return;
-                }
-            }, function(res) {
-                callback(null);
-                return;
-            }, function(res) {
-                return;
-            });
-        }
-    };
-
-    this.resolveSingleElement = function(callback, element) {
-        if (!element) {
-            callback(undefined);
-        } else if (getOneFunction && self.singleElements[element.UID]) {
-            callback(self.singleElements[element.UID]);
-        } else if (getOneFunction) {
-            var parameter = {};
-            parameter[idParameterName] = element[elmentId];
-            getOneFunction(parameter, function(singleElement) {
-                self.singleElements[element.UID] = singleElement;
-                callback(singleElement)
-            })
-        } else {
-            callback(element);
-        }
-    }
-
-    this.find = function(condition) {
-        for (var i = 0; i < $rootScope.data[dataType].length; i++) {
-            var element = $rootScope.data[dataType][i];
-            if (condition(element)) {
-                return element;
-            }
-        }
-        return null;
-    };
-    this.findByIndex = function(condition) {
-        for (var i = 0; i < $rootScope.data[dataType].length; i++) {
-            var element = $rootScope.data[dataType][i];
-            if (condition(element)) {
-                return i;
-            }
-        }
-        return -1;
-    };
-    this.add = function(element) {
-        $rootScope.data[dataType].push(element);
-    };
-    this.remove = function(element, index) {
-        if (typeof (index) === 'undefined' && $rootScope.data[dataType].indexOf(element) !== -1) {
-            $rootScope.data[dataType].splice($rootScope.data[dataType].indexOf(element), 1);
-        } else if (typeof (index) !== 'undefined' && index !== -1) {
-            $rootScope.data[dataType].splice(index, 1);
-        }
-    };
-    this.update = function(element) {
-        var index = $rootScope.data[dataType].indexOf(element);
-        $rootScope.data[dataType][index] = element;
-    };
-}
-
-angular.module('PaperUI.services.repositories', [ 'PaperUI.services.rest' ]).factory('bindingRepository', function($q, $rootScope, bindingService) {
+angular.module('PaperUI.services.repositories')//
+.factory('bindingRepository', function(Repository, $q, $rootScope, bindingService) {
     $rootScope.data.bindings = [];
-    return new Repository($q, $rootScope, bindingService, 'bindings', true);
-}).factory('thingTypeRepository', function($q, $rootScope, thingTypeService) {
+    return new Repository.create($q, $rootScope, bindingService, 'bindings', true);
+}).factory('thingTypeRepository', function(Repository, $q, $rootScope, thingTypeService) {
     $rootScope.data.thingTypes = [];
-    return new Repository($q, $rootScope, thingTypeService, 'thingTypes', true, thingTypeService.getByUid, 'thingTypeUID', 'UID');
-}).factory('channelTypeRepository', function($q, $rootScope, channelTypeService) {
+    return new Repository.create($q, $rootScope, thingTypeService, 'thingTypes', true, thingTypeService.getByUid, 'thingTypeUID', 'UID');
+}).factory('channelTypeRepository', function(Repository, $q, $rootScope, channelTypeService) {
     $rootScope.data.channelTypes = [];
-    return new Repository($q, $rootScope, channelTypeService, 'channelTypes', true);
-}).factory('discoveryResultRepository', function($q, $rootScope, inboxService, eventService) {
-    var repository = new Repository($q, $rootScope, inboxService, 'discoveryResults')
+    return new Repository.create($q, $rootScope, channelTypeService, 'channelTypes', true);
+}).factory('discoveryResultRepository', function(Repository, $q, $rootScope, inboxService, eventService) {
+    var repository = new Repository.create($q, $rootScope, inboxService, 'discoveryResults')
     $rootScope.data.discoveryResults = [];
     eventService.onEvent('smarthome/inbox/*', function(topic, discoveryResult) {
         var index = repository.findByIndex(function(result) {
@@ -157,8 +28,8 @@ angular.module('PaperUI.services.repositories', [ 'PaperUI.services.rest' ]).fac
         }
     });
     return repository;
-}).factory('thingRepository', function($q, $rootScope, thingService, eventService) {
-    var repository = new Repository($q, $rootScope, thingService, 'things')
+}).factory('thingRepository', function(Repository, $q, $rootScope, thingService, eventService) {
+    var repository = new Repository.create($q, $rootScope, thingService, 'things')
     $rootScope.data.things = [];
 
     var itemNameToThingUID = function(itemName) {
@@ -259,8 +130,8 @@ angular.module('PaperUI.services.repositories', [ 'PaperUI.services.rest' ]).fac
     });
 
     return repository;
-}).factory('itemRepository', function($q, $rootScope, itemService, eventService) {
-    var repository = new Repository($q, $rootScope, itemService, 'items')
+}).factory('itemRepository', function(Repository, $q, $rootScope, itemService, eventService) {
+    var repository = new Repository.create($q, $rootScope, itemService, 'items')
     $rootScope.data.items = [];
     eventService.onEvent('smarthome/items/*/updated', function(topic, itemUpdate) {
         if (topic.split('/').length > 2) {
@@ -303,8 +174,8 @@ angular.module('PaperUI.services.repositories', [ 'PaperUI.services.rest' ]).fac
         }
     });
     return repository;
-}).factory('ruleRepository', function($q, $rootScope, ruleService, eventService) {
-    var repository = new Repository($q, $rootScope, ruleService, 'rules', true)
+}).factory('ruleRepository', function(Repository, $q, $rootScope, ruleService, eventService) {
+    var repository = new Repository.create($q, $rootScope, ruleService, 'rules', true)
     $rootScope.data.rules = [];
 
     eventService.onEvent('smarthome/rules/*/updated', function(topic, ruleUpdate) {
@@ -355,8 +226,8 @@ angular.module('PaperUI.services.repositories', [ 'PaperUI.services.rest' ]).fac
     });
 
     return repository;
-}).factory('templateRepository', function($q, $rootScope, templateService) {
-    var repository = new Repository($q, $rootScope, templateService, 'templates')
+}).factory('templateRepository', function(Repository, $q, $rootScope, templateService) {
+    var repository = new Repository.create($q, $rootScope, templateService, 'templates')
     $rootScope.data.templates = [];
     return repository;
 });
