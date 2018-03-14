@@ -25,7 +25,8 @@ import org.junit.Test
 /**
  * OSGi test for {@link AudioManagerImpl}
  *
- * @author Petar Valchev
+ * @author Petar Valchev - Initial contribution and API
+ * @author Christoph Weitkamp - Added parameter to adjust the volume
  *
  */
 public class AudioManagerTest extends AudioOSGiTest {
@@ -35,17 +36,10 @@ public class AudioManagerTest extends AudioOSGiTest {
         assertProcessedStream(audioStream, PlayType.STREAM)
     }
 
-    @Test
+    @Test(expected = NullPointerException.class)
     public void 'null streams are not processed'(){
         registerSink()
-
         audioManager.play(null, audioSinkFake.getId())
-
-        waitForAssert({
-            assertThat "null stream was processed",
-                    audioSinkFake.isStreamProcessed,
-                    is(false)
-        })
     }
 
     @Test

@@ -12,7 +12,10 @@
  */
 package org.eclipse.smarthome.core.audio.test.fake
 
+import java.util.Collections;
 import java.util.Set
+import java.util.stream.Collectors
+import java.util.stream.Stream
 
 import org.eclipse.smarthome.core.audio.AudioFormat
 import org.eclipse.smarthome.core.audio.AudioSink
@@ -24,8 +27,10 @@ import org.eclipse.smarthome.core.audio.URLAudioStream
 import org.eclipse.smarthome.core.library.types.PercentType
 
 /**
+ * An {@link AudioSink} fake used for the tests.
  *
  * @author Christoph Weitkamp - Added examples for getSupportedFormats() and getSupportedStreams()
+ * @author Christoph Weitkamp - Added parameter to adjust the volume
  *
  */
 public class AudioSinkFake implements AudioSink {
@@ -38,16 +43,9 @@ public class AudioSinkFake implements AudioSink {
     public boolean isUnsupportedAudioFormatExceptionExpected = false
     public boolean isUnsupportedAudioStreamExceptionExpected = false
 
-    private static final HashSet<AudioFormat> SUPPORTED_AUDIO_FORMATS = new HashSet<>();
-    private static final HashSet<Class<? extends AudioStream>> SUPPORTED_AUDIO_STREAMS = new HashSet<>();
-
-    static {
-        SUPPORTED_AUDIO_FORMATS.add(AudioFormat.WAV);
-        SUPPORTED_AUDIO_FORMATS.add(AudioFormat.MP3);
-
-        SUPPORTED_AUDIO_STREAMS.add(URLAudioStream.class);
-        SUPPORTED_AUDIO_STREAMS.add(FixedLengthAudioStream.class);
-    }
+    private static final Set<AudioFormat> SUPPORTED_AUDIO_FORMATS = Collections
+    .unmodifiableSet(Stream.of(AudioFormat.MP3, AudioFormat.WAV).collect(Collectors.toSet()));
+    private static final Set<Class<? extends AudioStream>> SUPPORTED_AUDIO_STREAMS = Collections.unmodifiableSet(Stream.of(FixedLengthAudioStream.class, URLAudioStream.class).collect(Collectors.toSet()));
 
     @Override
     public String getId() {

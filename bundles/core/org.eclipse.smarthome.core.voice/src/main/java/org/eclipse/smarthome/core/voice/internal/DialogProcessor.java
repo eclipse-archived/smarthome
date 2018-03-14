@@ -55,6 +55,8 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Yannick Schaus - Send commands to an item to indicate the keyword has been spotted
  * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
+ * @author Christoph Weitkamp - Added parameter to adjust the volume
+ *
  */
 public class DialogProcessor implements KSListener, STTListener {
 
@@ -195,10 +197,14 @@ public class DialogProcessor implements KSListener, STTListener {
             }
             AudioStream audioStream = tts.synthesize(text, voice, null);
 
-            try {
-                sink.process(audioStream);
-            } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
-                logger.error("Error saying '{}': {}", text, e.getMessage());
+            if (sink.getSupportedStreams().stream().anyMatch(clazz -> clazz.isInstance(audioStream))) {
+                try {
+                    sink.process(audioStream);
+                } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
+                    logger.warn("Error saying '{}': {}", text, e.getMessage(), e);
+                }
+            } else {
+                logger.warn("Failed playing audio stream '{}' as audio doesn't support it.", audioStream);
             }
         } catch (TTSException e) {
             logger.error("Error saying '{}': {}", text, e.getMessage());

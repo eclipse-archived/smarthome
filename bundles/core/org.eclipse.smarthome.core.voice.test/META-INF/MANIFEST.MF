@@ -12,11 +12,12 @@ Import-Package:
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.voice,
+ org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.java,
  org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
+ org.junit,
  org.junit.rules,
  org.junit.runner,
  org.junit.runners,
- org.junit;version="4.0.0",
  org.osgi.service.cm

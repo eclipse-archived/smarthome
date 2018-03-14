@@ -25,7 +25,8 @@ import org.junit.Test
 /**
  * OSGi test for {@link AudioConsoleCommandExtension}
  *
- * @author Petar Valchev
+ * @author Petar Valchev - Initial contribution and API
+ * @author Christoph Weitkamp - Added parameter to adjust the volume
  *
  */
 public class AudioConsoleTest extends AudioOSGiTest {
@@ -60,6 +61,30 @@ public class AudioConsoleTest extends AudioOSGiTest {
         audioConsoleCommandExtension.execute(args, consoleMock)
 
         assertCompatibleFormat()
+    }
+
+    @Test
+    public void 'audio console plays file for a specified sink with a specified volume'(){
+        audioStream = getFileAudioStream(WAV_FILE_PATH)
+
+        String[] args = [audioConsoleCommandExtension.SUBCMD_PLAY, audioSinkFake.getId(), audioStream.file.getName(), "25"]
+        audioConsoleCommandExtension.execute(args, consoleMock)
+
+        assertCompatibleFormat()
+    }
+
+    @Test
+    public void 'audio console plays file for a specified sink with an invalid volume'(){
+        audioStream = getFileAudioStream(WAV_FILE_PATH)
+
+        String[] args = [audioConsoleCommandExtension.SUBCMD_PLAY, audioSinkFake.getId(), audioStream.file.getName(), "invalid"]
+        audioConsoleCommandExtension.execute(args, consoleMock)
+
+        waitForAssert({
+            assertThat "The given volume was invalid",
+                consoleOutput,
+                is(null)
+        })
     }
 
     @Test

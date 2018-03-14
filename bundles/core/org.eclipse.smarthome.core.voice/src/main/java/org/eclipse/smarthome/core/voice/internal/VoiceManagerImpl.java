@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.smarthome.config.core.ConfigOptionProvider;
@@ -33,6 +34,7 @@ import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioStreamException;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
+import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.voice.KSService;
 import org.eclipse.smarthome.core.voice.STTService;
 import org.eclipse.smarthome.core.voice.TTSException;
@@ -50,6 +52,8 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Yannick Schaus - Added ability to provide a item for feedback during listening phases
  * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
+ * @author Christoph Weitkamp - Added parameter to adjust the volume
+ *
  */
 public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
 
@@ -122,20 +126,37 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
 
     @Override
     public void say(String text) {
-        say(text, null);
+        say(text, null, null, null);
+    }
+
+    @Override
+    public void say(String text, PercentType volume) {
+        say(text, null, null, volume);
     }
 
     @Override
     public void say(String text, String voiceId) {
-        say(text, voiceId, null);
+        say(text, voiceId, null, null);
     }
 
     @Override
-    public void say(String text, String voiceIda, String sinkId) {
+    public void say(String text, String voiceId, PercentType volume) {
+        say(text, voiceId, null, volume);
+    }
+
+    @Override
+    public void say(String text, String voiceId, String sinkId) {
+        say(text, voiceId, sinkId, null);
+    }
+
+    @Override
+    public void say(String text, String voiceId, String sinkId, PercentType volume) {
+        Objects.requireNonNull(text, "Text cannot be said as it is null.");
+
         try {
             TTSService tts = null;
             Voice voice = null;
-            String selectedVoiceId = voiceIda;
+            String selectedVoiceId = voiceId;
             if (selectedVoiceId == null) {
                 // use the configured default, if set
                 selectedVoiceId = defaultVoice;
@@ -167,21 +188,32 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
                         "Unable to find a voice for language " + localeProvider.getLocale().getLanguage());
             }
             Set<AudioFormat> audioFormats = tts.getSupportedFormats();
-            AudioSink sink = null;
-            if (sinkId == null) {
-                sink = audioManager.getSink();
-            } else {
-                sink = audioManager.getSink(sinkId);
-            }
+            AudioSink sink = audioManager.getSink(sinkId);
+
             if (sink != null) {
                 AudioFormat audioFormat = getBestMatch(audioFormats, sink.getSupportedFormats());
                 if (audioFormat != null) {
                     AudioStream audioStream = tts.synthesize(text, voice, audioFormat);
 
-                    try {
-                        sink.process(audioStream);
-                    } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
-                        logger.error("Error saying '{}': {}", text, e.getMessage());
+                    if (sink.getSupportedStreams().stream().anyMatch(clazz -> clazz.isInstance(audioStream))) {
+                        // get current volume
+                        PercentType oldVolume = audioManager.getVolume(sinkId);
+                        // set notification sound volume
+                        if (volume != null) {
+                            audioManager.setVolume(volume, sinkId);
+                        }
+                        try {
+                            sink.process(audioStream);
+                        } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
+                            logger.warn("Error saying '{}': {}", text, e.getMessage(), e);
+                        } finally {
+                            // restore volume
+                            if (oldVolume != null) {
+                                audioManager.setVolume(oldVolume, sinkId);
+                            }
+                        }
+                    } else {
+                        logger.warn("Failed playing audio stream '{}' as audio sink doesn't support it.", audioStream);
                     }
                 } else {
                     logger.warn("No compatible audio format found for TTS '{}' and sink '{}'", tts.getId(),
@@ -189,7 +221,7 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
                 }
             }
         } catch (TTSException e) {
-            logger.error("Error saying '{}': {}", text, e.getMessage());
+            logger.warn("Error saying '{}': {}", text, e.getMessage(), e);
         }
     }
 
