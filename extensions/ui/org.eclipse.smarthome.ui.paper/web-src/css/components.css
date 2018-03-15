@@ -359,9 +359,6 @@ md-slider.md-default-theme.hue .md-thumb:after {
 
 .item-content .description {
 	width: 100%;
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
 }
 
 .item-content .description h3 {
