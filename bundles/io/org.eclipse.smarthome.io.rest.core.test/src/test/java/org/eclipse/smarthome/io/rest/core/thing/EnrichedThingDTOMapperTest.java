@@ -40,7 +40,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-public class EnrichThingDTOMapperTest {
+public class EnrichedThingDTOMapperTest {
 
     private static final String ITEM_TYPE = "itemType";
     private static final String THING_TYPE_UID = "thing:type:uid";

@@ -68,10 +68,11 @@
 	<thing-type id="configurable-thing">
 		<label>Magic Configurable Thing</label>
 		<description>A thing that can be configured.</description>
-
 		<channels>
 			<channel id="switch" typeId="switch" />
 		</channels>
+
+		<representation-property>serialNumber</representation-property>
 
 		<config-description uri="thing-type:magic:config">
 			<parameter name="interval" type="integer" min="1" max="100">
