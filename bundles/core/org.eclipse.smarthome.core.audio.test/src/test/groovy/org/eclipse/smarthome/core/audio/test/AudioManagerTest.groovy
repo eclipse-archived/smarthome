@@ -36,10 +36,17 @@ public class AudioManagerTest extends AudioOSGiTest {
         assertProcessedStream(audioStream, PlayType.STREAM)
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void 'null streams are not processed'(){
         registerSink()
+
         audioManager.play(null, audioSinkFake.getId())
+
+        waitForAssert({    
+            assertThat "null stream was processed",    
+                    audioSinkFake.isStreamProcessed,
+                    is(false)  
+        })
     }
 
     @Test
