@@ -37,16 +37,19 @@ public class AudioManagerTest extends AudioOSGiTest {
     }
 
     @Test
-    public void 'null streams are not processed'(){
+    public void 'null streams are processed'(){
         registerSink()
 
         audioManager.play(null, audioSinkFake.getId())
 
-        waitForAssert({    
-            assertThat "null stream was processed",    
+        waitForAssert({
+            assertThat "The 'null' stream was not processed",
                     audioSinkFake.isStreamProcessed,
-                    is(false)  
+                    is(true)
         })
+        assertThat "The currently playing stream was not stopped",
+                audioSinkFake.isStreamStopped,
+                is(true)
     }
 
     @Test
@@ -293,6 +296,9 @@ public class AudioManagerTest extends AudioOSGiTest {
                     audioSinkFake.audioFormat,
                     is(nullValue())
         })
+        assertThat "The currently playing stream was stopped",
+                audioSinkFake.isStreamStopped,
+                is(false)
 
         switch(playType){
             case PlayType.STREAM:
@@ -318,7 +324,7 @@ public class AudioManagerTest extends AudioOSGiTest {
     }
 
     /**
-     * 
+     *
      * @param param - either default source or default sink
      */
     private void assertAddedParameterOption(String param){
