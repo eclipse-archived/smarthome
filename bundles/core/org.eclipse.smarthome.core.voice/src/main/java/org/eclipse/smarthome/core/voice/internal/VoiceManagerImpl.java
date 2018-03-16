@@ -208,9 +208,7 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
                             logger.warn("Error saying '{}': {}", text, e.getMessage(), e);
                         } finally {
                             // restore volume
-                            if (oldVolume != null) {
-                                audioManager.setVolume(oldVolume, sinkId);
-                            }
+                            audioManager.setVolume(oldVolume, sinkId);
                         }
                     } else {
                         logger.warn("Failed playing audio stream '{}' as audio sink doesn't support it.", audioStream);

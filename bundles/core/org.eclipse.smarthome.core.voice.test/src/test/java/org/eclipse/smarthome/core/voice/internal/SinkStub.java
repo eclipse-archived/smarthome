@@ -37,6 +37,7 @@ import org.eclipse.smarthome.core.library.types.PercentType;
 public class SinkStub implements AudioSink {
 
     private boolean isStreamProcessed;
+    private PercentType volume;
     private static final Set<AudioFormat> SUPPORTED_AUDIO_FORMATS = Collections
             .unmodifiableSet(Stream.of(AudioFormat.MP3, AudioFormat.WAV).collect(Collectors.toSet()));
     private static final Set<Class<? extends AudioStream>> SUPPORTED_AUDIO_STREAMS = Collections
@@ -72,12 +73,13 @@ public class SinkStub implements AudioSink {
     @Override
     public PercentType getVolume() throws IOException {
         // this method will no be used in the tests
-        return null;
+        return volume;
     }
 
     @Override
     public void setVolume(PercentType volume) throws IOException {
         // this method will not be used in the tests
+        this.volume = volume;
     }
 
     public boolean isStreamProcessed() {

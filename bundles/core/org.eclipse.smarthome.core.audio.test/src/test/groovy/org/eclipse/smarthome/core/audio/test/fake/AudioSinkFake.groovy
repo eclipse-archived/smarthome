@@ -12,8 +12,6 @@
  */
 package org.eclipse.smarthome.core.audio.test.fake
 
-import java.util.Collections;
-import java.util.Set
 import java.util.stream.Collectors
 import java.util.stream.Stream
 
@@ -21,9 +19,9 @@ import org.eclipse.smarthome.core.audio.AudioFormat
 import org.eclipse.smarthome.core.audio.AudioSink
 import org.eclipse.smarthome.core.audio.AudioStream
 import org.eclipse.smarthome.core.audio.FixedLengthAudioStream
+import org.eclipse.smarthome.core.audio.URLAudioStream
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException
 import org.eclipse.smarthome.core.audio.UnsupportedAudioStreamException
-import org.eclipse.smarthome.core.audio.URLAudioStream
 import org.eclipse.smarthome.core.library.types.PercentType
 
 /**
@@ -38,6 +36,7 @@ public class AudioSinkFake implements AudioSink {
     public AudioStream audioStream
     public AudioFormat audioFormat
     public boolean isStreamProcessed = false
+    public boolean isStreamStopped = false
     public PercentType volume
     public boolean isIOExceptionExpected = false
     public boolean isUnsupportedAudioFormatExceptionExpected = false
@@ -66,7 +65,11 @@ public class AudioSinkFake implements AudioSink {
             throw new UnsupportedAudioStreamException("Expected audio stream exception", null)
         }
         this.audioStream = audioStream
-        audioFormat =  audioStream.getFormat()
+        if( audioStream != null ) {
+            audioFormat = audioStream.getFormat()
+        } else {
+            isStreamStopped = true
+        }
         isStreamProcessed = true
     }
 
