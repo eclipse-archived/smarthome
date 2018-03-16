@@ -15,7 +15,6 @@ package org.eclipse.smarthome.binding.sonos.internal.handler;
 import static org.eclipse.smarthome.binding.sonos.internal.SonosBindingConstants.*;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -44,7 +43,6 @@ import org.eclipse.smarthome.binding.sonos.internal.SonosXMLParser;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZoneGroup;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZonePlayerState;
 import org.eclipse.smarthome.binding.sonos.internal.config.ZonePlayerConfiguration;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.NextPreviousType;
@@ -239,13 +237,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     scheduleNotificationSound(command);
                     break;
                 case STOP:
-                    try {
-                        if (command instanceof OnOffType) {
-                            getCoordinatorHandler().stop();
-                        }
-                    } catch (IllegalStateException e) {
-                        logger.debug("Cannot handle stop command ({})", e.getMessage());
-                    }
+                    stopPlaying(command);
                     break;
                 case VOLUME:
                     setVolumeForGroup(command);
@@ -1550,11 +1542,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      */
     public void setNotificationSoundVolume(PercentType notificationSoundVolume) {
         if (notificationSoundVolume != null) {
-            // set new volume only if it is higher than the current volume
-            String volume = getVolume();
-            if (volume == null || notificationSoundVolume.intValue() > PercentType.valueOf(volume).intValue()) {
-                setVolumeForGroup(notificationSoundVolume);
-            }
+            setVolumeForGroup(notificationSoundVolume);
         }
     }
 
@@ -1566,11 +1554,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         if (notificationSoundVolume == null) {
             // if no value is set we use the current volume instead
             String volume = getVolume();
-            if (volume != null) {
-                return new PercentType(volume);
-            } else {
-                return null;
-            }
+            return volume != null ? new PercentType(volume) : null;
         }
         return new PercentType(notificationSoundVolume);
     }
@@ -2394,14 +2378,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * @param coordinator - {@link ZonePlayerHandler} coordinator for the SONOS device(s)
      */
     private void applyNotificationSoundVolume() {
-        PercentType notificationSoundVolume = getNotificationSoundVolume();
-        if (notificationSoundVolume != null) {
-            // set new volume only if it is higher than the current volume
-            String volume = getVolume();
-            if (volume == null || notificationSoundVolume.intValue() > PercentType.valueOf(volume).intValue()) {
-                setVolumeForGroup(notificationSoundVolume);
-            }
-        }
+        setNotificationSoundVolume(getNotificationSoundVolume());
     }
 
     private void waitForFinishedNotification() {
@@ -2562,6 +2539,16 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
         for (String variable : result.keySet()) {
             this.onValueReceived(variable, result.get(variable), "AVTransport");
+        }
+    }
+
+    public void stopPlaying(Command command) {
+        try {
+            if (command instanceof OnOffType) {
+                getCoordinatorHandler().stop();
+            }
+        } catch (IllegalStateException e) {
+            logger.debug("Cannot handle stop command ({})", e.getMessage(), e);
         }
     }
 
