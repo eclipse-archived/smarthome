@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.library.types.PercentType;
 
 /**
@@ -27,6 +29,7 @@ import org.eclipse.smarthome.core.library.types.PercentType;
  * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
  * 
  */
+@NonNullByDefault
 public interface AudioSink {
 
     /**
@@ -42,6 +45,7 @@ public interface AudioSink {
      * @param locale the locale to provide the label for
      * @return a localized string to be used in UIs
      */
+    @Nullable
     public String getLabel(Locale locale);
 
     /**
@@ -51,14 +55,16 @@ public interface AudioSink {
      * is thrown.
      *
      * If the passed {@link AudioStream} has a {@link AudioFormat} not supported by this instance,
-     * an {@link UnsupportedAudioFormatException} is thrown. In case the audioStream is null, this should be interpreted
-     * as a request to end any currently playing stream.
+     * an {@link UnsupportedAudioFormatException} is thrown.
+     *
+     * In case the audioStream is null, this should be interpreted as a request to end any currently playing stream.
      *
      * @param audioStream the audio stream to play or null to keep quiet
      * @throws UnsupportedAudioFormatException If audioStream format is not supported
      * @throws UnsupportedAudioStreamException If audioStream is not supported
      */
-    void process(AudioStream audioStream) throws UnsupportedAudioFormatException, UnsupportedAudioStreamException;
+    void process(@Nullable AudioStream audioStream)
+            throws UnsupportedAudioFormatException, UnsupportedAudioStreamException;
 
     /**
      * Gets a set containing all supported audio formats

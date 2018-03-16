@@ -132,7 +132,7 @@ public class MediaActionTypeProvider implements ModuleTypeProvider {
 
         for (String sinkId : audioManager.getSinkIds()) {
             AudioSink sink = audioManager.getSink(sinkId);
-            options.add(new ParameterOption(sinkId, sink.getLabel(null)));
+            options.add(new ParameterOption(sinkId, sink.getLabel(locale)));
         }
         return options;
     }

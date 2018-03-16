@@ -96,11 +96,10 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
         play(audioStream, sinkId, null);
     }
 
+    @Override
     public void play(AudioStream audioStream, String sinkId, PercentType volume) {
-        Objects.requireNonNull(audioStream, "Audio stream cannot be played as it is null.");
-
         AudioSink sink = getSink(sinkId);
-        if (sink != null && sink.getSupportedStreams().stream().anyMatch(clazz -> clazz.isInstance(audioStream))) {
+        if (sink != null) {
             // get current volume
             PercentType oldVolume = getVolume(sinkId);
             // set notification sound volume
@@ -113,14 +112,10 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
                 logger.warn("Error playing '{}': {}", audioStream, e.getMessage(), e);
             } finally {
                 // restore volume
-                if (oldVolume != null) {
-                    setVolume(oldVolume, sinkId);
-                }
+                setVolume(oldVolume, sinkId);
             }
         } else {
-            logger.warn(
-                    "Failed playing audio stream '{}' as no audio sink was found or audio sink doesn't support the stream.",
-                    audioStream);
+            logger.warn("Failed playing audio stream '{}' as no audio sink was found.", audioStream);
         }
     }
 
@@ -154,11 +149,10 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
         stream(url, null);
     }
 
-
     @Override
     public void stream(String url, String sinkId) throws AudioException {
         AudioStream audioStream = url != null ? new URLAudioStream(url) : null;
-        play(audioStream, sinkId);
+        play(audioStream, sinkId, null);
     }
 
     @Override
