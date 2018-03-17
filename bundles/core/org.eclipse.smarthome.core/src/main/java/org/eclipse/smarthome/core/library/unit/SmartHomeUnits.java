@@ -43,6 +43,7 @@ import javax.measure.quantity.Temperature;
 import javax.measure.quantity.Time;
 import javax.measure.quantity.Volume;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.library.dimension.Intensity;
 
 import tec.uom.se.AbstractSystemOfUnits;
@@ -62,6 +63,7 @@ import tec.uom.se.unit.Units;
  * @author Henning Treu - initial contribution
  *
  */
+@NonNullByDefault
 public class SmartHomeUnits extends AbstractSystemOfUnits {
 
     private static SmartHomeUnits INSTANCE = new SmartHomeUnits();

@@ -22,6 +22,8 @@ import javax.measure.quantity.Temperature;
 import javax.measure.quantity.Volume;
 import javax.measure.spi.SystemOfUnits;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 import tec.uom.se.unit.Units;
 
 /**
@@ -31,6 +33,7 @@ import tec.uom.se.unit.Units;
  * @author Henning Treu - initial contribution
  *
  */
+@NonNullByDefault
 public class SIUnits extends SmartHomeUnits {
 
     private static SIUnits INSTANCE = new SIUnits();
