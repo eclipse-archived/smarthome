@@ -21,6 +21,8 @@ import javax.measure.quantity.Speed;
 import javax.measure.quantity.Temperature;
 import javax.measure.spi.SystemOfUnits;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 import tec.uom.se.format.SimpleUnitFormat;
 import tec.uom.se.function.AddConverter;
 import tec.uom.se.function.RationalConverter;
@@ -33,6 +35,7 @@ import tec.uom.se.unit.Units;
  * @author Henning Treu - initial contribution
  *
  */
+@NonNullByDefault
 public class ImperialUnits extends SmartHomeUnits {
 
     private static ImperialUnits INSTANCE = new ImperialUnits();
