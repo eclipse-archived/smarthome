@@ -89,7 +89,7 @@ The devices support the following channels:
 ## Audio Support
 
 All supported Sonos devices are registered as an audio sink in the framework.
-Audio streams are treated as notifications, i.e. they are fed into the `notificationsound` channel and changing the volume of the audio sink will change the `notificationVolume` defined in the properties fo the thing, not the `volume`.
+Audio streams are treated as notifications, i.e. they are fed into the `notificationsound` channel and changing the volume of the audio sink will change the `notificationVolume` defined in the properties of the thing, not the `volume`.
 Note that the Sonos binding has a limit of 20 seconds for notification sounds.
 Any sound that is longer than that will be cut off.
 
