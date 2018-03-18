@@ -17,6 +17,7 @@ import java.util.Collections;
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFactory;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * This is an {@link EventFactory} for creating web audio events.
@@ -24,9 +25,10 @@ import org.eclipse.smarthome.core.events.EventFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
+@Component(service = EventFactory.class, immediate = true)
 public class WebAudioEventFactory extends AbstractEventFactory {
 
-    static final String PLAY_URL_TOPIC = "smarthome/webaudio/playurl";
+    private static final String PLAY_URL_TOPIC = "smarthome/webaudio/playurl";
 
     /**
      * Constructs a new WebAudioEventFactory.
@@ -51,9 +53,8 @@ public class WebAudioEventFactory extends AbstractEventFactory {
      * @return the according event
      */
     public static PlayURLEvent createPlayURLEvent(String url) {
-        String topic = PLAY_URL_TOPIC;
         String payload = serializePayload(url);
-        return new PlayURLEvent(topic, payload, url);
+        return new PlayURLEvent(PLAY_URL_TOPIC, payload, url);
     }
 
 }

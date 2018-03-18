@@ -13,9 +13,11 @@
 package org.eclipse.smarthome.io.webaudio.internal;
 
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.smarthome.core.audio.AudioFormat;
@@ -28,6 +30,8 @@ import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioStreamException;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.library.types.PercentType;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,22 +41,17 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
- * 
+ *
  */
-public class SSEAudioSink implements AudioSink {
+@Component(service = AudioSink.class, immediate = true)
+public class WebAudioAudioSink implements AudioSink {
 
-    private final Logger logger = LoggerFactory.getLogger(SSEAudioSink.class);
+    private final Logger logger = LoggerFactory.getLogger(WebAudioAudioSink.class);
 
-    private static final HashSet<AudioFormat> SUPPORTED_AUDIO_FORMATS = new HashSet<>();
-    private static final HashSet<Class<? extends AudioStream>> SUPPORTED_AUDIO_STREAMS = new HashSet<>();
-
-    static {
-        SUPPORTED_AUDIO_FORMATS.add(AudioFormat.WAV);
-        SUPPORTED_AUDIO_FORMATS.add(AudioFormat.MP3);
-
-        SUPPORTED_AUDIO_STREAMS.add(URLAudioStream.class);
-        SUPPORTED_AUDIO_STREAMS.add(FixedLengthAudioStream.class);
-    }
+    private static final Set<AudioFormat> SUPPORTED_AUDIO_FORMATS = Collections
+            .unmodifiableSet(Stream.of(AudioFormat.MP3, AudioFormat.WAV).collect(Collectors.toSet()));
+    private static final Set<Class<? extends AudioStream>> SUPPORTED_AUDIO_STREAMS = Collections
+            .unmodifiableSet(Stream.of(FixedLengthAudioStream.class, URLAudioStream.class).collect(Collectors.toSet()));
 
     private AudioHTTPServer audioHTTPServer;
 
@@ -61,6 +60,12 @@ public class SSEAudioSink implements AudioSink {
     @Override
     public void process(AudioStream audioStream)
             throws UnsupportedAudioFormatException, UnsupportedAudioStreamException {
+        if (audioStream == null) {
+            // in case the audioStream is null, this should be interpreted as a request to end any currently playing
+            // stream.
+            logger.debug("Web Audio sink does not support stopping the currently playing stream.");
+            return;
+        }
         logger.debug("Received audio stream of format {}", audioStream.getFormat());
         if (audioStream instanceof URLAudioStream) {
             // it is an external URL, so we can directly pass this on.
@@ -68,10 +73,9 @@ public class SSEAudioSink implements AudioSink {
             sendEvent(urlAudioStream.getURL());
             IOUtils.closeQuietly(audioStream);
         } else if (audioStream instanceof FixedLengthAudioStream) {
-            // we need to serve it for a while and make it available to multiple clients, hence
-            // only FixedLengthAudioStreams are supported
-            String url = audioHTTPServer.serve((FixedLengthAudioStream) audioStream, 10).toString();
-            sendEvent(url);
+            // we need to serve it for a while and make it available to multiple clients, hence only
+            // FixedLengthAudioStreams are supported.
+            sendEvent(audioHTTPServer.serve((FixedLengthAudioStream) audioStream, 10).toString());
         } else {
             IOUtils.closeQuietly(audioStream);
             throw new UnsupportedAudioStreamException(
@@ -115,6 +119,7 @@ public class SSEAudioSink implements AudioSink {
         throw new IOException("Web Audio sink does not support volume level changes.");
     }
 
+    @Reference
     protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
@@ -123,6 +128,7 @@ public class SSEAudioSink implements AudioSink {
         this.eventPublisher = null;
     }
 
+    @Reference
     protected void setAudioHTTPServer(AudioHTTPServer audioHTTPServer) {
         this.audioHTTPServer = audioHTTPServer;
     }
