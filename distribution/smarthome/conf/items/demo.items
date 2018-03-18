@@ -9,6 +9,7 @@ Location DemoLocation
 String DemoString
 Contact DemoContact
 Number DemoNumber
+Image DemoImage
 
 Color MagicColor { channel="magic:color-light:magicColor:color" }
 Switch MagicOnOff { channel="magic:onoff-light:magicOnOff:switch" }
