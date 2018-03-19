@@ -15,5 +15,6 @@ Import-Package:
  org.eclipse.smarthome.core.audio,
  org.eclipse.smarthome.core.library.types,
  org.osgi.framework,
+ org.osgi.service.component,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
