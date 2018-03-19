@@ -95,10 +95,11 @@ public class StateDescription {
     }
 
     /**
-     * Returns true, if the state can only be read but not written. Typically a
-     * sensor can be read only.
      *
-     * @return true, if the state can only be read but not written
+     * Returns {@code true} if the state can only be read but not written, {@code false} if the state can be written or
+     * {@code null} if this {@link StateDescription} can not tell either way. Typically a sensor can only be read.
+     *
+     * @return {@code Boolean.TRUE}, {@code Boolean.FALSE} or {@code null} (unknown).
      */
     public @Nullable Boolean isReadOnly() {
         return readOnly;
