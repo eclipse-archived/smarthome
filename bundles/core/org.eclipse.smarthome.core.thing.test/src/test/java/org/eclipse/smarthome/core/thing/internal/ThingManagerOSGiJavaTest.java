@@ -323,6 +323,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
         managedThingProvider.add(thing);
         waitForAssert(() -> {
             assertEquals(ThingStatus.UNINITIALIZED, thing.getStatus());
+            assertEquals(ThingStatusDetail.HANDLER_INITIALIZING_ERROR, thing.getStatusInfo().getStatusDetail());
         });
 
         assertEquals(1, childHandlerInitializedSemaphore.availablePermits());
@@ -398,6 +399,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
         managedThingProvider.add(thing);
         waitForAssert(() -> {
             assertEquals(ThingStatus.UNINITIALIZED, thing.getStatus());
+            assertEquals(ThingStatusDetail.HANDLER_INITIALIZING_ERROR, thing.getStatusInfo().getStatusDetail());
         });
 
         assertEquals(1, childHandlerInitializedSemaphore.availablePermits());
