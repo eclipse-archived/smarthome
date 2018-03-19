@@ -111,8 +111,10 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
                 logger.warn("Error playing '{}': {}", audioStream, e.getMessage(), e);
             } finally {
-                // restore volume
-                setVolume(oldVolume, sinkId);
+                if (volume != null) {
+                    // restore volume only if it was set before
+                    setVolume(oldVolume, sinkId);
+                }
             }
         } else {
             logger.warn("Failed playing audio stream '{}' as no audio sink was found.", audioStream);
@@ -163,11 +165,16 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             try {
                 return sink.getVolume();
             } catch (IOException e) {
-                logger.warn("An exception occurred while getting the volume of sink {} : '{}'", sink.getId(),
-                        e.getMessage(), e);
+                if (logger.isDebugEnabled()) {
+                    // we also attach the stack trace
+                    logger.warn("An exception occurred while getting the volume of sink '{}' : {}", sink.getId(),
+                            e.getMessage(), e);
+                } else {
+                    logger.warn("An exception occurred while getting the volume of sink '{}' : {}", sink.getId(),
+                            e.getMessage());
+                }
             }
         }
-
         return PercentType.ZERO;
     }
 
@@ -179,8 +186,14 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             try {
                 sink.setVolume(volume);
             } catch (IOException e) {
-                logger.warn("An exception occurred while setting the volume of sink {} : '{}'", sink.getId(),
-                        e.getMessage(), e);
+                if (logger.isDebugEnabled()) {
+                    // we also attach the stack trace
+                    logger.warn("An exception occurred while setting the volume of sink '{}' : {}", sink.getId(),
+                            e.getMessage(), e);
+                } else {
+                    logger.warn("An exception occurred while setting the volume of sink '{}' : {}", sink.getId(),
+                            e.getMessage());
+                }
             }
         }
     }
