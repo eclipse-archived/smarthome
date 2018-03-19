@@ -124,9 +124,9 @@ public class NtpHandler extends BaseThingHandler {
             refreshNtpCount = 0;
 
             try {
-                String timeZoneConfigValue = config.get(PROPERTY_TIMEZONE).toString();
+                Object timeZoneConfigValue = config.get(PROPERTY_TIMEZONE);
                 if (timeZoneConfigValue != null) {
-                    timeZone = TimeZone.getTimeZone(timeZoneConfigValue);
+                    timeZone = TimeZone.getTimeZone(timeZoneConfigValue.toString());
                 } else {
                     timeZone = TimeZone.getDefault();
                     logger.debug("{} using default TZ '{}', because configuration property '{}' is null.",
@@ -139,9 +139,9 @@ public class NtpHandler extends BaseThingHandler {
             }
 
             try {
-                String localeStringConfigValue = config.get(PROPERTY_LOCALE).toString();
+                Object localeStringConfigValue = config.get(PROPERTY_LOCALE);
                 if (localeStringConfigValue != null) {
-                    locale = new Locale(localeStringConfigValue);
+                    locale = new Locale(localeStringConfigValue.toString());
                 } else {
                     locale = localeProvider.getLocale();
                     logger.debug("{} using default locale '{}', because configuration property '{}' is null.",
