@@ -15,7 +15,7 @@ package org.eclipse.smarthome.io.webaudio.internal;
 import org.eclipse.smarthome.core.events.AbstractEvent;
 
 /**
- * This is an {@link Event} that is sent when a web client should play an audio stream from a url.
+ * This is an {@link Event} that is sent when a web client should play an audio stream from an url.
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
