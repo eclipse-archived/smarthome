@@ -14,7 +14,6 @@ package org.eclipse.smarthome.core.audio.internal;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.smarthome.core.audio.AudioException;

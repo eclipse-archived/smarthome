@@ -207,8 +207,10 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
                         } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
                             logger.warn("Error saying '{}': {}", text, e.getMessage(), e);
                         } finally {
-                            // restore volume
-                            audioManager.setVolume(oldVolume, sinkId);
+                            if (volume != null) {
+                                // restore volume only if it was set before
+                                audioManager.setVolume(oldVolume, sinkId);
+                            }
                         }
                     } else {
                         logger.warn("Failed playing audio stream '{}' as audio sink doesn't support it.", audioStream);
