@@ -89,7 +89,7 @@ Thing yahooweather:weather:losangeles [ location=2442047, unit="us", refresh=120
 }
 ```
 
-You may optionally give the channel a proper label (like "My Custom Channel" in the example above) so you can distinguish the channels easily. 
+You may optionally give the channel a proper label (like "My Custom Channel" in the example above) so you can distinguish the channels easily.
 
 
 ### Trigger channels
@@ -121,7 +121,7 @@ Many bindings provide standalone channel type definitions like this:
     </channel-type>
     [...]
 </thing:thing-descriptions>
-``` 
+```
 
 They can be referenced within a thing's channel definition, so that they need to be defined only once and can be reused for many channels. You may do so in the DSL as well:
 
@@ -130,9 +130,9 @@ Thing yahooweather:weather:losangeles [ location=2442047, unit="us", refresh=120
     Channels:
         Type temperature : my_yesterday_temperature "Yesterday's Temperature"
 }
-``` 
+```
 
-The `Type` keyword indicates a reference to an existing channel definition. The channel kind and accepted item types of course are takes from the channel definition, therefore they don't need to be specified here again. 
+The `Type` keyword indicates a reference to an existing channel definition. The channel kind and accepted item types of course are takes from the channel definition, therefore they don't need to be specified here again.
 
 You may optionally give the channel a proper label (like "Yesterday's Temperature" in the example above) so you can distinguish the channels easily. If you decide not to, then the label from the referenced channel type definition will be used.
 
@@ -147,6 +147,7 @@ The fundamentals of configuring OSGi services are described [here](http://enrout
 Eclipse SmartHome reads its basic configuration from the default configuration file `conf/smarthome.cfg` in the programs root folder.
 The path to this file can be altered using the program argument `smarthome.servicecfg`.
 In case only the `conf` folder path should be altered the program argument `smarthome.configdir` can be used (be aware that this will also change the location for the `things`, `items` and all other configuration folders).
+Configurations for OSGi services are kept in a subfolder that can be provided as a program argument `smarthome.servicedir` (default is "services"). Any file in this folder with the extension .cfg will be processed.
 
 ### Configuration File Format
 The basic configuration file format is very simple. This format is used in the `smarthome.cfg` to address different services from one file:
@@ -165,7 +166,7 @@ The line prefix `configuration_pid[1-3]` correspond to the configuration PID whi
 
 With every line denoting a specific configuration PID, several services can be configured using just one configuration file.
 In addition the configuration PID can also be derived from the filename.
-Given the configuration file `conf/org.eclipse.smarthome.basicui.cfg` with content `defaultSitemap=demo` will configure the `defaultSitemap` option of the Basic UI service, giving it the value `demo`.
+Given the configuration file `conf/services/org.eclipse.smarthome.basicui.cfg` with content `defaultSitemap=demo` will configure the `defaultSitemap` option of the Basic UI service, giving it the value `demo`.
 This way a service can be configured just by giving `<key>=<value>` pairs in the file.
 
 When providing the PID by filename or by line prefix there is one additional shortcut:
@@ -173,7 +174,7 @@ The files are processed line-by-line from top to bottom.
 The last defined PID (either by file name or by line prefix) will be kept to be used for the next entry.
 This makes the following example a valid and fully functional service configuration for multiple services.
 
-Although not recommended, the file `conf/org.eclipse.smarthome.threadpool.cfg` with the following content:
+Although not recommended, the file `conf/services/org.eclipse.smarthome.threadpool.cfg` with the following content:
 
 ```property
 thingHandler=3
@@ -199,7 +200,7 @@ To mark a configuration file exclusively for one service the _first line_ has to
 By giving this PID marker the framework creates an exclusive configuration for the contents of this file.
 Other files without this marker which also define configurations for the given PID will be ignored for this PID.
 
-The file `conf/myService.cfg` with contents
+The file `conf/services/myService.cfg` with contents
 
 ```property
 pid:org.eclipse.smarthome.bundle.myService
