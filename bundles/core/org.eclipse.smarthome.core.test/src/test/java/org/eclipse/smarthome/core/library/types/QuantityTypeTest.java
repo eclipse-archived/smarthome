@@ -71,6 +71,9 @@ public class QuantityTypeTest {
         new QuantityType<>("3km/h");
         new QuantityType<>("1084 hPa");
         new QuantityType<>("0E-22 m");
+        new QuantityType<>("10E-3");
+        new QuantityType<>("10E+3");
+        new QuantityType<>("10E3");
         QuantityType.valueOf("2m");
     }
 
