@@ -113,4 +113,17 @@ public class HSBTypeTest {
         assertEquals(null, new HSBType("100,100,100").as(PointType.class));
     }
 
+    @Test
+    public void testConversionToXY() {
+        HSBType hsb = new HSBType("220,90,50");
+        PercentType[] xy = hsb.toXY();
+        assertEquals(new PercentType("16.969364"), xy[0]);
+        assertEquals(new PercentType("12.379659"), xy[1]);
+    }
+
+    @Test
+    public void testCreateFromXY() {
+        HSBType hsb = HSBType.fromXY(5f, 3f);
+        assertEquals(new HSBType("11,100,100"), hsb);
+    }
 }
