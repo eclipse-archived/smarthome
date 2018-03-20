@@ -70,6 +70,7 @@ public class QuantityTypeTest {
         new QuantityType<>("3 µs");
         new QuantityType<>("3km/h");
         new QuantityType<>("1084 hPa");
+        new QuantityType<>("0E-22 m");
         QuantityType.valueOf("2m");
     }
 
@@ -222,6 +223,18 @@ public class QuantityTypeTest {
     @Test(expected = ArithmeticException.class)
     public void testDivide_Zero() {
         new QuantityType<>("4 m").divide(QuantityType.ZERO);
+    }
+
+    @Test
+    public void testExponentials() {
+        QuantityType<Length> exponential = new QuantityType<>("10E-2 m");
+        assertEquals(exponential, new QuantityType<>("10 cm"));
+
+        exponential = new QuantityType<>("10E+3 m");
+        assertEquals(exponential, new QuantityType<>("10 km"));
+
+        exponential = new QuantityType<>("10E3 m");
+        assertEquals(exponential, new QuantityType<>("10 km"));
     }
 
 }
