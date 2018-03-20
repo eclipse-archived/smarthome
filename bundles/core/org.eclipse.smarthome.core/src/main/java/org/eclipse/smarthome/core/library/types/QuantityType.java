@@ -25,6 +25,7 @@ import javax.measure.Unit;
 import javax.measure.UnitConverter;
 import javax.measure.quantity.Dimensionless;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
@@ -74,7 +75,8 @@ public class QuantityType<T extends Quantity<T>> extends Number
         String[] constituents = value.split(UNIT_PATTERN);
 
         // getQuantity needs a space between numeric value and unit
-        String formatted = String.join(" ", constituents);
+        constituents = (String[]) ArrayUtils.add(constituents, constituents.length - 1, " ");
+        String formatted = String.join("", constituents);
         quantity = (Quantity<T>) Quantities.getQuantity(formatted);
     }
 
