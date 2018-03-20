@@ -26,7 +26,9 @@ public class SoftwareUpdate {
 
     /**
      * Returns the state of the update.
-     * TODO: Actual meaning currently undocumented
+     * 
+     * <p>
+     * Actual meaning currently undocumented
      *
      * @return state of update
      */
