@@ -68,7 +68,7 @@ public class StateDescriptionServiceImplTest {
         assertThat(finalStateDescription.getMaximum(), is(STATE_DESCRIPTION_PROVIDER_DEFAULT_MAX_VALUE));
         assertThat(finalStateDescription.getStep(), is(STATE_DESCRIPTION_PROVIDER_DEFAULT_STEP));
         assertThat(finalStateDescription.getPattern(), is(STATE_DESCRIPTION_PROVIDER_DEFAULT_PATTERN));
-        assertThat(finalStateDescription.isReadOnly(), is(STATE_DESCRIPTION_PROVIDER_DEFAULT_IS_READONLY));
+        assertThat(finalStateDescription.getReadOnly(), is(STATE_DESCRIPTION_PROVIDER_DEFAULT_IS_READONLY));
         assertThat(finalStateDescription.getOptions(), is(STATE_DESCRIPTION_PROVIDER_DEFAULT_OPTIONS));
     }
 
@@ -103,7 +103,7 @@ public class StateDescriptionServiceImplTest {
         StateDescription finalStateDescription = mergeStateDescriptions(stateDescription1, stateDescription2,
                 stateDescriptionProvider1ServiceRanking, stateDescriptionProvider2ServiceRanking);
 
-        assertThat(finalStateDescription.isReadOnly(), is(stateDescription1.isReadOnly()));
+        assertThat(finalStateDescription.getReadOnly(), is(stateDescription1.getReadOnly()));
     }
 
     @Test
@@ -117,7 +117,7 @@ public class StateDescriptionServiceImplTest {
         StateDescription finalStateDescription = mergeStateDescriptions(stateDescription1, stateDescription2,
                 stateDescriptionProvider1ServiceRanking, stateDescriptionProvider2ServiceRanking);
 
-        assertThat(finalStateDescription.isReadOnly(), is(stateDescription1.isReadOnly()));
+        assertThat(finalStateDescription.getReadOnly(), is(stateDescription1.getReadOnly()));
     }
 
     @Test
@@ -131,7 +131,7 @@ public class StateDescriptionServiceImplTest {
         StateDescription finalStateDescription = mergeStateDescriptions(stateDescription1, stateDescription2,
                 stateDescriptionProvider1ServiceRanking, stateDescriptionProvider2ServiceRanking);
 
-        assertThat(finalStateDescription.isReadOnly(), is(stateDescription2.isReadOnly()));
+        assertThat(finalStateDescription.getReadOnly(), is(stateDescription2.getReadOnly()));
     }
 
     @Test

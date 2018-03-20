@@ -81,7 +81,7 @@ public class StateDescriptionServiceImpl implements StateDescriptionService {
 
             // as long as readOnly is undefined we reassign here:
             if (readOnly == null) {
-                readOnly = stateDescription.isReadOnly();
+                readOnly = stateDescription.getReadOnly();
             }
         }
 

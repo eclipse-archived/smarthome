@@ -282,7 +282,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
             }
 
             return new StateDescription(state.getMinimum(), state.getMaximum(), state.getStep(), pattern,
-                    state.isReadOnly(), localizedOptions);
+                    state.getReadOnly(), localizedOptions);
         }
         return null;
     }

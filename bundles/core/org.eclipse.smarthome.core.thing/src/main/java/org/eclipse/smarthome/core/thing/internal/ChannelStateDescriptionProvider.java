@@ -96,7 +96,7 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
                             } else {
                                 stateDescription = new StateDescription(stateDescription.getMinimum(),
                                         stateDescription.getMaximum(), stateDescription.getStep(), pattern,
-                                        stateDescription.isReadOnly(), stateDescription.getOptions());
+                                        stateDescription.getReadOnly(), stateDescription.getOptions());
                             }
                         }
                     }

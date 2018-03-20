@@ -34,6 +34,12 @@ public class StateDescription {
     private final Boolean readOnly;
     private final List<StateOption> options;
 
+    @Deprecated
+    public StateDescription(BigDecimal minimum, BigDecimal maximum, BigDecimal step, String pattern, boolean readOnly,
+            List<StateOption> options) {
+        this(minimum, maximum, step, pattern, Boolean.valueOf(readOnly), options);
+    }
+
     /**
      * Creates a state description object.
      *
@@ -96,12 +102,28 @@ public class StateDescription {
 
     /**
      *
-     * Returns {@code true} if the state can only be read but not written, {@code false} if the state can be written or
-     * {@code null} if this {@link StateDescription} can not tell either way. Typically a sensor can only be read.
+     * Returns {@code true} if the state can only be read but not written or {@code false} if the state can also be
+     * written.
+     * Typically a sensor can only be read.
+     *
+     * @deprecated
+     * @return {@code true} for readOnly, {@code false} otherwise (also the fallback if unknown).
+     */
+    @Deprecated
+    public boolean isReadOnly() {
+        Boolean ro = getReadOnly();
+        return ro != null ? ro.booleanValue() : false;
+    }
+
+    /**
+     *
+     * Returns {@code true} if the state can only be read but not written, {@code false} if the state can also be
+     * written or {@code null} if this {@link StateDescription} can not tell either way. Typically a sensor can only be
+     * read.
      *
      * @return {@code Boolean.TRUE}, {@code Boolean.FALSE} or {@code null} (unknown).
      */
-    public @Nullable Boolean isReadOnly() {
+    public @Nullable Boolean getReadOnly() {
         return readOnly;
     }
 
