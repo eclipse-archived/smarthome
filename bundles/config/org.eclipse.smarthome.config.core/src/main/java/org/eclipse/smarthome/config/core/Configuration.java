@@ -79,14 +79,15 @@ public class Configuration {
                 String typeName = field.getType().getSimpleName();
                 Object value = properties.get(fieldName);
 
-                if (value == null && field.getType().isPrimitive()) {
-                    logger.debug("Skipping field '{}', because it's primitive data type and value is not set",
-                            fieldName);
+                if (value == null) {
+                    logger.debug("Skipping field '{}', because it's null", fieldName);
                     continue;
                 }
 
                 try {
-                    if (value != null && value instanceof BigDecimal && !typeName.equals("BigDecimal")) {
+                    // Handle the conversion case of BigDecimal to Float,Double,Long,Integer and the respective
+                    // primitive types
+                    if (value instanceof BigDecimal && !typeName.equals("BigDecimal")) {
                         BigDecimal bdValue = (BigDecimal) value;
                         if (typeName.equalsIgnoreCase("Float")) {
                             value = bdValue.floatValue();
@@ -97,13 +98,27 @@ public class Configuration {
                         } else if (typeName.equalsIgnoreCase("Integer") || typeName.equalsIgnoreCase("int")) {
                             value = bdValue.intValue();
                         }
+
+                    } else
+                    // Handle the conversion case of String to Float,Double,Long,Integer and the respective
+                    // primitive types
+                    if (value instanceof String && !typeName.equals("String")) {
+                        String bdValue = (String) value;
+                        if (typeName.equalsIgnoreCase("Float")) {
+                            value = Float.valueOf(bdValue);
+                        } else if (typeName.equalsIgnoreCase("Double")) {
+                            value = Double.valueOf(bdValue);
+                        } else if (typeName.equalsIgnoreCase("Long")) {
+                            value = Long.valueOf(bdValue);
+                        } else if (typeName.equalsIgnoreCase("Integer") || typeName.equalsIgnoreCase("int")) {
+                            value = Integer.valueOf(bdValue);
+                        }
                     }
 
-                    if (value != null) {
-                        logger.trace("Setting value ({}) {} to field '{}' in configuration class {}", typeName, value,
-                                fieldName, configurationClass.getName());
-                        FieldUtils.writeField(configuration, fieldName, value, true);
-                    }
+                    logger.trace("Setting value ({}) {} to field '{}' in configuration class {}", typeName, value,
+                            fieldName, configurationClass.getName());
+                    FieldUtils.writeField(configuration, fieldName, value, true);
+
                 } catch (Exception ex) {
                     logger.warn("Could not set field value for field '{}': {}", fieldName, ex.getMessage(), ex);
                 }
