@@ -167,8 +167,6 @@ public class BluetoothDiscoveryService extends AbstractDiscoveryService {
         if (manufacturer != null) {
             properties.put(Thing.PROPERTY_VENDOR, manufacturer);
             label += " (" + manufacturer + ")";
-        } else {
-            label += " (" + device.getAddress() + ")";
         }
 
         ThingUID thingUID = new ThingUID(BluetoothBindingConstants.THING_TYPE_BEACON, adapter.getUID(),
@@ -176,6 +174,7 @@ public class BluetoothDiscoveryService extends AbstractDiscoveryService {
 
         // Create the discovery result and add to the inbox
         DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withProperties(properties)
+                .withRepresentationProperty(BluetoothBindingConstants.CONFIGURATION_ADDRESS)
                 .withBridge(adapter.getUID()).withLabel(label).build();
         thingDiscovered(discoveryResult);
     }
