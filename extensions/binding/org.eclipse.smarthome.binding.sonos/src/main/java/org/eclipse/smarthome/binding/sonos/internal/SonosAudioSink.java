@@ -116,7 +116,7 @@ public class SonosAudioSink implements AudioSink {
             IOUtils.closeQuietly(audioStream);
             throw new UnsupportedAudioStreamException(
                     "Sonos can only handle FixedLengthAudioStreams and URLAudioStreams.", audioStream.getClass());
-            // TODO: Instead of throwing an exception, we could ourselves try to wrap it into a
+            // Instead of throwing an exception, we could ourselves try to wrap it into a
             // FixedLengthAudioStream, but this might be dangerous as we have no clue, how much data to expect from
             // the stream.
         }
