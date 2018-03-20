@@ -335,7 +335,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
         });
 
         // childHandlerInitialized(...) must be called
-        assertEquals(0, childHandlerInitializedSemaphore.availablePermits());
+        waitForAssert(() -> assertEquals(0, childHandlerInitializedSemaphore.availablePermits()));
 
         // thingUpdated(...) is not called
         assertEquals(1, thingUpdatedSemapthore.availablePermits());
@@ -411,7 +411,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
         });
 
         // childHandlerInitialized(...) must be called
-        assertEquals(0, childHandlerInitializedSemaphore.availablePermits());
+        waitForAssert(() -> assertEquals(0, childHandlerInitializedSemaphore.availablePermits()));
 
         // thingUpdated(...) is not called
         assertEquals(1, thingUpdatedSemapthore.availablePermits());
