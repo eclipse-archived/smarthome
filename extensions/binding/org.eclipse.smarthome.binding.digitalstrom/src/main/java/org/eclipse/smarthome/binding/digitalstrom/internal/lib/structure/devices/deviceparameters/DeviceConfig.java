@@ -26,7 +26,7 @@ public interface DeviceConfig {
      *
      * @return configuration class
      */
-    int getClass_();
+    int getConfigurationClass();
 
     /**
      * Returns the digitalSTROM-Device configuration index.

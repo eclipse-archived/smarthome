@@ -37,7 +37,7 @@ import org.osgi.framework.FrameworkUtil;
  */
 final class ProgressCallbackImpl implements ProgressCallback {
 
-    private static String UPDATE_CANCELED_MESSAGE_KEY = "update-canceled";
+    private static final String UPDATE_CANCELED_MESSAGE_KEY = "update-canceled";
 
     /**
      * Handler instance is needed to retrieve the error messages from the correct bundle.

@@ -30,7 +30,7 @@ import org.osgi.framework.Bundle;
  * bundle resources. It extends functionality of {@link AbstractResourceBundleProvider} by specifying:
  * <ul>
  * <li>the path to resources, corresponding to the {@link Rule}s - root directory
- * {@link AbstractResourceBundleProvider#PATH} with sub-directory "rules".
+ * {@link AbstractResourceBundleProvider#ROOT_DIRECTORY} with sub-directory "rules".
  * <li>type of the {@link Parser}s, corresponding to the {@link Rule}s - {@link Parser#PARSER_RULE}
  * <li>specific functionality for loading the {@link Rule}s
  * <li>tracking the managing service of the {@link Rule}s.
@@ -54,7 +54,7 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
      * @param registry the managing service of the {@link Rule}s.
      */
     public RuleResourceBundleImporter() {
-        path = PATH + "/rules/";
+        path = ROOT_DIRECTORY + "/rules/";
     }
 
     protected void setManagedRuleProvider(ManagedRuleProvider mProvider) {

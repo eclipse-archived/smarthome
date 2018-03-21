@@ -82,7 +82,7 @@ public abstract class AbstractResourceBundleProvider<E> {
      * This static field provides a root directory for automation object resources in the bundle resources.
      * It is common for all resources - {@link ModuleType}s, {@link RuleTemplate}s and {@link Rule}s.
      */
-    protected static String PATH = "ESH-INF/automation";
+    protected static final String ROOT_DIRECTORY = "ESH-INF/automation";
 
     /**
      * This field holds a reference to the service instance for internationalization support within the platform.

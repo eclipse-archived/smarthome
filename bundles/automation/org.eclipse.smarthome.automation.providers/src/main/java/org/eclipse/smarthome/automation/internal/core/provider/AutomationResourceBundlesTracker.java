@@ -281,7 +281,7 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
      *         resources, <tt>false</tt> otherwise.
      */
     private boolean isAnAutomationProvider(Bundle bundle) {
-        return bundle.getEntryPaths(AbstractResourceBundleProvider.PATH) != null;
+        return bundle.getEntryPaths(AbstractResourceBundleProvider.ROOT_DIRECTORY) != null;
     }
 
 }

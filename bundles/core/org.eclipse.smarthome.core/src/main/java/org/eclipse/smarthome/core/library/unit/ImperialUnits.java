@@ -38,7 +38,7 @@ import tec.uom.se.unit.Units;
 @NonNullByDefault
 public class ImperialUnits extends SmartHomeUnits {
 
-    private static ImperialUnits INSTANCE = new ImperialUnits();
+    private static final ImperialUnits INSTANCE = new ImperialUnits();
 
     private ImperialUnits() {
         // avoid external instantiation

@@ -55,7 +55,7 @@ public class JSonStorageTest extends JavaTest {
     }
 
     @Test
-    public void allInsertedNumbersAreLoadedAsBigDecimal_fromCache() {
+    public void allInsertedNumbersAreLoadedAsBigDecimalFromCache() {
         objectStorage.put("DummyObject", new DummyObject());
         DummyObject dummy = objectStorage.get("DummyObject");
 
@@ -70,7 +70,7 @@ public class JSonStorageTest extends JavaTest {
     }
 
     @Test
-    public void allInsertedNumbersAreLoadedAsBigDecimal_fromDisk() {
+    public void allInsertedNumbersAreLoadedAsBigDecimalFromDisk() {
         objectStorage.put("DummyObject", new DummyObject());
         persistAndReadAgain();
         DummyObject dummy = objectStorage.get("DummyObject");
@@ -86,7 +86,7 @@ public class JSonStorageTest extends JavaTest {
     }
 
     @Test
-    public void testIntegerScale_fromCache() {
+    public void testIntegerScaleFromCache() {
         objectStorage.put("DummyObject", new DummyObject());
         DummyObject dummy = objectStorage.get("DummyObject");
 
@@ -98,7 +98,7 @@ public class JSonStorageTest extends JavaTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testIntegerScale_fromDisk() {
+    public void testIntegerScaleFromDisk() {
         objectStorage.put("DummyObject", new DummyObject());
         persistAndReadAgain();
         DummyObject dummy = objectStorage.get("DummyObject");

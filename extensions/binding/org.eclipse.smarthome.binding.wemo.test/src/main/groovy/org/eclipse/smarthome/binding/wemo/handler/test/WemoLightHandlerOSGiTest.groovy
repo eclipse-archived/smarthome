@@ -49,8 +49,6 @@ class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
         setUpServices()
         servlet = new WemoLightHttpServlet(SERVICE_ID, SERVICE_NUMBER);
         registerServlet(SERVLET_URL, servlet);
-        // The default timeout is 15 seconds, for this test 1 second timeout is enough
-        WemoLightHandler.DEFAULT_REFRESH_INITIAL_DELAY = 1
     }
 
     @After

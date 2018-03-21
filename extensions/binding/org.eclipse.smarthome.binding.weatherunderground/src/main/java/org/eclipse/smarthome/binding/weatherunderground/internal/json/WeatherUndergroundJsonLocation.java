@@ -54,11 +54,11 @@ public class WeatherUndergroundJsonLocation {
         return country;
     }
 
-    public String getCountry_iso3166() {
+    public String getCountryIso3166() {
         return country_iso3166;
     }
 
-    public String getCountry_name() {
+    public String getCountryName() {
         return country_name;
     }
 
@@ -70,11 +70,11 @@ public class WeatherUndergroundJsonLocation {
         return city;
     }
 
-    public String getTz_short() {
+    public String getTzShort() {
         return tz_short;
     }
 
-    public String getTz_long() {
+    public String getTzLong() {
         return tz_long;
     }
 
