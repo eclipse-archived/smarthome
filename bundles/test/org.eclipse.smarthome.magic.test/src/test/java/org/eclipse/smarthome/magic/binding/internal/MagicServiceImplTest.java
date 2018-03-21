@@ -37,7 +37,7 @@ public class MagicServiceImplTest {
     @Test
     public void shouldProvideConfigOptionsForURIAndParameterName() {
         Collection<ParameterOption> parameterOptions = magicService.getParameterOptions(MagicService.CONFIG_URI,
-                PARAMETER_NAME, null);
+                PARAMETER_NAME, null, null);
 
         assertThat(parameterOptions, hasSize(3));
     }
@@ -45,7 +45,7 @@ public class MagicServiceImplTest {
     @Test
     public void shouldProvidemtpyListForInvalidURI() {
         Collection<ParameterOption> parameterOptions = magicService.getParameterOptions(URI.create("system.audio"),
-                PARAMETER_NAME, null);
+                PARAMETER_NAME, null, null);
 
         assertNull(parameterOptions);
     }
@@ -53,7 +53,7 @@ public class MagicServiceImplTest {
     @Test
     public void shouldProvidemtpyListForInvalidParameterName() {
         Collection<ParameterOption> parameterOptions = magicService.getParameterOptions(MagicService.CONFIG_URI,
-                "some_param_name", null);
+                "some_param_name", null, null);
 
         assertNull(parameterOptions);
     }
