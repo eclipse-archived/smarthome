@@ -31,7 +31,7 @@ import org.eclipse.smarthome.core.types.Command;
 @NonNullByDefault
 public class MagicDelayedOnlineHandler extends BaseThingHandler {
 
-    public static int DELAY = 15;
+    private static final int DELAY = 15;
 
     public MagicDelayedOnlineHandler(Thing thing) {
         super(thing);

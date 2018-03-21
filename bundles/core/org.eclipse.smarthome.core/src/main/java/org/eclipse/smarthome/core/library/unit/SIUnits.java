@@ -36,7 +36,7 @@ import tec.uom.se.unit.Units;
 @NonNullByDefault
 public class SIUnits extends SmartHomeUnits {
 
-    private static SIUnits INSTANCE = new SIUnits();
+    private static final SIUnits INSTANCE = new SIUnits();
 
     private SIUnits() {
         // avoid external instantiation

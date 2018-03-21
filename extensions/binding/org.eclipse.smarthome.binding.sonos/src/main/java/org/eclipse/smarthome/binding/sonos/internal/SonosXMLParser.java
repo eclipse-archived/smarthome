@@ -45,7 +45,7 @@ public class SonosXMLParser {
 
     static final Logger LOGGER = LoggerFactory.getLogger(SonosXMLParser.class);
 
-    private static MessageFormat METADATA_FORMAT = new MessageFormat(
+    private static final MessageFormat METADATA_FORMAT = new MessageFormat(
             "<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" "
                     + "xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" "
                     + "xmlns:r=\"urn:schemas-rinconnetworks-com:metadata-1-0/\" "

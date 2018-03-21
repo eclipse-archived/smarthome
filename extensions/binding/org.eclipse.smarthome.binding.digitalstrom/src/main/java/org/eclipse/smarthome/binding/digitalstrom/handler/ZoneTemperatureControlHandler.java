@@ -72,7 +72,7 @@ public class ZoneTemperatureControlHandler extends BaseThingHandler implements T
     /**
      * Contains all supported thing types of this handler
      */
-    public static Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(
             Arrays.asList(DigitalSTROMBindingConstants.THING_TYPE_ZONE_TEMERATURE_CONTROL));
 
     private final Logger logger = LoggerFactory.getLogger(ZoneTemperatureControlHandler.class);

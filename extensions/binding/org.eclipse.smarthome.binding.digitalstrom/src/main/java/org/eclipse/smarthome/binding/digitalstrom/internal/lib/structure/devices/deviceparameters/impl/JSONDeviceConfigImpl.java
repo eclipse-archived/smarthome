@@ -48,7 +48,7 @@ public class JSONDeviceConfigImpl implements DeviceConfig {
     }
 
     @Override
-    public int getClass_() {
+    public int getConfigurationClass() {
         return class_;
     }
 
