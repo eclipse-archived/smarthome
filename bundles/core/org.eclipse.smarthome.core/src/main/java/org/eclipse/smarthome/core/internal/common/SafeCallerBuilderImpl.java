@@ -14,6 +14,8 @@ package org.eclipse.smarthome.core.internal.common;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.function.Consumer;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -54,15 +56,17 @@ public class SafeCallerBuilderImpl<T> implements SafeCallerBuilder<T> {
     @SuppressWarnings("unchecked")
     @Override
     public T build() {
-        InvocationHandler handler;
-        if (async) {
-            handler = new InvocationHandlerAsync<T>(manager, target, identifier, timeout, exceptionHandler,
-                    timeoutHandler);
-        } else {
-            handler = new InvocationHandlerSync<T>(manager, target, identifier, timeout, exceptionHandler,
-                    timeoutHandler);
-        }
-        return (T) Proxy.newProxyInstance(target.getClass().getClassLoader(), interfaceTypes, handler);
+        return AccessController.doPrivileged((PrivilegedAction<T>) () -> {
+            InvocationHandler handler;
+            if (async) {
+                handler = new InvocationHandlerAsync<T>(manager, target, identifier, timeout, exceptionHandler,
+                        timeoutHandler);
+            } else {
+                handler = new InvocationHandlerSync<T>(manager, target, identifier, timeout, exceptionHandler,
+                        timeoutHandler);
+            }
+            return (T) Proxy.newProxyInstance(target.getClass().getClassLoader(), interfaceTypes, handler);
+        });
     }
 
     @Override
