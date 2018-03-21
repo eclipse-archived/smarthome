@@ -14,26 +14,28 @@ package org.eclipse.smarthome.binding.dmx;
 
 import static org.eclipse.smarthome.binding.dmx.DmxBindingConstants.*;
 import static org.eclipse.smarthome.binding.dmx.test.TestBridgeHandler.THING_TYPE_TEST_BRIDGE;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.dmx.handler.ChaserThingHandler;
 import org.eclipse.smarthome.binding.dmx.test.TestBridgeHandler;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.Bridge;
-import org.eclipse.smarthome.core.thing.ManagedThingProvider;
+import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingProvider;
-import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
-import org.eclipse.smarthome.test.java.JavaOSGiTest;
-import org.eclipse.smarthome.test.storage.VolatileStorageService;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,74 +44,160 @@ import org.junit.Test;
  *
  * @author Jan N. Klug - Initial contribution
  */
-public class ChaserThingHandlerTest extends JavaOSGiTest {
+public class ChaserThingHandlerTest extends AbstractDmxThingTest {
 
-    private static final String TEST_ADDRESS = "localhost";
-    private static final int TEST_UNIVERSE = 1;
-    private static final String TEST_CHANNEL = "100/3";
-    private static final String TEST_STEPS = "0:100,150,250:-1";
+    private static final String TEST_CHANNEL = "100";
+    private static final String TEST_STEPS_INFINITE = "1000:100:1000|1000:200:-1";
+    private static final String TEST_STEPS_REPEAT = "1000:115:1000|1000:210:1000";
 
-    private ManagedThingProvider managedThingProvider;
-    private VolatileStorageService volatileStorageService = new VolatileStorageService();
+    private final ThingUID THING_UID_CHASER = new ThingUID(THING_TYPE_CHASER, "testchaser");
+    private final ChannelUID CHANNEL_UID_SWITCH = new ChannelUID(THING_UID_CHASER, CHANNEL_SWITCH);
 
     Map<String, Object> bridgeProperties;
     Map<String, Object> thingProperties;
 
-    private Bridge bridge;
     private Thing chaserThing;
+
+    private TestBridgeHandler dmxBridgeHandler;
+    private ChaserThingHandler chaserThingHandler;
 
     @Before
     public void setUp() {
-        registerService(volatileStorageService);
-        managedThingProvider = getService(ThingProvider.class, ManagedThingProvider.class);
+        super.setup();
 
-        bridgeProperties = new HashMap<>();
-        bridgeProperties.put(CONFIG_ADDRESS, TEST_ADDRESS);
-        bridgeProperties.put(CONFIG_UNIVERSE, TEST_UNIVERSE);
-        bridgeProperties = new HashMap<>();
-        bridge = BridgeBuilder.create(THING_TYPE_TEST_BRIDGE, "testbridge").withLabel("Test Bridge")
-                .withConfiguration(new Configuration(bridgeProperties)).build();
         thingProperties = new HashMap<>();
         thingProperties.put(CONFIG_DMX_ID, TEST_CHANNEL);
-        thingProperties.put(CONFIG_CHASER_STEPS, TEST_STEPS);
-        chaserThing = ThingBuilder.create(THING_TYPE_CHASER, "testchaser").withLabel("Chaser Thing")
-                .withBridge(bridge.getUID()).withConfiguration(new Configuration(thingProperties)).build();
-    }
-
-    @After
-    public void tearDown() {
-        managedThingProvider.remove(chaserThing.getUID());
-        managedThingProvider.remove(bridge.getUID());
-        unregisterService(volatileStorageService);
     }
 
     @Test
-    public void initializationOfChaserThing() {
-        assertThat(chaserThing.getHandler(), is(nullValue()));
-        managedThingProvider.add(bridge);
-        waitForAssert(() -> assertThat(bridge.getHandler(), notNullValue()));
-        TestBridgeHandler bridgeHandler = (TestBridgeHandler) bridge.getHandler();
+    public void testThingStatus() {
+        thingProperties.put(CONFIG_CHASER_STEPS, TEST_STEPS_INFINITE);
+        initialize();
+        assertThingStatus(chaserThing);
+    }
 
-        // check handler present
-        managedThingProvider.add(chaserThing);
-        waitForAssert(() -> assertThat(chaserThing.getHandler(), notNullValue()));
-
-        // check that thing turns online id properly configured
-        waitForAssert(() -> assertThat(chaserThing.getStatus(), is(ThingStatus.ONLINE)));
-
-        // check that thing properly follows bridge status
-        bridgeHandler.updateBridgeStatus(ThingStatus.OFFLINE);
-        waitForAssert(() -> assertThat(chaserThing.getStatus(), is(ThingStatus.OFFLINE)));
-        bridgeHandler.updateBridgeStatus(ThingStatus.ONLINE);
-        waitForAssert(() -> assertThat(chaserThing.getStatus(), is(ThingStatus.ONLINE)));
-
+    @Test
+    public void testThingStatus_noBridge() {
+        thingProperties.put(CONFIG_CHASER_STEPS, TEST_STEPS_INFINITE);
+        initialize();
         // check that thing is offline if no bridge found
-        managedThingProvider.remove(chaserThing.getUID());
-        assertThat(chaserThing.getHandler(), is(nullValue()));
+        ChaserThingHandler chaserHandlerWithoutBridge = new ChaserThingHandler(chaserThing) {
+            @Override
+            protected @Nullable Bridge getBridge() {
+                return null;
+            }
+        };
+        assertThingStatusWithoutBridge(chaserHandlerWithoutBridge);
+    }
+
+    @Test
+    public void holdInfiniteChaser() {
+        initializeTestBridge();
+        thingProperties.put(CONFIG_CHASER_STEPS, TEST_STEPS_INFINITE);
+        initialize();
+
+        long currentTime = System.currentTimeMillis();
+
+        chaserThingHandler.handleCommand(new ChannelUID(chaserThing.getUID(), CHANNEL_SWITCH), OnOffType.ON);
+        // step I
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, 1000);
+        waitForAssert(() -> assertThat(dmxBridgeHandler.getDmxChannelValue(100), is(equalTo(100))));
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, 1000);
+        waitForAssert(() -> assertThat(dmxBridgeHandler.getDmxChannelValue(100), is(equalTo(100))));
+        // step II (holds forever)
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, 1000);
+        waitForAssert(() -> assertThat(dmxBridgeHandler.getDmxChannelValue(100), is(equalTo(200))));
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, 2000);
+        waitForAssert(() -> assertThat(dmxBridgeHandler.getDmxChannelValue(100), is(equalTo(200))));
+    }
+
+    @Test
+    public void runningChaser() {
+        initializeTestBridge();
+        thingProperties.put(CONFIG_CHASER_STEPS, TEST_STEPS_REPEAT);
+        initialize();
+
+        long currentTime = System.currentTimeMillis();
+
+        chaserThingHandler.handleCommand(new ChannelUID(chaserThing.getUID(), CHANNEL_SWITCH), OnOffType.ON);
+        // step I
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, 1000);
+        waitForAssert(() -> assertThat(dmxBridgeHandler.getDmxChannelValue(100), is(equalTo(115))));
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, 1000);
+        waitForAssert(() -> assertThat(dmxBridgeHandler.getDmxChannelValue(100), is(equalTo(115))));
+        // step II
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, 1000);
+        waitForAssert(() -> assertThat(dmxBridgeHandler.getDmxChannelValue(100), is(equalTo(210))));
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, 1000);
+        waitForAssert(() -> assertThat(dmxBridgeHandler.getDmxChannelValue(100), is(equalTo(210))));
+        // step I (repeated)
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, 1000);
+        waitForAssert(() -> assertThat(dmxBridgeHandler.getDmxChannelValue(100), is(equalTo(115))));
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, 1000);
+        waitForAssert(() -> assertThat(dmxBridgeHandler.getDmxChannelValue(100), is(equalTo(115))));
+    }
+
+    @Test
+    public void runningChaserWithResume() {
+        initializeTestBridge();
+        thingProperties.put(CONFIG_CHASER_STEPS, TEST_STEPS_REPEAT);
+        thingProperties.put(CONFIG_CHASER_RESUME_AFTER, true);
+        initialize();
+
+        dmxBridgeHandler.setDmxChannelValue(100, 193);
+
+        long currentTime = System.currentTimeMillis();
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, 0);
+
+        waitForAssert(() -> assertThat(dmxBridgeHandler.getDmxChannelValue(100), is(equalTo(193))));
+
+        chaserThingHandler.handleCommand(new ChannelUID(chaserThing.getUID(), CHANNEL_SWITCH), OnOffType.ON);
+
+        // step I
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, 1000);
+        waitForAssert(() -> assertThat(dmxBridgeHandler.getDmxChannelValue(100), is(equalTo(115))));
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, 1000);
+        waitForAssert(() -> assertThat(dmxBridgeHandler.getDmxChannelValue(100), is(equalTo(115))));
+        // step II
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, 1000);
+        waitForAssert(() -> assertThat(dmxBridgeHandler.getDmxChannelValue(100), is(equalTo(210))));
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, 1000);
+        waitForAssert(() -> assertThat(dmxBridgeHandler.getDmxChannelValue(100), is(equalTo(210))));
+        // resume old state
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, 1000);
+        waitForAssert(() -> assertThat(dmxBridgeHandler.getDmxChannelValue(100), is(equalTo(193))));
+    }
+
+    private void initialize() {
         chaserThing = ThingBuilder.create(THING_TYPE_CHASER, "testchaser").withLabel("Chaser Thing")
-                .withConfiguration(new Configuration(thingProperties)).build();
-        managedThingProvider.add(chaserThing);
-        waitForAssert(() -> assertThat(chaserThing.getHandler(), notNullValue()));
-        waitForAssert(() -> assertThat(chaserThing.getStatus(), is(ThingStatus.OFFLINE)));
+                .withBridge(bridge.getUID()).withConfiguration(new Configuration(thingProperties))
+                .withChannel(
+                        ChannelBuilder.create(CHANNEL_UID_SWITCH, "Switch").withType(SWITCH_CHANNEL_TYPEUID).build())
+                .build();
+
+        chaserThingHandler = new ChaserThingHandler(chaserThing) {
+            @Override
+            protected @Nullable Bridge getBridge() {
+                return bridge;
+            }
+        };
+        initializeHandler(chaserThingHandler);
+
+    }
+
+    private void initializeTestBridge() {
+        bridgeProperties = new HashMap<>();
+        bridge = BridgeBuilder.create(THING_TYPE_TEST_BRIDGE, "testbridge").withLabel("Test Bridge")
+                .withConfiguration(new Configuration(bridgeProperties)).build();
+
+        dmxBridgeHandler = new TestBridgeHandler(bridge);
+        bridge.setHandler(dmxBridgeHandler);
+        ThingHandlerCallback bridgeHandler = mock(ThingHandlerCallback.class);
+        doAnswer(answer -> {
+            ((Thing) answer.getArgument(0)).setStatusInfo(answer.getArgument(1));
+            return null;
+        }).when(bridgeHandler).statusUpdated(any(), any());
+        dmxBridgeHandler.setCallback(bridgeHandler);
+        dmxBridgeHandler.initialize();
     }
 }

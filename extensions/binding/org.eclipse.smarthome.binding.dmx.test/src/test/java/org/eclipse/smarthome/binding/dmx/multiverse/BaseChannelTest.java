@@ -98,6 +98,15 @@ public class BaseChannelTest {
         assertThat(channelList.get(0).toString(), is(equalTo("2:100")));
         assertThat(channelList.get(1).toString(), is(equalTo("2:102")));
 
+        // complex string
+        parseString = new String("257,100/3,426");
+        channelList = BaseDmxChannel.fromString(parseString, 2);
+        assertThat(channelList.size(), is(5));
+        assertThat(channelList.get(0).toString(), is(equalTo("2:257")));
+        assertThat(channelList.get(1).toString(), is(equalTo("2:100")));
+        assertThat(channelList.get(2).toString(), is(equalTo("2:101")));
+        assertThat(channelList.get(3).toString(), is(equalTo("2:102")));
+        assertThat(channelList.get(4).toString(), is(equalTo("2:426")));
     }
 
 }
