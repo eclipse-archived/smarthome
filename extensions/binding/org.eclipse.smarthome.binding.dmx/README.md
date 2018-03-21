@@ -116,10 +116,13 @@ There is one mandatory configuration value for a dimmer thing.
 It is the `dmxid`, a list of DMX channels that are associated with this thing.
 There are several possible formats: `channel1,channel2,channel3,...` or `channel/width` or a combination of both. 
 
-The `fadetime` option allows a smooth fading from the current to the new value.
+The `fadetime` option allows a smooth transition from the current to the new value.
 The time unit is ms and the interval is for a fade from 0-100%.
 If the current value is 25% and the new value is 75% the time needed for this change is half of `fadetime`.
-Related is the `dimtime` option: it defines the time in ms from 0-100% if incremental dimmming is used. 
+`fadetime`is used for absolute values or ON/OFF commands send to the `brightness` channel. 
+Related is the `dimtime` option: it defines the time in ms from 0-100% if incremental dimming (`INCREASE`/`DECREASE`) is used.
+For convenient use `dimtime` usually is set to a larger value than `fadetime`.
+Typical values are 500-1000 ms for `fadetime` and 2000-5000 ms for `dimtime`. 
 
 Advanced options are the `turnonvalue`and the `turnoffvalue`. 
 They default to 255 (equals 100%) and 0 (equals 0%) respectively.
@@ -134,10 +137,13 @@ It is the `dmxid`, a list of DMX channels that are associated with this thing.
 There are several possible formats: `channel1,channel2,channel3,...` or `channel/width` or a combination of both.
 The number of channels has to be a multiple of three. 
 
-The `fadetime` option allows a smooth fading from the current to the new value.
+The `fadetime` option allows a smooth transition from the current to the new value.
 The time unit is ms and the interval is for a fade from 0-100%.
 If the current value is 25% and the new value is 75% the time needed for this change is half of `fadetime`.
-Related is the `dimtime` option: it defines the time in ms from 0-100% if incremental dimmming is used. 
+`fadetime`is used for absolute values or ON/OFF commands send to the `brightness` channel. 
+Related is the `dimtime` option: it defines the time in ms from 0-100% if incremental dimming (`INCREASE`/`DECREASE`) is used.
+For convenient use `dimtime` usually is set to a larger value than `fadetime`.
+Typical values are 500-1000 ms for `fadetime` and 2000-5000 ms for `dimtime`.
 
 Advanced options are the `turnonvalue`and the `turnoffvalue`.
 They default to 255 (equals 100%) and 0 (equals 0%) respectively.
@@ -153,10 +159,13 @@ There are several possible formats: `channel1,channel2,channel3,...` or `channel
 The number of channels has to be even. In the order "cool white, warm white".
 Additionally a channel for cool and warm white brightness as well as color temperature (`0` being the coolest, `100` being the warmest) will be provided. 
 
-The `fadetime` option allows a smooth fading from the current to the new value.
+The `fadetime` option allows a smooth transition from the current to the new value.
 The time unit is ms and the interval is for a fade from 0-100%.
 If the current value is 25% and the new value is 75% the time needed for this change is half of `fadetime`.
-Related is the `dimtime` option: it defines the time in ms from 0-100% if incremental dimmming is used. 
+`fadetime`is used for absolute values or ON/OFF commands send to the `brightness` channel. 
+Related is the `dimtime` option: it defines the time in ms from 0-100% if incremental dimming (`INCREASE`/`DECREASE`) is used.
+For convenient use `dimtime` usually is set to a larger value than `fadetime`.
+Typical values are 500-1000 ms for `fadetime` and 2000-5000 ms for `dimtime`.
 
 Advanced options are the `turnonvalue`and the `turnoffvalue`.
 They default to 255 (equals 100%) and 0 (equals 0%) respectively.

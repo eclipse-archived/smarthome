@@ -76,9 +76,13 @@ public class DmxBindingConstants {
     public static final String CHANNEL_MUTE = "mute";
 
     public static final ChannelTypeUID BRIGHTNESS_CHANNEL_TYPEUID = new ChannelTypeUID(BINDING_ID, CHANNEL_BRIGHTNESS);
+
     public static final ChannelTypeUID COLOR_CHANNEL_TYPEUID = new ChannelTypeUID(BINDING_ID, CHANNEL_COLOR);
     public static final ChannelTypeUID COLOR_TEMPERATURE_CHANNEL_TYPEUID = new ChannelTypeUID(BINDING_ID,
             CHANNEL_COLOR_TEMPERATURE);
+    public static final ChannelTypeUID SWITCH_CHANNEL_TYPEUID = new ChannelTypeUID(BINDING_ID, CHANNEL_SWITCH);
+    public static final ChannelTypeUID CONTROL_CHANNEL_TYPEUID = new ChannelTypeUID(BINDING_ID, CHANNEL_CONTROL);
+    public static final ChannelTypeUID MUTE_CHANNEL_TYPEUID = new ChannelTypeUID(BINDING_ID, CHANNEL_MUTE);
 
     // Listener Type for channel updates
     public static enum ListenerType {

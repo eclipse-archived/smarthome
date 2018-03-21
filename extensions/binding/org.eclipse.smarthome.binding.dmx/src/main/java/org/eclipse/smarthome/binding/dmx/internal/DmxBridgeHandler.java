@@ -52,21 +52,6 @@ public abstract class DmxBridgeHandler extends BaseBridgeHandler {
     private boolean isMuted = false;
     private int refreshTime = 1000 / DEFAULT_REFRESH_RATE;
 
-    protected Runnable packetSender = new Runnable() {
-
-        @Override
-        public void run() {
-            logger.trace("runnable packet sender for universe {} called, state {}/{}", universe.getUniverseId(),
-                    DmxBridgeHandler.this.thing.getStatus(), isMuted);
-            if (!isMuted) {
-                sendDmxData();
-            } else {
-                logger.trace("bridge {} is muted", DmxBridgeHandler.this.thing.getUID());
-            }
-        }
-
-    };
-
     public DmxBridgeHandler(Bridge dmxBridge) {
         super(dmxBridge);
     }
@@ -164,7 +149,15 @@ public abstract class DmxBridgeHandler extends BaseBridgeHandler {
             uninstallScheduler();
         }
         if (refreshTime > 0) {
-            senderJob = scheduler.scheduleAtFixedRate(packetSender, 1, refreshTime, TimeUnit.MILLISECONDS);
+            senderJob = scheduler.scheduleAtFixedRate(() -> {
+                logger.trace("runnable packet sender for universe {} called, state {}/{}", universe.getUniverseId(),
+                        getThing().getStatus(), isMuted);
+                if (!isMuted) {
+                    sendDmxData();
+                } else {
+                    logger.trace("bridge {} is muted", getThing().getUID());
+                }
+            }, 1, refreshTime, TimeUnit.MILLISECONDS);
             logger.trace("started scheduler for thing {}", this.thing.getUID());
         } else {
             logger.info("refresh disabled for thing {}", this.thing.getUID());
