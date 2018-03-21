@@ -83,10 +83,10 @@ public class DeviceHandler extends BaseThingHandler implements DeviceStatusListe
     /**
      * Contains all supported thing types of this handler, will be filled by DsDeviceThingTypeProvider.
      */
-    public static Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<ThingTypeUID>();
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<ThingTypeUID>();
 
-    public static String TWO_STAGE_SWITCH_IDENTICATOR = "2";
-    public static String THREE_STAGE_SWITCH_IDENTICATOR = "3";
+    public static final String TWO_STAGE_SWITCH_IDENTICATOR = "2";
+    public static final String THREE_STAGE_SWITCH_IDENTICATOR = "3";
 
     private String dSID;
     private Device device;

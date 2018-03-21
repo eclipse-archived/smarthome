@@ -44,7 +44,7 @@ import org.osgi.framework.Bundle;
  * bundle resources. It extends functionality of {@link AbstractResourceBundleProvider} by specifying:
  * <ul>
  * <li>the path to resources, corresponding to the {@link ModuleType}s - root directory
- * {@link AbstractResourceBundleProvider#PATH} with sub-directory "moduletypes".
+ * {@link AbstractResourceBundleProvider#ROOT_DIRECTORY} with sub-directory "moduletypes".
  * <li>type of the {@link Parser}s, corresponding to the {@link ModuleType}s - {@link Parser#PARSER_MODULE_TYPE}
  * <li>specific functionality for loading the {@link ModuleType}s
  * <li>tracking the managing service of the {@link ModuleType}s.
@@ -65,7 +65,7 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
      */
     public ModuleTypeResourceBundleProvider() {
         listeners = new LinkedList<ProviderChangeListener<ModuleType>>();
-        path = PATH + "/moduletypes/";
+        path = ROOT_DIRECTORY + "/moduletypes/";
     }
 
     @Override

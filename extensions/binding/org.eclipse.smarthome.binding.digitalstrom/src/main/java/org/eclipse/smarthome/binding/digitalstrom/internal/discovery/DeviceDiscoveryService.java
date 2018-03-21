@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants;
 import org.eclipse.smarthome.binding.digitalstrom.handler.BridgeHandler;
+import org.eclipse.smarthome.binding.digitalstrom.handler.DeviceHandler;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Circuit;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Device;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.GeneralDeviceInformation;
@@ -39,7 +40,8 @@ import org.slf4j.LoggerFactory;
 /**
  * The {@link DeviceDiscoveryService} discovers all digitalSTROM-Devices, of one supported device-color-type. The
  * device-color-type has to be given to the {@link #DeviceDiscoveryService(BridgeHandler, ThingTypeUID)} as
- * {@link ThingTypeUID}. The supported {@link ThingTypeUID} can be found at {@link DeviceHandler#SUPPORTED_THING_TYPES}.
+ * {@link ThingTypeUID}. The supported {@link ThingTypeUID} can be found at
+ * {@link DeviceHandler#SUPPORTED_THING_TYPES}.
  *
  * @author Michael Ochel - Initial contribution
  * @author Matthias Siegele - Initial contribution

@@ -81,7 +81,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
     /**
      * The default refresh initial delay in Seconds.
      */
-    private static int DEFAULT_REFRESH_INITIAL_DELAY = 15;
+    private static final int DEFAULT_REFRESH_INITIAL_DELAY = 15;
 
     private ScheduledFuture<?> refreshJob;
 

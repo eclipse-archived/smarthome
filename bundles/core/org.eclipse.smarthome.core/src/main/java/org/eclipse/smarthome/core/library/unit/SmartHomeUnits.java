@@ -66,7 +66,7 @@ import tec.uom.se.unit.Units;
 @NonNullByDefault
 public class SmartHomeUnits extends AbstractSystemOfUnits {
 
-    private static SmartHomeUnits INSTANCE = new SmartHomeUnits();
+    private static final SmartHomeUnits INSTANCE = new SmartHomeUnits();
 
     protected SmartHomeUnits() {
         // avoid external instantiation

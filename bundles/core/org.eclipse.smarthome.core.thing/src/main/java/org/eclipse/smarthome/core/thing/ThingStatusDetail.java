@@ -37,9 +37,9 @@ public enum ThingStatusDetail {
      */
     GONE;
 
-    public static OnlineStatus ONLINE = new OnlineStatus();
+    public static final OnlineStatus ONLINE = new OnlineStatus();
 
-    public static OfflineStatus OFFLINE = new OfflineStatus();
+    public static final OfflineStatus OFFLINE = new OfflineStatus();
 
     public static final class OnlineStatus {
         private OnlineStatus() {
