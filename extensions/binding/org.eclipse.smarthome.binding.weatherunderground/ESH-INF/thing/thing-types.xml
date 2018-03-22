@@ -314,7 +314,7 @@
 		<label>Relative Humidity</label>
 		<description>Relative humidity in %</description>
 		<category>Humidity</category>
-		<state readOnly="true" min="0" max="100" pattern="%d %%">
+		<state readOnly="true" min="0" max="100" pattern="%d %unit%">
 		</state>
 	</channel-type>
 
@@ -347,7 +347,7 @@
 		<label>Wind Direction (°)</label>
 		<description>Wind direction in degrees</description>
 		<category>Wind</category>
-		<state readOnly="true" min="0" max="360" pattern="%.0f °">
+		<state readOnly="true" min="0" max="360" pattern="%.0f %unit%">
 		</state>
 	</channel-type>
 
@@ -356,7 +356,7 @@
 		<label>Maximum Wind Direction (°)</label>
 		<description>Maximum wind direction in degrees</description>
 		<category>Wind</category>
-		<state readOnly="true" min="0" max="360" pattern="%.0f °">
+		<state readOnly="true" min="0" max="360" pattern="%.0f %unit%">
 		</state>
 	</channel-type>
 
@@ -365,7 +365,7 @@
 		<label>Average Wind Direction (°)</label>
 		<description>Average wind direction in degrees</description>
 		<category>Wind</category>
-		<state readOnly="true" min="0" max="360" pattern="%.0f °">
+		<state readOnly="true" min="0" max="360" pattern="%.0f %unit%">
 		</state>
 	</channel-type>
 
@@ -474,7 +474,7 @@
 		<item-type>Number:Dimensionless</item-type>
 		<label>Precipitation Probability</label>
 		<description>Probability of precipitation in %</description>
-		<state readOnly="true" min="0" max="100" pattern="%d %%">
+		<state readOnly="true" min="0" max="100" pattern="%d %unit%">
 		</state>
 	</channel-type>
 
