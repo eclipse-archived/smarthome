@@ -80,7 +80,6 @@ public class SonosBindingConstants {
     public static final String LOCALCOORDINATOR = "localcoordinator";
     public static final String MUTE = "mute";
     public static final String NOTIFICATIONSOUND = "notificationsound";
-    public static final String NOTIFICATIONVOLUME = "notificationvolume";
     public static final String PLAYLINEIN = "playlinein";
     public static final String PLAYLIST = "playlist";
     public static final String PLAYQUEUE = "playqueue";
