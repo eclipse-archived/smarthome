@@ -176,7 +176,7 @@ public final class CronExpression extends AbstractExpression<CronExpressionPart>
      * @throws ParseException if the string expression cannot be parsed into a valid <code>CronExpression</code>.
      */
     public CronExpression(final String expression, final Date startTime, final TimeZone zone) throws ParseException {
-        super(expression, " \t", startTime, zone, 0, 2);
+        super(expression, " \t", startTime, zone, 0, 3);
     }
 
     @Override
