@@ -69,6 +69,7 @@ public abstract class UID {
         for (int i = 0; i < segments.length; i++) {
             String segment = segments[i];
             validateSegment(segment, i, segments.length);
+            segments[i] = segment.intern();
         }
         this.segments = segments;
     }
