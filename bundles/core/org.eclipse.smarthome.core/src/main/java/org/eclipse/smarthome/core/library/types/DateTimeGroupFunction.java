@@ -22,7 +22,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
 
 /**
  * This interface is a container for group functions that require {@link DateTimeType}s for its calculations.
- * 
+ *
  * @author Robert Michalak - Initial contribution
  *
  */
@@ -41,7 +41,7 @@ public interface DateTimeGroupFunction extends GroupFunction {
             if (items != null && items.size() > 0) {
                 ZonedDateTime max = null;
                 for (Item item : items) {
-                    DateTimeType itemState = (DateTimeType) item.getStateAs(DateTimeType.class);
+                    DateTimeType itemState = item.getStateAs(DateTimeType.class);
                     if (itemState != null) {
                         if (max == null || max.isBefore(itemState.getZonedDateTime())) {
                             max = itemState.getZonedDateTime();
@@ -56,10 +56,10 @@ public interface DateTimeGroupFunction extends GroupFunction {
         }
 
         @Override
-        public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
+        public <T extends State> T getStateAs(Set<Item> items, Class<T> stateClass) {
             State state = calculate(items);
             if (stateClass.isInstance(state)) {
-                return state;
+                return stateClass.cast(state);
             } else {
                 return null;
             }
@@ -84,7 +84,7 @@ public interface DateTimeGroupFunction extends GroupFunction {
             if (items != null && items.size() > 0) {
                 ZonedDateTime max = null;
                 for (Item item : items) {
-                    DateTimeType itemState = (DateTimeType) item.getStateAs(DateTimeType.class);
+                    DateTimeType itemState = item.getStateAs(DateTimeType.class);
                     if (itemState != null) {
                         if (max == null || max.isAfter(itemState.getZonedDateTime())) {
                             max = itemState.getZonedDateTime();
@@ -99,10 +99,10 @@ public interface DateTimeGroupFunction extends GroupFunction {
         }
 
         @Override
-        public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
+        public <T extends State> T getStateAs(Set<Item> items, Class<T> stateClass) {
             State state = calculate(items);
             if (stateClass.isInstance(state)) {
-                return state;
+                return stateClass.cast(state);
             } else {
                 return null;
             }
