@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.binding.bluetooth;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.binding.bluetooth.notification.BluetoothConnectionStatusNotification;
 import org.eclipse.smarthome.binding.bluetooth.notification.BluetoothScanNotification;
@@ -39,6 +41,7 @@ public class BeaconBluetoothHandler extends BaseThingHandler implements Bluetoot
     protected BluetoothAdapter adapter;
     protected BluetoothAddress address;
     protected BluetoothDevice device;
+    protected ReentrantLock deviceLock;
 
     public BeaconBluetoothHandler(@NonNull Thing thing) {
         super(thing);
@@ -67,17 +70,28 @@ public class BeaconBluetoothHandler extends BaseThingHandler implements Bluetoot
         }
 
         adapter = (BluetoothAdapter) bridgeHandler;
-        device = adapter.getDevice(address);
-        device.addListener(this);
+
+        try {
+            deviceLock.lock();
+            device = adapter.getDevice(address);
+            device.addListener(this);
+        } finally {
+            deviceLock.unlock();
+        }
 
         updateStatus(ThingStatus.UNKNOWN);
     }
 
     @Override
     public void dispose() {
-        if (device != null) {
-            device.removeListener(this);
-            device = null;
+        try {
+            deviceLock.lock();
+            if (device != null) {
+                device.removeListener(this);
+                device = null;
+            }
+        } finally {
+            deviceLock.unlock();
         }
     }
 
