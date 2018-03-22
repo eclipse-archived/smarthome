@@ -81,12 +81,14 @@ public class ConnectedBluetoothHandler extends BeaconBluetoothHandler {
             connectionJob = null;
         }
         scheduler.submit(() -> {
+            deviceLock.lock();
             if (device != null) {
+                device.removeListener(this);
                 device.disconnect();
                 device = null;
             }
+            deviceLock.unlock();
         });
-        super.dispose();
     }
 
     @Override
