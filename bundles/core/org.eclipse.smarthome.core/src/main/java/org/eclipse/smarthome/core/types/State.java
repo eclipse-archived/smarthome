@@ -27,9 +27,9 @@ public interface State extends Type {
      * @return the {@link State}'s value in the given type's representation, or <code>null</code> if the conversion was
      *         not possible
      */
-    default State as(Class<? extends State> target) {
+    default <T extends State> T as(Class<T> target) {
         if (target != null && target.isInstance(this)) {
-            return this;
+            return target.cast(this);
         } else {
             return null;
         }

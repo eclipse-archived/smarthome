@@ -42,10 +42,10 @@ public interface QuantityTypeArithmeticGroupFunction extends GroupFunction {
         }
 
         @Override
-        public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
+        public <T extends State> T getStateAs(Set<Item> items, Class<T> stateClass) {
             State state = calculate(items);
             if (stateClass.isInstance(state)) {
-                return state;
+                return stateClass.cast(state);
             } else {
                 return null;
             }
@@ -78,7 +78,7 @@ public interface QuantityTypeArithmeticGroupFunction extends GroupFunction {
             int count = 0;
             for (Item item : items) {
                 if (item instanceof NumberItem && dimension.equals(((NumberItem) item).getDimension())) {
-                    QuantityType itemState = (QuantityType) item.getStateAs(QuantityType.class);
+                    QuantityType itemState = item.getStateAs(QuantityType.class);
                     if (itemState != null) {
                         if (sum == null) {
                             sum = itemState; // initialise the sum from the first item
@@ -120,7 +120,7 @@ public interface QuantityTypeArithmeticGroupFunction extends GroupFunction {
             QuantityType<?> sum = null;
             for (Item item : items) {
                 if (item instanceof NumberItem && dimension.equals(((NumberItem) item).getDimension())) {
-                    QuantityType itemState = (QuantityType) item.getStateAs(QuantityType.class);
+                    QuantityType itemState = item.getStateAs(QuantityType.class);
                     if (itemState != null) {
                         if (sum == null) {
                             sum = itemState; // initialise the sum from the first item
@@ -155,7 +155,7 @@ public interface QuantityTypeArithmeticGroupFunction extends GroupFunction {
             QuantityType<?> min = null;
             for (Item item : items) {
                 if (item instanceof NumberItem && dimension.equals(((NumberItem) item).getDimension())) {
-                    QuantityType itemState = (QuantityType) item.getStateAs(QuantityType.class);
+                    QuantityType itemState = item.getStateAs(QuantityType.class);
                     if (itemState != null) {
                         if (min == null
                                 || (min.getUnit().isCompatible(itemState.getUnit()) && min.compareTo(itemState) > 0)) {
@@ -188,7 +188,7 @@ public interface QuantityTypeArithmeticGroupFunction extends GroupFunction {
             QuantityType<?> max = null;
             for (Item item : items) {
                 if (item instanceof NumberItem && dimension.equals(((NumberItem) item).getDimension())) {
-                    QuantityType itemState = (QuantityType) item.getStateAs(QuantityType.class);
+                    QuantityType itemState = item.getStateAs(QuantityType.class);
                     if (itemState != null) {
                         if (max == null
                                 || (max.getUnit().isCompatible(itemState.getUnit()) && max.compareTo(itemState) < 0)) {

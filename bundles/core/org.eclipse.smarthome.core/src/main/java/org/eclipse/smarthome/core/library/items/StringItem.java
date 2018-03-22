@@ -69,12 +69,12 @@ public class StringItem extends GenericItem {
     }
 
     @Override
-    public @Nullable State getStateAs(Class<? extends State> typeClass) {
+    public <T extends State> @Nullable T getStateAs(Class<T> typeClass) {
         ArrayList<Class<? extends State>> list = new ArrayList<Class<? extends State>>();
         list.add(typeClass);
         State convertedState = TypeParser.parseState(list, state.toString());
-        if (convertedState != null) {
-            return convertedState;
+        if (typeClass.isInstance(convertedState)) {
+            return typeClass.cast(convertedState);
         } else {
             return super.getStateAs(typeClass);
         }

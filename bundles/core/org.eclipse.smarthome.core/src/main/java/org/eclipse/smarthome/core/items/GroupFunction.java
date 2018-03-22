@@ -42,7 +42,7 @@ public interface GroupFunction {
      * @param stateClass the type in which the state should be returned
      * @return the calculated group state of the requested type or null, if type is not supported
      */
-    State getStateAs(Set<Item> items, Class<? extends State> stateClass);
+    <T extends State> T getStateAs(Set<Item> items, Class<T> stateClass);
 
     /**
      * Returns the parameters of the function as an array.
@@ -77,10 +77,10 @@ public interface GroupFunction {
         }
 
         @Override
-        public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
+        public <T extends State> T getStateAs(Set<Item> items, Class<T> stateClass) {
             State state = calculate(items);
             if (stateClass.isInstance(state)) {
-                return state;
+                return stateClass.cast(state);
             } else {
                 return null;
             }
