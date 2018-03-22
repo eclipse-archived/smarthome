@@ -17,11 +17,11 @@ Besides the location (as ```location``` as a [WOEID](https://en.wikipedia.org/wi
 
 The weather information that is retrieved is available as these channels:
 
-| Channel Type ID | Item Type    | Description  |
-|-----------------|------------------------|------------- |
-| temperature | Number       | The current temperature in degrees Celsius |
-| humidity | Number       | The current humidity in % |
-| pressure | Number       | The current pressure in millibar (hPa) |
+| Channel Type ID | Item Type            | Description               |
+|-----------------|----------------------|---------------------------|
+| temperature     | Number:Temperature   | The current temperature   |
+| humidity        | Number:Dimensionless | The current humidity in % |
+| pressure        | Number:Pressure      | The current pressure      |
 
 
 ## Full Example
@@ -35,7 +35,7 @@ yahooweather:weather:berlin [ location=638242 ]
 demo.items:
 
 ```
-Number Temperature 	"Outside Temperature" { channel="yahooweather:weather:berlin:temperature" }
+Number:Temperature Temperature 	"Outside Temperature [%.1f %unit%]" { channel="yahooweather:weather:berlin:temperature" }
 ```
 
 demo.sitemap:
