@@ -15,7 +15,6 @@ package org.eclipse.smarthome.binding.sonos.internal.handler;
 import static org.eclipse.smarthome.binding.sonos.internal.SonosBindingConstants.*;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -121,11 +120,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * Intrinsic lock used to synchronize the execution of notification sounds
      */
     private final Object notificationLock = new Object();
-
-    /**
-     * Separate sound volume used for the notification
-     */
-    private String notificationSoundVolume = null;
 
     /**
      * {@link ThingHandler} instance of the coordinator speaker used for control delegation
@@ -242,17 +236,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 case NOTIFICATIONSOUND:
                     scheduleNotificationSound(command);
                     break;
-                case NOTIFICATIONVOLUME:
-                    setNotificationSoundVolume(command);
-                    break;
                 case STOP:
-                    try {
-                        if (command instanceof OnOffType) {
-                            getCoordinatorHandler().stop();
-                        }
-                    } catch (IllegalStateException e) {
-                        logger.debug("Cannot handle stop command ({})", e.getMessage());
-                    }
+                    stopPlaying(command);
                     break;
                 case VOLUME:
                     setVolumeForGroup(command);
@@ -563,15 +548,15 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         return url;
     }
 
-    protected void updateChannel(String channeldD) {
-        if (!isLinked(channeldD)) {
+    protected void updateChannel(String channelId) {
+        if (!isLinked(channelId)) {
             return;
         }
 
         String url;
 
         State newState = UnDefType.UNDEF;
-        switch (channeldD) {
+        switch (channelId) {
             case STATE:
                 if (stateMap.get("TransportState") != null) {
                     newState = new StringType(stateMap.get("TransportState"));
@@ -707,7 +692,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 break;
         }
         if (newState != null) {
-            updateState(channeldD, newState);
+            updateState(channelId, newState);
         }
     }
 
@@ -1552,13 +1537,12 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     /**
      * Sets the volume level for a notification sound
-     * (initializes {@link #notificationSoundVolume})
      *
-     * @param command
+     * @param notificationSoundVolume
      */
-    public void setNotificationSoundVolume(Command command) {
-        if (command != null) {
-            notificationSoundVolume = command.toString();
+    public void setNotificationSoundVolume(PercentType notificationSoundVolume) {
+        if (notificationSoundVolume != null) {
+            setVolumeForGroup(notificationSoundVolume);
         }
     }
 
@@ -1566,19 +1550,13 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * Gets the volume level for a notification sound
      */
     public PercentType getNotificationSoundVolume() {
+        Integer notificationSoundVolume = getConfigAs(ZonePlayerConfiguration.class).notificationVolume;
         if (notificationSoundVolume == null) {
-            // we need to initialize the value for the first time
-            notificationSoundVolume = getVolume();
-            if (notificationSoundVolume != null) {
-                updateState(SonosBindingConstants.NOTIFICATIONVOLUME,
-                        new PercentType(new BigDecimal(notificationSoundVolume)));
-            }
+            // if no value is set we use the current volume instead
+            String volume = getVolume();
+            return volume != null ? new PercentType(volume) : null;
         }
-        if (notificationSoundVolume != null) {
-            return new PercentType(new BigDecimal(notificationSoundVolume));
-        } else {
-            return null;
-        }
+        return new PercentType(notificationSoundVolume);
     }
 
     public void addURIToQueue(String URI, String meta, long desiredFirstTrack, boolean enqueueAsNext) {
@@ -2209,15 +2187,11 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     private void scheduleNotificationSound(final Command command) {
-        scheduler.schedule(new Runnable() {
-
-            @Override
-            public void run() {
-                synchronized (notificationLock) {
-                    playNotificationSoundURI(command);
-                }
+        scheduler.submit(() -> {
+            synchronized (notificationLock) {
+                playNotificationSoundURI(command);
             }
-        }, 0, TimeUnit.MILLISECONDS);
+        });
     }
 
     /**
@@ -2404,10 +2378,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * @param coordinator - {@link ZonePlayerHandler} coordinator for the SONOS device(s)
      */
     private void applyNotificationSoundVolume() {
-        PercentType volume = getNotificationSoundVolume();
-        if (volume != null) {
-            setVolumeForGroup(volume);
-        }
+        setNotificationSoundVolume(getNotificationSoundVolume());
     }
 
     private void waitForFinishedNotification() {
@@ -2568,6 +2539,16 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
         for (String variable : result.keySet()) {
             this.onValueReceived(variable, result.get(variable), "AVTransport");
+        }
+    }
+
+    public void stopPlaying(Command command) {
+        try {
+            if (command instanceof OnOffType) {
+                getCoordinatorHandler().stop();
+            }
+        } catch (IllegalStateException e) {
+            logger.debug("Cannot handle stop command ({})", e.getMessage(), e);
         }
     }
 
