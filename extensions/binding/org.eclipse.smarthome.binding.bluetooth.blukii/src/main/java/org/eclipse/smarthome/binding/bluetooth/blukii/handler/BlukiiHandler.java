@@ -12,12 +12,21 @@
  */
 package org.eclipse.smarthome.binding.bluetooth.blukii.handler;
 
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Illuminance;
+import javax.measure.quantity.Pressure;
+import javax.measure.quantity.Temperature;
+
 import org.eclipse.smarthome.binding.bluetooth.BeaconBluetoothHandler;
 import org.eclipse.smarthome.binding.bluetooth.BluetoothDeviceListener;
 import org.eclipse.smarthome.binding.bluetooth.blukii.BlukiiBindingConstants;
 import org.eclipse.smarthome.binding.bluetooth.notification.BluetoothScanNotification;
 import org.eclipse.smarthome.core.library.types.DecimalType;
-import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
+import org.eclipse.smarthome.core.library.unit.MetricPrefix;
+import org.eclipse.smarthome.core.library.unit.SIUnits;
+import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.util.HexUtils;
 import org.slf4j.Logger;
@@ -63,10 +72,14 @@ public class BlukiiHandler extends BeaconBluetoothHandler implements BluetoothDe
         int humidity = data[19] & 0xFF;
         double temperature = (data[20] & 0xFF) + (data[21] & 0xFF) / 100000000;
 
-        updateState(BlukiiBindingConstants.CHANNEL_ID_TEMPERATURE, new DecimalType(temperature));
-        updateState(BlukiiBindingConstants.CHANNEL_ID_HUMIDITY, new DecimalType(humidity));
-        updateState(BlukiiBindingConstants.CHANNEL_ID_PRESSURE, new DecimalType(pressure));
-        updateState(BlukiiBindingConstants.CHANNEL_ID_LUMINANCE, new DecimalType(luminance));
+        updateState(BlukiiBindingConstants.CHANNEL_ID_TEMPERATURE,
+                new QuantityType<Temperature>(temperature, SIUnits.CELSIUS));
+        updateState(BlukiiBindingConstants.CHANNEL_ID_HUMIDITY,
+                new QuantityType<Dimensionless>(humidity, SmartHomeUnits.PERCENT));
+        updateState(BlukiiBindingConstants.CHANNEL_ID_PRESSURE,
+                new QuantityType<Pressure>(pressure, MetricPrefix.HECTO(SIUnits.PASCAL)));
+        updateState(BlukiiBindingConstants.CHANNEL_ID_LUMINANCE,
+                new QuantityType<Illuminance>(luminance, SmartHomeUnits.LUX));
     }
 
     private void processAccelerometerData(byte[] data) {
@@ -79,11 +92,12 @@ public class BlukiiHandler extends BeaconBluetoothHandler implements BluetoothDe
         double tiltY = 180 * Math.acos(y / Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2))) / Math.PI;
         double tiltZ = 180 * Math.acos(z / Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2))) / Math.PI;
 
-        updateState(BlukiiBindingConstants.CHANNEL_ID_TILTX, new DecimalType(tiltX));
-        updateState(BlukiiBindingConstants.CHANNEL_ID_TILTY, new DecimalType(tiltY));
-        updateState(BlukiiBindingConstants.CHANNEL_ID_TILTZ, new DecimalType(tiltZ));
-
-        updateState(BlukiiBindingConstants.CHANNEL_ID_SWITCH, z > 0 ? OnOffType.ON : OnOffType.OFF);
+        updateState(BlukiiBindingConstants.CHANNEL_ID_TILTX,
+                new QuantityType<Angle>(tiltX, SmartHomeUnits.DEGREE_ANGLE));
+        updateState(BlukiiBindingConstants.CHANNEL_ID_TILTY,
+                new QuantityType<Angle>(tiltY, SmartHomeUnits.DEGREE_ANGLE));
+        updateState(BlukiiBindingConstants.CHANNEL_ID_TILTZ,
+                new QuantityType<Angle>(tiltZ, SmartHomeUnits.DEGREE_ANGLE));
     }
 
     @SuppressWarnings("unused")
@@ -92,7 +106,7 @@ public class BlukiiHandler extends BeaconBluetoothHandler implements BluetoothDe
         int y = (short) doubleByteToInt(data[18], data[19]);
         int z = (short) doubleByteToInt(data[20], data[21]);
 
-        // future TODO: what kind of channel/feature should we offer with those values?
+        // It isn't easy to get a heading from these values without any calibration, so we ignore those right now.
     }
 
     private int doubleByteToInt(byte b1, byte b2) {

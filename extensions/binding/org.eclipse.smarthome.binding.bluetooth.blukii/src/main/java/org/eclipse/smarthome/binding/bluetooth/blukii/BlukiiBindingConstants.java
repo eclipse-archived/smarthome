@@ -39,7 +39,4 @@ public class BlukiiBindingConstants {
     public static final String CHANNEL_ID_TILTX = "tiltx";
     public static final String CHANNEL_ID_TILTY = "tilty";
     public static final String CHANNEL_ID_TILTZ = "tiltz";
-
-    public static final String CHANNEL_ID_SWITCH = "switch";
-
 }
