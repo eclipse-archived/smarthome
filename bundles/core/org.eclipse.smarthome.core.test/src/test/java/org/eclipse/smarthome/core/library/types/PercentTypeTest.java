@@ -12,10 +12,9 @@
  */
 package org.eclipse.smarthome.core.library.types;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
-import org.eclipse.smarthome.core.types.UnDefType;
 import org.junit.Test;
 
 /**
@@ -82,14 +81,14 @@ public class PercentTypeTest {
     public void testConversionToOpenCloseType() {
         assertEquals(OpenClosedType.OPEN, new PercentType("100.0").as(OpenClosedType.class));
         assertEquals(OpenClosedType.CLOSED, new PercentType("0.0").as(OpenClosedType.class));
-        assertEquals(UnDefType.UNDEF, new PercentType("50.0").as(OpenClosedType.class));
+        assertNull(new PercentType("50.0").as(OpenClosedType.class));
     }
 
     @Test
     public void testConversionToUpDownType() {
         assertEquals(UpDownType.UP, new PercentType("0.0").as(UpDownType.class));
         assertEquals(UpDownType.DOWN, new PercentType("100.0").as(UpDownType.class));
-        assertEquals(UnDefType.UNDEF, new PercentType("50.0").as(OpenClosedType.class));
+        assertNull(new PercentType("50.0").as(OpenClosedType.class));
     }
 
     @Test

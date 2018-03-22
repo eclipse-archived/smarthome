@@ -42,11 +42,11 @@ public enum UpDownType implements PrimitiveType, State, Command {
     }
 
     @Override
-    public State as(Class<? extends State> target) {
+    public <T extends State> T as(Class<T> target) {
         if (target == DecimalType.class) {
-            return equals(UP) ? DecimalType.ZERO : new DecimalType(new BigDecimal("1.0"));
+            return target.cast(equals(UP) ? DecimalType.ZERO : new DecimalType(new BigDecimal("1.0")));
         } else if (target == PercentType.class) {
-            return equals(UP) ? PercentType.ZERO : PercentType.HUNDRED;
+            return target.cast(equals(UP) ? PercentType.ZERO : PercentType.HUNDRED);
         } else {
             return State.super.as(target);
         }

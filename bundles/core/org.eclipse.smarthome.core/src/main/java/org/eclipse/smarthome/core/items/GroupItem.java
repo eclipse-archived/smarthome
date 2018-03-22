@@ -302,9 +302,10 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     }
 
     @Override
-    public @Nullable State getStateAs(Class<? extends State> typeClass) {
+    public <T extends State> @Nullable T getStateAs(Class<T> typeClass) {
         // if a group does not have a function it cannot have a state
-        State newState = null;
+        @Nullable
+        T newState = null;
         if (function != null) {
             newState = function.getStateAs(getStateMembers(getMembers()), typeClass);
         }

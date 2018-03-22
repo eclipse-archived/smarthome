@@ -70,16 +70,16 @@ public interface ArithmeticGroupFunction extends GroupFunction {
         }
 
         @Override
-        public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
+        public <T extends State> T getStateAs(Set<Item> items, Class<T> stateClass) {
             State state = calculate(items);
             if (stateClass.isInstance(state)) {
-                return state;
+                return stateClass.cast(state);
             } else {
                 if (stateClass == DecimalType.class) {
                     if (items != null) {
-                        return new DecimalType(items.size() - count(items, activeState));
+                        return stateClass.cast(new DecimalType(items.size() - count(items, activeState)));
                     } else {
-                        return DecimalType.ZERO;
+                        return stateClass.cast(DecimalType.ZERO);
                     }
                 } else {
                     return null;
@@ -139,13 +139,13 @@ public interface ArithmeticGroupFunction extends GroupFunction {
         }
 
         @Override
-        public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
+        public <T extends State> T getStateAs(Set<Item> items, Class<T> stateClass) {
             State state = calculate(items);
             if (stateClass.isInstance(state)) {
-                return state;
+                return stateClass.cast(state);
             } else {
                 if (stateClass == DecimalType.class) {
-                    return new DecimalType(count(items, activeState));
+                    return stateClass.cast(new DecimalType(count(items, activeState)));
                 } else {
                     return null;
                 }
@@ -226,7 +226,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
             int count = 0;
             if (items != null) {
                 for (Item item : items) {
-                    DecimalType itemState = (DecimalType) item.getStateAs(DecimalType.class);
+                    DecimalType itemState = item.getStateAs(DecimalType.class);
                     if (itemState != null) {
                         sum = sum.add(itemState.toBigDecimal());
                         count++;
@@ -241,10 +241,10 @@ public interface ArithmeticGroupFunction extends GroupFunction {
         }
 
         @Override
-        public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
+        public <T extends State> T getStateAs(Set<Item> items, Class<T> stateClass) {
             State state = calculate(items);
             if (stateClass.isInstance(state)) {
-                return state;
+                return stateClass.cast(state);
             } else {
                 return null;
             }
@@ -269,7 +269,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
             BigDecimal sum = BigDecimal.ZERO;
             if (items != null) {
                 for (Item item : items) {
-                    DecimalType itemState = (DecimalType) item.getStateAs(DecimalType.class);
+                    DecimalType itemState = item.getStateAs(DecimalType.class);
                     if (itemState != null) {
                         sum = sum.add(itemState.toBigDecimal());
                     }
@@ -279,10 +279,10 @@ public interface ArithmeticGroupFunction extends GroupFunction {
         }
 
         @Override
-        public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
+        public <T extends State> T getStateAs(Set<Item> items, Class<T> stateClass) {
             State state = calculate(items);
             if (stateClass.isInstance(state)) {
-                return state;
+                return stateClass.cast(state);
             } else {
                 return null;
             }
@@ -307,7 +307,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
             if (items != null && items.size() > 0) {
                 BigDecimal min = null;
                 for (Item item : items) {
-                    DecimalType itemState = (DecimalType) item.getStateAs(DecimalType.class);
+                    DecimalType itemState = item.getStateAs(DecimalType.class);
                     if (itemState != null) {
                         if (min == null || min.compareTo(itemState.toBigDecimal()) > 0) {
                             min = itemState.toBigDecimal();
@@ -322,10 +322,10 @@ public interface ArithmeticGroupFunction extends GroupFunction {
         }
 
         @Override
-        public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
+        public <T extends State> T getStateAs(Set<Item> items, Class<T> stateClass) {
             State state = calculate(items);
             if (stateClass.isInstance(state)) {
-                return state;
+                return stateClass.cast(state);
             } else {
                 return null;
             }
@@ -350,7 +350,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
             if (items != null && items.size() > 0) {
                 BigDecimal max = null;
                 for (Item item : items) {
-                    DecimalType itemState = (DecimalType) item.getStateAs(DecimalType.class);
+                    DecimalType itemState = item.getStateAs(DecimalType.class);
                     if (itemState != null) {
                         if (max == null || max.compareTo(itemState.toBigDecimal()) < 0) {
                             max = itemState.toBigDecimal();
@@ -365,10 +365,10 @@ public interface ArithmeticGroupFunction extends GroupFunction {
         }
 
         @Override
-        public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
+        public <T extends State> T getStateAs(Set<Item> items, Class<T> stateClass) {
             State state = calculate(items);
             if (stateClass.isInstance(state)) {
-                return state;
+                return stateClass.cast(state);
             } else {
                 return null;
             }
@@ -414,10 +414,10 @@ public interface ArithmeticGroupFunction extends GroupFunction {
         }
 
         @Override
-        public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
+        public <T extends State> T getStateAs(Set<Item> items, Class<T> stateClass) {
             State state = calculate(items);
             if (stateClass.isInstance(state)) {
-                return state;
+                return stateClass.cast(state);
             } else {
                 return null;
             }

@@ -16,7 +16,6 @@ import static org.junit.Assert.*;
 
 import java.text.DecimalFormatSymbols;
 
-import org.eclipse.smarthome.core.types.UnDefType;
 import org.junit.Test;
 
 /**
@@ -101,14 +100,14 @@ public class DecimalTypeTest {
     public void testConversionToOpenCloseType() {
         assertEquals(OpenClosedType.OPEN, new DecimalType("1.0").as(OpenClosedType.class));
         assertEquals(OpenClosedType.CLOSED, new DecimalType("0.0").as(OpenClosedType.class));
-        assertEquals(UnDefType.UNDEF, new DecimalType("0.5").as(OpenClosedType.class));
+        assertNull(new DecimalType("0.5").as(OpenClosedType.class));
     }
 
     @Test
     public void testConversionToUpDownType() {
         assertEquals(UpDownType.UP, new DecimalType("0.0").as(UpDownType.class));
         assertEquals(UpDownType.DOWN, new DecimalType("1.0").as(UpDownType.class));
-        assertEquals(UnDefType.UNDEF, new DecimalType("0.5").as(OpenClosedType.class));
+        assertNull(new DecimalType("0.5").as(OpenClosedType.class));
     }
 
     @Test
