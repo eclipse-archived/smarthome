@@ -491,11 +491,13 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
                 quantity = getTemperature(current.getTemperatureC(), current.getTemperatureF());
                 return undefOrQuantity(quantity);
             case "relativeHumidity":
-                return undefOrDecimal(current.getRelativeHumidity());
+                return undefOrState(current.getRelativeHumidity(),
+                        new QuantityType<>(current.getRelativeHumidity(), SmartHomeUnits.PERCENT));
             case "windDirection":
                 return undefOrState(current.getWindDirection(), new StringType(current.getWindDirection()));
             case "windDirectionDegrees":
-                return undefOrDecimal(current.getWindDirectionDegrees());
+                return undefOrState(current.getWindDirectionDegrees(),
+                        new QuantityType<>(current.getWindDirectionDegrees(), SmartHomeUnits.DEGREE_ANGLE));
             case "windSpeed":
                 quantity = getSpeed(current.getWindSpeedKmh(), current.getWindSpeedMph());
                 return undefOrQuantity(quantity);
@@ -565,9 +567,11 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
                 quantity = getTemperature(dayForecast.getMaxTemperatureC(), dayForecast.getMaxTemperatureF());
                 return undefOrQuantity(quantity);
             case "relativeHumidity":
-                return undefOrDecimal(dayForecast.getRelativeHumidity());
+                return undefOrState(dayForecast.getRelativeHumidity(),
+                        new QuantityType<>(dayForecast.getRelativeHumidity(), SmartHomeUnits.PERCENT));
             case "probaPrecipitation":
-                return undefOrDecimal(dayForecast.getProbaPrecipitation());
+                return undefOrState(dayForecast.getProbaPrecipitation(),
+                        new QuantityType<>(dayForecast.getProbaPrecipitation(), SmartHomeUnits.PERCENT));
             case "precipitationDay":
                 quantity = getPrecipitation(dayForecast.getPrecipitationDayMm(), dayForecast.getPrecipitationDayIn());
                 return undefOrQuantity(quantity);
@@ -579,7 +583,8 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
                 return undefOrState(dayForecast.getMaxWindDirection(),
                         new StringType(dayForecast.getMaxWindDirection()));
             case "maxWindDirectionDegrees":
-                return undefOrDecimal(dayForecast.getMaxWindDirectionDegrees());
+                return undefOrState(dayForecast.getMaxWindDirectionDegrees(),
+                        new QuantityType<>(dayForecast.getMaxWindDirectionDegrees(), SmartHomeUnits.DEGREE_ANGLE));
             case "maxWindSpeed":
                 quantity = getSpeed(dayForecast.getMaxWindSpeedKmh(), dayForecast.getMaxWindSpeedMph());
                 return undefOrQuantity(quantity);
@@ -587,7 +592,8 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
                 return undefOrState(dayForecast.getAverageWindDirection(),
                         new StringType(dayForecast.getAverageWindDirection()));
             case "averageWindDirectionDegrees":
-                return undefOrDecimal(dayForecast.getAverageWindDirectionDegrees());
+                return undefOrState(dayForecast.getAverageWindDirectionDegrees(),
+                        new QuantityType<>(dayForecast.getAverageWindDirectionDegrees(), SmartHomeUnits.DEGREE_ANGLE));
             case "averageWindSpeed":
                 quantity = getSpeed(dayForecast.getAverageWindSpeedKmh(), dayForecast.getAverageWindSpeedMph());
                 return undefOrQuantity(quantity);
