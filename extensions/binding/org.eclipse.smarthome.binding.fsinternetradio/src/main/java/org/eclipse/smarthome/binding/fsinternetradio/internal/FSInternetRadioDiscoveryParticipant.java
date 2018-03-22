@@ -85,6 +85,17 @@ public class FSInternetRadioDiscoveryParticipant implements UpnpDiscoveryPartici
         hamaRadios.add("DIR3100");
         hamaRadios.add("DIR3110");
 
+        // as reported in: https://community.openhab.org/t/internet-radio-i-need-your-help/2131/19
+        // and: https://community.openhab.org/t/internet-radio-i-need-your-help/2131/20
+        // and: https://community.openhab.org/t/internet-radio-i-need-your-help/2131/23
+        // these radios do not provide model number, but the model name should also be ok
+        final Set<String> radiosWithoutManufacturer = new HashSet<String>();
+        radiosWithoutManufacturer.add(""); // empty manufacturer / model name
+        radiosWithoutManufacturer.add(null); // missing manufacturer / model name
+        SUPPORTED_RADIO_MODELS.put("SMRS18A1", radiosWithoutManufacturer);
+        SUPPORTED_RADIO_MODELS.put("SMRS30A1", radiosWithoutManufacturer);
+        SUPPORTED_RADIO_MODELS.put("SMRS35A1", radiosWithoutManufacturer);
+
         // as reported in: https://community.openhab.org/t/internet-radio-i-need-your-help/2131/5
         final Set<String> ttmicroRadios = new HashSet<String>();
         SUPPORTED_RADIO_MODELS.put("TTMICRO AS", ttmicroRadios);
@@ -93,17 +104,31 @@ public class FSInternetRadioDiscoveryParticipant implements UpnpDiscoveryPartici
         // as reported in: https://community.openhab.org/t/internet-radio-i-need-your-help/2131/7
         final Set<String> revoRadios = new HashSet<String>();
         SUPPORTED_RADIO_MODELS.put("REVO TECHNOLOGIES LTD", revoRadios);
-        revoRadios.add("SUPERCONNECT");
+        revoRadios.add("S10");
 
         // as reported in: https://community.openhab.org/t/internet-radio-i-need-your-help/2131/10
+        // and: https://community.openhab.org/t/internet-radio-i-need-your-help/2131/21
         final Set<String> robertsRadios = new HashSet<String>();
         SUPPORTED_RADIO_MODELS.put("ROBERTS RADIO LIMITED", robertsRadios);
         robertsRadios.add("ROBERTS STREAM 93I");
+        robertsRadios.add("ROBERTS STREAM 83I");
 
         // as reported in: https://community.openhab.org/t/internet-radio-i-need-your-help/2131/11
-        final Set<String> AUNARadios = new HashSet<String>();
-        SUPPORTED_RADIO_MODELS.put("AUNA", AUNARadios);
-        AUNARadios.add("CONNECT 150");
+        final Set<String> aunaRadios = new HashSet<String>();
+        SUPPORTED_RADIO_MODELS.put("AUNA", aunaRadios);
+        aunaRadios.add("10028154 & 10028155");
+        aunaRadios.add("10028154");
+        aunaRadios.add("10028155");
+
+        // as reported in: https://community.openhab.org/t/internet-radio-i-need-your-help/2131/22
+        final Set<String> sangeanRadios = new HashSet<String>();
+        SUPPORTED_RADIO_MODELS.put("SANGEAN RADIO LIMITED", sangeanRadios);
+        sangeanRadios.add("28");
+
+        // as reported in: https://community.openhab.org/t/internet-radio-i-need-your-help/2131/25
+        final Set<String> rokuRadios = new HashSet<String>();
+        SUPPORTED_RADIO_MODELS.put("ROKU", rokuRadios);
+        rokuRadios.add("M1001");
     }
 
     @Override
