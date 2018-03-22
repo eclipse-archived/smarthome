@@ -71,22 +71,28 @@ public class BeaconBluetoothHandler extends BaseThingHandler implements Bluetoot
 
         adapter = (BluetoothAdapter) bridgeHandler;
 
-        deviceLock.lock();
-        device = adapter.getDevice(address);
-        device.addListener(this);
-        deviceLock.unlock();
+        try {
+            deviceLock.lock();
+            device = adapter.getDevice(address);
+            device.addListener(this);
+        } finally {
+            deviceLock.unlock();
+        }
 
         updateStatus(ThingStatus.UNKNOWN);
     }
 
     @Override
     public void dispose() {
-        deviceLock.lock();
-        if (device != null) {
-            device.removeListener(this);
-            device = null;
+        try {
+            deviceLock.lock();
+            if (device != null) {
+                device.removeListener(this);
+                device = null;
+            }
+        } finally {
+            deviceLock.unlock();
         }
-        deviceLock.unlock();
     }
 
     @Override
