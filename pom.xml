@@ -566,26 +566,4 @@
     </profile>
   </profiles>
 
-  <pluginRepositories>
-    <pluginRepository>
-      <id>jcenter</id>
-      <url>https://jcenter.bintray.com</url>
-    </pluginRepository>
-  </pluginRepositories>
-
-  <repositories>
-    <repository>
-      <id>jcenter</id>
-      <name>JCenter Repository</name>
-      <url>https://jcenter.bintray.com</url>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-
 </project>
