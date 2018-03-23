@@ -12,7 +12,12 @@
  */
 package org.eclipse.smarthome.core.thing;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * {@link ChannelUID} represents a unique identifier for channels.
@@ -22,6 +27,7 @@ import java.util.Arrays;
  * @author Dennis Nobel - Added channel group id
  * @author Kai Kreuzer - Changed creation of channels to not require a thing type
  */
+@NonNullByDefault
 public class ChannelUID extends UID {
 
     private static final String CHANNEL_GROUP_SEPERATOR = "#";
@@ -98,17 +104,13 @@ public class ChannelUID extends UID {
         super(bindingId, thingTypeId, thingId, getChannelId(groupId, id));
     }
 
-    private static String[] getArray(ThingUID thingUID, String groupId, String id) {
-        String[] result = new String[thingUID.getSegments().length + 1];
-        for (int i = 0; i < thingUID.getSegments().length; i++) {
-            result[i] = thingUID.getSegments()[i];
-        }
-        result[result.length - 1] = getChannelId(groupId, id);
-
-        return result;
+    private static List<String> getArray(ThingUID thingUID, @Nullable String groupId, String id) {
+        List<String> ret = new ArrayList<>(thingUID.getAllSegments());
+        ret.add(getChannelId(groupId, id));
+        return ret;
     }
 
-    private static String getChannelId(String groupId, String id) {
+    private static String getChannelId(@Nullable String groupId, String id) {
         return groupId != null ? groupId + CHANNEL_GROUP_SEPERATOR + id : id;
     }
 
@@ -118,8 +120,8 @@ public class ChannelUID extends UID {
      * @return id
      */
     public String getId() {
-        String[] segments = getSegments();
-        return segments[segments.length - 1];
+        List<String> segments = getAllSegments();
+        return segments.get(segments.size() - 1);
     }
 
     /**
@@ -128,17 +130,15 @@ public class ChannelUID extends UID {
      * @return id id without group id
      */
     public String getIdWithoutGroup() {
-        String[] segments = getSegments();
         if (!isInGroup()) {
-            return segments[segments.length - 1];
+            return getId();
         } else {
-            return segments[segments.length - 1].split(CHANNEL_GROUP_SEPERATOR)[1];
+            return getId().split(CHANNEL_GROUP_SEPERATOR)[1];
         }
     }
 
     public boolean isInGroup() {
-        String[] segments = getSegments();
-        return segments[segments.length - 1].contains(CHANNEL_GROUP_SEPERATOR);
+        return getId().contains(CHANNEL_GROUP_SEPERATOR);
     }
 
     /**
@@ -146,9 +146,8 @@ public class ChannelUID extends UID {
      *
      * @return group id or null if channel is not in a group
      */
-    public String getGroupId() {
-        String[] segments = getSegments();
-        return isInGroup() ? segments[segments.length - 1].split(CHANNEL_GROUP_SEPERATOR)[0] : null;
+    public @Nullable String getGroupId() {
+        return isInGroup() ? getId().split(CHANNEL_GROUP_SEPERATOR)[0] : null;
     }
 
     @Override
@@ -174,7 +173,8 @@ public class ChannelUID extends UID {
      * @return the thing UID
      */
     public ThingUID getThingUID() {
-        return new ThingUID(Arrays.copyOfRange(getSegments(), 0, getSegments().length - 1));
+        List<@NonNull String> allSegments = getAllSegments();
+        return new ThingUID(allSegments.subList(0, allSegments.size() - 1).toArray(new String[allSegments.size() - 1]));
     }
 
 }
