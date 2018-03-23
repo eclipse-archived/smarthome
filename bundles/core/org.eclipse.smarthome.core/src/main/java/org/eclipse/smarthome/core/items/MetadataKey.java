@@ -7,9 +7,8 @@
  */
 package org.eclipse.smarthome.core.items;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.common.AbstractUID;
 
 /**
  * This class represents the key of a {@link Metadata} entity.
@@ -19,10 +18,7 @@ import org.eclipse.jdt.annotation.Nullable;
  *
  */
 @NonNullByDefault
-public class MetadataKey {
-
-    private final String namespace;
-    private final String itemName;
+public class MetadataKey extends AbstractUID {
 
     /**
      * Creates a new instance.
@@ -31,8 +27,7 @@ public class MetadataKey {
      * @param itemName
      */
     public MetadataKey(String namespace, String itemName) {
-        this.namespace = namespace;
-        this.itemName = itemName;
+        super(namespace, itemName);
     }
 
     /**
@@ -41,50 +36,20 @@ public class MetadataKey {
      * @return the item name
      */
     public String getItemName() {
-        return itemName;
+        return getSegment(1);
     }
 
     /**
      * Provides the namespace of this key
-     * 
+     *
      * @return the namespace
      */
     public String getNamespace() {
-        return namespace;
+        return getSegment(0);
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((itemName == null) ? 0 : itemName.hashCode());
-        result = prime * result + ((namespace == null) ? 0 : namespace.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(@Nullable Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        MetadataKey other = (MetadataKey) obj;
-        if (!itemName.equals(other.itemName)) {
-            return false;
-        }
-        if (!namespace.equals(other.namespace)) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public @NonNull String toString() {
-        return namespace + ":" + itemName;
+    protected int getMinimalNumberOfSegments() {
+        return 2;
     }
 }
