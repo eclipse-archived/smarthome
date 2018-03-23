@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - added exception logging
  */
 public class ExecUtil {
-
+    private static Logger logger = LoggerFactory.getLogger(ExecUtil.class);
     /**
      * Use this to separate between command and parameter, and also between parameters.
      */
@@ -54,7 +54,6 @@ public class ExecUtil {
      * @see http://www.peterfriese.de/running-applescript-from-java/
      */
     public static void executeCommandLine(String commandLine) {
-        Logger logger = LoggerFactory.getLogger(ExecUtil.class);
         try {
             if (commandLine.contains(CMD_LINE_DELIMITER)) {
                 String[] cmdArray = commandLine.split(CMD_LINE_DELIMITER);
@@ -111,7 +110,6 @@ public class ExecUtil {
         executor.setStreamHandler(streamHandler);
         executor.setWatchdog(watchdog);
 
-        Logger logger = LoggerFactory.getLogger(ExecUtil.class);
         try {
             executor.execute(cmdLine, resultHandler);
             logger.debug("executed commandLine '{}'", commandLine);

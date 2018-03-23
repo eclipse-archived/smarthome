@@ -135,7 +135,7 @@ public class JavaOSGiTest extends JavaTest {
                     .getServiceReferences(clazz.getName(), null);
             return serviceReferences;
         } catch (InvalidSyntaxException e) {
-            throw new Error("Invalid exception for a null filter");
+            throw new IllegalArgumentException("Invalid exception for a null filter");
         }
     }
 

@@ -141,7 +141,7 @@ public class WebAppServlet extends BaseServlet {
                 // we are at the homepage, so we render the children of the sitemap root node
                 String label = sitemap.getLabel() != null ? sitemap.getLabel() : sitemapName;
                 EList<Widget> children = renderer.getItemUIRegistry().getChildren(sitemap);
-                if (poll && waitForChanges(children) == false) {
+                if (!(poll && waitForChanges(children))) {
                     // we have reached the timeout, so we do not return any content as nothing has changed
                     res.getWriter().append(getTimeoutResponse()).close();
                     return;
@@ -159,7 +159,7 @@ public class WebAppServlet extends BaseServlet {
                     EList<Widget> parentAndChildren = new BasicEList<Widget>();
                     parentAndChildren.add(lw);
                     parentAndChildren.addAll(children);
-                    if (poll && waitForChanges(parentAndChildren) == false) {
+                    if (!(poll && waitForChanges(parentAndChildren))) {
                         // we have reached the timeout, so we do not return any content as nothing has changed
                         res.getWriter().append(getTimeoutResponse()).close();
                         return;

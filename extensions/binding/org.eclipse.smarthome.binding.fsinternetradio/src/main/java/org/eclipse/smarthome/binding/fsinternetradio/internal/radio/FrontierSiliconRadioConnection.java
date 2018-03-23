@@ -93,7 +93,7 @@ public class FrontierSiliconRadioConnection {
                 String reason = response.getReason();
                 logger.debug("Communication with radio failed: {} {}", statusCode, reason);
                 if (statusCode == HttpStatus.FORBIDDEN_403) {
-                    throw new RuntimeException("Radio does not allow connection, maybe wrong pin?");
+                    throw new IllegalStateException("Radio does not allow connection, maybe wrong pin?");
                 }
                 throw new IOException("Communication with radio failed, return code: " + statusCode);
             }

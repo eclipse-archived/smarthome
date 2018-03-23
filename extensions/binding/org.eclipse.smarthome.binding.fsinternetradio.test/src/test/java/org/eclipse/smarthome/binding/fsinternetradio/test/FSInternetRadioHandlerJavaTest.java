@@ -197,7 +197,7 @@ public class FSInternetRadioHandlerJavaTest extends JavaTest {
                 String.valueOf(DEFAULT_CONFIG_PROPERTY_PORT), DEFAULT_CONFIG_PROPERTY_REFRESH);
         initializeRadioThing(config);
         waitForAssert(() -> {
-            String exceptionMessage = "java.lang.RuntimeException: Radio does not allow connection, maybe wrong pin?";
+            String exceptionMessage = "Radio does not allow connection, maybe wrong pin?";
             verifyCommunicationError(exceptionMessage);
         });
     }
