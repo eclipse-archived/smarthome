@@ -67,6 +67,15 @@ public class QuantityType<T extends Quantity<T>> extends Number
     private final Quantity<T> quantity;
 
     /**
+     * Creates a dimensionless {@link QuantityType} with scalar 0 and unit {@link AbstractUnit#ONE}.
+     * A default constructor is needed by {@link org.eclipse.smarthome.core.internal.items.ItemUpdater#receiveUpdate})
+     */
+    @SuppressWarnings("unchecked")
+    public QuantityType() {
+        this.quantity = (Quantity<T>) ZERO.quantity;
+    }
+
+    /**
      * Creates a new {@link QuantityType} with the given value. The value may contain a unit. The specific
      * {@link Quantity} is obtained by {@link Quantities#getQuantity(CharSequence)}.
      *
