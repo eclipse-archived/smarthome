@@ -77,6 +77,11 @@ public class QuantityTypeTest {
     }
 
     @Test
+    public void testReflectiveInstantiation() throws InstantiationException, IllegalAccessException {
+        QuantityType.class.newInstance();
+    }
+
+    @Test
     public void testUnits() {
         QuantityType<Length> dt2 = new QuantityType<>("2 m");
         // Check that the unit has correctly been identified
