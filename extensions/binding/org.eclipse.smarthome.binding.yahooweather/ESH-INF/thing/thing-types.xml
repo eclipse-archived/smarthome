@@ -9,9 +9,9 @@
 		<description>Provides various weather data from the Yahoo service</description>
 
 		<channels>
-			<channel id="temperature" typeId="temperature" />
-			<channel id="humidity" typeId="humidity" />
-			<channel id="pressure" typeId="pressure" />
+			<channel id="temperature" typeId="system.current-temperature" />
+			<channel id="humidity" typeId="system.relative-humidity" />
+			<channel id="pressure" typeId="system.barometric-pressure" />
 		</channels>
 
 		<config-description>
@@ -28,32 +28,5 @@
 			</parameter>
 		</config-description>
 	</thing-type>
-
-	<channel-type id="temperature">
-		<item-type>Number</item-type>
-		<label>Temperature</label>
-		<description>Current temperature in degrees celsius</description>
-		<category>Temperature</category>
-		<state readOnly="true" pattern="%.1f °C">
-		</state>
-	</channel-type>
-
-	<channel-type id="humidity">
-		<item-type>Number</item-type>
-		<label>Humidity</label>
-		<description>Current humidity in %</description>
-		<category>Humidity</category>
-		<state readOnly="true" pattern="%d %%">
-		</state>
-	</channel-type>
-
-	<channel-type id="pressure">
-		<item-type>Number</item-type>
-		<label>Pressure</label>
-		<description>Current pressure in millibar</description>
-		<category>Pressure</category>
-		<state readOnly="true" pattern="%.1f hPa">
-		</state>
-	</channel-type>
 
 </thing:thing-descriptions>
