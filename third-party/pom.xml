@@ -11,6 +11,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <dkcomm.version>1.2.201</dkcomm.version>
   </properties>
 
   <build>
@@ -41,7 +42,7 @@
               <artifacts>
 
                 <artifact>
-                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=13559 -->                
+                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=13559 -->
                   <!-- used by: org.eclipse.smarthome.transform.jsonpath -->
                   <id>com.jayway.jsonpath:json-path:2.1.0</id>
                   <transitive>false</transitive>
@@ -119,30 +120,52 @@
                 </artifact>
 
                 <artifact>
-                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15481 -->                
+                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15481 -->
                   <id>org.mockito:mockito-core:2.13.0</id>
                   <transitive>false</transitive>
                   <source>true</source>
                 </artifact>
                 <artifact>
-                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15482 -->                
+                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15482 -->
                   <id>org.objenesis:objenesis:2.6</id>
                   <transitive>false</transitive>
                   <source>true</source>
                 </artifact>
                 <artifact>
-                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15483 -->                
+                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15483 -->
                   <id>net.bytebuddy:byte-buddy:1.7.10</id>
                   <transitive>false</transitive>
                   <source>true</source>
                 </artifact>
                 <artifact>
-                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15489 -->                
+                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15489 -->
                   <id>net.bytebuddy:byte-buddy-agent:1.7.10</id>
                   <transitive>false</transitive>
                   <source>true</source>
                 </artifact>
-                       
+
+                <!-- DK Comm -->
+                <artifact>
+                  <id>org.eclipse.kura:org.eclipse.soda.dk.comm:${dkcomm.version}</id>
+                  <transitive>false</transitive>
+                  <source>false</source>
+                </artifact>
+                <artifact>
+                  <id>org.eclipse.kura:org.eclipse.soda.dk.comm.armv6hf:${dkcomm.version}</id>
+                  <transitive>false</transitive>
+                  <source>false</source>
+                </artifact>
+                <artifact>
+                  <id>org.eclipse.kura:org.eclipse.soda.dk.comm.aarch64:${dkcomm.version}</id>
+                  <transitive>false</transitive>
+                  <source>false</source>
+                </artifact>
+                <artifact>
+                  <id>org.eclipse.kura:org.eclipse.soda.dk.comm.x86_64:${dkcomm.version}</id>
+                  <transitive>false</transitive>
+                  <source>false</source>
+                </artifact>
+
               </artifacts>
             </configuration>
           </execution>
@@ -173,6 +196,10 @@
   </pluginRepositories>
 
   <repositories>
+    <repository>
+      <id>kura-releases</id>
+      <url>https://repo.eclipse.org/content/repositories/kura-releases</url>
+    </repository>
     <repository>
       <id>esh.bundled-local-repo</id>
       <url>file://${project.basedir}/m2-repo</url>
