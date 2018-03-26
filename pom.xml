@@ -487,7 +487,6 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>build-helper-maven-plugin</artifactId>
-            <version>${build.helper.maven.plugin.version}</version>
             <executions>
               <execution>
                 <id>attach-artifacts</id>
@@ -559,7 +558,6 @@
           <plugin>
             <groupId>org.openhab.tools.sat</groupId>
             <artifactId>sat-plugin</artifactId>
-            <version>${sat.version}</version>
           </plugin>
         </plugins>
       </build>
