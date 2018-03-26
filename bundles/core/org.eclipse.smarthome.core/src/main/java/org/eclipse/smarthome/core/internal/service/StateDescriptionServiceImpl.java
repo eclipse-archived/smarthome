@@ -19,9 +19,13 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.service.StateDescriptionService;
 import org.eclipse.smarthome.core.types.StateDescription;
+import org.eclipse.smarthome.core.types.StateDescriptionFragment;
+import org.eclipse.smarthome.core.types.StateDescriptionFragmentBuilder;
+import org.eclipse.smarthome.core.types.StateDescriptionFragmentProvider;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.eclipse.smarthome.core.types.StateOption;
 import org.osgi.service.component.annotations.Component;
@@ -37,9 +41,11 @@ import org.osgi.service.component.annotations.ReferencePolicy;
  * @author Lyubomir Papazov - Initial contribution
  *
  */
+@NonNullByDefault
 @Component
 public class StateDescriptionServiceImpl implements StateDescriptionService {
 
+    @Deprecated
     private final Set<StateDescriptionProvider> stateDescriptionProviders = Collections
             .synchronizedSet(new TreeSet<StateDescriptionProvider>(new Comparator<StateDescriptionProvider>() {
                 @Override
@@ -48,20 +54,68 @@ public class StateDescriptionServiceImpl implements StateDescriptionService {
                 }
             }));
 
+    private final Set<StateDescriptionFragmentProvider> stateDescriptionFragmentProviders = Collections.synchronizedSet(
+            new TreeSet<StateDescriptionFragmentProvider>(new Comparator<StateDescriptionFragmentProvider>() {
+                @Override
+                public int compare(StateDescriptionFragmentProvider provider1,
+                        StateDescriptionFragmentProvider provider2) {
+                    return provider2.getRank().compareTo(provider1.getRank());
+                }
+            }));
+
+    @Deprecated
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addStateDescriptionProvider(StateDescriptionProvider provider) {
         stateDescriptionProviders.add(provider);
     }
 
+    @Deprecated
     public void removeStateDescriptionProvider(StateDescriptionProvider provider) {
         stateDescriptionProviders.remove(provider);
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addStateDescriptionFragmentProvider(StateDescriptionFragmentProvider provider) {
+        stateDescriptionFragmentProviders.add(provider);
+    }
+
+    public void removeStateDescriptionFragmentProvider(StateDescriptionFragmentProvider provider) {
+        stateDescriptionFragmentProviders.remove(provider);
+    }
+
     @Override
-    public @Nullable StateDescription getStateDescription(String itemName, Locale locale) {
+    public @Nullable StateDescription getStateDescription(String itemName, @Nullable Locale locale) {
+        StateDescription legacy = getLegacyStateDescription(itemName, locale);
+        StateDescriptionFragment stateDescriptionFragment = mergeStateDescriptionFragments(itemName, locale);
+
+        if (legacy != null) {
+            StateDescriptionFragmentBuilder builder = StateDescriptionFragmentBuilder.instance();
+            builder.withStateDescription(legacy) //
+                    .withStateDescriptionFragment(stateDescriptionFragment);
+
+            stateDescriptionFragment = builder.build();
+        }
+
+        return stateDescriptionFragment.toStateDescription();
+    }
+
+    private StateDescriptionFragment mergeStateDescriptionFragments(String itemName, @Nullable Locale locale) {
+        StateDescriptionFragmentBuilder builder = StateDescriptionFragmentBuilder.instance();
+        for (StateDescriptionFragmentProvider provider : stateDescriptionFragmentProviders) {
+            StateDescriptionFragment sdFragment = provider.getStateDescriptionFragment(itemName, locale);
+            if (sdFragment == null) {
+                continue;
+            }
+            builder.withStateDescriptionFragment(sdFragment);
+        }
+
+        return builder.build();
+    }
+
+    @Deprecated
+    private @Nullable StateDescription getLegacyStateDescription(String itemName, @Nullable Locale locale) {
         StateDescription result = null;
         List<StateOption> stateOptions = Collections.emptyList();
-        Boolean readOnly = null;
         for (StateDescriptionProvider stateDescriptionProvider : stateDescriptionProviders) {
             StateDescription stateDescription = stateDescriptionProvider.getStateDescription(itemName, locale);
             if (stateDescription == null) {
@@ -78,18 +132,13 @@ public class StateDescriptionServiceImpl implements StateDescriptionService {
             if (!stateDescription.getOptions().isEmpty() && stateOptions.isEmpty()) {
                 stateOptions = stateDescription.getOptions();
             }
-
-            // as long as readOnly is undefined we reassign here:
-            if (readOnly == null) {
-                readOnly = stateDescription.getReadOnly();
-            }
         }
 
         // we recreate the StateDescription in case we found a valid one and state options are given,
         // or readOnly is set:
-        if (result != null && (!stateOptions.isEmpty() || readOnly != null)) {
+        if (result != null && !stateOptions.isEmpty()) {
             result = new StateDescription(result.getMinimum(), result.getMaximum(), result.getStep(),
-                    result.getPattern(), readOnly, stateOptions);
+                    result.getPattern(), result.isReadOnly(), stateOptions);
         }
 
         return result;
