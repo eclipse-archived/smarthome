@@ -274,7 +274,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
 
         @Override
         public boolean isChannelLinked(ChannelUID channelUID) {
-            return itemChannelLinkRegistry.getLinks(channelUID).isEmpty();
+            return !itemChannelLinkRegistry.getLinks(channelUID).isEmpty();
         }
     };
 
