@@ -114,7 +114,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
         return rank;
     }
 
-    @Reference()
+    @Reference
     public void setModelRepository(ModelRepository modelRepository) {
         this.modelRepository = modelRepository;
     }
@@ -123,11 +123,12 @@ public class GenericItemProvider extends AbstractProvider<Item>
         this.modelRepository = null;
     }
 
-    protected void setGenericMetaDataProvider(GenericMetadataProvider genericMetaDataProvider) {
-        this.genericMetaDataProvider = genericMetaDataProvider;
+    @Reference
+    protected void setGenericMetadataProvider(GenericMetadataProvider genericMetadataProvider) {
+        this.genericMetaDataProvider = genericMetadataProvider;
     }
 
-    protected void unsetGenericMetaDataProvider(GenericMetadataProvider genericMetaDataProvider) {
+    protected void unsetGenericMetadataProvider(GenericMetadataProvider genericMetadataProvider) {
         this.genericMetaDataProvider = null;
     }
 

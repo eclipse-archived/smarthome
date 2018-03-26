@@ -65,7 +65,7 @@ public class ManagedMetadataProvider extends AbstractManagedProvider<Metadata, M
      * @param itemname the name of the item for which the meta data is to be removed.
      */
     public void removeItemMetadata(@NonNull String name) {
-        getAll().stream().filter(MetadataPredicates.ofItem(name)).forEach(md -> remove(md.getUID()));
+        getAll().stream().filter(MetadataPredicates.ofItem(name)).map(Metadata::getUID).forEach(this::remove);
     }
 
 }
