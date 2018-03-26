@@ -36,7 +36,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
-import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
@@ -64,6 +63,7 @@ import org.slf4j.LoggerFactory;
  * @author Thomas Höfer - Added thing properties and config description validation
  * @author Stefan Bußweiler - Added new thing status handling, refactorings thing/bridge life cycle
  * @author Kai Kreuzer - Refactored isLinked method to not use deprecated functions anymore
+ * @author Christoph Weitkamp - Moved OSGI ServiceTracker from BaseThingHandler to ThingHandlerCallback
  */
 @NonNullByDefault
 public abstract class BaseThingHandler implements ThingHandler {
@@ -77,10 +77,6 @@ public abstract class BaseThingHandler implements ThingHandler {
     @Deprecated // this must not be used by bindings!
     @NonNullByDefault({})
     protected ThingRegistry thingRegistry;
-
-    @Deprecated // this must not be used by bindings!
-    @NonNullByDefault({})
-    protected ItemChannelLinkRegistry linkRegistry;
 
     @Deprecated // this must not be used by bindings!
     @NonNullByDefault({})
@@ -99,9 +95,6 @@ public abstract class BaseThingHandler implements ThingHandler {
     @SuppressWarnings("rawtypes")
     @NonNullByDefault({})
     private ServiceTracker thingRegistryServiceTracker;
-    @SuppressWarnings("rawtypes")
-    @NonNullByDefault({})
-    private ServiceTracker linkRegistryServiceTracker;
     @SuppressWarnings("rawtypes")
     @NonNullByDefault({})
     private ServiceTracker thingTypeRegistryServiceTracker;
@@ -138,22 +131,6 @@ public abstract class BaseThingHandler implements ThingHandler {
             }
         };
         thingRegistryServiceTracker.open();
-        linkRegistryServiceTracker = new ServiceTracker(this.bundleContext, ItemChannelLinkRegistry.class.getName(),
-                null) {
-            @Override
-            public Object addingService(final @Nullable ServiceReference reference) {
-                linkRegistry = (ItemChannelLinkRegistry) bundleContext.getService(reference);
-                return linkRegistry;
-            }
-
-            @Override
-            public void removedService(final @Nullable ServiceReference reference, final @Nullable Object service) {
-                synchronized (BaseThingHandler.this) {
-                    linkRegistry = null;
-                }
-            }
-        };
-        linkRegistryServiceTracker.open();
         thingTypeRegistryServiceTracker = new ServiceTracker(this.bundleContext, ThingTypeRegistry.class.getName(),
                 null) {
             @Override
@@ -189,7 +166,6 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     public void unsetBundleContext(final BundleContext bundleContext) {
-        linkRegistryServiceTracker.close();
         thingRegistryServiceTracker.close();
         thingTypeRegistryServiceTracker.close();
         this.bundleContext = null;
@@ -670,7 +646,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      * @return true if at least one item is linked, false otherwise
      */
     protected boolean isLinked(ChannelUID channelUID) {
-        return linkRegistry != null ? !linkRegistry.getLinks(channelUID).isEmpty() : false;
+        return callback.isChannelLinked(channelUID);
     }
 
     /**
