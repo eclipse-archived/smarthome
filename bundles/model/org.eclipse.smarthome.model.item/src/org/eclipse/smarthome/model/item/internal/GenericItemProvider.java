@@ -268,7 +268,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
             String format = StringUtils.substringBetween(label, "[", "]");
             if (format != null) {
                 label = StringUtils.substringBefore(label, "[").trim();
-                stateDescriptions.put(modelItem.getName(), new StateDescription(null, null, null, format, null, null));
+                stateDescriptions.put(modelItem.getName(), new StateDescription(null, null, null, format, false, null));
             }
             item.setLabel(label);
             item.setCategory(modelItem.getIcon());

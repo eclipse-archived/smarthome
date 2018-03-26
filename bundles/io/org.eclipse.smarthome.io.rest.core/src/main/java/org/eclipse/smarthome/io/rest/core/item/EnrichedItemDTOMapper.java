@@ -92,7 +92,7 @@ public class EnrichedItemDTOMapper {
         } else {
             try {
                 return TransformationHelper.isTransform(desc.getPattern()) ? new StateDescription(desc.getMinimum(),
-                        desc.getMaximum(), desc.getStep(), "", desc.getReadOnly(), desc.getOptions()) : desc;
+                        desc.getMaximum(), desc.getStep(), "", desc.isReadOnly(), desc.getOptions()) : desc;
             } catch (NoClassDefFoundError ex) {
                 // TransformationHelper is optional dependency, so ignore if class not found
                 // return state description as it is without transformation

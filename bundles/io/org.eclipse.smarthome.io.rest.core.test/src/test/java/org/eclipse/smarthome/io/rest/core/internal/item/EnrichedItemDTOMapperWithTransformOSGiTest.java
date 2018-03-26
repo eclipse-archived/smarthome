@@ -44,8 +44,7 @@ public class EnrichedItemDTOMapperWithTransformOSGiTest extends JavaOSGiTest {
         initMocks(this);
 
         StateDescription stateDescription = new StateDescription(BigDecimal.ZERO, BigDecimal.valueOf(100),
-                BigDecimal.TEN, "%d °C", Boolean.TRUE,
-                Collections.singletonList(new StateOption("SOUND", "My great sound.")));
+                BigDecimal.TEN, "%d °C", true, Collections.singletonList(new StateOption("SOUND", "My great sound.")));
         when(stateDescriptionService.getStateDescription(ITEM_NAME, null)).thenReturn(stateDescription);
     }
 

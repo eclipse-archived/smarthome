@@ -160,7 +160,7 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
 
         registerService(new DynamicStateDescriptionProvider() {
             final StateDescription newState = new StateDescription(BigDecimal.valueOf(10), BigDecimal.valueOf(100),
-                    BigDecimal.valueOf(5), "VALUE %d", Boolean.FALSE,
+                    BigDecimal.valueOf(5), "VALUE %d", false,
                     Arrays.asList(new StateOption("value0", "label0"), new StateOption("value1", "label1")));
 
             @Override
@@ -174,7 +174,7 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
                     assertEquals(channel.getChannelTypeUID(), channelType7.getUID());
                     StateDescription newState2 = new StateDescription(original.getMinimum().add(BigDecimal.ONE),
                             original.getMaximum().add(BigDecimal.ONE), original.getStep().add(BigDecimal.TEN),
-                            "NEW " + original.getPattern(), Boolean.TRUE, original.getOptions());
+                            "NEW " + original.getPattern(), true, original.getOptions());
                     return newState2;
                 }
                 return null;
@@ -274,7 +274,7 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
         assertEquals(BigDecimal.valueOf(100), state.getMaximum());
         assertEquals(BigDecimal.TEN, state.getStep());
         assertEquals("%d Peek", state.getPattern());
-        assertEquals(true, state.getReadOnly());
+        assertEquals(true, state.isReadOnly());
         List<StateOption> opts = state.getOptions();
         assertEquals(1, opts.size());
         final StateOption opt = opts.get(0);
@@ -291,7 +291,7 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
         assertEquals(BigDecimal.valueOf(256), state.getMaximum());
         assertEquals(BigDecimal.valueOf(8), state.getStep());
         assertEquals("%.0f", state.getPattern());
-        assertEquals(false, state.getReadOnly());
+        assertEquals(false, state.isReadOnly());
         opts = state.getOptions();
         assertEquals(0, opts.size());
 
@@ -305,7 +305,7 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
         assertNull(state.getMaximum());
         assertNull(state.getStep());
         assertEquals("%s", state.getPattern());
-        assertEquals(false, state.getReadOnly());
+        assertEquals(false, state.isReadOnly());
         opts = state.getOptions();
         assertEquals(0, opts.size());
 
@@ -337,7 +337,7 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
         assertEquals(BigDecimal.valueOf(100), state.getMaximum());
         assertEquals(BigDecimal.valueOf(5), state.getStep());
         assertEquals("VALUE %d", state.getPattern());
-        assertEquals(false, state.getReadOnly());
+        assertEquals(false, state.isReadOnly());
 
         opts = state.getOptions();
         assertNotNull(opts);
@@ -361,7 +361,7 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
         assertEquals(BigDecimal.valueOf(101), state.getMaximum());
         assertEquals(BigDecimal.valueOf(20), state.getStep());
         assertEquals("NEW %d Peek", state.getPattern());
-        assertEquals(true, state.getReadOnly());
+        assertEquals(true, state.isReadOnly());
 
         opts = state.getOptions();
         assertNotNull(opts);

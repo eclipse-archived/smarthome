@@ -166,7 +166,7 @@ public class ThingTypesTest extends JavaOSGiTest {
         assertThat(state.getMaximum(), is(BigDecimal.valueOf(100.0)));
         assertThat(state.getStep(), is(BigDecimal.valueOf(10.0)));
         assertThat(state.getPattern(), is(equalTo("%d Peek")));
-        assertThat(state.getReadOnly(), is(true));
+        assertThat(state.isReadOnly(), is(true));
         assertThat(state.getOptions().size(), is(2));
         assertThat(state.getOptions().get(0).getValue(), is(equalTo("SOUND")));
         assertThat(state.getOptions().get(0).getLabel(), is(equalTo("My great sound.")));

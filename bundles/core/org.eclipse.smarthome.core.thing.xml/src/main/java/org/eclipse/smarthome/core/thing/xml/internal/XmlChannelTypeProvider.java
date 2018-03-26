@@ -93,7 +93,7 @@ public class XmlChannelTypeProvider extends AbstractXmlBasedProvider<UID, Channe
             }
 
             return new StateDescription(state.getMinimum(), state.getMaximum(), state.getStep(), pattern,
-                    state.getReadOnly(), localizedOptions);
+                    state.isReadOnly(), localizedOptions);
         }
         return null;
     }
