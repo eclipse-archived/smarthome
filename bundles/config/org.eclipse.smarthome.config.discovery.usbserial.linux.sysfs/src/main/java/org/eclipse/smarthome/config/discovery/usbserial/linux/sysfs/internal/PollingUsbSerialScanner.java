@@ -22,12 +22,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDeviceInformation;
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDiscovery;
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDiscoveryListener;
 import org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs.internal.DeltaUsbSerialScanner.Delta;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
@@ -67,11 +67,19 @@ public class PollingUsbSerialScanner implements UsbSerialDiscovery {
         deltaUsbSerialScanner = null;
     }
 
+    @Activate
+    protected void activate(Map<String, Object> config) {
+        if (config.containsKey(PAUSE_BETWEEN_SCANS_IN_SECONDS_ATTRIBUTE)) {
+            pauseBetweenScans = Duration
+                    .ofSeconds(parseLong(config.get(PAUSE_BETWEEN_SCANS_IN_SECONDS_ATTRIBUTE).toString()));
+        }
+    }
+
     @Modified
     protected synchronized void modified(Map<String, Object> config) {
         if (config.containsKey(PAUSE_BETWEEN_SCANS_IN_SECONDS_ATTRIBUTE)) {
             pauseBetweenScans = Duration
-                    .ofSeconds(parseLong(ObjectUtils.toString(config.get(PAUSE_BETWEEN_SCANS_IN_SECONDS_ATTRIBUTE))));
+                    .ofSeconds(parseLong(config.get(PAUSE_BETWEEN_SCANS_IN_SECONDS_ATTRIBUTE).toString()));
 
             if (backgroundScanningJob != null) {
                 stopBackgroundScanning();

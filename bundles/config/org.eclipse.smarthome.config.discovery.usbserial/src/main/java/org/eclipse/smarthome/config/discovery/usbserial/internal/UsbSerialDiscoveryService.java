@@ -14,7 +14,6 @@ package org.eclipse.smarthome.config.discovery.usbserial.internal;
 
 import static java.util.stream.Collectors.toSet;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -30,7 +29,6 @@ import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDiscoveryPartic
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -100,12 +98,6 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
             usbSerialDiscovery.unregisterDiscoveryListener(this);
             this.usbSerialDiscovery = null;
         }
-    }
-
-    @Override
-    @Modified
-    protected void modified(@Nullable Map<String, @Nullable Object> configProperties) {
-        super.modified(configProperties);
     }
 
     @Override

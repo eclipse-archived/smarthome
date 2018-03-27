@@ -22,10 +22,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDeviceInformation;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
 import org.slf4j.Logger;
@@ -89,15 +89,14 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
     private static final Pattern SYSFS_USB_INTERFACE_DIRECTORY_PATTERN = Pattern
             .compile("\\d+-(\\d+\\.?)*\\d+:\\d+\\.\\d+");
 
+    @Activate
+    protected void activate(Map<String, Object> config) {
+        extractConfiguration(config);
+    }
+
     @Modified
     protected void modified(Map<String, Object> config) {
-        if (config.containsKey(SYSFS_TTY_DEVICES_DIRECTORY_ATTRIBUTE)) {
-            sysfsTtyDevicesDirectory = ObjectUtils.toString(config.get(SYSFS_TTY_DEVICES_DIRECTORY_ATTRIBUTE));
-        }
-
-        if (config.containsKey(DEV_DIRECTORY_ATTRIBUTE)) {
-            devDirectory = ObjectUtils.toString(config.get(DEV_DIRECTORY_ATTRIBUTE));
-        }
+        extractConfiguration(config);
     }
 
     @Override
@@ -242,6 +241,12 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
     @Nullable
     private String getContentIfFileExists(Path path) throws IOException {
         return exists(path) ? getContent(path) : null;
+    }
+
+    private void extractConfiguration(Map<String, Object> config) {
+        sysfsTtyDevicesDirectory = config
+                .getOrDefault(SYSFS_TTY_DEVICES_DIRECTORY_ATTRIBUTE, SYSFS_TTY_DEVICES_DIRECTORY_DEFAULT).toString();
+        devDirectory = config.getOrDefault(DEV_DIRECTORY_ATTRIBUTE, DEV_DIRECTORY_DEFAULT).toString();
     }
 
     private static class SerialPortInfo {
