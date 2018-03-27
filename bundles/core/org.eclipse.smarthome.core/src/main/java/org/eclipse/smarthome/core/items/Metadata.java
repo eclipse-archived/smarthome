@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.items;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -27,10 +29,10 @@ public class Metadata implements Identifiable<MetadataKey> {
     private final String value;
     private final Map<String, Object> configuration;
 
-    public Metadata(MetadataKey key, String value, Map<String, Object> configuration) {
+    public Metadata(MetadataKey key, String value, @Nullable Map<String, Object> configuration) {
         this.key = key;
         this.value = value;
-        this.configuration = configuration;
+        this.configuration = configuration != null ? new HashMap<>(configuration) : Collections.emptyMap();
     }
 
     @Override
@@ -44,7 +46,7 @@ public class Metadata implements Identifiable<MetadataKey> {
      * @return configuration as a map of key-value pairs
      */
     public Map<String, Object> getConfiguration() {
-        return configuration;
+        return Collections.unmodifiableMap(configuration);
     }
 
     /**

@@ -19,6 +19,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.eclipse.emf.codegen.ecore.templates.edit.ItemProvider;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.common.registry.AbstractProvider;
 import org.eclipse.smarthome.core.items.Metadata;
 import org.eclipse.smarthome.core.items.MetadataKey;
@@ -49,7 +50,8 @@ public class GenericMetadataProvider extends AbstractProvider<Metadata> implemen
      * @param itemName
      * @param configuration
      */
-    public void addMetadata(String bindingType, String itemName, String value, Map<String, Object> configuration) {
+    public void addMetadata(String bindingType, String itemName, String value,
+            @Nullable Map<String, Object> configuration) {
         MetadataKey key = new MetadataKey(bindingType, itemName);
         Metadata md = new Metadata(key, value, configuration);
         try {
@@ -66,7 +68,7 @@ public class GenericMetadataProvider extends AbstractProvider<Metadata> implemen
      *
      * @param itemName
      */
-    public void removeMetaData(String itemName) {
+    public void removeMetadata(String itemName) {
         Set<Metadata> toBeRemoved;
         try {
             lock.writeLock().lock();
