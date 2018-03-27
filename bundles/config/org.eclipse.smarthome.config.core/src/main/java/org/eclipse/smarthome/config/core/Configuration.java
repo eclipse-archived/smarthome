@@ -12,24 +12,18 @@
  */
 package org.eclipse.smarthome.config.core;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
-import org.apache.commons.lang.reflect.FieldUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.eclipse.smarthome.config.core.internal.ConfigMapper;
+
+import java.util.Set;
 
 /**
  * This class is a wrapper for configuration settings of {@link Thing}s.
@@ -40,10 +34,7 @@ import org.slf4j.LoggerFactory;
  * @author Chris Jackson - fix concurrent modification exception when removing properties
  */
 public class Configuration {
-
     private final Map<String, Object> properties;
-
-    private final transient Logger logger = LoggerFactory.getLogger(Configuration.class);
 
     public Configuration() {
         this(null);
@@ -60,84 +51,8 @@ public class Configuration {
 
     public <T> T as(Class<T> configurationClass) {
         synchronized (this) {
-            T configuration = null;
-
-            try {
-                configuration = configurationClass.newInstance();
-            } catch (InstantiationException | IllegalAccessException ex) {
-                logger.error("Could not create configuration instance: {}", ex.getMessage(), ex);
-                return null;
-            }
-
-            List<Field> fields = getAllFields(configurationClass);
-            for (Field field : fields) {
-                // Don't try to write to final fields
-                if (Modifier.isFinal(field.getModifiers())) {
-                    continue;
-                }
-                String fieldName = field.getName();
-                String typeName = field.getType().getSimpleName();
-                Object value = properties.get(fieldName);
-
-                if (value == null) {
-                    logger.debug("Skipping field '{}', because it's null", fieldName);
-                    continue;
-                }
-
-                try {
-                    // Handle the conversion case of BigDecimal to Float,Double,Long,Integer and the respective
-                    // primitive types
-                    if (value instanceof BigDecimal && !typeName.equals("BigDecimal")) {
-                        BigDecimal bdValue = (BigDecimal) value;
-                        if (typeName.equalsIgnoreCase("Float")) {
-                            value = bdValue.floatValue();
-                        } else if (typeName.equalsIgnoreCase("Double")) {
-                            value = bdValue.doubleValue();
-                        } else if (typeName.equalsIgnoreCase("Long")) {
-                            value = bdValue.longValue();
-                        } else if (typeName.equalsIgnoreCase("Integer") || typeName.equalsIgnoreCase("int")) {
-                            value = bdValue.intValue();
-                        }
-
-                    } else
-                    // Handle the conversion case of String to Float,Double,Long,Integer and the respective
-                    // primitive types
-                    if (value instanceof String && !typeName.equals("String")) {
-                        String bdValue = (String) value;
-                        if (typeName.equalsIgnoreCase("Float")) {
-                            value = Float.valueOf(bdValue);
-                        } else if (typeName.equalsIgnoreCase("Double")) {
-                            value = Double.valueOf(bdValue);
-                        } else if (typeName.equalsIgnoreCase("Long")) {
-                            value = Long.valueOf(bdValue);
-                        } else if (typeName.equalsIgnoreCase("Integer") || typeName.equalsIgnoreCase("int")) {
-                            value = Integer.valueOf(bdValue);
-                        }
-                    }
-
-                    logger.trace("Setting value ({}) {} to field '{}' in configuration class {}", typeName, value,
-                            fieldName, configurationClass.getName());
-                    FieldUtils.writeField(configuration, fieldName, value, true);
-
-                } catch (Exception ex) {
-                    logger.warn("Could not set field value for field '{}': {}", fieldName, ex.getMessage(), ex);
-                }
-            }
-
-            return configuration;
+            return ConfigMapper.as(properties, configurationClass);
         }
-    }
-
-    private List<Field> getAllFields(Class<?> clazz) {
-        List<Field> fields = new ArrayList<Field>();
-
-        Class<?> currentClass = clazz;
-        while (currentClass != null) {
-            fields.addAll(Arrays.asList(currentClass.getDeclaredFields()));
-            currentClass = currentClass.getSuperclass();
-        }
-
-        return fields;
     }
 
     /**
@@ -168,7 +83,7 @@ public class Configuration {
 
     public Object put(String key, Object value) {
         synchronized (this) {
-            return properties.put(key, ConfigUtil.normalizeType(value));
+            return properties.put(key, ConfigUtil.normalizeType(value, null));
         }
     }
 

@@ -21,26 +21,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.internal.normalization.Normalizer;
 import org.eclipse.smarthome.config.core.internal.normalization.NormalizerFactory;
 import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
 
 /**
- * This class provides some useful static methods for handling configurations
+ * The configuration admin service provides us with a map of key->values. Values can be any
+ * primitive type like String, int, double as well as the object variants of the number types
+ * like Integer, Double etc. You find normalization utility methods in here to convert all
+ * number Types to BigDecimal and all Collections<type> to List<type>. This works on a best-effort
+ * strategy (e.g. "3" will always end up being a BigDecimal, never a String),
+ * except if a {@link ConfigDescriptionParameter} is given. In the latter case,
+ * a conversion according to the type given in the description is performed.
  *
  * @author Kai Kreuzer - Initial API and implementation
  * @author Thomas Höfer - Minor changes for type normalization based on config description
  */
 public class ConfigUtil {
-    /**
-     * We do not want to handle or try to normalize OSGi provided configuration parameters
-     *
-     * @param name The configuration parameter name
-     */
-    private static boolean isOSGiConfigParameter(String name) {
-        return name.equals("objectClass") || name.equals("component.name") || name.equals("component.id");
-    }
-
     /**
      * Normalizes the types to the ones allowed for configurations.
      *
@@ -53,20 +51,10 @@ public class ConfigUtil {
             String name = parameter.getKey();
             Object value = parameter.getValue();
             if (!isOSGiConfigParameter(name)) {
-                convertedConfiguration.put(name, normalizeType(value));
+                convertedConfiguration.put(name, normalizeType(value, null));
             }
         }
         return convertedConfiguration;
-    }
-
-    /**
-     * Normalizes the type of the parameter to the one allowed for configurations.
-     *
-     * @param value the value to return as normalized type
-     * @return corresponding value as a valid type
-     */
-    public static Object normalizeType(Object value) {
-        return normalizeType(value, null);
     }
 
     /**
@@ -77,7 +65,7 @@ public class ConfigUtil {
      * @return corresponding value as a valid type
      * @throws IllegalArgumentException if a invalid type has been given
      */
-    public static Object normalizeType(Object value, ConfigDescriptionParameter configDescriptionParameter) {
+    public static Object normalizeType(Object value, @Nullable ConfigDescriptionParameter configDescriptionParameter) {
         if (configDescriptionParameter != null) {
             Normalizer normalizer = NormalizerFactory.getNormalizer(configDescriptionParameter);
             return normalizer.normalize(value);
@@ -91,30 +79,6 @@ public class ConfigUtil {
         }
         throw new IllegalArgumentException(
                 "Invalid type '{" + value.getClass().getCanonicalName() + "}' of configuration value!");
-    }
-
-    /**
-     * Normalizes a collection.
-     *
-     * @param collection the collection that entries should be normalized
-     * @return a collection that contains the normalized entries
-     * @throws IllegalArgumentException if the type of the normalized values differ or an invalid type has been given
-     */
-    private static Collection<Object> normalizeCollection(Collection<?> collection) throws IllegalArgumentException {
-        if (collection.size() == 0) {
-            return Collections.emptyList();
-        } else {
-            final List<Object> lst = new ArrayList<>(collection.size());
-            for (final Object it : collection) {
-                final Object normalized = normalizeType(it);
-                lst.add(normalized);
-                if (normalized.getClass() != lst.get(0).getClass()) {
-                    throw new IllegalArgumentException(
-                            "Invalid configuration property. Heterogeneous collection value!");
-                }
-            }
-            return lst;
-        }
     }
 
     /**
@@ -159,6 +123,52 @@ public class ConfigUtil {
             }
         }
         return convertedConfiguration;
+    }
+
+    /**
+     * Normalizes the type of the parameter to the one allowed for configurations.
+     *
+     * The conversion is performed 'best-effort' (e.g. "3" will always end up being a BigDecimal, never a String).
+     * Use {@link #normalizeType(Object, ConfigDescriptionParameter)} to make sure your field type ends up as intended.
+     *
+     * @param value the value to return as normalized type
+     * @return corresponding value as a valid type
+     */
+    public static Object normalizeType(Object value) {
+        return normalizeType(value, null);
+    }
+
+    /**
+     * Normalizes a collection.
+     *
+     * @param collection the collection that entries should be normalized
+     * @return a collection that contains the normalized entries
+     * @throws IllegalArgumentException if the type of the normalized values differ or an invalid type has been given
+     */
+    private static Collection<Object> normalizeCollection(Collection<?> collection) throws IllegalArgumentException {
+        if (collection.size() == 0) {
+            return Collections.emptyList();
+        } else {
+            final List<Object> lst = new ArrayList<>(collection.size());
+            for (final Object it : collection) {
+                final Object normalized = normalizeType(it, null);
+                lst.add(normalized);
+                if (normalized.getClass() != lst.get(0).getClass()) {
+                    throw new IllegalArgumentException(
+                            "Invalid configuration property. Heterogeneous collection value!");
+                }
+            }
+            return lst;
+        }
+    }
+
+    /**
+     * We do not want to handle or try to normalize OSGi provided configuration parameters
+     *
+     * @param name The configuration parameter name
+     */
+    private static boolean isOSGiConfigParameter(String name) {
+        return name.equals("objectClass") || name.equals("component.name") || name.equals("component.id");
     }
 
 }
