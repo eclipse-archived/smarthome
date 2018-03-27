@@ -7,9 +7,6 @@
  */
 package org.eclipse.smarthome.core.internal.items;
 
-import java.util.Collection;
-import java.util.Map;
-
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
@@ -76,18 +73,6 @@ public class MetadataRegistryImpl extends AbstractRegistry<Metadata, MetadataKey
     @Deactivate
     protected void deactivate() {
         super.deactivate();
-    }
-
-    @Override
-    public Metadata get(MetadataKey key) {
-        for (final Map.Entry<Provider<Metadata>, Collection<Metadata>> entry : elementMap.entrySet()) {
-            for (final Metadata metadata : entry.getValue()) {
-                if (metadata.getUID().equals(key)) {
-                    return metadata;
-                }
-            }
-        }
-        return null;
     }
 
     @Reference

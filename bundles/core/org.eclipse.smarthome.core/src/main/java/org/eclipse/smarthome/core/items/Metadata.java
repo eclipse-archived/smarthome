@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.items;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.common.registry.Identifiable;
 
 /**
@@ -54,4 +55,31 @@ public class Metadata implements Identifiable<MetadataKey> {
     public String getValue() {
         return value;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + key.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Metadata other = (Metadata) obj;
+        if (!key.equals(other.key)) {
+            return false;
+        }
+        return true;
+    }
+
 }
