@@ -417,9 +417,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
                     processBindingConfigsFromModel(modelName, type);
                     for (Item oldItem : oldItems.values()) {
                         if (!newItems.containsKey(oldItem.getName())) {
-                            notifyListenersAboutRemovedElement(oldItem);
-                            this.stateDescriptions.remove(oldItem.getName());
-                            genericMetaDataProvider.removeMetadata(oldItem.getName());
+                            notifyAndCleanup(oldItem);
                         }
                     }
                     break;
@@ -428,11 +426,17 @@ public class GenericItemProvider extends AbstractProvider<Item>
                     Collection<Item> itemsFromModel = getItemsFromModel(modelName);
                     itemsMap.remove(modelName);
                     for (Item item : itemsFromModel) {
-                        notifyListenersAboutRemovedElement(item);
+                        notifyAndCleanup(item);
                     }
                     break;
             }
         }
+    }
+
+    private void notifyAndCleanup(Item oldItem) {
+        notifyListenersAboutRemovedElement(oldItem);
+        this.stateDescriptions.remove(oldItem.getName());
+        genericMetaDataProvider.removeMetadata(oldItem.getName());
     }
 
     protected boolean hasItemChanged(Item item1, Item item2) {
