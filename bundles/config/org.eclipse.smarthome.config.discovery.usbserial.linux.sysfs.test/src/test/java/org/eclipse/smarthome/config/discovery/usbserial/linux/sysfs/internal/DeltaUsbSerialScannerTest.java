@@ -21,6 +21,8 @@ import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
+import java.io.IOException;
+
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDeviceInformation;
 import org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs.UsbSerialDeviceInformationGenerator;
 import org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs.internal.DeltaUsbSerialScanner.Delta;
@@ -49,7 +51,7 @@ public class DeltaUsbSerialScannerTest {
      * If there are no devices discovered in a first scan, then there is no delta.
      */
     @Test
-    public void testInitialEmptyResult() throws Exception {
+    public void testInitialEmptyResult() throws IOException {
         when(usbSerialScanner.scan()).thenReturn(newHashSet());
 
         Delta<UsbSerialDeviceInformation> delta = deltaUsbSerialScanner.scan();
@@ -63,7 +65,7 @@ public class DeltaUsbSerialScannerTest {
      * If there are devices discovered in a first scan, then all devices are in the 'added' section of the delta.
      */
     @Test
-    public void testInitialNonEmptyResult() throws Exception {
+    public void testInitialNonEmptyResult() throws IOException {
         UsbSerialDeviceInformation usb1 = usbDeviceInfoGenerator.generate();
         UsbSerialDeviceInformation usb2 = usbDeviceInfoGenerator.generate();
         when(usbSerialScanner.scan()).thenReturn(newHashSet(usb1, usb2));
@@ -80,7 +82,7 @@ public class DeltaUsbSerialScannerTest {
      * delta for the second scan is: usb3 is added, usb21 is removed, and usb2 is unchanged.
      */
     @Test
-    public void testDevicesAddedAndRemovedAndUnchanged() throws Exception {
+    public void testDevicesAddedAndRemovedAndUnchanged() throws IOException {
         UsbSerialDeviceInformation usb1 = usbDeviceInfoGenerator.generate();
         UsbSerialDeviceInformation usb2 = usbDeviceInfoGenerator.generate();
         UsbSerialDeviceInformation usb3 = usbDeviceInfoGenerator.generate();

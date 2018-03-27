@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs.internal;
 
+import java.io.IOException;
 import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -29,10 +30,11 @@ public interface UsbSerialScanner {
      * Performs a single scan for serial ports provided by USB devices.
      *
      * @return A collection containing all scan results.
-     * @throws Exception any checked exception that prevented the scan. Note that exceptions preventing the successful
-     *             identification of a single USB device might be swallowed, simply skipping that device while still
-     *             discovering other devices successfully.
+     * @throws IOException if an I/O issue prevented the scan. Note that implementors are free to swallow I/O issues
+     *             that occur when trying to read the information about a single USB device or serial port, so that
+     *             information about other devices can still be retrieved. (Such issues should nevertheless be logged by
+     *             implementors.)
      */
-    Set<UsbSerialDeviceInformation> scan() throws Exception;
+    Set<UsbSerialDeviceInformation> scan() throws IOException;
 
 }

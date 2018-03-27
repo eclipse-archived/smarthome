@@ -14,6 +14,7 @@ package org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs.internal;
 
 import static java.lang.Long.parseLong;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Set;
@@ -145,8 +146,8 @@ public class PollingUsbSerialScanner implements UsbSerialDiscovery {
             if (announceUnchangedDevices) {
                 announceAddedDevices(delta.getUnchanged());
             }
-        } catch (Exception e) {
-            logger.warn("There was an exception while scanning for USB serial devices: {}, message {}", e.getClass(),
+        } catch (IOException e) {
+            logger.warn("An IOException prevented a scan for USB serial devices: {}, message {}", e.getClass(),
                     e.getMessage());
         }
     }

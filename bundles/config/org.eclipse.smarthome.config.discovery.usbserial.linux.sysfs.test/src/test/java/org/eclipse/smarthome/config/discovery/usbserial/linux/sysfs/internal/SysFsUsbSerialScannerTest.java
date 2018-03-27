@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 
-import org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs.internal.SysfsUsbSerialScanner;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -80,10 +79,10 @@ public class SysFsUsbSerialScannerTest {
                 .put(DEV_DIRECTORY_ATTRIBUTE, rootPath.resolve(DEV_DIR)).build());
     }
 
-    @Test
-    public void testThatNoResultIfSysfsTtyDoesNotExist() throws IOException {
+    @Test(expected = IOException.class)
+    public void testIOExceptionIfSysfsTtyDoesNotExist() throws IOException {
         delete(sysfsTtyPath);
-        assertThat(scanner.scan(), is(empty()));
+        scanner.scan();
     }
 
     @Test

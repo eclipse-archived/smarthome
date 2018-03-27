@@ -14,6 +14,7 @@ package org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs.internal;
 
 import static java.util.stream.Collectors.*;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 
@@ -47,9 +48,9 @@ public class DeltaUsbSerialScanner {
      * lastScanResult into an inconsistent state.
      *
      * @return The delta to the last scan result.
-     * @throws Exception if the scan using the {@link UsbSerialScanner} throws an exception.
+     * @throws IOException if the scan using the {@link UsbSerialScanner} throws an IOException.
      */
-    public synchronized Delta<UsbSerialDeviceInformation> scan() throws Exception {
+    public synchronized Delta<UsbSerialDeviceInformation> scan() throws IOException {
         Set<UsbSerialDeviceInformation> deviceInfos = usbSerialScanner.scan();
 
         Set<UsbSerialDeviceInformation> added = getAddedDeviceInfos(deviceInfos);

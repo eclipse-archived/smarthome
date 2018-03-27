@@ -100,7 +100,7 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
     }
 
     @Override
-    public Set<UsbSerialDeviceInformation> scan() {
+    public Set<UsbSerialDeviceInformation> scan() throws IOException {
         Set<UsbSerialDeviceInformation> result = Sets.newHashSet();
 
         for (SerialPortInfo serialPortInfo : getSerialPortInfos()) {
@@ -123,8 +123,10 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
     /**
      * Gets the set of all found serial ports, by searching through the tty devices directory in the sysfs and
      * checking for each found serial port if the device file in the devices folder is both readable and writable.
+     *
+     * @throws IOException If there is a problem reading files from the sysfs tty devices directory.
      */
-    private Set<SerialPortInfo> getSerialPortInfos() {
+    private Set<SerialPortInfo> getSerialPortInfos() throws IOException {
         Set<SerialPortInfo> result = Sets.newHashSet();
 
         try (DirectoryStream<Path> sysfsTtyPaths = newDirectoryStream(Paths.get(sysfsTtyDevicesDirectory))) {
@@ -136,9 +138,6 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
                     result.add(new SerialPortInfo(devicePath, sysfsDevicePath));
                 }
             }
-        } catch (IOException e) {
-            logger.warn("Could not read tty devices in folder {}; message: {}", sysfsTtyDevicesDirectory,
-                    e.getMessage());
         }
 
         return result;

@@ -5,6 +5,8 @@ import static org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs.inter
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.io.IOException;
+
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDeviceInformation;
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDiscoveryListener;
 import org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs.UsbSerialDeviceInformationGenerator;
@@ -40,7 +42,7 @@ public class PollingUsbSerialScannerTest {
     }
 
     @Test
-    public void testNoScansWithoutBackgroundDiscovery() throws Exception {
+    public void testNoScansWithoutBackgroundDiscovery() throws IOException, InterruptedException {
         // Wait a little more than one second to give background scanning a chance to kick in.
         Thread.sleep(1200);
 
@@ -48,7 +50,7 @@ public class PollingUsbSerialScannerTest {
     }
 
     @Test
-    public void testSingleScanReportsResultsCorrectAfterOneScan() throws Exception {
+    public void testSingleScanReportsResultsCorrectAfterOneScan() throws IOException {
         UsbSerialDeviceInformation usb1 = usbDeviceInfoGenerator.generate();
         UsbSerialDeviceInformation usb2 = usbDeviceInfoGenerator.generate();
         UsbSerialDeviceInformation usb3 = usbDeviceInfoGenerator.generate();
@@ -68,7 +70,7 @@ public class PollingUsbSerialScannerTest {
     }
 
     @Test
-    public void testSingleScanReportsResultsCorrectlyAfterTwoScans() throws Exception {
+    public void testSingleScanReportsResultsCorrectlyAfterTwoScans() throws IOException {
         UsbSerialDeviceInformation usb1 = usbDeviceInfoGenerator.generate();
         UsbSerialDeviceInformation usb2 = usbDeviceInfoGenerator.generate();
         UsbSerialDeviceInformation usb3 = usbDeviceInfoGenerator.generate();
@@ -94,7 +96,7 @@ public class PollingUsbSerialScannerTest {
     }
 
     @Test
-    public void testBackgroundScanning() throws Exception {
+    public void testBackgroundScanning() throws IOException, InterruptedException {
         UsbSerialDeviceInformation usb1 = usbDeviceInfoGenerator.generate();
         UsbSerialDeviceInformation usb2 = usbDeviceInfoGenerator.generate();
         UsbSerialDeviceInformation usb3 = usbDeviceInfoGenerator.generate();
