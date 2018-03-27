@@ -26,6 +26,7 @@ import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.eclipse.smarthome.core.types.StateOption;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -34,7 +35,7 @@ import org.junit.Test;
  * @author Lyubomir Papazov
  *
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({ "deprecation", "null" })
 public class StateDescriptionServiceImplTest {
 
     private static final String ITEM_NAME = "Item1";
@@ -46,23 +47,28 @@ public class StateDescriptionServiceImplTest {
     private static final boolean STATE_DESCRIPTION_PROVIDER_DEFAULT_IS_READONLY = false;
     private static final List<StateOption> STATE_DESCRIPTION_PROVIDER_DEFAULT_OPTIONS = Collections.emptyList();
 
-    private final StateDescriptionServiceImpl mergingService = new StateDescriptionServiceImpl();
+    private StateDescriptionServiceImpl stateDescriptionService;
     private NumberItem item;
+
+    @Before
+    public void setup() {
+        stateDescriptionService = new StateDescriptionServiceImpl();
+
+        item = new NumberItem(ITEM_NAME);
+        item.setStateDescriptionService(stateDescriptionService);
+    }
 
     @Test
     public void testServiceWithOneStateDescriptionProvider() {
         StateDescriptionProvider stateDescriptionProviderDefault = mock(StateDescriptionProvider.class);
         when(stateDescriptionProviderDefault.getRank()).thenReturn(STATE_DESCRIPTION_PROVIDER_DEFAULT_SERVICE_RANKING);
-        StateDescription stateDescription1 = new StateDescription(STATE_DESCRIPTION_PROVIDER_DEFAULT_MIN_VALUE,
+        StateDescription stateDescription = new StateDescription(STATE_DESCRIPTION_PROVIDER_DEFAULT_MIN_VALUE,
                 STATE_DESCRIPTION_PROVIDER_DEFAULT_MAX_VALUE, STATE_DESCRIPTION_PROVIDER_DEFAULT_STEP,
                 STATE_DESCRIPTION_PROVIDER_DEFAULT_PATTERN, STATE_DESCRIPTION_PROVIDER_DEFAULT_IS_READONLY,
                 STATE_DESCRIPTION_PROVIDER_DEFAULT_OPTIONS);
-        when(stateDescriptionProviderDefault.getStateDescription(ITEM_NAME, null)).thenReturn(stateDescription1);
+        when(stateDescriptionProviderDefault.getStateDescription(ITEM_NAME, null)).thenReturn(stateDescription);
+        stateDescriptionService.addStateDescriptionProvider(stateDescriptionProviderDefault);
 
-        mergingService.addStateDescriptionProvider(stateDescriptionProviderDefault);
-
-        item = new NumberItem(ITEM_NAME);
-        item.setStateDescriptionService(mergingService);
         StateDescription finalStateDescription = item.getStateDescription();
 
         assertThat(finalStateDescription.getMinimum(), is(STATE_DESCRIPTION_PROVIDER_DEFAULT_MIN_VALUE));
@@ -81,11 +87,9 @@ public class StateDescriptionServiceImplTest {
         StateDescription stateDescription2 = new StateDescription(new BigDecimal("-2"), new BigDecimal("-2"),
                 new BigDecimal("-2"), "pattern2", false, null);
 
-        int stateDescriptionProvider1ServiceRanking = -1;
-        int stateDescriptionProvider2ServiceRanking = -2;
-
-        StateDescription finalStateDescription = mergeStateDescriptions(stateDescription1, stateDescription2,
-                stateDescriptionProvider1ServiceRanking, stateDescriptionProvider2ServiceRanking);
+        registerStateDescriptionProvider(stateDescription1, -1);
+        registerStateDescriptionProvider(stateDescription2, -2);
+        StateDescription finalStateDescription = item.getStateDescription();
 
         assertThat(finalStateDescription.getMinimum(), is(stateDescription1.getMinimum()));
         assertThat(finalStateDescription.getMaximum(), is(stateDescription1.getMaximum()));
@@ -98,11 +102,9 @@ public class StateDescriptionServiceImplTest {
         StateDescription stateDescription1 = new StateDescription(null, null, null, null, false, null);
         StateDescription stateDescription2 = new StateDescription(null, null, null, null, true, null);
 
-        int stateDescriptionProvider1ServiceRanking = -1;
-        int stateDescriptionProvider2ServiceRanking = -2;
-
-        StateDescription finalStateDescription = mergeStateDescriptions(stateDescription1, stateDescription2,
-                stateDescriptionProvider1ServiceRanking, stateDescriptionProvider2ServiceRanking);
+        registerStateDescriptionProvider(stateDescription1, -1);
+        registerStateDescriptionProvider(stateDescription2, -2);
+        StateDescription finalStateDescription = item.getStateDescription();
 
         assertThat(finalStateDescription.isReadOnly(), is(stateDescription1.isReadOnly()));
     }
@@ -112,11 +114,9 @@ public class StateDescriptionServiceImplTest {
         StateDescription stateDescription1 = new StateDescription(null, null, null, null, true, null);
         StateDescription stateDescription2 = new StateDescription(null, null, null, null, false, null);
 
-        int stateDescriptionProvider1ServiceRanking = -1;
-        int stateDescriptionProvider2ServiceRanking = -2;
-
-        StateDescription finalStateDescription = mergeStateDescriptions(stateDescription1, stateDescription2,
-                stateDescriptionProvider1ServiceRanking, stateDescriptionProvider2ServiceRanking);
+        registerStateDescriptionProvider(stateDescription1, -1);
+        registerStateDescriptionProvider(stateDescription2, -2);
+        StateDescription finalStateDescription = item.getStateDescription();
 
         assertThat(finalStateDescription.isReadOnly(), is(stateDescription1.isReadOnly()));
     }
@@ -128,11 +128,9 @@ public class StateDescriptionServiceImplTest {
         StateDescription stateDescription2 = new StateDescription(null, null, null, null, false,
                 Collections.emptyList());
 
-        int stateDescriptionProvider1ServiceRanking = -1;
-        int stateDescriptionProvider2ServiceRanking = -2;
-
-        StateDescription finalStateDescription = mergeStateDescriptions(stateDescription1, stateDescription2,
-                stateDescriptionProvider1ServiceRanking, stateDescriptionProvider2ServiceRanking);
+        registerStateDescriptionProvider(stateDescription1, -1);
+        registerStateDescriptionProvider(stateDescription2, -2);
+        StateDescription finalStateDescription = item.getStateDescription();
 
         assertThat(finalStateDescription.getOptions(), is(stateDescription1.getOptions()));
     }
@@ -144,34 +142,19 @@ public class StateDescriptionServiceImplTest {
         StateDescription stateDescription2 = new StateDescription(null, null, null, null, false,
                 Arrays.asList(new StateOption("value", "label")));
 
-        int stateDescriptionProvider1ServiceRanking = -1;
-        int stateDescriptionProvider2ServiceRanking = -2;
-
-        StateDescription finalStateDescription = mergeStateDescriptions(stateDescription1, stateDescription2,
-                stateDescriptionProvider1ServiceRanking, stateDescriptionProvider2ServiceRanking);
+        registerStateDescriptionProvider(stateDescription1, -1);
+        registerStateDescriptionProvider(stateDescription2, -2);
+        StateDescription finalStateDescription = item.getStateDescription();
 
         assertThat(finalStateDescription.getOptions(), is(stateDescription2.getOptions()));
     }
 
-    private StateDescription mergeStateDescriptions(StateDescription stateDescription1,
-            StateDescription stateDescription2, int stateDescriptionProvider1ServiceRanking,
-            int stateDescriptionProvider2ServiceRanking) {
-        StateDescriptionProvider stateDescriptionProvider1 = mock(StateDescriptionProvider.class);
-        StateDescriptionProvider stateDescriptionProvider2 = mock(StateDescriptionProvider.class);
+    private void registerStateDescriptionProvider(StateDescription stateDescription, int serviceRanking) {
+        StateDescriptionProvider stateDescriptionProvider = mock(StateDescriptionProvider.class);
 
-        when(stateDescriptionProvider1.getRank()).thenReturn(stateDescriptionProvider1ServiceRanking);
-        when(stateDescriptionProvider2.getRank()).thenReturn(stateDescriptionProvider2ServiceRanking);
-
-        when(stateDescriptionProvider1.getStateDescription(ITEM_NAME, null)).thenReturn(stateDescription1);
-        when(stateDescriptionProvider2.getStateDescription(ITEM_NAME, null)).thenReturn(stateDescription2);
-
-        mergingService.addStateDescriptionProvider(stateDescriptionProvider1);
-        mergingService.addStateDescriptionProvider(stateDescriptionProvider2);
-        item = new NumberItem(ITEM_NAME);
-        item.setStateDescriptionService(mergingService);
-
-        StateDescription finalStateDescription = item.getStateDescription();
-        return finalStateDescription;
+        when(stateDescriptionProvider.getRank()).thenReturn(serviceRanking);
+        when(stateDescriptionProvider.getStateDescription(ITEM_NAME, null)).thenReturn(stateDescription);
+        stateDescriptionService.addStateDescriptionProvider(stateDescriptionProvider);
     }
 
 }
