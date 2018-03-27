@@ -7,18 +7,22 @@
  */
 package org.eclipse.smarthome.model.item.internal;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.eclipse.emf.codegen.ecore.templates.edit.ItemProvider;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.common.registry.AbstractProvider;
 import org.eclipse.smarthome.core.items.Metadata;
 import org.eclipse.smarthome.core.items.MetadataKey;
+import org.eclipse.smarthome.core.items.MetadataPredicates;
 import org.eclipse.smarthome.core.items.MetadataProvider;
 import org.osgi.service.component.annotations.Component;
 
@@ -35,7 +39,8 @@ import org.osgi.service.component.annotations.Component;
 @Component(immediate = true, service = { MetadataProvider.class, GenericMetadataProvider.class })
 public class GenericMetadataProvider extends AbstractProvider<Metadata> implements MetadataProvider {
 
-    Set<Metadata> metadata = new HashSet<>();
+    private final Set<Metadata> metadata = new HashSet<>();
+    private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     /**
      * Adds metadata to this provider
@@ -47,7 +52,12 @@ public class GenericMetadataProvider extends AbstractProvider<Metadata> implemen
     public void addMetadata(String bindingType, String itemName, String value, Map<String, Object> configuration) {
         MetadataKey key = new MetadataKey(bindingType, itemName);
         Metadata md = new Metadata(key, value, configuration);
-        metadata.add(md);
+        try {
+            lock.writeLock().lock();
+            metadata.add(md);
+        } finally {
+            lock.writeLock().unlock();
+        }
         notifyListenersAboutAddedElement(md);
     }
 
@@ -56,14 +66,28 @@ public class GenericMetadataProvider extends AbstractProvider<Metadata> implemen
      *
      * @param itemName
      */
-    public void removeMetadata(String itemName) {
-        metadata = metadata.stream().filter(md -> md.getUID().getItemName().equals(itemName))
-                .collect(Collectors.toSet());
+    public void removeMetaData(String itemName) {
+        Set<Metadata> toBeRemoved;
+        try {
+            lock.writeLock().lock();
+            toBeRemoved = metadata.stream().filter(MetadataPredicates.ofItem(itemName)).collect(toSet());
+            metadata.removeAll(toBeRemoved);
+        } finally {
+            lock.writeLock().unlock();
+        }
+        for (Metadata m : toBeRemoved) {
+            notifyListenersAboutRemovedElement(m);
+        }
     }
 
     @Override
     public Collection<Metadata> getAll() {
-        return Collections.unmodifiableSet(metadata);
+        try {
+            lock.readLock().lock();
+            return Collections.unmodifiableSet(metadata);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
 }
