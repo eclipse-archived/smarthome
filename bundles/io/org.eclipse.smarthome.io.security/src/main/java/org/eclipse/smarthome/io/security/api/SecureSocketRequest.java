@@ -20,9 +20,9 @@ import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Implement this to request a secure socket implementation (SSLEngine or others) and get notified of the response.
- * Use {@link SecureSocketServers#requestSecureSocketImplementation(SecureSocketRequest)} to issue a request.
+ * Use {@link RequestSecureSocketProvider#addProviderRequest(SecureSocketRequest)} to issue a request.
  *
- * {@link SecureSocketServers} will also notify you about changes of the requested secure socket implementation
+ * {@link RequestSecureSocketProvider} will also notify you about changes of the requested secure socket implementation
  * during the life-time of the service.
  *
  * @author David Graeff - Initial contribution
@@ -44,35 +44,31 @@ public interface SecureSocketRequest {
     Set<SecureSocketCapability> optionalCapabilities();
 
     /**
-     * Returns a potentially new secure socket implementation instance that fulfills the requested mandatory
-     * capabilities and if possible the optional ones as well.
+     * Provides a potentially new secure socket implementation instance to your SecureSocketRequest implementation.
+     * It is guaranteed that all requested mandatory capabilities are present and if possible the optional ones as well.
      *
      * If an existing implementation, for instance a SSLContext, changes in the background this method
-     * will get called again. A change might be that a period renewal took place and new
-     * certificates got loaded or that the user removed that specific implementation.
+     * will get called again another two times. First with a null object and in a subsequent call with the new secure
+     * socket provider.
+     * A change might be that a period renewal took place and new certificates got loaded or that the user removed a
+     * specific provider.
      *
-     * @param secureSocketObject The object may be a SSLContext or Scandium
+     * @param secureSocketProvider The object may be a SSLContext or Scandium
      *            DtlsConnector or any other implementation that the backend matched with the requested capabilities.
-     *            May be null, if at least one capability could not be matched. May be null in a subsequent call if the
-     *            user removed an implementation deliberately.
+     *            May be null, if one or more mandatory capabilities could not be matched. May be null in a subsequent
+     *            call if the user removed a provider deliberately.
      */
-    void secureSocketImplementationResponse(@Nullable Object secureSocketObject);
+    void providerResponse(@Nullable Object secureSocketProvider);
 
     /**
      * Because it is a common case to request the java frameworks own SSLContext, this specific method will get called
-     * instead of {@link SecureSocketRequest#secureSocketImplementationResponse(Object)} if the secure socket
-     * implementation matches a SSLContext.
+     * additionally to {@link SecureSocketRequest#providerResponse(Object)} if the secure socket provider is a
+     * SSLContext.
      *
-     * @param secureSocketContext May be null, if at least one capability could not be matched. May be null in a
-     *            subsequent call if the user removed an implementation deliberately.
-     */
-    void secureSocketImplementationResponse(@Nullable SSLContext secureSocketContext);
-
-    /**
-     * If an error happens while the secure socket implementation is initialized, for example because an algorithm
-     * could not be loaded or an IO error occurred, you will be called by this method.
+     * You need to react to the former mentioned method as well, because here you will not be notified if the provider
+     * vanished.
      *
-     * @param error The exception that occurred.
+     * @param secureSocketProvider A SSLContext that matched all {@link #mandatoryCapabilities()}.
      */
-    void secureSocketImplementationUnavailable(Throwable error);
+    void providerResponse(SSLContext secureSocketProvider);
 }

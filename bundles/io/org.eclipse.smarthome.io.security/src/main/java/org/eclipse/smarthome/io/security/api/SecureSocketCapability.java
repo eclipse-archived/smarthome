@@ -15,7 +15,7 @@ package org.eclipse.smarthome.io.security.api;
 /**
  * Implement this interface with for example a custom `enum` and define your own capabilities.
  * Capabilities are used to decide which secure socket implementation should be returned by
- * {@link SecureSocketServers}.
+ * {@link RequestSecureSocketProvider}.
  *
  * @see SecureSocketCapabilities
  *
