@@ -247,7 +247,6 @@ public class NtpOSGiTest extends JavaOSGiTest {
     }
 
     @Test
-    @Ignore("https://github.com/eclipse/smarthome/issues/5224")
     public void testStringChannelDefaultTimeZoneUpdate() {
         final String expectedTimeZoneEEST = "EEST";
         final String expectedTimeZoneEET = "EET";
@@ -285,6 +284,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
     }
 
     @Test
+    @Ignore("https://github.com/eclipse/smarthome/issues/5224")
     public void testDateTimeChannelCalendarDefaultTimeZoneUpdate() {
         Configuration configuration = new Configuration();
         // Initialize with configuration with no time zone property set.
