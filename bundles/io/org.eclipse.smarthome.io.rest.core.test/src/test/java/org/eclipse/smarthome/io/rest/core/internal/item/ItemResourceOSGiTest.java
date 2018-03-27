@@ -34,7 +34,11 @@ import org.apache.commons.io.IOUtils;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
+import org.eclipse.smarthome.core.items.Metadata;
+import org.eclipse.smarthome.core.items.MetadataKey;
+import org.eclipse.smarthome.core.items.MetadataProvider;
 import org.eclipse.smarthome.core.items.dto.GroupItemDTO;
+import org.eclipse.smarthome.core.items.dto.MetadataDTO;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
@@ -204,6 +208,56 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
         assertThat(statusCodes.size(), is(2));
         assertThat(statusCodes.get(0), is("error"));
         assertThat(statusCodes.get(1), is("updated"));
+    }
+
+    @Test
+    public void testMetadata() {
+        MetadataDTO dto = new MetadataDTO();
+        dto.value = "some value";
+        assertEquals(201, itemResource.addMetadata(ITEM_NAME1, "namespace", dto).getStatus());
+        assertEquals(200, itemResource.removeMetadata(ITEM_NAME1, "namespace").getStatus());
+        assertEquals(404, itemResource.removeMetadata(ITEM_NAME1, "namespace").getStatus());
+    }
+
+    @Test
+    public void testAddMetadata_nonExistingItem() {
+        MetadataDTO dto = new MetadataDTO();
+        dto.value = "some value";
+        Response response = itemResource.addMetadata("nonExisting", "foo", dto);
+        assertEquals(404, response.getStatus());
+    }
+
+    @Test
+    public void testAddMetadata_update() {
+        MetadataDTO dto = new MetadataDTO();
+        dto.value = "some value";
+        assertEquals(201, itemResource.addMetadata(ITEM_NAME1, "namespace", dto).getStatus());
+        MetadataDTO dto2 = new MetadataDTO();
+        dto2.value = "new value";
+        assertEquals(200, itemResource.addMetadata(ITEM_NAME1, "namespace", dto2).getStatus());
+    }
+
+    @Test
+    public void testRemoveMetadata_nonExistingItem() {
+        Response response = itemResource.removeMetadata("nonExisting", "anything");
+        assertEquals(404, response.getStatus());
+    }
+
+    @Test
+    public void testRemoveMetadata_nonExistingNamespace() {
+        Response response = itemResource.removeMetadata(ITEM_NAME1, "anything");
+        assertEquals(404, response.getStatus());
+    }
+
+    @Test
+    public void testRemoveMetadata_unmanagedMetadata() {
+        MetadataProvider provider = mock(MetadataProvider.class);
+        when(provider.getAll()).thenReturn(
+                Collections.singleton(new Metadata(new MetadataKey("namespace", ITEM_NAME1), "some value", null)));
+        registerService(provider);
+
+        Response response = itemResource.removeMetadata(ITEM_NAME1, "namespace");
+        assertEquals(409, response.getStatus());
     }
 
 }
