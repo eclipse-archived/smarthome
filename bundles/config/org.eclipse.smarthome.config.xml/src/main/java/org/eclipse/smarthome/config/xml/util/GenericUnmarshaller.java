@@ -52,7 +52,7 @@ public abstract class GenericUnmarshaller<T> implements Converter {
     @SuppressWarnings("rawtypes")
     @Override
     public final boolean canConvert(Class paramClass) {
-        return (clazz == paramClass);
+        return (clazz.equals(paramClass));
     }
 
     @Override

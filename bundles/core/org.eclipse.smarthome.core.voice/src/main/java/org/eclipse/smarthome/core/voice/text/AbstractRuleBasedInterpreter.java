@@ -842,7 +842,7 @@ public abstract class AbstractRuleBasedInterpreter implements HumanLanguageInter
 
     @Override
     public String getGrammar(Locale locale, String format) {
-        if (format != JSGF) {
+        if (!JSGF.equals(format)) {
             return null;
         }
         JSGFGenerator generator = new JSGFGenerator(ResourceBundle.getBundle(LANGUAGE_SUPPORT, locale));
