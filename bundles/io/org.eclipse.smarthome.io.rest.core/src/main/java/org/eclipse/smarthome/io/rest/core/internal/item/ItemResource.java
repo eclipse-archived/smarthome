@@ -231,7 +231,7 @@ public class ItemResource implements RESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = EnrichedItemDTO.class),
             @ApiResponse(code = 404, message = "Item not found") })
     public Response getItemData(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
-            @QueryParam("metadata") @ApiParam(value = "meta data selector", required = false) String namespaceSelector,
+            @QueryParam("metadata") @ApiParam(value = "metadata selector", required = false) String namespaceSelector,
             @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname) {
 
         final Locale locale = LocaleUtil.getLocale(language);
@@ -518,13 +518,15 @@ public class ItemResource implements RESTResource {
     @RolesAllowed({ Role.ADMIN })
     @Path("/{itemname: [a-zA-Z_0-9]*}/metadata/{namespace}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Adds meta data to an item.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Item not found."),
+    @ApiOperation(value = "Adds metadata to an item.")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "OK"), //
+            @ApiResponse(code = 201, message = "Created"), //
+            @ApiResponse(code = 404, message = "Item not found."), //
             @ApiResponse(code = 405, message = "Metadata not editable.") })
-    public Response addMetaData(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
+    public Response addMetadata(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
             @PathParam("namespace") @ApiParam(value = "namespace", required = true) String namespace,
-            @ApiParam(value = "meta data", required = true) MetadataDTO metadata) {
+            @ApiParam(value = "metadata", required = true) MetadataDTO metadata) {
 
         Item item = getItem(itemname);
 
@@ -535,19 +537,24 @@ public class ItemResource implements RESTResource {
 
         MetadataKey key = new MetadataKey(namespace, itemname);
         Metadata md = new Metadata(key, metadata.value, metadata.config);
-        metadataRegistry.add(md);
+        if (metadataRegistry.get(key) == null) {
+            metadataRegistry.add(md);
+            return Response.status(Status.CREATED).type(MediaType.TEXT_PLAIN).build();
+        } else {
+            metadataRegistry.update(md);
+            return Response.ok(null, MediaType.TEXT_PLAIN).build();
+        }
 
-        return Response.ok().build();
     }
 
     @DELETE
     @RolesAllowed({ Role.ADMIN })
     @Path("/{itemname: [a-zA-Z_0-9]*}/metadata/{namespace}")
-    @ApiOperation(value = "Removes meta data from an item.")
+    @ApiOperation(value = "Removes metadata from an item.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Item not found."),
             @ApiResponse(code = 405, message = "Meta data not editable.") })
-    public Response removeMetaData(
+    public Response removeMetadata(
             @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
             @PathParam("namespace") @ApiParam(value = "namespace", required = true) String namespace) {
 
@@ -559,9 +566,19 @@ public class ItemResource implements RESTResource {
         }
 
         MetadataKey key = new MetadataKey(namespace, itemname);
-        metadataRegistry.remove(key);
+        if (metadataRegistry.get(key) != null) {
+            if (metadataRegistry.remove(key) == null) {
+                logger.info("Received HTTP DELETE request at '{}' for unmanaged item meta-data '{}'.",
+                        uriInfo.getPath(), key);
+                return Response.status(Status.CONFLICT).build();
+            }
+        } else {
+            logger.info("Received HTTP DELETE request at '{}' for unknown item meta-data '{}'.", uriInfo.getPath(),
+                    key);
+            return Response.status(Status.NOT_FOUND).build();
+        }
 
-        return Response.ok().build();
+        return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
     /**
