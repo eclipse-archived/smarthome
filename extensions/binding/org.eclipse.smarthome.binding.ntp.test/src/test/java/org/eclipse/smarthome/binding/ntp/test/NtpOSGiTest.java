@@ -247,6 +247,7 @@ public class NtpOSGiTest extends JavaOSGiTest {
     }
 
     @Test
+    @Ignore("https://github.com/eclipse/smarthome/issues/5224")
     public void testStringChannelDefaultTimeZoneUpdate() {
         final String expectedTimeZoneEEST = "EEST";
         final String expectedTimeZoneEET = "EET";
