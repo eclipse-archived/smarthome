@@ -7,11 +7,11 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Fragment-Host: org.eclipse.smarthome.io.net
 Import-Package: 
- net.bytebuddy.dynamic.loading,
  org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.test,
+ org.eclipse.smarthome.test.java,
  org.hamcrest;core=split,
  org.hamcrest.core,
  org.junit;version="4.0.0",
  org.mockito,
- org.mockito.stubbing,
- org.objenesis
+ org.mockito.stubbing

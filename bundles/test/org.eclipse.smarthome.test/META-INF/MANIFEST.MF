@@ -38,3 +38,6 @@ Import-Package: com.google.common.collect,
  org.osgi.service.component.runtime,
  org.osgi.service.component.runtime.dto,
  org.slf4j
+Require-Bundle: net.bytebuddy.byte-buddy;bundle-version="1.7.0";visibility:=reexport,
+ net.bytebuddy.byte-buddy-agent;bundle-version="1.7.0";visibility:=reexport,
+ org.objenesis;bundle-version="2.6.0";visibility:=reexport
