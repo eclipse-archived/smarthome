@@ -65,7 +65,7 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
     private final Set<UsbSerialDiscoveryParticipant> discoveryParticipants = new CopyOnWriteArraySet<>();
 
     @Nullable
-    private UsbSerialDiscovery usbSerialDiscovery;
+    private volatile UsbSerialDiscovery usbSerialDiscovery;
 
     public UsbSerialDiscoveryService() {
         super(5);
@@ -81,7 +81,12 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    protected void setUsbSerialDiscovery(UsbSerialDiscovery usbSerialDiscovery) {
+    protected synchronized void setUsbSerialDiscovery(UsbSerialDiscovery usbSerialDiscovery) {
+        UsbSerialDiscovery currentUsbSerialDiscovery = this.usbSerialDiscovery;
+        if (currentUsbSerialDiscovery != null) {
+            unsetUsbSerialDiscovery(currentUsbSerialDiscovery);
+        }
+
         this.usbSerialDiscovery = usbSerialDiscovery;
         usbSerialDiscovery.registerDiscoveryListener(this);
         if (isBackgroundDiscoveryEnabled()) {
@@ -89,10 +94,12 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
         }
     }
 
-    protected void unsetUsbSerialDiscovery(UsbSerialDiscovery usbSerialDiscovery) {
-        usbSerialDiscovery.stopBackgroundScanning();
-        usbSerialDiscovery.unregisterDiscoveryListener(this);
-        this.usbSerialDiscovery = null;
+    protected synchronized void unsetUsbSerialDiscovery(UsbSerialDiscovery usbSerialDiscovery) {
+        if (this.usbSerialDiscovery == usbSerialDiscovery) {
+            usbSerialDiscovery.stopBackgroundScanning();
+            usbSerialDiscovery.unregisterDiscoveryListener(this);
+            this.usbSerialDiscovery = null;
+        }
     }
 
     @Override
