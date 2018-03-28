@@ -21,10 +21,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import javax.naming.ConfigurationException;
 
-import org.eclipse.smarthome.binding.mqtt.generic.handler.ChannelConfig;
-import org.eclipse.smarthome.binding.mqtt.generic.handler.MqttBrokerConnectionHandler;
-import org.eclipse.smarthome.binding.mqtt.generic.handler.MqttThingHandler;
-import org.eclipse.smarthome.binding.mqtt.generic.handler.TransformationServiceProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.TextValue;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -77,7 +73,6 @@ public class ThingHandlerTransformationPatternTest {
 
         // Mock the thing: We need the thingUID and the bridgeUID
         when(thing.getUID()).thenReturn(testThing);
-        when(thing.getBridgeUID()).thenReturn(bridgeThing);
         when(thing.getChannels()).thenReturn(thingChannelListWithJson);
         when(thing.getStatusInfo()).thenReturn(thingStatus);
         when(thing.getConfiguration()).thenReturn(new Configuration());
@@ -93,7 +88,6 @@ public class ThingHandlerTransformationPatternTest {
         doReturn(bridgeHandler).when(thingHandler).getBridgeHandler();
 
         // We are by default online
-        doReturn(true).when(connection).isConnected();
         doReturn(thingStatus).when(thingHandler).getBridgeStatus();
     }
 

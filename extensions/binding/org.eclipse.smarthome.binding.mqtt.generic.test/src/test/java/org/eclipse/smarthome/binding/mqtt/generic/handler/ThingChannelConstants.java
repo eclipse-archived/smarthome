@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.smarthome.binding.mqtt.generic.internal.discovery.MqttServiceDiscoveryService;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -36,10 +35,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 public class ThingChannelConstants {
     // Common ThingUID and ChannelUIDs
     final public static ThingUID testThing = new ThingUID(THING_TYPE,
-            MqttServiceDiscoveryService.makeThingUID("testname"), "testthing");
-    // final ThingUID unsupportedThing = new ThingUID(
-    // new ThingTypeUID(BINDING_ID, "unsupported"),
-    // MqttServiceDiscoveryService.makeThingUID("testname"), "testthing");
+            new ThingUID(BRIDGE_TYPE_CONNECTION, "testbridge"), "testthing");
     final public static ChannelTypeUID textChannel = new ChannelTypeUID(BINDING_ID, TEXT_CHANNEL);
     final public static ChannelTypeUID textWithJsonChannel = new ChannelTypeUID(BINDING_ID, TEXT_CHANNEL);
     final public static ChannelTypeUID onoffChannel = new ChannelTypeUID(BINDING_ID, ONOFF_CHANNEL);

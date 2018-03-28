@@ -25,7 +25,7 @@ public class MqttBrokerBindingConstants {
     public static final String BINDING_ID = "mqtt";
 
     // List of all Thing Type UIDs
-    public static final ThingTypeUID BRIDGE_TYPE_CONNECTION = new ThingTypeUID(BINDING_ID, "brokerconnection");
+    public static final ThingTypeUID BRIDGE_TYPE_CONNECTION = new ThingTypeUID(BINDING_ID, "broker");
     public static final ThingTypeUID THING_TYPE = new ThingTypeUID(BINDING_ID, "topic");
 
     // Bridge parameters
