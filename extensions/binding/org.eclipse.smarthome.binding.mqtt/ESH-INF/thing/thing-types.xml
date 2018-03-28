@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="mqtt" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<bridge-type id="brokerconnection">
+		<label>A broker connection</label>
+		<description>A broker connection</description>
+
+		<properties>
+			<property name="internal_status"></property>
+		</properties>
+
+		<config-description>
+			<parameter name="brokername" type="text" required="true">
+				<label>Connection name</label>
+				<description>The broker connection name. You need to have a broker connection configured already, this is not part of this binding.</description>
+			</parameter>
+		</config-description>
+	</bridge-type>
+
+	<thing-type id="topic" extensible="text,number,percentage,onoff">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="brokerconnection" />
+		</supported-bridge-type-refs>
+		<label>A topic</label>
+		<description>This thing represents a topic</description>
+	</thing-type>
+
+	<channel-type id="text">
+		<item-type>String</item-type>
+		<label>Text value</label>
+		<config-description>
+			<parameter name="stateTopic" type="text">
+				<label>Mqtt state topic</label>
+				<description>An Mqtt topic that this thing will subscribe to, to receive the state. This can be left empty, the thing will be state-less then.</description>
+				<default></default>
+			</parameter>
+			<parameter name="commandTopic" type="text">
+				<label>Mqtt command topic</label>
+				<description>An Mqtt topic that this thing will send a command to. This can be left empty</description>
+				<default></default>
+			</parameter>
+			<parameter name="transformationPattern" type="text">
+				<label>Transformation pattern</label>
+				<description>Any supported transformation can be used. An example for a received JSON from a Mqtt state topic would be a pattern of JSONPATH:$.device.status.temperature for a json {device: {status: { temperature: 23.2 }}}.</description>
+				<default></default>
+				<advanced>true</advanced>
+			</parameter>
+		</config-description>
+	</channel-type>
+
+	<channel-type id="number">
+		<item-type>Number</item-type>
+		<label>Number value</label>
+		<config-description>
+			<parameter name="stateTopic" type="text">
+				<label>Mqtt state topic</label>
+				<description>An Mqtt topic that this thing will subscribe to, to receive the state. This can be left empty, the thing will be state-less then.</description>
+				<default></default>
+			</parameter>
+			<parameter name="commandTopic" type="text">
+				<label>Mqtt command topic</label>
+				<description>An Mqtt topic that this thing will send a command to. This can be left empty</description>
+				<default></default>
+			</parameter>
+			<parameter name="transformationPattern" type="text">
+				<label>Transformation pattern</label>
+				<description>Any supported transformation can be used. An example for a received JSON from a Mqtt state topic would be a pattern of JSONPATH:$.device.status.temperature for a json {device: {status: { temperature: 23.2 }}}.</description>
+				<default></default>
+				<advanced>true</advanced>
+			</parameter>
+
+			<parameter name="step" type="decimal">
+				<label>Step value</label>
+				<description>The step value is used if the value channel is bound to a Dimmer item and an increase/decrease is issued</description>
+				<default>10.0</default>
+			</parameter>
+			<parameter name="isfloat" type="boolean">
+				<label>Is Decimal?</label>
+				<description>Set to true if the Mqtt topic expects a float/double decimal instead of an integer value</description>
+				<default>false</default>
+			</parameter>
+		</config-description>
+	</channel-type>
+
+	<channel-type id="percentage">
+		<item-type>Number</item-type>
+		<label>Percentage value</label>
+		<config-description>
+			<parameter name="stateTopic" type="text">
+				<label>Mqtt state topic</label>
+				<description>An Mqtt topic that this thing will subscribe to, to receive the state. This can be left empty, the thing will be state-less then.</description>
+				<default></default>
+			</parameter>
+			<parameter name="commandTopic" type="text">
+				<label>Mqtt command topic</label>
+				<description>An Mqtt topic that this thing will send a command to. This can be left empty</description>
+				<default></default>
+			</parameter>
+			<parameter name="transformationPattern" type="text">
+				<label>Transformation pattern</label>
+				<description>Any supported transformation can be used. An example for a received JSON from a Mqtt state topic would be a pattern of JSONPATH:$.device.status.temperature for a json {device: {status: { temperature: 23.2 }}}.</description>
+				<default></default>
+				<advanced>true</advanced>
+			</parameter>
+
+			<parameter name="min" type="decimal">
+				<label>Minimum value</label>
+				<description>Minimum value to convert the Mqtt state to a percentage</description>
+				<default>0.0</default>
+			</parameter>
+			<parameter name="max" type="decimal">
+				<label>Maximum value</label>
+				<description>Maximum value to convert the Mqtt state to a percentage</description>
+				<default>100.0</default>
+			</parameter>
+			<parameter name="step" type="decimal">
+				<label>Step value</label>
+				<description>The step value is used if the value channel is bound to a Dimmer item and an increase/decrease is issued</description>
+				<default>10.0</default>
+			</parameter>
+			<parameter name="isfloat" type="boolean">
+				<label>Is Decimal?</label>
+				<description>Any supported transformation can be used. An example for a received JSON from a Mqtt state topic would be a pattern of JSONPATH:$.device.status.temperature for a json {device: {status: { temperature: 23.2 }}}.</description>
+				<default>false</default>
+			</parameter>
+		</config-description>
+	</channel-type>
+
+	<channel-type id="onoff">
+		<item-type>Switch</item-type>
+		<label>On/Off value</label>
+		<config-description>
+			<parameter name="stateTopic" type="text">
+				<label>Mqtt state topic</label>
+				<description>An Mqtt topic that this thing will subscribe to, to receive the state. This can be left empty, the thing will be state-less then.</description>
+				<default></default>
+			</parameter>
+			<parameter name="commandTopic" type="text">
+				<label>Mqtt command topic</label>
+				<description>An Mqtt topic that this thing will send a command to. This can be left empty</description>
+				<default></default>
+			</parameter>
+			<parameter name="transformationPattern" type="text">
+				<label>Transformation pattern</label>
+				<description>Any supported transformation can be used. An example for a received JSON from a Mqtt state topic would be a pattern of JSONPATH:$.device.status.temperature for a json {device: {status: { temperature: 23.2 }}}.</description>
+				<default></default>
+				<advanced>true</advanced>
+			</parameter>
+
+			<parameter name="on" type="text">
+				<label>ON value</label>
+				<description>A number (like 1, 10) or a string (like ON) that is recognised as on state.</description>
+				<default>0</default>
+				<advanced>true</advanced>
+			</parameter>
+			<parameter name="off" type="text">
+				<label>OFF value</label>
+				<description>A number (like 0, -10) or a string (like OFF) that is recognised as off state.</description>
+				<default>1</default>
+				<advanced>true</advanced>
+			</parameter>
+			<parameter name="inverse" type="boolean">
+				<label>Inverse</label>
+				<description>Inverse the meaning. A received "ON" will switch the thing channel off and vice versa.</description>
+				<default>false</default>
+				<advanced>true</advanced>
+			</parameter>
+		</config-description>
+	</channel-type>
+
+</thing:thing-descriptions>
