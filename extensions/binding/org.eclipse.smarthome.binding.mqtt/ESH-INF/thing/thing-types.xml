@@ -3,24 +3,9 @@
 	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-	<bridge-type id="brokerconnection">
-		<label>A broker connection</label>
-		<description>A broker connection</description>
-
-		<properties>
-			<property name="internal_status"></property>
-		</properties>
-
-		<config-description>
-			<parameter name="brokername" type="text" required="true">
-				<label>Connection name</label>
-				<description>The broker connection name. You need to have a broker connection configured already, this is not part of this binding.</description>
-			</parameter>
-		</config-description>
-	</bridge-type>
-
 	<thing-type id="topic" extensible="text,number,percentage,onoff">
 		<supported-bridge-type-refs>
+		    <bridge-type-ref id="brokerconnection" />
 			<bridge-type-ref id="brokerconnection" />
 		</supported-bridge-type-refs>
 		<label>A topic</label>

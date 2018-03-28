@@ -35,7 +35,6 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
  */
 public class ThingChannelConstants {
     // Common ThingUID and ChannelUIDs
-    final public static ThingUID bridgeThing = MqttServiceDiscoveryService.makeThingUID("testname");
     final public static ThingUID testThing = new ThingUID(THING_TYPE,
             MqttServiceDiscoveryService.makeThingUID("testname"), "testthing");
     // final ThingUID unsupportedThing = new ThingUID(

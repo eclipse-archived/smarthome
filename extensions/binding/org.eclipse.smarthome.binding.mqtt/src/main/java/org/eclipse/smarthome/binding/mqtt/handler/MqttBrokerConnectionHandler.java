@@ -21,10 +21,10 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
-import org.eclipse.smarthome.io.transport.mqtt.MqttBrokersObserver;
 import org.eclipse.smarthome.io.transport.mqtt.MqttConnectionObserver;
 import org.eclipse.smarthome.io.transport.mqtt.MqttConnectionState;
 import org.eclipse.smarthome.io.transport.mqtt.MqttService;
+import org.eclipse.smarthome.io.transport.mqtt.MqttServiceObserver;
 
 /**
  * This bridge broker connection listens to changes of the {@link MqttBrokerConnection}
@@ -34,7 +34,7 @@ import org.eclipse.smarthome.io.transport.mqtt.MqttService;
  * @author David Graeff - Initial contribution
  */
 public class MqttBrokerConnectionHandler extends BaseBridgeHandler
-        implements MqttConnectionObserver, MqttBrokersObserver {
+        implements MqttConnectionObserver, MqttServiceObserver {
 
     private final MqttService service;
     private String brokerName;
@@ -62,8 +62,8 @@ public class MqttBrokerConnectionHandler extends BaseBridgeHandler
      * is no connection established yet.
      */
     @Override
-    public void brokerAdded(MqttBrokerConnection broker) {
-        if (!broker.getName().equals(brokerName) || connection == broker) {
+    public void brokerAdded(String brokerID, MqttBrokerConnection broker) {
+        if (!brokerID.equals(brokerName) || connection == broker) {
             return;
         }
 
@@ -73,12 +73,11 @@ public class MqttBrokerConnectionHandler extends BaseBridgeHandler
 
         connection = broker;
         connection.addConnectionObserver(this);
-        connectionStateChanged(
-                connection.isConnected() ? MqttConnectionState.CONNECTED : MqttConnectionState.DISCONNECTED, null);
+        connectionStateChanged(connection.connectionState(), null);
     }
 
     @Override
-    public void brokerRemoved(MqttBrokerConnection broker) {
+    public void brokerRemoved(String brokerID, MqttBrokerConnection broker) {
         if (broker == connection) {
             connection.removeConnectionObserver(this);
             connection = null;
@@ -130,8 +129,7 @@ public class MqttBrokerConnectionHandler extends BaseBridgeHandler
         }
 
         connection.addConnectionObserver(this);
-        connectionStateChanged(
-                connection.isConnected() ? MqttConnectionState.CONNECTED : MqttConnectionState.DISCONNECTED, null);
+        connectionStateChanged(connection.connectionState(), null);
     }
 
     public MqttBrokerConnection getConnection() {
