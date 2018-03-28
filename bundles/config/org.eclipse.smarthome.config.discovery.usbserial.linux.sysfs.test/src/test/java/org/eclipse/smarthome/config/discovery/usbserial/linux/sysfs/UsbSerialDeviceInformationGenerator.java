@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDeviceInformation;
 
 /**
- * Generate simple instances of {@link UsbSerialDeviceInformation}.
+ * Generate simple instances of {@link UsbSerialDeviceInformation} that can be used in tests.
  *
  * @author Henning Sudbrock - initial contribution
  */

@@ -15,7 +15,6 @@ package org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs.internal;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.nio.file.Files.*;
 import static java.nio.file.attribute.PosixFilePermission.*;
-import static org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs.UsbSerialDeviceInformationMatcher.isUsbSerialDeviceInfo;
 import static org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs.internal.SysfsUsbSerialScanner.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -27,6 +26,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 
+import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDeviceInformation;
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -173,6 +174,12 @@ public class SysFsUsbSerialScannerTest {
         if (serialNumber != null) {
             write(createFile(usbDevicePath.resolve("serial")), serialNumber.getBytes());
         }
+    }
+
+    private Matcher<UsbSerialDeviceInformation> isUsbSerialDeviceInfo(int vendorId, int productId, String serialNumber,
+            String manufacturer, String product, String serialPort) {
+        return equalTo(
+                new UsbSerialDeviceInformation(vendorId, productId, serialNumber, manufacturer, product, serialPort));
     }
 
     private boolean systemSupportsSymLinks() throws IOException {

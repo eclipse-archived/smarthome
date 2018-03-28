@@ -98,6 +98,7 @@ public class UsbSerialDeviceInformation {
         return serialPort;
     }
 
+    @SuppressWarnings("null")
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -105,9 +106,13 @@ public class UsbSerialDeviceInformation {
         result = prime * result + vendorId;
         result = prime * result + productId;
         result = prime * result + serialPort.hashCode();
+        result = prime * result + ((manufacturer == null) ? 0 : manufacturer.hashCode());
+        result = prime * result + ((product == null) ? 0 : product.hashCode());
+        result = prime * result + ((serialNumber == null) ? 0 : serialNumber.hashCode());
         return result;
     }
 
+    @SuppressWarnings("null")
     @Override
     public boolean equals(@Nullable Object obj) {
         if (this == obj) {
@@ -119,6 +124,7 @@ public class UsbSerialDeviceInformation {
         if (getClass() != obj.getClass()) {
             return false;
         }
+
         UsbSerialDeviceInformation other = (UsbSerialDeviceInformation) obj;
 
         if (vendorId != other.vendorId) {
@@ -130,6 +136,30 @@ public class UsbSerialDeviceInformation {
         }
 
         if (!serialPort.equals(other.serialPort)) {
+            return false;
+        }
+
+        if (manufacturer == null) {
+            if (other.manufacturer != null) {
+                return false;
+            }
+        } else if (!manufacturer.equals(other.manufacturer)) {
+            return false;
+        }
+
+        if (product == null) {
+            if (other.product != null) {
+                return false;
+            }
+        } else if (!product.equals(other.product)) {
+            return false;
+        }
+
+        if (serialNumber == null) {
+            if (other.serialNumber != null) {
+                return false;
+            }
+        } else if (!serialNumber.equals(other.serialNumber)) {
             return false;
         }
 

@@ -26,7 +26,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  * {@link UsbSerialDiscoveryService} and can thus contribute {@link DiscoveryResult}s from
  * scans for USB devices with an associated serial port.
  *
- * @author Henning sudbrock - initial contribution
+ * @author Henning Sudbrock - initial contribution
  */
 @NonNullByDefault
 public interface UsbSerialDiscoveryParticipant {

@@ -13,7 +13,6 @@
 package org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs.internal;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs.UsbSerialDeviceInformationMatcher.isUsbSerialDeviceInfo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
@@ -72,14 +71,14 @@ public class DeltaUsbSerialScannerTest {
 
         Delta<UsbSerialDeviceInformation> delta = deltaUsbSerialScanner.scan();
 
-        assertThat(delta.getAdded(), containsInAnyOrder(isUsbSerialDeviceInfo(usb1), isUsbSerialDeviceInfo(usb2)));
+        assertThat(delta.getAdded(), containsInAnyOrder(usb1, usb2));
         assertThat(delta.getRemoved(), is(empty()));
         assertThat(delta.getUnchanged(), is(empty()));
     }
 
     /**
-     * If a first scan discovers devices usb1 and usb2, and a second scan discovers devices usb2 and usb2, then the
-     * delta for the second scan is: usb3 is added, usb21 is removed, and usb2 is unchanged.
+     * If a first scan discovers devices usb1 and usb2, and a second scan discovers devices usb2 and usb3, then the
+     * delta for the second scan is: usb3 is added, usb1 is removed, and usb2 is unchanged.
      */
     @Test
     public void testDevicesAddedAndRemovedAndUnchanged() throws IOException {
@@ -93,9 +92,9 @@ public class DeltaUsbSerialScannerTest {
         when(usbSerialScanner.scan()).thenReturn(newHashSet(usb2, usb3));
         Delta<UsbSerialDeviceInformation> delta = deltaUsbSerialScanner.scan();
 
-        assertThat(delta.getAdded(), contains(isUsbSerialDeviceInfo(usb3)));
-        assertThat(delta.getRemoved(), contains(isUsbSerialDeviceInfo(usb1)));
-        assertThat(delta.getUnchanged(), contains(isUsbSerialDeviceInfo(usb2)));
+        assertThat(delta.getAdded(), contains(usb3));
+        assertThat(delta.getRemoved(), contains(usb1));
+        assertThat(delta.getUnchanged(), contains(usb2));
     }
 
 }

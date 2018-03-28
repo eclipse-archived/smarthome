@@ -109,7 +109,7 @@ public class PollingUsbSerialScannerTest {
 
         pollingScanner.stopBackgroundScanning();
 
-        // Expectation: discovery listener called once for each discovered deviec; once for removal of usb1
+        // Expectation: discovery listener called once for each discovered device, and once for removal of usb1.
 
         verify(discoveryListener, times(1)).usbSerialDeviceDiscovered(usb1);
         verify(discoveryListener, times(1)).usbSerialDeviceRemoved(usb1);
