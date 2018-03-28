@@ -64,6 +64,6 @@ public class MagicServiceImpl implements MagicService {
     @Modified
     public void modified(Map<String, Object> properties) {
         MagicServiceConfig config = new Configuration(properties).as(MagicServiceConfig.class);
-        logger.debug(config.toString());
+        logger.debug("Magic Service has been modified: {}", config);
     }
 }
