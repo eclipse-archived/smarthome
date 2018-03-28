@@ -2,7 +2,7 @@ package org.eclipse.smarthome.config.discovery.usbserial.internal;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.eclipse.smarthome.config.discovery.DiscoveryService.CONFIG_PROPERTY_BACKGROUND_DISCOVERY;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
@@ -21,6 +21,7 @@ import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDiscoveryPartic
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
+import org.junit.Before;
 import org.junit.Test;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -32,52 +33,51 @@ import org.osgi.service.cm.ConfigurationAdmin;
  */
 public class UsbSerialDiscoveryServiceTest extends JavaOSGiTest {
 
+    private UsbSerialDiscovery usbSerialDiscovery;
+    private UsbSerialDiscoveryService usbSerialDiscoveryService;
+
+    @Before
+    public void setup() {
+        usbSerialDiscovery = mock(UsbSerialDiscovery.class);
+        registerService(usbSerialDiscovery);
+
+        usbSerialDiscoveryService = getService(UsbSerialDiscoveryService.class);
+    }
+
     @Test
     public void testSettingUsbSerialDiscoveryStartsBackgroundDiscoveryIfEnabled()
             throws InterruptedException, IOException {
-        setBackgroundDiscovery(true);
-
-        UsbSerialDiscovery usbSerialDiscovery = mock(UsbSerialDiscovery.class);
-        registerService(usbSerialDiscovery);
-
-        verify(usbSerialDiscovery, times(1)).startBackgroundScanning();
+        // Background discovery is enabled by default, hence no need to set it explicitly again. In consequence,
+        // background discovery is started >=1 times (both in the activator and in startBackgroundDiscovery).
+        verify(usbSerialDiscovery, atLeast(1)).startBackgroundScanning();
     }
 
     @Test
     public void testSettingUsbSerialDiscoveryDoesNotStartBackgroundDiscoveryIfDisabled()
             throws IOException, InterruptedException {
+        unregisterService(usbSerialDiscovery);
         setBackgroundDiscovery(false);
 
-        UsbSerialDiscovery usbSerialDiscovery = mock(UsbSerialDiscovery.class);
-        registerService(usbSerialDiscovery);
-
-        verify(usbSerialDiscovery, never()).startBackgroundScanning();
+        UsbSerialDiscovery anotherUsbSerialDiscovery = mock(UsbSerialDiscovery.class);
+        registerService(anotherUsbSerialDiscovery);
+        verify(anotherUsbSerialDiscovery, never()).startBackgroundScanning();
     }
 
     @Test
     public void testRegistersAsUsbserialDiscoveryListener() {
-        UsbSerialDiscovery usbSerialDiscovery = mock(UsbSerialDiscovery.class);
-        registerService(usbSerialDiscovery);
-
-        verify(usbSerialDiscovery, times(1)).registerDiscoveryListener(getService(UsbSerialDiscoveryService.class));
+        verify(usbSerialDiscovery, times(1)).registerDiscoveryListener(usbSerialDiscoveryService);
     }
 
     @Test
     public void testUnregistersAsUsbserialDiscoveryListener() {
-        UsbSerialDiscovery usbSerialDiscovery = mock(UsbSerialDiscovery.class);
-        registerService(usbSerialDiscovery);
-
         unregisterService(usbSerialDiscovery);
-
-        verify(usbSerialDiscovery, times(1)).unregisterDiscoveryListener(getService(UsbSerialDiscoveryService.class));
+        verify(usbSerialDiscovery, times(1)).unregisterDiscoveryListener(usbSerialDiscoveryService);
     }
 
     @Test
     public void testSupportedThingTypesAreRetrievedFromDiscoveryParticipants() {
-        UsbSerialDiscoveryService service = getService(UsbSerialDiscoveryService.class);
-
         // with no discovery participants available, no thing types are supported.
-        assertThat(service.getSupportedThingTypes(), is(empty()));
+        assertThat(usbSerialDiscoveryService.getSupportedThingTypes(), is(empty()));
 
         // with two discovery participants available, the thing types supported by them are supported.
         ThingTypeUID thingTypeA = new ThingTypeUID("a:b:c");
@@ -92,7 +92,8 @@ public class UsbSerialDiscoveryServiceTest extends JavaOSGiTest {
         when(discoveryParticipantB.getSupportedThingTypeUIDs()).thenReturn(newHashSet(thingTypeB, thingTypeC));
         registerService(discoveryParticipantB);
 
-        assertThat(service.getSupportedThingTypes(), containsInAnyOrder(thingTypeA, thingTypeB, thingTypeC));
+        assertThat(usbSerialDiscoveryService.getSupportedThingTypes(),
+                containsInAnyOrder(thingTypeA, thingTypeB, thingTypeC));
     }
 
     @Test
@@ -163,11 +164,14 @@ public class UsbSerialDiscoveryServiceTest extends JavaOSGiTest {
         properties.put(CONFIG_PROPERTY_BACKGROUND_DISCOVERY, Boolean.valueOf(status));
         configuration.update(properties);
 
-        // wait until the configuration is actually set in the discovery service
+        // wait until the configuration is actually set
         waitForAssert(() -> {
-            UsbSerialDiscoveryService service = getService(UsbSerialDiscoveryService.class);
-            assertThat(service, is(not(nullValue())));
-            assertThat(service.isBackgroundDiscoveryEnabled(), is(status));
+            try {
+                assertThat(configAdmin.getConfiguration("discovery.usbserial").getProperties()
+                        .get(CONFIG_PROPERTY_BACKGROUND_DISCOVERY), is(Boolean.valueOf(status)));
+            } catch (IOException e) {
+                // ignore IOException during configAdmin.getConfiguration(...)
+            }
         }, 1000, 100);
     }
 

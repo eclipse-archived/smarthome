@@ -14,6 +14,7 @@ package org.eclipse.smarthome.config.discovery.usbserial.internal;
 
 import static java.util.stream.Collectors.toSet;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -28,6 +29,7 @@ import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDiscoveryListen
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -63,10 +65,21 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
     private final Set<UsbSerialDiscoveryParticipant> discoveryParticipants = new CopyOnWriteArraySet<>();
 
     @Nullable
-    private volatile UsbSerialDiscovery usbSerialDiscovery;
+    private UsbSerialDiscovery usbSerialDiscovery;
 
     public UsbSerialDiscoveryService() {
         super(5);
+    }
+
+    @SuppressWarnings("null") // usbSerialDiscovery is not null, as it is set as static reference
+    @Override
+    @Activate
+    protected void activate(@Nullable Map<String, @Nullable Object> configProperties) {
+        super.activate(configProperties);
+        usbSerialDiscovery.registerDiscoveryListener(this);
+        if (isBackgroundDiscoveryEnabled()) {
+            usbSerialDiscovery.startBackgroundScanning();
+        }
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -78,26 +91,15 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
         this.discoveryParticipants.remove(participant);
     }
 
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    protected synchronized void setUsbSerialDiscovery(UsbSerialDiscovery usbSerialDiscovery) {
-        UsbSerialDiscovery currentUsbSerialDiscovery = this.usbSerialDiscovery;
-        if (currentUsbSerialDiscovery != null) {
-            unsetUsbSerialDiscovery(currentUsbSerialDiscovery);
-        }
-
+    @Reference
+    protected void setUsbSerialDiscovery(UsbSerialDiscovery usbSerialDiscovery) {
         this.usbSerialDiscovery = usbSerialDiscovery;
-        usbSerialDiscovery.registerDiscoveryListener(this);
-        if (isBackgroundDiscoveryEnabled()) {
-            usbSerialDiscovery.startBackgroundScanning();
-        }
     }
 
     protected synchronized void unsetUsbSerialDiscovery(UsbSerialDiscovery usbSerialDiscovery) {
-        if (this.usbSerialDiscovery == usbSerialDiscovery) {
-            usbSerialDiscovery.stopBackgroundScanning();
-            usbSerialDiscovery.unregisterDiscoveryListener(this);
-            this.usbSerialDiscovery = null;
-        }
+        usbSerialDiscovery.stopBackgroundScanning();
+        usbSerialDiscovery.unregisterDiscoveryListener(this);
+        this.usbSerialDiscovery = null;
     }
 
     @Override
