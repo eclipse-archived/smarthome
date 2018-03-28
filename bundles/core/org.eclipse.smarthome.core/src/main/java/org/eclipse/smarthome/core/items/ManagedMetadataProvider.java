@@ -62,9 +62,10 @@ public class ManagedMetadataProvider extends AbstractManagedProvider<Metadata, M
     /**
      * Removes all metadata of a given item
      *
-     * @param itemname the name of the item for which the meta data is to be removed.
+     * @param itemname the name of the item for which the metadata is to be removed.
      */
     public void removeItemMetadata(@NonNull String name) {
+        logger.debug("Removing all metadata for item {}", name);
         getAll().stream().filter(MetadataPredicates.ofItem(name)).map(Metadata::getUID).forEach(this::remove);
     }
 

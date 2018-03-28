@@ -50,6 +50,7 @@ public class MetadataRegistryImpl extends AbstractRegistry<Metadata, MetadataKey
         public void removed(Provider<Item> provider, Item element) {
             if (managedProvider != null) {
                 // remove our metadata for that item
+                logger.debug("Item {} was removed, trying to clean up corresponding metadata", element.getUID());
                 ((ManagedMetadataProvider) managedProvider).removeItemMetadata(element.getName());
             }
         }
