@@ -27,6 +27,12 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Map an OSGi configuration map {@code Map<String, Object>} to an individual configuration bean.
+ * 
+ * @author David Graeff - initial contribution
+ *
+ */
 public class ConfigMapper {
     private static final transient Logger logger = LoggerFactory.getLogger(ConfigMapper.class);
 
