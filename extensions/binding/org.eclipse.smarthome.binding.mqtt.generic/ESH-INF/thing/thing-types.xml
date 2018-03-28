@@ -5,8 +5,8 @@
 
 	<thing-type id="topic" extensible="text,number,percentage,onoff">
 		<supported-bridge-type-refs>
-		    <bridge-type-ref id="brokerconnection" />
-			<bridge-type-ref id="brokerconnection" />
+			<bridge-type-ref id="broker" />
+			<bridge-type-ref id="systemBroker" />
 		</supported-bridge-type-refs>
 		<label>A topic</label>
 		<description>This thing represents a topic</description>
