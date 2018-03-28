@@ -1,5 +1,6 @@
 package org.eclipse.smarthome.core.common;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -61,7 +62,7 @@ public abstract class AbstractUID {
             String segment = segments.get(i);
             validateSegment(segment, i, numberOfSegments);
         }
-        this.segments = segments;
+        this.segments = Collections.unmodifiableList(new ArrayList<>(segments));
     }
 
     /**
