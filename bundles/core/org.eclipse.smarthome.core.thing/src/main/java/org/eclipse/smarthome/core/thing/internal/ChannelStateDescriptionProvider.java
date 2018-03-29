@@ -79,7 +79,7 @@ public class ChannelStateDescriptionProvider implements StateDescriptionFragment
             @Nullable Locale locale) {
         StateDescription channelStateDescription = getStateDescription(itemName, locale);
         if (channelStateDescription != null) {
-            return StateDescriptionFragmentBuilder.instance().mergeStateDescription(channelStateDescription).build();
+            return StateDescriptionFragmentBuilder.create(channelStateDescription).build();
         }
 
         return null;

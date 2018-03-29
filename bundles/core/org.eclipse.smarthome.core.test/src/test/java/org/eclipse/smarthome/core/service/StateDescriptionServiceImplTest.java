@@ -158,7 +158,7 @@ public class StateDescriptionServiceImplTest {
         registerStateDescriptionProvider(stateDescription, 1);
 
         List<@NonNull StateOption> options = Arrays.asList(new StateOption("value", "label"));
-        StateDescriptionFragment stateDescriptionFragment = StateDescriptionFragmentBuilder.instance()
+        StateDescriptionFragment stateDescriptionFragment = StateDescriptionFragmentBuilder.create()
                 .withMinimum(BigDecimal.ZERO).withMaximum(BigDecimal.TEN).withOptions(options).build();
         registerStateDescriptionFragmentProvider(stateDescriptionFragment, 1);
 
@@ -175,7 +175,7 @@ public class StateDescriptionServiceImplTest {
     public void testFragmentProviderOrder() {
         List<@NonNull StateOption> options = Arrays.asList(new StateOption("value", "label"));
 
-        StateDescriptionFragment firstFragment = StateDescriptionFragmentBuilder.instance()
+        StateDescriptionFragment firstFragment = StateDescriptionFragmentBuilder.create()
                 .withMinimum(BigDecimal.ZERO) //
                 .withMaximum(BigDecimal.TEN) //
                 .withPattern("pattern") //
@@ -183,7 +183,7 @@ public class StateDescriptionServiceImplTest {
                 .withOptions(options).build();
         registerStateDescriptionFragmentProvider(firstFragment, -1);
 
-        StateDescriptionFragment secondFragment = StateDescriptionFragmentBuilder.instance()
+        StateDescriptionFragment secondFragment = StateDescriptionFragmentBuilder.create()
                 .withMinimum(BigDecimal.ONE) //
                 .withMaximum(BigDecimal.ONE) //
                 .withStep(BigDecimal.ONE) //

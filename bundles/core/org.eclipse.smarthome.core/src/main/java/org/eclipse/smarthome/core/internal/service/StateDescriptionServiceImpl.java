@@ -21,10 +21,10 @@ import java.util.TreeSet;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.internal.types.StateDescriptionFragmentImpl;
 import org.eclipse.smarthome.core.service.StateDescriptionService;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateDescriptionFragment;
-import org.eclipse.smarthome.core.types.StateDescriptionFragmentBuilder;
 import org.eclipse.smarthome.core.types.StateDescriptionFragmentProvider;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.eclipse.smarthome.core.types.StateOption;
@@ -85,31 +85,30 @@ public class StateDescriptionServiceImpl implements StateDescriptionService {
 
     @Override
     public @Nullable StateDescription getStateDescription(String itemName, @Nullable Locale locale) {
+        StateDescriptionFragment result;
         StateDescription legacy = getLegacyStateDescription(itemName, locale);
         StateDescriptionFragment stateDescriptionFragment = mergeStateDescriptionFragments(itemName, locale);
 
         if (legacy != null) {
-            StateDescriptionFragmentBuilder builder = StateDescriptionFragmentBuilder.instance();
-            builder.mergeStateDescription(legacy) //
-                    .mergeStateDescriptionFragment(stateDescriptionFragment);
-
-            stateDescriptionFragment = builder.build();
+            result = new StateDescriptionFragmentImpl(legacy).merge(stateDescriptionFragment);
+        } else {
+            result = stateDescriptionFragment;
         }
 
-        return stateDescriptionFragment.toStateDescription();
+        return result.toStateDescription();
     }
 
     private StateDescriptionFragment mergeStateDescriptionFragments(String itemName, @Nullable Locale locale) {
-        StateDescriptionFragmentBuilder builder = StateDescriptionFragmentBuilder.instance();
+        StateDescriptionFragmentImpl result = new StateDescriptionFragmentImpl();
         for (StateDescriptionFragmentProvider provider : stateDescriptionFragmentProviders) {
             StateDescriptionFragment fragment = provider.getStateDescriptionFragment(itemName, locale);
             if (fragment == null) {
                 continue;
             }
-            builder.mergeStateDescriptionFragment(fragment);
+            result.merge(fragment);
         }
 
-        return builder.build();
+        return result;
     }
 
     @Deprecated

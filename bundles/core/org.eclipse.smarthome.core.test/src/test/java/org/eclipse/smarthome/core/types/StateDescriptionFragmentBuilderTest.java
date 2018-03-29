@@ -36,7 +36,7 @@ public class StateDescriptionFragmentBuilderTest {
 
     @Before
     public void setup() {
-        builder = StateDescriptionFragmentBuilder.instance();
+        builder = StateDescriptionFragmentBuilder.create();
     }
 
     @Test
@@ -71,30 +71,10 @@ public class StateDescriptionFragmentBuilderTest {
     }
 
     @Test
-    public void builderWithFragment() {
-        StateDescriptionFragment source = StateDescriptionFragmentBuilder.instance() //
-                .withMinimum(BigDecimal.ZERO) //
-                .withMaximum(BigDecimal.TEN) //
-                .withStep(BigDecimal.ONE) //
-                .withPattern("pattern") //
-                .withReadOnly(Boolean.TRUE) //
-                .withOptions(new ArrayList<>(0)).build();
-
-        StateDescriptionFragment fragment = builder.mergeStateDescriptionFragment(source).build();
-
-        assertThat(fragment.getMinimum(), is(source.getMinimum()));
-        assertThat(fragment.getMaximum(), is(source.getMaximum()));
-        assertThat(fragment.getStep(), is(source.getStep()));
-        assertThat(fragment.getPattern(), is(source.getPattern()));
-        assertThat(fragment.isReadOnly(), is(source.isReadOnly()));
-        assertThat(fragment.getOptions(), is(source.getOptions()));
-    }
-
-    @Test
     public void builderWithStateDescription() {
         StateDescription source = new StateDescription(BigDecimal.ZERO, BigDecimal.TEN, BigDecimal.ONE, "pattern", true,
                 Arrays.asList(new StateOption[] { new StateOption("value", "label") }));
-        StateDescriptionFragment fragment = builder.mergeStateDescription(source).build();
+        StateDescriptionFragment fragment = StateDescriptionFragmentBuilder.create(source).build();
 
         assertThat(fragment.getMinimum(), is(source.getMinimum()));
         assertThat(fragment.getMaximum(), is(source.getMaximum()));

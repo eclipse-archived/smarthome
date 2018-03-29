@@ -272,7 +272,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
             if (format != null) {
                 label = StringUtils.substringBefore(label, "[").trim();
                 stateDescriptionFragments.put(modelItem.getName(),
-                        StateDescriptionFragmentBuilder.instance().withPattern(format).build());
+                        StateDescriptionFragmentBuilder.create().withPattern(format).build());
             }
             item.setLabel(label);
             item.setCategory(modelItem.getIcon());
