@@ -26,8 +26,8 @@
     <module>org.eclipse.smarthome.config.discovery.upnp</module>
     <module>org.eclipse.smarthome.config.discovery.usbserial</module>
     <module>org.eclipse.smarthome.config.discovery.usbserial.test</module>
-    <module>org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs</module>
-    <module>org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs.test</module>
+    <module>org.eclipse.smarthome.config.discovery.usbserial.linuxsysfs</module>
+    <module>org.eclipse.smarthome.config.discovery.usbserial.linuxsysfs.test</module>
     <module>org.eclipse.smarthome.config.serial</module>
     <module>org.eclipse.smarthome.config.xml</module>
     <module>org.eclipse.smarthome.config.xml.test</module>
