@@ -17,18 +17,18 @@
 		<label>Text value</label>
 		<config-description>
 			<parameter name="stateTopic" type="text">
-				<label>Mqtt state topic</label>
-				<description>An Mqtt topic that this thing will subscribe to, to receive the state. This can be left empty, the thing will be state-less then.</description>
+				<label>MQTT state topic</label>
+				<description>An MQTT topic that this thing will subscribe to, to receive the state. This can be left empty, the thing will be state-less then.</description>
 				<default></default>
 			</parameter>
 			<parameter name="commandTopic" type="text">
-				<label>Mqtt command topic</label>
-				<description>An Mqtt topic that this thing will send a command to. This can be left empty</description>
+				<label>MQTT command topic</label>
+				<description>An MQTT topic that this thing will send a command to. This can be left empty</description>
 				<default></default>
 			</parameter>
 			<parameter name="transformationPattern" type="text">
 				<label>Transformation pattern</label>
-				<description>Any supported transformation can be used. An example for a received JSON from a Mqtt state topic would be a pattern of JSONPATH:$.device.status.temperature for a json {device: {status: { temperature: 23.2 }}}.</description>
+				<description>Any supported transformation can be used. An example for a received JSON from a MQTT state topic would be a pattern of JSONPATH:$.device.status.temperature for a json {device: {status: { temperature: 23.2 }}}.</description>
 				<default></default>
 				<advanced>true</advanced>
 			</parameter>
@@ -40,18 +40,18 @@
 		<label>Number value</label>
 		<config-description>
 			<parameter name="stateTopic" type="text">
-				<label>Mqtt state topic</label>
-				<description>An Mqtt topic that this thing will subscribe to, to receive the state. This can be left empty, the thing will be state-less then.</description>
+				<label>MQTT state topic</label>
+				<description>An MQTT topic that this thing will subscribe to, to receive the state. This can be left empty, the thing will be state-less then.</description>
 				<default></default>
 			</parameter>
 			<parameter name="commandTopic" type="text">
-				<label>Mqtt command topic</label>
-				<description>An Mqtt topic that this thing will send a command to. This can be left empty</description>
+				<label>MQTT command topic</label>
+				<description>An MQTT topic that this thing will send a command to. This can be left empty</description>
 				<default></default>
 			</parameter>
 			<parameter name="transformationPattern" type="text">
 				<label>Transformation pattern</label>
-				<description>Any supported transformation can be used. An example for a received JSON from a Mqtt state topic would be a pattern of JSONPATH:$.device.status.temperature for a json {device: {status: { temperature: 23.2 }}}.</description>
+				<description>Any supported transformation can be used. An example for a received JSON from a MQTT state topic would be a pattern of JSONPATH:$.device.status.temperature for a json {device: {status: { temperature: 23.2 }}}.</description>
 				<default></default>
 				<advanced>true</advanced>
 			</parameter>
@@ -63,41 +63,41 @@
 			</parameter>
 			<parameter name="isfloat" type="boolean">
 				<label>Is Decimal?</label>
-				<description>Set to true if the Mqtt topic expects a float/double decimal instead of an integer value</description>
+				<description>Set to true if the MQTT topic expects a float/double decimal instead of an integer value</description>
 				<default>false</default>
 			</parameter>
 		</config-description>
 	</channel-type>
 
 	<channel-type id="percentage">
-		<item-type>Number</item-type>
+		<item-type>Dimmer</item-type>
 		<label>Percentage value</label>
 		<config-description>
 			<parameter name="stateTopic" type="text">
-				<label>Mqtt state topic</label>
-				<description>An Mqtt topic that this thing will subscribe to, to receive the state. This can be left empty, the thing will be state-less then.</description>
+				<label>MQTT state topic</label>
+				<description>An MQTT topic that this thing will subscribe to, to receive the state. This can be left empty, the thing will be state-less then.</description>
 				<default></default>
 			</parameter>
 			<parameter name="commandTopic" type="text">
-				<label>Mqtt command topic</label>
-				<description>An Mqtt topic that this thing will send a command to. This can be left empty</description>
+				<label>MQTT command topic</label>
+				<description>An MQTT topic that this thing will send a command to. This can be left empty</description>
 				<default></default>
 			</parameter>
 			<parameter name="transformationPattern" type="text">
 				<label>Transformation pattern</label>
-				<description>Any supported transformation can be used. An example for a received JSON from a Mqtt state topic would be a pattern of JSONPATH:$.device.status.temperature for a json {device: {status: { temperature: 23.2 }}}.</description>
+				<description>Any supported transformation can be used. An example for a received JSON from a MQTT state topic would be a pattern of JSONPATH:$.device.status.temperature for a json {device: {status: { temperature: 23.2 }}}.</description>
 				<default></default>
 				<advanced>true</advanced>
 			</parameter>
 
 			<parameter name="min" type="decimal">
 				<label>Minimum value</label>
-				<description>Minimum value to convert the Mqtt state to a percentage</description>
+				<description>Minimum value to convert the MQTT state to a percentage</description>
 				<default>0.0</default>
 			</parameter>
 			<parameter name="max" type="decimal">
 				<label>Maximum value</label>
-				<description>Maximum value to convert the Mqtt state to a percentage</description>
+				<description>Maximum value to convert the MQTT state to a percentage</description>
 				<default>100.0</default>
 			</parameter>
 			<parameter name="step" type="decimal">
@@ -107,7 +107,7 @@
 			</parameter>
 			<parameter name="isfloat" type="boolean">
 				<label>Is Decimal?</label>
-				<description>Any supported transformation can be used. An example for a received JSON from a Mqtt state topic would be a pattern of JSONPATH:$.device.status.temperature for a json {device: {status: { temperature: 23.2 }}}.</description>
+				<description>Set to true if the MQTT topic expects a float/double decimal instead of an integer value</description>
 				<default>false</default>
 			</parameter>
 		</config-description>
@@ -118,18 +118,18 @@
 		<label>On/Off value</label>
 		<config-description>
 			<parameter name="stateTopic" type="text">
-				<label>Mqtt state topic</label>
-				<description>An Mqtt topic that this thing will subscribe to, to receive the state. This can be left empty, the thing will be state-less then.</description>
+				<label>MQTT state topic</label>
+				<description>An MQTT topic that this thing will subscribe to, to receive the state. This can be left empty, the thing will be state-less then.</description>
 				<default></default>
 			</parameter>
 			<parameter name="commandTopic" type="text">
-				<label>Mqtt command topic</label>
-				<description>An Mqtt topic that this thing will send a command to. This can be left empty</description>
+				<label>MQTT command topic</label>
+				<description>An MQTT topic that this thing will send a command to. This can be left empty</description>
 				<default></default>
 			</parameter>
 			<parameter name="transformationPattern" type="text">
 				<label>Transformation pattern</label>
-				<description>Any supported transformation can be used. An example for a received JSON from a Mqtt state topic would be a pattern of JSONPATH:$.device.status.temperature for a json {device: {status: { temperature: 23.2 }}}.</description>
+				<description>Any supported transformation can be used. An example for a received JSON from a MQTT state topic would be a pattern of JSONPATH:$.device.status.temperature for a json {device: {status: { temperature: 23.2 }}}.</description>
 				<default></default>
 				<advanced>true</advanced>
 			</parameter>

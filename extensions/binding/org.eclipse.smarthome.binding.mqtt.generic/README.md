@@ -17,12 +17,13 @@ There is one thing available ("topic"), where you can add the following channels
 ## Supported Channels
 
 * **text**: This channel can show the received text on the given topic and can send text to a given topic.
-* **number**: This channel can show the received number on the given topic and can send a number to a given topic. The thing can have a min, max and step value.
+* **number**: This channel can show the received number on the given topic and can send a number to a given topic. It can have a min, max and step values.
+* **percentage**: This channel handles numeric values as percentages. It can have a min, max and step values.
 * **onoff**: This channel represents a on/off state of a given topic and can send an on/off value to a given topic.
 
 ## Discovery
 
-Broker connections are automatically discovered and presented as bridges. MQTT provides no means to enumerate available topics though, therefore things representing topics cannot be automatically discovered.
+MQTT provides no means to enumerate available topics, therefore things representing topics cannot be automatically discovered.
 
 If your MQTT device follows a specific MQTT topic specification, you may want to use a specialized MQTT binding instead of this generic one, so that auto discovery of things is available.
 
@@ -34,13 +35,13 @@ All thing channels support JSON/XML unpacking: Usually a MQTT topic state repres
 
 ### Common channel configuration parameters
 
-* __mqttstate__: The MQTT topic that represents the state of the thing. This can be empty, the thing channel will be a state-less trigger then. 
-* __mqttcommand__: The MQTT topic that commands are send to. This can be empty, the thing channel will be read-only then.
-* __transformpattern__: An optional transformation pattern like [JSONPath](http://goessner.net/articles/JsonPath/index.html#e2). Use http://jsonpath.com/ to verify your pattern for the latter case. An example would be JSONPATH:$.device.status.temperature for a received json input of `{device: {status: { temperature: 23.2 }}}` to extract the temperature value.
+* __stateTopic__: The MQTT topic that represents the state of the thing. This can be empty, the thing channel will be a state-less trigger then. 
+* __commandTopic__: The MQTT topic that commands are send to. This can be empty, the thing channel will be read-only then.
+* __transformationPattern__: An optional transformation pattern like [JSONPath](http://goessner.net/articles/JsonPath/index.html#e2). Use http://jsonpath.com/ to verify your pattern for the latter case. An example would be JSONPATH:$.device.status.temperature for a received json input of `{device: {status: { temperature: 23.2 }}}` to extract the temperature value.
 
 Please be aware, we are able to extract a plain value from incoming JSON, XML and other supported formats, but this binding is not capable of packing a plain value into a formatted response for sending it to a MQTT command topic.
  
-### Number channel
+### Channel Type "number"
  
 * __min__: A minimum value, necessary if the thing channel is used as a Rollershutter or Dimmer.
 * __max__: A maximum value, necessary if the thing channel is used as a Rollershutter or Dimmer.
@@ -49,15 +50,26 @@ Please be aware, we are able to extract a plain value from incoming JSON, XML an
 
 If any of the parameters is a float/double (has a decimal point value), then a float value is send to the MQTT topic otherwise an int value is send.
 
-You can connect this channel to a Number, Rollershutter, Dimmer item.
+You can connect this channel to a Number item.
 
-### OnOff channel
+### Channel Type "percentage"
+ 
+* __min__: A minimum value, necessary if the thing channel is used as a Rollershutter or Dimmer.
+* __max__: A maximum value, necessary if the thing channel is used as a Rollershutter or Dimmer.
+* __step__: Because Rollershutter and Dimmer can send decrease, increase commands, we need to know the step.
+* __isfloat__: If set to true the value is send as a decimal value, otherwise it is send as integer.
+
+If any of the parameters is a float/double (has a decimal point value), then a float value is send to the MQTT topic otherwise an int value is send.
+
+You can connect this channel to a Rollershutter or Dimmer item.
+
+### Channel Type "onoff"
 
 * __on__: A number (like 1, 10) or a string (like ON) that is recognized as on state.
 * __off__: A number (like 0, -10) or a string (like OFF) that is recognized as off state.
 * __inverse__: Inverse the meaning. A received "ON" will switch the thing channel off and vice versa.
 
-The thing by default always recognizes `"ON"`,`"1"`, `1` as on state and `"OFF"`, `"0"`, `0` as off state and if **on** and **off** are not configured it sends the integer values 1 for on and 0 for off.
+The thing by default always recognizes `"ON"`,`"1"`, `1` as on state and `"OFF"`, `"0"`, `0` as off state and if **on** and **off** are not configured it sends the integer values `1` for on and `0` for off.
 
 You can connect this channel to a Contact or Switch item.
 
