@@ -64,14 +64,13 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
 
     private final Set<UsbSerialDiscoveryParticipant> discoveryParticipants = new CopyOnWriteArraySet<>();
 
-    @Nullable
+    @NonNullByDefault({})
     private UsbSerialDiscovery usbSerialDiscovery;
 
     public UsbSerialDiscoveryService() {
         super(5);
     }
 
-    @SuppressWarnings("null") // usbSerialDiscovery is not null, as it is set as static reference
     @Override
     @Activate
     protected void activate(@Nullable Map<String, @Nullable Object> configProperties) {

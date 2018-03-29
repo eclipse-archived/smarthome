@@ -23,6 +23,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDeviceInformation;
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDiscovery;
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDiscoveryListener;
@@ -41,6 +43,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Henning Sudbrock - initial contribution
  */
+@NonNullByDefault
 @Component(configurationPid = "discovery.usbserial.linux.sysfs.pollingscanner")
 public class PollingUsbSerialScanner implements UsbSerialDiscovery {
 
@@ -52,11 +55,13 @@ public class PollingUsbSerialScanner implements UsbSerialDiscovery {
     private static final Duration DEFAULT_PAUSE_BETWEEN_SCANS = Duration.ofSeconds(5);
     private Duration pauseBetweenScans = DEFAULT_PAUSE_BETWEEN_SCANS;
 
+    @NonNullByDefault({})
     private DeltaUsbSerialScanner deltaUsbSerialScanner;
 
     private final Set<UsbSerialDiscoveryListener> discoveryListeners = new CopyOnWriteArraySet<>();
 
     private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(THREAD_POOL_NAME);
+    @Nullable
     private ScheduledFuture<?> backgroundScanningJob;
 
     @Reference
@@ -120,8 +125,9 @@ public class PollingUsbSerialScanner implements UsbSerialDiscovery {
     @Override
     public synchronized void stopBackgroundScanning() {
         logger.debug("Stopping usb-serial background discovery");
-        if (backgroundScanningJob != null && !backgroundScanningJob.isCancelled()) {
-            if (backgroundScanningJob.cancel(true)) {
+        ScheduledFuture<?> currentBackgroundScanningJob = backgroundScanningJob;
+        if (currentBackgroundScanningJob != null && !currentBackgroundScanningJob.isCancelled()) {
+            if (currentBackgroundScanningJob.cancel(true)) {
                 backgroundScanningJob = null;
                 logger.debug("Stopped usb-serial background discovery");
             }
