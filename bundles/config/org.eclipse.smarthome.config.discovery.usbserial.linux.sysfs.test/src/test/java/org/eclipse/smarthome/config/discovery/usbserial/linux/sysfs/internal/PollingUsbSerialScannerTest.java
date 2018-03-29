@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDeviceInformation;
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDiscoveryListener;
-import org.eclipse.smarthome.config.discovery.usbserial.linux.sysfs.UsbSerialDeviceInformationGenerator;
+import org.eclipse.smarthome.config.discovery.usbserial.testutil.UsbSerialDeviceInformationGenerator;
 import org.junit.Before;
 import org.junit.Test;
 

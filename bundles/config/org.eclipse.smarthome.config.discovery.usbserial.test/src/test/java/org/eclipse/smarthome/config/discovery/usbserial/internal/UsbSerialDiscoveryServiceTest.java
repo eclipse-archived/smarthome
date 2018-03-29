@@ -11,13 +11,13 @@ import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.util.Hashtable;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDeviceInformation;
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDiscovery;
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDiscoveryParticipant;
+import org.eclipse.smarthome.config.discovery.usbserial.testutil.UsbSerialDeviceInformationGenerator;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
@@ -35,6 +35,8 @@ public class UsbSerialDiscoveryServiceTest extends JavaOSGiTest {
 
     private UsbSerialDiscovery usbSerialDiscovery;
     private UsbSerialDiscoveryService usbSerialDiscoveryService;
+
+    private final UsbSerialDeviceInformationGenerator usbSerialDeviceInformationGenerator = new UsbSerialDeviceInformationGenerator();
 
     @Before
     public void setup() {
@@ -175,12 +177,8 @@ public class UsbSerialDiscoveryServiceTest extends JavaOSGiTest {
         }, 1000, 100);
     }
 
-    private final AtomicInteger deviceInfoCounter = new AtomicInteger(0);
-
-    public UsbSerialDeviceInformation generateDeviceInfo() {
-        int i = deviceInfoCounter.getAndIncrement();
-        return new UsbSerialDeviceInformation(i, i, "serialNumber-" + i, "manufacturer-" + i, "product-" + i,
-                "ttyUSB" + i);
+    private UsbSerialDeviceInformation generateDeviceInfo() {
+        return usbSerialDeviceInformationGenerator.generate();
     }
 
 }

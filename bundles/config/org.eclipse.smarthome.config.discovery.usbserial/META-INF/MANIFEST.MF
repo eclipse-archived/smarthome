@@ -16,3 +16,4 @@ Import-Package:
  org.osgi.service.component,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
+Eclipse-ExtensibleAPI: true
