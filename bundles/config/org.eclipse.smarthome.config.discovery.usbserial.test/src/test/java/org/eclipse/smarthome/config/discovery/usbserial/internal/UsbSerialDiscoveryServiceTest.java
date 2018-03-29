@@ -57,8 +57,8 @@ public class UsbSerialDiscoveryServiceTest extends JavaOSGiTest {
     @Test
     public void testSettingUsbSerialDiscoveryDoesNotStartBackgroundDiscoveryIfDisabled()
             throws IOException, InterruptedException {
-        unregisterService(usbSerialDiscovery);
         setBackgroundDiscovery(false);
+        unregisterService(usbSerialDiscovery);
 
         UsbSerialDiscovery anotherUsbSerialDiscovery = mock(UsbSerialDiscovery.class);
         registerService(anotherUsbSerialDiscovery);
@@ -166,14 +166,9 @@ public class UsbSerialDiscoveryServiceTest extends JavaOSGiTest {
         properties.put(CONFIG_PROPERTY_BACKGROUND_DISCOVERY, Boolean.valueOf(status));
         configuration.update(properties);
 
-        // wait until the configuration is actually set
+        // wait until the configuration is actually set in the usbSerialDiscoveryService
         waitForAssert(() -> {
-            try {
-                assertThat(configAdmin.getConfiguration("discovery.usbserial").getProperties()
-                        .get(CONFIG_PROPERTY_BACKGROUND_DISCOVERY), is(Boolean.valueOf(status)));
-            } catch (IOException e) {
-                // ignore IOException during configAdmin.getConfiguration(...)
-            }
+            assertThat(usbSerialDiscoveryService.isBackgroundDiscoveryEnabled(), is(status));
         }, 1000, 100);
     }
 

@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
@@ -31,6 +32,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -99,6 +101,12 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
         usbSerialDiscovery.stopBackgroundScanning();
         usbSerialDiscovery.unregisterDiscoveryListener(this);
         this.usbSerialDiscovery = null;
+    }
+
+    @Modified
+    @Override
+    protected void modified(@Nullable Map<@NonNull String, @Nullable Object> configProperties) {
+        super.modified(configProperties);
     }
 
     @Override
