@@ -66,7 +66,7 @@ public class StateDescriptionConverter extends GenericUnmarshaller<StateDescript
         return defaultValue;
     }
 
-    private boolean extractReadOnly(Map<String, String> attributes, String attribute, Boolean defaultValue) {
+    private boolean toBoolean(Map<String, String> attributes, String attribute, Boolean defaultValue) {
         String attrValueText = attributes.get(attribute);
 
         if (attrValueText != null) {
@@ -118,7 +118,7 @@ public class StateDescriptionConverter extends GenericUnmarshaller<StateDescript
         BigDecimal maximum = toBigDecimal(attributes, "max", null);
         BigDecimal step = toBigDecimal(attributes, "step", null);
         String pattern = attributes.get("pattern");
-        boolean readOnly = extractReadOnly(attributes, "readOnly", false);
+        boolean readOnly = toBoolean(attributes, "readOnly", false);
 
         List<StateOption> channelOptions = null;
 

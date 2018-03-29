@@ -41,6 +41,13 @@ public class StateDescriptionFragmentBuilder {
     public StateDescriptionFragment build() {
         return new StateDescriptionFragment() {
 
+            private @Nullable final BigDecimal minimum = StateDescriptionFragmentBuilder.this.minimum;
+            private @Nullable final BigDecimal maximum = StateDescriptionFragmentBuilder.this.maximum;
+            private @Nullable final BigDecimal step = StateDescriptionFragmentBuilder.this.step;
+            private @Nullable final String pattern = StateDescriptionFragmentBuilder.this.pattern;
+            private @Nullable final Boolean readOnly = StateDescriptionFragmentBuilder.this.readOnly;
+            private @Nullable final List<StateOption> options = StateDescriptionFragmentBuilder.this.options;
+
             @Override
             public @Nullable BigDecimal getMinimum() {
                 return minimum;

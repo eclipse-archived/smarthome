@@ -31,28 +31,32 @@ public interface StateDescriptionFragment {
      *
      * @return minimum value of an item state
      */
-    public @Nullable BigDecimal getMinimum();
+    @Nullable
+    BigDecimal getMinimum();
 
     /**
      * Returns the maximum value of an item state.
      *
      * @return maximum value of an item state
      */
-    public @Nullable BigDecimal getMaximum();
+    @Nullable
+    BigDecimal getMaximum();
 
     /**
      * Returns the step size.
      *
      * @return step size
      */
-    public @Nullable BigDecimal getStep();
+    @Nullable
+    BigDecimal getStep();
 
     /**
      * Returns the pattern to render the state to a string.
      *
      * @return pattern
      */
-    public @Nullable String getPattern();
+    @Nullable
+    String getPattern();
 
     /**
      * Returns true, if the state can only be read but not written. Typically a
@@ -60,14 +64,16 @@ public interface StateDescriptionFragment {
      *
      * @return true, if the state can only be read but not written
      */
-    public @Nullable Boolean isReadOnly();
+    @Nullable
+    Boolean isReadOnly();
 
     /**
      * Returns a list of predefined states with their label.
      *
      * @return a list of predefined states with their label
      */
-    public @Nullable List<StateOption> getOptions();
+    @Nullable
+    List<StateOption> getOptions();
 
     /**
      * Create and return a {@link StateDescription} from this fragment. The resulting {@link StateDescription} should be
@@ -75,6 +81,7 @@ public interface StateDescriptionFragment {
      *
      * @return a {@link StateDescription} from this fragment.
      */
-    public @Nullable StateDescription toStateDescription();
+    @Nullable
+    StateDescription toStateDescription();
 
 }
