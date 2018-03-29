@@ -12,12 +12,15 @@
  */
 package org.eclipse.smarthome.io.transport.mqtt;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Implement this interface and register on the {@see MqttBrokerConnection} to get notified
  * of incoming Mqtt messages on the given topic.
  *
  * @author David Graeff
  */
+@NonNullByDefault
 public interface MqttMessageSubscriber {
     /**
      * Process a received MQTT message.

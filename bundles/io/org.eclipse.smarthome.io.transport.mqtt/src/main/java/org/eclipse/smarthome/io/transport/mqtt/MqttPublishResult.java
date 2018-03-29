@@ -12,12 +12,15 @@
  */
 package org.eclipse.smarthome.io.transport.mqtt;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Represents a publish result asynchronously provided by the {@link MqttPublishCallback}
  * after a call to {@link MqttBrokerConnection}.publish().
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public class MqttPublishResult {
     final int messageID;
     String topic;
