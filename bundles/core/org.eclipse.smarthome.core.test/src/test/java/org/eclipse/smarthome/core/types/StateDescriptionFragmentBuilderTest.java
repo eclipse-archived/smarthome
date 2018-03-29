@@ -12,11 +12,12 @@
  */
 package org.eclipse.smarthome.core.types;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -79,7 +80,7 @@ public class StateDescriptionFragmentBuilderTest {
                 .withReadOnly(Boolean.TRUE) //
                 .withOptions(new ArrayList<>(0)).build();
 
-        StateDescriptionFragment fragment = builder.withStateDescriptionFragment(source).build();
+        StateDescriptionFragment fragment = builder.mergeStateDescriptionFragment(source).build();
 
         assertThat(fragment.getMinimum(), is(source.getMinimum()));
         assertThat(fragment.getMaximum(), is(source.getMaximum()));
@@ -92,8 +93,8 @@ public class StateDescriptionFragmentBuilderTest {
     @Test
     public void builderWithStateDescription() {
         StateDescription source = new StateDescription(BigDecimal.ZERO, BigDecimal.TEN, BigDecimal.ONE, "pattern", true,
-                new ArrayList<>(0));
-        StateDescriptionFragment fragment = builder.withStateDescription(source).build();
+                Arrays.asList(new StateOption[] { new StateOption("value", "label") }));
+        StateDescriptionFragment fragment = builder.mergeStateDescription(source).build();
 
         assertThat(fragment.getMinimum(), is(source.getMinimum()));
         assertThat(fragment.getMaximum(), is(source.getMaximum()));
@@ -101,6 +102,18 @@ public class StateDescriptionFragmentBuilderTest {
         assertThat(fragment.getPattern(), is(source.getPattern()));
         assertThat(fragment.isReadOnly(), is(source.isReadOnly()));
         assertThat(fragment.getOptions(), is(source.getOptions()));
+    }
+
+    @Test
+    public void subsequentBuildsCreateIndependentFragments() {
+        StateDescriptionFragment fragment1 = builder.withMinimum(BigDecimal.ZERO).withMaximum(BigDecimal.TEN)
+                .withPattern("pattern").build();
+        StateDescriptionFragment fragment2 = builder.withMinimum(BigDecimal.ONE).withMaximum(BigDecimal.ONE)
+                .withPattern("pattern_new").build();
+
+        assertThat(fragment1.getMinimum(), is(not(fragment2.getMinimum())));
+        assertThat(fragment1.getMaximum(), is(not(fragment2.getMaximum())));
+        assertThat(fragment1.getPattern(), is(not(fragment2.getPattern())));
     }
 
 }

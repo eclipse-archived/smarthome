@@ -15,6 +15,7 @@ package org.eclipse.smarthome.core.types;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
@@ -24,6 +25,7 @@ import org.eclipse.jdt.annotation.Nullable;
  * @author Henning Treu - initial contribution and API.
  *
  */
+@NonNullByDefault
 public interface StateDescriptionFragment {
 
     /**

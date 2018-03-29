@@ -19,7 +19,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * Builds a {@link StateDescriptionFragment} only with the relevant parts.
+ * Builds a {@link StateDescriptionFragment} with the relevant parts only.
  *
  * @author Henning Treu - initial contribution and API.
  *
@@ -34,10 +34,20 @@ public class StateDescriptionFragmentBuilder {
     private @Nullable Boolean readOnly;
     private @Nullable List<StateOption> options;
 
+    /**
+     * Return a fresh builder instance.
+     *
+     * @return a fresh {@link StateDescriptionFragmentBuilder} instance.
+     */
     public static StateDescriptionFragmentBuilder instance() {
         return new StateDescriptionFragmentBuilder();
     }
 
+    /**
+     * Build a {@link StateDescriptionFragment} from the values of this builder.
+     *
+     * @return a {@link StateDescriptionFragment} from the values of this builder.
+     */
     public StateDescriptionFragment build() {
         return new StateDescriptionFragment() {
 
@@ -80,7 +90,8 @@ public class StateDescriptionFragmentBuilder {
 
             @Override
             public @Nullable StateDescription toStateDescription() {
-                if (minimum == null && maximum == null && step == null && pattern == null && options == null) {
+                if (minimum == null && maximum == null && step == null && readOnly == null && pattern == null
+                        && options == null) {
                     return null;
                 }
                 final Boolean ro = readOnly;
@@ -91,82 +102,131 @@ public class StateDescriptionFragmentBuilder {
         };
     }
 
+    /**
+     * Set the maximum for the resulting {@link StateDescriptionFragment}.
+     *
+     * @param maximum the maximum for the resulting {@link StateDescriptionFragment}.
+     * @return this builder.
+     */
     public StateDescriptionFragmentBuilder withMaximum(BigDecimal maximum) {
         this.maximum = maximum;
         return this;
     }
 
+    /**
+     * Set the minimum for the resulting {@link StateDescriptionFragment}.
+     *
+     * @param minimum the minimum for the resulting {@link StateDescriptionFragment}.
+     * @return this builder.
+     */
     public StateDescriptionFragmentBuilder withMinimum(BigDecimal minimum) {
         this.minimum = minimum;
         return this;
     }
 
+    /**
+     * Set the step for the resulting {@link StateDescriptionFragment}.
+     *
+     * @param step the step for the resulting {@link StateDescriptionFragment}.
+     * @return this builder.
+     */
     public StateDescriptionFragmentBuilder withStep(BigDecimal step) {
         this.step = step;
         return this;
     }
 
+    /**
+     * Set the pattern for the resulting {@link StateDescriptionFragment}.
+     *
+     * @param pattern the pattern for the resulting {@link StateDescriptionFragment}.
+     * @return this builder.
+     */
     public StateDescriptionFragmentBuilder withPattern(String pattern) {
         this.pattern = pattern;
         return this;
     }
 
+    /**
+     * Set readOnly for the resulting {@link StateDescriptionFragment}.
+     *
+     * @param readOnly readOnly for the resulting {@link StateDescriptionFragment}.
+     * @return this builder.
+     */
     public StateDescriptionFragmentBuilder withReadOnly(Boolean readOnly) {
         this.readOnly = readOnly;
         return this;
     }
 
+    /**
+     * Set the {@link StateOption}s for the resulting {@link StateDescriptionFragment}.
+     *
+     * @param options the {@link StateOption}s for the resulting {@link StateDescriptionFragment}.
+     * @return this builder.
+     */
     public StateDescriptionFragmentBuilder withOptions(List<StateOption> options) {
         this.options = options;
         return this;
     }
 
     /**
-     * Set the builder fields from all non-null fields of the given {@link StateDescriptionFragment}.
+     * Merge the given {@link StateDescriptionFragment}. Set all unset ({@code null}) fields of this builder to the
+     * values
+     * from the
+     * given {@link StateDescriptionFragment}.
      *
-     * @param fragment a {@link StateDescriptionFragment} this builder should incorporate.
+     * @param fragment a {@link StateDescriptionFragment} this builder should merge in.
      * @return the builder.
      */
-    public StateDescriptionFragmentBuilder withStateDescriptionFragment(StateDescriptionFragment fragment) {
-        if (fragment.getMinimum() != null) {
+    public StateDescriptionFragmentBuilder mergeStateDescriptionFragment(StateDescriptionFragment fragment) {
+        if (this.minimum == null) {
             this.minimum = fragment.getMinimum();
         }
-        if (fragment.getMaximum() != null) {
+        if (this.maximum == null) {
             this.maximum = fragment.getMaximum();
         }
-        if (fragment.getStep() != null) {
+        if (this.step == null) {
             this.step = fragment.getStep();
         }
-        if (fragment.getPattern() != null) {
+        if (this.pattern == null) {
             this.pattern = fragment.getPattern();
         }
-        if (fragment.isReadOnly() != null) {
+        if (this.readOnly == null) {
             this.readOnly = fragment.isReadOnly();
         }
-        if (fragment.getOptions() != null) {
+        if (this.options == null) {
             this.options = fragment.getOptions();
         }
 
         return this;
     }
 
-    public StateDescriptionFragmentBuilder withStateDescription(StateDescription legacy) {
-        if (legacy.getMinimum() != null) {
+    /**
+     * Merge the given {@link StateDescription}. Set all unset ({@code null}) fields of this builder to the values from
+     * the
+     * given {@link StateDescription}.
+     *
+     * @param legacy a {@link StateDescription} this builder should merge in.
+     * @return the builder.
+     */
+    public StateDescriptionFragmentBuilder mergeStateDescription(StateDescription legacy) {
+        if (this.minimum == null) {
             this.minimum = legacy.getMinimum();
         }
-        if (legacy.getMaximum() != null) {
+        if (this.maximum == null) {
             this.maximum = legacy.getMaximum();
         }
-        if (legacy.getStep() != null) {
+        if (this.step == null) {
             this.step = legacy.getStep();
         }
-        if (legacy.getPattern() != null) {
+        if (this.pattern == null) {
             this.pattern = legacy.getPattern();
         }
 
-        this.readOnly = legacy.isReadOnly();
+        if (this.readOnly == null) {
+            this.readOnly = Boolean.valueOf(legacy.isReadOnly());
+        }
 
-        if (legacy.getOptions() != null) {
+        if (this.options == null && legacy.getOptions() != null && !legacy.getOptions().isEmpty()) {
             this.options = legacy.getOptions();
         }
 
@@ -174,6 +234,6 @@ public class StateDescriptionFragmentBuilder {
     }
 
     private StateDescriptionFragmentBuilder() {
-        //
+        // avoid public instantiation
     }
 }

@@ -90,8 +90,8 @@ public class StateDescriptionServiceImpl implements StateDescriptionService {
 
         if (legacy != null) {
             StateDescriptionFragmentBuilder builder = StateDescriptionFragmentBuilder.instance();
-            builder.withStateDescription(legacy) //
-                    .withStateDescriptionFragment(stateDescriptionFragment);
+            builder.mergeStateDescription(legacy) //
+                    .mergeStateDescriptionFragment(stateDescriptionFragment);
 
             stateDescriptionFragment = builder.build();
         }
@@ -102,11 +102,11 @@ public class StateDescriptionServiceImpl implements StateDescriptionService {
     private StateDescriptionFragment mergeStateDescriptionFragments(String itemName, @Nullable Locale locale) {
         StateDescriptionFragmentBuilder builder = StateDescriptionFragmentBuilder.instance();
         for (StateDescriptionFragmentProvider provider : stateDescriptionFragmentProviders) {
-            StateDescriptionFragment sdFragment = provider.getStateDescriptionFragment(itemName, locale);
-            if (sdFragment == null) {
+            StateDescriptionFragment fragment = provider.getStateDescriptionFragment(itemName, locale);
+            if (fragment == null) {
                 continue;
             }
-            builder.withStateDescriptionFragment(sdFragment);
+            builder.mergeStateDescriptionFragment(fragment);
         }
 
         return builder.build();
