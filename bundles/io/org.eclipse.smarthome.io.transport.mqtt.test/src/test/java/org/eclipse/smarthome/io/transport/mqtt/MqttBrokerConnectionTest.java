@@ -19,13 +19,12 @@ import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
 
-import javax.naming.ConfigurationException;
-
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.smarthome.io.transport.mqtt.reconnect.AbstractReconnectStrategy;
 import org.eclipse.smarthome.io.transport.mqtt.reconnect.PeriodicReconnectStrategy;
 import org.junit.Test;
+import org.osgi.service.cm.ConfigurationException;
 
 /**
  * Tests the MqttBrokerConnection class

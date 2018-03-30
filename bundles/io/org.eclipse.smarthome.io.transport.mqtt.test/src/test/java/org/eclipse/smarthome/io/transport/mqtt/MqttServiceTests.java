@@ -16,10 +16,9 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import javax.naming.ConfigurationException;
-
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.osgi.service.cm.ConfigurationException;
 
 /**
  * Tests the MqttService class
