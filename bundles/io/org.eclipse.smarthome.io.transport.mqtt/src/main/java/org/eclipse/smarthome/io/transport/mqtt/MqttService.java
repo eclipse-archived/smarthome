@@ -18,13 +18,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.naming.ConfigurationException;
-
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.io.transport.mqtt.internal.MqttBrokerConnectionServiceInstance;
 import org.osgi.framework.Constants;
+import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,7 +135,7 @@ public class MqttService {
                 connection = new MqttBrokerConnection(host, config.port, config.secure, config.clientID);
                 brokerConnections.put(brokerID, connection);
             } else {
-                throw new ConfigurationException("You need to provide a hostname/IP!");
+                throw new ConfigurationException("host", "You need to provide a hostname/IP!");
             }
         }
 

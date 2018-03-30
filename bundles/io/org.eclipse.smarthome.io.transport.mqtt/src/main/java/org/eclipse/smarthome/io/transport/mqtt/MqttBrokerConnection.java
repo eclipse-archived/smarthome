@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.naming.ConfigurationException;
-
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -38,6 +36,7 @@ import org.eclipse.smarthome.io.transport.mqtt.reconnect.AbstractReconnectStrate
 import org.eclipse.smarthome.io.transport.mqtt.reconnect.PeriodicReconnectStrategy;
 import org.eclipse.smarthome.io.transport.mqtt.sslcontext.AcceptAllCertificatesSSLContext;
 import org.eclipse.smarthome.io.transport.mqtt.sslcontext.SSLContextProvider;
+import org.osgi.service.cm.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
