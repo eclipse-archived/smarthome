@@ -152,8 +152,9 @@ public interface SerialPort extends Closeable {
      * When the receive timeout condition becomes true, a read from the input stream for this port will return
      * immediately.
      *
-     * @param timeout
+     * @param timeout the timeout, must be greater or equal to zero
      * @throws UnsupportedCommOperationException if the operation is not supported
+     * @throws IllegalArgumentException on a negative timeout value
      */
-    void enableReceiveTimeout(int timeout) throws UnsupportedCommOperationException;
+    void enableReceiveTimeout(int timeout) throws UnsupportedCommOperationException, IllegalArgumentException;
 }

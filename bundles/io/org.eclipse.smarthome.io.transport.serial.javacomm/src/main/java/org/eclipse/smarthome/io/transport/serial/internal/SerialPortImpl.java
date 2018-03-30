@@ -94,6 +94,9 @@ public class SerialPortImpl implements SerialPort {
 
     @Override
     public void enableReceiveTimeout(int timeout) throws UnsupportedCommOperationException {
+        if (timeout < 0) {
+            throw new IllegalArgumentException(String.format("timeout must be non negative (is: %d)", timeout));
+        }
         try {
             sp.enableReceiveTimeout(timeout);
         } catch (javax.comm.UnsupportedCommOperationException ex) {
