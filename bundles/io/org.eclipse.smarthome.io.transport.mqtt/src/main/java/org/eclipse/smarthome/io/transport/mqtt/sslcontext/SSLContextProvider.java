@@ -12,10 +12,10 @@
  */
 package org.eclipse.smarthome.io.transport.mqtt.sslcontext;
 
-import javax.naming.ConfigurationException;
 import javax.net.ssl.SSLContext;
 
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
+import org.osgi.service.cm.ConfigurationException;
 
 /**
  * Implement this and provide a {@link SSLContext} instance to be used by the {@link MqttBrokerConnection} for secure
