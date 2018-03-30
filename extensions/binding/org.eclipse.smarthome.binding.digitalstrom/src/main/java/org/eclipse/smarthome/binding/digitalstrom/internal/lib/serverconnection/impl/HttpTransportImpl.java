@@ -30,6 +30,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -38,7 +39,6 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -532,7 +532,7 @@ public class HttpTransportImpl implements HttpTransport {
 
             byte[] by = ((X509Certificate) cert[0]).getEncoded();
             if (by.length != 0) {
-                return BEGIN_CERT + DatatypeConverter.printBase64Binary(by) + END_CERT;
+                return BEGIN_CERT + Base64.getEncoder().encodeToString(by) + END_CERT;
             }
         } catch (MalformedURLException e) {
             if (!informConnectionManager(ConnectionManager.MALFORMED_URL_EXCEPTION)) {
