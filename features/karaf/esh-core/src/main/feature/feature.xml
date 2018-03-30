@@ -304,7 +304,22 @@
 
   <feature name="esh-io-transport-serial" version="${project.version}">
     <feature>esh-base</feature>
-    <requirement>esh.tp;filter:="(feature=serial)"</requirement>
+    <feature dependency="true">esh-io-transport-serial-rxtx</feature>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.serial/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-io-transport-serial-javacomm" version="${project.version}">
+    <feature>esh-base</feature>
+    <requirement>esh.tp;filter:="(&amp;(feature=serial)(impl=javacomm))"</requirement>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.serial/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.serial.javacomm/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-io-transport-serial-rxtx" version="${project.version}">
+    <feature>esh-base</feature>
+    <requirement>esh.tp;filter:="(&amp;(feature=serial)(impl=rxtx))"</requirement>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.serial/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.serial.rxtx/${project.version}</bundle>
   </feature>
 
   <feature name="esh-io-transport-upnp" version="${project.version}">
