@@ -105,7 +105,7 @@ public class HexUtils {
     }
 
     /**
-     * Convert an upper case hex character to an integer
+     * Convert an upper case hex character to a byte
      *
      * @param chacacter an upper case hex character
      * @return the byte value of the character
