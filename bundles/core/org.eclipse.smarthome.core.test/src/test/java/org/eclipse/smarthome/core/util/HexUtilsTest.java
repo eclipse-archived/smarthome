@@ -20,6 +20,7 @@ import org.junit.Test;
  * Test for {@link HexUtils}.
  *
  * @author Kai Kreuzer - Initial implementation
+ * @author Martin van Wingerden - Implemented the reverse operation
  */
 public class HexUtilsTest {
 
@@ -31,6 +32,12 @@ public class HexUtilsTest {
     }
 
     @Test
+    public void test_hexToBytes_noParams() {
+        byte[] result = HexUtils.hexToBytes("41424344");
+        assertEquals("ABCD", new String(result));
+    }
+
+    @Test
     public void test_bytesToHex_withDelimiter() {
         byte[] bytes = "ABCD".getBytes();
         String result = HexUtils.bytesToHex(bytes, " ");
@@ -38,9 +45,21 @@ public class HexUtilsTest {
     }
 
     @Test
+    public void test_hexToBytes_withDelimiter() {
+        byte[] result = HexUtils.hexToBytes("41 42 43 44", " ");
+        assertEquals("ABCD", new String(result));
+    }
+
+    @Test
     public void test_bytesToHex_withMultiCharDelimiter() {
         byte[] bytes = "ABCD".getBytes();
         String result = HexUtils.bytesToHex(bytes, "-:-");
         assertEquals("41-:-42-:-43-:-44", result);
+    }
+
+    @Test
+    public void test_hexToBytes_withMultiCharDelimiter() {
+        byte[] result = HexUtils.hexToBytes("41-:-42-:-43-:-44", "-:-");
+        assertEquals("ABCD", new String(result));
     }
 }
