@@ -52,6 +52,7 @@ import tec.uom.se.format.SimpleUnitFormat;
 import tec.uom.se.function.PiMultiplierConverter;
 import tec.uom.se.function.RationalConverter;
 import tec.uom.se.unit.AlternateUnit;
+import tec.uom.se.unit.ProductUnit;
 import tec.uom.se.unit.TransformedUnit;
 import tec.uom.se.unit.Units;
 
@@ -122,6 +123,8 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
     public static final Unit<Time> WEEK = addUnit(Units.WEEK);
     public static final Unit<Time> YEAR = addUnit(Units.YEAR);
     public static final Unit<Volume> LITRE = addUnit(Units.LITRE);
+    public static final Unit<Density> KILOGRAM_PER_CUBICMETRE = addUnit(
+            new ProductUnit<Density>(Units.KILOGRAM.divide(Units.METRE.pow(3))));
 
     /**
      * Add unit symbols for custom ESH units.

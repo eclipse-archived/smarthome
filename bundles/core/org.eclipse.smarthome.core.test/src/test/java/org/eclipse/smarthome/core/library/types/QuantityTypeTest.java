@@ -23,6 +23,7 @@ import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Temperature;
 
+import org.eclipse.smarthome.core.library.unit.Density;
 import org.eclipse.smarthome.core.library.unit.ImperialUnits;
 import org.eclipse.smarthome.core.library.unit.MetricPrefix;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
@@ -244,4 +245,12 @@ public class QuantityTypeTest {
         assertEquals(exponential, new QuantityType<>("10 km"));
     }
 
+    @Test
+    public void testDensity() {
+        QuantityType<Density> density = new QuantityType<>("19816 kg/m³");
+        assertEquals(19816, density.doubleValue(), 1E-5);
+
+        density = density.toUnit("g/cm³");
+        assertEquals("19.816 g/cm³", density.toString());
+    }
 }
