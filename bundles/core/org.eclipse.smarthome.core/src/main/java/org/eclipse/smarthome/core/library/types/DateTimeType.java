@@ -121,11 +121,11 @@ public class DateTimeType implements PrimitiveType, State, Command {
 
     @Override
     public String format(String pattern) {
-        try {
-            return String.format(pattern, zonedDateTime);
-        } catch (NullPointerException npe) {
+        if (pattern == null) {
             return DateTimeFormatter.ofPattern(DATE_PATTERN).format(zonedDateTime);
         }
+
+        return String.format(pattern, zonedDateTime);
     }
 
     public String format(Locale locale, String pattern) {

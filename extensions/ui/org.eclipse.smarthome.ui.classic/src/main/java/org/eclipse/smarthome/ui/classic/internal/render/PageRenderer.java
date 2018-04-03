@@ -162,7 +162,7 @@ public class PageRenderer extends AbstractWidgetRenderer {
     @Override
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         // Check if this widget is visible
-        if (itemUIRegistry.getVisiblity(w) == false) {
+        if (!itemUIRegistry.getVisiblity(w)) {
             return null;
         }
 

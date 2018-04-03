@@ -64,7 +64,7 @@ public class PropertyUtils {
         } else if (value instanceof String || value instanceof Enum) {
             return new StringType(value.toString());
         } else {
-            throw new RuntimeException("Unsupported value type " + value.getClass().getSimpleName());
+            throw new IllegalStateException("Unsupported value type " + value.getClass().getSimpleName());
         }
     }
     

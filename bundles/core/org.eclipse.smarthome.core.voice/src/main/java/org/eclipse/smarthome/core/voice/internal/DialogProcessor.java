@@ -150,7 +150,7 @@ public class DialogProcessor implements KSListener, STTListener {
     @Override
     public synchronized void sttEventReceived(STTEvent sttEvent) {
         if (sttEvent instanceof SpeechRecognitionEvent) {
-            if (false == this.isSTTServerAborting) {
+            if (!this.isSTTServerAborting) {
                 this.sttServiceHandle.abort();
                 this.isSTTServerAborting = true;
                 SpeechRecognitionEvent sre = (SpeechRecognitionEvent) sttEvent;
@@ -168,7 +168,7 @@ public class DialogProcessor implements KSListener, STTListener {
         } else if (sttEvent instanceof RecognitionStopEvent) {
             toggleProcessing(false);
         } else if (sttEvent instanceof SpeechRecognitionErrorEvent) {
-            if (false == this.isSTTServerAborting) {
+            if (!this.isSTTServerAborting) {
                 this.sttServiceHandle.abort();
                 this.isSTTServerAborting = true;
                 toggleProcessing(false);

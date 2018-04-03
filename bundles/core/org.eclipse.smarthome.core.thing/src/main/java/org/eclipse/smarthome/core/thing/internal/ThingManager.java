@@ -293,7 +293,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
             final Configuration configuration) {
         final ThingType thingType = thingTypeRegistry.getThingType(thingTypeUID);
         if (thingType == null) {
-            throw new RuntimeException(
+            throw new IllegalStateException(
                     MessageFormat.format("No thing type {0} registered, cannot change thing type for thing {1}",
                             thingTypeUID.getAsString(), thing.getUID().getAsString()));
         }
@@ -360,7 +360,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
                         "Thing type migration failed for {0}. The handler deregistration did not complete within {1}ms.",
                         thing.getUID().getAsString(), timeout);
                 logger.error(message);
-                throw new RuntimeException(message);
+                throw new IllegalStateException(message);
             }
 
             private void waitForRunningHandlerRegistrations(ThingUID thingUID) {
@@ -379,7 +379,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
                         "Thing type migration failed for {0}. Could not obtain lock for hander registration.",
                         thingUID.getAsString());
                 logger.error(message);
-                throw new RuntimeException(message);
+                throw new IllegalStateException(message);
             }
         }, 0, TimeUnit.MILLISECONDS);
     }

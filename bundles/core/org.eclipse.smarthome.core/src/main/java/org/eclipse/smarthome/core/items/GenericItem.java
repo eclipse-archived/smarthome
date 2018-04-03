@@ -409,11 +409,10 @@ public abstract class GenericItem implements ActiveItem {
      * @return true if state is an acceptedDataType or subclass thereof
      */
     public boolean isAcceptedState(List<Class<? extends State>> acceptedDataTypes, State state) {
-        if (acceptedDataTypes.stream().map(clazz -> clazz.isAssignableFrom(state.getClass()))
-                .filter(found -> found == true).findAny().isPresent()) {
-            return true;
-        }
-        return false;
+        return acceptedDataTypes.stream()
+                .map(clazz -> clazz.isAssignableFrom(state.getClass()))
+                .filter(found -> found)
+                .findAny().isPresent();
     }
 
     protected void logSetTypeError(State state) {

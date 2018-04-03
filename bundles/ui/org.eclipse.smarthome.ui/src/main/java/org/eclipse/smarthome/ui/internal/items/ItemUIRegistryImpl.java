@@ -1065,7 +1065,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                     value = color.getState();
                 }
 
-                if (matchStateToValue(cmpState, value, color.getCondition()) == true) {
+                if (matchStateToValue(cmpState, value, color.getCondition())) {
                     // We have the color for this value - break!
                     colorString = color.getArg();
                     break;
@@ -1141,7 +1141,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                 value = rule.getState();
             }
 
-            if (matchStateToValue(state, value, rule.getCondition()) == true) {
+            if (matchStateToValue(state, value, rule.getCondition())) {
                 // We have the name for this value!
                 return true;
             }

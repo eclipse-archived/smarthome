@@ -55,7 +55,7 @@ public class BindingInfoConverter extends GenericUnmarshaller<BindingInfoXmlResu
         if (uriText != null) {
             try {
                 return new URI(uriText);
-            } catch (NullPointerException | URISyntaxException ex) {
+            } catch (URISyntaxException ex) {
                 throw new ConversionException(
                         "The URI '" + uriText + "' in node " + "'config-description-ref' is invalid!", ex);
             }

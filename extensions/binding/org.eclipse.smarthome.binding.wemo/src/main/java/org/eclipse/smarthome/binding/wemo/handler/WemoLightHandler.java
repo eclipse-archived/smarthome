@@ -280,7 +280,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                     }
                 }
             } catch (Exception e) {
-                throw new RuntimeException("Could not send command to WeMo Bridge", e);
+                throw new IllegalStateException("Could not send command to WeMo Bridge", e);
             }
         }
     }
@@ -339,7 +339,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException("Could not retrieve new Wemo light state", e);
+            throw new IllegalStateException("Could not retrieve new Wemo light state", e);
         }
     }
 

@@ -128,6 +128,12 @@ public class JavaTest {
             long sleepTime) {
         long waitingTime = 0;
         while (waitingTime < timeout) {
+            if (assertion == null) {
+                waitingTime += sleepTime;
+                internalSleep(sleepTime);
+                continue;
+            }
+
             try {
                 assertion.run();
 
@@ -135,7 +141,7 @@ public class JavaTest {
                     afterLastCall.run();
                 }
                 return;
-            } catch (final Error | NullPointerException error) {
+            } catch (final Error error) {
                 waitingTime += sleepTime;
                 internalSleep(sleepTime);
             }
@@ -181,7 +187,7 @@ public class JavaTest {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
-            throw new Error("We shouldn't be interrupted while testing");
+            throw new IllegalStateException("We shouldn't be interrupted while testing");
         }
     }
 
