@@ -1,16 +1,15 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>io</artifactId>
+    <groupId>org.eclipse.smarthome.bundles</groupId>
+    <version>0.10.0-SNAPSHOT</version>
+  </parent>
   <groupId>org.eclipse.smarthome.io</groupId>
   <artifactId>org.eclipse.smarthome.io.rest.sse.test</artifactId>
   <packaging>eclipse-test-plugin</packaging>
   <name>Eclipse SmartHome IO SSE Tests</name>
-  <parent>
-    <groupId>org.eclipse.smarthome.bundles</groupId>
-    <artifactId>io</artifactId>
-    <version>0.10.0-SNAPSHOT</version>
-  </parent>
-
 
   <properties>
     <bundle.symbolicName>org.eclipse.smarthome.io.rest.sse.test</bundle.symbolicName>

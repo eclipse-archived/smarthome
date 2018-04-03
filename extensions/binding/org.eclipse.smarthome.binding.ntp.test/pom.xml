@@ -1,18 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>pom</artifactId>
+    <groupId>org.eclipse.smarthome.binding</groupId>
+    <version>0.10.0-SNAPSHOT</version>
+  </parent>
   <groupId>org.eclipse.smarthome.binding</groupId>
   <artifactId>org.eclipse.smarthome.binding.ntp.test</artifactId>
   <packaging>eclipse-test-plugin</packaging>
   <name>Eclipse SmartHome NTP Binding Tests</name>
-
-  <parent>
-    <groupId>org.eclipse.smarthome.binding</groupId>
-    <artifactId>pom</artifactId>
-    <version>0.10.0-SNAPSHOT</version>
-  </parent>
-
 
   <build>
     <plugins>
@@ -55,29 +54,29 @@
         <groupId>${tycho-groupid}</groupId>
         <artifactId>tycho-surefire-plugin</artifactId>
         <configuration>
-		             <dependencies>
-                 <dependency>
-                     <type>eclipse-plugin</type>
-                     <artifactId>org.eclipse.equinox.ds</artifactId>
-                     <version>0.0.0</version>
-                 </dependency>
-                 <!-- Required Bundles to enable LOGGING -->
-                 <dependency>
-                     <type>eclipse-plugin</type>
-                     <artifactId>ch.qos.logback.classic</artifactId>
-                     <version>0.0.0</version>
-                 </dependency>
-                 <dependency>
-                     <type>eclipse-plugin</type>
-                     <artifactId>ch.qos.logback.core</artifactId>
-                     <version>0.0.0</version>
-                 </dependency>
-                 <dependency>
-                     <type>eclipse-plugin</type>
-                     <artifactId>ch.qos.logback.slf4j</artifactId>
-                     <version>0.0.0</version>
-                 </dependency>
-             </dependencies>
+          <dependencies>
+            <dependency>
+              <type>eclipse-plugin</type>
+              <artifactId>org.eclipse.equinox.ds</artifactId>
+              <version>0.0.0</version>
+            </dependency>
+            <!-- Required Bundles to enable LOGGING -->
+            <dependency>
+              <type>eclipse-plugin</type>
+              <artifactId>ch.qos.logback.classic</artifactId>
+              <version>0.0.0</version>
+            </dependency>
+            <dependency>
+              <type>eclipse-plugin</type>
+              <artifactId>ch.qos.logback.core</artifactId>
+              <version>0.0.0</version>
+            </dependency>
+            <dependency>
+              <type>eclipse-plugin</type>
+              <artifactId>ch.qos.logback.slf4j</artifactId>
+              <version>0.0.0</version>
+            </dependency>
+          </dependencies>
           <bundleStartLevel>
             <bundle>
               <id>org.eclipse.equinox.ds</id>
