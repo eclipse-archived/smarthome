@@ -13,7 +13,6 @@ Export-Package:
  org.eclipse.smarthome.io.transport.mqtt.reconnect,
  org.eclipse.smarthome.io.transport.mqtt.sslcontext
 Import-Package: 
- javax.naming,
  javax.net,
  javax.net.ssl,
  org.apache.commons.lang,
@@ -27,8 +26,8 @@ Import-Package:
  org.eclipse.smarthome.io.transport.mqtt,
  org.eclipse.smarthome.io.transport.mqtt.reconnect,
  org.eclipse.smarthome.io.transport.mqtt.sslcontext,
+ org.osgi.framework,
  org.osgi.service.cm,
  org.osgi.service.component,
- org.osgi.framework,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
