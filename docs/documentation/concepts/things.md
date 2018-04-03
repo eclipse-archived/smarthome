@@ -45,7 +45,6 @@ The following table provides an overview of the different statuses:
 | UNKNOWN       | The handler is fully initialized but due to the nature of the represented device/service it cannot really tell yet whether the thing is ONLINE or OFFLINE. Therefore the thing potentially might be working correctly already and may or may not process commands. But the framework is allowed to send commands, because some radio-based devices may go ONLINE if a command is sent to them. The handler should take care to switch the thing to ONLINE or OFFLINE as soon as possible. |
 | ONLINE        | The device/service represented by a thing is assumed to be working correctly and can process commands. |
 | OFFLINE       | The device/service represented by a thing is assumed to be not working correctly and may not process commands. But the framework is allowed to send commands, because some radio-based devices may go back to ONLINE, if a command is sent to them. |
-| GONE          | The device has been removed from the bridge or the network to which it belongs and is no longer available for use. The user can now remove the thing from the system. |
 | REMOVING      | The device/service represented by a thing should be removed, but the binding did not confirm the deletion yet. Some bindings need to communicate with the device to unpair it from the system. Thing is probably not working and commands can not be processed. |
 | REMOVED       | This status indicates that the device/service represented by a thing was removed from the external system after the REMOVING was initiated by the framework. Usually this status is an intermediate status because the thing gets removed from the database after this status was assigned. |
 
@@ -82,12 +81,13 @@ The following table lists the different status details for each status:
 <tr valign="top"><td>UNKNOWN</td>                  <td>NONE</td><td>No further status details available.</td></tr>
 <tr valign="top"><td rowspan="2">ONLINE</td>       <td>NONE</td><td>No further status details available.</td></tr>
 <tr valign="top">                                  <td>CONFIGURATION_PENDING</td><td>The thing is waiting to transfer configuration information to a device. Some bindings need to communicate with the device to make sure the configuration is accepted.</td></tr>
-<tr valign="top"><td rowspan="6">OFFLINE</td>      <td>NONE</td><td>No further status details available.</td></tr>
+<tr valign="top"><td rowspan="7">OFFLINE</td>      <td>NONE</td><td>No further status details available.</td></tr>
 <tr valign="top">                                  <td>COMMUNICATION_ERROR</td><td>Error in communication with the device. This may also be only a temporary error.</td></tr>
 <tr valign="top">                                  <td>CONFIGURATION_ERROR</td><td>An issue with the configuration of a thing prevents the communication with the represented device or service. This issue might be solved by reconfiguring the thing.</td></tr>
 <tr valign="top">                                  <td>BRIDGE_OFFLINE</td><td>Assuming the thing to be offline because the corresponding bridge is offline.</td></tr>
 <tr valign="top">                                  <td>FIRMWARE_UPDATING</td><td>The thing is currently operating a firmware update.</td></tr>
 <tr valign="top">                                  <td>DUTY_CYCLE</td><td>The thing is currently in DUTY_CYCLE state, which means it is blocked for further usage.</td></tr>
+<tr valign="top">                                  <td>GONE</td><td>The thing has been removed from the bridge or the network to which it belongs and is no longer available for use. The user can now remove the thing from the system.</td></tr>
 <tr valign="top"><td>REMOVING</td>                 <td>NONE</td><td>No further status details available.</td></tr>
 <tr valign="top"><td>REMOVED</td>                  <td>NONE</td><td>No further status details available.</td></tr>
 </table>
