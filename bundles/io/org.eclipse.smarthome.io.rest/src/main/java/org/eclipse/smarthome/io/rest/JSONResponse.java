@@ -164,7 +164,7 @@ public class JSONResponse {
             PipedInputStream in = new PipedInputStream(out);
             rp.entity(in);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
 
         Thread writerThread = new Thread(() -> {

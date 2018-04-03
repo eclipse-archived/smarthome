@@ -298,7 +298,7 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
                 blue = b;
                 break;
             default:
-                throw new RuntimeException();
+                throw new IllegalArgumentException("Could not convert to RGB.");
         }
         return new PercentType[] { red, green, blue };
     }

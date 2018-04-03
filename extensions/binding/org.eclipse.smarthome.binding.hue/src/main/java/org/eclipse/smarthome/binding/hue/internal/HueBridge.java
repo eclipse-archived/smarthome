@@ -873,6 +873,10 @@ public class HueBridge {
                 }
 
                 for (ErrorResponse error : errors) {
+                    if (error == null) {
+                        continue;
+                    }
+                    
                     switch (error.getType()) {
                         case 1:
                             username = null;
@@ -893,8 +897,6 @@ public class HueBridge {
                 }
             } catch (JsonParseException e) {
                 // Not an error
-            } catch (NullPointerException e) {
-                // Object that looks like error
             }
         }
     }

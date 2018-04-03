@@ -40,7 +40,7 @@ public class WemoHttpCall {
             String wemoCallResponse = HttpUtil.executeUrl("POST", wemoURL, wemoHeaders, wemoContent, null, 2000);
             return wemoCallResponse;
         } catch (Exception e) {
-            throw new RuntimeException("Could not call WeMo", e);
+            throw new IllegalStateException("Could not call WeMo", e);
         }
     }
 

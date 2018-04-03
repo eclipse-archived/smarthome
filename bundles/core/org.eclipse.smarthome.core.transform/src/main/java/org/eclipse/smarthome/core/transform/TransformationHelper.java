@@ -53,7 +53,6 @@ public class TransformationHelper {
      */
     public static TransformationService getTransformationService(BundleContext context, String transformationType) {
         if (context != null) {
-            Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
             String filter = "(smarthome.transform=" + transformationType + ")";
             try {
                 Collection<ServiceReference<TransformationService>> refs = context
@@ -61,11 +60,11 @@ public class TransformationHelper {
                 if (refs != null && refs.size() > 0) {
                     return context.getService(refs.iterator().next());
                 } else {
-                    logger.warn("Cannot get service reference for transformation service of type {}",
+                    LOGGER.warn("Cannot get service reference for transformation service of type {}",
                             transformationType);
                 }
             } catch (InvalidSyntaxException e) {
-                logger.warn("Cannot get service reference for transformation service of type {}", transformationType,
+                LOGGER.warn("Cannot get service reference for transformation service of type {}", transformationType,
                         e);
             }
         }

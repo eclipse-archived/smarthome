@@ -498,9 +498,15 @@ public class ThingResource implements RESTResource {
 
         FirmwareUID firmwareUID = new FirmwareUID(thing.getThingTypeUID(), firmwareVersion);
 
+        ThingUID uid = thing.getUID();
+        if (uid == null || firmwareUID == null) {
+            return JSONResponse.createResponse(Status.BAD_REQUEST, null,
+                    "Firmware update preconditions not satisfied.");
+        }
+
         try {
-            firmwareUpdateService.updateFirmware(thing.getUID(), firmwareUID, LocaleUtil.getLocale(language));
-        } catch (IllegalArgumentException | NullPointerException | IllegalStateException ex) {
+            firmwareUpdateService.updateFirmware(uid, firmwareUID, LocaleUtil.getLocale(language));
+        } catch (IllegalArgumentException | IllegalStateException ex) {
             return JSONResponse.createResponse(Status.BAD_REQUEST, null,
                     "Firmware update preconditions not satisfied.");
         }

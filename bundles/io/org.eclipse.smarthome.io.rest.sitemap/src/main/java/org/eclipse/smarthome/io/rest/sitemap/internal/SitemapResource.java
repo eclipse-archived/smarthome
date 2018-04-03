@@ -397,7 +397,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
     private WidgetDTO createWidgetBean(String sitemapName, Widget widget, boolean drillDown, URI uri, String widgetId,
             Locale locale) {
         // Test visibility
-        if (itemUIRegistry.getVisiblity(widget) == false) {
+        if (!itemUIRegistry.getVisiblity(widget)) {
             return null;
         }
 

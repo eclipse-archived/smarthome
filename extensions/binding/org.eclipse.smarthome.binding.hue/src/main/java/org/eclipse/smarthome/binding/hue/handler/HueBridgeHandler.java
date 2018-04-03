@@ -515,16 +515,19 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
 
         boolean colorModeIsEqual = true;
         boolean effectIsEqual = true;
-        try {
-            colorModeIsEqual = state1.getColorMode().equals(state2.getColorMode());
-        } catch (NullPointerException npe) {
+        
+        if (state1.getColorMode() == null) {
             logger.trace("Light does not support color mode.");
+        } else {
+            colorModeIsEqual = state1.getColorMode().equals(state2.getColorMode());
         }
-        try {
-            effectIsEqual = state1.getEffect().equals(state2.getEffect());
-        } catch (NullPointerException npe) {
+        
+        if (state1.getEffect() == null) {
             logger.trace("Light does not support effect.");
+        } else {
+            effectIsEqual = state1.getEffect().equals(state2.getEffect());
         }
+        
         return colorModeIsEqual && effectIsEqual;
     }
 
