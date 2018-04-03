@@ -59,6 +59,22 @@ public class MarketplaceExtensionServiceTest {
     }
 
     @Test
+    public void shouldParseUiExtensionIdFromValidURI() throws Exception {
+        String url = BASE_PATH + "?mpc_install=3414678";
+        String extensionId = marketplaceService.getExtensionId(new URI(url));
+
+        assertThat(extensionId, is("market:ui-3414678"));
+    }
+
+    @Test
+    public void shouldParseVoiceExtensionIdFromValidURI() throws Exception {
+        String url = BASE_PATH + "?mpc_install=396962433";
+        String extensionId = marketplaceService.getExtensionId(new URI(url));
+
+        assertThat(extensionId, is("market:voice-396962433"));
+    }
+
+    @Test
     public void shouldParseExtensionIdFromValidURIWithMultipleQueryParams() throws Exception {
         String url = BASE_PATH + "?p1&p2=foo&mpc_install=3305842&p3=bar";
         String extensionId = marketplaceService.getExtensionId(new URI(url));
@@ -94,6 +110,8 @@ public class MarketplaceExtensionServiceTest {
         List<Node> nodes = new ArrayList<>(2);
         nodes.add(createBindingNode());
         nodes.add(createRuleNode());
+        nodes.add(createUiNode());
+        nodes.add(createVoiceNode());
         return nodes;
     }
 
@@ -109,6 +127,20 @@ public class MarketplaceExtensionServiceTest {
         Node node = new Node();
         node.id = "3305842";
         node.packagetypes = "binding";
+        return node;
+    }
+
+    private Node createUiNode() {
+        Node node = new Node();
+        node.id = "3414678";
+        node.packagetypes = "ui";
+        return node;
+    }
+
+    private Node createVoiceNode() {
+        Node node = new Node();
+        node.id = "396962433";
+        node.packagetypes = "voice";
         return node;
     }
 
