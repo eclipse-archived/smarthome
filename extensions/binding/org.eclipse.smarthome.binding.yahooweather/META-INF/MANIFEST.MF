@@ -27,4 +27,3 @@ Import-Package: javax.measure,
  org.eclipse.smarthome.io.net.http,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
-
