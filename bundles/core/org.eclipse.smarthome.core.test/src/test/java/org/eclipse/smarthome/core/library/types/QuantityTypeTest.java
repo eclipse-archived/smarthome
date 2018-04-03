@@ -23,7 +23,7 @@ import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Temperature;
 
-import org.eclipse.smarthome.core.library.unit.Density;
+import org.eclipse.smarthome.core.library.dimension.Density;
 import org.eclipse.smarthome.core.library.unit.ImperialUnits;
 import org.eclipse.smarthome.core.library.unit.MetricPrefix;
 import org.eclipse.smarthome.core.library.unit.SIUnits;

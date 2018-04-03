@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.core.library.unit;
+package org.eclipse.smarthome.core.library.dimension;
 
 import javax.measure.Quantity;
 

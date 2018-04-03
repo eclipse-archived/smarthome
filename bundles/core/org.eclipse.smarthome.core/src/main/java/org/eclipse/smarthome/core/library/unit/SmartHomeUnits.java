@@ -44,6 +44,7 @@ import javax.measure.quantity.Time;
 import javax.measure.quantity.Volume;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.smarthome.core.library.dimension.Density;
 import org.eclipse.smarthome.core.library.dimension.Intensity;
 
 import tec.uom.se.AbstractSystemOfUnits;
