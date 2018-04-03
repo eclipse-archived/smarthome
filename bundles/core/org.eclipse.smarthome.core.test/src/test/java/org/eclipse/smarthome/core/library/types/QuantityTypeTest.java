@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 
 import javax.measure.Unit;
 import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Temperature;
 
@@ -244,4 +245,10 @@ public class QuantityTypeTest {
         assertEquals(exponential, new QuantityType<>("10 km"));
     }
 
+    @Test
+    public void testEnergyUnits() {
+        QuantityType<Energy> energy = new QuantityType<>("15000 J");
+        assertEquals("0.004166666666666666666666666666666667 kWh", energy.toUnit("kWh").toString());
+        assertEquals("15000 Ws", energy.toUnit("Ws").toString());
+    }
 }
