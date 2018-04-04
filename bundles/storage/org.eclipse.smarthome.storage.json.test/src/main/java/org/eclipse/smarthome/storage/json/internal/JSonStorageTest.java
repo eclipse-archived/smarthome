@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.storage.json.internal.JsonStorage;
 import org.eclipse.smarthome.test.java.JavaTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,6 +49,7 @@ public class JSonStorageTest extends JavaTest {
         waitForAssert(() -> {
             objectStorage = new JsonStorage<>(tmpFile, this.getClass().getClassLoader(), 0, 0, 0);
             DummyObject dummy = objectStorage.get("DummyObject");
+            assertNotNull(dummy);
             assertNotNull(dummy.configuration);
         });
     }
@@ -128,7 +128,7 @@ public class JSonStorageTest extends JavaTest {
 
     private static class DummyObject {
 
-        private Configuration configuration = new Configuration();
+        private final Configuration configuration = new Configuration();
         public List<InnerObject> channels = new ArrayList<>();
 
         public DummyObject() {
@@ -149,7 +149,7 @@ public class JSonStorageTest extends JavaTest {
     }
 
     private static class InnerObject {
-        private Configuration configuration = new Configuration();
+        private final Configuration configuration = new Configuration();
     }
 
 }
