@@ -66,6 +66,8 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
 
     private final Set<UsbSerialDiscoveryParticipant> discoveryParticipants = new CopyOnWriteArraySet<>();
 
+    private final Set<UsbSerialDeviceInformation> previouslyDiscovered = new CopyOnWriteArraySet<>();
+
     @NonNullByDefault({})
     private UsbSerialDiscovery usbSerialDiscovery;
 
@@ -86,6 +88,12 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addUsbSerialDiscoveryParticipant(UsbSerialDiscoveryParticipant participant) {
         this.discoveryParticipants.add(participant);
+        for (UsbSerialDeviceInformation usbSerialDeviceInformation : previouslyDiscovered) {
+            DiscoveryResult result = participant.createResult(usbSerialDeviceInformation);
+            if (result != null) {
+                thingDiscovered(result);
+            }
+        }
     }
 
     protected void removeUsbSerialDiscoveryParticipant(UsbSerialDiscoveryParticipant participant) {
@@ -101,6 +109,7 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
         usbSerialDiscovery.stopBackgroundScanning();
         usbSerialDiscovery.unregisterDiscoveryListener(this);
         this.usbSerialDiscovery = null;
+        this.previouslyDiscovered.clear();
     }
 
     @Modified
@@ -146,6 +155,7 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
     @Override
     public void usbSerialDeviceDiscovered(UsbSerialDeviceInformation usbSerialDeviceInformation) {
         logger.debug("Discovered new usb-serial device: {}", usbSerialDeviceInformation);
+        previouslyDiscovered.add(usbSerialDeviceInformation);
         for (UsbSerialDiscoveryParticipant participant : discoveryParticipants) {
             DiscoveryResult result = participant.createResult(usbSerialDeviceInformation);
             if (result != null) {
@@ -157,6 +167,7 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
     @Override
     public void usbSerialDeviceRemoved(UsbSerialDeviceInformation usbSerialDeviceInformation) {
         logger.debug("Discovered removed usb-serial device: {}", usbSerialDeviceInformation);
+        previouslyDiscovered.remove(usbSerialDeviceInformation);
         for (UsbSerialDiscoveryParticipant participant : discoveryParticipants) {
             ThingUID thingUID = participant.getThingUID(usbSerialDeviceInformation);
             if (thingUID != null) {

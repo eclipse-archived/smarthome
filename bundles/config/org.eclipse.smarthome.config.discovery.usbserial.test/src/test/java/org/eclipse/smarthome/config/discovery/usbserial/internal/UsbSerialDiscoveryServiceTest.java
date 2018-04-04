@@ -100,11 +100,9 @@ public class UsbSerialDiscoveryServiceTest extends JavaOSGiTest {
 
     @Test
     public void testThingsAreActuallyDiscovered() {
-        UsbSerialDiscoveryService service = getService(UsbSerialDiscoveryService.class);
-
         // register one discovery listener
         DiscoveryListener discoveryListener = mock(DiscoveryListener.class);
-        service.addDiscoveryListener(discoveryListener);
+        usbSerialDiscoveryService.addDiscoveryListener(discoveryListener);
 
         // register two discovery participants
         UsbSerialDiscoveryParticipant discoveryParticipantA = mock(UsbSerialDiscoveryParticipant.class);
@@ -116,31 +114,29 @@ public class UsbSerialDiscoveryServiceTest extends JavaOSGiTest {
         // when no discovery participant supports a newly discovered device, no device is discovered
         when(discoveryParticipantA.createResult(any())).thenReturn(null);
         when(discoveryParticipantB.createResult(any())).thenReturn(null);
-        service.usbSerialDeviceDiscovered(generateDeviceInfo());
+        usbSerialDiscoveryService.usbSerialDeviceDiscovered(generateDeviceInfo());
         verify(discoveryListener, never()).thingDiscovered(any(), any());
 
         // when only the first discovery participant supports a newly discovered device, the device is discovered
         UsbSerialDeviceInformation deviceInfoA = generateDeviceInfo();
         DiscoveryResult discoveryResultA = mock(DiscoveryResult.class);
         when(discoveryParticipantA.createResult(deviceInfoA)).thenReturn(discoveryResultA);
-        service.usbSerialDeviceDiscovered(deviceInfoA);
-        verify(discoveryListener, times(1)).thingDiscovered(service, discoveryResultA);
+        usbSerialDiscoveryService.usbSerialDeviceDiscovered(deviceInfoA);
+        verify(discoveryListener, times(1)).thingDiscovered(usbSerialDiscoveryService, discoveryResultA);
 
         // when only the second discovery participant supports a newly discovered device, the device is also discovered
         UsbSerialDeviceInformation deviceInfoB = generateDeviceInfo();
         DiscoveryResult discoveryResultB = mock(DiscoveryResult.class);
         when(discoveryParticipantA.createResult(deviceInfoB)).thenReturn(discoveryResultB);
-        service.usbSerialDeviceDiscovered(deviceInfoB);
-        verify(discoveryListener, times(1)).thingDiscovered(service, discoveryResultB);
+        usbSerialDiscoveryService.usbSerialDeviceDiscovered(deviceInfoB);
+        verify(discoveryListener, times(1)).thingDiscovered(usbSerialDiscoveryService, discoveryResultB);
     }
 
     @Test
     public void testDiscoveredThingsAreRemoved() {
-        UsbSerialDiscoveryService service = getService(UsbSerialDiscoveryService.class);
-
         // register one discovery listener
         DiscoveryListener discoveryListener = mock(DiscoveryListener.class);
-        service.addDiscoveryListener(discoveryListener);
+        usbSerialDiscoveryService.addDiscoveryListener(discoveryListener);
 
         // register one discovery participant
         UsbSerialDiscoveryParticipant discoveryParticipant = mock(UsbSerialDiscoveryParticipant.class);
@@ -148,15 +144,37 @@ public class UsbSerialDiscoveryServiceTest extends JavaOSGiTest {
 
         // when the discovery participant does not support a removed device, no discovery result is removed
         when(discoveryParticipant.createResult(any())).thenReturn(null);
-        service.usbSerialDeviceRemoved(generateDeviceInfo());
+        usbSerialDiscoveryService.usbSerialDeviceRemoved(generateDeviceInfo());
         verify(discoveryListener, never()).thingRemoved(any(), any());
 
         // when the first discovery participant supports a removed device, the discovery result is removed
         UsbSerialDeviceInformation deviceInfo = generateDeviceInfo();
         ThingUID thingUID = mock(ThingUID.class);
         when(discoveryParticipant.getThingUID(deviceInfo)).thenReturn(thingUID);
-        service.usbSerialDeviceRemoved(deviceInfo);
-        verify(discoveryListener, times(1)).thingRemoved(service, thingUID);
+        usbSerialDiscoveryService.usbSerialDeviceRemoved(deviceInfo);
+        verify(discoveryListener, times(1)).thingRemoved(usbSerialDiscoveryService, thingUID);
+    }
+
+    @Test
+    public void testAddingDiscoveryParticipantAfterAddingUsbDongle() {
+        UsbSerialDeviceInformation usb1 = generateDeviceInfo();
+        UsbSerialDeviceInformation usb2 = generateDeviceInfo();
+        UsbSerialDeviceInformation usb3 = generateDeviceInfo();
+
+        // get info about three added and one removed USB dongles from UsbSerialDiscovery
+        usbSerialDiscoveryService.usbSerialDeviceDiscovered(usb1);
+        usbSerialDiscoveryService.usbSerialDeviceDiscovered(usb2);
+        usbSerialDiscoveryService.usbSerialDeviceRemoved(usb1);
+        usbSerialDiscoveryService.usbSerialDeviceDiscovered(usb3);
+
+        // register one discovery participant
+        UsbSerialDiscoveryParticipant discoveryParticipant = mock(UsbSerialDiscoveryParticipant.class);
+        registerService(discoveryParticipant);
+
+        // then this discovery participant is informed about USB devices usb2 and usb3, but not about usb1
+        verify(discoveryParticipant, never()).createResult(usb1);
+        verify(discoveryParticipant, times(1)).createResult(usb2);
+        verify(discoveryParticipant, times(1)).createResult(usb3);
     }
 
     private void setBackgroundDiscovery(boolean status) throws IOException, InterruptedException {
