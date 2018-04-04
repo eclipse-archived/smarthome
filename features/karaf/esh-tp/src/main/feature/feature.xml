@@ -28,7 +28,8 @@
     <feature dependency="true">esh-tp-jupnp</feature>
     <feature dependency="true">esh-tp-jmdns</feature>
     <feature dependency="true">esh-tp-paho</feature>
-    <feature dependency="true">esh-tp-serial</feature>
+    <feature dependency="true">esh-tp-serial-javacomm</feature>
+    <feature dependency="true">esh-tp-serial-rxtx</feature>
     <feature dependency="true">esh-tp-xtext</feature>
     <feature dependency="true">esh-tp-xtext-ide</feature>
     <feature dependency="true">esh-tp-lsp4j</feature>
@@ -179,9 +180,16 @@
     <bundle>mvn:org.eclipse.paho/org.eclipse.paho.client.mqttv3/1.0.2</bundle>
   </feature>
 
-  <feature name="esh-tp-serial" version="${project.version}">
-    <capability>esh.tp;feature=serial;version=3.12.0</capability>
+  <feature name="esh-tp-serial-javacomm" version="${project.version}">
+    <capability>esh.tp;feature=serial;impl=javacomm</capability>
+    <bundle>mvn:org.eclipse.kura/org.eclipse.soda.dk.comm/1.2.201</bundle>
+    <bundle>mvn:org.eclipse.kura/org.eclipse.soda.dk.comm.armv6hf/1.2.201</bundle>
+    <bundle>mvn:org.eclipse.kura/org.eclipse.soda.dk.comm.aarch64/1.2.201</bundle>
+    <bundle>mvn:org.eclipse.kura/org.eclipse.soda.dk.comm.x86_64/1.2.201</bundle>
+  </feature>
 
+  <feature name="esh-tp-serial-rxtx" version="${project.version}">
+    <capability>esh.tp;feature=serial;impl=rxtx</capability>
     <bundle>mvn:org.openhab/nrjavaserial/3.12.0.OH</bundle>
   </feature>
 
@@ -230,7 +238,7 @@
 
     <!-- Support for the Language Server Protocol -->
     <bundle dependency="true">mvn:de.maggu2810.thirdparty.org.eclipse.xtext/org.eclipse.xtext.ide/2.12.0.sp2</bundle>
-    <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.xbase.ide/2.12.0</bundle>    
+    <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.xbase.ide/2.12.0</bundle>
   </feature>
 
   <feature name="esh-tp-lsp4j" description="Eclipse LSP4J" version="${project.version}">

@@ -41,6 +41,9 @@
     <module>org.eclipse.smarthome.io.transport.mdns</module>
     <module>org.eclipse.smarthome.io.transport.mqtt</module>
     <module>org.eclipse.smarthome.io.transport.mqtt.test</module>
+    <module>org.eclipse.smarthome.io.transport.serial</module>
+    <module>org.eclipse.smarthome.io.transport.serial.javacomm</module>
+    <module>org.eclipse.smarthome.io.transport.serial.rxtx</module>
     <module>org.eclipse.smarthome.io.transport.upnp</module>
     <module>org.eclipse.smarthome.io.transport.upnp.test</module>
   </modules>

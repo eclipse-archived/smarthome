@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-ClassPath: .
+Bundle-Name: Eclipse SmartHome Serial Transport for Java Communication API
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.io.transport.serial.javacomm;singleton:=true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.10.0.qualifier
+Import-Package: javax.comm,
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.io.transport.serial
+Provide-Capability: osgi.service;objectClass:List<String>="org.eclipse
+ .smarthome.io.transport.serial.api.SerialPortManager"
+Service-Component: OSGI-INF/*.xml
