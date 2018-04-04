@@ -24,6 +24,7 @@ Depending on the kind of communication that you need to implement, you can optio
  - org.eclipse.smarthome.config.discovery
  - org.eclipse.smarthome.io.transport.mdns
  - org.eclipse.smarthome.io.transport.mqtt
+ - org.eclipse.smarthome.io.transport.serial
  - org.eclipse.smarthome.io.transport.upnp
  
 ## Optional Bundles

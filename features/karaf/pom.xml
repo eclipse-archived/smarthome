@@ -21,4 +21,11 @@
     <module>verify</module>
   </modules>
 
+  <repositories>
+    <repository>
+      <id>kura-releases</id>
+      <url>https://repo.eclipse.org/content/repositories/kura-releases</url>
+    </repository>
+  </repositories>
+
 </project>
