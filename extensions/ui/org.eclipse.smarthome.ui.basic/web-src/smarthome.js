@@ -2228,9 +2228,9 @@
 	document.addEventListener("DOMContentLoaded", function() {
 		smarthome.UI = new UI(document);
 		smarthome.UI.layoutChangeProxy = new VisibilityChangeProxy(100, 50);
+		smarthome.eventMapper = new EventMapper();
 		smarthome.UI.initControls();
 		smarthome.changeListener = new ChangeListener();
-		smarthome.eventMapper = new EventMapper();
 
 		window.addEventListener("beforeunload", function() {
 			smarthome.changeListener.suppressErrors();
