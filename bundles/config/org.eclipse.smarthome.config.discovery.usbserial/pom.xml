@@ -1,17 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+  <modelVersion>4.0.0</modelVersion>
+
   <parent>
-    <groupId>org.eclipse.smarthome.bundles</groupId>
     <artifactId>config</artifactId>
+    <groupId>org.eclipse.smarthome.bundles</groupId>
     <version>0.10.0-SNAPSHOT</version>
   </parent>
-
-  <modelVersion>4.0.0</modelVersion>
   <groupId>org.eclipse.smarthome.config</groupId>
   <artifactId>org.eclipse.smarthome.config.discovery.usbserial</artifactId>
 
-  <name>Eclipse SmartHome Configuration USB-Serial Discovery</name>
-
   <packaging>eclipse-plugin</packaging>
+
+  <name>Eclipse SmartHome Configuration USB-Serial Discovery</name>
 
 </project>

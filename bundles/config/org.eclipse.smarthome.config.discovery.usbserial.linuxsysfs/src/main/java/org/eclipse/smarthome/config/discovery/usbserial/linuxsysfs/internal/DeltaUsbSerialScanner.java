@@ -12,17 +12,13 @@
  */
 package org.eclipse.smarthome.config.discovery.usbserial.linuxsysfs.internal;
 
-import static java.util.stream.Collectors.*;
-
 import java.io.IOException;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDeviceInformation;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
 /**
  * Permits to perform repeated scans for USB devices with associated serial port. Keeps the last scan result as internal
@@ -33,7 +29,7 @@ import com.google.common.collect.Sets;
 @NonNullByDefault
 public class DeltaUsbSerialScanner {
 
-    private Collection<UsbSerialDeviceInformation> lastScanResult = Sets.newHashSet();
+    private Set<UsbSerialDeviceInformation> lastScanResult = new HashSet<>();
 
     private final UsbSerialScanner usbSerialScanner;
 
@@ -42,7 +38,7 @@ public class DeltaUsbSerialScanner {
     }
 
     /**
-     * Scans for usb-serial devices, and returns the delta to the last scan result.
+     * Scans for USB-Serial devices, and returns the delta to the last scan result.
      * <p/>
      * This method is synchronized to prevent multiple parallel invocations of this method that could bring the value of
      * lastScanResult into an inconsistent state.
@@ -51,27 +47,21 @@ public class DeltaUsbSerialScanner {
      * @throws IOException if the scan using the {@link UsbSerialScanner} throws an IOException.
      */
     public synchronized Delta<UsbSerialDeviceInformation> scan() throws IOException {
-        Set<UsbSerialDeviceInformation> deviceInfos = usbSerialScanner.scan();
+        Set<UsbSerialDeviceInformation> scanResult = usbSerialScanner.scan();
 
-        Set<UsbSerialDeviceInformation> added = getAddedDeviceInfos(deviceInfos);
-        Set<UsbSerialDeviceInformation> removed = getRemovedDeviceInfos(deviceInfos);
-        Set<UsbSerialDeviceInformation> unchanged = Sets.difference(deviceInfos, added);
+        Set<UsbSerialDeviceInformation> added = setDifference(scanResult, lastScanResult);
+        Set<UsbSerialDeviceInformation> removed = setDifference(lastScanResult, scanResult);
+        Set<UsbSerialDeviceInformation> unchanged = setDifference(scanResult, added);
 
-        lastScanResult = deviceInfos;
+        lastScanResult = scanResult;
 
         return new Delta<>(added, removed, unchanged);
     }
 
-    private ImmutableSet<UsbSerialDeviceInformation> getAddedDeviceInfos(
-            Collection<UsbSerialDeviceInformation> deviceInfos) {
-        return deviceInfos.stream().filter(deviceInfo -> !lastScanResult.contains(deviceInfo))
-                .collect(collectingAndThen(toSet(), ImmutableSet::copyOf));
-    }
-
-    private ImmutableSet<UsbSerialDeviceInformation> getRemovedDeviceInfos(
-            Collection<UsbSerialDeviceInformation> deviceInfos) {
-        return lastScanResult.stream().filter(deviceInfo -> !deviceInfos.contains(deviceInfo))
-                .collect(collectingAndThen(toSet(), ImmutableSet::copyOf));
+    private <T> Set<T> setDifference(Set<T> set1, Set<T> set2) {
+        Set<T> result = new HashSet<>(set1);
+        result.removeAll(set2);
+        return Collections.unmodifiableSet(result);
     }
 
     /**

@@ -32,6 +32,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -85,6 +86,18 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
         }
     }
 
+    @Modified
+    @Override
+    protected void modified(@Nullable Map<@NonNull String, @Nullable Object> configProperties) {
+        super.modified(configProperties);
+    }
+
+    @Override
+    @Deactivate
+    protected void deactivate() {
+        super.deactivate();
+    }
+
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addUsbSerialDiscoveryParticipant(UsbSerialDiscoveryParticipant participant) {
         this.discoveryParticipants.add(participant);
@@ -112,12 +125,6 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
         this.previouslyDiscovered.clear();
     }
 
-    @Modified
-    @Override
-    protected void modified(@Nullable Map<@NonNull String, @Nullable Object> configProperties) {
-        super.modified(configProperties);
-    }
-
     @Override
     public Set<ThingTypeUID> getSupportedThingTypes() {
         return discoveryParticipants.stream().flatMap(participant -> participant.getSupportedThingTypeUIDs().stream())
@@ -129,7 +136,7 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
         if (usbSerialDiscovery != null) {
             usbSerialDiscovery.doSingleScan();
         } else {
-            logger.info("Could not scan, as there is no usb serial discovery service configured.");
+            logger.info("Could not scan, as there is no USB-Serial discovery service configured.");
         }
     }
 
@@ -139,7 +146,7 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
             usbSerialDiscovery.startBackgroundScanning();
         } else {
             logger.info(
-                    "Could not start background discovery, as there is no usb serial discovery service configured.");
+                    "Could not start background discovery, as there is no USB-Serial discovery service configured.");
         }
     }
 
@@ -148,13 +155,13 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
         if (usbSerialDiscovery != null) {
             usbSerialDiscovery.stopBackgroundScanning();
         } else {
-            logger.info("Could not stop background discovery, as there is no usb serial discovery service configured.");
+            logger.info("Could not stop background discovery, as there is no USB-Serial discovery service configured.");
         }
     }
 
     @Override
     public void usbSerialDeviceDiscovered(UsbSerialDeviceInformation usbSerialDeviceInformation) {
-        logger.debug("Discovered new usb-serial device: {}", usbSerialDeviceInformation);
+        logger.debug("Discovered new USB-Serial device: {}", usbSerialDeviceInformation);
         previouslyDiscovered.add(usbSerialDeviceInformation);
         for (UsbSerialDiscoveryParticipant participant : discoveryParticipants) {
             DiscoveryResult result = participant.createResult(usbSerialDeviceInformation);
@@ -166,7 +173,7 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
 
     @Override
     public void usbSerialDeviceRemoved(UsbSerialDeviceInformation usbSerialDeviceInformation) {
-        logger.debug("Discovered removed usb-serial device: {}", usbSerialDeviceInformation);
+        logger.debug("Discovered removed USB-Serial device: {}", usbSerialDeviceInformation);
         previouslyDiscovered.remove(usbSerialDeviceInformation);
         for (UsbSerialDiscoveryParticipant participant : discoveryParticipants) {
             ThingUID thingUID = participant.getThingUID(usbSerialDeviceInformation);

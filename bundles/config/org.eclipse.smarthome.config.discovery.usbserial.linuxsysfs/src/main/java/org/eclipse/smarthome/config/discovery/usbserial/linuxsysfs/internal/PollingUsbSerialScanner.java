@@ -114,7 +114,7 @@ public class PollingUsbSerialScanner implements UsbSerialDiscovery {
             backgroundScanningJob = scheduler.scheduleWithFixedDelay(() -> {
                 singleScanInternal(false);
             }, 0, pauseBetweenScans.getSeconds(), TimeUnit.SECONDS);
-            logger.debug("Scheduled usb-serial background discovery every {} seconds", pauseBetweenScans.getSeconds());
+            logger.debug("Scheduled USB-Serial background discovery every {} seconds", pauseBetweenScans.getSeconds());
         }
     }
 
@@ -124,12 +124,12 @@ public class PollingUsbSerialScanner implements UsbSerialDiscovery {
      */
     @Override
     public synchronized void stopBackgroundScanning() {
-        logger.debug("Stopping usb-serial background discovery");
+        logger.debug("Stopping USB-Serial background discovery");
         ScheduledFuture<?> currentBackgroundScanningJob = backgroundScanningJob;
         if (currentBackgroundScanningJob != null && !currentBackgroundScanningJob.isCancelled()) {
             if (currentBackgroundScanningJob.cancel(true)) {
                 backgroundScanningJob = null;
-                logger.debug("Stopped usb-serial background discovery");
+                logger.debug("Stopped USB-serial background discovery");
             }
         }
     }
@@ -153,7 +153,7 @@ public class PollingUsbSerialScanner implements UsbSerialDiscovery {
                 announceAddedDevices(delta.getUnchanged());
             }
         } catch (IOException e) {
-            logger.warn("An IOException prevented a scan for USB serial devices: {}, message {}", e.getClass(),
+            logger.warn("A {} prevented a scan for USB serial devices: {}", e.getClass().getSimpleName(),
                     e.getMessage());
         }
     }

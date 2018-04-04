@@ -1,6 +1,6 @@
 package org.eclipse.smarthome.config.discovery.usbserial.internal;
 
-import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.asList;
 import static org.eclipse.smarthome.config.discovery.DiscoveryService.CONFIG_PROPERTY_BACKGROUND_DISCOVERY;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
@@ -10,6 +10,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Hashtable;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
@@ -87,11 +88,13 @@ public class UsbSerialDiscoveryServiceTest extends JavaOSGiTest {
         ThingTypeUID thingTypeC = new ThingTypeUID("g:h:i");
 
         UsbSerialDiscoveryParticipant discoveryParticipantA = mock(UsbSerialDiscoveryParticipant.class);
-        when(discoveryParticipantA.getSupportedThingTypeUIDs()).thenReturn(newHashSet(thingTypeA, thingTypeB));
+        when(discoveryParticipantA.getSupportedThingTypeUIDs())
+                .thenReturn(new HashSet<>(asList(thingTypeA, thingTypeB)));
         registerService(discoveryParticipantA);
 
         UsbSerialDiscoveryParticipant discoveryParticipantB = mock(UsbSerialDiscoveryParticipant.class);
-        when(discoveryParticipantB.getSupportedThingTypeUIDs()).thenReturn(newHashSet(thingTypeB, thingTypeC));
+        when(discoveryParticipantB.getSupportedThingTypeUIDs())
+                .thenReturn(new HashSet<>(asList(thingTypeB, thingTypeC)));
         registerService(discoveryParticipantB);
 
         assertThat(usbSerialDiscoveryService.getSupportedThingTypes(),

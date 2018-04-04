@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -30,8 +31,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Sets;
 
 /**
  * A {@link UsbSerialScanner} that scans the system for USB devices which provide a serial port by inspecting the
@@ -101,7 +100,7 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
 
     @Override
     public Set<UsbSerialDeviceInformation> scan() throws IOException {
-        Set<UsbSerialDeviceInformation> result = Sets.newHashSet();
+        Set<UsbSerialDeviceInformation> result = new HashSet<>();
 
         for (SerialPortInfo serialPortInfo : getSerialPortInfos()) {
             try {
@@ -110,11 +109,9 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
                     result.add(usbSerialDeviceInfo);
                 }
             } catch (IOException e) {
-                logger.warn(
-                        "Could not extract usb device information for serial port {} due to an IOException; message: {}",
-                        serialPortInfo, e.getMessage());
+                logger.warn("Could not extract USB device information for serial port {}: {}", serialPortInfo,
+                        e.getMessage());
             }
-
         }
 
         return result;
@@ -127,7 +124,7 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
      * @throws IOException If there is a problem reading files from the sysfs tty devices directory.
      */
     private Set<SerialPortInfo> getSerialPortInfos() throws IOException {
-        Set<SerialPortInfo> result = Sets.newHashSet();
+        Set<SerialPortInfo> result = new HashSet<>();
 
         try (DirectoryStream<Path> sysfsTtyPaths = newDirectoryStream(Paths.get(sysfsTtyDevicesDirectory))) {
             for (Path sysfsTtyPath : sysfsTtyPaths) {
@@ -159,7 +156,7 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
         try {
             return ttyFile.toRealPath();
         } catch (IOException e) {
-            logger.warn("Could not find the device path for {} in the sysfs; message: {}", ttyFile, e.getMessage());
+            logger.warn("Could not find the device path for {} in the sysfs: {}", ttyFile, e.getMessage());
             return null;
         }
     }

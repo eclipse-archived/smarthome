@@ -12,20 +12,21 @@
  */
 package org.eclipse.smarthome.config.discovery.usbserial.linuxsysfs.internal;
 
-import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.asList;
 import static org.eclipse.smarthome.config.discovery.usbserial.linuxsysfs.internal.PollingUsbSerialScanner.PAUSE_BETWEEN_SCANS_IN_SECONDS_ATTRIBUTE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDeviceInformation;
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDiscoveryListener;
 import org.eclipse.smarthome.config.discovery.usbserial.testutil.UsbSerialDeviceInformationGenerator;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.common.collect.ImmutableMap;
 
 /**
  * Unit tests for the {@link PollingUsbSerialScanner}.
@@ -49,8 +50,9 @@ public class PollingUsbSerialScannerTest {
         discoveryListener = mock(UsbSerialDiscoveryListener.class);
         pollingScanner.registerDiscoveryListener(discoveryListener);
 
-        pollingScanner.modified(
-                ImmutableMap.<String, Object> builder().put(PAUSE_BETWEEN_SCANS_IN_SECONDS_ATTRIBUTE, "1").build());
+        Map<String, Object> config = new HashMap<>();
+        config.put(PAUSE_BETWEEN_SCANS_IN_SECONDS_ATTRIBUTE, "1");
+        pollingScanner.modified(config);
     }
 
     @Test
@@ -67,7 +69,7 @@ public class PollingUsbSerialScannerTest {
         UsbSerialDeviceInformation usb2 = usbDeviceInfoGenerator.generate();
         UsbSerialDeviceInformation usb3 = usbDeviceInfoGenerator.generate();
 
-        when(usbSerialScanner.scan()).thenReturn(newHashSet(usb1, usb2));
+        when(usbSerialScanner.scan()).thenReturn(new HashSet<>(asList(usb1, usb2)));
 
         pollingScanner.doSingleScan();
 
@@ -87,7 +89,8 @@ public class PollingUsbSerialScannerTest {
         UsbSerialDeviceInformation usb2 = usbDeviceInfoGenerator.generate();
         UsbSerialDeviceInformation usb3 = usbDeviceInfoGenerator.generate();
 
-        when(usbSerialScanner.scan()).thenReturn(newHashSet(usb1, usb2)).thenReturn(newHashSet(usb2, usb3));
+        when(usbSerialScanner.scan()).thenReturn(new HashSet<>(asList(usb1, usb2)))
+                .thenReturn(new HashSet<>(asList(usb2, usb3)));
 
         pollingScanner.unregisterDiscoveryListener(discoveryListener);
         pollingScanner.doSingleScan();
@@ -113,7 +116,8 @@ public class PollingUsbSerialScannerTest {
         UsbSerialDeviceInformation usb2 = usbDeviceInfoGenerator.generate();
         UsbSerialDeviceInformation usb3 = usbDeviceInfoGenerator.generate();
 
-        when(usbSerialScanner.scan()).thenReturn(newHashSet(usb1, usb2)).thenReturn(newHashSet(usb2, usb3));
+        when(usbSerialScanner.scan()).thenReturn(new HashSet<>(asList(usb1, usb2)))
+                .thenReturn(new HashSet<>(asList(usb2, usb3)));
 
         pollingScanner.startBackgroundScanning();
 

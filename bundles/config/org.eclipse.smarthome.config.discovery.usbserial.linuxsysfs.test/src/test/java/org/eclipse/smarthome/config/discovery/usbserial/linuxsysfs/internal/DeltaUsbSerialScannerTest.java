@@ -12,7 +12,8 @@
  */
 package org.eclipse.smarthome.config.discovery.usbserial.linuxsysfs.internal;
 
-import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
@@ -21,6 +22,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
+import java.util.HashSet;
 
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDeviceInformation;
 import org.eclipse.smarthome.config.discovery.usbserial.linuxsysfs.internal.DeltaUsbSerialScanner.Delta;
@@ -51,7 +53,7 @@ public class DeltaUsbSerialScannerTest {
      */
     @Test
     public void testInitialEmptyResult() throws IOException {
-        when(usbSerialScanner.scan()).thenReturn(newHashSet());
+        when(usbSerialScanner.scan()).thenReturn(emptySet());
 
         Delta<UsbSerialDeviceInformation> delta = deltaUsbSerialScanner.scan();
 
@@ -67,7 +69,7 @@ public class DeltaUsbSerialScannerTest {
     public void testInitialNonEmptyResult() throws IOException {
         UsbSerialDeviceInformation usb1 = usbDeviceInfoGenerator.generate();
         UsbSerialDeviceInformation usb2 = usbDeviceInfoGenerator.generate();
-        when(usbSerialScanner.scan()).thenReturn(newHashSet(usb1, usb2));
+        when(usbSerialScanner.scan()).thenReturn(new HashSet<>(asList(usb1, usb2)));
 
         Delta<UsbSerialDeviceInformation> delta = deltaUsbSerialScanner.scan();
 
@@ -86,10 +88,10 @@ public class DeltaUsbSerialScannerTest {
         UsbSerialDeviceInformation usb2 = usbDeviceInfoGenerator.generate();
         UsbSerialDeviceInformation usb3 = usbDeviceInfoGenerator.generate();
 
-        when(usbSerialScanner.scan()).thenReturn(newHashSet(usb1, usb2));
+        when(usbSerialScanner.scan()).thenReturn(new HashSet<>(asList(usb1, usb2)));
         deltaUsbSerialScanner.scan();
 
-        when(usbSerialScanner.scan()).thenReturn(newHashSet(usb2, usb3));
+        when(usbSerialScanner.scan()).thenReturn(new HashSet<>(asList(usb2, usb3)));
         Delta<UsbSerialDeviceInformation> delta = deltaUsbSerialScanner.scan();
 
         assertThat(delta.getAdded(), contains(usb3));

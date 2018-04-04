@@ -12,9 +12,9 @@
  */
 package org.eclipse.smarthome.config.discovery.usbserial.linuxsysfs.internal;
 
-import static com.google.common.collect.Sets.newHashSet;
 import static java.nio.file.Files.*;
 import static java.nio.file.attribute.PosixFilePermission.*;
+import static java.util.Arrays.asList;
 import static org.eclipse.smarthome.config.discovery.usbserial.linuxsysfs.internal.SysfsUsbSerialScanner.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -25,6 +25,9 @@ import static org.junit.Assume.assumeTrue;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDeviceInformation;
 import org.hamcrest.Matcher;
@@ -32,8 +35,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-
-import com.google.common.collect.ImmutableMap;
 
 /**
  * Unit tests for the {@link SysfsUsbSerialScanner}.
@@ -75,9 +76,11 @@ public class SysFsUsbSerialScannerTest {
         createDirectories(sysfsUsbPath);
 
         scanner = new SysfsUsbSerialScanner();
-        scanner.modified(ImmutableMap.<String, Object> builder()
-                .put(SYSFS_TTY_DEVICES_DIRECTORY_ATTRIBUTE, rootPath.resolve(SYSFS_TTY_DEVICES_DIR))
-                .put(DEV_DIRECTORY_ATTRIBUTE, rootPath.resolve(DEV_DIR)).build());
+
+        Map<String, Object> config = new HashMap<>();
+        config.put(SYSFS_TTY_DEVICES_DIRECTORY_ATTRIBUTE, rootPath.resolve(SYSFS_TTY_DEVICES_DIR));
+        config.put(DEV_DIRECTORY_ATTRIBUTE, rootPath.resolve(DEV_DIR));
+        scanner.modified(config);
     }
 
     @Test(expected = IOException.class)
@@ -106,14 +109,14 @@ public class SysFsUsbSerialScannerTest {
     @Test
     public void testNonReadableDeviceFilesAreSkipped() throws IOException {
         createDevice("ttyUSB0", 0xABCD, 0X1234, "sample manufacturer", "sample product", "123-456-789");
-        setPosixFilePermissions(devPath.resolve("ttyUSB0"), newHashSet(OWNER_WRITE));
+        setPosixFilePermissions(devPath.resolve("ttyUSB0"), new HashSet<>(asList(OWNER_WRITE)));
         assertThat(scanner.scan(), is(empty()));
     }
 
     @Test
     public void testNonWritableDeviceFilesAreSkipped() throws IOException {
         createDevice("ttyUSB0", 0xABCD, 0X1234, "sample manufacturer", "sample product", "123-456-789");
-        setPosixFilePermissions(devPath.resolve("ttyUSB0"), newHashSet(OWNER_READ));
+        setPosixFilePermissions(devPath.resolve("ttyUSB0"), new HashSet<>(asList(OWNER_READ)));
         assertThat(scanner.scan(), is(empty()));
     }
 
