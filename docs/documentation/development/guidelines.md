@@ -63,7 +63,7 @@ Test classes do not have to be annotated.
 1. A few common utility libraries are available that every Eclipse SmartHome based solution has to provide and which can be used throughout the code (and which are made available in the target platform):
  - Apache Commons IO (v2.2)
  - Apache Commons Lang (v2.6)
- - Google Guava (v10.0.1)
+ - ~~Google Guava (v10.0.1)~~ (historically allowed, to be avoided in new contributions)
 
 ## D. Runtime Behavior
 
