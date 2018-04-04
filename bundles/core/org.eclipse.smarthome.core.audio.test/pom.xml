@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.eclipse.smarthome.bundles</groupId>
     <artifactId>core</artifactId>
+    <groupId>org.eclipse.smarthome.bundles</groupId>
     <version>0.10.0-SNAPSHOT</version>
   </parent>
+
+  <artifactId>org.eclipse.smarthome.core.audio.test</artifactId>
+  <packaging>eclipse-test-plugin</packaging>
+  <name>Eclipse Smarthome Audio Test</name>
 
   <properties>
     <bundle.symbolicName>org.eclipse.smarthome.core.audio.test</bundle.symbolicName>
     <bundle.namespace>org.eclipse.smarthome.core.audio.test</bundle.namespace>
   </properties>
-
-  <artifactId>org.eclipse.smarthome.core.audio.test</artifactId>
-  <name>Eclipse Smarthome Audio Test</name>
-  <packaging>eclipse-test-plugin</packaging>
 
   <build>
     <plugins>
@@ -127,7 +125,7 @@
               <level>4</level>
               <autoStart>true</autoStart>
             </bundle>
-             <bundle>
+            <bundle>
               <id>org.eclipse.smarthome.config.xml</id>
               <level>4</level>
               <autoStart>true</autoStart>

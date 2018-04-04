@@ -1,27 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.eclipse.smarthome.bundles</groupId>
     <artifactId>model</artifactId>
+    <groupId>org.eclipse.smarthome.bundles</groupId>
     <version>0.10.0-SNAPSHOT</version>
   </parent>
+
+  <groupId>org.eclipse.smarthome.model</groupId>
+  <artifactId>org.eclipse.smarthome.model.thing</artifactId>
+  <packaging>eclipse-plugin</packaging>
+
+  <name>Eclipse SmartHome Thing Model</name>
 
   <properties>
     <bundle.symbolicName>org.eclipse.smarthome.model.thing</bundle.symbolicName>
     <bundle.namespace>org.eclipse.smarthome.model.thing</bundle.namespace>
   </properties>
-
-  <groupId>org.eclipse.smarthome.model</groupId>
-  <artifactId>org.eclipse.smarthome.model.thing</artifactId>
-
-  <name>Eclipse SmartHome Thing Model</name>
-  <packaging>eclipse-plugin</packaging>
-
 
   <build>
     <plugins>
@@ -37,6 +34,18 @@
             </goals>
           </execution>
         </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.2</version>
+          </dependency>
+          <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.6.4</version>
+          </dependency>
+        </dependencies>
         <configuration>
           <includeProjectDependencies>true</includeProjectDependencies>
           <includePluginDependencies>true</includePluginDependencies>
@@ -45,29 +54,13 @@
           <cleanupDaemonThreads>false</cleanupDaemonThreads>
           <arguments>
             <argument>file://${project.basedir}/src/org/eclipse/smarthome/model/thing/GenerateThing.mwe2</argument>
-            <argument>
-              -p
-            </argument>
-            <argument>
-              rootPath=/${project.basedir}/..
-            </argument>
+            <argument>-p</argument>
+            <argument>rootPath=/${project.basedir}/..</argument>
           </arguments>
           <additionalClasspathElements>
             <additionalClasspathElement>/${basedir}/../antlr-generator-3.2.0-patch.jar</additionalClasspathElement>
           </additionalClasspathElements>
         </configuration>
-      <dependencies>
-         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.2</version>
-         </dependency>
-         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.6.4</version>
-         </dependency>
-      </dependencies>
       </plugin>
       <plugin>
         <groupId>org.eclipse.xtend</groupId>

@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.eclipse.smarthome.bundles</groupId>
     <artifactId>io</artifactId>
+    <groupId>org.eclipse.smarthome.bundles</groupId>
     <version>0.10.0-SNAPSHOT</version>
   </parent>
+  <groupId>org.eclipse.smarthome.io</groupId>
+  <artifactId>org.eclipse.smarthome.io.net.test</artifactId>
+
+  <packaging>eclipse-test-plugin</packaging>
+
+  <name>Eclipse SmartHome Network I/O Tests</name>
 
   <properties>
     <bundle.symbolicName>org.eclipse.smarthome.io.net.test</bundle.symbolicName>
     <bundle.namespace>org.eclipse.smarthome.io.net.test</bundle.namespace>
   </properties>
-
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.eclipse.smarthome.io</groupId>
-  <artifactId>org.eclipse.smarthome.io.net.test</artifactId>
-
-  <name>Eclipse SmartHome Network I/O Tests</name>
-
-  <packaging>eclipse-test-plugin</packaging>
 
   <build>
     <plugins>

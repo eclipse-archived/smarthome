@@ -1,26 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.eclipse.smarthome.bundles</groupId>
     <artifactId>model</artifactId>
+    <groupId>org.eclipse.smarthome.bundles</groupId>
     <version>0.10.0-SNAPSHOT</version>
   </parent>
+  <groupId>org.eclipse.smarthome.model</groupId>
+  <artifactId>org.eclipse.smarthome.model.persistence.tests</artifactId>
+
+  <packaging>eclipse-test-plugin</packaging>
+
+  <name>Eclipse SmartHome Model Persistence Tests</name>
 
   <properties>
     <bundle.symbolicName>org.eclipse.smarthome.model.persistence.tests</bundle.symbolicName>
     <bundle.namespace>org.eclipse.smarthome.model.persistence.tests</bundle.namespace>
   </properties>
-
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.eclipse.smarthome.model</groupId>
-  <artifactId>org.eclipse.smarthome.model.persistence.tests</artifactId>
-
-  <name>Eclipse SmartHome Model Persistence Tests</name>
-
-  <packaging>eclipse-test-plugin</packaging>
 
   <build>
     <plugins>
@@ -34,15 +32,15 @@
       <plugin>
         <groupId>${tycho-groupid}</groupId>
         <artifactId>tycho-surefire-plugin</artifactId>
-          <configuration>
-                 <dependencies>
-                     <dependency>
-                         <type>eclipse-plugin</type>
-                         <artifactId>org.eclipse.equinox.ds</artifactId>
-                         <version>0.0.0</version>
-                     </dependency>
-                 </dependencies>
-             <defaultStartLevel>
+        <configuration>
+          <dependencies>
+            <dependency>
+              <type>eclipse-plugin</type>
+              <artifactId>org.eclipse.equinox.ds</artifactId>
+              <version>0.0.0</version>
+            </dependency>
+          </dependencies>
+          <defaultStartLevel>
             <level>4</level>
             <autoStart>true</autoStart>
           </defaultStartLevel>

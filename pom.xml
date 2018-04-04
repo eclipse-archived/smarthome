@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
-
-  <prerequisites>
-    <maven>3.0</maven>
-  </prerequisites>
 
   <groupId>org.eclipse.smarthome</groupId>
   <artifactId>smarthome</artifactId>
   <version>0.10.0-SNAPSHOT</version>
 
+  <packaging>pom</packaging>
+
   <name>Eclipse SmartHome</name>
+
+  <description>This is the Eclipse SmartHome project</description>
 
   <organization>
     <name>Eclipse.org</name>
@@ -25,6 +24,20 @@
     </license>
   </licenses>
 
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
+
+  <modules>
+    <module>bundles</module>
+    <module>extensions</module>
+    <module>features</module>
+    <module>products</module>
+    <module>tools</module>
+    <module>targetplatform</module>
+    <module>distribution</module>
+  </modules>
+
   <distributionManagement>
     <repository>
       <id>repo.eclipse.org</id>
@@ -37,8 +50,6 @@
       <url>https://repo.eclipse.org/content/repositories/smarthome-snapshots/</url>
     </snapshotRepository>
   </distributionManagement>
-
-  <description>This is the Eclipse SmartHome project</description>
 
   <properties>
     <esh.java.version>1.8</esh.java.version>
@@ -56,110 +67,29 @@
     <sat.version>0.4.1</sat.version>
   </properties>
 
-  <packaging>pom</packaging>
+  <repositories>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>jcenter</id>
+      <name>JCenter Repository</name>
+      <url>https://jcenter.bintray.com</url>
+    </repository>
+  </repositories>
 
-  <modules>
-    <module>bundles</module>
-    <module>extensions</module>
-    <module>features</module>
-    <module>products</module>
-    <module>tools</module>
-    <module>targetplatform</module>
-    <module>distribution</module>
-  </modules>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>jcenter</id>
+      <url>https://jcenter.bintray.com</url>
+    </pluginRepository>
+  </pluginRepositories>
 
   <build>
-    <plugins>
-      <plugin>
-        <groupId>org.commonjava.maven.plugins</groupId>
-        <artifactId>directory-maven-plugin</artifactId>
-        <version>0.2</version>
-        <executions>
-          <execution>
-            <id>directories</id>
-            <goals>
-              <goal>highest-basedir</goal>
-            </goals>
-            <phase>initialize</phase>
-            <configuration>
-              <property>basedirRoot</property>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>${tycho-groupid}</groupId>
-        <artifactId>tycho-maven-plugin</artifactId>
-        <extensions>true</extensions>
-      </plugin>
-      <plugin>
-        <groupId>${tycho-groupid}</groupId>
-        <artifactId>target-platform-configuration</artifactId>
-        <configuration>
-          <environments>
-            <environment>
-              <os>linux</os>
-              <ws>gtk</ws>
-              <arch>x86</arch>
-            </environment>
-            <environment>
-              <os>linux</os>
-              <ws>gtk</ws>
-              <arch>x86_64</arch>
-            </environment>
-            <environment>
-              <os>win32</os>
-              <ws>win32</ws>
-              <arch>x86</arch>
-            </environment>
-            <environment>
-              <os>win32</os>
-              <ws>win32</ws>
-              <arch>x86_64</arch>
-            </environment>
-            <environment>
-              <os>macosx</os>
-              <ws>cocoa</ws>
-              <arch>x86_64</arch>
-            </environment>
-          </environments>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-clean-plugin</artifactId>
-        <version>2.5</version>
-        <configuration>
-          <filesets>
-            <fileset>
-              <directory>${basedir}/xtend-gen</directory>
-              <includes>
-                <include>**</include>
-              </includes>
-              <excludes>
-                <exclude>.gitignore</exclude>
-              </excludes>
-            </fileset>
-            <fileset>
-              <directory>${basedir}/src/main/generated-sources/xtend</directory>
-              <includes>
-                <include>**</include>
-              </includes>
-              <excludes>
-                <exclude>.gitignore</exclude>
-              </excludes>
-            </fileset>
-          </filesets>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-      </plugin>
-    </plugins>
 
     <pluginManagement>
       <plugins>
@@ -296,9 +226,6 @@
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.6.1</version>
-          <configuration>
-            <compilerId>groovy-eclipse-compiler</compilerId>
-          </configuration>
           <executions>
             <execution>
               <goals>
@@ -318,11 +245,21 @@
               <version>2.4.3-01</version>
             </dependency>
           </dependencies>
+          <configuration>
+            <compilerId>groovy-eclipse-compiler</compilerId>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>com.mycila</groupId>
           <artifactId>license-maven-plugin</artifactId>
           <version>3.0</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>check</goal>
+              </goals>
+            </execution>
+          </executions>
           <configuration>
             <basedir>${basedir}</basedir>
             <header>src/etc/header.txt</header>
@@ -359,13 +296,6 @@
             </properties>
             <encoding>UTF-8</encoding>
           </configuration>
-          <executions>
-            <execution>
-              <goals>
-                <goal>check</goal>
-              </goals>
-            </execution>
-          </executions>
         </plugin>
         <plugin>
           <groupId>org.eclipse.xtend</groupId>
@@ -393,6 +323,97 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.commonjava.maven.plugins</groupId>
+        <artifactId>directory-maven-plugin</artifactId>
+        <version>0.2</version>
+        <executions>
+          <execution>
+            <id>directories</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>highest-basedir</goal>
+            </goals>
+            <configuration>
+              <property>basedirRoot</property>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>${tycho-groupid}</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <extensions>true</extensions>
+      </plugin>
+      <plugin>
+        <groupId>${tycho-groupid}</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <configuration>
+          <environments>
+            <environment>
+              <os>linux</os>
+              <ws>gtk</ws>
+              <arch>x86</arch>
+            </environment>
+            <environment>
+              <os>linux</os>
+              <ws>gtk</ws>
+              <arch>x86_64</arch>
+            </environment>
+            <environment>
+              <os>win32</os>
+              <ws>win32</ws>
+              <arch>x86</arch>
+            </environment>
+            <environment>
+              <os>win32</os>
+              <ws>win32</ws>
+              <arch>x86_64</arch>
+            </environment>
+            <environment>
+              <os>macosx</os>
+              <ws>cocoa</ws>
+              <arch>x86_64</arch>
+            </environment>
+          </environments>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>2.5</version>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>${basedir}/xtend-gen</directory>
+              <includes>
+                <include>**</include>
+              </includes>
+              <excludes>
+                <exclude>.gitignore</exclude>
+              </excludes>
+            </fileset>
+            <fileset>
+              <directory>${basedir}/src/main/generated-sources/xtend</directory>
+              <includes>
+                <include>**</include>
+              </includes>
+              <excludes>
+                <exclude>.gitignore</exclude>
+              </excludes>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+    </plugins>
   </build>
 
   <profiles>
@@ -425,14 +446,6 @@
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
             <version>0.7.4.201502262128</version>
-            <configuration>
-              <dataFile>${session.executionRootDirectory}/target/coverage.jacoco</dataFile>
-              <destFile>${session.executionRootDirectory}/target/coverage.jacoco</destFile>
-              <append>true</append>
-              <excludes>
-                <exclude>**/*Test.*</exclude>
-              </excludes>
-            </configuration>
             <executions>
               <execution>
                 <id>default-prepare-agent</id>
@@ -447,6 +460,14 @@
                 </goals>
               </execution>
             </executions>
+            <configuration>
+              <dataFile>${session.executionRootDirectory}/target/coverage.jacoco</dataFile>
+              <destFile>${session.executionRootDirectory}/target/coverage.jacoco</destFile>
+              <append>true</append>
+              <excludes>
+                <exclude>**/*Test.*</exclude>
+              </excludes>
+            </configuration>
           </plugin>
         </plugins>
       </build>
@@ -563,27 +584,5 @@
       </build>
     </profile>
   </profiles>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>jcenter</id>
-      <url>https://jcenter.bintray.com</url>
-    </pluginRepository>
-  </pluginRepositories>
-
-  <repositories>
-    <repository>
-      <id>jcenter</id>
-      <name>JCenter Repository</name>
-      <url>https://jcenter.bintray.com</url>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
 
 </project>

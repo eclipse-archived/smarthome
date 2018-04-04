@@ -1,16 +1,16 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>automation</artifactId>
+    <groupId>org.eclipse.smarthome.bundles</groupId>
+    <version>0.10.0-SNAPSHOT</version>
+  </parent>
 
   <artifactId>org.eclipse.smarthome.automation.module.timer.test</artifactId>
   <packaging>eclipse-test-plugin</packaging>
   <name>Eclipse SmartHome Automation Module Timer Tests</name>
-
-  <parent>
-    <groupId>org.eclipse.smarthome.bundles</groupId>
-    <artifactId>automation</artifactId>
-    <version>0.10.0-SNAPSHOT</version>
-  </parent>
 
   <properties>
     <bundle.symbolicName>org.eclipse.smarthome.automation.module.timer.test</bundle.symbolicName>
@@ -26,76 +26,76 @@
           <environments combine.self="override"></environments>
           <dependency-resolution>
             <extraRequirements>
-	            <requirement>
-	              <type>eclipse-plugin</type>
-	              <id>org.eclipse.smarthome.automation.api</id>
-	              <versionRange>0.0.0</versionRange>
-	            </requirement>
-	            <requirement>
-	              <type>eclipse-plugin</type>
-	              <id>org.eclipse.smarthome.config.core</id>
-	              <versionRange>0.0.0</versionRange>
-	            </requirement>
-	            <requirement>
-	              <type>eclipse-plugin</type>
-	              <id>org.eclipse.smarthome.config.xml</id>
-	              <versionRange>0.0.0</versionRange>
-	            </requirement>
-	            <requirement>
-	              <type>eclipse-plugin</type>
-	              <id>org.eclipse.smarthome.core</id>
-	              <versionRange>0.0.0</versionRange>
-	            </requirement>
-	            <requirement>
-	              <type>eclipse-plugin</type>
-	              <id>org.eclipse.core.runtime</id>
-	              <versionRange>0.0.0</versionRange>
-	            </requirement>
-	            <requirement>
-	              <type>eclipse-plugin</type>
-	              <id>org.eclipse.equinox.common</id>
-	              <versionRange>0.0.0</versionRange>
-	            </requirement>
-	            <requirement>
-	              <type>eclipse-plugin</type>
-	              <id>org.eclipse.equinox.ds</id>
-	              <versionRange>0.0.0</versionRange>
-	            </requirement>
-	            <requirement>
-	              <type>eclipse-plugin</type>
-	              <id>org.eclipse.equinox.event</id>
-	              <versionRange>0.0.0</versionRange>
-	            </requirement>
-	            <requirement>
-	              <type>eclipse-plugin</type>
-	              <id>org.eclipse.osgi</id>
-	              <versionRange>0.0.0</versionRange>
-	            </requirement>
-	            <requirement>
-	              <type>eclipse-plugin</type>
-	              <id>org.eclipse.smarthome.core.autoupdate</id>
-	              <versionRange>0.0.0</versionRange>
-	            </requirement>
-	            <!-- LOGGING -->
-	            <requirement>
-	              <type>eclipse-plugin</type>
-	              <id>ch.qos.logback.classic</id>
-	              <versionRange>0.0.0</versionRange>
-	            </requirement>
-	            <requirement>
-	              <type>eclipse-plugin</type>
-	              <id>ch.qos.logback.core</id>
-	              <versionRange>0.0.0</versionRange>
-	            </requirement>
-	            <requirement>
-	              <type>eclipse-plugin</type>
-	              <id>ch.qos.logback.slf4j</id>
-	              <versionRange>0.0.0</versionRange>
-	            </requirement>
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>org.eclipse.smarthome.automation.api</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>org.eclipse.smarthome.config.core</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>org.eclipse.smarthome.config.xml</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>org.eclipse.smarthome.core</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>org.eclipse.core.runtime</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>org.eclipse.equinox.common</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>org.eclipse.equinox.ds</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>org.eclipse.equinox.event</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>org.eclipse.osgi</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>org.eclipse.smarthome.core.autoupdate</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
+              <!-- LOGGING -->
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>ch.qos.logback.classic</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>ch.qos.logback.core</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>ch.qos.logback.slf4j</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
             </extraRequirements>
           </dependency-resolution>
         </configuration>
-      </plugin>    
+      </plugin>
       <plugin>
         <groupId>${tycho-groupid}</groupId>
         <artifactId>tycho-surefire-plugin</artifactId>
