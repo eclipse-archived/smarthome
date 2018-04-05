@@ -44,7 +44,8 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class ExpressionThreadPoolManager extends ThreadPoolManager {
-    private static final Logger logger = LoggerFactory.getLogger(ExpressionThreadPoolExecutor.class);
+    private static final Logger logger = LoggerFactory.getLogger(ExpressionThreadPoolManager.class);
+
     /**
      * Returns an instance of an expression-driven scheduled thread pool service. If it is the first request for the
      * given pool name, the instance is newly created.
@@ -76,12 +77,13 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
     }
 
     public static class ExpressionThreadPoolExecutor extends ScheduledThreadPoolExecutor {
-        private Map<Expression, RunnableWrapper> scheduled = new ConcurrentHashMap<>();
-        private Map<RunnableWrapper, List<ScheduledFuture<?>>> futures = Collections.synchronizedMap(new HashMap<>());
+        private final Map<Expression, RunnableWrapper> scheduled = new ConcurrentHashMap<>();
+        private final Map<RunnableWrapper, List<ScheduledFuture<?>>> futures = Collections
+                .synchronizedMap(new HashMap<>());
         private final Lock futuresLock = new ReentrantLock();
         private final Map<Future<?>, Date> timestamps = Collections.synchronizedMap(new HashMap<Future<?>, Date>());
         private volatile Thread monitor;
-        private NamedThreadFactory monitorThreadFactory;
+        private final NamedThreadFactory monitorThreadFactory;
         private final Lock monitoringLock = new ReentrantLock();
         private final Condition newExpressionCondition = monitoringLock.newCondition();
 
