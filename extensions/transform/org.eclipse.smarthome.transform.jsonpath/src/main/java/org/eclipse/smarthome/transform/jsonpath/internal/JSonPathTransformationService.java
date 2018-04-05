@@ -14,6 +14,7 @@ package org.eclipse.smarthome.transform.jsonpath.internal;
 
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -33,6 +34,7 @@ import com.jayway.jsonpath.PathNotFoundException;
  * @author Sebastian Janzen
  *
  */
+@NonNullByDefault
 public class JSonPathTransformationService implements TransformationService {
 
     private final Logger logger = LoggerFactory.getLogger(JSonPathTransformationService.class);

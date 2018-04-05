@@ -22,6 +22,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Thomas.Eichstaedt-Engelen
  */
+@NonNullByDefault
 public class XsltTransformationService implements TransformationService {
 
     private final Logger logger = LoggerFactory.getLogger(XsltTransformationService.class);

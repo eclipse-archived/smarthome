@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.core.transform;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * A TransformationProcessor transforms a given input and returns the transformed
  * result. Transformations could make sense in various situations, for example:
@@ -27,9 +29,9 @@ package org.eclipse.smarthome.core.transform;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@NonNullByDefault
 public interface TransformationService {
-    
-    
+
     public static final String TRANSFORM_FOLDER_NAME = "transform";
 
     /**
@@ -38,7 +40,7 @@ public interface TransformationService {
      * for any reason, one should return the unchanged <code>source</code>. This
      * method should never return <code>null</code>. In case of any error an {@link TransformationException} should be
      * thrown.
-     * 
+     *
      * @param function the function to be used to transform the input
      * @param source the input to be transformed
      * @return the transformed result or the unchanged <code>source</code> if the

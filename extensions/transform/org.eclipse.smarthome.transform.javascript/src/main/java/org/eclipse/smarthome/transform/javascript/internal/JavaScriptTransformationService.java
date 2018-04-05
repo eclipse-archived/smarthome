@@ -23,6 +23,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
@@ -32,9 +33,10 @@ import org.slf4j.LoggerFactory;
 /**
  * The implementation of {@link TransformationService} which transforms the
  * input by Java Script.
- * 
+ *
  * @author Pauli Anttila
  */
+@NonNullByDefault
 public class JavaScriptTransformationService implements TransformationService {
 
     /**
@@ -42,7 +44,7 @@ public class JavaScriptTransformationService implements TransformationService {
      * transformation rule to be read from a file which is stored under the
      * 'configurations/transform' folder. To organize the various
      * transformations one should use subfolders.
-     * 
+     *
      * @param filename
      *            the name of the file which contains the Java script
      *            transformation rule. Transformation service inject input

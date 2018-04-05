@@ -15,20 +15,23 @@ package org.eclipse.smarthome.transform.regex.internal;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
+import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * <p>
  * The implementation of {@link TransformationService} which transforms the input by Regular Expressions.
- * 
+ *
  * <p>
  * <b>Note:</b> the given Regular Expression must contain exactly one group!
  *
  * @author Thomas.Eichstaedt-Engelen
  */
+@NonNullByDefault
 public class RegExTransformationService implements TransformationService {
 
     private final Logger logger = LoggerFactory.getLogger(RegExTransformationService.class);
@@ -66,7 +69,7 @@ public class RegExTransformationService implements TransformationService {
             logger.debug(
                     "the given regex '^{}$' doesn't match the given content '{}' -> couldn't compute transformation",
                     regExpression, source);
-            return null;
+            return UnDefType.NULL.toFullString();
         }
         matcher.reset();
 
@@ -87,7 +90,11 @@ public class RegExTransformationService implements TransformationService {
             }
         }
 
-        return result;
+        if (result != null) {
+            return result;
+        } else {
+            return UnDefType.NULL.toFullString();
+        }
     }
 
 }

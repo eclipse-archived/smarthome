@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.transform.exec.internal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
 import org.eclipse.smarthome.io.net.exec.ExecUtil;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Pauli Anttila
  */
+@NonNullByDefault
 public class ExecTransformationService implements TransformationService {
 
     private final Logger logger = LoggerFactory.getLogger(ExecTransformationService.class);
