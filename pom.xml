@@ -321,6 +321,29 @@
           <artifactId>maven-clean-plugin</artifactId>
           <version>2.5</version>
         </plugin>
+        <plugin>
+          <groupId>org.openhab.tools.sat</groupId>
+          <artifactId>sat-plugin</artifactId>
+          <version>${sat.version}</version>
+          <executions>
+            <execution>
+              <id>sat-all</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>checkstyle</goal>
+                <goal>pmd</goal>
+                <goal>findbugs</goal>
+                <goal>report</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <pmdFilter>${basedirRoot}/tools/static-code-analysis/pmd/suppressions.properties</pmdFilter>
+            <checkstyleProperties>${basedirRoot}/tools/static-code-analysis/checkstyle/ruleset.properties</checkstyleProperties>
+            <checkstyleFilter>${basedirRoot}/tools/static-code-analysis/checkstyle/suppressions.xml</checkstyleFilter>
+            <findbugsExclude>${basedirRoot}/tools/static-code-analysis/findbugs/suppressions.xml</findbugsExclude>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -532,10 +555,10 @@
     </profile>
     <!-- static code analysis profiles -->
     <profile>
-      <id>check</id>
+      <id>skip-check</id>
       <activation>
         <property>
-          <name>!skipChecks</name>
+          <name>skipChecks</name>
         </property>
       </activation>
       <build>
@@ -547,21 +570,10 @@
               <version>${sat.version}</version>
               <executions>
                 <execution>
-                  <phase>verify</phase>
-                  <goals>
-                    <goal>checkstyle</goal>
-                    <goal>pmd</goal>
-                    <goal>findbugs</goal>
-                    <goal>report</goal>
-                  </goals>
+                  <id>sat-all</id>
+                  <phase>none</phase>
                 </execution>
               </executions>
-              <configuration>
-                <pmdFilter>${basedirRoot}/tools/static-code-analysis/pmd/suppressions.properties</pmdFilter>
-                <checkstyleProperties>${basedirRoot}/tools/static-code-analysis/checkstyle/ruleset.properties</checkstyleProperties>
-                <checkstyleFilter>${basedirRoot}/tools/static-code-analysis/checkstyle/suppressions.xml</checkstyleFilter>
-                <findbugsExclude>${basedirRoot}/tools/static-code-analysis/findbugs/suppressions.xml</findbugsExclude>
-              </configuration>
             </plugin>
           </plugins>
         </pluginManagement>
