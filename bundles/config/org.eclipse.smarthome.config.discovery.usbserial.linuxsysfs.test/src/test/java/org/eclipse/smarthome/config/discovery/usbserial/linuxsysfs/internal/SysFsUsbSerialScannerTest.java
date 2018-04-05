@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.config.discovery.usbserial.linuxsysfs.internal;
 
+import static java.lang.Integer.toHexString;
 import static java.nio.file.Files.*;
 import static java.nio.file.attribute.PosixFilePermission.*;
 import static java.util.Arrays.asList;
@@ -96,53 +97,65 @@ public class SysFsUsbSerialScannerTest {
 
     @Test
     public void testUsbSerialDevicesAreCorrectlyIdentified() throws IOException {
-        createDevice("ttyUSB0", 0xABCD, 0X1234, "sample manufacturer", "sample product", "123-456-789");
-        createDevice("ttyUSB1", 0x0001, 0X0002, "another manufacturer", "product desc", "987-654-321");
+        createDevice("ttyUSB0", 0xABCD, 0X1234, "sample manufacturer", "sample product", "123-456-789", 0,
+                "sample interface");
+        createDevice("ttyUSB1", 0x0001, 0X0002, "another manufacturer", "product desc", "987-654-321", 1,
+                "another interface");
 
         assertThat(scanner.scan(), hasSize(2));
         assertThat(scanner.scan(), hasItem(isUsbSerialDeviceInfo(0xABCD, 0x1234, "123-456-789", "sample manufacturer",
-                "sample product", rootPath.resolve(DEV_DIR).resolve("ttyUSB0").toString())));
+                "sample product", 0, "sample interface", rootPath.resolve(DEV_DIR).resolve("ttyUSB0").toString())));
         assertThat(scanner.scan(), hasItem(isUsbSerialDeviceInfo(0x0001, 0X0002, "987-654-321", "another manufacturer",
-                "product desc", rootPath.resolve(DEV_DIR).resolve("ttyUSB1").toString())));
+                "product desc", 1, "another interface", rootPath.resolve(DEV_DIR).resolve("ttyUSB1").toString())));
     }
 
     @Test
     public void testNonReadableDeviceFilesAreSkipped() throws IOException {
-        createDevice("ttyUSB0", 0xABCD, 0X1234, "sample manufacturer", "sample product", "123-456-789");
+        createDevice("ttyUSB0", 0xABCD, 0X1234, "sample manufacturer", "sample product", "123-456-789", 0,
+                "interfaceDesc");
         setPosixFilePermissions(devPath.resolve("ttyUSB0"), new HashSet<>(asList(OWNER_WRITE)));
         assertThat(scanner.scan(), is(empty()));
     }
 
     @Test
     public void testNonWritableDeviceFilesAreSkipped() throws IOException {
-        createDevice("ttyUSB0", 0xABCD, 0X1234, "sample manufacturer", "sample product", "123-456-789");
+        createDevice("ttyUSB0", 0xABCD, 0X1234, "sample manufacturer", "sample product", "123-456-789", 0,
+                "interfaceDesc");
         setPosixFilePermissions(devPath.resolve("ttyUSB0"), new HashSet<>(asList(OWNER_READ)));
         assertThat(scanner.scan(), is(empty()));
     }
 
     @Test
     public void testDeviceWithoutVendorIdIsSkipped() throws IOException {
-        createDevice("ttyUSB0", 0xABCD, 0X1234, "sample manufacturer", "sample product", "123-456-789",
-                DeviceCreationOption.NO_VENDOR_ID);
+        createDevice("ttyUSB0", 0xABCD, 0X1234, "sample manufacturer", "sample product", "123-456-789", 0,
+                "interfaceDesc", DeviceCreationOption.NO_VENDOR_ID);
         assertThat(scanner.scan(), is(empty()));
     }
 
     @Test
     public void testDeviceWithoutProductIdIsSkipped() throws IOException {
-        createDevice("ttyUSB0", 0xABCD, 0X1234, "sample manufacturer", "sample product", "123-456-789",
-                DeviceCreationOption.NO_VENDOR_ID);
+        createDevice("ttyUSB0", 0xABCD, 0X1234, "sample manufacturer", "sample product", "123-456-789", 0,
+                "interfaceDesc", DeviceCreationOption.NO_VENDOR_ID);
+        assertThat(scanner.scan(), is(empty()));
+    }
+
+    @Test
+    public void testDeviceWithoutInterfaceNumberIsSkipped() throws IOException {
+        createDevice("ttyUSB0", 0xABCD, 0X1234, "sample manufacturer", "sample product", "123-456-789", 0,
+                "interfaceDesc", DeviceCreationOption.NO_INTERFACE_NUMBER);
         assertThat(scanner.scan(), is(empty()));
     }
 
     @Test
     public void testNonUsbDeviceIsSkipped() throws IOException {
-        createDevice("ttyUSB0", 0xABCD, 0X1234, "sample manufacturer", "sample product", "123-456-789",
-                DeviceCreationOption.NON_USB_DEVICE);
+        createDevice("ttyUSB0", 0xABCD, 0X1234, "sample manufacturer", "sample product", "123-456-789", 0,
+                "interfaceDesc", DeviceCreationOption.NON_USB_DEVICE);
         assertThat(scanner.scan(), is(empty()));
     }
 
     private void createDevice(String serialPortName, int vendorId, int productId, String manufacturer, String product,
-            String serialNumber, DeviceCreationOption... deviceCreationOptions) throws IOException {
+            String serialNumber, int interfaceNumber, String interfaceDescription,
+            DeviceCreationOption... deviceCreationOptions) throws IOException {
         int deviceIndex = deviceIndexCounter++;
 
         // Create the device file in /dev
@@ -150,7 +163,7 @@ public class SysFsUsbSerialScannerTest {
 
         // Create the USB device folder structure
         Path usbDevicePath = sysfsUsbPath.resolve(String.format("1-%d", deviceIndex));
-        Path usbInterfacePath = usbDevicePath.resolve(String.format("1-%d:1.0", deviceIndex));
+        Path usbInterfacePath = usbDevicePath.resolve(String.format("1-%d:1.%d", deviceIndex, interfaceNumber));
         Path serialDevicePath = usbInterfacePath.resolve(serialPortName);
         createDirectories(serialDevicePath);
 
@@ -163,10 +176,10 @@ public class SysFsUsbSerialScannerTest {
 
         // Create the files containing information about the USB device
         if (!Arrays.asList(deviceCreationOptions).contains(DeviceCreationOption.NO_VENDOR_ID)) {
-            write(createFile(usbDevicePath.resolve("idVendor")), Integer.toHexString(vendorId).getBytes());
+            write(createFile(usbDevicePath.resolve("idVendor")), toHexString(vendorId).getBytes());
         }
         if (!Arrays.asList(deviceCreationOptions).contains(DeviceCreationOption.NO_PRODUCT_ID)) {
-            write(createFile(usbDevicePath.resolve("idProduct")), Integer.toHexString(productId).getBytes());
+            write(createFile(usbDevicePath.resolve("idProduct")), toHexString(productId).getBytes());
         }
         if (manufacturer != null) {
             write(createFile(usbDevicePath.resolve("manufacturer")), manufacturer.getBytes());
@@ -177,12 +190,20 @@ public class SysFsUsbSerialScannerTest {
         if (serialNumber != null) {
             write(createFile(usbDevicePath.resolve("serial")), serialNumber.getBytes());
         }
+
+        // Create the files containing information about the USB interface
+        if (!Arrays.asList(deviceCreationOptions).contains(DeviceCreationOption.NO_INTERFACE_NUMBER)) {
+            write(createFile(usbInterfacePath.resolve("bInterfaceNumber")), toHexString(interfaceNumber).getBytes());
+        }
+        if (interfaceDescription != null) {
+            write(createFile(usbInterfacePath.resolve("interface")), interfaceDescription.getBytes());
+        }
     }
 
     private Matcher<UsbSerialDeviceInformation> isUsbSerialDeviceInfo(int vendorId, int productId, String serialNumber,
-            String manufacturer, String product, String serialPort) {
-        return equalTo(
-                new UsbSerialDeviceInformation(vendorId, productId, serialNumber, manufacturer, product, serialPort));
+            String manufacturer, String product, int interfaceNumber, String interfaceDescription, String serialPort) {
+        return equalTo(new UsbSerialDeviceInformation(vendorId, productId, serialNumber, manufacturer, product,
+                interfaceNumber, interfaceDescription, serialPort));
     }
 
     private boolean systemSupportsSymLinks() throws IOException {
@@ -197,6 +218,7 @@ public class SysFsUsbSerialScannerTest {
     private enum DeviceCreationOption {
         NO_VENDOR_ID,
         NO_PRODUCT_ID,
+        NO_INTERFACE_NUMBER,
         NON_USB_DEVICE;
     }
 }

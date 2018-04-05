@@ -27,8 +27,8 @@ public class UsbSerialDeviceInformationGenerator {
 
     public UsbSerialDeviceInformation generate() {
         int i = counter.getAndIncrement();
-        return new UsbSerialDeviceInformation(i, i, "serialNumber-" + i, "manufacturer-" + i, "product-" + i,
-                "ttyUSB" + i);
+        return new UsbSerialDeviceInformation(i, i, "serialNumber-" + i, "manufacturer-" + i, "product-" + i, i,
+                "interface-" + i, "ttyUSB" + i);
     }
 
 }

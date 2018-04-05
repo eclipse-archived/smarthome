@@ -72,6 +72,8 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
     private static final String SYSFS_FILENAME_USB_SERIAL_NUMBER = "serial";
     private static final String SYSFS_FILENAME_USB_MANUFACTURER = "manufacturer";
     private static final String SYSFS_FILENAME_USB_PRODUCT = "product";
+    private static final String SYSFS_FILENAME_USB_INTERFACE_NUMBER = "bInterfaceNumber";
+    private static final String SYSFS_FILENAME_USB_INTERFACE = "interface";
 
     /**
      * In the sysfs, directories for USB interfaces have the following format (cf., e.g.,
@@ -179,7 +181,8 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
 
         Path usbDevicePath = usbInterfacePath.getParent();
         if (isUsbDevicePath(usbDevicePath)) {
-            return createUsbSerialDeviceInformation(usbDevicePath, serialPortInfo.getDevicePath().toString());
+            return createUsbSerialDeviceInformation(usbDevicePath, usbInterfacePath,
+                    serialPortInfo.getDevicePath().toString());
         } else {
             return null;
         }
@@ -213,8 +216,8 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
      * Constructs a {@link UsbSerialDeviceInformation} from a serial port and the information found in the sysfs about a
      * USB device.
      */
-    private UsbSerialDeviceInformation createUsbSerialDeviceInformation(Path usbDevicePath, String serialPortName)
-            throws IOException {
+    private UsbSerialDeviceInformation createUsbSerialDeviceInformation(Path usbDevicePath, Path usbInterfacePath,
+            String serialPortName) throws IOException {
         int vendorId = Integer.parseInt(getContent(usbDevicePath.resolve(SYSFS_FILENAME_USB_VENDOR_ID)), 16);
         int productId = Integer.parseInt(getContent(usbDevicePath.resolve(SYSFS_FILENAME_USB_PRODUCT_ID)), 16);
 
@@ -222,7 +225,12 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
         String manufacturer = getContentIfFileExists(usbDevicePath.resolve(SYSFS_FILENAME_USB_MANUFACTURER));
         String product = getContentIfFileExists(usbDevicePath.resolve(SYSFS_FILENAME_USB_PRODUCT));
 
-        return new UsbSerialDeviceInformation(vendorId, productId, serialNumber, manufacturer, product, serialPortName);
+        int interfaceNumber = Integer.parseInt(getContent(usbInterfacePath.resolve(SYSFS_FILENAME_USB_INTERFACE_NUMBER)),
+                16);
+        String interfaceDescription = getContentIfFileExists(usbInterfacePath.resolve(SYSFS_FILENAME_USB_INTERFACE));
+
+        return new UsbSerialDeviceInformation(vendorId, productId, serialNumber, manufacturer, product, interfaceNumber,
+                interfaceDescription, serialPortName);
     }
 
     private boolean containsFile(Path directoryPath, String filename) {
