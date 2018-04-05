@@ -12,14 +12,19 @@
  */
 package org.eclipse.smarthome.io.transport.mqtt;
 
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
-import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.smarthome.io.transport.mqtt.reconnect.AbstractReconnectStrategy;
 import org.eclipse.smarthome.io.transport.mqtt.reconnect.PeriodicReconnectStrategy;
@@ -31,10 +36,10 @@ import org.osgi.service.cm.ConfigurationException;
  *
  * @author David Graeff - Initial contribution
  */
-public class MqttBrokerConnectionTest {
+public class MqttBrokerConnectionTests {
     @Test
-    public void messageConsumerTests() throws ConfigurationException, MqttException {
-        MqttBrokerConnection a = new MqttBrokerConnection("123.123.123.123", null, false, null);
+    public void messageConsumer() throws ConfigurationException, MqttException {
+        MqttBrokerConnection a = new MqttBrokerConnection("123.123.123.123", null, false, "MqttBrokerConnectionTests");
         // Expect no consumers
         assertFalse(a.hasConsumers());
 
@@ -51,8 +56,8 @@ public class MqttBrokerConnectionTest {
     }
 
     @Test
-    public void reconnectPolicyDefaultTest() throws ConfigurationException, MqttException, InterruptedException {
-        MqttBrokerConnection a = new MqttBrokerConnection("123.123.123.123", null, false, null);
+    public void reconnectPolicyDefault() throws ConfigurationException, MqttException, InterruptedException {
+        MqttBrokerConnection a = new MqttBrokerConnection("123.123.123.123", null, false, "MqttBrokerConnectionTests");
 
         // Check if the default policy is set and that the broker within the policy is set.
         assertTrue(a.getReconnectStrategy() instanceof PeriodicReconnectStrategy);
@@ -61,8 +66,11 @@ public class MqttBrokerConnectionTest {
     }
 
     @Test
-    public void reconnectPolicyTests() throws ConfigurationException, MqttException, InterruptedException {
-        MqttBrokerConnection a = spy(new MqttBrokerConnection("123.123.123.123", null, false, null));
+    public void reconnectPolicy()
+            throws ConfigurationException, MqttException, InterruptedException, ConfigurationException {
+        MqttBrokerConnectionEx a = spy(
+                new MqttBrokerConnectionEx("123.123.123.123", null, false, "MqttBrokerConnectionTests"));
+        a.setConnectionCallback(a, mock(IMqttToken.class));
 
         // Check setter
         a.setReconnectStrategy(new PeriodicReconnectStrategy());
@@ -73,15 +81,15 @@ public class MqttBrokerConnectionTest {
         PeriodicReconnectStrategy mockPolicy = spy(new PeriodicReconnectStrategy(10000, 0));
         doNothing().when(a).start();
         mockPolicy.start();
-        a.isConnecting = true;
 
         // Fake a disconnect
         a.setReconnectStrategy(mockPolicy);
-        IMqttActionListener l = a.createConnectionListener();
         doReturn(MqttConnectionState.DISCONNECTED).when(a).connectionState();
         IMqttToken token = mock(IMqttToken.class);
         when(token.getException()).thenReturn(new org.eclipse.paho.client.mqttv3.MqttException(1));
-        l.onFailure(token, null);
+
+        a.isConnecting = true; /* Pretend that start did something */
+        a.connectionCallbacks.onFailure(token, null);
 
         // Check lostConnect
         verify(mockPolicy).lostConnection();
@@ -90,13 +98,41 @@ public class MqttBrokerConnectionTest {
         assertTrue(mockPolicy.isReconnecting());
 
         // Fake connection established
-        l.onSuccess(token);
+        a.connectionCallbacks.onSuccess(token);
         assertFalse(mockPolicy.isReconnecting());
     }
 
     @Test
-    public void connectionObserverTests() throws ConfigurationException, MqttException {
-        MqttBrokerConnection a = spy(new MqttBrokerConnection("123.123.123.123", null, false, null));
+    public void timeoutWhenNotReachable() throws ConfigurationException, MqttException, InterruptedException {
+        MqttBrokerConnectionEx a = spy(
+                new MqttBrokerConnectionEx("10.0.10.10", null, false, "MqttBrokerConnectionTests"));
+        a.setConnectionCallback(a, mock(IMqttToken.class));
+
+        ScheduledThreadPoolExecutor s = new ScheduledThreadPoolExecutor(1);
+        a.setTimeoutExecutor(s, 10);
+        assertThat(a.getTimeoutExecutor(), is(s));
+
+        Semaphore semaphore = new Semaphore(1);
+        semaphore.acquire();
+
+        MqttConnectionObserver o = new MqttConnectionObserver() {
+            @Override
+            public void connectionStateChanged(@NonNull MqttConnectionState state, @Nullable Throwable error) {
+                semaphore.release();
+            }
+        };
+        a.addConnectionObserver(o);
+        a.start();
+        assertNotNull(a.timeoutFuture);
+
+        assertThat(semaphore.tryAcquire(500, TimeUnit.MILLISECONDS), is(true));
+    }
+
+    @Test
+    public void connectionObserver() throws ConfigurationException, MqttException {
+        MqttBrokerConnectionEx a = spy(
+                new MqttBrokerConnectionEx("123.123.123.123", null, false, "MqttBrokerConnectionTests"));
+        a.setConnectionCallback(a, mock(IMqttToken.class));
 
         // Add an observer
         assertFalse(a.hasConnectionObservers());
@@ -105,13 +141,12 @@ public class MqttBrokerConnectionTest {
         assertTrue(a.hasConnectionObservers());
 
         // Adding a connection observer should not immediately call its connectionStateChanged() method.
-        verify(connectionObserver, times(0)).connectionStateChanged(eq(MqttConnectionState.DISCONNECTED), anyObject());
+        verify(connectionObserver, times(0)).connectionStateChanged(eq(MqttConnectionState.DISCONNECTED), any());
 
         // Cause a success callback
-        IMqttActionListener l = a.createConnectionListener();
-        doReturn(MqttConnectionState.CONNECTED).when(a).connectionState();
-        l.onSuccess(null);
-        verify(connectionObserver, times(1)).connectionStateChanged(eq(MqttConnectionState.CONNECTED), anyObject());
+        a.connectionStateOverwrite = MqttConnectionState.CONNECTED;
+        a.connectionCallbacks.onSuccess(null);
+        verify(connectionObserver, times(1)).connectionStateChanged(eq(MqttConnectionState.CONNECTED), isNull());
 
         // Cause a failure callback with a mocked token
         IMqttToken token = mock(IMqttToken.class);
@@ -119,8 +154,8 @@ public class MqttBrokerConnectionTest {
                 1);
         when(token.getException()).thenReturn(testException);
 
-        doReturn(MqttConnectionState.DISCONNECTED).when(a).connectionState();
-        l.onFailure(token, null);
+        a.connectionStateOverwrite = MqttConnectionState.DISCONNECTED;
+        a.connectionCallbacks.onFailure(token, null);
         verify(connectionObserver, times(1)).connectionStateChanged(eq(MqttConnectionState.DISCONNECTED),
                 eq(testException));
 
@@ -131,7 +166,7 @@ public class MqttBrokerConnectionTest {
 
     @Test
     public void lastWillAndTestamentTests() throws ConfigurationException {
-        MqttBrokerConnection a = new MqttBrokerConnection("123.123.123.123", null, false, null);
+        MqttBrokerConnection a = new MqttBrokerConnection("123.123.123.123", null, false, "MqttBrokerConnectionTests");
 
         assertNull(a.getLastWill());
         assertNull(MqttWillAndTestament.fromString(""));
@@ -149,26 +184,18 @@ public class MqttBrokerConnectionTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void tooLongClientID() throws ConfigurationException {
-        // client ids longer than 23 characters should throw
-        MqttBrokerConnection a = new MqttBrokerConnection("123.123.123.123", null, false,
-                "clientidclientidclientidclientid");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void qosInvalid() throws ConfigurationException {
-        MqttBrokerConnection a = new MqttBrokerConnection("123.123.123.123", null, false, null);
+        MqttBrokerConnection a = new MqttBrokerConnection("123.123.123.123", null, false, "MqttBrokerConnectionTests");
         a.setQos(10);
     }
 
     @Test
     public void setterGetterTests() {
-        MqttBrokerConnection a = new MqttBrokerConnection("123.123.123.123", null, false, "clientid");
+        MqttBrokerConnection a = new MqttBrokerConnection("123.123.123.123", null, false, "MqttBrokerConnectionTests");
         assertEquals("URL getter", a.getHost(), "123.123.123.123");
         assertEquals("Name getter", a.getPort(), 1883); // Check for non-secure port
         assertEquals("Secure getter", a.isSecure(), false);
-
-        assertEquals("ClientID getter/setter", "clientid", a.getClientId());
+        assertEquals("ClientID getter", "MqttBrokerConnectionTests", a.getClientId());
 
         a.setCredentials("user@!", "password123@^");
         assertEquals("User getter/setter", "user@!", a.getUser());
