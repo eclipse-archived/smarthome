@@ -22,11 +22,13 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTO;
@@ -69,12 +71,14 @@ public class ConfigDescriptionResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets all available config descriptions.", response = ConfigDescriptionDTO.class, responseContainer = "List")
     @ApiResponses(value = @ApiResponse(code = 200, message = "OK", response = ConfigDescriptionDTO.class, responseContainer = "List"))
-    public Response getAll(@HeaderParam("Accept-Language") @ApiParam(value = "Accept-Language") String language) {
+    public Response getAll(@HeaderParam("Accept-Language") @ApiParam(value = "Accept-Language") String language, //
+            @QueryParam("scheme") @ApiParam(value = "scheme filter", required = false) @Nullable String scheme) {
         Locale locale = LocaleUtil.getLocale(language);
         Collection<ConfigDescription> configDescriptions = configDescriptionRegistry.getConfigDescriptions(locale);
 
-        return Response.ok(new Stream2JSONInputStream(configDescriptions.stream().map(ConfigDescriptionDTOMapper::map)))
-                .build();
+        return Response.ok(new Stream2JSONInputStream(configDescriptions.stream().filter(configDescription -> {
+            return scheme == null || scheme.equals(configDescription.getUID().getScheme());
+        }).map(ConfigDescriptionDTOMapper::map))).build();
     }
 
     @GET
@@ -105,4 +109,5 @@ public class ConfigDescriptionResource implements RESTResource {
     public boolean isSatisfied() {
         return configDescriptionRegistry != null;
     }
+
 }
