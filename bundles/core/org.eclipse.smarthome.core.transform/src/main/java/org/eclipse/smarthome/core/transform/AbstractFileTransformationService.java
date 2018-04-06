@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public abstract class AbstractFileTransformationService<T> implements TransformationService {
 
-    @NonNullByDefault({})
+    @Nullable
     private WatchService watchService = null;
 
     protected final Map<String, T> cachedFiles = new ConcurrentHashMap<>();
