@@ -18,7 +18,7 @@ import org.eclipse.smarthome.core.common.AbstractUID;
  *
  */
 @NonNullByDefault
-public class MetadataKey extends AbstractUID {
+public final class MetadataKey extends AbstractUID {
 
     /**
      * Creates a new instance.

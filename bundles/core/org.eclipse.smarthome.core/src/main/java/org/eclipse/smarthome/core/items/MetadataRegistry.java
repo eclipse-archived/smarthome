@@ -19,4 +19,5 @@ import org.eclipse.smarthome.core.common.registry.Registry;
  *
  */
 public interface MetadataRegistry extends Registry<Metadata, MetadataKey> {
+
 }

@@ -15,7 +15,7 @@ import java.util.function.Predicate;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public class MetadataPredicates {
+public final class MetadataPredicates {
 
     /**
      * Creates a {@link Predicate} which can be used to filter {@link Metadata} for a given namespace.

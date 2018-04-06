@@ -23,7 +23,7 @@ import org.eclipse.smarthome.core.common.registry.Identifiable;
  *
  */
 @NonNullByDefault
-public class Metadata implements Identifiable<MetadataKey> {
+public final class Metadata implements Identifiable<MetadataKey> {
 
     private final MetadataKey key;
     private final String value;
