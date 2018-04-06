@@ -51,6 +51,7 @@ public class TransformationHelper {
      * Queries the OSGi service registry for a service that provides a transformation service of
      * a given transformation type (e.g. REGEX, XSLT, etc.)
      *
+     * @param context the bundle context which can be null
      * @param transformationType the desired transformation type
      * @return a service instance or null, if none could be found
      */
