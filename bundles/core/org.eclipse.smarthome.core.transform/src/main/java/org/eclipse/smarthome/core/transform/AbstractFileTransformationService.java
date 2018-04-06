@@ -119,13 +119,10 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
             throw new TransformationException("the given parameters 'filename' and 'source' must not be null");
         }
 
-        if (watchService == null) {
-            initializeWatchService();
-        } else {
-            processFolderEvents();
-        }
+        final WatchService watchService = getWatchService();
+        processFolderEvents(watchService);
 
-        String transformFile = getLocalizedProposedFilename(filename);
+        String transformFile = getLocalizedProposedFilename(filename, watchService);
         T transform = cachedFiles.get(transformFile);
         if (transform == null) {
             transform = internalLoadTransform(transformFile);
@@ -165,16 +162,24 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
      */
     protected abstract T internalLoadTransform(String filename) throws TransformationException;
 
-    private void initializeWatchService() {
+    private synchronized WatchService getWatchService() throws TransformationException {
+        WatchService watchService = this.watchService;
+        if (watchService != null) {
+            return watchService;
+        }
+
         try {
-            watchService = FileSystems.getDefault().newWatchService();
-            watchSubDirectory("");
+            watchService = this.watchService = FileSystems.getDefault().newWatchService();
         } catch (IOException e) {
             logger.error("Unable to start transformation directory monitoring");
+            throw new TransformationException("Cannot get a new watch service.");
         }
+
+        watchSubDirectory("", watchService);
+        return watchService;
     }
 
-    private void watchSubDirectory(String subDirectory) {
+    private void watchSubDirectory(String subDirectory, final WatchService watchService) {
         if (watchedDirectories.indexOf(subDirectory) == -1) {
             String watchedDirectory = getSourcePath() + subDirectory;
             Path transformFilePath = Paths.get(watchedDirectory);
@@ -192,7 +197,7 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
     /**
      * Ensures that a modified or deleted cached files does not stay in the cache
      */
-    private void processFolderEvents() {
+    private void processFolderEvents(final WatchService watchService) {
         WatchKey key = watchService.poll();
         if (key != null) {
             for (WatchEvent<?> e : key.pollEvents()) {
@@ -224,13 +229,13 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
      * @param filename name of the requested transformation file
      * @return original or localized transformation file to use
      */
-    protected String getLocalizedProposedFilename(String filename) {
+    protected String getLocalizedProposedFilename(String filename, final WatchService watchService) {
         String extension = FilenameUtils.getExtension(filename);
         String prefix = FilenameUtils.getPath(filename);
         String result = filename;
 
         if (!prefix.isEmpty()) {
-            watchSubDirectory(prefix);
+            watchSubDirectory(prefix, watchService);
         }
 
         // the filename may already contain locale information
