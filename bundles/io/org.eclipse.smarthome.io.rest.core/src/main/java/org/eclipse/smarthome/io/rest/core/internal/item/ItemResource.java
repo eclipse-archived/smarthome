@@ -231,7 +231,7 @@ public class ItemResource implements RESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = EnrichedItemDTO.class),
             @ApiResponse(code = 404, message = "Item not found") })
     public Response getItemData(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
-            @QueryParam("metadata") @ApiParam(value = "metadata selector", required = false) String namespaceSelector,
+            @QueryParam("metadata") @ApiParam(value = "metadata selector", required = false) @Nullable String namespaceSelector,
             @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname) {
 
         final Locale locale = LocaleUtil.getLocale(language);
