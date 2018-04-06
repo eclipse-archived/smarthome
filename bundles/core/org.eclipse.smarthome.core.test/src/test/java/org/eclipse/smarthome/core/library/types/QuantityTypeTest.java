@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 
 import javax.measure.Unit;
 import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Temperature;
 
@@ -252,5 +253,12 @@ public class QuantityTypeTest {
 
         density = density.toUnit("g/cm³");
         assertEquals("19.816 g/cm³", density.toString());
+    }
+
+    @Test
+    public void testEnergyUnits() {
+        QuantityType<Energy> energy = new QuantityType<>("28800 J");
+        assertEquals("0.008 kWh", energy.toUnit("kWh").toString());
+        assertEquals("28800 Ws", energy.toUnit("Ws").toString());
     }
 }
