@@ -307,7 +307,7 @@ public class I18nProviderImpl
 
     @Override
     public @Nullable String getText(@Nullable Bundle bundle, @Nullable String key, @Nullable String defaultText,
-            @Nullable Locale locale, Object @Nullable... arguments) {
+            @Nullable Locale locale, @Nullable Object @Nullable... arguments) {
         String text = getText(bundle, key, defaultText, locale);
 
         if (text != null) {
