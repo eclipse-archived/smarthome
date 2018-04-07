@@ -354,6 +354,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      *
      * @param channelUID UID of the channel over which the event will be emitted
      * @param event Event to emit
+     * @throws IllegalStateException if handler is not initialized correctly, because no callback is present
      */
     protected void triggerChannel(ChannelUID channelUID, String event) {
         synchronized (this) {
@@ -371,6 +372,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      *
      * @param channelID ID of the channel over which the event will be emitted
      * @param event Event to emit
+     * @throws IllegalStateException if handler is not initialized correctly, because no callback is present
      */
     protected void triggerChannel(String channelID, String event) {
         triggerChannel(new ChannelUID(this.getThing().getUID(), channelID), event);
@@ -381,6 +383,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      * unique channel UID.
      *
      * @param channelUID UID of the channel over which the event will be emitted
+     * @throws IllegalStateException if handler is not initialized correctly, because no callback is present
      */
     protected void triggerChannel(String channelUID) {
         triggerChannel(new ChannelUID(this.getThing().getUID(), channelUID), "");
@@ -391,6 +394,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      * unique channel UID.
      *
      * @param channelUID UID of the channel over which the event will be emitted
+     * @throws IllegalStateException if handler is not initialized correctly, because no callback is present
      */
     protected void triggerChannel(ChannelUID channelUID) {
         triggerChannel(channelUID, "");
@@ -590,6 +594,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      *
      * @param name the name of the property to be set
      * @param value the value of the property
+     * @throws IllegalStateException if handler is not initialized correctly, because no callback is present
      */
     protected void updateProperty(String name, String value) {
         String existingPropertyValue = thing.getProperties().get(name);
@@ -627,6 +632,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      *
      * @param channelId channel ID (must not be null)
      * @return true if at least one item is linked, false otherwise
+     * @throws IllegalStateException if handler is not initialized correctly, because no callback is present
      */
     protected boolean isLinked(String channelId) {
         Channel channel = thing.getChannel(channelId);
@@ -644,9 +650,14 @@ public abstract class BaseThingHandler implements ThingHandler {
      *
      * @param channelUID UID of the channel (must not be null)
      * @return true if at least one item is linked, false otherwise
+     * @throws IllegalStateException if handler is not initialized correctly, because no callback is present
      */
     protected boolean isLinked(ChannelUID channelUID) {
-        return callback.isChannelLinked(channelUID);
+        if (callback != null) {
+            return callback.isChannelLinked(channelUID);
+        } else {
+            throw new IllegalStateException("Could not check if channel is linked, because callback is missing");
+        }
     }
 
     /**
