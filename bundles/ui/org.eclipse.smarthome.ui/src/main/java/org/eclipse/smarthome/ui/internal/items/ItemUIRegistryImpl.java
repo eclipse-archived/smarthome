@@ -894,6 +894,10 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         Condition condition = Condition.EQUAL;
         if (matchCondition != null) {
             condition = Condition.fromString(matchCondition);
+            if (condition == null) {
+                logger.warn("matchStateToValue: unknown match condition '{}'", matchCondition);
+                return matched;
+            }
         }
 
         if (unquotedValue.equals(UnDefType.NULL.toString()) || unquotedValue.equals(UnDefType.UNDEF.toString())) {
@@ -915,8 +919,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         } else {
             if (state instanceof DecimalType || state instanceof QuantityType<?>) {
                 try {
-                    Double compareDoubleValue = Double.parseDouble(unquotedValue);
-                    Double stateDoubleValue;
+                    double compareDoubleValue = Double.parseDouble(unquotedValue);
+                    double stateDoubleValue;
                     if (state instanceof DecimalType) {
                         stateDoubleValue = ((DecimalType) state).doubleValue();
                     } else {
