@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import tec.uom.se.quantity.QuantityDimension;
+import tec.uom.se.unit.Units;
 
 /**
  * @author Gaël L'hopital - initial contribution
@@ -178,7 +179,7 @@ public class QuantityTypeTest {
     }
 
     @Test
-    public void testConverionToPercentType() {
+    public void testConversionToPercentType() {
         assertEquals(PercentType.HUNDRED, new QuantityType<>("100 %").as(PercentType.class));
         assertEquals(PercentType.ZERO, new QuantityType<>("0 %").as(PercentType.class));
     }
@@ -230,6 +231,18 @@ public class QuantityTypeTest {
     @Test(expected = ArithmeticException.class)
     public void testDivide_Zero() {
         new QuantityType<>("4 m").divide(QuantityType.ZERO);
+    }
+
+    @Test
+    public void testPpm() {
+        QuantityType<Dimensionless> ppm = new QuantityType<Dimensionless>("500 ppm");
+        assertEquals("0.05 %", ppm.toUnit(Units.PERCENT).toString());
+    }
+
+    @Test
+    public void testDb() {
+        QuantityType<Dimensionless> ratio = new QuantityType<Dimensionless>("100");
+        assertEquals("20.0 dB", ratio.toUnit("dB").toString());
     }
 
     @Test
