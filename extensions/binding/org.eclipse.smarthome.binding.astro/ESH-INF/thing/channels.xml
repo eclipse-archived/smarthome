@@ -119,7 +119,7 @@
 	<!-- sunZodiac -->
 	<channel-group-type id="sunZodiac">
 		<label>Zodiac</label>
-		<description>The Zodiac of the sun</description>
+		<description>The zodiac of the sun</description>
 		<channels>
 			<channel id="start" typeId="start" />
 			<channel id="end" typeId="end" />
@@ -254,7 +254,7 @@
 	<!-- sunphase -->
 	<channel-group-type id="sunPhase">
 		<label>Sunphases</label>
-		<description>Sunphases</description>
+		<description>The details of the current sun phase</description>
 		<channels>
 			<channel id="name" typeId="sunPhaseName" />
 		</channels>
@@ -283,8 +283,8 @@
 
 	<!-- moonphase -->
 	<channel-group-type id="moonPhase">
-		<label>Moonphases</label>
-		<description>Moonphases</description>
+		<label>Moon phases</label>
+		<description>The details of the current and next moon phases</description>
 		<channels>
 			<channel id="firstQuarter" typeId="firstQuarter" />
 			<channel id="thirdQuarter" typeId="thirdQuarter" />
@@ -462,7 +462,7 @@
 	<!-- moonZodiac -->
 	<channel-group-type id="moonZodiac">
 		<label>Zodiac</label>
-		<description>The Zodiac of the moon</description>
+		<description>The zodiac of the moon</description>
 		<channels>
 			<channel id="sign" typeId="sign" />
 		</channels>

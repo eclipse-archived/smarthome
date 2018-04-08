@@ -10,20 +10,28 @@
 		<channel-groups>
 			<channel-group id="rise" typeId="moonRange">
 				<label>Moonrise</label>
+				<description>The moonrise event range</description>
 			</channel-group>
 			<channel-group id="set" typeId="moonRange">
 				<label>Moonset</label>
+				<description>The moonset event range</description>
 			</channel-group>
 			<channel-group id="phase" typeId="moonPhase" />
 			<channel-group id="eclipse" typeId="moonEclipse" />
-			<channel-group id="distance" typeId="distance" />
+			<channel-group id="distance" typeId="distance">
+				<description>The distance to the moon</description>
+			</channel-group>
 			<channel-group id="perigee" typeId="distance">
 				<label>Perigee</label>
+				<description>The perigree of the moon</description>
 			</channel-group>
 			<channel-group id="apogee" typeId="distance">
 				<label>Apogee</label>
+				<description>The apogee of the moon</description>
 			</channel-group>
-			<channel-group id="position" typeId="position" />
+			<channel-group id="position" typeId="position">
+				<description>The position of the moon</description>
+			</channel-group>
 			<channel-group id="zodiac" typeId="moonZodiac" />
 		</channel-groups>
 
