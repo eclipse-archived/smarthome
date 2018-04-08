@@ -20,9 +20,11 @@ import java.math.BigDecimal;
 
 import javax.measure.Unit;
 import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Temperature;
 
+import org.eclipse.smarthome.core.library.dimension.Density;
 import org.eclipse.smarthome.core.library.unit.ImperialUnits;
 import org.eclipse.smarthome.core.library.unit.MetricPrefix;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
@@ -244,4 +246,19 @@ public class QuantityTypeTest {
         assertEquals(exponential, new QuantityType<>("10 km"));
     }
 
+    @Test
+    public void testDensity() {
+        QuantityType<Density> density = new QuantityType<>("19816 kg/m³");
+        assertEquals(19816, density.doubleValue(), 1E-5);
+
+        density = density.toUnit("g/cm³");
+        assertEquals("19.816 g/cm³", density.toString());
+    }
+
+    @Test
+    public void testEnergyUnits() {
+        QuantityType<Energy> energy = new QuantityType<>("28800 J");
+        assertEquals("0.008 kWh", energy.toUnit("kWh").toString());
+        assertEquals("28800 Ws", energy.toUnit("Ws").toString());
+    }
 }

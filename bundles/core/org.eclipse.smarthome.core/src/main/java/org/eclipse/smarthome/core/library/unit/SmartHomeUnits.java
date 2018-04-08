@@ -44,6 +44,7 @@ import javax.measure.quantity.Time;
 import javax.measure.quantity.Volume;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.smarthome.core.library.dimension.Density;
 import org.eclipse.smarthome.core.library.dimension.Intensity;
 
 import tec.uom.se.AbstractSystemOfUnits;
@@ -52,6 +53,7 @@ import tec.uom.se.format.SimpleUnitFormat;
 import tec.uom.se.function.PiMultiplierConverter;
 import tec.uom.se.function.RationalConverter;
 import tec.uom.se.unit.AlternateUnit;
+import tec.uom.se.unit.ProductUnit;
 import tec.uom.se.unit.TransformedUnit;
 import tec.uom.se.unit.Units;
 
@@ -122,6 +124,11 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
     public static final Unit<Time> WEEK = addUnit(Units.WEEK);
     public static final Unit<Time> YEAR = addUnit(Units.YEAR);
     public static final Unit<Volume> LITRE = addUnit(Units.LITRE);
+    public static final Unit<Density> KILOGRAM_PER_CUBICMETRE = addUnit(
+            new ProductUnit<Density>(Units.KILOGRAM.divide(Units.METRE.pow(3))));
+    public static final Unit<Energy> WATT_SECOND = addUnit(new ProductUnit<Energy>(Units.WATT.multiply(Units.SECOND)));
+    public static final Unit<Energy> WATT_HOUR = addUnit(new ProductUnit<Energy>(Units.WATT.multiply(Units.HOUR)));
+    public static final Unit<Energy> KILOWATT_HOUR = addUnit(MetricPrefix.KILO(WATT_HOUR));
 
     /**
      * Add unit symbols for custom ESH units.
@@ -129,6 +136,9 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
     static {
         SimpleUnitFormat.getInstance().label(IRRADIANCE, "W/m2");
         SimpleUnitFormat.getInstance().label(DEGREE_ANGLE, "°");
+        SimpleUnitFormat.getInstance().label(WATT_SECOND, "Ws");
+        SimpleUnitFormat.getInstance().label(WATT_HOUR, "Wh");
+        SimpleUnitFormat.getInstance().label(KILOWATT_HOUR, "kWh");
     }
 
     /**
