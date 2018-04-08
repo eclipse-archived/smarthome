@@ -40,7 +40,7 @@ import org.osgi.service.component.annotations.Component;
  *
  * @author ${author} - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.${bindingId}")
+@Component(service = ThingHandlerFactory.class, immediate = true)
 @NonNullByDefault
 public class ${bindingIdCamelCase}HandlerFactory extends BaseThingHandlerFactory {
 

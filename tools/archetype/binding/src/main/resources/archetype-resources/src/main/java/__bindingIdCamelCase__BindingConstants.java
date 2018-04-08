@@ -28,7 +28,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  *
  * @author ${author} - Initial contribution
  */
- @NonNullByDefault
+@NonNullByDefault
 public class ${bindingIdCamelCase}BindingConstants {
 
     private static final String BINDING_ID = "${bindingId}";
@@ -38,5 +38,4 @@ public class ${bindingIdCamelCase}BindingConstants {
 
     // List of all Channel ids
     public static final String CHANNEL_1 = "channel1";
-
 }

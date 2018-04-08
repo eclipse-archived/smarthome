@@ -60,6 +60,11 @@
           <dependencies>
             <dependency>
               <type>eclipse-plugin</type>
+              <artifactId>org.eclipse.equinox.ds</artifactId>
+              <version>0.0.0</version>
+            </dependency>
+            <dependency>
+              <type>eclipse-plugin</type>
               <artifactId>ch.qos.logback.classic</artifactId>
               <version>0.0.0</version>
             </dependency>

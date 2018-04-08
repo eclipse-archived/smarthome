@@ -21,7 +21,7 @@ package ${package};
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -37,10 +37,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 /**
-* Tests cases for {@link ${bindingIdCamelCase}Handler}. The tests provide mocks for supporting entities using Mockito.
-*
-* @author ${author} - Initial contribution
-*/
+ * Test cases for {@link ${bindingIdCamelCase}Handler}. The tests provide mocks for supporting entities using Mockito.
+ *
+ * @author ${author} - Initial contribution
+ */
 public class ${bindingIdCamelCase}HandlerTest {
 
     private ThingHandler handler;
@@ -74,5 +74,4 @@ public class ${bindingIdCamelCase}HandlerTest {
         ThingStatusInfo thingStatusInfo = statusInfoCaptor.getValue();
         assertThat(thingStatusInfo.getStatus(), is(equalTo(ThingStatus.ONLINE)));
     }
-
 }
