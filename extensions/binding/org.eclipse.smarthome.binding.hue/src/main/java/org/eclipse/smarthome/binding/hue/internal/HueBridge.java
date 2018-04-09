@@ -873,10 +873,10 @@ public class HueBridge {
                 }
 
                 for (ErrorResponse error : errors) {
-                    if (error == null) {
+                    if (error.getType() == null) {
                         continue;
                     }
-                    
+
                     switch (error.getType()) {
                         case 1:
                             username = null;
