@@ -559,7 +559,7 @@ public class SafeCallerImplTest extends JavaTest {
     private static String printThreadDump(String threadNamePrefix) {
         final StringBuilder sb = new StringBuilder();
         final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
-        for (ThreadInfo threadInfo : threadMXBean.getThreadInfo(threadMXBean.getAllThreadIds())) {
+        for (ThreadInfo threadInfo : threadMXBean.getThreadInfo(threadMXBean.getAllThreadIds(), Integer.MAX_VALUE)) {
             if (!threadInfo.getThreadName().startsWith(threadNamePrefix)) {
                 continue;
             }
