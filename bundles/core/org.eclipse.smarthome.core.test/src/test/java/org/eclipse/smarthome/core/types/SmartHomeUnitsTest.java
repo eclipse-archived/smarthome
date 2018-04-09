@@ -15,7 +15,7 @@ package org.eclipse.smarthome.core.types;
 import static org.eclipse.smarthome.core.library.unit.MetricPrefix.HECTO;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.number.IsCloseTo.closeTo;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 
@@ -26,6 +26,7 @@ import javax.measure.quantity.Pressure;
 import javax.measure.quantity.Speed;
 import javax.measure.quantity.Temperature;
 
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.unit.ImperialUnits;
 import org.eclipse.smarthome.core.library.unit.MetricPrefix;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
@@ -33,6 +34,7 @@ import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.junit.Test;
 
 import tec.uom.se.quantity.Quantities;
+import tec.uom.se.unit.Units;
 
 /**
  * Test for the framework defined {@link SmartHomeUnits}.
@@ -121,7 +123,7 @@ public class SmartHomeUnitsTest {
         assertThat(in.getUnit(), is(ImperialUnits.INCH));
         assertThat(in.getValue().doubleValue(), is(closeTo(3.93700787401574803d, DEFAULT_ERROR)));
     }
-    
+
     @Test
     public void testM2Ft() {
         Quantity<Length> cm = Quantities.getQuantity(new BigDecimal("30"), MetricPrefix.CENTI(SIUnits.METRE));
@@ -130,7 +132,7 @@ public class SmartHomeUnitsTest {
         assertThat(foot.getUnit(), is(ImperialUnits.FOOT));
         assertThat(foot.getValue().doubleValue(), is(closeTo(0.9842519685039369d, DEFAULT_ERROR)));
     }
-    
+
     @Test
     public void testM2Yd() {
         Quantity<Length> m = Quantities.getQuantity(BigDecimal.ONE, SIUnits.METRE);
@@ -175,6 +177,18 @@ public class SmartHomeUnitsTest {
         Quantity<Dimensionless> one2 = Quantities.getQuantity(BigDecimal.ONE, SmartHomeUnits.ONE);
 
         assertThat(one1.add(one2).toString(), is("2 one"));
+    }
+
+    @Test
+    public void testPpm() {
+        QuantityType<Dimensionless> ppm = new QuantityType<>("500 ppm");
+        assertEquals("0.05 %", ppm.toUnit(Units.PERCENT).toString());
+    }
+
+    @Test
+    public void testDb() {
+        QuantityType<Dimensionless> ratio = new QuantityType<>("100");
+        assertEquals("20.0 dB", ratio.toUnit("dB").toString());
     }
 
 }
