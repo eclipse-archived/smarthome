@@ -45,6 +45,7 @@ public class BeaconBluetoothHandler extends BaseThingHandler implements Bluetoot
 
     public BeaconBluetoothHandler(@NonNull Thing thing) {
         super(thing);
+        deviceLock = new ReentrantLock();
     }
 
     @Override
