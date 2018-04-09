@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -493,42 +494,19 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
     }
 
     /**
-     * Because the State can produce NPEs on getColorMode() and getEffect(), at first we check for the common
-     * properties which are set for every light type. If they equal, we additionally try to check the colorMode. If we
-     * get an NPE,
-     * the light does not support color mode and the common properties equality is our result: true. Otherwise if no NPE
-     * occurs
-     * the equality of colorMode is our result.
+     * Compare to states for equality.
      *
      * @param state1 Reference state
      * @param state2 State which is checked for equality.
-     * @return True if the available informations of both states are equal.
+     * @return {@code true} if the available information of both states are equal.
      */
     private boolean isEqual(State state1, State state2) {
-        boolean commonStateIsEqual = state1.getAlertMode().equals(state2.getAlertMode())
-                && state1.isOn() == state2.isOn() && state1.getBrightness() == state2.getBrightness()
+        return state1.getAlertMode().equals(state2.getAlertMode()) && state1.isOn() == state2.isOn()
+                && state1.getBrightness() == state2.getBrightness()
                 && state1.getColorTemperature() == state2.getColorTemperature() && state1.getHue() == state2.getHue()
-                && state1.getSaturation() == state2.getSaturation() && state1.isReachable() == state2.isReachable();
-        if (!commonStateIsEqual) {
-            return false;
-        }
-
-        boolean colorModeIsEqual = true;
-        boolean effectIsEqual = true;
-        
-        if (state1.getColorMode() == null) {
-            logger.trace("Light does not support color mode.");
-        } else {
-            colorModeIsEqual = state1.getColorMode().equals(state2.getColorMode());
-        }
-        
-        if (state1.getEffect() == null) {
-            logger.trace("Light does not support effect.");
-        } else {
-            effectIsEqual = state1.getEffect().equals(state2.getEffect());
-        }
-        
-        return colorModeIsEqual && effectIsEqual;
+                && state1.getSaturation() == state2.getSaturation() && state1.isReachable() == state2.isReachable()
+                && Objects.equals(state1.getColorMode(), state2.getColorMode())
+                && Objects.equals(state1.getEffect(), state2.getEffect());
     }
 
     @Override
