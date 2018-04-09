@@ -92,7 +92,8 @@ public class MqttBrokerConnection {
 
     // Connection timeout handling
     final AtomicReference<@Nullable ScheduledFuture<?>> timeoutFuture = new AtomicReference<>(null);
-    private @Nullable ScheduledExecutorService timeoutExecutor;
+    @Nullable
+    ScheduledExecutorService timeoutExecutor;
     private int timeout = 1200; /* Connection timeout in milliseconds */
 
     /**
@@ -257,14 +258,6 @@ public class MqttBrokerConnection {
     public void setTimeoutExecutor(@Nullable ScheduledExecutorService executor, int timeoutInMS) {
         timeoutExecutor = executor;
         this.timeout = timeoutInMS;
-    }
-
-    public @Nullable Executor getTimeoutExecutor() {
-        return timeoutExecutor;
-    }
-
-    public int getTimeout() {
-        return timeout;
     }
 
     /**
