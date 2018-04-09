@@ -9,12 +9,15 @@ package org.eclipse.smarthome.core.items;
 
 import java.util.function.Predicate;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Provides some default predicates that are helpful when working with metadata.
  *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@NonNullByDefault
 public final class MetadataPredicates {
 
     /**

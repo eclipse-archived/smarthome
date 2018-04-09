@@ -32,7 +32,8 @@ public final class Metadata implements Identifiable<MetadataKey> {
     public Metadata(MetadataKey key, String value, @Nullable Map<String, Object> configuration) {
         this.key = key;
         this.value = value;
-        this.configuration = configuration != null ? new HashMap<>(configuration) : Collections.emptyMap();
+        this.configuration = configuration != null ? Collections.unmodifiableMap(new HashMap<>(configuration))
+                : Collections.emptyMap();
     }
 
     @Override
@@ -46,7 +47,7 @@ public final class Metadata implements Identifiable<MetadataKey> {
      * @return configuration as a map of key-value pairs
      */
     public Map<String, Object> getConfiguration() {
-        return Collections.unmodifiableMap(configuration);
+        return configuration;
     }
 
     /**

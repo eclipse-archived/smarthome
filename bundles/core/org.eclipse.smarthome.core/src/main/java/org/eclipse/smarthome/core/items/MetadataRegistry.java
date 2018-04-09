@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.items;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.common.registry.Registry;
 
 /**
@@ -18,6 +19,7 @@ import org.eclipse.smarthome.core.common.registry.Registry;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@NonNullByDefault
 public interface MetadataRegistry extends Registry<Metadata, MetadataKey> {
 
 }

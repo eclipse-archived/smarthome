@@ -145,10 +145,9 @@ This could be e.g. an application which needs some hints in order to render the 
 
 For this purpose, such meta-information can be attached to items using disjunct namespaces so they won't conflict with each other. 
 Each metadata entry has a main value and optionally additional key/value pairs. 
-There can be metadata for as many namespaces attached to an item as desired. 
-The following example show how `something` is configured for the `example` namespace, together with `bar` for the `foo` property in an `*.items`-file:
+There can be metadata attached to an item for as many namespaces as desired, like in the following example: 
 
-    Switch light { channel="...", example="something" [ foo="bar" ] }
+    Switch "My Fan" { homekit="Fan.v2", alexa="Fan" [ type="oscillating", speedSteps=3 ] }
 
 The metadata can alternatively maintained via a dedicated REST endpoint and is included in the `EnrichedItemDTO` responses.
 
