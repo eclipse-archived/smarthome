@@ -207,7 +207,7 @@ public class MqttBrokerConnection {
      * @param secure A secure connection
      * @param clientId Client id. Each client on a MQTT server has a unique client id. Sometimes client ids are
      *            used for access restriction implementations.
-     *            If none is specified, a default is generated. The client id cannot be longer than 23 characters.
+     *            If none is specified, a default is generated. The client id cannot be longer than 65535 characters.
      * @throws IllegalArgumentException If the client id or port is not valid.
      */
     public MqttBrokerConnection(String host, @Nullable Integer port, boolean secure, @Nullable String clientId) {
@@ -645,12 +645,12 @@ public class MqttBrokerConnection {
         serverURI.append(port);
 
         // Storage
-        Path tmpDir = Paths.get(ConfigConstants.DEFAULT_USERDATA_FOLDER);
+        Path tmpDir = Paths.get(ConfigConstants.getUserDataFolder());
         try {
             if (!tmpDir.isAbsolute()) {
                 throw new IOException("User path not absolute!");
             }
-            tmpDir = Files.createDirectories(tmpDir).resolve("mqtt").resolve(host);
+            tmpDir = Files.createDirectories(tmpDir.resolve("mqtt").resolve(host));
         } catch (IOException e) {
             throw new MqttException(e);
         }
