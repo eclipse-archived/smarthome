@@ -10,5 +10,5 @@ Import-Package: javax.comm,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.io.transport.serial
 Provide-Capability: osgi.service;objectClass:List<String>="org.eclipse
- .smarthome.io.transport.serial.api.SerialPortManager"
+ .smarthome.io.transport.serial.SerialPortManager"
 Service-Component: OSGI-INF/*.xml
