@@ -235,13 +235,13 @@ public class QuantityTypeTest {
 
     @Test
     public void testPpm() {
-        QuantityType<Dimensionless> ppm = new QuantityType<Dimensionless>("500 ppm");
+        QuantityType<Dimensionless> ppm = new QuantityType<>("500 ppm");
         assertEquals("0.05 %", ppm.toUnit(Units.PERCENT).toString());
     }
 
     @Test
     public void testDb() {
-        QuantityType<Dimensionless> ratio = new QuantityType<Dimensionless>("100");
+        QuantityType<Dimensionless> ratio = new QuantityType<>("100");
         assertEquals("20.0 dB", ratio.toUnit("dB").toString());
     }
 
