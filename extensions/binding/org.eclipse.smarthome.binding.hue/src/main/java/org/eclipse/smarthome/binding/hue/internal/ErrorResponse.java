@@ -35,14 +35,23 @@ class ErrorResponse {
     private Error error;
 
     public Integer getType() {
+        if (error == null) {
+            return null;
+        }
         return error.type;
     }
 
     public String getAddress() {
+        if (error == null) {
+            return null;
+        }
         return error.address;
     }
 
     public String getDescription() {
+        if (error == null) {
+            return null;
+        }
         return error.description;
     }
 }
