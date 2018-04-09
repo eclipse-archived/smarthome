@@ -110,7 +110,7 @@ public class MqttBrokerConnectionTests {
 
         ScheduledThreadPoolExecutor s = new ScheduledThreadPoolExecutor(1);
         a.setTimeoutExecutor(s, 10);
-        assertThat(a.getTimeoutExecutor(), is(s));
+        assertThat(a.timeoutExecutor, is(s));
 
         Semaphore semaphore = new Semaphore(1);
         semaphore.acquire();
