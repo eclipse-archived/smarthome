@@ -26,6 +26,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
@@ -62,6 +63,7 @@ import org.slf4j.LoggerFactory;
  */
 @NonNullByDefault
 public class MqttBrokerConnection {
+
     private final Logger logger = LoggerFactory.getLogger(MqttBrokerConnection.class);
     public static final int DEFAULT_KEEPALIVE_INTERVAL = 60;
     public static final int DEFAULT_QOS = 0;
@@ -80,16 +82,18 @@ public class MqttBrokerConnection {
     private @Nullable AbstractReconnectStrategy reconnectStrategy;
     private SSLContextProvider sslContextProvider = new AcceptAllCertificatesSSLContext();
     private int keepAliveInterval = DEFAULT_KEEPALIVE_INTERVAL;
-    private int timeout = 1200; /* Connection timeout in milliseconds */
 
     /// Runtime variables
     protected @Nullable MqttAsyncClient client;
-    protected @Nullable ScheduledExecutorService timeoutExecutor;
-    protected @Nullable ScheduledFuture<?> timeoutFuture;
     protected boolean isConnecting = false;
     protected final List<MqttConnectionObserver> connectionObservers = new CopyOnWriteArrayList<>();
     protected final Map<String, List<MqttMessageSubscriber>> consumers = new HashMap<>();
     protected @Nullable IMqttToken connectionToken;
+
+    // Connection timeout handling
+    final AtomicReference<@Nullable ScheduledFuture<?>> timeoutFuture = new AtomicReference<>(null);
+    private @Nullable ScheduledExecutorService timeoutExecutor;
+    private int timeout = 1200; /* Connection timeout in milliseconds */
 
     /**
      * A private object to implement the MqttCallback interface.
@@ -151,17 +155,16 @@ public class MqttBrokerConnection {
     @NonNullByDefault({})
     protected static class ConnectionCallbacks implements IMqttActionListener {
         private final MqttBrokerConnection c;
+        private final Runnable cancelTimeoutFuture;
 
         public ConnectionCallbacks(MqttBrokerConnection c) {
             this.c = c;
+            this.cancelTimeoutFuture = c::cancelTimeoutFuture;
         }
 
         @Override
         public void onSuccess(IMqttToken asyncActionToken) {
-            if (c.timeoutFuture != null) {
-                c.timeoutFuture.cancel(false);
-                c.timeoutFuture = null;
-            }
+            cancelTimeoutFuture.run();
 
             c.isConnecting = false;
             if (c.reconnectStrategy != null) {
@@ -173,10 +176,7 @@ public class MqttBrokerConnection {
 
         @Override
         public void onFailure(IMqttToken token, @Nullable Throwable exception) {
-            if (c.timeoutFuture != null) {
-                c.timeoutFuture.cancel(false);
-                c.timeoutFuture = null;
-            }
+            cancelTimeoutFuture.run();
 
             final Throwable e = token.getException();
             final MqttConnectionState connectionState = c.connectionState();
@@ -627,9 +627,12 @@ public class MqttBrokerConnection {
 
         ScheduledExecutorService executor = timeoutExecutor;
         if (executor != null && connectionToken != null) {
-            timeoutFuture = executor.schedule(
-                    () -> connectionCallbacks.onFailure(connectionToken, new TimeoutException()), timeout,
-                    TimeUnit.MILLISECONDS);
+            final ScheduledFuture<?> timeoutFuture = this.timeoutFuture.getAndSet(
+                    executor.schedule(() -> connectionCallbacks.onFailure(connectionToken, new TimeoutException()),
+                            timeout, TimeUnit.MILLISECONDS));
+            if (timeoutFuture != null) {
+                timeoutFuture.cancel(false);
+            }
         }
     }
 
@@ -689,6 +692,9 @@ public class MqttBrokerConnection {
         isConnecting = false;
         connectionToken = null;
 
+        // Cancel a timeout future as on an explicit stop there should be no interest in anymore.
+        cancelTimeoutFuture();
+
         // Stop the reconnect strategy
         if (reconnectStrategy != null) {
             reconnectStrategy.stop();
@@ -746,4 +752,15 @@ public class MqttBrokerConnection {
         logger.debug("Publishing message {} to topic '{}'", deliveryToken.getMessageId(), topic);
         return deliveryToken.getMessageId();
     }
+
+    /**
+     * Cancel the timeout future is present.
+     */
+    protected void cancelTimeoutFuture() {
+        final ScheduledFuture<?> timeoutFuture = this.timeoutFuture.getAndSet(null);
+        if (timeoutFuture != null) {
+            timeoutFuture.cancel(false);
+        }
+    }
+
 }
