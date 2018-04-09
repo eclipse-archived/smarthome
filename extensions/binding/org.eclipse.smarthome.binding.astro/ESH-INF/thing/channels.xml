@@ -253,7 +253,7 @@
 
 	<!-- sunphase -->
 	<channel-group-type id="sunPhase">
-		<label>Sunphases</label>
+		<label>Sun Phases</label>
 		<description>The details of the current sun phase</description>
 		<channels>
 			<channel id="name" typeId="sunPhaseName" />
@@ -283,7 +283,7 @@
 
 	<!-- moonphase -->
 	<channel-group-type id="moonPhase">
-		<label>Moon phases</label>
+		<label>Moon Phases</label>
 		<description>The details of the current and next moon phases</description>
 		<channels>
 			<channel id="firstQuarter" typeId="firstQuarter" />
