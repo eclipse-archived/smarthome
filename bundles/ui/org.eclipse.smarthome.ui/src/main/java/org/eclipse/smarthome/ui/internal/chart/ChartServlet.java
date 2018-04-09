@@ -67,9 +67,9 @@ import org.slf4j.LoggerFactory;
  * @author Holger Reichert - Support for themes, DPI, legend hiding
  *
  */
-@Component(immediate = true, service = Servlet.class, property = { "service.pid=org.eclipse.smarthome.chart",
-        "service.config.description.uri=system:chart", "service.config.label=Charts",
-        "service.config.category=system" })
+@Component(immediate = true, service = Servlet.class, configurationPid = "org.eclipse.smarthome.chart", property = {
+        "service.pid=org.eclipse.smarthome.chart", "service.config.description.uri=system:chart",
+        "service.config.label=Charts", "service.config.category=system" })
 public class ChartServlet extends HttpServlet {
 
     private static final long serialVersionUID = 7700873790924746422L;
