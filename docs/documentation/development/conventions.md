@@ -12,7 +12,7 @@ layout: documentation
 The intention of these annotations is to transfer a method's contract written in its JavaDoc into the code to be processed by tools.
 These annotations can be used for **static** checks, but **not** at runtime.
 
-Thus for publicly exposed methods that belong to our API and are (potentially) called by external callers, a `null` check cannot be omitted, although a method parameter is marked to be not `null` via an annotation.
+Thus for publicly exposed methods that belong to the API and are (potentially) called by external callers, a `null` check cannot be omitted, although a method parameter is marked to be not `null` via an annotation.
 There will be a warning in the IDE for this check, but that is fine.
 For private methods or methods in an internal package the annotations are respected and additional `null` checks are omitted.
 
