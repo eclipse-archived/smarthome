@@ -180,7 +180,7 @@ public class QuantityTypeTest {
     }
 
     @Test
-    public void testConverionToPercentType() {
+    public void testConversionToPercentType() {
         assertEquals(PercentType.HUNDRED, new QuantityType<>("100 %").as(PercentType.class));
         assertEquals(PercentType.ZERO, new QuantityType<>("0 %").as(PercentType.class));
     }

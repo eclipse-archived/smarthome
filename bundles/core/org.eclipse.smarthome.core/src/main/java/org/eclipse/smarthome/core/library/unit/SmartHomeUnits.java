@@ -50,6 +50,7 @@ import org.eclipse.smarthome.core.library.dimension.Intensity;
 import tec.uom.se.AbstractSystemOfUnits;
 import tec.uom.se.AbstractUnit;
 import tec.uom.se.format.SimpleUnitFormat;
+import tec.uom.se.function.LogConverter;
 import tec.uom.se.function.PiMultiplierConverter;
 import tec.uom.se.function.RationalConverter;
 import tec.uom.se.unit.AlternateUnit;
@@ -118,6 +119,10 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
     public static final Unit<Speed> METRE_PER_SECOND = addUnit(Units.METRE_PER_SECOND);
     public static final Unit<Acceleration> METRE_PER_SQUARE_SECOND = addUnit(Units.METRE_PER_SQUARE_SECOND);
     public static final Unit<Dimensionless> PERCENT = addUnit(Units.PERCENT);
+    public static final Unit<Dimensionless> PARTS_PER_MILLION = addUnit(
+            new TransformedUnit<>(ONE, new RationalConverter(1, 1000000)));
+    public static final Unit<Dimensionless> DECIBEL = addUnit(
+            ONE.transform(new LogConverter(10).inverse().concatenate(RationalConverter.of(1d, 10d))));
     public static final Unit<Time> MINUTE = addUnit(Units.MINUTE);
     public static final Unit<Time> HOUR = addUnit(Units.HOUR);
     public static final Unit<Time> DAY = addUnit(Units.DAY);
@@ -134,6 +139,8 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
      * Add unit symbols for custom ESH units.
      */
     static {
+        SimpleUnitFormat.getInstance().label(PARTS_PER_MILLION, "ppm");
+        SimpleUnitFormat.getInstance().label(DECIBEL, "dB");
         SimpleUnitFormat.getInstance().label(IRRADIANCE, "W/m2");
         SimpleUnitFormat.getInstance().label(DEGREE_ANGLE, "°");
         SimpleUnitFormat.getInstance().label(WATT_SECOND, "Ws");
