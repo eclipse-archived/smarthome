@@ -104,44 +104,45 @@ public class MqttBrokerConnection {
      */
     @NonNullByDefault({})
     protected static class ClientCallbacks implements MqttCallback {
-        private final MqttBrokerConnection c;
+        private final MqttBrokerConnection connection;
 
         public ClientCallbacks(MqttBrokerConnection c) {
-            this.c = c;
+            this.connection = c;
         }
 
         @Override
         public synchronized void connectionLost(@Nullable Throwable exception) {
             if (exception instanceof MqttException) {
                 MqttException e = (MqttException) exception;
-                c.logger.info("MQTT connection to '{}' was lost: {} : ReasonCode {} : Cause : {}", c.host,
-                        e.getMessage(), e.getReasonCode(),
+                connection.logger.info("MQTT connection to '{}' was lost: {} : ReasonCode {} : Cause : {}",
+                        connection.host, e.getMessage(), e.getReasonCode(),
                         (e.getCause() == null ? "Unknown" : e.getCause().getMessage()));
             } else if (exception != null) {
-                c.logger.info("MQTT connection to '{}' was lost: {}", c.host, exception.getMessage());
+                connection.logger.info("MQTT connection to '{}' was lost: {}", connection.host, exception.getMessage());
             }
 
-            c.connectionObservers.forEach(o -> o.connectionStateChanged(MqttConnectionState.DISCONNECTED, exception));
-            if (c.reconnectStrategy != null) {
-                c.reconnectStrategy.lostConnection();
+            connection.connectionObservers
+                    .forEach(o -> o.connectionStateChanged(MqttConnectionState.DISCONNECTED, exception));
+            if (connection.reconnectStrategy != null) {
+                connection.reconnectStrategy.lostConnection();
             }
         }
 
         @Override
         public void deliveryComplete(IMqttDeliveryToken token) {
-            c.logger.trace("Message with id {} delivered.", token.getMessageId());
+            connection.logger.trace("Message with id {} delivered.", token.getMessageId());
         }
 
         @Override
         public void messageArrived(String topic, MqttMessage message) {
             byte[] payload = message.getPayload();
-            c.logger.trace("Received message on topic '{}' : {}", topic, new String(payload));
-            c.consumers.forEach((target, consumerList) -> {
+            connection.logger.trace("Received message on topic '{}' : {}", topic, new String(payload));
+            connection.consumers.forEach((target, consumerList) -> {
                 if (topic.matches(target)) {
-                    c.logger.trace("Topic match for '{}' using regex {}", topic, target);
+                    connection.logger.trace("Topic match for '{}' using regex {}", topic, target);
                     consumerList.forEach(consumer -> consumer.processMessage(topic, payload));
                 } else {
-                    c.logger.trace("No topic match for '{}' using regex {}", topic, target);
+                    connection.logger.trace("No topic match for '{}' using regex {}", topic, target);
 
                 }
             });
@@ -155,11 +156,11 @@ public class MqttBrokerConnection {
      */
     @NonNullByDefault({})
     protected static class ConnectionCallbacks implements IMqttActionListener {
-        private final MqttBrokerConnection c;
+        private final MqttBrokerConnection connection;
         private final Runnable cancelTimeoutFuture;
 
         public ConnectionCallbacks(MqttBrokerConnection c) {
-            this.c = c;
+            this.connection = c;
             this.cancelTimeoutFuture = c::cancelTimeoutFuture;
         }
 
@@ -167,12 +168,13 @@ public class MqttBrokerConnection {
         public void onSuccess(IMqttToken asyncActionToken) {
             cancelTimeoutFuture.run();
 
-            c.isConnecting = false;
-            if (c.reconnectStrategy != null) {
-                c.reconnectStrategy.connectionEstablished();
+            connection.isConnecting = false;
+            if (connection.reconnectStrategy != null) {
+                connection.reconnectStrategy.connectionEstablished();
             }
-            c.consumers.values().stream().flatMap(List::stream).forEach(consumer -> c.trySubscribe(consumer));
-            c.connectionObservers.forEach(o -> o.connectionStateChanged(c.connectionState(), null));
+            connection.consumers.values().stream().flatMap(List::stream)
+                    .forEach(consumer -> connection.trySubscribe(consumer));
+            connection.connectionObservers.forEach(o -> o.connectionStateChanged(connection.connectionState(), null));
         }
 
         @Override
@@ -180,22 +182,22 @@ public class MqttBrokerConnection {
             cancelTimeoutFuture.run();
 
             final Throwable e = token.getException();
-            final MqttConnectionState connectionState = c.connectionState();
-            c.connectionObservers.forEach(o -> o.connectionStateChanged(connectionState, e));
+            final MqttConnectionState connectionState = connection.connectionState();
+            connection.connectionObservers.forEach(o -> o.connectionStateChanged(connectionState, e));
 
             // If we tried to connect via start(), use the reconnect strategy to try it again
-            if (c.isConnecting) {
-                c.isConnecting = false;
-                if (c.reconnectStrategy != null) {
-                    c.reconnectStrategy.lostConnection();
+            if (connection.isConnecting) {
+                connection.isConnecting = false;
+                if (connection.reconnectStrategy != null) {
+                    connection.reconnectStrategy.lostConnection();
                 }
             }
         }
     }
 
-    /** Client callback object. Package local, for testing. */
+    /** Client callback object */
     protected MqttCallback clientCallbacks = new ClientCallbacks(this);
-    /** Connection callback object. Package local, for testing. */
+    /** Connection callback object */
     protected IMqttActionListener connectionCallbacks = new ConnectionCallbacks(this);
 
     /**
