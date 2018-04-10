@@ -304,7 +304,7 @@
 
   <feature name="esh-io-transport-serial" version="${project.version}">
     <feature>esh-base</feature>
-    <requirement>osgi.service;filter:="(objectClass=org.eclipse.smarthome.io.transport.serial.api.SerialPortManager)"</requirement>
+    <requirement>osgi.service;filter:="(objectClass=org.eclipse.smarthome.io.transport.serial.SerialPortManager)"</requirement>
     <feature dependency="true">esh-io-transport-serial-rxtx</feature>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.serial/${project.version}</bundle>
   </feature>
