@@ -7,7 +7,7 @@ Bundle-Vendor: ${vendorName}
 Bundle-Version: ${version.replaceAll("-SNAPSHOT", ".qualifier")}
 Export-Package: ${package};uses:="org.eclipse.smarthome.test"
 Fragment-Host: ${package}
-Import-Package:
+Import-Package: 
  ${package},
  ${package}.handler,
  org.eclipse.jdt.annotation;resolution:=optional,
