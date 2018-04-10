@@ -894,6 +894,10 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         Condition condition = Condition.EQUAL;
         if (matchCondition != null) {
             condition = Condition.fromString(matchCondition);
+            if (condition == null) {
+                logger.warn("matchStateToValue: unknown match condition '{}'", matchCondition);
+                return matched;
+            }
         }
 
         if (unquotedValue.equals(UnDefType.NULL.toString()) || unquotedValue.equals(UnDefType.UNDEF.toString())) {
@@ -913,37 +917,44 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                     break;
             }
         } else {
-            if (DecimalType.class.isInstance(state)) {
+            if (state instanceof DecimalType || state instanceof QuantityType<?>) {
                 try {
+                    double compareDoubleValue = Double.parseDouble(unquotedValue);
+                    double stateDoubleValue;
+                    if (state instanceof DecimalType) {
+                        stateDoubleValue = ((DecimalType) state).doubleValue();
+                    } else {
+                        stateDoubleValue = ((QuantityType<?>) state).doubleValue();
+                    }
                     switch (condition) {
                         case EQUAL:
-                            if (Double.parseDouble(state.toString()) == Double.parseDouble(unquotedValue)) {
+                            if (stateDoubleValue == compareDoubleValue) {
                                 matched = true;
                             }
                             break;
                         case LTE:
-                            if (Double.parseDouble(state.toString()) <= Double.parseDouble(unquotedValue)) {
+                            if (stateDoubleValue <= compareDoubleValue) {
                                 matched = true;
                             }
                             break;
                         case GTE:
-                            if (Double.parseDouble(state.toString()) >= Double.parseDouble(unquotedValue)) {
+                            if (stateDoubleValue >= compareDoubleValue) {
                                 matched = true;
                             }
                             break;
                         case GREATER:
-                            if (Double.parseDouble(state.toString()) > Double.parseDouble(unquotedValue)) {
+                            if (stateDoubleValue > compareDoubleValue) {
                                 matched = true;
                             }
                             break;
                         case LESS:
-                            if (Double.parseDouble(state.toString()) < Double.parseDouble(unquotedValue)) {
+                            if (stateDoubleValue < compareDoubleValue) {
                                 matched = true;
                             }
                             break;
                         case NOT:
                         case NOTEQUAL:
-                            if (Double.parseDouble(state.toString()) != Double.parseDouble(unquotedValue)) {
+                            if (stateDoubleValue != compareDoubleValue) {
                                 matched = true;
                             }
                             break;

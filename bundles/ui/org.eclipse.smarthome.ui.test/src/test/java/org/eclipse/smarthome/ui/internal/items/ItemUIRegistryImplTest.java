@@ -42,6 +42,7 @@ import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.core.types.util.UnitUtils;
+import org.eclipse.smarthome.model.sitemap.ColorArray;
 import org.eclipse.smarthome.model.sitemap.Mapping;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapFactory;
@@ -528,6 +529,46 @@ public class ItemUIRegistryImplTest {
         when(item.getState()).thenReturn(new StringType("State"));
         String label = uiRegistry.getLabel(w);
         assertEquals("Memory [State]", label);
+    }
+
+    @Test
+    public void getLabelColor_labelWithDecimalValue() throws ItemNotFoundException {
+        String testLabel = "Label [%.3f]";
+
+        when(widget.getLabel()).thenReturn(testLabel);
+
+        ColorArray colorArray = mock(ColorArray.class);
+        when(colorArray.getState()).thenReturn("21");
+        when(colorArray.getCondition()).thenReturn("<");
+        when(colorArray.getArg()).thenReturn("yellow");
+        BasicEList<ColorArray> colorArrays = new BasicEList<ColorArray>();
+        colorArrays.add(colorArray);
+        when(widget.getLabelColor()).thenReturn(colorArrays);
+
+        when(item.getState()).thenReturn(new DecimalType(10f / 3f));
+
+        String color = uiRegistry.getLabelColor(widget);
+        assertEquals("yellow", color);
+    }
+
+    @Test
+    public void getLabelColor_labelWithUnitValue() throws ItemNotFoundException {
+        String testLabel = "Label [%.3f %unit%]";
+
+        when(widget.getLabel()).thenReturn(testLabel);
+
+        ColorArray colorArray = mock(ColorArray.class);
+        when(colorArray.getState()).thenReturn("20");
+        when(colorArray.getCondition()).thenReturn("==");
+        when(colorArray.getArg()).thenReturn("yellow");
+        BasicEList<ColorArray> colorArrays = new BasicEList<ColorArray>();
+        colorArrays.add(colorArray);
+        when(widget.getLabelColor()).thenReturn(colorArrays);
+
+        when(item.getState()).thenReturn(new QuantityType<>("20 °C"));
+
+        String color = uiRegistry.getLabelColor(widget);
+        assertEquals("yellow", color);
     }
 
 }
