@@ -647,9 +647,6 @@ public class MqttBrokerConnection {
         // Storage
         Path tmpDir = Paths.get(ConfigConstants.getUserDataFolder());
         try {
-            if (!tmpDir.isAbsolute()) {
-                throw new IOException("User path not absolute!");
-            }
             tmpDir = Files.createDirectories(tmpDir.resolve("mqtt").resolve(host));
         } catch (IOException e) {
             throw new MqttException(e);
