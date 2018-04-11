@@ -10,11 +10,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.model.thing.tests
+package org.eclipse.smarthome.model.thing.test.hue;
 
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
-import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventSubscriber
