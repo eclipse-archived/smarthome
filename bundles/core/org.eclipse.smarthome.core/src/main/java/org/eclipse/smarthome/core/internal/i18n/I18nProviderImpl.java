@@ -222,7 +222,7 @@ public class I18nProviderImpl
                 logger.warn("Could not set new location: {}, keeping old one, error message: {}", location,
                         e.getMessage());
             }
-            if (!this.location.equals(oldLocation)) {
+            if (this.location != null && !this.location.equals(oldLocation)) {
                 logger.info("Location set to '{}'.", this.location);
             }
         }
