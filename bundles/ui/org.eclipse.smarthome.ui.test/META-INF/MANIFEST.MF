@@ -13,8 +13,8 @@ Import-Package:
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.library.unit,
  org.eclipse.smarthome.model.sitemap,
+ org.eclipse.smarthome.test,
  org.hamcrest;core=split,
  org.junit;version="4.0.0",
  org.mockito,
- org.mockito.stubbing,
- org.objenesis
+ org.mockito.stubbing

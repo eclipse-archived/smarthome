@@ -80,6 +80,9 @@ public class ItemUIRegistryImplTest {
 
         when(widget.getItem()).thenReturn("Item");
         when(registry.getItem("Item")).thenReturn(item);
+
+        @SuppressWarnings("unused")
+        Unit<?> fahrenheit = ImperialUnits.FAHRENHEIT; // only used to initialise ESHUnits for conversion
     }
 
     @Test
@@ -165,10 +168,67 @@ public class ItemUIRegistryImplTest {
     }
 
     @Test
-    public void getLabel_labelWithDecimalValueAndUnitConversion() {
-        @SuppressWarnings("unused")
-        Unit<?> fahrenheit = ImperialUnits.FAHRENHEIT; // only used to initialise ESHUnits for conversion
+    public void getLabel_labelWithDecimalValueAndUnit2() {
+        String testLabel = "Label [%.0f " + UnitUtils.UNIT_PLACEHOLDER + "]";
 
+        when(widget.getLabel()).thenReturn(testLabel);
+        when(item.getState()).thenReturn(new QuantityType<>("" + 10f / 3f + " °C"));
+        String label = uiRegistry.getLabel(widget);
+        assertEquals("Label [3 ℃]", label);
+    }
+
+    @Test
+    public void getLabel_labelWithDecimalValueAndUnit3() {
+        String testLabel = "Label [%d %%]";
+
+        when(widget.getLabel()).thenReturn(testLabel);
+        when(item.getState()).thenReturn(new QuantityType<>("" + 10f / 3f + " %"));
+        String label = uiRegistry.getLabel(widget);
+        assertEquals("Label [3 %]", label);
+    }
+
+    @Test
+    public void getLabel_labelWithDecimalValueAndUnit4() {
+        String testLabel = "Label [%.0f %%]";
+
+        when(widget.getLabel()).thenReturn(testLabel);
+        when(item.getState()).thenReturn(new QuantityType<>("" + 10f / 3f + " %"));
+        String label = uiRegistry.getLabel(widget);
+        assertEquals("Label [3 %]", label);
+    }
+
+    @Test
+    public void getLabel_labelWithDecimalValueAndUnit5() {
+        String testLabel = "Label [%d %unit%]";
+
+        when(widget.getLabel()).thenReturn(testLabel);
+        when(item.getState()).thenReturn(new QuantityType<>("33 %"));
+        String label = uiRegistry.getLabel(widget);
+        assertEquals("Label [33 %]", label);
+    }
+
+    @Test
+    public void getLabel_labelWithDecimalValueAndUnit6() {
+        String testLabel = "Label [%.0f %unit%]";
+
+        when(widget.getLabel()).thenReturn(testLabel);
+        when(item.getState()).thenReturn(new QuantityType<>("" + 10f / 3f + " %"));
+        String label = uiRegistry.getLabel(widget);
+        assertEquals("Label [3 %]", label);
+    }
+
+    @Test
+    public void getLabel_labelWithDecimalValueAndUnit7() {
+        String testLabel = "Label [%d %%]";
+
+        when(widget.getLabel()).thenReturn(testLabel);
+        when(item.getState()).thenReturn(new QuantityType<>("33 %"));
+        String label = uiRegistry.getLabel(widget);
+        assertEquals("Label [33 %]", label);
+    }
+
+    @Test
+    public void getLabel_labelWithDecimalValueAndUnitConversion() {
         String testLabel = "Label [%.2f °F]";
 
         when(widget.getLabel()).thenReturn(testLabel);
