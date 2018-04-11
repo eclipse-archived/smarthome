@@ -20,14 +20,14 @@
 package ${package}.internal;
 
 /**
- * The {@link ${bindingIdCamelCase}Configuration} class contains fields mapping thing configuration paramters.
+ * The {@link ${bindingIdCamelCase}Configuration} class contains fields mapping thing configuration parameters.
  *
  * @author ${author} - Initial contribution
  */
 public class ${bindingIdCamelCase}Configuration {
 
     /**
-     * Sample configuration parameter. Replace with you own.
+     * Sample configuration parameter. Replace with your own.
      */
     public String config1;
 }

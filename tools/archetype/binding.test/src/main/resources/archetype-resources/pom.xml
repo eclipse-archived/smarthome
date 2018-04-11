@@ -1,11 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>${namespace}.binding</groupId>
     <artifactId>pom</artifactId>
+    <groupId>${namespace}.binding</groupId>
     <version>@${version}</version>
   </parent>
 
@@ -58,6 +58,11 @@
         <artifactId>tycho-surefire-plugin</artifactId>
         <configuration>
           <dependencies>
+            <dependency>
+              <type>eclipse-plugin</type>
+              <artifactId>org.eclipse.equinox.ds</artifactId>
+              <version>0.0.0</version>
+            </dependency>
             <dependency>
               <type>eclipse-plugin</type>
               <artifactId>ch.qos.logback.classic</artifactId>
