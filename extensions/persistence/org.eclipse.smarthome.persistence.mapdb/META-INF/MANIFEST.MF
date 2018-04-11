@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ClassPath: .
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome MapDB Persistence Extension
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.persistence.mapdb
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.10.0.qualifier
+Import-Package: com.google.gson,
+ com.google.gson.stream,
+ org.apache.commons.lang,
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.common,
+ org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.core.library.items,
+ org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.persistence,
+ org.eclipse.smarthome.core.types,
+ org.mapdb,
+ org.osgi.framework,
+ org.slf4j
+Service-Component: OSGI-INF/*.xml
