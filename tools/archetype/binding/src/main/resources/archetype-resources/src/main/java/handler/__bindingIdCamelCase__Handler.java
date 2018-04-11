@@ -23,12 +23,12 @@ import static ${package}.${bindingIdCamelCase}BindingConstants.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import ${package}.internal.${bindingIdCamelCase}Configuration;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
-import ${package}.internal.${bindingIdCamelCase}Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author ${author} - Initial contribution
  */
- @NonNullByDefault
+@NonNullByDefault
 public class ${bindingIdCamelCase}Handler extends BaseThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(${bindingIdCamelCase}Handler.class);
