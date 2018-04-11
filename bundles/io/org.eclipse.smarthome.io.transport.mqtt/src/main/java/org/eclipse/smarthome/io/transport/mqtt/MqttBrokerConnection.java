@@ -12,11 +12,21 @@
  */
 package org.eclipse.smarthome.io.transport.mqtt;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
@@ -32,6 +42,7 @@ import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
+import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.io.transport.mqtt.reconnect.AbstractReconnectStrategy;
 import org.eclipse.smarthome.io.transport.mqtt.reconnect.PeriodicReconnectStrategy;
 import org.eclipse.smarthome.io.transport.mqtt.sslcontext.AcceptAllCertificatesSSLContext;
@@ -52,6 +63,7 @@ import org.slf4j.LoggerFactory;
  */
 @NonNullByDefault
 public class MqttBrokerConnection {
+
     private final Logger logger = LoggerFactory.getLogger(MqttBrokerConnection.class);
     public static final int DEFAULT_KEEPALIVE_INTERVAL = 60;
     public static final int DEFAULT_QOS = 0;
@@ -76,6 +88,13 @@ public class MqttBrokerConnection {
     protected boolean isConnecting = false;
     protected final List<MqttConnectionObserver> connectionObservers = new CopyOnWriteArrayList<>();
     protected final Map<String, List<MqttMessageSubscriber>> consumers = new HashMap<>();
+    protected @Nullable IMqttToken connectionToken;
+
+    // Connection timeout handling
+    final AtomicReference<@Nullable ScheduledFuture<?>> timeoutFuture = new AtomicReference<>(null);
+    @Nullable
+    ScheduledExecutorService timeoutExecutor;
+    private int timeout = 1200; /* Connection timeout in milliseconds */
 
     /**
      * A private object to implement the MqttCallback interface.
@@ -84,57 +103,114 @@ public class MqttBrokerConnection {
      * use @NonNullByDefault.
      */
     @NonNullByDefault({})
-    private class ClientCallbacks implements MqttCallback {
+    protected static class ClientCallbacks implements MqttCallback {
+        private final MqttBrokerConnection connection;
+
+        public ClientCallbacks(MqttBrokerConnection c) {
+            this.connection = c;
+        }
+
         @Override
         public synchronized void connectionLost(@Nullable Throwable exception) {
             if (exception instanceof MqttException) {
                 MqttException e = (MqttException) exception;
-                logger.info("MQTT connection to '{}' was lost: {} : ReasonCode {} : Cause : {}", host, e.getMessage(),
-                        e.getReasonCode(), (e.getCause() == null ? "Unknown" : e.getCause().getMessage()));
+                connection.logger.info("MQTT connection to '{}' was lost: {} : ReasonCode {} : Cause : {}",
+                        connection.host, e.getMessage(), e.getReasonCode(),
+                        (e.getCause() == null ? "Unknown" : e.getCause().getMessage()));
             } else if (exception != null) {
-                logger.info("MQTT connection to '{}' was lost: {}", host, exception.getMessage());
+                connection.logger.info("MQTT connection to '{}' was lost: {}", connection.host, exception.getMessage());
             }
 
-            connectionObservers.forEach(o -> o.connectionStateChanged(MqttConnectionState.DISCONNECTED, exception));
-            if (reconnectStrategy != null) {
-                reconnectStrategy.lostConnection();
+            connection.connectionObservers
+                    .forEach(o -> o.connectionStateChanged(MqttConnectionState.DISCONNECTED, exception));
+            if (connection.reconnectStrategy != null) {
+                connection.reconnectStrategy.lostConnection();
             }
         }
 
         @Override
         public void deliveryComplete(IMqttDeliveryToken token) {
-            logger.trace("Message with id {} delivered.", token.getMessageId());
+            connection.logger.trace("Message with id {} delivered.", token.getMessageId());
         }
 
         @Override
         public void messageArrived(String topic, MqttMessage message) {
             byte[] payload = message.getPayload();
-            logger.trace("Received message on topic '{}' : {}", topic, new String(payload));
-            consumers.forEach((target, consumerList) -> {
+            connection.logger.trace("Received message on topic '{}' : {}", topic, new String(payload));
+            connection.consumers.forEach((target, consumerList) -> {
                 if (topic.matches(target)) {
-                    logger.trace("Topic match for '{}' using regex {}", topic, target);
+                    connection.logger.trace("Topic match for '{}' using regex {}", topic, target);
                     consumerList.forEach(consumer -> consumer.processMessage(topic, payload));
                 } else {
-                    logger.trace("No topic match for '{}' using regex {}", topic, target);
+                    connection.logger.trace("No topic match for '{}' using regex {}", topic, target);
 
                 }
             });
         }
     }
 
-    private final ClientCallbacks clientCallbacks = new ClientCallbacks();
+    /**
+     * Create a IMqttActionListener object for being used as a callback for a connection attempt.
+     * The callback will interact with the {@link AbstractReconnectStrategy} as well as inform registered
+     * {@link MqttConnectionObserver}s.
+     */
+    @NonNullByDefault({})
+    protected static class ConnectionCallbacks implements IMqttActionListener {
+        private final MqttBrokerConnection connection;
+        private final Runnable cancelTimeoutFuture;
+
+        public ConnectionCallbacks(MqttBrokerConnection c) {
+            this.connection = c;
+            this.cancelTimeoutFuture = c::cancelTimeoutFuture;
+        }
+
+        @Override
+        public void onSuccess(IMqttToken asyncActionToken) {
+            cancelTimeoutFuture.run();
+
+            connection.isConnecting = false;
+            if (connection.reconnectStrategy != null) {
+                connection.reconnectStrategy.connectionEstablished();
+            }
+            connection.consumers.values().stream().flatMap(List::stream)
+                    .forEach(consumer -> connection.trySubscribe(consumer));
+            connection.connectionObservers.forEach(o -> o.connectionStateChanged(connection.connectionState(), null));
+        }
+
+        @Override
+        public void onFailure(IMqttToken token, @Nullable Throwable exception) {
+            cancelTimeoutFuture.run();
+
+            final Throwable e = token.getException();
+            final MqttConnectionState connectionState = connection.connectionState();
+            connection.connectionObservers.forEach(o -> o.connectionStateChanged(connectionState, e));
+
+            // If we tried to connect via start(), use the reconnect strategy to try it again
+            if (connection.isConnecting) {
+                connection.isConnecting = false;
+                if (connection.reconnectStrategy != null) {
+                    connection.reconnectStrategy.lostConnection();
+                }
+            }
+        }
+    }
+
+    /** Client callback object */
+    protected MqttCallback clientCallbacks = new ClientCallbacks(this);
+    /** Connection callback object */
+    protected IMqttActionListener connectionCallbacks = new ConnectionCallbacks(this);
 
     /**
-     * Create a new connection with the given name.
+     * Create a new MQTT client connection to a server with the given host and port.
      *
      * @param name for the connection.
      * @param host A host name or address
      * @param port A port or null to select the default port for a secure or insecure connection
      * @param secure A secure connection
-     * @param clientId Set client id to use when connecting to the broker.
-     *            If none is specified, a default is generated. The client id cannot
-     *            be longer than 23 characters.
-     * @throws IllegalArgumentException
+     * @param clientId Client id. Each client on a MQTT server has a unique client id. Sometimes client ids are
+     *            used for access restriction implementations.
+     *            If none is specified, a default is generated. The client id cannot be longer than 65535 characters.
+     * @throws IllegalArgumentException If the client id or port is not valid.
      */
     public MqttBrokerConnection(String host, @Nullable Integer port, boolean secure, @Nullable String clientId) {
         this.host = host;
@@ -142,8 +218,8 @@ public class MqttBrokerConnection {
         String newClientID = clientId;
         if (newClientID == null) {
             newClientID = MqttClient.generateClientId();
-        } else if (newClientID.length() > 23) {
-            throw new IllegalArgumentException("Client ID cannot be longer than 23 characters");
+        } else if (newClientID.length() > 65535) {
+            throw new IllegalArgumentException("Client ID cannot be longer than 65535 characters");
         }
         if (port != null && (port <= 0 || port > 65535)) {
             throw new IllegalArgumentException("Port is not within a valid range");
@@ -155,7 +231,10 @@ public class MqttBrokerConnection {
 
     /**
      * Set the reconnect strategy. The implementor will be called when the connection
-     * to the Mqtt broker is lost and also when it is established.
+     * state to the MQTT broker changed.
+     *
+     * The reconnect strategy will not be informed if the initial connection to the broker
+     * timed out. You need a timeout executor additionally, see {@link #setTimeoutExecutor(Executor)}.
      *
      * @param reconnectStrategy The reconnect strategy. May not be null.
      */
@@ -164,8 +243,23 @@ public class MqttBrokerConnection {
         reconnectStrategy.setBrokerConnection(this);
     }
 
+    /**
+     * @return Return the reconnect strategy
+     */
     public @Nullable AbstractReconnectStrategy getReconnectStrategy() {
         return this.reconnectStrategy;
+    }
+
+    /**
+     * Set a timeout executor. If none is set, you will not be notified of connection timeouts, this
+     * also includes a non-firing reconnect strategy. The default executor is none.
+     *
+     * @param executor One timer will be created when a connection attempt happens
+     * @param timeoutInMS Timeout in milliseconds
+     */
+    public void setTimeoutExecutor(@Nullable ScheduledExecutorService executor, int timeoutInMS) {
+        timeoutExecutor = executor;
+        this.timeout = timeoutInMS;
     }
 
     /**
@@ -464,6 +558,10 @@ public class MqttBrokerConnection {
         return options;
     }
 
+    /**
+     * Tries to call `client.subscribe` on the given topic. Any errors are caught and redirected to the logger.
+     *
+     */
     private void trySubscribe(MqttMessageSubscriber c) {
         if (client != null) {
             try {
@@ -475,53 +573,25 @@ public class MqttBrokerConnection {
     }
 
     /**
-     * Create a IMqttActionListener object for being used as a callback for a connection attempt.
-     * The callback will interact with the {@link AbstractReconnectStrategy} as well as inform registered
-     * {@link MqttConnectionObserver}s.
-     * Package local, for testing.
-     */
-    IMqttActionListener createConnectionListener() {
-        return new IMqttActionListener() {
-            @Override
-            public void onSuccess(@Nullable IMqttToken asyncActionToken) {
-                isConnecting = false;
-                if (reconnectStrategy != null) {
-                    reconnectStrategy.connectionEstablished();
-                }
-                consumers.values().stream().flatMap(List::stream).forEach(c -> trySubscribe(c));
-                connectionObservers.forEach(o -> o.connectionStateChanged(connectionState(), null));
-            }
-
-            @Override
-            public void onFailure(@Nullable IMqttToken _token, @Nullable Throwable exception) {
-                IMqttToken token = (@NonNull IMqttToken) _token; // token is never null, but the interface is not
-                                                                 // annotated correctly
-                connectionObservers.forEach(o -> o.connectionStateChanged(connectionState(), token.getException()));
-
-                // If we tried to connect via start(), use the reconnect strategy to try it again
-                if (isConnecting) {
-                    isConnecting = false;
-                    if (reconnectStrategy != null) {
-                        reconnectStrategy.lostConnection();
-                    }
-                }
-            }
-        };
-    }
-
-    /**
      * This will establish a connection to the MQTT broker and if successful, notify all
      * publishers and subscribers that the connection has become active. This method will
      * do nothing if there is already an active connection.
      *
-     * If you want a synchronised way of establishing a broker connection, you can use the
+     * If you want a synchronized way of establishing a broker connection, you can use the
      * following pattern:
      *
-     * Object o = new Object();
-     * conn.addConnectionObserver((isConnected, error) -> o.notify() );
-     * conn.start();
-     * o.wait(timeout_in_ms);
-     * boolean success = conn.connectionState()==MqttConnectionState.CONNECTED;
+     * <pre>
+     * Semaphore semaphore = new Semaphore(1);
+     * semaphore.acquire();
+     * MqttConnectionObserver mqttConnectionObserver = (state, error) -> {
+     *     if (state != MqttConnectionState.CONNECTING) {
+     *         semaphore.release();
+     *     }
+     * };
+     * c.addConnectionObserver(mqttConnectionObserver);
+     * c.start();
+     * semaphore.tryAcquire(3000, TimeUnit.MILLISECONDS);
+     * </pre>
      *
      * @throws MqttException If a communication error occurred, this exception is thrown.
      * @throws ConfigurationException If no url is given or parameters are invalid, this exception is thrown.
@@ -530,21 +600,10 @@ public class MqttBrokerConnection {
         if (connectionState() != MqttConnectionState.DISCONNECTED) {
             return;
         }
-
         // Ensure the reconnect strategy is started
         if (reconnectStrategy != null) {
             reconnectStrategy.start();
         }
-
-        // Storage
-        String tmpDir = System.getProperty("java.io.tmpdir") + "/" + host;
-        MqttClientPersistence dataStore = new MqttDefaultFilePersistence(tmpDir);
-
-        StringBuilder serverURI = new StringBuilder();
-        serverURI.append((secure ? "ssl://" : "tcp://"));
-        serverURI.append(host);
-        serverURI.append(":");
-        serverURI.append(port);
 
         // Close client if there is still one existing
         if (client != null) {
@@ -555,27 +614,62 @@ public class MqttBrokerConnection {
             client = null;
         }
 
-        // Create new client connection
+        // Perform the connection attempt
+        isConnecting = true;
+        connectionObservers.forEach(o -> o.connectionStateChanged(MqttConnectionState.CONNECTING, null));
+
+        client = createAndConnectClient();
+
+        ScheduledExecutorService executor = timeoutExecutor;
+        if (executor != null && connectionToken != null) {
+            final ScheduledFuture<?> timeoutFuture = this.timeoutFuture.getAndSet(
+                    executor.schedule(() -> connectionCallbacks.onFailure(connectionToken, new TimeoutException()),
+                            timeout, TimeUnit.MILLISECONDS));
+            if (timeoutFuture != null) {
+                timeoutFuture.cancel(false);
+            }
+        }
+    }
+
+    /**
+     * Encapsulates the creation of the paho MqttAsyncClient and client connection.
+     *
+     * @param dataStore The datastore to save qos!=0 messages until they are delivered.
+     * @return Returns a valid and connecting MqttAsyncClient
+     * @throws MqttException If an exception of the underlying library happens, this exception is thrown
+     * @throws ConfigurationException The configuration is not valid if this exception is thrown
+     */
+    protected MqttAsyncClient createAndConnectClient() throws MqttException, ConfigurationException {
+        StringBuilder serverURI = new StringBuilder();
+        serverURI.append((secure ? "ssl://" : "tcp://"));
+        serverURI.append(host);
+        serverURI.append(":");
+        serverURI.append(port);
+
+        // Storage
+        Path tmpDir = Paths.get(ConfigConstants.getUserDataFolder());
+        try {
+            tmpDir = Files.createDirectories(tmpDir.resolve("mqtt").resolve(host));
+        } catch (IOException e) {
+            throw new MqttException(e);
+        }
+        MqttClientPersistence dataStore = new MqttDefaultFilePersistence(tmpDir.toString());
+
         MqttAsyncClient _client;
         try {
             _client = new MqttAsyncClient(serverURI.toString(), clientId, dataStore);
-            client = _client;
         } catch (org.eclipse.paho.client.mqttv3.MqttException e) {
             throw new MqttException(e);
         }
         _client.setCallback(clientCallbacks);
-
-        logger.info("Starting MQTT broker connection to '{}' with clientid {} and file store '{}'", host, getClientId(),
-                tmpDir);
-
-        // Perform the connection attempt
-        isConnecting = true;
-
         try {
-            _client.connect(createMqttOptions(), null, createConnectionListener());
+            connectionToken = _client.connect(createMqttOptions(), null, connectionCallbacks);
+            logger.info("Starting MQTT broker connection to '{}' with clientid {} and file store '{}'", host,
+                    getClientId(), tmpDir);
         } catch (org.eclipse.paho.client.mqttv3.MqttException e) {
             throw new MqttException(e);
         }
+        return _client;
     }
 
     /**
@@ -588,6 +682,10 @@ public class MqttBrokerConnection {
 
         // Abort a connection attempt
         isConnecting = false;
+        connectionToken = null;
+
+        // Cancel a timeout future as on an explicit stop there should be no interest in anymore.
+        cancelTimeoutFuture();
 
         // Stop the reconnect strategy
         if (reconnectStrategy != null) {
@@ -646,4 +744,15 @@ public class MqttBrokerConnection {
         logger.debug("Publishing message {} to topic '{}'", deliveryToken.getMessageId(), topic);
         return deliveryToken.getMessageId();
     }
+
+    /**
+     * Cancel the timeout future is present.
+     */
+    protected void cancelTimeoutFuture() {
+        final ScheduledFuture<?> timeoutFuture = this.timeoutFuture.getAndSet(null);
+        if (timeoutFuture != null) {
+            timeoutFuture.cancel(false);
+        }
+    }
+
 }
