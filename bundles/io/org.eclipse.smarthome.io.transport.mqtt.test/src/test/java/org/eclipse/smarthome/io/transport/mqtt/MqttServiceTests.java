@@ -36,7 +36,8 @@ public class MqttServiceTests {
         service.addBrokersListener(observer);
         assertTrue(service.hasBrokerObservers());
 
-        MqttBrokerConnection connection = new MqttBrokerConnection("tcp://123.123.123.123", null, false, null);
+        MqttBrokerConnectionEx connection = new MqttBrokerConnectionEx("tcp://123.123.123.123", null, false,
+                "brokerConnectionListenerTests");
         assertTrue(service.addBrokerConnection("name", connection));
 
         ArgumentCaptor<MqttBrokerConnection> argumentCaptorConn = ArgumentCaptor.forClass(MqttBrokerConnection.class);
@@ -58,8 +59,8 @@ public class MqttServiceTests {
     @Test
     public void brokerConnectionAddRemoveEnumerateTests() {
         MqttService service = new MqttService();
-        MqttBrokerConnection connection;
-        connection = new MqttBrokerConnection("tcp://123.123.123.123", null, false, null);
+        MqttBrokerConnectionEx connection = new MqttBrokerConnectionEx("tcp://123.123.123.123", null, false,
+                "brokerConnectionAddRemoveEnumerateTests");
         // Add
         assertThat(service.getAllBrokerConnections().size(), is(equalTo(0)));
         assertTrue(service.addBrokerConnection("name", connection));
