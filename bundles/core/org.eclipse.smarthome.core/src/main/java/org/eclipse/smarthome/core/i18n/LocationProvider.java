@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.core.i18n;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.library.types.PointType;
 
 /**
@@ -19,6 +21,7 @@ import org.eclipse.smarthome.core.library.types.PointType;
  *
  * @author Stefan Triller - Initial contribution and API
  */
+@NonNullByDefault
 public interface LocationProvider {
 
     /**
@@ -26,6 +29,7 @@ public interface LocationProvider {
      *
      * @return location of the current installation or null if the location is not set
      */
+    @Nullable
     PointType getLocation();
 
 }
