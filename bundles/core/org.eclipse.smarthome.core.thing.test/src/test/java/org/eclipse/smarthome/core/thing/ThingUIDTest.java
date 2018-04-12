@@ -36,4 +36,14 @@ public class ThingUIDTest {
         assertEquals("gaga", t.getId());
         assertEquals("fake::gaga", t.getAsString());
     }
+
+    @Test
+    public void testGetBridgeIds() {
+        ThingTypeUID thingType = new ThingTypeUID("fake", "type");
+        ThingUID t = new ThingUID(thingType, new ThingUID("fake", "something", "bridge"), "thing");
+
+        assertEquals("fake:type:bridge:thing", t.getAsString());
+        assertEquals(1, t.getBridgeIds().size());
+        assertEquals("bridge", t.getBridgeIds().get(0));
+    }
 }

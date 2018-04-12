@@ -74,6 +74,8 @@ public class GenericItemProvider extends AbstractProvider<Item>
 
     private ModelRepository modelRepository = null;
 
+    private GenericMetadataProvider genericMetaDataProvider = null;
+
     private final Map<String, Collection<Item>> itemsMap = new ConcurrentHashMap<>();
 
     private final Collection<ItemFactory> itemFactorys = new ArrayList<ItemFactory>();
@@ -81,6 +83,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
     private final Map<String, StateDescription> stateDescriptions = new ConcurrentHashMap<>();
 
     private Integer rank;
+    private boolean active = false;
 
     protected void activate(Map<String, Object> properties) {
         Object serviceRanking = properties.get(Constants.SERVICE_RANKING);
@@ -89,6 +92,21 @@ public class GenericItemProvider extends AbstractProvider<Item>
         } else {
             rank = 0;
         }
+
+        itemFactorys.forEach(itemFactory -> dispatchBindingsPerItemType(null, itemFactory.getSupportedItemTypes()));
+
+        // process models which are already parsed by modelRepository:
+        for (String modelName : modelRepository.getAllModelNamesOfType("items")) {
+            modelChanged(modelName, EventType.ADDED);
+        }
+        modelRepository.addModelRepositoryChangeListener(this);
+
+        active = true;
+    }
+
+    protected void deactivate() {
+        active = false;
+        modelRepository.removeModelRepositoryChangeListener(this);
     }
 
     @Override
@@ -96,21 +114,22 @@ public class GenericItemProvider extends AbstractProvider<Item>
         return rank;
     }
 
-    @Reference()
+    @Reference
     public void setModelRepository(ModelRepository modelRepository) {
         this.modelRepository = modelRepository;
-
-        // process models which are already parsed by modelRepository:
-        for (String modelName : modelRepository.getAllModelNamesOfType("items")) {
-            modelChanged(modelName, EventType.ADDED);
-        }
-
-        modelRepository.addModelRepositoryChangeListener(this);
     }
 
     public void unsetModelRepository(ModelRepository modelRepository) {
-        modelRepository.removeModelRepositoryChangeListener(this);
         this.modelRepository = null;
+    }
+
+    @Reference
+    protected void setGenericMetadataProvider(GenericMetadataProvider genericMetadataProvider) {
+        this.genericMetaDataProvider = genericMetadataProvider;
+    }
+
+    protected void unsetGenericMetadataProvider(GenericMetadataProvider genericMetadataProvider) {
+        this.genericMetaDataProvider = null;
     }
 
     /**
@@ -121,7 +140,9 @@ public class GenericItemProvider extends AbstractProvider<Item>
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addItemFactory(ItemFactory factory) {
         itemFactorys.add(factory);
-        dispatchBindingsPerItemType(null, factory.getSupportedItemTypes());
+        if (active) {
+            dispatchBindingsPerItemType(null, factory.getSupportedItemTypes());
+        }
     }
 
     /**
@@ -369,8 +390,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
                             bindingType, item.getName(), e);
                 }
             } else {
-                logger.trace("Couldn't find config reader for binding type '{}' > "
-                        + "parsing binding configuration of Item '{}' aborted!", bindingType, item);
+                genericMetaDataProvider.addMetadata(bindingType, item.getName(), config, configuration.getProperties());
             }
         }
     }
@@ -397,8 +417,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
                     processBindingConfigsFromModel(modelName, type);
                     for (Item oldItem : oldItems.values()) {
                         if (!newItems.containsKey(oldItem.getName())) {
-                            notifyListenersAboutRemovedElement(oldItem);
-                            this.stateDescriptions.remove(oldItem.getName());
+                            notifyAndCleanup(oldItem);
                         }
                     }
                     break;
@@ -407,11 +426,17 @@ public class GenericItemProvider extends AbstractProvider<Item>
                     Collection<Item> itemsFromModel = getItemsFromModel(modelName);
                     itemsMap.remove(modelName);
                     for (Item item : itemsFromModel) {
-                        notifyListenersAboutRemovedElement(item);
+                        notifyAndCleanup(item);
                     }
                     break;
             }
         }
+    }
+
+    private void notifyAndCleanup(Item oldItem) {
+        notifyListenersAboutRemovedElement(oldItem);
+        this.stateDescriptions.remove(oldItem.getName());
+        genericMetaDataProvider.removeMetadata(oldItem.getName());
     }
 
     protected boolean hasItemChanged(Item item1, Item item2) {
