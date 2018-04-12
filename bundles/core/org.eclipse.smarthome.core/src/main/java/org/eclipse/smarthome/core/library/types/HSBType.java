@@ -71,9 +71,12 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
         if (value != null) {
             String[] constituents = value.split(",");
             if (constituents.length == 3) {
-                this.hue = new BigDecimal(constituents[0]);
-                this.saturation = new BigDecimal(constituents[1]);
-                this.value = new BigDecimal(constituents[2]);
+                String constituent0 = constituents[0].trim();
+                String constituent1 = constituents[1].trim();
+                String constituent2 = constituents[2].trim();
+                this.hue = new BigDecimal(constituent0);
+                this.saturation = new BigDecimal(constituent1);
+                this.value = new BigDecimal(constituent2);
             } else {
                 throw new IllegalArgumentException(value + " is not a valid HSBType syntax");
             }

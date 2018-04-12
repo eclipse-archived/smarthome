@@ -81,7 +81,9 @@ public class PointType implements ComplexType, Command, State {
         if (!value.isEmpty()) {
             String[] elements = value.split(",");
             if (elements.length >= 2) {
-                canonicalize(new DecimalType(elements[0]), new DecimalType(elements[1]));
+                String element0 = elements[0].trim();
+                String element1 = elements[1].trim();
+                canonicalize(new DecimalType(element0), new DecimalType(element1));
                 if (elements.length == 3) {
                     setAltitude(new DecimalType(elements[2]));
                 } else if (elements.length > 3) {
