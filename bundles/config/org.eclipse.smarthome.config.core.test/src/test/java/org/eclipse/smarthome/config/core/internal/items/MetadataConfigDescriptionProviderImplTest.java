@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.config.core.internal.items;
 
-import static org.eclipse.smarthome.config.core.internal.items.MetadataConfigDescriptionProviderImpl.*;
+import static org.eclipse.smarthome.config.core.internal.metadata.MetadataConfigDescriptionProviderImpl.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -26,9 +26,9 @@ import java.util.Locale;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
+import org.eclipse.smarthome.config.core.metadata.MetadataConfigDescriptionProvider;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
 import org.eclipse.smarthome.config.core.ParameterOption;
-import org.eclipse.smarthome.config.core.items.MetadataConfigDescriptionProvider;
 import org.eclipse.smarthome.test.java.JavaTest;
 import org.junit.Before;
 import org.junit.Test;

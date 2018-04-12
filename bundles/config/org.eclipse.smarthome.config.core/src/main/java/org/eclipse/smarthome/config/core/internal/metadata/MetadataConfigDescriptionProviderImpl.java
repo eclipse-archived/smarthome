@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.config.core.internal.items;
+package org.eclipse.smarthome.config.core.internal.metadata;
 
 import java.net.URI;
 import java.util.Collection;
@@ -25,10 +25,10 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
+import org.eclipse.smarthome.config.core.metadata.MetadataConfigDescriptionProvider;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
 import org.eclipse.smarthome.config.core.ParameterOption;
-import org.eclipse.smarthome.config.core.items.MetadataConfigDescriptionProvider;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
