@@ -137,3 +137,23 @@ Here is a short table demonstrating conversions for the examples above:
 | Color         | `HSBType`      | &bull; `OnOffType` - `OFF` if the brightness level in the `HSBType` equals 0, `ON` otherwise <br/> &bull; `PercentType` - the value for the brightness level in the `HSBType` |
 | Dimmer        | `PercentType`  | `OnOffType` - `OFF` if the brightness level indicated by the percent type equals 0, `ON` otherwise |
 | Rollershutter | `PercentType`  | `UpDownType` - `UP` if the shutter level indicated by the percent type equals 0, `DOWN` if it equals 100, and `UnDefType.UNDEF` for any other value|
+
+## Item Metadata
+
+Sometimes additional information is required to be attached to items for certain use-cases. 
+This could be e.g. an application which needs some hints in order to render the items in a generic way or an integration with voice controlled assistants or any other services which access the items and need to understand their "meaning".
+
+For this purpose, such meta-information can be attached to items using disjunct namespaces so they won't conflict with each other. 
+Each metadata entry has a main value and optionally additional key/value pairs. 
+There can be metadata attached to an item for as many namespaces as desired, like in the following example: 
+
+    Switch "My Fan" { homekit="Fan.v2", alexa="Fan" [ type="oscillating", speedSteps=3 ] }
+
+The metadata can alternatively maintained via a dedicated REST endpoint and is included in the `EnrichedItemDTO` responses.
+
+Extensions which can infer some metadata automatically need to implement an register a `MetadataProvider` service in order to make them available to the system. 
+They may provision them from any source they like and also dynamically remove or add data. 
+They are also not restricted to a single namespace.
+
+The `MetadataRegistry` provides access for all extensions which need to read the item metadata programmatically. 
+It is the central place where additional information about items is kept.

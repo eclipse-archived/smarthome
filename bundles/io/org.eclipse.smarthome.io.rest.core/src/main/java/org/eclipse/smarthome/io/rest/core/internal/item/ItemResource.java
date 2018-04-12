@@ -13,11 +13,17 @@
 package org.eclipse.smarthome.io.rest.core.internal.item;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.security.RolesAllowed;
@@ -53,8 +59,12 @@ import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
+import org.eclipse.smarthome.core.items.Metadata;
+import org.eclipse.smarthome.core.items.MetadataKey;
+import org.eclipse.smarthome.core.items.MetadataRegistry;
 import org.eclipse.smarthome.core.items.dto.GroupItemDTO;
 import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
+import org.eclipse.smarthome.core.items.dto.MetadataDTO;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
@@ -68,6 +78,7 @@ import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
+import org.eclipse.smarthome.io.rest.core.item.EnrichedGroupItemDTO;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTO;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
 import org.osgi.service.component.annotations.Component;
@@ -124,6 +135,8 @@ public class ItemResource implements RESTResource {
     @NonNullByDefault({})
     private ItemRegistry itemRegistry;
     @NonNullByDefault({})
+    private MetadataRegistry metadataRegistry;
+    @NonNullByDefault({})
     private EventPublisher eventPublisher;
     @NonNullByDefault({})
     private ManagedItemProvider managedItemProvider;
@@ -138,6 +151,15 @@ public class ItemResource implements RESTResource {
 
     protected void unsetItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setMetadataRegistry(MetadataRegistry metadataRegistry) {
+        this.metadataRegistry = metadataRegistry;
+    }
+
+    protected void unsetMetadataRegistry(MetadataRegistry metadataRegistry) {
+        this.metadataRegistry = null;
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
@@ -186,13 +208,17 @@ public class ItemResource implements RESTResource {
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") @Nullable String language,
             @QueryParam("type") @ApiParam(value = "item type filter", required = false) @Nullable String type,
             @QueryParam("tags") @ApiParam(value = "item tag filter", required = false) @Nullable String tags,
-            @DefaultValue("false") @QueryParam("recursive") @ApiParam(value = "get member items recursivly", required = false) boolean recursive,
+            @QueryParam("metadata") @ApiParam(value = "metadata selector", required = false) @Nullable String namespaceSelector,
+            @DefaultValue("false") @QueryParam("recursive") @ApiParam(value = "get member items recursively", required = false) boolean recursive,
             @QueryParam("fields") @ApiParam(value = "limit output to the given fields (comma separated)", required = false) @Nullable String fields) {
         final Locale locale = LocaleUtil.getLocale(language);
+        final Set<String> namespaces = namespaceSelector == null ? Collections.emptySet()
+                : Arrays.stream(namespaceSelector.split(",")).collect(Collectors.toSet());
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
         Stream<EnrichedItemDTO> itemStream = getItems(type, tags).stream()
-                .map(item -> EnrichedItemDTOMapper.map(item, recursive, null, uriInfo.getBaseUri(), locale));
+                .map(item -> EnrichedItemDTOMapper.map(item, recursive, null, uriInfo.getBaseUri(), locale))
+                .peek(dto -> addMetadata(dto, namespaces, null));
         itemStream = dtoMapper.limitToFields(itemStream, fields);
         return Response.ok(new Stream2JSONInputStream(itemStream)).build();
     }
@@ -205,8 +231,12 @@ public class ItemResource implements RESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = EnrichedItemDTO.class),
             @ApiResponse(code = 404, message = "Item not found") })
     public Response getItemData(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
+            @QueryParam("metadata") @ApiParam(value = "metadata selector", required = false) @Nullable String namespaceSelector,
             @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname) {
+
         final Locale locale = LocaleUtil.getLocale(language);
+        final Set<String> namespaces = namespaceSelector == null ? Collections.emptySet()
+                : Arrays.stream(namespaceSelector.split(",")).collect(Collectors.toSet());
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
         // get item
@@ -215,7 +245,9 @@ public class ItemResource implements RESTResource {
         // if it exists
         if (item != null) {
             logger.debug("Received HTTP GET request at '{}'.", uriInfo.getPath());
-            return getItemResponse(Status.OK, item, locale, null);
+            EnrichedItemDTO dto = EnrichedItemDTOMapper.map(item, true, null, uriInfo.getBaseUri(), locale);
+            addMetadata(dto, namespaces, null);
+            return JSONResponse.createResponse(Status.OK, dto, null);
         } else {
             logger.info("Received HTTP GET request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return getItemNotFoundResponse(itemname);
@@ -482,6 +514,73 @@ public class ItemResource implements RESTResource {
         return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
+    @PUT
+    @RolesAllowed({ Role.ADMIN })
+    @Path("/{itemname: [a-zA-Z_0-9]*}/metadata/{namespace}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Adds metadata to an item.")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "OK"), //
+            @ApiResponse(code = 201, message = "Created"), //
+            @ApiResponse(code = 404, message = "Item not found."), //
+            @ApiResponse(code = 405, message = "Metadata not editable.") })
+    public Response addMetadata(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
+            @PathParam("namespace") @ApiParam(value = "namespace", required = true) String namespace,
+            @ApiParam(value = "metadata", required = true) MetadataDTO metadata) {
+
+        Item item = getItem(itemname);
+
+        if (item == null) {
+            logger.info("Received HTTP PUT request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
+            return Response.status(Status.NOT_FOUND).build();
+        }
+
+        MetadataKey key = new MetadataKey(namespace, itemname);
+        Metadata md = new Metadata(key, metadata.value, metadata.config);
+        if (metadataRegistry.get(key) == null) {
+            metadataRegistry.add(md);
+            return Response.status(Status.CREATED).type(MediaType.TEXT_PLAIN).build();
+        } else {
+            metadataRegistry.update(md);
+            return Response.ok(null, MediaType.TEXT_PLAIN).build();
+        }
+
+    }
+
+    @DELETE
+    @RolesAllowed({ Role.ADMIN })
+    @Path("/{itemname: [a-zA-Z_0-9]*}/metadata/{namespace}")
+    @ApiOperation(value = "Removes metadata from an item.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Item not found."),
+            @ApiResponse(code = 405, message = "Meta data not editable.") })
+    public Response removeMetadata(
+            @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
+            @PathParam("namespace") @ApiParam(value = "namespace", required = true) String namespace) {
+
+        Item item = getItem(itemname);
+
+        if (item == null) {
+            logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
+            return Response.status(Status.NOT_FOUND).build();
+        }
+
+        MetadataKey key = new MetadataKey(namespace, itemname);
+        if (metadataRegistry.get(key) != null) {
+            if (metadataRegistry.remove(key) == null) {
+                logger.info("Received HTTP DELETE request at '{}' for unmanaged item meta-data '{}'.",
+                        uriInfo.getPath(), key);
+                return Response.status(Status.CONFLICT).build();
+            }
+        } else {
+            logger.info("Received HTTP DELETE request at '{}' for unknown item meta-data '{}'.", uriInfo.getPath(),
+                    key);
+            return Response.status(Status.NOT_FOUND).build();
+        }
+
+        return Response.ok(null, MediaType.TEXT_PLAIN).build();
+    }
+
     /**
      * Create or Update an item by supplying an item bean.
      *
@@ -683,6 +782,29 @@ public class ItemResource implements RESTResource {
         }
 
         return items;
+    }
+
+    private void addMetadata(EnrichedItemDTO dto, Set<String> namespaces, @Nullable Predicate<Metadata> filter) {
+        Map<String, Object> metadata = new HashMap<>();
+        for (String namespace : namespaces) {
+            MetadataKey key = new MetadataKey(namespace, dto.name);
+            Metadata md = metadataRegistry.get(key);
+            if (md != null && (filter == null || filter.test(md))) {
+                MetadataDTO mdDto = new MetadataDTO();
+                mdDto.value = md.getValue();
+                mdDto.config = md.getConfiguration().isEmpty() ? null : md.getConfiguration();
+                metadata.put(namespace, mdDto);
+            }
+        }
+        if (dto instanceof EnrichedGroupItemDTO) {
+            for (EnrichedItemDTO member : ((EnrichedGroupItemDTO) dto).members) {
+                addMetadata(member, namespaces, filter);
+            }
+        }
+        if (!metadata.isEmpty()) {
+            // we only set it in the dto if there is really data available
+            dto.metadata = metadata;
+        }
     }
 
     @Override
