@@ -49,12 +49,12 @@ public class ChannelUID extends UID {
      * @param id the channel's id
      */
     public ChannelUID(ThingUID thingUID, String id) {
-        super(getArray(thingUID, null, id));
+        super(toSegments(thingUID, null, id));
     }
 
     @Deprecated
     public ChannelUID(ThingTypeUID thingTypeUID, ThingUID thingUID, String id) {
-        super(getArray(thingUID, null, id));
+        super(toSegments(thingUID, null, id));
     }
 
     /**
@@ -63,12 +63,12 @@ public class ChannelUID extends UID {
      * @param id the channel's id
      */
     public ChannelUID(ThingUID thingUID, String groupId, String id) {
-        super(getArray(thingUID, groupId, id));
+        super(toSegments(thingUID, groupId, id));
     }
 
     @Deprecated
     public ChannelUID(ThingTypeUID thingTypeUID, ThingUID thingUID, String groupId, String id) {
-        super(getArray(thingUID, groupId, id));
+        super(toSegments(thingUID, groupId, id));
     }
 
     /**
@@ -104,7 +104,7 @@ public class ChannelUID extends UID {
         super(bindingId, thingTypeId, thingId, getChannelId(groupId, id));
     }
 
-    private static List<String> getArray(ThingUID thingUID, @Nullable String groupId, String id) {
+    private static List<String> toSegments(ThingUID thingUID, @Nullable String groupId, String id) {
         List<String> ret = new ArrayList<>(thingUID.getAllSegments());
         ret.add(getChannelId(groupId, id));
         return ret;
