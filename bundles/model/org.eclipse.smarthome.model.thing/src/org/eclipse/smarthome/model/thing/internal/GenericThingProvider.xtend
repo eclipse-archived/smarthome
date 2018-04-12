@@ -61,6 +61,7 @@ import org.osgi.service.component.annotations.Component
 import org.osgi.service.component.annotations.Reference
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.eclipse.smarthome.core.thing.type.ThingType
 
 /**
  * {@link ThingProvider} implementation which computes *.things files.
@@ -160,23 +161,31 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
             return new ThingTypeUID(thingUID.bindingId, thingUID.thingTypeId)
         }
     }
+    
+    def private Iterable<ModelThing> flattenModelThings(Iterable<ModelThing> things) {
+        if (things === null || things.length === 0) {
+            return #[]
+        }
+        
+        // construct the thingUID up front: this will ensure that short notation things with reference to a bridge 
+        // do not end up with the bridge id in their id. 
+        things.forEach([thingId = thingId ?: constructThingUID.toString])
+        things.filter(typeof(ModelBridge)).forEach([val b = it; b.things.forEach[
+            bridgeUID = b.id
+            // for long notation (id is already set) leave it like this.
+            // for nested things in short notation, make sure the bridge id is part of the thing id.
+            id = id ?: getThingUID(new ThingUID(b.id)).toString;
+        ]])
+        things + flattenModelThings(things.filter(typeof(ModelBridge)).map(b | b.things).flatten);
+    }
 
-    def private void createThing(ModelThing modelThing, Bridge parentBridge, Collection<Thing> thingList,
-        ThingHandlerFactory thingHandlerFactory) {
-        val ThingUID thingUID = getThingUID(modelThing, parentBridge?.UID)
+    def private void createThing(ModelThing modelThing, Collection<Thing> thingList, ThingHandlerFactory thingHandlerFactory) {
+        val ThingUID thingUID = getThingUID(modelThing, null)
         if (thingUID === null) {
             // ignore the Thing because its definition is broken
             return
         }
         val thingTypeUID = modelThing.constructThingTypeUID(thingUID)
-        var ThingUID bridgeUID = null
-        if (parentBridge !== null) {
-            bridgeUID = parentBridge.UID
-        } else {
-            if (modelThing.bridgeUID !== null && !modelThing.bridgeUID.empty) {
-                bridgeUID = new ThingUID(modelThing.bridgeUID)
-            }
-        }
 
         if (!isSupportedByThingHandlerFactory(thingTypeUID, thingHandlerFactory)) {
             // return silently, we were not asked to do anything
@@ -198,6 +207,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         
         val location = modelThing.location
 
+        val ThingUID bridgeUID = if (modelThing.bridgeUID !== null) new ThingUID(modelThing.bridgeUID)
         val thingFromHandler = getThingFromThingHandlerFactories(thingTypeUID, label, configuration, thingUID,
             bridgeUID, thingHandlerFactory)
 
@@ -585,12 +595,8 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         if (modelRepository !== null) {
             val model = modelRepository.getModel(modelName) as ThingModel
             if (model !== null) {
-                var things = model.things.filter(typeof(ModelThing));
-                things = things + model.things.filter(typeof(ModelBridge)).map(b | b.things).flatten;
-                
-                things.forEach [
-                    // flatten bridge things
-                    createThing(null, newThings, factory)
+                flattenModelThings(model.things).forEach [
+                    createThing(newThings, factory)
                 ]
             }
         }
