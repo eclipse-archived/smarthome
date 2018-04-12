@@ -14,11 +14,14 @@ package org.eclipse.smarthome.core.i18n;
 
 import java.time.ZoneId;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * This interface describes a provider for time zone.
  *
  * @author Erdoan Hadzhiyusein - Initial contribution and API
  */
+@NonNullByDefault
 public interface TimeZoneProvider {
 
     /**
