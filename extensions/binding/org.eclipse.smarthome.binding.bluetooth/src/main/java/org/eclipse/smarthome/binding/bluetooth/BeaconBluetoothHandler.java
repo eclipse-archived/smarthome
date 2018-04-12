@@ -41,7 +41,7 @@ public class BeaconBluetoothHandler extends BaseThingHandler implements Bluetoot
     protected BluetoothAdapter adapter;
     protected BluetoothAddress address;
     protected BluetoothDevice device;
-    protected ReentrantLock deviceLock;
+    protected final ReentrantLock deviceLock;
 
     public BeaconBluetoothHandler(@NonNull Thing thing) {
         super(thing);
