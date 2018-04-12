@@ -226,13 +226,6 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         }
 
         thingList += thingFromHandler ?: thing
-
-        if (modelThing instanceof ModelBridge) {
-            val bridge = (thingFromHandler ?: thing) as Bridge
-            modelThing.things.forEach [
-                createThing(bridge as Bridge, thingList, thingHandlerFactory)
-            ]
-        }
     }
 
     def private boolean isSupportedByThingHandlerFactory(ThingTypeUID thingTypeUID, ThingHandlerFactory specific) {
@@ -592,7 +585,11 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         if (modelRepository !== null) {
             val model = modelRepository.getModel(modelName) as ThingModel
             if (model !== null) {
-                model.things.forEach [
+                var things = model.things.filter(typeof(ModelThing));
+                things = things + model.things.filter(typeof(ModelBridge)).map(b | b.things).flatten;
+                
+                things.forEach [
+                    // flatten bridge things
                     createThing(null, newThings, factory)
                 ]
             }
