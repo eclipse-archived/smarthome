@@ -312,7 +312,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         // (i.e. it contains at least a %)
         try {
             final Item item = getItem(itemName);
-            state = item.getState();
 
             // There is a known issue in the implementation of the method getStateDescription() of class Item
             // in the following case:
@@ -331,6 +330,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             String updatedPattern = getFormatPattern(label);
             if (updatedPattern != null) {
                 formatPattern = updatedPattern;
+                state = item.getState();
 
                 if (formatPattern.contains("%d")) {
                     if (!(state instanceof Number)) {
