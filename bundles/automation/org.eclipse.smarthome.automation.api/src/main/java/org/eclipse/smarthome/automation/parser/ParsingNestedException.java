@@ -75,7 +75,7 @@ public class ParsingNestedException extends Exception {
                 sb.append("[Template");
                 break;
             case RULE:
-                sb.append("[Rule");
+                sb.append("[RuleImpl");
                 break;
             default:
                 break;

@@ -18,8 +18,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.smarthome.automation.Module;
-import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
+import org.eclipse.smarthome.automation.core.internal.ModuleImpl;
+import org.eclipse.smarthome.automation.core.internal.RuleImpl;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
@@ -27,7 +28,7 @@ import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
- * This class provides utility methods used by {@link RuleRegistry} to resolve and normalize the {@link Rule}s
+ * This class provides utility methods used by {@link RuleRegistry} to resolve and normalize the {@link RuleImpl}s
  * configuration values.
  *
  * @author Ana Dimova - Initial Contribution
@@ -36,9 +37,9 @@ import org.eclipse.smarthome.config.core.Configuration;
 public class ConfigurationNormalizer {
 
     /**
-     * Normalizes the configurations of the provided {@link Module}s.
+     * Normalizes the configurations of the provided {@link ModuleImpl}s.
      *
-     * @param modules a list of {@link Module}s to normalize.
+     * @param modules a list of {@link ModuleImpl}s to normalize.
      * @param mtRegistry the {@link ModuleTypeRegistry} that provides the meta-data needed for the normalization.
      * @see ConfigurationNormalizer#normalizeConfiguration(Configuration, Map)
      */

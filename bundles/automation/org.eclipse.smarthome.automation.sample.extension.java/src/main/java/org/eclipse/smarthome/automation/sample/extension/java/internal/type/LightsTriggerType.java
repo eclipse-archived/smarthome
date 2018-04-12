@@ -38,7 +38,7 @@ public class LightsTriggerType extends TriggerType {
     }
 
     public LightsTriggerType(List<Output> output) {
-        super(UID, null, "Lights State Trigger", "Template for creation of an Lights State Rule Trigger.", null,
+        super(UID, null, "Lights State Trigger", "Template for creation of an Lights State RuleImpl Trigger.", null,
                 Visibility.VISIBLE, output);
     }
 }

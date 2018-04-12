@@ -32,6 +32,7 @@ import org.eclipse.smarthome.automation.RuleManager;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.events.Event;
@@ -96,14 +97,11 @@ public class RunRuleModuleTest extends JavaOSGiTest {
                 .unmodifiableMap(Stream.of(new SimpleEntry<>("itemName", "switch3"), new SimpleEntry<>("command", "ON"))
                         .collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()))));
 
-        final Rule sceneRule = new Rule("exampleSceneRule");
-
-        sceneRule.setActions(Arrays.asList(new Action[] {
+        final Rule sceneRule = RuleBuilder.create("exampleSceneRule").withActions(
                 new Action("sceneItemPostCommandAction1", "core.ItemCommandAction", sceneRuleAction1Config, null),
                 new Action("sceneItemPostCommandAction2", "core.ItemCommandAction", sceneRuleAction2Config, null),
-                new Action("sceneItemPostCommandAction3", "core.ItemCommandAction", sceneRuleAction3Config, null) }));
-
-        sceneRule.setName("Example Scene");
+                new Action("sceneItemPostCommandAction3", "core.ItemCommandAction", sceneRuleAction3Config, null))
+                .withName("Example Scene").build();
 
         return sceneRule;
     }
@@ -121,15 +119,11 @@ public class RunRuleModuleTest extends JavaOSGiTest {
                 Collections.unmodifiableMap(Stream.of(new SimpleEntry<>("ruleUIDs", ruleUIDs))
                         .collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()))));
 
-        final Rule outerRule = new Rule("sceneActivationRule");
-
-        outerRule.setTriggers(Arrays.asList(new Trigger[] {
-                new Trigger("ItemStateChangeTrigger2", "core.GenericEventTrigger", outerRuleTriggerConfig) }));
-
-        outerRule.setActions(Arrays.asList(
-                new Action[] { new Action("RunRuleAction1", "core.RunRuleAction", outerRuleActionConfig, null) }));
-
-        outerRule.setName("scene activator");
+        final Rule outerRule = RuleBuilder.create("sceneActivationRule")
+                .withTriggers(
+                        new Trigger("ItemStateChangeTrigger2", "core.GenericEventTrigger", outerRuleTriggerConfig))
+                .withActions(new Action("RunRuleAction1", "core.RunRuleAction", outerRuleActionConfig, null))
+                .withName("scene activator").build();
 
         return outerRule;
     }

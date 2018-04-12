@@ -19,8 +19,8 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleStatusInfo;
+import org.eclipse.smarthome.automation.core.dto.RuleDTOMapper;
 import org.eclipse.smarthome.automation.dto.RuleDTO;
-import org.eclipse.smarthome.automation.dto.RuleDTOMapper;
 import org.eclipse.smarthome.automation.events.RuleAddedEvent;
 import org.eclipse.smarthome.automation.events.RuleRemovedEvent;
 import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent;

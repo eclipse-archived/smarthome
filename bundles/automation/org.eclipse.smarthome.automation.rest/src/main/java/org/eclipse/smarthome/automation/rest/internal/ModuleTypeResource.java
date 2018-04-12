@@ -28,10 +28,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import org.eclipse.smarthome.automation.dto.ActionTypeDTOMapper;
-import org.eclipse.smarthome.automation.dto.ConditionTypeDTOMapper;
+import org.eclipse.smarthome.automation.core.dto.ActionTypeDTOMapper;
+import org.eclipse.smarthome.automation.core.dto.ConditionTypeDTOMapper;
+import org.eclipse.smarthome.automation.core.dto.TriggerTypeDTOMapper;
 import org.eclipse.smarthome.automation.dto.ModuleTypeDTO;
-import org.eclipse.smarthome.automation.dto.TriggerTypeDTOMapper;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.CompositeActionType;
 import org.eclipse.smarthome.automation.type.CompositeConditionType;
@@ -58,7 +58,7 @@ import io.swagger.annotations.ApiResponses;
  *
  * @author Kai Kreuzer - Initial contribution
  * @author Markus Rathgeb - Use DTOs
- * @author Ana Dimova - extends Module type DTOs with composites
+ * @author Ana Dimova - extends ModuleImpl type DTOs with composites
  */
 @Path("module-types")
 @Api("module-types")
@@ -108,7 +108,7 @@ public class ModuleTypeResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets a module type corresponding to the given UID.", response = ModuleTypeDTO.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ModuleTypeDTO.class),
-            @ApiResponse(code = 404, message = "Module Type corresponding to the given UID does not found.") })
+            @ApiResponse(code = 404, message = "ModuleImpl Type corresponding to the given UID does not found.") })
     public Response getByUID(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language,
             @PathParam("moduleTypeUID") @ApiParam(value = "moduleTypeUID", required = true) String moduleTypeUID) {
         Locale locale = LocaleUtil.getLocale(language);

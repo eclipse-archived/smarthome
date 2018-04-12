@@ -10,13 +10,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.automation.dto;
+package org.eclipse.smarthome.automation.core.dto;
 
+import org.eclipse.smarthome.automation.dto.RuleTemplateDTO;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTOMapper;
 
 /**
- * This is a utility class to convert between the Rule Templates and RuleTemplateDTO objects.
+ * This is a utility class to convert between the RuleImpl Templates and RuleTemplateDTO objects.
  *
  * @author Ana Dimova - Initial contribution
  *

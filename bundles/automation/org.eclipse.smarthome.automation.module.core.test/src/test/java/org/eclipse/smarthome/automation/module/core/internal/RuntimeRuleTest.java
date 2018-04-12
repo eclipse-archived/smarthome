@@ -32,7 +32,9 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleManager;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
+import org.eclipse.smarthome.automation.RuleStatusDetail;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent;
 import org.eclipse.smarthome.automation.module.core.handler.CompareConditionHandler;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
@@ -142,15 +144,12 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         final Configuration actionConfig = new Configuration(
                 Stream.of(new SimpleEntry<>("itemName", "myLampItem2"), new SimpleEntry<>("command", "ON"))
                         .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
-        final Rule rule = new Rule("myRule21" + new Random().nextInt());
-        rule.setTriggers(Arrays.asList(
-                new Trigger[] { new Trigger("ItemStateChangeTrigger2", "core.GenericEventTrigger", triggerConfig) }));
-        rule.setActions(Arrays.asList(
-                new Action[] { new Action("ItemPostCommandAction2", "core.ItemCommandAction", actionConfig, null) }));
-        // I would expect the factory to create the UID of the rule and the name to be in the list of parameters.
-        rule.setName("RuleByJAVA_API");
+        final Rule rule = RuleBuilder.create("myRule21" + new Random().nextInt())
+                .withTriggers(new Trigger("ItemStateChangeTrigger2", "core.GenericEventTrigger", triggerConfig))
+                .withActions(new Action("ItemPostCommandAction2", "core.ItemCommandAction", actionConfig, null))
+                .withName("RuleByJAVA_API").build();
 
-        logger.info("Rule created: {}", rule.getUID());
+        logger.info("RuleImpl created: {}", rule.getUID());
 
         final RuleRegistry ruleRegistry = getService(RuleRegistry.class);
         final RuleManager ruleEngine = getService(RuleManager.class);
@@ -331,14 +330,12 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         final Configuration actionConfig = new Configuration(
                 Stream.of(new SimpleEntry<>("itemName", "myLampItem3"), new SimpleEntry<>("command", "ON"))
                         .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
-        final Rule rule = new Rule("myRule21" + new Random().nextInt() + "_COMPOSITE");
-        rule.setTriggers(Arrays.asList(new Trigger[] {
-                new Trigger("ItemStateChangeTrigger3", "core.ItemStateChangeTrigger", triggerConfig) }));
-        rule.setActions(Arrays.asList(
-                new Action[] { new Action("ItemPostCommandAction3", "core.ItemCommandAction", actionConfig, null) }));
-        rule.setName("RuleByJAVA_API_WithCompositeTrigger");
+        final Rule rule = RuleBuilder.create("myRule21" + new Random().nextInt() + "_COMPOSITE")
+                .withTriggers(new Trigger("ItemStateChangeTrigger3", "core.ItemStateChangeTrigger", triggerConfig))
+                .withActions(new Action("ItemPostCommandAction3", "core.ItemCommandAction", actionConfig, null))
+                .withName("RuleByJAVA_API_WithCompositeTrigger").build();
 
-        logger.info("Rule created: {}", rule.getUID());
+        logger.info("RuleImpl created: {}", rule.getUID());
 
         final RuleRegistry ruleRegistry = getService(RuleRegistry.class);
         final RuleManager ruleEngine = getService(RuleManager.class);
@@ -409,15 +406,13 @@ public class RuntimeRuleTest extends JavaOSGiTest {
                     Stream.of(new SimpleEntry<>("enable", false), new SimpleEntry<>("ruleUIDs", firstConfig))
                             .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
 
-            final Rule rule = new Rule(firstRuleAction);
-            rule.setTriggers(Arrays.asList(new Trigger[] {
-                    new Trigger("ItemStateChangeTrigger3", "core.ItemStateChangeTrigger", triggerConfig) }));
-            rule.setActions(Arrays.asList(
-                    new Action[] { new Action("RuleAction", "core.RuleEnablementAction", actionConfig, null) }));
+            final Rule rule = RuleBuilder.create(firstRuleAction)
+                    .withTriggers(new Trigger("ItemStateChangeTrigger3", "core.ItemStateChangeTrigger", triggerConfig))
+                    .withActions(new Action("RuleAction", "core.RuleEnablementAction", actionConfig, null)).build();
 
-            ruleRegistry.add(new Rule(firstRuleUID));
-            ruleRegistry.add(new Rule(secondRuleUID));
-            ruleRegistry.add(new Rule(thirdRuleUID));
+            ruleRegistry.add(RuleBuilder.create(firstRuleUID).build());
+            ruleRegistry.add(RuleBuilder.create(secondRuleUID).build());
+            ruleRegistry.add(RuleBuilder.create(thirdRuleUID).build());
             ruleRegistry.add(rule);
 
             final ItemRegistry itemRegistry = getService(ItemRegistry.class);
@@ -427,8 +422,10 @@ public class RuntimeRuleTest extends JavaOSGiTest {
                     TypeParser.parseCommand(myMotionItem.getAcceptedCommandTypes(), "ON")));
 
             waitForAssert(() -> {
-                Assert.assertEquals(RuleStatus.DISABLED, ruleEngine.getStatus(firstRuleUID));
-                Assert.assertEquals(RuleStatus.DISABLED, ruleEngine.getStatus(secondRuleUID));
+                Assert.assertEquals(RuleStatusDetail.DISABLED,
+                        ruleEngine.getStatusInfo(firstRuleUID).getStatusDetail());
+                Assert.assertEquals(RuleStatusDetail.DISABLED,
+                        ruleEngine.getStatusInfo(secondRuleUID).getStatusDetail());
                 Assert.assertEquals(RuleStatus.IDLE, ruleEngine.getStatus(thirdRuleUID));
             });
 
@@ -439,11 +436,9 @@ public class RuntimeRuleTest extends JavaOSGiTest {
                     Stream.of(new SimpleEntry<>("enable", true), new SimpleEntry<>("ruleUIDs", secondConfig))
                             .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
 
-            final Rule rule2 = new Rule(secondRuleAction);
-            rule2.setTriggers(Arrays.asList(new Trigger[] {
-                    new Trigger("ItemStateChangeTrigger3", "core.ItemStateChangeTrigger", triggerConfig2) }));
-            rule2.setActions(Arrays.asList(
-                    new Action[] { new Action("RuleAction", "core.RuleEnablementAction", actionConfig2, null) }));
+            final Rule rule2 = RuleBuilder.create(secondRuleAction)
+                    .withTriggers(new Trigger("ItemStateChangeTrigger3", "core.ItemStateChangeTrigger", triggerConfig2))
+                    .withActions(new Action("RuleAction", "core.RuleEnablementAction", actionConfig2, null)).build();
             ruleRegistry.add(rule2);
 
             eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem3",
@@ -451,7 +446,8 @@ public class RuntimeRuleTest extends JavaOSGiTest {
 
             waitForAssert(() -> {
                 Assert.assertEquals(RuleStatus.IDLE, ruleEngine.getStatus(firstRuleUID));
-                Assert.assertEquals(RuleStatus.DISABLED, ruleEngine.getStatus(secondRuleUID));
+                Assert.assertEquals(RuleStatusDetail.DISABLED,
+                        ruleEngine.getStatusInfo(secondRuleUID).getStatusDetail());
                 Assert.assertEquals(RuleStatus.IDLE, ruleEngine.getStatus(thirdRuleUID));
             });
         } finally {

@@ -85,7 +85,7 @@ public abstract class AbstractCompositeModuleHandler<M extends Module, MT extend
     /**
      * Creates child context that will be passed to the child handler.
      *
-     * @param child Composite Module's child
+     * @param child Composite ModuleImpl's child
      * @param compositeContext context with which child context will be resolved.
      * @return child context ready to be passed to the child for execution.
      */

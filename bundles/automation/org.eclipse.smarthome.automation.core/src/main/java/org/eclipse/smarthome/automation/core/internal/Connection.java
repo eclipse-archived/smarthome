@@ -17,14 +17,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.Module;
-import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.Output;
 import org.slf4j.Logger;
 
 /**
- * This class defines connection between {@link Input} of the current {@link Module} and {@link Output} of the external
+ * This class defines connection between {@link Input} of the current {@link ModuleImpl} and {@link Output} of the external
  * one. The current module is the module containing {@link Connection} instance and the external one is the
  * module where the current is connected to. <br>
  * The input of the current module is defined by name of the {@link Input}. The {@link Output} of the external module is
@@ -43,9 +41,9 @@ public class Connection {
     /**
      * This constructor is responsible for creation of connections between modules in the rule.
      *
-     * @param inputName is an unique name of the {@code Input} in scope of the {@link Module}.
-     * @param ouputModuleId is an unique id of the {@code Module} in scope of the {@link Rule}.
-     * @param outputName is an unique name of the {@code Output} in scope of the {@link Module}.
+     * @param inputName is an unique name of the {@code Input} in scope of the {@link ModuleImpl}.
+     * @param ouputModuleId is an unique id of the {@code ModuleImpl} in scope of the {@link RuleImpl}.
+     * @param outputName is an unique name of the {@code Output} in scope of the {@link ModuleImpl}.
      */
     public Connection(String inputName, String ouputModuleId, String outputName) {
         validate("inputName", inputName);
@@ -56,30 +54,30 @@ public class Connection {
     }
 
     /**
-     * This method is used to get id of external {@link Module} of this
+     * This method is used to get id of external {@link ModuleImpl} of this
      * connection.
      *
-     * @return id of external {@link Module}
+     * @return id of external {@link ModuleImpl}
      */
     public String getOuputModuleId() {
         return ouputModuleId;
     }
 
     /**
-     * This method is used to get output name of external {@link Module} of this
+     * This method is used to get output name of external {@link ModuleImpl} of this
      * connection.
      *
-     * @return name of {@link Output} of external {@link Module}
+     * @return name of {@link Output} of external {@link ModuleImpl}
      */
     public String getOutputName() {
         return outputName;
     }
 
     /**
-     * This method is used to get input name of current {@link Module} of this
+     * This method is used to get input name of current {@link ModuleImpl} of this
      * connection.
      *
-     * @return name {@link Input} of the current {@link Module}
+     * @return name {@link Input} of the current {@link ModuleImpl}
      */
     public String getInputName() {
         return inputName;
@@ -117,12 +115,12 @@ public class Connection {
     }
 
     /**
-     * This method is used for collecting of Connections of {@link Module}s.
+     * This method is used for collecting of Connections of {@link ModuleImpl}s.
      *
      * @param type specifies the type of the automation object - module type, rule or rule template.
      * @param UID is the unique identifier of the automation object - module type, rule or rule template.
      * @param jsonModule is a JSONObject representing the module.
-     * @param exceptions is a list used for collecting the exceptions occurred during {@link Module}s creation.
+     * @param exceptions is a list used for collecting the exceptions occurred during {@link ModuleImpl}s creation.
      * @param log is used for logging of exceptions.
      * @return collected Connections
      */

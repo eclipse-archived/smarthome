@@ -108,11 +108,11 @@ public class ReferenceResolverUtilTest {
 
     @Test
     public void testModuleInputResolving() {
-        // test Composite child Module(condition) context
+        // test Composite child ModuleImpl(condition) context
         Module condition = new Condition(null, null, null, compositeChildModuleInputsReferences);
         Map<String, Object> conditionContext = ReferenceResolver.getCompositeChildContext(condition, context);
         Assert.assertEquals(conditionContext, expectedCompositeChildModuleContext);
-        // test Composite child Module(action) context
+        // test Composite child ModuleImpl(action) context
         Module action = new Action(null, null, null, compositeChildModuleInputsReferences);
         Map<String, Object> actionContext = ReferenceResolver.getCompositeChildContext(action, context);
         Assert.assertEquals(actionContext, expectedCompositeChildModuleContext);

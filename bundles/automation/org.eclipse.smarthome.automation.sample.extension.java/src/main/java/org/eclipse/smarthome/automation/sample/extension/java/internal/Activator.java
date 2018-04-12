@@ -21,10 +21,10 @@ import org.osgi.framework.BundleContext;
 /**
  * This class is responsible for starting and stopping the application that gives ability to the user to switch on the
  * air conditioner and lights in its home remotely. It initializes and registers or unregisters the
- * services that provide this functionality - Rule Provider, Rule Template Provider, Module Type Provider and Handler
+ * services that provide this functionality - RuleImpl Provider, RuleImpl Template Provider, ModuleImpl Type Provider and Handler
  * Factory for handlers of the modules that compose the rules. Of course, these providers are not mandatory for each
- * application. Some applications may contain only Template Provider or Rule Provider, or Module Type Provider, or
- * Module Handler Factory for some particular module types. Also, to enable the user to have control over the settings
+ * application. Some applications may contain only Template Provider or RuleImpl Provider, or ModuleImpl Type Provider, or
+ * ModuleImpl Handler Factory for some particular module types. Also, to enable the user to have control over the settings
  * and to enforce execution, the demo initializes and registers a service that provides console commands.
  *
  * @author Ana Dimova - Initial Contribution

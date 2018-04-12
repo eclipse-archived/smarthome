@@ -24,16 +24,19 @@ import org.eclipse.smarthome.config.core.Configuration;
  * @author Yordan Mihaylov - Initial Contribution
  */
 @NonNullByDefault
-public class RuntimeTrigger extends Trigger {
+public class TriggerImpl extends ModuleImpl implements Trigger {
 
     @Nullable
     private TriggerHandler triggerHandler;
 
-    public RuntimeTrigger(String id, String typeUID, Configuration configuration) {
+    public TriggerImpl() {
+    }
+
+    public TriggerImpl(String id, String typeUID, Configuration configuration) {
         super(id, typeUID, configuration);
     }
 
-    public RuntimeTrigger(Trigger trigger) {
+    public TriggerImpl(Trigger trigger) {
         super(trigger.getId(), trigger.getTypeUID(), trigger.getConfiguration());
         setLabel(trigger.getLabel());
         setDescription(trigger.getDescription());

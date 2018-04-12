@@ -14,7 +14,7 @@ package org.eclipse.smarthome.automation.rest.internal.dto;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleManager;
-import org.eclipse.smarthome.automation.dto.RuleDTOMapper;
+import org.eclipse.smarthome.automation.core.dto.RuleDTOMapper;
 
 /**
  * This is a utility class to convert between the respective object and its DTO.
@@ -26,8 +26,8 @@ public class EnrichedRuleDTOMapper extends RuleDTOMapper {
     public static EnrichedRuleDTO map(final Rule rule, final RuleManager ruleEngine) {
         final EnrichedRuleDTO enrichedRuleDto = new EnrichedRuleDTO();
         fillProperties(rule, enrichedRuleDto);
-        enrichedRuleDto.enabled = ruleEngine.isEnabled(rule.getUID());
-        enrichedRuleDto.status = ruleEngine.getStatusInfo(rule.getUID());
+        enrichedRuleDto.enabled = rule.isEnabled();
+        enrichedRuleDto.status = rule.getStatusInfo();
         return enrichedRuleDto;
     }
 

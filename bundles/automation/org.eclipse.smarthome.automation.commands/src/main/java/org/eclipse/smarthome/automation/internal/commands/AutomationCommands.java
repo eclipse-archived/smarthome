@@ -79,12 +79,12 @@ public abstract class AutomationCommands {
     protected static final String IMPORT_TEMPLATES_SHORT = "it";
 
     /**
-     * This static field is an identifier of the command {@link AutomationCommandImport} for {@link Rule}s.
+     * This static field is an identifier of the command {@link AutomationCommandImport} for {@link RuleImpl}s.
      */
     protected static final String IMPORT_RULES = "importRules";
 
     /**
-     * This static field is a short identifier of the command {@link AutomationCommandImport} for {@link Rule}s.
+     * This static field is a short identifier of the command {@link AutomationCommandImport} for {@link RuleImpl}s.
      */
     protected static final String IMPORT_RULES_SHORT = "ir";
 
@@ -109,32 +109,32 @@ public abstract class AutomationCommands {
     protected static final String EXPORT_TEMPLATES_SHORT = "et";
 
     /**
-     * This static field is an identifier of the command {@link AutomationCommandExport} for {@link Rule}s.
+     * This static field is an identifier of the command {@link AutomationCommandExport} for {@link RuleImpl}s.
      */
     protected static final String EXPORT_RULES = "exportRules";
 
     /**
-     * This static field is a short identifier of the command {@link AutomationCommandExport} for {@link Rule}s.
+     * This static field is a short identifier of the command {@link AutomationCommandExport} for {@link RuleImpl}s.
      */
     protected static final String EXPORT_RULES_SHORT = "er";
 
     /**
-     * This static field is an identifier of the command {@link AutomationCommandRemove} for {@link Rule}.
+     * This static field is an identifier of the command {@link AutomationCommandRemove} for {@link RuleImpl}.
      */
     protected static final String REMOVE_RULE = "removeRule";
 
     /**
-     * This static field is a short identifier of the command {@link AutomationCommandRemove} for {@link Rule}.
+     * This static field is a short identifier of the command {@link AutomationCommandRemove} for {@link RuleImpl}.
      */
     protected static final String REMOVE_RULE_SHORT = "rmr";
 
     /**
-     * This static field is an identifier of the command {@link AutomationCommandRemove} for {@link Rule}s.
+     * This static field is an identifier of the command {@link AutomationCommandRemove} for {@link RuleImpl}s.
      */
     protected static final String REMOVE_RULES = "removeRules";
 
     /**
-     * This static field is a short identifier of the command {@link AutomationCommandRemove} for {@link Rule}s.
+     * This static field is a short identifier of the command {@link AutomationCommandRemove} for {@link RuleImpl}s.
      */
     protected static final String REMOVE_RULES_SHORT = "rmrs";
 
@@ -179,12 +179,12 @@ public abstract class AutomationCommands {
     protected static final String LIST_TEMPLATES_SHORT = "lst";
 
     /**
-     * This static field is an identifier of the command {@link AutomationCommandList} for {@link Rule}s.
+     * This static field is an identifier of the command {@link AutomationCommandList} for {@link RuleImpl}s.
      */
     protected static final String LIST_RULES = "listRules";
 
     /**
-     * This static field is a short identifier of the command {@link AutomationCommandList} for {@link Rule}s.
+     * This static field is a short identifier of the command {@link AutomationCommandList} for {@link RuleImpl}s.
      */
     protected static final String LIST_RULES_SHORT = "lsr";
 
@@ -317,7 +317,7 @@ public abstract class AutomationCommands {
      * This method is used for removing a rule corresponding to the specified UID from the RuleManager.
      *
      * @param uid
-     *            specifies the wanted {@link Rule} uniquely.
+     *            specifies the wanted {@link RuleImpl} uniquely.
      * @return a string representing the result of the command.
      */
     public abstract String removeRule(String uid);
@@ -326,7 +326,7 @@ public abstract class AutomationCommands {
      * This method is used for removing the rules from the RuleManager, corresponding to the specified filter.
      *
      * @param ruleFilter
-     *            specifies the wanted {@link Rule}s.
+     *            specifies the wanted {@link RuleImpl}s.
      * @return a string representing the result of the command.
      */
     public abstract String removeRules(String ruleFilter);
@@ -407,12 +407,12 @@ public abstract class AutomationCommands {
     }
 
     /**
-     * This method is responsible for exporting a set of {@link Rule}s in a specified file.
+     * This method is responsible for exporting a set of {@link RuleImpl}s in a specified file.
      *
      * @param parserType
-     *            is relevant to the format that you need for conversion of the {@link Rule}s in text.
+     *            is relevant to the format that you need for conversion of the {@link RuleImpl}s in text.
      * @param set
-     *            a set of {@link Rule}s to export.
+     *            a set of {@link RuleImpl}s to export.
      * @param file
      *            a specified file for export.
      * @throws Exception
@@ -459,10 +459,10 @@ public abstract class AutomationCommands {
     }
 
     /**
-     * This method is responsible for importing a set of {@link Rule}s from a specified file or URL resource.
+     * This method is responsible for importing a set of {@link RuleImpl}s from a specified file or URL resource.
      *
      * @param parserType
-     *            is relevant to the format that you need for conversion of the {@link Rule}s from text.
+     *            is relevant to the format that you need for conversion of the {@link RuleImpl}s from text.
      * @param url
      *            is a specified file or URL resource.
      * @throws ParsingException

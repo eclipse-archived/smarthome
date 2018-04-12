@@ -8,6 +8,7 @@ Bundle-Version: 0.10.0.qualifier
 Import-Package: 
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.automation,
+ org.eclipse.smarthome.automation.core.util,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.common.registry,
  org.osgi.service.component

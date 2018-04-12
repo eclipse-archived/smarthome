@@ -16,10 +16,10 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Module;
-import org.eclipse.smarthome.automation.Rule;
 
 /**
- * This class defines meta-information properties, used by the Rule Engine when creating connections between modules.
+ * This class defines meta-information properties, used by the RuleImpl Engine when creating connections between
+ * modules.
  * The {@link Input}s of a {@link Module} are the entry points for data coming from other {@link Module}s. An
  * {@link Input} can be connected to a single {@link Output} of another {@link Module}, which produces data of an
  * acceptable type.
@@ -131,7 +131,7 @@ public class Input {
     }
 
     /**
-     * This method is used for getting the name of Input. It must be unique in scope of the {@link Rule}.
+     * This method is used for getting the name of Input. It must be unique in scope of the {@link RuleImpl}.
      *
      * @return name is an unique identifier of the Input.
      */

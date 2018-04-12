@@ -81,7 +81,7 @@ public class AutomationCommandEnableRule extends AutomationCommand {
                 continue;
             }
             if (uid == null) {
-                return "Missing required parameter: Rule UID";
+                return "Missing required parameter: RuleImpl UID";
             }
             return String.format("Unsupported parameter: %s", parameterValues[i]);
         }

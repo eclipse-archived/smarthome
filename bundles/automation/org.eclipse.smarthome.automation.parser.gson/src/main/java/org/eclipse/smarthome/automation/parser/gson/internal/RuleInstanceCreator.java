@@ -15,6 +15,7 @@ package org.eclipse.smarthome.automation.parser.gson.internal;
 import java.lang.reflect.Type;
 
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 
 import com.google.gson.InstanceCreator;
 
@@ -22,12 +23,13 @@ import com.google.gson.InstanceCreator;
  * This class creates {@link Rule} instances.
  *
  * @author Ana Dimova - Initial contribution
+ * @author Kai Kreuzer - Changed to using rule builder
  *
  */
 public class RuleInstanceCreator implements InstanceCreator<Rule> {
 
     @Override
     public Rule createInstance(Type type) {
-        return new Rule(null);
+        return RuleBuilder.create("").build();
     }
 }

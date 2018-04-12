@@ -20,12 +20,13 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.internal.ModuleImpl;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.i18n.I18nUtil;
 import org.osgi.framework.Bundle;
 
 /**
- * This class is used as utility for resolving the localized {@link Module}s. It automatically infers the key if the
+ * This class is used as utility for resolving the localized {@link ModuleImpl}s. It automatically infers the key if the
  * default text is not a constant with the assistance of {@link TranslationProvider}.
  *
  * @author Ana Dimova - Initial Contribution

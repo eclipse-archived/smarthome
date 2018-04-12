@@ -58,7 +58,7 @@ public class RuleSupportScriptExtension implements ScriptExtensionProvider {
     private static HashMap<String, Collection<String>> presets = new HashMap<>();
     private static HashMap<String, Object> staticTypes = new HashMap<>();
     private static HashSet<String> types = new HashSet<String>();
-    private ConcurrentHashMap<String, HashMap<String, Object>> objectCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, HashMap<String, Object>> objectCache = new ConcurrentHashMap<>();
 
     private RuleRegistry ruleRegistry;
     private ScriptedRuleProvider ruleProvider;
@@ -92,7 +92,7 @@ public class RuleSupportScriptExtension implements ScriptExtensionProvider {
         types.add(AUTOMATION_MANAGER);
         types.add(RULE_REGISTRY);
 
-        presets.put(RULE_SUPPORT, Arrays.asList("Configuration", "Action", "Condition", "Trigger", "Rule"));
+        presets.put(RULE_SUPPORT, Arrays.asList("Configuration", "Action", "Condition", "Trigger", "RuleImpl"));
         presets.put("RuleSimple", Arrays.asList("SimpleActionHandler", "SimpleConditionHandler", "SimpleTriggerHandler",
                 "SimpleRule", "TriggerType", "ConfigDescriptionParameter", "ModuleType", "ActionType", "Visibility"));
         presets.put("RuleFactories",

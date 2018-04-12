@@ -12,7 +12,6 @@
  */
 package org.eclipse.smarthome.automation.core.internal;
 
-import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RulePredicates;
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,17 +33,17 @@ public class RulePrefixTest {
      */
     @Test
     public void testEmptyPrefix() {
-        final Rule rule0 = new Rule(null);
+        final RuleImpl rule0 = new RuleImpl(null);
         Assert.assertNotNull("Returned UID is null instead of generated one", rule0.getUID());
         Assert.assertNull("Returned a prefix instead of null", RulePredicates.getPrefix(rule0));
 
         final String somethingWithoutSeparator = "something_without_separator";
-        final Rule rule1 = new Rule(somethingWithoutSeparator);
+        final RuleImpl rule1 = new RuleImpl(somethingWithoutSeparator);
         Assert.assertEquals("Returned wrong UID", somethingWithoutSeparator, rule1.getUID());
         Assert.assertNull("Returned a prefix instead of null", RulePredicates.getPrefix(rule1));
 
         final String withSeparatorButEmpty = RulePredicates.PREFIX_SEPARATOR + "with_separator_but_empty";
-        final Rule rule2 = new Rule(withSeparatorButEmpty);
+        final RuleImpl rule2 = new RuleImpl(withSeparatorButEmpty);
         Assert.assertEquals("Returned wrong UID", withSeparatorButEmpty, rule2.getUID());
         Assert.assertNull("Returned a prefix instead of null", RulePredicates.getPrefix(rule2));
     }
@@ -60,18 +59,18 @@ public class RulePrefixTest {
         final String testingPrefixPrefix = TESTING_PREFIX + RulePredicates.PREFIX_SEPARATOR;
 
         final String someName = "someName";
-        final Rule rule0 = new Rule(testingPrefixPrefix + someName);
+        final RuleImpl rule0 = new RuleImpl(testingPrefixPrefix + someName);
         Assert.assertEquals("Returned wrong prefix", TESTING_PREFIX, RulePredicates.getPrefix(rule0));
         Assert.assertEquals("Returned wrong UID", testingPrefixPrefix + someName, rule0.getUID());
 
         final String multipleSeparatorName = RulePredicates.PREFIX_SEPARATOR + "nameBetweenSeparator"
                 + RulePredicates.PREFIX_SEPARATOR;
-        final Rule rule1 = new Rule(testingPrefixPrefix + multipleSeparatorName);
+        final RuleImpl rule1 = new RuleImpl(testingPrefixPrefix + multipleSeparatorName);
         Assert.assertEquals("Returned wrong prefix", TESTING_PREFIX, RulePredicates.getPrefix(rule1));
         Assert.assertEquals("Returned wrong UID", testingPrefixPrefix + someName, rule0.getUID());
 
         final String emptyName = "";
-        final Rule rule2 = new Rule(testingPrefixPrefix + emptyName);
+        final RuleImpl rule2 = new RuleImpl(testingPrefixPrefix + emptyName);
         Assert.assertEquals("Returned wrong prefix", TESTING_PREFIX, RulePredicates.getPrefix(rule2));
         Assert.assertEquals("Returned wrong UID", testingPrefixPrefix + emptyName, rule2.getUID());
     }

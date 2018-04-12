@@ -19,8 +19,8 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.automation.Action
-import org.eclipse.smarthome.automation.Rule
 import org.eclipse.smarthome.automation.ModuleHandlerCallback
+import org.eclipse.smarthome.automation.Rule
 import org.eclipse.smarthome.automation.RuleRegistry
 import org.eclipse.smarthome.automation.RuleStatus
 import org.eclipse.smarthome.automation.RuleStatusInfo

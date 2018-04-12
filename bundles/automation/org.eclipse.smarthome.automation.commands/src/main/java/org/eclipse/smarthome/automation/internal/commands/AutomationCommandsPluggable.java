@@ -69,13 +69,13 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
     private static final int TEMPLATE_REGISTRY = 2;
 
     /**
-     * This constant is defined for compatibility and is used to switch to a particular provider of {@code Rule}
+     * This constant is defined for compatibility and is used to switch to a particular provider of {@code RuleImpl}
      * automation objects.
      */
     private static final int RULE_REGISTRY = 1;
 
     /**
-     * This field holds the reference to the {@code RuleRegistry} providing the {@code Rule} automation objects.
+     * This field holds the reference to the {@code RuleRegistry} providing the {@code RuleImpl} automation objects.
      */
     protected RuleRegistry ruleRegistry;
 
@@ -220,10 +220,10 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
                 buildCommandUsage(EXPORT_RULES + " [-p] <parserType> [-st] <file>",
                         "Exports Rules in a file. If parser type missing, \"json\" parser will be set as default"),
                 buildCommandUsage(ENABLE_RULE + " [-st] <uid> <enable>",
-                        "Enables the Rule, specified by given UID. If enable parameter is missing, "
+                        "Enables the RuleImpl, specified by given UID. If enable parameter is missing, "
                                 + "the result of the command will be visualization of enabled/disabled state of the rule, "
                                 + "if its value is \"true\" or \"false\", "
-                                + "the result of the command will be to set enable/disable on the Rule.") });
+                                + "the result of the command will be to set enable/disable on the RuleImpl.") });
     }
 
     @Override
@@ -301,7 +301,7 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
             if (ruleRegistry.remove(uid) != null) {
                 return AutomationCommand.SUCCESS;
             } else {
-                return String.format("Rule with id '%s' does not exist.", uid);
+                return String.format("RuleImpl with id '%s' does not exist.", uid);
             }
         }
         return String.format("%s! RuleRegistry not available!", AutomationCommand.FAIL);

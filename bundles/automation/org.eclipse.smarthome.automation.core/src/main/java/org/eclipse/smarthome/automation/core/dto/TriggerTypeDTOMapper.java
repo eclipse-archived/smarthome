@@ -10,12 +10,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.automation.dto;
+package org.eclipse.smarthome.automation.core.dto;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.smarthome.automation.dto.CompositeTriggerTypeDTO;
+import org.eclipse.smarthome.automation.dto.TriggerTypeDTO;
 import org.eclipse.smarthome.automation.type.CompositeTriggerType;
 import org.eclipse.smarthome.automation.type.TriggerType;
 

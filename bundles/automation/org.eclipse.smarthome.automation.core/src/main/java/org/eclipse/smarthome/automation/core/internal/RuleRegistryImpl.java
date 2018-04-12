@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
@@ -35,6 +34,7 @@ import org.eclipse.smarthome.automation.core.ManagedRuleProvider;
 import org.eclipse.smarthome.automation.core.internal.template.RuleTemplateRegistry;
 import org.eclipse.smarthome.automation.core.util.ConfigurationNormalizer;
 import org.eclipse.smarthome.automation.core.util.ReferenceResolver;
+import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
@@ -321,38 +321,20 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     }
 
     @Override
-    public Rule get(String key) {
-        for (Collection<Rule> rules : elementMap.values()) {
-            for (Rule rule : rules) {
-                if (rule.getUID().equals(key)) {
-                    return RuleUtils.getRuleCopy(rule);
-                }
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public Stream<Rule> stream() {
-        // create copies for consumers
-        return super.stream().map(r -> RuleUtils.getRuleCopy(r));
-    }
-
-    @Override
     public Collection<Rule> getByTag(String tag) {
         Collection<Rule> result = new LinkedList<Rule>();
         if (tag != null) {
             for (Collection<Rule> rules : elementMap.values()) {
                 for (Rule rule : rules) {
                     if (rule.getTags().contains(tag)) {
-                        result.add(RuleUtils.getRuleCopy(rule));
+                        result.add(rule);
                     }
                 }
             }
         } else {
             for (Collection<Rule> rules : elementMap.values()) {
                 for (Rule rule : rules) {
-                    result.add(RuleUtils.getRuleCopy(rule));
+                    result.add(rule);
                 }
             }
         }
@@ -366,14 +348,14 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         if (tagSet == null || tagSet.isEmpty()) {
             for (Collection<Rule> rules : elementMap.values()) {
                 for (Rule rule : rules) {
-                    result.add(RuleUtils.getRuleCopy(rule));
+                    result.add(rule);
                 }
             }
         } else {
             for (Collection<Rule> rules : elementMap.values()) {
                 for (Rule rule : rules) {
                     if (rule.getTags().containsAll(tagSet)) {
-                        result.add(RuleUtils.getRuleCopy(rule));
+                        result.add(rule);
                     }
                 }
             }
@@ -403,13 +385,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
             logger.debug("Rule template {} does not exist.", templateUID);
             return rule;
         } else {
-            Rule resolvedRule = new Rule(uid, RuleUtils.getTriggersCopy(template.getTriggers()),
-                    RuleUtils.getConditionsCopy(template.getConditions()),
-                    RuleUtils.getActionsCopy(template.getActions()), template.getConfigurationDescriptions(),
-                    rule.getConfiguration(), null, rule.getVisibility());
-            resolvedRule.setName(rule.getName());
-            resolvedRule.setTags(rule.getTags());
-            resolvedRule.setDescription(rule.getDescription());
+            RuleImpl resolvedRule = (RuleImpl) RuleBuilder.create(rule).build();
             resolveConfigurations(resolvedRule);
             updateRuleTemplateMapping(templateUID, uid, true);
             return resolvedRule;
@@ -458,19 +434,18 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     @Override
     public void added(Provider<Rule> provider, Rule element) {
         String ruleUID = element.getUID();
-        Rule ruleCopy = RuleUtils.getRuleCopy(element);
         Rule resolvedRule = element;
         try {
             resolvedRule = resolveRuleByTemplate(element);
         } catch (IllegalArgumentException e) {
             logger.debug("Added rule '{}' is invalid", ruleUID, e);
         }
-        super.added(provider, ruleCopy);
+        super.added(provider, element);
         if (element != resolvedRule) {
             if (provider instanceof ManagedRuleProvider) {
                 update(resolvedRule);
             } else {
-                super.updated(provider, ruleCopy, resolvedRule);
+                super.updated(provider, element, resolvedRule);
             }
         }
     }
@@ -488,7 +463,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
             if (element != resolvedRule && provider instanceof ManagedRuleProvider) {
                 update(resolvedRule);
             } else {
-                super.updated(provider, oldElement, RuleUtils.getRuleCopy(resolvedRule));
+                super.updated(provider, oldElement, resolvedRule);
             }
         } else {
             throw new IllegalArgumentException(
@@ -532,8 +507,8 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
             String uid = rule.getUID();
             try {
                 validateConfiguration(configDescriptions, new HashMap<>(configurationProperties));
-                resolveModuleConfigReferences(rule.getModules(Module.class), configurationProperties);
-                ConfigurationNormalizer.normalizeModuleConfigurations(rule.getModules(Module.class),
+                resolveModuleConfigReferences(rule.getModules(ModuleImpl.class), configurationProperties);
+                ConfigurationNormalizer.normalizeModuleConfigurations(rule.getModules(ModuleImpl.class),
                         moduleTypeRegistry);
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException(String.format("The rule '%s' has incorrect configurations", uid), e);
@@ -662,7 +637,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      * @param ruleConfiguration the {@link Rule}'s configuration values that should be resolve module configuration
      *            values.
      */
-    private void resolveModuleConfigReferences(List<? extends Module> modules, Map<String, ?> ruleConfiguration) {
+    private void resolveModuleConfigReferences(List<? extends ModuleImpl> modules, Map<String, ?> ruleConfiguration) {
         if (modules != null) {
             StringBuffer statusDescription = new StringBuffer();
             for (Module module : modules) {

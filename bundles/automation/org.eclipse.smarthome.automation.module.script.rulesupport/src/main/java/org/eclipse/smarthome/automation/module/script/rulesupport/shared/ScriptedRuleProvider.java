@@ -28,7 +28,7 @@ import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
  *
  */
 public class ScriptedRuleProvider implements RuleProvider {
-    private Collection<ProviderChangeListener<Rule>> listeners = new ArrayList<ProviderChangeListener<Rule>>();
+    private final Collection<ProviderChangeListener<Rule>> listeners = new ArrayList<ProviderChangeListener<Rule>>();
 
     HashMap<String, Rule> rules = new HashMap<>();
 

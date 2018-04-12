@@ -22,6 +22,7 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.internal.ModuleImpl;
 import org.eclipse.smarthome.automation.core.internal.RuleEngineImpl;
 import org.eclipse.smarthome.automation.core.util.ReferenceResolver;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
@@ -86,10 +87,10 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
     public void ungetHandler(Module module, String childModulePrefix, ModuleHandler handler) {
         ModuleHandler handlerOfModule = getHandlers().get(childModulePrefix + module.getId());
         if (handlerOfModule instanceof AbstractCompositeModuleHandler) {
-            AbstractCompositeModuleHandler<Module, ?, ?> h = (AbstractCompositeModuleHandler<Module, ?, ?>) handlerOfModule;
-            Set<Module> modules = h.moduleHandlerMap.keySet();
+            AbstractCompositeModuleHandler<ModuleImpl, ?, ?> h = (AbstractCompositeModuleHandler<ModuleImpl, ?, ?>) handlerOfModule;
+            Set<ModuleImpl> modules = h.moduleHandlerMap.keySet();
             if (modules != null) {
-                for (Module child : modules) {
+                for (ModuleImpl child : modules) {
                     ModuleHandler childHandler = h.moduleHandlerMap.get(child);
                     ModuleHandlerFactory mhf = ruleEngine.getModuleHandlerFactory(child.getTypeUID());
                     mhf.ungetHandler(child, childModulePrefix + ":" + module.getId(), childHandler);

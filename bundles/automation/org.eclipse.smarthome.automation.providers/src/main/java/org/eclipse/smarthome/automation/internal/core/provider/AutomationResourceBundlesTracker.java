@@ -46,7 +46,7 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
      * {@link AbstractResourceBundleProvider}s of {@link ModuleType}s, {@link Template}s and {@link Rule}s.
      */
     @SuppressWarnings("rawtypes")
-    private List<AutomationResourceBundlesEventQueue> providerEventsQueue = new ArrayList<AutomationResourceBundlesEventQueue>();
+    private final List<AutomationResourceBundlesEventQueue> providerEventsQueue = new ArrayList<AutomationResourceBundlesEventQueue>();
 
     /**
      * This field holds a reference to an importer of {@link Rule}s.
@@ -62,7 +62,7 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
      * This field serves for saving the BundleEvents for the bundles providing automation resources until their
      * processing completes. The events have been for adding, modifying or removing a bundle.
      */
-    private List<BundleEvent> queue = new LinkedList<BundleEvent>();
+    private final List<BundleEvent> queue = new LinkedList<BundleEvent>();
 
     public AutomationResourceBundlesTracker() {
         rImporter = createImporter();

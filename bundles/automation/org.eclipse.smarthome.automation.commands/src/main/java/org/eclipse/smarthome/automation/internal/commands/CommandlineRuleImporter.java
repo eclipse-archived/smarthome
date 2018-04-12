@@ -45,7 +45,7 @@ import org.osgi.framework.ServiceReference;
  */
 public class CommandlineRuleImporter extends AbstractCommandProvider<Rule> {
 
-    private RuleRegistry ruleRegistry;
+    private final RuleRegistry ruleRegistry;
 
     /**
      * This constructor creates instances of this particular implementation of Rule Importer. It does not add any new

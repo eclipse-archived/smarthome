@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TimerModuleHandlerFactory extends BaseModuleHandlerFactory {
 
-    private Logger logger = LoggerFactory.getLogger(TimerModuleHandlerFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(TimerModuleHandlerFactory.class);
 
     public static final String THREADPOOLNAME = "ruletimer";
     private static final Collection<String> TYPES = Arrays

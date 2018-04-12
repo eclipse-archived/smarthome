@@ -26,7 +26,8 @@ import org.eclipse.smarthome.automation.parser.Parser;
 import org.osgi.framework.Bundle;
 
 /**
- * This class is implementation of {@link RuleResourceBundleImporter}. It serves for providing {@link Rule}s by loading
+ * This class is implementation of {@link RuleResourceBundleImporter}. It serves for providing {@link Rule}s by
+ * loading
  * bundle resources. It extends functionality of {@link AbstractResourceBundleProvider} by specifying:
  * <ul>
  * <li>the path to resources, corresponding to the {@link Rule}s - root directory
@@ -43,7 +44,7 @@ import org.osgi.framework.Bundle;
 public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<Rule> {
 
     /**
-     * This field holds the reference to the Rule Registry.
+     * This field holds the reference to the RuleImpl Registry.
      */
     protected ManagedRuleProvider mProvider;
 

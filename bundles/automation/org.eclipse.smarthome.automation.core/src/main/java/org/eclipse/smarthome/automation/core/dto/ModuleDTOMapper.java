@@ -10,24 +10,24 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.automation.dto;
+package org.eclipse.smarthome.automation.core.dto;
 
-import org.eclipse.smarthome.automation.type.ModuleType;
-import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTOMapper;
+import org.eclipse.smarthome.automation.Module;
+import org.eclipse.smarthome.automation.dto.ModuleDTO;
 
 /**
  * This is a utility class to convert between the respective object and its DTO.
  *
  * @author Markus Rathgeb - Initial contribution and API
  */
-public class ModuleTypeDTOMapper {
+public class ModuleDTOMapper {
 
-    protected static void fillProperties(final ModuleType from, final ModuleTypeDTO to) {
-        to.uid = from.getUID();
-        to.visibility = from.getVisibility();
-        to.tags = from.getTags();
+    protected static void fillProperties(final Module from, final ModuleDTO to) {
+        to.id = from.getId();
         to.label = from.getLabel();
         to.description = from.getDescription();
-        to.configDescriptions = ConfigDescriptionDTOMapper.mapParameters(from.getConfigurationDescriptions());
+        to.configuration = from.getConfiguration().getProperties();
+        to.type = from.getTypeUID();
     }
+
 }

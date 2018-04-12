@@ -18,9 +18,9 @@ import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 
 /**
  * This class is responsible to provide a {@link RegistryChangeListener} logic. A instance of it is added to
- * {@link RuleRegistry} service, to listen for changes when a single {@link Rule} has been added, updated, enabled,
- * disabled or removed and to involve Rule Engine to process these changes. Also to send a {@code run} command
- * for a single {@link Rule} to the Rule Engine.
+ * {@link RuleRegistry} service, to listen for changes when a single {@link RuleImpl} has been added, updated, enabled,
+ * disabled or removed and to involve RuleImpl Engine to process these changes. Also to send a {@code run} command
+ * for a single {@link RuleImpl} to the RuleImpl Engine.
  *
  * @author Kai Kreuzer - Initial contribution and API
  *
@@ -28,12 +28,12 @@ import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 public interface ModuleHandlerCallback {
 
     /**
-     * This method gets <b>enabled</b> {@link RuleStatus} for a {@link Rule}.
+     * This method gets <b>enabled</b> {@link RuleStatus} for a {@link RuleImpl}.
      * The <b>enabled</b> rule statuses are {@link RuleStatus#UNINITIALIZED}, {@link RuleStatus#IDLE} and
      * {@link RuleStatus#RUNNING}.
      * The <b>disabled</b> rule status is {@link RuleStatus#DISABLED}.
      *
-     * @param ruleUID UID of the {@link Rule}
+     * @param ruleUID UID of the {@link RuleImpl}
      * @return {@code true} when the {@link RuleStatus} is one of the {@link RuleStatus#UNINITIALIZED},
      *         {@link RuleStatus#IDLE} and {@link RuleStatus#RUNNING}, {@code false} when it is
      *         {@link RuleStatus#DISABLED} and {@code null} when it is not available.
@@ -41,30 +41,30 @@ public interface ModuleHandlerCallback {
     public Boolean isEnabled(String ruleUID);
 
     /**
-     * This method is used for changing <b>enabled</b> state of the {@link Rule}.
+     * This method is used for changing <b>enabled</b> state of the {@link RuleImpl}.
      * The <b>enabled</b> rule statuses are {@link RuleStatus#UNINITIALIZED}, {@link RuleStatus#IDLE} and
      * {@link RuleStatus#RUNNING}.
      * The <b>disabled</b> rule status is {@link RuleStatus#DISABLED}.
      *
-     * @param uid the unique identifier of the {@link Rule}.
-     * @param isEnabled a new <b>enabled / disabled</b> state of the {@link Rule}.
+     * @param uid the unique identifier of the {@link RuleImpl}.
+     * @param isEnabled a new <b>enabled / disabled</b> state of the {@link RuleImpl}.
      */
     public void setEnabled(String uid, boolean isEnabled);
 
     /**
-     * This method gets {@link RuleStatusInfo} of the specified {@link Rule}.
+     * This method gets {@link RuleStatusInfo} of the specified {@link RuleImpl}.
      *
-     * @param ruleUID UID of the {@link Rule}
-     * @return {@link RuleStatusInfo} object containing status of the looking {@link Rule} or null when a rule with
+     * @param ruleUID UID of the {@link RuleImpl}
+     * @return {@link RuleStatusInfo} object containing status of the looking {@link RuleImpl} or null when a rule with
      *         specified UID does not exists.
      */
     public RuleStatusInfo getStatusInfo(String ruleUID);
 
     /**
-     * Utility method which gets {@link RuleStatus} of the specified {@link Rule}.
+     * Utility method which gets {@link RuleStatus} of the specified {@link RuleImpl}.
      *
-     * @param ruleUID UID of the {@link Rule}
-     * @return {@link RuleStatus} object containing status of the looking {@link Rule} or null when a rule with
+     * @param ruleUID UID of the {@link RuleImpl}
+     * @return {@link RuleStatus} object containing status of the looking {@link RuleImpl} or null when a rule with
      *         specified UID does not exists.
      */
     public RuleStatus getStatus(String ruleUID);

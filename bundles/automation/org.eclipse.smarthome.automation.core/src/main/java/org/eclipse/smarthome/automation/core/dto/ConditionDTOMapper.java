@@ -10,18 +10,21 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.automation.dto;
+package org.eclipse.smarthome.automation.core.dto;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.smarthome.automation.Condition;
+import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.dto.ConditionDTO;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
  * This is a utility class to convert between the respective object and its DTO.
  *
  * @author Markus Rathgeb - Initial contribution and API
+ * @author Kai Kreuzer - Changed to using ModuleBuilder
  */
 public class ConditionDTOMapper extends ModuleDTOMapper {
 
@@ -33,14 +36,12 @@ public class ConditionDTOMapper extends ModuleDTOMapper {
     }
 
     public static Condition mapDto(final ConditionDTO conditionDto) {
-        final Condition condition = new Condition(conditionDto.id, conditionDto.type,
-                new Configuration(conditionDto.configuration), conditionDto.inputs);
-        condition.setLabel(conditionDto.label);
-        condition.setDescription(conditionDto.description);
-        return condition;
+        return ModuleBuilder.createCondition().withId(conditionDto.id).withTypeUID(conditionDto.type)
+                .withConfiguration(new Configuration(conditionDto.configuration)).withInputs(conditionDto.inputs)
+                .withLabel(conditionDto.label).withDescription(conditionDto.description).build();
     }
 
-    public static List<ConditionDTO> map(final List<Condition> conditions) {
+    public static List<ConditionDTO> map(final List<? extends Condition> conditions) {
         if (conditions == null) {
             return null;
         }

@@ -23,14 +23,13 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
-import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.Visibility;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
 /**
  * The {@link RuleTemplate} defines a shared, ready to use - rule definition, which can be configured to produce
- * {@link Rule} instances.
+ * {@link RuleImpl} instances.
  * <p>
  * The {@link RuleTemplate}s can be used by any creator of Rules, but they can be modified only by its creator.
  * The template modification is done by updating the {@link RuleTemplate}.
@@ -88,12 +87,13 @@ public class RuleTemplate implements Template {
     private final Visibility visibility;
 
     /**
-     * This field defines a set of configuration properties of the future {@link Rule} instances.
+     * This field defines a set of configuration properties of the future {@link RuleImpl} instances.
      */
     private final List<ConfigDescriptionParameter> configDescriptions;
 
     /**
-     * This constructor creates a {@link RuleTemplate} instance that will be used for creating {@link Rule}s from a set
+     * This constructor creates a {@link RuleTemplate} instance that will be used for creating {@link RuleImpl}s from a
+     * set
      * of modules, belong to the template. When {@code null} is passed for the {@code uid} parameter, the
      * {@link RuleTemplate}'s identifier will be randomly generated.
      *
@@ -107,7 +107,7 @@ public class RuleTemplate implements Template {
      *            have no conditions.
      * @param actions the {@link RuleTemplate}'s actions list, or {@code null} if the {@link RuleTemplate} should have
      *            no actions.
-     * @param configDescriptions describing metadata for the configuration of the future {@link Rule} instances.
+     * @param configDescriptions describing metadata for the configuration of the future {@link RuleImpl} instances.
      * @param visibility the {@link RuleTemplate}'s visibility.
      */
     public RuleTemplate(@Nullable String UID, @Nullable String label, @Nullable String description,
@@ -179,7 +179,7 @@ public class RuleTemplate implements Template {
 
     /**
      * This method is used to obtain the {@link List} with {@link ConfigDescriptionParameter}s
-     * defining meta info for configuration properties of the future {@link Rule} instances.
+     * defining meta info for configuration properties of the future {@link RuleImpl} instances.
      *
      * @return a {@link List} of {@link ConfigDescriptionParameter}s.
      */

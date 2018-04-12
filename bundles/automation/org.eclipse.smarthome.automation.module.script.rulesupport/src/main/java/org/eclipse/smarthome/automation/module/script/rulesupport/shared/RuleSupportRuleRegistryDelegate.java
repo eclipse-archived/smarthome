@@ -29,11 +29,11 @@ import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
  *
  */
 public class RuleSupportRuleRegistryDelegate implements RuleRegistry {
-    private RuleRegistry ruleRegistry;
+    private final RuleRegistry ruleRegistry;
 
-    private HashSet<String> rules = new HashSet<>();
+    private final HashSet<String> rules = new HashSet<>();
 
-    private ScriptedRuleProvider ruleProvider;
+    private final ScriptedRuleProvider ruleProvider;
 
     public RuleSupportRuleRegistryDelegate(RuleRegistry ruleRegistry, ScriptedRuleProvider ruleProvider) {
         this.ruleRegistry = ruleRegistry;

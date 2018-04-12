@@ -34,6 +34,7 @@ import org.eclipse.smarthome.automation.RuleManager;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.automation.events.RuleAddedEvent;
 import org.eclipse.smarthome.automation.events.RuleRemovedEvent;
 import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent;
@@ -147,13 +148,10 @@ public class RuleEventTest extends JavaOSGiTest {
         List<Action> actions = Collections
                 .singletonList(new Action("ItemPostCommandAction2", "core.ItemCommandAction", actionConfig, null));
 
-        Rule rule = new Rule("myRule21");
-        rule.setTriggers(triggers);
-        rule.setActions(actions);
+        Rule rule = RuleBuilder.create("myRule21").withTriggers(triggers).withActions(actions)
+                .withName("RuleEventTestingRule").build();
 
-        rule.setName("RuleEventTestingRule");
-
-        logger.info("Rule created: {}", rule.getUID());
+        logger.info("RuleImpl created: {}", rule.getUID());
 
         RuleRegistry ruleRegistry = getService(RuleRegistry.class);
         RuleManager ruleEngine = getService(RuleManager.class);

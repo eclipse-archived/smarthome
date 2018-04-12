@@ -37,6 +37,7 @@ import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.automation.module.core.handler.ItemCommandActionHandler;
 import org.eclipse.smarthome.automation.module.core.handler.ItemStateTriggerHandler;
 import org.eclipse.smarthome.automation.module.timer.handler.DayOfWeekConditionHandler;
@@ -154,7 +155,7 @@ public class DayOfWeekConditionHandlerTest extends JavaOSGiTest {
         SwitchItem switchedItem = (SwitchItem) itemRegistry.getItem(testItemName2);
 
         /*
-         * Create Rule
+         * Create RuleImpl
          */
         logger.info("Create rule");
         Configuration triggerConfig = new Configuration(Collections.singletonMap("itemName", testItemName1));
@@ -197,16 +198,13 @@ public class DayOfWeekConditionHandlerTest extends JavaOSGiTest {
         };
         registerService(itemEventHandler);
 
-        Rule rule = new Rule("MyRule" + new Random().nextInt());
-        rule.setTriggers(triggers);
-        rule.setConditions(conditions);
-        rule.setActions(actions);
-        rule.setName("MyDOWConditionTestRule");
-        logger.info("Rule created: {}", rule.getUID());
+        Rule rule = RuleBuilder.create("MyRule" + new Random().nextInt()).withTriggers(triggers)
+                .withConditions(conditions).withActions(actions).withName("MyDOWConditionTestRule").build();
+        logger.info("RuleImpl created: {}", rule.getUID());
 
         logger.info("Add rule");
         ruleRegistry.add(rule);
-        logger.info("Rule added");
+        logger.info("RuleImpl added");
 
         logger.info("Enable rule and wait for idle status");
         ruleEngine.setEnabled(rule.getUID(), true);
@@ -214,7 +212,7 @@ public class DayOfWeekConditionHandlerTest extends JavaOSGiTest {
             final RuleStatusInfo ruleStatus = ruleEngine.getStatusInfo(rule.getUID());
             assertThat(ruleStatus.getStatus(), is(RuleStatus.IDLE));
         });
-        logger.info("Rule is enabled and idle");
+        logger.info("RuleImpl is enabled and idle");
 
         logger.info("Send and wait for item state is ON");
         eventPublisher.post(ItemEventFactory.createStateEvent(testItemName1, OnOffType.ON));

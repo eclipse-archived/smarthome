@@ -24,27 +24,27 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.slf4j.Logger;
 
 /**
- * Resolves Module references.
+ * Resolves ModuleImpl references.
  * They can be
  * <ul>
  * <li>
- * Module configuration property to Rule Configuration property
+ * ModuleImpl configuration property to RuleImpl Configuration property
  * </li>
  * <li>
- * Module configuration property to Composite Module configuration property
+ * ModuleImpl configuration property to Composite ModuleImpl configuration property
  * </li>
  * <li>
- * Module inputs to Composite Module inputs
+ * ModuleImpl inputs to Composite ModuleImpl inputs
  * </li>
  * <li>
- * Module inputs to Composite Module Configuration
+ * ModuleImpl inputs to Composite ModuleImpl Configuration
  * </li>
  * </ul>
  *
- * Module 'A' Configuration properties can have references to either CompositeModule Configuration properties or Rule
- * Configuration properties depending where Module 'A' is placed.
+ * ModuleImpl 'A' Configuration properties can have references to either CompositeModule Configuration properties or RuleImpl
+ * Configuration properties depending where ModuleImpl 'A' is placed.
  * <br/>
- * Note. If Module 'A' is child of CompositeModule - it cannot have direct configuration references to the Rule that is
+ * Note. If ModuleImpl 'A' is child of CompositeModule - it cannot have direct configuration references to the RuleImpl that is
  * holding the CompositeModule.
  * <ul>
  * <li>
@@ -61,7 +61,7 @@ import org.slf4j.Logger;
  * </li>
  * </ul>
  *
- * Given Module 'A' is child of CompositeModule then its inputs can have '${singleReferences}' to CompositeModule.
+ * Given ModuleImpl 'A' is child of CompositeModule then its inputs can have '${singleReferences}' to CompositeModule.
  * <ul>
  * <li>
  * Single reference to CompositeModule inputs where whole input value is replaced with the referenced value
@@ -81,7 +81,7 @@ public class ReferenceResolver {
 
     /**
      * Updates (changes) configuration properties of module base on given context (it can be CompositeModule
-     * Configuration or Rule Configuration).
+     * Configuration or RuleImpl Configuration).
      * For example:
      * 1) If a module configuration property has a value '${name}' the method looks for such key in context
      * and if found - replace the module's configuration value as it is.
@@ -91,8 +91,8 @@ public class ReferenceResolver {
      * Will try to find values for ${firstName} and ${lastName} in the given context and replace them.
      * References that are not found in the context - are not replaced.
      *
-     * @param module module that is directly part of Rule or part of CompositeModule
-     * @param context containing Rule configuration or Composite configuration values.
+     * @param module module that is directly part of RuleImpl or part of CompositeModule
+     * @param context containing RuleImpl configuration or Composite configuration values.
      */
     public static void updateConfiguration(Configuration config, Map<String, ?> context, Logger logger) {
         for (String configKey : config.keySet()) {
@@ -117,8 +117,8 @@ public class ReferenceResolver {
     /**
      * Resolves Composite child module's references to CompositeModule context (inputs and configuration)
      *
-     * @param module Composite Module's child module.
-     * @param compositeContext Composite Module's context
+     * @param module Composite ModuleImpl's child module.
+     * @param compositeContext Composite ModuleImpl's context
      * @return context for given module ready for execution.
      */
     public static Map<String, Object> getCompositeChildContext(Module module, Map<String, ?> compositeContext) {

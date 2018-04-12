@@ -117,7 +117,7 @@ public abstract class AbstractResourceBundleProvider<E> {
 
     /**
      * This Map provides structure for fast access to the provided automation objects. This provides opportunity for
-     * high performance at runtime of the system, when the Rule Engine asks for any particular object, instead of
+     * high performance at runtime of the system, when the RuleImpl Engine asks for any particular object, instead of
      * waiting it for parsing every time.
      * <p>
      * The Map has for keys UIDs of the objects and for values one of {@link ModuleType}s, {@link RuleTemplate}s and

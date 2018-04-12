@@ -20,14 +20,14 @@ import java.util.UUID;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Module;
-import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Visibility;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.core.common.registry.Identifiable;
 
 /**
  * Each {@link ModuleType} instance defines the meta-information needed for creation of a {@link Module} instance which
- * is a building block for a {@link Rule}. The meta-information describes the {@link Configuration} of a {@link Module}
+ * is a building block for a {@link RuleImpl}. The meta-information describes the {@link Configuration} of a
+ * {@link Module}
  * providing list with {@link ConfigDescriptionParameter}s, {@link Input}s and {@link Output}s of a {@link Module}.
  * Each {@link ModuleType} instance owns an unique id which is used as reference in the {@link Module}s, to find their
  * meta-information.

@@ -10,9 +10,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.automation.dto;
+package org.eclipse.smarthome.automation.core.dto;
 
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.core.util.RuleBuilder;
+import org.eclipse.smarthome.automation.dto.RuleDTO;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTOMapper;
 
@@ -20,6 +22,7 @@ import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTOMapper;
  * This is a utility class to convert between the respective object and its DTO.
  *
  * @author Markus Rathgeb - Initial contribution and API
+ * @author Kai Kreuzer - Changed to using RuleBuilder
  */
 public class RuleDTOMapper {
 
@@ -30,14 +33,13 @@ public class RuleDTOMapper {
     }
 
     public static Rule map(final RuleDTO ruleDto) {
-        final Rule rule = new Rule(ruleDto.uid, TriggerDTOMapper.mapDto(ruleDto.triggers),
-                ConditionDTOMapper.mapDto(ruleDto.conditions), ActionDTOMapper.mapDto(ruleDto.actions),
-                ConfigDescriptionDTOMapper.map(ruleDto.configDescriptions), new Configuration(ruleDto.configuration),
-                ruleDto.templateUID, ruleDto.visibility);
-        rule.setTags(ruleDto.tags);
-        rule.setName(ruleDto.name);
-        rule.setDescription(ruleDto.description);
-        return rule;
+        return RuleBuilder.create(ruleDto.uid).withActions(ActionDTOMapper.mapDto(ruleDto.actions))
+                .withConditions(ConditionDTOMapper.mapDto(ruleDto.conditions))
+                .withTriggers(TriggerDTOMapper.mapDto(ruleDto.triggers))
+                .withConfiguration(new Configuration(ruleDto.configuration))
+                .withConfigurationDescriptions(ConfigDescriptionDTOMapper.map(ruleDto.configDescriptions))
+                .withTemplateUID(ruleDto.templateUID).withVisibility(ruleDto.visibility).withTags(ruleDto.tags)
+                .withName(ruleDto.name).withDescription(ruleDto.description).build();
     }
 
     protected static void fillProperties(final Rule from, final RuleDTO to) {

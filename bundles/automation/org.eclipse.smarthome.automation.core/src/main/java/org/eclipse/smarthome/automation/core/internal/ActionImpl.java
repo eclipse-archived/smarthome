@@ -12,13 +12,18 @@
  */
 package org.eclipse.smarthome.automation.core.internal;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Action;
+import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
+import org.eclipse.smarthome.automation.type.Input;
+import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +35,9 @@ import org.slf4j.LoggerFactory;
  * @author Vasil Ilchev - Initial Contribution
  */
 @NonNullByDefault
-public class RuntimeAction extends Action {
+public class ActionImpl extends ModuleImpl implements Action {
+
+    private Map<String, String> inputs;
 
     /**
      * The handler of this module.
@@ -39,16 +46,35 @@ public class RuntimeAction extends Action {
     private ActionHandler actionHandler;
     private Set<Connection> connections;
 
+    public ActionImpl() {
+        this.inputs = Collections.emptyMap();
+        this.connections = Collections.emptySet();
+    }
+
     /**
      * Utility constructor creating copy of passed action.
      *
      * @param action another action which is uses as base of created
      */
-    public RuntimeAction(final Action action) {
-        super(action.getId(), action.getTypeUID(), action.getConfiguration(), action.getInputs());
+    public ActionImpl(final Action action) {
+        this(action.getId(), action.getTypeUID(), action.getConfiguration(), action.getInputs());
         setLabel(action.getLabel());
         setDescription(action.getDescription());
         connections = Connection.getConnections(action.getInputs(), LoggerFactory.getLogger(getClass()));
+    }
+
+    /**
+     * Constructor of Action object.
+     *
+     * @param UID action unique id.
+     * @param typeUID module type unique id.
+     * @param configuration map of configuration values.
+     * @param inputs set of connections to other modules (triggers and other actions).
+     */
+    public ActionImpl(String UID, String typeUID, Configuration configuration, Map<String, String> inputs) {
+        super(UID, typeUID, configuration);
+        this.inputs = inputs;
+        this.connections = Collections.emptySet();
     }
 
     @Override
@@ -88,5 +114,30 @@ public class RuntimeAction extends Action {
      */
     public void setModuleHandler(@Nullable ActionHandler actionHandler) {
         this.actionHandler = actionHandler;
+    }
+
+    /**
+     * This method is used to get input connections of the Action. The connections
+     * are links between {@link Input}s of the this {@link Module} and {@link Output}s
+     * of other {@link Module}s.
+     *
+     * @return map that contains the inputs of this action.
+     */
+    @Override
+    public Map<String, String> getInputs() {
+        return inputs;
+    }
+
+    /**
+     * This method is used to connect {@link Input}s of the action to {@link Output}s of other {@link Module}s.
+     *
+     * @param inputs map that contains the inputs for this action.
+     */
+    public void setInputs(@Nullable Map<String, String> inputs) {
+        if (inputs != null) {
+            this.inputs = inputs;
+        } else {
+            this.inputs = Collections.emptyMap();
+        }
     }
 }

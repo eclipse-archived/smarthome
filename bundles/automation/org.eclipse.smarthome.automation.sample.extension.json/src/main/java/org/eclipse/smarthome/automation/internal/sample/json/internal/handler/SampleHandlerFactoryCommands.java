@@ -82,7 +82,7 @@ public class SampleHandlerFactoryCommands extends AbstractConsoleCommandExtensio
     }
 
     private void listTriggerHandlers(String[] params, Console console) {
-        console.println("ID                             Rule                             Trigger");
+        console.println("ID                             RuleImpl                             Trigger");
         console.println("-------------------------------------------------------------------------------------------");
         currentTriggers = sampleHandlerFactory.getCreatedTriggerHandler();
         if (currentTriggers.size() > 0) {

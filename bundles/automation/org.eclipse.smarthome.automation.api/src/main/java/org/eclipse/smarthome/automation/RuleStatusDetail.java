@@ -24,7 +24,8 @@ public enum RuleStatusDetail {
     HANDLER_INITIALIZING_ERROR(2),
     CONFIGURATION_ERROR(3),
     TEMPLATE_MISSING_ERROR(4),
-    INVALID_RULE(5);
+    INVALID_RULE(5),
+    DISABLED(6);
 
     private final int value;
 

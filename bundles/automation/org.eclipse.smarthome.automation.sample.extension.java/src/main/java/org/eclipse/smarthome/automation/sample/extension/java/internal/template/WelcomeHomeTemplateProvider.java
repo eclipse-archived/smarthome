@@ -28,7 +28,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 /**
- * The purpose of this class is to illustrate how to provide Rule Templates and how to use them for creation of the
+ * The purpose of this class is to illustrate how to provide RuleImpl Templates and how to use them for creation of the
  * {@link Rule}s. Of course, the templates are not mandatory RuleTemplateProvider the creation of rules, the rules also
  * can be created
  * directly.

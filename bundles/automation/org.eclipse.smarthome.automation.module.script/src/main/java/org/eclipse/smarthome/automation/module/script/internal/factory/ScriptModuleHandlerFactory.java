@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ScriptModuleHandlerFactory extends BaseModuleHandlerFactory {
 
-    private Logger logger = LoggerFactory.getLogger(ScriptModuleHandlerFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(ScriptModuleHandlerFactory.class);
 
     private ScriptEngineManager scriptEngineManager;
 

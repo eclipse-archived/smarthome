@@ -19,7 +19,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.Trigger;
@@ -28,7 +27,8 @@ import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 /**
  * This class is implementation of {@link TriggerHandlerCallback} used by the {@link Trigger}s to notify rule engine
  * about
- * appearing of new triggered data. There is one and only one {@link TriggerHandlerCallback} per Rule and it is used by
+ * appearing of new triggered data. There is one and only one {@link TriggerHandlerCallback} per RuleImpl and it is used
+ * by
  * all
  * rule's {@link Trigger}s.
  *
@@ -37,7 +37,7 @@ import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
  */
 public class TriggerHandlerCallbackImpl implements TriggerHandlerCallback {
 
-    private final RuntimeRule r;
+    private final String ruleUID;
 
     private ExecutorService executor;
 
@@ -45,9 +45,9 @@ public class TriggerHandlerCallbackImpl implements TriggerHandlerCallback {
 
     private final RuleEngineImpl re;
 
-    protected TriggerHandlerCallbackImpl(RuleEngineImpl re, RuntimeRule r) {
+    protected TriggerHandlerCallbackImpl(RuleEngineImpl re, String ruleUID) {
         this.re = re;
-        this.r = r;
+        this.ruleUID = ruleUID;
         executor = Executors.newSingleThreadExecutor();
     }
 
@@ -59,11 +59,7 @@ public class TriggerHandlerCallbackImpl implements TriggerHandlerCallback {
             }
             future = executor.submit(new TriggerData(trigger, outputs));
         }
-        re.logger.debug("The trigger '{}' of rule '{}' is triggered.", trigger.getId(), r.getUID());
-    }
-
-    public Rule getRule() {
-        return r;
+        re.logger.debug("The trigger '{}' of rule '{}' is triggered.", trigger.getId(), ruleUID);
     }
 
     public boolean isRunning() {
@@ -92,7 +88,7 @@ public class TriggerHandlerCallbackImpl implements TriggerHandlerCallback {
 
         @Override
         public void run() {
-            re.runRule(r, this);
+            re.runRule(ruleUID, this);
         }
     }
 

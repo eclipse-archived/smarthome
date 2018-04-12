@@ -33,7 +33,8 @@ public class RulePredicates {
     public static final String PREFIX_SEPARATOR = ":";
 
     /**
-     * Gets the prefix of the {@link Rule}, if any exist. This property is either set by the {@link ModuleHandlerCallback} when
+     * Gets the prefix of the {@link Rule}, if any exist. This property is either set by the
+     * {@link ModuleHandlerCallback} when
      * the {@link Rule} is added or by the creating party. It's an optional property.
      * <br/>
      * <br/>
@@ -147,7 +148,8 @@ public class RulePredicates {
     }
 
     /**
-     * Creates a {@link Predicate} which can be used to match {@link Rule}s for any of the given tags or {@link Rule}s
+     * Creates a {@link Predicate} which can be used to match {@link Rule}s for any of the given tags or
+     * {@link Rule}s
      * without tags.
      *
      * @param tags to search for
@@ -167,7 +169,8 @@ public class RulePredicates {
     }
 
     /**
-     * Creates a {@link Predicate} which can be used to match {@link Rule}s for any of the given tags or {@link Rule}s
+     * Creates a {@link Predicate} which can be used to match {@link Rule}s for any of the given tags or
+     * {@link Rule}s
      * without tags.
      *
      * @param tags to search for

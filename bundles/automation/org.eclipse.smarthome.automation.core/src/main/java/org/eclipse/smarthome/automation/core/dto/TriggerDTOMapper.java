@@ -10,19 +10,22 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.automation.dto;
+package org.eclipse.smarthome.automation.core.dto;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.dto.TriggerDTO;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
  * This is a utility class to convert between the respective object and its DTO.
  *
  * @author Markus Rathgeb - Initial contribution and API
+ * @author Kai Kreuzer - Changed to using ModuleBuilder
  */
 public class TriggerDTOMapper extends ModuleDTOMapper {
 
@@ -33,14 +36,12 @@ public class TriggerDTOMapper extends ModuleDTOMapper {
     }
 
     public static Trigger mapDto(final TriggerDTO triggerDto) {
-        final Trigger trigger = new Trigger(triggerDto.id, triggerDto.type,
-                new Configuration(triggerDto.configuration));
-        trigger.setLabel(triggerDto.label);
-        trigger.setDescription(triggerDto.description);
-        return trigger;
+        return ModuleBuilder.createTrigger().withId(triggerDto.id).withTypeUID(triggerDto.type)
+                .withConfiguration(new Configuration(triggerDto.configuration)).withLabel(triggerDto.label)
+                .withDescription(triggerDto.description).build();
     }
 
-    public static List<TriggerDTO> map(final Collection<Trigger> triggers) {
+    public static List<TriggerDTO> map(final Collection<? extends Trigger> triggers) {
         if (triggers == null) {
             return null;
         }

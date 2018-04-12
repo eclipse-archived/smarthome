@@ -29,6 +29,7 @@ import org.eclipse.smarthome.automation.RuleStatus
 import org.eclipse.smarthome.automation.Trigger
 import org.eclipse.smarthome.automation.Visibility
 import org.eclipse.smarthome.automation.core.ManagedRuleProvider
+import org.eclipse.smarthome.automation.core.util.RuleBuilder
 import org.eclipse.smarthome.automation.events.RuleAddedEvent
 import org.eclipse.smarthome.automation.events.RuleRemovedEvent
 import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent
@@ -231,12 +232,7 @@ class AutomationIntegrationTest extends OSGiTest{
             new Action("ItemPostCommandAction2", "core.ItemCommandAction", actionConfig, null)
         ]
 
-        def rule = new Rule("myRule21_ConnectionTest")
-        rule.triggers = triggers
-        rule.conditions = conditions
-        rule.actions = actions
-
-        rule.name="RuleByJAVA_API"+new Random().nextInt()
+        def rule = RuleBuilder.create("myRule21_ConnectionTest").withTriggers(triggers).withConditions(conditions).withActions(actions).withName("RuleByJAVA_API"+new Random().nextInt()).build();
 
         ruleRegistry.add(rule)
 
@@ -288,12 +284,7 @@ class AutomationIntegrationTest extends OSGiTest{
             new Action("ItemPostCommandAction2", "core.ItemCommandAction", actionConfig, null)
         ]
 
-        def rule = new Rule("myRule21_UNINITIALIZED")
-        rule.triggers = triggers
-        rule.conditions = conditions
-        rule.actions = actions
-
-        rule.name="RuleByJAVA_API"+new Random().nextInt()
+        def rule = RuleBuilder.create("myRule21_UNINITIALIZED").withTriggers(triggers).withConditions(conditions).withActions(actions).withName("RuleByJAVA_API"+new Random().nextInt()).build();
 
         ruleRegistry.add(rule)
 
@@ -366,10 +357,7 @@ class AutomationIntegrationTest extends OSGiTest{
             new Action("ItemPostCommandAction3", "core.ItemCommandAction", actionConfig, null)
         ]
 
-        def rule = new Rule("myRule21"+new Random().nextInt()+ "_COMPOSITE")
-        rule.triggers = triggers
-        rule.actions = actions
-        rule.name="RuleByJAVA_API_WIthCompositeTrigger"
+        def rule = RuleBuilder.create("myRule21"+new Random().nextInt()+ "_COMPOSITE").withTriggers(triggers).withActions(actions).withName("RuleByJAVA_API_WIthCompositeTrigger").build();
 
         logger.info("Rule created: "+rule.getUID())
 
@@ -425,9 +413,7 @@ class AutomationIntegrationTest extends OSGiTest{
             new Action("ItemPostCommandActionId3", "core.ItemCommandAction", actionConfig3, null)
         ]
 
-        def rule = new Rule("runNowRule"+new Random().nextInt())
-        rule.triggers = triggers
-        rule.actions = actions
+        def rule = RuleBuilder.create("runNowRule"+new Random().nextInt()).withTriggers(triggers).withActions(actions).build();
         logger.info("Rule created: "+rule.getUID())
 
         ruleRegistry.add(rule)
@@ -478,11 +464,7 @@ class AutomationIntegrationTest extends OSGiTest{
             new Action("ItemPostCommandAction4", "core.ItemCommandAction", actionConfig, null)
         ]
 
-        def rule = new Rule("myRule21"+new Random().nextInt()+ "_COMPOSITE")
-        rule.triggers = triggers
-        rule.actions = actions
-        rule.name="RuleByJAVA_API_ChainedComposite"
-
+        def rule = RuleBuilder.create("myRule21"+new Random().nextInt()+ "_COMPOSITE").withTriggers(triggers).withActions(actions).withName("RuleByJAVA_API_ChainedComposite").build();
         logger.info("Rule created: "+rule.getUID())
 
         def ruleRegistry = getService(RuleRegistry)
@@ -537,14 +519,7 @@ class AutomationIntegrationTest extends OSGiTest{
             new Action("ItemPostCommandAction2", "core.ItemCommandAction", actionConfig, null)
         ]
 
-        def rule = new Rule("myRule21")
-        rule.triggers = triggers
-        rule.actions = actions
-
-        rule.name="RuleByJAVA_API"
-        def tags = ["myRule21"] as Set
-        rule.tags = tags
-
+        def rule = RuleBuilder.create("myRule21").withTriggers(triggers).withActions(actions).withName("RuleByJAVA_API").withTags("myRule21").build();
         logger.info("Rule created: "+rule.getUID())
 
         ruleRegistry.add(rule)
@@ -589,9 +564,7 @@ class AutomationIntegrationTest extends OSGiTest{
         assertThat template.tags, is(notNullValue())
         assertThat template.tags.size(), is(not(0))
         def configs = [onItem:"templ_MotionItem", ifState: "ON", updateItem:"templ_LampItem", updateCommand:"ON"]
-        def templateRule = new Rule("templateRuleUID")
-        templateRule.templateUID = "SimpleTestTemplate"
-        templateRule.configuration = configs
+        def templateRule = RuleBuilder.create("templateRuleUID").withTemplateUID("SimpleTestTemplate").withConfiguration(configs).build();
         ruleRegistry.add(templateRule)
         assertThat ruleRegistry.getAll().find{it.UID==templateRule.UID}, is(notNullValue())
 
@@ -633,9 +606,7 @@ class AutomationIntegrationTest extends OSGiTest{
         assertThat template.tags.size(), is(not(0))
 
         def configs = new Configuration([onItem:"xtempl_MotionItem", ifState: ".*ON.*", updateItem:"xtempl_LampItem", updateCommand:"ON"])
-        def templateRule = new Rule("xtemplateRuleUID")
-        templateRule.templateUID = "TestTemplateWithCompositeModules"
-        templateRule.configuration = configs
+        def templateRule = RuleBuilder.create("xtemplateRuleUID").withTemplateUID("TestTemplateWithCompositeModules").withConfiguration(configs).build();
 
         ruleRegistry.add(templateRule)
         assertThat ruleRegistry.getAll().find{it.UID==templateRule.UID}, is(notNullValue())
@@ -757,11 +728,7 @@ class AutomationIntegrationTest extends OSGiTest{
             new Action("ItemPostCommandAction_"+rand, "core.ItemCommandAction", actionConfig, null)
         ]
 
-        def rule = new Rule("myRule_"+rand)
-        rule.triggers = triggers
-        rule.actions = actions
-        rule.name="RuleByJAVA_API_"+rand
-
+        def rule = RuleBuilder.create("myRule_"+rand).withTriggers(triggers).withActions(actions).withName("RuleByJAVA_API_"+rand).build();
         logger.info("Rule created: "+rule.getUID())
         return rule
     }
@@ -788,15 +755,7 @@ class AutomationIntegrationTest extends OSGiTest{
             new Action("ItemPostCommandAction"+random, "core.ItemCommandAction", actionConfig, null)
         ]
 
-        def rule = new Rule("myRule_"+random)
-        rule.triggers = triggers
-        rule.conditions = conditions
-        rule.actions = actions
-
-        rule.name="RuleByJAVA_API"+random
-        def tags = ["myRule_"+random] as Set
-        rule.tags = tags
-
+        def rule = RuleBuilder.create("myRule_"+random).withTriggers(triggers).withConditions(conditions).withActions(actions).withName("RuleByJAVA_API"+random).withTags("myRule_"+random).build();
         logger.info("Rule created: "+rule.getUID())
 
         ruleRegistry.add(rule)

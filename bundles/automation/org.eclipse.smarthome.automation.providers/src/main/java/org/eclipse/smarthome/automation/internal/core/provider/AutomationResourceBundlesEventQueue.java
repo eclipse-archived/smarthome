@@ -64,7 +64,7 @@ public class AutomationResourceBundlesEventQueue<E> implements Runnable {
      */
     private boolean shared = false;
 
-    private AbstractResourceBundleProvider<E> provider;
+    private final AbstractResourceBundleProvider<E> provider;
 
     /**
      * This constructor is responsible for initializing a queue for bundles providing automation resources.

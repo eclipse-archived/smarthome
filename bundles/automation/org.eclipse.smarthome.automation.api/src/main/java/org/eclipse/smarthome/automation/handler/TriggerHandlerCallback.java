@@ -15,14 +15,13 @@ package org.eclipse.smarthome.automation.handler;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.ModuleHandlerCallback;
-import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.type.Output;
 
 /**
  * This is a callback interface to RuleManager which is used by the {@link TriggerHandler} to notify the RuleManager
  * about firing of the {@link Trigger}. These calls from {@link Trigger}s must be stored in a queue
- * and applied to the RuleAngine in order of their appearance. Each {@link Rule} has to create its own instance of
+ * and applied to the RuleAngine in order of their appearance. Each {@link RuleImpl} has to create its own instance of
  * {@link TriggerHandlerCallback}.
  *
  * @author Yordan Mihaylov - Initial Contribution

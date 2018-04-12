@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.automation.core.util;
+package org.eclipse.smarthome.automation.core.internal;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,12 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.internal.Connection;
-import org.eclipse.smarthome.automation.core.internal.RuntimeAction;
-import org.eclipse.smarthome.automation.core.internal.RuntimeCondition;
-import org.eclipse.smarthome.automation.core.internal.RuntimeRule;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.Input;
@@ -50,9 +45,9 @@ public class ConnectionValidator {
      * @param r rule which must be checked
      * @throws IllegalArgumentException when validation fails.
      */
-    public static void validateConnections(ModuleTypeRegistry mtRegistry, RuntimeRule r) {
+    public static void validateConnections(ModuleTypeRegistry mtRegistry, RuleImpl r) {
         if (r == null) {
-            throw new IllegalArgumentException("Validation of rule  is failed! Rule must not be null!");
+            throw new IllegalArgumentException("Validation of rule  is failed! RuleImpl must not be null!");
         }
         validateConnections(mtRegistry, r.getTriggers(), r.getConditions(), r.getActions());
     }
@@ -67,16 +62,16 @@ public class ConnectionValidator {
      * @param actions is a list with actions of the rule whose connections have to be validated
      * @throws IllegalArgumentException when validation fails.
      */
-    public static void validateConnections(ModuleTypeRegistry mtRegistry, List<Trigger> triggers,
-            List<Condition> conditions, List<Action> actions) {
+    public static void validateConnections(ModuleTypeRegistry mtRegistry, List<TriggerImpl> triggers,
+            List<ConditionImpl> conditions, List<ActionImpl> actions) {
         if (!conditions.isEmpty()) {
-            for (Condition condition : conditions) {
-                validateConditionConnections(mtRegistry, (RuntimeCondition) condition, triggers);
+            for (ConditionImpl condition : conditions) {
+                validateConditionConnections(mtRegistry, condition, triggers);
             }
         }
         if (!actions.isEmpty()) {
             for (Action action : actions) {
-                validateActionConnections(mtRegistry, (RuntimeAction) action, triggers, actions);
+                validateActionConnections(mtRegistry, (ActionImpl) action, triggers, actions);
             }
         }
     }
@@ -91,8 +86,8 @@ public class ConnectionValidator {
      * @param actions is a list with actions of the rule on which the action belongs
      * @throws IllegalArgumentException when validation fails.
      */
-    private static void validateActionConnections(ModuleTypeRegistry mtRegistry, RuntimeAction action,
-            List<Trigger> triggers, List<Action> actions) {
+    private static void validateActionConnections(ModuleTypeRegistry mtRegistry, ActionImpl action,
+            List<TriggerImpl> triggers, List<ActionImpl> actions) {
 
         ActionType type = (ActionType) mtRegistry.get(action.getTypeUID()); // get module type of the condition
         if (type == null) {
@@ -139,9 +134,9 @@ public class ConnectionValidator {
      * @throws IllegalArgumentException when validation fails.
      */
     private static void checkConnection(ModuleTypeRegistry mtRegistry, Connection connection, Input input,
-            List<Trigger> triggers, List<Action> actions) {
-        Map<String, Action> actionsMap = new HashMap<String, Action>();
-        for (Action a : actions) {
+            List<TriggerImpl> triggers, List<ActionImpl> actions) {
+        Map<String, ActionImpl> actionsMap = new HashMap<>();
+        for (ActionImpl a : actions) {
             actionsMap.put(a.getId(), a);
         }
         String moduleId = connection.getOuputModuleId();
@@ -168,8 +163,8 @@ public class ConnectionValidator {
      * @param triggers is a list with triggers of the rule on which the condition belongs
      * @throws IllegalArgumentException when validation fails.
      */
-    private static void validateConditionConnections(ModuleTypeRegistry mtRegistry, RuntimeCondition condition,
-            List<Trigger> triggers) {
+    private static void validateConditionConnections(ModuleTypeRegistry mtRegistry, ConditionImpl condition,
+            List<TriggerImpl> triggers) {
 
         ConditionType type = (ConditionType) mtRegistry.get(condition.getTypeUID()); // get module type of the condition
         if (type == null) {
@@ -215,7 +210,7 @@ public class ConnectionValidator {
      * @throws IllegalArgumentException when validation fails.
      */
     private static void checkConnection(ModuleTypeRegistry mtRegistry, Connection connection, Input input,
-            List<Trigger> triggers) {
+            List<TriggerImpl> triggers) {
 
         Map<String, Trigger> triggersMap = new HashMap<String, Trigger>();
         for (Trigger trigger : triggers) {
@@ -277,7 +272,7 @@ public class ConnectionValidator {
                 }
             }
             throw new IllegalArgumentException(msg + " Output with name \"" + outputName
-                    + "\" not exists in the Module with ID \"" + connection.getOuputModuleId() + "\"");
+                    + "\" not exists in the ModuleImpl with ID \"" + connection.getOuputModuleId() + "\"");
         }
     }
 }

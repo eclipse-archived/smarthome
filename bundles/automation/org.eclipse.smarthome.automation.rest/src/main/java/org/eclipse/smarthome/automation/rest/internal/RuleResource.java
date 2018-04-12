@@ -44,15 +44,17 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleManager;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.dto.ActionDTOMapper;
+import org.eclipse.smarthome.automation.core.dto.ConditionDTOMapper;
+import org.eclipse.smarthome.automation.core.dto.RuleDTOMapper;
+import org.eclipse.smarthome.automation.core.dto.TriggerDTOMapper;
+import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.automation.dto.ActionDTO;
-import org.eclipse.smarthome.automation.dto.ActionDTOMapper;
 import org.eclipse.smarthome.automation.dto.ConditionDTO;
-import org.eclipse.smarthome.automation.dto.ConditionDTOMapper;
 import org.eclipse.smarthome.automation.dto.ModuleDTO;
 import org.eclipse.smarthome.automation.dto.RuleDTO;
-import org.eclipse.smarthome.automation.dto.RuleDTOMapper;
 import org.eclipse.smarthome.automation.dto.TriggerDTO;
-import org.eclipse.smarthome.automation.dto.TriggerDTOMapper;
 import org.eclipse.smarthome.automation.rest.internal.dto.EnrichedRuleDTO;
 import org.eclipse.smarthome.automation.rest.internal.dto.EnrichedRuleDTOMapper;
 import org.eclipse.smarthome.config.core.ConfigUtil;
@@ -141,8 +143,8 @@ public class RuleResource implements RESTResource {
     @ApiOperation(value = "Creates a rule.")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Created", responseHeaders = @ResponseHeader(name = "Location", description = "Newly created Rule", response = String.class)),
-            @ApiResponse(code = 409, message = "Creation of the rule is refused. Rule with the same UID already exists."),
+            @ApiResponse(code = 201, message = "Created", responseHeaders = @ResponseHeader(name = "Location", description = "Newly created RuleImpl", response = String.class)),
+            @ApiResponse(code = 409, message = "Creation of the rule is refused. RuleImpl with the same UID already exists."),
             @ApiResponse(code = 400, message = "Creation of the rule is refused. Missing required parameter.") })
     public Response create(@ApiParam(value = "rule data", required = true) RuleDTO rule) throws IOException {
         try {
@@ -165,7 +167,7 @@ public class RuleResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets the rule corresponding to the given UID.", response = EnrichedRuleDTO.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = EnrichedRuleDTO.class),
-            @ApiResponse(code = 404, message = "Rule not found") })
+            @ApiResponse(code = 404, message = "RuleImpl not found") })
     public Response getByUID(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID) {
         Rule rule = ruleRegistry.get(ruleUID);
         if (rule != null) {
@@ -180,7 +182,7 @@ public class RuleResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Removes an existing rule corresponding to the given UID.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
-            @ApiResponse(code = 404, message = "Rule corresponding to the given UID does not found.") })
+            @ApiResponse(code = 404, message = "RuleImpl corresponding to the given UID does not found.") })
     public Response remove(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID) {
         Rule removedRule = ruleRegistry.remove(ruleUID);
         if (removedRule == null) {
@@ -196,7 +198,7 @@ public class RuleResource implements RESTResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Updates an existing rule corresponding to the given UID.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Rule corresponding to the given UID does not found.") })
+            @ApiResponse(code = 404, message = "RuleImpl corresponding to the given UID does not found.") })
     public Response update(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID,
             @ApiParam(value = "rule data", required = true) RuleDTO rule) throws IOException {
         rule.uid = ruleUID;
@@ -215,7 +217,7 @@ public class RuleResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets the rule configuration values.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
-            @ApiResponse(code = 404, message = "Rule corresponding to the given UID does not found.") })
+            @ApiResponse(code = 404, message = "RuleImpl corresponding to the given UID does not found.") })
     public Response getConfiguration(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID)
             throws IOException {
         Rule rule = ruleRegistry.get(ruleUID);
@@ -233,7 +235,7 @@ public class RuleResource implements RESTResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Sets the rule configuration values.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Rule corresponding to the given UID does not found.") })
+            @ApiResponse(code = 404, message = "RuleImpl corresponding to the given UID does not found.") })
     public Response updateConfiguration(
             @PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID,
             @ApiParam(value = "config") Map<String, Object> configurationParameters) throws IOException {
@@ -244,7 +246,7 @@ public class RuleResource implements RESTResource {
                     uriInfo.getPath(), ruleUID);
             return Response.status(Status.NOT_FOUND).build();
         } else {
-            rule.setConfiguration(new Configuration(config));
+            rule = RuleBuilder.create(rule).withConfiguration(new Configuration(config)).build();
             ruleRegistry.update(rule);
             return Response.ok(null, MediaType.TEXT_PLAIN).build();
         }
@@ -255,7 +257,7 @@ public class RuleResource implements RESTResource {
     @Consumes(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Sets the rule enabled status.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Rule corresponding to the given UID does not found.") })
+            @ApiResponse(code = 404, message = "RuleImpl corresponding to the given UID does not found.") })
     public Response enableRule(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID,
             @ApiParam(value = "enable", required = true) String enabled) throws IOException {
         Rule rule = ruleRegistry.get(ruleUID);
@@ -275,7 +277,7 @@ public class RuleResource implements RESTResource {
     @Consumes(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Executes actions of the rule.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Rule corresponding to the given UID does not found.") })
+            @ApiResponse(code = 404, message = "RuleImpl corresponding to the given UID does not found.") })
     public Response runNow(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID)
             throws IOException {
         Rule rule = ruleRegistry.get(ruleUID);
@@ -295,7 +297,7 @@ public class RuleResource implements RESTResource {
     @ApiOperation(value = "Gets the rule triggers.", response = TriggerDTO.class, responseContainer = "List")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = TriggerDTO.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Rule corresponding to the given UID does not found.") })
+            @ApiResponse(code = 404, message = "RuleImpl corresponding to the given UID does not found.") })
     public Response getTriggers(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID) {
         Rule rule = ruleRegistry.get(ruleUID);
         if (rule != null) {
@@ -311,7 +313,7 @@ public class RuleResource implements RESTResource {
     @ApiOperation(value = "Gets the rule conditions.", response = ConditionDTO.class, responseContainer = "List")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = ConditionDTO.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Rule corresponding to the given UID does not found.") })
+            @ApiResponse(code = 404, message = "RuleImpl corresponding to the given UID does not found.") })
     public Response getConditions(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID) {
         Rule rule = ruleRegistry.get(ruleUID);
         if (rule != null) {
@@ -327,7 +329,7 @@ public class RuleResource implements RESTResource {
     @ApiOperation(value = "Gets the rule actions.", response = ActionDTO.class, responseContainer = "List")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = ActionDTO.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Rule corresponding to the given UID does not found.") })
+            @ApiResponse(code = 404, message = "RuleImpl corresponding to the given UID does not found.") })
     public Response getActions(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID) {
         Rule rule = ruleRegistry.get(ruleUID);
         if (rule != null) {
@@ -342,7 +344,7 @@ public class RuleResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets the rule's module corresponding to the given Category and ID.", response = ModuleDTO.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ModuleDTO.class),
-            @ApiResponse(code = 404, message = "Rule corresponding to the given UID does not found or does not have a module with such Category and ID.") })
+            @ApiResponse(code = 404, message = "RuleImpl corresponding to the given UID does not found or does not have a module with such Category and ID.") })
     public Response getModuleById(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID,
             @PathParam("moduleCategory") @ApiParam(value = "moduleCategory", required = true) String moduleCategory,
             @PathParam("id") @ApiParam(value = "id", required = true) String id) {
@@ -361,7 +363,7 @@ public class RuleResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets the module's configuration.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
-            @ApiResponse(code = 404, message = "Rule corresponding to the given UID does not found or does not have a module with such Category and ID.") })
+            @ApiResponse(code = 404, message = "RuleImpl corresponding to the given UID does not found or does not have a module with such Category and ID.") })
     public Response getModuleConfig(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID,
             @PathParam("moduleCategory") @ApiParam(value = "moduleCategory", required = true) String moduleCategory,
             @PathParam("id") @ApiParam(value = "id", required = true) String id) {
@@ -380,7 +382,7 @@ public class RuleResource implements RESTResource {
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Gets the module's configuration parameter.", response = String.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
-            @ApiResponse(code = 404, message = "Rule corresponding to the given UID does not found or does not have a module with such Category and ID.") })
+            @ApiResponse(code = 404, message = "RuleImpl corresponding to the given UID does not found or does not have a module with such Category and ID.") })
     public Response getModuleConfigParam(
             @PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID,
             @PathParam("moduleCategory") @ApiParam(value = "moduleCategory", required = true) String moduleCategory,
@@ -400,7 +402,7 @@ public class RuleResource implements RESTResource {
     @Path("/{ruleUID}/{moduleCategory}/{id}/config/{param}")
     @ApiOperation(value = "Sets the module's configuration parameter value.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Rule corresponding to the given UID does not found or does not have a module with such Category and ID.") })
+            @ApiResponse(code = 404, message = "RuleImpl corresponding to the given UID does not found or does not have a module with such Category and ID.") })
     @Consumes(MediaType.TEXT_PLAIN)
     public Response setModuleConfigParam(
             @PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID,
@@ -414,7 +416,7 @@ public class RuleResource implements RESTResource {
             if (module != null) {
                 Configuration configuration = module.getConfiguration();
                 configuration.put(param, ConfigUtil.normalizeType(value));
-                module.setConfiguration(configuration);
+                module = ModuleBuilder.create(module).withConfiguration(configuration).build();
                 ruleRegistry.update(rule);
                 return Response.ok(null, MediaType.TEXT_PLAIN).build();
             }

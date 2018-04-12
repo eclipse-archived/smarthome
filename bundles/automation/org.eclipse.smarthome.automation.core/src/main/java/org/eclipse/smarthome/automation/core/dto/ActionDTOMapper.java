@@ -10,19 +10,22 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.automation.dto;
+package org.eclipse.smarthome.automation.core.dto;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.smarthome.automation.Action;
+import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.dto.ActionDTO;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
  * This is a utility class to convert between the respective object and its DTO.
  *
  * @author Markus Rathgeb - Initial contribution and API
+ * @author Kai Kreuzer - Changed to using ModuleBuilder
  */
 public class ActionDTOMapper extends ModuleDTOMapper {
 
@@ -34,14 +37,12 @@ public class ActionDTOMapper extends ModuleDTOMapper {
     }
 
     public static Action mapDto(final ActionDTO actionDto) {
-        final Action action = new Action(actionDto.id, actionDto.type, new Configuration(actionDto.configuration),
-                actionDto.inputs);
-        action.setLabel(actionDto.label);
-        action.setDescription(actionDto.description);
-        return action;
+        return ModuleBuilder.createAction().withId(actionDto.id).withTypeUID(actionDto.type)
+                .withConfiguration(new Configuration(actionDto.configuration)).withInputs(actionDto.inputs)
+                .withLabel(actionDto.label).withDescription(actionDto.description).build();
     }
 
-    public static List<ActionDTO> map(final Collection<Action> actions) {
+    public static List<ActionDTO> map(final Collection<? extends Action> actions) {
         if (actions == null) {
             return null;
         }

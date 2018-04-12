@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 @Component(immediate = true)
 public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory implements ModuleHandlerFactory {
 
-    private Logger logger = LoggerFactory.getLogger(CoreModuleHandlerFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(CoreModuleHandlerFactory.class);
 
     private static final Collection<String> TYPES = Arrays.asList(ItemCommandTriggerHandler.MODULE_TYPE_ID,
             ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID, ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID,

@@ -43,7 +43,7 @@ public class RuleAddedEvent extends AbstractRuleRegistryEvent {
 
     @Override
     public String toString() {
-        return "Rule '" + getRule().uid + "' has been added.";
+        return "RuleImpl '" + getRule().uid + "' has been added.";
     }
 
 }

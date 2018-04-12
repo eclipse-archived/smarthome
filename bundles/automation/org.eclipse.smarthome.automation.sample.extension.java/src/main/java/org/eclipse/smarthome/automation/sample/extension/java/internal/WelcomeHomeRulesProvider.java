@@ -15,16 +15,15 @@ package org.eclipse.smarthome.automation.sample.extension.java.internal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.automation.sample.extension.java.internal.template.AirConditionerRuleTemplate;
 import org.eclipse.smarthome.automation.sample.extension.java.internal.type.LightsTriggerType;
 import org.eclipse.smarthome.automation.sample.extension.java.internal.type.StateConditionType;
@@ -113,9 +112,7 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
     public void update(String uid, String template, Configuration config) {
         // specific for this application
         Rule oldelement = rules.get(uid);
-        Rule element = new Rule(uid);
-        element.setTemplateUID(template);
-        element.setConfiguration(config);
+        Rule element = RuleBuilder.create(uid).withTemplateUID(template).withConfiguration(config).build();
         rules.put(uid, element);
 
         // inform all listeners, interested about changing of the rules
@@ -154,9 +151,8 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
         config.put(CONFIG_EXPECTED_RESULT, "The air conditioner is switched on.");
         config.put(AirConditionerRuleTemplate.CONFIG_TARGET_TEMPERATURE, new Integer(18));
         config.put(AirConditionerRuleTemplate.CONFIG_OPERATION, TemperatureConditionType.OPERATOR_HEATING);
-        Rule rule = new Rule(AC_UID);
-        rule.setTemplateUID(AirConditionerRuleTemplate.UID);
-        rule.setConfiguration(config);
+        Rule rule = RuleBuilder.create(AC_UID).withTemplateUID(AirConditionerRuleTemplate.UID).withConfiguration(config)
+                .build();
         return rule;
     }
 
@@ -207,18 +203,9 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
         config.put(CONFIG_EXPECTED_RESULT, "The lights are switched on.");
 
         // create the rule
-        Rule lightsSwitchOn = new Rule(L_UID);
-        lightsSwitchOn.setTriggers(triggers);
-        lightsSwitchOn.setConfigurationDescriptions(configDescriptions);
-        lightsSwitchOn.setConditions(conditions);
-        lightsSwitchOn.setActions(actions);
-
-        // initialize the tags
-        Set<String> tags = new HashSet<String>();
-        tags.add("lights");
-
-        // set the tags
-        lightsSwitchOn.setTags(tags);
+        Rule lightsSwitchOn = RuleBuilder.create(L_UID).withTriggers(triggers)
+                .withConfigurationDescriptions(configDescriptions).withConditions(conditions).withActions(actions)
+                .withTags("lights").build();
 
         return lightsSwitchOn;
     }

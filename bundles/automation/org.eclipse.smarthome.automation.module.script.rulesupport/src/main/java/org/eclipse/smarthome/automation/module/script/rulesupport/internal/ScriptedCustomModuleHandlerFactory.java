@@ -25,7 +25,7 @@ import org.osgi.framework.ServiceRegistration;
 /**
  * The {@link ScriptedCustomModuleHandlerFactory} is used in combination with the
  * {@link ScriptedCustomModuleTypeProvider} to allow scripts to define custom types in the RuleManager. These
- * registered types can then be used publicly from any Rule-Editor.
+ * registered types can then be used publicly from any RuleImpl-Editor.
  *
  * This class provides the handlers from the script to the RuleManager. As Jsr223 languages have different needs, it
  * allows these handlers to be defined in different ways.

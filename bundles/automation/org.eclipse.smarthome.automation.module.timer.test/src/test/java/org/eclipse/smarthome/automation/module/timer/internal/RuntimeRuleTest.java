@@ -29,8 +29,10 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleManager;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
+import org.eclipse.smarthome.automation.RuleStatusDetail;
 import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.automation.module.timer.handler.GenericCronTriggerHandler;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -93,7 +95,7 @@ public class RuntimeRuleTest extends JavaOSGiTest {
     @Test
     public void checkDisableAndEnableOfTimerTriggeredRule() {
         /*
-         * Create Rule
+         * Create RuleImpl
          */
         logger.info("Create rule");
         String testExpression = "* * * * * ?";
@@ -103,15 +105,13 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         List<Trigger> triggers = Collections
                 .singletonList(new Trigger("MyTimerTrigger", GenericCronTriggerHandler.MODULE_TYPE_ID, triggerConfig));
 
-        Rule rule = new Rule("MyRule" + new Random().nextInt());
-        rule.setTriggers(triggers);
-
-        rule.setName("MyTimerTriggerTestEnableDisableRule");
-        logger.info("Rule created: {}", rule.getUID());
+        Rule rule = RuleBuilder.create("MyRule" + new Random().nextInt()).withTriggers(triggers)
+                .withName("MyTimerTriggerTestEnableDisableRule").build();
+        logger.info("RuleImpl created: {}", rule.getUID());
 
         logger.info("Add rule");
         ruleRegistry.add(rule);
-        logger.info("Rule added");
+        logger.info("RuleImpl added");
 
         int numberOfTests = 1000;
         for (int i = 0; i < numberOfTests; ++i) {
@@ -119,16 +119,16 @@ public class RuntimeRuleTest extends JavaOSGiTest {
             ruleEngine.setEnabled(rule.getUID(), false);
             waitForAssert(() -> {
                 final RuleStatusInfo ruleStatus = ruleEngine.getStatusInfo(rule.getUID());
-                logger.info("Rule status (should be DISABLED): {}", ruleStatus);
-                assertThat(ruleStatus.getStatus(), is(RuleStatus.DISABLED));
+                logger.info("RuleImpl status (should be DISABLED): {}", ruleStatus);
+                assertThat(ruleStatus.getStatusDetail(), is(RuleStatusDetail.DISABLED));
             });
-            logger.info("Rule is disabled");
+            logger.info("RuleImpl is disabled");
 
             logger.info("Enable rule");
             ruleEngine.setEnabled(rule.getUID(), true);
             waitForAssert(() -> {
                 final RuleStatusInfo ruleStatus = ruleEngine.getStatusInfo(rule.getUID());
-                logger.info("Rule status (should be IDLE or RUNNING): {}", ruleStatus);
+                logger.info("RuleImpl status (should be IDLE or RUNNING): {}", ruleStatus);
                 boolean allFine;
                 if (ruleStatus.getStatus().equals(RuleStatus.IDLE)
                         || ruleStatus.getStatus().equals(RuleStatus.RUNNING)) {
@@ -138,7 +138,7 @@ public class RuntimeRuleTest extends JavaOSGiTest {
                 }
                 assertThat(allFine, is(true));
             });
-            logger.info("Rule is enabled");
+            logger.info("RuleImpl is enabled");
         }
     }
 
@@ -168,7 +168,7 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         registerService(itemEventHandler);
 
         /*
-         * Create Rule
+         * Create RuleImpl
          */
         logger.info("Create rule");
         String testExpression = "* * * * * ?";
@@ -184,15 +184,13 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         List<Action> actions = Collections
                 .singletonList(new Action("MyItemPostCommandAction", "core.ItemCommandAction", actionConfig, null));
 
-        Rule rule = new Rule("MyRule" + new Random().nextInt());
-        rule.setTriggers(triggers);
-        rule.setActions(actions);
-        rule.setName("MyTimerTriggerTestRule");
-        logger.info("Rule created: {}", rule.getUID());
+        Rule rule = RuleBuilder.create("MyRule" + new Random().nextInt()).withTriggers(triggers).withActions(actions)
+                .withName("MyTimerTriggerTestRule").build();
+        logger.info("RuleImpl created: {}", rule.getUID());
 
         logger.info("Add rule");
         ruleRegistry.add(rule);
-        logger.info("Rule added");
+        logger.info("RuleImpl added");
 
         logger.info("Enable rule and wait for idle status");
         ruleEngine.setEnabled(rule.getUID(), true);
@@ -200,7 +198,7 @@ public class RuntimeRuleTest extends JavaOSGiTest {
             final RuleStatusInfo ruleStatus = ruleEngine.getStatusInfo(rule.getUID());
             assertThat(ruleStatus.getStatus(), is(RuleStatus.IDLE));
         });
-        logger.info("Rule is enabled and idle");
+        logger.info("RuleImpl is enabled and idle");
 
         waitForAssert(() -> {
             assertThat(itemEvents.size(), is(3));
@@ -208,7 +206,7 @@ public class RuntimeRuleTest extends JavaOSGiTest {
     }
 
     class TestItemProvider implements ItemProvider {
-        private Collection<Item> items;
+        private final Collection<Item> items;
 
         TestItemProvider(Collection<Item> items) {
             this.items = items;
