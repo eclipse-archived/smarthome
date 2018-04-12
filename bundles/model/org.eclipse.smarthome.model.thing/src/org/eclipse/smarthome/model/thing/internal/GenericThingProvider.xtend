@@ -319,7 +319,8 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
     }
 
     def private getParentPath(ThingUID bridgeUID) {
-        var bridgeIds = bridgeUID.bridgeIds
+        val bridgeIds = newArrayList
+        bridgeIds.addAll(bridgeUID.bridgeIds)
         bridgeIds.add(bridgeUID.id)
         return bridgeIds
     }
