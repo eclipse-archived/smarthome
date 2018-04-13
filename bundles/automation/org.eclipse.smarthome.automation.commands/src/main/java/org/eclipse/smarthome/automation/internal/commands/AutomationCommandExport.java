@@ -136,10 +136,7 @@ public class AutomationCommandExport extends AutomationCommand {
     private File initFile(String parameterValue) {
         File f = new File(parameterValue);
         File parent = f.getParentFile();
-        if (!parent.isDirectory() && !parent.mkdirs()) {
-            return null;
-        }
-        return f;
+        return (parent == null || (!parent.isDirectory() && !parent.mkdirs())) ? null : f;
     }
 
     /**
