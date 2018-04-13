@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.config.core.internal.items;
+package org.eclipse.smarthome.config.core.internal.metadata;
 
 import static org.eclipse.smarthome.config.core.internal.metadata.MetadataConfigDescriptionProviderImpl.*;
 import static org.junit.Assert.*;
@@ -26,9 +26,10 @@ import java.util.Locale;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
-import org.eclipse.smarthome.config.core.metadata.MetadataConfigDescriptionProvider;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
 import org.eclipse.smarthome.config.core.ParameterOption;
+import org.eclipse.smarthome.config.core.internal.metadata.MetadataConfigDescriptionProviderImpl;
+import org.eclipse.smarthome.config.core.metadata.MetadataConfigDescriptionProvider;
 import org.eclipse.smarthome.test.java.JavaTest;
 import org.junit.Before;
 import org.junit.Test;
