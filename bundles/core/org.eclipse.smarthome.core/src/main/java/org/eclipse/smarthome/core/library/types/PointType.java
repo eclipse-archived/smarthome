@@ -85,7 +85,8 @@ public class PointType implements ComplexType, Command, State {
                 String element1 = elements[1].trim();
                 canonicalize(new DecimalType(element0), new DecimalType(element1));
                 if (elements.length == 3) {
-                    setAltitude(new DecimalType(elements[2]));
+                    String element2 = elements[2].trim();
+                    setAltitude(new DecimalType(element2));
                 } else if (elements.length > 3) {
                     throw new IllegalArgumentException(value
                             + " is not a valid PointType syntax. The syntax must not consist of more than 3 elements.");
