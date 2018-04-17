@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-ClassPath: .
 Bundle-Name: Eclipse SmartHome Serial Transport
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-SymbolicName: org.eclipse.smarthome.io.transport.serial;singleton:=true
+Bundle-SymbolicName: 
+ org.eclipse.smarthome.io.transport.serial;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Export-Package: 
