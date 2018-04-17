@@ -312,6 +312,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         // (i.e. it contains at least a %)
         try {
             final Item item = getItem(itemName);
+
             // There is a known issue in the implementation of the method getStateDescription() of class Item
             // in the following case:
             // - the item provider returns as expected a state description without pattern but with for
@@ -329,18 +330,19 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             String updatedPattern = getFormatPattern(label);
             if (updatedPattern != null) {
                 formatPattern = updatedPattern;
+                state = item.getState();
 
-                // TODO: TEE: we should find a more generic solution here! When
-                // using indexes in formatString this 'contains' will fail again
-                // and will cause an 'java.util.IllegalFormatConversionException:
-                // d != java.lang.String' later on when trying to format a String
-                // as %d (number).
-                //
-                // a number is requested, PercentType must not be converted to DecimalType:
-                if (formatPattern.contains("%d") && !(item.getState() instanceof PercentType)) {
-                    state = item.getStateAs(DecimalType.class);
-                } else {
-                    state = item.getState();
+                if (formatPattern.contains("%d")) {
+                    if (!(state instanceof Number)) {
+                        // States which do not provide a Number will be converted to DecimalType.
+                        // e.g.: GroupItem can provide a count of items matching the active state
+                        // for some group functions.
+                        state = item.getStateAs(DecimalType.class);
+                    }
+
+                    // for fraction digits in state we dont want to risk format exceptions,
+                    // so treat everything as floats:
+                    formatPattern = formatPattern.replaceAll("\\%d", "%.0f");
                 }
             }
         } catch (ItemNotFoundException e) {
