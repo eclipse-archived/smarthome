@@ -199,7 +199,7 @@ public class ItemUIRegistryImplTest {
 
     @Test
     public void getLabel_labelWithDecimalValueAndUnit5() {
-        String testLabel = "Label [%d %unit%]";
+        String testLabel = "Label [%d " + UnitUtils.UNIT_PLACEHOLDER + "]";
 
         when(widget.getLabel()).thenReturn(testLabel);
         when(item.getState()).thenReturn(new QuantityType<>("33 %"));
@@ -209,7 +209,7 @@ public class ItemUIRegistryImplTest {
 
     @Test
     public void getLabel_labelWithDecimalValueAndUnit6() {
-        String testLabel = "Label [%.0f %unit%]";
+        String testLabel = "Label [%.0f " + UnitUtils.UNIT_PLACEHOLDER + "]";
 
         when(widget.getLabel()).thenReturn(testLabel);
         when(item.getState()).thenReturn(new QuantityType<>("" + 10f / 3f + " %"));
@@ -371,7 +371,7 @@ public class ItemUIRegistryImplTest {
 
     @Test
     public void getLabel_labelForUndefinedQuantityItemState() throws ItemNotFoundException {
-        String testLabel = "Label [%.2f %unit%]";
+        String testLabel = "Label [%.2f " + UnitUtils.UNIT_PLACEHOLDER + "]";
 
         when(widget.getLabel()).thenReturn(testLabel);
         when(item.getState()).thenReturn(UnDefType.UNDEF);
@@ -613,7 +613,7 @@ public class ItemUIRegistryImplTest {
 
     @Test
     public void getLabelColor_labelWithUnitValue() throws ItemNotFoundException {
-        String testLabel = "Label [%.3f %unit%]";
+        String testLabel = "Label [%.3f " + UnitUtils.UNIT_PLACEHOLDER + "]";
 
         when(widget.getLabel()).thenReturn(testLabel);
 
