@@ -13,6 +13,8 @@
 package org.eclipse.smarthome.io.net.http.internal;
 
 import java.security.AccessController;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Map;
@@ -28,6 +30,7 @@ import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.smarthome.io.net.http.HttpClientFactory;
+import org.eclipse.smarthome.io.net.http.HttpClientInitializationException;
 import org.eclipse.smarthome.io.net.http.TrustManagerProvider;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -174,7 +177,8 @@ public class SecureHttpClientFactory implements HttpClientFactory {
                 if (cause instanceof RuntimeException) {
                     throw (RuntimeException) cause;
                 } else {
-                    throw new RuntimeException(cause);
+                    throw new HttpClientInitializationException(
+                            "unexpected checked exception during initialization of the jetty client", cause);
                 }
             }
         }
@@ -200,7 +204,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
                             httpClient.start();
                         } catch (Exception e) {
                             logger.error("Could not start jetty client", e);
-                            throw new RuntimeException("Could not start jetty client", e);
+                            throw new HttpClientInitializationException("Could not start jetty client", e);
                         }
                     }
 
@@ -212,7 +216,8 @@ public class SecureHttpClientFactory implements HttpClientFactory {
             if (cause instanceof RuntimeException) {
                 throw (RuntimeException) cause;
             } else {
-                throw new RuntimeException(cause);
+                throw new HttpClientInitializationException(
+                        "unexpected checked exception during initialization of the jetty client", cause);
             }
         }
     }
@@ -265,8 +270,9 @@ public class SecureHttpClientFactory implements HttpClientFactory {
                     SSLContext sslContext = SSLContext.getInstance("TLS");
                     sslContext.init(null, trustManagers, null);
                     sslContextFactory.setSslContext(sslContext);
-                } catch (Exception ex) {
-                    throw new RuntimeException("Cannot create an TLS context for the endpoint '" + endpoint + "'!", ex);
+                } catch (NoSuchAlgorithmException | KeyManagementException ex) {
+                    throw new HttpClientInitializationException(
+                            "Cannot create an TLS context for the endpoint '" + endpoint + "'!", ex);
                 }
             }
         }
