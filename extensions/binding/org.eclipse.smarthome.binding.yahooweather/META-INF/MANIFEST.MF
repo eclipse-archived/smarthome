@@ -3,7 +3,8 @@ Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
 Bundle-Name: YahooWeather Binding
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-SymbolicName: org.eclipse.smarthome.binding.yahooweather;singleton:=true
+Bundle-SymbolicName: 
+ org.eclipse.smarthome.binding.yahooweather;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Export-Package: 
