@@ -9,11 +9,11 @@ before_install: echo "MAVEN_OPTS='-Xms1g -Xmx2g -XX:PermSize=512m -XX:MaxPermSiz
 #$ mvn test -B
 
 install:
-  - echo 'mvn clean install -B -V -Dfindbugs.skip=true 1> .build.stdout 2> .build.stderr' > .build.sh
+  - echo 'mvn clean install -B -V -Dspotbugs.skip=true 1> .build.stdout 2> .build.stderr' > .build.sh
   - chmod 0755 .build.sh
 script:
   - travis_wait 60 ./.build.sh
-after_success: 
+after_success:
   - tail -n  200 .build.stdout
 after_failure:
   - tail -n  300 .build.stderr
