@@ -66,16 +66,14 @@ cat <<EOF >> "$READMEMD"
     {% assign iconSrc = "icons/" | append: category | append: ".png" %}
   {% endif %}
 
-  {% assign altText = "" %}
   {% for i in allIcons %}
     {% assign prefix = category | append: "-" %}    
     {% if i contains prefix %}
       {% assign iWithoutExt = i | split: "." %}
-      {% assign altText = altText | append: iWithoutExt[0] | append: " " %}
     {% endif %}
   {% endfor %}
   <figure>
-    <img src="{{iconSrc}}" alt="{{altText}}" title="{{altText}}">
+    <img src="{{iconSrc}}" alt="{{category}}" title="{{category}}">
     <figcaption>{{category}}</figcaption>
   </figure>
 {% endfor %}
@@ -108,17 +106,15 @@ cat <<EOF >> "$READMEMD"
       {% assign iconSrc = "icons/" | append: channelCategory | append: ".png" %}
     {% endif %}
 
-    {% assign altText = "" %}
     {% for i in allIcons %}
       {% assign prefix = channelCategory | append: "-" %}    
       {% if i contains prefix %}
         {% assign iWithoutExt = i | split: "." %}
-        {% assign altText = altText | append: iWithoutExt[0] | append: " " %}
       {% endif %}
     {% endfor %}
 
     <figure>
-      <img src="{{iconSrc}}" alt="{{altText}}" title="{{altText}}">
+      <img src="{{iconSrc}}" alt="{{channelCategory}}" title="{{channelCategory}}">
       <figcaption>{{channelCategory}}</figcaption>
     </figure>
   {% endfor %}
@@ -152,17 +148,15 @@ cat <<EOF >> "$READMEMD"
 
   {% unless icon contains "-" %}
 
-    {% assign altText = "" %}
     {% for i in allIcons %}
       {% assign prefix = plainCategory | append: "-" %}    
       {% if i contains prefix %}
         {% assign iWithoutExt = i | split: "." %}
-        {% assign altText = altText | append: iWithoutExt[0] | append: " " %}
       {% endif %}
     {% endfor %}
   
     <figure>
-      <img src="icons/{{icon}}" alt="{{altText}}" title="{{altText}}">
+      <img src="icons/{{icon}}" alt="{{plainCategory}}" title="{{plainCategory}}">
       <figcaption>{{plainCategory}}</figcaption>
     </figure>
   {% endunless %}
