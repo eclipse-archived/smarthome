@@ -69,7 +69,8 @@ public class RegExTransformationService implements TransformationService {
             logger.debug(
                     "the given regex '^{}$' doesn't match the given content '{}' -> couldn't compute transformation",
                     regExpression, source);
-            return UnDefType.NULL.toFullString();
+            throw new TransformationException("the given regex '^" + regExpression
+                    + "$' doesn't match the given content '" + source + "' -> couldn't compute transformation");
         }
         matcher.reset();
 
