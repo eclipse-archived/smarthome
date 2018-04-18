@@ -64,7 +64,7 @@
     <jdt-annotations.version>2.1.0</jdt-annotations.version>
     <build.helper.maven.plugin.version>1.8</build.helper.maven.plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <sat.version>0.4.1</sat.version>
+    <sat.version>0.5.0</sat.version>
   </properties>
 
   <repositories>
@@ -332,7 +332,7 @@
               <goals>
                 <goal>checkstyle</goal>
                 <goal>pmd</goal>
-                <goal>findbugs</goal>
+                <goal>spotbugs</goal>
                 <goal>report</goal>
               </goals>
             </execution>
@@ -341,7 +341,7 @@
             <pmdFilter>${basedirRoot}/tools/static-code-analysis/pmd/suppressions.properties</pmdFilter>
             <checkstyleProperties>${basedirRoot}/tools/static-code-analysis/checkstyle/ruleset.properties</checkstyleProperties>
             <checkstyleFilter>${basedirRoot}/tools/static-code-analysis/checkstyle/suppressions.xml</checkstyleFilter>
-            <findbugsExclude>${basedirRoot}/tools/static-code-analysis/findbugs/suppressions.xml</findbugsExclude>
+            <spotbugsExclude>${basedirRoot}/tools/static-code-analysis/spotbugs/suppressions.xml</spotbugsExclude>
           </configuration>
         </plugin>
       </plugins>
