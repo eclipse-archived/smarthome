@@ -20,22 +20,4 @@
     <bundle.namespace>org.eclipse.smarthome.core</bundle.namespace>
   </properties>
 
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.openhab.tools.sat</groupId>
-          <artifactId>sat-plugin</artifactId>
-          <version>${sat.version}</version>
-          <executions>
-            <execution>
-              <id>sat-all</id>
-              <phase>none</phase>
-            </execution>
-          </executions>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
-
 </project>
