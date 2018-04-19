@@ -84,12 +84,9 @@ public class PointType implements ComplexType, Command, State {
         if (!value.isEmpty()) {
             List<String> elements = Arrays.stream(value.split(",")).map(in -> in.trim()).collect(Collectors.toList());
             if (elements.size() >= 2) {
-                String element0 = elements.get(0);
-                String element1 = elements.get(1);
-                canonicalize(new DecimalType(element0), new DecimalType(element1));
+                canonicalize(new DecimalType(elements.get(0)), new DecimalType(elements.get(1)));
                 if (elements.size() == 3) {
-                    String element2 = elements.get(2).trim();
-                    setAltitude(new DecimalType(element2));
+                    setAltitude(new DecimalType(elements.get(2)));
                 } else if (elements.size() > 3) {
                     throw new IllegalArgumentException(value
                             + " is not a valid PointType syntax. The syntax must not consist of more than 3 elements.");
