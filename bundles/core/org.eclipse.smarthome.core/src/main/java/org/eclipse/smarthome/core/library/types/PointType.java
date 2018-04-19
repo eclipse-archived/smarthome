@@ -13,8 +13,11 @@
 package org.eclipse.smarthome.core.library.types;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.ComplexType;
@@ -79,15 +82,15 @@ public class PointType implements ComplexType, Command, State {
             throw new IllegalArgumentException("Constructor argument must not be null");
         }
         if (!value.isEmpty()) {
-            String[] elements = value.split(",");
-            if (elements.length >= 2) {
-                String element0 = elements[0].trim();
-                String element1 = elements[1].trim();
+            List<String> elements = Arrays.stream(value.split(",")).map(in -> in.trim()).collect(Collectors.toList());
+            if (elements.size() >= 2) {
+                String element0 = elements.get(0);
+                String element1 = elements.get(1);
                 canonicalize(new DecimalType(element0), new DecimalType(element1));
-                if (elements.length == 3) {
-                    String element2 = elements[2].trim();
+                if (elements.size() == 3) {
+                    String element2 = elements.get(2).trim();
                     setAltitude(new DecimalType(element2));
-                } else if (elements.length > 3) {
+                } else if (elements.size() > 3) {
                     throw new IllegalArgumentException(value
                             + " is not a valid PointType syntax. The syntax must not consist of more than 3 elements.");
                 }
