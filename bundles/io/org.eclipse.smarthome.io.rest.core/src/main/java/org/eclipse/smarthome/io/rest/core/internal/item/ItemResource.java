@@ -213,7 +213,9 @@ public class ItemResource implements RESTResource {
             @QueryParam("fields") @ApiParam(value = "limit output to the given fields (comma separated)", required = false) @Nullable String fields) {
         final Locale locale = LocaleUtil.getLocale(language);
         final Set<String> namespaces = namespaceSelector == null ? Collections.emptySet()
-                : Arrays.stream(namespaceSelector.split(",")).collect(Collectors.toSet());
+                : Arrays.stream(namespaceSelector.split(",")) //
+                        .filter(n -> !n.startsWith(MetadataRegistry.INTERNAL_NAMESPACE_PREFIX)) //
+                        .collect(Collectors.toSet());
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
         Stream<EnrichedItemDTO> itemStream = getItems(type, tags).stream()
@@ -236,7 +238,9 @@ public class ItemResource implements RESTResource {
 
         final Locale locale = LocaleUtil.getLocale(language);
         final Set<String> namespaces = namespaceSelector == null ? Collections.emptySet()
-                : Arrays.stream(namespaceSelector.split(",")).collect(Collectors.toSet());
+                : Arrays.stream(namespaceSelector.split(",")) //
+                        .filter(n -> !n.startsWith(MetadataRegistry.INTERNAL_NAMESPACE_PREFIX)) //
+                        .collect(Collectors.toSet());
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
         // get item
@@ -472,19 +476,11 @@ public class ItemResource implements RESTResource {
     public Response addTag(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
             @PathParam("tag") @ApiParam(value = "tag", required = true) String tag) {
         Item item = getItem(itemname);
-
         if (item == null) {
             logger.info("Received HTTP PUT request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return Response.status(Status.NOT_FOUND).build();
         }
-
-        if (managedItemProvider.get(itemname) == null) {
-            return Response.status(Status.METHOD_NOT_ALLOWED).build();
-        }
-
-        ((ActiveItem) item).addTag(tag);
-        managedItemProvider.update(item);
-
+        itemRegistry.addTag(itemname, tag);
         return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
@@ -498,19 +494,11 @@ public class ItemResource implements RESTResource {
     public Response removeTag(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
             @PathParam("tag") @ApiParam(value = "tag", required = true) String tag) {
         Item item = getItem(itemname);
-
         if (item == null) {
             logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return Response.status(Status.NOT_FOUND).build();
         }
-
-        if (managedItemProvider.get(itemname) == null) {
-            return Response.status(Status.METHOD_NOT_ALLOWED).build();
-        }
-
-        ((ActiveItem) item).removeTag(tag);
-        managedItemProvider.update(item);
-
+        itemRegistry.removeTag(itemname, tag);
         return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
@@ -533,6 +521,11 @@ public class ItemResource implements RESTResource {
         if (item == null) {
             logger.info("Received HTTP PUT request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return Response.status(Status.NOT_FOUND).build();
+        }
+
+        if (namespace.startsWith(MetadataRegistry.INTERNAL_NAMESPACE_PREFIX)) {
+            logger.info("Received HTTP PUT request at '{}' for internal namespace '{}'.", uriInfo.getPath(), namespace);
+            return Response.status(Status.FORBIDDEN).build();
         }
 
         MetadataKey key = new MetadataKey(namespace, itemname);
@@ -563,6 +556,12 @@ public class ItemResource implements RESTResource {
         if (item == null) {
             logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return Response.status(Status.NOT_FOUND).build();
+        }
+
+        if (namespace.startsWith(MetadataRegistry.INTERNAL_NAMESPACE_PREFIX)) {
+            logger.info("Received HTTP DELETE request at '{}' for internal namespace '{}'.", uriInfo.getPath(),
+                    namespace);
+            return Response.status(Status.FORBIDDEN).build();
         }
 
         MetadataKey key = new MetadataKey(namespace, itemname);

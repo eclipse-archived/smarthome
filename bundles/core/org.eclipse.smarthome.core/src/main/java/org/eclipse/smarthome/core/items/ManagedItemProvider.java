@@ -15,7 +15,6 @@ package org.eclipse.smarthome.core.items;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +63,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
         public @NonNull String itemType;
 
+        @Deprecated // Only read for backward compatibility. Not written anymore.
         public Set<String> tags;
 
         public String label;
@@ -267,7 +267,6 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
         persistedItem.label = item.getLabel();
         persistedItem.groupNames = new ArrayList<>(item.getGroupNames());
-        persistedItem.tags = new HashSet<>(item.getTags());
         persistedItem.category = item.getCategory();
 
         return persistedItem;

@@ -34,6 +34,7 @@ import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemProvider;
+import org.eclipse.smarthome.core.items.MetadataRegistry;
 import org.eclipse.smarthome.core.items.dto.GroupFunctionDTO;
 import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.types.StateDescription;
@@ -389,7 +390,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
                     logger.error("Binding configuration of type '{}' of item '{}' could not be parsed correctly.",
                             bindingType, item.getName(), e);
                 }
-            } else {
+            } else if (!bindingType.startsWith(MetadataRegistry.INTERNAL_NAMESPACE_PREFIX)) {
                 genericMetaDataProvider.addMetadata(bindingType, item.getName(), config, configuration.getProperties());
             }
         }

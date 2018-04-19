@@ -1326,4 +1326,40 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         return null;
     }
 
+    @Override
+    public boolean addTag(String itemName, String tag) {
+        if (itemRegistry != null) {
+            return itemRegistry.addTag(itemName, tag);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean addTags(String itemName, Collection<String> tags) {
+        if (itemRegistry != null) {
+            return itemRegistry.addTags(itemName, tags);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean removeTag(String itemName, String tag) {
+        if (itemRegistry != null) {
+            return itemRegistry.removeTag(itemName, tag);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean removeTags(String itemName, Collection<String> tags) {
+        if (itemRegistry != null) {
+            return itemRegistry.removeTags(itemName, tags);
+        } else {
+            return false;
+        }
+    }
+
 }
