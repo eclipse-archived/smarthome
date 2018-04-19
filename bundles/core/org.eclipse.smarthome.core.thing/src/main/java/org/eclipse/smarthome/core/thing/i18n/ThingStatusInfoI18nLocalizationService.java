@@ -15,8 +15,6 @@ package org.eclipse.smarthome.core.thing.i18n;
 import java.util.Arrays;
 import java.util.Locale;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.i18n.I18nUtil;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -113,8 +111,7 @@ public final class ThingStatusInfoI18nLocalizationService {
      * the given thingHandler and its parent classes. The description may contain arguments that may also need
      * translation (see class JavaDoc for an example); those arguments are translated in the same way.
      */
-    private String translateDescription(@NonNull String description, @Nullable Locale locale,
-            @NonNull ThingHandler thingHandler) {
+    private String translateDescription(String description, Locale locale, ThingHandler thingHandler) {
         ParsedDescription parsedDescription = new ParsedDescription(description);
 
         Object[] translatedArgs = null;
@@ -136,9 +133,7 @@ public final class ThingStatusInfoI18nLocalizationService {
      * given class; if there is no translation look up the translation in the bundle in the parent class, and so
      * forth. If no translation is found for the bundle of any parent class, return the i18n constant.
      */
-    @NonNull
-    private String getTranslationForClass(@NonNull String i18nConstant, @Nullable Locale locale,
-            @Nullable Class<?> clazz, @Nullable Object... args) {
+    private String getTranslationForClass(String i18nConstant, Locale locale, Class<?> clazz, Object... args) {
         if (clazz == null) {
             return i18nConstant;
         }
@@ -146,7 +141,7 @@ public final class ThingStatusInfoI18nLocalizationService {
         Bundle bundle = bundleResolver.resolveBundle(clazz);
 
         if (bundle == null) {
-            return getTranslationForClass(i18nConstant, locale, clazz.getSuperclass());
+            return getTranslationForClass(i18nConstant, locale, clazz.getSuperclass(), args);
         }
 
         String translatedDescription = i18nProvider.getText(bundle, I18nUtil.stripConstant(i18nConstant), null, locale,
