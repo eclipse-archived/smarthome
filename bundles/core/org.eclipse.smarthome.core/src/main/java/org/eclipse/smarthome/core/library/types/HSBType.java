@@ -14,8 +14,11 @@ package org.eclipse.smarthome.core.library.types;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Arrays;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.ComplexType;
@@ -69,11 +72,12 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
 
     public HSBType(String value) {
         if (value != null) {
-            String[] constituents = value.split(",");
-            if (constituents.length == 3) {
-                this.hue = new BigDecimal(constituents[0]);
-                this.saturation = new BigDecimal(constituents[1]);
-                this.value = new BigDecimal(constituents[2]);
+            List<String> constituents = Arrays.stream(value.split(",")).map(in -> in.trim())
+                    .collect(Collectors.toList());
+            if (constituents.size() == 3) {
+                this.hue = new BigDecimal(constituents.get(0));
+                this.saturation = new BigDecimal(constituents.get(1));
+                this.value = new BigDecimal(constituents.get(2));
             } else {
                 throw new IllegalArgumentException(value + " is not a valid HSBType syntax");
             }
