@@ -156,7 +156,6 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
                 Entry<String, PersistedItem> entry = iterator.next();
                 String itemName = entry.getKey();
                 PersistedItem persistedItem = entry.getValue();
-                @SuppressWarnings("null")
                 ActiveItem item = itemFactory.createItem(persistedItem.itemType, itemName);
                 if (item != null) {
                     iterator.remove();
@@ -277,9 +276,11 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
     private void addFunctionToPersisedItem(PersistedItem persistedItem, GroupItem groupItem) {
         if (groupItem.getFunction() != null) {
             GroupFunctionDTO functionDTO = ItemDTOMapper.mapFunction(groupItem.getFunction());
-            persistedItem.functionName = functionDTO.name;
-            if (functionDTO.params != null) {
-                persistedItem.functionParams = Arrays.asList(functionDTO.params);
+            if (functionDTO != null) {
+                persistedItem.functionName = functionDTO.name;
+                if (functionDTO.params != null) {
+                    persistedItem.functionParams = Arrays.asList(functionDTO.params);
+                }
             }
         }
     }
