@@ -17,9 +17,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package ${package}.handler;
+package ${package}.internal;
 
-import static ${package}.${bindingIdCamelCase}BindingConstants.*;
+import static ${package}.internal.${bindingIdCamelCase}BindingConstants.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
