@@ -56,7 +56,7 @@ public class ModelServer {
     static final String CONFIG_PID = "org.eclipse.smarthome.lsp";
     private static final String KEY_PORT = "port";
     private static final int DEFAULT_PORT = 5007;
-    private final ExecutorService pool = ThreadPoolManager.getPool("Language Server");
+    private final ExecutorService pool = ThreadPoolManager.getPool("lsp");
 
     private final Logger logger = LoggerFactory.getLogger(ModelServer.class);
     private ServerSocket socket;
