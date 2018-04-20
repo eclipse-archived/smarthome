@@ -312,7 +312,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
                     } catch (ScriptExecutionException e) {
                         if (!e.getMessage().contains("cannot be resolved to an item or type")) {
                             logger.error("Error during the execution of startup rule '{}': {}", rule.getName(),
-                                    e.getCause().getMessage());
+                                    e.getMessage());
                             triggerManager.removeRule(STARTUP, rule);
                         } else {
                             logger.debug(
