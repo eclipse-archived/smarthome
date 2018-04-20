@@ -810,6 +810,6 @@ public class ItemResource implements RESTResource {
     @Override
     public boolean isSatisfied() {
         return itemRegistry != null && managedItemProvider != null && eventPublisher != null && !itemFactories.isEmpty()
-                && dtoMapper != null;
+                && dtoMapper != null && metadataRegistry != null;
     }
 }
