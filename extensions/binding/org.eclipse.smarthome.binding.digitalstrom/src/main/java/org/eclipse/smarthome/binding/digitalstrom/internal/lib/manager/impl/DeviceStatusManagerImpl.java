@@ -253,8 +253,6 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
 
             List<Device> currentDeviceList = getDetailedDevices();
 
-            // TODO: Maybe it is better to separate the total power consumption update in a extra Thread. See next
-            // TODO.
             // update the current total power consumption
             if (nextSensorUpdate <= System.currentTimeMillis()) {
                 // check circuits
@@ -280,10 +278,6 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
                 DSID currentDeviceDSID = currentDevice.getDSID();
                 Device eshDevice = tempDeviceMap.remove(currentDeviceDSID);
 
-                // TODO: Maybe it is better to separate the Device-Status updates (send commands to dSS) and the
-                // structure and configuration updates. That will optimize the time to send commands and the
-                // structure and configuration updates can be executed at a higher interval. For that the
-                // DeviceHandler has to inform this DeviceStatusManager to check the updates in an extra Thread.
                 if (eshDevice != null) {
                     checkDeviceConfig(currentDevice, eshDevice);
 
