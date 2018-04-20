@@ -1,4 +1,4 @@
-angular.module('PaperUI.controllers.configuration')//
+angular.module('PaperUI.items')//
 .controller('ItemSetupController', function($scope, $timeout, $location, $mdDialog, $filter, itemRepository, toastService, sharedProperties) {
     $scope.navigateTo = function(path) {
         $location.path('configuration/' + path);
