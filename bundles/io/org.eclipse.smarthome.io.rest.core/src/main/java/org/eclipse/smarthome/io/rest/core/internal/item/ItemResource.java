@@ -212,10 +212,7 @@ public class ItemResource implements RESTResource {
             @DefaultValue("false") @QueryParam("recursive") @ApiParam(value = "get member items recursively", required = false) boolean recursive,
             @QueryParam("fields") @ApiParam(value = "limit output to the given fields (comma separated)", required = false) @Nullable String fields) {
         final Locale locale = LocaleUtil.getLocale(language);
-        final Set<String> namespaces = namespaceSelector == null ? Collections.emptySet()
-                : Arrays.stream(namespaceSelector.split(",")) //
-                        .filter(n -> !n.startsWith(MetadataRegistry.INTERNAL_NAMESPACE_PREFIX)) //
-                        .collect(Collectors.toSet());
+        final Set<String> namespaces = splitAndFilterNamespaces(namespaceSelector);
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
         Stream<EnrichedItemDTO> itemStream = getItems(type, tags).stream()
@@ -237,10 +234,7 @@ public class ItemResource implements RESTResource {
             @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname) {
 
         final Locale locale = LocaleUtil.getLocale(language);
-        final Set<String> namespaces = namespaceSelector == null ? Collections.emptySet()
-                : Arrays.stream(namespaceSelector.split(",")) //
-                        .filter(n -> !n.startsWith(MetadataRegistry.INTERNAL_NAMESPACE_PREFIX)) //
-                        .collect(Collectors.toSet());
+        final Set<String> namespaces = splitAndFilterNamespaces(namespaceSelector);
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
         // get item
@@ -256,6 +250,13 @@ public class ItemResource implements RESTResource {
             logger.info("Received HTTP GET request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return getItemNotFoundResponse(itemname);
         }
+    }
+
+    private Set<String> splitAndFilterNamespaces(@Nullable String namespaceSelector) {
+        return namespaceSelector == null ? Collections.emptySet()
+                : Arrays.stream(namespaceSelector.split(",")) //
+                        .filter(n -> !n.startsWith(MetadataRegistry.INTERNAL_NAMESPACE_PREFIX)) //
+                        .collect(Collectors.toSet());
     }
 
     /**
