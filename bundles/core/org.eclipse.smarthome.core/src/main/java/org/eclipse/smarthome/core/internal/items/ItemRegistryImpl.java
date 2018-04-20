@@ -54,6 +54,8 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the main implementing class of the {@link ItemRegistry} interface. It
@@ -70,6 +72,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     static final String TAG_NAMESPACE = MetadataRegistry.INTERNAL_NAMESPACE_PREFIX + "tags";
     static final String TAG_SEPARATOR = "|";
+    private final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
     private final List<RegistryHook<Item>> registryHooks = new CopyOnWriteArrayList<>();
     private StateDescriptionService stateDescriptionService;
     private MetadataRegistry metadataRegistry;
@@ -414,11 +417,9 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     private SortedSet<String> readTags(String itemName) {
         MetadataKey key = new MetadataKey(TAG_NAMESPACE, itemName);
         SortedSet<String> tags = new TreeSet<>();
-        if (metadataRegistry != null) {
-            Metadata metadata = metadataRegistry.get(key);
-            if (metadata != null) {
-                tags.addAll(Arrays.asList(metadata.getValue().split("\\" + TAG_SEPARATOR)));
-            }
+        Metadata metadata = metadataRegistry.get(key);
+        if (metadata != null) {
+            tags.addAll(Arrays.asList(metadata.getValue().split("\\" + TAG_SEPARATOR)));
         }
         return tags;
     }
@@ -426,7 +427,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     private void writeTags(String itemName, Set<String> tags) {
         MetadataKey key = new MetadataKey(TAG_NAMESPACE, itemName);
         Metadata metadata = serializeTags(key, tags);
-        if (metadataRegistry != null) {
+        try {
             if (metadata == null) {
                 metadataRegistry.remove(key);
             } else if (metadataRegistry.get(key) != null) {
@@ -434,6 +435,9 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
             } else {
                 metadataRegistry.add(metadata);
             }
+        } catch (IllegalStateException e) {
+            logger.warn("Could not persist tags of item '{}', presumably no ManagedMetadataProvider was available",
+                    itemName);
         }
     }
 
@@ -580,7 +584,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         super.unsetManagedProvider(provider);
     }
 
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    @Reference
     protected void setMetadataRegistry(MetadataRegistry metadataRegistry) {
         this.metadataRegistry = metadataRegistry;
     }
