@@ -58,7 +58,6 @@ public class SceneDiscovery {
     private SceneStatusListener discovery;
 
     public static final String NAMEND_SCENE_QUERY = "/apartment/zones/*(ZoneID)/groups/*(group)/scenes/*(scene,name)";
-    // TODO: can be add to dSApi
     public static final String REACHABLE_SCENE_QUERY = "/json/zone/getReachableScenes?id=";
     public static final String REACHABLE_GROUPS_QUERY = "/json/apartment/getReachableGroups?token=";
 

@@ -24,7 +24,6 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices
 public interface DeviceStateUpdate {
 
     // Update types
-    // TODO: SLAT is in principle the same like OUTPUT, so may it is better to delete SLAT... and change all to OUTPUT..
     // in certain circumstances it is also better to rename SLAT_ANGLE to e.g. SECONDARY_OUTPUT
     // light
     static final String OUTPUT = "output";

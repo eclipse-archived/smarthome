@@ -377,7 +377,6 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
     }
 
     private void loadingCompleted() {
-        // TODO register ready marker to denote overall processing is completed.
     }
 
     @Override
