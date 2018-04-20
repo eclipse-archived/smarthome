@@ -17,7 +17,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package ${package};
+package ${package}.internal;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
