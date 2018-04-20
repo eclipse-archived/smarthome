@@ -50,7 +50,6 @@ class GenericItemProviderTest extends OSGiTest {
 
     @Before
     void setUp() {
-        registerVolatileStorageService()
         itemRegistry = getService ItemRegistry
         assertThat itemRegistry, is(notNullValue())
         modelRepository = getService ModelRepository
