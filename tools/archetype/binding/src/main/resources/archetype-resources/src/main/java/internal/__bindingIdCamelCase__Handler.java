@@ -17,7 +17,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package ${package}.internal.handler;
+package ${package}.internal;
 
 import static ${package}.internal.${bindingIdCamelCase}BindingConstants.*;
 
