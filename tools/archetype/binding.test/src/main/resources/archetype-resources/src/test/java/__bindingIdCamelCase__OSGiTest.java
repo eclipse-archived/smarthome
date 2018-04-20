@@ -23,7 +23,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
-import ${package}.handler.${bindingIdCamelCase}Handler;
+import ${package}.internal.handler.${bindingIdCamelCase}Handler;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.ThingProvider;

@@ -7,12 +7,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: ${artifactId};singleton:=true
 Bundle-Vendor: ${vendorName}
 Bundle-Version: ${version.replaceAll("-SNAPSHOT", ".qualifier")}
-Export-Package: 
- ${package},
- ${package}.handler
 Import-Package: 
  ${package},
- ${package}.handler,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.library.types,

@@ -19,14 +19,14 @@
  */
 package ${package}.internal;
 
-import static ${package}.${bindingIdCamelCase}BindingConstants.*;
+import static ${package}.internal.${bindingIdCamelCase}BindingConstants.*;
 
 import java.util.Collections;
 import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import ${package}.handler.${bindingIdCamelCase}Handler;
+import ${package}.internal.handler.${bindingIdCamelCase}Handler;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
