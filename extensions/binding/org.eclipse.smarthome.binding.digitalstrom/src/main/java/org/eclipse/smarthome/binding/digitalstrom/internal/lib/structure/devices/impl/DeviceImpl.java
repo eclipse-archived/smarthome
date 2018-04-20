@@ -772,7 +772,6 @@ public class DeviceImpl extends AbstractGeneralDeviceInformations implements Dev
                     return true;
                 // Area Stepping continue scenes
                 case AREA_STEPPING_CONTINUE:
-                    // TODO: we don't know what will be happened when this scene was called. Some one know it?
                     return true;
                 default:
                     return false;
