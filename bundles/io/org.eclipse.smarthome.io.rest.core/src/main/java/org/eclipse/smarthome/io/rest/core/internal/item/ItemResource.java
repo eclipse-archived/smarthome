@@ -255,7 +255,7 @@ public class ItemResource implements RESTResource {
     private Set<String> splitAndFilterNamespaces(@Nullable String namespaceSelector) {
         return namespaceSelector == null ? Collections.emptySet()
                 : Arrays.stream(namespaceSelector.split(",")) //
-                        .filter(n -> !n.startsWith(MetadataRegistry.INTERNAL_NAMESPACE_PREFIX)) //
+                        .filter(n -> !metadataRegistry.isInternalNamespace(n)) //
                         .collect(Collectors.toSet());
     }
 
@@ -524,7 +524,7 @@ public class ItemResource implements RESTResource {
             return Response.status(Status.NOT_FOUND).build();
         }
 
-        if (namespace.startsWith(MetadataRegistry.INTERNAL_NAMESPACE_PREFIX)) {
+        if (metadataRegistry.isInternalNamespace(namespace)) {
             logger.info("Received HTTP PUT request at '{}' for internal namespace '{}'.", uriInfo.getPath(), namespace);
             return Response.status(Status.FORBIDDEN).build();
         }
@@ -559,7 +559,7 @@ public class ItemResource implements RESTResource {
             return Response.status(Status.NOT_FOUND).build();
         }
 
-        if (namespace.startsWith(MetadataRegistry.INTERNAL_NAMESPACE_PREFIX)) {
+        if (metadataRegistry.isInternalNamespace(namespace)) {
             logger.info("Received HTTP DELETE request at '{}' for internal namespace '{}'.", uriInfo.getPath(),
                     namespace);
             return Response.status(Status.FORBIDDEN).build();
