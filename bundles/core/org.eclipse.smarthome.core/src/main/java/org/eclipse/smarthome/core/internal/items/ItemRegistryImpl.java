@@ -72,8 +72,11 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     static final String TAG_NAMESPACE = MetadataRegistry.INTERNAL_NAMESPACE_PREFIX + "tags";
     static final String TAG_SEPARATOR = "|";
+    static final String TAG_SPLIT_REGEX = "\\" + TAG_SEPARATOR;
+
     private final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
     private final List<RegistryHook<Item>> registryHooks = new CopyOnWriteArrayList<>();
+
     private StateDescriptionService stateDescriptionService;
     private MetadataRegistry metadataRegistry;
 
@@ -419,7 +422,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         SortedSet<String> tags = new TreeSet<>();
         Metadata metadata = metadataRegistry.get(key);
         if (metadata != null) {
-            tags.addAll(Arrays.asList(metadata.getValue().split("\\" + TAG_SEPARATOR)));
+            tags.addAll(Arrays.asList(metadata.getValue().split(TAG_SPLIT_REGEX)));
         }
         return tags;
     }

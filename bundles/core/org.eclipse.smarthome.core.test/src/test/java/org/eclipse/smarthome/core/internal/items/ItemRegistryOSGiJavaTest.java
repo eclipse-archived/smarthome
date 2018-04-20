@@ -218,7 +218,7 @@ public class ItemRegistryOSGiJavaTest extends JavaOSGiTest {
             assertNull(metadata);
         } else {
             assertNotNull(metadata);
-            List<String> res = Arrays.asList(metadata.getValue().split("\\" + TAG_SEPARATOR));
+            List<String> res = Arrays.asList(metadata.getValue().split(TAG_SPLIT_REGEX));
             assertEquals(tags.length, res.size());
             for (String tag : tags) {
                 assertTrue(tag, res.contains(tag));
