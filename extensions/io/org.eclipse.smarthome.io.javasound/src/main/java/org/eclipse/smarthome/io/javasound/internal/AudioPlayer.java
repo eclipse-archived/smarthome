@@ -132,7 +132,7 @@ public class AudioPlayer extends Thread {
         }
         final int sampleSizeInBits = bitDepth.intValue();
 
-        final int channels = 1; // TODO: Is this always true?
+        final int channels = 1;
 
         final int frameSize = sampleSizeInBits / 8;
 
