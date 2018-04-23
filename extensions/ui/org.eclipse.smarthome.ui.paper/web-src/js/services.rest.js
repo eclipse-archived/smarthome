@@ -365,7 +365,10 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
     return $resource(restConfig.restPath + '/config-descriptions', {}, {
         getAll : {
             method : 'GET',
-            isArray : true
+            isArray : true,
+            params : {
+                scheme : '@scheme'
+            }
         },
         getByUri : {
             method : 'GET',

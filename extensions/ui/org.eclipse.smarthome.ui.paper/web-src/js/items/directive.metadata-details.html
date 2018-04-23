@@ -1,0 +1,13 @@
+<p>{{$ctrl.configDescription.uri}}</p>
+<div>
+    <span>{{$ctrl.mainParameter.description}}</span>
+    <div ng-if="$ctrl.hasOptions()">
+        
+    </div>
+    <div ng-if="!$ctrl.hasOptions()">
+        <md-input-container> 
+            <input type="text" name="{{::item.name}}" ng-model="item.state" aria-label={{::item.label}}></input> 
+        </md-input-container>
+    </div>
+    <span>Options</span>
+</div>
