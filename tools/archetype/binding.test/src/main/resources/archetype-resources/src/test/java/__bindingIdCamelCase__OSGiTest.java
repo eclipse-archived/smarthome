@@ -19,8 +19,6 @@
  */
 package ${package};
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
 import ${package}.internal.${bindingIdCamelCase}Handler;
@@ -67,8 +65,8 @@ public class ${bindingIdCamelCase}OSGiTest extends JavaOSGiTest {
 
     @Test
     public void creationOf${bindingIdCamelCase}Handler() {
-        assertThat(bridge.getHandler(), is(nullValue()));
+        assertNull(bridge.getHandler());
         managedThingProvider.add(bridge);
-        waitForAssert(() -> assertThat(managedThingProvider.get(bridge.getUID()), is(notNullValue())));
+        waitForAssert(() -> assertNotNull(managedThingProvider.get(bridge.getUID())));
     }
 }

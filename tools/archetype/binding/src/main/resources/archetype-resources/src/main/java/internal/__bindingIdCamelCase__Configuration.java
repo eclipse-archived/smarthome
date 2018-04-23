@@ -19,14 +19,12 @@
  */
 package ${package}.internal;
 
-import org.eclipse.smarthome.config.core.Configuration;
-
 /**
  * The {@link ${bindingIdCamelCase}Configuration} class contains fields mapping thing configuration parameters.
  *
  * @author ${author} - Initial contribution
  */
-public class ${bindingIdCamelCase}Configuration extends Configuration {
+public class ${bindingIdCamelCase}Configuration {
 
     /**
      * Sample configuration parameter. Replace with your own.
