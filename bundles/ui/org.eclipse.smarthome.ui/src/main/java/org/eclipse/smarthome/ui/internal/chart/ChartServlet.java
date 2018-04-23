@@ -22,6 +22,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageOutputStream;
 import javax.servlet.Servlet;
@@ -322,6 +323,10 @@ public class ChartServlet extends HttpServlet {
         } catch (IllegalArgumentException e) {
             logger.warn("Illegal argument in chart: {}", e.getMessage());
             res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Illegal argument in chart: " + e.getMessage());
+        } catch (IIOException e) {
+            // this can happen if the request is terminated while the image is streamed, see
+            // https://github.com/openhab/openhab-distro/issues/684
+            logger.debug("Failed writing image to response stream", e);
         } catch (RuntimeException e) {
             if (logger.isDebugEnabled()) {
                 // we also attach the stack trace
