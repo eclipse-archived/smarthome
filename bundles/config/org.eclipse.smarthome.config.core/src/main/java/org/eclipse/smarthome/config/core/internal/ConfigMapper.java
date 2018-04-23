@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Map an OSGi configuration map {@code Map<String, Object>} to an individual configuration bean.
- * 
+ *
  * @author David Graeff - initial contribution
  *
  */
@@ -88,14 +88,14 @@ public class ConfigMapper {
                         .getActualTypeArguments()[0];
                 final List<Object> lst = new ArrayList<>(c.size());
                 for (final Object it : c) {
-                    final Object normalized = numberConvert(it, innerClass);
+                    final Object normalized = objectConvert(it, innerClass);
                     lst.add(normalized);
                 }
                 value = lst;
             }
 
             try {
-                value = numberConvert(value, type);
+                value = objectConvert(value, type);
                 logger.trace("Setting value ({}) {} to field '{}' in configuration class {}", type.getSimpleName(),
                         value, fieldName, configurationClass.getName());
                 FieldUtils.writeField(configuration, fieldName, value, true);
@@ -126,7 +126,7 @@ public class ConfigMapper {
         return fields;
     }
 
-    private static Object numberConvert(Object value, Class<?> type) {
+    private static Object objectConvert(Object value, Class<?> type) {
         Object result = value;
         // Handle the conversion case of BigDecimal to Float,Double,Long,Integer and the respective
         // primitive types
@@ -143,7 +143,7 @@ public class ConfigMapper {
                 result = bdValue.intValue();
             }
         } else
-        // Handle the conversion case of String to Float,Double,Long,Integer,BigDecimal and the respective
+        // Handle the conversion case of String to Float,Double,Long,Integer,BigDecimal,Boolean and the respective
         // primitive types
         if (value instanceof String && !type.equals(String.class)) {
             String bdValue = (String) value;
@@ -157,6 +157,8 @@ public class ConfigMapper {
                 result = new BigDecimal(bdValue);
             } else if (type.equals(Integer.class) || typeName.equals("int")) {
                 result = Integer.valueOf(bdValue);
+            } else if (type.equals(Boolean.class) || typeName.equals("boolean")) {
+                result = Boolean.valueOf(bdValue);
             }
         }
         return result;
