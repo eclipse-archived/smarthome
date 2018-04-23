@@ -67,6 +67,7 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
 import org.eclipse.smarthome.core.thing.link.ThingLinkManager
+import org.eclipse.smarthome.core.thing.testutil.i18n.DefaultLocaleSetter
 import org.eclipse.smarthome.core.thing.type.ChannelKind
 import org.eclipse.smarthome.core.thing.type.ChannelType
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
@@ -79,6 +80,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.osgi.framework.FrameworkUtil
+import org.osgi.service.cm.ConfigurationAdmin
 
 import com.google.common.collect.Sets
 
@@ -1190,7 +1192,10 @@ class ThingManagerOSGiTest extends OSGiTest {
         def defaultLocale = localeProvider.getLocale()
 
         // set status to ONLINE (INITIALIZING -> ONLINE)
-        setDefaultLocale(Locale.ENGLISH)
+        new DefaultLocaleSetter(getService(ConfigurationAdmin)).setDefaultLocale(Locale.ENGLISH)
+        waitForAssert {
+            assertThat localeProvider.getLocale(), is(Locale.ENGLISH)
+        }
 
         ThingStatusInfo statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).withDescription("@text/online").build()
         callback.statusUpdated(THING, statusInfo)
@@ -1219,7 +1224,10 @@ class ThingManagerOSGiTest extends OSGiTest {
         infoChangedEvent = null
 
         // set status to OFFLINE (ONLINE -> OFFLINE)
-        setDefaultLocale(Locale.GERMAN)
+        new DefaultLocaleSetter(getService(ConfigurationAdmin)).setDefaultLocale(Locale.GERMAN)
+        waitForAssert {
+            assertThat localeProvider.getLocale(), is(Locale.GERMAN)
+        }
 
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.NONE).withDescription("@text/offline.without-param").build()
         callback.statusUpdated(THING, statusInfo)
@@ -1247,7 +1255,10 @@ class ThingManagerOSGiTest extends OSGiTest {
         infoEvent = null
         infoChangedEvent = null
 
-        setDefaultLocale(defaultLocale)
+        new DefaultLocaleSetter(getService(ConfigurationAdmin)).setDefaultLocale(defaultLocale)
+        waitForAssert {
+            assertThat localeProvider.getLocale(), is(defaultLocale)
+        }
     }
 
     @Test

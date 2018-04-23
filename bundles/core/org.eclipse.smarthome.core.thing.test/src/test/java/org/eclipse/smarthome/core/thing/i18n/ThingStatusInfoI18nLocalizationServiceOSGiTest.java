@@ -17,8 +17,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.Locale;
 
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
@@ -34,13 +32,13 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
+import org.eclipse.smarthome.core.thing.testutil.i18n.DefaultLocaleSetter;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.magic.binding.handler.MagicColorLightHandler;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
@@ -214,7 +212,8 @@ public class ThingStatusInfoI18nLocalizationServiceOSGiTest extends JavaOSGiTest
         assertThat(localeProvider, is(notNullValue()));
         defaultLocale = localeProvider.getLocale();
 
-        setDefaultLocale(Locale.ENGLISH);
+        new DefaultLocaleSetter(getService(ConfigurationAdmin.class)).setDefaultLocale(Locale.ENGLISH);
+        waitForAssert(() -> assertThat(localeProvider.getLocale(), is(Locale.ENGLISH)));
 
         registerVolatileStorageService();
 
@@ -240,34 +239,8 @@ public class ThingStatusInfoI18nLocalizationServiceOSGiTest extends JavaOSGiTest
     @After
     public void tearDown() throws IOException {
         managedThingProvider.remove(thing.getUID());
-        setDefaultLocale(defaultLocale);
-    }
-
-    private void setDefaultLocale(Locale locale) throws IOException {
-        assertThat(locale, is(notNullValue()));
-
-        ConfigurationAdmin configAdmin = getService(ConfigurationAdmin.class);
-        assertThat(configAdmin, is(notNullValue()));
-
-        LocaleProvider localeProvider = getService(LocaleProvider.class);
-        assertThat(localeProvider, is(notNullValue()));
-
-        Configuration config = configAdmin.getConfiguration("org.eclipse.smarthome.core.i18nprovider", null);
-        assertThat(config, is(notNullValue()));
-
-        Dictionary<String, Object> properties = config.getProperties();
-        if (properties == null) {
-            properties = new Hashtable<>();
-        }
-
-        properties.put("language", locale.getLanguage());
-        properties.put("script", locale.getScript());
-        properties.put("region", locale.getCountry());
-        properties.put("variant", locale.getVariant());
-
-        config.update(properties);
-
-        waitForAssert(() -> assertThat(localeProvider.getLocale(), is(locale)));
+        new DefaultLocaleSetter(getService(ConfigurationAdmin.class)).setDefaultLocale(defaultLocale);
+        waitForAssert(() -> assertThat(getService(LocaleProvider.class).getLocale(), is(defaultLocale)));
     }
 
     @SuppressWarnings("null")
