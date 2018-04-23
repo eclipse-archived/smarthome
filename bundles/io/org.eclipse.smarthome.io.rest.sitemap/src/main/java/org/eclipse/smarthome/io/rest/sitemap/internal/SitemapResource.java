@@ -328,19 +328,26 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
 
     public Collection<SitemapDTO> getSitemapBeans(URI uri) {
         Collection<SitemapDTO> beans = new LinkedList<SitemapDTO>();
+        Set<String> names = new HashSet<>();
         logger.debug("Received HTTP GET request at '{}'.", UriBuilder.fromUri(uri).build().toASCIIString());
         for (SitemapProvider provider : sitemapProviders) {
             for (String modelName : provider.getSitemapNames()) {
                 Sitemap sitemap = provider.getSitemap(modelName);
                 if (sitemap != null) {
-                    SitemapDTO bean = new SitemapDTO();
-                    bean.name = modelName;
-                    bean.icon = sitemap.getIcon();
-                    bean.label = sitemap.getLabel();
-                    bean.link = UriBuilder.fromUri(uri).path(bean.name).build().toASCIIString();
-                    bean.homepage = new PageDTO();
-                    bean.homepage.link = bean.link + "/" + sitemap.getName();
-                    beans.add(bean);
+                    if (!names.contains(modelName)) {
+                        names.add(modelName);
+                        SitemapDTO bean = new SitemapDTO();
+                        bean.name = modelName;
+                        bean.icon = sitemap.getIcon();
+                        bean.label = sitemap.getLabel();
+                        bean.link = UriBuilder.fromUri(uri).path(bean.name).build().toASCIIString();
+                        bean.homepage = new PageDTO();
+                        bean.homepage.link = bean.link + "/" + sitemap.getName();
+                        beans.add(bean);
+                    } else {
+                        logger.warn("Found duplicate sitemap name '{}' - ignoring it. Please check your configuration.",
+                                modelName);
+                    }
                 }
             }
         }
