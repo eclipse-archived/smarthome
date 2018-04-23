@@ -1,3 +1,4 @@
+
 /**
  * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
  *
@@ -10,7 +11,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.model.thing.tests;
+package org.eclipse.smarthome.model.thing.test.hue;
 
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
@@ -26,7 +27,6 @@ import org.eclipse.smarthome.core.thing.type.ChannelType
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.model.core.ModelRepository
-import org.eclipse.smarthome.model.thing.test.hue.DumbThingHandlerFactory
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
@@ -39,7 +39,7 @@ import org.osgi.service.component.ComponentContext
  * @author Simon Kaufmann - Initial contribution and API
  *
  */
-class GenericThingProviderTest3 extends OSGiTest{
+class GenericThingProviderTest3 extends OSGiTest {
     private def dumbThingHandlerFactory
 
     private final static String TESTMODEL_NAME = "testModel3.things"
@@ -58,7 +58,7 @@ class GenericThingProviderTest3 extends OSGiTest{
         modelRepository.removeModel(TESTMODEL_NAME)
 
         def componentContextMock = [
-            getBundleContext: {getBundleContext()}
+            getBundleContext: { getBundleContext() }
         ] as ComponentContext
 
         // create a "dumb" thing handler that acts as if the XML config was not yet loaded
