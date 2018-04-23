@@ -61,7 +61,7 @@ public class ${bindingIdCamelCase}HandlerTest {
     @Test
     public void initializeShouldCallTheCallback() {
         // mock the function to prevent null exception.
-        when(thing.getConfiguration()).thenReturn(new demo1Configuration());
+        when(thing.getConfiguration()).thenReturn(new ${bindingIdCamelCase}Configuration());
         // we expect the handler#initialize method to call the callback during execution and
         // pass it the thing and a ThingStatusInfo object containing the ThingStatus of the thing.
         handler.initialize();
