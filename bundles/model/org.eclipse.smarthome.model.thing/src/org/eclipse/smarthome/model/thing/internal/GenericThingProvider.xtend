@@ -60,7 +60,6 @@ import org.osgi.service.component.annotations.Component
 import org.osgi.service.component.annotations.Reference
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.eclipse.smarthome.model.thing.internal.util.BundleNameResolver
 
 /**
  * {@link ThingProvider} implementation which computes *.things files.
@@ -100,15 +99,6 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 
     private val Set<String> loadedXmlThingTypes = new CopyOnWriteArraySet
     
-    // Override in tests
-    protected BundleNameResolver bundleNameResolver = new BundleNameResolver() {
-        
-        override resolveBundleName(Class<?> clazz) {
-            return FrameworkUtil.getBundle(clazz).symbolicName            
-        }
-        
-    };
-
     def void activate() {
         modelRepository.getAllModelNamesOfType("things").forEach [
             createThingsFromModel
@@ -585,8 +575,9 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         bsn.handleXmlThingTypesLoaded
     }
     
-    def private getBundleName(ThingHandlerFactory thingHandlerFactory) {
-        return bundleNameResolver.resolveBundleName(thingHandlerFactory.class)
+    // Overwritten in tests
+    def protected String getBundleName(ThingHandlerFactory thingHandlerFactory) {
+        return FrameworkUtil.getBundle(thingHandlerFactory.class).symbolicName
     }
     
     def private handleXmlThingTypesLoaded(String bsn) {

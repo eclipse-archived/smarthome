@@ -26,7 +26,6 @@ import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.model.core.EventType;
 import org.eclipse.smarthome.model.core.ModelRepository;
-import org.eclipse.smarthome.model.thing.internal.util.BundleNameResolver;
 import org.eclipse.smarthome.model.thing.thing.ModelBridge;
 import org.eclipse.smarthome.model.thing.thing.ModelThing;
 import org.eclipse.smarthome.model.thing.thing.ThingModel;
@@ -57,11 +56,10 @@ public class GenericThingProviderMultipleBundlesTest {
 
     @Before
     public void setup() {
-        thingProvider = new GenericThingProvider();
-        thingProvider.bundleNameResolver = new BundleNameResolver() {
+        thingProvider = new GenericThingProvider() {
 
             @Override
-            public String resolveBundleName(Class<?> clazz) {
+            protected String getBundleName(ThingHandlerFactory thingHandlerFactory) {
                 return BUNDLE_NAME;
             }
         };
