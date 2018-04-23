@@ -51,10 +51,10 @@ public class ${bindingIdCamelCase}OSGiTest extends JavaOSGiTest {
         registerService(volatileStorageService);
 
         managedThingProvider = getService(ThingProvider.class, ManagedThingProvider.class);
-        assertNotNull("Could not get ManagedThingProvider", managedThingProvider);
+        assertNotNull(managedThingProvider);
 
         bridge = BridgeBuilder.create(BRIDGE_THING_TYPE_UID, "1").withLabel("My Bridge").build();
-        assertNotNull("Could not get Bridge Configuration", bridge.getConfiguration());
+        assertNotNull(bridge.getConfiguration());
     }
 
     @After
