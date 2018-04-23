@@ -10,11 +10,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.model.thing.tests;
+package org.eclipse.smarthome.model.thing.test.hue;
 
 import static org.hamcrest.CoreMatchers.*
-import static org.junit.Assert.*
-import static org.junit.matchers.JUnitMatchers.*
+import static org.junit.Assert.assertThat
 
 import org.eclipse.smarthome.core.service.ReadyMarker
 import org.eclipse.smarthome.core.service.ReadyService
@@ -30,8 +29,6 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.model.core.ModelRepository
-import org.eclipse.smarthome.model.thing.test.hue.TestHueThingHandlerFactoryX
-import org.eclipse.smarthome.model.thing.test.hue.TestHueThingTypeProvider
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
@@ -42,7 +39,6 @@ import org.junit.runners.Parameterized.Parameters
 import org.osgi.framework.Bundle
 import org.osgi.framework.FrameworkUtil
 import org.osgi.service.component.ComponentContext
-
 
 /**
  * Test class for the GenericThingProvider.
