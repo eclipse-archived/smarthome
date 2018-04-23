@@ -34,6 +34,7 @@ import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemProvider;
+import org.eclipse.smarthome.core.items.MetadataRegistry;
 import org.eclipse.smarthome.core.items.dto.GroupFunctionDTO;
 import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.types.StateDescription;
@@ -223,6 +224,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
                     Item item = createItemFromModelItem(modelItem);
                     if (item != null) {
                         internalDispatchBindings(modelName, item, modelItem.getBindings());
+                        provideTags(modelItem);
                     }
                 }
             }
@@ -232,6 +234,15 @@ public class GenericItemProvider extends AbstractProvider<Item>
                 reader.stopConfigurationUpdate(modelName);
             }
         }
+    }
+
+    private void provideTags(ModelItem modelItem) {
+        if (modelItem.getTags() == null || modelItem.getTags().isEmpty()) {
+            return;
+        }
+        String tagString = String.join("|", modelItem.getTags());
+        genericMetaDataProvider.addMetadata(MetadataRegistry.INTERNAL_NAMESPACE_PREFIX + "tags", modelItem.getName(),
+                tagString, null);
     }
 
     private Item createItemFromModelItem(ModelItem modelItem) {
@@ -272,17 +283,9 @@ public class GenericItemProvider extends AbstractProvider<Item>
             }
             item.setLabel(label);
             item.setCategory(modelItem.getIcon());
-            assignTags(modelItem, item);
             return item;
         } else {
             return null;
-        }
-    }
-
-    private void assignTags(ModelItem modelItem, GenericItem item) {
-        List<String> tags = modelItem.getTags();
-        for (String tag : tags) {
-            item.addTag(tag);
         }
     }
 
@@ -389,7 +392,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
                     logger.error("Binding configuration of type '{}' of item '{}' could not be parsed correctly.",
                             bindingType, item.getName(), e);
                 }
-            } else {
+            } else if (!bindingType.startsWith(MetadataRegistry.INTERNAL_NAMESPACE_PREFIX)) {
                 genericMetaDataProvider.addMetadata(bindingType, item.getName(), config, configuration.getProperties());
             }
         }

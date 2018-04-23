@@ -151,40 +151,6 @@ public class ManagedItemProviderOSGiTest extends JavaOSGiTest {
     }
 
     @Test
-    public void assertTagsAreStoredAndRetrievedAsWell() {
-        assertThat(itemProvider.getAll().size(), is(0));
-
-        SwitchItem item1 = new SwitchItem("SwitchItem1");
-        SwitchItem item2 = new SwitchItem("SwitchItem2");
-        item1.addTag("tag1");
-        item1.addTag("tag2");
-        item2.addTag("tag3");
-
-        itemProvider.add(item1);
-        itemProvider.add(item2);
-
-        Collection<Item> items = itemProvider.getAll();
-        assertThat(items.size(), is(2));
-
-        Item result1 = itemProvider.remove("SwitchItem1");
-        Item result2 = itemProvider.remove("SwitchItem2");
-
-        assertThat(result1.getName(), is("SwitchItem1"));
-        assertThat(result1.getTags().size(), is(2));
-        assertThat(result1.hasTag("tag1"), is(true));
-        assertThat(result1.hasTag("tag2"), is(true));
-        assertThat(result1.hasTag("tag3"), is(false));
-
-        assertThat(result2.getName(), is("SwitchItem2"));
-        assertThat(result2.getTags().size(), is(1));
-        assertThat(result2.hasTag("tag1"), is(false));
-        assertThat(result2.hasTag("tag2"), is(false));
-        assertThat(result2.hasTag("tag3"), is(true));
-
-        assertThat(itemProvider.getAll().size(), is(0));
-    }
-
-    @Test
     public void assertRemoveRecursivelyWorks() {
         assertThat(itemProvider.getAll().size(), is(0));
 

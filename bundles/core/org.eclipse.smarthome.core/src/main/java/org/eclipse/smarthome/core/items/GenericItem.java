@@ -64,7 +64,7 @@ public abstract class GenericItem implements ActiveItem {
 
     protected List<String> groupNames = new ArrayList<String>();
 
-    protected Set<String> tags = new HashSet<String>();
+    protected transient volatile Set<String> tags = new HashSet<String>();
 
     protected final String name;
 
@@ -409,9 +409,7 @@ public abstract class GenericItem implements ActiveItem {
      * @return true if state is an acceptedDataType or subclass thereof
      */
     public boolean isAcceptedState(List<Class<? extends State>> acceptedDataTypes, State state) {
-        return acceptedDataTypes.stream()
-                .map(clazz -> clazz.isAssignableFrom(state.getClass()))
-                .filter(found -> found)
+        return acceptedDataTypes.stream().map(clazz -> clazz.isAssignableFrom(state.getClass())).filter(found -> found)
                 .findAny().isPresent();
     }
 
