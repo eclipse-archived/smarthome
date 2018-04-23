@@ -212,8 +212,7 @@ public class ItemResource implements RESTResource {
             @DefaultValue("false") @QueryParam("recursive") @ApiParam(value = "get member items recursively", required = false) boolean recursive,
             @QueryParam("fields") @ApiParam(value = "limit output to the given fields (comma separated)", required = false) @Nullable String fields) {
         final Locale locale = LocaleUtil.getLocale(language);
-        final Set<String> namespaces = namespaceSelector == null ? Collections.emptySet()
-                : Arrays.stream(namespaceSelector.split(",")).collect(Collectors.toSet());
+        final Set<String> namespaces = splitAndFilterNamespaces(namespaceSelector);
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
         Stream<EnrichedItemDTO> itemStream = getItems(type, tags).stream()
@@ -235,8 +234,7 @@ public class ItemResource implements RESTResource {
             @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname) {
 
         final Locale locale = LocaleUtil.getLocale(language);
-        final Set<String> namespaces = namespaceSelector == null ? Collections.emptySet()
-                : Arrays.stream(namespaceSelector.split(",")).collect(Collectors.toSet());
+        final Set<String> namespaces = splitAndFilterNamespaces(namespaceSelector);
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
         // get item
@@ -252,6 +250,13 @@ public class ItemResource implements RESTResource {
             logger.info("Received HTTP GET request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return getItemNotFoundResponse(itemname);
         }
+    }
+
+    private Set<String> splitAndFilterNamespaces(@Nullable String namespaceSelector) {
+        return namespaceSelector == null ? Collections.emptySet()
+                : Arrays.stream(namespaceSelector.split(",")) //
+                        .filter(n -> !metadataRegistry.isInternalNamespace(n)) //
+                        .collect(Collectors.toSet());
     }
 
     /**
@@ -472,19 +477,11 @@ public class ItemResource implements RESTResource {
     public Response addTag(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
             @PathParam("tag") @ApiParam(value = "tag", required = true) String tag) {
         Item item = getItem(itemname);
-
         if (item == null) {
             logger.info("Received HTTP PUT request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return Response.status(Status.NOT_FOUND).build();
         }
-
-        if (managedItemProvider.get(itemname) == null) {
-            return Response.status(Status.METHOD_NOT_ALLOWED).build();
-        }
-
-        ((ActiveItem) item).addTag(tag);
-        managedItemProvider.update(item);
-
+        itemRegistry.addTag(itemname, tag);
         return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
@@ -498,19 +495,11 @@ public class ItemResource implements RESTResource {
     public Response removeTag(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
             @PathParam("tag") @ApiParam(value = "tag", required = true) String tag) {
         Item item = getItem(itemname);
-
         if (item == null) {
             logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return Response.status(Status.NOT_FOUND).build();
         }
-
-        if (managedItemProvider.get(itemname) == null) {
-            return Response.status(Status.METHOD_NOT_ALLOWED).build();
-        }
-
-        ((ActiveItem) item).removeTag(tag);
-        managedItemProvider.update(item);
-
+        itemRegistry.removeTag(itemname, tag);
         return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
@@ -533,6 +522,11 @@ public class ItemResource implements RESTResource {
         if (item == null) {
             logger.info("Received HTTP PUT request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return Response.status(Status.NOT_FOUND).build();
+        }
+
+        if (metadataRegistry.isInternalNamespace(namespace)) {
+            logger.info("Received HTTP PUT request at '{}' for internal namespace '{}'.", uriInfo.getPath(), namespace);
+            return Response.status(Status.FORBIDDEN).build();
         }
 
         MetadataKey key = new MetadataKey(namespace, itemname);
@@ -563,6 +557,12 @@ public class ItemResource implements RESTResource {
         if (item == null) {
             logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return Response.status(Status.NOT_FOUND).build();
+        }
+
+        if (metadataRegistry.isInternalNamespace(namespace)) {
+            logger.info("Received HTTP DELETE request at '{}' for internal namespace '{}'.", uriInfo.getPath(),
+                    namespace);
+            return Response.status(Status.FORBIDDEN).build();
         }
 
         MetadataKey key = new MetadataKey(namespace, itemname);
@@ -810,6 +810,6 @@ public class ItemResource implements RESTResource {
     @Override
     public boolean isSatisfied() {
         return itemRegistry != null && managedItemProvider != null && eventPublisher != null && !itemFactories.isEmpty()
-                && dtoMapper != null;
+                && dtoMapper != null && metadataRegistry != null;
     }
 }
