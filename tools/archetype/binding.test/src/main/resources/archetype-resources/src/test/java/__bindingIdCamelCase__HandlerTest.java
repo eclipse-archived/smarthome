@@ -22,7 +22,7 @@ package ${package};
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import ${package}.internal.${bindingIdCamelCase}Handler;
@@ -60,6 +60,8 @@ public class ${bindingIdCamelCase}HandlerTest {
 
     @Test
     public void initializeShouldCallTheCallback() {
+        // mock the function to prevent null exception.
+        when(thing.getConfiguration()).thenReturn(new demo1Configuration());
         // we expect the handler#initialize method to call the callback during execution and
         // pass it the thing and a ThingStatusInfo object containing the ThingStatus of the thing.
         handler.initialize();
