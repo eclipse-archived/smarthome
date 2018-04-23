@@ -10,11 +10,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.model.thing.tests;
+package org.eclipse.smarthome.model.thing.test;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
