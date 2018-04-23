@@ -81,7 +81,12 @@ public class MetadataRegistryImpl extends AbstractRegistry<Metadata, MetadataKey
         super.deactivate();
     }
 
-    @Reference
+    @Override
+    public boolean isInternalNamespace(String namespace) {
+        return namespace.startsWith(INTERNAL_NAMESPACE_PREFIX);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setManagedItemProvider(ManagedItemProvider managedItemProvider) {
         managedItemProvider.addProviderChangeListener(itemProviderChangeListener);
     }
