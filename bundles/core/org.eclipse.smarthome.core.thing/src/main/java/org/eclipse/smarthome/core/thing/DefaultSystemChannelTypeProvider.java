@@ -48,6 +48,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Markus Rathgeb - Make battery-low indication read-only
  * @author Moritz Kammerer - Added system trigger types
  * @author Christoph Weitkamp - Added support for translation
+ * @author Laurent Garnier - Added weather system channels
  *
  */
 @Component(immediate = true)
@@ -119,6 +120,204 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
                     new EventOption(CommonTriggerEvents.DIR2_RELEASED, null))),
             null);
 
+    /**
+     * Current temperature default system wide {@link ChannelType}. Represents the current temperature.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_CURRENT_TEMPERATURE = new ChannelType(
+            new ChannelTypeUID("system:current-temperature"), false, "Number:Temperature", "Current Temperature",
+            "Current temperature", "Temperature", null,
+            new StateDescription(null, null, null, "%.1f %unit%", true, null), null);
+
+    /**
+     * Minimum temperature default system wide {@link ChannelType}. Represents the minimum temperature.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_MIN_TEMPERATURE = new ChannelType(
+            new ChannelTypeUID("system:minimum-temperature"), false, "Number:Temperature", "Minimum Temperature",
+            "Minimum temperature", "Temperature", null,
+            new StateDescription(null, null, null, "%.1f %unit%", true, null), null);
+
+    /**
+     * Maximum temperature default system wide {@link ChannelType}. Represents the maximum temperature.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_MAX_TEMPERATURE = new ChannelType(
+            new ChannelTypeUID("system:maximum-temperature"), false, "Number:Temperature", "Maximum Temperature",
+            "Maximum temperature", "Temperature", null,
+            new StateDescription(null, null, null, "%.1f %unit%", true, null), null);
+
+    /**
+     * Feeling temperature default system wide {@link ChannelType}. Represents the feeling temperature.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_FEELING_TEMPERATURE = new ChannelType(
+            new ChannelTypeUID("system:feeling-temperature"), false, "Number:Temperature", "Feeling Temperature",
+            "Feeling temperature", "Temperature", null,
+            new StateDescription(null, null, null, "%.1f %unit%", true, null), null);
+
+    /**
+     * Dew point temperature default system wide {@link ChannelType}. Represents the dew point temperature.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_DEW_POINT_TEMPERATURE = new ChannelType(
+            new ChannelTypeUID("system:dew-point-temperature"), false, "Number:Temperature", "Dew Point Temperature",
+            "Dew point temperature", "Temperature", null,
+            new StateDescription(null, null, null, "%.1f %unit%", true, null), null);
+
+    /**
+     * Wind chill temperature default system wide {@link ChannelType}. Represents the wind chill temperature.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_WIND_CHILL_TEMPERATURE = new ChannelType(
+            new ChannelTypeUID("system:wind-chill-temperature"), false, "Number:Temperature", "Wind Chill Temperature",
+            "Wind chill temperature", "Temperature", null,
+            new StateDescription(null, null, null, "%.1f %unit%", true, null), null);
+
+    /**
+     * Heat index default system wide {@link ChannelType}. Represents the heat index.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_HEAT_INDEX = new ChannelType(new ChannelTypeUID("system:heat-index"),
+            false, "Number:Temperature", "Heat Index", "Heat index", "Temperature", null,
+            new StateDescription(null, null, null, "%.1f %unit%", true, null), null);
+
+    /**
+     * Relative humidity default system wide {@link ChannelType}. Represents the relative humidity in %.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_RELATIVE_HUMIDITY = new ChannelType(
+            new ChannelTypeUID("system:relative-humidity"), false, "Number:Dimensionless", "Relative Humidity",
+            "Relative humidity in %", "Humidity", null,
+            new StateDescription(BigDecimal.ZERO, new BigDecimal(100), BigDecimal.ONE, "%.0f %unit%", true, null),
+            null);
+
+    /**
+     * Barometric pressure default system wide {@link ChannelType}. Represents the barometric pressure.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_BAROMETRIC_PRESSURE = new ChannelType(
+            new ChannelTypeUID("system:barometric-pressure"), false, "Number:Pressure", "Barometric Pressure",
+            "Barometric pressure", "Pressure", null, new StateDescription(null, null, null, "%.3f %unit%", true, null),
+            null);
+
+    /**
+     * Absolute pressure default system wide {@link ChannelType}. Represents the absolute pressure.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_ABSOLUTE_PRESSURE = new ChannelType(
+            new ChannelTypeUID("system:absolute-pressure"), false, "Number:Pressure", "Absolute Pressure",
+            "Absolute pressure", "Pressure", null, new StateDescription(null, null, null, "%.3f %unit%", true, null),
+            null);
+
+    /**
+     * Wind speed default system wide {@link ChannelType}. Represents the wind speed.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_WIND_SPEED = new ChannelType(new ChannelTypeUID("system:wind-speed"),
+            false, "Number:Speed", "Wind Speed", "Wind speed", "Wind", null,
+            new StateDescription(null, null, null, "%.1f %unit%", true, null), null);
+
+    /**
+     * Maximum wind speed default system wide {@link ChannelType}. Represents the maximum wind speed.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_MAX_WIND_SPEED = new ChannelType(
+            new ChannelTypeUID("system:maximum-wind-speed"), false, "Number:Speed", "Maximum Wind Speed",
+            "Maximum wind speed", "Wind", null, new StateDescription(null, null, null, "%.1f %unit%", true, null),
+            null);
+
+    /**
+     * Average wind speed default system wide {@link ChannelType}. Represents the Average wind speed.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_AVG_WIND_SPEED = new ChannelType(
+            new ChannelTypeUID("system:average-wind-speed"), false, "Number:Speed", "Average Wind Speed",
+            "Average wind speed", "Wind", null, new StateDescription(null, null, null, "%.1f %unit%", true, null),
+            null);
+
+    /**
+     * Wind gust speed default system wide {@link ChannelType}. Represents the wind gust speed.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_WIND_GUST_SPEED = new ChannelType(
+            new ChannelTypeUID("system:wind-gust-speed"), false, "Number:Speed", "Wind Gust Speed", "Wind gust speed",
+            "Wind", null, new StateDescription(null, null, null, "%.1f %unit%", true, null), null);
+
+    /**
+     * Wind direction default system wide {@link ChannelType}. Represents the wind direction in degrees.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_WIND_DIRECTION = new ChannelType(
+            new ChannelTypeUID("system:wind-direction"), false, "Number:Angle", "Wind Direction",
+            "Wind direction in degrees", "Wind", null,
+            new StateDescription(BigDecimal.ZERO, new BigDecimal(360), BigDecimal.ONE, "%.0f %unit%", true, null),
+            null);
+
+    /**
+     * Maximum wind direction default system wide {@link ChannelType}. Represents the maximum wind direction in degrees.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_MAX_WIND_DIRECTION = new ChannelType(
+            new ChannelTypeUID("system:maximum-wind-direction"), false, "Number:Angle", "Maximum Wind Direction",
+            "Maximum wind direction in degrees", "Wind", null,
+            new StateDescription(BigDecimal.ZERO, new BigDecimal(360), BigDecimal.ONE, "%.0f %unit%", true, null),
+            null);
+
+    /**
+     * Average wind direction default system wide {@link ChannelType}. Represents the average wind direction in degrees.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_AVG_WIND_DIRECTION = new ChannelType(
+            new ChannelTypeUID("system:average-wind-direction"), false, "Number:Angle", "Average Wind Direction",
+            "Average wind direction in degrees", "Wind", null,
+            new StateDescription(BigDecimal.ZERO, new BigDecimal(360), BigDecimal.ONE, "%.0f %unit%", true, null),
+            null);
+
+    /**
+     * Wind gust direction default system wide {@link ChannelType}. Represents the wind gust direction in degrees.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_WIND_GUST_DIRECTION = new ChannelType(
+            new ChannelTypeUID("system:wind-gust-direction"), false, "Number:Angle", "Wind Gust Direction",
+            "Wind gust direction in degrees", "Wind", null,
+            new StateDescription(BigDecimal.ZERO, new BigDecimal(360), BigDecimal.ONE, "%.0f %unit%", true, null),
+            null);
+
+    /**
+     * Rainfall in hour default system wide {@link ChannelType}. Represents the rainfall in the hour.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_RAIN_HOUR = new ChannelType(new ChannelTypeUID("system:rain-hour"),
+            false, "Number:Length", "Rainfall Hour", "Rainfall in the hour", "Rain", null,
+            new StateDescription(null, null, null, "%.2f %unit%", true, null), null);
+
+    /**
+     * Rainfall in day default system wide {@link ChannelType}. Represents the rainfall in the day.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_RAIN_DAY = new ChannelType(new ChannelTypeUID("system:rain-day"),
+            false, "Number:Length", "Rainfall Day", "Rainfall in the day", "Rain", null,
+            new StateDescription(null, null, null, "%.2f %unit%", true, null), null);
+
+    /**
+     * Snowfall in hour default system wide {@link ChannelType}. Represents the snowfall in the hour.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_SNOW_HOUR = new ChannelType(new ChannelTypeUID("system:snow-hour"),
+            false, "Number:Length", "Snowfall Hour", "Snowfall in the hour", "Rain", null,
+            new StateDescription(null, null, null, "%.2f %unit%", true, null), null);
+
+    /**
+     * Snowfall in day default system wide {@link ChannelType}. Represents the snowfall in the day.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_SNOW_DAY = new ChannelType(new ChannelTypeUID("system:snow-day"),
+            false, "Number:Length", "Snowfall Day", "Snowfall in the day", "Rain", null,
+            new StateDescription(null, null, null, "%.2f %unit%", true, null), null);
+
+    /**
+     * Probability of precipitation default system wide {@link ChannelType}. Represents the probability of precipitation
+     * in %.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_PROBA_PRECIPITATION = new ChannelType(
+            new ChannelTypeUID("system:proba-precipitation"), false, "Number:Dimensionless",
+            "Probability of precipitation", "Probability of precipitation in %", "Rain", null,
+            new StateDescription(BigDecimal.ZERO, new BigDecimal(100), BigDecimal.ONE, "%.0f %unit%", true, null),
+            null);
+
+    /**
+     * Current weather conditions system wide {@link ChannelType}. Represents the current weather conditions.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_CURRENT_WEATHER_CONDITIONS = new ChannelType(
+            new ChannelTypeUID("system:current-weather-conditions"), false, "String", "Current Weather Conditions",
+            "Current weather conditions", null, null, new StateDescription(null, null, null, "%s", true, null), null);
+
+    /**
+     * Forecast weather conditions system wide {@link ChannelType}. Represents the forecast weather conditions.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_FORECAST_WEATHER_CONDITIONS = new ChannelType(
+            new ChannelTypeUID("system:forecast-weather-conditions"), false, "String", "Forecast Weather Conditions",
+            "Forecast weather conditions", null, null, new StateDescription(null, null, null, "%s", true, null), null);
+
     private static class LocalizedChannelTypeKey {
         public final String locale;
         public final UID uid;
@@ -179,7 +378,16 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
         channelGroupTypes = Collections.emptyList();
         channelTypes = Collections.unmodifiableCollection(Arrays.asList(new ChannelType[] {
                 SYSTEM_CHANNEL_SIGNAL_STRENGTH, SYSTEM_CHANNEL_LOW_BATTERY, SYSTEM_CHANNEL_BATTERY_LEVEL,
-                SYSTEM_TRIGGER, SYSTEM_RAWBUTTON, SYSTEM_BUTTON, SYSTEM_RAWROCKER }));
+                SYSTEM_TRIGGER, SYSTEM_RAWBUTTON, SYSTEM_BUTTON, SYSTEM_RAWROCKER, SYSTEM_CHANNEL_CURRENT_TEMPERATURE,
+                SYSTEM_CHANNEL_MIN_TEMPERATURE, SYSTEM_CHANNEL_MAX_TEMPERATURE, SYSTEM_CHANNEL_FEELING_TEMPERATURE,
+                SYSTEM_CHANNEL_DEW_POINT_TEMPERATURE, SYSTEM_CHANNEL_WIND_CHILL_TEMPERATURE, SYSTEM_CHANNEL_HEAT_INDEX,
+                SYSTEM_CHANNEL_RELATIVE_HUMIDITY, SYSTEM_CHANNEL_BAROMETRIC_PRESSURE, SYSTEM_CHANNEL_ABSOLUTE_PRESSURE,
+                SYSTEM_CHANNEL_WIND_SPEED, SYSTEM_CHANNEL_MAX_WIND_SPEED, SYSTEM_CHANNEL_AVG_WIND_SPEED,
+                SYSTEM_CHANNEL_WIND_GUST_SPEED, SYSTEM_CHANNEL_WIND_DIRECTION, SYSTEM_CHANNEL_MAX_WIND_DIRECTION,
+                SYSTEM_CHANNEL_AVG_WIND_DIRECTION, SYSTEM_CHANNEL_WIND_GUST_DIRECTION, SYSTEM_CHANNEL_RAIN_HOUR,
+                SYSTEM_CHANNEL_RAIN_DAY, SYSTEM_CHANNEL_SNOW_HOUR, SYSTEM_CHANNEL_SNOW_DAY,
+                SYSTEM_CHANNEL_PROBA_PRECIPITATION, SYSTEM_CHANNEL_CURRENT_WEATHER_CONDITIONS,
+                SYSTEM_CHANNEL_FORECAST_WEATHER_CONDITIONS }));
     }
 
     @Override
@@ -212,6 +420,56 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
             return createLocalizedChannelType(bundle, SYSTEM_BUTTON, locale);
         } else if (channelTypeUID.equals(SYSTEM_RAWROCKER.getUID())) {
             return createLocalizedChannelType(bundle, SYSTEM_RAWROCKER, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_CURRENT_TEMPERATURE.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_CURRENT_TEMPERATURE, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_MIN_TEMPERATURE.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_MIN_TEMPERATURE, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_MAX_TEMPERATURE.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_MAX_TEMPERATURE, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_FEELING_TEMPERATURE.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_FEELING_TEMPERATURE, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_DEW_POINT_TEMPERATURE.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_DEW_POINT_TEMPERATURE, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_WIND_CHILL_TEMPERATURE.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_WIND_CHILL_TEMPERATURE, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_HEAT_INDEX.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_HEAT_INDEX, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_RELATIVE_HUMIDITY.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_RELATIVE_HUMIDITY, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_BAROMETRIC_PRESSURE.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_BAROMETRIC_PRESSURE, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_ABSOLUTE_PRESSURE.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_ABSOLUTE_PRESSURE, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_WIND_SPEED.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_WIND_SPEED, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_MAX_WIND_SPEED.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_MAX_WIND_SPEED, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_AVG_WIND_SPEED.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_AVG_WIND_SPEED, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_WIND_GUST_SPEED.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_WIND_GUST_SPEED, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_WIND_DIRECTION.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_WIND_DIRECTION, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_MAX_WIND_DIRECTION.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_MAX_WIND_DIRECTION, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_AVG_WIND_DIRECTION.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_AVG_WIND_DIRECTION, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_WIND_GUST_DIRECTION.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_WIND_GUST_DIRECTION, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_RAIN_HOUR.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_RAIN_HOUR, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_RAIN_DAY.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_RAIN_DAY, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_SNOW_HOUR.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_SNOW_HOUR, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_SNOW_DAY.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_SNOW_DAY, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_PROBA_PRECIPITATION.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_PROBA_PRECIPITATION, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_CURRENT_WEATHER_CONDITIONS.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_CURRENT_WEATHER_CONDITIONS, locale);
+        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_FORECAST_WEATHER_CONDITIONS.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_FORECAST_WEATHER_CONDITIONS, locale);
         }
         return null;
     }
