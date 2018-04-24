@@ -27,9 +27,10 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.impl.DsAPIImpl;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
+import org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +42,7 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Siegele - Initial contribution
  *
  */
+@Component(service = MDNSDiscoveryParticipant.class, immediate = true)
 public class BridgeMDNSDiscoveryParticipant implements MDNSDiscoveryParticipant {
 
     private final Logger logger = LoggerFactory.getLogger(BridgeMDNSDiscoveryParticipant.class);

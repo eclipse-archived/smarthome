@@ -25,12 +25,14 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Device;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.DeviceBinarayInputEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.FunctionalColorGroupEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.MeteringTypeEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.MeteringUnitsEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.OutputModeEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.SensorEnum;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
@@ -38,6 +40,8 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * The {@link DsChannelTypeProvider} implements the {@link ChannelTypeProvider} generates all supported
@@ -47,6 +51,7 @@ import org.eclipse.smarthome.core.types.StateOption;
  * @author Matthias Siegele - Initial contribution
  *
  */
+@Component(service = ChannelTypeProvider.class, immediate = true)
 public class DsChannelTypeProvider extends BaseDsI18n implements ChannelTypeProvider {
 
     // channelID building (effect group type + (nothing || SEPERATOR + item type || SEPERATOR + extended item type) e.g.
@@ -187,6 +192,17 @@ public class DsChannelTypeProvider extends BaseDsI18n implements ChannelTypeProv
      */
     public static boolean isOutputChannel(String channelTypeID) {
         return supportedOutputChannelTypes.contains(channelTypeID);
+    }
+
+    @Reference
+    @Override
+    protected void setTranslationProvider(TranslationProvider translationProvider) {
+        super.setTranslationProvider(translationProvider);
+    }
+
+    @Override
+    protected void unsetTranslationProvider(TranslationProvider translationProvider) {
+        super.unsetTranslationProvider(translationProvider);
     }
 
     @Override
