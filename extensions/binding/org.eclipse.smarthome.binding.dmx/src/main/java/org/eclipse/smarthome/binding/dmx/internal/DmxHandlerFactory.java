@@ -29,7 +29,6 @@ import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 
 /**
  * The {@link DmxHandlerFactory} is responsible for creating things and thing
@@ -37,7 +36,7 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
  *
  * @author Jan N. Klug - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, name = "binding.dmx", configurationPolicy = ConfigurationPolicy.OPTIONAL)
+@Component(service = ThingHandlerFactory.class, immediate = true, name = "binding.dmx")
 public class DmxHandlerFactory extends BaseThingHandlerFactory {
 
     @Override
