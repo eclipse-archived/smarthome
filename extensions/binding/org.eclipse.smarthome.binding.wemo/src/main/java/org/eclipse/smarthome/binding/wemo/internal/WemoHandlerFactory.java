@@ -33,8 +33,11 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +48,7 @@ import org.slf4j.LoggerFactory;
  * @author Hans-Jörg Merk - Initial contribution
  * @author Kai Kreuzer - some refactoring for performance and simplification
  */
+@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.wemo")
 public class WemoHandlerFactory extends BaseThingHandlerFactory {
 
     private Logger logger = LoggerFactory.getLogger(WemoHandlerFactory.class);
@@ -94,6 +98,7 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
         return null;
     }
 
+    @Reference
     protected void setUpnpIOService(UpnpIOService upnpIOService) {
         this.upnpIOService = upnpIOService;
     }
