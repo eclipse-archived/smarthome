@@ -22,6 +22,7 @@
     <module>org.eclipse.smarthome.binding.bluetooth.bluez</module>
     <module>org.eclipse.smarthome.binding.bluetooth.blukii</module>
     <module>org.eclipse.smarthome.binding.bluetooth.test</module>
+    <module>org.eclipse.smarthome.binding.bosesoundtouch</module>
     <module>org.eclipse.smarthome.binding.digitalstrom</module>
     <module>org.eclipse.smarthome.binding.dmx</module>
     <module>org.eclipse.smarthome.binding.dmx.test</module>
