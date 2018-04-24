@@ -268,7 +268,11 @@ public class QuantityType<T extends Quantity<T>> extends Number
 
     @Override
     public String toFullString() {
-        return quantity.toString();
+        if (quantity.getUnit() == AbstractUnit.ONE) {
+            return quantity.getValue().toString();
+        } else {
+            return quantity.toString();
+        }
     }
 
     @Override
