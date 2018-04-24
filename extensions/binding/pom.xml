@@ -31,6 +31,8 @@
     <module>org.eclipse.smarthome.binding.fsinternetradio.test</module>
     <module>org.eclipse.smarthome.binding.lifx</module>
     <module>org.eclipse.smarthome.binding.lirc</module>
+    <module>org.eclipse.smarthome.binding.mqtt.generic</module>
+    <module>org.eclipse.smarthome.binding.mqtt.generic.test</module>
     <module>org.eclipse.smarthome.binding.ntp</module>
     <module>org.eclipse.smarthome.binding.ntp.test</module>
     <module>org.eclipse.smarthome.binding.serialbutton</module>
