@@ -32,8 +32,12 @@ import org.eclipse.smarthome.automation.dto.RuleTemplateDTOMapper;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
-import org.eclipse.smarthome.io.rest.LocaleUtil;
+import org.eclipse.smarthome.io.rest.LocaleService;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -48,13 +52,16 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path("templates")
 @Api("templates")
+@Component
 public class TemplateResource implements RESTResource {
 
     private TemplateRegistry<RuleTemplate> templateRegistry;
+    private LocaleService localeService;
 
     @Context
     private UriInfo uriInfo;
 
+    @Reference(cardinality=ReferenceCardinality.OPTIONAL, policy=ReferencePolicy.DYNAMIC)
     protected void setTemplateRegistry(TemplateRegistry<RuleTemplate> templateRegistry) {
         this.templateRegistry = templateRegistry;
     }
@@ -63,13 +70,22 @@ public class TemplateResource implements RESTResource {
         this.templateRegistry = null;
     }
 
+    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
+    protected void setLocaleService(LocaleService localeService) {
+        this.localeService = localeService;
+    }
+    
+    protected void unsetLocaleService(LocaleService localeService) {
+        this.localeService = null;
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all available templates.", response = Template.class, responseContainer = "Collection")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = Template.class, responseContainer = "Collection") })
     public Response getAll(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
-        Locale locale = LocaleUtil.getLocale(language);
+        Locale locale = localeService.getLocale(language);
         Collection<RuleTemplateDTO> result = templateRegistry.getAll(locale).stream()
                 .map(template -> RuleTemplateDTOMapper.map(template)).collect(Collectors.toList());
         return Response.ok(result).build();
@@ -83,7 +99,7 @@ public class TemplateResource implements RESTResource {
             @ApiResponse(code = 404, message = "Template corresponding to the given UID does not found.") })
     public Response getByUID(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language,
             @PathParam("templateUID") @ApiParam(value = "templateUID", required = true) String templateUID) {
-        Locale locale = LocaleUtil.getLocale(language);
+        Locale locale = localeService.getLocale(language);
         RuleTemplate template = templateRegistry.get(templateUID, locale);
         if (template != null) {
             return Response.ok(RuleTemplateDTOMapper.map(template)).build();

@@ -16,5 +16,6 @@ Import-Package:
  org.eclipse.smarthome.core.voice,
  org.eclipse.smarthome.core.voice.text,
  org.eclipse.smarthome.io.rest,
+ org.osgi.service.component.annotations,
  org.slf4j
 Service-Component: OSGI-INF/*.xml

@@ -17,5 +17,6 @@ Import-Package:
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.io.rest,
+ org.osgi.service.component.annotations,
  org.slf4j
 Service-Component: OSGI-INF/*.xml

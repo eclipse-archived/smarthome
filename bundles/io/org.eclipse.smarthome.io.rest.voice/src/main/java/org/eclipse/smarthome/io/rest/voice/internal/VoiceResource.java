@@ -37,7 +37,7 @@ import org.eclipse.smarthome.core.voice.VoiceManager;
 import org.eclipse.smarthome.core.voice.text.HumanLanguageInterpreter;
 import org.eclipse.smarthome.core.voice.text.InterpretationException;
 import org.eclipse.smarthome.io.rest.JSONResponse;
-import org.eclipse.smarthome.io.rest.LocaleUtil;
+import org.eclipse.smarthome.io.rest.LocaleService;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -59,6 +59,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(VoiceResource.PATH_SITEMAPS)
 @RolesAllowed({ Role.USER, Role.ADMIN })
 @Api(value = VoiceResource.PATH_SITEMAPS)
+@Component(immediate = true)
 public class VoiceResource implements RESTResource {
 
     static final String PATH_SITEMAPS = "voice";
@@ -67,6 +68,7 @@ public class VoiceResource implements RESTResource {
     UriInfo uriInfo;
 
     private VoiceManager voiceManager;
+    private LocaleService localeService;
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     public void setVoiceManager(VoiceManager voiceManager) {
@@ -77,6 +79,15 @@ public class VoiceResource implements RESTResource {
         this.voiceManager = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.STATIC)
+    protected void setLocaleService(LocaleService localeService) {
+        this.localeService = localeService;
+    }
+
+    protected void unsetLocaleService(LocaleService localeService) {
+        this.localeService = null;
+    }
+
     @GET
     @Path("/interpreters")
     @Produces(MediaType.APPLICATION_JSON)
@@ -84,7 +95,7 @@ public class VoiceResource implements RESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
     public Response getInterpreters(
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language) {
-        final Locale locale = LocaleUtil.getLocale(language);
+        final Locale locale = localeService.getLocale(language);
         Collection<HumanLanguageInterpreter> hlis = voiceManager.getHLIs();
         List<HumanLanguageInterpreterDTO> dtos = new ArrayList<>(hlis.size());
         for (HumanLanguageInterpreter hli : hlis) {
@@ -102,7 +113,7 @@ public class VoiceResource implements RESTResource {
     public Response getInterpreter(
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("id") @ApiParam(value = "interpreter id", required = true) String id) {
-        final Locale locale = LocaleUtil.getLocale(language);
+        final Locale locale = localeService.getLocale(language);
         HumanLanguageInterpreter hli = voiceManager.getHLI(id);
         if (hli != null) {
             HumanLanguageInterpreterDTO dto = HLIMapper.map(hli, locale);
@@ -122,7 +133,7 @@ public class VoiceResource implements RESTResource {
     public Response interpret(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @ApiParam(value = "text to interpret", required = true) String text,
             @PathParam("id") @ApiParam(value = "interpreter id", required = true) String id) {
-        final Locale locale = LocaleUtil.getLocale(language);
+        final Locale locale = localeService.getLocale(language);
         HumanLanguageInterpreter hli = voiceManager.getHLI(id);
         if (hli != null) {
             try {
@@ -145,7 +156,7 @@ public class VoiceResource implements RESTResource {
             @ApiResponse(code = 400, message = "interpretation exception occurs") })
     public Response interpret(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @ApiParam(value = "text to interpret", required = true) String text) {
-        final Locale locale = LocaleUtil.getLocale(language);
+        final Locale locale = localeService.getLocale(language);
         HumanLanguageInterpreter hli = voiceManager.getHLI();
         if (hli != null) {
             try {
