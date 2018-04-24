@@ -24,8 +24,11 @@ import org.eclipse.jdt.annotation.Nullable;
  * category.
  *
  * @author Dennis Nobel - Initial contribution
+ *
+ * @deprecated This class is not meant as a public API - it should only be used internally from within the framework
  */
 @NonNullByDefault
+@Deprecated
 public interface ActiveItem extends Item {
 
     /**
