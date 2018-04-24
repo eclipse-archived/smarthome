@@ -45,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Component which takes care of calculating and sending potential auto-update event.
  *
  * @author Simon Kaufmann - initial contribution and API
  *
@@ -145,9 +146,7 @@ public class AutoUpdateManager {
                     break;
                 case OPTIMISTIC:
                     logger.trace("Optimistically updating item '{}'", itemName);
-                    for (CommandResultPredictionListener listener : commandResultPredictionListeners) {
-                        listener.changeStateTo(item, state);
-                    }
+                    postPrediction(item, state, false);
                     if (sendOptimisticUpdates) {
                         postUpdate(item, state, EVENT_SOURCE_OPTIMISTIC);
                     }
@@ -157,9 +156,7 @@ public class AutoUpdateManager {
                     break;
                 case REVERT:
                     logger.trace("Sending current item state to revert controls '{}'", itemName);
-                    for (CommandResultPredictionListener listener : commandResultPredictionListeners) {
-                        listener.keepCurrentState(item);
-                    }
+                    postPrediction(item, item.getState(), true);
                     break;
             }
         }
@@ -216,6 +213,17 @@ public class AutoUpdateManager {
         } else {
             logger.debug("Received update of a not accepted type ({}) for item {}", newState.getClass().getSimpleName(),
                     item.getName());
+        }
+    }
+
+    private void postPrediction(Item item, State predictedState, boolean isConfirmation) {
+        boolean isAccepted = isAcceptedState(predictedState, item);
+        if (isAccepted) {
+            eventPublisher
+                    .post(ItemEventFactory.createStatePredictedEvent(item.getName(), predictedState, isConfirmation));
+        } else {
+            logger.debug("Received prediction of a not accepted type ({}) for item {}",
+                    predictedState.getClass().getSimpleName(), item.getName());
         }
     }
 
