@@ -34,7 +34,9 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * {@link HueThingHandlerFactory} is a factory for {@link HueBridgeHandler}s.
@@ -45,6 +47,7 @@ import org.osgi.framework.ServiceRegistration;
  *
  */
 @NonNullByDefault
+@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.hue")
 public class HueThingHandlerFactory extends BaseThingHandlerFactory {
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream
