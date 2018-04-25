@@ -24,7 +24,6 @@ import org.eclipse.smarthome.core.common.SafeCallerBuilder;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 
@@ -35,7 +34,7 @@ import org.osgi.service.component.annotations.Modified;
  *
  */
 @NonNullByDefault
-@Component(configurationPid = "org.eclipse.smarthome.safecaller", immediate = true, configurationPolicy = ConfigurationPolicy.OPTIONAL)
+@Component(configurationPid = "org.eclipse.smarthome.safecaller", immediate = true)
 public class SafeCallerImpl implements SafeCaller {
 
     private static final String SAFE_CALL_POOL_NAME = "safeCall";

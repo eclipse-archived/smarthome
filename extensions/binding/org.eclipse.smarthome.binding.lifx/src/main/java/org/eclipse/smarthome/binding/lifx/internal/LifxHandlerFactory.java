@@ -22,7 +22,6 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -31,7 +30,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Dennis Nobel - Initial contribution
  * @author Karel Goderis - Remove dependency on external libraries
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.lifx", configurationPolicy = ConfigurationPolicy.OPTIONAL)
+@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.lifx")
 public class LifxHandlerFactory extends BaseThingHandlerFactory {
 
     private LifxChannelFactory channelFactory;
