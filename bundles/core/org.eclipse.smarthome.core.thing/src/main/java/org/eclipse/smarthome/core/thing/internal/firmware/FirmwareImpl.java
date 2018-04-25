@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.core.thing.internal.firmware;
 
-import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_MODEL_ID;
+import static org.eclipse.smarthome.core.thing.Thing.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,8 +52,8 @@ public final class FirmwareImpl implements Firmware {
     private final @Nullable String model;
     private final boolean modelRestricted;
     private final @Nullable String description;
-    private final String version;
-    private final @Nullable String prerequisiteVersion;
+    private final Version version;
+    private final @Nullable Version prerequisiteVersion;
     private final @Nullable String changelog;
     private final @Nullable URL onlineChangelog;
     private final @Nullable transient InputStream inputStream;
@@ -61,9 +61,6 @@ public final class FirmwareImpl implements Firmware {
     private final Map<String, String> properties;
 
     private transient byte @Nullable [] bytes;
-
-    private final Version internalVersion;
-    private final @Nullable Version internalPrerequisiteVersion;
 
     /**
      * Constructs new firmware by the given meta information.
@@ -90,20 +87,17 @@ public final class FirmwareImpl implements Firmware {
         ParameterChecks.checkNotNull(thingTypeUID, "ThingTypeUID");
         this.thingTypeUID = thingTypeUID;
         ParameterChecks.checkNotNullOrEmpty(version, "Firmware version");
-        this.version = version;
+        this.version = new Version(version);
         this.vendor = vendor;
         this.model = model;
         this.modelRestricted = modelRestricted;
         this.description = description;
-        this.prerequisiteVersion = prerequisiteVersion;
+        this.prerequisiteVersion = prerequisiteVersion != null ? new Version(prerequisiteVersion) : null;
         this.changelog = changelog;
         this.onlineChangelog = onlineChangelog;
         this.inputStream = inputStream;
         this.md5Hash = md5Hash;
         this.properties = Collections.unmodifiableMap(properties != null ? properties : Collections.emptyMap());
-        this.internalVersion = new Version(this.version);
-        this.internalPrerequisiteVersion = this.prerequisiteVersion != null ? new Version(this.prerequisiteVersion)
-                : null;
     }
 
     @Override
@@ -136,13 +130,13 @@ public final class FirmwareImpl implements Firmware {
 
     @Override
     public String getVersion() {
-        return version;
+        return version.toString();
     }
 
     @Override
     @Nullable
     public String getPrerequisiteVersion() {
-        return prerequisiteVersion;
+        return (prerequisiteVersion != null) ? prerequisiteVersion.toString() : null;
     }
 
     @Override
@@ -220,26 +214,17 @@ public final class FirmwareImpl implements Firmware {
         if (firmwareVersion == null) {
             return false;
         }
-        return internalVersion.compare(new Version(firmwareVersion)) > 0;
-    }
-
-    @Override
-    public boolean isPrerequisiteVersion(@Nullable String firmwareVersion) {
-        if (firmwareVersion == null || internalPrerequisiteVersion == null) {
-            return false;
-        }
-
-        return new Version(firmwareVersion).compare(internalPrerequisiteVersion) >= 0;
+        return version.compare(new Version(firmwareVersion)) > 0;
     }
 
     @Override
     public boolean isSuitableFor(Thing thing) {
-        return hasSameThingType(thing) && hasRequiredModel(thing);
+        return hasSameThingType(thing) && hasRequiredModel(thing) && firmwareOnThingIsHighEnough(thing);
     }
 
     @Override
     public int compareTo(Firmware firmware) {
-        return -internalVersion.compare(new Version(firmware.getVersion()));
+        return -version.compare(new Version(firmware.getVersion()));
     }
 
     private boolean hasSameThingType(Thing thing) {
@@ -254,18 +239,26 @@ public final class FirmwareImpl implements Firmware {
         }
     }
 
+    private boolean firmwareOnThingIsHighEnough(Thing thing) {
+        if (prerequisiteVersion == null) {
+            return true;
+        } else {
+            String firmwareOnThing = thing.getProperties().get(PROPERTY_FIRMWARE_VERSION);
+            return firmwareOnThing != null && new Version(firmwareOnThing).compare(prerequisiteVersion) >= 0;
+        }
+    }
+
     private static class Version {
 
         private static final int NO_INT = -1;
 
+        private final String versionString;
         private final String[] parts;
 
-        private Version(@Nullable String versionString) {
-            if (versionString == null) {
-                this.parts = new String[] {};
-            } else {
-                this.parts = versionString.split("-|_|\\.");
-            }
+        private Version(String versionString) {
+            ParameterChecks.checkNotNull(versionString, "versionString");
+            this.versionString = versionString;
+            this.parts = versionString.split("-|_|\\.");
         }
 
         private int compare(@Nullable Version theVersion) {
@@ -312,6 +305,27 @@ public final class FirmwareImpl implements Firmware {
             return s.matches("^-?\\d+$");
         }
 
+        @Override
+        public String toString() {
+            return versionString;
+        }
+
+        @Override
+        public int hashCode() {
+            return versionString.hashCode();
+        }
+
+        @Override
+        public boolean equals(@Nullable Object other) {
+            if (other == null) {
+                return false;
+            } else if (!(other instanceof Version)) {
+                return false;
+            } else {
+                return Objects.equals(this.versionString, ((Version) other).versionString);
+            }
+        }
+
     }
 
     @Override
@@ -343,78 +357,78 @@ public final class FirmwareImpl implements Firmware {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        Firmware other = (Firmware) obj;
+        FirmwareImpl other = (FirmwareImpl) obj;
         if (changelog == null) {
-            if (other.getChangelog() != null) {
+            if (other.changelog != null) {
                 return false;
             }
-        } else if (!changelog.equals(other.getChangelog())) {
+        } else if (!changelog.equals(other.changelog)) {
             return false;
         }
         if (description == null) {
-            if (other.getDescription() != null) {
+            if (other.description != null) {
                 return false;
             }
-        } else if (!description.equals(other.getDescription())) {
+        } else if (!description.equals(other.description)) {
             return false;
         }
         if (md5Hash == null) {
-            if (other.getMd5Hash() != null) {
+            if (other.md5Hash != null) {
                 return false;
             }
-        } else if (!md5Hash.equals(other.getMd5Hash())) {
+        } else if (!md5Hash.equals(other.md5Hash)) {
             return false;
         }
         if (model == null) {
-            if (other.getModel() != null) {
+            if (other.model != null) {
                 return false;
             }
-        } else if (!model.equals(other.getModel())) {
+        } else if (!model.equals(other.model)) {
             return false;
         }
-        if (modelRestricted != other.isModelRestricted()) {
+        if (modelRestricted != other.modelRestricted) {
             return false;
         }
         if (onlineChangelog == null) {
-            if (other.getOnlineChangelog() != null) {
+            if (other.onlineChangelog != null) {
                 return false;
             }
-        } else if (!onlineChangelog.equals(other.getOnlineChangelog())) {
+        } else if (!onlineChangelog.equals(other.onlineChangelog)) {
             return false;
         }
         if (prerequisiteVersion == null) {
-            if (other.getPrerequisiteVersion() != null) {
+            if (other.prerequisiteVersion != null) {
                 return false;
             }
-        } else if (!prerequisiteVersion.equals(other.getPrerequisiteVersion())) {
+        } else if (!prerequisiteVersion.equals(other.prerequisiteVersion)) {
             return false;
         }
         if (thingTypeUID == null) {
-            if (other.getThingTypeUID() != null) {
+            if (other.thingTypeUID != null) {
                 return false;
             }
-        } else if (!thingTypeUID.equals(other.getThingTypeUID())) {
+        } else if (!thingTypeUID.equals(other.thingTypeUID)) {
             return false;
         }
         if (vendor == null) {
-            if (other.getVendor() != null) {
+            if (other.vendor != null) {
                 return false;
             }
-        } else if (!vendor.equals(other.getVendor())) {
+        } else if (!vendor.equals(other.vendor)) {
             return false;
         }
         if (version == null) {
-            if (other.getVersion() != null) {
+            if (other.version != null) {
                 return false;
             }
-        } else if (!version.equals(other.getVersion())) {
+        } else if (!version.equals(other.version)) {
             return false;
         }
         if (properties == null) {
-            if (other.getProperties() != null) {
+            if (other.properties != null) {
                 return false;
             }
-        } else if (!properties.equals(other.getProperties())) {
+        } else if (!properties.equals(other.properties)) {
             return false;
         }
         return true;

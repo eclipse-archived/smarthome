@@ -581,9 +581,8 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
         assertThat(firmwareUpdateService.getFirmwareStatusInfo(THING1_UID), is(updateExecutableInfoFw113));
 
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(equalTo(String.format(
-                "Firmware %s requires at least firmware version %s to get installed. But the current firmware version of the thing with UID %s is %s.",
-                FW113_EN, FW113_EN.getPrerequisiteVersion(), THING1_UID, V111)));
+        thrown.expectMessage(
+                equalTo(String.format("Firmware %s is not suitable for thing with UID %s.", FW113_EN, THING1_UID)));
 
         firmwareUpdateService.updateFirmware(THING1_UID, V113, null);
     }

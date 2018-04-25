@@ -364,13 +364,6 @@ public final class FirmwareUpdateServiceImpl implements FirmwareUpdateService, E
             throw new IllegalArgumentException(
                     String.format("Firmware %s is not suitable for thing with UID %s.", firmware, thing.getUID()));
         }
-
-        String thingFirmwareVersion = getThingFirmwareVersion(firmwareUpdateHandler);
-        if (firmware.getPrerequisiteVersion() != null && !firmware.isPrerequisiteVersion(thingFirmwareVersion)) {
-            throw new IllegalArgumentException(String.format(
-                    "Firmware %s requires at least firmware version %s to get installed. But the current firmware version of the thing with UID %s is %s.",
-                    firmware, firmware.getPrerequisiteVersion(), thing.getUID(), thingFirmwareVersion));
-        }
     }
 
     private Firmware getFirmware(Thing thing, String firmwareVersion) {
