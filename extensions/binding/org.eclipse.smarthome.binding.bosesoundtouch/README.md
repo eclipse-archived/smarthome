@@ -29,13 +29,16 @@ The binding has no configuration options, all configuration is done at Thing lev
  
 All thing types have the same configuration parameters:
 
-| Parameter Name | Type   | Required | Description                                                  |
-|----------------|--------|----------|--------------------------------------------------------------|
-| host           | String | Yes      | The host name or IP address of the device                    |
-| macAddress     | String | Yes      | The MAC address of the used interface (format "123456789ABC")|
+| Parameter Name      | Type   | Required | Description                                                  |
+|---------------------|--------|----------|--------------------------------------------------------------|
+| host                | String | Yes      | The host name or IP address of the device                    |
+| macAddress          | String | Yes      | The MAC address of the used interface (format "123456789ABC")|
+| appKey              | String |  No      | An authorization key used to identify the client application |
 
-Both are set when using discovery. For manual configuration, these values can be found in the Bose smartphone app (Settings -> About -> Device Name).
+The required properties are set when using discovery. For manual configuration, these values can be found in the Bose smartphone app (Settings -> About -> Device Name).
 Note that the device might have two MAC addresses, one for ethernet and one for Wifi.
+
+The authorization key is used to identify the client application when using the Notification API. It should be requested from the developer portal.
  
 ## Channels
 
@@ -45,6 +48,7 @@ All devices share the same set of channels, while some of them might not be avai
 |---------------------------|-----------|--------------------------------------------------------------|
 | keyCode                   | String    | Simulates pushing a remote control button                    |
 | mute                      | Switch    | Mutes the sound                                              |
+| notificationsound         | String    | Play a notification sound by a given URI                     |                              
 | nowPlayingAlbum           | String    | Current playing album name                                   |
 | nowPlayingArtist          | String    | Current playing artist name                                  |
 | nowPlayingArtwork         | Image     | Artwork for the current playing song                         |
@@ -54,7 +58,7 @@ All devices share the same set of channels, while some of them might not be avai
 | nowPlayingStationLocation | String    | Location of current playing radio station                    |
 | nowPlayingStationName     | String    | Name of current playing radio station                        |
 | nowPlayingTrack           | String    | Track currently playing                                      |
-| operationMode             | String    |  Current Operation Mode                                      |
+| operationMode             | String    | Current Operation Mode                                       |
 | playerControl             | Player    | Control the Player                                           |
 | power                     | Switch    | SoundTouch power state                                       |
 | preset                    | Number    | 1-6 Preset of Soundtouch, >7 Binding Presets                 |
@@ -64,6 +68,17 @@ All devices share the same set of channels, while some of them might not be avai
 | skipPreviousEnabled       | Switch    | Current source allows scrolling through tracks               |
 | volume                    | Dimmer    | Set or get the volume                                        |
 | bass                      | Number    | Bass (-9 minimum, 0 maximum)                                 |
+ 
+
+The *notificationsound* channel has a configuration options:
+
+ - notificationVolume - Desired volume level while playing the notification, it should be between 10 and 70 (inclusive). A value outside this range will result in an error and not play the notification.
+ - notificationService - The service providing the notification
+ - notificationReason - The reason for the notification
+ - notificationMessage - Further details about the notification
+ 
+The text for notification service, reason and message will appear on the device display (when available) and the SoundTouch application screen.
+Upon completion of the notification, the speaker volume will return to its original value. If not present, the notification will play at the existing volume level.
  
 ## Full Example
 
