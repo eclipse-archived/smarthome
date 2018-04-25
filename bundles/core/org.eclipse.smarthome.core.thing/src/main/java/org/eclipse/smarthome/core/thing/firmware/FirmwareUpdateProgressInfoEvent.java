@@ -12,15 +12,18 @@
  */
 package org.eclipse.smarthome.core.thing.firmware;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.events.AbstractEvent;
-import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
  * The {@link FirmwareUpdateProgressInfoEvent} is sent if there is a new progress step for a firmware update. It is
  * created by the {@link FirmwareEventFactory}.
  *
  * @author Thomas Höfer - Initial contribution
+ * @author Dimitar Ivanov - Removed thing UID from the event
  */
+@NonNullByDefault
 public final class FirmwareUpdateProgressInfoEvent extends AbstractEvent {
 
     /** Constant for the firmware update progress info event type. */
@@ -28,21 +31,16 @@ public final class FirmwareUpdateProgressInfoEvent extends AbstractEvent {
 
     private final FirmwareUpdateProgressInfo progressInfo;
 
-    private final ThingUID thingUID;
-
     /**
      * Creates a new {@link FirmwareUpdateProgressInfoEvent}.
      *
      * @param topic the topic of the event
      * @param payload the payload of the event
-     * @param progressInfo the progress info to be sent as event
-     * @param thingUID the UID of the thing whose progress info of the firmware update is to be sent
+     * @param progressInfo the progress info to be sent with the event
      */
-    protected FirmwareUpdateProgressInfoEvent(String topic, String payload, FirmwareUpdateProgressInfo progressInfo,
-            ThingUID thingUID) {
+    protected FirmwareUpdateProgressInfoEvent(String topic, String payload, FirmwareUpdateProgressInfo progressInfo) {
         super(topic, payload, null);
         this.progressInfo = progressInfo;
-        this.thingUID = thingUID;
     }
 
     /**
@@ -52,15 +50,6 @@ public final class FirmwareUpdateProgressInfoEvent extends AbstractEvent {
      */
     public FirmwareUpdateProgressInfo getProgressInfo() {
         return progressInfo;
-    }
-
-    /**
-     * Returns the thing UID.
-     *
-     * @return the thing UID
-     */
-    public ThingUID getThingUID() {
-        return thingUID;
     }
 
     @Override
@@ -73,12 +62,11 @@ public final class FirmwareUpdateProgressInfoEvent extends AbstractEvent {
         final int prime = 31;
         int result = super.hashCode();
         result = prime * result + ((progressInfo == null) ? 0 : progressInfo.hashCode());
-        result = prime * result + ((thingUID == null) ? 0 : thingUID.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;
         }
@@ -96,21 +84,14 @@ public final class FirmwareUpdateProgressInfoEvent extends AbstractEvent {
         } else if (!progressInfo.equals(other.progressInfo)) {
             return false;
         }
-        if (thingUID == null) {
-            if (other.thingUID != null) {
-                return false;
-            }
-        } else if (!thingUID.equals(other.thingUID)) {
-            return false;
-        }
         return true;
     }
 
     @Override
     public String toString() {
         String stepName = progressInfo.getProgressStep() == null ? null : progressInfo.getProgressStep().name();
-        return String.format("The firmware update progress for thing %s changed. Step: %s Progress: %d.", thingUID,
-                stepName, progressInfo.getProgress());
+        return String.format("The firmware update progress for thing %s changed. Step: %s Progress: %d.",
+                progressInfo.getThingUID(), stepName, progressInfo.getProgress());
     }
 
 }

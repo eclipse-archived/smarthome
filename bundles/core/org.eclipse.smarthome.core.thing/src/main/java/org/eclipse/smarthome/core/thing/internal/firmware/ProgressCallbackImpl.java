@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.core.thing.firmware;
+package org.eclipse.smarthome.core.thing.internal.firmware;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,10 +22,14 @@ import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID;
+import org.eclipse.smarthome.core.thing.binding.firmware.Firmware;
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler;
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressCallback;
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressStep;
+import org.eclipse.smarthome.core.thing.firmware.FirmwareEventFactory;
+import org.eclipse.smarthome.core.thing.firmware.FirmwareUpdateProgressInfo;
+import org.eclipse.smarthome.core.thing.firmware.FirmwareUpdateResult;
+import org.eclipse.smarthome.core.thing.firmware.FirmwareUpdateResultInfo;
 import org.eclipse.smarthome.core.util.BundleResolver;
 import org.osgi.framework.Bundle;
 
@@ -34,6 +38,7 @@ import org.osgi.framework.Bundle;
  *
  * @author Thomas Höfer - Initial contribution
  * @author Christoph Knauf - Introduced pending, canceled, update and InternalState
+ * @author Dimitar Ivanov - Callback contains firmware domain object
  */
 final class ProgressCallbackImpl implements ProgressCallback {
 
@@ -47,7 +52,7 @@ final class ProgressCallbackImpl implements ProgressCallback {
     private final TranslationProvider i18nProvider;
     private final BundleResolver bundleResolver;
     private final ThingUID thingUID;
-    private final FirmwareUID firmwareUID;
+    private final Firmware firmware;
     private final Locale locale;
 
     private Collection<ProgressStep> sequence;
@@ -65,14 +70,17 @@ final class ProgressCallbackImpl implements ProgressCallback {
     private InternalState state;
 
     ProgressCallbackImpl(FirmwareUpdateHandler firmwareUpdateHandler, EventPublisher eventPublisher,
-            TranslationProvider i18nProvider, BundleResolver bundleResolver, ThingUID thingUID, FirmwareUID firmwareUID,
+            TranslationProvider i18nProvider, BundleResolver bundleResolver, ThingUID thingUID, Firmware firmware,
             Locale locale) {
         this.firmwareUpdateHandler = firmwareUpdateHandler;
+        ParameterChecks.checkNotNull(eventPublisher, "Event publisher");
         this.eventPublisher = eventPublisher;
+        ParameterChecks.checkNotNull(i18nProvider, "i18n provider");
         this.i18nProvider = i18nProvider;
         this.bundleResolver = bundleResolver;
         this.thingUID = thingUID;
-        this.firmwareUID = firmwareUID;
+        ParameterChecks.checkNotNull(firmware, "Firmware");
+        this.firmware = firmware;
         this.locale = locale;
         this.progress = null;
     }
@@ -187,17 +195,19 @@ final class ProgressCallbackImpl implements ProgressCallback {
     }
 
     private void postResultInfoEvent(FirmwareUpdateResult result, String message) {
-        post(FirmwareEventFactory.createFirmwareUpdateResultInfoEvent(new FirmwareUpdateResultInfo(result, message),
-                thingUID));
+        post(FirmwareEventFactory.createFirmwareUpdateResultInfoEvent(
+                FirmwareUpdateResultInfo.createFirmwareUpdateResultInfo(thingUID, result, message)));
     }
 
     private void postProgressInfoEvent() {
         if (this.progress == null) {
-            post(FirmwareEventFactory.createFirmwareUpdateProgressInfoEvent(new FirmwareUpdateProgressInfo(firmwareUID,
-                    getCurrentStep(), sequence, this.state == InternalState.PENDING), thingUID));
+            post(FirmwareEventFactory.createFirmwareUpdateProgressInfoEvent(
+                    FirmwareUpdateProgressInfo.createFirmwareUpdateProgressInfo(thingUID, firmware.getThingTypeUID(),
+                            firmware.getVersion(), getCurrentStep(), sequence, this.state == InternalState.PENDING)));
         } else {
-            post(FirmwareEventFactory.createFirmwareUpdateProgressInfoEvent(new FirmwareUpdateProgressInfo(firmwareUID,
-                    getCurrentStep(), sequence, this.state == InternalState.PENDING, progress), thingUID));
+            post(FirmwareEventFactory.createFirmwareUpdateProgressInfoEvent(
+                    FirmwareUpdateProgressInfo.createFirmwareUpdateProgressInfo(thingUID, firmware.getVersion(),
+                            getCurrentStep(), sequence, this.state == InternalState.PENDING, progress)));
         }
     }
 

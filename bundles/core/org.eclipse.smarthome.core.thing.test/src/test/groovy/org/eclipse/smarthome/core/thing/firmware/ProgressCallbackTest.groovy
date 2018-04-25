@@ -22,10 +22,11 @@ import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.firmware.Firmware
-import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID
+import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareBuilder
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressCallback
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressStep
+import org.eclipse.smarthome.core.thing.internal.firmware.ProgressCallbackImpl
 import org.eclipse.smarthome.core.util.BundleResolver
 import org.junit.Before
 import org.junit.Test
@@ -35,13 +36,14 @@ import org.osgi.framework.Bundle
  * Testing the {@link ProgressCallback}.
  *
  * @author Christoph Knauf - Initial contribution
+ * @author Dimitar Ivanov - Adapted the tests to use firmware instead of firmware UID
  */
 public final class ProgressCallbackTest {
 
     ProgressCallback sut
     List<Event> postedEvents
     ThingUID expectedThingUID
-    FirmwareUID expectedFirmwareUID
+    Firmware expectedFirmware
     String cancelMessageKey = "update-canceled"
     def usedMessagedKey
 
@@ -49,7 +51,7 @@ public final class ProgressCallbackTest {
     void setUp(){
         def thingType = new ThingTypeUID("thing:type")
         expectedThingUID = new ThingUID(thingType, "thingid")
-        expectedFirmwareUID = new FirmwareUID(thingType, "1")
+        expectedFirmware =new FirmwareBuilder(thingType, "1").build();
         postedEvents = new LinkedList<>()
         def publisher = [
             post : { event -> postedEvents.add(event) }
@@ -64,7 +66,7 @@ public final class ProgressCallbackTest {
         def bundle = [getSymbolicName: { return ""} ] as Bundle
         def bundleResolver = [resolveBundle: { clazz -> bundle }] as BundleResolver
 
-        sut = new ProgressCallbackImpl(new DummyFirmwareHandler(), publisher, i18nProvider, bundleResolver, expectedThingUID, expectedFirmwareUID, null)
+        sut = new ProgressCallbackImpl(new DummyFirmwareHandler(), publisher, i18nProvider, bundleResolver, expectedThingUID, expectedFirmware, null)
     }
 
     @Test(expected=IllegalStateException)
@@ -244,13 +246,13 @@ public final class ProgressCallbackTest {
         assertThat postedEvents.size(), is(1)
         assertThat postedEvents.get(0), is(instanceOf(FirmwareUpdateResultInfoEvent))
         FirmwareUpdateResultInfoEvent resultEvent = postedEvents.get(0) as FirmwareUpdateResultInfoEvent
-        assertThat resultEvent.getThingUID(), is(expectedThingUID)
+        assertThat resultEvent.firmwareUpdateResultInfo.getThingUID(), is(expectedThingUID)
         assertThat resultEvent.firmwareUpdateResultInfo.result, is(FirmwareUpdateResult.CANCELED)
         assertThat usedMessagedKey, is(cancelMessageKey)
     }
 
     /*
-     * Special behaviour because of pending state:
+     * Special behavior because of pending state:
      *
      * Before calling next the ProgressStep is null which means the update was not started
      * but a valid ProgressStep is needed to create a FirmwareUpdateProgressInfoEvent.
@@ -352,8 +354,8 @@ public final class ProgressCallbackTest {
     def assertThatProgressInfoEventIsValid(Event event, ProgressStep expectedStep, boolean expectedPending, Integer expectedProgress){
         assertThat event, is(instanceOf(FirmwareUpdateProgressInfoEvent))
         def fpiEvent = event as FirmwareUpdateProgressInfoEvent
-        assertThat fpiEvent.getThingUID(), is(expectedThingUID)
-        assertThat fpiEvent.getProgressInfo().getFirmwareUID(), is(expectedFirmwareUID)
+        assertThat fpiEvent.getProgressInfo().getThingUID(), is(expectedThingUID)
+        assertThat fpiEvent.getProgressInfo().getFirmwareVersion(), is(expectedFirmware.getVersion())
         assertThat fpiEvent.getProgressInfo().getProgressStep(), is(expectedStep)
         assertThat fpiEvent.getProgressInfo().getProgress(), is(expectedProgress)
         assertThat fpiEvent.getProgressInfo().isPending(), (is(expectedPending))
@@ -363,7 +365,7 @@ public final class ProgressCallbackTest {
         assertThat event, is(instanceOf(FirmwareUpdateResultInfoEvent))
         def fpiEvent = event as FirmwareUpdateResultInfoEvent
         assertThat usedMessagedKey, is(expectedMessageKey)
-        assertThat fpiEvent.getThingUID(), is(expectedThingUID)
+        assertThat fpiEvent.getFirmwareUpdateResultInfo().getThingUID(), is(expectedThingUID)
         assertThat fpiEvent.getFirmwareUpdateResultInfo().getResult(), is(expectedResult)
     }
 
