@@ -12,12 +12,8 @@
  */
 package org.eclipse.smarthome.binding.tradfri.internal.discovery;
 
-import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.GATEWAY_CONFIG_HOST;
-import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.GATEWAY_CONFIG_PORT;
-import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.GATEWAY_TYPE_UID;
-import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_FIRMWARE_VERSION;
-import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_SERIAL_NUMBER;
-import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_VENDOR;
+import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
+import static org.eclipse.smarthome.core.thing.Thing.*;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,6 +29,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +38,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution
  */
+@Component(service = MDNSDiscoveryParticipant.class, immediate = true)
 public class TradfriDiscoveryParticipant implements MDNSDiscoveryParticipant {
 
     private final Logger logger = LoggerFactory.getLogger(TradfriDiscoveryParticipant.class);
@@ -51,7 +49,7 @@ public class TradfriDiscoveryParticipant implements MDNSDiscoveryParticipant {
      * RegEx patter to match the gateway name announced by mDNS
      * Possible values:
      * gw:001122334455, gw-001122334455, gw:00-11-22-33-44-55, gw-001122334455ServiceName
-     * 
+     *
      */
     private final Pattern GATEWAY_NAME_REGEX_PATTERN = Pattern.compile("(gw[:-]{1}([a-f0-9]{2}[-]?){6}){1}");
 
@@ -80,7 +78,8 @@ public class TradfriDiscoveryParticipant implements MDNSDiscoveryParticipant {
     public DiscoveryResult createResult(ServiceInfo service) {
         ThingUID thingUID = getThingUID(service);
         if (thingUID != null) {
-            if (service.getHostAddresses() != null && service.getHostAddresses().length > 0 && !service.getHostAddresses()[0].isEmpty()) {
+            if (service.getHostAddresses() != null && service.getHostAddresses().length > 0
+                    && !service.getHostAddresses()[0].isEmpty()) {
                 logger.debug("Discovered Tradfri gateway: {}", service);
                 Map<String, Object> properties = new HashMap<>(4);
                 properties.put(PROPERTY_VENDOR, "IKEA of Sweden");
