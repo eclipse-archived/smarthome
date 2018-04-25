@@ -27,11 +27,6 @@ import org.osgi.service.component.annotations.Component;
 public class BundleResolverImpl implements BundleResolver {
 
     @Override
-    public String resolveSymbolicName(Class<?> clazz) {
-        return resolveBundle(clazz).getSymbolicName();
-    }
-
-    @Override
     public Bundle resolveBundle(Class<?> clazz) {
         return FrameworkUtil.getBundle(clazz);
     }

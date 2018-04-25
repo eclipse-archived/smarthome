@@ -32,6 +32,7 @@ import org.eclipse.smarthome.model.thing.thing.ModelThing;
 import org.eclipse.smarthome.model.thing.thing.ThingModel;
 import org.junit.Before;
 import org.junit.Test;
+import org.osgi.framework.Bundle;
 
 /**
  * Test the GenericThingProvider for different {@link ThingHandlerFactory}s for Bridge and Thing.
@@ -59,8 +60,11 @@ public class GenericThingProviderMultipleBundlesTest {
     public void setup() {
         thingProvider = new GenericThingProvider();
 
+        Bundle bundle = mock(Bundle.class);
+        when(bundle.getSymbolicName()).thenReturn(BUNDLE_NAME);
         BundleResolver bundleResolver = mock(BundleResolver.class);
-        when(bundleResolver.resolveSymbolicName(any(Class.class))).thenReturn(BUNDLE_NAME);
+        when(bundleResolver.resolveBundle(any(Class.class))).thenReturn(bundle);
+
         thingProvider.setBundleResolver(bundleResolver);
 
         ModelRepository modelRepository = mock(ModelRepository.class);

@@ -972,7 +972,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     }
 
     private String getBundleName(ThingHandlerFactory thingHandlerFactory) {
-        return bundleResolver.resolveSymbolicName(thingHandlerFactory.getClass());
+        return bundleResolver.resolveBundle(thingHandlerFactory.getClass()).getSymbolicName();
     }
 
     private void registerAndInitializeHandler(final Thing thing, final ThingHandlerFactory thingHandlerFactory) {

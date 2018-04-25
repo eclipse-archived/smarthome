@@ -588,7 +588,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
     }
     
     def private getBundleName(ThingHandlerFactory thingHandlerFactory) {
-        return bundleResolver.resolveSymbolicName(thingHandlerFactory.class);
+        return bundleResolver.resolveBundle(thingHandlerFactory.class).getSymbolicName();
     }
     
     def private handleXmlThingTypesLoaded(String bsn) {

@@ -23,14 +23,6 @@ import org.osgi.framework.Bundle;
 public interface BundleResolver {
 
     /**
-     * Resolve the bundle name associated with the given {@link Class}.
-     *
-     * @param clazz the {@link Class} to resolve the bundle name for.
-     * @return the bundle name associated with the given {@link Class}.
-     */
-    String resolveSymbolicName(Class<?> clazz);
-
-    /**
      * Resolve the bundle associated with the given {@link Class}.
      *
      * @param clazz the {@link Class} to resolve the bundle for.
