@@ -27,7 +27,12 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
+import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +44,7 @@ import org.slf4j.LoggerFactory;
  * @author Michael Ochel - Initial contribution
  * @author Matthias Siegele - Initial contribution
  */
+@Component(service = DiscoveryService.class, immediate = true, configurationPid = "discovery.digitalstrom")
 public class BridgeDiscoveryService extends AbstractDiscoveryService {
 
     private final Logger logger = LoggerFactory.getLogger(BridgeDiscoveryService.class);
@@ -92,11 +98,19 @@ public class BridgeDiscoveryService extends AbstractDiscoveryService {
         super(new HashSet<>(Arrays.asList(DigitalSTROMBindingConstants.THING_TYPE_DSS_BRIDGE)), 10, false);
     }
 
+    @Activate
     @Override
     protected void activate(Map<String, Object> configProperties) {
         super.activate(configProperties);
     }
 
+    @Deactivate
+    @Override
+    protected void deactivate() {
+        super.deactivate();
+    }
+
+    @Modified
     @Override
     protected void modified(Map<String, Object> configProperties) {
         super.modified(configProperties);
