@@ -23,18 +23,22 @@ import org.eclipse.smarthome.config.core.status.ConfigStatusMessage
 import org.eclipse.smarthome.config.core.status.ConfigStatusProvider
 import org.eclipse.smarthome.config.core.status.ConfigStatusService
 import org.eclipse.smarthome.core.events.EventPublisher
-import org.eclipse.smarthome.core.i18n.TranslationProvider
 import org.eclipse.smarthome.core.i18n.LocaleProvider
-import org.eclipse.smarthome.test.OSGiTest
+import org.eclipse.smarthome.core.i18n.TranslationProvider
+import org.eclipse.smarthome.core.util.BundleResolver
+import org.eclipse.smarthome.test.java.JavaOSGiTest
 import org.junit.Before
 import org.junit.Test
+import org.osgi.framework.Bundle
 
 /**
  * Testing the {@link ConfigStatusService} OSGi service.
  *
  * @author Thomas Höfer - Initial contribution
  */
-class ConfigStatusServiceOSGiTest extends OSGiTest {
+class ConfigStatusServiceOSGiTest extends JavaOSGiTest {
+
+    BundleResolver bundleResolver
 
     ConfigStatusService configStatusService
 
@@ -98,6 +102,9 @@ class ConfigStatusServiceOSGiTest extends OSGiTest {
                 return new Locale("en", "US")
             }] as LocaleProvider)
         registerTranslationProvider()
+
+        def bundle = [getSymbolicName: { return ""} ] as Bundle
+        registerService([resolveBundle: { clazz -> bundle }] as BundleResolver)
 
         configStatusService = getService(ConfigStatusService)
         assertThat configStatusService, is(notNullValue())
