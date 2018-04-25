@@ -24,6 +24,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
+import org.eclipse.smarthome.core.util.BundleResolver;
 import org.eclipse.smarthome.model.core.EventType;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.thing.thing.ModelBridge;
@@ -56,13 +57,11 @@ public class GenericThingProviderMultipleBundlesTest {
 
     @Before
     public void setup() {
-        thingProvider = new GenericThingProvider() {
+        thingProvider = new GenericThingProvider();
 
-            @Override
-            protected String getBundleName(ThingHandlerFactory thingHandlerFactory) {
-                return BUNDLE_NAME;
-            }
-        };
+        BundleResolver bundleResolver = mock(BundleResolver.class);
+        when(bundleResolver.resolveSymbolicName(any(Class.class))).thenReturn(BUNDLE_NAME);
+        thingProvider.setBundleResolver(bundleResolver);
 
         ModelRepository modelRepository = mock(ModelRepository.class);
 

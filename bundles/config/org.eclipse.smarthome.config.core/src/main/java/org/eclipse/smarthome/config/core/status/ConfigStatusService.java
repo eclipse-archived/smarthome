@@ -23,8 +23,8 @@ import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
+import org.eclipse.smarthome.core.util.BundleResolver;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -50,6 +50,7 @@ public final class ConfigStatusService implements ConfigStatusCallback {
     private EventPublisher eventPublisher;
     private LocaleProvider localeProvider;
     private TranslationProvider i18nProvider;
+    private BundleResolver bundleResolver;
 
     private final ExecutorService executorService = ThreadPoolManager
             .getPool(ConfigStatusService.class.getSimpleName());
@@ -112,7 +113,7 @@ public final class ConfigStatusService implements ConfigStatusCallback {
             return null;
         }
 
-        Bundle bundle = FrameworkUtil.getBundle(configStatusProvider.getClass());
+        Bundle bundle = bundleResolver.resolveBundle(configStatusProvider.getClass());
 
         ConfigStatusInfo info = new ConfigStatusInfo();
 
@@ -172,5 +173,14 @@ public final class ConfigStatusService implements ConfigStatusCallback {
 
     protected void unsetTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = null;
+    }
+
+    @Reference
+    protected void setBundleResolver(BundleResolver bundleResolver) {
+        this.bundleResolver = bundleResolver;
+    }
+
+    protected void unsetBundleResolver(BundleResolver bundleResolver) {
+        this.bundleResolver = bundleResolver;
     }
 }

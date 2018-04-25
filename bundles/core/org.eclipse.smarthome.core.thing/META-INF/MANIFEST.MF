@@ -63,6 +63,7 @@ Import-Package:
  org.eclipse.smarthome.core.thing.util,
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.core.types.util,
+ org.eclipse.smarthome.core.util,
  org.eclipse.smarthome.io.console,
  org.eclipse.smarthome.io.console.extensions,
  org.osgi.framework,

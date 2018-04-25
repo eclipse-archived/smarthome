@@ -75,7 +75,7 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
-import org.osgi.framework.FrameworkUtil;
+import org.eclipse.smarthome.core.util.BundleResolver;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -279,6 +279,8 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     };
 
     private ThingRegistryImpl thingRegistry;
+
+    private BundleResolver bundleResolver;
 
     private ConfigDescriptionRegistry configDescriptionRegistry;
 
@@ -970,7 +972,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     }
 
     private String getBundleName(ThingHandlerFactory thingHandlerFactory) {
-        return FrameworkUtil.getBundle(thingHandlerFactory.getClass()).getSymbolicName();
+        return bundleResolver.resolveSymbolicName(thingHandlerFactory.getClass());
     }
 
     private void registerAndInitializeHandler(final Thing thing, final ThingHandlerFactory thingHandlerFactory) {
@@ -1052,6 +1054,15 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
 
     protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescriptionRegistry = null;
+    }
+
+    @Reference
+    protected void setBundleResolver(BundleResolver bundleResolver) {
+        this.bundleResolver = bundleResolver;
+    }
+
+    protected void unsetBundleResolver(BundleResolver bundleResolver) {
+        this.bundleResolver = bundleResolver;
     }
 
     private ThingStatusInfo buildStatusInfo(ThingStatus thingStatus, ThingStatusDetail thingStatusDetail,

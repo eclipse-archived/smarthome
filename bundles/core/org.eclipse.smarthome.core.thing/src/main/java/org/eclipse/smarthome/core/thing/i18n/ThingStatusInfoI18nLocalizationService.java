@@ -20,8 +20,8 @@ import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.util.BundleResolver;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -52,6 +52,7 @@ import org.osgi.service.component.annotations.Reference;
 public final class ThingStatusInfoI18nLocalizationService {
 
     private TranslationProvider i18nProvider;
+    private BundleResolver bundleResolver;
 
     /**
      * Localizes the {@link ThingStatusInfo} for the given thing.
@@ -81,7 +82,7 @@ public final class ThingStatusInfoI18nLocalizationService {
             return thing.getStatusInfo();
         }
 
-        Bundle bundle = FrameworkUtil.getBundle(thingHandler.getClass());
+        Bundle bundle = bundleResolver.resolveBundle(thingHandler.getClass());
 
         Description desc = new Description(bundle, locale, description, i18nProvider);
         String translatedDescription = i18nProvider.getText(bundle, desc.key, description, locale, desc.args);
@@ -96,6 +97,15 @@ public final class ThingStatusInfoI18nLocalizationService {
 
     protected void unsetTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = null;
+    }
+
+    @Reference
+    protected void setBundleResolver(BundleResolver bundleResolver) {
+        this.bundleResolver = bundleResolver;
+    }
+
+    protected void unsetBundleResolver(BundleResolver bundleResolver) {
+        this.bundleResolver = bundleResolver;
     }
 
     /**
