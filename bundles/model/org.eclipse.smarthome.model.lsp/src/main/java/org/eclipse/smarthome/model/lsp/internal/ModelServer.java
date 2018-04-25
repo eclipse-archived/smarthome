@@ -31,7 +31,6 @@ import org.eclipse.xtext.ide.server.LanguageServerImpl;
 import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -46,7 +45,7 @@ import com.google.inject.Injector;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
-@Component(immediate = true, service = ModelServer.class, configurationPid = ModelServer.CONFIG_PID, configurationPolicy = ConfigurationPolicy.OPTIONAL, property = {
+@Component(immediate = true, service = ModelServer.class, configurationPid = ModelServer.CONFIG_PID, property = {
         Constants.SERVICE_PID + "=" + ModelServer.CONFIG_PID,
         ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI + "=misc:lsp",
         ConfigurableService.SERVICE_PROPERTY_LABEL + "=Language Server (LSP)",
