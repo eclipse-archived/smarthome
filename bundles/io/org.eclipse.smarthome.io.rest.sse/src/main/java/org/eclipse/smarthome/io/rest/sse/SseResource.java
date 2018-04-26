@@ -37,6 +37,7 @@ import org.eclipse.smarthome.io.rest.sse.internal.util.SseUtil;
 import org.glassfish.jersey.media.sse.EventOutput;
 import org.glassfish.jersey.media.sse.SseBroadcaster;
 import org.glassfish.jersey.media.sse.SseFeature;
+import org.osgi.service.component.annotations.Component;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -51,6 +52,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Yordan Zhelev - Added Swagger annotations
  *
  */
+@Component(immediate = true, service = SseResource.class)
 @Path(SseResource.PATH_EVENTS)
 @RolesAllowed({ Role.USER })
 @Singleton
