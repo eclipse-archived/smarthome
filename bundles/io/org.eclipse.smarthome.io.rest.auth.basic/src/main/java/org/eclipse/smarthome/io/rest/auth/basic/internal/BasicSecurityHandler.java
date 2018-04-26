@@ -67,8 +67,13 @@ public class BasicSecurityHandler extends AbstractSecurityHandler {
 
     @Override
     @Reference
-    public void setAuthenticationService(AuthenticationProvider AuthenticationService) {
+    protected void setAuthenticationService(AuthenticationProvider AuthenticationService) {
         super.setAuthenticationService(AuthenticationService);
+    }
+
+    @Override
+    protected void unsetAuthenticationService(AuthenticationProvider AuthenticationService) {
+        super.unsetAuthenticationService(AuthenticationService);
     }
 
 }
