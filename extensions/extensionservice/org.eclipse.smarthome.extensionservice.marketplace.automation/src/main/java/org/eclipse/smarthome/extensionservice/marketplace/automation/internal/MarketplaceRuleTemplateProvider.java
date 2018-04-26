@@ -38,8 +38,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-@Component(immediate = true, service = { MarketplaceRuleTemplateProvider.class,
-        RuleTemplateProvider.class }, property = { "Parser.target=(&(format=json)(parser.type=parser.template))" })
+@Component(service = { MarketplaceRuleTemplateProvider.class, RuleTemplateProvider.class })
 public class MarketplaceRuleTemplateProvider extends DefaultAbstractManagedProvider<RuleTemplate, String>
         implements RuleTemplateProvider {
 

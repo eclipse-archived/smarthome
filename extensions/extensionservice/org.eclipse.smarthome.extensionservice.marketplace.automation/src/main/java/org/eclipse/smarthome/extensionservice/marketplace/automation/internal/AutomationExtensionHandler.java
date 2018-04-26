@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-@Component(immediate = true)
+@Component
 public class AutomationExtensionHandler implements MarketplaceExtensionHandler {
 
     private final Logger logger = LoggerFactory.getLogger(AutomationExtensionHandler.class);
