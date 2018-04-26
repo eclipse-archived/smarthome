@@ -32,6 +32,12 @@ import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapProvider;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +51,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
+@Component(service = SitemapSubscriptionService.class)
 public class SitemapSubscriptionService implements ModelRepositoryChangeListener {
 
     private static final String SITEMAP_PAGE_SEPARATOR = "#";
@@ -58,24 +65,25 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
     }
 
     private ItemUIRegistry itemUIRegistry;
-    private ModelRepository modelRepo;
-    private List<SitemapProvider> sitemapProviders = new ArrayList<>();
+    private final List<SitemapProvider> sitemapProviders = new ArrayList<>();
 
     /* subscription id -> sitemap+page */
     private final Map<String, String> pageOfSubscription = new ConcurrentHashMap<>();
 
     /* subscription id -> callback */
-    private Map<String, SitemapSubscriptionCallback> callbacks = new ConcurrentHashMap<>();
+    private final Map<String, SitemapSubscriptionCallback> callbacks = new ConcurrentHashMap<>();
 
     /* sitemap+page -> listener */
-    private Map<String, PageChangeListener> pageChangeListeners = new ConcurrentHashMap<>();
+    private final Map<String, PageChangeListener> pageChangeListeners = new ConcurrentHashMap<>();
 
     public SitemapSubscriptionService() {
     }
 
+    @Activate
     protected void activate() {
     }
 
+    @Deactivate
     protected void deactivate() {
         pageOfSubscription.clear();
         callbacks.clear();
@@ -85,6 +93,7 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
         pageChangeListeners.clear();
     }
 
+    @Reference
     protected void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
         this.itemUIRegistry = itemUIRegistry;
     }
@@ -93,6 +102,7 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
         this.itemUIRegistry = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addSitemapProvider(SitemapProvider provider) {
         sitemapProviders.add(provider);
     }
@@ -101,14 +111,13 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
         sitemapProviders.remove(provider);
     }
 
-    protected void addModelRepository(ModelRepository modelRepo) {
-        this.modelRepo = modelRepo;
-        this.modelRepo.addModelRepositoryChangeListener(this);
+    @Reference
+    protected void setModelRepository(ModelRepository modelRepo) {
+        modelRepo.addModelRepositoryChangeListener(this);
     }
 
-    protected void removeModelRepository(ModelRepository modelRepo) {
-        this.modelRepo.removeModelRepositoryChangeListener(this);
-        this.modelRepo = null;
+    protected void unsetModelRepository(ModelRepository modelRepo) {
+        modelRepo.removeModelRepositoryChangeListener(this);
     }
 
     /**
