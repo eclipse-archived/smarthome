@@ -82,6 +82,12 @@ import org.glassfish.jersey.media.sse.SseBroadcaster;
 import org.glassfish.jersey.media.sse.SseFeature;
 import org.glassfish.jersey.server.BroadcasterListener;
 import org.glassfish.jersey.server.ChunkedOutput;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,6 +108,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Chris Jackson
  * @author Yordan Zhelev - Added Swagger annotations
  */
+@Component(service = { SitemapResource.class, RESTResource.class })
 @Path(SitemapResource.PATH_SITEMAPS)
 @RolesAllowed({ Role.USER, Role.ADMIN })
 @Api(value = SitemapResource.PATH_SITEMAPS)
@@ -131,16 +138,19 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
 
     private final Map<String, EventOutput> eventOutputs = new MapMaker().weakValues().makeMap();
 
+    @Activate
     protected void activate() {
         broadcaster = new SseBroadcaster();
         broadcaster.add(this);
     }
 
+    @Deactivate
     protected void deactivate() {
         broadcaster.remove(this);
         broadcaster = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
         this.itemUIRegistry = itemUIRegistry;
     }
@@ -149,6 +159,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
         this.itemUIRegistry = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     public void setSitemapSubscriptionService(SitemapSubscriptionService subscriptions) {
         this.subscriptions = subscriptions;
     }
@@ -157,6 +168,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
         this.subscriptions = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addSitemapProvider(SitemapProvider provider) {
         sitemapProviders.add(provider);
     }
