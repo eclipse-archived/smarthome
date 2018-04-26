@@ -27,6 +27,7 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
@@ -34,11 +35,15 @@ import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.thing.testutil.i18n.DefaultLocaleSetter;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.magic.binding.handler.MagicColorLightHandler;
+import org.eclipse.smarthome.core.util.BundleResolver;
+import org.eclipse.smarthome.test.SyntheticBundleInstaller;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
@@ -50,10 +55,13 @@ import org.osgi.service.component.ComponentContext;
  */
 public class ThingStatusInfoI18nLocalizationServiceOSGiTest extends JavaOSGiTest {
 
+    private static final String TEST_BUNDLE_NAME = "thingStatusInfoI18nTest.bundle";
+
     private Thing thing;
     private ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService;
     private ManagedThingProvider managedThingProvider;
     private Locale defaultLocale;
+    private Bundle testBundle;
 
     @Test
     public void thingStatusInfoNotChangedIfNoDescription() {
@@ -182,10 +190,9 @@ public class ThingStatusInfoI18nLocalizationServiceOSGiTest extends JavaOSGiTest
 
     @Test
     public void translationsFromThingHandlerSuperclassBundleAreUsed() {
-        setThingStatusInfo(thing, new ThingStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE,
-                "@text/channel-type.magic.alert.label"));
+        setThingStatusInfo(thing, new ThingStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, "@text/testText"));
         ThingStatusInfo info = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing, Locale.GERMAN);
-        assertThat(info, is(new ThingStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, "Alarm")));
+        assertThat(info, is(new ThingStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, "Some test text")));
     }
 
     @Test
@@ -200,14 +207,14 @@ public class ThingStatusInfoI18nLocalizationServiceOSGiTest extends JavaOSGiTest
     @Test
     public void argumentsForDescriptionAreAlsoTranslatedUsingThingHandlerSuperclassBundle() {
         setThingStatusInfo(thing, new ThingStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE,
-                "@text/offline.with-two-params [@text/channel-type.magic.alert.label, 60]"));
+                "@text/testText.withParams [@text/some.other.text, 60]"));
         ThingStatusInfo info = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing, Locale.GERMAN);
         assertThat(info, is(new ThingStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE,
-                "Thing ist wegen Alarm offline. Bitte versuchen Sie es in 60 Sekunden erneut.")));
+                "Some test text with params: some other text - 60")));
     }
 
     @Before
-    public void setup() throws IOException {
+    public void setup() throws Exception {
         LocaleProvider localeProvider = getService(LocaleProvider.class);
         assertThat(localeProvider, is(notNullValue()));
         defaultLocale = localeProvider.getLocale();
@@ -232,12 +239,18 @@ public class ThingStatusInfoI18nLocalizationServiceOSGiTest extends JavaOSGiTest
 
         waitForAssert(() -> assertThat(thing.getStatus(), is(ThingStatus.ONLINE)));
 
+        testBundle = SyntheticBundleInstaller.install(bundleContext, TEST_BUNDLE_NAME);
+        assertThat(testBundle, is(notNullValue()));
+
         thingStatusInfoI18nLocalizationService = getService(ThingStatusInfoI18nLocalizationService.class);
         assertThat(thingStatusInfoI18nLocalizationService, is(notNullValue()));
+
+        thingStatusInfoI18nLocalizationService.setBundleResolver(new BundleResolverImpl());
     }
 
     @After
-    public void tearDown() throws IOException {
+    public void tearDown() throws IOException, BundleException {
+        SyntheticBundleInstaller.uninstall(bundleContext, TEST_BUNDLE_NAME);
         managedThingProvider.remove(thing.getUID());
         new DefaultLocaleSetter(getService(ConfigurationAdmin.class)).setDefaultLocale(defaultLocale);
         waitForAssert(() -> assertThat(getService(LocaleProvider.class).getLocale(), is(defaultLocale)));
@@ -266,7 +279,7 @@ public class ThingStatusInfoI18nLocalizationServiceOSGiTest extends JavaOSGiTest
         }
     }
 
-    private class SimpleThingHandler extends MagicColorLightHandler {
+    private class SimpleThingHandler extends AbstractThingHandler {
 
         SimpleThingHandler(Thing thing) {
             super(thing);
@@ -285,6 +298,27 @@ public class ThingStatusInfoI18nLocalizationServiceOSGiTest extends JavaOSGiTest
         public void setThingStatusInfo(ThingStatusInfo thingStatusInfo) {
             updateStatus(thingStatusInfo.getStatus(), thingStatusInfo.getStatusDetail(),
                     thingStatusInfo.getDescription());
+        }
+    }
+
+    private abstract class AbstractThingHandler extends BaseThingHandler {
+        public AbstractThingHandler(Thing thing) {
+            super(thing);
+        }
+    }
+
+    /**
+     * Use this for simulating that the {@link AbstractThingHandler} class does come from another bundle than this test
+     * bundle.
+     */
+    private class BundleResolverImpl implements BundleResolver {
+        @Override
+        public Bundle resolveBundle(Class<?> clazz) {
+            if (clazz != null && clazz.equals(AbstractThingHandler.class)) {
+                return testBundle;
+            } else {
+                return FrameworkUtil.getBundle(clazz);
+            }
         }
     }
 }

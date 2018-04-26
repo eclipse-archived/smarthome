@@ -25,8 +25,6 @@ Import-Package:
  org.eclipse.smarthome.core.thing.binding,
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.types,
- org.eclipse.smarthome.magic.binding,
- org.eclipse.smarthome.magic.binding.handler,
  org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.java,
  org.eclipse.smarthome.test.storage,
