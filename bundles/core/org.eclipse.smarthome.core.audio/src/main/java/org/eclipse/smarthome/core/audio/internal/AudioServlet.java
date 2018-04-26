@@ -32,6 +32,8 @@ import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioHTTPServer;
 import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.FixedLengthAudioStream;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
@@ -44,6 +46,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@Component
 public class AudioServlet extends HttpServlet implements AudioHTTPServer {
 
     private static final long serialVersionUID = -3364664035854567854L;
@@ -52,12 +55,13 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
 
     private final Logger logger = LoggerFactory.getLogger(AudioServlet.class);
 
-    private Map<String, AudioStream> oneTimeStreams = new ConcurrentHashMap<>();
-    private Map<String, FixedLengthAudioStream> multiTimeStreams = new ConcurrentHashMap<>();
-    private Map<String, Long> streamTimeouts = new ConcurrentHashMap<>();
+    private final Map<String, AudioStream> oneTimeStreams = new ConcurrentHashMap<>();
+    private final Map<String, FixedLengthAudioStream> multiTimeStreams = new ConcurrentHashMap<>();
+    private final Map<String, Long> streamTimeouts = new ConcurrentHashMap<>();
 
     protected HttpService httpService;
 
+    @Reference
     protected void setHttpService(HttpService httpService) {
         this.httpService = httpService;
 
