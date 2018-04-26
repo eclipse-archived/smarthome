@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.smarthome.config.core.ConfigOptionProvider;
+import org.eclipse.smarthome.config.core.ConfigurableService;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioManager;
@@ -43,6 +44,14 @@ import org.eclipse.smarthome.core.voice.Voice;
 import org.eclipse.smarthome.core.voice.VoiceManager;
 import org.eclipse.smarthome.core.voice.text.HumanLanguageInterpreter;
 import org.eclipse.smarthome.core.voice.text.InterpretationException;
+import org.osgi.framework.Constants;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,13 +64,19 @@ import org.slf4j.LoggerFactory;
  * @author Christoph Weitkamp - Added parameter to adjust the volume
  *
  */
+@Component(immediate = true, configurationPid = "org.eclipse.smarthome.voice", property = { //
+        Constants.SERVICE_PID + "=org.eclipse.smarthome.voice", //
+        ConfigurableService.SERVICE_PROPERTY_CATEGORY + "=system", //
+        ConfigurableService.SERVICE_PROPERTY_LABEL + "=Voice", //
+        ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI + "=" + VoiceManagerImpl.CONFIG_URI //
+})
 public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
 
     // the default keyword to use if no other is configured
     private static final String DEFAULT_KEYWORD = "Wakeup";
 
     // constants for the configuration properties
-    private static final String CONFIG_URI = "system:voice";
+    protected static final String CONFIG_URI = "system:voice";
     private static final String CONFIG_KEYWORD = "keyword";
     private static final String CONFIG_LISTENING_ITEM = "listeningItem";
     private static final String CONFIG_DEFAULT_HLI = "defaultHLI";
@@ -74,10 +89,10 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
     private final Logger logger = LoggerFactory.getLogger(VoiceManagerImpl.class);
 
     // service maps
-    private Map<String, KSService> ksServices = new HashMap<>();
-    private Map<String, STTService> sttServices = new HashMap<>();
-    private Map<String, TTSService> ttsServices = new HashMap<>();
-    private Map<String, HumanLanguageInterpreter> humanLanguageInterpreters = new HashMap<>();
+    private final Map<String, KSService> ksServices = new HashMap<>();
+    private final Map<String, STTService> sttServices = new HashMap<>();
+    private final Map<String, TTSService> ttsServices = new HashMap<>();
+    private final Map<String, HumanLanguageInterpreter> humanLanguageInterpreters = new HashMap<>();
 
     private LocaleProvider localeProvider = null;
 
@@ -91,17 +106,20 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
     private String defaultKS = null;
     private String defaultHLI = null;
     private String defaultVoice = null;
-    private Map<String, String> defaultVoices = new HashMap<>();
+    private final Map<String, String> defaultVoices = new HashMap<>();
     private AudioManager audioManager;
     private EventPublisher eventPublisher;
 
+    @Activate
     protected void activate(Map<String, Object> config) {
         modified(config);
     }
 
+    @Deactivate
     protected void deactivate() {
     }
 
+    @Modified
     protected void modified(Map<String, Object> config) {
         if (config != null) {
             this.keyword = config.containsKey(CONFIG_KEYWORD) ? config.get(CONFIG_KEYWORD).toString() : DEFAULT_KEYWORD;
@@ -433,6 +451,7 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
         }
     }
 
+    @Reference
     protected void setLocaleProvider(LocaleProvider localeProvider) {
         this.localeProvider = localeProvider;
     }
@@ -441,6 +460,7 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
         this.localeProvider = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addKSService(KSService ksService) {
         this.ksServices.put(ksService.getId(), ksService);
     }
@@ -449,6 +469,7 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
         this.ksServices.remove(ksService.getId());
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addSTTService(STTService sttService) {
         this.sttServices.put(sttService.getId(), sttService);
     }
@@ -457,6 +478,7 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
         this.sttServices.remove(sttService.getId());
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addTTSService(TTSService ttsService) {
         this.ttsServices.put(ttsService.getId(), ttsService);
     }
@@ -465,6 +487,7 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
         this.ttsServices.remove(ttsService.getId());
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addHumanLanguageInterpreter(HumanLanguageInterpreter humanLanguageInterpreter) {
         this.humanLanguageInterpreters.put(humanLanguageInterpreter.getId(), humanLanguageInterpreter);
     }
@@ -473,6 +496,7 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
         this.humanLanguageInterpreters.remove(humanLanguageInterpreter.getId());
     }
 
+    @Reference
     protected void setAudioManager(AudioManager audioManager) {
         this.audioManager = audioManager;
     }
@@ -481,6 +505,7 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
         this.audioManager = null;
     }
 
+    @Reference
     protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }

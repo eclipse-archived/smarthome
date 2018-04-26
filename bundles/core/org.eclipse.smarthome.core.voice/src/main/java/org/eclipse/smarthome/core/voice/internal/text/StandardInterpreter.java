@@ -14,6 +14,8 @@ package org.eclipse.smarthome.core.voice.internal.text;
 
 import java.util.Locale;
 
+import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.NextPreviousType;
@@ -25,6 +27,9 @@ import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.voice.text.AbstractRuleBasedInterpreter;
 import org.eclipse.smarthome.core.voice.text.Expression;
+import org.eclipse.smarthome.core.voice.text.HumanLanguageInterpreter;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * A human language command interpretation service.
@@ -34,6 +39,7 @@ import org.eclipse.smarthome.core.voice.text.Expression;
  * @author Laurent Garnier - Added French interpretation rules
  *
  */
+@Component(service = HumanLanguageInterpreter.class)
 public class StandardInterpreter extends AbstractRuleBasedInterpreter {
 
     @Override
@@ -61,8 +67,9 @@ public class StandardInterpreter extends AbstractRuleBasedInterpreter {
 
                 /* IncreaseDecreaseType */
 
-                itemRule(seq(cmd(alt("dim", "decrease", "lower", "soften"), IncreaseDecreaseType.DECREASE),
-                        the) /* item */),
+                itemRule(seq(cmd(alt("dim", "decrease", "lower", "soften"), IncreaseDecreaseType.DECREASE), the) /*
+                                                                                                                  * item
+                                                                                                                  */),
 
                 itemRule(seq(cmd(alt("brighten", "increase", "harden", "enhance"), IncreaseDecreaseType.INCREASE),
                         the) /* item */),
@@ -230,6 +237,28 @@ public class StandardInterpreter extends AbstractRuleBasedInterpreter {
     @Override
     public String getLabel(Locale locale) {
         return "Built-in Interpreter";
+    }
+
+    @Override
+    @Reference
+    public void setItemRegistry(ItemRegistry ItemRegistry) {
+        super.setItemRegistry(ItemRegistry);
+    }
+
+    @Override
+    public void unsetItemRegistry(ItemRegistry itemRegistry) {
+        super.unsetItemRegistry(itemRegistry);
+    }
+
+    @Override
+    @Reference
+    public void setEventPublisher(EventPublisher EventPublisher) {
+        super.setEventPublisher(EventPublisher);
+    }
+
+    @Override
+    public void unsetEventPublisher(EventPublisher eventPublisher) {
+        super.unsetEventPublisher(eventPublisher);
     }
 
 }
