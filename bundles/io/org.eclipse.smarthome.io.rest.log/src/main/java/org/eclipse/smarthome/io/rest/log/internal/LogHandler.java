@@ -41,11 +41,13 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.osgi.service.component.annotations.Component;
 
 /**
  *
  * @author Sebastian Janzen - Initial contribution
  */
+@Component
 @Path("/log")
 @Api(value = LogHandler.PATH_LOG)
 @Produces(MediaType.APPLICATION_JSON)
