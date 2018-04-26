@@ -25,6 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.smarthome.config.core.ConfigurableService;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.extension.Extension;
@@ -35,6 +36,14 @@ import org.eclipse.smarthome.extensionservice.marketplace.MarketplaceExtension;
 import org.eclipse.smarthome.extensionservice.marketplace.MarketplaceExtensionHandler;
 import org.eclipse.smarthome.extensionservice.marketplace.MarketplaceHandlerException;
 import org.eclipse.smarthome.extensionservice.marketplace.internal.model.Node;
+import org.osgi.framework.Constants;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +54,12 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@Component(configurationPid = "org.eclipse.smarthome.marketplace", immediate = true, property = {
+        Constants.SERVICE_PID + "=org.eclipse.smarthome.marketplace", //
+        ConfigurableService.SERVICE_PROPERTY_CATEGORY + "=system", //
+        ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI + "=system:marketplace", //
+        ConfigurableService.SERVICE_PROPERTY_LABEL + "=Marketplace" //
+})
 public class MarketplaceExtensionService implements ExtensionService {
 
     // constants used in marketplace nodes
@@ -59,25 +74,29 @@ public class MarketplaceExtensionService implements ExtensionService {
     // increased visibility for unit tests
     MarketplaceProxy proxy;
     private EventPublisher eventPublisher;
-    private Pattern labelPattern = Pattern.compile("<.*>"); // checks for the existence of any xml element
-    private Pattern descriptionPattern = Pattern.compile("<(javascript|div|font)"); // checks for the existence of some
-                                                                                    // invalid elements
+    private final Pattern labelPattern = Pattern.compile("<.*>"); // checks for the existence of any xml element
+    private final Pattern descriptionPattern = Pattern.compile("<(javascript|div|font)"); // checks for the existence of
+                                                                                          // some
+    // invalid elements
 
     private boolean includeBindings = true;
     private boolean includeRuleTemplates = true;
     private int maturityLevel = 1;
-    private Set<MarketplaceExtensionHandler> extensionHandlers = new HashSet<>();
+    private final Set<MarketplaceExtensionHandler> extensionHandlers = new HashSet<>();
 
+    @Activate
     protected void activate(Map<String, Object> config) {
         this.proxy = new MarketplaceProxy();
         modified(config);
     }
 
+    @Deactivate
     protected void deactivate() {
         this.proxy.dispose();
         this.proxy = null;
     }
 
+    @Modified
     protected void modified(Map<String, Object> config) {
         Object bindingCfg = config.get("bindings");
         if (bindingCfg != null) {
@@ -98,6 +117,7 @@ public class MarketplaceExtensionService implements ExtensionService {
         }
     }
 
+    @Reference
     protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
@@ -106,6 +126,7 @@ public class MarketplaceExtensionService implements ExtensionService {
         this.eventPublisher = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, policy = ReferencePolicy.DYNAMIC)
     protected void addExtensionHandler(MarketplaceExtensionHandler handler) {
         this.extensionHandlers.add(handler);
     }
