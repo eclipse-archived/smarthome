@@ -25,6 +25,9 @@ import org.eclipse.smarthome.core.voice.VoiceManager;
 import org.eclipse.smarthome.core.voice.text.InterpretationException;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
+import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Console command extension for all voice features.
@@ -32,6 +35,7 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@Component(service = ConsoleCommandExtension.class)
 public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
     private static final String SUBCMD_SAY = "say";
@@ -126,6 +130,7 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
         voiceManager.say(msg.toString());
     }
 
+    @Reference
     protected void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
     }
@@ -134,6 +139,7 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
         this.itemRegistry = null;
     }
 
+    @Reference
     protected void setVoiceManager(VoiceManager voiceManager) {
         this.voiceManager = voiceManager;
     }
