@@ -49,7 +49,7 @@ public final class ConfigStatusService implements ConfigStatusCallback {
     private final List<ConfigStatusProvider> configStatusProviders = new CopyOnWriteArrayList<>();
     private EventPublisher eventPublisher;
     private LocaleProvider localeProvider;
-    private TranslationProvider i18nProvider;
+    private TranslationProvider translationProvider;
     private BundleResolver bundleResolver;
 
     private final ExecutorService executorService = ThreadPoolManager
@@ -120,7 +120,7 @@ public final class ConfigStatusService implements ConfigStatusCallback {
         for (ConfigStatusMessage configStatusMessage : configStatus) {
             String message = null;
             if (configStatusMessage.messageKey != null) {
-                message = i18nProvider.getText(bundle, configStatusMessage.messageKey, null, locale,
+                message = translationProvider.getText(bundle, configStatusMessage.messageKey, null, locale,
                         configStatusMessage.arguments);
                 if (message == null) {
                     logger.warn(
@@ -168,11 +168,11 @@ public final class ConfigStatusService implements ConfigStatusCallback {
 
     @Reference
     protected void setTranslationProvider(TranslationProvider i18nProvider) {
-        this.i18nProvider = i18nProvider;
+        this.translationProvider = i18nProvider;
     }
 
     protected void unsetTranslationProvider(TranslationProvider i18nProvider) {
-        this.i18nProvider = null;
+        this.translationProvider = null;
     }
 
     @Reference
