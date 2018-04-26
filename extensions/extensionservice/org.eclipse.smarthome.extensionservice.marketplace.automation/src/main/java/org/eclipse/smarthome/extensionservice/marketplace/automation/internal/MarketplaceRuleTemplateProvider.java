@@ -24,6 +24,10 @@ import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.RuleTemplateProvider;
 import org.eclipse.smarthome.core.common.registry.DefaultAbstractManagedProvider;
+import org.eclipse.smarthome.core.storage.StorageService;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +38,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@Component(service = { MarketplaceRuleTemplateProvider.class, RuleTemplateProvider.class })
 public class MarketplaceRuleTemplateProvider extends DefaultAbstractManagedProvider<RuleTemplate, String>
         implements RuleTemplateProvider {
 
@@ -61,6 +66,7 @@ public class MarketplaceRuleTemplateProvider extends DefaultAbstractManagedProvi
         return key;
     }
 
+    @Reference(target = "(&(format=json)(parser.type=parser.template))")
     protected void setParser(Parser<RuleTemplate> parser) {
         this.parser = parser;
     }
@@ -92,6 +98,17 @@ public class MarketplaceRuleTemplateProvider extends DefaultAbstractManagedProvi
         } catch (IOException e) {
             logger.error("Cannot close input stream.", e);
         }
+    }
+
+    @Override
+    @Reference(policy = ReferencePolicy.DYNAMIC)
+    public void setStorageService(StorageService StorageService) {
+        super.setStorageService(StorageService);
+    }
+
+    @Override
+    public void unsetStorageService(StorageService StorageService) {
+        super.unsetStorageService(StorageService);
     }
 
 }
