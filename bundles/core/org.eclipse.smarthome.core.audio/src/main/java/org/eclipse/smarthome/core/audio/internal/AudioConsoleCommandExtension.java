@@ -21,6 +21,9 @@ import org.eclipse.smarthome.core.audio.AudioManager;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
+import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Console command extension for all audio features.
@@ -30,6 +33,7 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  * @author Christoph Weitkamp - Added parameter to adjust the volume
  *
  */
+@Component(service = ConsoleCommandExtension.class)
 public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
     private static final String SUBCMD_PLAY = "play";
@@ -176,6 +180,7 @@ public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtensio
         }
     }
 
+    @Reference
     protected void setAudioManager(AudioManager audioManager) {
         this.audioManager = audioManager;
     }
