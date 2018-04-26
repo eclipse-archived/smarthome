@@ -22,6 +22,7 @@ import javax.measure.quantity.Temperature;
 
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
+import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.types.Type;
 import org.junit.Test;
 
@@ -196,6 +197,31 @@ public class NumberExtensionsTest {
     @Test
     public void operatorGreaterEqualsThan_Quantity_Quantity_True() {
         assertTrue(NumberExtensions.operator_greaterEqualsThan(Q_LENGTH_1m, Q_LENGTH_2cm));
+    }
+
+    @Test
+    public void operatorEquals_Quantity_ONE_Number() {
+        assertTrue(NumberExtensions.operator_equals(new QuantityType<>(1, SmartHomeUnits.ONE), DECIMAL1));
+    }
+
+    @Test
+    public void operatorLessThan_Quantity_ONE_Number() {
+        assertTrue(NumberExtensions.operator_lessThan(new QuantityType<>(1, SmartHomeUnits.ONE), DECIMAL2));
+    }
+
+    @Test
+    public void operatorLessEqualsThan_Quantity_ONE_Number() {
+        assertTrue(NumberExtensions.operator_lessEqualsThan(new QuantityType<>(1, SmartHomeUnits.ONE), DECIMAL1));
+    }
+
+    @Test
+    public void operatorGreaterThan_Quantity_ONE_Number() {
+        assertTrue(NumberExtensions.operator_greaterThan(new QuantityType<>(2, SmartHomeUnits.ONE), DECIMAL1));
+    }
+
+    @Test
+    public void operatorGreaterEqualsThan_Quantity_ONE_Number() {
+        assertTrue(NumberExtensions.operator_greaterEqualsThan(new QuantityType<>(1, SmartHomeUnits.ONE), DECIMAL1));
     }
 
 }
