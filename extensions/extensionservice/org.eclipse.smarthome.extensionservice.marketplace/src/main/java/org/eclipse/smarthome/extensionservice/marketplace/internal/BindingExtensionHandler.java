@@ -28,6 +28,9 @@ import org.eclipse.smarthome.extensionservice.marketplace.MarketplaceHandlerExce
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +44,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@Component(immediate = true)
 public class BindingExtensionHandler implements MarketplaceExtensionHandler {
 
     private static final String BINDING_FILE = "installedBindingsMap.csv";
@@ -51,11 +55,13 @@ public class BindingExtensionHandler implements MarketplaceExtensionHandler {
 
     private BundleContext bundleContext;
 
+    @Activate
     protected void activate(BundleContext bundleContext, Map<String, Object> config) {
         this.bundleContext = bundleContext;
         installedBindings = loadInstalledBindingsMap();
     }
 
+    @Deactivate
     protected void deactivate() {
         this.installedBindings = null;
         this.bundleContext = null;
