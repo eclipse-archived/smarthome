@@ -36,6 +36,7 @@ import org.eclipse.smarthome.io.transport.mqtt.MqttException;
 import org.eclipse.smarthome.io.transport.mqtt.MqttService;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -109,6 +110,7 @@ public class MqttEmbeddedBrokerServiceTest {
     }
 
     @Test
+    @Ignore
     public void connectToEmbeddedServer() throws InterruptedException {
         ServiceConfiguration config = new ServiceConfiguration();
         config.username = "username";
