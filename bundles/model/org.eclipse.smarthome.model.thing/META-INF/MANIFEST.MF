@@ -33,6 +33,7 @@ Import-Package:
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.thing.util,
  org.eclipse.smarthome.core.types.util,
+ org.eclipse.smarthome.core.util,
  org.eclipse.smarthome.model.core,
  org.eclipse.smarthome.model.core.valueconverter,
  org.eclipse.smarthome.model.item,

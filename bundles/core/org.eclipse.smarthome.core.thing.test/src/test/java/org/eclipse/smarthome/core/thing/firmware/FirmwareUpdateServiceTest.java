@@ -52,6 +52,7 @@ import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateBackgroun
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler;
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressCallback;
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressStep;
+import org.eclipse.smarthome.core.util.BundleResolver;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
 import org.junit.Before;
@@ -113,6 +114,9 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
     @Mock
     private TranslationProvider mockTranslationProvider;
 
+    @Mock
+    private BundleResolver bundleResolver;
+
     private SafeCaller safeCaller;
 
     @Before
@@ -150,6 +154,9 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
         firmwareUpdateService.setFirmwareRegistry(firmwareRegistry);
         firmwareUpdateService.setLocaleProvider(mockLocaleProvider);
         firmwareRegistry.setLocaleProvider(mockLocaleProvider);
+
+        when(bundleResolver.resolveBundle(any())).thenReturn(mock(Bundle.class));
+        firmwareUpdateService.setBundleResolver(bundleResolver);
 
         when(mockProvider.getFirmware(eq(FW009_EN.getUID()), any())).thenReturn(FW009_EN);
         when(mockProvider.getFirmware(eq(FW111_EN.getUID()), any())).thenReturn(FW111_EN);
