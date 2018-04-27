@@ -35,14 +35,17 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.library.items.StringItem;
+import org.eclipse.smarthome.core.service.ReadyMarker;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.eclipse.smarthome.core.storage.StorageService;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingTypeMigrationService;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.internal.ThingManager;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
@@ -315,6 +318,8 @@ public class ChangeThingTypeOSGiTest extends JavaOSGiTest {
         registerService(storage);
         managedThingProvider = getService(ManagedThingProvider.class);
         assertThat(managedThingProvider, is(notNullValue()));
+        ThingManager tm = getService(ThingTypeMigrationService.class, ThingManager.class);
+        tm.onReadyMarkerAdded(new ReadyMarker("", "org.eclipse.smarthome.core.thing"));
 
         Collection<Thing> res = managedThingProvider.getAll();
         assertThat(res.size(), is(1));
