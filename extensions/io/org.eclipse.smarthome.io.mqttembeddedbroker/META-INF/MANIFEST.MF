@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: org.eclipse.smarthome.io.mqttembeddedbroker
+Bundle-ManifestVersion: 2
+Bundle-Name: Embedded Mqtt Broker
+Bundle-SymbolicName: org.eclipse.smarthome.io.mqttembeddedbroker;singleton:=true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.10.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ClassPath: ., lib/moquette-broker-0.10.jar, lib/netty-all-4.1.19.Final.jar
+Import-Package: 
+ org.apache.commons.io,
+ org.apache.commons.lang,
+ org.apache.commons.net.util,
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.io.transport.mqtt,
+ org.eclipse.smarthome.io.transport.mqtt.reconnect,
+ org.eclipse.smarthome.io.transport.mqtt.sslcontext,
+ org.osgi.framework,
+ org.osgi.service.cm,
+ org.osgi.service.component,
+ org.slf4j
+Service-Component: OSGI-INF/*.xml
