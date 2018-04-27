@@ -12,7 +12,7 @@
 
 	<artifactId>org.eclipse.smarthome.io.mqttembeddedbroker</artifactId>
 
-	<name>Embedded MQTT Broker</name>
+	<name>Eclipse SmartHome Embedded MQTT Broker</name>
 	<packaging>eclipse-plugin</packaging>
 
 </project>
