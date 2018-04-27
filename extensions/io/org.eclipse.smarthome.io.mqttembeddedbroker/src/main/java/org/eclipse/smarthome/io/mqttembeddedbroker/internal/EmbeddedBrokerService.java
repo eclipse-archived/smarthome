@@ -181,7 +181,8 @@ public class EmbeddedBrokerService implements ConfigurableService, MqttConnectio
             if (port == null) {
                 port = 1883;
             }
-            properties.put(BrokerConstants.SSL_PORT_PROPERTY_NAME, BrokerConstants.DISABLED_PORT_BIND);
+            // with SSL_PORT_PROPERTY_NAME set, netty tries to evaluate the SSL context and shuts down immediately.
+            // properties.put(BrokerConstants.SSL_PORT_PROPERTY_NAME, BrokerConstants.DISABLED_PORT_BIND);
             properties.put(BrokerConstants.PORT_PROPERTY_NAME, Integer.toString(port));
         }
 
@@ -260,7 +261,7 @@ public class EmbeddedBrokerService implements ConfigurableService, MqttConnectio
             }
         }
 
-        if (state != MqttConnectionState.CONNECTED) {
+        if (state != MqttConnectionState.CONNECTED && state != MqttConnectionState.CONNECTING) {
             stopEmbeddedServer();
         }
     }
