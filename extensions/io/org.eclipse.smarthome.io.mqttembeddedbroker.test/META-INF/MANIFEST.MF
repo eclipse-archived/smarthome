@@ -8,13 +8,14 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Fragment-Host: org.eclipse.smarthome.io.mqttembeddedbroker
 Import-Package: org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.events,
- org.osgi.framework,
- org.osgi.service.device,
- org.slf4j,
+ org.eclipse.smarthome.test,
  org.hamcrest;core=split,
  org.hamcrest.collection,
  org.hamcrest.core,
  org.junit,
  org.junit.runner,
  org.junit.runners,
- org.mockito
+ org.mockito,
+ org.osgi.framework,
+ org.osgi.service.device,
+ org.slf4j
