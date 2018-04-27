@@ -75,7 +75,7 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
-import org.osgi.framework.FrameworkUtil;
+import org.eclipse.smarthome.core.util.BundleResolver;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -125,6 +125,8 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     private EventPublisher eventPublisher;
 
     private CommunicationManager communicationManager;
+
+    private ReadyService readyService;
 
     private final List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
 
@@ -279,6 +281,8 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     };
 
     private ThingRegistryImpl thingRegistry;
+
+    private BundleResolver bundleResolver;
 
     private ConfigDescriptionRegistry configDescriptionRegistry;
 
@@ -921,6 +925,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
 
     @Activate
     protected void activate(ComponentContext componentContext) {
+        readyService.registerTracker(this, new ReadyMarkerFilter().withType(XML_THING_TYPE));
         this.thingRegistry.addThingTracker(this);
     }
 
@@ -933,11 +938,11 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
 
     @Reference
     public void setReadyService(ReadyService readyService) {
-        readyService.registerTracker(this, new ReadyMarkerFilter().withType(XML_THING_TYPE));
+        this.readyService = readyService;
     }
 
     public void unsetReadyService(ReadyService readyService) {
-        readyService.unregisterTracker(this);
+        this.readyService = null;
     }
 
     @Override
@@ -970,7 +975,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     }
 
     private String getBundleName(ThingHandlerFactory thingHandlerFactory) {
-        return FrameworkUtil.getBundle(thingHandlerFactory.getClass()).getSymbolicName();
+        return bundleResolver.resolveBundle(thingHandlerFactory.getClass()).getSymbolicName();
     }
 
     private void registerAndInitializeHandler(final Thing thing, final ThingHandlerFactory thingHandlerFactory) {
@@ -1003,6 +1008,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     @Deactivate
     protected void deactivate(ComponentContext componentContext) {
         this.thingRegistry.removeThingTracker(this);
+        readyService.unregisterTracker(this);
     }
 
     protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
@@ -1052,6 +1058,15 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
 
     protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescriptionRegistry = null;
+    }
+
+    @Reference
+    protected void setBundleResolver(BundleResolver bundleResolver) {
+        this.bundleResolver = bundleResolver;
+    }
+
+    protected void unsetBundleResolver(BundleResolver bundleResolver) {
+        this.bundleResolver = bundleResolver;
     }
 
     private ThingStatusInfo buildStatusInfo(ThingStatus thingStatus, ThingStatusDetail thingStatusDetail,

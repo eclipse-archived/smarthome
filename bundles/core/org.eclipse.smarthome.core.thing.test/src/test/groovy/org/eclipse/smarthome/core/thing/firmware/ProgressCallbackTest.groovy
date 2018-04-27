@@ -15,8 +15,6 @@ package org.eclipse.smarthome.core.thing.firmware
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
-import java.util.Locale
-
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.i18n.TranslationProvider
@@ -28,9 +26,8 @@ import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressCallback
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressStep
-import org.junit.After
+import org.eclipse.smarthome.core.util.BundleResolver
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.osgi.framework.Bundle
 
@@ -63,7 +60,11 @@ public final class ProgressCallbackTest {
                 return "Dummy Message"
             }
         ] as TranslationProvider
-        sut = new ProgressCallbackImpl(new DummyFirmwareHandler(),publisher, i18nProvider, expectedThingUID, expectedFirmwareUID, null)
+
+        def bundle = [getSymbolicName: { return ""} ] as Bundle
+        def bundleResolver = [resolveBundle: { clazz -> bundle }] as BundleResolver
+
+        sut = new ProgressCallbackImpl(new DummyFirmwareHandler(), publisher, i18nProvider, bundleResolver, expectedThingUID, expectedFirmwareUID, null)
     }
 
     @Test(expected=IllegalStateException)
@@ -74,7 +75,7 @@ public final class ProgressCallbackTest {
         assertThatUpdateResultEventIsValid(postedEvents.get(1), null, FirmwareUpdateResult.SUCCESS)
         sut.update(100)
     }
-    
+
     @Test(expected=IllegalArgumentException)
     void 'assert that defineSequence throws IllegalArguumentException if sequence is empty'(){
         sut.defineSequence()
@@ -84,8 +85,8 @@ public final class ProgressCallbackTest {
     void 'assert that defineSequence throws IllegalArguumentException if sequence is null'(){
         sut.defineSequence(null)
     }
-    
-    
+
+
     @Test(expected=IllegalArgumentException)
     void 'assert that failed throws IllegalArguumentException if message key is empty'(){
         sut.failed("", null)
@@ -102,7 +103,7 @@ public final class ProgressCallbackTest {
         sut.update(99)
         sut.success()
     }
-    
+
     @Test(expected=IllegalStateException)
     void 'assert that success throws IllegalStateException for failed updates'(){
         sut.failed(cancelMessageKey, null)
@@ -249,12 +250,12 @@ public final class ProgressCallbackTest {
     }
 
     /*
-     * Special behaviour because of pending state: 
+     * Special behaviour because of pending state:
      *
-     * Before calling next the ProgressStep is null which means the update was not started 
-     * but a valid ProgressStep is needed to create a FirmwareUpdateProgressInfoEvent. 
+     * Before calling next the ProgressStep is null which means the update was not started
+     * but a valid ProgressStep is needed to create a FirmwareUpdateProgressInfoEvent.
      * As workaround the first step is returned to provide a valid ProgressStep.
-     * This could be the case if the update directly goes in PENDING state after trying to start it.      
+     * This could be the case if the update directly goes in PENDING state after trying to start it.
      */
     @Test
     void 'assert that getProgressStep returns first step if next was not called before'(){
@@ -264,7 +265,11 @@ public final class ProgressCallbackTest {
 
     @Test
     void 'assert that getProgressStep returns current step if next was called before'(){
-        def steps = [ProgressStep.DOWNLOADING, ProgressStep.TRANSFERRING, ProgressStep.UPDATING, ProgressStep.REBOOTING] as ProgressStep[]
+        def steps = [
+            ProgressStep.DOWNLOADING,
+            ProgressStep.TRANSFERRING,
+            ProgressStep.UPDATING,
+            ProgressStep.REBOOTING] as ProgressStep[]
         sut.defineSequence(steps)
         sut.next()
         for (int i = 0; i< steps.length-1; i++){
@@ -296,7 +301,7 @@ public final class ProgressCallbackTest {
         sut.failed("DummyMessageKey")
         sut.failed("DummyMessageKey")
     }
-    
+
     @Test(expected=IllegalStateException)
     void 'assert that failed throws IllegalStateException for successful updates'(){
         sut.update(100)
@@ -353,7 +358,7 @@ public final class ProgressCallbackTest {
         assertThat fpiEvent.getProgressInfo().getProgress(), is(expectedProgress)
         assertThat fpiEvent.getProgressInfo().isPending(), (is(expectedPending))
     }
-    
+
     def assertThatUpdateResultEventIsValid(Event event, String expectedMessageKey, FirmwareUpdateResult expectedResult){
         assertThat event, is(instanceOf(FirmwareUpdateResultInfoEvent))
         def fpiEvent = event as FirmwareUpdateResultInfoEvent
