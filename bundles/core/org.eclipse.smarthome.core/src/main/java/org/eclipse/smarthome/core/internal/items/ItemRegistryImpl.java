@@ -97,9 +97,12 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     private void setTagsFromMetadata(Item item) {
         if (item instanceof ActiveItem) {
-            ActiveItem activeItem = (ActiveItem) item;
-            activeItem.removeAllTags();
-            activeItem.addTags(readTags(item.getName()));
+            SortedSet<String> tags = readTags(item.getName());
+            if (!tags.isEmpty()) {
+                ActiveItem activeItem = (ActiveItem) item;
+                activeItem.removeAllTags();
+                activeItem.addTags(tags);
+            }
         }
     }
 
@@ -439,7 +442,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
                 metadataRegistry.add(metadata);
             }
         } catch (IllegalStateException e) {
-            logger.warn("Could not persist tags of item '{}', presumably no ManagedMetadataProvider was available",
+            logger.debug("Could not persist tags of item '{}', presumably no ManagedMetadataProvider was available",
                     itemName);
         }
     }
