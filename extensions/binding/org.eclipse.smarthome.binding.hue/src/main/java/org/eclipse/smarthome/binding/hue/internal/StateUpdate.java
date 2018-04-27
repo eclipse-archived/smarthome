@@ -27,6 +27,9 @@ import org.eclipse.smarthome.binding.hue.internal.State.Effect;
 public class StateUpdate {
     ArrayList<Command> commands = new ArrayList<>();
 
+    private int colorTemperature;
+    private int brightness;
+
     public String toJson() {
         StringBuilder json = new StringBuilder("{");
 
@@ -84,7 +87,12 @@ public class StateUpdate {
         }
 
         commands.add(new Command("bri", brightness));
+        this.brightness = brightness;
         return this;
+    }
+
+    public int getBrightness() {
+        return this.brightness;
     }
 
     /**
@@ -157,7 +165,12 @@ public class StateUpdate {
         }
 
         commands.add(new Command("ct", colorTemperature));
+        this.colorTemperature = colorTemperature;
         return this;
+    }
+
+    public int getColorTemperature() {
+        return this.colorTemperature;
     }
 
     /**
