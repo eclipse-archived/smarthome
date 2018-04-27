@@ -26,8 +26,8 @@ import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID;
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler;
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressCallback;
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressStep;
+import org.eclipse.smarthome.core.util.BundleResolver;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 
 /**
  * The callback implementation for the {@link ProgressCallback}.
@@ -45,6 +45,7 @@ final class ProgressCallbackImpl implements ProgressCallback {
     private final FirmwareUpdateHandler firmwareUpdateHandler;
     private final EventPublisher eventPublisher;
     private final TranslationProvider i18nProvider;
+    private final BundleResolver bundleResolver;
     private final ThingUID thingUID;
     private final FirmwareUID firmwareUID;
     private final Locale locale;
@@ -64,10 +65,12 @@ final class ProgressCallbackImpl implements ProgressCallback {
     private InternalState state;
 
     ProgressCallbackImpl(FirmwareUpdateHandler firmwareUpdateHandler, EventPublisher eventPublisher,
-            TranslationProvider i18nProvider, ThingUID thingUID, FirmwareUID firmwareUID, Locale locale) {
+            TranslationProvider i18nProvider, BundleResolver bundleResolver, ThingUID thingUID, FirmwareUID firmwareUID,
+            Locale locale) {
         this.firmwareUpdateHandler = firmwareUpdateHandler;
         this.eventPublisher = eventPublisher;
         this.i18nProvider = i18nProvider;
+        this.bundleResolver = bundleResolver;
         this.thingUID = thingUID;
         this.firmwareUID = firmwareUID;
         this.locale = locale;
@@ -178,7 +181,7 @@ final class ProgressCallbackImpl implements ProgressCallback {
     }
 
     private String getMessage(Class<?> clazz, String errorMessageKey, Object... arguments) {
-        Bundle bundle = FrameworkUtil.getBundle(clazz);
+        Bundle bundle = bundleResolver.resolveBundle(clazz);
         String errorMessage = i18nProvider.getText(bundle, errorMessageKey, null, locale, arguments);
         return errorMessage;
     }

@@ -34,8 +34,8 @@ import org.eclipse.smarthome.core.types.EventDescription;
 import org.eclipse.smarthome.core.types.EventOption;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
+import org.eclipse.smarthome.core.util.BundleResolver;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -174,6 +174,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
     private final Map<LocalizedChannelTypeKey, ChannelType> localizedChannelTypeCache = new ConcurrentHashMap<>();
 
     private ThingTypeI18nUtil thingTypeI18nUtil;
+    private BundleResolver bundleResolver;
 
     public DefaultSystemChannelTypeProvider() {
         channelGroupTypes = Collections.emptyList();
@@ -185,7 +186,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
     @Override
     public Collection<ChannelType> getChannelTypes(Locale locale) {
         final List<ChannelType> allChannelTypes = new ArrayList<>(10);
-        final Bundle bundle = FrameworkUtil.getBundle(DefaultSystemChannelTypeProvider.class);
+        final Bundle bundle = bundleResolver.resolveBundle(DefaultSystemChannelTypeProvider.class);
 
         for (final ChannelType channelType : channelTypes) {
             allChannelTypes.add(createLocalizedChannelType(bundle, channelType, locale));
@@ -196,7 +197,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
 
     @Override
     public ChannelType getChannelType(ChannelTypeUID channelTypeUID, Locale locale) {
-        final Bundle bundle = FrameworkUtil.getBundle(DefaultSystemChannelTypeProvider.class);
+        final Bundle bundle = bundleResolver.resolveBundle(DefaultSystemChannelTypeProvider.class);
 
         if (channelTypeUID.equals(SYSTEM_CHANNEL_SIGNAL_STRENGTH.getUID())) {
             return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_SIGNAL_STRENGTH, locale);
@@ -233,6 +234,15 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
 
     public void unsetTranslationProvider(TranslationProvider i18nProvider) {
         thingTypeI18nUtil = null;
+    }
+
+    @Reference
+    public void setBundleResolver(BundleResolver bundleResolver) {
+        this.bundleResolver = bundleResolver;
+    }
+
+    public void unsetBundleResolver(BundleResolver bundleResolver) {
+        this.bundleResolver = bundleResolver;
     }
 
     private ChannelType createLocalizedChannelType(Bundle bundle, ChannelType channelType, Locale locale) {

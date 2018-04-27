@@ -47,6 +47,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.core.thing.util.ThingHelper
+import org.eclipse.smarthome.core.util.BundleResolver
 import org.eclipse.smarthome.model.core.ModelRepository
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener
 import org.eclipse.smarthome.model.thing.thing.ModelBridge
@@ -85,6 +86,8 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 
     private ThingTypeRegistry thingTypeRegistry
     private ChannelTypeRegistry channelTypeRegistry
+    
+    private BundleResolver bundleResolver;
 
     private Map<String, Collection<Thing>> thingsMap = new ConcurrentHashMap
 
@@ -456,6 +459,15 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         modelRepository.removeModelRepositoryChangeListener(this)
         this.modelRepository = null
     }
+    
+    @Reference
+    def protected void setBundleResolver(BundleResolver bundleResolver) {
+        this.bundleResolver = bundleResolver;
+    }
+
+    def protected void unsetBundleResolver(BundleResolver bundleResolver) {
+        this.bundleResolver = null;
+    }
 
     override void modelChanged(String modelName, org.eclipse.smarthome.model.core.EventType type) {
         if (modelName.endsWith("things")) {
@@ -575,9 +587,8 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         bsn.handleXmlThingTypesLoaded
     }
     
-    // Overwritten in tests
-    def protected String getBundleName(ThingHandlerFactory thingHandlerFactory) {
-        return FrameworkUtil.getBundle(thingHandlerFactory.class).symbolicName
+    def private getBundleName(ThingHandlerFactory thingHandlerFactory) {
+        return bundleResolver.resolveBundle(thingHandlerFactory.class).getSymbolicName();
     }
     
     def private handleXmlThingTypesLoaded(String bsn) {

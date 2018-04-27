@@ -47,6 +47,7 @@ import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateBackgroun
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler;
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressCallback;
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
+import org.eclipse.smarthome.core.util.BundleResolver;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -101,6 +102,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
     private LocaleProvider localeProvider;
     private SafeCaller safeCaller;
     private ConfigDescriptionValidator configDescriptionValidator;
+    private BundleResolver bundleResolver;
 
     private final Runnable firmwareStatusRunnable = new Runnable() {
         @Override
@@ -227,7 +229,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
         final Locale loc = locale != null ? locale : localeProvider.getLocale();
 
         final ProgressCallbackImpl progressCallback = new ProgressCallbackImpl(firmwareUpdateHandler, eventPublisher,
-                i18nProvider, thingUID, firmwareUID, loc);
+                i18nProvider, bundleResolver, thingUID, firmwareUID, loc);
         progressCallbackMap.put(thingUID, progressCallback);
 
         logger.debug("Starting firmware update for thing with UID {} and firmware with UID {}", thingUID, firmwareUID);
@@ -543,6 +545,15 @@ public final class FirmwareUpdateService implements EventSubscriber {
 
     protected void unsetConfigDescriptionValidator(ConfigDescriptionValidator configDescriptionValidator) {
         this.configDescriptionValidator = null;
+    }
+
+    @Reference
+    protected void setBundleResolver(BundleResolver bundleResolver) {
+        this.bundleResolver = bundleResolver;
+    }
+
+    protected void unsetBundleResolver(BundleResolver bundleResolver) {
+        this.bundleResolver = bundleResolver;
     }
 
 }
