@@ -91,18 +91,22 @@ public class WebAppServlet extends BaseServlet {
     private final WebAppConfig config = new WebAppConfig();
 
     @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, policy = ReferencePolicy.DYNAMIC)
-    public void addSitemapProvider(SitemapProvider sitemapProvider) {
+    protected void addSitemapProvider(SitemapProvider sitemapProvider) {
         this.sitemapProviders.add(sitemapProvider);
     }
 
-    public void removeSitemapProvider(SitemapProvider sitemapProvider) {
+    protected void removeSitemapProvider(SitemapProvider sitemapProvider) {
         this.sitemapProviders.remove(sitemapProvider);
     }
 
     @Reference
-    public void setPageRenderer(PageRenderer renderer) {
+    protected void setPageRenderer(PageRenderer renderer) {
         renderer.setConfig(config);
         this.renderer = renderer;
+    }
+
+    protected void unsetPageRenderer(PageRenderer renderer) {
+        this.renderer = null;
     }
 
     @Activate
