@@ -197,6 +197,7 @@
 
   <feature name="esh-io-mqttembeddedbroker" description="Embedded MQTT Broker" version="${project.version}">
     <feature>esh-base</feature>
+    <feature>esh-io-transport-mqtt</feature>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.mqttembeddedbroker/${project.version}</bundle>
   </feature>
 
