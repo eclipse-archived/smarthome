@@ -126,6 +126,8 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
 
     private CommunicationManager communicationManager;
 
+    private ReadyService readyService;
+
     private final List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
 
     private final Map<ThingUID, ThingHandler> thingHandlers = new ConcurrentHashMap<>();
@@ -923,6 +925,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
 
     @Activate
     protected void activate(ComponentContext componentContext) {
+        readyService.registerTracker(this, new ReadyMarkerFilter().withType(XML_THING_TYPE));
         this.thingRegistry.addThingTracker(this);
     }
 
@@ -935,11 +938,11 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
 
     @Reference
     public void setReadyService(ReadyService readyService) {
-        readyService.registerTracker(this, new ReadyMarkerFilter().withType(XML_THING_TYPE));
+        this.readyService = readyService;
     }
 
     public void unsetReadyService(ReadyService readyService) {
-        readyService.unregisterTracker(this);
+        this.readyService = null;
     }
 
     @Override
@@ -1005,6 +1008,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     @Deactivate
     protected void deactivate(ComponentContext componentContext) {
         this.thingRegistry.removeThingTracker(this);
+        readyService.unregisterTracker(this);
     }
 
     protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
