@@ -12,14 +12,16 @@
  */
 package org.eclipse.smarthome.binding.weatherunderground.internal;
 
-import static org.eclipse.smarthome.binding.weatherunderground.WeatherUndergroundBindingConstants.THING_TYPE_WEATHER;
+import static org.eclipse.smarthome.binding.weatherunderground.WeatherUndergroundBindingConstants.*;
 
-import java.util.Collections;
 import java.util.Set;
 
+import org.eclipse.smarthome.binding.weatherunderground.WeatherUndergroundBindingConstants;
+import org.eclipse.smarthome.binding.weatherunderground.handler.WeatherUndergroundBridgeHandler;
 import org.eclipse.smarthome.binding.weatherunderground.handler.WeatherUndergroundHandler;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.i18n.UnitProvider;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
@@ -28,11 +30,14 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import com.google.common.collect.Sets;
+
 /**
  * The {@link WeatherUndergroundHandlerFactory} is responsible for creating things and thing
  * handlers.
  *
  * @author Laurent Garnier - Initial contribution
+ * @author Theo Giovanna - Added a bridge for the API key
  */
 @Component(service = ThingHandlerFactory.class, configurationPid = "binding.weatherunderground")
 public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
@@ -59,7 +64,8 @@ public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
         this.unitProvider = null;
     }
 
-    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(THING_TYPE_WEATHER);
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Sets.union(BRIDGE_THING_TYPES_UIDS,
+            WeatherUndergroundBindingConstants.SUPPORTED_THING_TYPES_UIDS);
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -72,6 +78,10 @@ public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
 
         if (thingTypeUID.equals(THING_TYPE_WEATHER)) {
             return new WeatherUndergroundHandler(thing, localeProvider, unitProvider);
+        }
+
+        if (thingTypeUID.equals(THING_TYPE_BRIDGE)) {
+            return new WeatherUndergroundBridgeHandler((Bridge) thing);
         }
 
         return null;

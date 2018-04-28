@@ -43,6 +43,7 @@ import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.library.unit.ImperialUnits;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -65,10 +66,15 @@ import com.google.gson.JsonSyntaxException;
  * weather things created to use the Weather Underground Service.
  *
  * @author Laurent Garnier - Initial contribution
+ * @author Theo Giovanna - Added a bridge for the API key
  */
 public class WeatherUndergroundHandler extends BaseThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(WeatherUndergroundHandler.class);
+
+    private String apikey;
+
+    private Bridge bridge;
 
     private static final String URL = "http://api.wunderground.com/api/%APIKEY%/%FEATURES%/%SETTINGS%/q/%QUERY%.json";
     private static final String FEATURE_CONDITIONS = "conditions";
@@ -355,12 +361,13 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         forecastMap = initForecastDayMap();
     }
 
+    @SuppressWarnings("null")
     @Override
     public void initialize() {
         logger.debug("Initializing WeatherUnderground handler.");
 
         WeatherUndergroundConfiguration config = getConfigAs(WeatherUndergroundConfiguration.class);
-        logger.debug("config apikey = {}", config.apikey);
+
         logger.debug("config location = {}", config.location);
         logger.debug("config language = {}", config.language);
         logger.debug("config refresh = {}", config.refresh);
@@ -369,11 +376,24 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         String errors = "";
         String statusDescr = null;
 
-        if (StringUtils.trimToNull(config.apikey) == null) {
+        // Sets the API key with respect to an existing bridge or to the weather thing
+
+        bridge = this.getBridge();
+        if (bridge == null) {
+            logger.debug("config apikey = {}", config.apikey);
+            setApikey(config.apikey);
+        } else {
+            WeatherUndergroundBridgeHandler handler = (WeatherUndergroundBridgeHandler) bridge.getHandler();
+            logger.debug("config apikey = {}", handler.getApikey());
+            setApikey(handler.getApikey());
+        }
+
+        if (StringUtils.trimToNull(getApikey()) == null) {
             errors += " Parameter 'apikey' must be configured.";
             statusDescr = "@text/offline.conf-error-missing-apikey";
             validConfig = false;
         }
+
         if (StringUtils.trimToNull(config.location) == null) {
             errors += " Parameter 'location' must be configured.";
             statusDescr = "@text/offline.conf-error-missing-location";
@@ -400,6 +420,14 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
             logger.debug("Disabling thing '{}': {}", getThing().getUID(), errors);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, statusDescr);
         }
+    }
+
+    public String getApikey() {
+        return apikey;
+    }
+
+    public void setApikey(String apiKey) {
+        this.apikey = apiKey;
     }
 
     /**
@@ -493,13 +521,11 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
                 quantity = getTemperature(current.getTemperatureC(), current.getTemperatureF());
                 return undefOrQuantity(quantity);
             case "relativeHumidity":
-                return undefOrState(current.getRelativeHumidity(),
-                        new QuantityType<>(current.getRelativeHumidity(), SmartHomeUnits.PERCENT));
+                return undefOrDecimal(current.getRelativeHumidity());
             case "windDirection":
                 return undefOrState(current.getWindDirection(), new StringType(current.getWindDirection()));
             case "windDirectionDegrees":
-                return undefOrState(current.getWindDirectionDegrees(),
-                        new QuantityType<>(current.getWindDirectionDegrees(), SmartHomeUnits.DEGREE_ANGLE));
+                return undefOrDecimal(current.getWindDirectionDegrees());
             case "windSpeed":
                 quantity = getSpeed(current.getWindSpeedKmh(), current.getWindSpeedMph());
                 return undefOrQuantity(quantity);
@@ -569,11 +595,9 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
                 quantity = getTemperature(dayForecast.getMaxTemperatureC(), dayForecast.getMaxTemperatureF());
                 return undefOrQuantity(quantity);
             case "relativeHumidity":
-                return undefOrState(dayForecast.getRelativeHumidity(),
-                        new QuantityType<>(dayForecast.getRelativeHumidity(), SmartHomeUnits.PERCENT));
+                return undefOrDecimal(dayForecast.getRelativeHumidity());
             case "probaPrecipitation":
-                return undefOrState(dayForecast.getProbaPrecipitation(),
-                        new QuantityType<>(dayForecast.getProbaPrecipitation(), SmartHomeUnits.PERCENT));
+                return undefOrDecimal(dayForecast.getProbaPrecipitation());
             case "precipitationDay":
                 quantity = getPrecipitation(dayForecast.getPrecipitationDayMm(), dayForecast.getPrecipitationDayIn());
                 return undefOrQuantity(quantity);
@@ -585,8 +609,7 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
                 return undefOrState(dayForecast.getMaxWindDirection(),
                         new StringType(dayForecast.getMaxWindDirection()));
             case "maxWindDirectionDegrees":
-                return undefOrState(dayForecast.getMaxWindDirectionDegrees(),
-                        new QuantityType<>(dayForecast.getMaxWindDirectionDegrees(), SmartHomeUnits.DEGREE_ANGLE));
+                return undefOrDecimal(dayForecast.getMaxWindDirectionDegrees());
             case "maxWindSpeed":
                 quantity = getSpeed(dayForecast.getMaxWindSpeedKmh(), dayForecast.getMaxWindSpeedMph());
                 return undefOrQuantity(quantity);
@@ -594,8 +617,7 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
                 return undefOrState(dayForecast.getAverageWindDirection(),
                         new StringType(dayForecast.getAverageWindDirection()));
             case "averageWindDirectionDegrees":
-                return undefOrState(dayForecast.getAverageWindDirectionDegrees(),
-                        new QuantityType<>(dayForecast.getAverageWindDirectionDegrees(), SmartHomeUnits.DEGREE_ANGLE));
+                return undefOrDecimal(dayForecast.getAverageWindDirectionDegrees());
             case "averageWindSpeed":
                 quantity = getSpeed(dayForecast.getAverageWindSpeedKmh(), dayForecast.getAverageWindSpeedMph());
                 return undefOrQuantity(quantity);
@@ -681,7 +703,7 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
             // the requested features and the thing configuration settings
             WeatherUndergroundConfiguration config = getConfigAs(WeatherUndergroundConfiguration.class);
 
-            String urlStr = URL.replace("%APIKEY%", StringUtils.trimToEmpty(config.apikey));
+            String urlStr = URL.replace("%APIKEY%", StringUtils.trimToEmpty(this.getApikey()));
 
             urlStr = urlStr.replace("%FEATURES%", String.join("/", features));
 
