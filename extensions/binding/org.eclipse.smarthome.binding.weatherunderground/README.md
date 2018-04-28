@@ -61,6 +61,9 @@ For the language parameter Weather Underground uses a special set of language co
 The weather information that is retrieved is available as these channels:
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b1f1449cb... Fixed unwanted changes in previous commit
 | Channel Group ID | Channel ID | Item Type    | Description             |
 |------------------|------------|--------------|-------------------------|
 | Current          | location             | String               | Weather observation location |
@@ -68,9 +71,15 @@ The weather information that is retrieved is available as these channels:
 | Current          | observationTime      | DateTime             | Observation date and time |
 | Current          | conditions           | String               | Weather conditions |
 | Current          | temperature          | Number:Temperature   | Temperature |
+<<<<<<< HEAD
 | Current          | relativeHumidity     | Number:Dimensionless | Relative humidity |
 | Current          | windDirection        | String               | Wind direction |
 | Current          | windDirectionDegrees | Number:Angle         | Wind direction as an angle |
+=======
+| Current          | relativeHumidity     | Number:Dimensionless | Relative humidity in % |
+| Current          | windDirection        | String               | Wind direction |
+| Current          | windDirectionDegrees | Number:Angle         | Wind direction in degrees |
+>>>>>>> b1f1449cb... Fixed unwanted changes in previous commit
 | Current          | windSpeed            | Number:Speed         | Wind speed |
 | Current          | windGust             | Number:Speed         | Wind gust |
 | Current          | pressure             | Number:Pressure      | Pressure |
@@ -80,7 +89,11 @@ The weather information that is retrieved is available as these channels:
 | Current          | windChill            | Number:Temperature   | Wind chill temperature |
 | Current          | feelingTemperature   | Number:Temperature   | Feeling temperature |
 | Current          | visibility           | Number:Length        | Visibility |
+<<<<<<< HEAD
 | Current          | solarRadiation       | Number:Intensity     | Solar radiation |
+=======
+| Current          | solarRadiation       | Number:Intensity     | Solar radiation in W/m2 | |
+>>>>>>> b1f1449cb... Fixed unwanted changes in previous commit
 | Current          | UVIndex              | Number               | UV Index |
 | Current          | precipitationDay     | Number:Length        | Rain fall during the day |
 | Current          | precipitationHour    | Number:Length        | Rain fall during the last hour |
@@ -90,6 +103,7 @@ The weather information that is retrieved is available as these channels:
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | conditions                  | String               | Weather forecast conditions |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | minTemperature              | Number:Temperature   | Minimum temperature |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | maxTemperature              | Number:Temperature   | Maximum temperature |
+<<<<<<< HEAD
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | relativeHumidity            | Number:Dimensionless | Relative humidity |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | probaPrecipitation          | Number:Dimensionless | Probability of precipitation |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | precipitationDay            | Number:Length        | Rain fall |
@@ -145,6 +159,20 @@ The weather information that is retrieved is available as these channels:
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | icon | Image | Icon representing the weather forecast conditions | |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | iconKey | String | Key used in the icon URL | |
 >>>>>>> e37c9d0e5... Implements a bridge for weatherunderground. Solves issue #4000
+=======
+| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | relativeHumidity            | Number:Dimensionless | Relative humidity in % |
+| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | probaPrecipitation          | Number:Dimensionless | Probability of precipitation in % |
+| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | precipitationDay            | Number:Length        | Rain fall |
+| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | snow                        | Number:Length        | Snow fall |
+| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | maxWindDirection            | String               | Maximum wind direction | |
+| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | maxWindDirectionDegrees     | Number:Angle         | Maximum wind direction in degrees | |
+| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | maxWindSpeed                | Number:Speed         | Maximum wind speed |
+| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | averageWindDirection        | String               | Average wind direction | |
+| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | averageWindDirectionDegrees | Number:Angle         | Average wind direction in degrees |
+| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | averageWindSpeed            | Number:Speed         | Average wind speed | 
+| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | icon                        | Image                | Icon representing the weather forecast conditions |
+| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | iconKey                     | String               | Key used in the icon URL |
+>>>>>>> b1f1449cb... Fixed unwanted changes in previous commit
 
 
 ## Full Example
@@ -154,49 +182,48 @@ demo.things:
 ```
 Thing weatherunderground:weather:CDG "Météo Paris CDG" [ apikey="XXXXXXXXXXXX", location="CDG", language="FR", refresh=15 ] {
     Channels:
-        Type temperature : current#temperature [ SourceUnit="C" ]
-        Type windSpeed : current#windSpeed [ SourceUnit="kmh" ]
-        Type windGust : current#windGust [ SourceUnit="kmh" ]
-        Type pressure : current#pressure [ SourceUnit="hPa" ]
-        Type dewPoint : current#dewPoint [ SourceUnit="C" ]
-        Type heatIndex : current#heatIndex [ SourceUnit="C" ]
-        Type windChill : current#windChill [ SourceUnit="C" ]
-        Type feelingTemperature : current#feelingTemperature [ SourceUnit="C" ]
-        Type visibility : current#visibility [ SourceUnit="km" ]
-        Type rainDay : current#precipitationDay [ SourceUnit="mm" ]
-        Type rainHour : current#precipitationHour [ SourceUnit="mm" ]
-        Type minTemperature : forecastToday#minTemperature [ SourceUnit="C" ]
-        Type maxTemperature : forecastToday#maxTemperature [ SourceUnit="C" ]
-        Type rainDay : forecastToday#precipitationDay [ SourceUnit="mm" ]
-        Type snow : forecastToday#snow [ SourceUnit="cm" ]
-        Type maxWindSpeed : forecastToday#maxWindSpeed [ SourceUnit="kmh" ]
-        Type averageWindSpeed : forecastToday#averageWindSpeed [ SourceUnit="kmh" ]
+        Type temperature : current#temperature
+        Type windSpeed : current#windSpeed
+        Type windGust : current#windGust
+        Type pressure : current#pressure
+        Type dewPoint : current#dewPoint
+        Type heatIndex : current#heatIndex
+        Type windChill : current#windChill
+        Type feelingTemperature : current#feelingTemperature
+        Type visibility : current#visibility
+        Type rainDay : current#precipitationDay
+        Type rainHour : current#precipitationHour
+        Type minTemperature : forecastToday#minTemperature
+        Type maxTemperature : forecastToday#maxTemperature
+        Type rainDay : forecastToday#precipitationDay
+        Type snow : forecastToday#snow
+        Type maxWindSpeed : forecastToday#maxWindSpeed
+        Type averageWindSpeed : forecastToday#averageWindSpeed
 }
 ```
-
 Using the bridge (demo.items remains identical):
 
 ```
 Bridge weatherunderground:bridge:myAPI "myAPI" [ apikey="XXXXXXXXXXXX" ] {
         Thing weatherunderground:weather:paris "Météo Paris" [ location="France/Paris", language="FR", refresh=15 ] {
             Channels:
-                Type temperature : current#temperature [ SourceUnit="C" ]
-                Type windSpeed : current#windSpeed [ SourceUnit="kmh" ]
-                Type windGust : current#windGust [ SourceUnit="kmh" ]
-                Type pressure : current#pressure [ SourceUnit="hPa" ]
-                Type dewPoint : current#dewPoint [ SourceUnit="C" ]
-                Type heatIndex : current#heatIndex [ SourceUnit="C" ]
-                Type windChill : current#windChill [ SourceUnit="C" ]
-                Type feelingTemperature : current#feelingTemperature [ SourceUnit="C" ]
-                Type visibility : current#visibility [ SourceUnit="km" ]
-                Type rainDay : current#precipitationDay [ SourceUnit="mm" ]
-                Type rainHour : current#precipitationHour [ SourceUnit="mm" ]
-                Type minTemperature : forecastToday#minTemperature [ SourceUnit="C" ]
-                Type maxTemperature : forecastToday#maxTemperature [ SourceUnit="C" ]
-                Type rainDay : forecastToday#precipitationDay [ SourceUnit="mm" ]
-                Type snow : forecastToday#snow [ SourceUnit="cm" ]
-                Type maxWindSpeed : forecastToday#maxWindSpeed [ SourceUnit="kmh" ]
-                Type averageWindSpeed : forecastToday#averageWindSpeed [ SourceUnit="kmh" ]
+                Type temperature : current#temperature
+                Type windSpeed : current#windSpeed
+                Type windGust : current#windGust
+                Type pressure : current#pressure
+                Type dewPoint : current#dewPoint
+                Type heatIndex : current#heatIndex
+                Type windChill : current#windChill
+                Type feelingTemperature : current#feelingTemperature
+                Type visibility : current#visibility
+                Type rainDay : current#precipitationDay
+                Type rainHour : current#precipitationHour
+                Type minTemperature : forecastToday#minTemperature
+                Type maxTemperature : forecastToday#maxTemperature
+                Type rainDay : forecastToday#precipitationDay
+                Type snow : forecastToday#snow
+                Type maxWindSpeed : forecastToday#maxWindSpeed
+                Type averageWindSpeed : forecastToday#averageWindSpeed
         }
 }
 ``
@@ -211,43 +238,42 @@ DateTime ObservationTime "Observation time [%1$tH:%1$tM]" <clock>  {channel="wea
 String ObservationLocation "Location [%s]" {channel="weatherunderground:weather:CDG:current#location"}
 String Station "Station [%s]" {channel="weatherunderground:weather:CDG:current#stationId"}
 
-Number Temperature "Current temperature [%.1f °C]" <temperature> {channel="weatherunderground:weather:CDG:current#temperature"}
-Number FeelTemp "Feeling temperature [%.1f °C]" <temperature>  {channel="weatherunderground:weather:CDG:current#feelingTemperature"}
+Number:Temperature Temperature "Current temperature [%.1f %unit%]" <temperature> {channel="weatherunderground:weather:CDG:current#temperature"}
+Number:Temperature FeelTemp "Feeling temperature [%.1f %unit%]" <temperature>  {channel="weatherunderground:weather:CDG:current#feelingTemperature"}
 
-Number Humidity "Humidity [%d %%]" <humidity> {channel="weatherunderground:weather:CDG:current#relativeHumidity"}
-Number Pressure "Pressure [%.0f hPa]" {channel="weatherunderground:weather:CDG:current#pressure"}
-Number PressureTrend "Pressure trend [%s]" {channel="weatherunderground:weather:CDG:current#pressureTrend"}
+Number:Dimensionless Humidity "Humidity [%d %%]" <humidity> {channel="weatherunderground:weather:CDG:current#relativeHumidity"}
+Number:Pressure Pressure "Pressure [%.0f %unit%]" {channel="weatherunderground:weather:CDG:current#pressure"}
+String PressureTrend "Pressure trend [%s]" {channel="weatherunderground:weather:CDG:current#pressureTrend"}
 
-Number RainD "Rain [%.1f mm]" <rain> {channel="weatherunderground:weather:CDG:current#precipitationDay"}
-Number RainH "Rain [%.1f mm/h]" <rain> {channel="weatherunderground:weather:CDG:current#precipitationHour"}
+Number:Length RainD "Rain [%.1f &unit%]" <rain> {channel="weatherunderground:weather:CDG:current#precipitationDay"}
+Number:Length RainH "Rain [%.1f %unit%/h]" <rain> {channel="weatherunderground:weather:CDG:current#precipitationHour"}
 
 String WindDirection "Wind direction [%s]" <wind> {channel="weatherunderground:weather:CDG:current#windDirection"}
-Number WindDirection2 "Wind direction [%.0f °]" <wind>  {channel="weatherunderground:weather:CDG:current#windDirectionDegrees"}
-Number WindSpeed "Wind speed [%.1f km/h]" <wind> {channel="weatherunderground:weather:CDG:current#windSpeed"}
-Number WindGust "Wind gust [%.1f km/h]" <wind> {channel="weatherunderground:weather:CDG:current#windGust"}
+Number:Angle WindDirection2 "Wind direction [%.0f %unit%]" <wind>  {channel="weatherunderground:weather:CDG:current#windDirectionDegrees"}
+Number:Speed WindSpeed "Wind speed [%.1f %unit%]" <wind> {channel="weatherunderground:weather:CDG:current#windSpeed"}
+Number:Speed WindGust "Wind gust [%.1f %unit%]" <wind> {channel="weatherunderground:weather:CDG:current#windGust"}
 
-Number DewPoint "Dew Point [%.1f °C]" <temperature>  {channel="weatherunderground:weather:CDG:current#dewPoint"}
-Number HeatIndex "Heat Index [%.1f °C]" <temperature>  {channel="weatherunderground:weather:CDG:current#heatIndex"}
-Number WindChill "Wind Chill [%.1f °C]" <temperature>  {channel="weatherunderground:weather:CDG:current#windChill"}
-Number Visibility "Visibility [%.1f km]" {channel="weatherunderground:weather:CDG:current#visibility"}
-Number SolarRadiation "Solar Radiation [%.2f] W/m2"  {channel="weatherunderground:weather:CDG:current#solarRadiation"}
+Number:Temperature DewPoint "Dew Point [%.1f %unit%]" <temperature>  {channel="weatherunderground:weather:CDG:current#dewPoint"}
+Number:Temperature HeatIndex "Heat Index [%.1f %unit%]" <temperature>  {channel="weatherunderground:weather:CDG:current#heatIndex"}
+Number:Temperature WindChill "Wind Chill [%.1f %unit%]" <temperature>  {channel="weatherunderground:weather:CDG:current#windChill"}
+Number:Length Visibility "Visibility [%.1f %unit%]" {channel="weatherunderground:weather:CDG:current#visibility"}
+Number:Intensity SolarRadiation "Solar Radiation [%.2f %unit%]"  {channel="weatherunderground:weather:CDG:current#solarRadiation"}
 Number UV "UV Index [%.1f]" {channel="weatherunderground:weather:CDG:current#UVIndex"}
 
 DateTime ForecastTime "Forecast time [%1$tH:%1$tM]" <clock>  {channel="weatherunderground:weather:CDG:forecastToday#forecastTime"}
 String ForecastCondition "Forecast conditions [%s]"  {channel="weatherunderground:weather:CDG:forecastToday#conditions"}
 Image ForecastIcon "Forecast icon"  {channel="weatherunderground:weather:CDG:forecastToday#icon"}
 String ForecastIconKey "Forecast icon key [%s]"  {channel="weatherunderground:weather:CDG:forecastToday#iconKey"}
-Number ForecastTempMin "Forecast min temp [%.1f °C]" <temperature>  {channel="weatherunderground:weather:CDG:forecastToday#minTemperature"}
-Number ForecastTempMax "Forecast max temp [%.1f °C]" <temperature>  {channel="weatherunderground:weather:CDG:forecastToday#maxTemperature"}
-Number ForecastHumidity "Forecast Humidity [%d %%]" <humidity>  {channel="weatherunderground:weather:CDG:forecastToday#relativeHumidity"}
-Number ForecastProbaPrecip "Proba precip [%d %%]" <rain>  {channel="weatherunderground:weather:CDG:forecastToday#probaPrecipitation"}
-Number ForecastRain "Rain [%.1f mm]" <rain> {channel="weatherunderground:weather:CDG:forecastToday#precipitationDay"}
-Number ForecastSnow "Snow [%.2f cm]" <rain> {channel="weatherunderground:weather:CDG:forecastToday#snow"}
+Number:Temperature ForecastTempMin "Forecast min temp [%.1f %unit%]" <temperature>  {channel="weatherunderground:weather:CDG:forecastToday#minTemperature"}
+Number:Temperature ForecastTempMax "Forecast max temp [%.1f %unit%]" <temperature>  {channel="weatherunderground:weather:CDG:forecastToday#maxTemperature"}
+Number:Dimensionless ForecastHumidity "Forecast Humidity [%d %unit%]" <humidity>  {channel="weatherunderground:weather:CDG:forecastToday#relativeHumidity"}
+Number:Dimensionless ForecastProbaPrecip "Proba precip [%d %unit%]" <rain>  {channel="weatherunderground:weather:CDG:forecastToday#probaPrecipitation"}
+Number:Length ForecastRain "Rain [%.1f %unit%]" <rain> {channel="weatherunderground:weather:CDG:forecastToday#precipitationDay"}
+Number:Length ForecastSnow "Snow [%.2f %unit%]" <rain> {channel="weatherunderground:weather:CDG:forecastToday#snow"}
 String ForecastMaxWindDirection "Max wind direction [%s]" <wind>  {channel="weatherunderground:weather:CDG:forecastToday#maxWindDirection"}
-Number ForecastMaxWindDirection2 "Max wind direction [%.0f °]" <wind>  {channel="weatherunderground:weather:CDG:forecastToday#maxWindDirectionDegrees"}
-Number ForecastMaxWindSpeed "Max wind speed [%.1f km/h]" <wind>  {channel="weatherunderground:weather:CDG:forecastToday#maxWindSpeed"}
+Number:Angle ForecastMaxWindDirection2 "Max wind direction [%.0f %unit%]" <wind>  {channel="weatherunderground:weather:CDG:forecastToday#maxWindDirectionDegrees"}
+Number:Speed ForecastMaxWindSpeed "Max wind speed [%.1f %unit%]" <wind>  {channel="weatherunderground:weather:CDG:forecastToday#maxWindSpeed"}
 String ForecastAvgWindDirection "Avg wind direction [%s]" <wind>  {channel="weatherunderground:weather:CDG:forecastToday#averageWindDirection"}
-Number ForecastAvgWindDirection2 "Avg wind direction [%.0f °]" <wind>  {channel="weatherunderground:weather:CDG:forecastToday#averageWindDirectionDegrees"}
-Number ForecastAvgWindSpeed "Avg wind speed [%.1f km/h]" <wind>  {channel="weatherunderground:weather:CDG:forecastToday#averageWindSpeed"}
+Number:Angle ForecastAvgWindDirection2 "Avg wind direction [%.0f %unit%]" <wind>  {channel="weatherunderground:weather:CDG:forecastToday#averageWindDirectionDegrees"}
+Number:Speed ForecastAvgWindSpeed "Avg wind speed [%.1f %unit%]" <wind>  {channel="weatherunderground:weather:CDG:forecastToday#averageWindSpeed"}
 ```
-

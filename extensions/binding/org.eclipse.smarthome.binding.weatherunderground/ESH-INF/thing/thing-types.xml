@@ -5,11 +5,9 @@
 
 	<!-- WeatherUnderground Binding -->
 	<thing-type id="weather">
-	
-	   <supported-bridge-type-refs>
+		<supported-bridge-type-refs>
             <bridge-type-ref id="bridge" />
         </supported-bridge-type-refs>
-	
 		<label>Weather Information</label>
 		<description>Provides various weather data from the Weather Underground service</description>
 
@@ -58,11 +56,11 @@
 		</channel-groups>
 
 		<config-description>
-		    <parameter name="apikey" type="text" required="false">
-                <context>password</context>
-                <label>API Key</label>
-                <description>API key to access the Weather Underground service</description>
-            </parameter>
+			<parameter name="apikey" type="text" required="false">
+				<context>password</context>
+				<label>API Key</label>
+				<description>API key to access the Weather Underground service</description>
+			</parameter>
 			<parameter name="location" type="text" required="true">
 				<label>Location of Weather Information</label>
 				<description>Multiple syntaxes are supported. Please read the binding documentation for more information</description>
@@ -319,7 +317,7 @@
 		<label>Relative Humidity</label>
 		<description>Relative humidity</description>
 		<category>Humidity</category>
-		<state readOnly="true" min="0" max="100" pattern="%d %%">
+		<state readOnly="true" min="0" max="100" pattern="%d %unit%">
 		</state>
 	</channel-type>
 
@@ -352,7 +350,7 @@
 		<label>Wind Direction (angle)</label>
 		<description>Wind direction as an angle</description>
 		<category>Wind</category>
-		<state readOnly="true" min="0" max="360" pattern="%.0f °">
+		<state readOnly="true" min="0" max="360" pattern="%.0f %unit%">
 		</state>
 	</channel-type>
 
@@ -361,7 +359,7 @@
 		<label>Maximum Wind Direction (angle)</label>
 		<description>Maximum wind direction as an angle</description>
 		<category>Wind</category>
-		<state readOnly="true" min="0" max="360" pattern="%.0f °">
+		<state readOnly="true" min="0" max="360" pattern="%.0f %unit%">
 		</state>
 	</channel-type>
 
@@ -370,7 +368,7 @@
 		<label>Average Wind Direction (angle)</label>
 		<description>Average wind direction as an angle</description>
 		<category>Wind</category>
-		<state readOnly="true" min="0" max="360" pattern="%.0f °">
+		<state readOnly="true" min="0" max="360" pattern="%.0f %unit%">
 		</state>
 	</channel-type>
 
@@ -483,8 +481,12 @@
 		<state readOnly="true" min="0" max="100" pattern="%d %unit%">
 =======
 		<description>Probability of precipitation in %</description>
+<<<<<<< HEAD
 		<state readOnly="true" min="0" max="100" pattern="%d %%">
 >>>>>>> e37c9d0e5... Implements a bridge for weatherunderground. Solves issue #4000
+=======
+		<state readOnly="true" min="0" max="100" pattern="%d %unit%">
+>>>>>>> b1f1449cb... Fixed unwanted changes in previous commit
 		</state>
 	</channel-type>
 
