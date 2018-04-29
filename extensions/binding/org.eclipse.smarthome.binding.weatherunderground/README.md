@@ -67,9 +67,9 @@ The weather information that is retrieved is available as these channels:
 | Current          | observationTime      | DateTime             | Observation date and time |
 | Current          | conditions           | String               | Weather conditions |
 | Current          | temperature          | Number:Temperature   | Temperature |
-| Current          | relativeHumidity     | Number:Dimensionless | Relative humidity in % |
+| Current          | relativeHumidity     | Number:Dimensionless | Relative humidity |
 | Current          | windDirection        | String               | Wind direction |
-| Current          | windDirectionDegrees | Number:Angle         | Wind direction in degrees |
+| Current          | windDirectionDegrees | Number:Angle         | Wind direction as an angle |
 | Current          | windSpeed            | Number:Speed         | Wind speed |
 | Current          | windGust             | Number:Speed         | Wind gust |
 | Current          | pressure             | Number:Pressure      | Pressure |
@@ -79,7 +79,7 @@ The weather information that is retrieved is available as these channels:
 | Current          | windChill            | Number:Temperature   | Wind chill temperature |
 | Current          | feelingTemperature   | Number:Temperature   | Feeling temperature |
 | Current          | visibility           | Number:Length        | Visibility |
-| Current          | solarRadiation       | Number:Intensity     | Solar radiation in W/m2 | |
+| Current          | solarRadiation       | Number:Intensity     | Solar radiation |
 | Current          | UVIndex              | Number               | UV Index |
 | Current          | precipitationDay     | Number:Length        | Rain fall during the day |
 | Current          | precipitationHour    | Number:Length        | Rain fall during the last hour |
@@ -89,15 +89,15 @@ The weather information that is retrieved is available as these channels:
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | conditions                  | String               | Weather forecast conditions |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | minTemperature              | Number:Temperature   | Minimum temperature |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | maxTemperature              | Number:Temperature   | Maximum temperature |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | relativeHumidity            | Number:Dimensionless | Relative humidity in % |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | probaPrecipitation          | Number:Dimensionless | Probability of precipitation in % |
+| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | relativeHumidity            | Number:Dimensionless | Relative humidity |
+| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | probaPrecipitation          | Number:Dimensionless | Probability of precipitation |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | precipitationDay            | Number:Length        | Rain fall |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | snow                        | Number:Length        | Snow fall |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | maxWindDirection            | String               | Maximum wind direction | |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | maxWindDirectionDegrees     | Number:Angle         | Maximum wind direction in degrees | |
+| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | maxWindDirectionDegrees     | Number:Angle         | Maximum wind direction as an angle | |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | maxWindSpeed                | Number:Speed         | Maximum wind speed |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | averageWindDirection        | String               | Average wind direction | |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | averageWindDirectionDegrees | Number:Angle         | Average wind direction in degrees |
+| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | averageWindDirectionDegrees | Number:Angle         | Average wind direction as an angle |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | averageWindSpeed            | Number:Speed         | Average wind speed | 
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | icon                        | Image                | Icon representing the weather forecast conditions |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | iconKey                     | String               | Key used in the icon URL |
