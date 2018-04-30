@@ -26,6 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractProvider;
 import org.eclipse.smarthome.core.items.GenericItem;
@@ -37,8 +39,9 @@ import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.MetadataRegistry;
 import org.eclipse.smarthome.core.items.dto.GroupFunctionDTO;
 import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
-import org.eclipse.smarthome.core.types.StateDescription;
-import org.eclipse.smarthome.core.types.StateDescriptionProvider;
+import org.eclipse.smarthome.core.types.StateDescriptionFragment;
+import org.eclipse.smarthome.core.types.StateDescriptionFragmentBuilder;
+import org.eclipse.smarthome.core.types.StateDescriptionFragmentProvider;
 import org.eclipse.smarthome.model.core.EventType;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
@@ -64,9 +67,9 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Thomas.Eichstaedt-Engelen
  */
-@Component(service = { ItemProvider.class, StateDescriptionProvider.class }, immediate = true)
+@Component(service = { ItemProvider.class, StateDescriptionFragmentProvider.class }, immediate = true)
 public class GenericItemProvider extends AbstractProvider<Item>
-        implements ModelRepositoryChangeListener, ItemProvider, StateDescriptionProvider {
+        implements ModelRepositoryChangeListener, ItemProvider, StateDescriptionFragmentProvider {
 
     private final Logger logger = LoggerFactory.getLogger(GenericItemProvider.class);
 
@@ -81,7 +84,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
 
     private final Collection<ItemFactory> itemFactorys = new ArrayList<ItemFactory>();
 
-    private final Map<String, StateDescription> stateDescriptions = new ConcurrentHashMap<>();
+    private final Map<String, StateDescriptionFragment> stateDescriptionFragments = new ConcurrentHashMap<>();
 
     private Integer rank;
     private boolean active = false;
@@ -175,7 +178,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
     @Override
     public Collection<Item> getAll() {
         List<Item> items = new ArrayList<Item>();
-        stateDescriptions.clear();
+        stateDescriptionFragments.clear();
         for (String name : modelRepository.getAllModelNamesOfType("items")) {
             items.addAll(getItemsFromModel(name));
         }
@@ -280,7 +283,8 @@ public class GenericItemProvider extends AbstractProvider<Item>
             String format = StringUtils.substringBetween(label, "[", "]");
             if (format != null) {
                 label = StringUtils.substringBefore(label, "[").trim();
-                stateDescriptions.put(modelItem.getName(), new StateDescription(null, null, null, format, false, null));
+                stateDescriptionFragments.put(modelItem.getName(),
+                        StateDescriptionFragmentBuilder.create().withPattern(format).build());
             }
             item.setLabel(label);
             item.setCategory(modelItem.getIcon());
@@ -439,7 +443,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
 
     private void notifyAndCleanup(Item oldItem) {
         notifyListenersAboutRemovedElement(oldItem);
-        this.stateDescriptions.remove(oldItem.getName());
+        this.stateDescriptionFragments.remove(oldItem.getName());
         genericMetaDataProvider.removeMetadata(oldItem.getName());
     }
 
@@ -527,8 +531,9 @@ public class GenericItemProvider extends AbstractProvider<Item>
     }
 
     @Override
-    public StateDescription getStateDescription(String itemName, Locale locale) {
-        return stateDescriptions.get(itemName);
+    public @Nullable StateDescriptionFragment getStateDescriptionFragment(@NonNull String itemName,
+            @Nullable Locale locale) {
+        return stateDescriptionFragments.get(itemName);
     }
 
 }
