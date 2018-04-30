@@ -113,9 +113,11 @@ When a new *Thing* is added, the Eclipse SmartHome runtime queries every `ThingH
 The `YahooWeatherHandlerFactory` supports only one *ThingType* and instantiates a new `YahooWeatherHandler` for a given thing:
 
 ```java
+@NonNullByDefault
+@Component(configurationPid = "binding.yahooweather", service = ThingHandlerFactory.class)
 public class YahooWeatherHandlerFactory extends BaseThingHandlerFactory {
     
-    private final static Collection<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Lists.newArrayList(YahooWeatherBindingConstants.THING_TYPE_WEATHER);
+    private static final Collection<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(YahooWeatherBindingConstants.THING_TYPE_WEATHER);
     
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -123,11 +125,10 @@ public class YahooWeatherHandlerFactory extends BaseThingHandlerFactory {
     }
 
     @Override
-    protected ThingHandler createHandler(Thing thing) {
-
+    protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (thingTypeUID.equals(YahooWeatherBindingConstants.THING_TYPE_WEATHER)) {
+        if (YahooWeatherBindingConstants.THING_TYPE_WEATHER.equals(thingTypeUID)) {
             return new YahooWeatherHandler(thing);
         }
 

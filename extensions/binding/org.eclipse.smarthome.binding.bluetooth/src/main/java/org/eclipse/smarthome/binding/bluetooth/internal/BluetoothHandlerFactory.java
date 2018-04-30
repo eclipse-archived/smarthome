@@ -30,7 +30,7 @@ import org.osgi.service.component.annotations.Component;
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.bluetooth")
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.bluetooth")
 public class BluetoothHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = new HashSet<>();

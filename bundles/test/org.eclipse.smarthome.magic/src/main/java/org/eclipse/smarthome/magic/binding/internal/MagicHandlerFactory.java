@@ -40,7 +40,7 @@ import com.google.common.collect.Sets;
  *
  * @author Henning Treu - Initial contribution
  */
-@Component(immediate = true, service = ThingHandlerFactory.class, configurationPid = "binding.magic")
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.magic")
 public class MagicHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Sets.newHashSet(THING_TYPE_EXTENSIBLE_THING,

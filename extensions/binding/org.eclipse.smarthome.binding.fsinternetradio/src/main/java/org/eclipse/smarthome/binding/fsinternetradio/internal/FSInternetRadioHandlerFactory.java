@@ -34,7 +34,7 @@ import org.osgi.service.component.annotations.Reference;
  *
  * @author Patrick Koenemann - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.fsinternetradio")
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.fsinternetradio")
 public class FSInternetRadioHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(THING_TYPE_RADIO);

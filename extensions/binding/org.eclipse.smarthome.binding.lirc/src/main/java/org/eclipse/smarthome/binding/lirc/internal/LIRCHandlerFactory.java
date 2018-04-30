@@ -39,10 +39,10 @@ import org.osgi.service.component.annotations.Component;
  *
  * @author Andrew Nagle - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.lirc")
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.lirc")
 public class LIRCHandlerFactory extends BaseThingHandlerFactory {
 
-    private Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
+    private final Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {

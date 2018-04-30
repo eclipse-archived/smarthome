@@ -48,10 +48,10 @@ import org.slf4j.LoggerFactory;
  * @author Hans-Jörg Merk - Initial contribution
  * @author Kai Kreuzer - some refactoring for performance and simplification
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.wemo")
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.wemo")
 public class WemoHandlerFactory extends BaseThingHandlerFactory {
 
-    private Logger logger = LoggerFactory.getLogger(WemoHandlerFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(WemoHandlerFactory.class);
 
     private UpnpIOService upnpIOService;
 
@@ -62,7 +62,7 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
         return SUPPORTED_THING_TYPES.contains(thingTypeUID);
     }
 
-    private Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
+    private final Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
 
     @Override
     protected ThingHandler createHandler(Thing thing) {
