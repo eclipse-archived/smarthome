@@ -2,7 +2,7 @@
 
     MQTT is a machine-to-machine (M2M)/"Internet of Things" connectivity protocol. It was designed as an extremely lightweight publish/subscribe messaging transport.
 
-This bundle allows to configure and start an embedded MQTT broker (based on (Moquette)[https://github.com/andsel/moquette]) for an easy way to have an MQTT Server up and running with a click.
+This bundle allows to configure and start an embedded MQTT broker (based on [Moquette](https://github.com/andsel/moquette)) for an easy way to have an MQTT Server up and running with a click.
 
 ## Service Configuration
 
