@@ -12,9 +12,11 @@
  */
 package org.eclipse.smarthome.core.internal.events;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.events.Event;
@@ -42,7 +44,10 @@ import org.osgi.service.event.EventHandler;
 @Component(immediate = true, property = { "event.topics:String=smarthome" })
 public class OSGiEventManager implements EventHandler {
 
-    private final Map<String, EventFactory> typedEventFactories = new ConcurrentHashMap<String, EventFactory>();
+    /** The event subscribers indexed by the event type. */
+    // Use a concurrent hash map because the map is written and read by different threads!
+    private final Map<String, Set<EventSubscriber>> typedEventSubscribers = new ConcurrentHashMap<>();
+    private final Map<String, EventFactory> typedEventFactories = new ConcurrentHashMap<>();
 
     private ThreadedEventHandler eventHandler;
 
@@ -50,7 +55,8 @@ public class OSGiEventManager implements EventHandler {
 
     @Activate
     protected void activate(ComponentContext componentContext) {
-        eventHandler = new ThreadedEventHandler(typedEventFactories, safeCaller);
+        eventHandler = new ThreadedEventHandler(typedEventSubscribers, typedEventFactories, safeCaller);
+        eventHandler.open();
     }
 
     @Deactivate
@@ -62,12 +68,31 @@ public class OSGiEventManager implements EventHandler {
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    protected void addEventSubscriber(EventSubscriber eventSubscriber) {
-        eventHandler.addEventSubscriber(eventSubscriber);
+    protected void addEventSubscriber(final EventSubscriber eventSubscriber) {
+        final Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
+        for (final String subscribedEventType : subscribedEventTypes) {
+            final Set<EventSubscriber> entries = typedEventSubscribers.get(subscribedEventType);
+            if (entries == null) {
+                // Use a copy on write array set because the set is written and read by different threads!
+                typedEventSubscribers.put(subscribedEventType,
+                        new CopyOnWriteArraySet<>(Collections.singleton(eventSubscriber)));
+            } else {
+                entries.add(eventSubscriber);
+            }
+        }
     }
 
     protected void removeEventSubscriber(EventSubscriber eventSubscriber) {
-        eventHandler.removeEventSubscriber(eventSubscriber);
+        final Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
+        for (final String subscribedEventType : subscribedEventTypes) {
+            final Set<EventSubscriber> entries = typedEventSubscribers.get(subscribedEventType);
+            if (entries != null) {
+                entries.remove(eventSubscriber);
+                if (entries.isEmpty()) {
+                    typedEventSubscribers.remove(subscribedEventType);
+                }
+            }
+        }
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
