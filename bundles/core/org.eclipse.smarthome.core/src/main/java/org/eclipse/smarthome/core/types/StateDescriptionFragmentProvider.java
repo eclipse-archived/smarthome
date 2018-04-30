@@ -14,24 +14,31 @@ package org.eclipse.smarthome.core.types;
 
 import java.util.Locale;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
- * A {@link StateDescriptionProvider} provides localized {@link StateDescription}s for items.
+ * Provide a {@link StateDescriptionFragment} for the current {@link StateDescription}. Use the
+ * {@link StateDescriptionFragmentBuilder} to create a {@link StateDescriptionFragment} with only the parts known.
  *
- * @author Dennis Nobel - Initial contribution
+ * @author Henning Treu - initial contribution and API
  *
- * @deprecated Use {@link StateDescriptionFragmentProvider} instead and provide only the known fields.
  */
-@Deprecated
-public interface StateDescriptionProvider {
+@NonNullByDefault
+public interface StateDescriptionFragmentProvider {
 
     /**
-     * Returns the state description for an item name
+     * Returns a {@link StateDescriptionFragment} with only the parts known by this
+     * {@link StateDescriptionFragmentProvider}.
      *
      * @param itemName item name (must not be null)
      * @param locale locale (can be null)
-     * @return state description or null if no state description could be found
+     *
+     * @return a {@link StateDescriptionFragment} with only the parts known by this
+     *         {@link StateDescriptionFragmentProvider}.
      */
-    StateDescription getStateDescription(String itemName, Locale locale);
+    @Nullable
+    StateDescriptionFragment getStateDescriptionFragment(String itemName, @Nullable Locale locale);
 
     /**
      * Return the service rank.
