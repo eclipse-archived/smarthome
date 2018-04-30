@@ -17,9 +17,11 @@ import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 
+import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Temperature;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
@@ -33,6 +35,7 @@ import org.junit.Test;
  */
 public class NumberExtensionsTest {
 
+    private static final QuantityType<@NonNull Dimensionless> Q_ONE_2 = new QuantityType<>(2, SmartHomeUnits.ONE);
     private static final DecimalType DECIMAL1 = new DecimalType(1);
     private static final DecimalType DECIMAL2 = new DecimalType(2);
 
@@ -42,9 +45,16 @@ public class NumberExtensionsTest {
     private static final QuantityType<Length> Q_LENGTH_1m = new QuantityType<Length>("1 m");
     private static final QuantityType<Length> Q_LENGTH_2cm = new QuantityType<Length>("2 cm");
 
+    private static final QuantityType<Dimensionless> Q_ONE_1 = new QuantityType<>(1, SmartHomeUnits.ONE);
+
     @Test
     public void operatorPlus_Number_Number() {
         assertThat(NumberExtensions.operator_plus(DECIMAL1, DECIMAL2), is(BigDecimal.valueOf(3)));
+    }
+
+    @Test
+    public void operatorPlus_Number_Quantity_ONE() {
+        assertThat(NumberExtensions.operator_plus(Q_ONE_1, DECIMAL2), is(BigDecimal.valueOf(3)));
     }
 
     @Test
@@ -65,6 +75,11 @@ public class NumberExtensionsTest {
     @Test
     public void operatorMinus_Number_Number() {
         assertThat(NumberExtensions.operator_minus(DECIMAL2, DECIMAL1), is(BigDecimal.valueOf(1)));
+    }
+
+    @Test
+    public void operatorMinus_Number_Quantity_ONE() {
+        assertThat(NumberExtensions.operator_minus(Q_ONE_2, DECIMAL1), is(BigDecimal.valueOf(1)));
     }
 
     @Test
@@ -201,27 +216,32 @@ public class NumberExtensionsTest {
 
     @Test
     public void operatorEquals_Quantity_ONE_Number() {
-        assertTrue(NumberExtensions.operator_equals(new QuantityType<>(1, SmartHomeUnits.ONE), DECIMAL1));
+        assertTrue(NumberExtensions.operator_equals(Q_ONE_1, DECIMAL1));
+        assertTrue(NumberExtensions.operator_equals((Number) DECIMAL1, Q_ONE_1));
     }
 
     @Test
     public void operatorLessThan_Quantity_ONE_Number() {
-        assertTrue(NumberExtensions.operator_lessThan(new QuantityType<>(1, SmartHomeUnits.ONE), DECIMAL2));
+        assertTrue(NumberExtensions.operator_lessThan(Q_ONE_1, DECIMAL2));
+        assertTrue(NumberExtensions.operator_lessThan((Number) DECIMAL1, Q_ONE_2));
     }
 
     @Test
     public void operatorLessEqualsThan_Quantity_ONE_Number() {
-        assertTrue(NumberExtensions.operator_lessEqualsThan(new QuantityType<>(1, SmartHomeUnits.ONE), DECIMAL1));
+        assertTrue(NumberExtensions.operator_lessEqualsThan(Q_ONE_1, DECIMAL1));
+        assertTrue(NumberExtensions.operator_lessEqualsThan((Number) DECIMAL1, Q_ONE_1));
     }
 
     @Test
     public void operatorGreaterThan_Quantity_ONE_Number() {
-        assertTrue(NumberExtensions.operator_greaterThan(new QuantityType<>(2, SmartHomeUnits.ONE), DECIMAL1));
+        assertTrue(NumberExtensions.operator_greaterThan(Q_ONE_2, DECIMAL1));
+        assertTrue(NumberExtensions.operator_greaterThan((Number) DECIMAL2, Q_ONE_1));
     }
 
     @Test
     public void operatorGreaterEqualsThan_Quantity_ONE_Number() {
-        assertTrue(NumberExtensions.operator_greaterEqualsThan(new QuantityType<>(1, SmartHomeUnits.ONE), DECIMAL1));
+        assertTrue(NumberExtensions.operator_greaterEqualsThan(Q_ONE_1, DECIMAL1));
+        assertTrue(NumberExtensions.operator_greaterEqualsThan((Number) DECIMAL1, Q_ONE_1));
     }
 
 }
