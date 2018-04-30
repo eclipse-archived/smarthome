@@ -34,7 +34,7 @@ import org.osgi.service.component.annotations.Reference;
  *
  * @author Kai Kreuzer - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.serialbutton")
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.serialbutton")
 @NonNullByDefault
 public class SerialButtonHandlerFactory extends BaseThingHandlerFactory {
 

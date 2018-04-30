@@ -38,7 +38,7 @@ import org.osgi.service.component.annotations.Component;
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.bluetooth.bluez")
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.bluetooth.bluez")
 public class BlueZHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections

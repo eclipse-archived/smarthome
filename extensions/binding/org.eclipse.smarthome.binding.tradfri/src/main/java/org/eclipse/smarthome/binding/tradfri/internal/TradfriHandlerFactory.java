@@ -43,7 +43,7 @@ import org.osgi.service.component.annotations.Component;
  * @author Kai Kreuzer - Initial contribution
  * @author Christoph Weitkamp - Added support for remote controller and motion sensor devices (read-only battery level)
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.tradfri")
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.tradfri")
 public class TradfriHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Stream

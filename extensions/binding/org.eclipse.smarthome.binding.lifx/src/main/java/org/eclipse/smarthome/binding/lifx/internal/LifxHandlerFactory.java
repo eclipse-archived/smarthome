@@ -30,7 +30,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Dennis Nobel - Initial contribution
  * @author Karel Goderis - Remove dependency on external libraries
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.lifx")
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.lifx")
 public class LifxHandlerFactory extends BaseThingHandlerFactory {
 
     private LifxChannelFactory channelFactory;

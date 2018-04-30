@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * @author Michael Ochel - Initial contribution
  * @author Mathias Siegele - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.digitalstrom")
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.digitalstrom")
 public class DigitalSTROMHandlerFactory extends BaseThingHandlerFactory {
 
     private final Logger logger = LoggerFactory.getLogger(DigitalSTROMHandlerFactory.class);
