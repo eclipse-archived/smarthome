@@ -221,6 +221,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
             // create items and read new binding configuration
             if (!EventType.REMOVED.equals(type)) {
                 for (ModelItem modelItem : model.getItems()) {
+                    genericMetaDataProvider.removeMetadata(modelItem.getName());
                     Item item = createItemFromModelItem(modelItem);
                     if (item != null) {
                         internalDispatchBindings(modelName, item, modelItem.getBindings());
