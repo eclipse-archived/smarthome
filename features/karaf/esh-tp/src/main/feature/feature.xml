@@ -159,7 +159,6 @@
     <requirement>esh.tp;filter:="(feature=httpclient)"</requirement>
     <feature dependency="true">http</feature>
     <feature dependency="true">scr</feature>
-    <feature dependency="true">esh-tp-httpclient</feature>
     <bundle>mvn:org.jupnp/org.jupnp/2.3.0</bundle>
   </feature>
 
