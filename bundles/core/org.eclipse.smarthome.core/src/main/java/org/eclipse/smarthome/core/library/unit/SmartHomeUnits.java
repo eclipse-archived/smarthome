@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.core.library.unit;
 
+import java.math.BigInteger;
+
 import javax.measure.Unit;
 import javax.measure.quantity.Acceleration;
 import javax.measure.quantity.AmountOfSubstance;
@@ -34,6 +36,7 @@ import javax.measure.quantity.LuminousIntensity;
 import javax.measure.quantity.MagneticFlux;
 import javax.measure.quantity.MagneticFluxDensity;
 import javax.measure.quantity.Power;
+import javax.measure.quantity.Pressure;
 import javax.measure.quantity.RadiationDoseAbsorbed;
 import javax.measure.quantity.RadiationDoseEffective;
 import javax.measure.quantity.Radioactivity;
@@ -117,6 +120,8 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
     public static final Unit<RadiationDoseEffective> SIEVERT = addUnit(Units.SIEVERT);
     public static final Unit<CatalyticActivity> KATAL = addUnit(Units.KATAL);
     public static final Unit<Speed> METRE_PER_SECOND = addUnit(Units.METRE_PER_SECOND);
+    public static final Unit<Speed> KNOT = addUnit(new TransformedUnit<>("kn", Units.KILOMETRE_PER_HOUR,
+            new RationalConverter(BigInteger.valueOf(1852), BigInteger.valueOf(1000))));
     public static final Unit<Acceleration> METRE_PER_SQUARE_SECOND = addUnit(Units.METRE_PER_SQUARE_SECOND);
     public static final Unit<Dimensionless> PERCENT = addUnit(Units.PERCENT);
     public static final Unit<Dimensionless> PARTS_PER_MILLION = addUnit(
@@ -134,6 +139,8 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
     public static final Unit<Energy> WATT_SECOND = addUnit(new ProductUnit<Energy>(Units.WATT.multiply(Units.SECOND)));
     public static final Unit<Energy> WATT_HOUR = addUnit(new ProductUnit<Energy>(Units.WATT.multiply(Units.HOUR)));
     public static final Unit<Energy> KILOWATT_HOUR = addUnit(MetricPrefix.KILO(WATT_HOUR));
+    public static final Unit<Pressure> MILLIMETRE_OF_MERCURY = addUnit(new TransformedUnit<>("mmHg", Units.PASCAL,
+            new RationalConverter(BigInteger.valueOf(133322368), BigInteger.valueOf(1000000))));
 
     /**
      * Add unit symbols for custom ESH units.
@@ -146,6 +153,8 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
         SimpleUnitFormat.getInstance().label(WATT_SECOND, "Ws");
         SimpleUnitFormat.getInstance().label(WATT_HOUR, "Wh");
         SimpleUnitFormat.getInstance().label(KILOWATT_HOUR, "kWh");
+        SimpleUnitFormat.getInstance().label(MILLIMETRE_OF_MERCURY, MILLIMETRE_OF_MERCURY.getSymbol());
+        SimpleUnitFormat.getInstance().label(KNOT, KNOT.getSymbol());
     }
 
     /**
