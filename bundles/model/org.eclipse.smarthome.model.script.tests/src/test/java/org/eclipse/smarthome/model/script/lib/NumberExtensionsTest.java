@@ -21,7 +21,6 @@ import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Temperature;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
@@ -35,7 +34,6 @@ import org.junit.Test;
  */
 public class NumberExtensionsTest {
 
-    private static final QuantityType<@NonNull Dimensionless> Q_ONE_2 = new QuantityType<>(2, SmartHomeUnits.ONE);
     private static final DecimalType DECIMAL1 = new DecimalType(1);
     private static final DecimalType DECIMAL2 = new DecimalType(2);
 
@@ -46,6 +44,7 @@ public class NumberExtensionsTest {
     private static final QuantityType<Length> Q_LENGTH_2cm = new QuantityType<Length>("2 cm");
 
     private static final QuantityType<Dimensionless> Q_ONE_1 = new QuantityType<>(1, SmartHomeUnits.ONE);
+    private static final QuantityType<Dimensionless> Q_ONE_2 = new QuantityType<>(2, SmartHomeUnits.ONE);
 
     @Test
     public void operatorPlus_Number_Number() {
