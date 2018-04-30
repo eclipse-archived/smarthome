@@ -19,6 +19,9 @@ import org.eclipse.smarthome.model.sitemap.Frame;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.classic.render.RenderException;
 import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
+import org.eclipse.smarthome.ui.items.ItemUIRegistry;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * This is an implementation of the {@link WidgetRenderer} interface, which
@@ -27,6 +30,7 @@ import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@Component(service = WidgetRenderer.class)
 public class FrameRenderer extends AbstractWidgetRenderer {
 
     @Override
@@ -46,4 +50,16 @@ public class FrameRenderer extends AbstractWidgetRenderer {
         sb.append(snippet);
         return itemUIRegistry.getChildren((Frame) w);
     }
+
+    @Override
+    @Reference
+    protected void setItemUIRegistry(ItemUIRegistry ItemUIRegistry) {
+        super.setItemUIRegistry(ItemUIRegistry);
+    }
+
+    @Override
+    protected void unsetItemUIRegistry(ItemUIRegistry ItemUIRegistry) {
+        super.unsetItemUIRegistry(ItemUIRegistry);
+    }
+
 }
