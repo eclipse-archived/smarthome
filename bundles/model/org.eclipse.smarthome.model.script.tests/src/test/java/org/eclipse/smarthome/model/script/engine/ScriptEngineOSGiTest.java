@@ -169,6 +169,7 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
         assertTrue(runScript("NumberA.state != 10 [°C]"));
     }
 
+    @SuppressWarnings("null")
     @Test
     public void testGreaterThan_Number_Number() throws ScriptParsingException, ScriptExecutionException {
         Item numberItem = itemRegistry.get(NUMBER_ITEM_DECIMAL);
@@ -282,6 +283,27 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
     @Test
     public void testEquals_QuantityType_Number() throws ScriptParsingException, ScriptExecutionException {
         assertThat(runScript("20 [m].equals(20)"), is(false));
+    }
+
+    @Test
+    public void testCompare_QuantityType_ONE_Number() throws ScriptParsingException, ScriptExecutionException {
+        assertThat(runScript("1 == 1 [one]"), is(true));
+        assertThat(runScript("1 [one] == 1"), is(true));
+
+        assertThat(runScript("1 != 2 [one]"), is(true));
+        assertThat(runScript("2 [one] != 1"), is(true));
+
+        assertThat(runScript("1 < 2 [one]"), is(true));
+        assertThat(runScript("1 [one] < 2"), is(true));
+
+        assertThat(runScript("1 <= 1 [one]"), is(true));
+        assertThat(runScript("1 [one] <= 1"), is(true));
+
+        assertThat(runScript("2 > 1 [one]"), is(true));
+        assertThat(runScript("2 [one] > 1"), is(true));
+
+        assertThat(runScript("1 >= 1 [one]"), is(true));
+        assertThat(runScript("1 [one] >= 1"), is(true));
     }
 
     private Item createNumberItem(String numberItemName, Class<@NonNull ?> dimension) {
