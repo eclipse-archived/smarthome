@@ -95,7 +95,8 @@ public class NumberExtensions {
     // Comparison operations between numbers
 
     public static boolean operator_equals(Number left, Number right) {
-        // in case one of the Number instances is of type QuantityType they are never equal.
+        // in case one of the Number instances is of type QuantityType they are never equal (except for
+        // SmartHomeUnit.ONE).
         // for both instances being QuantityTypes the specific method
         // operator_equals(QuantityType<?> left, QuantityType<?> right) is called by the script engine.
         if (oneIsQuantity(left, right)) {
@@ -176,7 +177,7 @@ public class NumberExtensions {
 
     public static boolean operator_equals(Type type, Number x) {
         if (type instanceof QuantityType && x instanceof QuantityType) {
-            return operator_equals((QuantityType) type, (QuantityType) x);
+            return operator_equals((QuantityType<?>) type, (QuantityType<?>) x);
         }
         if (type != null && type instanceof DecimalType && x != null) {
             return ((DecimalType) type).toBigDecimal().compareTo(numberToBigDecimal(x)) == 0;
@@ -187,7 +188,7 @@ public class NumberExtensions {
 
     public static boolean operator_notEquals(Type type, Number x) {
         if (type instanceof QuantityType && x instanceof QuantityType) {
-            return operator_notEquals((QuantityType) type, (QuantityType) x);
+            return operator_notEquals((QuantityType<?>) type, (QuantityType<?>) x);
         }
         if (type != null && type instanceof DecimalType && x != null) {
             return ((DecimalType) type).toBigDecimal().compareTo(numberToBigDecimal(x)) != 0;
@@ -199,7 +200,7 @@ public class NumberExtensions {
 
     public static boolean operator_greaterThan(Type type, Number x) {
         if (type instanceof QuantityType && x instanceof QuantityType) {
-            return operator_greaterThan((QuantityType) type, (QuantityType) x);
+            return operator_greaterThan((QuantityType<?>) type, (QuantityType<?>) x);
         }
         if (type != null && type instanceof DecimalType && x != null) {
             return ((DecimalType) type).toBigDecimal().compareTo(numberToBigDecimal(x)) > 0;
@@ -210,7 +211,7 @@ public class NumberExtensions {
 
     public static boolean operator_greaterEqualsThan(Type type, Number x) {
         if (type instanceof QuantityType && x instanceof QuantityType) {
-            return operator_greaterEqualsThan((QuantityType) type, (QuantityType) x);
+            return operator_greaterEqualsThan((QuantityType<?>) type, (QuantityType<?>) x);
         }
         if (type != null && type instanceof DecimalType && x != null) {
             return ((DecimalType) type).toBigDecimal().compareTo(numberToBigDecimal(x)) >= 0;
@@ -221,7 +222,7 @@ public class NumberExtensions {
 
     public static boolean operator_lessThan(Type type, Number x) {
         if (type instanceof QuantityType && x instanceof QuantityType) {
-            return operator_lessThan((QuantityType) type, (QuantityType) x);
+            return operator_lessThan((QuantityType<?>) type, (QuantityType<?>) x);
         }
         if (type != null && type instanceof DecimalType && x != null) {
             return ((DecimalType) type).toBigDecimal().compareTo(numberToBigDecimal(x)) < 0;
@@ -232,7 +233,7 @@ public class NumberExtensions {
 
     public static boolean operator_lessEqualsThan(Type type, Number x) {
         if (type instanceof QuantityType && x instanceof QuantityType) {
-            return operator_lessEqualsThan((QuantityType) type, (QuantityType) x);
+            return operator_lessEqualsThan((QuantityType<?>) type, (QuantityType<?>) x);
         }
         if (type != null && type instanceof DecimalType && x != null) {
             return ((DecimalType) type).toBigDecimal().compareTo(numberToBigDecimal(x)) <= 0;
@@ -294,8 +295,18 @@ public class NumberExtensions {
         return left.equals(right);
     }
 
+    // support SmartHomeUnit.ONE as Number representation
+    public static boolean operator_equals(QuantityType<?> left, Number right) {
+        return operator_equals((Number) left, right);
+    }
+
     public static boolean operator_notEquals(QuantityType<?> left, QuantityType<?> right) {
         return !operator_equals(left, right);
+    }
+
+    // support SmartHomeUnit.ONE as Number representation
+    public static boolean operator_notEquals(QuantityType<?> left, Number right) {
+        return operator_notEquals((Number) left, right);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -307,6 +318,11 @@ public class NumberExtensions {
         }
     }
 
+    // support SmartHomeUnit.ONE as Number representation
+    public static boolean operator_lessThan(QuantityType<?> x, Number y) {
+        return operator_lessThan((Number) x, y);
+    }
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static boolean operator_lessEqualsThan(QuantityType<?> x, QuantityType<?> y) {
         if (x != null && y != null) {
@@ -314,6 +330,11 @@ public class NumberExtensions {
         } else {
             return false;
         }
+    }
+
+    // support SmartHomeUnit.ONE as Number representation
+    public static boolean operator_lessEqualsThan(QuantityType<?> x, Number y) {
+        return operator_lessEqualsThan((Number) x, y);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -325,6 +346,11 @@ public class NumberExtensions {
         }
     }
 
+    // support SmartHomeUnit.ONE as Number representation
+    public static boolean operator_greaterThan(QuantityType<?> x, Number y) {
+        return operator_greaterThan((Number) x, y);
+    }
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static boolean operator_greaterEqualsThan(QuantityType<?> x, QuantityType<?> y) {
         if (x != null && y != null) {
@@ -332,6 +358,11 @@ public class NumberExtensions {
         } else {
             return false;
         }
+    }
+
+    // support SmartHomeUnit.ONE as Number representation
+    public static boolean operator_greaterEqualsThan(QuantityType<?> x, Number y) {
+        return operator_greaterEqualsThan((Number) x, y);
     }
 
     /**
@@ -358,7 +389,12 @@ public class NumberExtensions {
     }
 
     private static boolean oneIsQuantity(Number left, Number right) {
-        return left instanceof QuantityType || right instanceof QuantityType;
+        return (left instanceof QuantityType && !isAbstractUnitOne((QuantityType<?>) left))
+                || (right instanceof QuantityType && !isAbstractUnitOne((QuantityType<?>) right));
+    }
+
+    private static boolean isAbstractUnitOne(QuantityType<?> left) {
+        return left.getUnit().equals(SmartHomeUnits.ONE);
     }
 
 }
