@@ -20,6 +20,9 @@ import org.eclipse.smarthome.model.sitemap.Mapview;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.classic.render.RenderException;
 import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
+import org.eclipse.smarthome.ui.items.ItemUIRegistry;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * This is an implementation of the {@link WidgetRenderer} interface, which
@@ -28,6 +31,7 @@ import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
  * @author Gaël L'hopital - Initial contribution
  *
  */
+@Component(service = WidgetRenderer.class)
 public class MapviewRenderer extends AbstractWidgetRenderer {
 
     @Override
@@ -70,4 +74,16 @@ public class MapviewRenderer extends AbstractWidgetRenderer {
         sb.append(snippet);
         return null;
     }
+
+    @Override
+    @Reference
+    protected void setItemUIRegistry(ItemUIRegistry ItemUIRegistry) {
+        super.setItemUIRegistry(ItemUIRegistry);
+    }
+
+    @Override
+    protected void unsetItemUIRegistry(ItemUIRegistry ItemUIRegistry) {
+        super.unsetItemUIRegistry(ItemUIRegistry);
+    }
+
 }
