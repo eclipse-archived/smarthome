@@ -40,8 +40,8 @@ import org.osgi.service.component.annotations.Component;
  *
  * @author ${author} - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.${bindingId}")
 @NonNullByDefault
+@Component(configurationPid = "binding.${bindingId}", service = ThingHandlerFactory.class)
 public class ${bindingIdCamelCase}HandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(THING_TYPE_SAMPLE);

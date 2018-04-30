@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Karel Goderis - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.sonos")
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.sonos")
 public class SonosHandlerFactory extends BaseThingHandlerFactory {
 
     private final Logger logger = LoggerFactory.getLogger(SonosHandlerFactory.class);
