@@ -23,12 +23,20 @@ import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
+import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.TypeParser;
+import org.eclipse.smarthome.io.net.http.HttpContextFactoryService;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +49,7 @@ import org.slf4j.LoggerFactory;
  * @author Stefan Bußweiler - Migration to new ESH event concept
  *
  */
+@Component(immediate = true, service = {})
 public class CmdServlet extends BaseServlet {
 
     private final Logger logger = LoggerFactory.getLogger(CmdServlet.class);
@@ -49,6 +58,7 @@ public class CmdServlet extends BaseServlet {
 
     private EventPublisher eventPublisher;
 
+    @Reference(policy = ReferencePolicy.DYNAMIC)
     public void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
@@ -57,6 +67,7 @@ public class CmdServlet extends BaseServlet {
         this.eventPublisher = null;
     }
 
+    @Activate
     protected void activate(BundleContext bundleContext) {
         try {
             logger.debug("Starting up CMD servlet at " + WEBAPP_ALIAS + "/" + SERVLET_NAME);
@@ -71,6 +82,7 @@ public class CmdServlet extends BaseServlet {
         }
     }
 
+    @Deactivate
     protected void deactivate() {
         httpService.unregister(WEBAPP_ALIAS + "/" + SERVLET_NAME);
     }
@@ -106,6 +118,39 @@ public class CmdServlet extends BaseServlet {
                 }
             }
         }
+    }
+
+    @Override
+    @Reference
+    public void setItemRegistry(ItemRegistry ItemRegistry) {
+        super.setItemRegistry(ItemRegistry);
+    }
+
+    @Override
+    public void unsetItemRegistry(ItemRegistry ItemRegistry) {
+        super.unsetItemRegistry(ItemRegistry);
+    }
+
+    @Override
+    @Reference
+    public void setHttpService(HttpService HttpService) {
+        super.setHttpService(HttpService);
+    }
+
+    @Override
+    public void unsetHttpService(HttpService HttpService) {
+        super.unsetHttpService(HttpService);
+    }
+
+    @Override
+    @Reference
+    public void setHttpContextFactoryService(HttpContextFactoryService HttpContextFactoryService) {
+        super.setHttpContextFactoryService(HttpContextFactoryService);
+    }
+
+    @Override
+    public void unsetHttpContextFactoryService(HttpContextFactoryService HttpContextFactoryService) {
+        super.unsetHttpContextFactoryService(HttpContextFactoryService);
     }
 
 }
