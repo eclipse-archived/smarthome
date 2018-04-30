@@ -151,7 +151,7 @@ angular.module('PaperUI.controllers.configuration')//
         } else {
             setItemToFunction();
         }
-        if ($scope.item.dimension) {
+        if ($scope.item.dimension && $scope.item.dimension !== '') {
             $scope.item.type = $scope.item.type + ":" + $scope.item.dimension;
             delete $scope.item.dimension;
         }
