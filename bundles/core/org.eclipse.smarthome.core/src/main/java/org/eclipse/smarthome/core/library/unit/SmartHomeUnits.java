@@ -120,7 +120,7 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
     public static final Unit<RadiationDoseEffective> SIEVERT = addUnit(Units.SIEVERT);
     public static final Unit<CatalyticActivity> KATAL = addUnit(Units.KATAL);
     public static final Unit<Speed> METRE_PER_SECOND = addUnit(Units.METRE_PER_SECOND);
-    public static final Unit<Speed> KNOT = addUnit(new TransformedUnit<>("knot", Units.KILOMETRE_PER_HOUR,
+    public static final Unit<Speed> KNOT = addUnit(new TransformedUnit<>("kn", Units.KILOMETRE_PER_HOUR,
             new RationalConverter(BigInteger.valueOf(1852), BigInteger.valueOf(1000))));
     public static final Unit<Acceleration> METRE_PER_SQUARE_SECOND = addUnit(Units.METRE_PER_SQUARE_SECOND);
     public static final Unit<Dimensionless> PERCENT = addUnit(Units.PERCENT);

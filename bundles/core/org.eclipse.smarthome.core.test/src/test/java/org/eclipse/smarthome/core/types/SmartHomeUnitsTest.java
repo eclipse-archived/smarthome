@@ -158,8 +158,8 @@ public class SmartHomeUnitsTest {
 
     @Test
     public void test_knot_UnitSymbol() {
-        assertThat(SmartHomeUnits.KNOT.getSymbol(), is("knot"));
-        assertThat(SmartHomeUnits.KNOT.toString(), is("knot"));
+        assertThat(SmartHomeUnits.KNOT.getSymbol(), is("kn"));
+        assertThat(SmartHomeUnits.KNOT.toString(), is("kn"));
     }
 
     @Test
