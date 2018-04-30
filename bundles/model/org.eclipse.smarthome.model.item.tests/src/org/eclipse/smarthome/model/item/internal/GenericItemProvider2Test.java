@@ -243,4 +243,44 @@ public class GenericItemProvider2Test extends JavaOSGiTest {
         assertNull(res);
     }
 
+    @Test
+    public void testMetadataUpdate() {
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME,
+                new ByteArrayInputStream("Switch s { meta=\"foo\" }".getBytes()));
+        Metadata metadata1 = metadataRegistry.get(new MetadataKey("meta", "s"));
+        assertNotNull(metadata1);
+        assertEquals("foo", metadata1.getValue());
+
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME,
+                new ByteArrayInputStream("Switch s { meta=\"bar\" }".getBytes()));
+        Metadata metadata2 = metadataRegistry.get(new MetadataKey("meta", "s"));
+        assertNotNull(metadata2);
+        assertEquals("bar", metadata2.getValue());
+
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream("Switch s".getBytes()));
+        Metadata metadata3 = metadataRegistry.get(new MetadataKey("meta", "s"));
+        assertNull(metadata3);
+    }
+
+    @Test
+    public void testTagUpdate() {
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream("Switch s [foo]".getBytes()));
+        Item item1 = itemRegistry.get("s");
+        assertNotNull(item1);
+        assertEquals(1, item1.getTags().size());
+        assertTrue(item1.getTags().contains("foo"));
+
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream("Switch s [foo, bar]".getBytes()));
+        Item item2 = itemRegistry.get("s");
+        assertNotNull(item2);
+        assertEquals(2, item2.getTags().size());
+        assertTrue(item2.getTags().contains("foo"));
+        assertTrue(item2.getTags().contains("bar"));
+
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream("Switch s".getBytes()));
+        Item item3 = itemRegistry.get("s");
+        assertNotNull(item3);
+        assertEquals(0, item3.getTags().size());
+    }
+
 }
