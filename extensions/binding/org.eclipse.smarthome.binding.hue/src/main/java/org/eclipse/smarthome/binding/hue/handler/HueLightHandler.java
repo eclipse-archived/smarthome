@@ -273,8 +273,15 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                 break;
         }
         if (lightState != null) {
-            lastSentBrightness = lightState.getBrightness();
-            lastSentColorTemp = lightState.getColorTemperature();
+            // Cache values which we have sent
+            Integer tmpBrightness = lightState.getBrightness();
+            if (tmpBrightness != null) {
+                lastSentBrightness = tmpBrightness;
+            }
+            Integer tmpColotTemp = lightState.getColorTemperature();
+            if (tmpColotTemp != null) {
+                lastSentColorTemp = tmpBrightness;
+            }
             hueBridge.updateLightState(light, lightState);
         } else {
             logger.warn("Command sent to an unknown channel id: {}", channelUID);
