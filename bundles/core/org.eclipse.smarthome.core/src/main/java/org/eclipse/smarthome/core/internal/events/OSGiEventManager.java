@@ -12,22 +12,16 @@
  */
 package org.eclipse.smarthome.core.internal.events;
 
-import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFactory;
-import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.events.EventSubscriber;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -35,9 +29,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
-import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * The {@link OSGiEventManager} provides an OSGi based default implementation of the Eclipse SmartHome event bus.
@@ -46,80 +38,61 @@ import org.osgi.util.tracker.ServiceTracker;
  * implementing the OSGi {@link EventHandler} interface) and dispatches the received OSGi events as ESH {@link Event}s
  * to the {@link EventSubscriber}s if the provided filter applies.
  *
- * The {@link OSGiEventManager} also serves as {@link EventPublisher} by implementing the EventPublisher interface.
- * Events are send in an asynchronous way via OSGi Event Admin mechanism.
- *
  * @author Stefan Bußweiler - Initial contribution
  * @author Markus Rathgeb - Return on received events as fast as possible (handle event in another thread)
  */
 @Component(immediate = true, property = { "event.topics:String=smarthome" })
-public class OSGiEventManager implements EventHandler, EventPublisher {
+public class OSGiEventManager implements EventHandler {
 
-    @SuppressWarnings("rawtypes")
-    private class EventSubscriberServiceTracker extends ServiceTracker {
-
-        @SuppressWarnings("unchecked")
-        public EventSubscriberServiceTracker(BundleContext context) {
-            super(context, EventSubscriber.class.getName(), null);
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public Object addingService(ServiceReference reference) {
-            EventSubscriber eventSubscriber = (EventSubscriber) this.context.getService(reference);
-            if (eventSubscriber != null) {
-                eventHandler.addEventSubscriber(eventSubscriber);
-                return eventSubscriber;
-            } else {
-                return null;
-            }
-        }
-
-        @Override
-        public void removedService(ServiceReference reference, Object service) {
-            eventHandler.removeEventSubscriber((EventSubscriber) service);
-        }
-
-    }
-
-    private final Map<String, EventFactory> typedEventFactories = new ConcurrentHashMap<String, EventFactory>();
+    /** The event subscribers indexed by the event type. */
+    // Use a concurrent hash map because the map is written and read by different threads!
+    private final Map<String, Set<EventSubscriber>> typedEventSubscribers = new ConcurrentHashMap<>();
+    private final Map<String, EventFactory> typedEventFactories = new ConcurrentHashMap<>();
 
     private ThreadedEventHandler eventHandler;
-
-    private EventSubscriberServiceTracker eventSubscriberServiceTracker;
-
-    private EventAdmin osgiEventAdmin;
 
     private SafeCaller safeCaller;
 
     @Activate
     protected void activate(ComponentContext componentContext) {
-        eventHandler = new ThreadedEventHandler(typedEventFactories, safeCaller);
-
-        eventSubscriberServiceTracker = new EventSubscriberServiceTracker(componentContext.getBundleContext());
-        eventSubscriberServiceTracker.open();
+        eventHandler = new ThreadedEventHandler(typedEventSubscribers, typedEventFactories, safeCaller);
+        eventHandler.open();
     }
 
     @Deactivate
     protected void deactivate(ComponentContext componentContext) {
-        if (eventSubscriberServiceTracker != null) {
-            eventSubscriberServiceTracker.close();
-            eventSubscriberServiceTracker = null;
-        }
-
         if (eventHandler != null) {
             eventHandler.close();
             eventHandler = null;
         }
     }
 
-    @Reference
-    protected void setEventAdmin(EventAdmin eventAdmin) {
-        this.osgiEventAdmin = eventAdmin;
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    protected void addEventSubscriber(final EventSubscriber eventSubscriber) {
+        final Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
+        for (final String subscribedEventType : subscribedEventTypes) {
+            final Set<EventSubscriber> entries = typedEventSubscribers.get(subscribedEventType);
+            if (entries == null) {
+                // Use a copy on write array set because the set is written and read by different threads!
+                typedEventSubscribers.put(subscribedEventType,
+                        new CopyOnWriteArraySet<>(Collections.singleton(eventSubscriber)));
+            } else {
+                entries.add(eventSubscriber);
+            }
+        }
     }
 
-    protected void unsetEventAdmin(EventAdmin eventAdmin) {
-        this.osgiEventAdmin = null;
+    protected void removeEventSubscriber(EventSubscriber eventSubscriber) {
+        final Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
+        for (final String subscribedEventType : subscribedEventTypes) {
+            final Set<EventSubscriber> entries = typedEventSubscribers.get(subscribedEventType);
+            if (entries != null) {
+                entries.remove(eventSubscriber);
+                if (entries.isEmpty()) {
+                    typedEventSubscribers.remove(subscribedEventType);
+                }
+            }
+        }
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -155,61 +128,6 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
     @Override
     public void handleEvent(org.osgi.service.event.Event osgiEvent) {
         eventHandler.handleEvent(osgiEvent);
-    }
-
-    @Override
-    public void post(final Event event) throws IllegalArgumentException, IllegalStateException {
-        EventAdmin eventAdmin = this.osgiEventAdmin;
-        assertValidArgument(event);
-        assertValidState(eventAdmin);
-        postAsOSGiEvent(eventAdmin, event);
-    }
-
-    private void postAsOSGiEvent(final EventAdmin eventAdmin, final Event event) throws IllegalStateException {
-        try {
-            AccessController.doPrivileged(new PrivilegedExceptionAction<Void>() {
-                @Override
-                public Void run() throws Exception {
-                    Dictionary<String, Object> properties = new Hashtable<String, Object>(3);
-                    properties.put("type", event.getType());
-                    properties.put("payload", event.getPayload());
-                    properties.put("topic", event.getTopic());
-                    if (event.getSource() != null) {
-                        properties.put("source", event.getSource());
-                    }
-                    eventAdmin.postEvent(new org.osgi.service.event.Event("smarthome", properties));
-                    return null;
-                }
-            });
-        } catch (PrivilegedActionException pae) {
-            Exception e = pae.getException();
-            throw new IllegalStateException("Cannot post the event via the event bus. Error message: " + e.getMessage(),
-                    e);
-        }
-    }
-
-    private void assertValidArgument(Event event) throws IllegalArgumentException {
-        String errorMsg = "The %s of the 'event' argument must not be null or empty.";
-        String value;
-
-        if (event == null) {
-            throw new IllegalArgumentException("Argument 'event' must not be null.");
-        }
-        if ((value = event.getType()) == null || value.isEmpty()) {
-            throw new IllegalArgumentException(String.format(errorMsg, "type"));
-        }
-        if ((value = event.getPayload()) == null || value.isEmpty()) {
-            throw new IllegalArgumentException(String.format(errorMsg, "payload"));
-        }
-        if ((value = event.getTopic()) == null || value.isEmpty()) {
-            throw new IllegalArgumentException(String.format(errorMsg, "topic"));
-        }
-    }
-
-    private void assertValidState(EventAdmin eventAdmin) throws IllegalStateException {
-        if (eventAdmin == null) {
-            throw new IllegalStateException("The event bus module is not available!");
-        }
     }
 
 }
