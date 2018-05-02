@@ -17,8 +17,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -39,10 +37,6 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class ThreadedEventHandler implements Closeable {
 
-    /** The event subscribers indexed by the event type. */
-    // Use a concurrent hash map because the map is written and read by different threads!
-    private final Map<String, Set<EventSubscriber>> typedEventSubscribers = new ConcurrentHashMap<>();
-
     private final Logger logger = LoggerFactory.getLogger(ThreadedEventHandler.class);
 
     private final Thread thread;
@@ -54,10 +48,12 @@ public class ThreadedEventHandler implements Closeable {
     /**
      * Create a new threaded event handler.
      *
+     * @param typedEventSubscribers the event subscribers
      * @param typedEventFactories the event factories indexed by the event type
      * @param safeCaller the safe caller to use
      */
-    public ThreadedEventHandler(final Map<String, EventFactory> typedEventFactories, final SafeCaller safeCaller) {
+    ThreadedEventHandler(Map<String, Set<EventSubscriber>> typedEventSubscribers,
+            final Map<String, EventFactory> typedEventFactories, final SafeCaller safeCaller) {
         thread = new Thread(() -> {
             final EventHandler worker = new EventHandler(typedEventSubscribers, typedEventFactories, safeCaller);
             while (running.get()) {
@@ -77,34 +73,10 @@ public class ThreadedEventHandler implements Closeable {
                 }
             }
         }, "ESH-OSGiEventManager");
+    }
+
+    void open() {
         thread.start();
-    }
-
-    public void addEventSubscriber(final EventSubscriber eventSubscriber) {
-        final Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
-        for (final String subscribedEventType : subscribedEventTypes) {
-            final Set<EventSubscriber> entries = typedEventSubscribers.get(subscribedEventType);
-            if (entries == null) {
-                // Use a copy on write array set because the set is written and read by different threads!
-                typedEventSubscribers.put(subscribedEventType,
-                        new CopyOnWriteArraySet<>(Collections.singleton(eventSubscriber)));
-            } else {
-                entries.add(eventSubscriber);
-            }
-        }
-    }
-
-    public void removeEventSubscriber(EventSubscriber eventSubscriber) {
-        final Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
-        for (final String subscribedEventType : subscribedEventTypes) {
-            final Set<EventSubscriber> entries = typedEventSubscribers.get(subscribedEventType);
-            if (entries != null) {
-                entries.remove(eventSubscriber);
-                if (entries.isEmpty()) {
-                    typedEventSubscribers.remove(subscribedEventType);
-                }
-            }
-        }
     }
 
     @Override
@@ -119,7 +91,7 @@ public class ThreadedEventHandler implements Closeable {
         }
     }
 
-    public void handleEvent(Event event) {
+    void handleEvent(Event event) {
         queue.add(event);
     }
 }
