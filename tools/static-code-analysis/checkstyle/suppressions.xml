@@ -9,7 +9,7 @@
     <suppress files=".+DTO\.java" checks="JavadocType|JavadocVariable|JavadocMethod|JavadocFilterCheck" />
     <suppress files=".+Impl\.java" checks="JavadocType|JavadocVariable|JavadocMethod|JavadocFilterCheck"/>
     <suppress files=".+[\\/]pom\.xml" checks="OnlyTabIndentationInXmlFilesCheck"/>
-    <suppress files=".+[\\/]OSGI-INF[\\/]org.eclipse.smarthome.+\.xml" checks="OnlyTabIndentationInXmlFilesCheck|NewlineAtEndOfFileCheck"/>
+    <suppress files=".+[\\/]OSGI-INF[\\/]org.eclipse.smarthome.+\.xml|.+[\\/]OSGI-INF[\\/]binding.dmx.xml" checks="OnlyTabIndentationInXmlFilesCheck|NewlineAtEndOfFileCheck"/>
 
     <!-- All generated files will skip the author tag check -->
     <suppress files=".+[\\/]gen[\\/].+\.java" checks="AuthorTagCheck"/>
