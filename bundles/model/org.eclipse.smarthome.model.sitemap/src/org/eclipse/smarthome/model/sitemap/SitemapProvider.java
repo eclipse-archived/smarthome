@@ -14,12 +14,13 @@ package org.eclipse.smarthome.model.sitemap;
 
 import java.util.Set;
 
+import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
 
 public interface SitemapProvider {
 
     /**
      * This method provides access to sitemap model files, loads them and returns the object model tree.
-     * 
+     *
      * @param sitemapName the name of the sitemap to load
      * @return the object model tree, null if it is not found
      */
@@ -27,8 +28,23 @@ public interface SitemapProvider {
 
     /**
      * Returns the names of all available sitemaps
-     * 
+     *
      * @return names of provided sitemaps
      */
     public Set<String> getSitemapNames();
+
+    /**
+     * Add a listener which will be informed subsequently once a model has changed
+     *
+     * @param listener
+     */
+    public void addModelChangeListener(ModelRepositoryChangeListener listener);
+
+    /**
+     * Remove a model change listener again
+     * 
+     * @param listener
+     */
+    public void removeModelChangeListener(ModelRepositoryChangeListener listener);
+
 }
