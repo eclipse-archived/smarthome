@@ -36,6 +36,7 @@ import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.net.http.HttpContextFactoryService;
+import org.eclipse.smarthome.model.sitemap.Chart;
 import org.eclipse.smarthome.model.sitemap.Frame;
 import org.eclipse.smarthome.model.sitemap.LinkableWidget;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
@@ -260,7 +261,15 @@ public class WebAppServlet extends BaseServlet {
         Set<GenericItem> items = new HashSet<GenericItem>();
         if (renderer.getItemUIRegistry() != null) {
             for (Widget widget : widgets) {
-                addItemWithName(items, widget.getItem());
+                // We skip the chart widgets having a refresh argument
+                boolean skipWidget = false;
+                if (widget instanceof Chart) {
+                    Chart chartWidget = (Chart) widget;
+                    skipWidget = chartWidget.getRefresh() > 0;
+                }
+                if (!skipWidget) {
+                    addItemWithName(items, widget.getItem());
+                }
                 if (widget instanceof Frame) {
                     items.addAll(getAllItems(((Frame) widget).getChildren()));
                 }
