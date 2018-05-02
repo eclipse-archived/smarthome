@@ -20,6 +20,8 @@ Import-Package:
  org.eclipse.smarthome.io.transport.mqtt.sslcontext,
  org.osgi.framework,
  org.osgi.service.cm,
+ org.osgi.service.device,
  org.osgi.service.component,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
+Export-Package: org.eclipse.smarthome.io.mqttembeddedbroker
