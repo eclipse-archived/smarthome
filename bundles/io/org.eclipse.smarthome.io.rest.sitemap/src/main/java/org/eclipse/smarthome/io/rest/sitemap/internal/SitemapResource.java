@@ -634,8 +634,14 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
         Set<GenericItem> items = new HashSet<GenericItem>();
         if (itemUIRegistry != null) {
             for (Widget widget : widgets) {
+                // We skip the chart widgets having a refresh argument
+                boolean skipWidget = false;
+                if (widget instanceof Chart) {
+                    Chart chartWidget = (Chart) widget;
+                    skipWidget = chartWidget.getRefresh() > 0;
+                }
                 String itemName = widget.getItem();
-                if (itemName != null) {
+                if (!skipWidget && itemName != null) {
                     try {
                         Item item = itemUIRegistry.getItem(itemName);
                         if (item instanceof GenericItem) {
