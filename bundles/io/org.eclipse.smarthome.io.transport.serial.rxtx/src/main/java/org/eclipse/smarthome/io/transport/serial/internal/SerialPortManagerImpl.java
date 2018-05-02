@@ -12,19 +12,17 @@
  */
 package org.eclipse.smarthome.io.transport.serial.internal;
 
-import java.util.Enumeration;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.io.transport.serial.SerialPortIdentifier;
 import org.eclipse.smarthome.io.transport.serial.SerialPortManager;
+import org.eclipse.smarthome.io.transport.serial.rxtx.SerialPortCreator;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
-import gnu.io.CommPortIdentifier;
+import gnu.io.SerialPort;
 
 /**
  * Specific serial port manager implementation.
@@ -35,39 +33,34 @@ import gnu.io.CommPortIdentifier;
 @Component
 public class SerialPortManagerImpl implements SerialPortManager {
 
-    private static class SplitIteratorForEnumeration<T> extends Spliterators.AbstractSpliterator<T> {
-        private final Enumeration<T> e;
+    private @NonNullByDefault({}) SerialPortRegistry registry;
 
-        public SplitIteratorForEnumeration(final Enumeration<T> e) {
-            super(Long.MAX_VALUE, Spliterator.ORDERED);
-            this.e = e;
-        }
+    @Reference
+    protected void setSerialportRegistry(SerialPortRegistry registry) {
+        this.registry = registry;
+    }
 
-        @Override
-        @NonNullByDefault({})
-        public boolean tryAdvance(Consumer<? super T> action) {
-            if (e.hasMoreElements()) {
-                action.accept(e.nextElement());
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        @NonNullByDefault({})
-        public void forEachRemaining(Consumer<? super T> action) {
-            while (e.hasMoreElements()) {
-                action.accept(e.nextElement());
-            }
-        }
+    protected void unsetSerialportRegistry(SerialPortRegistry registry) {
+        this.registry = registry;
     }
 
     @Override
     public Stream<SerialPortIdentifier> getIdentifiers() {
-        @SuppressWarnings("unchecked")
-        final Enumeration<CommPortIdentifier> ids = CommPortIdentifier.getPortIdentifiers();
-        return StreamSupport.stream(new SplitIteratorForEnumeration<>(ids), false)
-                .filter(id -> id.getPortType() == CommPortIdentifier.PORT_SERIAL)
-                .map(sid -> new SerialPortIdentifierImpl(sid));
+        if (registry == null) {
+            return Stream.empty();
+        }
+        return registry.getPortCreators().stream().flatMap(element -> element.getSerialPortIdentifiers());
+    }
+
+    @Override
+    public @Nullable SerialPortIdentifier getIdentifier(String name) {
+        if (registry == null) {
+            return null;
+        }
+        SerialPortCreator<SerialPort> portCreator = registry.getPortCreatorForPortName(name, SerialPort.class);
+        if (portCreator == null) {
+            return null;
+        }
+        return portCreator.getPortIdentifier(name);
     }
 }

@@ -14,3 +14,4 @@ Service-Component: OSGI-INF/*.xml
 Provide-Capability: osgi.service;objectClass:List<String>="org.eclipse
  .smarthome.io.transport.serial.SerialPortManager"
 Automatic-Module-Name: org.eclipse.smarthome.io.transport.serial.rxtx
+Export-Package: org.eclipse.smarthome.io.transport.serial.rxtx

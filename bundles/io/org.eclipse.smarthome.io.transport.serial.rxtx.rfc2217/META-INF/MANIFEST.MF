@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-ClassPath: .
+Bundle-Name: Eclipse SmartHome Serial Transport extension for RXTX RFC2217
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.io.transport.serial.rxtx.rfc2217;singleton:=true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.10.0.qualifier
+Import-Package: gnu.io,
+ gnu.io.rfc2217,
+ org.apache.commons.net,
+ org.apache.commons.net.telnet,
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.io.transport.serial,
+ org.eclipse.smarthome.io.transport.serial.rxtx
+Service-Component: OSGI-INF/*.xml
+Provide-Capability: osgi.service;objectClass:List<String>="org.eclipse
+ .smarthome.io.transport.serial.SerialPortManager"
