@@ -38,7 +38,7 @@ import org.osgi.service.component.annotations.Reference;
  *
  * @author Gerhard Riegler - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class)
+@Component(configurationPid = "binding.astro", service = ThingHandlerFactory.class)
 public class AstroHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream
