@@ -16,7 +16,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * Configuration of the {@link EmbeddedBrokerService}.
+ * Configuration of the {@link EmbeddedBrokerServiceImpl}.
  *
  * @author David Graeff - Initial contribution
  */

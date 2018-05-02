@@ -12,8 +12,8 @@
  */
 package org.eclipse.smarthome.io.mqttembeddedbroker.internal;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
@@ -26,6 +26,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.config.core.ConfigurableService;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.io.mqttembeddedbroker.EmbeddedBrokerService;
 import org.eclipse.smarthome.io.mqttembeddedbroker.internal.MqttEmbeddedBrokerDetectStart.MqttEmbeddedBrokerStartedListener;
 import org.eclipse.smarthome.io.mqttembeddedbroker.internal.MqttEmbeddedBrokerMetrics.BrokerMetricsListener;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
@@ -50,7 +51,7 @@ import io.moquette.server.config.MemoryConfig;
 import io.moquette.spi.security.IAuthorizator;
 
 /**
- * The {@link EmbeddedBrokerService} starts the embedded broker, creates a
+ * The {@link EmbeddedBrokerServiceImpl} starts the embedded broker, creates a
  * {@link MqttBrokerConnection} and adds it to the {@link MqttService}.
  *
  * TODO: wait for NetworkServerTls implementation to enable secure connections as well
@@ -62,18 +63,18 @@ import io.moquette.spi.security.IAuthorizator;
         ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI + "=mqtt:mqttembeddedbroker",
         ConfigurableService.SERVICE_PROPERTY_CATEGORY + "=MQTT",
         ConfigurableService.SERVICE_PROPERTY_LABEL + "=MQTT Embedded Broker" })
-public class EmbeddedBrokerService implements ConfigurableService, MqttConnectionObserver, MqttServiceObserver,
-        MqttEmbeddedBrokerStartedListener, BrokerMetricsListener {
+public class EmbeddedBrokerServiceImpl implements EmbeddedBrokerService, ConfigurableService, MqttConnectionObserver,
+        MqttServiceObserver, MqttEmbeddedBrokerStartedListener, BrokerMetricsListener {
     private MqttService service;
     // private NetworkServerTls networkServerTls; //TODO wait for NetworkServerTls implementation
 
     private static final String CLIENTID = "embedded-mqtt-broker";
     protected Server server;
-    private final Logger logger = LoggerFactory.getLogger(EmbeddedBrokerService.class);
+    private final Logger logger = LoggerFactory.getLogger(EmbeddedBrokerServiceImpl.class);
     protected MqttEmbeddedBrokerDetectStart detectStart = new MqttEmbeddedBrokerDetectStart(this);
     protected MqttEmbeddedBrokerMetrics metrics = new MqttEmbeddedBrokerMetrics(this);
 
-    public MqttBrokerConnection connection;
+    private MqttBrokerConnection connection;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     public void setMqttService(MqttService service) {
@@ -146,6 +147,7 @@ public class EmbeddedBrokerService implements ConfigurableService, MqttConnectio
 
     @Override
     public void brokerRemoved(String brokerID, MqttBrokerConnection broker) {
+        // Do not allow this connection to be removed. Add it again.
         if (broker == connection) {
             service.addBrokerConnection(brokerID, broker);
         }
@@ -161,7 +163,8 @@ public class EmbeddedBrokerService implements ConfigurableService, MqttConnectio
      * @param persistence_filename The filename were persistent data should be stored.
      * @throws IOException If any error happens, like the port is already in use, this exception is thrown.
      */
-    protected void startEmbeddedServer(Integer portParam, boolean secure, String username, String password,
+    @Override
+    public void startEmbeddedServer(Integer portParam, boolean secure, String username, String password,
             @NonNull String persistenceFilenameParam) throws IOException {
         Integer port = portParam;
         String persistenceFilename = persistenceFilenameParam;
@@ -197,17 +200,12 @@ public class EmbeddedBrokerService implements ConfigurableService, MqttConnectio
             properties.put(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, true);
         }
 
-        // Persistence:
-
-        // The user may have entered a full path. Check for '/' for Unix based systems and for a
-        // a colon as second character for windows based paths ("C:/abc")
-        if (!persistenceFilename.startsWith("/")
-                && !(persistenceFilename.length() > 2 && persistenceFilename.charAt(1) == ':')) {
-            persistenceFilename = ConfigConstants.getUserDataFolder() + File.separator + persistenceFilename;
-        }
-
-        // The user may have set an empty string on purpose: Disable persistence file
+        // Persistence: If not set, an in-memory database is used.
         if (!persistenceFilename.isEmpty()) {
+            if (!Paths.get(persistenceFilename).isAbsolute()) {
+                persistenceFilename = Paths.get(ConfigConstants.getUserDataFolder()).toAbsolutePath()
+                        .resolve(persistenceFilename).toString();
+            }
             properties.put(BrokerConstants.PERSISTENT_STORE_PROPERTY_NAME, persistenceFilename);
         }
 
@@ -233,7 +231,8 @@ public class EmbeddedBrokerService implements ConfigurableService, MqttConnectio
     /**
      * Stops the embedded broker, if it is started.
      */
-    protected void stopEmbeddedServer() {
+    @Override
+    public void stopEmbeddedServer() {
         if (this.server != null) {
             server.stopServer();
             server = null;
@@ -286,5 +285,13 @@ public class EmbeddedBrokerService implements ConfigurableService, MqttConnectio
     @Override
     public void connectedClientIDs(Collection<String> clientIDs) {
         logger.debug("Connected clients: {}", clientIDs.stream().collect(Collectors.joining(", ")));
+    }
+
+    /**
+     * Returns the MQTT broker connection, connected to the embedded broker
+     */
+    @Override
+    public MqttBrokerConnection getConnection() {
+        return connection;
     }
 }
