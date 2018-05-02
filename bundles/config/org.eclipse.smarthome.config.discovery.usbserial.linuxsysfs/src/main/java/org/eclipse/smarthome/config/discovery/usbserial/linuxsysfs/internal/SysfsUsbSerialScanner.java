@@ -119,6 +119,11 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
         return result;
     }
 
+    @Override
+    public boolean canPerformScans() {
+        return isReadAccessible(Paths.get(sysfsTtyDevicesDirectory)) && isReadAccessible(Paths.get(devDirectory));
+    }
+
     /**
      * Gets the set of all found serial ports, by searching through the tty devices directory in the sysfs and
      * checking for each found serial port if the device file in the devices folder is both readable and writable.
@@ -133,7 +138,7 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
                 String serialPortName = sysfsTtyPath.getFileName().toString();
                 Path devicePath = Paths.get(devDirectory).resolve(serialPortName);
                 Path sysfsDevicePath = getSysfsDevicePath(sysfsTtyPath);
-                if (sysfsDevicePath != null && isAccessible(devicePath)) {
+                if (sysfsDevicePath != null && isReadWriteAccessible(devicePath)) {
                     result.add(new SerialPortInfo(devicePath, sysfsDevicePath));
                 }
             }
@@ -142,8 +147,12 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
         return result;
     }
 
-    private boolean isAccessible(Path devicePath) {
-        return exists(devicePath) && isWritable(devicePath) && isReadable(devicePath);
+    private boolean isReadWriteAccessible(Path path) {
+        return isReadAccessible(path) && isWritable(path);
+    }
+
+    private boolean isReadAccessible(Path path) {
+        return exists(path) && isReadable(path);
     }
 
     /**
@@ -225,8 +234,8 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
         String manufacturer = getContentIfFileExists(usbDevicePath.resolve(SYSFS_FILENAME_USB_MANUFACTURER));
         String product = getContentIfFileExists(usbDevicePath.resolve(SYSFS_FILENAME_USB_PRODUCT));
 
-        int interfaceNumber = Integer.parseInt(getContent(usbInterfacePath.resolve(SYSFS_FILENAME_USB_INTERFACE_NUMBER)),
-                16);
+        int interfaceNumber = Integer
+                .parseInt(getContent(usbInterfacePath.resolve(SYSFS_FILENAME_USB_INTERFACE_NUMBER)), 16);
         String interfaceDescription = getContentIfFileExists(usbInterfacePath.resolve(SYSFS_FILENAME_USB_INTERFACE));
 
         return new UsbSerialDeviceInformation(vendorId, productId, serialNumber, manufacturer, product, interfaceNumber,
@@ -251,6 +260,11 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
         sysfsTtyDevicesDirectory = config
                 .getOrDefault(SYSFS_TTY_DEVICES_DIRECTORY_ATTRIBUTE, SYSFS_TTY_DEVICES_DIRECTORY_DEFAULT).toString();
         devDirectory = config.getOrDefault(DEV_DIRECTORY_ATTRIBUTE, DEV_DIRECTORY_DEFAULT).toString();
+
+        if (!canPerformScans()) {
+            logger.info("Cannot perform scans with this configuration: sysfsTtyDevicesDirectory: {}, devDirectory: {}",
+                    sysfsTtyDevicesDirectory, devDirectory);
+        }
     }
 
     private static class SerialPortInfo {

@@ -103,18 +103,24 @@ public class PollingUsbSerialScanner implements UsbSerialDiscovery {
     }
 
     /**
-     * Starts repeatedly scanning for newly added and removed USB devices in the usbserial devices folder (where the
-     * duration between two subsequent scans is configurable).
+     * Starts repeatedly scanning for newly added and removed USB devices using the configured {@link UsbSerialScanner}
+     * (where the duration between two subsequent scans is configurable).
      * <p/>
      * This repeated scanning can be stopped using {@link #stopBackgroundScanning()}.
      */
     @Override
     public synchronized void startBackgroundScanning() {
         if (backgroundScanningJob == null) {
-            backgroundScanningJob = scheduler.scheduleWithFixedDelay(() -> {
-                singleScanInternal(false);
-            }, 0, pauseBetweenScans.getSeconds(), TimeUnit.SECONDS);
-            logger.debug("Scheduled USB-Serial background discovery every {} seconds", pauseBetweenScans.getSeconds());
+            if (deltaUsbSerialScanner.canPerformScans()) {
+                backgroundScanningJob = scheduler.scheduleWithFixedDelay(() -> {
+                    singleScanInternal(false);
+                }, 0, pauseBetweenScans.getSeconds(), TimeUnit.SECONDS);
+                logger.debug("Scheduled USB-Serial background discovery every {} seconds",
+                        pauseBetweenScans.getSeconds());
+            } else {
+                logger.info(
+                        "Do not start background scanning, as the configured USB-Serial scanner cannot perform scans on this system");
+            }
         }
     }
 
@@ -153,7 +159,7 @@ public class PollingUsbSerialScanner implements UsbSerialDiscovery {
                 announceAddedDevices(delta.getUnchanged());
             }
         } catch (IOException e) {
-            logger.warn("A {} prevented a scan for USB serial devices: {}", e.getClass().getSimpleName(),
+            logger.debug("A {} prevented a scan for USB serial devices: {}", e.getClass().getSimpleName(),
                     e.getMessage());
         }
     }
