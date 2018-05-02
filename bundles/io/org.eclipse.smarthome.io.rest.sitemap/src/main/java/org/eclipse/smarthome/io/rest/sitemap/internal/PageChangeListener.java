@@ -257,7 +257,9 @@ public class PageChangeListener implements StateChangeListener {
         return false;
     }
 
-    public void sitemapContentChanged() {
+    public void sitemapContentChanged(EList<Widget> widgets) {
+        updateItemsAndWidgets(widgets);
+
         SitemapChangedEvent changeEvent = new SitemapChangedEvent();
         changeEvent.pageId = pageId;
         changeEvent.sitemapName = sitemapName;

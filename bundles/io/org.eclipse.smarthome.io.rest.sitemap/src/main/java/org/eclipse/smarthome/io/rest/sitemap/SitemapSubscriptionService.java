@@ -281,9 +281,11 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
         for (Entry<String, PageChangeListener> listenerEntry : pageChangeListeners.entrySet()) {
             String sitemapWithPage = listenerEntry.getKey();
             String sitemapName = extractSitemapName(sitemapWithPage);
+            String pageId = extractPageId(sitemapWithPage);
 
             if (sitemapName.equals(changedSitemapName)) {
-                listenerEntry.getValue().sitemapContentChanged();
+                EList<Widget> widgets = collectWidgets(sitemapName, pageId);
+                listenerEntry.getValue().sitemapContentChanged(widgets);
             }
         }
     }
