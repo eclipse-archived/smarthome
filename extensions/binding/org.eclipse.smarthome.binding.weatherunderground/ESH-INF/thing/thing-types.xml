@@ -6,7 +6,7 @@
 	<!-- WeatherUnderground Binding -->
 	<thing-type id="weather">
 	    	<supported-bridge-type-refs>
-            		<bridge-type-ref id="bridge" />
+            	    <bridge-type-ref id="bridge" />
         	</supported-bridge-type-refs>
 		<label>Weather Information</label>
 		<description>Provides various weather data from the Weather Underground service</description>
