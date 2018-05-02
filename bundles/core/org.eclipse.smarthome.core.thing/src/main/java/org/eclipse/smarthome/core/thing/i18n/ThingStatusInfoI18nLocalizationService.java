@@ -47,6 +47,7 @@ import org.osgi.service.component.annotations.Reference;
  * </pre>
  *
  * @author Thomas Höfer - Initial contribution
+ * @author Henning Sudbrock - Permit translations from thing handler parent bundles
  */
 @Component(immediate = true, service = ThingStatusInfoI18nLocalizationService.class)
 public final class ThingStatusInfoI18nLocalizationService {
@@ -78,14 +79,11 @@ public final class ThingStatusInfoI18nLocalizationService {
         }
 
         String description = thing.getStatusInfo().getDescription();
-        if (!I18nUtil.isConstant(description)) {
+        if (description == null || !I18nUtil.isConstant(description)) {
             return thing.getStatusInfo();
         }
 
-        Bundle bundle = bundleResolver.resolveBundle(thingHandler.getClass());
-
-        Description desc = new Description(bundle, locale, description, i18nProvider);
-        String translatedDescription = i18nProvider.getText(bundle, desc.key, description, locale, desc.args);
+        String translatedDescription = translateDescription(description, locale, thingHandler);
 
         return new ThingStatusInfo(thing.getStatus(), thing.getStatusInfo().getStatusDetail(), translatedDescription);
     }
@@ -109,34 +107,72 @@ public final class ThingStatusInfoI18nLocalizationService {
     }
 
     /**
+     * Returns the translation of the description for the specified locale, using the translations from the bundles of
+     * the given thingHandler and its parent classes. The description may contain arguments that may also need
+     * translation (see class JavaDoc for an example); those arguments are translated in the same way.
+     */
+    private String translateDescription(String description, Locale locale, ThingHandler thingHandler) {
+        ParsedDescription parsedDescription = new ParsedDescription(description);
+
+        Object[] translatedArgs = null;
+        if (parsedDescription.args != null) {
+            translatedArgs = Arrays.stream(parsedDescription.args).map(arg -> {
+                if (I18nUtil.isConstant(arg)) {
+                    return getTranslationForClass(arg, locale, thingHandler.getClass());
+                } else {
+                    return arg;
+                }
+            }).toArray(String[]::new);
+        }
+
+        return getTranslationForClass(parsedDescription.key, locale, thingHandler.getClass(), translatedArgs);
+    }
+
+    /**
+     * Returns the translation for the given i18n constant and locale using the translations from the bundle of the
+     * given class; if there is no translation look up the translation in the bundle in the parent class, and so
+     * forth. If no translation is found for the bundle of any parent class, return the i18n constant.
+     */
+    private String getTranslationForClass(String i18nConstant, Locale locale, Class<?> clazz, Object... args) {
+        if (clazz == null) {
+            return i18nConstant;
+        }
+
+        Bundle bundle = bundleResolver.resolveBundle(clazz);
+
+        if (bundle == null) {
+            return getTranslationForClass(i18nConstant, locale, clazz.getSuperclass(), args);
+        }
+
+        String translatedDescription = i18nProvider.getText(bundle, I18nUtil.stripConstant(i18nConstant), null, locale,
+                args);
+
+        if (translatedDescription != null) {
+            return translatedDescription;
+        } else {
+            return getTranslationForClass(i18nConstant, locale, clazz.getSuperclass(), args);
+        }
+    }
+
+    /**
      * Utility class to parse the thing status description into the text reference and optional arguments.
      */
-    private final class Description {
+    private final class ParsedDescription {
 
         private static final int LIMIT = 2;
 
         private final String key;
-        private final Object[] args;
+        private final String[] args;
 
-        private Description(final Bundle bundle, final Locale locale, String description,
-                final TranslationProvider theTranslationProvider) {
+        private ParsedDescription(String description) {
             String[] parts = description.split("\\s+", LIMIT);
-            this.key = I18nUtil.stripConstant(parts[0]);
+            this.key = parts[0];
 
             if (parts.length == 1) {
                 this.args = null;
             } else {
-                this.args = Arrays.stream(parts[1].replaceAll("\\[|\\]|\"", "").split(",")).filter(s -> {
-                    if (s == null) {
-                        return false;
-                    }
-                    return !s.trim().isEmpty();
-                }).map(s -> {
-                    String input = s.trim();
-                    return I18nUtil.isConstant(input)
-                            ? theTranslationProvider.getText(bundle, I18nUtil.stripConstant(input), input, locale)
-                            : input;
-                }).toArray(size -> new String[size]);
+                this.args = Arrays.stream(parts[1].replaceAll("\\[|\\]|\"", "").split(","))
+                        .filter(s -> s != null && !s.trim().isEmpty()).map(s -> s.trim()).toArray(String[]::new);
             }
         }
     }

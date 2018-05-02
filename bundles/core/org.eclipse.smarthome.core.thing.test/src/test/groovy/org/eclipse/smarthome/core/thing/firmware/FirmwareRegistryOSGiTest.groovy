@@ -20,10 +20,12 @@ import static org.junit.matchers.JUnitMatchers.*
 import org.eclipse.smarthome.core.i18n.LocaleProvider
 import org.eclipse.smarthome.core.thing.binding.firmware.Firmware
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID
+import org.eclipse.smarthome.core.thing.testutil.i18n.DefaultLocaleSetter
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.osgi.service.cm.ConfigurationAdmin
 
 /**
  * Testing the {@link FirmwareRegistry}.
@@ -133,7 +135,10 @@ final class FirmwareRegistryOSGiTest extends OSGiTest {
         assertThat localeProvider, is(notNullValue())
         defaultLocale = localeProvider.getLocale()
 
-        setDefaultLocale(Locale.ENGLISH)
+        new DefaultLocaleSetter(getService(ConfigurationAdmin)).setDefaultLocale(Locale.ENGLISH)
+        waitForAssert {
+            assertThat localeProvider.getLocale(), is(Locale.ENGLISH)
+        }
 
         firmwareRegistry = getService(FirmwareRegistry)
         assertThat firmwareRegistry, is(notNullValue())
@@ -144,7 +149,10 @@ final class FirmwareRegistryOSGiTest extends OSGiTest {
 
     @After
     void teardown() {
-        setDefaultLocale(defaultLocale)
+        new DefaultLocaleSetter(getService(ConfigurationAdmin)).setDefaultLocale(defaultLocale)
+        waitForAssert {
+            assertThat getService(LocaleProvider).getLocale(), is(defaultLocale)
+        }
     }
 
     @Test
