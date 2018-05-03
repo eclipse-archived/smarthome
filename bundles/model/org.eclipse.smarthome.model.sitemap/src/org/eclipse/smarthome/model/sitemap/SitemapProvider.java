@@ -24,27 +24,27 @@ public interface SitemapProvider {
      * @param sitemapName the name of the sitemap to load
      * @return the object model tree, null if it is not found
      */
-    public Sitemap getSitemap(String sitemapName);
+    Sitemap getSitemap(String sitemapName);
 
     /**
      * Returns the names of all available sitemaps
      *
      * @return names of provided sitemaps
      */
-    public Set<String> getSitemapNames();
+    Set<String> getSitemapNames();
 
     /**
      * Add a listener which will be informed subsequently once a model has changed
      *
      * @param listener
      */
-    public void addModelChangeListener(ModelRepositoryChangeListener listener);
+    void addModelChangeListener(ModelRepositoryChangeListener listener);
 
     /**
      * Remove a model change listener again
-     * 
+     *
      * @param listener
      */
-    public void removeModelChangeListener(ModelRepositoryChangeListener listener);
+    void removeModelChangeListener(ModelRepositoryChangeListener listener);
 
 }
