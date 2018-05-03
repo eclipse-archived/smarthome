@@ -28,4 +28,5 @@ Import-Package:
  org.jupnp.model,
  org.jupnp.model.types,
  org.mockito,
+ org.mockito.stubbing,
  org.osgi.service.device

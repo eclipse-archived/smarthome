@@ -13,43 +13,33 @@
 package org.eclipse.smarthome.binding.hue.handler;
 
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.util.Collections;
 
-import org.eclipse.smarthome.binding.hue.internal.MockedHttpClient;
-import org.eclipse.smarthome.binding.hue.test.AbstractHueOSGiTest;
+import org.eclipse.smarthome.binding.hue.internal.FullConfig;
+import org.eclipse.smarthome.binding.hue.internal.FullLight;
+import org.eclipse.smarthome.binding.hue.internal.StateUpdate;
 import org.eclipse.smarthome.binding.hue.test.HueLightState;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.events.EventPublisher;
-import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.Bridge;
-import org.eclipse.smarthome.core.thing.Channel;
+import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.eclipse.smarthome.core.thing.ThingStatusDetail;
-import org.eclipse.smarthome.core.thing.ThingStatusInfo;
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
-import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
-import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
-import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.test.AsyncResultWrapper;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
@@ -61,68 +51,22 @@ import com.google.gson.JsonParser;
  * @author Markus Mazurczak - Added test for OSRAM Par16 50 TW bulbs
  * @author Andre Fuechsel - modified tests after introducing the generic thing types
  * @author Denis Dudnik - switched to internally integrated source of Jue library
+ * @author Simon Kaufmann - migrated to plain Java test
  */
-public class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
+public class HueLightHandlerTest {
 
     private static final int MIN_COLOR_TEMPERATURE = 153;
     private static final int MAX_COLOR_TEMPERATURE = 500;
     private static final int COLOR_TEMPERATURE_RANGE = MAX_COLOR_TEMPERATURE - MIN_COLOR_TEMPERATURE;
 
-    private static final ThingTypeUID BRIDGE_THING_TYPE_UID = new ThingTypeUID("hue", "bridge");
-    private static final ThingTypeUID COLOR_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "0210");
-    private static final ThingTypeUID LUX_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "0100");
-    private static final ThingTypeUID OSRAM_PAR16_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "0220");
     private static final String OSRAM_MODEL_TYPE = "PAR16 50 TW";
     private static final String OSRAM_MODEL_TYPE_ID = "PAR16_50_TW";
 
-    private ThingRegistry thingRegistry;
-    private ItemChannelLinkRegistry linkRegistry;
-    private ItemRegistry itemRegistry;
+    private Gson gson;
 
     @Before
     public void setUp() {
-        registerVolatileStorageService();
-        thingRegistry = getService(ThingRegistry.class, ThingRegistry.class);
-        assertNotNull(thingRegistry);
-        linkRegistry = getService(ItemChannelLinkRegistry.class, ItemChannelLinkRegistry.class);
-        assertNotNull(linkRegistry);
-        itemRegistry = getService(ItemRegistry.class, ItemRegistry.class);
-        assertNotNull(itemRegistry);
-    }
-
-    private Bridge createBridge() {
-        Configuration bridgeConfiguration = new Configuration();
-        bridgeConfiguration.put(HOST, "1.2.3.4");
-        bridgeConfiguration.put(USER_NAME, "testUserName");
-        bridgeConfiguration.put(SERIAL_NUMBER, "testSerialNumber");
-
-        Bridge hueBridge = (Bridge) thingRegistry.createThingOfType(BRIDGE_THING_TYPE_UID,
-                new ThingUID(BRIDGE_THING_TYPE_UID, "testBridge"), null, "Bridge", bridgeConfiguration);
-
-        assertNotNull(hueBridge);
-        thingRegistry.add(hueBridge);
-
-        return hueBridge;
-    }
-
-    private Thing createLight(Bridge hueBridge, ThingTypeUID lightUID) {
-        Configuration lightConfiguration = new Configuration();
-        lightConfiguration.put(LIGHT_ID, "1");
-
-        Thing hueLight = thingRegistry.createThingOfType(lightUID, new ThingUID(lightUID, "Light1"), hueBridge.getUID(),
-                "Light", lightConfiguration);
-
-        assertNotNull(hueLight);
-        thingRegistry.add(hueLight);
-
-        for (Channel c : hueLight.getChannels()) {
-            String item = hueLight.getUID().toString().replace(":", "_") + "_" + c.getUID().getId();
-            if (linkRegistry.getBoundChannels(item).size() == 0) {
-                linkRegistry.add(new ItemChannelLink(item, c.getUID()));
-            }
-        }
-
-        return hueLight;
+        gson = new Gson();
     }
 
     @Test
@@ -352,22 +296,20 @@ public class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
 
     private void assertSendCommandForColorTempForPar16(Command command, HueLightState currentState,
             String expectedReply) {
-        assertSendCommand(CHANNEL_COLORTEMPERATURE, command, OSRAM_PAR16_LIGHT_THING_TYPE_UID, currentState,
-                expectedReply, OSRAM_MODEL_TYPE_ID, "OSRAM");
+        assertSendCommand(CHANNEL_COLORTEMPERATURE, command, currentState, expectedReply, OSRAM_MODEL_TYPE_ID, "OSRAM");
     }
 
     private void assertSendCommandForBrightnessForPar16(Command command, HueLightState currentState,
             String expectedReply) {
-        assertSendCommand(CHANNEL_BRIGHTNESS, command, OSRAM_PAR16_LIGHT_THING_TYPE_UID, currentState, expectedReply,
-                OSRAM_MODEL_TYPE_ID, "OSRAM");
+        assertSendCommand(CHANNEL_BRIGHTNESS, command, currentState, expectedReply, OSRAM_MODEL_TYPE_ID, "OSRAM");
     }
 
     private void assertSendCommandForColor(Command command, HueLightState currentState, String expectedReply) {
-        assertSendCommand(CHANNEL_COLOR, command, COLOR_LIGHT_THING_TYPE_UID, currentState, expectedReply);
+        assertSendCommand(CHANNEL_COLOR, command, currentState, expectedReply);
     }
 
     private void assertSendCommandForColorTemp(Command command, HueLightState currentState, String expectedReply) {
-        assertSendCommand(CHANNEL_COLORTEMPERATURE, command, COLOR_LIGHT_THING_TYPE_UID, currentState, expectedReply);
+        assertSendCommand(CHANNEL_COLORTEMPERATURE, command, currentState, expectedReply);
     }
 
     private void asserttoColorTemperaturePercentType(int ctValue, int expectedPercent) {
@@ -376,112 +318,55 @@ public class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
     }
 
     private void assertSendCommandForBrightness(Command command, HueLightState currentState, String expectedReply) {
-        assertSendCommand(CHANNEL_BRIGHTNESS, command, LUX_LIGHT_THING_TYPE_UID, currentState, expectedReply);
+        assertSendCommand(CHANNEL_BRIGHTNESS, command, currentState, expectedReply);
     }
 
     private void assertSendCommandForAlert(Command command, HueLightState currentState, String expectedReply) {
-        assertSendCommand(CHANNEL_ALERT, command, COLOR_LIGHT_THING_TYPE_UID, currentState, expectedReply);
+        assertSendCommand(CHANNEL_ALERT, command, currentState, expectedReply);
     }
 
     private void assertSendCommandForEffect(Command command, HueLightState currentState, String expectedReply) {
-        assertSendCommand(CHANNEL_EFFECT, command, COLOR_LIGHT_THING_TYPE_UID, currentState, expectedReply);
+        assertSendCommand(CHANNEL_EFFECT, command, currentState, expectedReply);
     }
 
-    private void assertSendCommand(String channel, Command command, ThingTypeUID hueLightUID,
-            HueLightState currentState, String expectedReply) {
-        assertSendCommand(channel, command, hueLightUID, currentState, expectedReply, "LCT001", "Philips");
+    private void assertSendCommand(String channel, Command command, HueLightState currentState, String expectedReply) {
+        assertSendCommand(channel, command, currentState, expectedReply, "LCT001", "Philips");
     }
 
-    private void assertSendCommand(String channel, Command command, ThingTypeUID hueLightUID,
-            HueLightState currentState, String expectedReply, String expectedModel, String expectedVendor) {
-        Bridge hueBridge = null;
-        Thing hueLight = null;
-        try {
-            hueBridge = createBridge();
+    private void assertSendCommand(String channel, Command command, HueLightState currentState, String expectedReply,
+            String expectedModel, String expectedVendor) {
+        FullLight light = gson.fromJson(currentState.toString(), FullConfig.class).getLights().get(0);
 
-            AsyncResultWrapper<String> addressWrapper = new AsyncResultWrapper<String>();
-            AsyncResultWrapper<String> bodyWrapper = new AsyncResultWrapper<String>();
+        Bridge mockBridge = mock(Bridge.class);
+        when(mockBridge.getStatus()).thenReturn(ThingStatus.ONLINE);
 
-            MockedHttpClient mockedHttpClient = new MockedHttpClient() {
-                @Override
-                public Result put(String address, String body) throws IOException {
-                    addressWrapper.set(address);
-                    bodyWrapper.set(body);
-                    return new Result("", 200);
-                }
+        Thing mockThing = mock(Thing.class);
+        when(mockThing.getConfiguration()).thenReturn(new Configuration(Collections.singletonMap(LIGHT_ID, "1")));
 
-                @Override
-                public Result get(String address) throws IOException {
-                    if (address.endsWith("testUserName")) {
-                        return new Result(currentState.toString(), 200);
-                    }
-                    return new Result("", 404);
-                }
+        HueClient mockClient = mock(HueClient.class);
+        when(mockClient.getLightById(any())).thenReturn(light);
 
-            };
-
-            installHttpClientMock((HueBridgeHandler) hueBridge.getHandler(), mockedHttpClient);
-            simulateBridgeInitialization(hueBridge);
-
-            hueLight = createLight(hueBridge, hueLightUID);
-            HueLightHandler hueLightHandler = getThingHandler(hueLight, HueLightHandler.class);
-
-            assertBridgeOnline(getBridge(hueLightHandler));
-            hueLightHandler.initialize();
-            Thing light = hueLight;
-            waitForAssert(() -> {
-                assertEquals(expectedModel, light.getProperties().get(Thing.PROPERTY_MODEL_ID));
-                assertEquals(expectedVendor, light.getProperties().get(Thing.PROPERTY_VENDOR));
-            });
-
-            postCommand(hueLight, channel, command);
-
-            waitForAssert(() -> assertTrue(addressWrapper.isSet()));
-            waitForAssert(() -> assertTrue(bodyWrapper.isSet()));
-
-            assertEquals("http://1.2.3.4/api/testUserName/lights/1/state", addressWrapper.getWrappedObject());
-            assertJson(expectedReply, bodyWrapper.getWrappedObject());
-
-        } finally {
-            if (hueLight != null) {
-                ThingUID uid = hueLight.getUID();
-                thingRegistry.forceRemove(uid);
-                waitForAssert(() -> assertNull(thingRegistry.get(uid)));
+        HueLightHandler hueLightHandler = new HueLightHandler(mockThing) {
+            @Override
+            protected synchronized HueClient getHueClient() {
+                return mockClient;
             }
-            if (hueBridge != null) {
-                ThingUID uid = hueBridge.getUID();
-                thingRegistry.forceRemove(uid);
-                waitForAssert(() -> assertNull(thingRegistry.get(uid)));
+
+            @Override
+            protected Bridge getBridge() {
+                return mockBridge;
             }
-        }
-    }
+        };
+        hueLightHandler.initialize();
 
-    private void simulateBridgeInitialization(Bridge bridge) {
-        try {
-            HueBridgeHandler bridgeHandler;
-            bridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
-            assertNotNull(bridgeHandler);
-            Method method = BaseThingHandler.class.getDeclaredMethod("updateStatus", ThingStatus.class);
-            method.setAccessible(true);
-            method.invoke((BaseThingHandler) bridgeHandler, ThingStatus.ONLINE);
-        } catch (Exception e) {
-            throw new AssertionError(e);
-        }
-    }
+        verify(mockThing).setProperty(eq(Thing.PROPERTY_MODEL_ID), eq(expectedModel));
+        verify(mockThing).setProperty(eq(Thing.PROPERTY_VENDOR), eq(expectedVendor));
 
-    private void assertBridgeOnline(Bridge bridge) {
-        ThingStatusInfo online = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build();
-        waitForAssert(() -> assertEquals(online, bridge.getStatusInfo()));
-    }
+        hueLightHandler.handleCommand(new ChannelUID(new ThingUID("hue::test"), channel), command);
 
-    private void postCommand(Thing hueLight, String channel, Command command) {
-        String item = hueLight.getUID().toString().replace(":", "_") + "_" + channel;
-        waitForAssert(() -> assertNotNull(itemRegistry.get(item)));
-
-        EventPublisher eventPublisher = getService(EventPublisher.class);
-        assertNotNull(eventPublisher);
-
-        eventPublisher.post(ItemEventFactory.createCommandEvent(item, command));
+        ArgumentCaptor<StateUpdate> captorStateUpdate = ArgumentCaptor.forClass(StateUpdate.class);
+        verify(mockClient).updateLightState(any(FullLight.class), captorStateUpdate.capture());
+        assertJson(expectedReply, captorStateUpdate.getValue().toJson());
     }
 
     private void assertJson(String expected, String actual) {
@@ -489,44 +374,6 @@ public class HueLightHandlerOSGiTest extends AbstractHueOSGiTest {
         JsonElement jsonExpected = parser.parse(expected);
         JsonElement jsonActual = parser.parse(actual);
         assertEquals(jsonExpected, jsonActual);
-    }
-
-    private void installHttpClientMock(HueBridgeHandler hueBridgeHandler, MockedHttpClient mockedHttpClient) {
-        try {
-            // mock HttpClient
-            Field hueBridgeField = hueBridgeHandler.getClass().getDeclaredField("hueBridge");
-            hueBridgeField.setAccessible(true);
-
-            waitForAssert(() -> {
-                try {
-                    assertNotNull(hueBridgeField.get(hueBridgeHandler));
-                } catch (IllegalArgumentException | IllegalAccessException e) {
-                    throw new AssertionError(e);
-                }
-            });
-            Object hueBridgeValue = hueBridgeField.get(hueBridgeHandler);
-
-            Field httpClientField = hueBridgeValue.getClass().getDeclaredField("http");
-            httpClientField.setAccessible(true);
-            httpClientField.set(hueBridgeValue, mockedHttpClient);
-
-            Field usernameField = hueBridgeValue.getClass().getDeclaredField("username");
-            usernameField.setAccessible(true);
-            usernameField.set(hueBridgeValue, hueBridgeHandler.getThing().getConfiguration().get(USER_NAME));
-
-            hueBridgeHandler.initialize();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private Bridge getBridge(ThingHandler handler) {
-        ThingUID bridgeUID = handler.getThing().getBridgeUID();
-        if (bridgeUID != null && thingRegistry != null) {
-            return (Bridge) thingRegistry.get(bridgeUID);
-        } else {
-            return null;
-        }
     }
 
 }

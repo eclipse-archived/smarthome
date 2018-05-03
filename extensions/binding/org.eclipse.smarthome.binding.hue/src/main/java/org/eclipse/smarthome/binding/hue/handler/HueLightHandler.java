@@ -349,7 +349,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         return lightUpdate;
     }
 
-    synchronized @Nullable HueClient getHueClient() {
+    protected synchronized @Nullable HueClient getHueClient() {
         if (this.hueClient == null) {
             Bridge bridge = getBridge();
             if (bridge == null) {
