@@ -121,7 +121,7 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
 
     @Override
     public boolean canPerformScans() {
-        return isReadAccessible(Paths.get(sysfsTtyDevicesDirectory)) && isReadAccessible(Paths.get(devDirectory));
+        return isReadable(Paths.get(sysfsTtyDevicesDirectory)) && isReadable(Paths.get(devDirectory));
     }
 
     /**
@@ -138,21 +138,13 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
                 String serialPortName = sysfsTtyPath.getFileName().toString();
                 Path devicePath = Paths.get(devDirectory).resolve(serialPortName);
                 Path sysfsDevicePath = getSysfsDevicePath(sysfsTtyPath);
-                if (sysfsDevicePath != null && isReadWriteAccessible(devicePath)) {
+                if (sysfsDevicePath != null && isReadable(devicePath) && isWritable(devicePath)) {
                     result.add(new SerialPortInfo(devicePath, sysfsDevicePath));
                 }
             }
         }
 
         return result;
-    }
-
-    private boolean isReadWriteAccessible(Path path) {
-        return isReadAccessible(path) && isWritable(path);
-    }
-
-    private boolean isReadAccessible(Path path) {
-        return exists(path) && isReadable(path);
     }
 
     /**
