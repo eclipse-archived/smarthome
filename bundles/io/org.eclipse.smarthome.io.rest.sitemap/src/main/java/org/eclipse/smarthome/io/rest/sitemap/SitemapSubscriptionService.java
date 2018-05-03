@@ -25,7 +25,6 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.io.rest.sitemap.internal.PageChangeListener;
 import org.eclipse.smarthome.io.rest.sitemap.internal.SitemapEvent;
 import org.eclipse.smarthome.model.core.EventType;
-import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
 import org.eclipse.smarthome.model.sitemap.LinkableWidget;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
@@ -105,19 +104,13 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addSitemapProvider(SitemapProvider provider) {
         sitemapProviders.add(provider);
+        provider.addModelChangeListener(this);
+
     }
 
     protected void removeSitemapProvider(SitemapProvider provider) {
         sitemapProviders.remove(provider);
-    }
-
-    @Reference
-    protected void setModelRepository(ModelRepository modelRepo) {
-        modelRepo.addModelRepositoryChangeListener(this);
-    }
-
-    protected void unsetModelRepository(ModelRepository modelRepo) {
-        modelRepo.removeModelRepositoryChangeListener(this);
+        provider.removeModelChangeListener(this);
     }
 
     /**
@@ -281,9 +274,11 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
         for (Entry<String, PageChangeListener> listenerEntry : pageChangeListeners.entrySet()) {
             String sitemapWithPage = listenerEntry.getKey();
             String sitemapName = extractSitemapName(sitemapWithPage);
+            String pageId = extractPageId(sitemapWithPage);
 
             if (sitemapName.equals(changedSitemapName)) {
-                listenerEntry.getValue().sitemapContentChanged();
+                EList<Widget> widgets = collectWidgets(sitemapName, pageId);
+                listenerEntry.getValue().sitemapContentChanged(widgets);
             }
         }
     }

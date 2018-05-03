@@ -15,6 +15,7 @@ package org.eclipse.smarthome.model.sitemap.internal;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -47,6 +48,8 @@ public class SitemapProviderImpl implements SitemapProvider, ModelRepositoryChan
     private ModelRepository modelRepo = null;
 
     private final Map<String, Sitemap> sitemapModelCache = new ConcurrentHashMap<>();
+
+    private final Set<ModelRepositoryChangeListener> modelChangeListeners = new CopyOnWriteArraySet<>();
 
     @Reference
     public void setModelRepository(ModelRepository modelRepo) {
@@ -103,6 +106,9 @@ public class SitemapProviderImpl implements SitemapProvider, ModelRepositoryChan
                 sitemapModelCache.put(modelName, (Sitemap) modelRepo.getModel(modelName));
             }
         }
+        for (ModelRepositoryChangeListener listener : modelChangeListeners) {
+            listener.modelChanged(modelName, type);
+        }
     }
 
     private void refreshSitemapModels() {
@@ -111,6 +117,16 @@ public class SitemapProviderImpl implements SitemapProvider, ModelRepositoryChan
         for (String sitemapName : sitemapNames) {
             sitemapModelCache.put(sitemapName, (Sitemap) modelRepo.getModel(sitemapName));
         }
+    }
+
+    @Override
+    public void addModelChangeListener(ModelRepositoryChangeListener listener) {
+        modelChangeListeners.add(listener);
+    }
+
+    @Override
+    public void removeModelChangeListener(ModelRepositoryChangeListener listener) {
+        modelChangeListeners.remove(listener);
     }
 
 }
