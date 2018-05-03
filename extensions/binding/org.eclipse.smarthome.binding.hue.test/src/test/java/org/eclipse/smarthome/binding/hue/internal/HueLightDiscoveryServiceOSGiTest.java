@@ -38,7 +38,6 @@ import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
-import org.eclipse.smarthome.test.AsyncResultWrapper;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -153,15 +152,11 @@ public class HueLightDiscoveryServiceOSGiTest extends AbstractHueOSGiTest {
     public void startSearchIsCalled() {
 
         final AtomicBoolean searchHasBeenTriggered = new AtomicBoolean(false);
-        AsyncResultWrapper<String> addressWrapper = new AsyncResultWrapper<String>();
-        AsyncResultWrapper<String> bodyWrapper = new AsyncResultWrapper<String>();
 
         MockedHttpClient mockedHttpClient = new MockedHttpClient() {
 
             @Override
             public Result put(String address, String body) throws IOException {
-                addressWrapper.set(address);
-                bodyWrapper.set(body);
                 return new Result("", 200);
             }
 
