@@ -48,7 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link HueLightHandler} is the handler for a hue light. It uses the {@link HueBridgeHandler} to execute the actual
+ * {@link HueLightHandler} is the handler for a hue light. It uses the {@link HueClient} to execute the actual
  * command.
  *
  * @author Dennis Nobel - Initial contribution of hue binding
@@ -99,7 +99,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
 
     private boolean propertiesInitializedSuccessfully = false;
 
-    private @Nullable HueBridgeHandler bridgeHandler;
+    private @Nullable HueClient hueClient;
 
     @Nullable
     ScheduledFuture<?> scheduledFuture;
@@ -122,7 +122,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
             lightId = configLightId;
             // note: this call implicitly registers our handler as a listener on
             // the bridge
-            if (getHueBridgeHandler() != null) {
+            if (getHueClient() != null) {
                 if (bridgeStatus == ThingStatus.ONLINE) {
                     initializeProperties();
                     updateStatus(ThingStatus.ONLINE);
@@ -169,17 +169,17 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     public void dispose() {
         logger.debug("Handler disposes. Unregistering listener.");
         if (lightId != null) {
-            HueBridgeHandler bridgeHandler = getHueBridgeHandler();
+            HueClient bridgeHandler = getHueClient();
             if (bridgeHandler != null) {
                 bridgeHandler.unregisterLightStatusListener(this);
-                this.bridgeHandler = null;
+                this.hueClient = null;
             }
             lightId = null;
         }
     }
 
     private @Nullable FullLight getLight() {
-        HueBridgeHandler bridgeHandler = getHueBridgeHandler();
+        HueClient bridgeHandler = getHueClient();
         if (bridgeHandler != null) {
             return bridgeHandler.getLightById(lightId);
         }
@@ -188,7 +188,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        HueBridgeHandler hueBridge = getHueBridgeHandler();
+        HueClient hueBridge = getHueClient();
         if (hueBridge == null) {
             logger.warn("hue bridge handler not found. Cannot handle command without bridge.");
             return;
@@ -349,21 +349,21 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         return lightUpdate;
     }
 
-    synchronized @Nullable HueBridgeHandler getHueBridgeHandler() {
-        if (this.bridgeHandler == null) {
+    synchronized @Nullable HueClient getHueClient() {
+        if (this.hueClient == null) {
             Bridge bridge = getBridge();
             if (bridge == null) {
                 return null;
             }
             ThingHandler handler = bridge.getHandler();
-            if (handler instanceof HueBridgeHandler) {
-                this.bridgeHandler = (HueBridgeHandler) handler;
-                this.bridgeHandler.registerLightStatusListener(this);
+            if (handler instanceof HueClient) {
+                this.hueClient = (HueClient) handler;
+                this.hueClient.registerLightStatusListener(this);
             } else {
                 return null;
             }
         }
-        return this.bridgeHandler;
+        return this.hueClient;
     }
 
     @Override
@@ -419,7 +419,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
 
     @Override
     public void channelLinked(ChannelUID channelUID) {
-        HueBridgeHandler handler = getHueBridgeHandler();
+        HueClient handler = getHueClient();
         if (handler != null) {
             FullLight light = handler.getLightById(lightId);
             if (light != null) {
