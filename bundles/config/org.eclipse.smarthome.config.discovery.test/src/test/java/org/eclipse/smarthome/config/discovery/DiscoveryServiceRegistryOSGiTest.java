@@ -14,7 +14,7 @@ package org.eclipse.smarthome.config.discovery;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -35,7 +35,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.osgi.framework.ServiceRegistration;
 
@@ -182,7 +181,7 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
                 mockScanListener));
         assertTrue(discoveryServiceRegistry.abortScan(new ThingTypeUID(ANY_BINDING_ID_1, ANY_THING_TYPE_1)));
 
-        waitForAssert(() -> verify(mockScanListener, times(1)).onErrorOccurred(Matchers.isA(Exception.class)));
+        waitForAssert(() -> verify(mockScanListener, times(1)).onErrorOccurred(isA(Exception.class)));
         verifyNoMoreInteractions(mockScanListener);
     }
 
@@ -193,7 +192,7 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
         discoveryServiceRegistry.addDiscoveryListener(mockDiscoveryListener);
         discoveryServiceRegistry.startScan(new ThingTypeUID(ANY_BINDING_ID_1, ANY_THING_TYPE_1), mockScanListener);
 
-        waitForAssert(() -> verify(mockScanListener, times(1)).onFinished(), 2000, DFL_SLEEP_TIME);
+        waitForAssert(() -> verify(mockScanListener, times(1)).onFinished());
         verify(mockDiscoveryListener, times(1)).thingDiscovered(any(), any());
         verifyNoMoreInteractions(mockScanListener);
         verifyNoMoreInteractions(mockDiscoveryListener);
@@ -220,8 +219,8 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
         discoveryServiceRegistry.startScan(new ThingTypeUID(ANY_BINDING_ID_1, ANY_THING_TYPE_1), mockScanListener1);
         discoveryServiceRegistry.startScan(new ThingTypeUID(ANY_BINDING_ID_2, ANY_THING_TYPE_2), mockScanListener2);
 
-        waitForAssert(() -> verify(mockScanListener1, times(1)).onFinished(), 2000, DFL_SLEEP_TIME);
-        waitForAssert(() -> verify(mockScanListener2, times(1)).onFinished(), 2000, DFL_SLEEP_TIME);
+        waitForAssert(() -> verify(mockScanListener1, times(1)).onFinished());
+        waitForAssert(() -> verify(mockScanListener2, times(1)).onFinished());
         verify(mockDiscoveryListener, times(2)).thingDiscovered(any(), any());
 
         assertThat(inbox.getAll().size(), is(2));
@@ -231,7 +230,7 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
 
         // start discovery again
         discoveryServiceRegistry.startScan(new ThingTypeUID(ANY_BINDING_ID_1, ANY_THING_TYPE_1), mockScanListener1);
-        waitForAssert(() -> verify(mockScanListener1, times(2)).onFinished(), 2000, DFL_SLEEP_TIME);
+        waitForAssert(() -> verify(mockScanListener1, times(2)).onFinished());
         verify(mockDiscoveryListener, times(3)).thingDiscovered(any(), any());
 
         assertThat(inbox.getAll().size(), is(3));
@@ -248,7 +247,7 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
         discoveryServiceRegistry.addDiscoveryListener(mockDiscoveryListener);
         discoveryServiceRegistry.startScan(new ThingTypeUID(ANY_BINDING_ID_1, ANY_THING_TYPE_1), mockScanListener1);
 
-        waitForAssert(() -> verify(mockScanListener1, times(1)).onFinished(), 2000, DFL_SLEEP_TIME);
+        waitForAssert(() -> verify(mockScanListener1, times(1)).onFinished());
         verify(mockDiscoveryListener, times(1)).thingDiscovered(any(), any());
 
         assertThat(inbox.getAll().size(), is(1));
@@ -261,7 +260,7 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
 
         // start discovery again
         discoveryServiceRegistry.startScan(new ThingTypeUID(ANY_BINDING_ID_1, ANY_THING_TYPE_1), mockScanListener1);
-        waitForAssert(() -> verify(mockScanListener1, times(2)).onFinished(), 2000, DFL_SLEEP_TIME);
+        waitForAssert(() -> verify(mockScanListener1, times(2)).onFinished());
         verify(mockDiscoveryListener, times(3)).thingDiscovered(any(), any());
 
         assertThat(inbox.getAll().size(), is(3));
@@ -286,7 +285,7 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
         discoveryServiceRegistry.addDiscoveryListener(mockDiscoveryListener);
         discoveryServiceRegistry.startScan(new ThingTypeUID(ANY_BINDING_ID_3, ANY_THING_TYPE_3), mockScanListener1);
 
-        waitForAssert(() -> verify(mockScanListener1, times(1)).onFinished(), 2000, DFL_SLEEP_TIME);
+        waitForAssert(() -> verify(mockScanListener1, times(1)).onFinished());
         verify(mockDiscoveryListener, times(2)).thingDiscovered(any(), any());
 
         // 2 discovery services for the same thing type with different bridges - inbox must contain 2 elements
@@ -309,7 +308,7 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
         // start discovery again
         discoveryServiceRegistry.startScan(new ThingTypeUID(ANY_BINDING_ID_3, ANY_THING_TYPE_3), mockScanListener1);
 
-        waitForAssert(() -> verify(mockScanListener1, times(1)).onFinished(), 2000, DFL_SLEEP_TIME);
+        waitForAssert(() -> verify(mockScanListener1, times(1)).onFinished());
         verify(mockDiscoveryListener, times(4)).thingDiscovered(any(), any());
 
         // 2 discovery services for the same thing type with different bridges - inbox must now contain 4 elements
@@ -342,7 +341,7 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
         discoveryServiceRegistry.removeDiscoveryListener(mockDiscoveryListener);
         discoveryServiceRegistry.startScan(new ThingTypeUID(ANY_BINDING_ID_1, ANY_THING_TYPE_1), mockScanListener1);
 
-        waitForAssert(() -> verify(mockScanListener1, times(1)).onFinished(), 2000, DFL_SLEEP_TIME);
+        waitForAssert(() -> verify(mockScanListener1, times(1)).onFinished());
         verifyNoMoreInteractions(mockDiscoveryListener);
     }
 
@@ -356,7 +355,7 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
         discoveryServiceRegistry.addDiscoveryListener(mockDiscoveryListener);
         discoveryServiceRegistry.startScan(new ThingTypeUID(ANY_BINDING_ID_1, ANY_THING_TYPE_1), mockScanListener1);
 
-        waitForAssert(() -> mockScanListener1.onFinished(), 2000, DFL_SLEEP_TIME);
+        waitForAssert(() -> mockScanListener1.onFinished());
         verify(mockDiscoveryListener, times(2)).thingDiscovered(any(), any());
     }
 
@@ -365,7 +364,7 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
         ScanListener mockScanListener1 = mock(ScanListener.class);
         discoveryServiceRegistry.startScan(ANY_BINDING_ID_1, mockScanListener1);
 
-        waitForAssert(() -> verify(mockScanListener1, times(1)).onFinished(), 2000, DFL_SLEEP_TIME);
+        waitForAssert(() -> verify(mockScanListener1, times(1)).onFinished());
     }
 
     @Test
@@ -417,7 +416,7 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
 
         discoveryServiceRegistry.startScan(new ThingTypeUID(EXTENDED_BINDING_ID, EXTENDED_THING_TYPE),
                 mockScanListener1);
-        waitForAssert(() -> verify(mockScanListener1, times(1)).onFinished(), 2000, DFL_SLEEP_TIME);
+        waitForAssert(() -> verify(mockScanListener1, times(1)).onFinished());
 
         // verify that the existing DiscoveryResult can be accessed
         assertNotNull(extendedDiscoveryServiceMock.discoveryServiceCallback.getExistingDiscoveryResult(thingUID));
