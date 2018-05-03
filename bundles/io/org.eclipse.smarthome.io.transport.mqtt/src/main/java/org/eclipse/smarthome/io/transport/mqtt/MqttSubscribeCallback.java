@@ -16,12 +16,12 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Implement this to be notified of the success or error of a
- * {@link MqttBrokerConnection#publish(String, byte[], MqttPublishCallback)}.
+ * {@link MqttBrokerConnection#addConsumer(MqttMessageSubscriber)}.
  *
  * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
-public interface MqttPublishCallback {
+public interface MqttSubscribeCallback {
     public void onSuccess(MqttPublishResult result);
 
     public void onFailure(MqttPublishResult result, Throwable error);

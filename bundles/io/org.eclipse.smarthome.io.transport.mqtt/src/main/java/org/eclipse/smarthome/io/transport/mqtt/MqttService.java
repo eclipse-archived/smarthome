@@ -84,8 +84,7 @@ public class MqttService {
      * @param brokerName to look for.
      * @return existing connection or null
      */
-    @Nullable
-    public MqttBrokerConnection getBrokerConnection(String brokerName) {
+    public @Nullable MqttBrokerConnection getBrokerConnection(String brokerName) {
         synchronized (brokerConnections) {
             return brokerConnections.get(brokerName);
         }
@@ -122,8 +121,7 @@ public class MqttService {
      * @throws ConfigurationException Most likely your provided host is invalid.
      * @throws MqttException
      */
-    @Nullable
-    public MqttBrokerConnection addBrokerConnection(String brokerID, MqttBrokerConnectionConfig config)
+    public @Nullable MqttBrokerConnection addBrokerConnection(String brokerID, MqttBrokerConnectionConfig config)
             throws ConfigurationException, MqttException {
         MqttBrokerConnection connection;
         synchronized (brokerConnections) {
@@ -165,8 +163,7 @@ public class MqttService {
      * @param brokerName The broker ID
      * @return Returns the removed broker connection, or null if there was none with the given name.
      */
-    @Nullable
-    public MqttBrokerConnection removeBrokerConnection(String brokerID) {
+    public @Nullable MqttBrokerConnection removeBrokerConnection(String brokerID) {
         synchronized (brokerConnections) {
             final @Nullable MqttBrokerConnection connection = brokerConnections.remove(brokerID);
             if (connection != null) {
