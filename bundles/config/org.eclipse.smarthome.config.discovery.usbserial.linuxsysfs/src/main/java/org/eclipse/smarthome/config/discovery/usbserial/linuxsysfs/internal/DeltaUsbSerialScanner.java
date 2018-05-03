@@ -58,6 +58,14 @@ public class DeltaUsbSerialScanner {
         return new Delta<>(added, removed, unchanged);
     }
 
+    /**
+     * @return <code>true</code> if the used {@link UsbSerialScanner} can perform scans on this system,
+     *         <code>false</code> otherwise.
+     */
+    public boolean canPerformScans() {
+        return usbSerialScanner.canPerformScans();
+    }
+
     private <T> Set<T> setDifference(Set<T> set1, Set<T> set2) {
         Set<T> result = new HashSet<>(set1);
         result.removeAll(set2);

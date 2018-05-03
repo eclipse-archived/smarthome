@@ -70,6 +70,7 @@ public class PollingUsbSerialScannerTest {
         UsbSerialDeviceInformation usb3 = usbDeviceInfoGenerator.generate();
 
         when(usbSerialScanner.scan()).thenReturn(new HashSet<>(asList(usb1, usb2)));
+        when(usbSerialScanner.canPerformScans()).thenReturn(true);
 
         pollingScanner.doSingleScan();
 
@@ -91,6 +92,7 @@ public class PollingUsbSerialScannerTest {
 
         when(usbSerialScanner.scan()).thenReturn(new HashSet<>(asList(usb1, usb2)))
                 .thenReturn(new HashSet<>(asList(usb2, usb3)));
+        when(usbSerialScanner.canPerformScans()).thenReturn(true);
 
         pollingScanner.unregisterDiscoveryListener(discoveryListener);
         pollingScanner.doSingleScan();
@@ -118,6 +120,7 @@ public class PollingUsbSerialScannerTest {
 
         when(usbSerialScanner.scan()).thenReturn(new HashSet<>(asList(usb1, usb2)))
                 .thenReturn(new HashSet<>(asList(usb2, usb3)));
+        when(usbSerialScanner.canPerformScans()).thenReturn(true);
 
         pollingScanner.startBackgroundScanning();
 
@@ -135,6 +138,22 @@ public class PollingUsbSerialScannerTest {
 
         verify(discoveryListener, times(1)).usbSerialDeviceDiscovered(usb3);
         verify(discoveryListener, never()).usbSerialDeviceRemoved(usb3);
+    }
+
+    @Test
+    public void testNoBackgroundScanningWhenNoScansPossible() throws IOException, InterruptedException {
+        when(usbSerialScanner.scan()).thenReturn(new HashSet<>(asList(usbDeviceInfoGenerator.generate())));
+        when(usbSerialScanner.canPerformScans()).thenReturn(false);
+
+        pollingScanner.startBackgroundScanning();
+
+        Thread.sleep(1500);
+
+        pollingScanner.stopBackgroundScanning();
+
+        // Expectation: discovery listener never called, as usbSerialScanner indicates that no scans possible
+
+        verify(discoveryListener, never()).usbSerialDeviceDiscovered(any(UsbSerialDeviceInformation.class));
     }
 
 }
