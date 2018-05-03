@@ -21,6 +21,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
+import org.eclipse.smarthome.config.discovery.DiscoveryServiceCallback;
+import org.eclipse.smarthome.config.discovery.ExtendedDiscoveryService;
 import org.eclipse.smarthome.config.discovery.upnp.UpnpDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -46,7 +48,8 @@ import org.slf4j.LoggerFactory;
  *
  */
 @Component(immediate = true, service = DiscoveryService.class, configurationPid = "discovery.upnp")
-public class UpnpDiscoveryService extends AbstractDiscoveryService implements RegistryListener {
+public class UpnpDiscoveryService extends AbstractDiscoveryService
+        implements RegistryListener, ExtendedDiscoveryService {
 
     private final Logger logger = LoggerFactory.getLogger(UpnpDiscoveryService.class);
 
@@ -54,6 +57,8 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
     private final Set<org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant> oldParticipants = new CopyOnWriteArraySet<>();
 
     private final Set<UpnpDiscoveryParticipant> participants = new CopyOnWriteArraySet<>();
+
+    private DiscoveryServiceCallback discoveryServiceCallback;
 
     public UpnpDiscoveryService() {
         super(5);
@@ -84,6 +89,10 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addUpnpDiscoveryParticipant(UpnpDiscoveryParticipant participant) {
+        if (participant instanceof ExtendedDiscoveryService) {
+            ((ExtendedDiscoveryService) participant).setDiscoveryServiceCallback(discoveryServiceCallback);
+        }
+
         this.participants.add(participant);
 
         if (upnpService != null) {
@@ -98,6 +107,10 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
     }
 
     protected void removeUpnpDiscoveryParticipant(UpnpDiscoveryParticipant participant) {
+        if (participant instanceof ExtendedDiscoveryService) {
+            ((ExtendedDiscoveryService) participant).setDiscoveryServiceCallback(null);
+        }
+
         this.participants.remove(participant);
     }
 
@@ -238,6 +251,17 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
 
     @Override
     public void remoteDeviceDiscoveryFailed(Registry registry, RemoteDevice device, Exception ex) {
+    }
+
+    @Override
+    public void setDiscoveryServiceCallback(DiscoveryServiceCallback discoveryServiceCallback) {
+        this.discoveryServiceCallback = discoveryServiceCallback;
+
+        for (UpnpDiscoveryParticipant participant : participants) {
+            if (participant instanceof ExtendedDiscoveryService) {
+                ((ExtendedDiscoveryService) participant).setDiscoveryServiceCallback(discoveryServiceCallback);
+            }
+        }
     }
 
 }
