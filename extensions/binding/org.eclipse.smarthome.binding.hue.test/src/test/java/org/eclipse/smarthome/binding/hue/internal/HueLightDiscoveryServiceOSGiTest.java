@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler;
 import org.eclipse.smarthome.binding.hue.internal.discovery.HueLightDiscoveryService;
@@ -116,7 +117,7 @@ public class HueLightDiscoveryServiceOSGiTest extends AbstractHueOSGiTest {
         light.setModelID("LCT001");
         light.setType("Extended color light");
 
-        AsyncResultWrapper<DiscoveryResult> resultWrapper = new AsyncResultWrapper<DiscoveryResult>();
+        AtomicReference<DiscoveryResult> resultWrapper = new AtomicReference<>();
 
         registerDiscoveryListener(new DiscoveryListener() {
             @Override
@@ -137,10 +138,10 @@ public class HueLightDiscoveryServiceOSGiTest extends AbstractHueOSGiTest {
 
         discoveryService.onLightAdded(null, light);
         waitForAssert(() -> {
-            assertTrue(resultWrapper.isSet());
+            assertTrue(resultWrapper.get() != null);
         });
 
-        final DiscoveryResult result = resultWrapper.getWrappedObject();
+        final DiscoveryResult result = resultWrapper.get();
         assertThat(result.getFlag(), is(DiscoveryResultFlag.NEW));
         assertThat(result.getThingUID().toString(), is("hue:0210:testBridge:" + light.getId()));
         assertThat(result.getThingTypeUID(), is(THING_TYPE_EXTENDED_COLOR_LIGHT));
