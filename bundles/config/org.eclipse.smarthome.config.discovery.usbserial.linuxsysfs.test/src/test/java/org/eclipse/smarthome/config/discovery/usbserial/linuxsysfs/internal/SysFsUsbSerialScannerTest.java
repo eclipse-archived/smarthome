@@ -153,6 +153,32 @@ public class SysFsUsbSerialScannerTest {
         assertThat(scanner.scan(), is(empty()));
     }
 
+    @Test
+    public void testCanPerformScans() {
+        // with given test setup, scans can be performed
+        assertThat(scanner.canPerformScans(), is(true));
+    }
+
+    @Test
+    public void testCannotPerformScansWithNonexistingSysDir() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(SYSFS_TTY_DEVICES_DIRECTORY_ATTRIBUTE, rootPath.resolve("someNonexistingDir"));
+        config.put(DEV_DIRECTORY_ATTRIBUTE, rootPath.resolve(DEV_DIR));
+        scanner.modified(config);
+
+        assertThat(scanner.canPerformScans(), is(false));
+    }
+
+    @Test
+    public void testCannotPerformScansWithNonexistingDevDir() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(SYSFS_TTY_DEVICES_DIRECTORY_ATTRIBUTE, rootPath.resolve(SYSFS_TTY_DEVICES_DIR));
+        config.put(DEV_DIRECTORY_ATTRIBUTE, rootPath.resolve("someNonexistingDir"));
+        scanner.modified(config);
+
+        assertThat(scanner.canPerformScans(), is(false));
+    }
+
     private void createDevice(String serialPortName, int vendorId, int productId, String manufacturer, String product,
             String serialNumber, int interfaceNumber, String interfaceDescription,
             DeviceCreationOption... deviceCreationOptions) throws IOException {

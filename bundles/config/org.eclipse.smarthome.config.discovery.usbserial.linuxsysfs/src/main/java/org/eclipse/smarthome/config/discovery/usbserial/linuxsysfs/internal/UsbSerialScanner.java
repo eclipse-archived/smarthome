@@ -37,4 +37,12 @@ public interface UsbSerialScanner {
      */
     Set<UsbSerialDeviceInformation> scan() throws IOException;
 
+    /**
+     * {@link UsbSerialScanner}s might be able to perform scans only on certain platforms, or with proper configuration.
+     * {@link UsbSerialScanner}s can indicate whether they are able to perform scans using this method.
+     *
+     * @return <code>true</code> if able to perform scans, and <code>false</code> otherwise.
+     */
+    boolean canPerformScans();
+
 }
