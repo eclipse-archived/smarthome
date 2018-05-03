@@ -71,7 +71,7 @@ public class MqttBrokerConnectionServiceInstance {
         if (configMap == null || configMap.isEmpty() || mqttService == null) {
             return;
         }
-        final @NonNull MqttService service = (@NonNull MqttService) mqttService;
+        final @NonNull MqttServiceImpl service = (@NonNull MqttServiceImpl) mqttService;
 
         // Parse configuration
         MqttBrokerConnectionConfig config = new Configuration(configMap).as(MqttBrokerConnectionConfig.class);

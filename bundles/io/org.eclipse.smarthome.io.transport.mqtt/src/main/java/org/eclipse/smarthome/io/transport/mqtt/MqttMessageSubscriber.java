@@ -18,7 +18,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * Implement this interface and register on the {@see MqttBrokerConnection} to get notified
  * of incoming Mqtt messages on the given topic.
  *
- * @author David Graeff
+ * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
 public interface MqttMessageSubscriber {
@@ -29,9 +29,4 @@ public interface MqttMessageSubscriber {
      * @param payload content of the message.
      */
     public void processMessage(String topic, byte[] payload);
-
-    /**
-     * @return topic to subscribe to. May contain + or # wildcards
-     */
-    public String getTopic();
 }

@@ -15,6 +15,7 @@ package org.eclipse.smarthome.io.transport.mqtt.reconnect;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
+import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.eclipse.smarthome.io.transport.mqtt.MqttConnectionObserver;
 
 /**
@@ -30,17 +31,17 @@ public abstract class AbstractReconnectStrategy {
     /**
      * Will be called by {@see MqttBrokerConnection.setReconnectPolicy()}.
      *
-     * @param brokerConnection The broker connection
+     * @param mqttBrokerConnectionImpl The broker connection
      */
-    public void setBrokerConnection(MqttBrokerConnection brokerConnection) {
-        this.brokerConnection = brokerConnection;
+    public void setBrokerConnection(MqttBrokerConnection mqttBrokerConnectionImpl) {
+        this.brokerConnection = mqttBrokerConnectionImpl;
     }
 
     /**
      * Return the brokerConnection object that this reconnect policy is assigned to.
      */
     public @Nullable MqttBrokerConnection getBrokerConnection() {
-        return brokerConnection;
+        return (MqttBrokerConnection) brokerConnection;
     }
 
     /**
