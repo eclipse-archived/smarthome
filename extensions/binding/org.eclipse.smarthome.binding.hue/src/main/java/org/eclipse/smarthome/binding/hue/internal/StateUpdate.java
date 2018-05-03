@@ -27,7 +27,7 @@ import org.eclipse.smarthome.binding.hue.internal.State.Effect;
 public class StateUpdate {
     ArrayList<Command> commands = new ArrayList<>();
 
-    String toJson() {
+    public String toJson() {
         StringBuilder json = new StringBuilder("{");
 
         for (int i = 0; i < commands.size(); i++) {

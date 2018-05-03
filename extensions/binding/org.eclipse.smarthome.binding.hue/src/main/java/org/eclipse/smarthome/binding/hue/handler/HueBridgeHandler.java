@@ -71,7 +71,7 @@ import org.slf4j.LoggerFactory;
  * @author Denis Dudnik - switched to internally integrated source of Jue library
  */
 @NonNullByDefault
-public class HueBridgeHandler extends ConfigStatusBridgeHandler {
+public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueClient {
 
     private static final String LIGHT_STATE_ADDED = "added";
 
@@ -196,6 +196,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
         // not needed
     }
 
+    @Override
     public void updateLightState(FullLight light, StateUpdate stateUpdate) {
         if (hueBridge != null) {
             try {
@@ -397,6 +398,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
                 "@text/offline.conf-error-creation-username");
     }
 
+    @Override
     public boolean registerLightStatusListener(LightStatusListener lightStatusListener) {
         boolean result = lightStatusListeners.add(lightStatusListener);
         if (result) {
@@ -409,6 +411,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
         return result;
     }
 
+    @Override
     public boolean unregisterLightStatusListener(LightStatusListener lightStatusListener) {
         boolean result = lightStatusListeners.remove(lightStatusListener);
         if (result) {
@@ -417,6 +420,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
         return result;
     }
 
+    @Override
     public @Nullable FullLight getLightById(String lightId) {
         return lastLightStates.get(lightId);
     }

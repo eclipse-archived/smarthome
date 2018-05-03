@@ -288,7 +288,6 @@ public class HueBridgeNupnpDiscoveryOSGITest extends JavaOSGiTest {
 
         // invalid bridge description
         expBridgeDescription = "";
-        ;
         discoveryResult = "[{\"id\":\"001788fffe20057f\",\"internalipaddress\":" + ip1 + "}]";
         sut.startScan();
         waitForAssert(() -> {
