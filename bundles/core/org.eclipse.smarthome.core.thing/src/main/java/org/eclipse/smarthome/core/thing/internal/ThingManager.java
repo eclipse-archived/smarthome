@@ -144,6 +144,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     private final Map<ThingUID, Lock> thingLocks = new HashMap<>();
     private final Set<String> loadedXmlThingTypes = new CopyOnWriteArraySet<>();
     private SafeCaller safeCaller;
+    private volatile boolean active = false;
 
     private final ThingHandlerCallback thingHandlerCallback = new ThingHandlerCallback() {
 
@@ -924,16 +925,22 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     }
 
     @Activate
-    protected void activate(ComponentContext componentContext) {
+    protected synchronized void activate(ComponentContext componentContext) {
         readyService.registerTracker(this, new ReadyMarkerFilter().withType(XML_THING_TYPE));
-        this.thingRegistry.addThingTracker(this);
+        for (ThingHandlerFactory factory : thingHandlerFactories) {
+            handleThingHandlerFactoryAddition(getBundleName(factory));
+        }
+        thingRegistry.addThingTracker(this);
+        active = true;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
+    protected synchronized void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         logger.debug("Thing handler factory '{}' added", thingHandlerFactory.getClass().getSimpleName());
         thingHandlerFactories.add(thingHandlerFactory);
-        handleThingHandlerFactoryAddition(getBundleName(thingHandlerFactory));
+        if (active) {
+            handleThingHandlerFactoryAddition(getBundleName(thingHandlerFactory));
+        }
     }
 
     @Reference
@@ -1006,14 +1013,24 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     }
 
     @Deactivate
-    protected void deactivate(ComponentContext componentContext) {
-        this.thingRegistry.removeThingTracker(this);
+    protected synchronized void deactivate(ComponentContext componentContext) {
+        active = false;
+        thingRegistry.removeThingTracker(this);
+        for (ThingHandlerFactory factory : thingHandlerFactories) {
+            removeThingHandlerFactory(factory);
+        }
         readyService.unregisterTracker(this);
     }
 
-    protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
+    protected synchronized void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         logger.debug("Thing handler factory '{}' removed", thingHandlerFactory.getClass().getSimpleName());
+        thingHandlerFactories.remove(thingHandlerFactory);
+        if (active) {
+            handleThingHandlerFactoryRemoval(thingHandlerFactory);
+        }
+    }
 
+    private void handleThingHandlerFactoryRemoval(ThingHandlerFactory thingHandlerFactory) {
         Set<ThingHandler> handlers = new HashSet<>(thingHandlersByFactory.get(thingHandlerFactory));
         for (ThingHandler thingHandler : handlers) {
             Thing thing = thingHandler.getThing();
@@ -1022,7 +1039,6 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
             }
         }
         thingHandlersByFactory.removeAll(thingHandlerFactory);
-        thingHandlerFactories.remove(thingHandlerFactory);
     }
 
     private synchronized Lock getLockForThing(ThingUID thingUID) {
