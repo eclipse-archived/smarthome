@@ -23,7 +23,10 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
+import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
@@ -162,10 +165,8 @@ public class RuleEngineTest {
      */
     @Test
     public void testRuleConfigNull() {
-        RuleImpl rule3 = new RuleImpl("rule3");
-        rule3.setTriggers(createTriggers("typeUID"));
-        rule3.setConditions(createConditions("typeUID"));
-        rule3.setActions(createActions("typeUID"));
+        Rule rule3 = RuleBuilder.create("rule3").withTriggers(createTriggers("typeUID"))
+                .withConditions(createConditions("typeUID")).withActions(createActions("typeUID")).build();
         ruleEngine.addRule(rule3);
         RuleImpl rule3Get = ruleEngine.getRuntimeRule("rule3");
         Assert.assertNotNull("RuleImpl configuration is null", rule3Get.getConfiguration());
@@ -181,12 +182,9 @@ public class RuleEngineTest {
         Configuration configurations = new Configuration();
         configurations.put("config1", 5);
 
-        RuleImpl rule4 = new RuleImpl("rule4");
-        rule4.setTriggers(createTriggers("typeUID"));
-        rule4.setConditions(createConditions("typeUID"));
-        rule4.setActions(createActions("typeUID"));
-        rule4.setConfigurationDescriptions(configDescriptions);
-        rule4.setConfiguration(configurations);
+        Rule rule4 = RuleBuilder.create("rule4").withTriggers(createTriggers("typeUID"))
+                .withConditions(createConditions("typeUID")).withActions(createActions("typeUID"))
+                .withConfigurationDescriptions(configDescriptions).withConfiguration(configurations).build();
         ruleEngine.addRule(rule4);
         RuleImpl rule4Get = ruleEngine.getRuntimeRule("rule4");
         Configuration rule4cfg = rule4Get.getConfiguration();
@@ -213,27 +211,27 @@ public class RuleEngineTest {
     @Test
     public void testRuleActions() {
         RuleImpl rule1 = createRule();
-        List<Action> actions = rule1.getActions();
+        List<ActionImpl> actions = rule1.getActions();
         ruleEngine.addRule(rule1);
 
         RuleImpl rule1Get = ruleEngine.getRuntimeRule("rule1");
-        List<Action> actionsGet = rule1Get.getActions();
+        List<ActionImpl> actionsGet = rule1Get.getActions();
         Assert.assertNotNull("Null actions list", actionsGet);
         Assert.assertEquals("Empty actions list", 1, actionsGet.size());
         Assert.assertEquals("Returned actions list should not be a copy", actionsGet, rule1Get.getActions());
 
-        actions.add(new Action("actionId2", "typeUID2", null, null));
+        actions.add((ActionImpl) ModuleBuilder.createAction().withId("actionId2").withTypeUID("typeUID2").build());
         ruleEngine.addRule(rule1);
         rule1Get = ruleEngine.getRuntimeRule("rule1");
-        List<Action> actionsGet2 = rule1Get.getActions();
+        List<ActionImpl> actionsGet2 = rule1Get.getActions();
         Assert.assertNotNull("Null actions list", actionsGet2);
         Assert.assertEquals("Action was not added to the rule's list of actions", 2, actionsGet2.size());
         Assert.assertNotNull("RuleImpl action with wrong id is returned", rule1Get.getModule("actionId2"));
 
-        actions.add(new Action("actionId3", "typeUID3", null, null));
+        actions.add((ActionImpl) ModuleBuilder.createAction().withId("actionId3").withTypeUID("typeUID3").build());
         ruleEngine.addRule(rule1); // ruleEngine.update will update the RuleImpl2.moduleMap with the new module
         rule1Get = ruleEngine.getRuntimeRule("rule1");
-        List<Action> actionsGet3 = rule1Get.getActions();
+        List<ActionImpl> actionsGet3 = rule1Get.getActions();
         Assert.assertNotNull("Null actions list", actionsGet3);
         Assert.assertEquals("Action was not added to the rule's list of actions", 3, actionsGet3.size());
         Assert.assertNotNull("RuleImpl modules map was not updated",
@@ -247,20 +245,20 @@ public class RuleEngineTest {
     @Test
     public void testRuleTriggers() {
         RuleImpl rule1 = createRule();
-        List<Trigger> triggers = rule1.getTriggers();
+        List<TriggerImpl> triggers = rule1.getTriggers();
         ruleEngine.addRule(rule1);
         RuleImpl rule1Get = ruleEngine.getRuntimeRule("rule1");
-        List<Trigger> triggersGet = rule1Get.getTriggers();
+        List<TriggerImpl> triggersGet = rule1Get.getTriggers();
         Assert.assertNotNull("Null triggers list", triggersGet);
         Assert.assertEquals("Empty triggers list", 1, triggersGet.size());
         Assert.assertEquals("Returned triggers list should not be a copy", triggersGet, rule1Get.getTriggers());
 
-        triggers.add(new Trigger("triggerId2", "typeUID2", null));
+        triggers.add((TriggerImpl) ModuleBuilder.createTrigger().withId("triggerId2").withTypeUID("typeUID2").build());
         ruleEngine.addRule(rule1); // ruleEngine.update will update the
                                    // RuleImpl2.moduleMap with the new
                                    // module
         RuleImpl rule2Get = ruleEngine.getRuntimeRule("rule1");
-        List<Trigger> triggersGet2 = rule2Get.getTriggers();
+        List<TriggerImpl> triggersGet2 = rule2Get.getTriggers();
         Assert.assertNotNull("Null triggers list", triggersGet2);
         Assert.assertEquals("Trigger was not added to the rule's list of triggers", 2, triggersGet2.size());
         Assert.assertEquals("Returned triggers list should not be a copy", triggersGet2, rule2Get.getTriggers());
@@ -274,18 +272,19 @@ public class RuleEngineTest {
     @Test
     public void testRuleConditions() {
         RuleImpl rule1 = createRule();
-        List<Condition> conditions = rule1.getConditions();
+        List<ConditionImpl> conditions = rule1.getConditions();
         ruleEngine.addRule(rule1);
         RuleImpl rule1Get = ruleEngine.getRuntimeRule("rule1");
-        List<Condition> conditionsGet = rule1Get.getConditions();
+        List<ConditionImpl> conditionsGet = rule1Get.getConditions();
         Assert.assertNotNull("Null conditions list", conditionsGet);
         Assert.assertEquals("Empty conditions list", 1, conditionsGet.size());
         Assert.assertEquals("Returned conditions list should not be a copy", conditionsGet, rule1Get.getConditions());
 
-        conditions.add(new Condition("conditionId2", "typeUID2", null, null));
+        conditions.add(
+                (ConditionImpl) ModuleBuilder.createCondition().withId("conditionId2").withTypeUID("typeUID2").build());
         ruleEngine.addRule(rule1); // ruleEngine.update will update the RuleImpl2.moduleMap with the new module
         RuleImpl rule2Get = ruleEngine.getRuntimeRule("rule1");
-        List<Condition> conditionsGet2 = rule2Get.getConditions();
+        List<ConditionImpl> conditionsGet2 = rule2Get.getConditions();
         Assert.assertNotNull("Null conditions list", conditionsGet2);
         Assert.assertEquals("Condition was not added to the rule's list of conditions", 2, conditionsGet2.size());
         Assert.assertEquals("Returned conditions list should not be a copy", conditionsGet2, rule2Get.getConditions());
@@ -294,20 +293,15 @@ public class RuleEngineTest {
     }
 
     private RuleImpl createRule() {
-        RuleImpl rule = new RuleImpl("rule1");
-        rule.setTriggers(createTriggers("typeUID"));
-        rule.setConditions(createConditions("typeUID"));
-        rule.setActions(createActions("typeUID"));
-        return rule;
+        return (RuleImpl) RuleBuilder.create("rule1").withTriggers(createTriggers("typeUID"))
+                .withConditions(createConditions("typeUID")).withActions(createActions("typeUID")).build();
     }
 
     private RuleImpl createAutoMapRule() {
-        RuleImpl rule = new RuleImpl("AutoMapRule");
-        rule.setTriggers(createTriggers(ModuleTypeRegistryMockup.TRIGGER_TYPE));
-        rule.setConditions(createConditions(ModuleTypeRegistryMockup.CONDITION_TYPE));
-        rule.setActions(createActions(ModuleTypeRegistryMockup.ACTION_TYPE));
-        return rule;
-
+        return (RuleImpl) RuleBuilder.create("AutoMapRule")
+                .withTriggers(createTriggers(ModuleTypeRegistryMockup.TRIGGER_TYPE))
+                .withConditions(createConditions(ModuleTypeRegistryMockup.CONDITION_TYPE))
+                .withActions(createActions(ModuleTypeRegistryMockup.ACTION_TYPE)).build();
     }
 
     private List<Trigger> createTriggers(String type) {
@@ -316,7 +310,8 @@ public class RuleEngineTest {
         configurations.put("a", "x");
         configurations.put("b", "y");
         configurations.put("c", "z");
-        triggers.add(new Trigger("triggerId", type, configurations));
+        triggers.add(ModuleBuilder.createTrigger().withId("triggerId").withTypeUID(type)
+                .withConfiguration(configurations).build());
         return triggers;
     }
 
@@ -331,7 +326,8 @@ public class RuleEngineTest {
         String outputName = "triggerOutput";
         String inputName = "conditionInput";
         inputs.put(inputName, ouputModuleId + "." + outputName);
-        conditions.add(new Condition("conditionId", type, configurations, inputs));
+        conditions.add(ModuleBuilder.createCondition().withId("conditionId").withTypeUID(type)
+                .withConfiguration(configurations).withInputs(inputs).build());
         return conditions;
     }
 
@@ -347,7 +343,8 @@ public class RuleEngineTest {
         String inputName = "actionInput";
         inputs.put(inputName, ouputModuleId + "." + outputName);
         inputs.put("in6", ouputModuleId + "." + outputName);
-        actions.add(new Action("actionId", type, configurations, inputs));
+        actions.add(ModuleBuilder.createAction().withId("actionId").withTypeUID(type).withConfiguration(configurations)
+                .withInputs(inputs).build());
         return actions;
     }
 

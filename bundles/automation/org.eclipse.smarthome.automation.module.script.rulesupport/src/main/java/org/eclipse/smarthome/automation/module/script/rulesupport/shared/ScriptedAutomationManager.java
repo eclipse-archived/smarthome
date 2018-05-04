@@ -19,6 +19,7 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
 import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.automation.module.script.rulesupport.internal.ScriptedCustomModuleHandlerFactory;
 import org.eclipse.smarthome.automation.module.script.rulesupport.internal.ScriptedCustomModuleTypeProvider;
@@ -126,8 +127,9 @@ public class ScriptedAutomationManager {
             for (Condition cond : element.getConditions()) {
                 Condition toAdd = cond;
                 if (cond.getId() == null || cond.getId().isEmpty()) {
-                    toAdd = new Condition(Integer.toString(moduleIndex++), cond.getTypeUID(), cond.getConfiguration(),
-                            cond.getInputs());
+                    toAdd = ModuleBuilder.createCondition().withId(Integer.toString(moduleIndex++))
+                            .withTypeUID(cond.getTypeUID()).withConfiguration(cond.getConfiguration())
+                            .withInputs(cond.getInputs()).build();
                 }
 
                 conditions.add(toAdd);
@@ -143,8 +145,8 @@ public class ScriptedAutomationManager {
             for (Trigger trigger : element.getTriggers()) {
                 Trigger toAdd = trigger;
                 if (trigger.getId() == null || trigger.getId().isEmpty()) {
-                    toAdd = new Trigger(Integer.toString(moduleIndex++), trigger.getTypeUID(),
-                            trigger.getConfiguration());
+                    toAdd = ModuleBuilder.createTrigger().withId(Integer.toString(moduleIndex++))
+                            .withTypeUID(trigger.getTypeUID()).withConfiguration(trigger.getConfiguration()).build();
                 }
 
                 triggers.add(toAdd);
@@ -162,8 +164,8 @@ public class ScriptedAutomationManager {
             String privId = addPrivateActionHandler(
                     new SimpleRuleActionHandlerDelegate((SimpleRuleActionHandler) element));
 
-            Action scriptedAction = new Action(Integer.toString(moduleIndex++), "jsr223.ScriptedAction",
-                    new Configuration(), null);
+            Action scriptedAction = ModuleBuilder.createAction().withId(Integer.toString(moduleIndex++))
+                    .withTypeUID("jsr223.ScriptedAction").withConfiguration(new Configuration()).build();
             scriptedAction.getConfiguration().put("privId", privId);
             actions.add(scriptedAction);
         }

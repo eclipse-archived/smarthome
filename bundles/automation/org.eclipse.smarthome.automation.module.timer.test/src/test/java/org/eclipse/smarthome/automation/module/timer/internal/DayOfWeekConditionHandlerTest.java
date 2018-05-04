@@ -37,6 +37,7 @@ import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
 import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.automation.module.core.handler.ItemCommandActionHandler;
 import org.eclipse.smarthome.automation.module.core.handler.ItemStateTriggerHandler;
@@ -121,18 +122,23 @@ public class DayOfWeekConditionHandlerTest extends JavaOSGiTest {
     public void assertThatConditionWorks() {
         Configuration conditionConfiguration = new Configuration(Collections.singletonMap("days",
                 Arrays.asList(new String[] { "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN" })));
-        Condition condition = new Condition("id", DayOfWeekConditionHandler.MODULE_TYPE_ID, conditionConfiguration,
-                null);
+        Condition condition = ModuleBuilder.createCondition().withId("id")
+                .withTypeUID(DayOfWeekConditionHandler.MODULE_TYPE_ID).withConfiguration(conditionConfiguration)
+                .build();
         DayOfWeekConditionHandler handler = new DayOfWeekConditionHandler(condition);
 
         assertThat(handler.isSatisfied(null), is(true));
 
-        condition.setConfiguration(new Configuration(Collections.singletonMap("days", Collections.emptyList())));
+        condition = ModuleBuilder.createCondition(condition)
+                .withConfiguration(new Configuration(Collections.singletonMap("days", Collections.emptyList())))
+                .build();
         handler = new DayOfWeekConditionHandler(condition);
         assertThat(handler.isSatisfied(null), is(false));
 
-        condition.setConfiguration(
-                new Configuration(Collections.singletonMap("days", Collections.singletonList(dayOfWeek))));
+        condition = ModuleBuilder.createCondition(condition)
+                .withConfiguration(
+                        new Configuration(Collections.singletonMap("days", Collections.singletonList(dayOfWeek))))
+                .build();
         handler = new DayOfWeekConditionHandler(condition);
         assertThat(handler.isSatisfied(null), is(true));
     }
@@ -159,19 +165,19 @@ public class DayOfWeekConditionHandlerTest extends JavaOSGiTest {
          */
         logger.info("Create rule");
         Configuration triggerConfig = new Configuration(Collections.singletonMap("itemName", testItemName1));
-        List<Trigger> triggers = Collections
-                .singletonList(new Trigger("MyTrigger", ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID, triggerConfig));
+        List<Trigger> triggers = Collections.singletonList(ModuleBuilder.createTrigger().withId("MyTrigger")
+                .withTypeUID(ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID).withConfiguration(triggerConfig).build());
 
         Configuration conditionConfig = new Configuration(Collections.singletonMap("days", dayOfWeek));
-        List<Condition> conditions = Collections.singletonList(
-                new Condition("MyDOWCondition", DayOfWeekConditionHandler.MODULE_TYPE_ID, conditionConfig, null));
+        List<Condition> conditions = Collections.singletonList(ModuleBuilder.createCondition().withId("MyDOWCondition")
+                .withTypeUID(DayOfWeekConditionHandler.MODULE_TYPE_ID).withConfiguration(conditionConfig).build());
 
         Map<String, Object> cfgEntries = new HashMap<>();
         cfgEntries.put("itemName", testItemName2);
         cfgEntries.put("command", "ON");
         Configuration actionConfig = new Configuration(cfgEntries);
-        List<Action> actions = Collections.singletonList(new Action("MyItemPostCommandAction",
-                ItemCommandActionHandler.ITEM_COMMAND_ACTION, actionConfig, null));
+        List<Action> actions = Collections.singletonList(ModuleBuilder.createAction().withId("MyItemPostCommandAction")
+                .withTypeUID(ItemCommandActionHandler.ITEM_COMMAND_ACTION).withConfiguration(actionConfig).build());
 
         // prepare the execution
         EventPublisher eventPublisher = getService(EventPublisher.class);
@@ -223,9 +229,12 @@ public class DayOfWeekConditionHandlerTest extends JavaOSGiTest {
         logger.info("item state is ON");
 
         // now make the condition fail
-        rule.getConditions().get(0)
-                .setConfiguration(new Configuration(Collections.singletonMap("days", Collections.emptyList())));
-        ruleRegistry.update(rule);
+        Rule rule2 = RuleBuilder.create(rule)
+                .withConditions(ModuleBuilder.createCondition(rule.getConditions().get(0))
+                        .withConfiguration(new Configuration(Collections.singletonMap("days", Collections.emptyList())))
+                        .build())
+                .build();
+        ruleRegistry.update(rule2);
 
         // prepare the execution
         itemEvent = null;

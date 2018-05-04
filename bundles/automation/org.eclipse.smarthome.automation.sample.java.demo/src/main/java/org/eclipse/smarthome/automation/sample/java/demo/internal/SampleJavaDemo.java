@@ -19,6 +19,7 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.Visibility;
+import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
 import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.osgi.service.component.ComponentContext;
@@ -44,12 +45,14 @@ public class SampleJavaDemo {
     void addRule() {
         final Configuration triggerConfig = new Configuration();
         triggerConfig.put("itemName", "DemoSwitch");
-        final Trigger ruleTrigger = new Trigger("RuleTrigger", "ItemStateChangeTrigger", triggerConfig);
+        final Trigger ruleTrigger = ModuleBuilder.createTrigger().withId("RuleTrigger")
+                .withTypeUID("ItemStateChangeTrigger").withConfiguration(triggerConfig).build();
 
         final Configuration actionConfig = new Configuration();
         actionConfig.put("itemName", "DemoDimmer");
         actionConfig.put("command", "ON");
-        final Action ruleAction = new Action("RuleAction", "ItemPostCommandAction", actionConfig, null);
+        final Action ruleAction = ModuleBuilder.createAction().withId("RuleAction").withTypeUID("ItemPostCommandAction")
+                .withConfiguration(actionConfig).build();
 
         final ArrayList<Trigger> triggers = new ArrayList<Trigger>();
         triggers.add(ruleTrigger);

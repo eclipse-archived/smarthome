@@ -16,10 +16,8 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
-import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
 import org.eclipse.smarthome.automation.core.util.ReferenceResolver;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.junit.Assert;
@@ -93,15 +91,17 @@ public class ReferenceResolverUtilTest {
     @Test
     public void testModuleConfigurationResolving() {
         // test trigger configuration.
-        Module trigger = new Trigger(null, null, new Configuration(moduleConfiguration));
+        Module trigger = ModuleBuilder.createTrigger().withConfiguration(new Configuration(moduleConfiguration))
+                .build();
         ReferenceResolver.updateConfiguration(trigger.getConfiguration(), context, logger);
         Assert.assertEquals(trigger.getConfiguration(), new Configuration(expectedModuleConfiguration));
         // test condition configuration.
-        Module condition = new Condition(null, null, new Configuration(moduleConfiguration), null);
+        Module condition = ModuleBuilder.createCondition().withConfiguration(new Configuration(moduleConfiguration))
+                .build();
         ReferenceResolver.updateConfiguration(condition.getConfiguration(), context, logger);
         Assert.assertEquals(condition.getConfiguration(), new Configuration(expectedModuleConfiguration));
         // test action configuration.
-        Module action = new Action(null, null, new Configuration(moduleConfiguration), null);
+        Module action = ModuleBuilder.createAction().withConfiguration(new Configuration(moduleConfiguration)).build();
         ReferenceResolver.updateConfiguration(action.getConfiguration(), context, logger);
         Assert.assertEquals(action.getConfiguration(), new Configuration(expectedModuleConfiguration));
     }
@@ -109,11 +109,11 @@ public class ReferenceResolverUtilTest {
     @Test
     public void testModuleInputResolving() {
         // test Composite child ModuleImpl(condition) context
-        Module condition = new Condition(null, null, null, compositeChildModuleInputsReferences);
+        Module condition = ModuleBuilder.createCondition().withInputs(compositeChildModuleInputsReferences).build();
         Map<String, Object> conditionContext = ReferenceResolver.getCompositeChildContext(condition, context);
         Assert.assertEquals(conditionContext, expectedCompositeChildModuleContext);
         // test Composite child ModuleImpl(action) context
-        Module action = new Action(null, null, null, compositeChildModuleInputsReferences);
+        Module action = ModuleBuilder.createAction().withInputs(compositeChildModuleInputsReferences).build();
         Map<String, Object> actionContext = ReferenceResolver.getCompositeChildContext(action, context);
         Assert.assertEquals(actionContext, expectedCompositeChildModuleContext);
     }

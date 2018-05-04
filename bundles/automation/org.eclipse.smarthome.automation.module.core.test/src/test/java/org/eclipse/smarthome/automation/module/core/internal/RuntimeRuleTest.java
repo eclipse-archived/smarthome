@@ -26,14 +26,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleManager;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.RuleStatusDetail;
-import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
 import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent;
 import org.eclipse.smarthome.automation.module.core.handler.CompareConditionHandler;
@@ -145,8 +144,10 @@ public class RuntimeRuleTest extends JavaOSGiTest {
                 Stream.of(new SimpleEntry<>("itemName", "myLampItem2"), new SimpleEntry<>("command", "ON"))
                         .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
         final Rule rule = RuleBuilder.create("myRule21" + new Random().nextInt())
-                .withTriggers(new Trigger("ItemStateChangeTrigger2", "core.GenericEventTrigger", triggerConfig))
-                .withActions(new Action("ItemPostCommandAction2", "core.ItemCommandAction", actionConfig, null))
+                .withTriggers(ModuleBuilder.createTrigger().withId("ItemStateChangeTrigger2")
+                        .withTypeUID("core.GenericEventTrigger").withConfiguration(triggerConfig).build())
+                .withActions(ModuleBuilder.createAction().withId("ItemPostCommandAction2")
+                        .withTypeUID("core.ItemCommandAction").withConfiguration(actionConfig).build())
                 .withName("RuleByJAVA_API").build();
 
         logger.info("RuleImpl created: {}", rule.getUID());
@@ -236,19 +237,24 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         final Configuration conditionConfig = newRightOperatorConfig("ON", "=");
         final Map<String, String> inputs = Stream.of(new SimpleEntry<>("input", "someTrigger.someoutput"))
                 .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
-        final Condition condition = new Condition("id", "core.GenericCompareCondition", conditionConfig, inputs);
-        final CompareConditionHandler handler = new CompareConditionHandler(condition);
+        Condition condition = ModuleBuilder.createCondition().withId("id").withTypeUID("core.GenericCompareCondition")
+                .withConfiguration(conditionConfig).withInputs(inputs).build();
+        CompareConditionHandler handler = new CompareConditionHandler(condition);
 
         assertSatisfiedHandlerInput(handler, true, OnOffType.ON);
         assertSatisfiedHandlerInput(handler, true, "ON");
         assertSatisfiedHandlerInput(handler, false, OnOffType.OFF);
         assertSatisfiedHandlerInput(handler, false, "OFF");
 
-        condition.setConfiguration(newRightOperatorConfig("21", "="));
+        condition = ModuleBuilder.createCondition(condition).withConfiguration(newRightOperatorConfig("21", "="))
+                .build();
+        handler = new CompareConditionHandler(condition);
         assertSatisfiedHandlerInput(handler, true, 21);
         assertSatisfiedHandlerInput(handler, false, 22);
 
-        condition.setConfiguration(newRightOperatorConfig("21", "<"));
+        condition = ModuleBuilder.createCondition(condition).withConfiguration(newRightOperatorConfig("21", "<"))
+                .build();
+        handler = new CompareConditionHandler(condition);
         assertSatisfiedHandlerInput(handler, true, 20);
         assertSatisfiedHandlerInput(handler, false, 22);
 
@@ -258,30 +264,9 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         assertSatisfiedHandlerInput(handler, true, 20.9d);
         assertSatisfiedHandlerInput(handler, false, 21.1d);
 
-        condition.setConfiguration(newRightOperatorConfig("21", "<="));
-        assertSatisfiedHandlerInput(handler, true, 20);
-        assertSatisfiedHandlerInput(handler, true, 21);
-        assertSatisfiedHandlerInput(handler, false, 22);
-
-        assertSatisfiedHandlerInput(handler, true, 20l);
-        assertSatisfiedHandlerInput(handler, true, 21l);
-        assertSatisfiedHandlerInput(handler, false, 22l);
-
-        assertSatisfiedHandlerInput(handler, true, 20.9d);
-        assertSatisfiedHandlerInput(handler, true, 21.0d);
-        assertSatisfiedHandlerInput(handler, false, 21.1d);
-
-        condition.setConfiguration(newRightOperatorConfig("21", "<"));
-        assertSatisfiedHandlerInput(handler, true, 20);
-        assertSatisfiedHandlerInput(handler, false, 22);
-
-        assertSatisfiedHandlerInput(handler, true, 20l);
-        assertSatisfiedHandlerInput(handler, false, 22l);
-
-        assertSatisfiedHandlerInput(handler, true, 20.9d);
-        assertSatisfiedHandlerInput(handler, false, 21.1d);
-
-        condition.setConfiguration(newRightOperatorConfig("21", "<="));
+        condition = ModuleBuilder.createCondition(condition).withConfiguration(newRightOperatorConfig("21", "<=\""))
+                .build();
+        handler = new CompareConditionHandler(condition);
         assertSatisfiedHandlerInput(handler, true, 20);
         assertSatisfiedHandlerInput(handler, true, 21);
         assertSatisfiedHandlerInput(handler, false, 22);
@@ -294,32 +279,77 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         assertSatisfiedHandlerInput(handler, true, 21.0d);
         assertSatisfiedHandlerInput(handler, false, 21.1d);
 
-        condition.setConfiguration(newRightOperatorConfig(".*anything.*", "matches"));
+        condition = ModuleBuilder.createCondition(condition).withConfiguration(newRightOperatorConfig("21", "<"))
+                .build();
+        handler = new CompareConditionHandler(condition);
+        assertSatisfiedHandlerInput(handler, true, 20);
+        assertSatisfiedHandlerInput(handler, false, 22);
+
+        assertSatisfiedHandlerInput(handler, true, 20l);
+        assertSatisfiedHandlerInput(handler, false, 22l);
+
+        assertSatisfiedHandlerInput(handler, true, 20.9d);
+        assertSatisfiedHandlerInput(handler, false, 21.1d);
+
+        condition = ModuleBuilder.createCondition(condition).withConfiguration(newRightOperatorConfig("21", "<="))
+                .build();
+        handler = new CompareConditionHandler(condition);
+        assertSatisfiedHandlerInput(handler, true, 20);
+        assertSatisfiedHandlerInput(handler, true, 21);
+        assertSatisfiedHandlerInput(handler, false, 22);
+
+        assertSatisfiedHandlerInput(handler, true, 20l);
+        assertSatisfiedHandlerInput(handler, true, 21l);
+        assertSatisfiedHandlerInput(handler, false, 22l);
+
+        assertSatisfiedHandlerInput(handler, true, 20.9d);
+        assertSatisfiedHandlerInput(handler, true, 21.0d);
+        assertSatisfiedHandlerInput(handler, false, 21.1d);
+
+        condition = ModuleBuilder.createCondition(condition)
+                .withConfiguration(newRightOperatorConfig(".*anything.*", "matches")).build();
+        handler = new CompareConditionHandler(condition);
         assertSatisfiedHandlerInput(handler, false, "something matches?");
         assertSatisfiedHandlerInput(handler, true, "anything matches?");
 
         Assert.assertFalse(handler.isSatisfied(Stream.of(new SimpleEntry<>("nothing", "nothing"))
                 .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()))));
 
-        condition.setConfiguration(newRightOperatorConfig("ONOFF", "matches"));
+        condition = ModuleBuilder.createCondition(condition)
+                .withConfiguration(newRightOperatorConfig("ONOFF", "matches")).build();
+        handler = new CompareConditionHandler(condition);
         assertSatisfiedHandlerInput(handler, false, OnOffType.ON);
 
         final Event event = ItemEventFactory.createStateEvent("itemName", OnOffType.OFF, "source");
-        condition.setConfiguration(newRightOperatorInputPropertyConfig(".*ON.*", "matches", "itemName"));
+        condition = ModuleBuilder.createCondition(condition)
+                .withConfiguration(newRightOperatorInputPropertyConfig(".*ON.*", "matches", "itemName")).build();
+        handler = new CompareConditionHandler(condition);
         assertSatisfiedHandlerInput(handler, false, event);
-        condition.setConfiguration(newRightOperatorInputPropertyConfig("itemName", "matches", "itemName"));
+        condition = ModuleBuilder.createCondition(condition)
+                .withConfiguration(newRightOperatorInputPropertyConfig("itemName", "matches", "itemName")).build();
+        handler = new CompareConditionHandler(condition);
         assertSatisfiedHandlerInput(handler, true, event);
 
-        condition.setConfiguration(newRightOperatorConfig("null", "="));
+        condition = ModuleBuilder.createCondition(condition).withConfiguration(newRightOperatorConfig("null", "="))
+                .build();
+        handler = new CompareConditionHandler(condition);
         assertSatisfiedHandlerInput(handler, true, null);
-        condition.setConfiguration(newRightOperatorConfig("notnull", "="));
+        condition = ModuleBuilder.createCondition(condition).withConfiguration(newRightOperatorConfig("notnull", "="))
+                .build();
+        handler = new CompareConditionHandler(condition);
         assertSatisfiedHandlerInput(handler, false, null);
-        condition.setConfiguration(newRightOperatorConfig("ON", "<"));
+        condition = ModuleBuilder.createCondition(condition).withConfiguration(newRightOperatorConfig("ON", "<"))
+                .build();
+        handler = new CompareConditionHandler(condition);
         assertSatisfiedHandlerInput(handler, false, OnOffType.ON);
 
-        condition.setConfiguration(newRightOperatorInputPropertyConfig("ON", "<", "nothing"));
+        condition = ModuleBuilder.createCondition(condition)
+                .withConfiguration(newRightOperatorInputPropertyConfig("ON", "<", "nothing")).build();
+        handler = new CompareConditionHandler(condition);
         assertSatisfiedHandlerInput(handler, false, event);
-        condition.setConfiguration(newRightOperatorInputPropertyConfig("ON", "=", "nothing"));
+        condition = ModuleBuilder.createCondition(condition)
+                .withConfiguration(newRightOperatorInputPropertyConfig("ON", "=", "nothing")).build();
+        handler = new CompareConditionHandler(condition);
         assertSatisfiedHandlerInput(handler, true, "ON");
     }
 
@@ -331,8 +361,10 @@ public class RuntimeRuleTest extends JavaOSGiTest {
                 Stream.of(new SimpleEntry<>("itemName", "myLampItem3"), new SimpleEntry<>("command", "ON"))
                         .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
         final Rule rule = RuleBuilder.create("myRule21" + new Random().nextInt() + "_COMPOSITE")
-                .withTriggers(new Trigger("ItemStateChangeTrigger3", "core.ItemStateChangeTrigger", triggerConfig))
-                .withActions(new Action("ItemPostCommandAction3", "core.ItemCommandAction", actionConfig, null))
+                .withTriggers(ModuleBuilder.createTrigger().withId("ItemStateChangeTrigger3")
+                        .withTypeUID("core.ItemStateChangeTrigger").withConfiguration(triggerConfig).build())
+                .withActions(ModuleBuilder.createAction().withId("ItemPostCommandAction3")
+                        .withTypeUID("core.ItemCommandAction").withConfiguration(actionConfig).build())
                 .withName("RuleByJAVA_API_WithCompositeTrigger").build();
 
         logger.info("RuleImpl created: {}", rule.getUID());
@@ -407,8 +439,11 @@ public class RuntimeRuleTest extends JavaOSGiTest {
                             .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
 
             final Rule rule = RuleBuilder.create(firstRuleAction)
-                    .withTriggers(new Trigger("ItemStateChangeTrigger3", "core.ItemStateChangeTrigger", triggerConfig))
-                    .withActions(new Action("RuleAction", "core.RuleEnablementAction", actionConfig, null)).build();
+                    .withTriggers(ModuleBuilder.createTrigger().withId("ItemStateChangeTrigger3")
+                            .withTypeUID("core.ItemStateChangeTrigger").withConfiguration(triggerConfig).build())
+                    .withActions(ModuleBuilder.createAction().withId("RuleAction")
+                            .withTypeUID("core.RuleEnablementAction").withConfiguration(actionConfig).build())
+                    .build();
 
             ruleRegistry.add(RuleBuilder.create(firstRuleUID).build());
             ruleRegistry.add(RuleBuilder.create(secondRuleUID).build());
@@ -437,8 +472,11 @@ public class RuntimeRuleTest extends JavaOSGiTest {
                             .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
 
             final Rule rule2 = RuleBuilder.create(secondRuleAction)
-                    .withTriggers(new Trigger("ItemStateChangeTrigger3", "core.ItemStateChangeTrigger", triggerConfig2))
-                    .withActions(new Action("RuleAction", "core.RuleEnablementAction", actionConfig2, null)).build();
+                    .withTriggers(ModuleBuilder.createTrigger().withId("ItemStateChangeTrigger3")
+                            .withTypeUID("core.ItemStateChangeTrigger").withConfiguration(triggerConfig2).build())
+                    .withActions(ModuleBuilder.createAction().withId("RuleAction")
+                            .withTypeUID("core.RuleEnablementAction").withConfiguration(actionConfig2).build())
+                    .build();
             ruleRegistry.add(rule2);
 
             eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem3",

@@ -26,12 +26,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleManager;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
-import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
 import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
@@ -98,9 +97,12 @@ public class RunRuleModuleTest extends JavaOSGiTest {
                         .collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()))));
 
         final Rule sceneRule = RuleBuilder.create("exampleSceneRule").withActions(
-                new Action("sceneItemPostCommandAction1", "core.ItemCommandAction", sceneRuleAction1Config, null),
-                new Action("sceneItemPostCommandAction2", "core.ItemCommandAction", sceneRuleAction2Config, null),
-                new Action("sceneItemPostCommandAction3", "core.ItemCommandAction", sceneRuleAction3Config, null))
+                ModuleBuilder.createAction().withId("sceneItemPostCommandAction1").withTypeUID("core.ItemCommandAction")
+                        .withConfiguration(sceneRuleAction1Config).build(),
+                ModuleBuilder.createAction().withId("sceneItemPostCommandAction2").withTypeUID("core.ItemCommandAction")
+                        .withConfiguration(sceneRuleAction2Config).build(),
+                ModuleBuilder.createAction().withId("sceneItemPostCommandAction3").withTypeUID("core.ItemCommandAction")
+                        .withConfiguration(sceneRuleAction3Config).build())
                 .withName("Example Scene").build();
 
         return sceneRule;
@@ -120,9 +122,10 @@ public class RunRuleModuleTest extends JavaOSGiTest {
                         .collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()))));
 
         final Rule outerRule = RuleBuilder.create("sceneActivationRule")
-                .withTriggers(
-                        new Trigger("ItemStateChangeTrigger2", "core.GenericEventTrigger", outerRuleTriggerConfig))
-                .withActions(new Action("RunRuleAction1", "core.RunRuleAction", outerRuleActionConfig, null))
+                .withTriggers(ModuleBuilder.createTrigger().withId("ItemStateChangeTrigger2")
+                        .withTypeUID("core.GenericEventTrigger").withConfiguration(outerRuleTriggerConfig).build())
+                .withActions(ModuleBuilder.createAction().withId("RunRuleAction1").withTypeUID("core.RunRuleAction")
+                        .withConfiguration(outerRuleActionConfig).build())
                 .withName("scene activator").build();
 
         return outerRule;

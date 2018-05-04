@@ -124,19 +124,21 @@ public class ScriptRuleTest extends JavaOSGiTest {
         Rule rule = ruleRegistry.get("javascript.rule1");
         assertThat(rule, is(notNullValue()));
         assertThat(rule.getName(), is("DemoScriptRule"));
-        Optional<Trigger> trigger = rule.getTriggers().stream().filter(t -> t.getId().equals("trigger")).findFirst();
+        Optional<? extends Trigger> trigger = rule.getTriggers().stream().filter(t -> t.getId().equals("trigger"))
+                .findFirst();
         assertThat(trigger.isPresent(), is(true));
         assertThat(trigger.get().getTypeUID(), is("core.GenericEventTrigger"));
         assertThat(trigger.get().getConfiguration().get("eventSource"), is("MyTrigger"));
         assertThat(trigger.get().getConfiguration().get("eventTopic"), is("smarthome/items/MyTrigger/state"));
         assertThat(trigger.get().getConfiguration().get("eventTypes"), is("ItemStateEvent"));
-        Optional<Condition> condition1 = rule.getConditions().stream().filter(c -> c.getId().equals("condition"))
-                .findFirst();
+        Optional<? extends Condition> condition1 = rule.getConditions().stream()
+                .filter(c -> c.getId().equals("condition")).findFirst();
         assertThat(condition1.isPresent(), is(true));
         assertThat(condition1.get().getTypeUID(), is("script.ScriptCondition"));
         assertThat(condition1.get().getConfiguration().get("type"), is("application/javascript"));
         assertThat(condition1.get().getConfiguration().get("script"), is("event.itemState==ON"));
-        Optional<Action> action = rule.getActions().stream().filter(a -> a.getId().equals("action")).findFirst();
+        Optional<? extends Action> action = rule.getActions().stream().filter(a -> a.getId().equals("action"))
+                .findFirst();
         assertThat(action.isPresent(), is(true));
         assertThat(action.get().getTypeUID(), is("script.ScriptAction"));
         assertThat(action.get().getConfiguration().get("type"), is("application/javascript"));

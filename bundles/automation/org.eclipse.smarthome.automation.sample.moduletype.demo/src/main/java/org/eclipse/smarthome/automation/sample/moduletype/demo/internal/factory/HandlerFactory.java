@@ -19,8 +19,8 @@ import java.util.List;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
+import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.internal.Module;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class is a factory for creating {@link ConsoleTrigger}, {@link CompareCondition} and {@link ConsolePrintAction}
  * objects.
- * 
+ *
  * @author Plamen Peev - Initial contribution
  */
 public class HandlerFactory extends BaseModuleHandlerFactory implements ModuleHandlerFactory {

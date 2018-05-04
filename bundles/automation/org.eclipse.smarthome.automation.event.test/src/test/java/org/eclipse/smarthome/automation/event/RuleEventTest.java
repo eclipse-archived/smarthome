@@ -34,6 +34,7 @@ import org.eclipse.smarthome.automation.RuleManager;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
 import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.automation.events.RuleAddedEvent;
 import org.eclipse.smarthome.automation.events.RuleRemovedEvent;
@@ -144,9 +145,10 @@ public class RuleEventTest extends JavaOSGiTest {
         Configuration actionConfig = new Configuration(actionCfgEntries);
 
         List<Trigger> triggers = Collections
-                .singletonList(new Trigger("ItemStateChangeTrigger2", "core.GenericEventTrigger", triggerConfig));
-        List<Action> actions = Collections
-                .singletonList(new Action("ItemPostCommandAction2", "core.ItemCommandAction", actionConfig, null));
+                .singletonList(ModuleBuilder.createTrigger().withId("ItemStateChangeTrigger2")
+                        .withTypeUID("core.GenericEventTrigger").withConfiguration(triggerConfig).build());
+        List<Action> actions = Collections.singletonList(ModuleBuilder.createAction().withId("ItemPostCommandAction2")
+                .withTypeUID("core.ItemCommandAction").withConfiguration(actionConfig).build());
 
         Rule rule = RuleBuilder.create("myRule21").withTriggers(triggers).withActions(actions)
                 .withName("RuleEventTestingRule").build();

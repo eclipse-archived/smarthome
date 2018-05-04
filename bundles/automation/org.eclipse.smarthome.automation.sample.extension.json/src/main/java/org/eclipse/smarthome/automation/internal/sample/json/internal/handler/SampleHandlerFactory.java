@@ -19,8 +19,8 @@ import java.util.List;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
+import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.internal.Module;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
@@ -39,9 +39,9 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory {
     public static final String SUPPORTED_CONDITION = "SampleCondition";
     public static final String SUPPORTED_ACTION = "SampleAction";
     public static final String MODULE_HANDLER_FACTORY_NAME = "[SampleHandlerFactory]";
-    private Logger logger = LoggerFactory.getLogger(SampleHandlerFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(SampleHandlerFactory.class);
     private static final Collection<String> TYPES;
-    private List<TriggerHandler> createdTriggerHandler = new ArrayList<TriggerHandler>(10);
+    private final List<TriggerHandler> createdTriggerHandler = new ArrayList<TriggerHandler>(10);
 
     static {
         List<String> temp = new ArrayList<String>();
