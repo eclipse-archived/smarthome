@@ -12,25 +12,30 @@
  */
 package org.eclipse.smarthome.core.thing.firmware.dto;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * This is a data transfer object that is used to serialize firmware information.
  *
  * @author Aoun Bukhari - Initial contribution
- *
+ * @author Dimitar Ivanov - enriched with thing type UID
  */
+@NonNullByDefault
 public class FirmwareDTO {
-    public final String firmwareUID;
-    public final String vendor;
-    public final String model;
+    public final String thingTypeUID;
+    public final @Nullable String vendor;
+    public final @Nullable String model;
     public final boolean modelRestricted;
-    public final String description;
+    public final @Nullable String description;
     public final String version;
-    public final String changelog;
-    public final String prerequisiteVersion;
+    public final @Nullable String changelog;
+    public final @Nullable String prerequisiteVersion;
 
-    public FirmwareDTO(String firmwareUID, String vendor, String model, boolean modelRestricted, String description,
-            String version, String prerequisiteVersion, String changelog) {
-        this.firmwareUID = firmwareUID;
+    public FirmwareDTO(String thingTypeUID, @Nullable String vendor, @Nullable String model, boolean modelRestricted,
+            @Nullable String description, String version, @Nullable String prerequisiteVersion,
+            @Nullable String changelog) {
+        this.thingTypeUID = thingTypeUID;
         this.vendor = vendor;
         this.model = model;
         this.modelRestricted = modelRestricted;

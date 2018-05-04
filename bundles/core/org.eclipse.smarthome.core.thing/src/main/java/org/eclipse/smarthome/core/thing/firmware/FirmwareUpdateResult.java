@@ -12,11 +12,14 @@
  */
 package org.eclipse.smarthome.core.thing.firmware;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * The {@link FirmwareUpdateResult} enumeration defines the possible results for a firmware update.
  *
  * @author Thomas Höfer - Initial contribution
  */
+@NonNullByDefault
 public enum FirmwareUpdateResult {
 
     /** Indicates that the firmware update was successful. */
@@ -24,7 +27,7 @@ public enum FirmwareUpdateResult {
 
     /** Indicates that the firmware update has failed. */
     ERROR,
-    
+
     /** Indicates that the firmware update was canceled. */
     CANCELED;
 }

@@ -1,6 +1,6 @@
 var firmwareControllers = angular.module('PaperUI.controllers.firmware', [ 'PaperUI.filters.firmware' ]);
 
-firmwareControllers.controller('FirmwareController', function($scope, $mdDialog, toastService, eventService, thingService, thingTypeService, FIRMWARE_STATUS) {
+firmwareControllers.controller('FirmwareController', function($scope, $mdDialog, toastService, eventService, thingService, FIRMWARE_STATUS) {
     $scope.updatingFirmware = false;
     $scope.percentComplete = 0;
     $scope.updateStep;
@@ -19,10 +19,10 @@ firmwareControllers.controller('FirmwareController', function($scope, $mdDialog,
             });
         }
 
-        var thingTypeUID = $scope.$parent.thing.thingTypeUID;
-        if (thingTypeUID) {
-            thingTypeService.getFirmwares({
-                thingTypeUID : thingTypeUID
+        var thingUID = $scope.$parent.thing.thingUID;
+        if (thingUID) {
+            thingService.getFirmwares({
+                thingUID : thingUID
             }, function(firmwares) {
                 $scope.firmwares = firmwares;
             });

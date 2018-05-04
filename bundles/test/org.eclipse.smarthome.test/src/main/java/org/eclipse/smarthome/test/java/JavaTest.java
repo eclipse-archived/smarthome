@@ -160,6 +160,15 @@ public class JavaTest {
     }
 
     /**
+     * Useful for testing @NonNull annotated parameters
+     *
+     * @return null for testing purpose
+     */
+    protected static <T> T giveNull() {
+        return null;
+    }
+
+    /**
      * Wait until the assertion is fulfilled or the timeout is reached.
      *
      * @param assertion the logic to execute

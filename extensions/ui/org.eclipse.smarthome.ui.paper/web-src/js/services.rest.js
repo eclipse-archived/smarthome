@@ -214,14 +214,6 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
                 thingTypeUID : '@thingTypeUID'
             },
             url : restConfig.restPath + '/thing-types/:thingTypeUID'
-        },
-        getFirmwares : {
-            method : 'GET',
-            isArray : true,
-            params : {
-                thingTypeUID : '@thingTypeUID'
-            },
-            url : restConfig.restPath + '/thing-types/:thingTypeUID/firmwares'
         }
     });
 }).factory('linkService', function($resource, restConfig) {
@@ -300,6 +292,14 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
                 thingUID : '@thingUID'
             },
             url : restConfig.restPath + '/things/:thingUID/firmware/status',
+        },
+        getFirmwares : {
+            method : 'GET',
+            isArray : true,
+            params : {
+                thingUID : '@thingUID'
+            },
+            url : restConfig.restPath + '/things/:thingUID/firmwares'
         },
         installFirmware : {
             method : 'PUT',
