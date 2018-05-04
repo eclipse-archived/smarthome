@@ -17,8 +17,8 @@ import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 /**
  * {@link ThingRegistryChangeListener} can be implemented to listen for things
  * beeing added or removed. The listener must be added and removed via
- * {@link ThingRegistry#addThingRegistryChangeListener(ThingRegistryChangeListener)} and
- * {@link ThingRegistry#removeThingRegistryChangeListener(ThingRegistryChangeListener)}.
+ * {@link ThingRegistry#addRegistryChangeListener(ThingRegistryChangeListener)} and
+ * {@link ThingRegistry#removeRegistryChangeListener(ThingRegistryChangeListener)}.
  *
  * @author Dennis Nobel - Initial Contribution
  * @author Michael Grammling - Added dynamic configuration update
