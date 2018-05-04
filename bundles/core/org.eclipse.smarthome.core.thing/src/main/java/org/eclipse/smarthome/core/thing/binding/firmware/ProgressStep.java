@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.core.thing.binding.firmware;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * The {@link ProgressStep} enumeration defines the possible progress steps for a firmware update. The actual sequence
  * of the firmware update is defined by the operation {@link ProgressCallback#defineSequence(ProgressStep...)}.
@@ -19,6 +21,7 @@ package org.eclipse.smarthome.core.thing.binding.firmware;
  * @author Thomas Höfer - Initial contribution
  * @author Chris Jackson - Add WAITING
  */
+@NonNullByDefault
 public enum ProgressStep {
 
     /**

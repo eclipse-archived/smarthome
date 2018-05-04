@@ -12,15 +12,18 @@
  */
 package org.eclipse.smarthome.core.thing.firmware;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.events.AbstractEvent;
-import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
  * The {@link FirmwareUpdateResultInfoEvent} is sent if the firmware update has been finished. It is created by the
  * {@link FirmwareEventFactory}.
  *
  * @author Thomas Höfer - Initial contribution
+ * @author Dimitar Ivanov - Removed thing UID from the event
  */
+@NonNullByDefault
 public final class FirmwareUpdateResultInfoEvent extends AbstractEvent {
 
     /** Constant for the firmware update result info event type. */
@@ -28,21 +31,17 @@ public final class FirmwareUpdateResultInfoEvent extends AbstractEvent {
 
     private final FirmwareUpdateResultInfo firmwareUpdateResultInfo;
 
-    private final ThingUID thingUID;
-
     /**
      * Creates a new {@link FirmwareUpdateResultInfoEvent}.
      *
      * @param topic the topic of the event
      * @param payload the payload of the event
      * @param firmwareUpdateResultInfo the firmware update result info to be sent as event
-     * @param thingUID the UID of the thing whose firmware update result info is to be sent
      */
     protected FirmwareUpdateResultInfoEvent(String topic, String payload,
-            FirmwareUpdateResultInfo firmwareUpdateResultInfo, ThingUID thingUID) {
+            FirmwareUpdateResultInfo firmwareUpdateResultInfo) {
         super(topic, payload, null);
         this.firmwareUpdateResultInfo = firmwareUpdateResultInfo;
-        this.thingUID = thingUID;
     }
 
     /**
@@ -52,15 +51,6 @@ public final class FirmwareUpdateResultInfoEvent extends AbstractEvent {
      */
     public FirmwareUpdateResultInfo getFirmwareUpdateResultInfo() {
         return firmwareUpdateResultInfo;
-    }
-
-    /**
-     * Returns the thing UID.
-     *
-     * @return the thing UID
-     */
-    public ThingUID getThingUID() {
-        return thingUID;
     }
 
     @Override
@@ -73,12 +63,11 @@ public final class FirmwareUpdateResultInfoEvent extends AbstractEvent {
         final int prime = 31;
         int result = super.hashCode();
         result = prime * result + ((firmwareUpdateResultInfo == null) ? 0 : firmwareUpdateResultInfo.hashCode());
-        result = prime * result + ((thingUID == null) ? 0 : thingUID.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;
         }
@@ -96,13 +85,6 @@ public final class FirmwareUpdateResultInfoEvent extends AbstractEvent {
         } else if (!firmwareUpdateResultInfo.equals(other.firmwareUpdateResultInfo)) {
             return false;
         }
-        if (thingUID == null) {
-            if (other.thingUID != null) {
-                return false;
-            }
-        } else if (!thingUID.equals(other.thingUID)) {
-            return false;
-        }
         return true;
     }
 
@@ -110,8 +92,8 @@ public final class FirmwareUpdateResultInfoEvent extends AbstractEvent {
     public String toString() {
         FirmwareUpdateResult result = firmwareUpdateResultInfo.getResult();
 
-        StringBuilder sb = new StringBuilder(
-                String.format("The result of the firmware update for thing %s is %s.", thingUID, result.name()));
+        StringBuilder sb = new StringBuilder(String.format("The result of the firmware update for thing %s is %s.",
+                firmwareUpdateResultInfo.getThingUID(), result.name()));
 
         if (result == FirmwareUpdateResult.ERROR) {
             sb.append(String.format(" The error message is %s.", firmwareUpdateResultInfo.getErrorMessage()));
