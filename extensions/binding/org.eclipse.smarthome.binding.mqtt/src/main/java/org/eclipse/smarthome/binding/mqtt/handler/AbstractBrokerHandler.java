@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.binding.mqtt.handler;
 
+import java.util.concurrent.TimeoutException;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -23,9 +25,7 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.eclipse.smarthome.io.transport.mqtt.MqttConnectionObserver;
 import org.eclipse.smarthome.io.transport.mqtt.MqttConnectionState;
-import org.eclipse.smarthome.io.transport.mqtt.MqttException;
 import org.eclipse.smarthome.io.transport.mqtt.MqttService;
-import org.osgi.service.cm.ConfigurationException;
 
 /**
  * This base implementation handles connection changes of the {@link MqttBrokerConnection}
@@ -73,16 +73,14 @@ public abstract class AbstractBrokerHandler extends BaseBridgeHandler implements
         }
         c.addConnectionObserver(this);
 
-        // Try a reconnect if not connected:
-        if (c.connectionState() == MqttConnectionState.DISCONNECTED) {
-            try {
-                c.start();
-            } catch (ConfigurationException | MqttException e) {
-                connectionStateChanged(MqttConnectionState.DISCONNECTED, e);
+        c.start().exceptionally(e -> {
+            connectionStateChanged(MqttConnectionState.DISCONNECTED, e);
+            return false;
+        }).thenAccept(v -> {
+            if (!v) {
+                connectionStateChanged(MqttConnectionState.DISCONNECTED, new TimeoutException("Timeout"));
             }
-        } else {
-            connectionStateChanged(MqttConnectionState.CONNECTED, null);
-        }
+        });
     }
 
     @Override

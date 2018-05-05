@@ -16,13 +16,11 @@ import java.util.concurrent.Semaphore;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.eclipse.smarthome.io.transport.mqtt.MqttConnectionObserver;
 import org.eclipse.smarthome.io.transport.mqtt.MqttConnectionState;
 
 /**
- * We need an extended MqttConnectionObserverEx with a semaphore to make the call to
- * {@link MqttBrokerConnection#start()} synchronous. We expect that the connection succeed.
+ * We need an extended MqttConnectionObserverEx for testing if the state changes are coming in the right order.
  *
  * @author David Graeff - Initial contribution
  */

@@ -323,4 +323,40 @@ public class MqttBrokerConnectionTests {
 
         assertThat(connection.connectionState(), equalTo(MqttConnectionState.DISCONNECTED));
     }
+
+    @SuppressWarnings("null")
+    @Test
+    public void gracefulStop() throws ConfigurationException, MqttException, InterruptedException, ExecutionException,
+            TimeoutException, org.eclipse.paho.client.mqttv3.MqttException {
+        MqttBrokerConnectionEx connection = spy(
+                new MqttBrokerConnectionEx("123.123.123.123", null, false, "MqttBrokerConnectionTests"));
+
+        assertTrue(connection.start().get(200, TimeUnit.MILLISECONDS));
+
+        // Add test subscribers
+        MqttMessageSubscriber subscriber = mock(MqttMessageSubscriber.class);
+        connection.subscribe("abc", subscriber);
+        connection.subscribe("def/subtopic", subscriber);
+        assertThat(connection.hasSubscribers(), is(true));
+
+        // Let's observe the internal connection client
+        MqttAsyncClientEx client = (MqttAsyncClientEx) connection.client;
+
+        // Stop
+        CompletableFuture<Boolean> future = connection.stop();
+
+        // Restart strategy must be stopped
+        PeriodicReconnectStrategy p = (PeriodicReconnectStrategy) connection.getReconnectStrategy();
+        assertThat(p.isStarted(), is(false));
+
+        // Wait to complete stop
+        future.get(200, TimeUnit.MILLISECONDS);
+
+        verify(connection).unsubscribeAll();
+        verify(client).disconnect(anyLong(), any(), any());
+
+        // Subscribers should be removed
+        assertThat(connection.hasSubscribers(), is(false));
+    }
+
 }
