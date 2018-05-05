@@ -21,19 +21,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.smarthome.binding.mqtt.MqttBindingConstants;
+import org.eclipse.smarthome.binding.mqtt.handler.MqttBrokerConnectionEx;
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.ScanListener;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
-import org.eclipse.smarthome.io.transport.mqtt.MqttConnectionState;
 import org.eclipse.smarthome.io.transport.mqtt.MqttException;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.service.cm.ConfigurationException;
 
 /**
@@ -41,7 +39,6 @@ import org.osgi.service.cm.ConfigurationException;
  *
  * @author David Graeff - Initial contribution
  */
-@RunWith(MockitoJUnitRunner.class)
 public class NetworkDiscoveryServiceTest {
     private static class NetworkDiscoveryServiceEx extends NetworkDiscoveryService {
         public int countScans = 0;
@@ -70,13 +67,10 @@ public class NetworkDiscoveryServiceTest {
         protected MqttBrokerConnection[] createTestConnections(List<String> networkIPs) throws ConfigurationException {
             MqttBrokerConnection[] connections = new MqttBrokerConnection[networkIPs.size() * 2];
             for (int i = 0; i < networkIPs.size(); ++i) {
-                MqttBrokerConnection c = mock(MqttBrokerConnection.class);
-                when(c.connectionState()).thenReturn(MqttConnectionState.CONNECTED);
-                when(c.getHost()).thenReturn("tcp://" + networkIPs.get(i));
-                when(c.getPort()).thenReturn(80);
+                MqttBrokerConnectionEx c = new MqttBrokerConnectionEx(networkIPs.get(i), 80, false, null);
                 connections[i * 2] = c;
-                c = mock(MqttBrokerConnection.class);
-                when(c.connectionState()).thenReturn(MqttConnectionState.DISCONNECTED);
+                c = new MqttBrokerConnectionEx(networkIPs.get(i), 81, true, null);
+                c.connectSuccess = false;
                 connections[i * 2 + 1] = c;
             }
             return connections;

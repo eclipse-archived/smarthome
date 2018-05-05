@@ -18,12 +18,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import org.apache.commons.net.util.SubnetUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.mqtt.MqttBindingConstants;
 import org.eclipse.smarthome.binding.mqtt.internal.MqttThingID;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
@@ -32,7 +31,6 @@ import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.net.NetUtil;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
-import org.eclipse.smarthome.io.transport.mqtt.MqttConnectionState;
 import org.eclipse.smarthome.io.transport.mqtt.MqttException;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.annotations.Activate;
@@ -48,13 +46,14 @@ import org.slf4j.LoggerFactory;
  * @author David Graeff - Initial contribution
  */
 @Component(immediate = true, service = DiscoveryService.class, configurationPid = "discovery.networkmqttbroker")
+@NonNullByDefault
 public class NetworkDiscoveryService extends AbstractDiscoveryService {
     private static final int MAX_IPS_PER_INTERFACE = 255;
     private static final int TIMEOUT_IN_MS = 700;
 
     private final Logger logger = LoggerFactory.getLogger(NetworkDiscoveryService.class);
 
-    private Integer scannedIPcount;
+    private int scannedIPcount = 0;
 
     public NetworkDiscoveryService() {
         super(Collections.singleton(MqttBindingConstants.BRIDGE_TYPE_BROKER), 0);
@@ -62,7 +61,7 @@ public class NetworkDiscoveryService extends AbstractDiscoveryService {
 
     @Override
     @Activate
-    protected void activate(Map<String, Object> config) {
+    protected void activate(@Nullable Map<String, @Nullable Object> config) {
         super.activate(config);
     };
 
@@ -92,13 +91,13 @@ public class NetworkDiscoveryService extends AbstractDiscoveryService {
      * @throws ConfigurationException If the URL is invalid, this exception is thrown
      */
     protected MqttBrokerConnection[] createTestConnections(List<String> networkIPs) throws ConfigurationException {
-        if (networkIPs == null) {
-            return null;
-        }
+
         MqttBrokerConnection o[] = new MqttBrokerConnection[networkIPs.size() * 2];
         for (int i = 0; i < networkIPs.size(); ++i) {
             o[i * 2] = new MqttBrokerConnection("ssl://" + networkIPs.get(i), 8883, false, "testssl");
+            o[i * 2].setTimeoutExecutor(scheduler, 100);
             o[i * 2 + 1] = new MqttBrokerConnection("tcp://" + networkIPs.get(i), 1883, false, "test");
+            o[i * 2 + 1].setTimeoutExecutor(scheduler, 100);
         }
         return o;
     }
@@ -115,19 +114,11 @@ public class NetworkDiscoveryService extends AbstractDiscoveryService {
      * @throws MqttException Throws if the connection to the target is not a valid Mqtt connection.
      * @throws InterruptedException Throws if interrupted while waiting for the Mqtt connection to establish.
      */
-    protected void scanTarget(MqttBrokerConnection testConnection)
-            throws ConfigurationException, MqttException, InterruptedException {
-        // Block wait for the callback
-        final Lock lock = new ReentrantLock();
-        lock.lock();
-
-        testConnection.addConnectionObserver((isConnected, error) -> lock.unlock());
-
-        // Start the connection and wait until timeout or connected callback returns.
-        testConnection.start();
-        lock.tryLock(TIMEOUT_IN_MS, TimeUnit.MILLISECONDS);
-
-        if (testConnection.connectionState() == MqttConnectionState.CONNECTED) {
+    protected void scanTarget(MqttBrokerConnection testConnection) {
+        testConnection.start().thenAccept(v -> {
+            if (v == false) {
+                return;
+            }
             logger.trace("Found service device at {}:{}", testConnection.getHost(),
                     String.valueOf(testConnection.getPort()));
 
@@ -138,9 +129,8 @@ public class NetworkDiscoveryService extends AbstractDiscoveryService {
             ThingUID thingUID = MqttThingID.getThingUID(testConnection.getHost(), testConnection.getPort());
             thingDiscovered(DiscoveryResultBuilder.create(thingUID).withTTL(120).withProperties(properties)
                     .withRepresentationProperty("host").withLabel("MQTT Broker").build());
-        }
-
-        testConnection.stop();
+            testConnection.stop();
+        });
     }
 
     /**
@@ -195,14 +185,8 @@ public class NetworkDiscoveryService extends AbstractDiscoveryService {
         }
 
         for (MqttBrokerConnection c : o) {
-            scheduler.execute(() -> {
-                try {
-                    scanTarget(c);
-                } catch (ConfigurationException | MqttException | InterruptedException e) {
-                    logger.trace("Scan of {}:{} failed", c.getHost(), String.valueOf(c.getPort()));
-                }
-                stopScanIfAllScanned(totalScans);
-            });
+            scanTarget(c);
+            stopScanIfAllScanned(totalScans);
         }
     }
 }
