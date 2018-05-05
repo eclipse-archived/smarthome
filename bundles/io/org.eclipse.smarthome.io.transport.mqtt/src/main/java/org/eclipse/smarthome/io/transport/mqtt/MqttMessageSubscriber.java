@@ -21,7 +21,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * @author David Graeff
  */
 @NonNullByDefault
-public interface MqttMessageSubscriber {
+public interface MqttMessageSubscriber extends MqttSubscribeCallback {
     /**
      * Process a received MQTT message.
      *

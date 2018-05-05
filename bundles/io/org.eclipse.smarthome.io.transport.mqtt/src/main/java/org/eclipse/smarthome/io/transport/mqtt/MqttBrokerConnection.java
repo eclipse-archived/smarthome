@@ -52,8 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An MQTTBrokerConnection represents a single client connection to a MQTT broker. The connection is configured by the
- * MQTTService with properties from the smarthome.cfg file.
+ * An MQTTBrokerConnection represents a single client connection to a MQTT broker.
  *
  * When a connection to an MQTT broker is lost, it will try to reconnect every 60 seconds.
  *
@@ -68,13 +67,23 @@ public class MqttBrokerConnection {
     public static final int DEFAULT_KEEPALIVE_INTERVAL = 60;
     public static final int DEFAULT_QOS = 0;
 
+    /**
+     * MQTT transport protocol. The default is TCP.
+     */
+    public enum Protocol {
+        TCP,
+        Websockets
+    };
+
     /// Connection parameters
+    protected final Protocol protocol;
     protected final String host;
     protected final int port;
     protected final boolean secure;
     protected final String clientId;
     private @Nullable String user;
     private @Nullable String password;
+
     /// Configuration variables
     private int qos = DEFAULT_QOS;
     private boolean retain = false;
@@ -92,8 +101,7 @@ public class MqttBrokerConnection {
 
     // Connection timeout handling
     final AtomicReference<@Nullable ScheduledFuture<?>> timeoutFuture = new AtomicReference<>(null);
-    @Nullable
-    ScheduledExecutorService timeoutExecutor;
+    protected @Nullable ScheduledExecutorService timeoutExecutor;
     private int timeout = 1200; /* Connection timeout in milliseconds */
 
     /**
@@ -195,15 +203,36 @@ public class MqttBrokerConnection {
         }
     }
 
+    /**
+     * Create a IMqttActionListener object for being used as a callback for a connection attempt.
+     * The callback will interact with the {@link AbstractReconnectStrategy} as well as inform registered
+     * {@link MqttConnectionObserver}s.
+     */
+    @NonNullByDefault({})
+    protected static class SubscribeCallbacks implements IMqttActionListener {
+        @Override
+        public void onSuccess(IMqttToken token) {
+            MqttMessageSubscriber subscriber = (MqttMessageSubscriber) token.getUserContext();
+            subscriber.onSuccess(new MqttPublishResult(token.getMessageId(), subscriber.getTopic()));
+        }
+
+        @Override
+        public void onFailure(IMqttToken token, Throwable throwable) {
+            MqttMessageSubscriber subscriber = (MqttMessageSubscriber) token.getUserContext();
+            subscriber.onFailure(new MqttPublishResult(token.getMessageId(), subscriber.getTopic()), throwable);
+        }
+    }
+
     /** Client callback object */
     protected MqttCallback clientCallbacks = new ClientCallbacks(this);
     /** Connection callback object */
     protected IMqttActionListener connectionCallbacks = new ConnectionCallbacks(this);
+    /** Subscribe callback object */
+    protected IMqttActionListener subscribeCallbacks = new SubscribeCallbacks();
 
     /**
-     * Create a new MQTT client connection to a server with the given host and port.
+     * Create a new TCP MQTT client connection to a server with the given host and port.
      *
-     * @param name for the connection.
      * @param host A host name or address
      * @param port A port or null to select the default port for a secure or insecure connection
      * @param secure A secure connection
@@ -213,6 +242,24 @@ public class MqttBrokerConnection {
      * @throws IllegalArgumentException If the client id or port is not valid.
      */
     public MqttBrokerConnection(String host, @Nullable Integer port, boolean secure, @Nullable String clientId) {
+        this(Protocol.TCP, host, port, secure, clientId);
+    }
+
+    /**
+     * Create a new MQTT client connection to a server with the given protocol, host and port.
+     *
+     * @param protocol The transport protocol
+     * @param host A host name or address
+     * @param port A port or null to select the default port for a secure or insecure connection
+     * @param secure A secure connection
+     * @param clientId Client id. Each client on a MQTT server has a unique client id. Sometimes client ids are
+     *            used for access restriction implementations.
+     *            If none is specified, a default is generated. The client id cannot be longer than 65535 characters.
+     * @throws IllegalArgumentException If the client id or port is not valid.
+     */
+    public MqttBrokerConnection(Protocol protocol, String host, @Nullable Integer port, boolean secure,
+            @Nullable String clientId) {
+        this.protocol = protocol;
         this.host = host;
         this.secure = secure;
         String newClientID = clientId;
@@ -263,6 +310,13 @@ public class MqttBrokerConnection {
     }
 
     /**
+     * Get the MQTT broker protocol
+     */
+    public Protocol getProtocol() {
+        return protocol;
+    }
+
+    /**
      * Get the MQTT broker host
      */
     public String getHost() {
@@ -277,7 +331,7 @@ public class MqttBrokerConnection {
     }
 
     /**
-     * Return true if it is a secure connection to the broker
+     * Return true if this is or will be an encrypted connection to the broker
      */
     public boolean isSecure() {
         return secure;
@@ -467,7 +521,7 @@ public class MqttBrokerConnection {
         }
         if (connectionState() == MqttConnectionState.CONNECTED && client != null) {
             try {
-                client.subscribe(subscriber.getTopic(), qos);
+                client.subscribe(subscriber.getTopic(), qos, subscriber, subscribeCallbacks);
             } catch (org.eclipse.paho.client.mqttv3.MqttException e) {
                 throw new MqttException(e);
             }
@@ -489,7 +543,7 @@ public class MqttBrokerConnection {
 
         try {
             if (connectionState() == MqttConnectionState.CONNECTED && client != null) {
-                client.unsubscribe(subscriber.getTopic());
+                client.unsubscribe(subscriber.getTopic(), subscriber, subscribeCallbacks);
             }
         } catch (org.eclipse.paho.client.mqttv3.MqttException e) {
             logger.info("Error unsubscribing topic from broker", e);
@@ -641,7 +695,16 @@ public class MqttBrokerConnection {
      */
     protected MqttAsyncClient createAndConnectClient() throws MqttException, ConfigurationException {
         StringBuilder serverURI = new StringBuilder();
-        serverURI.append((secure ? "ssl://" : "tcp://"));
+        switch (protocol) {
+            case TCP:
+                serverURI.append(secure ? "ssl://" : "tcp://");
+                break;
+            case Websockets:
+                serverURI.append(secure ? "wss://" : "ws://");
+                break;
+            default:
+                throw new ConfigurationException("protocol", "Protocol unknown");
+        }
         serverURI.append(host);
         serverURI.append(":");
         serverURI.append(port);
@@ -706,16 +769,19 @@ public class MqttBrokerConnection {
     }
 
     /**
-     * Publish a message to the broker.
+     * Publish a message to the broker with the given QoS and retained flag.
      *
      * @param topic The topic
      * @param payload The message payload
+     * @param qos The quality of service for this message
+     * @param retain Set to true to retain the message on the broker
      * @param listener An optional listener to be notified of success or failure of the delivery.
      * @return The message ID of the published message. Can be used in the callback to identify the asynchronous task.
      *         Returns -1 if not connected currently.
      * @throws MqttException
      */
-    public int publish(String topic, byte[] payload, MqttPublishCallback listener) throws MqttException {
+    public int publish(String topic, byte[] payload, int qos, boolean retain, MqttPublishCallback listener)
+            throws MqttException {
         MqttAsyncClient client_ = client;
         if (client_ == null) {
             return -1;
@@ -743,6 +809,20 @@ public class MqttBrokerConnection {
         }
         logger.debug("Publishing message {} to topic '{}'", deliveryToken.getMessageId(), topic);
         return deliveryToken.getMessageId();
+    }
+
+    /**
+     * Publish a message to the broker.
+     *
+     * @param topic The topic
+     * @param payload The message payload
+     * @param listener An optional listener to be notified of success or failure of the delivery.
+     * @return The message ID of the published message. Can be used in the callback to identify the asynchronous task.
+     *         Returns -1 if not connected currently.
+     * @throws MqttException
+     */
+    public int publish(String topic, byte[] payload, MqttPublishCallback listener) throws MqttException {
+        return publish(topic, payload, qos, retain, listener);
     }
 
     /**

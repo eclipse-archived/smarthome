@@ -49,4 +49,9 @@ public class MqttPublishResult {
     public int getMessageID() {
         return messageID;
     }
+
+    @Override
+    public String toString() {
+        return messageID + ":" + topic;
+    }
 }
