@@ -84,7 +84,7 @@ public class MqttEmbeddedBrokerServiceTest {
         }
     }
 
-    private EmbeddedBrokerService subject;
+    private EmbeddedBrokerServiceImpl subject;
 
     private @Mock MqttService service;
 
@@ -95,7 +95,7 @@ public class MqttEmbeddedBrokerServiceTest {
     @Before
     public void setUp() throws ConfigurationException, MqttException, GeneralSecurityException, IOException {
         MockitoAnnotations.initMocks(this);
-        subject = new EmbeddedBrokerService();
+        subject = new EmbeddedBrokerServiceImpl();
         subject.setMqttService(service);
         // subject.setNetworkServerTls(networkServerTls);
         // SSLContext c = SSLContext.getInstance("TLS");
@@ -122,7 +122,7 @@ public class MqttEmbeddedBrokerServiceTest {
         Semaphore semaphore = new Semaphore(1);
         semaphore.acquire();
 
-        MqttBrokerConnection c = subject.connection;
+        MqttBrokerConnection c = subject.getConnection();
 
         MqttConnectionObserver mqttConnectionObserver = (state, error) -> {
             if (state != MqttConnectionState.CONNECTING) {
