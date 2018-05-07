@@ -31,6 +31,7 @@
     <!-- Remove this after thing-description-1.0.0.xsd is published from https://github.com/eclipse/smarthome/pull/4818 -->
     <suppress files=".+xml" checks="EshInfXmlValidationCheck" />
     
+    <suppress files=".+org.eclipse.smarthome.binding.astro.handler.AstroThingHandler.java" checks="AvoidScheduleAtFixedRateCheck"/>
     <suppress files=".+org.eclipse.smarthome.binding.tradfri.internal.TradfriColor.java" checks="LocalVariableNameCheck"/>
     <suppress files=".+org.eclipse.smarthome.config.discovery.mdns.internal.MDNSDiscoveryService.java|.+org.eclipse.smarthome.config.discovery.upnp.internal.UpnpDiscoveryService.java|.+org.eclipse.smarthome.io.console.eclipse.internal.ConsoleSupportEclipse.java|.+org.eclipse.smarthome.io.console.rfc147.internal.CommandWrapper.java|.+org.eclipse.smarthome.binding.astro.internal.calc.MoonCalc.java|.+org.eclipse.smarthome.core.library.unit.MetricPrefix.java" checks="MethodNameCheck"/>
 </suppressions>
