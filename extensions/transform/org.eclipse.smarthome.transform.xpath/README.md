@@ -13,11 +13,11 @@ Given a retrieved XML
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <PTZStatus version="2.0" >
-	<AbsoluteHigh>
-		<elevation>0</elevation>
-		<azimuth>450</azimuth>
-		<absoluteZoom>10</absoluteZoom>
-	</AbsoluteHigh>
+    <AbsoluteHigh>
+        <elevation>0</elevation>
+        <azimuth>450</azimuth>
+        <absoluteZoom>10</absoluteZoom>
+    </AbsoluteHigh>
 </PTZStatus>
 ```
 
@@ -36,11 +36,11 @@ Given a retrieved XML (e.g. from an HIK Vision device with the namespace `xmlns=
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <PTZStatus version="2.0" xmlns="http://www.hikvision.com/ver20/XMLSchema">
-	<AbsoluteHigh>
-		<elevation>0</elevation>
-		<azimuth>450</azimuth>
-		<absoluteZoom>10</absoluteZoom>
-	</AbsoluteHigh>
+    <AbsoluteHigh>
+        <elevation>0</elevation>
+        <azimuth>450</azimuth>
+        <absoluteZoom>10</absoluteZoom>
+    </AbsoluteHigh>
 </PTZStatus>
 ```
 
@@ -65,7 +65,7 @@ returns
 **.items**
 
 ```csv
-String  Temperature_xml "Temperature [XPATH([name()='PTZStatus']/*[name()='AbsoluteHigh']/*[name()='azimuth']/):%s °C]" {...}
+String  Temperature_xml "Temperature [XPATH(/*[name()='PTZStatus']/*[name()='AbsoluteHigh']/*[name()='azimuth']/):%s °C]" {...}
 Number  Temperature "Temperature [%.1f °C]"
 ```
 
@@ -75,24 +75,24 @@ Number  Temperature "Temperature [%.1f °C]"
 rule "Convert XML to Item Type Number"
   when
     Item Temperature_xml changed
- then
+  then
     // use the transformation service to retrieve the value
     // Simple
     val mytest = transform("XPATH", "/*[name()='PTZStatus']
-				     /*[name()='AbsoluteHigh']
-				     /*[name()='azimuth']
-				     /text()", 
-				    Temperature_xml.state.toString )  
+                                     /*[name()='AbsoluteHigh']
+                                     /*[name()='azimuth']
+                                     /text()", 
+                                    Temperature_xml.state.toString )  
     // Fully qualified
     val mytest = transform("XPATH", "/*[local-name()='PTZStatus'    and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
                                      /*[local-name()='AbsoluteHigh' and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
-				     /*[local-name()='azimuth'      and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
-				     /text()",
-				    Temperature_xml.state.toString )
-									 
+                                     /*[local-name()='azimuth'      and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
+                                     /text()",
+                                    Temperature_xml.state.toString )
+
     // post the new value to the Number Item
     Temperature.postUpdate( newValue )
- end
+end
 ```
 
 Now the resulting Number can also be used in the label to [change the color](https://docs.openhab.org/configuration/sitemaps.html#label-and-value-colors) or in a rule as value for comparison.
