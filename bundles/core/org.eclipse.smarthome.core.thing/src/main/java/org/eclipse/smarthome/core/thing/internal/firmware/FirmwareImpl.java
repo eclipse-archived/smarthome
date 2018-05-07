@@ -256,7 +256,6 @@ public final class FirmwareImpl implements Firmware {
         private final String[] parts;
 
         private Version(String versionString) {
-            ParameterChecks.checkNotNull(versionString, "versionString");
             this.versionString = versionString;
             this.parts = versionString.split("-|_|\\.");
         }

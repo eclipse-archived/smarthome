@@ -19,8 +19,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
 
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -31,8 +33,6 @@ import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.common.collect.ImmutableMap;
 
 /**
  * Tests that the {@link FirmwareUpdateService} honors the prerequisite version of {@link Firmware}s.
@@ -97,10 +97,14 @@ public class FirmwareUpdateServicePrerequisiteVersionTest extends JavaOSGiTest {
 
     private Thing createThing(ThingTypeUID thingTypeUID, String thingUID, Firmware firmware) {
         Thing thing = mock(Thing.class);
+
         when(thing.getThingTypeUID()).thenReturn(thingTypeUID);
         when(thing.getUID()).thenReturn(new ThingUID(thingTypeUID, thingUID));
-        when(thing.getProperties()).thenReturn(ImmutableMap.<String, String> builder()
-                .put(Thing.PROPERTY_FIRMWARE_VERSION, firmware.getVersion()).build());
+
+        Map<String, String> propertiesMap = new HashMap<>();
+        propertiesMap.put(Thing.PROPERTY_FIRMWARE_VERSION, firmware.getVersion());
+        when(thing.getProperties()).thenReturn(propertiesMap);
+
         return thing;
     }
 
