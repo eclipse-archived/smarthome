@@ -24,7 +24,7 @@ Given a retrieved XML
 The XPath `/PTZStatus/AbsoluteHigh/azimuth/text()` returns the document
 
 ```
-<azimuth>450</azimuth>
+450
 ```
 
 ## Advanced Example
@@ -65,7 +65,7 @@ returns
 **.items**
 
 ```csv
-String  Temperature_xml "Temperature [JSONPATH([name()='PTZStatus']/*[name()='AbsoluteHigh']/*[name()='azimuth']/):%s °C]" {...}
+String  Temperature_xml "Temperature [XPATH([name()='PTZStatus']/*[name()='AbsoluteHigh']/*[name()='azimuth']/):%s °C]" {...}
 Number  Temperature "Temperature [%.1f °C]"
 ```
 
@@ -77,18 +77,18 @@ rule "Convert XML to Item Type Number"
     Item Temperature_xml changed
  then
     // use the transformation service to retrieve the value
-	// Simple
-	val mytest = transform("XPATH", "/*[name()='PTZStatus']
-									 /*[name()='AbsoluteHigh']
-									 /*[name()='azimuth']
-									 /text()", 
-									 Temperature_xml.state.toString )  
-	// Fully qualified
-	val mytest = transform("XPATH", "/*[local-name()='PTZStatus'    and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
-									 /*[local-name()='AbsoluteHigh' and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
-									 /*[local-name()='azimuth'      and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
-									 /text()",
-									 Temperature_xml.state.toString )
+    // Simple
+    val mytest = transform("XPATH", "/*[name()='PTZStatus']
+				     /*[name()='AbsoluteHigh']
+				     /*[name()='azimuth']
+				     /text()", 
+				    Temperature_xml.state.toString )  
+    // Fully qualified
+    val mytest = transform("XPATH", "/*[local-name()='PTZStatus'    and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
+                                     /*[local-name()='AbsoluteHigh' and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
+				     /*[local-name()='azimuth'      and namespace-uri()='http://www.hikvision.com/ver20/XMLSchema']
+				     /text()",
+				    Temperature_xml.state.toString )
 									 
     // post the new value to the Number Item
     Temperature.postUpdate( newValue )
