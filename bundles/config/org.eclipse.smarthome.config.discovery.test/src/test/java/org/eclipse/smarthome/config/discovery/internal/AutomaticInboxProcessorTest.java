@@ -15,12 +15,13 @@ package org.eclipse.smarthome.config.discovery.internal;
 import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.withFlag;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -47,11 +48,13 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.test.storage.VolatileStorageService;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
 /**
  * @author Andre Fuechsel - Initial contribution
+ * @author Henning Sudbrock - Added tests for auto-approving inbox entries
  */
 public class AutomaticInboxProcessorTest {
 
@@ -82,7 +85,7 @@ public class AutomaticInboxProcessorTest {
 
     private final static Configuration CONFIG = new Configuration(Collections.singletonMap(CONFIG_KEY, CONFIG_VALUE));
 
-    private AutomaticInboxProcessor inboxAutoIgnore;
+    private AutomaticInboxProcessor automaticInboxProcessor;
     private PersistentInbox inbox;
 
     @Mock
@@ -141,9 +144,12 @@ public class AutomaticInboxProcessorTest {
         when(thingTypeRegistry.getThingType(THING_TYPE_UID3)).thenReturn(THING_TYPE3);
 
         when(thingHandlerFactory.supportsThingType(eq(THING_TYPE_UID))).thenReturn(true);
-        when(thingHandlerFactory.createThing(eq(THING_TYPE_UID), any(Configuration.class), eq(THING_UID),
-                any(ThingUID.class)))
-                        .then(invocation -> ThingBuilder.create(THING_TYPE_UID, "test")
+        when(thingHandlerFactory.supportsThingType(eq(THING_TYPE_UID3))).thenReturn(true);
+        when(thingHandlerFactory.createThing(any(ThingTypeUID.class), any(Configuration.class), any(ThingUID.class),
+                nullable(ThingUID.class)))
+                        .then(invocation -> ThingBuilder
+                                .create((ThingTypeUID) invocation.getArguments()[0],
+                                        (ThingUID) invocation.getArguments()[2])
                                 .withConfiguration((Configuration) invocation.getArguments()[1]).build());
 
         inbox = new PersistentInbox();
@@ -154,10 +160,10 @@ public class AutomaticInboxProcessorTest {
         inbox.setThingTypeRegistry(thingTypeRegistry);
         inbox.addThingHandlerFactory(thingHandlerFactory);
 
-        inboxAutoIgnore = new AutomaticInboxProcessor();
-        inboxAutoIgnore.setThingRegistry(thingRegistry);
-        inboxAutoIgnore.setThingTypeRegistry(thingTypeRegistry);
-        inboxAutoIgnore.setInbox(inbox);
+        automaticInboxProcessor = new AutomaticInboxProcessor();
+        automaticInboxProcessor.setThingRegistry(thingRegistry);
+        automaticInboxProcessor.setThingTypeRegistry(thingTypeRegistry);
+        automaticInboxProcessor.setInbox(inbox);
     }
 
     /**
@@ -185,7 +191,7 @@ public class AutomaticInboxProcessorTest {
         when(thingStatusInfoChangedEvent.getStatusInfo())
                 .thenReturn(new ThingStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, null));
         when(thingStatusInfoChangedEvent.getThingUID()).thenReturn(THING_UID3);
-        inboxAutoIgnore.receive(thingStatusInfoChangedEvent);
+        automaticInboxProcessor.receive(thingStatusInfoChangedEvent);
 
         // Then there should still be the NEW discovery result, but no IGNORED discovery result
         results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW)).collect(Collectors.toList());
@@ -230,7 +236,7 @@ public class AutomaticInboxProcessorTest {
         when(thingStatusInfoChangedEvent.getStatusInfo())
                 .thenReturn(new ThingStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, null));
         when(thingStatusInfoChangedEvent.getThingUID()).thenReturn(THING_UID);
-        inboxAutoIgnore.receive(thingStatusInfoChangedEvent);
+        automaticInboxProcessor.receive(thingStatusInfoChangedEvent);
 
         results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW)).collect(Collectors.toList());
         assertThat(results.size(), is(0));
@@ -258,7 +264,7 @@ public class AutomaticInboxProcessorTest {
         when(thingStatusInfoChangedEvent.getStatusInfo())
                 .thenReturn(new ThingStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, null));
         when(thingStatusInfoChangedEvent.getThingUID()).thenReturn(THING_UID);
-        inboxAutoIgnore.receive(thingStatusInfoChangedEvent);
+        automaticInboxProcessor.receive(thingStatusInfoChangedEvent);
 
         results = inbox.stream().filter(withFlag(DiscoveryResultFlag.IGNORED)).collect(Collectors.toList());
         assertThat(results.size(), is(0));
@@ -294,7 +300,7 @@ public class AutomaticInboxProcessorTest {
         assertThat(results.size(), is(1));
         assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID)));
 
-        inboxAutoIgnore.removed(thing);
+        automaticInboxProcessor.removed(thing);
 
         results = inbox.getAll();
         assertThat(results.size(), is(0));
@@ -314,7 +320,7 @@ public class AutomaticInboxProcessorTest {
                 .collect(Collectors.toList());
         assertThat(results.size(), is(2));
 
-        inboxAutoIgnore.removed(thing);
+        automaticInboxProcessor.removed(thing);
 
         results = inbox.getAll();
         assertThat(results.size(), is(1));
@@ -335,7 +341,7 @@ public class AutomaticInboxProcessorTest {
         when(thingStatusInfoChangedEvent.getStatusInfo())
                 .thenReturn(new ThingStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, null));
         when(thingStatusInfoChangedEvent.getThingUID()).thenReturn(THING_UID2);
-        inboxAutoIgnore.receive(thingStatusInfoChangedEvent);
+        automaticInboxProcessor.receive(thingStatusInfoChangedEvent);
 
         results = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW)).collect(Collectors.toList());
         assertThat(results.size(), is(0));
@@ -374,10 +380,85 @@ public class AutomaticInboxProcessorTest {
         assertThat(results.size(), is(1));
         assertThat(results.get(0).getThingUID(), is(equalTo(THING_UID2)));
 
-        inboxAutoIgnore.removed(thing2);
+        automaticInboxProcessor.removed(thing2);
 
         results = inbox.getAll();
         assertThat(results.size(), is(0));
+    }
+
+    @Test
+    public void testAutomaticDiscoveryResultApprovalIfInboxEntriesAddedAfterApprovalPredicatesAreAdded() {
+        automaticInboxProcessor.addInboxAutoApprovePredicate(
+                discoveryResult -> discoveryResult.getThingTypeUID().equals(THING_TYPE_UID));
+
+        // The following discovery result is automatically approved, as it has matching thing type UID
+        inbox.add(DiscoveryResultBuilder.create(THING_UID).build());
+        verify(thingRegistry, times(1)).add(argThat(thing -> thing.getUID().equals(THING_UID)));
+
+        // The following discovery result is not automatically approved, as it does not have matching thing type UID
+        inbox.add(DiscoveryResultBuilder.create(THING_UID3).build());
+        verify(thingRegistry, never()).add(argThat(thing -> thing.getUID().equals(THING_UID3)));
+    }
+
+    @Test
+    public void testAutomaticDiscoveryResultApprovalIfInboxEntriesExistBeforeApprovalPredicatesAreAdded() {
+        inbox.add(DiscoveryResultBuilder.create(THING_UID).build());
+        inbox.add(DiscoveryResultBuilder.create(THING_UID2).build());
+        inbox.add(DiscoveryResultBuilder.create(THING_UID3).build());
+
+        // Adding this inboxAutoApprovePredicate will auto-approve the first two discovery results as they have matching
+        // thing type UID.
+        automaticInboxProcessor.addInboxAutoApprovePredicate(
+                discoveryResult -> discoveryResult.getThingTypeUID().equals(THING_TYPE_UID));
+
+        verify(thingRegistry, times(1)).add(argThat(thing -> thing.getUID().equals(THING_UID)));
+        verify(thingRegistry, times(1)).add(argThat(thing -> thing.getUID().equals(THING_UID2)));
+        verify(thingRegistry, never()).add(argThat(thing -> thing.getUID().equals(THING_UID3)));
+
+        // Adding this inboxAutoApprovePredicate will auto-approve the third discovery results as it has matching
+        // thing type UID.
+        automaticInboxProcessor.addInboxAutoApprovePredicate(
+                discoveryResult -> discoveryResult.getThingTypeUID().equals(THING_TYPE_UID3));
+
+        verify(thingRegistry, times(1)).add(argThat(thing -> thing.getUID().equals(THING_UID)));
+        verify(thingRegistry, times(1)).add(argThat(thing -> thing.getUID().equals(THING_UID2)));
+        verify(thingRegistry, times(1)).add(argThat(thing -> thing.getUID().equals(THING_UID3)));
+    }
+
+    @Test
+    public void testAlwaysAutoApproveInboxEntries() {
+        // Before setting the always auto approve property, existing inbox results are not approved
+        inbox.add(DiscoveryResultBuilder.create(THING_UID).build());
+
+        verify(thingRegistry, never()).add(argThat(thing -> thing.getUID().equals(THING_UID)));
+
+        // After setting the always auto approve property, all existing inbox results are approved.
+        Map<String, Object> configProperties = new HashMap<>();
+        configProperties.put(AutomaticInboxProcessor.ALWAYS_AUTO_APPROVE_CONFIG_PROPERTY, true);
+        automaticInboxProcessor.activate(configProperties);
+
+        verify(thingRegistry, times(1)).add(argThat(thing -> thing.getUID().equals(THING_UID)));
+
+        // Newly added inbox results are also approved.
+        inbox.add(DiscoveryResultBuilder.create(THING_UID2).build());
+        verify(thingRegistry, times(1)).add(argThat(thing -> thing.getUID().equals(THING_UID2)));
+    }
+
+    @Test
+    @Ignore("Should this test pass? It will fail currently, as RuntimeExceptions are not explicitly caught in AutomaticInboxProcessor#isToBeAutoApproved")
+    public void testRogueInboxAutoApprovePredicatesDoNoHarm() {
+        automaticInboxProcessor.addInboxAutoApprovePredicate(discoveryResult -> {
+            throw new RuntimeException("I am an evil inboxAutoApprovePredicate");
+        });
+        automaticInboxProcessor.addInboxAutoApprovePredicate(
+                discoveryResult -> discoveryResult.getThingTypeUID().equals(THING_TYPE_UID));
+        automaticInboxProcessor.addInboxAutoApprovePredicate(discoveryResult -> {
+            throw new RuntimeException("I am another evil inboxAutoApprovePredicate");
+        });
+
+        // The discovery result is auto-approved in the presence of the evil predicates
+        inbox.add(DiscoveryResultBuilder.create(THING_UID).build());
+        verify(thingRegistry, times(1)).add(argThat(thing -> thing.getUID().equals(THING_UID)));
     }
 
 }
