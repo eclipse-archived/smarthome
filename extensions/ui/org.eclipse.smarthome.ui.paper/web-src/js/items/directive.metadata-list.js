@@ -30,6 +30,19 @@
                 scheme : 'metadata'
             }, function(metadataConfigDescriptions) {
                 ctrl.metadataConfigDescriptions = metadataConfigDescriptions;
+
+                if (!ctrl.item.metadata) {
+                    ctrl.item.metadata = {};
+                }
+
+                ctrl.metadataConfigDescriptions.forEach(function(metadataConfigDescription) {
+                    if (!ctrl.item.metadata[metadataConfigDescription.uri]) {
+                        ctrl.item.metadata[metadataConfigDescription.uri] = {
+                            value : undefined
+                        }
+                    }
+                })
+
             });
         }
     }

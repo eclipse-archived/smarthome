@@ -1,13 +1,15 @@
-<p>{{$ctrl.configDescription.uri}}</p>
+<p>{{::$ctrl.namespace}}</p>
 <div>
-    <span>{{$ctrl.mainParameter.description}}</span>
-    <div ng-if="$ctrl.hasOptions()">
-        
+    <span>{{::$ctrl.mainParameter.description}}</span>
+    <div ng-if="$ctrl.hasOptions()" class="container options">
+        <md-select placeholder="Select" class="controlSelect" ng-model="$ctrl.metadata.value" aria-label={{::$ctrl.namespace}}> 
+            <md-option ng-value="option.value" ng-repeat="option in ::$ctrl.mainParameter.options"> {{::option.label}} </md-option> 
+        </md-select>
     </div>
-    <div ng-if="!$ctrl.hasOptions()">
+    <div ng-if="!$ctrl.hasOptions()" class="container">
         <md-input-container> 
-            <input type="text" name="{{::item.name}}" ng-model="item.state" aria-label={{::item.label}}></input> 
+            <input type="text" name="{{::$ctrl.namespace}}" ng-model="$ctrl.metadata.value" aria-label={{::$ctrl.namespace}}></input> 
         </md-input-container>
     </div>
-    <span>Options</span>
+    <!--  span>Options</span -->
 </div>

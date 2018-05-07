@@ -10,7 +10,7 @@
             scope : {},
             bindToController : {
                 configDescription : '=',
-                item : '='
+                metadata : '='
             },
             controllerAs : '$ctrl',
             templateUrl : 'partials/items/directive.metadata-details.html',
@@ -20,12 +20,18 @@
 
     function MetadataDetailsController() {
         var ctrl = this;
-        this.mainParameter = this.configDescription.parameters[0]
+        this.namespace = this.configDescription.uri
+        this.mainParameter = this.configDescription.parameters[0];
+        this.hasOptions = hasOptions;
 
         activate();
 
         function activate() {
             console.log(ctrl)
+        }
+
+        function hasOptions() {
+            return ctrl.mainParameter.options && ctrl.mainParameter.options.length > 0;
         }
     }
 
