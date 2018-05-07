@@ -13,7 +13,7 @@
 package org.eclipse.smarthome.core.thing.binding.firmware;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -81,7 +81,7 @@ public class FirmwareTest extends JavaOSGiTest {
     private static final Firmware combined4 = FirmwareBuilder.create(thingTypeUID, "1.3.1-2.4.1").build();
 
     @Test
-    public void testBuilder() throws MalformedURLException {
+    public void testFirmwareBuilder() throws MalformedURLException {
         ThingTypeUID sampleThingTypeUID = new ThingTypeUID("binding", "sampleThingType");
         String version = "1.0.0";
         String changelog = "changelog";
@@ -160,31 +160,34 @@ public class FirmwareTest extends JavaOSGiTest {
     }
 
     @Test
-    public void testFirmwarePrerequisiteVersion() {
-        assertThat(valpha.isPrerequisiteVersion(vbeta.getVersion()), is(false));
-        assertThat(valpha.isPrerequisiteVersion(null), is(false));
+    public void testFirmwareSuitabilityNoPrerequisiteVersion() {
+        Firmware firmware = firmwareWithVersion("2.0.0");
 
-        assertThat(vbeta.isPrerequisiteVersion(valpha1.getVersion()), is(true));
-        assertThat(vbeta.isPrerequisiteVersion(valpha.getVersion()), is(false));
+        assertTrue(firmware.isSuitableFor(thingWithFirmwareVersion(null)));
+        assertTrue(firmware.isSuitableFor(thingWithFirmwareVersion("1.0.0")));
+        assertTrue(firmware.isSuitableFor(thingWithFirmwareVersion("2.0.0")));
+        assertTrue(firmware.isSuitableFor(thingWithFirmwareVersion("3.0.0")));
+    }
 
-        assertThat(vgamma.isPrerequisiteVersion(vbetafix.getVersion()), is(true));
-        assertThat(vgamma.isPrerequisiteVersion(vbeta.getVersion()), is(false));
+    @Test
+    public void testFirmwareSuitabilityWithPrerequisiteVersion() {
+        Firmware firmware = firmwareWithVersionAndPrerequisiteVersion("3.0.0", "2.0.0");
 
-        assertThat(vdelta.isPrerequisiteVersion(vgamma.getVersion()), is(false));
+        assertFalse(firmware.isSuitableFor(thingWithFirmwareVersion(null)));
+        assertFalse(firmware.isSuitableFor(thingWithFirmwareVersion("1.0.0")));
+        assertTrue(firmware.isSuitableFor(thingWithFirmwareVersion("2.0.0")));
+        assertTrue(firmware.isSuitableFor(thingWithFirmwareVersion("3.0.0")));
+        assertTrue(firmware.isSuitableFor(thingWithFirmwareVersion("4.0.0")));
+    }
 
-        assertThat(v1dot0dot2.isPrerequisiteVersion(v1dot0dot1.getVersion()), is(true));
-        assertThat(v1dot0dot2.isPrerequisiteVersion(v1dot0dot0.getVersion()), is(false));
-        assertThat(v1dot0dot2.isPrerequisiteVersion(v0dot0dot9.getVersion()), is(false));
+    @Test
+    public void testFirmwareSuitabilityWithHigherPrerequisiteVersion() {
+        Firmware firmware = firmwareWithVersionAndPrerequisiteVersion("1.0.0", "2.0.0");
 
-        assertThat(v1dot1dot0.isPrerequisiteVersion(v1dash1.getVersion()), is(true));
-        assertThat(v1dot1dot0.isPrerequisiteVersion(v1dot0dot3.getVersion()), is(true));
-        assertThat(v1dot1dot0.isPrerequisiteVersion(v1dot0dot2dashfix.getVersion()), is(true));
-        assertThat(v1dot1dot0.isPrerequisiteVersion(v1dot0dot2.getVersion()), is(false));
-        assertThat(v1dot1dot0.isPrerequisiteVersion(v1dot0dot1.getVersion()), is(false));
-        assertThat(v1dot1dot0.isPrerequisiteVersion(v0dot0dot9.getVersion()), is(false));
-
-        assertThat(v2dot0dot0.isPrerequisiteVersion(v1dot11_2dasha.getVersion()), is(true));
-        assertThat(v2dot0dot0.isPrerequisiteVersion(v1dash11dot2_1.getVersion()), is(false));
+        assertFalse(firmware.isSuitableFor(thingWithFirmwareVersion(null)));
+        assertFalse(firmware.isSuitableFor(thingWithFirmwareVersion("1.0.0")));
+        assertTrue(firmware.isSuitableFor(thingWithFirmwareVersion("2.0.0")));
+        assertTrue(firmware.isSuitableFor(thingWithFirmwareVersion("3.0.0")));
     }
 
     @Test
@@ -305,5 +308,19 @@ public class FirmwareTest extends JavaOSGiTest {
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyVersionOnCreation() {
         FirmwareBuilder.create(thingTypeUID, "");
+    }
+
+    private Firmware firmwareWithVersion(String version) {
+        return FirmwareBuilder.create(thingTypeUID, version).build();
+    }
+
+    private Firmware firmwareWithVersionAndPrerequisiteVersion(String version, String prerequisiteVersion) {
+        return FirmwareBuilder.create(thingTypeUID, version).withPrerequisiteVersion(prerequisiteVersion).build();
+    }
+
+    private Thing thingWithFirmwareVersion(String version) {
+        Map<String, String> properties = new HashMap<>();
+        properties.put(Thing.PROPERTY_FIRMWARE_VERSION, version);
+        return ThingBuilder.create(thingTypeUID, "testThing").withProperties(properties).build();
     }
 }

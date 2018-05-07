@@ -113,6 +113,9 @@ public interface Firmware extends Comparable<Firmware> {
 
     /**
      * Returns the prerequisite version of the firmware.
+     * <p/>
+     * A non-null prerequisite firmware version indicates that this firmware can only be installed on things for which
+     * the installed firmware has a version greater or equal to the prerequisite firmware version.
      *
      * @return the prerequisite version of the firmware (can be null)
      */
@@ -177,19 +180,7 @@ public interface Firmware extends Comparable<Firmware> {
     public boolean isSuccessorVersion(@Nullable String firmwareVersion);
 
     /**
-     * Returns true, if this firmware is a valid prerequisite version of the given firmware version, otherwise false.
-     * If this firmware does not have a prerequisite version or if the given firmware version is null, then this
-     * operation will return false.
-     *
-     * @param firmwareVersion the firmware version to be checked if this firmware is valid prerequisite version of the
-     *            given firmware version
-     * @return true, if this firmware is valid prerequisite version of the given firmware version, otherwise false
-     */
-    public boolean isPrerequisiteVersion(@Nullable String firmwareVersion);
-
-    /**
-     * Checks whether this firmware is suitable for the given thing by checking the thing type and the model
-     * restrictions (if any).
+     * Checks whether this firmware is suitable for the given thing.
      *
      * @param thing to be checked for suitability with the current firmware
      * @return <code>true</code> if the current firmware is suitable for the given thing and <code>false</code>
