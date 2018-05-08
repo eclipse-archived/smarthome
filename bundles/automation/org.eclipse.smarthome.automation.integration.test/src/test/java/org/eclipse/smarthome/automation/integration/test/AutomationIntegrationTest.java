@@ -90,7 +90,7 @@ import org.slf4j.LoggerFactory;
  * @author Marin Mitev - various fixes and extracted JSON parser test to separate file
  *
  */
-class AutomationIntegrationTest extends JavaOSGiTest {
+public class AutomationIntegrationTest extends JavaOSGiTest {
 
     final Logger logger = LoggerFactory.getLogger(AutomationIntegrationTest.class);
     private EventPublisher eventPublisher;
@@ -105,7 +105,7 @@ class AutomationIntegrationTest extends JavaOSGiTest {
     Event itemEvent = null;
 
     @Before
-    void before() {
+    public void before() {
         logger.info("@Before.begin");
 
         getService(ItemRegistry.class);
@@ -171,7 +171,7 @@ class AutomationIntegrationTest extends JavaOSGiTest {
     }
 
     @After
-    void after() {
+    public void after() {
         logger.info("@After");
     }
 

@@ -24,8 +24,8 @@ import java.util.Set;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleManager;
 import org.eclipse.smarthome.automation.RulePredicates;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
@@ -70,13 +70,13 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - refactored to Java
  *
  */
-class AutomationIntegrationJsonTest extends JavaOSGiTest {
+public class AutomationIntegrationJsonTest extends JavaOSGiTest {
 
     final Logger logger = LoggerFactory.getLogger(AutomationIntegrationJsonTest.class);
     private EventPublisher eventPublisher;
     private ItemRegistry itemRegistry;
     private RuleRegistry ruleRegistry;
-    private ModuleHandlerCallback ruleEngine;
+    private RuleManager ruleManager;
     private ManagedRuleProvider managedRuleProvider;
     private ModuleTypeRegistry moduleTypeRegistry;
     private Event ruleEvent;
@@ -87,7 +87,7 @@ class AutomationIntegrationJsonTest extends JavaOSGiTest {
                                                                                                   // json files
 
     @Before
-    void before() {
+    public void before() {
         logger.info("@Before.begin");
 
         getService(ItemRegistry.class);
@@ -153,7 +153,7 @@ class AutomationIntegrationJsonTest extends JavaOSGiTest {
         eventPublisher = getService(EventPublisher.class);
         itemRegistry = getService(ItemRegistry.class);
         ruleRegistry = getService(RuleRegistry.class);
-        ruleEngine = getService(ModuleHandlerCallback.class);
+        ruleManager = getService(RuleManager.class);
         moduleTypeRegistry = getService(ModuleTypeRegistry.class);
 
         waitForAssert(() -> {
@@ -162,7 +162,7 @@ class AutomationIntegrationJsonTest extends JavaOSGiTest {
             assertThat(eventPublisher, is(notNullValue()));
             assertThat(itemRegistry, is(notNullValue()));
             assertThat(ruleRegistry, is(notNullValue()));
-            assertThat(ruleEngine, is(notNullValue()));
+            assertThat(ruleManager, is(notNullValue()));
             assertThat(managedRuleProvider, is(notNullValue()));
             assertThat(moduleTypeRegistry, is(notNullValue()));
         }, 9000, 1000);
@@ -171,7 +171,7 @@ class AutomationIntegrationJsonTest extends JavaOSGiTest {
     }
 
     @After
-    void after() {
+    public void after() {
         logger.info("@After");
     }
 
@@ -232,7 +232,7 @@ class AutomationIntegrationJsonTest extends JavaOSGiTest {
                     RulePredicates.hasAnyOfTags("jsonTest").and(RulePredicates.hasAnyOfTags("references").negate()))
                     .findFirst().orElse(null);
             assertThat(rule2, is(notNullValue()));
-            RuleStatusInfo ruleStatus2 = ruleEngine.getStatusInfo(rule2.getUID());
+            RuleStatusInfo ruleStatus2 = ruleManager.getStatusInfo(rule2.getUID());
             assertThat(ruleStatus2.getStatus(), is(RuleStatus.IDLE));
         }, 10000, 200);
 
@@ -262,7 +262,7 @@ class AutomationIntegrationJsonTest extends JavaOSGiTest {
         assertThat(action.get().getTypeUID(), is("core.ItemCommandAction"));
         assertThat(action.get().getConfiguration().get("itemName"), is("myLampItem"));
         assertThat(action.get().getConfiguration().get("command"), is("ON"));
-        RuleStatusInfo ruleStatus = ruleEngine.getStatusInfo(rule.getUID());
+        RuleStatusInfo ruleStatus = ruleManager.getStatusInfo(rule.getUID());
         assertThat(ruleStatus.getStatus(), is(RuleStatus.IDLE));
     }
 
@@ -277,7 +277,7 @@ class AutomationIntegrationJsonTest extends JavaOSGiTest {
             Rule rule2 = ruleRegistry.stream().filter(RulePredicates.hasAllTags("jsonTest", "references")).findFirst()
                     .orElse(null);
             assertThat(rule2, is(notNullValue()));
-            RuleStatusInfo ruleStatus2 = ruleEngine.getStatusInfo(rule2.getUID());
+            RuleStatusInfo ruleStatus2 = ruleManager.getStatusInfo(rule2.getUID());
             assertThat(ruleStatus2.getStatus(), is(RuleStatus.IDLE));
         }, 10000, 200);
         Rule rule = ruleRegistry.stream().filter(RulePredicates.hasAllTags("jsonTest", "references")).findFirst()
@@ -304,7 +304,7 @@ class AutomationIntegrationJsonTest extends JavaOSGiTest {
         assertThat(action.isPresent(), is(true));
         assertThat(action.get().getTypeUID(), is("core.ItemCommandAction"));
         assertThat(action.get().getConfiguration().get("command"), is("ON"));
-        RuleStatusInfo ruleStatus = ruleEngine.getStatusInfo(rule.getUID());
+        RuleStatusInfo ruleStatus = ruleManager.getStatusInfo(rule.getUID());
         assertThat(ruleStatus.getStatus(), is(RuleStatus.IDLE));
 
         // run the rule to check if the runtime rule has resolved module references and is executed successfully
@@ -348,7 +348,7 @@ class AutomationIntegrationJsonTest extends JavaOSGiTest {
             assertThat(ruleRegistry.getAll().isEmpty(), is(false));
             Rule r = ruleRegistry.get("ItemSampleRule");
             assertThat(r, is(notNullValue()));
-            assertThat(ruleEngine.getStatusInfo(r.getUID()).getStatus(), is(RuleStatus.IDLE));
+            assertThat(ruleManager.getStatusInfo(r.getUID()).getStatus(), is(RuleStatus.IDLE));
         }, 9000, 200);
 
         SwitchItem myPresenceItem = (SwitchItem) itemRegistry.getItem("myPresenceItem");

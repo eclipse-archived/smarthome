@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
+import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventSubscriber;
@@ -97,7 +98,7 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
             Map<String, Object> values = new HashMap<>();
             values.put("event", event);
 
-            callback.triggered(this.module, values);
+            ((TriggerHandlerCallback) callback).triggered(this.module, values);
         }
     }
 

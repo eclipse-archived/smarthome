@@ -30,6 +30,6 @@ public class RuleInstanceCreator implements InstanceCreator<Rule> {
 
     @Override
     public Rule createInstance(Type type) {
-        return RuleBuilder.create("").build();
+        return RuleBuilder.create("dummy").build();
     }
 }

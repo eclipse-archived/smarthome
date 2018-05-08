@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Refactored to Java
  */
 @SuppressWarnings("deprecation")
-class HostFragmentSupportTest extends JavaOSGiTest {
+public class HostFragmentSupportTest extends JavaOSGiTest {
 
     final Logger logger = LoggerFactory.getLogger(HostFragmentSupportTest.class);
     private ModuleTypeRegistry moduleTypeRegistry;
@@ -85,7 +85,7 @@ class HostFragmentSupportTest extends JavaOSGiTest {
     boolean waiting = true;
 
     @Before
-    void before() {
+    public void before() {
         logger.info("@Before.begin");
 
         Locale.setDefault(Locale.ENGLISH);
@@ -104,7 +104,7 @@ class HostFragmentSupportTest extends JavaOSGiTest {
     }
 
     @After
-    void after() {
+    public void after() {
         logger.info("@After");
     }
 

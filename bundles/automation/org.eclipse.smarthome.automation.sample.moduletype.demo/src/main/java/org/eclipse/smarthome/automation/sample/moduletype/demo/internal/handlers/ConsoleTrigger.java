@@ -20,6 +20,7 @@ import java.util.Map;
 import org.eclipse.smarthome.automation.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
+import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 import org.eclipse.smarthome.automation.sample.moduletype.demo.internal.factory.HandlerFactory;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.osgi.framework.BundleContext;
@@ -130,7 +131,7 @@ public class ConsoleTrigger extends BaseTriggerModuleHandler implements EventHan
         final Integer outputValue = (Integer) event.getProperty(keyName);
         final Map<String, Object> outputProps = new HashMap<String, Object>();
         outputProps.put(OUTPUT_NAME, outputValue);
-        callback.triggered(module, outputProps);
+        ((TriggerHandlerCallback) callback).triggered(module, outputProps);
     }
 
     /**

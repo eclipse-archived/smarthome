@@ -17,6 +17,7 @@ import java.text.ParseException;
 import org.eclipse.smarthome.automation.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
+import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 import org.eclipse.smarthome.automation.module.timer.factory.TimerModuleHandlerFactory;
 import org.eclipse.smarthome.core.scheduler.CronExpression;
 import org.eclipse.smarthome.core.scheduler.Expression;
@@ -85,6 +86,6 @@ public class GenericCronTriggerHandler extends BaseTriggerModuleHandler implemen
 
     @Override
     public void run() {
-        callback.triggered(module, null);
+        ((TriggerHandlerCallback) callback).triggered(module, null);
     }
 }

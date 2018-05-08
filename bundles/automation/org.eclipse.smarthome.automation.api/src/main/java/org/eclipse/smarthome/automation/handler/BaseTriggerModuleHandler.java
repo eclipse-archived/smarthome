@@ -17,11 +17,9 @@ import org.eclipse.smarthome.automation.Trigger;
 /**
  * This is a base class that can be used by TriggerModuleHandler implementations
  *
- * @author Vasil Ilchev
+ * @author Vasil Ilchev - Initial contribution
  */
 public class BaseTriggerModuleHandler extends BaseModuleHandler<Trigger> implements TriggerHandler {
-
-    protected TriggerHandlerCallback callback;
 
     public BaseTriggerModuleHandler(Trigger module) {
         super(module);

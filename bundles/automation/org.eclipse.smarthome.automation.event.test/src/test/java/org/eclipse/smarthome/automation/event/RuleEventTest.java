@@ -13,7 +13,7 @@
 package org.eclipse.smarthome.automation.event;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -169,6 +169,7 @@ public class RuleEventTest extends JavaOSGiTest {
         EventPublisher eventPublisher = getService(EventPublisher.class);
         ItemRegistry itemRegistry = getService(ItemRegistry.class);
         SwitchItem myMotionItem = (SwitchItem) itemRegistry.getItem("myMotionItem2");
+        assertNotNull(myMotionItem);
         eventPublisher.post(ItemEventFactory.createStateEvent("myPresenceItem2", OnOffType.ON));
 
         EventSubscriber itemEventHandler = new EventSubscriber() {

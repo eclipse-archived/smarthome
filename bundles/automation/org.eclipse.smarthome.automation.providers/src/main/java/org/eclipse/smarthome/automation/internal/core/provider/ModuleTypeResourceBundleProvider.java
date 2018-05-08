@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
@@ -36,8 +37,17 @@ import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * This class is implementation of {@link ModuleTypeProvider}. It serves for providing {@link ModuleType}s by loading
@@ -54,6 +64,7 @@ import org.osgi.framework.Bundle;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  * @author Yordan Mihaylov - updates related to api changes
  */
+@Component(immediate = true, service = { ModuleTypeProvider.class, Provider.class }, property = "provider.type=bundle")
 public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProvider<ModuleType>
         implements ModuleTypeProvider {
 
@@ -66,6 +77,40 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
     public ModuleTypeResourceBundleProvider() {
         listeners = new LinkedList<ProviderChangeListener<ModuleType>>();
         path = ROOT_DIRECTORY + "/moduletypes/";
+    }
+
+    @Override
+    @Activate
+    protected void activate(BundleContext bc) {
+        super.activate(bc);
+    }
+
+    @Override
+    @Deactivate
+    protected void deactivate() {
+        super.deactivate();
+    }
+
+    @Override
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, policy = ReferencePolicy.DYNAMIC, target = "(parser.type=parser.module.type)")
+    protected void addParser(Parser<ModuleType> parser, Map<String, String> properties) {
+        super.addParser(parser, properties);
+    }
+
+    @Override
+    protected void removeParser(Parser<ModuleType> parser, Map<String, String> properties) {
+        super.removeParser(parser, properties);
+    }
+
+    @Override
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setTranslationProvider(TranslationProvider i18nProvider) {
+        super.setTranslationProvider(i18nProvider);
+    }
+
+    @Override
+    protected void unsetTranslationProvider(TranslationProvider i18nProvider) {
+        super.unsetTranslationProvider(i18nProvider);
     }
 
     @Override

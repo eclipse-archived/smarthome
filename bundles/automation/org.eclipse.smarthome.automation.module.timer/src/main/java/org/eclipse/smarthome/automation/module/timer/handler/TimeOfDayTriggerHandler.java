@@ -17,6 +17,7 @@ import java.text.ParseException;
 import org.eclipse.smarthome.automation.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
+import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 import org.eclipse.smarthome.automation.module.timer.factory.TimerModuleHandlerFactory;
 import org.eclipse.smarthome.core.scheduler.Expression;
 import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager;
@@ -71,7 +72,7 @@ public class TimeOfDayTriggerHandler extends BaseTriggerModuleHandler implements
 
     @Override
     public void run() {
-        callback.triggered(module, null);
+        ((TriggerHandlerCallback) callback).triggered(module, null);
     }
 
     @Override

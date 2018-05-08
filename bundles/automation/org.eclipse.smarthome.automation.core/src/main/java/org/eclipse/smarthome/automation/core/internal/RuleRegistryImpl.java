@@ -385,7 +385,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
             logger.debug("Rule template {} does not exist.", templateUID);
             return rule;
         } else {
-            RuleImpl resolvedRule = (RuleImpl) RuleBuilder.create(rule).build();
+            RuleImpl resolvedRule = (RuleImpl) RuleBuilder
+                    .create(template, rule.getUID(), rule.getName(), rule.getConfiguration(), rule.getVisibility())
+                    .build();
             resolveConfigurations(resolvedRule);
             updateRuleTemplateMapping(templateUID, uid, true);
             return resolvedRule;

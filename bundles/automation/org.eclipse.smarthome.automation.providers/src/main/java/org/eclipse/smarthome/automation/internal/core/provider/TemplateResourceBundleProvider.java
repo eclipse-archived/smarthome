@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
@@ -30,8 +31,17 @@ import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * This class is implementation of {@link TemplateProvider}. It serves for providing {@link RuleTemplates}s by loading
@@ -49,6 +59,8 @@ import org.osgi.framework.Bundle;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  * @author Yordan Mihaylov - updates related to api changes
  */
+@Component(immediate = true, service = { RuleTemplateProvider.class,
+        Provider.class }, property = "provider.type=bundle")
 public class TemplateResourceBundleProvider extends AbstractResourceBundleProvider<RuleTemplate>
         implements RuleTemplateProvider {
 
@@ -61,6 +73,40 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
     public TemplateResourceBundleProvider() {
         listeners = new LinkedList<ProviderChangeListener<RuleTemplate>>();
         path = ROOT_DIRECTORY + "/templates/";
+    }
+
+    @Override
+    @Activate
+    protected void activate(BundleContext bc) {
+        super.activate(bc);
+    }
+
+    @Override
+    @Deactivate
+    protected void deactivate() {
+        super.deactivate();
+    }
+
+    @Override
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, policy = ReferencePolicy.DYNAMIC, target = "(parser.type=parser.template)")
+    protected void addParser(Parser<RuleTemplate> parser, Map<String, String> properties) {
+        super.addParser(parser, properties);
+    }
+
+    @Override
+    protected void removeParser(Parser<RuleTemplate> parser, Map<String, String> properties) {
+        super.removeParser(parser, properties);
+    }
+
+    @Override
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setTranslationProvider(TranslationProvider i18nProvider) {
+        super.setTranslationProvider(i18nProvider);
+    }
+
+    @Override
+    protected void unsetTranslationProvider(TranslationProvider i18nProvider) {
+        super.unsetTranslationProvider(i18nProvider);
     }
 
     @Override

@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
+import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventSubscriber;
@@ -92,7 +93,7 @@ public class ItemCommandTriggerHandler extends BaseTriggerModuleHandler implemen
                 if (this.command == null || this.command.equals(command.toFullString())) {
                     values.put("command", command);
                     values.put("event", event);
-                    callback.triggered(this.module, values);
+                    ((TriggerHandlerCallback) callback).triggered(this.module, values);
                 }
             }
         }

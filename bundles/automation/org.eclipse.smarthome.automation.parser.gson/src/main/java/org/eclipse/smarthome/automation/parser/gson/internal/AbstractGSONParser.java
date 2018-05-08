@@ -15,7 +15,10 @@ package org.eclipse.smarthome.automation.parser.gson.internal;
 import java.io.OutputStreamWriter;
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.Action;
+import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.type.CompositeActionType;
@@ -42,6 +45,9 @@ public abstract class AbstractGSONParser<T> implements Parser<T> {
     protected static Gson gson = new GsonBuilder() //
             .registerTypeAdapter(Rule.class, new RuleInstanceCreator()) //
             .registerTypeAdapter(RuleTemplate.class, new TemplateInstanceCreator()) //
+            .registerTypeAdapter(Trigger.class, new ModuleInstanceCreator()) //
+            .registerTypeAdapter(Condition.class, new ModuleInstanceCreator()) //
+            .registerTypeAdapter(Action.class, new ModuleInstanceCreator()) //
             .registerTypeAdapter(CompositeActionType.class, new ActionInstanceCreator()) //
             .registerTypeAdapter(CompositeConditionType.class, new ConditionInstanceCreator()) //
             .registerTypeAdapter(CompositeTriggerType.class, new TriggerInstanceCreator()) //

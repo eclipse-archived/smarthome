@@ -224,7 +224,7 @@ public abstract class AbstractResourceBundleProvider<E> {
         this.i18nProvider = i18nProvider;
     }
 
-    protected void removeTranslationProvider(TranslationProvider i18nProvider) {
+    protected void unsetTranslationProvider(TranslationProvider i18nProvider) {
         this.i18nProvider = null;
     }
 

@@ -29,6 +29,7 @@ import org.eclipse.smarthome.automation.core.internal.ActionImpl;
 import org.eclipse.smarthome.automation.core.internal.ConditionImpl;
 import org.eclipse.smarthome.automation.core.internal.RuleImpl;
 import org.eclipse.smarthome.automation.core.internal.TriggerImpl;
+import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.Configuration;
 
@@ -57,6 +58,14 @@ public class RuleBuilder {
                 .withTriggers(r.getTriggers()).withConfiguration(r.getConfiguration())
                 .withConfigurationDescriptions(r.getConfigurationDescriptions()).withDescription(r.getDescription())
                 .withName(r.getName()).withTags(r.getTags());
+    }
+
+    public static RuleBuilder create(RuleTemplate template, String uid, @Nullable String name,
+            Configuration configuration, Visibility visibility) {
+        return create(uid).withActions(template.getActions()).withConditions(template.getConditions())
+                .withTriggers(template.getTriggers()).withConfiguration(configuration)
+                .withConfigurationDescriptions(template.getConfigurationDescriptions())
+                .withDescription(template.getDescription()).withName(name).withTags(template.getTags());
     }
 
     public RuleBuilder withName(@Nullable String name) {
