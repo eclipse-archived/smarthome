@@ -36,10 +36,10 @@ import org.mockito.Mock;
 
 public class UpnpIOServiceTest {
 
-    private static final String UDNString = "UDN";
-    private static final UDN UDN_1 = new UDN(UDNString);
-    private static final String UDNString2 = "UDN2";
-    private static final UDN UDN_2 = new UDN(UDNString2);
+    private static final String UDN_1_STRING = "UDN";
+    private static final UDN UDN_1 = new UDN(UDN_1_STRING);
+    private static final String UDN_2_STRING = "UDN2";
+    private static final UDN UDN_2 = new UDN(UDN_2_STRING);
     private static final String SERVICE_ID = "serviceId";
     private static final String SERVICE_ID_2 = "serviceId2";
     private static final String ACTION_ID = "actionId";
@@ -58,9 +58,9 @@ public class UpnpIOServiceTest {
     public void setup() throws Exception {
         initMocks(this);
 
-        when(upnpIoParticipant.getUDN()).thenReturn(UDNString);
+        when(upnpIoParticipant.getUDN()).thenReturn(UDN_1_STRING);
 
-        when(upnpIoParticipant2.getUDN()).thenReturn(UDNString2);
+        when(upnpIoParticipant2.getUDN()).thenReturn(UDN_2_STRING);
 
         DeviceIdentity deviceIdentity = new DeviceIdentity(UDN_1);
         DeviceType deviceType = new DeviceType(UDAServiceId.DEFAULT_NAMESPACE, DEVICE_TYPE, 1);
