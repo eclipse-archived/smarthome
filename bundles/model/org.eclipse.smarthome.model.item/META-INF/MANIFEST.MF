@@ -22,7 +22,6 @@ Export-Package:
 Import-Package: 
  javax.measure,
  javax.measure.quantity,
- org.apache.commons.lang,
  org.apache.log4j,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
