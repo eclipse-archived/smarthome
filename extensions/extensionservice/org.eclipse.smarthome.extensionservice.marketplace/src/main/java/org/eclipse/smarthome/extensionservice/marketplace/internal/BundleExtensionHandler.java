@@ -57,7 +57,6 @@ public class BundleExtensionHandler implements MarketplaceExtensionHandler {
     // extension types supported by this handler
     private static final List<String> SUPPORTED_EXT_TYPES = Arrays.asList(
         MarketplaceExtension.EXT_TYPE_BINDING,
-        MarketplaceExtension.EXT_TYPE_UI,
         MarketplaceExtension.EXT_TYPE_VOICE);
 
     private final Logger logger = LoggerFactory.getLogger(BundleExtensionHandler.class);

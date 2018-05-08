@@ -68,7 +68,6 @@ public class MarketplaceExtensionService implements ExtensionService {
     private enum PackageType {
         BINDING("binding", MarketplaceExtension.EXT_TYPE_BINDING, "bindings", "Bindings"),
         RULE_TEMPLATE("rule_template", MarketplaceExtension.EXT_TYPE_RULE_TEMPLATE, "ruletemplates", "Rule Templates"),
-        UI("ui", MarketplaceExtension.EXT_TYPE_UI, "ui", "UI"),
         VOICE("voice", MarketplaceExtension.EXT_TYPE_VOICE, "voice", "Voice");
 
         /**
