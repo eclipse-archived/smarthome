@@ -280,7 +280,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
         }
         if (item != null) {
             String label = modelItem.getLabel();
-            String format = StringUtils.substringBetween(label, "[", "]");
+            String format = extractFormat(label);
             if (format != null) {
                 label = StringUtils.substringBefore(label, "[").trim();
                 stateDescriptionFragments.put(modelItem.getName(),
@@ -292,6 +292,17 @@ public class GenericItemProvider extends AbstractProvider<Item>
         } else {
             return null;
         }
+    }
+
+    private String extractFormat(String label) {
+        if (label == null) {
+            return null;
+        }
+        String format = null;
+        if (label.contains("[") && label.contains("]")) {
+            format = label.substring(label.indexOf("[") + 1, label.lastIndexOf("]"));
+        }
+        return format;
     }
 
     private GroupItem applyGroupFunction(GenericItem baseItem, ModelGroupItem modelGroupItem,
