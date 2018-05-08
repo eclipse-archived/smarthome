@@ -17,11 +17,12 @@
         }
     }
 
-    MetaDataListController.$inject = [ 'configDescriptionService' ];
+    MetaDataListController.$inject = [ 'configDescriptionService', 'metadataService' ];
 
-    function MetaDataListController(configDescriptionService) {
+    function MetaDataListController(configDescriptionService, metadataService) {
         var ctrl = this;
         this.metadataConfigDescriptions;
+        this.URI2Namespace = metadataService.URI2Namespace
 
         activate();
 
@@ -36,9 +37,11 @@
                 }
 
                 ctrl.metadataConfigDescriptions.forEach(function(metadataConfigDescription) {
-                    if (!ctrl.item.metadata[metadataConfigDescription.uri]) {
-                        ctrl.item.metadata[metadataConfigDescription.uri] = {
-                            value : undefined
+                    var namespace = ctrl.URI2Namespace(metadataConfigDescription.uri);
+                    if (!ctrl.item.metadata[namespace]) {
+                        ctrl.item.metadata[namespace] = {
+                            value : undefined,
+                            config : {}
                         }
                     }
                 })

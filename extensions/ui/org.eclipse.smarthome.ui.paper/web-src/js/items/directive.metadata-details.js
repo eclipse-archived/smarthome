@@ -18,9 +18,11 @@
         }
     }
 
-    function MetadataDetailsController() {
+    MetadataDetailsController.$inject = [ 'metadataService' ];
+
+    function MetadataDetailsController(metadataService) {
         var ctrl = this;
-        this.namespace = this.configDescription.uri
+        this.namespace = metadataService.URI2Namespace(this.configDescription.uri);
         this.mainParameter = this.configDescription.parameters[0];
         this.hasOptions = hasOptions;
 

@@ -56,7 +56,6 @@ angular.module('PaperUI.items')//
 
     $scope.refresh();
 }).controller('ItemConfigController', function($scope, $mdDialog, $filter, $location, toastService, itemService, itemConfig, itemRepository, sharedProperties) {
-    $scope.items = [];
     $scope.oldCategory;
     $scope.types = itemConfig.types;
     $scope.groupTypes = itemConfig.groupTypes;
@@ -75,67 +74,63 @@ angular.module('PaperUI.items')//
     } else if ($scope.path && $scope.path.length > 4) {
         itemName = $scope.path[4];
     }
-    itemService.getAll(function(items) {
-        $scope.items = items;
-        if (itemName) {
-            var items = $filter('filter')(items, {
-                name : itemName
-            }, true);
-            if (items.length > 0) {
-                $scope.item = items[0];
-                setFunctionToItem();
-                angular.copy($scope.item, originalItem);
-                if (!$scope.item['function']) {
-                    $scope.item['function'] = {
-                        name : ''
-                    };
-                }
-                if (!$scope.item.groupType) {
-                    $scope.item.groupType = "None";
-                }
 
-                if ($scope.item.type.indexOf("Number:") === 0) {
-                    $scope.item.dimension = $scope.item.type.substring(7, $scope.item.type.length);
-                    $scope.item.type = "Number";
-                }
-                $scope.configMode = "edit";
-                $scope.srcURL = $scope.getSrcURL($scope.item.category, $scope.item.type);
-                $scope.oldCategory = $scope.item.category;
-                $scope.setTitle('Edit ' + $scope.item.name);
-                $scope.setSubtitle([]);
+    if (itemName) {
+        itemService.getByName({
+            itemName : itemName,
+            metadata : '.*'
+        }, function(item) {
+            $scope.item = item;
+            setFunctionToItem();
+            angular.copy($scope.item, originalItem);
+            if (!$scope.item['function']) {
+                $scope.item['function'] = {
+                    name : ''
+                };
             }
-        } else {
-            $scope.item = {};
-            $scope.item.groupNames = [];
-            if ($scope.setTitle) {
-                $scope.setTitle('Configuration');
+            if (!$scope.item.groupType) {
+                $scope.item.groupType = "None";
             }
-            if ($scope.setSubtitle) {
-                $scope.setSubtitle([ 'New Item' ]);
-            }
-            if ($scope.types.length > 0) {
-                $scope.item.type = $scope.types[0];
-            }
-            if (sharedProperties.getParams().length > 0) {
-                if (sharedProperties.getParams()[0].linking) {
-                    $scope.item.name = sharedProperties.getParams()[0].suggestedName;
-                    $scope.item.label = sharedProperties.getParams()[0].suggestedLabel;
-                    $scope.item.category = sharedProperties.getParams()[0].suggestedCategory;
-                } else {
-                    if (sharedProperties.getParams()[0].selectedType) {
-                        $scope.item.type = sharedProperties.getParams()[0].selectedType;
-                    }
-                    if (sharedProperties.getParams()[0].selectedGroup) {
-                        $scope.item.groupNames = $scope.item.groupNames ? $scope.item.groupNames : [];
-                        $scope.item.groupNames.push(sharedProperties.getParams()[0].selectedGroup);
-                    }
-                }
-            }
-            $scope.configMode = "create";
 
+            if ($scope.item.type.indexOf("Number:") === 0) {
+                $scope.item.dimension = $scope.item.type.substring(7, $scope.item.type.length);
+                $scope.item.type = "Number";
+            }
+            $scope.configMode = "edit";
+            $scope.srcURL = $scope.getSrcURL($scope.item.category, $scope.item.type);
+            $scope.oldCategory = $scope.item.category;
+            $scope.setTitle('Edit ' + $scope.item.name);
+            $scope.setSubtitle([]);
+        })
+    } else {
+        $scope.item = {};
+        $scope.item.groupNames = [];
+        if ($scope.setTitle) {
+            $scope.setTitle('Configuration');
         }
-
-    });
+        if ($scope.setSubtitle) {
+            $scope.setSubtitle([ 'New Item' ]);
+        }
+        if ($scope.types.length > 0) {
+            $scope.item.type = $scope.types[0];
+        }
+        if (sharedProperties.getParams().length > 0) {
+            if (sharedProperties.getParams()[0].linking) {
+                $scope.item.name = sharedProperties.getParams()[0].suggestedName;
+                $scope.item.label = sharedProperties.getParams()[0].suggestedLabel;
+                $scope.item.category = sharedProperties.getParams()[0].suggestedCategory;
+            } else {
+                if (sharedProperties.getParams()[0].selectedType) {
+                    $scope.item.type = sharedProperties.getParams()[0].selectedType;
+                }
+                if (sharedProperties.getParams()[0].selectedGroup) {
+                    $scope.item.groupNames = $scope.item.groupNames ? $scope.item.groupNames : [];
+                    $scope.item.groupNames.push(sharedProperties.getParams()[0].selectedGroup);
+                }
+            }
+        }
+        $scope.configMode = "create";
+    }
 
     $scope.update = function() {
         putItem("Item updated.");
@@ -155,6 +150,9 @@ angular.module('PaperUI.items')//
             $scope.item.type = $scope.item.type + ":" + $scope.item.dimension;
             delete $scope.item.dimension;
         }
+
+        updateMetadata($scope.item.name, $scope.item.metadata);
+
         if (JSON.stringify($scope.item) !== JSON.stringify(originalItem)) {
             if ($scope.item.category == "") {
                 $scope.item.category = null;
@@ -210,26 +208,26 @@ angular.module('PaperUI.items')//
         }
     }
 
+    function updateMetadata(itemName, metadata) {
+        if (!originalItem.metadata || JSON.stringify(metadata) !== JSON.stringify(originalItem.metadata)) {
+            for ( var namespace in metadata) {
+                if (!metadata.hasOwnProperty(namespace)) {
+                    continue;
+                }
+
+                if (!originalItem.metadata || JSON.stringify(metadata[namespace]) !== JSON.stringify(originalItem.metadata[namespace])) {
+                    itemService.updateMetadata({
+                        itemName : itemName,
+                        namespace : namespace
+                    }, metadata[namespace]);
+                }
+            }
+        }
+    }
+
     $scope.renderIcon = function() {
         $scope.oldCategory = $scope.item.category;
         $scope.srcURL = $scope.getSrcURL($scope.item.category, $scope.item.type);
-    }
-
-    $scope.searchItem = function(searchText, onlyGroups) {
-        var criterion = {
-            name : searchText
-        };
-        if (onlyGroups) {
-            criterion.type = "Group";
-        }
-        var items = $filter('filter')($scope.items, criterion);
-        items = $filter('orderBy')(items, 'name');
-        if (items.indexOf($scope.item.name) != -1) {
-            items.splice(items.indexOf($scope.item.name), 1);
-        }
-        return items.map(function(item) {
-            return item.name;
-        });
     }
 
     $scope.openItem = function() {
