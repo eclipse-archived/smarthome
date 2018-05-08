@@ -283,4 +283,13 @@ public class GenericItemProvider2Test extends JavaOSGiTest {
         assertEquals(0, item3.getTags().size());
     }
 
+    @Test
+    public void testSquareBracketsInFormat() {
+        String model = "Switch s \"Info [XPATH(/*[name()='liveStreams']/*[name()='stream']):%s]\"";
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.getBytes()));
+        Item item = itemRegistry.get("s");
+        assertNotNull(item);
+        assertEquals("XPATH(/*[name()='liveStreams']/*[name()='stream']):%s", item.getStateDescription().getPattern());
+    }
+
 }
