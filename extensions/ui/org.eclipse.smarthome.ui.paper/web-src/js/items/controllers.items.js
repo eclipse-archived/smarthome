@@ -103,7 +103,9 @@ angular.module('PaperUI.items')//
             $scope.setSubtitle([]);
         })
     } else {
-        $scope.item = {};
+        $scope.item = {
+            editable : true
+        };
         $scope.item.groupNames = [];
         if ($scope.setTitle) {
             $scope.setTitle('Configuration');
@@ -151,9 +153,9 @@ angular.module('PaperUI.items')//
             delete $scope.item.dimension;
         }
 
-        updateMetadata($scope.item.name, $scope.item.metadata);
+        updateMetadata($scope.item.name, $scope.item.metadata, $scope.item.editable);
 
-        if (JSON.stringify($scope.item) !== JSON.stringify(originalItem)) {
+        if ($scope.item.editable && JSON.stringify($scope.item) !== JSON.stringify(originalItem)) {
             if ($scope.item.category == "") {
                 $scope.item.category = null;
             }
@@ -208,7 +210,7 @@ angular.module('PaperUI.items')//
         }
     }
 
-    function updateMetadata(itemName, metadata) {
+    function updateMetadata(itemName, metadata, itemEditable) {
         if (!originalItem.metadata || JSON.stringify(metadata) !== JSON.stringify(originalItem.metadata)) {
             for ( var namespace in metadata) {
                 if (!metadata.hasOwnProperty(namespace)) {
@@ -219,7 +221,11 @@ angular.module('PaperUI.items')//
                     itemService.updateMetadata({
                         itemName : itemName,
                         namespace : namespace
-                    }, metadata[namespace]);
+                    }, metadata[namespace], function() {
+                        if (!itemEditable) {
+                            toastService.showDefaultToast("Metadata updated.");
+                        }
+                    });
                 }
             }
         }

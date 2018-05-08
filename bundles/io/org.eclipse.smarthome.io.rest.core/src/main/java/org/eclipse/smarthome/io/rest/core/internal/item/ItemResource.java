@@ -224,9 +224,10 @@ public class ItemResource implements RESTResource {
         final Set<String> namespaces = splitAndFilterNamespaces(namespaceSelector, locale);
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
-        Stream<EnrichedItemDTO> itemStream = getItems(type, tags).stream()
-                .map(item -> EnrichedItemDTOMapper.map(item, recursive, null, uriInfo.getBaseUri(), locale))
-                .peek(dto -> addMetadata(dto, namespaces, null));
+        Stream<EnrichedItemDTO> itemStream = getItems(type, tags).stream() //
+                .map(item -> EnrichedItemDTOMapper.map(item, recursive, null, uriInfo.getBaseUri(), locale)) //
+                .peek(dto -> addMetadata(dto, namespaces, null)) //
+                .peek(dto -> dto.editable = isEditable(dto.name));
         itemStream = dtoMapper.limitToFields(itemStream, fields);
         return Response.ok(new Stream2JSONInputStream(itemStream)).build();
     }
@@ -254,6 +255,7 @@ public class ItemResource implements RESTResource {
             logger.debug("Received HTTP GET request at '{}'.", uriInfo.getPath());
             EnrichedItemDTO dto = EnrichedItemDTOMapper.map(item, true, null, uriInfo.getBaseUri(), locale);
             addMetadata(dto, namespaces, null);
+            dto.editable = isEditable(dto.name);
             return JSONResponse.createResponse(Status.OK, dto, null);
         } else {
             logger.info("Received HTTP GET request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
@@ -811,6 +813,10 @@ public class ItemResource implements RESTResource {
             // we only set it in the dto if there is really data available
             dto.metadata = metadata;
         }
+    }
+
+    private boolean isEditable(String itemName) {
+        return managedItemProvider.get(itemName) != null;
     }
 
     @Override
