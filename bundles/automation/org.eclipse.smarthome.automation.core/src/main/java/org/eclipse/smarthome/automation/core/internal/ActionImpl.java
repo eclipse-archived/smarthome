@@ -13,7 +13,6 @@
 package org.eclipse.smarthome.automation.core.internal;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,7 +24,6 @@ import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class is implementation of {@link Action} modules used in the {@link RuleEngineImpl}s.
@@ -37,18 +35,13 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class ActionImpl extends ModuleImpl implements Action {
 
-    private Map<String, String> inputs;
-
-    /**
-     * The handler of this module.
-     */
     @Nullable
     private ActionHandler actionHandler;
-    private Set<Connection> connections;
+    private Set<Connection> connections = Collections.emptySet();
+    private Map<String, String> inputs;
 
     public ActionImpl() {
         this.inputs = Collections.emptyMap();
-        this.connections = Collections.emptySet();
     }
 
     /**
@@ -60,7 +53,6 @@ public class ActionImpl extends ModuleImpl implements Action {
         this(action.getId(), action.getTypeUID(), action.getConfiguration(), action.getInputs());
         setLabel(action.getLabel());
         setDescription(action.getDescription());
-        connections = Connection.getConnections(action.getInputs(), LoggerFactory.getLogger(getClass()));
     }
 
     /**
@@ -74,7 +66,6 @@ public class ActionImpl extends ModuleImpl implements Action {
     public ActionImpl(String UID, String typeUID, Configuration configuration, Map<String, String> inputs) {
         super(UID, typeUID, configuration);
         this.inputs = inputs;
-        this.connections = Collections.emptySet();
     }
 
     @Override
@@ -84,13 +75,12 @@ public class ActionImpl extends ModuleImpl implements Action {
     }
 
     /**
-     * This method set deep copy of passed connections as connections of for this module.
+     * This method sets the connections for this module.
      *
-     * @see org.eclipse.smarthome.automation.Action#setConnections(java.util.Set)
+     * @param connections the set of connections for this action
      */
-    @SuppressWarnings("null")
-    void setConnections(Set<Connection> connections) {
-        this.connections = connections == null ? new HashSet<>() : connections;
+    void setConnections(@Nullable Set<Connection> connections) {
+        this.connections = connections == null ? Collections.emptySet() : connections;
     }
 
     public Set<Connection> getConnections() {

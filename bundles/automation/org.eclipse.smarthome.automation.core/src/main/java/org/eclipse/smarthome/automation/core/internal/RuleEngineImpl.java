@@ -525,6 +525,12 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         List<ModuleImpl> modules = rule.getModules(ModuleImpl.class);
         for (Module m : modules) {
             updateMapModuleTypeToRule(rUID, m.getTypeUID());
+            if (m instanceof ConditionImpl) {
+                ((ConditionImpl) m).setConnections(resolveConnections(((ConditionImpl) m).getInputs()));
+            }
+            if (m instanceof ActionImpl) {
+                ((ActionImpl) m).setConnections(resolveConnections(((ActionImpl) m).getInputs()));
+            }
         }
         String errMsgs;
         try {
@@ -1296,10 +1302,9 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * actions
      * outputs 5) There is only one output, based on previous criteria, where the input can connect to. If more then one
      * candidate outputs exists for connection, this is a conflict and the auto mapping leaves the input unconnected.
-     * Auto
-     * mapping is always applied when the rule is added or updated. It changes initial value of inputs of conditions and
-     * actions participating in the rule. If an "auto map" connection has to be removed, the tags of corresponding
-     * input/output have to be changed.
+     * Auto mapping is always applied when the rule is added or updated. It changes initial value of inputs of
+     * conditions and actions participating in the rule. If an "auto map" connection has to be removed, the tags of
+     * corresponding input/output have to be changed.
      *
      * @param r updated rule
      */
@@ -1324,7 +1329,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                 boolean isConnectionChanged = false;
                 ConditionType ct = (ConditionType) mtRegistry.get(c.getTypeUID());
                 if (ct != null) {
-                    Set<Connection> connections = c.getConnections();
+                    Set<Connection> connections = copyConnections(c.getConnections());
 
                     for (Input input : ct.getInputs()) {
                         if (isConnected(input, connections)) {
@@ -1336,9 +1341,9 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                     }
                     if (isConnectionChanged) {
                         // update condition inputs
-                        connections = c.getConnections();
                         Map<String, String> connectionMap = getConnectionMap(connections);
                         c.setInputs(connectionMap);
+                        c.setConnections(connections);
                     }
                 }
             }
@@ -1349,7 +1354,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                 boolean isConnectionChanged = false;
                 ActionType at = (ActionType) mtRegistry.get(a.getTypeUID());
                 if (at != null) {
-                    Set<Connection> connections = a.getConnections();
+                    Set<Connection> connections = copyConnections(a.getConnections());
                     for (Input input : at.getInputs()) {
                         if (isConnected(input, connections)) {
                             continue; // the input is already connected. Skip it.
@@ -1363,9 +1368,9 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                     }
                     if (isConnectionChanged) {
                         // update condition inputs
-                        connections = a.getConnections();
                         Map<String, String> connectionMap = getConnectionMap(connections);
                         a.setInputs(connectionMap);
+                        a.setConnections(connections);
                     }
                 }
             }
@@ -1378,7 +1383,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * @param input a free input which has to be connected
      * @param outputTagMap a map of set of tags to outptu references
      * @param currentConnections current connections of this module
-     * @return true when only one output which meets auto mapping ctiteria is found. False otherwise.
+     * @return true when only one output which meets auto mapping criteria is found. False otherwise.
      */
     private boolean addAutoMapConnections(Input input, Map<Set<String>, OutputRef> outputTagMap,
             Set<Connection> currentConnections) {
@@ -1430,12 +1435,63 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
     }
 
     private Map<String, String> getConnectionMap(Set<Connection> connections) {
-        Map<String, String> connectionMap = new HashMap<String, String>(11);
+        Map<String, String> connectionMap = new HashMap<>();
         for (Connection connection : connections) {
             connectionMap.put(connection.getInputName(),
                     connection.getOuputModuleId() + "." + connection.getOutputName());
         }
         return connectionMap;
+    }
+
+    /**
+     * Utility method creating deep copy of passed connection set.
+     *
+     * @param connections connections used by this module.
+     * @return copy of passed connections.
+     */
+    private Set<Connection> copyConnections(Set<Connection> connections) {
+        Set<Connection> result = new HashSet<>(connections.size());
+        for (Iterator<Connection> it = connections.iterator(); it.hasNext();) {
+            Connection c = it.next();
+            result.add(new Connection(c.getInputName(), c.getOuputModuleId(), c.getOutputName()));
+        }
+        return result;
+    }
+
+    /**
+     * This method is used for collecting connections of {@link Module}s.
+     *
+     * @param inputs The map of inputs of the module
+     * @return set of connections
+     */
+    public Set<Connection> resolveConnections(Map<String, String> inputs) {
+        final String REF_IDENTIFIER = "$";
+        Set<Connection> connections = new HashSet<>();
+        if (inputs != null) {
+            for (Entry<String, String> input : inputs.entrySet()) {
+                String inputName = input.getKey();
+                String outputName = null;
+
+                String output = input.getValue();
+                if (output.startsWith(REF_IDENTIFIER)) {
+                    outputName = output;
+                    Connection connection = new Connection(inputName, null, outputName);
+                    connections.add(connection);
+                } else {
+                    int index = output.indexOf('.');
+                    if (index != -1) {
+                        String outputId = output.substring(0, index);
+                        outputName = output.substring(index + 1);
+                        Connection connection = new Connection(inputName, outputId, outputName);
+                        connections.add(connection);
+                    } else {
+                        logger.error("Wrong format of Output : {}: {}", inputName, output);
+                        continue;
+                    }
+                }
+            }
+        }
+        return connections;
     }
 
     class OutputRef {

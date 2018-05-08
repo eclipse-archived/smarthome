@@ -13,8 +13,6 @@
 package org.eclipse.smarthome.automation.core.internal;
 
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,7 +24,6 @@ import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class is implementation of {@link Condition} modules used in the {@link RuleEngineImpl}s.
@@ -49,7 +46,6 @@ public class ConditionImpl extends ModuleImpl implements Condition {
         this(condition.getId(), condition.getTypeUID(), condition.getConfiguration(), condition.getInputs());
         setLabel(condition.getLabel());
         setDescription(condition.getDescription());
-        connections = Connection.getConnections(condition.getInputs(), LoggerFactory.getLogger(getClass()));
     }
 
     /**
@@ -72,33 +68,16 @@ public class ConditionImpl extends ModuleImpl implements Condition {
     }
 
     /**
-     * Creates deep copy of passed connection. The copy is used to unlink connection used by this module with the
-     * connection object passed as source. In this way the connection can't be changed runtime except by this method.
+     * This method sets the connections for this module.
      *
-     * @see org.eclipse.smarthome.automation.Condition#setConnections(java.util.Set)
+     * @param connections the set of connections for this condition
      */
-    @SuppressWarnings("null")
-    void setConnections(Set<Connection> connections) {
-        this.connections = connections == null ? new HashSet<>() : connections;
+    void setConnections(@Nullable Set<Connection> connections) {
+        this.connections = connections == null ? Collections.emptySet() : connections;
     }
 
     public Set<Connection> getConnections() {
         return connections;
-    }
-
-    /**
-     * Utility method creating deep copy of passed connection set.
-     *
-     * @param connections connections used by this module.
-     * @return copy of passed connections.
-     */
-    Set<Connection> copyConnections(Set<Connection> connections) {
-        Set<Connection> result = new HashSet<Connection>(connections.size());
-        for (Iterator<Connection> it = connections.iterator(); it.hasNext();) {
-            Connection c = it.next();
-            result.add(new Connection(c.getInputName(), c.getOuputModuleId(), c.getOutputName()));
-        }
-        return result;
     }
 
     /**

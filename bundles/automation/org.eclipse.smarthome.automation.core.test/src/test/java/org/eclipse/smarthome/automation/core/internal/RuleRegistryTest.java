@@ -65,11 +65,9 @@ public class RuleRegistryTest {
 
         addedRule = ruleRegistry.add(rule_without_tag);
         Assert.assertNotNull("RuleImpl for:" + name, addedRule);
-        Assert.assertNotSame(addedRule, rule_without_tag);
 
         getRule = ruleRegistry.get(name);
         Assert.assertNotNull("RuleImpl for:" + name, getRule);
-        Assert.assertNotSame(getRule, rule_without_tag);
 
         Assert.assertEquals("RuleImpl list size", 1, ruleRegistry.getAll().size());
 
@@ -97,11 +95,9 @@ public class RuleRegistryTest {
 
         addedRule = ruleRegistry.add(rule_with_tag1);
         Assert.assertNotNull("RuleImpl for:" + name, addedRule);
-        Assert.assertNotSame(addedRule, rule_with_tag1); // we should get only a copy of the rule
 
         getRule = ruleRegistry.get(name);
         Assert.assertNotNull("RuleImpl for:" + name, getRule);
-        Assert.assertNotSame(getRule, rule_with_tag1); // we should get only a copy of the rule
 
         Assert.assertEquals("RuleImpl list size", 2, ruleRegistry.getAll().size());
 
@@ -143,11 +139,9 @@ public class RuleRegistryTest {
 
         addedRule = ruleRegistry.add(rule_with_tag1_tag2);
         Assert.assertNotNull("RuleImpl for:" + name, addedRule);
-        Assert.assertNotSame(addedRule, rule_with_tag1_tag2); // we should get only a copy of the rule
 
         getRule = ruleRegistry.get(name);
         Assert.assertNotNull("RuleImpl for:" + name, getRule);
-        Assert.assertNotSame(getRule, rule_with_tag1_tag2); // we should get only a copy of the rule
 
         Assert.assertEquals("RuleImpl list size", 3, ruleRegistry.getAll().size());
 
@@ -212,11 +206,9 @@ public class RuleRegistryTest {
 
         addedRule = ruleRegistry.add(rule_with_tag1_tag2_tag3);
         Assert.assertNotNull("RuleImpl for:" + name, addedRule);
-        Assert.assertNotSame(addedRule, rule_with_tag1_tag2_tag3); // we should get only a copy of the rule
 
         getRule = ruleRegistry.get(name);
         Assert.assertNotNull("RuleImpl for:" + name, getRule);
-        Assert.assertNotSame(getRule, rule_with_tag1_tag2_tag3); // we should get only a copy of the rule
 
         Assert.assertEquals("RuleImpl list size", 4, ruleRegistry.getAll().size());
 

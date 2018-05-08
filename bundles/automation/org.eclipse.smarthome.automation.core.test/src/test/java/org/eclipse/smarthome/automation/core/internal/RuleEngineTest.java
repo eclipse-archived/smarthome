@@ -110,22 +110,22 @@ public class RuleEngineTest {
         // check condition connections
         conditionInputs = ruleGet.getConditions().get(0).getInputs();
         Assert.assertEquals("Number of user define condition inputs", 2, conditionInputs.size());
-        Assert.assertTrue("Check user define condition connection",
-                "triggerId.triggerOutput".equals(conditionInputs.get("conditionInput")));
-        Assert.assertTrue("Auto map condition intput in2[tagA, tagB] to trigger output out3[tagA, tagB, tagC]",
-                "triggerId.out3".equals(conditionInputs.get("in2")));
+        Assert.assertEquals("Check user define condition connection", "triggerId.triggerOutput",
+                conditionInputs.get("conditionInput"));
+        Assert.assertEquals("Auto map condition input in2[tagA, tagB] to trigger output out3[tagA, tagB, tagC]",
+                "triggerId.out3", conditionInputs.get("in2"));
 
         // check action connections
         actionInputs = ruleGet.getActions().get(0).getInputs();
         Assert.assertEquals("Number of user define action inputs", 4, actionInputs.size());
         Assert.assertTrue("Check user define action connections for input actionInput",
                 "triggerId.triggerOutput".equals(actionInputs.get("actionInput")));
-        Assert.assertTrue("Check user define action connections for input in6 is not changed by the auto mapping",
-                "triggerId.triggerOutput".equals(actionInputs.get("in6")));
-        Assert.assertTrue("Auto map action intput in5[tagA, tagB, tagC] to trigger output out3[tagA, tagB, tagC]",
-                "triggerId.out3".equals(actionInputs.get("in5")));
-        Assert.assertTrue("Auto map action intput in5[tagD, tagE] to action output out5[tagD, tagE]",
-                "actionId.out5".equals(actionInputs.get("in4")));
+        Assert.assertEquals("Check user define action connections for input in6 is not changed by the auto mapping",
+                "triggerId.triggerOutput", actionInputs.get("in6"));
+        Assert.assertEquals("Auto map action input in5[tagA, tagB, tagC] to trigger output out3[tagA, tagB, tagC]",
+                "triggerId.out3", actionInputs.get("in5"));
+        Assert.assertEquals("Auto map action input in5[tagD, tagE] to action output out5[tagD, tagE]", "actionId.out5",
+                actionInputs.get("in4"));
 
     }
 

@@ -85,6 +85,7 @@ public class ModuleBuilder<T extends Module> {
     public static ModuleBuilder<Condition> createCondition(Condition condition) {
         ConditionImpl conditionImpl = new ConditionImpl();
         fillModuleFields(condition, conditionImpl);
+        conditionImpl.setInputs(new HashMap<>(condition.getInputs()));
         return new ModuleBuilder<Condition>(conditionImpl);
     }
 
