@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -280,9 +279,9 @@ public class GenericItemProvider extends AbstractProvider<Item>
         }
         if (item != null) {
             String label = modelItem.getLabel();
-            String format = StringUtils.substringBetween(label, "[", "]");
+            String format = extractFormat(label);
             if (format != null) {
-                label = StringUtils.substringBefore(label, "[").trim();
+                label = label.substring(0, label.indexOf("[")).trim();
                 stateDescriptionFragments.put(modelItem.getName(),
                         StateDescriptionFragmentBuilder.create().withPattern(format).build());
             }
@@ -292,6 +291,17 @@ public class GenericItemProvider extends AbstractProvider<Item>
         } else {
             return null;
         }
+    }
+
+    private String extractFormat(String label) {
+        if (label == null) {
+            return null;
+        }
+        String format = null;
+        if (label.contains("[") && label.contains("]")) {
+            format = label.substring(label.indexOf("[") + 1, label.lastIndexOf("]"));
+        }
+        return format;
     }
 
     private GroupItem applyGroupFunction(GenericItem baseItem, ModelGroupItem modelGroupItem,

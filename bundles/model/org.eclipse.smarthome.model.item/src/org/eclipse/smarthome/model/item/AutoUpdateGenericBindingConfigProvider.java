@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
 import org.osgi.service.component.annotations.Component;
@@ -84,7 +83,7 @@ public class AutoUpdateGenericBindingConfigProvider implements AutoUpdateBinding
 
     protected void parseBindingConfig(String bindingConfig, AutoUpdateBindingConfig config)
             throws BindingConfigParseException {
-        if (StringUtils.isNotBlank(bindingConfig)) {
+        if (bindingConfig != null && !bindingConfig.trim().isEmpty()) {
             try {
                 config.autoupdate = Boolean.valueOf(bindingConfig.trim());
             } catch (IllegalArgumentException iae) {
