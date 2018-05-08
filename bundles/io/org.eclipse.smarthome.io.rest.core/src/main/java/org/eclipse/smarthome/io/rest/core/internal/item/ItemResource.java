@@ -13,9 +13,7 @@
 package org.eclipse.smarthome.io.rest.core.internal.item;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,7 +21,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.security.RolesAllowed;
@@ -142,6 +139,9 @@ public class ItemResource implements RESTResource {
     private ManagedItemProvider managedItemProvider;
     @NonNullByDefault({})
     private DTOMapper dtoMapper;
+    @NonNullByDefault({})
+    private MetadataSelectorMatcher metadataSelectorMatcher;
+
     private final Set<ItemFactory> itemFactories = new HashSet<>();
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
@@ -198,6 +198,15 @@ public class ItemResource implements RESTResource {
         this.dtoMapper = dtoMapper;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setMetadataSelectorMatcher(MetadataSelectorMatcher metadataSelectorMatcher) {
+        this.metadataSelectorMatcher = metadataSelectorMatcher;
+    }
+
+    protected void unsetMetadataSelectorMatcher(MetadataSelectorMatcher metadataSelectorMatcher) {
+        this.metadataSelectorMatcher = null;
+    }
+
     @GET
     @RolesAllowed({ Role.USER, Role.ADMIN })
     @Produces(MediaType.APPLICATION_JSON)
@@ -212,7 +221,7 @@ public class ItemResource implements RESTResource {
             @DefaultValue("false") @QueryParam("recursive") @ApiParam(value = "get member items recursively", required = false) boolean recursive,
             @QueryParam("fields") @ApiParam(value = "limit output to the given fields (comma separated)", required = false) @Nullable String fields) {
         final Locale locale = LocaleUtil.getLocale(language);
-        final Set<String> namespaces = splitAndFilterNamespaces(namespaceSelector);
+        final Set<String> namespaces = splitAndFilterNamespaces(namespaceSelector, locale);
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
         Stream<EnrichedItemDTO> itemStream = getItems(type, tags).stream()
@@ -234,7 +243,7 @@ public class ItemResource implements RESTResource {
             @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname) {
 
         final Locale locale = LocaleUtil.getLocale(language);
-        final Set<String> namespaces = splitAndFilterNamespaces(namespaceSelector);
+        final Set<String> namespaces = splitAndFilterNamespaces(namespaceSelector, locale);
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
         // get item
@@ -252,11 +261,8 @@ public class ItemResource implements RESTResource {
         }
     }
 
-    private Set<String> splitAndFilterNamespaces(@Nullable String namespaceSelector) {
-        return namespaceSelector == null ? Collections.emptySet()
-                : Arrays.stream(namespaceSelector.split(",")) //
-                        .filter(n -> !metadataRegistry.isInternalNamespace(n)) //
-                        .collect(Collectors.toSet());
+    private Set<String> splitAndFilterNamespaces(@Nullable String namespaceSelector, Locale locale) {
+        return metadataSelectorMatcher.filterNamespaces(namespaceSelector, locale);
     }
 
     /**
@@ -810,6 +816,6 @@ public class ItemResource implements RESTResource {
     @Override
     public boolean isSatisfied() {
         return itemRegistry != null && managedItemProvider != null && eventPublisher != null && !itemFactories.isEmpty()
-                && dtoMapper != null && metadataRegistry != null;
+                && dtoMapper != null && metadataRegistry != null && metadataSelectorMatcher != null;
     }
 }
