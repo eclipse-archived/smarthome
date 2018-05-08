@@ -70,16 +70,17 @@ public class UpnpIOServiceImpl implements UpnpIOService, RegistryListener {
 
     private final Logger logger = LoggerFactory.getLogger(UpnpIOServiceImpl.class);
 
+    private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(POOL_NAME);
+
     private final int DEFAULT_POLLING_INTERVAL = 60;
     private static final String POOL_NAME = "upnp-io";
 
     private UpnpService upnpService;
 
-    private final Set<UpnpIOParticipant> participants = new CopyOnWriteArraySet<>();
-    private final Map<UpnpIOParticipant, ScheduledFuture> pollingJobs = new ConcurrentHashMap<UpnpIOParticipant, ScheduledFuture>();
-    private final Map<UpnpIOParticipant, Boolean> currentStates = new ConcurrentHashMap<UpnpIOParticipant, Boolean>();
-    private final Map<Service, UpnpSubscriptionCallback> subscriptionCallbacks = new ConcurrentHashMap<Service, UpnpSubscriptionCallback>();
-    private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(POOL_NAME);
+    final Set<UpnpIOParticipant> participants = new CopyOnWriteArraySet<>();
+    final Map<UpnpIOParticipant, ScheduledFuture> pollingJobs = new ConcurrentHashMap<UpnpIOParticipant, ScheduledFuture>();
+    final Map<UpnpIOParticipant, Boolean> currentStates = new ConcurrentHashMap<UpnpIOParticipant, Boolean>();
+    final Map<Service, UpnpSubscriptionCallback> subscriptionCallbacks = new ConcurrentHashMap<Service, UpnpSubscriptionCallback>();
 
     public class UpnpSubscriptionCallback extends SubscriptionCallback {
 
