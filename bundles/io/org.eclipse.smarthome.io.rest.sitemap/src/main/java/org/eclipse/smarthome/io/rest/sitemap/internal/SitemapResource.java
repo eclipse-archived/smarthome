@@ -749,6 +749,10 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             SitemapEventOutput sitemapEvent = (SitemapEventOutput) event;
             logger.debug("SSE connection for subscription {} has been closed.", sitemapEvent.getSubscriptionId());
             subscriptions.removeSubscription(sitemapEvent.getSubscriptionId());
+            EventOutput eventOutput = eventOutputs.remove(sitemapEvent.getSubscriptionId());
+            if (eventOutput != null) {
+                broadcaster.remove(eventOutput);
+            }
         }
     }
 
