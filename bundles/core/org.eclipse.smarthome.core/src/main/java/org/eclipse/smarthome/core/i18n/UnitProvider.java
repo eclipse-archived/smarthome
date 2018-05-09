@@ -12,8 +12,6 @@
  */
 package org.eclipse.smarthome.core.i18n;
 
-import java.awt.Dimension;
-
 import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.spi.SystemOfUnits;
@@ -22,7 +20,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * Provides {@link Unit}s and the current {@link MeasurementSystem}.
+ * Provides {@link Unit}s and the current {@link SystemOfUnits}.
  *
  * @author Henning Treu - initial contribution
  *
@@ -31,18 +29,20 @@ import org.eclipse.jdt.annotation.Nullable;
 public interface UnitProvider {
 
     /**
-     * Retrieves the default {@link Unit} for the given {@link Dimension} according to the current
-     * {@link MeasurementSystem}.
+     * Retrieves the default {@link Unit} for the given {@link Quantity} according to the current
+     * {@link SystemOfUnits}.
      *
-     * @param dimension The {@link Dimension} defines the base unit for the retrieved unit.
-     * @return The {@link Unit} matching the given {@link Dimension}, {@code null} otherwise.
+     * @param dimension The {@link Quantity}, called dimension here, defines the base unit for the retrieved unit. E.g.
+     *            call {@code getUnit(javax.measure.quantity.Temperature.class)} to retrieve the temperature unit
+     *            according to the current {@link SystemOfUnits}.
+     * @return The {@link Unit} matching the given {@link Quantity}, {@code null} otherwise.
      */
     <T extends Quantity<T>> @Nullable Unit<T> getUnit(@Nullable Class<T> dimension);
 
     /**
-     * Returns the {@link MeasurementSystem} which is currently set, must not be null.
+     * Returns the {@link SystemOfUnits} which is currently set, must not be null.
      *
-     * @return the {@link MeasurementSystem} which is currently set, must not be null.
+     * @return the {@link SystemOfUnits} which is currently set, must not be null.
      */
     SystemOfUnits getMeasurementSystem();
 
