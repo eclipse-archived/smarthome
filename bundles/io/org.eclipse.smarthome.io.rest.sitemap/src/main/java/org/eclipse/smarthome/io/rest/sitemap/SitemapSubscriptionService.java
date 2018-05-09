@@ -158,20 +158,22 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
      * Retrieves the current page id for a subscription.
      *
      * @param subscriptionId the subscription to get the page id for
-     * @return the id of the currently active page
+     * @return the id of the currently active page or null if no page is currently set for the subscription
      */
     public String getPageId(String subscriptionId) {
-        return extractPageId(pageOfSubscription.get(subscriptionId));
+        String sitemapWithPageId = pageOfSubscription.get(subscriptionId);
+        return (sitemapWithPageId == null) ? null : extractPageId(sitemapWithPageId);
     }
 
     /**
      * Retrieves the current sitemap name for a subscription.
      *
      * @param subscriptionId the subscription to get the sitemap name for
-     * @return the name of the current sitemap
+     * @return the name of the current sitemap or null if no sitemap is currently set for the subscription
      */
     public String getSitemapName(String subscriptionId) {
-        return extractSitemapName(pageOfSubscription.get(subscriptionId));
+        String sitemapWithPageId = pageOfSubscription.get(subscriptionId);
+        return (sitemapWithPageId == null) ? null : extractSitemapName(sitemapWithPageId);
     }
 
     private String extractSitemapName(String sitemapWithPageId) {
