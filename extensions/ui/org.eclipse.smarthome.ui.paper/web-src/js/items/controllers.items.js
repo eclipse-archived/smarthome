@@ -55,7 +55,7 @@ angular.module('PaperUI.items')//
     }
 
     $scope.refresh();
-}).controller('ItemConfigController', function($scope, $mdDialog, $filter, $location, toastService, itemService, itemConfig, itemRepository, sharedProperties) {
+}).controller('ItemConfigController', function($scope, $mdDialog, $filter, $location, $q, toastService, itemService, itemConfig, itemRepository, sharedProperties) {
     $scope.oldCategory;
     $scope.types = itemConfig.types;
     $scope.groupTypes = itemConfig.groupTypes;
@@ -135,7 +135,12 @@ angular.module('PaperUI.items')//
     }
 
     $scope.update = function() {
-        putItem("Item updated.");
+        if (!$scope.item.editable) {
+            updateMetadata($scope.item.name, $scope.item.metadata, $scope.item.editable);
+            $location.path('configuration/items');
+        } else {
+            putItem("Item updated.");
+        }
     }
     $scope.create = function() {
         putItem("Item created.");
@@ -153,8 +158,6 @@ angular.module('PaperUI.items')//
             delete $scope.item.dimension;
         }
 
-        updateMetadata($scope.item.name, $scope.item.metadata, $scope.item.editable);
-
         if ($scope.item.editable && JSON.stringify($scope.item) !== JSON.stringify(originalItem)) {
             if ($scope.item.category == "") {
                 $scope.item.category = null;
@@ -162,6 +165,8 @@ angular.module('PaperUI.items')//
             itemService.create({
                 itemName : $scope.item.name
             }, $scope.item).$promise.then(function() {
+                return updateMetadata($scope.item.name, $scope.item.metadata, $scope.item.editable);
+            }).then(function() {
                 toastService.showDefaultToast(text);
                 itemRepository.setDirty(true);
                 if ($scope.linking) {
@@ -184,9 +189,6 @@ angular.module('PaperUI.items')//
                 }
                 sharedProperties.resetParams();
             });
-        } else {
-            toastService.showDefaultToast(text);
-            $location.path('configuration/items');
         }
     }
 
@@ -211,24 +213,32 @@ angular.module('PaperUI.items')//
     }
 
     function updateMetadata(itemName, metadata, itemEditable) {
-        if (!originalItem.metadata || JSON.stringify(metadata) !== JSON.stringify(originalItem.metadata)) {
-            for ( var namespace in metadata) {
-                if (!metadata.hasOwnProperty(namespace)) {
-                    continue;
-                }
+        return $q(function(resolve, reject) {
+            if (!originalItem.metadata || JSON.stringify(metadata) !== JSON.stringify(originalItem.metadata)) {
+                for ( var namespace in metadata) {
+                    if (!metadata.hasOwnProperty(namespace)) {
+                        continue;
+                    }
 
-                if (!originalItem.metadata || JSON.stringify(metadata[namespace]) !== JSON.stringify(originalItem.metadata[namespace])) {
-                    itemService.updateMetadata({
-                        itemName : itemName,
-                        namespace : namespace
-                    }, metadata[namespace], function() {
-                        if (!itemEditable) {
-                            toastService.showDefaultToast("Metadata updated.");
-                        }
-                    });
+                    if (!originalItem.metadata || JSON.stringify(metadata[namespace]) !== JSON.stringify(originalItem.metadata[namespace])) {
+                        itemService.updateMetadata({
+                            itemName : itemName,
+                            namespace : namespace
+                        }, metadata[namespace], function() {
+                            if (!itemEditable) {
+                                toastService.showDefaultToast("Metadata updated.");
+                            }
+
+                            resolve();
+                        });
+                    } else {
+                        resolve();
+                    }
                 }
+            } else {
+                resolve();
             }
-        }
+        });
     }
 
     $scope.renderIcon = function() {

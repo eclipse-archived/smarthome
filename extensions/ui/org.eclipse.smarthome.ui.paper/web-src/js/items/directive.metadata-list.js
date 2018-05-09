@@ -24,10 +24,10 @@
         this.metadataConfigDescriptions;
         this.URI2Namespace = metadataService.URI2Namespace
 
-        activate();
+        this.$onInit = activate;
 
         function activate() {
-            configDescriptionService.getAll({
+            return configDescriptionService.getAll({
                 scheme : 'metadata'
             }, function(metadataConfigDescriptions) {
                 ctrl.metadataConfigDescriptions = metadataConfigDescriptions;
@@ -46,7 +46,7 @@
                     }
                 })
 
-            });
+            }).$promise;
         }
     }
 
