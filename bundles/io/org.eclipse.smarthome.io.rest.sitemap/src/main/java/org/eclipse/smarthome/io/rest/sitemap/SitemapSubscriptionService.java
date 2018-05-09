@@ -122,7 +122,7 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
     public String createSubscription(SitemapSubscriptionCallback callback) {
         String subscriptionId = UUID.randomUUID().toString();
         callbacks.put(subscriptionId, callback);
-        logger.debug("Created new subscription with id {}", subscriptionId);
+        logger.debug("Created new subscription with id {} ({} active subscriptions)", subscriptionId, callbacks.size());
         return subscriptionId;
     }
 
@@ -141,7 +141,7 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
                 listener.dispose();
             }
         }
-        logger.debug("Removed subscription with id {}", subscriptionId);
+        logger.debug("Removed subscription with id {} ({} active subscriptions)", subscriptionId, callbacks.size());
     }
 
     /**
@@ -201,8 +201,8 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
             addCallbackToListener(sitemapName, pageId, callback);
             pageOfSubscription.put(subscriptionId, getValue(sitemapName, pageId));
 
-            logger.debug("Subscription {} changed to page {} of sitemap {}",
-                    new Object[] { subscriptionId, pageId, sitemapName });
+            logger.debug("Subscription {} changed to page {} of sitemap {} ({} active subscriptions}",
+                    new Object[] { subscriptionId, pageId, sitemapName, callbacks.size() });
         } else {
             throw new IllegalArgumentException("Subscription " + subscriptionId + " does not exist!");
         }
