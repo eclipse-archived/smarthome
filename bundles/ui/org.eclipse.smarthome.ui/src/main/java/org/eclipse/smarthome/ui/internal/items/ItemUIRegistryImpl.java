@@ -1286,14 +1286,16 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
     @Override
     public String getUnitForWidget(Widget w) {
-        String unit = getUnitFromLabel(w.getLabel());
-        if (StringUtils.isNotBlank(unit) && !UnitUtils.UNIT_PLACEHOLDER.equals(unit)) {
-            return unit;
-        }
-
         try {
             Item item = getItem(w.getItem());
+
+            // we require the item to define a dimension, otherwise no unit will be reported to the UIs.
             if (item instanceof NumberItem && ((NumberItem) item).getDimension() != null) {
+                String unit = getUnitFromLabel(w.getLabel());
+                if (StringUtils.isNotBlank(unit) && !UnitUtils.UNIT_PLACEHOLDER.equals(unit)) {
+                    return unit;
+                }
+
                 return ((NumberItem) item).getUnitSymbol();
             }
         } catch (ItemNotFoundException e) {
