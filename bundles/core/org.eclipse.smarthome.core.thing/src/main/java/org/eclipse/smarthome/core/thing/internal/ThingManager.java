@@ -519,7 +519,12 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
                 } else {
                     Bridge bridge = getBridge(thing.getBridgeUID());
                     if (bridge != null && ThingHandlerHelper.isHandlerInitialized(bridge)) {
-                        doRegisterHandler(thing, thingHandlerFactory);
+                        if (bridge.getStatus() != ThingStatus.OFFLINE) {
+                            doRegisterHandler(thing, thingHandlerFactory);
+                        } else {
+                            setThingStatus(thing,
+                                    buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.BRIDGE_OFFLINE));
+                        }
                     } else {
                         setThingStatus(thing,
                                 buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.BRIDGE_UNINITIALIZED));
@@ -811,19 +816,22 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     private void notifyThingsAboutBridgeStatusChange(final Bridge bridge, final ThingStatusInfo bridgeStatus) {
         if (ThingHandlerHelper.isHandlerInitialized(bridge)) {
             for (final Thing child : bridge.getThings()) {
-                ThreadPoolManager.getPool(THING_MANAGER_THREADPOOL_NAME).execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
+                ThreadPoolManager.getPool(THING_MANAGER_THREADPOOL_NAME).execute(() -> {
+                    try {
+                        if (bridgeStatus.getStatus() != ThingStatus.OFFLINE
+                                && child.getStatus() == ThingStatus.UNINITIALIZED
+                                && child.getStatusInfo().getStatusDetail() == ThingStatusDetail.BRIDGE_OFFLINE) {
+                            registerAndInitializeHandler(child, getThingHandlerFactory(child));
+                        } else {
                             ThingHandler handler = child.getHandler();
                             if (handler != null && ThingHandlerHelper.isHandlerInitialized(child)) {
                                 handler.bridgeStatusChanged(bridgeStatus);
                             }
-                        } catch (Exception e) {
-                            logger.error(
-                                    "Exception occurred during notification about bridge status change on thing '{}': {}",
-                                    child.getUID(), e.getMessage(), e);
                         }
+                    } catch (Exception e) {
+                        logger.error(
+                                "Exception occurred during notification about bridge status change on thing '{}': {}",
+                                child.getUID(), e.getMessage(), e);
                     }
                 });
             }

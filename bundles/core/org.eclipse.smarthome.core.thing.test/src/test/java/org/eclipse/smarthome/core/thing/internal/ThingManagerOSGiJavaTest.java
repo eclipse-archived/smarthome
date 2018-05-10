@@ -60,6 +60,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
+import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
@@ -487,6 +488,64 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
 
         // ThingHandler.thingUpdated(...) must be called
         assertEquals(0, thingUpdatedSemapthore.availablePermits());
+    }
+
+    @Test
+    public void testChildHandlerOnlyInitializedWithOnlineBridge() {
+        Semaphore childHandlerInitializedSemaphore = new Semaphore(1);
+        AtomicReference<ThingHandlerCallback> bridgeCallback = new AtomicReference<>();
+
+        registerThingHandlerFactory(BRIDGE_TYPE_UID, bridge -> new BaseBridgeHandler((Bridge) bridge) {
+            @Override
+            public void handleCommand(@NonNull ChannelUID channelUID, @NonNull Command command) {
+            }
+
+            @Override
+            public void initialize() {
+                bridgeCallback.set(getCallback());
+                updateStatus(ThingStatus.OFFLINE);
+            }
+        });
+        registerThingHandlerFactory(THING_TYPE_UID, thing -> new BaseThingHandler(thing) {
+            @Override
+            public void handleCommand(@NonNull ChannelUID channelUID, @NonNull Command command) {
+            }
+
+            @Override
+            public void initialize() {
+                try {
+                    childHandlerInitializedSemaphore.acquire();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                updateStatus(ThingStatus.ONLINE);
+            }
+
+        });
+
+        Bridge bridge = BridgeBuilder.create(BRIDGE_TYPE_UID, BRIDGE_UID).build();
+        managedThingProvider.add(bridge);
+        waitForAssert(() -> {
+            assertEquals(ThingStatus.OFFLINE, bridge.getStatus());
+        });
+
+        Thing thing = ThingBuilder.create(THING_TYPE_UID, THING_UID).withBridge(BRIDGE_UID).build();
+        managedThingProvider.add(thing);
+        waitForAssert(() -> {
+            assertEquals(ThingStatus.UNINITIALIZED, thing.getStatus());
+            assertEquals(ThingStatusDetail.BRIDGE_OFFLINE, thing.getStatusInfo().getStatusDetail());
+        });
+
+        assertEquals(1, childHandlerInitializedSemaphore.availablePermits());
+
+        bridgeCallback.get().statusUpdated(bridge, ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build());
+
+        waitForAssert(() -> {
+            assertEquals(ThingStatus.ONLINE, thing.getStatus());
+        });
+
+        // child handler must be initialized
+        waitForAssert(() -> assertEquals(0, childHandlerInitializedSemaphore.availablePermits()));
     }
 
     private void assertThingStatus(Map<String, Object> propsThing, Map<String, Object> propsChannel, ThingStatus status,
