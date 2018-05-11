@@ -4,7 +4,6 @@ The Magic Bundle is a virtual device bundle which provides different Things, Cha
 
 Future plans:
 
-* Firmware update support
 * Simulate communication errors
 * Provide REST API to update thing status from _outside_
 * Provide REST API to temporarily create new Channels/Things
@@ -14,6 +13,13 @@ Future plans:
 * Magic Light - On/Off
 * Magic Light - Dimmable
 * Magic Light - Color
+* Magic Sensor - Door/Window Contact
+* Magic Location
+* Magic Configurable Thing
+* Magic Thermostat
+* Magic Delayed Online Thing - goes online after some time
+* Magic Firmware Updatable Thing - can be firmware updated, depending on the model
+
 
 ## Discovery
 
@@ -34,6 +40,11 @@ Available channels:
 * switch - the on/off toggle maps to a Switch item.
 * brightness - the brightness value maps to a Dimmer item.
 * color - the color maps to a Color item.
+* alert - the alert function of the color light.
+* contact - the contact of the door/window contact.
+* location - the location of the magic location.
+* temperature - the temperature of the magic thermostat.
+* number - the delay in seconds for the delayed thing to go online.
 
 ## Full Example
 
