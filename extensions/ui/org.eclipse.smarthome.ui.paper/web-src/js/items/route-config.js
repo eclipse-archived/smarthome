@@ -11,10 +11,10 @@
             title : 'Configuration'
         }).when('/configuration/item/edit/:itemName', {
             templateUrl : 'partials/items/item.config.html',
-            controller : 'ItemSetupController'
+            controller : 'ItemConfigController'
         }).when('/configuration/item/create', {
             templateUrl : 'partials/items/item.config.html',
-            controller : 'ItemSetupController',
+            controller : 'ItemConfigController',
             title : 'Create item'
         })
     }
