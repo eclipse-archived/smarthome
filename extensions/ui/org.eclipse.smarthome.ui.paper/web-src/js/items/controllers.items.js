@@ -56,6 +56,7 @@ angular.module('PaperUI.items')//
 
     $scope.refresh();
 }).controller('ItemConfigController', function($scope, $mdDialog, $filter, $location, $q, toastService, itemService, itemConfig, itemRepository, sharedProperties) {
+    $scope.items = [];
     $scope.oldCategory;
     $scope.types = itemConfig.types;
     $scope.groupTypes = itemConfig.groupTypes;
@@ -75,6 +76,10 @@ angular.module('PaperUI.items')//
 
     function activate() {
         return $q(function(resolve, reject) {
+            itemRepository.getAll().then(function(items) {
+                $scope.items = items;
+            });
+
             if (sharedProperties.getParams().length > 0 && sharedProperties.getParams()[0].linking) {
                 $scope.linking = true;
                 $scope.types = sharedProperties.getParams()[0].acceptedItemType;
@@ -170,14 +175,14 @@ angular.module('PaperUI.items')//
             delete $scope.item.dimension;
         }
 
-        if ($scope.item.editable && JSON.stringify($scope.item) !== JSON.stringify(originalItem)) {
+        if ($scope.item.editable && JSON.stringify($scope.item) !== JSON.stringify(ctrl.originalItem)) {
             if ($scope.item.category == "") {
                 $scope.item.category = null;
             }
             itemService.create({
                 itemName : $scope.item.name
             }, $scope.item).$promise.then(function() {
-                return updateMetadata($scope.item.name, $scope.item.metadata, $scope.item.editable);
+                return updateMetadata($scope.item.name, $scope.item.metadata, ctrl.originalItem, $scope.item.editable);
             }).then(function() {
                 toastService.showDefaultToast(text);
                 itemRepository.setDirty(true);
@@ -256,6 +261,22 @@ angular.module('PaperUI.items')//
     $scope.renderIcon = function() {
         $scope.oldCategory = $scope.item.category;
         $scope.srcURL = $scope.getSrcURL($scope.item.category, $scope.item.type);
+    }
+
+    $scope.searchItem = function(searchText) {
+        var criterion = {
+            name : searchText,
+            type : "Group"
+        };
+
+        var items = $filter('filter')($scope.items, criterion);
+        items = $filter('orderBy')(items, 'name');
+        if (items.indexOf($scope.item.name) != -1) {
+            items.splice(items.indexOf($scope.item.name), 1);
+        }
+        return items.map(function(item) {
+            return item.name;
+        });
     }
 
     $scope.openItem = function() {
