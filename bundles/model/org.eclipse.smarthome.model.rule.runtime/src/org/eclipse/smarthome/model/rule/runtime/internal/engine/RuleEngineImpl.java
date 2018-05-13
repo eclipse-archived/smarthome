@@ -96,7 +96,7 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
     @Activate
     public void activate() {
         injector = RulesStandaloneSetup.getInjector();
-        triggerManager = injector.getInstance(RuleTriggerManager.class);
+        triggerManager = new RuleTriggerManager(injector);
 
         if (!isEnabled()) {
             logger.info("Rule engine is disabled.");
@@ -440,5 +440,9 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         } else if (event instanceof ThingStatusInfoChangedEvent) {
             receiveThingStatus((ThingStatusInfoChangedEvent) event);
         }
+    }
+
+    RuleTriggerManager getTriggerManager() {
+        return triggerManager;
     }
 }
