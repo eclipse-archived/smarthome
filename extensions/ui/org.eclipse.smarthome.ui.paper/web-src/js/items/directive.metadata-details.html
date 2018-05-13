@@ -11,5 +11,8 @@
             <input type="text" name="{{::$ctrl.namespace}}" ng-model="$ctrl.metadata.value" aria-label={{::$ctrl.namespace}}></input> 
         </md-input-container>
     </div>
-    <!--  span>Options</span -->
+    <div ng-if="$ctrl.hasParameters()">
+        <button class="md-button" ng-click="$ctrl.editParameters($event)">Parameters</button>
+    </div>
+    
 </div>
