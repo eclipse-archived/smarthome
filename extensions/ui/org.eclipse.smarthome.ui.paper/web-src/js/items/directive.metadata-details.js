@@ -33,6 +33,8 @@
         this.$onInit = activate;
 
         function activate() {
+            // watch changes to the main metadata value and load the corresponding
+            // config description for its configuration:
             $scope.$watch(function watchMetadataValue(scope) {
                 return ctrl.metadata.value;
             }, function handleMetadataValueChange(newValue, oldValue) {
@@ -44,6 +46,11 @@
                     uri : 'metadata:' + ctrl.namespace + ":" + ctrl.metadata.value
                 }).$promise.then(function success(configDescription) {
                     ctrl.configParameterDescription = configDescription;
+                    // once a valid config description is found for the new metadata value,
+                    // we clear the configuration:
+                    if (oldValue && oldValue != newValue) {
+                        ctrl.metadata.config = {};
+                    }
                 }, function error() {
                     ctrl.configParameterDescription = undefined;
                 });

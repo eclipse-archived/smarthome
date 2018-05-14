@@ -6,21 +6,28 @@
 
     // ConfigurableMetadataDialogController.$inject([ 'configDescriptionService' ]);
 
-    function ConfigurableMetadataDialogController($mdDialog, configDescriptionService, metadata, configDescription) {
+    function ConfigurableMetadataDialogController($mdDialog, configDescriptionService, configService, metadata, configDescription) {
         var ctrl = this;
         this.metadata = metadata;
         this.configDescription = configDescription;
 
-        this.parameters = [];
-        this.configuration = {};
+        this.parameterGroups = [];
+        this.configuration = metadata.config;
         this.configArray = [];
         this.expertMode = false;
 
+        this.cancel = cancel;
         this.close = close;
-        this.save = save;
         this.addParameter = addParameter;
 
-        function close() {
+        activate();
+
+        function activate() {
+            ctrl.parameterGroups = configService.getRenderingModel(ctrl.configDescription.parameters, ctrl.configDescription.parameterGroups);
+            ctrl.configuration = configService.setConfigDefaults(ctrl.configuration, ctrl.parameterGroups);
+        }
+
+        function cancel() {
             $mdDialog.hide();
         }
 
@@ -31,17 +38,11 @@
             });
         }
 
-        function save() {
-            var configuration = {};
-            if ($scope.expertMode) {
-                $scope.configuration = configService.getConfigAsObject($scope.configArray, $scope.parameters);
+        function close() {
+            if (ctrl.expertMode) {
+                ctrl.configuration = configService.getConfigAsObject(ctrl.configArray, ctrl.parameterGroups);
             }
-            var configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters, true);
-            serviceConfigService.updateConfig({
-                id : (serviceId ? serviceId : $scope.serviceId)
-            }, configuration, function() {
-                toastService.showDefaultToast('Service config updated.');
-            });
+            ctrl.metadata.config = configService.setConfigDefaults(ctrl.configuration, ctrl.parameterGroups, true);
             $mdDialog.hide();
         }
     }
