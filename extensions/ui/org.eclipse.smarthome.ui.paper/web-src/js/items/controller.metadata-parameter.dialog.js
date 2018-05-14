@@ -4,9 +4,10 @@
 
     angular.module('PaperUI.items').controller('ConfigurableMetadataDialogController', ConfigurableMetadataDialogController);
 
-    // ConfigurableMetadataDialogController.$inject([ 'configDescriptionService' ]);
+    // ConfigurableMetadataDialogController.$inject([ '$scope', '$mdDialog', 'configDescriptionService',
+    // 'configService', 'metadata', 'configDescription' ]);
 
-    function ConfigurableMetadataDialogController($mdDialog, configDescriptionService, configService, metadata, configDescription) {
+    function ConfigurableMetadataDialogController($scope, $mdDialog, configDescriptionService, configService, metadata, configDescription) {
         var ctrl = this;
         this.metadata = metadata;
         this.configDescription = configDescription;
@@ -25,6 +26,18 @@
         function activate() {
             ctrl.parameterGroups = configService.getRenderingModel(ctrl.configDescription.parameters, ctrl.configDescription.parameterGroups);
             ctrl.configuration = configService.setConfigDefaults(ctrl.configuration, ctrl.parameterGroups);
+
+            $scope.$watch(function watchExpertMode() {
+                return ctrl.expertMode;
+            }, function(newValue, oldValue) {
+                if (newValue != oldValue) {
+                    if (ctrl.expertMode) {
+                        ctrl.configArray = configService.getConfigAsArray(ctrl.configuration, ctrl.parameterGroups);
+                    } else {
+                        ctrl.configuration = configService.getConfigAsObject(ctrl.configArray, ctrl.parameterGroups);
+                    }
+                }
+            });
         }
 
         function cancel() {
