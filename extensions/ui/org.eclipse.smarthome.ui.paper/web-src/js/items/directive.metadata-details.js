@@ -42,8 +42,10 @@
                     return;
                 }
 
+                var value = ctrl.metadata.value.replace(/\s/g, '_');
+
                 return configDescriptionService.getByUri({
-                    uri : 'metadata:' + ctrl.namespace + ":" + ctrl.metadata.value
+                    uri : 'metadata:' + ctrl.namespace + ":" + value
                 }).$promise.then(function success(configDescription) {
                     ctrl.configParameterDescription = configDescription;
                     // once a valid config description is found for the new metadata value,
