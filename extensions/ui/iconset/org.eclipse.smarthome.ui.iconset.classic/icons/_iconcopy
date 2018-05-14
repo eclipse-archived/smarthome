@@ -41,6 +41,9 @@ cp -f light-on.svg          light.svg
 cp -f lock-closed.png       lock.png
 cp -f lock-closed.svg       lock.svg
 
+cp -f presence-on.png       presence.png
+cp -f presence-on.svg       presence.svg
+
 cp -f receiver-on.png       receiver.png
 cp -f receiver-on.svg       receiver.svg
 
