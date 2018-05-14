@@ -26,6 +26,7 @@ Import-Package:
  org.eclipse.smarthome.binding.tradfri,
  org.eclipse.smarthome.binding.tradfri.handler,
  org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.config.core.status,
  org.eclipse.smarthome.config.discovery,
  org.eclipse.smarthome.config.discovery.mdns,
  org.eclipse.smarthome.core.library.types,
