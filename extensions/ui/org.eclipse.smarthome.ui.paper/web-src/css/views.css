@@ -132,6 +132,10 @@ section#main.header-tabs {
 	padding: 0px;
 }
 
+.item-edit metadata md-select, .item-edit metadata md-input-container, .item-edit metadata button {
+    margin-top: 0;
+}
+
 /* Inbox */
 .scan .fab-item md-progress-circular {
     float: left;
