@@ -10,6 +10,8 @@ angular.module('PaperUI.things') //
 
         $scope.bridges = [];
 
+        $scope.needsBridge = false;
+
         var refreshBridges = function(supportedBridgeTypeUIDs) {
             thingRepository.getAll(function(things) {
                 $scope.bridges = things.filter(function(thing) {
@@ -23,6 +25,7 @@ angular.module('PaperUI.things') //
                 thingTypeUID : thingTypeUID
             }, function(thingType) {
                 if (thingType.supportedBridgeTypeUIDs && thingType.supportedBridgeTypeUIDs.length > 0) {
+                    $scope.needsBridge = true;
                     refreshBridges(thingType.supportedBridgeTypeUIDs);
                 }
             });
