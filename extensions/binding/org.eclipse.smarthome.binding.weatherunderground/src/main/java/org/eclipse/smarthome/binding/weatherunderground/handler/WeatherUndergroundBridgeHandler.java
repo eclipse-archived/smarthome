@@ -16,6 +16,8 @@ import static org.eclipse.smarthome.binding.weatherunderground.WeatherUndergroun
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -29,9 +31,11 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +57,8 @@ public class WeatherUndergroundBridgeHandler extends BaseBridgeHandler {
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
     private static final String URL = "http://api.wunderground.com/api/%APIKEY%/";
     private static final int FETCH_TIMEOUT_MS = 30000;
+
+    private Map<ThingUID, @Nullable ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
 
     String error = "";
     @Nullable
@@ -146,5 +152,23 @@ public class WeatherUndergroundBridgeHandler extends BaseBridgeHandler {
 
     public void setApikey(String apikey) {
         this.apikey = apikey;
+    }
+
+    public Map<ThingUID, @Nullable ServiceRegistration<?>> getDiscoveryServiceRegs() {
+        return discoveryServiceRegs;
+    }
+
+    public void setDiscoveryServiceRegs(Map<ThingUID, @Nullable ServiceRegistration<?>> discoveryServiceRegs) {
+        this.discoveryServiceRegs = discoveryServiceRegs;
+    }
+
+    @Override
+    public void handleRemoval() {
+        // removes the old registration service associated to the bridge, if existing
+        ServiceRegistration<?> dis = this.getDiscoveryServiceRegs().get(this.getThing().getUID());
+        if (null != dis) {
+            dis.unregister();
+        }
+        super.handleRemoval();
     }
 }

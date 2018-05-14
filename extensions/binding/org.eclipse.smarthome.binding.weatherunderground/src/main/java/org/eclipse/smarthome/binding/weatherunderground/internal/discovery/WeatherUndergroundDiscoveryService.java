@@ -23,16 +23,15 @@ import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.smarthome.binding.weatherunderground.handler.WeatherUndergroundBridgeHandler;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
-import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.i18n.LocationProvider;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.library.types.PointType;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -43,11 +42,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author Laurent Garnier - Initial Contribution
  */
-@Component(service = DiscoveryService.class, immediate = true, configurationPid = "discovery.weatherunderground")
+// @Component(service = DiscoveryService.class, immediate = true, configurationPid = "discovery.weatherunderground")
 public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService {
 
     private final Logger logger = LoggerFactory.getLogger(WeatherUndergroundDiscoveryService.class);
-
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_WEATHER);
     private static final int DISCOVER_TIMEOUT_SECONDS = 10;
     private static final int LOCATION_CHANGED_CHECK_INTERVAL = 60;
@@ -56,11 +54,17 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
     private ScheduledFuture<?> discoveryJob;
     private PointType previousLocation;
 
+    private final WeatherUndergroundBridgeHandler weatherUndergroundBridgeHandler;
+
     /**
      * Creates a WeatherUndergroundDiscoveryService with enabled autostart.
      */
-    public WeatherUndergroundDiscoveryService() {
+
+    public WeatherUndergroundDiscoveryService(WeatherUndergroundBridgeHandler weatherUndergroundBridgeHandler,
+            LocationProvider locationProvider) {
         super(SUPPORTED_THING_TYPES, DISCOVER_TIMEOUT_SECONDS, true);
+        this.weatherUndergroundBridgeHandler = weatherUndergroundBridgeHandler;
+        this.locationProvider = locationProvider;
     }
 
     @Override
@@ -115,10 +119,11 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
 
     public void createResults(PointType location) {
         ThingUID localWeatherThing = new ThingUID(THING_TYPE_WEATHER, LOCAL);
+        ThingUID bridgeUID = weatherUndergroundBridgeHandler.getThing().getUID();
         Map<String, Object> properties = new HashMap<>(3);
         properties.put(LOCATION, String.format("%s,%s", location.getLatitude(), location.getLongitude()));
         thingDiscovered(DiscoveryResultBuilder.create(localWeatherThing).withLabel("Local Weather")
-                .withProperties(properties).build());
+                .withProperties(properties).withBridge(bridgeUID).build());
     }
 
     @Reference

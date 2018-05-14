@@ -14,12 +14,16 @@ package org.eclipse.smarthome.binding.weatherunderground.internal;
 
 import static org.eclipse.smarthome.binding.weatherunderground.WeatherUndergroundBindingConstants.*;
 
+import java.util.Hashtable;
 import java.util.Set;
 
 import org.eclipse.smarthome.binding.weatherunderground.WeatherUndergroundBindingConstants;
 import org.eclipse.smarthome.binding.weatherunderground.handler.WeatherUndergroundBridgeHandler;
 import org.eclipse.smarthome.binding.weatherunderground.handler.WeatherUndergroundHandler;
+import org.eclipse.smarthome.binding.weatherunderground.internal.discovery.WeatherUndergroundDiscoveryService;
+import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
+import org.eclipse.smarthome.core.i18n.LocationProvider;
 import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -39,11 +43,15 @@ import com.google.common.collect.Sets;
  * @author Laurent Garnier - Initial contribution
  * @author Theo Giovanna - Added a bridge for the API key
  */
+<<<<<<< HEAD
 @Component(service = ThingHandlerFactory.class, configurationPid = "binding.weatherunderground")
+=======
+@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.weatherunderground")
+>>>>>>> e39f3d9f5... Autodiscovery service added. Things are automatically configured with a bridge if existing
 public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
 
     private LocaleProvider localeProvider;
-
+    private LocationProvider locationProvider;
     private UnitProvider unitProvider;
 
     @Reference
@@ -53,6 +61,15 @@ public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
 
     protected void unsetLocaleProvider(final LocaleProvider localeProvider) {
         this.localeProvider = null;
+    }
+
+    public LocationProvider getLocationProvider() {
+        return locationProvider;
+    }
+
+    @Reference
+    public void setLocationProvider(LocationProvider locationProvider) {
+        this.locationProvider = locationProvider;
     }
 
     @Reference
@@ -81,10 +98,20 @@ public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
         }
 
         if (thingTypeUID.equals(THING_TYPE_BRIDGE)) {
-            return new WeatherUndergroundBridgeHandler((Bridge) thing);
+            WeatherUndergroundBridgeHandler handler = new WeatherUndergroundBridgeHandler((Bridge) thing);
+            registerWeatherDiscoveryService(handler);
+            return handler;
         }
 
         return null;
+    }
+
+    // adds the bridge to the discovery service
+    private synchronized void registerWeatherDiscoveryService(WeatherUndergroundBridgeHandler bridgeHandler) {
+        WeatherUndergroundDiscoveryService discoveryService = new WeatherUndergroundDiscoveryService(bridgeHandler,
+                locationProvider);
+        bridgeHandler.getDiscoveryServiceRegs().put(bridgeHandler.getThing().getUID(), bundleContext
+                .registerService(DiscoveryService.class.getName(), discoveryService, new Hashtable<String, Object>()));
     }
 
 }
