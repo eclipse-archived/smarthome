@@ -44,10 +44,14 @@ import com.google.common.collect.Sets;
  * @author Theo Giovanna - Added a bridge for the API key
  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 @Component(service = ThingHandlerFactory.class, configurationPid = "binding.weatherunderground")
 =======
 @Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.weatherunderground")
 >>>>>>> e39f3d9f5... Autodiscovery service added. Things are automatically configured with a bridge if existing
+=======
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.weatherunderground")
+>>>>>>> 70f066ddf... Resolved conflict
 public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
 
     private LocaleProvider localeProvider;
