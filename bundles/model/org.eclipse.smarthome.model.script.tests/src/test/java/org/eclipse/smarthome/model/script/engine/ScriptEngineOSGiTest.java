@@ -31,6 +31,8 @@ import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
+import org.eclipse.smarthome.core.library.unit.MetricPrefix;
+import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.script.ScriptServiceUtil;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
@@ -283,6 +285,15 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
     @Test
     public void testEquals_QuantityType_Number() throws ScriptParsingException, ScriptExecutionException {
         assertThat(runScript("20 [m].equals(20)"), is(false));
+    }
+
+    @Test
+    public void testQuantityType_UnitSymbols() throws ScriptParsingException, ScriptExecutionException {
+        assertThat(runScript("20 [m²]"), is(new QuantityType<>(20, SIUnits.SQUARE_METRE)));
+        assertThat(runScript("20 [m**2]"), is(new QuantityType<>(20, SIUnits.SQUARE_METRE)));
+        assertThat(runScript("20 [m³]"), is(new QuantityType<>(20, SIUnits.SQUARE_METRE.multiply(SIUnits.METRE))));
+        assertThat(runScript("20 [m**3]"), is(new QuantityType<>(20, SIUnits.SQUARE_METRE.multiply(SIUnits.METRE))));
+        assertThat(runScript("1 [µm]"), is(new QuantityType<>(1, MetricPrefix.MICRO(SIUnits.METRE))));
     }
 
     @Test
