@@ -89,9 +89,10 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
 
     private ScheduledFuture<?> startupJob;
 
-    // this flag is used to signal that items are still being added and that we hence do not consider the rule engine
-    // ready to be operational
-    private boolean starting = true;
+    // This flag is used to signal that items are still being added and that we hence do not consider the rule engine
+    // ready to be operational.
+    // This field is package private to allow access for unit tests.
+    boolean starting = true;
 
     @Activate
     public void activate() {
