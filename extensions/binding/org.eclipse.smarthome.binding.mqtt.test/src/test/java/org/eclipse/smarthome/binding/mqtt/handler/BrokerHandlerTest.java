@@ -22,7 +22,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.smarthome.binding.mqtt.internal.MqttThingID;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -50,8 +49,6 @@ import org.slf4j.LoggerFactory;
  * @author David Graeff - Initial contribution
  */
 public class BrokerHandlerTest {
-    private final String HOST = "10.10.0.10";
-    private final int PORT = 80;
     private final Logger logger = LoggerFactory.getLogger(BrokerHandlerTest.class);
     private ScheduledExecutorService scheduler;
 
@@ -90,10 +87,10 @@ public class BrokerHandlerTest {
     public void setUp() throws ConfigurationException, MqttException {
         scheduler = new ScheduledThreadPoolExecutor(1);
         MockitoAnnotations.initMocks(this);
-        when(thing.getUID()).thenReturn(MqttThingID.getThingUID(HOST, PORT));
-        connection = spy(new MqttBrokerConnectionEx(HOST, PORT, false, "BrokerHandlerTest"));
+        when(thing.getUID()).thenReturn(MqttThingID.getThingUID("10.10.0.10", 80));
+        connection = spy(new MqttBrokerConnectionEx("10.10.0.10", 80, false, "BrokerHandlerTest"));
         connection.setTimeoutExecutor(scheduler, 10);
-        connection.setConnectionCallback(connection, mock(IMqttToken.class));
+        connection.setConnectionCallback(connection);
 
         Configuration config = new Configuration();
         when(thing.getConfiguration()).thenReturn(config);
@@ -118,8 +115,8 @@ public class BrokerHandlerTest {
     @Test
     public void createBrokerConnection() {
         Configuration config = new Configuration();
-        config.put("host", HOST);
-        config.put("port", PORT);
+        config.put("host", "10.10.0.10");
+        config.put("port", 80);
         when(thing.getConfiguration()).thenReturn(config);
         handler.initialize();
         verify(handler).createBrokerConnection();
