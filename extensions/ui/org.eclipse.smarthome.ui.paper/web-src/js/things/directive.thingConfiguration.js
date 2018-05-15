@@ -12,6 +12,10 @@ angular.module('PaperUI.things') //
 
         $scope.needsBridge = false;
 
+        $scope.hasBridge = function() {
+            return $scope.bridges && $scope.bridges.length > 0;
+        }
+
         var refreshBridges = function(supportedBridgeTypeUIDs) {
             thingRepository.getAll(function(things) {
                 $scope.bridges = things.filter(function(thing) {
@@ -27,6 +31,8 @@ angular.module('PaperUI.things') //
                 if (thingType.supportedBridgeTypeUIDs && thingType.supportedBridgeTypeUIDs.length > 0) {
                     $scope.needsBridge = true;
                     refreshBridges(thingType.supportedBridgeTypeUIDs);
+                } else {
+                    $scope.needsBridge = false;
                 }
             });
         }
