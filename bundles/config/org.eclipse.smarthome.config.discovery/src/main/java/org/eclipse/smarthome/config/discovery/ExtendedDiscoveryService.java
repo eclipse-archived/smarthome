@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.config.discovery;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * By implementing this interface, a {@link DiscoveryService} implementation may indicate that it requires extended
@@ -30,8 +31,8 @@ public interface ExtendedDiscoveryService {
     /**
      * Provides the callback, which a {@link DiscoveryService} may use in order to access core features.
      *
-     * @param discoveryServiceCallback
+     * @param discoveryServiceCallback - can be null if it should be removed
      */
-    public void setDiscoveryServiceCallback(DiscoveryServiceCallback discoveryServiceCallback);
+    public void setDiscoveryServiceCallback(@Nullable DiscoveryServiceCallback discoveryServiceCallback);
 
 }

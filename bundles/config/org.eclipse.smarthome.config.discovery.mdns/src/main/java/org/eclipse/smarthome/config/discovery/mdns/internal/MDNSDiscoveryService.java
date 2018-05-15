@@ -27,6 +27,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
+import org.eclipse.smarthome.config.discovery.DiscoveryServiceCallback;
+import org.eclipse.smarthome.config.discovery.ExtendedDiscoveryService;
 import org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -48,13 +50,16 @@ import org.slf4j.LoggerFactory;
  * @author Andre Fuechsel - make {@link #startScan()} asynchronous
  */
 @Component(immediate = true, service = DiscoveryService.class, configurationPid = "discovery.mdns")
-public class MDNSDiscoveryService extends AbstractDiscoveryService implements ServiceListener {
+public class MDNSDiscoveryService extends AbstractDiscoveryService
+        implements ServiceListener, ExtendedDiscoveryService {
     private final Logger logger = LoggerFactory.getLogger(MDNSDiscoveryService.class);
 
     @Deprecated
     private final Set<org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant> oldParticipants = new CopyOnWriteArraySet<>();
 
     private final Set<MDNSDiscoveryParticipant> participants = new CopyOnWriteArraySet<>();
+
+    private DiscoveryServiceCallback discoveryServiceCallback;
 
     private MDNSClient mdnsClient;
 
@@ -147,14 +152,24 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addMDNSDiscoveryParticipant(MDNSDiscoveryParticipant participant) {
+        if (participant instanceof ExtendedDiscoveryService) {
+            ((ExtendedDiscoveryService) participant).setDiscoveryServiceCallback(discoveryServiceCallback);
+        }
+
         this.participants.add(participant);
+
         if (mdnsClient != null && isBackgroundDiscoveryEnabled()) {
             mdnsClient.addServiceListener(participant.getServiceType(), this);
         }
     }
 
     protected void removeMDNSDiscoveryParticipant(MDNSDiscoveryParticipant participant) {
+        if (participant instanceof ExtendedDiscoveryService) {
+            ((ExtendedDiscoveryService) participant).setDiscoveryServiceCallback(null);
+        }
+
         this.participants.remove(participant);
+
         if (mdnsClient != null) {
             mdnsClient.removeServiceListener(participant.getServiceType(), this);
         }
@@ -254,6 +269,17 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
                         logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
                     }
                 }
+            }
+        }
+    }
+
+    @Override
+    public void setDiscoveryServiceCallback(DiscoveryServiceCallback discoveryServiceCallback) {
+        this.discoveryServiceCallback = discoveryServiceCallback;
+
+        for (MDNSDiscoveryParticipant participant : participants) {
+            if (participant instanceof ExtendedDiscoveryService) {
+                ((ExtendedDiscoveryService) participant).setDiscoveryServiceCallback(discoveryServiceCallback);
             }
         }
     }
