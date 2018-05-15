@@ -1,51 +1,72 @@
-angular.module('PaperUI.things') //
-.directive('thingConfiguration', function() {
+;
+(function() {
+    'use strict';
 
-    var controller = function($scope, thingTypeService, thingRepository) {
-        $scope.$watch('thing', function(thing) {
-            if (thing.thingTypeUID) {
-                getThingType(thing.thingTypeUID);
-            }
-        })
+    angular.module('PaperUI.things').directive('thingConfiguration', ThingConfiguration);
 
-        $scope.bridges = [];
+    function ThingConfiguration() {
+        return {
+            restrict : 'E',
+            scope : {},
+            bindToController : {
+                thing : '=',
+                isEditing : '=?',
+                form : '=?'
+            },
+            controller : ThingConfigurationController,
+            controllerAs : '$ctrl',
+            templateUrl : 'partials/things/directive.thingConfiguration.html'
+        }
+    }
 
-        $scope.needsBridge = false;
+    ThingConfigurationController.$inject = [ '$q', 'thingTypeService', 'thingRepository' ];
 
-        $scope.hasBridge = function() {
-            return $scope.bridges && $scope.bridges.length > 0;
+    function ThingConfigurationController($q, thingTypeService, thingRepository) {
+        var ctrl = this;
+
+        this.bridges = [];
+        this.needsBridge = false;
+        this.hasBridge = hasBridge;
+        this.createBridge = createBridge;
+
+        this.$onInit = activate;
+
+        function activate() {
+            return $q(function() {
+                if (ctrl.thing.thingTypeUID) {
+                    getThingType(ctrl.thing.thingTypeUID);
+                }
+            });
         }
 
-        var refreshBridges = function(supportedBridgeTypeUIDs) {
+        function hasBridge() {
+            return ctrl.bridges && ctrl.bridges.length > 0;
+        }
+
+        function createBridge() {
+
+        }
+
+        function refreshBridges(supportedBridgeTypeUIDs) {
             thingRepository.getAll(function(things) {
-                $scope.bridges = things.filter(function(thing) {
+                ctrl.bridges = things.filter(function(thing) {
                     return supportedBridgeTypeUIDs.includes(thing.thingTypeUID)
                 })
             });
         }
 
-        var getThingType = function(thingTypeUID) {
+        function getThingType(thingTypeUID) {
             thingTypeService.getByUid({
                 thingTypeUID : thingTypeUID
-            }, function(thingType) {
+            }).$promise.then(function(thingType) {
                 if (thingType.supportedBridgeTypeUIDs && thingType.supportedBridgeTypeUIDs.length > 0) {
-                    $scope.needsBridge = true;
+                    ctrl.needsBridge = true;
                     refreshBridges(thingType.supportedBridgeTypeUIDs);
                 } else {
-                    $scope.needsBridge = false;
+                    ctrl.needsBridge = false;
                 }
             });
         }
     }
 
-    return {
-        restrict : 'E',
-        scope : {
-            thing : '=',
-            isEditing : '=?',
-            form : '=?'
-        },
-        controller : controller,
-        templateUrl : 'partials/things/directive.thingConfiguration.html'
-    }
-});
+})();
