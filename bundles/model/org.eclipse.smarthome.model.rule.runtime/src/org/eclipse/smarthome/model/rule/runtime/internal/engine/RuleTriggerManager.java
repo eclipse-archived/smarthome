@@ -298,14 +298,14 @@ public class RuleTriggerManager {
                 if ((!isGroup) && (t instanceof UpdateEventTrigger)) {
                     final UpdateEventTrigger ut = (UpdateEventTrigger) t;
                     if (ut.getItem().equals(name)) {
-                        triggerStateString = ut.getState().getValue();
+                        triggerStateString = ut.getState() != null ? ut.getState().getValue() : null;
                     } else {
                         continue;
                     }
                 } else if ((isGroup) && (t instanceof GroupMemberUpdateEventTrigger)) {
                     final GroupMemberUpdateEventTrigger gmut = (GroupMemberUpdateEventTrigger) t;
                     if (gmut.getGroup().equals(name)) {
-                        triggerStateString = gmut.getState().getValue();
+                        triggerStateString = gmut.getState() != null ? gmut.getState().getValue() : null;
                     } else {
                         continue;
                     }
@@ -333,16 +333,16 @@ public class RuleTriggerManager {
                 if ((!isGroup) && (t instanceof ChangedEventTrigger)) {
                     final ChangedEventTrigger ct = (ChangedEventTrigger) t;
                     if (ct.getItem().equals(name)) {
-                        triggerOldStateString = ct.getOldState().getValue();
-                        triggerNewStateString = ct.getNewState().getValue();
+                        triggerOldStateString = ct.getOldState() != null ? ct.getOldState().getValue() : null;
+                        triggerNewStateString = ct.getNewState() != null ? ct.getNewState().getValue() : null;
                     } else {
                         continue;
                     }
                 } else if ((isGroup) && (t instanceof GroupMemberChangedEventTrigger)) {
                     final GroupMemberChangedEventTrigger gmct = (GroupMemberChangedEventTrigger) t;
                     if (gmct.getGroup().equals(name)) {
-                        triggerOldStateString = gmct.getOldState().getValue();
-                        triggerNewStateString = gmct.getNewState().getValue();
+                        triggerOldStateString = gmct.getOldState() != null ? gmct.getOldState().getValue() : null;
+                        triggerNewStateString = gmct.getNewState() != null ? gmct.getNewState().getValue() : null;
                     } else {
                         continue;
                     }
@@ -375,14 +375,14 @@ public class RuleTriggerManager {
                 if ((!isGroup) && (t instanceof CommandEventTrigger)) {
                     final CommandEventTrigger ct = (CommandEventTrigger) t;
                     if (ct.getItem().equals(name)) {
-                        triggerCommandString = ct.getCommand().getValue();
+                        triggerCommandString = ct.getCommand()!=null?ct.getCommand().getValue() : null;
                     } else {
                         continue;
                     }
                 } else if ((isGroup) && (t instanceof GroupMemberCommandEventTrigger)) {
                     final GroupMemberCommandEventTrigger gmct = (GroupMemberCommandEventTrigger) t;
                     if (gmct.getGroup().equals(name)) {
-                        triggerCommandString = gmct.getCommand().getValue();
+                        triggerCommandString = gmct.getCommand() != null ? gmct.getCommand().getValue() : null;
                     } else {
                         continue;
                     }
