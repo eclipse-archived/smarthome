@@ -64,7 +64,7 @@
 				</div>
 			</div>
 		</div>
-		<div ng-init="form={}">
+		<div ng-init="form={}" ng-if="thing"> <!-- ng-if="thing" evaluates when EditThingController eventually loads the thing. It is then present for data binding. -->
 			<thing-configuration thing="thing" is-editing="isEditing" form="form"></thing-configuration>
 			<div class="container" ng-show="parameters.length > 0">
 				<h3>Configuration Parameters</h3>
