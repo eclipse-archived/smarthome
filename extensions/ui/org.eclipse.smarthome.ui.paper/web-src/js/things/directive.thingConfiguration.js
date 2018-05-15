@@ -1,4 +1,4 @@
-angular.module('PaperUI.directive.thingConfiguration', []) //
+angular.module('PaperUI.things') //
 .directive('thingConfiguration', function() {
 
     var controller = function($scope, thingTypeService, thingRepository) {
