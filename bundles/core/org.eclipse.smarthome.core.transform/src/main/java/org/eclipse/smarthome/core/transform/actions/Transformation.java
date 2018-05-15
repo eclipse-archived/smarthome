@@ -45,6 +45,9 @@ public class Transformation {
         if (service != null) {
             try {
                 result = service.transform(function, value);
+                if (result == null) {
+                    result = value;
+                }
             } catch (TransformationException e) {
                 logger.error("Error executing the transformation '{}': {}", type, e.getMessage());
                 result = value;

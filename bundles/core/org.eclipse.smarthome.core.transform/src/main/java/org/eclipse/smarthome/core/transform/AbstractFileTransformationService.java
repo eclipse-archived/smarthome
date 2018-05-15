@@ -120,7 +120,7 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
      * @throws TransformationException
      */
     @Override
-    public String transform(String filename, String source) throws TransformationException {
+    public @Nullable String transform(String filename, String source) throws TransformationException {
         if (filename == null || source == null) {
             throw new TransformationException("the given parameters 'filename' and 'source' must not be null");
         }

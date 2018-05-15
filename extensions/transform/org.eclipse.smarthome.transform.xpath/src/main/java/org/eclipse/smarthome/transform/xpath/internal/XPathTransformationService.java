@@ -22,6 +22,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ public class XPathTransformationService implements TransformationService {
     private final Logger logger = LoggerFactory.getLogger(XPathTransformationService.class);
 
     @Override
-    public String transform(String xpathExpression, String source) throws TransformationException {
+    public @Nullable String transform(String xpathExpression, String source) throws TransformationException {
         if (xpathExpression == null || source == null) {
             throw new TransformationException("the given parameters 'xpath' and 'source' must not be null");
         }

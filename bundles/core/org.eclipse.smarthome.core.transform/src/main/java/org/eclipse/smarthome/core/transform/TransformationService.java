@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.core.transform;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * A TransformationProcessor transforms a given input and returns the transformed
@@ -47,6 +48,7 @@ public interface TransformationService {
      *         transformation couldn't be completed for any reason.
      * @throws TransformationException if any error occurs
      */
+    @Nullable
     String transform(String function, String source) throws TransformationException;
 
 }

@@ -16,9 +16,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
-import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ public class RegExTransformationService implements TransformationService {
     private static final Pattern SUBSTR_PATTERN = Pattern.compile("^s/(.*?[^\\\\])/(.*?[^\\\\])/(.*)$");
 
     @Override
-    public String transform(String regExpression, String source) throws TransformationException {
+    public @Nullable String transform(String regExpression, String source) throws TransformationException {
         if (regExpression == null || source == null) {
             throw new TransformationException("the given parameters 'regex' and 'source' must not be null");
         }
@@ -69,8 +69,7 @@ public class RegExTransformationService implements TransformationService {
             logger.debug(
                     "the given regex '^{}$' doesn't match the given content '{}' -> couldn't compute transformation",
                     regExpression, source);
-            throw new TransformationException("the given regex '^" + regExpression
-                    + "$' doesn't match the given content '" + source + "' -> couldn't compute transformation");
+            return null;
         }
         matcher.reset();
 
@@ -91,11 +90,7 @@ public class RegExTransformationService implements TransformationService {
             }
         }
 
-        if (result != null) {
-            return result;
-        } else {
-            return UnDefType.NULL.toFullString();
-        }
+        return result;
     }
 
 }

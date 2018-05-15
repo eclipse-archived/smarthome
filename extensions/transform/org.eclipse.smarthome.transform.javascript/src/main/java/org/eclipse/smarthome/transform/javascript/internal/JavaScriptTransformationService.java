@@ -24,6 +24,7 @@ import javax.script.ScriptException;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
@@ -53,7 +54,7 @@ public class JavaScriptTransformationService implements TransformationService {
      *            the input to transform
      */
     @Override
-    public String transform(String filename, String source) throws TransformationException {
+    public @Nullable String transform(String filename, String source) throws TransformationException {
         Logger logger = LoggerFactory.getLogger(JavaScriptTransformationService.class);
         if (filename == null || source == null) {
             throw new TransformationException("the given parameters 'filename' and 'source' must not be null");
