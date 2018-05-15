@@ -11,13 +11,13 @@
 			<md-input-container class="col-xs-12 noPadding"> <label>Location</label> <input ng-model="$ctrl.thing.location"> </md-input-container>
 		</div>
 	</div>
-	<div class="container" ng-if="$ctrl.needsBridge">
+	<div class="container" ng-if="$ctrl.needsBridge()">
 		<h3>Bridge Selection</h3>
 		<div ng-if="$ctrl.hasBridge()" class="form-group">
 			<md-select placeholder="Select a Bridge" ng-model="$ctrl.thing.bridgeUID" ng-readonly="true"> <md-option ng-value="bridge.UID" ng-repeat="bridge in $ctrl.bridges">{{bridge.label + ' - '}}{{bridge.UID}}</md-option> </md-select>
 		</div>
 		<div ng-if="!$ctrl.hasBridge()">
-		    <md-button class="md-primary" ng-click="$ctrl.createBidge()">Create Bridge</md-button>
+		    <md-button class="md-primary" ng-click="$ctrl.createBridge()">Create Bridge</md-button>
 		</div>
 		<hr />
 	</div>

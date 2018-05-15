@@ -19,13 +19,15 @@
         }
     }
 
-    ThingConfigurationController.$inject = [ '$q', 'thingTypeService', 'thingRepository' ];
+    ThingConfigurationController.$inject = [ '$q', '$location', 'thingTypeService', 'thingRepository' ];
 
-    function ThingConfigurationController($q, thingTypeService, thingRepository) {
+    function ThingConfigurationController($q, $location, thingTypeService, thingRepository) {
         var ctrl = this;
 
         this.bridges = [];
-        this.needsBridge = false;
+        this.supportedBridgeTypeUIDs = [];
+
+        this.needsBridge = needsBridge;
         this.hasBridge = hasBridge;
         this.createBridge = createBridge;
 
@@ -39,12 +41,17 @@
             });
         }
 
+        function needsBridge() {
+            return ctrl.supportedBridgeTypeUIDs && ctrl.supportedBridgeTypeUIDs.length > 0;
+        }
+
         function hasBridge() {
             return ctrl.bridges && ctrl.bridges.length > 0;
         }
 
         function createBridge() {
-
+            var bridgeTypeUID = ctrl.supportedBridgeTypeUIDs[0];
+            $location.path('inbox/setup/add/' + bridgeTypeUID);
         }
 
         function refreshBridges(supportedBridgeTypeUIDs) {
@@ -60,10 +67,8 @@
                 thingTypeUID : thingTypeUID
             }).$promise.then(function(thingType) {
                 if (thingType.supportedBridgeTypeUIDs && thingType.supportedBridgeTypeUIDs.length > 0) {
-                    ctrl.needsBridge = true;
+                    ctrl.supportedBridgeTypeUIDs = thingType.supportedBridgeTypeUIDs;
                     refreshBridges(thingType.supportedBridgeTypeUIDs);
-                } else {
-                    ctrl.needsBridge = false;
                 }
             });
         }
