@@ -263,7 +263,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         // enable the rules that are not persisted as Disabled;
         for (Rule rule : ruleRegistry.getAll()) {
             String uid = rule.getUID();
-            if (disabledRulesStorage.get(uid) == null) {
+            if (disabledRulesStorage == null || disabledRulesStorage.get(uid) == null) {
                 setEnabled(uid, true);
             }
         }
@@ -489,7 +489,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
             }
         }
         String rUID = rule.getUID();
-        RuleStatusInfo initStatusInfo = disabledRulesStorage.get(rUID) == null
+        RuleStatusInfo initStatusInfo = disabledRulesStorage == null || disabledRulesStorage.get(rUID) == null
                 ? new RuleStatusInfo(RuleStatus.INITIALIZING)
                 : new RuleStatusInfo(RuleStatus.UNINITIALIZED, RuleStatusDetail.DISABLED);
         RuleImpl runtimeRule = (RuleImpl) rule;

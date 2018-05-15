@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.core.dto.RuleDTOMapper;
+import org.eclipse.smarthome.automation.dto.RuleDTO;
 import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.parser.ParsingNestedException;
 
@@ -43,11 +45,14 @@ public class RuleGSONParser extends AbstractGSONParser<Rule> {
             if (jr.hasNext()) {
                 JsonToken token = jr.peek();
                 if (JsonToken.BEGIN_ARRAY.equals(token)) {
-                    rules.addAll(gson.fromJson(jr, new TypeToken<List<Rule>>() {
-                    }.getType()));
+                    List<RuleDTO> ruleDtos = gson.fromJson(jr, new TypeToken<List<RuleDTO>>() {
+                    }.getType());
+                    for (RuleDTO ruleDto : ruleDtos) {
+                        rules.add(RuleDTOMapper.map(ruleDto));
+                    }
                 } else {
-                    Rule rule = gson.fromJson(jr, Rule.class);
-                    rules.add(rule);
+                    RuleDTO ruleDto = gson.fromJson(jr, RuleDTO.class);
+                    rules.add(RuleDTOMapper.map(ruleDto));
                 }
                 return rules;
             }

@@ -67,8 +67,12 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
         super(module);
         this.source = (String) module.getConfiguration().get(CFG_EVENT_SOURCE);
         this.topic = (String) module.getConfiguration().get(CFG_EVENT_TOPIC);
-        this.types = Collections.unmodifiableSet(
-                new HashSet<>(Arrays.asList(((String) module.getConfiguration().get(CFG_EVENT_TYPES)).split(","))));
+        if (module.getConfiguration().get(CFG_EVENT_TYPES) != null) {
+            this.types = Collections.unmodifiableSet(
+                    new HashSet<>(Arrays.asList(((String) module.getConfiguration().get(CFG_EVENT_TYPES)).split(","))));
+        } else {
+            this.types = Collections.emptySet();
+        }
         this.bundleContext = bundleContext;
         Dictionary<String, Object> properties = new Hashtable<String, Object>();
         properties.put("event.topics", topic);

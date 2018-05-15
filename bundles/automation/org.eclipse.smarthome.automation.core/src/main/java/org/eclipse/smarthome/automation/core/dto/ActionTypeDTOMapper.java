@@ -20,6 +20,7 @@ import org.eclipse.smarthome.automation.dto.ActionTypeDTO;
 import org.eclipse.smarthome.automation.dto.CompositeActionTypeDTO;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.CompositeActionType;
+import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTOMapper;
 
 /**
  * This is a utility class to convert between the respective object and its DTO.
@@ -37,6 +38,19 @@ public class ActionTypeDTOMapper extends ModuleTypeDTOMapper {
         final CompositeActionTypeDTO actionTypeDto = map(actionType, new CompositeActionTypeDTO());
         actionTypeDto.children = ActionDTOMapper.map(actionType.getChildren());
         return actionTypeDto;
+    }
+
+    public static ActionType map(CompositeActionTypeDTO actionTypeDto) {
+        if (actionTypeDto.children == null || actionTypeDto.children.isEmpty()) {
+            return new ActionType(actionTypeDto.uid, ConfigDescriptionDTOMapper.map(actionTypeDto.configDescriptions),
+                    actionTypeDto.label, actionTypeDto.description, actionTypeDto.tags, actionTypeDto.visibility,
+                    actionTypeDto.inputs, actionTypeDto.outputs);
+        } else {
+            return new CompositeActionType(actionTypeDto.uid,
+                    ConfigDescriptionDTOMapper.map(actionTypeDto.configDescriptions), actionTypeDto.label,
+                    actionTypeDto.description, actionTypeDto.tags, actionTypeDto.visibility, actionTypeDto.inputs,
+                    actionTypeDto.outputs, ActionDTOMapper.mapDto(actionTypeDto.children));
+        }
     }
 
     public static List<ActionTypeDTO> map(final Collection<ActionType> types) {

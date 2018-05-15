@@ -78,46 +78,54 @@ public class RuleBuilder {
         return this;
     }
 
-    public RuleBuilder withTemplateUID(String uid) {
+    public RuleBuilder withTemplateUID(@Nullable String uid) {
         this.rule.setTemplateUID(uid);
         return this;
     }
 
-    public RuleBuilder withVisibility(Visibility visibility) {
-        this.rule.setVisibility(visibility);
+    public RuleBuilder withVisibility(@Nullable Visibility visibility) {
+        if (visibility != null) {
+            this.rule.setVisibility(visibility);
+        }
         return this;
     }
 
-    public RuleBuilder withTriggers(Trigger... triggers) {
+    public RuleBuilder withTriggers(@Nullable Trigger... triggers) {
         return withTriggers(Arrays.asList(triggers));
     }
 
-    public RuleBuilder withTriggers(List<? extends Trigger> triggers) {
-        ArrayList<TriggerImpl> triggerList = new ArrayList<>(triggers.size());
-        triggers.forEach(t -> triggerList.add((TriggerImpl) ModuleBuilder.createTrigger(t).build()));
-        this.rule.setTriggers(triggerList);
+    public RuleBuilder withTriggers(@Nullable List<? extends Trigger> triggers) {
+        if (triggers != null) {
+            ArrayList<TriggerImpl> triggerList = new ArrayList<>(triggers.size());
+            triggers.forEach(t -> triggerList.add((TriggerImpl) ModuleBuilder.createTrigger(t).build()));
+            this.rule.setTriggers(triggerList);
+        }
         return this;
     }
 
-    public RuleBuilder withConditions(Condition... conditions) {
+    public RuleBuilder withConditions(@Nullable Condition... conditions) {
         return withConditions(Arrays.asList(conditions));
     }
 
-    public RuleBuilder withConditions(List<? extends Condition> conditions) {
-        ArrayList<ConditionImpl> conditionList = new ArrayList<>(conditions.size());
-        conditions.forEach(c -> conditionList.add((ConditionImpl) ModuleBuilder.createCondition(c).build()));
-        this.rule.setConditions(conditionList);
+    public RuleBuilder withConditions(@Nullable List<? extends Condition> conditions) {
+        if (conditions != null) {
+            ArrayList<ConditionImpl> conditionList = new ArrayList<>(conditions.size());
+            conditions.forEach(c -> conditionList.add((ConditionImpl) ModuleBuilder.createCondition(c).build()));
+            this.rule.setConditions(conditionList);
+        }
         return this;
     }
 
-    public RuleBuilder withActions(Action... actions) {
+    public RuleBuilder withActions(@Nullable Action... actions) {
         return withActions(Arrays.asList(actions));
     }
 
-    public RuleBuilder withActions(List<? extends Action> actions) {
-        ArrayList<ActionImpl> actionList = new ArrayList<>(actions.size());
-        actions.forEach(a -> actionList.add((ActionImpl) ModuleBuilder.createAction(a).build()));
-        this.rule.setActions(actionList);
+    public RuleBuilder withActions(@Nullable List<? extends Action> actions) {
+        if (actions != null) {
+            ArrayList<ActionImpl> actionList = new ArrayList<>(actions.size());
+            actions.forEach(a -> actionList.add((ActionImpl) ModuleBuilder.createAction(a).build()));
+            this.rule.setActions(actionList);
+        }
         return this;
     }
 
@@ -126,18 +134,24 @@ public class RuleBuilder {
         return this;
     }
 
-    public RuleBuilder withTags(Set<String> tags) {
-        this.rule.setTags(new HashSet<>(tags));
+    public RuleBuilder withTags(@Nullable Set<String> tags) {
+        if (tags != null) {
+            this.rule.setTags(new HashSet<>(tags));
+        }
         return this;
     }
 
-    public RuleBuilder withConfiguration(Configuration ruleConfiguration) {
-        this.rule.setConfiguration(ruleConfiguration);
+    public RuleBuilder withConfiguration(@Nullable Configuration ruleConfiguration) {
+        if (ruleConfiguration != null) {
+            this.rule.setConfiguration(ruleConfiguration);
+        }
         return this;
     }
 
-    public RuleBuilder withConfigurationDescriptions(List<ConfigDescriptionParameter> configDescs) {
-        this.rule.setConfigurationDescriptions(new ArrayList<>(configDescs));
+    public RuleBuilder withConfigurationDescriptions(@Nullable List<ConfigDescriptionParameter> configDescs) {
+        if (configDescs != null) {
+            this.rule.setConfigurationDescriptions(new ArrayList<>(configDescs));
+        }
         return this;
     }
 

@@ -264,7 +264,7 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         assertSatisfiedHandlerInput(handler, true, 20.9d);
         assertSatisfiedHandlerInput(handler, false, 21.1d);
 
-        condition = ModuleBuilder.createCondition(condition).withConfiguration(newRightOperatorConfig("21", "<=\""))
+        condition = ModuleBuilder.createCondition(condition).withConfiguration(newRightOperatorConfig("21", "<="))
                 .build();
         handler = new CompareConditionHandler(condition);
         assertSatisfiedHandlerInput(handler, true, 20);

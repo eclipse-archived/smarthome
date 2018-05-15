@@ -114,7 +114,10 @@ public class ModuleBuilder<T extends Module> {
         return this;
     }
 
-    public ModuleBuilder<T> withInputs(Map<String, String> inputs) {
+    public ModuleBuilder<T> withInputs(@Nullable Map<String, String> inputs) {
+        if (inputs == null) {
+            return this;
+        }
         if (module instanceof TriggerImpl) {
             throw new UnsupportedOperationException();
         }

@@ -76,6 +76,7 @@ import org.eclipse.smarthome.core.storage.StorageService;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
@@ -380,6 +381,8 @@ public class AutomationIntegrationTest extends JavaOSGiTest {
     }
 
     @Test
+    @Ignore // this assumes that the sample.json bundle is started as part of the test, which is usually not the case
+            // (and we should not have a fixed dependency on it
     public void assertThatAModuleTypesAndTemplatesAreDisappearedWhenTheProviderWasUninstalled() throws BundleException {
         logger.info("assert that a module types and templates are disappeared when the provider was uninstalled");
 
@@ -775,6 +778,7 @@ public class AutomationIntegrationTest extends JavaOSGiTest {
                 }
             }
         };
+        registerService(itemEventHandler);
 
         // bring the rule to execution:
         eventPublisher.post(ItemEventFactory.createStateEvent("xtempl_MotionItem", OnOffType.ON));

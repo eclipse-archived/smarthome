@@ -20,6 +20,7 @@ import org.eclipse.smarthome.automation.dto.CompositeConditionTypeDTO;
 import org.eclipse.smarthome.automation.dto.ConditionTypeDTO;
 import org.eclipse.smarthome.automation.type.CompositeConditionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
+import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTOMapper;
 
 /**
  * This is a utility class to convert between the respective object and its DTO.
@@ -37,6 +38,20 @@ public class ConditionTypeDTOMapper extends ModuleTypeDTOMapper {
         final CompositeConditionTypeDTO conditionTypeDto = map(conditionType, new CompositeConditionTypeDTO());
         conditionTypeDto.children = ConditionDTOMapper.map(conditionType.getChildren());
         return conditionTypeDto;
+    }
+
+    public static ConditionType map(CompositeConditionTypeDTO conditionTypeDto) {
+        if (conditionTypeDto.children == null || conditionTypeDto.children.isEmpty()) {
+            return new ConditionType(conditionTypeDto.uid,
+                    ConfigDescriptionDTOMapper.map(conditionTypeDto.configDescriptions), conditionTypeDto.label,
+                    conditionTypeDto.description, conditionTypeDto.tags, conditionTypeDto.visibility,
+                    conditionTypeDto.inputs);
+        } else {
+            return new CompositeConditionType(conditionTypeDto.uid,
+                    ConfigDescriptionDTOMapper.map(conditionTypeDto.configDescriptions), conditionTypeDto.label,
+                    conditionTypeDto.description, conditionTypeDto.tags, conditionTypeDto.visibility,
+                    conditionTypeDto.inputs, ConditionDTOMapper.mapDto(conditionTypeDto.children));
+        }
     }
 
     public static List<ConditionTypeDTO> map(final Collection<ConditionType> types) {
