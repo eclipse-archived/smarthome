@@ -51,7 +51,12 @@
 
         function createBridge() {
             var bridgeTypeUID = ctrl.supportedBridgeTypeUIDs[0];
-            $location.path('inbox/setup/add/' + bridgeTypeUID);
+            if (ctrl.supportedBridgeTypeUIDs.length > 1) {
+                var bindingId = bridgeTypeUID.substring(0, bridgeTypeUID.indexOf(':'));
+                $location.path('inbox/setup/thing-types/' + bindingId);
+            } else {
+                $location.path('inbox/setup/add/' + bridgeTypeUID);
+            }
         }
 
         function refreshBridges(supportedBridgeTypeUIDs) {
