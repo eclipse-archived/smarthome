@@ -6,27 +6,16 @@ Bundle-SymbolicName: org.eclipse.smarthome.binding.wemo.test
 Bundle-Version: 0.10.0.qualifier
 Fragment-Host: org.eclipse.smarthome.binding.wemo
 Import-Package: 
- groovy.json,
- groovy.lang,
- groovy.util,
- groovy.xml,
- javax.servlet,
- javax.servlet.http,
  junit.framework,
- org.apache.commons.lang,
- org.codehaus.groovy.reflection,
- org.codehaus.groovy.runtime,
- org.codehaus.groovy.runtime.callsite,
- org.codehaus.groovy.runtime.typehandling,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.discovery.inbox,
- org.eclipse.smarthome.core.items,
- org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.thing.binding.builder,
  org.eclipse.smarthome.core.thing.link,
  org.eclipse.smarthome.core.thing.type,
+ org.eclipse.smarthome.io.transport.upnp,
  org.eclipse.smarthome.test,
+ org.eclipse.smarthome.test.java,
  org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
  org.junit;version="4.0.0",
@@ -34,6 +23,9 @@ Import-Package:
  org.junit.runners,
  org.jupnp,
  org.jupnp.mock,
+ org.jupnp.model,
+ org.jupnp.registry,
  org.mockito,
- org.osgi.service.cm,
- org.osgi.service.http
+ org.mockito.hamcrest,
+ org.mockito.stubbing
+Require-Bundle: org.eclipse.smarthome.core
