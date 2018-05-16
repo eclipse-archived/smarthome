@@ -877,14 +877,18 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
             throw new IllegalArgumentException(String.format("No rule with id=%s was found!", uid));
         }
         if (enable) {
-            disabledRulesStorage.remove(uid);
+            if (disabledRulesStorage != null) {
+                disabledRulesStorage.remove(uid);
+            }
             if (rule.getStatus() == RuleStatus.UNINITIALIZED) {
                 register(rule);
                 // change status to IDLE
                 setStatus(rule.getUID(), new RuleStatusInfo(RuleStatus.IDLE));
             }
         } else {
-            disabledRulesStorage.put(uid, true);
+            if (disabledRulesStorage != null) {
+                disabledRulesStorage.put(uid, true);
+            }
             unregister(rule, RuleStatusDetail.DISABLED, null);
         }
     }
@@ -985,8 +989,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                 for (String typeUID : missingTypes) {
                     sb.append(typeUID).append(", ");
                 }
-                unregister(getRuleImpl(rUID), RuleStatusDetail.HANDLER_MISSING_ERROR,
-                        sb.substring(0, sb.length() - 2));
+                unregister(getRuleImpl(rUID), RuleStatusDetail.HANDLER_MISSING_ERROR, sb.substring(0, sb.length() - 2));
             }
         }
     }

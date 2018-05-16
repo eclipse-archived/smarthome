@@ -262,12 +262,11 @@ public class RuleResource implements RESTResource {
             @ApiParam(value = "enable", required = true) String enabled) throws IOException {
         Rule rule = ruleRegistry.get(ruleUID);
         if (rule == null) {
-            logger.info("Received HTTP PUT request for update config at '{}' for the unknown rule '{}'.",
+            logger.info("Received HTTP PUT request for set enabled at '{}' for the unknown rule '{}'.",
                     uriInfo.getPath(), ruleUID);
             return Response.status(Status.NOT_FOUND).build();
         } else {
             ruleManager.setEnabled(ruleUID, !"false".equalsIgnoreCase(enabled));
-            // ruleRegistry.update(rule);
             return Response.ok(null, MediaType.TEXT_PLAIN).build();
         }
     }
@@ -282,8 +281,8 @@ public class RuleResource implements RESTResource {
             throws IOException {
         Rule rule = ruleRegistry.get(ruleUID);
         if (rule == null) {
-            logger.info("Received HTTP PUT request for update config at '{}' for the unknown rule '{}'.",
-                    uriInfo.getPath(), ruleUID);
+            logger.info("Received HTTP PUT request for run now at '{}' for the unknown rule '{}'.", uriInfo.getPath(),
+                    ruleUID);
             return Response.status(Status.NOT_FOUND).build();
         } else {
             ruleManager.runNow(ruleUID);
