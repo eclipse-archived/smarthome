@@ -858,7 +858,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * @return internal {@link RuleImpl} object
      */
     protected RuleImpl getRuleImpl(String rUID) {
-        return rules.get(rUID);
+        return (RuleImpl) ruleRegistry.get(rUID);
     }
 
     /**
