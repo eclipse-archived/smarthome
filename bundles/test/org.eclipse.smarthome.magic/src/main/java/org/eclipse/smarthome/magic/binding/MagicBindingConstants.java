@@ -38,6 +38,11 @@ public class MagicBindingConstants {
     public static final ThingTypeUID THING_TYPE_THERMOSTAT = new ThingTypeUID(BINDING_ID, "thermostat");
     public static final ThingTypeUID THING_TYPE_FIRMWARE_UPDATE = new ThingTypeUID(BINDING_ID, "firmware-update");
 
+    // bridged things
+    public static final ThingTypeUID THING_TYPE_BRIDGE_1 = new ThingTypeUID(BINDING_ID, "magic-bridge1");
+    public static final ThingTypeUID THING_TYPE_BRIDGE_2 = new ThingTypeUID(BINDING_ID, "magic-bridge2");
+    public static final ThingTypeUID THING_TYPE_BRIDGED_THING = new ThingTypeUID(BINDING_ID, "bridgedThing");
+
     // List all channels
     public static final String CHANNEL_SWITCH = "switch";
     public static final String CHANNEL_BRIGHTNESS = "brightness";
