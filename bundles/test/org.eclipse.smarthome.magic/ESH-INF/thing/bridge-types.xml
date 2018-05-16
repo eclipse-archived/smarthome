@@ -18,7 +18,7 @@
             <bridge-type-ref id="magic-bridge1"/>
             <bridge-type-ref id="magic-bridge2"/>
         </supported-bridge-type-refs>
-        <label>Magic bridged thing</label>
+        <label>Magic Bridged Thing</label>
         <description>A magic bridged thing.</description>
     </thing-type>
 
