@@ -1,4 +1,4 @@
-angular.module('PaperUI.controllers.things') //
+angular.module('PaperUI.things') //
 .controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeRepository, configService, thingConfigService, util, itemRepository, channelTypeService, configDescriptionService) {
     $scope.setSubtitle([ 'Things' ]);
 
