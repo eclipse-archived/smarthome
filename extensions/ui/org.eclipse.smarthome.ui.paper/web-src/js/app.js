@@ -3,7 +3,7 @@ angular.module('PaperUI', [//
 'PaperUI.controllers.control',// 
 'PaperUI.controllers.setup',//
 'PaperUI.controllers.configuration',//
-'PaperUI.controllers.things',//
+'PaperUI.things',//
 'PaperUI.bindings',//
 'PaperUI.controllers.extension',//
 'PaperUI.controllers.rules',//

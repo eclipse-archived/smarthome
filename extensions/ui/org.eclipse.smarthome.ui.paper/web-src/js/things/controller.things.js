@@ -1,4 +1,4 @@
-angular.module('PaperUI.controllers.things') //
+angular.module('PaperUI.things') //
 .controller('ThingController', function($scope, $timeout, $location, $mdDialog, thingRepository, thingTypeRepository, bindingRepository, thingService, toastService) {
     $scope.navigateTo = function(path) {
         if (path.startsWith("/")) {
