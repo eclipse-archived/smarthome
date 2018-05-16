@@ -122,7 +122,7 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
     public String createSubscription(SitemapSubscriptionCallback callback) {
         String subscriptionId = UUID.randomUUID().toString();
         callbacks.put(subscriptionId, callback);
-        logger.debug("Created new subscription with id {}", subscriptionId);
+        logger.debug("Created new subscription with id {} ({} active subscriptions)", subscriptionId, callbacks.size());
         return subscriptionId;
     }
 
@@ -141,7 +141,7 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
                 listener.dispose();
             }
         }
-        logger.debug("Removed subscription with id {}", subscriptionId);
+        logger.debug("Removed subscription with id {} ({} active subscriptions)", subscriptionId, callbacks.size());
     }
 
     /**
@@ -158,20 +158,22 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
      * Retrieves the current page id for a subscription.
      *
      * @param subscriptionId the subscription to get the page id for
-     * @return the id of the currently active page
+     * @return the id of the currently active page or null if no page is currently set for the subscription
      */
     public String getPageId(String subscriptionId) {
-        return extractPageId(pageOfSubscription.get(subscriptionId));
+        String sitemapWithPageId = pageOfSubscription.get(subscriptionId);
+        return (sitemapWithPageId == null) ? null : extractPageId(sitemapWithPageId);
     }
 
     /**
      * Retrieves the current sitemap name for a subscription.
      *
      * @param subscriptionId the subscription to get the sitemap name for
-     * @return the name of the current sitemap
+     * @return the name of the current sitemap or null if no sitemap is currently set for the subscription
      */
     public String getSitemapName(String subscriptionId) {
-        return extractSitemapName(pageOfSubscription.get(subscriptionId));
+        String sitemapWithPageId = pageOfSubscription.get(subscriptionId);
+        return (sitemapWithPageId == null) ? null : extractSitemapName(sitemapWithPageId);
     }
 
     private String extractSitemapName(String sitemapWithPageId) {
@@ -199,8 +201,8 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
             addCallbackToListener(sitemapName, pageId, callback);
             pageOfSubscription.put(subscriptionId, getValue(sitemapName, pageId));
 
-            logger.debug("Subscription {} changed to page {} of sitemap {}",
-                    new Object[] { subscriptionId, pageId, sitemapName });
+            logger.debug("Subscription {} changed to page {} of sitemap {} ({} active subscriptions}",
+                    new Object[] { subscriptionId, pageId, sitemapName, callbacks.size() });
         } else {
             throw new IllegalArgumentException("Subscription " + subscriptionId + " does not exist!");
         }
