@@ -43,6 +43,7 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.internal.TriggerHandlerCallbackImpl.TriggerData;
 import org.eclipse.smarthome.automation.core.internal.composite.CompositeModuleHandlerFactory;
 import org.eclipse.smarthome.automation.core.util.ReferenceResolver;
+import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
@@ -410,7 +411,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         if (rules != null) {
             for (String rUID : rules) {
                 if (getRuleStatus(rUID).equals(RuleStatus.IDLE) || getRuleStatus(rUID).equals(RuleStatus.RUNNING)) {
-                    unregister(getRuntimeRule(rUID), RuleStatusDetail.HANDLER_MISSING_ERROR,
+                    unregister(getRuleImpl(rUID), RuleStatusDetail.HANDLER_MISSING_ERROR,
                             "Update ModuleImpl Type " + moduleType.getUID());
                     setStatus(rUID, new RuleStatusInfo(RuleStatus.INITIALIZING));
                 }
@@ -492,10 +493,10 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         RuleStatusInfo initStatusInfo = disabledRulesStorage == null || disabledRulesStorage.get(rUID) == null
                 ? new RuleStatusInfo(RuleStatus.INITIALIZING)
                 : new RuleStatusInfo(RuleStatus.UNINITIALIZED, RuleStatusDetail.DISABLED);
-        RuleImpl runtimeRule = (RuleImpl) rule;
+        RuleImpl runtimeRule = (RuleImpl) RuleBuilder.create(rule).build();
         runtimeRule.setStatusInfo(initStatusInfo);
 
-        RuleImpl oldRule = getRuntimeRule(rUID);
+        RuleImpl oldRule = getRuleImpl(rUID);
         if (oldRule != null) {
             unregister(oldRule);
         }
@@ -856,7 +857,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * @param rUID unieque id of the {@link RuleImpl}
      * @return internal {@link RuleImpl} object
      */
-    protected RuleImpl getRuntimeRule(String rUID) {
+    protected RuleImpl getRuleImpl(String rUID) {
         return rules.get(rUID);
     }
 
@@ -871,7 +872,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
 
     @Override
     public synchronized void setEnabled(String uid, boolean enable) {
-        RuleImpl rule = getRuntimeRule(uid);
+        RuleImpl rule = getRuleImpl(uid);
         if (rule == null) {
             throw new IllegalArgumentException(String.format("No rule with id=%s was found!", uid));
         }
@@ -893,7 +894,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         if (ruleUID == null) {
             return null;
         }
-        RuleImpl runtimeRule = getRuntimeRule(ruleUID);
+        RuleImpl runtimeRule = getRuleImpl(ruleUID);
         if (runtimeRule == null) {
             return null;
         }
@@ -919,7 +920,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * @param newStatusInfo the new status of the rule
      */
     private void setStatus(String rUID, RuleStatusInfo newStatusInfo) {
-        RuleImpl runtimeRule = getRuntimeRule(rUID);
+        RuleImpl runtimeRule = getRuleImpl(rUID);
         if (runtimeRule == null) {
             return;
         }
@@ -939,7 +940,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
             f = ex.schedule(new Runnable() {
                 @Override
                 public void run() {
-                    setRule(getRuntimeRule(rUID));
+                    setRule(getRuleImpl(rUID));
                 }
             }, scheduleReinitializationDelay, TimeUnit.MILLISECONDS);
             scheduleTasks.put(rUID, f);
@@ -984,7 +985,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                 for (String typeUID : missingTypes) {
                     sb.append(typeUID).append(", ");
                 }
-                unregister(getRuntimeRule(rUID), RuleStatusDetail.HANDLER_MISSING_ERROR,
+                unregister(getRuleImpl(rUID), RuleStatusDetail.HANDLER_MISSING_ERROR,
                         sb.substring(0, sb.length() - 2));
             }
         }
@@ -1015,7 +1016,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
             clearContext(ruleUID);
 
             setTriggerOutputs(ruleUID, td);
-            RuleImpl rule = getRuntimeRule(ruleUID);
+            RuleImpl rule = getRuleImpl(ruleUID);
             boolean isSatisfied = calculateConditions(rule);
             if (isSatisfied) {
                 executeActions(rule, true);
@@ -1037,7 +1038,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
 
     @Override
     public void runNow(String ruleUID, boolean considerConditions, Map<String, Object> context) {
-        RuleImpl rule = getRuntimeRule(ruleUID);
+        RuleImpl rule = getRuleImpl(ruleUID);
         if (rule == null) {
             logger.warn("Failed to execute rule '{}': Invalid RuleImpl UID", ruleUID);
             return;

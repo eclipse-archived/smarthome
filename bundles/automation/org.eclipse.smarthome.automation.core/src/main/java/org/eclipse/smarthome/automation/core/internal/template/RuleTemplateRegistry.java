@@ -90,7 +90,7 @@ public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String,
                 Collection<String> tags = resultTemplate.getTags();
                 RuleTemplate t = locale == null ? resultTemplate
                         : ((RuleTemplateProvider) provider).getTemplate(resultTemplate.getUID(), locale);
-                if (tags.contains(tag)) {
+                if (tag == null || tags.contains(tag)) {
                     result.add(t);
                 }
             }

@@ -72,13 +72,13 @@ public class RuleEngineTest {
         ruleEngine.addRule(rule1);
         rules = ruleEngine.getRuntimeRules();
         Assert.assertEquals("rules list should contain 2 rules", 2, rules.size());
-        RuleImpl rule1Get = ruleEngine.getRuntimeRule("rule1");
+        RuleImpl rule1Get = ruleEngine.getRuleImpl("rule1");
         Assert.assertEquals("Returned rule with wrong UID", "rule1", rule1Get.getUID());
         RuleImpl rule2 = createRule();
         ruleEngine.addRule(rule2);
         rules = ruleEngine.getRuntimeRules();
         Assert.assertEquals("rules list should contain 2 rules", 2, rules.size());
-        Assert.assertEquals("rules list should contain 2 rules", rule1Get, ruleEngine.getRuntimeRule("rule1"));
+        Assert.assertEquals("rules list should contain 2 rules", rule1Get, ruleEngine.getRuleImpl("rule1"));
     }
 
     /**
@@ -104,7 +104,7 @@ public class RuleEngineTest {
 
         // do connections auto mapping
         ruleEngine.addRule(rule);
-        RuleImpl ruleGet = ruleEngine.getRuntimeRule("AutoMapRule");
+        RuleImpl ruleGet = ruleEngine.getRuleImpl("AutoMapRule");
         Assert.assertEquals("Returned rule with wrong UID", "AutoMapRule", ruleGet.getUID());
 
         // check condition connections
@@ -148,12 +148,12 @@ public class RuleEngineTest {
         rule2.setTags(ruleTags);
         ruleEngine.addRule(rule2);
 
-        RuleImpl rule1Get = ruleEngine.getRuntimeRule("ruleWithTag1");
+        RuleImpl rule1Get = ruleEngine.getRuleImpl("ruleWithTag1");
         Assert.assertNotNull("Cannot find rule by UID", rule1Get);
         Assert.assertNotNull("rule.getTags is null", rule1Get.getTags());
         Assert.assertEquals("rule.getTags is empty", 1, rule1Get.getTags().size());
 
-        RuleImpl rule2Get = ruleEngine.getRuntimeRule("ruleWithTags12");
+        RuleImpl rule2Get = ruleEngine.getRuleImpl("ruleWithTags12");
         Assert.assertNotNull("Cannot find rule by UID", rule2Get);
         Assert.assertNotNull("rule.getTags is null", rule2Get.getTags());
         Assert.assertEquals("rule.getTags is empty", 2, rule2Get.getTags().size());
@@ -168,7 +168,7 @@ public class RuleEngineTest {
         Rule rule3 = RuleBuilder.create("rule3").withTriggers(createTriggers("typeUID"))
                 .withConditions(createConditions("typeUID")).withActions(createActions("typeUID")).build();
         ruleEngine.addRule(rule3);
-        RuleImpl rule3Get = ruleEngine.getRuntimeRule("rule3");
+        RuleImpl rule3Get = ruleEngine.getRuleImpl("rule3");
         Assert.assertNotNull("RuleImpl configuration is null", rule3Get.getConfiguration());
     }
 
@@ -186,7 +186,7 @@ public class RuleEngineTest {
                 .withConditions(createConditions("typeUID")).withActions(createActions("typeUID"))
                 .withConfigurationDescriptions(configDescriptions).withConfiguration(configurations).build();
         ruleEngine.addRule(rule4);
-        RuleImpl rule4Get = ruleEngine.getRuntimeRule("rule4");
+        RuleImpl rule4Get = ruleEngine.getRuleImpl("rule4");
         Configuration rule4cfg = rule4Get.getConfiguration();
         List<ConfigDescriptionParameter> rule4cfgD = rule4Get.getConfigurationDescriptions();
         Assert.assertNotNull("RuleImpl configuration is null", rule4cfg);
@@ -214,7 +214,7 @@ public class RuleEngineTest {
         List<ActionImpl> actions = rule1.getActions();
         ruleEngine.addRule(rule1);
 
-        RuleImpl rule1Get = ruleEngine.getRuntimeRule("rule1");
+        RuleImpl rule1Get = ruleEngine.getRuleImpl("rule1");
         List<ActionImpl> actionsGet = rule1Get.getActions();
         Assert.assertNotNull("Null actions list", actionsGet);
         Assert.assertEquals("Empty actions list", 1, actionsGet.size());
@@ -222,7 +222,7 @@ public class RuleEngineTest {
 
         actions.add((ActionImpl) ModuleBuilder.createAction().withId("actionId2").withTypeUID("typeUID2").build());
         ruleEngine.addRule(rule1);
-        rule1Get = ruleEngine.getRuntimeRule("rule1");
+        rule1Get = ruleEngine.getRuleImpl("rule1");
         List<ActionImpl> actionsGet2 = rule1Get.getActions();
         Assert.assertNotNull("Null actions list", actionsGet2);
         Assert.assertEquals("Action was not added to the rule's list of actions", 2, actionsGet2.size());
@@ -230,12 +230,12 @@ public class RuleEngineTest {
 
         actions.add((ActionImpl) ModuleBuilder.createAction().withId("actionId3").withTypeUID("typeUID3").build());
         ruleEngine.addRule(rule1); // ruleEngine.update will update the RuleImpl2.moduleMap with the new module
-        rule1Get = ruleEngine.getRuntimeRule("rule1");
+        rule1Get = ruleEngine.getRuleImpl("rule1");
         List<ActionImpl> actionsGet3 = rule1Get.getActions();
         Assert.assertNotNull("Null actions list", actionsGet3);
         Assert.assertEquals("Action was not added to the rule's list of actions", 3, actionsGet3.size());
         Assert.assertNotNull("RuleImpl modules map was not updated",
-                ruleEngine.getRuntimeRule("rule1").getModule("actionId3"));
+                ruleEngine.getRuleImpl("rule1").getModule("actionId3"));
     }
 
     /**
@@ -247,7 +247,7 @@ public class RuleEngineTest {
         RuleImpl rule1 = createRule();
         List<TriggerImpl> triggers = rule1.getTriggers();
         ruleEngine.addRule(rule1);
-        RuleImpl rule1Get = ruleEngine.getRuntimeRule("rule1");
+        RuleImpl rule1Get = ruleEngine.getRuleImpl("rule1");
         List<TriggerImpl> triggersGet = rule1Get.getTriggers();
         Assert.assertNotNull("Null triggers list", triggersGet);
         Assert.assertEquals("Empty triggers list", 1, triggersGet.size());
@@ -257,7 +257,7 @@ public class RuleEngineTest {
         ruleEngine.addRule(rule1); // ruleEngine.update will update the
                                    // RuleImpl2.moduleMap with the new
                                    // module
-        RuleImpl rule2Get = ruleEngine.getRuntimeRule("rule1");
+        RuleImpl rule2Get = ruleEngine.getRuleImpl("rule1");
         List<TriggerImpl> triggersGet2 = rule2Get.getTriggers();
         Assert.assertNotNull("Null triggers list", triggersGet2);
         Assert.assertEquals("Trigger was not added to the rule's list of triggers", 2, triggersGet2.size());
@@ -274,7 +274,7 @@ public class RuleEngineTest {
         RuleImpl rule1 = createRule();
         List<ConditionImpl> conditions = rule1.getConditions();
         ruleEngine.addRule(rule1);
-        RuleImpl rule1Get = ruleEngine.getRuntimeRule("rule1");
+        RuleImpl rule1Get = ruleEngine.getRuleImpl("rule1");
         List<ConditionImpl> conditionsGet = rule1Get.getConditions();
         Assert.assertNotNull("Null conditions list", conditionsGet);
         Assert.assertEquals("Empty conditions list", 1, conditionsGet.size());
@@ -283,7 +283,7 @@ public class RuleEngineTest {
         conditions.add(
                 (ConditionImpl) ModuleBuilder.createCondition().withId("conditionId2").withTypeUID("typeUID2").build());
         ruleEngine.addRule(rule1); // ruleEngine.update will update the RuleImpl2.moduleMap with the new module
-        RuleImpl rule2Get = ruleEngine.getRuntimeRule("rule1");
+        RuleImpl rule2Get = ruleEngine.getRuleImpl("rule1");
         List<ConditionImpl> conditionsGet2 = rule2Get.getConditions();
         Assert.assertNotNull("Null conditions list", conditionsGet2);
         Assert.assertEquals("Condition was not added to the rule's list of conditions", 2, conditionsGet2.size());
