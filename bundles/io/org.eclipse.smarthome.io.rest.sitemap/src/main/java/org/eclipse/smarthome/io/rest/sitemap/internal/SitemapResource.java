@@ -281,6 +281,10 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
         if (sitemapname != null && pageId != null) {
             subscriptions.setPageId(subscriptionId, sitemapname, pageId);
         }
+        if (subscriptions.getSitemapName(subscriptionId) == null || subscriptions.getPageId(subscriptionId) == null) {
+            return JSONResponse.createResponse(Status.BAD_REQUEST, null,
+                    "Subscription id " + subscriptionId + " is not yet linked to a sitemap/page.");
+        }
         logger.debug("Client requested sitemap event stream for subscription {}.", subscriptionId);
 
         // Disables proxy buffering when using an nginx http server proxy for this response.
@@ -745,6 +749,10 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             SitemapEventOutput sitemapEvent = (SitemapEventOutput) event;
             logger.debug("SSE connection for subscription {} has been closed.", sitemapEvent.getSubscriptionId());
             subscriptions.removeSubscription(sitemapEvent.getSubscriptionId());
+            EventOutput eventOutput = eventOutputs.remove(sitemapEvent.getSubscriptionId());
+            if (eventOutput != null) {
+                broadcaster.remove(eventOutput);
+            }
         }
     }
 
