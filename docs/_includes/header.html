@@ -19,7 +19,17 @@
 <!-- Font -->
 <link href='https://fonts.googleapis.com/css?family=Lato:300,400,700'
 	rel='stylesheet' type='text/css' />
-    
+	
+<!-- Cookie Consent -->
+<link rel="stylesheet" type="text/css" href="//www.eclipse.org/eclipse.org-common/themes/solstice/public/stylesheets/vendor/cookieconsent/cookieconsent.min.css" />
+<script src="//www.eclipse.org/eclipse.org-common/themes/solstice/public/javascript/vendor/cookieconsent/default.min.js"></script>  
+<script>
+	window.hasCookieConsent = function() {
+		var match = document.cookie.match(new RegExp('eclipse_cookieconsent_status=([^;]+)'));
+		return match && (match[1] === 'allow');
+	}
+</script>
+	
 </head>
 <body class="{{ include.bodyClass }}">
 	<div id="header" class="navbar-fixed">
