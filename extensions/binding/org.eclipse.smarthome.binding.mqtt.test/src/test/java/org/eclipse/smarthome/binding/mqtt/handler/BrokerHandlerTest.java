@@ -36,23 +36,22 @@ import org.eclipse.smarthome.io.transport.mqtt.MqttService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.osgi.service.cm.ConfigurationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Tests cases for {@link BrokerHandler}.
  *
  * @author David Graeff - Initial contribution
  */
+@Ignore
 public class BrokerHandlerTest {
     private final String HOST = "10.10.0.10";
     private final int PORT = 80;
-    private final Logger logger = LoggerFactory.getLogger(BrokerHandlerTest.class);
     private ScheduledExecutorService scheduler;
 
     @Mock
