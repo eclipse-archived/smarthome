@@ -41,7 +41,6 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.internal.TriggerHandlerCallbackImpl.TriggerData;
 import org.eclipse.smarthome.automation.core.internal.composite.CompositeModuleHandlerFactory;
 import org.eclipse.smarthome.automation.core.util.ReferenceResolver;
-import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
@@ -293,7 +292,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
             listener = new RegistryChangeListener<Rule>() {
                 @Override
                 public void added(Rule rule) {
-                    RuleEngineImpl.this.addRule(rule);
+                    RuleEngineImpl.this.addRule((RuleImpl) rule);
                 }
 
                 @Override
@@ -308,7 +307,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
             };
             ruleRegistry.addRegistryChangeListener(listener);
             for (Rule rule : ruleRegistry.getAll()) {
-                addRule(rule);
+                addRule((RuleImpl) rule);
             }
         } else {
             logger.error("Unexpected RuleRegistry service: {}", ruleRegistry);
@@ -472,7 +471,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      *
      * @param rule a rule which has to be added.
      */
-    protected void addRule(Rule rule) {
+    protected void addRule(RuleImpl rule) {
         synchronized (this) {
             if (isDisposed) {
                 throw new IllegalStateException("RuleEngineImpl is disposed!");
@@ -482,16 +481,15 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         RuleStatusInfo initStatusInfo = disabledRulesStorage == null || disabledRulesStorage.get(rUID) == null
                 ? new RuleStatusInfo(RuleStatus.INITIALIZING)
                 : new RuleStatusInfo(RuleStatus.UNINITIALIZED, RuleStatusDetail.DISABLED);
-        RuleImpl runtimeRule = (RuleImpl) RuleBuilder.create(rule).build();
-        runtimeRule.setStatusInfo(initStatusInfo);
+        rule.setStatusInfo(initStatusInfo);
 
         RuleImpl oldRule = getRuleImpl(rUID);
         if (oldRule != null) {
             unregister(oldRule);
         }
 
-        if (runtimeRule.isEnabled()) {
-            setRule(runtimeRule);
+        if (rule.isEnabled()) {
+            setRule(rule);
         }
     }
 
