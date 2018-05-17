@@ -76,6 +76,10 @@ public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
         this.locationProvider = locationProvider;
     }
 
+    public void unsetLocationProvider(LocationProvider locationProvider) {
+        this.locationProvider = null;
+    }
+
     @Reference
     protected void setUnitProvider(final UnitProvider unitProvider) {
         this.unitProvider = unitProvider;
