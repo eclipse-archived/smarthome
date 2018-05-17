@@ -23,7 +23,6 @@ import org.eclipse.smarthome.automation.dto.RuleDTO;
  */
 public class EnrichedRuleDTO extends RuleDTO {
 
-    public boolean enabled;
     public RuleStatusInfo status;
 
 }
