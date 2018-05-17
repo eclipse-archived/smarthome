@@ -938,6 +938,9 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
             if (rules != null) {
                 for (String rUID : rules) {
                     RuleStatus ruleStatus = getRuleStatus(rUID);
+                    if (ruleStatus == null) {
+                        continue;
+                    }
                     switch (ruleStatus) {
                         case RUNNING:
                         case IDLE:
