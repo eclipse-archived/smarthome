@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -122,14 +120,6 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * is {@link ModuleType}'s UID to {@link Set} of {@link RuleImpl} UIDs.
      */
     private final Map<String, Set<String>> mapModuleTypeToRules = new HashMap<String, Set<String>>();
-
-    /**
-     * {@link Map} holding all created {@link RuleImpl} instances, corresponding to each {@link RuleImpl} instance
-     * added
-     * in {@link RuleRegistry} whether it is initialized or not. The relation is {@link RuleImpl}'s UID to
-     * {@link RuleImpl} instance.
-     */
-    private final Map<String, RuleImpl> rules;
 
     /**
      * {@link Map} holding all available {@link ModuleHandlerFactory}s linked with {@link ModuleType}s that they
@@ -246,7 +236,6 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * services.
      */
     public RuleEngineImpl() {
-        this.rules = new ConcurrentHashMap<String, RuleImpl>();
         this.contextMap = new HashMap<String, Map<String, Object>>();
         this.moduleHandlerFactories = new HashMap<String, ModuleHandlerFactory>(20);
     }
@@ -429,7 +418,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         logger.debug("ModuleHandlerFactory added.");
         allModuleHandlerFactories.add(moduleHandlerFactory);
         Collection<String> moduleTypes = moduleHandlerFactory.getTypes();
-        Set<String> notInitailizedRules = null;
+        Set<String> notInitializedRules = null;
         for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
             String moduleTypeName = it.next();
             Set<String> rules = null;
@@ -445,15 +434,15 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                 for (String rUID : rules) {
                     RuleStatus ruleStatus = getRuleStatus(rUID);
                     if (ruleStatus == RuleStatus.UNINITIALIZED) {
-                        notInitailizedRules = notInitailizedRules != null ? notInitailizedRules
+                        notInitializedRules = notInitializedRules != null ? notInitializedRules
                                 : new HashSet<String>(20);
-                        notInitailizedRules.add(rUID);
+                        notInitializedRules.add(rUID);
                     }
                 }
             }
         }
-        if (notInitailizedRules != null) {
-            for (final String rUID : notInitailizedRules) {
+        if (notInitializedRules != null) {
+            for (final String rUID : notInitializedRules) {
                 scheduleRuleInitialization(rUID);
             }
         }
@@ -500,8 +489,6 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         if (oldRule != null) {
             unregister(oldRule);
         }
-
-        rules.put(rUID, runtimeRule);
 
         if (runtimeRule.isEnabled()) {
             setRule(runtimeRule);
@@ -822,13 +809,13 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
     }
 
     /**
-     * This method removes RuleImpl from rule engine. It is called by the {@link RuleRegistry}
+     * This method removes RuleImpl from the rule engine.
      *
      * @param rUID id of removed {@link RuleImpl}
      * @return true when a rule is deleted, false when there is no rule with such id.
      */
     protected boolean removeRule(String rUID) {
-        RuleImpl r = rules.remove(rUID);
+        RuleImpl r = getRuleImpl(rUID);
         if (r != null) {
             unregister(r);
             synchronized (this) {
@@ -859,15 +846,6 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      */
     protected RuleImpl getRuleImpl(String rUID) {
         return (RuleImpl) ruleRegistry.get(rUID);
-    }
-
-    /**
-     * Gets all rules available in the rule engine.
-     *
-     * @return collection of all added rules.
-     */
-    protected synchronized Collection<RuleImpl> getRuntimeRules() {
-        return Collections.unmodifiableCollection(rules.values());
     }
 
     @Override
@@ -1234,7 +1212,6 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
             }
             isDisposed = true;
         }
-        new ConcurrentLinkedQueue<String>(rules.keySet()).forEach(uid -> removeRule(uid));
         if (compositeFactory != null) {
             compositeFactory.dispose();
             compositeFactory = null;

@@ -12,19 +12,26 @@
  */
 package org.eclipse.smarthome.automation.core.internal;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Stream;
 
-import org.eclipse.smarthome.automation.core.internal.type.ModuleTypeRegistryImpl;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 
 /**
  * ModuleTypeManagerMockup is a ModuleTypeManager which returns mockup module types for the following predefined module
@@ -32,30 +39,14 @@ import org.eclipse.smarthome.automation.type.TriggerType;
  *
  * @author Yordan Mihaylov - initial version
  */
-public class ModuleTypeRegistryMockup extends ModuleTypeRegistryImpl {
+public class TestModuleTypeProvider implements ModuleTypeProvider {
 
     public static final String TRIGGER_TYPE = "triggerTypeUID";
     public static final String ACTION_TYPE = "actionTypeUID";
     public static final String CONDITION_TYPE = "conditionTypeUID";
 
-    public ModuleTypeRegistryMockup() {
+    public TestModuleTypeProvider() {
         super();
-    }
-
-    @Override
-    public ModuleType get(String typeUID) {
-        if (TRIGGER_TYPE.endsWith(typeUID)) {
-            return createTriggerType();
-
-        } else if (CONDITION_TYPE.endsWith(typeUID)) {
-            return createConditionType();
-
-        } else if (ACTION_TYPE.endsWith(typeUID)) {
-            return createActionType();
-
-        } else {
-            return super.get(typeUID);
-        }
     }
 
     private TriggerType createTriggerType() {
@@ -98,6 +89,29 @@ public class ModuleTypeRegistryMockup extends ModuleTypeRegistryImpl {
     private Input createInput(String name, String[] tags) {
         Set<String> tagSet = new HashSet<String>(Arrays.asList(tags));
         return new Input(name, String.class.getName(), null, null, tagSet, false, null, null);
+    }
+
+    @Override
+    public void addProviderChangeListener(@NonNull ProviderChangeListener<ModuleType> listener) {
+    }
+
+    @Override
+    public @NonNull Collection<ModuleType> getAll() {
+        return Stream.of(createTriggerType(), createConditionType(), createActionType()).collect(toSet());
+    }
+
+    @Override
+    public void removeProviderChangeListener(@NonNull ProviderChangeListener<ModuleType> listener) {
+    }
+
+    @Override
+    public <T extends ModuleType> T getModuleType(String UID, Locale locale) {
+        return null;
+    }
+
+    @Override
+    public <T extends ModuleType> Collection<T> getModuleTypes(Locale locale) {
+        return null;
     }
 
 }

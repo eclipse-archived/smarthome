@@ -21,7 +21,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleRegistry;
+import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -29,10 +32,14 @@ import org.junit.Test;
  *
  * @author Victor Toni - Initial contribution
  */
-public class RuleRegistryTest {
+public class RuleRegistryTest extends JavaOSGiTest {
 
-    private RuleRegistryImpl createRuleRegistry() {
-        return new RuleRegistryMockup();
+    RuleRegistry ruleRegistry;
+
+    @Before
+    public void setup() {
+        registerVolatileStorageService();
+        ruleRegistry = getService(RuleRegistry.class);
     }
 
     /**
@@ -53,7 +60,6 @@ public class RuleRegistryTest {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // checking RuleRegistry
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        final RuleRegistryImpl ruleRegistry = createRuleRegistry();
         Assert.assertEquals("RuleImpl list size", 0, ruleRegistry.getAll().size());
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
