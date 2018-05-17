@@ -27,8 +27,6 @@ import org.eclipse.smarthome.binding.wemo.WemoBindingConstants;
 import org.eclipse.smarthome.binding.wemo.handler.AbstractWemoHandler;
 import org.eclipse.smarthome.binding.wemo.internal.http.WemoHttpCall;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
@@ -69,34 +67,33 @@ import org.jupnp.model.types.UDN;
  */
 public abstract class GenericWemoOSGiTest extends JavaOSGiTest {
 
+    public static MockUpnpService mockUpnpService;
     public static final String DEVICE_MANUFACTURER = "Belkin";
 
     // This port is included in the run configuration
-    int ORG_OSGI_SERVICE_HTTP_PORT = 9090;
+    private final int ORG_OSGI_SERVICE_HTTP_PORT = 9090;
 
     // Thing information
     protected String TEST_THING_ID = "TestThing";
 
     // UPnP Device information
     public static String DEVICE_UDN = "Test-1_0-22124";
-    String DEVICE_TYPE = "Test";
-    int DEVICE_VERSION = 1;
-    protected String DEVICE_FRIENDLY_NAME = "WeMo Test";
-    String DEVICE_URL = "http://127.0.0.1:" + ORG_OSGI_SERVICE_HTTP_PORT;
-    String DEVICE_DESCRIPTION_PATH = "/setup.xml";
-    protected String DEVICE_CONTROL_PATH = "/upnp/control/";
 
-    ChannelTypeUID DEFAULT_CHANNEL_TYPE_UID = new ChannelTypeUID(WemoBindingConstants.BINDING_ID + ":channelType");
+    private final String DEVICE_TYPE = "Test";
+    private final int DEVICE_VERSION = 1;
+    private final String DEVICE_URL = "http://127.0.0.1:" + ORG_OSGI_SERVICE_HTTP_PORT;
+    private final String DEVICE_DESCRIPTION_PATH = "/setup.xml";
 
-    ManagedThingProvider managedThingProvider;
-    public static MockUpnpService mockUpnpService;
+    protected final String DEVICE_FRIENDLY_NAME = "WeMo Test";
+    protected final String DEVICE_CONTROL_PATH = "/upnp/control/";
+    protected final ChannelTypeUID DEFAULT_CHANNEL_TYPE_UID = new ChannelTypeUID(
+            WemoBindingConstants.BINDING_ID + ":channelType");
+
+    protected ManagedThingProvider managedThingProvider;
     protected UpnpIOService upnpIOService;
     protected ThingRegistry thingRegistry;
-    protected ItemRegistry itemRegistry;
 
     protected Thing thing;
-    Item testItem;
-    protected String DEFAULT_TEST_ITEM_NAME = "testItem";
 
     protected void setUpServices() throws IOException {
         // StorageService is required from the ManagedThingProvider

@@ -46,20 +46,17 @@ import org.mockito.Mockito;
  * @author Svilen Valkanov - Initial contribution
  * @author Stefan Triller - Ported Tests from Groovy to Java
  */
-
 public class WemoHandlerOSGiTest extends GenericWemoOSGiTest {
 
     // Thing information
-    String DEFAULT_TEST_CHANNEL = WemoBindingConstants.CHANNEL_STATE;
-    String DEFAULT_TEST_CHANNEL_TYPE = "Switch";
-    ThingTypeUID THING_TYPE_UID = WemoBindingConstants.THING_TYPE_SOCKET;
+    private final String DEFAULT_TEST_CHANNEL = WemoBindingConstants.CHANNEL_STATE;
+    private final String DEFAULT_TEST_CHANNEL_TYPE = "Switch";
+    private final ThingTypeUID THING_TYPE_UID = WemoBindingConstants.THING_TYPE_SOCKET;
 
     // UPnP information
-    String MODEL_NAME = WemoBindingConstants.THING_TYPE_SOCKET.getId();
-    String SERVICE_ID = "basicevent";
-    String SERVICE_NUMBER = "1";
-
-    String SERVLET_URL = DEVICE_CONTROL_PATH + SERVICE_ID + SERVICE_NUMBER;
+    private final String MODEL_NAME = WemoBindingConstants.THING_TYPE_SOCKET.getId();
+    private final String SERVICE_ID = "basicevent";
+    private final String SERVICE_NUMBER = "1";
 
     @Before
     public void setUp() throws IOException {

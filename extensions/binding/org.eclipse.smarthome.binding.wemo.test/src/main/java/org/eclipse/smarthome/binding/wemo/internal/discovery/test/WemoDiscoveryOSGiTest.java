@@ -42,14 +42,13 @@ import org.jupnp.model.meta.Device;
  * @author Svilen Valkanov - Initial contribution
  * @author Stefan Triller - Ported Tests from Groovy to Java
  */
-
 public class WemoDiscoveryOSGiTest extends GenericWemoOSGiTest {
 
     // UpnP service information
-    String SERVICE_ID = "basicevent";
-    String SERVICE_NUMBER = "1";
+    private final String SERVICE_ID = "basicevent";
+    private final String SERVICE_NUMBER = "1";
 
-    Inbox inbox;
+    private Inbox inbox;
 
     @Before
     public void setUp() throws IOException {

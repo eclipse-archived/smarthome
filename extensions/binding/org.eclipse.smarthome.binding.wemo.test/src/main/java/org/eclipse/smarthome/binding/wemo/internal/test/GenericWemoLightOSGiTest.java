@@ -44,19 +44,19 @@ public class GenericWemoLightOSGiTest extends GenericWemoOSGiTest {
     // Thing information
     protected ThingTypeUID THING_TYPE_UID = WemoBindingConstants.THING_TYPE_MZ100;
     protected ThingTypeUID BRIDGE_TYPE_UID = WemoBindingConstants.THING_TYPE_BRIDGE;
-    String WEMO_LIGHT_ID = THING_TYPE_UID.getId();
     protected String WEMO_BRIDGE_ID = BRIDGE_TYPE_UID.getId();
     protected String DEFAULT_TEST_CHANNEL = WemoBindingConstants.CHANNEL_STATE;
     protected String DEFAULT_TEST_CHANNEL_TYPE = "Switch";
 
+    private final String WEMO_LIGHT_ID = THING_TYPE_UID.getId();
+
     // UPnP service information
-    String BRIDGE_MODEL_NAME = WEMO_BRIDGE_ID;
     protected String DEVICE_MODEL_NAME = WEMO_LIGHT_ID;
     protected String SERVICE_ID = "bridge";
     protected String SERVICE_NUMBER = "1";
     protected String SERVLET_URL = DEVICE_CONTROL_PATH + SERVICE_ID + SERVICE_NUMBER;
 
-    Bridge bridge;
+    private Bridge bridge;
 
     protected Bridge createBridge(ThingTypeUID bridgeTypeUID) {
         Configuration configuration = new Configuration();

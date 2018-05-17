@@ -51,8 +51,8 @@ import org.mockito.Mockito;
  */
 public class WemoLightHandlerOSGiTest extends GenericWemoLightOSGiTest {
 
-    static final String GET_ACTION = "GetDeviceStatus";
-    static final String SET_ACTION = "SetDeviceStatus";
+    private static final String GET_ACTION = "GetDeviceStatus";
+    private static final String SET_ACTION = "SetDeviceStatus";
 
     @Before
     public void setUp() throws IOException {

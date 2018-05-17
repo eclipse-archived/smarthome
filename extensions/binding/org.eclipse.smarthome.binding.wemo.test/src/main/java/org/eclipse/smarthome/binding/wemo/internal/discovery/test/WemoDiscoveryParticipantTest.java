@@ -44,12 +44,11 @@ import org.jupnp.model.types.UDN;
  * @author Svilen Valkanov - Initial contribution
  * @author Stefan Triller - Ported Tests from Groovy to Java
  */
-
 public class WemoDiscoveryParticipantTest {
     UpnpDiscoveryParticipant participant = new WemoDiscoveryParticipant();
 
-    String DEVICE_UDN = GenericWemoOSGiTest.DEVICE_MANUFACTURER + "_3434xxx";
-    String DEVICE_FRIENDLY_NAME = "Wemo Test";
+    private final String DEVICE_UDN = GenericWemoOSGiTest.DEVICE_MANUFACTURER + "_3434xxx";
+    private final String DEVICE_FRIENDLY_NAME = "Wemo Test";
 
     RemoteDevice createUpnpDevice(String modelName)
             throws MalformedURLException, ValidationException, URISyntaxException {

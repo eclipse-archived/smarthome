@@ -40,25 +40,25 @@ import org.junit.Test;
  */
 public class WemoHandlerTest {
 
-    ThingTypeUID THING_TYPE = WemoBindingConstants.THING_TYPE_INSIGHT;
-    String THING_ID = "test";
+    private final ThingTypeUID THING_TYPE = WemoBindingConstants.THING_TYPE_INSIGHT;
+    private final String THING_ID = "test";
 
-    MockWemoHandler handler;
+    private MockWemoHandler handler;
 
-    String SERVICE_ID = "insight";
-    String PARAMS_NAME = "InsightParams";
-    WemoInsightParams insightParams;
+    private final String SERVICE_ID = "insight";
+    private final String PARAMS_NAME = "InsightParams";
+    private WemoInsightParams insightParams;
 
     /** Used for all tests, where expected value is time in seconds **/
-    int TIME_PARAM = 4702;
+    private final int TIME_PARAM = 4702;
 
     /** Represents a state parameter, where 1 stays for ON and 0 stays for OFF **/
-    int STATE_PARAM = 1;
+    private final int STATE_PARAM = 1;
 
     /** Represents power in Wats **/
-    int POWER_PARAM = 54;
+    private final int POWER_PARAM = 54;
 
-    Thing thing = mock(Thing.class);
+    private final Thing thing = mock(Thing.class);
 
     @Before
     public void setUp() {
