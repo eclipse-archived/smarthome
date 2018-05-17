@@ -104,7 +104,7 @@ The following example implementation for `startScan` is taken from the `HueLight
 
 The `getThingUID` method of the discovery service should create a consistent UID every time the same thing gets discovered.
 This way existing discovery results and existing things with this UID will be updated with the properties from the current scan.
-With this dynamic discoveries (like UPnP or mDNS) can re-discover existing things and update communication properties like host names or TCP ports.
+With this, dynamic discoveries (like UPnP or mDNS) can re-discover existing things and update communication properties like host names or TCP ports.
 
 ### Remove older results
 
