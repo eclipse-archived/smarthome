@@ -32,6 +32,7 @@ public class EnrichedItemDTO extends ItemDTO {
     public String transformedState;
     public StateDescription stateDescription;
     public Map<String, Object> metadata;
+    public boolean editable;
 
     public EnrichedItemDTO(ItemDTO itemDTO, String link, String state, String transformedState,
             StateDescription stateDescription) {
