@@ -46,3 +46,4 @@ The `ThingHandler` can update this Channel with a state of type `RawType` that r
 If the image should be downloaded from a URL, the helper method `HttpUtil.downloadImage(URL url)` can be used.
 A user may link this Channel to an Item of type `Image` which can then be displayed.
 Please note that data put as a `RawType` in a Channel will stay in **memory only**, i.e., this data will **not** be persisted anywhere.
+Also keep in mind that the memory needed for these images will be consumed on the server running the framework, so creating a lot of `RawType` channels is not recommended.
