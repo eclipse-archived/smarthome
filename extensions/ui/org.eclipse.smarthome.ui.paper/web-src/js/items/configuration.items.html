@@ -47,7 +47,8 @@
                                 <p class="clickable" ng-click="setSelectedOption(0,item.type)">{{item.type}}</p>
                             </div>
                             <div class="actions">
-                                <i class="material-icons" ng-click="navigateTo('item/edit/' + item.name)" aria-label="Delete">edit</i> <i class="material-icons" ng-click="remove(item, $event)" aria-label="Delete">delete</i>
+                                <i class="material-icons" ng-click="navigateTo('item/edit/' + item.name)" aria-label="Delete">edit</i> 
+                                <i ng-if="item.editable" class="material-icons" ng-click="remove(item, $event)" aria-label="Delete">delete</i>
                             </div>
                         </div>
                         <hr class="border-line" ng-show="!$last" />

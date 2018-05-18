@@ -18,7 +18,7 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
         getByName : {
             method : 'GET',
             params : {
-                bindingId : '@itemName'
+                itemName : '@itemName'
             },
             url : restConfig.restPath + '/items/:itemName'
         },
@@ -107,6 +107,14 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
                 tag : '@tag'
             },
             url : restConfig.restPath + '/items/:itemName/tags/:tag'
+        },
+        updateMetadata : {
+            method : 'PUT',
+            params : {
+                itemName : '@itemName',
+                namespace : '@namespace'
+            },
+            url : restConfig.restPath + '/items/:itemName/metadata/:namespace'
         }
     });
 }).factory('bindingService', function($resource, restConfig) {
@@ -365,7 +373,10 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
     return $resource(restConfig.restPath + '/config-descriptions', {}, {
         getAll : {
             method : 'GET',
-            isArray : true
+            isArray : true,
+            params : {
+                scheme : '@scheme'
+            }
         },
         getByUri : {
             method : 'GET',
