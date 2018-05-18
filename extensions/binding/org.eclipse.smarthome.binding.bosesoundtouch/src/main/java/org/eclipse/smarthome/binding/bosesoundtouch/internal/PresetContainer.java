@@ -46,7 +46,7 @@ public class PresetContainer {
     }
 
     private void init() {
-        this.mapOfPresets = new HashMap<Integer, ContentItem>();
+        this.mapOfPresets = new HashMap<>();
         readFromStorage();
     }
 

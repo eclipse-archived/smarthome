@@ -17,6 +17,7 @@ import static org.eclipse.smarthome.binding.bosesoundtouch.BoseSoundTouchBinding
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +27,9 @@ import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
+import org.eclipse.smarthome.binding.bosesoundtouch.BoseSoundTouchConfiguration;
 import org.eclipse.smarthome.binding.bosesoundtouch.internal.APIRequest;
+import org.eclipse.smarthome.binding.bosesoundtouch.internal.BoseSoundTouchNotificationChannelConfiguration;
 import org.eclipse.smarthome.binding.bosesoundtouch.internal.CommandExecutor;
 import org.eclipse.smarthome.binding.bosesoundtouch.internal.OperationModeType;
 import org.eclipse.smarthome.binding.bosesoundtouch.internal.PresetContainer;
@@ -38,11 +41,13 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.PlayPauseType;
 import org.eclipse.smarthome.core.library.types.StringType;
+import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
@@ -223,6 +228,29 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
                 }
                 break;
             default:
+                Channel channel = getThing().getChannel(channelUID.getId());
+                if (channel != null) {
+                    ChannelTypeUID chTypeUid = channel.getChannelTypeUID();
+                    if (chTypeUid != null) {
+                        switch (channel.getChannelTypeUID().getId()) {
+                            case CHANNEL_NOTIFICATION_SOUND:
+                                String appKey = Objects.toString(getConfig().get(BoseSoundTouchConfiguration.APP_KEY), null);
+                                if (appKey != null && !appKey.isEmpty()) {
+                                    if (command instanceof StringType) {
+                                        String url = command.toString();
+                                        BoseSoundTouchNotificationChannelConfiguration notificationConfiguration = channel
+                                                .getConfiguration().as(BoseSoundTouchNotificationChannelConfiguration.class);
+                                        if (!url.isEmpty()) {
+                                            commandExecutor.playNotificationSound(appKey, notificationConfiguration, url);
+                                        }
+                                    }
+                                } else {
+                                    logger.warn("Missing app key - cannot use notification api");
+                                }
+                                return;
+                        }
+                    }
+                }
                 logger.warn("{} : Got command '{}' for channel '{}' which is unhandled!", getDeviceName(), command,
                         channelUID.getId());
                 break;
@@ -272,7 +300,7 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
      * @return the MAC Address of this device (in format "123456789ABC")
      */
     public String getMacAddress() {
-        return ((String) getThing().getConfiguration().get(Thing.PROPERTY_MAC_ADDRESS)).replaceAll(":", "");
+        return ((String) getThing().getConfiguration().get(BoseSoundTouchConfiguration.MAC_ADDRESS)).replaceAll(":", "");
     }
 
     /**
@@ -281,7 +309,7 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
      * @return the IP Address of this device
      */
     public String getIPAddress() {
-        return (String) getThing().getConfiguration().getProperties().get(DEVICE_PARAMETER_HOST);
+        return (String) getThing().getConfiguration().getProperties().get(BoseSoundTouchConfiguration.HOST);
     }
 
     /**

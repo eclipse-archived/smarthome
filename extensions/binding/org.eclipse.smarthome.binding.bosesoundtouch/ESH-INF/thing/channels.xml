@@ -281,5 +281,11 @@
 			</options>
 		</state>
 	</channel-type>
-
+	<!-- Notification channels -->
+	<channel-type id="notificationsound" advanced="true">
+		<item-type>String</item-type>
+		<label>Notification Sound</label>
+		<description>Play a notification sound by a given URI</description>
+		<config-description-ref uri="channel-type:bosesoundtouch:notificationSound" />
+	</channel-type>
 </thing:thing-descriptions>

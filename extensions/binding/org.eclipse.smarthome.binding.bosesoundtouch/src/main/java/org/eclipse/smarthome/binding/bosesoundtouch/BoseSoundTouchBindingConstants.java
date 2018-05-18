@@ -46,7 +46,7 @@ public class BoseSoundTouchBindingConstants {
             BST_10_THING_TYPE_UID, BST_20_THING_TYPE_UID, BST_30_THING_TYPE_UID, BST_300_THING_TYPE_UID,
             BST_WLA_THING_TYPE_UID, BST_WSMS_THING_TYPE_UID, BST_SA5A_THING_TYPE_UID);
 
-    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = new HashSet<ThingTypeUID>(
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = new HashSet<>(
             SUPPORTED_KNOWN_THING_TYPES_UIDS);
 
     // List of all Channel IDs
@@ -71,9 +71,7 @@ public class BoseSoundTouchBindingConstants {
     public static final String CHANNEL_NOWPLAYING_STATIONLOCATION = "nowPlayingStationLocation";
     public static final String CHANNEL_NOWPLAYING_STATIONNAME = "nowPlayingStationName";
     public static final String CHANNEL_NOWPLAYING_TRACK = "nowPlayingTrack";
-
-    // Device configuration parameters;
-    public static final String DEVICE_PARAMETER_HOST = "host";
+    public static final String CHANNEL_NOTIFICATION_SOUND = "notificationsound";
 
     // Device information parameters;
     public static final String DEVICE_INFO_NAME = "INFO_NAME";

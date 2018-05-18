@@ -24,10 +24,10 @@ import java.util.Set;
 
 import javax.jmdns.ServiceInfo;
 
+import org.eclipse.smarthome.binding.bosesoundtouch.BoseSoundTouchConfiguration;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant;
-import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.osgi.service.component.annotations.Component;
@@ -73,9 +73,9 @@ public class SoundTouchDiscoveryParticipant implements MDNSDiscoveryParticipant 
                         info.getName(), label, Arrays.toString(addrs));
             }
 
-            properties.put(DEVICE_PARAMETER_HOST, addrs[0].getHostAddress());
+            properties.put(BoseSoundTouchConfiguration.HOST, addrs[0].getHostAddress());
             if (getMacAddress(info) != null) {
-                properties.put(Thing.PROPERTY_MAC_ADDRESS, new String(getMacAddress(info)));
+                properties.put(BoseSoundTouchConfiguration.MAC_ADDRESS, new String(getMacAddress(info)));
             }
             return DiscoveryResultBuilder.create(uid).withProperties(properties).withLabel(label).build();
         }
