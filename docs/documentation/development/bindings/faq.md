@@ -37,8 +37,12 @@ Here is a list of frequently asked questions around the development of bindings.
  
     It must at least have the channels that are defined in its thing type (and they are already automatically added by the super() implementation). Nonetheless, you are free to add any number of additional channels to the thing.
 
-### Presenting device data to a user
+### State Updates of Channels
 
-1. I have an image in my binding and want to pass it to the framework to be shown in UIs. What is the best way to achieve this?
+1. I have an image in my binding and want to pass it to the framework. What is the best way to achieve this?
 
-    The Thing that wants to provide the image should have a Channel defined with `<item-type>Image</item-type>`. The `ThingHandler` can update this Channel with a state of type `RawType` that represents the raw bytes of the image. If the image should be downloaded from a URL, the helper method `HttpUtil.downloadImage(URL url)` can be used. A user may link this Channel to an Item of type `Image` which can then be displayed.
+    The Thing that wants to provide the image should have a Channel defined with `<item-type>Image</item-type>`.
+The `ThingHandler` can update this Channel with a state of type `RawType` that represents the raw bytes of the image.
+If the image should be downloaded from a URL, the helper method `HttpUtil.downloadImage(URL url)` can be used.
+A user may link this Channel to an Item of type `Image` which can then be displayed.
+Please note that data put as a `RawType` in a Channel will stay in **memory only**, i.e., this data will **not** be persisted anywhere.
