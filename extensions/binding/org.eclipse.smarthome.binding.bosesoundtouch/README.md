@@ -38,7 +38,7 @@ All thing types have the same configuration parameters:
 The required properties are set when using discovery. For manual configuration, these values can be found in the Bose smartphone app (Settings -> About -> Device Name).
 Note that the device might have two MAC addresses, one for ethernet and one for Wifi.
 
-The authorization key is used to identify the client application when using the Notification API. It should be requested from the developer portal.
+The authorization key is used to identify the client application when using the Notification API. It must be requested from the developer portal.
  
 ## Channels
 
@@ -70,15 +70,15 @@ All devices share the same set of channels, while some of them might not be avai
 | bass                      | Number    | Bass (-9 minimum, 0 maximum)                                 |
  
 
-The *notificationsound* channel has a configuration options:
+The *notificationsound* channel has the following optional configuration parameters:
 
- - notificationVolume - Desired volume level while playing the notification, it should be between 10 and 70 (inclusive). A value outside this range will result in an error and not play the notification.
+ - notificationVolume - Desired volume level while playing the notification, it must be between 10 and 70 (inclusive). A value outside this range will result in an error and not play the notification.
  - notificationService - The service providing the notification
  - notificationReason - The reason for the notification
  - notificationMessage - Further details about the notification
  
-The text for notification service, reason and message will appear on the device display (when available) and the SoundTouch application screen.
-Upon completion of the notification, the speaker volume will return to its original value. If not present, the notification will play at the existing volume level.
+The texts for the notification service, reason and message appear on the device display (when available) and the SoundTouch application screen.
+Upon completion of the notification, the speaker volume returns to its original value. If not present, the notification will play at the existing volume level.
  
 ## Full Example
 
