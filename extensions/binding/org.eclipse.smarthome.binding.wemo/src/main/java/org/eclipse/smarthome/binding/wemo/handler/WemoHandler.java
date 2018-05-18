@@ -40,7 +40,6 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
@@ -59,7 +58,7 @@ import org.slf4j.LoggerFactory;
  * @author Erdoan Hadzhiyusein - Adapted the class to work with the new DateTimeType
  */
 
-public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
+public class WemoHandler extends AbstractWemoHandler implements UpnpIOParticipant {
 
     private final Logger logger = LoggerFactory.getLogger(WemoHandler.class);
 
@@ -71,7 +70,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
 
     private final Map<String, String> stateMap = Collections.synchronizedMap(new HashMap<String, String>());
 
-    protected static final int SUBSCRIPTION_DURATION = 600;
+    // protected static final int SUBSCRIPTION_DURATION = WemoBindingConstants.SUBSCRIPTION_DURATION;
 
     private UpnpIOService service;
 
@@ -100,8 +99,10 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
         }
     };
 
-    public WemoHandler(Thing thing, UpnpIOService upnpIOService) {
+    public WemoHandler(Thing thing, UpnpIOService upnpIOService, WemoHttpCall wemohttpCaller) {
         super(thing);
+
+        this.wemoHttpCaller = wemohttpCaller;
 
         logger.debug("Creating a WemoHandler for thing '{}'", getThing().getUID());
 
@@ -170,7 +171,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
                     String wemoURL = getWemoURL("basicevent");
 
                     if (wemoURL != null) {
-                        WemoHttpCall.executeCall(wemoURL, soapHeader, content);
+                        wemoHttpCaller.executeCall(wemoURL, soapHeader, content);
                     }
                 } catch (Exception e) {
                     logger.error("Failed to send command '{}' for device '{}': {}", command, getThing().getUID(),
@@ -423,7 +424,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
         try {
             String wemoURL = getWemoURL(actionService);
             if (wemoURL != null) {
-                String wemoCallResponse = WemoHttpCall.executeCall(wemoURL, soapHeader, content);
+                String wemoCallResponse = wemoHttpCaller.executeCall(wemoURL, soapHeader, content);
                 if (wemoCallResponse != null) {
                     logger.trace("State response '{}' for device '{}' received", wemoCallResponse, getThing().getUID());
                     if (variable.equals("InsightParams")) {

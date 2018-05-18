@@ -43,7 +43,6 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
@@ -66,7 +65,7 @@ import org.xml.sax.InputSource;
  * @author Erdoan Hadzhiyusein - Adapted the class to work with the new DateTimeType
  */
 
-public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOParticipant {
+public class WemoCoffeeHandler extends AbstractWemoHandler implements UpnpIOParticipant {
 
     private final Logger logger = LoggerFactory.getLogger(WemoCoffeeHandler.class);
 
@@ -105,8 +104,10 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
         }
     };
 
-    public WemoCoffeeHandler(Thing thing, UpnpIOService upnpIOService) {
+    public WemoCoffeeHandler(Thing thing, UpnpIOService upnpIOService, WemoHttpCall wemoHttpcaller) {
         super(thing);
+
+        this.wemoHttpCaller = wemoHttpcaller;
 
         logger.debug("Creating a WemoCoffeeHandler V0.4 for thing '{}'", getThing().getUID());
 
@@ -175,7 +176,7 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
                         String wemoURL = getWemoURL("deviceevent");
 
                         if (wemoURL != null) {
-                            String wemoCallResponse = WemoHttpCall.executeCall(wemoURL, soapHeader, content);
+                            String wemoCallResponse = wemoHttpCaller.executeCall(wemoURL, soapHeader, content);
                             if (wemoCallResponse != null) {
                                 updateState(CHANNEL_STATE, OnOffType.ON);
                                 State newMode = new StringType("Brewing");
@@ -275,7 +276,7 @@ public class WemoCoffeeHandler extends BaseThingHandler implements UpnpIOPartici
         try {
             String wemoURL = getWemoURL(actionService);
             if (wemoURL != null) {
-                String wemoCallResponse = WemoHttpCall.executeCall(wemoURL, soapHeader, content);
+                String wemoCallResponse = wemoHttpCaller.executeCall(wemoURL, soapHeader, content);
                 if (wemoCallResponse != null) {
                     try {
                         String stringParser = StringUtils.substringBetween(wemoCallResponse, "<attributeList>",
