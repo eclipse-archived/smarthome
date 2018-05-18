@@ -152,11 +152,12 @@ angular.module('PaperUI.items')//
     }
 
     $scope.update = function() {
+        var toastText = "Item updated.";
         if (!$scope.item.editable) {
-            updateMetadata($scope.item.name, $scope.item.metadata, ctrl.originalItem, $scope.item.editable);
+            updateMetadata($scope.item.name, $scope.item.metadata, ctrl.originalItem, toastText);
             $location.path('configuration/items');
         } else {
-            putItem("Item updated.");
+            putItem(toastText);
         }
     }
     $scope.create = function() {
@@ -182,7 +183,7 @@ angular.module('PaperUI.items')//
             itemService.create({
                 itemName : $scope.item.name
             }, $scope.item).$promise.then(function() {
-                return updateMetadata($scope.item.name, $scope.item.metadata, ctrl.originalItem, $scope.item.editable);
+                return updateMetadata($scope.item.name, $scope.item.metadata, ctrl.originalItem);
             }).then(function() {
                 toastService.showDefaultToast(text);
                 itemRepository.setDirty(true);
@@ -229,7 +230,7 @@ angular.module('PaperUI.items')//
         }
     }
 
-    function updateMetadata(itemName, metadata, originalItem, itemEditable) {
+    function updateMetadata(itemName, metadata, originalItem, toastText) {
         return $q(function(resolve, reject) {
             if (!originalItem.metadata || JSON.stringify(metadata) !== JSON.stringify(originalItem.metadata)) {
                 for ( var namespace in metadata) {
@@ -242,8 +243,8 @@ angular.module('PaperUI.items')//
                             itemName : itemName,
                             namespace : namespace
                         }, metadata[namespace], function() {
-                            if (!itemEditable) {
-                                toastService.showDefaultToast("Metadata updated.");
+                            if (toastText) {
+                                toastService.showDefaultToast(toastText);
                             }
 
                             resolve();

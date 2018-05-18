@@ -136,6 +136,34 @@ section#main.header-tabs {
     margin-top: 0;
 }
 
+metadata h4 {
+	font-weight: normal;
+}
+
+metadata i.edit {
+    transition: box-shadow .4s;
+    border-radius: 100%;
+    border: 5px solid transparent;
+    width: 34px;
+    height: 34px;
+    outline: 0;
+    float: right;
+}
+
+metadata i.edit:hover {
+	cursor: pointer;
+    box-shadow: 0px 0px 4px 2px #dedede;
+}
+
+metadata fieldset {
+    padding-top: 10px;
+    margin-top: 10px;
+}
+
+metadata fieldset md-input-container{
+    width: 100%;
+}
+
 /* Inbox */
 .scan .fab-item md-progress-circular {
     float: left;
