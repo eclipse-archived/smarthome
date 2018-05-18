@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author Laurent Garnier - Initial Contribution
  */
-// @Component(service = DiscoveryService.class, immediate = true, configurationPid = "discovery.weatherunderground")
 public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService {
 
     private final Logger logger = LoggerFactory.getLogger(WeatherUndergroundDiscoveryService.class);

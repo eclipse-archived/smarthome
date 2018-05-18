@@ -30,7 +30,11 @@ Import-Package: com.google.common.collect,
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.io.net.http,
- org.osgi.framework;version="1.8.0",
+ org.osgi.framework,
  org.slf4j
+<<<<<<< HEAD
 Service-Component: OSGI-INF/*.xml
 Automatic-Module-Name: org.eclipse.smarthome.binding.weatherunderground
+=======
+Service-Component: OSGI-INF/*.xml
+>>>>>>> 248a900ec... Updated Manifest.mf
