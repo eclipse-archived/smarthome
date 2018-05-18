@@ -126,23 +126,19 @@
               <source>
                 def bindings = new File(project.basedir, 'documentation/features/bindings')
 
-                bindings.eachFile
-                {
-                def name = it.name
-                if(name.contains('binding')) {
-                def bindingId =
-                it.name.replace('org.eclipse.smarthome.binding.', '')
-                def simpleBindingNameDir = new
-                File(bindings.path, bindingId)
-                it.renameTo(simpleBindingNameDir)
-                def readme = new
-                File(simpleBindingNameDir.path, 'README.md')
-                if(readme.exists()) {
-                println readme
-                readme.write('---\nlayout: documentation\n---\n\n&lt;!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source file --&gt;\n\n{% include base.html %}\n\n' + readme.text)
-                readme.renameTo(new File(simpleBindingNameDir.path, 'readme.md'))
-                }
-                }
+                bindings.eachFile {
+                  def name = it.name
+                  if (name.contains('binding')) {
+                    def bindingId = it.name.replace('org.eclipse.smarthome.binding.', '')
+                    def simpleBindingNameDir = new File(bindings.path, bindingId)
+                    it.renameTo(simpleBindingNameDir)
+                    def readme = new File(simpleBindingNameDir.path, 'README.md')
+                    if (readme.exists()) {
+                      println readme
+                      readme.write('---\nlayout: documentation\n---\n\n&lt;!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source file --&gt;\n\n{% include base.html %}\n\n' + readme.text)
+                      readme.renameTo(new File(simpleBindingNameDir.path, 'readme.md'))
+                    }
+                  }
                 }
               </source>
             </configuration>
@@ -157,23 +153,20 @@
               <source>
                 def iconsets = new File(project.basedir, 'documentation/features/ui/iconset')
 
-                iconsets.eachFile
-                {
-                def name = it.name
-                if(name.contains('iconset')) {
-                def iconsetId =
-                it.name.replace('org.eclipse.smarthome.ui.iconset.', '')
-                def simpleIconsetNameDir = new
-                File(iconsets.path, iconsetId)
-                it.renameTo(simpleIconsetNameDir)
-                def readme = new
-                File(simpleIconsetNameDir.path, 'README.md')
-                if(readme.exists()) {
-                println readme
-                readme.write('---\nlayout: documentation\n---\n\n&lt;!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source file --&gt;\n\n{% include base.html %}\n\n' + readme.text)
-                readme.renameTo(new File(simpleIconsetNameDir.path, 'readme.md'))
-                }
-                }
+                iconsets.eachFile {
+                  def name = it.name
+                  if (name.contains('iconset')) {
+                    def iconsetId =
+                    it.name.replace('org.eclipse.smarthome.ui.iconset.', '')
+                    def simpleIconsetNameDir = new File(iconsets.path, iconsetId)
+                    it.renameTo(simpleIconsetNameDir)
+                    def readme = new File(simpleIconsetNameDir.path, 'README.md')
+                    if (readme.exists()) {
+                      println readme
+                      readme.write('---\nlayout: documentation\n---\n\n&lt;!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source file --&gt;\n\n{% include base.html %}\n\n' + readme.text)
+                      readme.renameTo(new File(simpleIconsetNameDir.path, 'readme.md'))
+                    }
+                  }
                 }
               </source>
             </configuration>
@@ -188,23 +181,19 @@
               <source>
                 def uis = new File(project.basedir, 'documentation/features/ui')
 
-                uis.eachFile
-                {
-                def name = it.name
-                if(!name.contains('iconset')) {
-                def uiId =
-                it.name.replace('org.eclipse.smarthome.ui.', '')
-                def simpleUINameDir = new
-                File(uis.path, uiId)
-                it.renameTo(simpleUINameDir)
-                def readme = new
-                File(simpleUINameDir.path, 'README.md')
-                if(readme.exists()) {
-                println readme
-                readme.write('---\nlayout: documentation\n---\n\n&lt;!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source file --&gt;\n\n{% include base.html %}\n\n' + readme.text)
-                readme.renameTo(new File(simpleUINameDir.path, 'readme.md'))
-                }
-                }
+                uis.eachFile {
+                  def name = it.name
+                  if (!name.contains('iconset')) {
+                    def uiId = it.name.replace('org.eclipse.smarthome.ui.', '')
+                    def simpleUINameDir = new File(uis.path, uiId)
+                    it.renameTo(simpleUINameDir)
+                    def readme = new File(simpleUINameDir.path, 'README.md')
+                    if (readme.exists()) {
+                      println readme
+                      readme.write('---\nlayout: documentation\n---\n\n&lt;!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source file --&gt;\n\n{% include base.html %}\n\n' + readme.text)
+                      readme.renameTo(new File(simpleUINameDir.path, 'readme.md'))
+                    }
+                  }
                 }
               </source>
             </configuration>
