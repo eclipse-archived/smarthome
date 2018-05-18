@@ -13,12 +13,9 @@
 			<channel id="mute" typeId="mute" />
 			<channel id="operationMode" typeId="operationMode_BST_WLA" />
 			<channel id="playerControl" typeId="playerControl" />
-			<channel id="zoneAdd" typeId="zoneAdd" />
-			<channel id="zoneRemove" typeId="zoneRemove" />
 			<channel id="preset" typeId="preset" />
 			<channel id="saveAsPreset" typeId="saveAsPreset" />
 			<channel id="keyCode" typeId="keyCode" />
-			<channel id="zoneInfo" typeId="zoneInfo" />
 			<channel id="rateEnabled" typeId="rateEnabled" />
 			<channel id="skipEnabled" typeId="skipEnabled" />
 			<channel id="skipPreviousEnabled" typeId="skipPreviousEnabled" />
