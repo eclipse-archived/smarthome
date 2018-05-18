@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.smarthome.binding.bosesoundtouch.BoseSoundTouchConfiguration;
 import org.eclipse.smarthome.binding.bosesoundtouch.handler.BoseSoundTouchHandler;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.NextPreviousType;
@@ -486,5 +487,25 @@ public class CommandExecutor implements AvailableSources {
         } else {
             return isAvailable;
         }
+    }
+
+    public void playNotificationSound(String appKey, BoseSoundTouchNotificationChannelConfiguration notificationConfig
+            , String fileUrl) {
+        String msg = "<play_info>"
+                + "<app_key>" + appKey + "</app_key>"
+                + "<url>" + fileUrl + "</url>"
+                + "<service>" + notificationConfig.notificationService + "</service>"
+                + (notificationConfig.notificationReason != null
+                        ? "<reason>" + notificationConfig.notificationReason + "</reason>"
+                        : "")
+                + (notificationConfig.notificationMessage != null
+                        ? "<message>" + notificationConfig.notificationMessage + "</message>"
+                        : "")
+                + (notificationConfig.notificationVolume != null
+                        ? "<volume>" + notificationConfig.notificationVolume + "</volume>"
+                        : "")
+                + "</play_info>";
+
+        sendPostRequestInWebSocket("speaker", msg);
     }
 }
