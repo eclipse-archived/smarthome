@@ -35,7 +35,6 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
@@ -57,7 +56,7 @@ import org.xml.sax.InputSource;
  * @author Hans-Jörg Merk - Initial contribution
  */
 
-public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticipant {
+public class WemoMakerHandler extends AbstractWemoHandler implements UpnpIOParticipant {
 
     private final Logger logger = LoggerFactory.getLogger(WemoMakerHandler.class);
 
@@ -85,8 +84,10 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
         }
     };
 
-    public WemoMakerHandler(Thing thing, UpnpIOService upnpIOService) {
+    public WemoMakerHandler(Thing thing, UpnpIOService upnpIOService, WemoHttpCall wemoHttpcaller) {
         super(thing);
+
+        this.wemoHttpCaller = wemoHttpcaller;
 
         logger.debug("Creating a WemoMakerHandler for thing '{}'", getThing().getUID());
 
@@ -153,7 +154,7 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
 
                     if (wemoURL != null) {
                         @SuppressWarnings("unused")
-                        String wemoCallResponse = WemoHttpCall.executeCall(wemoURL, soapHeader, content);
+                        String wemoCallResponse = wemoHttpCaller.executeCall(wemoURL, soapHeader, content);
                     }
                 } catch (Exception e) {
                     logger.error("Failed to send command '{}' for device '{}' ", command, getThing().getUID(), e);
@@ -205,7 +206,7 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
         try {
             String wemoURL = getWemoURL(actionService);
             if (wemoURL != null) {
-                String wemoCallResponse = WemoHttpCall.executeCall(wemoURL, soapHeader, content);
+                String wemoCallResponse = wemoHttpCaller.executeCall(wemoURL, soapHeader, content);
                 if (wemoCallResponse != null) {
                     try {
                         String stringParser = StringUtils.substringBetween(wemoCallResponse, "<attributeList>",
