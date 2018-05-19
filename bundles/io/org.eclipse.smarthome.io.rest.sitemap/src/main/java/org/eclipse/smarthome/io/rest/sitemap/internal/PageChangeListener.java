@@ -201,38 +201,36 @@ public class PageChangeListener implements StateChangeListener {
                 events.addAll(constructSitemapEvents(item, itemUIRegistry.getChildren((Frame) w)));
             }
 
-            if (w.getItem() != null && w.getItem().equals(item.getName())) {
-                // We skip the chart widgets having a refresh argument
-                boolean skipWidget = false;
-                if (w instanceof Chart) {
-                    Chart chartWidget = (Chart) w;
-                    skipWidget = chartWidget.getRefresh() > 0;
-                }
-                if (!skipWidget || definesVisibilityOrColor(w, item.getName())) {
-                    SitemapWidgetEvent event = new SitemapWidgetEvent();
-                    event.sitemapName = sitemapName;
-                    event.pageId = pageId;
-                    event.label = itemUIRegistry.getLabel(w);
-                    event.labelcolor = itemUIRegistry.getLabelColor(w);
-                    event.valuecolor = itemUIRegistry.getValueColor(w);
-                    event.widgetId = itemUIRegistry.getWidgetId(w);
-                    event.visibility = itemUIRegistry.getVisiblity(w);
-                    // event.item contains data from the item including its state (in event.item.state)
-                    String widgetTypeName = w.eClass().getInstanceTypeName()
-                            .substring(w.eClass().getInstanceTypeName().lastIndexOf(".") + 1);
-                    boolean drillDown = "mapview".equalsIgnoreCase(widgetTypeName);
-                    Predicate<Item> itemFilter = (i -> i.getType().equals(CoreItemFactory.LOCATION));
-                    event.item = EnrichedItemDTOMapper.map(item, drillDown, itemFilter, null, null);
+            boolean skipWidget = (w.getItem() == null) || !w.getItem().equals(item.getName());
+            // We skip the chart widgets having a refresh argument
+            if (!skipWidget && w instanceof Chart) {
+                Chart chartWidget = (Chart) w;
+                skipWidget = chartWidget.getRefresh() > 0;
+            }
+            if (!skipWidget || definesVisibilityOrColor(w, item.getName())) {
+                SitemapWidgetEvent event = new SitemapWidgetEvent();
+                event.sitemapName = sitemapName;
+                event.pageId = pageId;
+                event.label = itemUIRegistry.getLabel(w);
+                event.labelcolor = itemUIRegistry.getLabelColor(w);
+                event.valuecolor = itemUIRegistry.getValueColor(w);
+                event.widgetId = itemUIRegistry.getWidgetId(w);
+                event.visibility = itemUIRegistry.getVisiblity(w);
+                // event.item contains data from the item including its state (in event.item.state)
+                String widgetTypeName = w.eClass().getInstanceTypeName()
+                        .substring(w.eClass().getInstanceTypeName().lastIndexOf(".") + 1);
+                boolean drillDown = "mapview".equalsIgnoreCase(widgetTypeName);
+                Predicate<Item> itemFilter = (i -> i.getType().equals(CoreItemFactory.LOCATION));
+                event.item = EnrichedItemDTOMapper.map(item, drillDown, itemFilter, null, null);
 
-                    // event.state is an adjustment of the item state to the widget type.
-                    event.state = itemUIRegistry.getState(w).toFullString();
-                    // In case this state is identical to the item state, its value is set to null.
-                    if (event.state != null && event.state.equals(event.item.state)) {
-                        event.state = null;
-                    }
-
-                    events.add(event);
+                // event.state is an adjustment of the item state to the widget type.
+                event.state = itemUIRegistry.getState(w).toFullString();
+                // In case this state is identical to the item state, its value is set to null.
+                if (event.state != null && event.state.equals(event.item.state)) {
+                    event.state = null;
                 }
+
+                events.add(event);
             }
         }
         return events;
