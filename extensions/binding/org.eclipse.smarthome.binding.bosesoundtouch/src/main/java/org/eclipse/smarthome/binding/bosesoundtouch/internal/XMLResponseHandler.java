@@ -569,7 +569,7 @@ public class XMLResponseHandler extends DefaultHandler {
         Map<String, String> prop = handler.getThing().getProperties();
         String cur = prop.get(option);
         if (cur == null || !cur.equals(value)) {
-            logger.info("{}: Option '{}' updated: From '{}' to '{}'", handler.getDeviceName(), option, cur, value);
+            logger.debug("{}: Option '{}' updated: From '{}' to '{}'", handler.getDeviceName(), option, cur, value);
             handler.getThing().setProperty(option, value);
         }
     }
