@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -109,6 +110,7 @@ import com.google.common.collect.SetMultimap;
  * @author Andre Fuechsel - Added the {@link ThingTypeMigrationService} 
  * @author Thomas Höfer - Added localization of thing status info
  * @author Christoph Weitkamp - Moved OSGI ServiceTracker from BaseThingHandler to ThingHandlerCallback
+ * @author Henning Sudbrock - Consider thing type properties when migrating to new thing type
  */
 @Component(immediate = true, service = { ThingTypeMigrationService.class })
 public class ThingManager implements ThingTracker, ThingTypeMigrationService, ReadyService.ReadyTracker {
@@ -330,6 +332,11 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
                     ThingFactoryHelper.applyDefaultConfiguration(configuration, thingType, configDescriptionRegistry);
                     ((ThingImpl) thing).setConfiguration(configuration);
 
+                    // Set the new properties (keeping old properties, unless they have the same name as a new property)
+                    for (Entry<String, String> entry : thingType.getProperties().entrySet()) {
+                        ((ThingImpl) thing).setProperty(entry.getKey(), entry.getValue());
+                    }
+
                     // Change the ThingType
                     ((ThingImpl) thing).setThingTypeUID(thingTypeUID);
 
@@ -471,7 +478,6 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
                 } else {
                     registerAndInitializeHandler(thing, getThingHandlerFactory(thing));
                 }
-
             } finally {
                 lock1.unlock();
             }
