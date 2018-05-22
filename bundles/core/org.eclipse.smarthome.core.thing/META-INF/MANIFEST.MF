@@ -70,5 +70,6 @@ Import-Package:
  org.osgi.service.component,
  org.osgi.service.event,
  org.osgi.util.tracker,
- org.slf4j
+ org.slf4j,
+ tec.uom.se
 Service-Component: OSGI-INF/*.xml

@@ -34,8 +34,11 @@ public class TransformationHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransformationHelper.class);
 
+    public static final String FUNCTION_VALUE_DELIMITER = ":";
+
     /* RegEx to extract and parse a function String <code>'(.*?)\((.*)\):(.*)'</code> */
-    protected static final Pattern EXTRACT_TRANSFORMFUNCTION_PATTERN = Pattern.compile("(.*?)\\((.*)\\):(.*)");
+    protected static final Pattern EXTRACT_TRANSFORMFUNCTION_PATTERN = Pattern
+            .compile("(.*?)\\((.*)\\)" + FUNCTION_VALUE_DELIMITER + "(.*)");
 
     /**
      * determines whether a pattern refers to a transformation service

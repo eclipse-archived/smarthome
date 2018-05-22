@@ -100,3 +100,26 @@ If one device should "follow" the actions of another device, the FollowProfile c
 ```java
 <itemType> <itemName> { channel="<channelUID>", channel="<followChannelUID>"[profile="follow"]"}
 ```
+
+### OffsetProfile
+
+The `OffsetProfile` provides the possibility to adjust a value from a device before it arrives at the framework.
+An offset can be specified via the parameter `offset` which has to be a `QuantityType` or `DecimalType`.
+A positive offset is the amount of change from the device towards the framework and vice versa.
+
+```java
+Number MyItem { channel="<bindingID>:<thing-typeID>:MyThing:myChannel"[profile="offset", pattern="<transformFunction>:<valueFormat>"]}
+```
+
+### TransformationProfile
+
+The `TransformationProfile` offers the functionality of the `TransformationService`s to `Profile`s.
+Each `TransformationService` is identified by a property called `smarthome.transform`.
+This property specifies the name of the transformation.
+The function and format of the value can be specified in the `pattern` parameter of the `TransformationProfile` as a string, separated by a colon.
+Note that these transformations are unidirectional, i.e. they are configured to transform the value send by a device towards the framework, only.
+Commands send by the framework towards the device are passed through the `Profile` without any adjustments.
+
+```java
+String MyItem { channel="<bindingID>:<thing-typeID>:MyThing:myChannel"[profile="transform:<transformationName>", pattern="<transformFunction>:<valueFormat>"]}
+```
