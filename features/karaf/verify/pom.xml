@@ -101,6 +101,7 @@
                 <feature>framework</feature>
               </framework>
               <features>
+                <feature>esh.tp*</feature>
                 <feature>esh-*</feature>
               </features>
               <verifyTransitive>false</verifyTransitive>
