@@ -128,7 +128,12 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             }
             // set notification sound volume
             if (volume != null) {
-                setVolume(volume, sinkId);
+                try {
+                    setVolume(volume, sinkId);
+                } catch (IOException e) {
+                    logger.debug("An exception occurred while setting the volume of sink '{}' : {}", sink.getId(),
+                            e.getMessage(), e);
+                }
             }
             try {
                 sink.process(audioStream);
@@ -137,7 +142,12 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             } finally {
                 if (volume != null && oldVolume != null) {
                     // restore volume only if it was set before
-                    setVolume(oldVolume, sinkId);
+                    try {
+                        setVolume(oldVolume, sinkId);
+                    } catch (IOException e) {
+                        logger.debug("An exception occurred while setting the volume of sink '{}' : {}", sink.getId(),
+                                e.getMessage(), e);
+                    }
                 }
             }
         } else {
@@ -192,22 +202,11 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     }
 
     @Override
-    public void setVolume(PercentType volume, String sinkId) {
+    public void setVolume(PercentType volume, String sinkId) throws IOException {
         AudioSink sink = getSink(sinkId);
 
         if (sink != null) {
-            try {
-                sink.setVolume(volume);
-            } catch (IOException e) {
-                if (logger.isDebugEnabled()) {
-                    // we also attach the stack trace
-                    logger.warn("An exception occurred while setting the volume of sink '{}' : {}", sink.getId(),
-                            e.getMessage(), e);
-                } else {
-                    logger.warn("An exception occurred while setting the volume of sink '{}' : {}", sink.getId(),
-                            e.getMessage());
-                }
-            }
+            sink.setVolume(volume);
         }
     }
 

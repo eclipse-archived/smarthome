@@ -225,7 +225,12 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
                         }
                         // set notification sound volume
                         if (volume != null) {
-                            audioManager.setVolume(volume, sinkId);
+                            try {
+                                audioManager.setVolume(volume, sinkId);
+                            } catch (IOException e) {
+                                logger.debug("An exception occurred while setting the volume of sink '{}' : {}",
+                                        sink.getId(), e.getMessage(), e);
+                            }
                         }
                         try {
                             sink.process(audioStream);
@@ -234,7 +239,12 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
                         } finally {
                             if (volume != null && oldVolume != null) {
                                 // restore volume only if it was set before
-                                audioManager.setVolume(oldVolume, sinkId);
+                                try {
+                                    audioManager.setVolume(oldVolume, sinkId);
+                                } catch (IOException e) {
+                                    logger.debug("An exception occurred while setting the volume of sink '{}' : {}",
+                                            sink.getId(), e.getMessage(), e);
+                                }
                             }
                         }
                     } else {

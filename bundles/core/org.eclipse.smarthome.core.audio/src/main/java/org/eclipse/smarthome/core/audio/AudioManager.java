@@ -126,8 +126,9 @@ public interface AudioManager {
      *
      * @param volume the volume to set as a value between 0 and 100
      * @param sinkId the sink to set the volume for or null for the default
+     * @throws IOException if the sink is not able to set the volume
      */
-    void setVolume(PercentType volume, @Nullable String sinkId);
+    void setVolume(PercentType volume, @Nullable String sinkId) throws IOException;
 
     /**
      * Retrieves an AudioSource.
