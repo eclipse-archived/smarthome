@@ -158,35 +158,6 @@ public class AudioManagerTest extends AudioOSGiTest {
     }
 
     @Test
-    public void 'setVolume method handles IOException'(){
-        registerSink()
-
-        audioSinkFake.isIOExceptionExpected = true
-
-        try{
-            audioManager.setVolume(new PercentType(67), audioSinkFake.getId())
-        } catch (IOException e){
-            fail("An exception $e was thrown, while trying to set the volume of the sink $audioSinkFake.getId()")
-        }
-    }
-
-    @Test
-    public void 'getVolume method handles IOException'(){
-        registerSink()
-
-        audioManager.setVolume(new PercentType(67), audioSinkFake.getId())
-
-        audioSinkFake.isIOExceptionExpected = true
-
-        String sinkMockId = audioSinkFake.getId()
-        try{
-            audioManager.getVolume(sinkMockId)
-        } catch (IOException e){
-            fail("An exception $e was thrown, while trying to set the volume of the sink $audioSinkFake.getId()")
-        }
-    }
-
-    @Test
     public void 'source is registered'(){
         assertRegisteredSource(false)
     }
