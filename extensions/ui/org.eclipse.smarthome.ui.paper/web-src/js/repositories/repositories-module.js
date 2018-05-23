@@ -67,9 +67,6 @@
 
                     deferred.resolve(data);
                 });
-                if (self.initialFetch) {
-                    deferred.notify($rootScope.data[dataType]);
-                }
             }
             return deferred.promise;
         }

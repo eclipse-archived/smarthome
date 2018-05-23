@@ -40,7 +40,7 @@ angular.module('PaperUI.things') //
         var channel = $scope.getChannelById(channelID);
         event.stopImmediatePropagation();
         if ($scope.advancedMode || channel.kind === 'TRIGGER') {
-            if (channel.linkedItems.length > 0) {
+            if (channel.linkedItems && channel.linkedItems.length > 0) {
                 $scope.getLinkedItems(channel, event);
             } else {
                 $scope.linkChannel(channelID, event, longPress);
