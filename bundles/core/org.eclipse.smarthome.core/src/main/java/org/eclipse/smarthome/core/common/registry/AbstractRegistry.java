@@ -193,10 +193,11 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
                 // the given "oldElement" might not be the live instance but
                 // loaded from storage. operate on the real element:
                 E existingElement = get(oldElement.getUID());
-                onUpdateElement(existingElement, element);
+                beforeUpdateElement(existingElement);
+                onUpdateElement(oldElement, element);
                 elements.remove(existingElement);
                 elements.add(element);
-                notifyListenersAboutUpdatedElement(existingElement, element);
+                notifyListenersAboutUpdatedElement(oldElement, element);
             } catch (Exception ex) {
                 logger.warn("Could not update element: {}", ex.getMessage(), ex);
             }
@@ -357,10 +358,20 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
 
     /**
      * This method is called before an element is updated. The implementing
+     * class can override this method to perform specific logic.
+     *
+     * @param existingElement the previously existing element (as held in the element cache)
+     */
+    protected void beforeUpdateElement(E existingElement) {
+        // can be overridden by sub classes
+    }
+
+    /**
+     * This method is called before an element is updated. The implementing
      * class can override this method to perform specific logic or check the
      * validity of the updated element.
      *
-     * @param oldElement old element (before update)
+     * @param oldElement old element (before update, as given by the provider)
      * @param element updated element (after update)
      *            <p>
      *            If the method throws an {@link IllegalArgumentException} the element will not be updated.

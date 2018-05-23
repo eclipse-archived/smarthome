@@ -288,11 +288,14 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     }
 
     @Override
-    protected void onUpdateElement(Item oldItem, Item item) {
-        if (oldItem instanceof GenericItem) {
-            ((GenericItem) oldItem).dispose();
+    protected void beforeUpdateElement(Item existingElement) {
+        if (existingElement instanceof GenericItem) {
+            ((GenericItem) existingElement).dispose();
         }
+    }
 
+    @Override
+    protected void onUpdateElement(Item oldItem, Item item) {
         // don't use #initialize and retain order of items in groups:
         List<String> oldNames = oldItem.getGroupNames();
         List<String> newNames = item.getGroupNames();
