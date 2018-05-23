@@ -182,7 +182,7 @@ public class AudioManagerTest extends AudioOSGiTest {
         try{
             audioManager.getVolume(sinkMockId)
         } catch (IOException e){
-            fail("An exception $e was thrown, while trying to set the volume of the sink $audioSinkFake.getId()")
+            fail("An exception $e was thrown, while trying to get the volume of the sink $audioSinkFake.getId()")
         }
     }
 

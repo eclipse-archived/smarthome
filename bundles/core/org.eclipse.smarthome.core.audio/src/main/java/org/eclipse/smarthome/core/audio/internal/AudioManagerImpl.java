@@ -118,8 +118,14 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     public void play(AudioStream audioStream, String sinkId, PercentType volume) {
         AudioSink sink = getSink(sinkId);
         if (sink != null) {
-            // get current volume
-            PercentType oldVolume = getVolume(sinkId);
+            PercentType oldVolume = null;
+            try {
+                // get current volume
+                oldVolume = getVolume(sinkId);
+            } catch (IOException e) {
+                logger.debug("An exception occurred while getting the volume of sink '{}' : {}", sink.getId(),
+                        e.getMessage(), e);
+            }
             // set notification sound volume
             if (volume != null) {
                 setVolume(volume, sinkId);
@@ -129,7 +135,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
                 logger.warn("Error playing '{}': {}", audioStream, e.getMessage(), e);
             } finally {
-                if (volume != null) {
+                if (volume != null && oldVolume != null) {
                     // restore volume only if it was set before
                     setVolume(oldVolume, sinkId);
                 }
@@ -176,22 +182,11 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     }
 
     @Override
-    public PercentType getVolume(String sinkId) {
+    public PercentType getVolume(String sinkId) throws IOException {
         AudioSink sink = getSink(sinkId);
 
         if (sink != null) {
-            try {
-                return sink.getVolume();
-            } catch (IOException e) {
-                if (logger.isDebugEnabled()) {
-                    // we also attach the stack trace
-                    logger.warn("An exception occurred while getting the volume of sink '{}' : {}", sink.getId(),
-                            e.getMessage(), e);
-                } else {
-                    logger.warn("An exception occurred while getting the volume of sink '{}' : {}", sink.getId(),
-                            e.getMessage());
-                }
-            }
+            return sink.getVolume();
         }
         return PercentType.ZERO;
     }

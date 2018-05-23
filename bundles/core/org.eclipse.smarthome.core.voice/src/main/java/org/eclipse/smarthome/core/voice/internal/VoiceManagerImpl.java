@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.core.voice.internal;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -214,8 +215,14 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
                     AudioStream audioStream = tts.synthesize(text, voice, audioFormat);
 
                     if (sink.getSupportedStreams().stream().anyMatch(clazz -> clazz.isInstance(audioStream))) {
-                        // get current volume
-                        PercentType oldVolume = audioManager.getVolume(sinkId);
+                        PercentType oldVolume = null;
+                        try {
+                            // get current volume
+                            oldVolume = audioManager.getVolume(sinkId);
+                        } catch (IOException e) {
+                            logger.debug("An exception occurred while getting the volume of sink '{}' : {}",
+                                    sink.getId(), e.getMessage(), e);
+                        }
                         // set notification sound volume
                         if (volume != null) {
                             audioManager.setVolume(volume, sinkId);
@@ -225,7 +232,7 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
                         } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
                             logger.warn("Error saying '{}': {}", text, e.getMessage(), e);
                         } finally {
-                            if (volume != null) {
+                            if (volume != null && oldVolume != null) {
                                 // restore volume only if it was set before
                                 audioManager.setVolume(oldVolume, sinkId);
                             }

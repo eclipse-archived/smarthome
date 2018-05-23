@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.core.audio;
 
+import java.io.IOException;
 import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -116,8 +117,9 @@ public interface AudioManager {
      *
      * @param sinkId the sink to get the volume for or null for the default
      * @return the volume as a value between 0 and 100
+     * @throws IOException if the sink is not able to determine the volume
      */
-    PercentType getVolume(@Nullable String sinkId);
+    PercentType getVolume(@Nullable String sinkId) throws IOException;
 
     /**
      * Sets the volume for a sink.
