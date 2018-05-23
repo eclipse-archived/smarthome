@@ -148,7 +148,7 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
     static {
         SimpleUnitFormat.getInstance().label(PARTS_PER_MILLION, "ppm");
         SimpleUnitFormat.getInstance().label(DECIBEL, "dB");
-        SimpleUnitFormat.getInstance().label(IRRADIANCE, "W/m2");
+        SimpleUnitFormat.getInstance().label(IRRADIANCE, "W/m²");
         SimpleUnitFormat.getInstance().label(DEGREE_ANGLE, "°");
         SimpleUnitFormat.getInstance().label(WATT_SECOND, "Ws");
         SimpleUnitFormat.getInstance().label(WATT_HOUR, "Wh");
