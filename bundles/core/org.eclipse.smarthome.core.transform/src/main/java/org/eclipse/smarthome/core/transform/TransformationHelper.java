@@ -60,11 +60,11 @@ public class TransformationHelper {
                 if (refs != null && refs.size() > 0) {
                     return context.getService(refs.iterator().next());
                 } else {
-                    LOGGER.warn("Cannot get service reference for transformation service of type {}",
+                    LOGGER.debug("Cannot get service reference for transformation service of type {}",
                             transformationType);
                 }
             } catch (InvalidSyntaxException e) {
-                LOGGER.warn("Cannot get service reference for transformation service of type {}", transformationType,
+                LOGGER.debug("Cannot get service reference for transformation service of type {}", transformationType,
                         e);
             }
         }
@@ -77,9 +77,11 @@ public class TransformationHelper {
      * @param context a valid bundle context, required for accessing the services
      * @param stateDescPattern the pattern that contains the transformation instructions
      * @param state the state to be formatted before being passed into the transformation function
-     * @return the result of the transformation. If no transformation was done, the state is returned
+     * @return the result of the transformation
+     * @throws TransformationException if transformation service is not available or the transformation failed
      */
-    public static String transform(BundleContext context, String stateDescPattern, String state) {
+    public static String transform(BundleContext context, String stateDescPattern, String state)
+            throws TransformationException {
         Matcher matcher = EXTRACT_TRANSFORMFUNCTION_PATTERN.matcher(stateDescPattern);
         if (matcher.find()) {
             String type = matcher.group(1);
@@ -89,23 +91,15 @@ public class TransformationHelper {
             if (transformation != null) {
                 try {
                     value = String.format(value, state);
-                    try {
-                        pattern = transformation.transform(pattern, value);
-                    } catch (TransformationException e) {
-                        LOGGER.warn("Transformation '{}' with value '{}' failed: {}", transformation, value,
-                                e.getMessage());
-                        pattern = state;
-                    }
+                    return transformation.transform(pattern, value);
                 } catch (IllegalFormatException e) {
-                    LOGGER.warn("Cannot format state '{}' to format '{}': {}", state, value, e.getMessage());
-                    pattern = state;
+                    throw new TransformationException("Cannot format state '" + state + "' to format '" + value + "'",
+                            e);
                 }
             } else {
-                LOGGER.warn("Couldn't transform value because transformation service of type '{}' is not available.",
-                        type);
-                pattern = state;
+                throw new TransformationException("Couldn't transform value because transformation service of type '"
+                        + type + "' is not available.");
             }
-            return pattern;
         } else {
             return state;
         }
