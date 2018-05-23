@@ -179,7 +179,7 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
     }
 
     @Test
-    public void testGroupUpdateWithMofifivationOfLiveInstance() {
+    public void testGroupUpdateWithModificationOfLiveInstance() {
         itemRegistry.add(new StringItem("item"));
         itemRegistry.add(new GroupItem("group"));
 
