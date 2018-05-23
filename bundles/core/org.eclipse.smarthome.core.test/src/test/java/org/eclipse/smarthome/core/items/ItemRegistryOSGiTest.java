@@ -13,9 +13,7 @@
 package org.eclipse.smarthome.core.items;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
@@ -29,6 +27,7 @@ import org.eclipse.smarthome.core.items.events.ItemAddedEvent;
 import org.eclipse.smarthome.core.items.events.ItemRemovedEvent;
 import org.eclipse.smarthome.core.items.events.ItemUpdatedEvent;
 import org.eclipse.smarthome.core.library.items.NumberItem;
+import org.eclipse.smarthome.core.library.items.StringItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
@@ -168,7 +167,6 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
         GroupItem groupItem3 = (GroupItem) itemRegistry.getItem("group");
 
         SwitchItem updatedSwitchItem = new SwitchItem("switch");
-
         updatedSwitchItem.addGroupName("group");
         updatedSwitchItem.addGroupName("group3");
 
@@ -178,6 +176,23 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
         assertThat(groupItem.getMembers().contains(updatedSwitchItem), is(true));
         assertThat(groupItem2.getMembers().contains(updatedSwitchItem), is(false));
         assertThat(groupItem3.getMembers().contains(updatedSwitchItem), is(true));
+    }
+
+    @Test
+    public void testGroupUpdateWithMofifivationOfLiveInstance() {
+        itemRegistry.add(new StringItem("item"));
+        itemRegistry.add(new GroupItem("group"));
+
+        GenericItem item = (GenericItem) itemRegistry.get("item"); // !
+        item.addGroupName("group");
+        itemRegistry.update(item);
+
+        Item res = itemRegistry.get("item");
+        assertEquals(1, res.getGroupNames().size());
+        assertEquals("group", res.getGroupNames().get(0));
+
+        GroupItem group = (GroupItem) itemRegistry.get("group");
+        assertEquals(1, group.getMembers().size());
     }
 
     @Test
@@ -295,22 +310,16 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
         GenericItem item = new SwitchItem("Item1");
         itemProvider.add(item);
 
-        @SuppressWarnings("unchecked")
-        RegistryChangeListener<Item> registryChangeListener = mock(RegistryChangeListener.class);
-        itemRegistry.addRegistryChangeListener(registryChangeListener);
+        assertNotNull(item.eventPublisher);
+        assertNotNull(item.itemStateConverter);
+        assertNotNull(item.unitProvider);
 
-        GenericItem newItem = new SwitchItem("Item1");
-        itemProvider.update(newItem);
+        itemProvider.update(new SwitchItem("Item1"));
 
         assertNull(item.eventPublisher);
         assertNull(item.itemStateConverter);
         assertNull(item.unitProvider);
-        assertThat(item.listeners, hasSize(0));
-
-        ArgumentCaptor<Item> itemCaptor = ArgumentCaptor.forClass(Item.class);
-        verify(registryChangeListener).updated(itemCaptor.capture(), eq(newItem));
-        assertTrue(itemCaptor.getValue() == item);
-
+        assertEquals(0, item.listeners.size());
     }
 
 }
