@@ -82,10 +82,10 @@ public class TransformationHelper {
      * @param context a valid bundle context, required for accessing the services
      * @param stateDescPattern the pattern that contains the transformation instructions
      * @param state the state to be formatted before being passed into the transformation function
-     * @return the result of the transformation
+     * @return the result of the transformation. If no transformation was done, <code>null</code> is returned
      * @throws TransformationException if transformation service is not available or the transformation failed
      */
-    public static String transform(BundleContext context, String stateDescPattern, String state)
+    public static @Nullable String transform(BundleContext context, String stateDescPattern, String state)
             throws TransformationException {
         Matcher matcher = EXTRACT_TRANSFORMFUNCTION_PATTERN.matcher(stateDescPattern);
         if (matcher.find()) {
