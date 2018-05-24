@@ -90,20 +90,27 @@ From Paper UI, Basic UI and Classic UI numerous widgets bound to number items wi
 The classic rule engine in Eclipse SmartHome also has full support of the new QuantityType. It can be used in arithmetic calculations and comparison with automatic unit conversion.
 The `Weather_Temperature` item from the example above with the fixed unit kelvin can be compared against other QuantityType instances with other units from the Temperature dimension.
 
-The script:
+The scripts
 
 ```
-20.0 [°C] > 20 [°F]
+20.0|"°C" > 20|"°F"
 ```
 
-evaluates to `true` as well as
+and 
 
 ```
-postUpdate(myTemperature, 20.0 [°C])
+20.0|°C > 20|°F
 ```
 
-will create a new QuantityType and update the Number item `myTemperature`.
-Note that a QuantityType in scripts must be written as `<value> [<unit>]`.
+both evaluate to `true` and
+
+```
+postUpdate(myTemperature, 20.0|°C)
+```
+
+will create a new QuantityType and update the Number item `myTemperature` to 20°C.
+
+Note that a QuantityType in scripts and rules must be written as `<value>|"<unit>"`. Some frequently used units and those which are valid identifiers can also ommit the quotation marks and can conveniently be written as `<value>|<unit>` (e.g. `20|°C`)
 
 ##### Coding the UoM
 ###### Packages
