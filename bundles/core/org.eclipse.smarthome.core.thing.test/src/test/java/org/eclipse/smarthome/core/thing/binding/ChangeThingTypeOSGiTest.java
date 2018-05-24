@@ -87,6 +87,12 @@ public class ChangeThingTypeOSGiTest extends JavaOSGiTest {
     private final static ItemChannelLink ITEM_CHANNEL_LINK_SPECIFIC = new ItemChannelLink(ITEM_SPECIFIC,
             CHANNEL_SPECIFIC_UID);
 
+    private static final String PROPERTY_ON_GENERIC_THING_TYPE = "onlyGeneric";
+    private static final String PROPERTY_ON_SPECIFIC_THING_TYPE = "onlySpecific";
+    private static final String PROPERTY_ON_GENERIC_AND_SPECIFIC_THING_TYPE = "genericAndSpecific";
+    private static final String GENERIC_VALUE = "generic";
+    private static final String SPECIFIC_VALUE = "specific";
+
     private final Map<ThingTypeUID, ThingType> thingTypes = new HashMap<>();
     private final Map<URI, ConfigDescription> configDescriptions = new HashMap<>();
     private final Map<ChannelTypeUID, ChannelType> channelTypes = new HashMap<>();
@@ -123,8 +129,16 @@ public class ChangeThingTypeOSGiTest extends JavaOSGiTest {
         thingHandlerFactory.activate(componentContext);
         registerService(thingHandlerFactory, ThingHandlerFactory.class.getName());
 
-        thingTypeGeneric = registerThingTypeAndConfigDescription(THING_TYPE_GENERIC_UID);
-        thingTypeSpecific = registerThingTypeAndConfigDescription(THING_TYPE_SPECIFIC_UID);
+        Map<String, String> thingTypeGenericProperties = new HashMap<>();
+        thingTypeGenericProperties.put(PROPERTY_ON_GENERIC_THING_TYPE, GENERIC_VALUE);
+        thingTypeGenericProperties.put(PROPERTY_ON_GENERIC_AND_SPECIFIC_THING_TYPE, GENERIC_VALUE);
+
+        Map<String, String> thingTypeSpecificProperties = new HashMap<>();
+        thingTypeSpecificProperties.put(PROPERTY_ON_SPECIFIC_THING_TYPE, SPECIFIC_VALUE);
+        thingTypeSpecificProperties.put(PROPERTY_ON_GENERIC_AND_SPECIFIC_THING_TYPE, SPECIFIC_VALUE);
+
+        thingTypeGeneric = registerThingTypeAndConfigDescription(THING_TYPE_GENERIC_UID, thingTypeGenericProperties);
+        thingTypeSpecific = registerThingTypeAndConfigDescription(THING_TYPE_SPECIFIC_UID, thingTypeSpecificProperties);
 
         ThingTypeProvider thingTypeProvider = mock(ThingTypeProvider.class);
         when(thingTypeProvider.getThingType(any(), any()))
@@ -365,8 +379,13 @@ public class ChangeThingTypeOSGiTest extends JavaOSGiTest {
         assertThat(thing.getChannels().size(), is(1));
         assertThat(thing.getChannels().get(0).getUID().getId(), containsString("specific"));
 
-        // Ensure that the properties are still there
+        // Ensure that the old properties are still there
         assertThat(thing.getProperties().get("universal"), is("survives"));
+        assertThat(thing.getProperties().get(PROPERTY_ON_GENERIC_THING_TYPE), is(GENERIC_VALUE));
+
+        // Ensure that the properties of the new thing type are there
+        assertThat(thing.getProperties().get(PROPERTY_ON_SPECIFIC_THING_TYPE), is(SPECIFIC_VALUE));
+        assertThat(thing.getProperties().get(PROPERTY_ON_GENERIC_AND_SPECIFIC_THING_TYPE), is(SPECIFIC_VALUE));
 
         // Ensure the new thing type got written correctly into the storage
         assertThat(managedThingProvider.get(new ThingUID("testBinding", "testThing")).getThingTypeUID(),
@@ -381,11 +400,12 @@ public class ChangeThingTypeOSGiTest extends JavaOSGiTest {
         assertThat(persistedThing.getThingTypeUID().getAsString(), is("testBinding:specific"));
     }
 
-    private ThingType registerThingTypeAndConfigDescription(ThingTypeUID thingTypeUID) throws URISyntaxException {
+    private ThingType registerThingTypeAndConfigDescription(ThingTypeUID thingTypeUID,
+            Map<String, String> thingTypeProperties) throws URISyntaxException {
         URI configDescriptionUri = new URI("test:" + thingTypeUID.getId());
         ThingType thingType = ThingTypeBuilder.instance(thingTypeUID, "label")
                 .withChannelDefinitions(getChannelDefinitions(thingTypeUID))
-                .withConfigDescriptionURI(configDescriptionUri).build();
+                .withConfigDescriptionURI(configDescriptionUri).withProperties(thingTypeProperties).build();
         ConfigDescription configDescription = new ConfigDescription(configDescriptionUri,
                 Arrays.asList(
                         ConfigDescriptionParameterBuilder
