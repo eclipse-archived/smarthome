@@ -30,6 +30,7 @@ import org.eclipse.californium.core.network.CoapEndpoint;
 import org.eclipse.californium.core.network.config.NetworkConfig;
 import org.eclipse.californium.scandium.DTLSConnector;
 import org.eclipse.californium.scandium.config.DtlsConnectorConfig;
+import org.eclipse.californium.scandium.dtls.InMemoryConnectionStore;
 import org.eclipse.californium.scandium.dtls.pskstore.StaticPskStore;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants;
@@ -150,7 +151,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
 
         DtlsConnectorConfig.Builder builder = new DtlsConnectorConfig.Builder(new InetSocketAddress(0));
         builder.setPskStore(new StaticPskStore(configuration.identity, configuration.preSharedKey.getBytes()));
-        dtlsConnector = new DTLSConnector(builder.build());
+        dtlsConnector = new DTLSConnector(builder.build(), new InMemoryConnectionStore(100, 60));
         endPoint = new TradfriCoapEndpoint(dtlsConnector, NetworkConfig.getStandard());
         deviceClient.setEndpoint(endPoint);
         updateStatus(ThingStatus.UNKNOWN);
