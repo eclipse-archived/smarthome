@@ -40,7 +40,7 @@ angular.module('PaperUI.things') //
         var channel = $scope.getChannelById(channelID);
         event.stopImmediatePropagation();
         if ($scope.advancedMode || channel.kind === 'TRIGGER') {
-            if (channel.linkedItems.length > 0) {
+            if (channel.linkedItems && channel.linkedItems.length > 0) {
                 $scope.getLinkedItems(channel, event);
             } else {
                 $scope.linkChannel(channelID, event, longPress);
@@ -81,12 +81,12 @@ angular.module('PaperUI.things') //
         var channelType = $scope.getChannelTypeByUID(channel.channelTypeUID);
 
         var params = {
-            linkedItems : channel.linkedItems.length > 0 ? channel.linkedItems : '',
+            linkedItems : channel.linkedItems && channel.linkedItems.length > 0 ? channel.linkedItems : '',
             acceptedItemTypes : channel.acceptedItemTypes,
-            category : channelType.category ? channelType.category : '',
+            category : channelType && channelType.category ? channelType.category : '',
             suggestedName : getItemNameSuggestion(channelID, channel.label),
             suggestedLabel : channel.label,
-            suggestedCategory : channelType.category ? channelType.category : '',
+            suggestedCategory : channelType && channelType.category ? channelType.category : '',
             preSelectCreate : preSelect,
             allowNewItemCreation : $scope.advancedMode && channel.kind !== 'TRIGGER' // allow "Create new Item" in
             // advanced mode only, disable
@@ -420,7 +420,8 @@ angular.module('PaperUI.things') //
             itemType : $scope.channelType.itemType,
             label : $scope.channelLabel,
             configuration : $scope.configuration,
-            defaultTags : $scope.channelType.tags
+            defaultTags : $scope.channelType.tags,
+            linkedItems : []
         }
 
         thing.channels.push(channel);
