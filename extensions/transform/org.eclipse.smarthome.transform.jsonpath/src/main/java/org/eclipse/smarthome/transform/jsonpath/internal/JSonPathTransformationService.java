@@ -70,7 +70,6 @@ public class JSonPathTransformationService implements TransformationService {
         } catch (InvalidPathException | InvalidJsonException e) {
             throw new TransformationException("An error occurred while transforming JSON expression.", e);
         }
-
     }
 
     private String flattenList(List<?> list) {
@@ -84,5 +83,4 @@ public class JSonPathTransformationService implements TransformationService {
         }
         return UnDefType.NULL.toFullString();
     }
-
 }
