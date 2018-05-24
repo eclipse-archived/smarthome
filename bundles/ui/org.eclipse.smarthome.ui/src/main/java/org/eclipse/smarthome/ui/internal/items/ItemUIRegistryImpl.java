@@ -502,7 +502,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                             ret = label.substring(0, label.indexOf("[") + 1) + transformationResult + "]";
                         } else {
                             logger.warn("transformation of type {} did not return a valid result", type);
-                            ret = label.substring(0, label.indexOf("[") + 1) + value + "]";
+                            ret = label.substring(0, label.indexOf("[") + 1) + UnDefType.NULL + "]";
                         }
                     } catch (TransformationException e) {
                         logger.error("transformation throws exception [transformation={}, value={}]", transformation,

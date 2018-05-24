@@ -37,15 +37,13 @@ public interface TransformationService {
 
     /**
      * Transforms the input <code>source</code> by means of the given <code>function</code> and returns the transformed
-     * output. If the transformation couldn't be completed
-     * for any reason, one should return the unchanged <code>source</code>. This
-     * method should never return <code>null</code>. In case of any error an {@link TransformationException} should be
-     * thrown.
+     * output. The transformation may return <code>null</code> to express its operation resulted in a <code>null</code>
+     * output. In case of any error an {@link TransformationException} should be thrown.
      *
      * @param function the function to be used to transform the input
      * @param source the input to be transformed
-     * @return the transformed result or the unchanged <code>source</code> if the
-     *         transformation couldn't be completed for any reason.
+     * @return the transformed result or <code>null</code> if the
+     *         transformation's output is <code>null</code>.
      * @throws TransformationException if any error occurs
      */
     @Nullable

@@ -60,7 +60,7 @@ public class JSonPathTransformationService implements TransformationService {
             Object transformationResult = JsonPath.read(source, jsonPathExpression);
             logger.debug("transformation resulted in '{}'", transformationResult);
             if (transformationResult == null) {
-                return UnDefType.NULL.toFullString();
+                return null;
             } else if (transformationResult instanceof List) {
                 return flattenList((List<?>) transformationResult);
             } else {
