@@ -17,5 +17,6 @@ Import-Package:
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.transform,
  org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.model.script.engine.action,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
