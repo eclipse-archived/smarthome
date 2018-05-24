@@ -458,10 +458,12 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
     private void updateChannel(String channelId) {
         if (isLinked(channelId)) {
             State state = null;
-            if (channelId.startsWith("current")) {
-                state = updateCurrentObservationChannel(channelId, weatherData.getCurrent());
-            } else if (channelId.startsWith("forecast")) {
-                state = updateForecastChannel(channelId, weatherData.getForecast());
+            if (weatherData != null) {
+                if (channelId.startsWith("current")) {
+                    state = updateCurrentObservationChannel(channelId, weatherData.getCurrent());
+                } else if (channelId.startsWith("forecast")) {
+                    state = updateForecastChannel(channelId, weatherData.getForecast());
+                }
             }
 
             logger.debug("Update channel {} with state {}", channelId, (state == null) ? "null" : state.toString());
