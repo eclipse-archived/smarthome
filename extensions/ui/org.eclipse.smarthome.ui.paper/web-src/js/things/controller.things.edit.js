@@ -21,7 +21,7 @@ angular.module('PaperUI.things') //
     function activate() {
         $q(function() {
             $scope.$watch('configuration', function() {
-                if ($scope.configuration) {
+                if ($scope.configuration && $scope.thing) {
                     $scope.thing.configuration = $scope.configuration;
                 }
             });
