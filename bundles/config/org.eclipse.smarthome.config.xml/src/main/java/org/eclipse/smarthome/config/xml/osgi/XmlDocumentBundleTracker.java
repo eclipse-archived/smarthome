@@ -71,6 +71,8 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
     private final Map<String, ReadyMarker> bundleReadyMarkerRegistrations = new ConcurrentHashMap<>();
     private final String readyMarkerKey;
 
+    private volatile boolean open = false;
+
     @SuppressWarnings("rawtypes")
     private BundleTracker relevantBundlesTracker;
     private final ReadyService readyService;
@@ -133,6 +135,8 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public final synchronized void open() {
+        open = true;
+
         relevantBundlesTracker = new BundleTracker(context,
                 Bundle.RESOLVED | Bundle.STARTING | Bundle.STOPPING | Bundle.ACTIVE, null) {
             @Override
@@ -147,6 +151,8 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
 
     @Override
     public final synchronized void close() {
+        open = false;
+
         super.close();
         unregisterReadyMarkers();
         bundleDocumentProviderMap.clear();
@@ -297,7 +303,9 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
             // http://bugs.java.com/view_bug.do?bug_id=8073755
             @Override
             public void run() {
-                processBundle(bundle);
+                if (open) {
+                    processBundle(bundle);
+                }
             }
         });
         queue.put(bundle, future);
