@@ -10,6 +10,7 @@ Export-Package:
  org.eclipse.smarthome.io.net.exec,
  org.eclipse.smarthome.io.net.http
 Import-Package: 
+ javax.net.ssl,
  javax.servlet.http,
  org.apache.commons.exec,
  org.apache.commons.lang,
