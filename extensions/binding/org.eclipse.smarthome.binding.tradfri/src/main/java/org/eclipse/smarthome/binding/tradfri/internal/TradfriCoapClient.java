@@ -20,6 +20,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.californium.core.CoapClient;
+import org.eclipse.californium.core.CoapObserveRelation;
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,7 @@ public class TradfriCoapClient extends CoapClient {
         logger = LoggerFactory.getLogger(getClass());
 
         commandsQueue = new LinkedList<>();
-        
+
         commandExecutor = () -> {
             while (true) {
                 try {
@@ -54,7 +55,8 @@ public class TradfriCoapClient extends CoapClient {
                         PayloadCallbackPair payloadCallbackPair = TradfriCoapClient.this.commandsQueue.poll();
                         if (payloadCallbackPair != null) {
                             logger.debug("Proccessing payload: {}", payloadCallbackPair.payload);
-                            TradfriCoapClient.this.put(new TradfriCoapHandler(payloadCallbackPair.callback), payloadCallbackPair.payload, MediaTypeRegistry.TEXT_PLAIN);
+                            TradfriCoapClient.this.put(new TradfriCoapHandler(payloadCallbackPair.callback),
+                                    payloadCallbackPair.payload, MediaTypeRegistry.TEXT_PLAIN);
                             delayTime = Optional.ofNullable(payloadCallbackPair.delay).orElse(DEFAULT_DELAY_MILLIS);
                         } else {
                             return;
@@ -66,7 +68,7 @@ public class TradfriCoapClient extends CoapClient {
                 }
             }
         };
-        
+
         job = null;
     }
 
@@ -75,8 +77,8 @@ public class TradfriCoapClient extends CoapClient {
      *
      * @param callback the callback to use for updates
      */
-    public void startObserve(CoapCallback callback) {
-        observe(new TradfriCoapHandler(callback));
+    public CoapObserveRelation startObserve(CoapCallback callback) {
+        return observe(new TradfriCoapHandler(callback));
     }
 
     /**
