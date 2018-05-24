@@ -35,17 +35,10 @@ public class Transformation {
         String result;
         TransformationService service = TransformationHelper
                 .getTransformationService(TransformationActivator.getContext(), type);
-        Logger logger = LoggerFactory.getLogger(Transformation.class);
         if (service != null) {
-            try {
-                result = service.transform(function, value);
-            } catch (TransformationException e) {
-                logger.error("Error executing the transformation '{}': {}", type, e.getMessage());
-                result = value;
-            }
+            result = service.transform(function, value);
         } else {
-            logger.warn("No transformation service '{}' could be found.", type);
-            result = value;
+            throw new TransformationException("No transformation service '" + type + "' could be found.");
         }
         return result;
     }
