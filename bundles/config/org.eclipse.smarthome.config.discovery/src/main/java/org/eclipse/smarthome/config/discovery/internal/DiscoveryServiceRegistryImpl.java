@@ -159,7 +159,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         public @Nullable Thing getExistingThing(ThingUID thingUID) {
             ThingRegistry thingRegistryReference = thingRegistry;
             if (thingRegistryReference == null) {
-                logger.warn("ThingRegistry not set");
+                logger.debug("ThingRegistry not set");
                 return null;
             }
             return thingRegistryReference.get(thingUID);
@@ -169,7 +169,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         public @Nullable DiscoveryResult getExistingDiscoveryResult(ThingUID thingUID) {
             Inbox inboxReference = inbox;
             if (inboxReference == null) {
-                logger.warn("Inbox not set");
+                logger.debug("Inbox not set");
                 return null;
             }
             List<DiscoveryResult> ret = new ArrayList<>();
