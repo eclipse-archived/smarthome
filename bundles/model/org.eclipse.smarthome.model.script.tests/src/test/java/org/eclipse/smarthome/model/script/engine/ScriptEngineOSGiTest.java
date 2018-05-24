@@ -109,7 +109,7 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
     @SuppressWarnings("null")
     @Test
     public void testAssignQuantityType() throws ScriptParsingException, ScriptExecutionException {
-        runScript("NumberA.state = 20.0 [°C] as org.eclipse.smarthome.core.types.State");
+        runScript("NumberA.state = 20.0|°C as org.eclipse.smarthome.core.types.State");
 
         State numberState = itemRegistry.get(NUMBER_ITEM_TEMPERATURE).getState();
         assertNotNull(numberState);
@@ -123,7 +123,13 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
         Item numberItem = itemRegistry.get(NUMBER_ITEM_TEMPERATURE);
         ((NumberItem) numberItem).setState(new QuantityType<>("20 °C"));
 
-        assertTrue(runScript("NumberA.state > 20 [°F]"));
+        assertTrue(runScript("NumberA.state > 20|°F"));
+    }
+
+    @Test
+    public void testSpacesDoNotMatter() throws ScriptExecutionException, ScriptParsingException {
+        assertTrue(runScript("20|°C == 20 | °C"));
+        assertTrue(runScript("20|\"°C\" == 20 | \"°C\""));
     }
 
     @SuppressWarnings("null")
@@ -132,7 +138,7 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
         Item numberItem = itemRegistry.get(NUMBER_ITEM_TEMPERATURE);
         ((NumberItem) numberItem).setState(new QuantityType<>("20 °C"));
 
-        assertTrue(runScript("NumberA.state >= 20 [°C]"));
+        assertTrue(runScript("NumberA.state >= 20|°C"));
     }
 
     @SuppressWarnings("null")
@@ -141,7 +147,7 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
         Item numberItem = itemRegistry.get(NUMBER_ITEM_TEMPERATURE);
         ((NumberItem) numberItem).setState(new QuantityType<>("20 °F"));
 
-        assertTrue(runScript("NumberA.state < 20 [°C]"));
+        assertTrue(runScript("NumberA.state < 20|°C"));
     }
 
     @SuppressWarnings("null")
@@ -150,7 +156,7 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
         Item numberItem = itemRegistry.get(NUMBER_ITEM_TEMPERATURE);
         ((NumberItem) numberItem).setState(new QuantityType<>("19 °F"));
 
-        assertTrue(runScript("NumberA.state <= 20 [°F]"));
+        assertTrue(runScript("NumberA.state <= 20|°F"));
     }
 
     @SuppressWarnings("null")
@@ -159,7 +165,7 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
         Item numberItem = itemRegistry.get(NUMBER_ITEM_TEMPERATURE);
         ((NumberItem) numberItem).setState(new QuantityType<>("20 °C"));
 
-        assertTrue(runScript("NumberA.state == 20 [°C]"));
+        assertTrue(runScript("NumberA.state == 20|°C"));
     }
 
     @SuppressWarnings("null")
@@ -168,7 +174,7 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
         Item numberItem = itemRegistry.get(NUMBER_ITEM_TEMPERATURE);
         ((NumberItem) numberItem).setState(new QuantityType<>("20 °C"));
 
-        assertTrue(runScript("NumberA.state != 10 [°C]"));
+        assertTrue(runScript("NumberA.state != 10|°C"));
     }
 
     @SuppressWarnings("null")
@@ -182,69 +188,69 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
 
     @Test
     public void testCompareGreaterThanQuantityType() throws ScriptParsingException, ScriptExecutionException {
-        assertTrue(runScript("20.0 [°C] > 20 [°F]"));
+        assertTrue(runScript("20.0|°C > 20|°F"));
     }
 
     @Test
     public void testCompareGreaterThanQuantityType_False() throws ScriptParsingException, ScriptExecutionException {
-        assertFalse(runScript("20.0 [°F] > 20 [°C]"));
+        assertFalse(runScript("20.0|°F > 20|°C"));
     }
 
     @Test
     public void testCompareGreaterEqualsThanQuantityType() throws ScriptParsingException, ScriptExecutionException {
-        assertTrue(runScript("1 [m] >= 100 [cm]"));
+        assertTrue(runScript("1|m >= 100|cm"));
     }
 
     @Test
     public void testCompareLessThanQuantityType_False() throws ScriptParsingException, ScriptExecutionException {
-        assertFalse(runScript("20.0 [°C] < 20 [°F]"));
+        assertFalse(runScript("20.0|°C < 20|°F"));
     }
 
     @Test
     public void testCompareLessThanQuantityType() throws ScriptParsingException, ScriptExecutionException {
-        assertTrue(runScript("20.0 [°F] < 20 [°C]"));
+        assertTrue(runScript("20.0|°F < 20|°C"));
     }
 
     @Test
     public void testCompareLessEqualsThanQuantityType() throws ScriptParsingException, ScriptExecutionException {
-        assertTrue(runScript("100 [cm] <= 1 [m]"));
+        assertTrue(runScript("100|cm <= 1|m"));
     }
 
     @Test
     public void testpostUpdateQuantityType() throws ScriptParsingException, ScriptExecutionException {
-        scriptEngine.newScriptFromString("postUpdate(NumberA, 20.0 [°C])").execute();
-        scriptEngine.newScriptFromString("sendCommand(NumberA, 20.0 [°F])").execute();
+        scriptEngine.newScriptFromString("postUpdate(NumberA, 20.0|°C)").execute();
+        scriptEngine.newScriptFromString("sendCommand(NumberA, 20.0|°F)").execute();
     }
 
     @Test
     public void testAssignAndCompareQuantityType() throws ScriptParsingException, ScriptExecutionException {
-        assertFalse(runScript(
-                "NumberA.state = 20.0 [°C] as org.eclipse.smarthome.core.types.State; NumberA.state < 20 [°F]"));
+        assertFalse(
+                runScript("NumberA.state = 20.0|°C as org.eclipse.smarthome.core.types.State; NumberA.state < 20|°F"));
     }
 
     @Test
     public void testAddQuantityType() throws ScriptParsingException, ScriptExecutionException {
-        assertThat((QuantityType<?>) runScript("1 [m] + 20 [cm]"), is(QuantityType.valueOf("1.2 m")));
+        assertThat((QuantityType<?>) runScript("1|m + 20|cm"), is(QuantityType.valueOf("1.2 m")));
     }
 
     @Test
     public void testSubtractQuantityType() throws ScriptParsingException, ScriptExecutionException {
-        assertThat((QuantityType<?>) runScript("1 [m] - 20 [cm]"), is(QuantityType.valueOf("0.8 m")));
+        assertThat((QuantityType<?>) runScript("1|m - 20|cm"), is(QuantityType.valueOf("0.8 m")));
     }
 
     @Test
     public void testMultiplyQuantityType() throws ScriptParsingException, ScriptExecutionException {
-        assertThat((QuantityType<?>) runScript("1 [m] * 20 [cm]"), is(QuantityType.valueOf("2000 cm^2")));
+        assertThat((QuantityType<?>) runScript("1|m * 20|cm"), is(QuantityType.valueOf("2000 cm^2")));
     }
 
     @Test
     public void testMultiplyQuantityType_Number() throws ScriptParsingException, ScriptExecutionException {
-        assertThat((QuantityType<?>) runScript("1 [m] * 20"), is(QuantityType.valueOf("20 m")));
+        assertThat((QuantityType<?>) runScript("1|m * 20"), is(QuantityType.valueOf("20 m")));
     }
 
     @Test
     public void testDivideQuantityType() throws ScriptParsingException, ScriptExecutionException {
-        assertThat((QuantityType<?>) runScript("1 [m] / 2 [cm]"), is(QuantityType.valueOf("50")));
+        assertThat((QuantityType<?>) runScript("1|m / 2|cm"), is(QuantityType.valueOf("50")));
     }
 
     @SuppressWarnings("null")
@@ -253,68 +259,76 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
         Item numberItem = itemRegistry.get(NUMBER_ITEM_LENGTH);
         ((NumberItem) numberItem).setState(new QuantityType<>("1 m"));
 
-        assertThat((QuantityType<?>) runScript("val length = NumberC.state as QuantityType; return length / 2 [cm];"),
+        assertThat((QuantityType<?>) runScript("val length = NumberC.state as QuantityType; return length / 2|cm;"),
                 is(QuantityType.valueOf("50")));
     }
 
     @Test
     public void testDivideQuantityType_Number() throws ScriptParsingException, ScriptExecutionException {
-        assertThat((QuantityType<?>) runScript("1 [m] / 2"), is(QuantityType.valueOf("0.5 m")));
+        assertThat((QuantityType<?>) runScript("1|m / 2"), is(QuantityType.valueOf("0.5 m")));
     }
 
     @Test
     public void testDivide_Number_QuantityType() throws ScriptParsingException, ScriptExecutionException {
-        assertThat((QuantityType<?>) runScript("1 / 2 [m]"), is(new QuantityType<>("0.5 one/m")));
+        assertThat((QuantityType<?>) runScript("1 / 2|m"), is(new QuantityType<>("0.5 one/m")));
     }
 
     @Test
     public void testDivide_Number_QuantityType_1() throws ScriptParsingException, ScriptExecutionException {
-        assertThat((QuantityType<?>) runScript("0.5 [one/m] + 0.5 [one/m]"), is(new QuantityType<>("1 one/m")));
+        assertThat((QuantityType<?>) runScript("0.5|\"one/m\" + 0.5|\"one/m\""), is(new QuantityType<>("1 one/m")));
     }
 
     @Test
     public void testDivide_Length_Time() throws ScriptParsingException, ScriptExecutionException {
-        assertThat((QuantityType<?>) runScript("100 [km] / 1 [h]"), is(new QuantityType<>("100 km/h")));
+        assertThat((QuantityType<?>) runScript("100|km / 1|h"), is(new QuantityType<>("100 km/h")));
     }
 
     @Test
     public void testToUnit_QuantityType() throws ScriptParsingException, ScriptExecutionException {
-        assertThat(runScript("20 [°C].toUnit(\"°F\")"), is(new QuantityType<>("68 °F")));
+        assertThat(runScript("20|°C.toUnit(\"°F\")"), is(new QuantityType<>("68 °F")));
     }
 
     @Test
     public void testEquals_QuantityType_Number() throws ScriptParsingException, ScriptExecutionException {
-        assertThat(runScript("20 [m].equals(20)"), is(false));
+        assertThat(runScript("20|m.equals(20)"), is(false));
     }
 
     @Test
     public void testQuantityType_UnitSymbols() throws ScriptParsingException, ScriptExecutionException {
-        assertThat(runScript("20 [m²]"), is(new QuantityType<>(20, SIUnits.SQUARE_METRE)));
-        assertThat(runScript("20 [m**2]"), is(new QuantityType<>(20, SIUnits.SQUARE_METRE)));
-        assertThat(runScript("20 [m³]"), is(new QuantityType<>(20, SIUnits.SQUARE_METRE.multiply(SIUnits.METRE))));
-        assertThat(runScript("20 [m**3]"), is(new QuantityType<>(20, SIUnits.SQUARE_METRE.multiply(SIUnits.METRE))));
-        assertThat(runScript("1 [µm]"), is(new QuantityType<>(1, MetricPrefix.MICRO(SIUnits.METRE))));
+        assertThat(runScript("20|m²"), is(new QuantityType<>(20, SIUnits.SQUARE_METRE)));
+        assertThat(runScript("20|\"m**2\""), is(new QuantityType<>(20, SIUnits.SQUARE_METRE)));
+        assertThat(runScript("20|m³"), is(new QuantityType<>(20, SIUnits.SQUARE_METRE.multiply(SIUnits.METRE))));
+        assertThat(runScript("20|\"m**3\""), is(new QuantityType<>(20, SIUnits.SQUARE_METRE.multiply(SIUnits.METRE))));
+        assertThat(runScript("1|\"µm\""), is(new QuantityType<>(1, MetricPrefix.MICRO(SIUnits.METRE))));
     }
 
     @Test
     public void testCompare_QuantityType_ONE_Number() throws ScriptParsingException, ScriptExecutionException {
-        assertThat(runScript("1 == 1 [one]"), is(true));
-        assertThat(runScript("1 [one] == 1"), is(true));
+        assertThat(runScript("1 == 1|one"), is(true));
+        assertThat(runScript("1|one == 1"), is(true));
 
-        assertThat(runScript("1 != 2 [one]"), is(true));
-        assertThat(runScript("2 [one] != 1"), is(true));
+        assertThat(runScript("1 != 2|one"), is(true));
+        assertThat(runScript("2|one != 1"), is(true));
 
-        assertThat(runScript("1 < 2 [one]"), is(true));
-        assertThat(runScript("1 [one] < 2"), is(true));
+        assertThat(runScript("1 < 2|one"), is(true));
+        assertThat(runScript("1|one < 2"), is(true));
 
-        assertThat(runScript("1 <= 1 [one]"), is(true));
-        assertThat(runScript("1 [one] <= 1"), is(true));
+        assertThat(runScript("1 <= 1|one"), is(true));
+        assertThat(runScript("1|one <= 1"), is(true));
 
-        assertThat(runScript("2 > 1 [one]"), is(true));
-        assertThat(runScript("2 [one] > 1"), is(true));
+        assertThat(runScript("2 > 1|one"), is(true));
+        assertThat(runScript("2|one > 1"), is(true));
 
-        assertThat(runScript("1 >= 1 [one]"), is(true));
-        assertThat(runScript("1 [one] >= 1"), is(true));
+        assertThat(runScript("1 >= 1|one"), is(true));
+        assertThat(runScript("1|one >= 1"), is(true));
+    }
+
+    @Test
+    public void testNoXbaseConflicts() throws ScriptParsingException, ScriptExecutionException {
+        assertEquals(42, (int) runScript("(1..3).forEach[x |println(x)]; return 42;"));
+        assertEquals(42, (int) runScript("92 % 50"));
+        assertEquals(true, (boolean) runScript("1 == 1 || 1 != 2"));
+        assertEquals("\\", runScript("return \"\\\\\""));
     }
 
     private Item createNumberItem(String numberItemName, Class<@NonNull ?> dimension) {

@@ -144,7 +144,7 @@ public class ScriptInterpreter extends XbaseInterpreter {
     }
 
     def  protected  Object doEvaluate(QuantityLiteral literal, IEvaluationContext context, CancelIndicator indicator) {
-        return QuantityType.valueOf(literal.value + " " + literal.unit.substring(1,literal.unit.length-1));
+        return QuantityType.valueOf(literal.value + " " + literal.unit.value);
     }
 
     override Object _doEvaluate(XCastedExpression castedExpression, IEvaluationContext context,
