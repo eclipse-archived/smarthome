@@ -337,11 +337,6 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
         // are we still connected at all?
         if (endPoint != null) {
             updateStatus(status, statusDetail);
-            if (status == ThingStatus.OFFLINE && statusDetail == ThingStatusDetail.COMMUNICATION_ERROR) {
-                endPoint.stop();
-                endPoint = new TradfriCoapEndpoint(dtlsConnector, NetworkConfig.getStandard());
-                deviceClient.setEndpoint(endPoint);
-            }
         }
     }
 
