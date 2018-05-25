@@ -54,11 +54,11 @@ public class JSonPathTransformationService implements TransformationService {
             throw new TransformationException("the given parameters 'JSonPath' and 'source' must not be null");
         }
 
-        logger.debug("about to transform '{}' by the function '{}'", source, jsonPathExpression);
+        logger.debug("About to transform '{}' by the function '{}'", source, jsonPathExpression);
 
         try {
             Object transformationResult = JsonPath.read(source, jsonPathExpression);
-            logger.debug("transformation resulted in '{}'", transformationResult);
+            logger.debug("Transformation resulted in '{}'", transformationResult);
             if (transformationResult == null) {
                 return null;
             } else if (transformationResult instanceof List) {
@@ -67,7 +67,8 @@ public class JSonPathTransformationService implements TransformationService {
                 return transformationResult.toString();
             }
         } catch (PathNotFoundException e) {
-            throw new TransformationException("Invalid path '" + jsonPathExpression + "' in '" + source + "'");
+            logger.debug("Given JSONPath selector expression '" + jsonPathExpression + "' does not match the input string '" + source + "'");
+            return UnDefType.NULL.toFullString();
         } catch (InvalidPathException | InvalidJsonException e) {
             throw new TransformationException("An error occurred while transforming JSON expression.", e);
         }
@@ -84,5 +85,4 @@ public class JSonPathTransformationService implements TransformationService {
         }
         return UnDefType.NULL.toFullString();
     }
-
 }
