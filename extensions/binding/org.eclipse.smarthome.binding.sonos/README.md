@@ -2,6 +2,12 @@
 
 This binding integrates the [Sonos Multi-Room Audio system](http://www.sonos.com).
 
+**Attention:** 
+You might run into trouble if your Eclipse Smarthome instance is in another subnet than your Sonos device. 
+Sonos devices make use of multicast which in most cases needs additional router configuration outside of a single subnet.   
+If you observe communication errors (COMMUNICATION_ERROR/not registered), you might need to configure your router to increase the TTL of the packets send by your Sonos device. 
+This happens because of a TTL=1 for ALIVE packets send by Sonos devices, resulting in dropped packets after one hop.
+
 ## Supported Things
 
 All available Sonos (playback) devices are supported by this binding. This includes the Play:1, Play:3, Play:5, Connect, Connect:Amp, Playbar, and Sub. The Bridge and Boost are not supported, but these devices do only have an auxiliary role in the Sonos network and do not have any playback capability. All supported Sonos devices are registered as an audio sink in the framework.
