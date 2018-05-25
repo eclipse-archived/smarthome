@@ -217,6 +217,17 @@ public class PersistenceResource implements RESTResource {
         // Benchmarking timer...
         long timerStart = System.currentTimeMillis();
 
+        ItemHistoryDTO dto = createDTO(serviceId, itemName, timeBegin, timeEnd, pageNumber, pageLength, boundary);
+        if (dto == null) {
+            JSONResponse.createErrorResponse(Status.BAD_REQUEST, "Persistence service not queryable: " + serviceId);
+        }
+        logger.debug("Persistence returned {} rows in {}ms", dto.datapoints, System.currentTimeMillis() - timerStart);
+
+        return JSONResponse.createResponse(Status.OK, dto, "");
+    }
+
+    protected ItemHistoryDTO createDTO(String serviceId, String itemName, String timeBegin, String timeEnd,
+            int pageNumber, int pageLength, boolean boundary) {
         // If serviceId is null, then use the default service
         PersistenceService service = null;
         String effectiveServiceId = serviceId != null ? serviceId : persistenceServiceRegistry.getDefaultId();
@@ -224,14 +235,12 @@ public class PersistenceResource implements RESTResource {
 
         if (service == null) {
             logger.debug("Persistence service not found '{}'.", effectiveServiceId);
-            return JSONResponse.createErrorResponse(Status.BAD_REQUEST,
-                    "Persistence service not found: " + effectiveServiceId);
+            return null;
         }
 
         if (!(service instanceof QueryablePersistenceService)) {
             logger.debug("Persistence service not queryable '{}'.", effectiveServiceId);
-            return JSONResponse.createErrorResponse(Status.BAD_REQUEST,
-                    "Persistence service not queryable: " + effectiveServiceId);
+            return null;
         }
 
         QueryablePersistenceService qService = (QueryablePersistenceService) service;
@@ -308,6 +317,7 @@ public class PersistenceResource implements RESTResource {
             Iterator<HistoricItem> it = result.iterator();
 
             // Iterate through the data
+            HistoricItem lastItem = null;
             while (it.hasNext()) {
                 HistoricItem historicItem = it.next();
                 state = historicItem.getState();
@@ -315,11 +325,15 @@ public class PersistenceResource implements RESTResource {
                 // For 'binary' states, we need to replicate the data
                 // to avoid diagonal lines
                 if (state instanceof OnOffType || state instanceof OpenClosedType) {
-                    dto.addData(historicItem.getTimestamp().getTime(), state);
+                    if (lastItem != null) {
+                        dto.addData(historicItem.getTimestamp().getTime(), lastItem.getState());
+                        quantity++;
+                    }
                 }
 
                 dto.addData(historicItem.getTimestamp().getTime(), state);
                 quantity++;
+                lastItem = historicItem;
             }
         }
 
@@ -336,9 +350,7 @@ public class PersistenceResource implements RESTResource {
         }
 
         dto.datapoints = Long.toString(quantity);
-        logger.debug("Persistence returned {} rows in {}ms", dto.datapoints, System.currentTimeMillis() - timerStart);
-
-        return JSONResponse.createResponse(Status.OK, dto, "");
+        return dto;
     }
 
     /**
