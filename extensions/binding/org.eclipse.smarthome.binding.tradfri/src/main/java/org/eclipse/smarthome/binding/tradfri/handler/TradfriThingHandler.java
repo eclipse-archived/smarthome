@@ -120,11 +120,11 @@ public abstract class TradfriThingHandler extends BaseThingHandler implements Co
     @Override
     public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
         super.bridgeStatusChanged(bridgeStatusInfo);
-
-        if (bridgeStatusInfo.getStatus() == ThingStatus.ONLINE) {
-            // the status might have changed because the bridge is completely reconfigured - so we need to re-establish
-            // our CoAP connection as well
+        // the status might have changed because the bridge is completely reconfigured - so we need to re-establish
+        // our CoAP connection as well
+        if (bridgeStatusInfo.getStatus() == ThingStatus.OFFLINE) {
             dispose();
+        } else if (bridgeStatusInfo.getStatus() == ThingStatus.ONLINE) {
             initialize();
         }
     }
