@@ -58,7 +58,7 @@ public class Transformation {
         try {
             result = trans(type, function, value);
         } catch (TransformationException e) {
-            logger.error("Error executing the transformation '{}': {}", type, e.getMessage());
+            logger.debug("Error executing the transformation '{}': {}", type, e.getMessage());
             result = value;
         }
         return result;
