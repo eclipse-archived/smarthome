@@ -14,6 +14,8 @@ package org.eclipse.smarthome.transform.jsonpath.internal;
 
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -33,6 +35,7 @@ import com.jayway.jsonpath.PathNotFoundException;
  * @author Sebastian Janzen
  *
  */
+@NonNullByDefault
 public class JSonPathTransformationService implements TransformationService {
 
     private final Logger logger = LoggerFactory.getLogger(JSonPathTransformationService.class);
@@ -46,7 +49,7 @@ public class JSonPathTransformationService implements TransformationService {
      *             which is encapsulated in a {@link TransformationException}.
      */
     @Override
-    public String transform(String jsonPathExpression, String source) throws TransformationException {
+    public @Nullable String transform(String jsonPathExpression, String source) throws TransformationException {
         if (jsonPathExpression == null || source == null) {
             throw new TransformationException("the given parameters 'JSonPath' and 'source' must not be null");
         }
@@ -57,7 +60,7 @@ public class JSonPathTransformationService implements TransformationService {
             Object transformationResult = JsonPath.read(source, jsonPathExpression);
             logger.debug("transformation resulted in '{}'", transformationResult);
             if (transformationResult == null) {
-                return UnDefType.NULL.toFullString();
+                return null;
             } else if (transformationResult instanceof List) {
                 return flattenList((List<?>) transformationResult);
             } else {

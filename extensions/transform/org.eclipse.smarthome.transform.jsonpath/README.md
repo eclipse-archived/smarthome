@@ -52,7 +52,6 @@ Now the resulting Number can also be used in the label to [change the color](htt
 
 ## Differences to standard JsonPath
 
-Returns `null` if the JsonPath expression could not be found.
 Compared to standard JSON the transformation it returns evaluated values when a single alement is retrieved from the query.
 Means it does not return a valid JSON `[ 23.2 ]` but `23.2`, `[ "Outside" ]` but `Outside`.
 This makes it possible to use it in labels or output channel of things and get Numbers or Strings instead of JSON arrays.

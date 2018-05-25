@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.core.transform.actions;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationHelper;
 import org.eclipse.smarthome.core.transform.TransformationService;
@@ -26,7 +28,20 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@NonNullByDefault
 public class Transformation {
+
+    private static @Nullable String trans(String type, String function, String value) throws TransformationException {
+        String result;
+        TransformationService service = TransformationHelper
+                .getTransformationService(TransformationActivator.getContext(), type);
+        if (service != null) {
+            result = service.transform(function, value);
+        } else {
+            throw new TransformationException("No transformation service '" + type + "' could be found.");
+        }
+        return result;
+    }
 
     /**
      * Applies a transformation of a given type with some function to a value.
@@ -37,23 +52,31 @@ public class Transformation {
      * @return the transformed value or the original one, if there was no service registered for the
      *         given type or a transformation exception occurred.
      */
-    public static String transform(String type, String function, String value) {
-        String result;
-        TransformationService service = TransformationHelper
-                .getTransformationService(TransformationActivator.getContext(), type);
+    public static @Nullable String transform(String type, String function, String value) {
         Logger logger = LoggerFactory.getLogger(Transformation.class);
-        if (service != null) {
-            try {
-                result = service.transform(function, value);
-            } catch (TransformationException e) {
-                logger.error("Error executing the transformation '{}': {}", type, e.getMessage());
-                result = value;
-            }
-        } else {
-            logger.warn("No transformation service '{}' could be found.", type);
+        String result;
+        try {
+            result = trans(type, function, value);
+        } catch (TransformationException e) {
+            logger.debug("Error executing the transformation '{}': {}", type, e.getMessage());
             result = value;
         }
         return result;
+    }
+
+    /**
+     * Applies a transformation of a given type with some function to a value.
+     *
+     * @param type the transformation type, e.g. REGEX or MAP
+     * @param function the function to call, this value depends on the transformation type
+     * @param value the value to apply the transformation to
+     * @return the transformed value
+     * @throws TransformationException, if there was no service registered for the
+     *             given type or a transformation exception occurred
+     */
+    public static @Nullable String transformRaw(String type, String function, String value)
+            throws TransformationException {
+        return trans(type, function, value);
     }
 
 }
