@@ -17,6 +17,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -124,6 +125,40 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
     @Test
     public void assertGetItemsByTagReturnsNoItemFromRegisteredItemProvider() {
         assertThat(itemRegistry.getItemsByTag(OTHER_TAG).size(), is(0));
+    }
+
+    @Test
+    public void assertThatRemoveTagIsRemovingATag() {
+        Item item = itemRegistry.get(CAMERA_ITEM_NAME2);
+        assertThat(item.getTags().size(), is(2));
+        assertThat(item.getTags().contains(CAMERA_TAG), is(true));
+        assertThat(item.getTags().contains(SENSOR_TAG), is(true));
+        itemRegistry.removeTag(CAMERA_ITEM_NAME2, CAMERA_TAG);
+        item = itemRegistry.get(CAMERA_ITEM_NAME2);
+        assertThat(item.getTags().size(), is(1));
+        assertThat(item.getTags().contains(SENSOR_TAG), is(true));
+    }
+
+    @Test
+    public void assertThatRemoveTagsIsRemovingTags() {
+        Item item = itemRegistry.get(CAMERA_ITEM_NAME2);
+        assertThat(item.getTags().size(), is(2));
+        assertThat(item.getTags().contains(CAMERA_TAG), is(true));
+        assertThat(item.getTags().contains(SENSOR_TAG), is(true));
+        assertThat(itemRegistry.removeTags(CAMERA_ITEM_NAME2, Arrays.asList(CAMERA_TAG, SENSOR_TAG)), is(true));
+        item = itemRegistry.get(CAMERA_ITEM_NAME2);
+        assertThat(item.getTags().size(), is(0));
+    }
+
+    @Test
+    public void assertThatRemoveAllTagsIsRemovingAllTags() {
+        Item item = itemRegistry.get(CAMERA_ITEM_NAME2);
+        assertThat(item.getTags().size(), is(2));
+        assertThat(item.getTags().contains(CAMERA_TAG), is(true));
+        assertThat(item.getTags().contains(SENSOR_TAG), is(true));
+        itemRegistry.removeTags(CAMERA_ITEM_NAME2);
+        item = itemRegistry.get(CAMERA_ITEM_NAME2);
+        assertThat(item.getTags().size(), is(0));
     }
 
     @Test

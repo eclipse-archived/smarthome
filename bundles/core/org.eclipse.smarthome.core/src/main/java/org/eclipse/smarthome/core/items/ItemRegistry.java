@@ -163,4 +163,11 @@ public interface ItemRegistry extends Registry<Item, String> {
      */
     boolean removeTags(String itemName, Collection<String> tags);
 
+    /**
+     * Removes all tags from the item.
+     *
+     * @param itemName the name of the item
+     */
+    void removeTags(String itemName);
+
 }
