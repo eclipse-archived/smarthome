@@ -308,6 +308,7 @@ public class PersistenceResource implements RESTResource {
             Iterator<HistoricItem> it = result.iterator();
 
             // Iterate through the data
+            HistoricItem lastItem = null;
             while (it.hasNext()) {
                 HistoricItem historicItem = it.next();
                 state = historicItem.getState();
@@ -315,11 +316,15 @@ public class PersistenceResource implements RESTResource {
                 // For 'binary' states, we need to replicate the data
                 // to avoid diagonal lines
                 if (state instanceof OnOffType || state instanceof OpenClosedType) {
-                    dto.addData(historicItem.getTimestamp().getTime(), state);
+                    if (lastItem != null) {
+                        dto.addData(lastItem.getTimestamp().getTime(), state);
+                        quantity++;
+                    }
                 }
 
                 dto.addData(historicItem.getTimestamp().getTime(), state);
                 quantity++;
+                lastItem = historicItem;
             }
         }
 
