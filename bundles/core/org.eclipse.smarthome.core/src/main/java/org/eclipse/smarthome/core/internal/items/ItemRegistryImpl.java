@@ -98,11 +98,9 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     private void setTagsFromMetadata(Item item) {
         if (item instanceof ActiveItem) {
             SortedSet<String> tags = readTags(item.getName());
-            if (!tags.isEmpty()) {
-                ActiveItem activeItem = (ActiveItem) item;
-                activeItem.removeAllTags();
-                activeItem.addTags(tags);
-            }
+            ActiveItem activeItem = (ActiveItem) item;
+            activeItem.removeAllTags();
+            activeItem.addTags(tags);
         }
     }
 
@@ -483,6 +481,15 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
             throw new IllegalArgumentException("Item " + itemName + " does not exist");
         }
         return removeTags(item, tags);
+    }
+
+    @Override
+    public void removeTags(String itemName) {
+        Item item = get(itemName);
+        if (item == null) {
+            throw new IllegalArgumentException("Item " + itemName + " does not exist");
+        }
+        writeTags(item.getName(), null);
     }
 
     private boolean removeTags(Item item, Collection<String> tags) {
