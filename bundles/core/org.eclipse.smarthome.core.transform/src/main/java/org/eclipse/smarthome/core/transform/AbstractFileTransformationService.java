@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.io.FilenameUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.osgi.framework.BundleContext;
@@ -49,8 +51,10 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - File caching mechanism
  * @author Markus Rathgeb - Add locale provider support
  */
+@NonNullByDefault
 public abstract class AbstractFileTransformationService<T> implements TransformationService {
 
+    @Nullable
     private WatchService watchService = null;
 
     protected final Map<String, T> cachedFiles = new ConcurrentHashMap<>();
@@ -58,7 +62,9 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
 
     private final Logger logger = LoggerFactory.getLogger(AbstractFileTransformationService.class);
 
+    @NonNullByDefault({})
     private LocaleProvider localeProvider;
+    @NonNullByDefault({})
     private ServiceTracker<LocaleProvider, LocaleProvider> localeProviderTracker;
 
     private class LocaleProviderServiceTrackerCustomizer
@@ -71,17 +77,17 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
         }
 
         @Override
-        public LocaleProvider addingService(ServiceReference<LocaleProvider> reference) {
+        public LocaleProvider addingService(@Nullable ServiceReference<LocaleProvider> reference) {
             localeProvider = context.getService(reference);
             return localeProvider;
         }
 
         @Override
-        public void modifiedService(ServiceReference<LocaleProvider> reference, LocaleProvider service) {
+        public void modifiedService(@Nullable ServiceReference<LocaleProvider> reference, LocaleProvider service) {
         }
 
         @Override
-        public void removedService(ServiceReference<LocaleProvider> reference, LocaleProvider service) {
+        public void removedService(@Nullable ServiceReference<LocaleProvider> reference, LocaleProvider service) {
             localeProvider = null;
         }
 
@@ -114,7 +120,7 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
      * @throws TransformationException
      */
     @Override
-    public String transform(String filename, String source) throws TransformationException {
+    public @Nullable String transform(String filename, String source) throws TransformationException {
         if (filename == null || source == null) {
             throw new TransformationException("the given parameters 'filename' and 'source' must not be null");
         }

@@ -12,12 +12,15 @@
  */
 package org.eclipse.smarthome.core.transform;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * A TransformationException is thrown when any step of a transformation went
  * wrong. The originating exception should be attached to increase traceability.
  *
  * @author Thomas.Eichstaedt-Engelen
  */
+@NonNullByDefault
 public class TransformationException extends Exception {
 
     /** generated serial Version UID */

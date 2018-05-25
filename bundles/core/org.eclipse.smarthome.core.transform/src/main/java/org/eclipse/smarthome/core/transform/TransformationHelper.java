@@ -17,6 +17,8 @@ import java.util.IllegalFormatException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -27,6 +29,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution
  */
+@NonNullByDefault
 public class TransformationHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransformationHelper.class);
@@ -48,10 +51,12 @@ public class TransformationHelper {
      * Queries the OSGi service registry for a service that provides a transformation service of
      * a given transformation type (e.g. REGEX, XSLT, etc.)
      *
+     * @param context the bundle context which can be null
      * @param transformationType the desired transformation type
      * @return a service instance or null, if none could be found
      */
-    public static TransformationService getTransformationService(BundleContext context, String transformationType) {
+    public static @Nullable TransformationService getTransformationService(@Nullable BundleContext context,
+            String transformationType) {
         if (context != null) {
             String filter = "(smarthome.transform=" + transformationType + ")";
             try {
@@ -77,10 +82,10 @@ public class TransformationHelper {
      * @param context a valid bundle context, required for accessing the services
      * @param stateDescPattern the pattern that contains the transformation instructions
      * @param state the state to be formatted before being passed into the transformation function
-     * @return the result of the transformation
+     * @return the result of the transformation. If no transformation was done, <code>null</code> is returned
      * @throws TransformationException if transformation service is not available or the transformation failed
      */
-    public static String transform(BundleContext context, String stateDescPattern, String state)
+    public static @Nullable String transform(BundleContext context, String stateDescPattern, String state)
             throws TransformationException {
         Matcher matcher = EXTRACT_TRANSFORMFUNCTION_PATTERN.matcher(stateDescPattern);
         if (matcher.find()) {
