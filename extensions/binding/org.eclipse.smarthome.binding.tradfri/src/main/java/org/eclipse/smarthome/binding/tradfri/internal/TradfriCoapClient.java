@@ -35,41 +35,35 @@ public class TradfriCoapClient extends CoapClient {
 
     private static final int TIMEOUT = 2000;
     private static final int DEFAULT_DELAY_MILLIS = 600;
-    private final Logger logger;
-    private final LinkedList<PayloadCallbackPair> commandsQueue;
-    private final Runnable commandExecutor;
+    private final Logger logger = LoggerFactory.getLogger(TradfriCoapClient.class);
+    private final LinkedList<PayloadCallbackPair> commandsQueue = new LinkedList<>();
     private Future<?> job;
 
     public TradfriCoapClient(URI uri) {
         super(uri);
         setTimeout(TIMEOUT);
-        logger = LoggerFactory.getLogger(getClass());
+    }
 
-        commandsQueue = new LinkedList<>();
-
-        commandExecutor = () -> {
-            while (true) {
-                try {
-                    int delayTime = 0;
-                    synchronized (this.commandsQueue) {
-                        PayloadCallbackPair payloadCallbackPair = TradfriCoapClient.this.commandsQueue.poll();
-                        if (payloadCallbackPair != null) {
-                            logger.debug("Proccessing payload: {}", payloadCallbackPair.payload);
-                            TradfriCoapClient.this.put(new TradfriCoapHandler(payloadCallbackPair.callback),
-                                    payloadCallbackPair.payload, MediaTypeRegistry.TEXT_PLAIN);
-                            delayTime = Optional.ofNullable(payloadCallbackPair.delay).orElse(DEFAULT_DELAY_MILLIS);
-                        } else {
-                            return;
-                        }
+    private void executeCommands() {
+        while (true) {
+            try {
+                int delayTime = 0;
+                synchronized (commandsQueue) {
+                    PayloadCallbackPair payloadCallbackPair = commandsQueue.poll();
+                    if (payloadCallbackPair != null) {
+                        logger.debug("Proccessing payload: {}", payloadCallbackPair.payload);
+                        put(new TradfriCoapHandler(payloadCallbackPair.callback), payloadCallbackPair.payload,
+                                MediaTypeRegistry.TEXT_PLAIN);
+                        delayTime = Optional.ofNullable(payloadCallbackPair.delay).orElse(DEFAULT_DELAY_MILLIS);
+                    } else {
+                        return;
                     }
-                    Thread.sleep(delayTime);
-                } catch (InterruptedException e) {
-                    logger.debug("commandExecutorThread was interrupted", e);
                 }
+                Thread.sleep(delayTime);
+            } catch (InterruptedException e) {
+                logger.debug("commandExecutorThread was interrupted", e);
             }
-        };
-
-        job = null;
+        }
     }
 
     /**
@@ -127,7 +121,7 @@ public class TradfriCoapClient extends CoapClient {
             if (this.commandsQueue.isEmpty()) {
                 this.commandsQueue.offer(payloadCallbackPair);
                 if (job == null || job.isDone()) {
-                    job = scheduler.submit(commandExecutor);
+                    job = scheduler.submit(() -> executeCommands());
                 }
             } else {
                 this.commandsQueue.offer(payloadCallbackPair);
