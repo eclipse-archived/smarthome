@@ -232,6 +232,7 @@ angular.module('PaperUI.items')//
 
     function updateMetadata(itemName, metadata, originalItem, toastText) {
         return $q(function(resolve, reject) {
+            var resolveLater = false;
             if (!originalItem.metadata || JSON.stringify(metadata) !== JSON.stringify(originalItem.metadata)) {
                 for ( var namespace in metadata) {
                     if (!metadata.hasOwnProperty(namespace)) {
@@ -239,6 +240,7 @@ angular.module('PaperUI.items')//
                     }
 
                     if (!originalItem.metadata || JSON.stringify(metadata[namespace]) !== JSON.stringify(originalItem.metadata[namespace])) {
+                        resolveLater = true;
                         itemService.updateMetadata({
                             itemName : itemName,
                             namespace : namespace
@@ -249,11 +251,10 @@ angular.module('PaperUI.items')//
 
                             resolve();
                         });
-                    } else {
-                        resolve();
                     }
                 }
-            } else {
+            }
+            if (!resolveLater) {
                 resolve();
             }
         });
