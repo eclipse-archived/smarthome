@@ -3,7 +3,7 @@
 This binding integrates the [Sonos Multi-Room Audio system](http://www.sonos.com).
 
 **Attention:** 
-You might run into trouble if your Eclipse Smarthome instance is in another subnet than your Sonos device. 
+You might run into trouble if your control system (the binding) is in another subnet than your Sonos device. 
 Sonos devices make use of multicast which in most cases needs additional router configuration outside of a single subnet.   
 If you observe communication errors (COMMUNICATION_ERROR/not registered), you might need to configure your router to increase the TTL of the packets send by your Sonos device. 
 This happens because of a TTL=1 for ALIVE packets send by Sonos devices, resulting in dropped packets after one hop.
