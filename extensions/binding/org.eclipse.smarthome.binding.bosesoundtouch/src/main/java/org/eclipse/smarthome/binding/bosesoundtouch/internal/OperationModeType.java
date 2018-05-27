@@ -35,6 +35,8 @@ public enum OperationModeType {
     AMAZON,
     TV,
     HDMI1,
+    TUNEIN,
+    ALEXA,
     OTHER;
 
     private String name;
