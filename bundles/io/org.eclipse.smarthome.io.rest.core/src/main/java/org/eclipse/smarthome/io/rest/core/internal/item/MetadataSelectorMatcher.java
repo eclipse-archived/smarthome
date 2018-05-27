@@ -17,6 +17,7 @@ import static java.util.stream.Collectors.toSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
+import org.eclipse.smarthome.core.common.AbstractUID;
 import org.eclipse.smarthome.core.items.MetadataRegistry;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -56,15 +58,27 @@ public class MetadataSelectorMatcher {
         if (namespaceSelector == null || namespaceSelector.isEmpty()) {
             return Collections.emptySet();
         } else {
-            String namespacePattern = Arrays.stream(namespaceSelector.split(",")) //
+            Set<String> originalNamespaces = Arrays.stream(namespaceSelector.split(",")) //
                     .filter(n -> !metadataRegistry.isInternalNamespace(n)) //
-                    .collect(Collectors.joining("|"));
+                    .map(n -> n.trim()) //
+                    .collect(Collectors.toSet());
+
+            String namespacePattern = originalNamespaces.stream().collect(Collectors.joining("|"));
 
             Pattern pattern = Pattern.compile(METADATA_SCHEME_PREFIX + "(" + namespacePattern + ")$");
             Collection<ConfigDescription> configDescriptions = configDescriptionRegistry.getConfigDescriptions(locale);
-            return configDescriptions.stream().filter(cd -> cd.getUID().getScheme().equals(METADATA_SCHEME))
-                    .map(cd -> cd.getUID().toString()).filter(pattern.asPredicate())
-                    .map(uri -> uri.substring(METADATA_SCHEME_PREFIX.length())).collect(toSet());
+
+            Set<String> configNamespaces = configDescriptions.stream()
+                    .filter(cd -> cd.getUID().getScheme().equals(METADATA_SCHEME)).map(cd -> cd.getUID().toString())
+                    .filter(pattern.asPredicate()).map(uri -> uri.substring(METADATA_SCHEME_PREFIX.length()))
+                    .collect(toSet());
+
+            // merge configDescription namespaces and namespaces from the namespace selector:
+            Set<String> result = new HashSet<>(originalNamespaces);
+            result.addAll(configNamespaces);
+
+            // filter all name spaces which do not match the UID segment pattern (this will be the regex tokens):
+            return result.stream().filter(namespace -> namespace.matches(AbstractUID.SEGMENT_PATTERN)).collect(toSet());
         }
     }
 

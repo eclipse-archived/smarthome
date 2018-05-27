@@ -36,7 +36,7 @@
             // watch changes to the main metadata value and load the corresponding
             // config description for its configuration:
             $scope.$watch(function watchMetadataValue(scope) {
-                return ctrl.metadata.value;
+                return ctrl.metadata ? ctrl.metadata.value : undefined;
             }, function handleMetadataValueChange(newValue, oldValue) {
                 if (!ctrl.metadata.value || ctrl.metadata.value === '') {
                     return;

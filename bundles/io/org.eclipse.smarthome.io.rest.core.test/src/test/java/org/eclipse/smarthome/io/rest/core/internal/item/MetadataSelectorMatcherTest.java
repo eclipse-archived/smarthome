@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.io.rest.core.internal.item;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertThat;
@@ -92,12 +92,17 @@ public class MetadataSelectorMatcherTest {
         assertThat(matcher.filterNamespaces("magic2", null), hasSize(1));
         assertThat(matcher.filterNamespaces("magic2", null), hasItem("magic2"));
 
-        assertThat(matcher.filterNamespaces("unknown", null), hasSize(0));
+        assertThat(matcher.filterNamespaces("unknown", null), hasSize(1));
     }
 
     @Test
     public void regularExpression_shouldMatchSubset() {
         assertThat(matcher.filterNamespaces(".*", null), hasSize(4));
         assertThat(matcher.filterNamespaces("magic.?", null), hasSize(2));
+    }
+
+    @Test
+    public void nonConfigDescriptionSelector_shouldBeResult() {
+        assertThat(matcher.filterNamespaces("magic, foo, bar", null), hasItems("magic", "foo", "bar"));
     }
 }
