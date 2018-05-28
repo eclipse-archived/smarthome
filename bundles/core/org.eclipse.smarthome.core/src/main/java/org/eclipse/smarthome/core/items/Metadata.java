@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.core.items;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -88,6 +89,19 @@ public final class Metadata implements Identifiable<MetadataKey> {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Metadata [key=");
+        builder.append(key);
+        builder.append(", value=");
+        builder.append(value);
+        builder.append(", configuration=");
+        builder.append(Arrays.toString(configuration.entrySet().toArray()));
+        builder.append("]");
+        return builder.toString();
     }
 
 }
