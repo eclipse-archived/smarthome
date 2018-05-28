@@ -120,7 +120,7 @@ Normally, older discovery results already in the inbox are left untouched by a n
 
 ### Compare with existing results
 
-In some cases it might be of interest for a discovery service if the same device was discovered before or even a thing already exists.
+In some cases it might be of interest for a discovery service if the same device was discovered before or even if a thing already exists.
 Therefore, a discovery service may implement the ExtendedDiscoveryService interface and use the injected callback in order to access the DiscoveryResult or thing for a given thing UID, if it exists.
 
 _Do not use this method to check if an equal result already exists.
