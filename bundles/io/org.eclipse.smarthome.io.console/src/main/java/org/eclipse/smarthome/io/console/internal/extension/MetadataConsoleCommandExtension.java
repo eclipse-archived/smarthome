@@ -51,9 +51,9 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
     @Override
     public List<String> getUsages() {
         return Arrays.asList(new String[] {
-                buildCommandUsage(SUBCMD_LIST + " <itemname> <namespace>",
+                buildCommandUsage(SUBCMD_LIST + " <itemName> <namespace>",
                         "lists the metadata for the specific item in the given namespace"),
-                buildCommandUsage(SUBCMD_REMOVE + " <itemname> <namespace>",
+                buildCommandUsage(SUBCMD_REMOVE + " <itemName> <namespace>",
                         "removes metadata for the specific item in the given namespace"),
                 buildCommandUsage(SUBCMD_ADD + " <itemName> <namespace> <value> [{key1=value1, key2=value2, ...}]",
                         "adds or updates metadata value (and optional config values) for the specific item in the given namespace") });
