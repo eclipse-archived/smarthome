@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.Metadata;
@@ -76,7 +77,9 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
                     if (args.length < 4) {
                         printUsage(console);
                     } else {
-                        addMetadata(console, args[1], args[2], args[3], args.length > 4 ? args[4] : null);
+                        addMetadata(console, args[1], args[2], args[3],
+                                args.length > 4 ? Arrays.stream(args, 4, args.length).collect(Collectors.joining())
+                                        : null);
                     }
                     break;
                 case SUBCMD_REMOVE:
@@ -125,11 +128,20 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
         if (config == null) {
             return null;
         }
+        String configStr = config;
+        if (configStr.startsWith("{")) {
+            configStr = configStr.substring(1, configStr.length());
+        }
+        if (configStr.endsWith("}")) {
+            configStr = configStr.substring(0, configStr.length() - 1);
+        }
 
         Map<String, Object> map = new HashMap<>();
-        for (String part : config.split("\\s*,\\s*")) {
+        for (String part : configStr.split("\\s*,\\s*")) {
             String[] subparts = part.split("=", 2);
-            map.put(subparts[0], subparts[1]);
+            if (subparts.length == 2 && subparts[0] != null && subparts[1] != null) {
+                map.put(subparts[0].trim(), subparts[1].trim());
+            }
         }
         return map;
     }
