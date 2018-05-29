@@ -151,7 +151,7 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
                 console.println(item.toString());
             }
         } else {
-            if (pattern == null || (pattern != null && pattern.isEmpty())) {
+            if (pattern == null || pattern.isEmpty()) {
                 console.println("No item found.");
             } else {
                 console.println("No item found for this pattern.");
