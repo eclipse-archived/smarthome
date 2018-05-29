@@ -64,8 +64,8 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
 
     @Override
     public void execute(String[] args, Console console) {
-        String subCommand = args[0];
-        if (SUBCMD_DUMP.equals(subCommand) || args.length > 2) {
+        if (args.length > 0 && SUBCMD_DUMP.equals(args[0]) || args.length > 2) {
+            String subCommand = args[0];
             switch (subCommand) {
                 case SUBCMD_DUMP:
                     dumpMetadata(console);
