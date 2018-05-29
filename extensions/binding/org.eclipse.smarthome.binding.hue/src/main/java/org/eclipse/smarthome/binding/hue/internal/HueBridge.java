@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -56,14 +58,16 @@ public class HueBridge {
 
     private final Gson gson = new GsonBuilder().setDateFormat(DATE_FORMAT).create();
     private HttpClient http = new HttpClient();
+    private ScheduledExecutorService scheduler;
 
     /**
      * Connect with a bridge as a new user.
      *
      * @param ip ip address of bridge
      */
-    public HueBridge(String ip) {
+    public HueBridge(String ip, ScheduledExecutorService scheduler) {
         this.ip = ip;
+        this.scheduler = scheduler;
     }
 
     /**
@@ -76,8 +80,9 @@ public class HueBridge {
      * @param ip ip address of bridge
      * @param username username to authenticate with
      */
-    public HueBridge(String ip, String username) throws IOException, ApiException {
+    public HueBridge(String ip, String username, ScheduledExecutorService scheduler) throws IOException, ApiException {
         this.ip = ip;
+        this.scheduler = scheduler;
         authenticate(username);
     }
 
@@ -258,12 +263,12 @@ public class HueBridge {
      * @throws DeviceOffException thrown if the specified light is turned off
      * @throws IOException if the bridge cannot be reached
      */
-    public void setLightState(Light light, StateUpdate update) throws IOException, ApiException {
+    public CompletableFuture<Result> setLightState(Light light, StateUpdate update) {
         requireAuthentication();
 
         String body = update.toJson();
-        Result result = http.put(getRelativeURL("lights/" + enc(light.getId()) + "/state"), body);
-        handleErrors(result);
+        return http.putAsync(getRelativeURL("lights/" + enc(light.getId()) + "/state"), body, update.getMessageDelay(),
+                scheduler);
     }
 
     /**
@@ -862,7 +867,7 @@ public class HueBridge {
     }
 
     // Used as assert in all requests to elegantly catch common errors
-    private void handleErrors(Result result) throws IOException, ApiException {
+    public void handleErrors(Result result) throws IOException, ApiException {
         if (result.getResponseCode() != 200) {
             throw new IOException();
         } else {
