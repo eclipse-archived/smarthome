@@ -38,6 +38,7 @@ import org.osgi.service.component.annotations.Reference;
 public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
     private static final String SUBCMD_LIST = "list";
+    private static final String SUBCMD_DUMP = "dump";
     private static final String SUBCMD_ADD = "add";
     private static final String SUBCMD_REMOVE = "remove";
 
@@ -51,6 +52,7 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
     @Override
     public List<String> getUsages() {
         return Arrays.asList(new String[] {
+                buildCommandUsage(SUBCMD_DUMP, "prints all existing metadata for all namespaces"),
                 buildCommandUsage(SUBCMD_LIST + " <itemName> <namespace>",
                         "lists the metadata for the specific item in the given namespace"),
                 buildCommandUsage(SUBCMD_REMOVE + " <itemName> <namespace>",
@@ -61,9 +63,12 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
 
     @Override
     public void execute(String[] args, Console console) {
-        if (args.length > 2) {
-            String subCommand = args[0];
+        String subCommand = args[0];
+        if (SUBCMD_DUMP.equals(subCommand) || args.length > 2) {
             switch (subCommand) {
+                case SUBCMD_DUMP:
+                    dumpMetadata(console);
+                    break;
                 case SUBCMD_LIST:
                     listMetadata(console, args[1], args[2]);
                     break;
@@ -85,6 +90,10 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
         } else {
             printUsage(console);
         }
+    }
+
+    private void dumpMetadata(Console console) {
+        metadataRegistry.stream().map(Metadata::toString).forEach(console::println);
     }
 
     private void listMetadata(Console console, String itemName, String namespace) {
@@ -127,15 +136,14 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
 
     private void removeMetadata(Console console, String itemName, String namespace) {
         if (itemRegistry.get(itemName) == null) {
-            console.println("Item " + itemName + " does not exist.");
+            console.println("Warning: Item " + itemName + " does not exist, removing metadata anyway.");
+        }
+        MetadataKey key = new MetadataKey(namespace, itemName);
+        Metadata metadata = metadataRegistry.remove(key);
+        if (metadata != null) {
+            console.println("Removed: " + metadata.toString());
         } else {
-            MetadataKey key = new MetadataKey(namespace, itemName);
-            Metadata metadata = metadataRegistry.remove(key);
-            if (metadata != null) {
-                console.println("Removed: " + metadata.toString());
-            } else {
-                console.println("Metadata element for " + key + " could not be found.");
-            }
+            console.println("Metadata element for " + key + " could not be found.");
         }
     }
 
