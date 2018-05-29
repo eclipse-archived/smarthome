@@ -10,21 +10,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.io.mqttembeddedbroker.internal;
-
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+package org.eclipse.smarthome.io.mqttembeddedbroker;
 
 /**
- * Configuration of the {@link EmbeddedBrokerServiceImpl}.
+ * MQTT embedded broker constants
  *
  * @author David Graeff - Initial contribution
  */
-public class ServiceConfiguration {
-    public @Nullable Integer port;
-    public @NonNull Boolean secure = false;
-    public @NonNull String persistenceFile = "mqttembedded.bin";
-
-    public @Nullable String username;
-    public @Nullable String password;
+public class Constants {
+    /**
+     * The broker connection client ID. You can request the embedded broker connection via the MqttService:
+     *
+     * <pre>
+     * MqttBrokerConnection c = mqttService.getBrokerConnection(Constants.CLIENTID);
+     * </pre>
+     */
+    public static final String CLIENTID = "embedded-mqtt-broker";
 }
