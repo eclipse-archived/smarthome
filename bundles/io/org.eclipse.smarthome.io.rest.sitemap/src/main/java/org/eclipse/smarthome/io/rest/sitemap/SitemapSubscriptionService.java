@@ -16,12 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.smarthome.config.core.ConfigurableService;
 import org.eclipse.smarthome.io.rest.sitemap.internal.PageChangeListener;
 import org.eclipse.smarthome.io.rest.sitemap.internal.SitemapEvent;
 import org.eclipse.smarthome.model.core.EventType;
@@ -31,9 +33,11 @@ import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapProvider;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
+import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -50,11 +54,16 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
-@Component(service = SitemapSubscriptionService.class)
+@Component(service = SitemapSubscriptionService.class, configurationPid = "org.eclipse.smarthome.rest.sitemap", property = {
+        Constants.SERVICE_PID + "=org.eclipse.smarthome.rest.sitemap",
+        ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI + "=rest:sitemap",
+        ConfigurableService.SERVICE_PROPERTY_CATEGORY + "=REST",
+        ConfigurableService.SERVICE_PROPERTY_LABEL + "=REST Sitemap" })
 public class SitemapSubscriptionService implements ModelRepositoryChangeListener {
 
     private static final String SITEMAP_PAGE_SEPARATOR = "#";
     private static final String SITEMAP_SUFFIX = ".sitemap";
+    private static final int DEFAULT_MAX_SUBSCRIPTIONS = 25;
 
     private final Logger logger = LoggerFactory.getLogger(SitemapSubscriptionService.class);
 
@@ -75,11 +84,15 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
     /* sitemap+page -> listener */
     private final Map<String, PageChangeListener> pageChangeListeners = new ConcurrentHashMap<>();
 
+    /* Max number of subscriptions at the same time */
+    private int maxSubscriptions = DEFAULT_MAX_SUBSCRIPTIONS;
+
     public SitemapSubscriptionService() {
     }
 
     @Activate
-    protected void activate() {
+    protected void activate(Map<String, Object> config) {
+        applyConfig(config);
     }
 
     @Deactivate
@@ -90,6 +103,21 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
             listener.dispose();
         }
         pageChangeListeners.clear();
+    }
+
+    @Modified
+    protected void modified(Map<String, Object> config) {
+        applyConfig(config);
+    }
+
+    private void applyConfig(Map<String, Object> config) {
+        if (config == null) {
+            return;
+        }
+        final String max = Objects.toString(config.get("maxSubscriptions"), null);
+        if (max != null) {
+            maxSubscriptions = Integer.parseInt(max);
+        }
     }
 
     @Reference
@@ -117,12 +145,17 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
      * Creates a new subscription with the given id.
      *
      * @param callback an instance that should receive the events
-     * @returns a unique id that identifies the subscription
+     * @returns a unique id that identifies the subscription or null if the limit of subscriptions is already reached
      */
     public String createSubscription(SitemapSubscriptionCallback callback) {
+        if (callbacks.size() >= maxSubscriptions) {
+            logger.debug("No new subscription delivered as limit ({}) is already reached", maxSubscriptions);
+            return null;
+        }
         String subscriptionId = UUID.randomUUID().toString();
         callbacks.put(subscriptionId, callback);
-        logger.debug("Created new subscription with id {} ({} active subscriptions)", subscriptionId, callbacks.size());
+        logger.debug("Created new subscription with id {} ({} active subscriptions for a max of {})", subscriptionId,
+                callbacks.size(), maxSubscriptions);
         return subscriptionId;
     }
 

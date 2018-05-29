@@ -247,9 +247,13 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
     @POST
     @Path(SEGMENT_EVENTS + "/subscribe")
     @ApiOperation(value = "Creates a sitemap event subscription.")
-    @ApiResponses(value = { @ApiResponse(code = 201, message = "Subscription created.") })
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "Subscription created."),
+            @ApiResponse(code = 403, message = "Subscriptions limit reached.") })
     public Object createEventSubscription() {
         String subscriptionId = subscriptions.createSubscription(this);
+        if (subscriptionId == null) {
+            return JSONResponse.createResponse(Status.FORBIDDEN, null, "Max number of subscriptions is reached.");
+        }
         final EventOutput eventOutput = new SitemapEventOutput(subscriptions, subscriptionId);
         broadcaster.add(eventOutput);
         eventOutputs.put(subscriptionId, eventOutput);
@@ -268,6 +272,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
     @Produces(SseFeature.SERVER_SENT_EVENTS)
     @ApiOperation(value = "Get sitemap events.", response = EventOutput.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 400, message = "Page not linked to the subscription."),
             @ApiResponse(code = 404, message = "Subscription not found.") })
     public Object getSitemapEvents(
             @PathParam("subscriptionid") @ApiParam(value = "subscription id") String subscriptionId,
