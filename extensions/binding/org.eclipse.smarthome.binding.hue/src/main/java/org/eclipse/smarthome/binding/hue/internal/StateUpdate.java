@@ -199,4 +199,12 @@ public class StateUpdate {
         commands.add(new Command("transitiontime", timeMillis / 100));
         return this;
     }
+
+    /**
+     * Returns the message delay recommended by Philips
+     * Regarding to this article: https://developers.meethue.com/documentation/hue-system-performance
+     */
+    public Integer getMessageDelay() {
+        return commands.size() * 40;
+    }
 }
