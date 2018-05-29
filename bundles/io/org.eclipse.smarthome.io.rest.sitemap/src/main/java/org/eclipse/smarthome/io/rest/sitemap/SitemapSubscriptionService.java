@@ -63,7 +63,7 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
 
     private static final String SITEMAP_PAGE_SEPARATOR = "#";
     private static final String SITEMAP_SUFFIX = ".sitemap";
-    private static final int DEFAULT_MAX_SUBSCRIPTIONS = 25;
+    private static final int DEFAULT_MAX_SUBSCRIPTIONS = 50;
 
     private final Logger logger = LoggerFactory.getLogger(SitemapSubscriptionService.class);
 
@@ -148,7 +148,7 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
      * @returns a unique id that identifies the subscription or null if the limit of subscriptions is already reached
      */
     public String createSubscription(SitemapSubscriptionCallback callback) {
-        if (callbacks.size() >= maxSubscriptions) {
+        if (maxSubscriptions >= 0 && callbacks.size() >= maxSubscriptions) {
             logger.debug("No new subscription delivered as limit ({}) is already reached", maxSubscriptions);
             return null;
         }

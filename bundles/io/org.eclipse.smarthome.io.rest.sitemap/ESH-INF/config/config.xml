@@ -7,8 +7,8 @@
 	<config-description uri="rest:sitemap">
 		<parameter name="maxSubscriptions" type="integer" required="false">
 			<label>Max SSE Subscriptions</label>
-			<description>The maximum number of SSE subscriptions accepted by the server.</description>
-			<default>25</default>
+			<description>The maximum number of SSE subscriptions accepted by the server. A negative value means unlimited.</description>
+			<default>50</default>
 		</parameter>
 	</config-description>
 
