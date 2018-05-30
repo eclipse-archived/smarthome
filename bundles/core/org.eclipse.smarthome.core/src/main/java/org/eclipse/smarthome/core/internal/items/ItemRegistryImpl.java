@@ -23,6 +23,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.Nullable;
@@ -76,6 +78,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     private final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
     private final List<RegistryHook<Item>> registryHooks = new CopyOnWriteArrayList<>();
+    private final ReadWriteLock tagLock = new ReentrantReadWriteLock(true);
 
     private StateDescriptionService stateDescriptionService;
     private MetadataRegistry metadataRegistry;
@@ -97,10 +100,14 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     private void setTagsFromMetadata(Item item) {
         if (item instanceof ActiveItem) {
-            SortedSet<String> tags = readTags(item.getName());
             ActiveItem activeItem = (ActiveItem) item;
             activeItem.removeAllTags();
-            activeItem.addTags(tags);
+            tagLock.readLock().lock();
+            try {
+                activeItem.addTags(readTags(item.getName()));
+            } finally {
+                tagLock.readLock().unlock();
+            }
         }
     }
 
@@ -261,14 +268,24 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     @Override
     public Item add(Item item) {
-        writeTags(item.getName(), item.getTags());
+        tagLock.writeLock().lock();
+        try {
+            writeTags(item.getName(), item.getTags());
+        } finally {
+            tagLock.writeLock().unlock();
+        }
         return super.add(item);
     }
 
     @Override
     public Item update(Item item) {
-        writeTags(item.getName(), item.getTags());
-        return super.update(item);
+        tagLock.writeLock().lock();
+        try {
+            writeTags(item.getName(), item.getTags());
+            return super.update(item);
+        } finally {
+            tagLock.writeLock().unlock();
+        }
     }
 
     @Override
@@ -424,7 +441,8 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     private SortedSet<String> readTags(String itemName) {
         MetadataKey key = new MetadataKey(TAG_NAMESPACE, itemName);
         SortedSet<String> tags = new TreeSet<>();
-        Metadata metadata = metadataRegistry.get(key);
+        Metadata metadata = null;
+        metadata = metadataRegistry.get(key);
         if (metadata != null) {
             tags.addAll(Arrays.asList(metadata.getValue().split(TAG_SPLIT_REGEX)));
         }
@@ -455,10 +473,15 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     @Override
     public boolean addTags(String itemName, Collection<String> tags) {
-        SortedSet<String> itemTags = readTags(itemName);
-        boolean ret = itemTags.addAll(tags);
-        writeTags(itemName, itemTags);
-        return ret;
+        tagLock.writeLock().lock();
+        try {
+            SortedSet<String> itemTags = readTags(itemName);
+            boolean ret = itemTags.addAll(tags);
+            writeTags(itemName, itemTags);
+            return ret;
+        } finally {
+            tagLock.writeLock().unlock();
+        }
     }
 
     @Override
@@ -468,17 +491,27 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     @Override
     public boolean removeTags(String itemName, Collection<String> tags) {
-        SortedSet<String> itemTags = readTags(itemName);
-        boolean ret = itemTags.removeAll(tags);
-        writeTags(itemName, itemTags);
-        return ret;
+        tagLock.writeLock().lock();
+        try {
+            SortedSet<String> itemTags = readTags(itemName);
+            boolean ret = itemTags.removeAll(tags);
+            writeTags(itemName, itemTags);
+            return ret;
+        } finally {
+            tagLock.writeLock().unlock();
+        }
     }
 
     @Override
     public boolean removeTags(String itemName) {
-        SortedSet<String> itemTags = readTags(itemName);
-        writeTags(itemName, null);
-        return !itemTags.isEmpty();
+        tagLock.writeLock().lock();
+        try {
+            SortedSet<String> itemTags = readTags(itemName);
+            writeTags(itemName, null);
+            return !itemTags.isEmpty();
+        } finally {
+            tagLock.writeLock().unlock();
+        }
     }
 
     @Override
