@@ -169,9 +169,10 @@ public class ItemRegistryOSGiJavaTest extends JavaOSGiTest {
         assertTagsInItem(ITEM_NAME, "foo", "bar");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testAddTagToNonExistingItem() throws Exception {
         itemRegistry.addTag(ITEM_NAME, "hello");
+        assertTagsInMetadata(ITEM_NAME, "hello");
     }
 
     @Test
@@ -194,9 +195,13 @@ public class ItemRegistryOSGiJavaTest extends JavaOSGiTest {
         assertTagsInItem(ITEM_NAME, "foo");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testRemoveTagFromNonExistingItem() throws Exception {
+        prepareMetadata(ITEM_NAME, "hello");
+
         itemRegistry.removeTag(ITEM_NAME, "hello");
+
+        assertTagsInMetadata(ITEM_NAME);
     }
 
     private void prepareItem(String itemName, String... tags) {
