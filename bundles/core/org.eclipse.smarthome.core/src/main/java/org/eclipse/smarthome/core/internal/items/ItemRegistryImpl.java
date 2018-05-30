@@ -274,7 +274,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     @Override
     protected void onAddElement(Item element) throws IllegalArgumentException {
         initializeItem(element);
-        addTags(element, element.getTags());
+        addTags(element.getName(), element.getTags());
     }
 
     @Override
@@ -307,8 +307,8 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         }
         injectServices(item);
 
-        removeTags(oldItem, oldItem.getTags());
-        addTags(item, item.getTags());
+        removeTags(oldItem.getName(), oldItem.getTags());
+        addTags(item.getName(), item.getTags());
     }
 
     @Override
@@ -455,17 +455,9 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     @Override
     public boolean addTags(String itemName, Collection<String> tags) {
-        Item item = get(itemName);
-        if (item == null) {
-            throw new IllegalArgumentException("Item " + itemName + " does not exist");
-        }
-        return addTags(item, tags);
-    }
-
-    private boolean addTags(Item item, Collection<String> tags) {
-        SortedSet<String> itemTags = readTags(item.getName());
+        SortedSet<String> itemTags = readTags(itemName);
         boolean ret = itemTags.addAll(tags);
-        writeTags(item.getName(), itemTags);
+        writeTags(itemName, itemTags);
         return ret;
     }
 
@@ -476,27 +468,17 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     @Override
     public boolean removeTags(String itemName, Collection<String> tags) {
-        Item item = get(itemName);
-        if (item == null) {
-            throw new IllegalArgumentException("Item " + itemName + " does not exist");
-        }
-        return removeTags(item, tags);
+        SortedSet<String> itemTags = readTags(itemName);
+        boolean ret = itemTags.removeAll(tags);
+        writeTags(itemName, itemTags);
+        return ret;
     }
 
     @Override
-    public void removeTags(String itemName) {
-        Item item = get(itemName);
-        if (item == null) {
-            throw new IllegalArgumentException("Item " + itemName + " does not exist");
-        }
-        writeTags(item.getName(), null);
-    }
-
-    private boolean removeTags(Item item, Collection<String> tags) {
-        SortedSet<String> itemTags = readTags(item.getName());
-        boolean ret = itemTags.removeAll(tags);
-        writeTags(item.getName(), itemTags);
-        return ret;
+    public boolean removeTags(String itemName) {
+        SortedSet<String> itemTags = readTags(itemName);
+        writeTags(itemName, null);
+        return !itemTags.isEmpty();
     }
 
     @Override
