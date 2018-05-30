@@ -4,8 +4,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>model</artifactId>
     <groupId>org.eclipse.smarthome.bundles</groupId>
+    <artifactId>model</artifactId>
     <version>0.10.0-SNAPSHOT</version>
   </parent>
   <groupId>org.eclipse.smarthome.model</groupId>
@@ -26,26 +26,6 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.4.0</version>
-        <executions>
-          <execution>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>java</goal>
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.2</version>
-          </dependency>
-          <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.6.4</version>
-          </dependency>
-        </dependencies>
         <configuration>
           <includeProjectDependencies>true</includeProjectDependencies>
           <includePluginDependencies>true</includePluginDependencies>
@@ -61,6 +41,26 @@
             <additionalClasspathElement>/${basedir}/../antlr-generator-3.2.0-patch.jar</additionalClasspathElement>
           </additionalClasspathElements>
         </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.2</version>
+          </dependency>
+          <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.6.4</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <phase>generate-sources</phase>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.eclipse.xtend</groupId>
