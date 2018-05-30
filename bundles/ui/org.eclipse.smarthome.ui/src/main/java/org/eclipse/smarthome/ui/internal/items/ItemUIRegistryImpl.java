@@ -1370,9 +1370,11 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     }
 
     @Override
-    public void removeTags(String itemName) {
+    public boolean removeTags(String itemName) {
         if (itemRegistry != null) {
-            itemRegistry.removeTags(itemName);
+            return itemRegistry.removeTags(itemName);
+        } else {
+            return false;
         }
     }
 
