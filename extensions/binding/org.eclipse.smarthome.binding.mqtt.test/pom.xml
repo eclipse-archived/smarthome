@@ -9,7 +9,6 @@
     <version>0.10.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.eclipse.smarthome.archetype</groupId>
   <artifactId>org.eclipse.smarthome.binding.mqtt.test</artifactId>
   <packaging>eclipse-test-plugin</packaging>
 
@@ -20,11 +19,10 @@
     <bundle.namespace>org.eclipse.smarthome.binding.mqtt</bundle.namespace>
   </properties>
 
-
   <build>
     <plugins>
       <plugin>
-        <groupId>org.eclipse.tycho</groupId>
+        <groupId>${tycho-groupid}</groupId>
         <artifactId>target-platform-configuration</artifactId>
         <configuration>
           <environments combine.self="override"></environments>
@@ -60,7 +58,7 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.eclipse.tycho</groupId>
+        <groupId>${tycho-groupid}</groupId>
         <artifactId>tycho-surefire-plugin</artifactId>
         <configuration>
           <dependencies>
