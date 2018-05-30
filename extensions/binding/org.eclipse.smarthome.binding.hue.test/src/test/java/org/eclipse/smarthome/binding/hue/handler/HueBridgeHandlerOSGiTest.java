@@ -18,6 +18,7 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.smarthome.binding.hue.internal.HueBridge;
 import org.eclipse.smarthome.binding.hue.internal.HueConfigStatusMessage;
@@ -27,6 +28,7 @@ import org.eclipse.smarthome.binding.hue.internal.exceptions.UnauthorizedExcepti
 import org.eclipse.smarthome.binding.hue.test.AbstractHueOSGiTest;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusMessage;
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -51,11 +53,15 @@ public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
 
     private ThingRegistry thingRegistry;
 
+    private ScheduledExecutorService scheduler;
+
     @Before
     public void setUp() {
         registerVolatileStorageService();
         thingRegistry = getService(ThingRegistry.class, ThingRegistry.class);
         assertNotNull(thingRegistry);
+
+        scheduler = ThreadPoolManager.getScheduledPool("hueBridgeTest");
     }
 
     @Test
@@ -68,7 +74,7 @@ public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge);
 
-        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST) {
+        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST, scheduler) {
             @Override
             public String link(String deviceType) throws IOException, ApiException {
                 return TEST_USER_NAME;
@@ -91,7 +97,7 @@ public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge);
 
-        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST) {
+        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST, scheduler) {
             @Override
             public void authenticate(String userName) throws IOException, ApiException {
             };
@@ -113,7 +119,7 @@ public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge);
 
-        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST) {
+        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST, scheduler) {
             @Override
             public void authenticate(String userName) throws IOException, ApiException {
                 throw new UnauthorizedException();
@@ -137,7 +143,7 @@ public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge);
 
-        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST) {
+        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST, scheduler) {
             @Override
             public String link(String deviceType) throws IOException, ApiException {
                 throw new LinkButtonException();
@@ -161,7 +167,7 @@ public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge);
 
-        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST) {
+        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST, scheduler) {
             @Override
             public String link(String deviceType) throws IOException, ApiException {
                 throw new ApiException();
