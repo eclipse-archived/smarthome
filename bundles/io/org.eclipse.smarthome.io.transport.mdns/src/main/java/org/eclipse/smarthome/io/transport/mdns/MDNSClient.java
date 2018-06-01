@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.io.transport.mdns;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Set;
 
 import javax.jmdns.JmDNS;
@@ -77,6 +78,15 @@ public interface MDNSClient {
      * @return an array of service instance
      */
     public ServiceInfo[] list(String type);
+
+    /**
+     * Returns a list of service infos of the specified type within timeout
+     *
+     * @param type: service type name
+     * @param timeout: the amount of time it should wait if no service info is found.
+     * @return an array of service instance
+     */
+    public ServiceInfo[] list(String type, Duration timeout);
 
     /**
      * Close properly JmDNS instances
