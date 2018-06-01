@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.Metadata;
 import org.eclipse.smarthome.core.items.MetadataKey;
+import org.eclipse.smarthome.core.items.MetadataPredicates;
 import org.eclipse.smarthome.core.items.MetadataRegistry;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
@@ -39,7 +40,6 @@ import org.osgi.service.component.annotations.Reference;
 public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
     private static final String SUBCMD_LIST = "list";
-    private static final String SUBCMD_DUMP = "dump";
     private static final String SUBCMD_ADD = "add";
     private static final String SUBCMD_REMOVE = "remove";
 
@@ -53,25 +53,21 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
     @Override
     public List<String> getUsages() {
         return Arrays.asList(new String[] {
-                buildCommandUsage(SUBCMD_DUMP, "prints all existing metadata for all namespaces"),
-                buildCommandUsage(SUBCMD_LIST + " <itemName> <namespace>",
-                        "lists the metadata for the specific item in the given namespace"),
-                buildCommandUsage(SUBCMD_REMOVE + " <itemName> <namespace>",
-                        "removes metadata for the specific item in the given namespace"),
+                buildCommandUsage(SUBCMD_LIST + " [<itemName> [<namespace>]]",
+                        "lists all available metadata, can be filtered for a specifc item and namespace"),
+                buildCommandUsage(SUBCMD_REMOVE + " <itemName> [<namespace>]",
+                        "removes metadata for the specific item (for all namespaces or for the given namespace only)"),
                 buildCommandUsage(SUBCMD_ADD + " <itemName> <namespace> <value> [{key1=value1, key2=value2, ...}]",
                         "adds or updates metadata value (and optional config values) for the specific item in the given namespace") });
     }
 
     @Override
     public void execute(String[] args, Console console) {
-        if (args.length > 0 && SUBCMD_DUMP.equals(args[0]) || args.length > 2) {
+        if (args.length > 0) {
             String subCommand = args[0];
             switch (subCommand) {
-                case SUBCMD_DUMP:
-                    dumpMetadata(console);
-                    break;
                 case SUBCMD_LIST:
-                    listMetadata(console, args[1], args[2]);
+                    listMetadata(console, args.length > 1 ? args[1] : null, args.length > 2 ? args[2] : null);
                     break;
                 case SUBCMD_ADD:
                     if (args.length < 4) {
@@ -83,7 +79,7 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
                     }
                     break;
                 case SUBCMD_REMOVE:
-                    removeMetadata(console, args[1], args[2]);
+                    removeMetadata(console, args[1], args.length > 2 ? args[2] : null);
                     break;
                 default:
                     console.println("Unknown command '" + subCommand + "'");
@@ -95,15 +91,18 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
         }
     }
 
-    private void dumpMetadata(Console console) {
-        metadataRegistry.stream().map(Metadata::toString).forEach(console::println);
-    }
-
     private void listMetadata(Console console, String itemName, String namespace) {
-        MetadataKey key = new MetadataKey(namespace, itemName);
-        Metadata metadata = metadataRegistry.get(key);
-        if (metadata != null) {
-            console.println(metadata.toString());
+        if (itemName == null) {
+            metadataRegistry.stream().map(Metadata::toString).forEach(console::println);
+        } else if (namespace == null) {
+            metadataRegistry.stream().filter(MetadataPredicates.ofItem(itemName)).map(Metadata::toString)
+                    .forEach(console::println);
+        } else {
+            MetadataKey key = new MetadataKey(namespace, itemName);
+            Metadata metadata = metadataRegistry.get(key);
+            if (metadata != null) {
+                console.println(metadata.toString());
+            }
         }
     }
 
@@ -150,7 +149,16 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
         if (itemRegistry.get(itemName) == null) {
             console.println("Warning: Item " + itemName + " does not exist, removing metadata anyway.");
         }
-        MetadataKey key = new MetadataKey(namespace, itemName);
+        if (namespace == null) {
+            metadataRegistry.stream().filter(MetadataPredicates.ofItem(itemName)).map(Metadata::getUID)
+                    .forEach(key -> removeMetadata(console, key));
+        } else {
+            MetadataKey key = new MetadataKey(namespace, itemName);
+            removeMetadata(console, key);
+        }
+    }
+
+    private void removeMetadata(Console console, MetadataKey key) {
         Metadata metadata = metadataRegistry.remove(key);
         if (metadata != null) {
             console.println("Removed: " + metadata.toString());
