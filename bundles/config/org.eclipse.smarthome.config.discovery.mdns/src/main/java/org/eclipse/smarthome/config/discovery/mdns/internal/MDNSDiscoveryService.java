@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.config.discovery.mdns.internal;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -49,6 +50,8 @@ import org.slf4j.LoggerFactory;
  */
 @Component(immediate = true, service = DiscoveryService.class, configurationPid = "discovery.mdns")
 public class MDNSDiscoveryService extends AbstractDiscoveryService implements ServiceListener {
+
+    private static final Duration FOREGROUND_SCAN_TIMEOUT = Duration.ofMillis(200);
     private final Logger logger = LoggerFactory.getLogger(MDNSDiscoveryService.class);
 
     @Deprecated
@@ -99,7 +102,7 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
         for (org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant participant : oldParticipants) {
             mdnsClient.addServiceListener(participant.getServiceType(), this);
         }
-        startScan();
+        startScan(true);
     }
 
     @Override
@@ -114,18 +117,40 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
 
     @Override
     protected void startScan() {
+        startScan(false);
+    }
+
+    private void startScan(boolean isBackground) {
         scheduler.schedule(new Runnable() {
             @Override
             public void run() {
-                scan();
+                scan(isBackground);
             }
         }, 0, TimeUnit.SECONDS);
     }
 
-    private void scan() {
+    /**
+     * Scan has 2 different behaviours. background/ foreground. Background scans can
+     * have much higher timeout. Foreground scans have only a short timeout as human
+     * users may become impatient. The underlying reason is that the jmDNS
+     * implementation {@code MDNSClient#list(String)} has a default timeout of 6
+     * seconds when no ServiceInfo is found. When there are many participants,
+     * waiting 6 seconds for each non-existant type is too long.
+     * 
+     * @param isBackground
+     *            true if it is background scan, false otherwise.
+     */
+    private void scan(boolean isBackground) {
         for (MDNSDiscoveryParticipant participant : participants) {
-            ServiceInfo[] services = mdnsClient.list(participant.getServiceType());
-            logger.debug("{} services found for {}", services.length, participant.getServiceType());
+            long start = System.currentTimeMillis();
+            ServiceInfo[] services;
+            if (isBackground) {
+                services = mdnsClient.list(participant.getServiceType());
+            } else {
+                services = mdnsClient.list(participant.getServiceType(), FOREGROUND_SCAN_TIMEOUT);
+            }
+            logger.debug("{} services found for {}; duration: {}ms", services.length, participant.getServiceType(),
+                    (System.currentTimeMillis() - start));
             for (ServiceInfo service : services) {
                 DiscoveryResult result = participant.createResult(service);
                 if (result != null) {
@@ -134,8 +159,15 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
             }
         }
         for (org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant participant : oldParticipants) {
-            ServiceInfo[] services = mdnsClient.list(participant.getServiceType());
-            logger.debug("{} services found for {}", services.length, participant.getServiceType());
+            long start = System.currentTimeMillis();
+            ServiceInfo[] services;
+            if (isBackground) {
+                services = mdnsClient.list(participant.getServiceType());
+            } else {
+                services = mdnsClient.list(participant.getServiceType(), FOREGROUND_SCAN_TIMEOUT);
+            }
+            logger.debug("{} services found for {}; duration: {}ms", services.length, participant.getServiceType(),
+                    (System.currentTimeMillis() - start));
             for (ServiceInfo service : services) {
                 DiscoveryResult result = participant.createResult(service);
                 if (result != null) {
