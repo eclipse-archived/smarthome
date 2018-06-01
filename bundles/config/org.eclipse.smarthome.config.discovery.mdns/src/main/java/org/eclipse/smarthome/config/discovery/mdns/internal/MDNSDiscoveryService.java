@@ -135,7 +135,7 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
      * users may become impatient. The underlying reason is that the jmDNS
      * implementation {@code MDNSClient#list(String)} has a default timeout of 6
      * seconds when no ServiceInfo is found. When there are many participants,
-     * waiting 6 seconds for each non-existant type is too long.
+     * waiting 6 seconds for each non-existent type is too long.
      * 
      * @param isBackground
      *            true if it is background scan, false otherwise.
