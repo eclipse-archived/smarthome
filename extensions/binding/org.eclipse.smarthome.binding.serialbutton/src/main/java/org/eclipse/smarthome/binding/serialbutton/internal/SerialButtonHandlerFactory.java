@@ -12,20 +12,21 @@
  */
 package org.eclipse.smarthome.binding.serialbutton.internal;
 
-import static org.eclipse.smarthome.binding.serialbutton.SerialButtonBindingConstants.THING_TYPE_BUTTON;
-
 import java.util.Collections;
 import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.serialbutton.SerialButtonBindingConstants;
 import org.eclipse.smarthome.binding.serialbutton.handler.SerialButtonHandler;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.eclipse.smarthome.io.transport.serial.SerialPortManager;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * The {@link SerialButtonHandlerFactory} is responsible for creating things and thing
@@ -33,11 +34,23 @@ import org.osgi.service.component.annotations.Component;
  *
  * @author Kai Kreuzer - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.serialbutton")
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.serialbutton")
 @NonNullByDefault
 public class SerialButtonHandlerFactory extends BaseThingHandlerFactory {
 
-    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(THING_TYPE_BUTTON);
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections
+            .singleton(SerialButtonBindingConstants.THING_TYPE_BUTTON);
+
+    private @NonNullByDefault({}) SerialPortManager serialPortManager;
+
+    @Reference
+    protected void setSerialPortManager(final SerialPortManager serialPortManager) {
+        this.serialPortManager = serialPortManager;
+    }
+
+    protected void unsetSerialPortManager(final SerialPortManager serialPortManager) {
+        this.serialPortManager = null;
+    }
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -48,8 +61,8 @@ public class SerialButtonHandlerFactory extends BaseThingHandlerFactory {
     protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (thingTypeUID.equals(THING_TYPE_BUTTON)) {
-            return new SerialButtonHandler(thing);
+        if (thingTypeUID.equals(SerialButtonBindingConstants.THING_TYPE_BUTTON)) {
+            return new SerialButtonHandler(thing, serialPortManager);
         }
 
         return null;

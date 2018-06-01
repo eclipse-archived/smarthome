@@ -36,7 +36,7 @@ public class BaseDmxChannel implements Comparable<BaseDmxChannel> {
     protected static final Pattern CHANNEL_PATTERN = Pattern.compile("^(\\d*(?=:))?:?(\\d*)\\/?(\\d*)?$");
 
     // this static declaration is needed because of the static fromString method
-    private static final Logger logger = LoggerFactory.getLogger(BaseDmxChannel.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseDmxChannel.class);
 
     private int universeId;
     private final int dmxChannelId;
@@ -49,7 +49,7 @@ public class BaseDmxChannel implements Comparable<BaseDmxChannel> {
      */
     public BaseDmxChannel(int universeId, int dmxChannelId) {
         this.universeId = universeId;
-        this.dmxChannelId = Util.coerceToRange(dmxChannelId, MIN_CHANNEL_ID, MAX_CHANNEL_ID, logger, "channelId");
+        this.dmxChannelId = Util.coerceToRange(dmxChannelId, MIN_CHANNEL_ID, MAX_CHANNEL_ID, LOGGER, "channelId");
     }
 
     /**
@@ -60,7 +60,7 @@ public class BaseDmxChannel implements Comparable<BaseDmxChannel> {
     public BaseDmxChannel(BaseDmxChannel dmxChannel) {
         this.universeId = dmxChannel.getUniverseId();
         this.dmxChannelId = dmxChannel.getChannelId();
-        logger.trace("created DMX channel {} in universe {} ", dmxChannelId, universeId);
+        LOGGER.trace("created DMX channel {} in universe {} ", dmxChannelId, universeId);
     }
 
     /**
@@ -127,7 +127,7 @@ public class BaseDmxChannel implements Comparable<BaseDmxChannel> {
                         : Integer.valueOf(channelMatch.group(1));
                 dmxChannelWidth = channelMatch.group(3).equals("") ? 1 : Integer.valueOf(channelMatch.group(3));
                 dmxChannelId = Integer.valueOf(channelMatch.group(2));
-                logger.trace("parsed channel string {} to universe {}, id {}, width {}", singleDmxChannelString,
+                LOGGER.trace("parsed channel string {} to universe {}, id {}, width {}", singleDmxChannelString,
                         universeId, dmxChannelId, dmxChannelWidth);
                 IntStream.range(dmxChannelId, dmxChannelId + dmxChannelWidth)
                         .forEach(c -> dmxChannels.add(new BaseDmxChannel(universeId, c)));

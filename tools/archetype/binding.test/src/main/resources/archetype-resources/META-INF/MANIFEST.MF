@@ -8,8 +8,6 @@ Bundle-Version: ${version.replaceAll("-SNAPSHOT", ".qualifier")}
 Export-Package: ${package};uses:="org.eclipse.smarthome.test"
 Fragment-Host: ${package}
 Import-Package: 
- ${package},
- ${package}.handler,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.events,
@@ -20,7 +18,6 @@ Import-Package:
  org.eclipse.smarthome.test.java,
  org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
- org.hamcrest.collections,
  org.hamcrest.core,
  org.junit;version="4.0.0",
  org.mockito,

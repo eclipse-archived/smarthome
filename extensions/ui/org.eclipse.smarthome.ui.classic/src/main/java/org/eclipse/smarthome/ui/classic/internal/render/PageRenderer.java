@@ -25,6 +25,11 @@ import org.eclipse.smarthome.ui.classic.internal.WebAppConfig;
 import org.eclipse.smarthome.ui.classic.internal.servlet.WebAppServlet;
 import org.eclipse.smarthome.ui.classic.render.RenderException;
 import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
+import org.eclipse.smarthome.ui.items.ItemUIRegistry;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,12 +43,14 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@Component(service = PageRenderer.class)
 public class PageRenderer extends AbstractWidgetRenderer {
 
     private final Logger logger = LoggerFactory.getLogger(PageRenderer.class);
 
     List<WidgetRenderer> widgetRenderers = new ArrayList<WidgetRenderer>();
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addWidgetRenderer(WidgetRenderer widgetRenderer) {
         widgetRenderer.setConfig(config);
         widgetRenderers.add(widgetRenderer);
@@ -162,7 +169,7 @@ public class PageRenderer extends AbstractWidgetRenderer {
     @Override
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         // Check if this widget is visible
-        if (itemUIRegistry.getVisiblity(w) == false) {
+        if (!itemUIRegistry.getVisiblity(w)) {
             return null;
         }
 
@@ -186,4 +193,16 @@ public class PageRenderer extends AbstractWidgetRenderer {
             renderer.setConfig(config);
         }
     }
+
+    @Override
+    @Reference
+    protected void setItemUIRegistry(ItemUIRegistry ItemUIRegistry) {
+        super.setItemUIRegistry(ItemUIRegistry);
+    }
+
+    @Override
+    protected void unsetItemUIRegistry(ItemUIRegistry ItemUIRegistry) {
+        super.unsetItemUIRegistry(ItemUIRegistry);
+    }
+
 }

@@ -18,6 +18,8 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 
@@ -28,6 +30,7 @@ import org.eclipse.smarthome.core.types.State;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Stefan Bußweiler - Added new thing status info, added new configuration update info
+ * @author Christoph Weitkamp - Moved OSGI ServiceTracker from BaseThingHandler to ThingHandlerCallback
  */
 @NonNullByDefault
 public interface ThingHandlerCallback {
@@ -83,9 +86,27 @@ public interface ThingHandlerCallback {
     /**
      * Informs the framework that a channel has been triggered.
      *
+     * @param thing thing (must not be null)
      * @param channelUID UID of the channel over which has been triggered.
      * @param event Event.
      */
     void channelTriggered(Thing thing, ChannelUID channelUID, String event);
 
+    /**
+     * Create a {@link ChannelBuilder} which is preconfigured with values from the given channel type.
+     *
+     * @param channelUID the UID of the channel to be created
+     * @param channelTypeUID the channel type UID for which the channel should be created
+     * @return a preconfigured ChannelBuilder
+     * @throw {@link IllegalArgumentException} if the referenced channel type is not known
+     */
+    ChannelBuilder createChannelBuilder(ChannelUID channelUID, ChannelTypeUID channelTypeUID);
+
+    /**
+     * Returns whether at least one item is linked for the given UID of the channel.
+     *
+     * @param channelUID UID of the channel (must not be null)
+     * @return true if at least one item is linked, false otherwise
+     */
+    boolean isChannelLinked(ChannelUID channelUID);
 }

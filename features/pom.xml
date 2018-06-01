@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
-  <parent>
-    <groupId>org.eclipse.smarthome</groupId>
-    <artifactId>smarthome</artifactId>
-    <version>0.10.0-SNAPSHOT</version>
-  </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>smarthome</artifactId>
+    <groupId>org.eclipse.smarthome</groupId>
+    <version>0.10.0-SNAPSHOT</version>
+  </parent>
   <groupId>org.eclipse.smarthome</groupId>
   <artifactId>features</artifactId>
 
-  <name>Eclipse SmartHome Features</name>
-
   <packaging>pom</packaging>
+
+  <name>Eclipse SmartHome Features</name>
 
   <modules>
     <module>org.eclipse.smarthome.feature.runtime.core</module>

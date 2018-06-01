@@ -14,7 +14,6 @@ package org.eclipse.smarthome.binding.serialbutton.handler;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Enumeration;
 import java.util.TooManyListenersException;
 
 import org.apache.commons.io.IOUtils;
@@ -27,14 +26,14 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.io.transport.serial.PortInUseException;
+import org.eclipse.smarthome.io.transport.serial.SerialPort;
+import org.eclipse.smarthome.io.transport.serial.SerialPortEvent;
+import org.eclipse.smarthome.io.transport.serial.SerialPortEventListener;
+import org.eclipse.smarthome.io.transport.serial.SerialPortIdentifier;
+import org.eclipse.smarthome.io.transport.serial.SerialPortManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gnu.io.CommPortIdentifier;
-import gnu.io.PortInUseException;
-import gnu.io.RXTXPort;
-import gnu.io.SerialPortEvent;
-import gnu.io.SerialPortEventListener;
 
 /**
  * The {@link SerialButtonHandler} is responsible for handling commands, which are
@@ -45,14 +44,16 @@ import gnu.io.SerialPortEventListener;
 public class SerialButtonHandler extends BaseThingHandler implements SerialPortEventListener {
 
     private final Logger logger = LoggerFactory.getLogger(SerialButtonHandler.class);
+    private final SerialPortManager serialPortManager;
 
-    private CommPortIdentifier portId;
-    private RXTXPort serialPort;
+    private SerialPortIdentifier portId;
+    private SerialPort serialPort;
 
     private InputStream inputStream;
 
-    public SerialButtonHandler(Thing thing) {
+    public SerialButtonHandler(Thing thing, final SerialPortManager serialPortManager) {
         super(thing);
+        this.serialPortManager = serialPortManager;
     }
 
     @Override
@@ -64,36 +65,29 @@ public class SerialButtonHandler extends BaseThingHandler implements SerialPortE
         }
 
         // parse ports and if the port is found, initialize the reader
-        @SuppressWarnings("unchecked")
-        Enumeration<CommPortIdentifier> portList = CommPortIdentifier.getPortIdentifiers();
-        while (portList.hasMoreElements()) {
-            CommPortIdentifier id = portList.nextElement();
-            if (id.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-                if (id.getName().equals(port)) {
-                    logger.debug("Serial port '{}' has been found.", port);
-                    portId = id;
-                }
-            }
-        }
-        if (portId != null) {
-            // initialize serial port
-            try {
-                serialPort = portId.open(getThing().getUID().toString(), 2000);
-                serialPort.addEventListener(this);
-
-                // activate the DATA_AVAILABLE notifier
-                serialPort.notifyOnDataAvailable(true);
-                inputStream = serialPort.getInputStream();
-
-                updateStatus(ThingStatus.ONLINE);
-            } catch (PortInUseException e) {
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, "Port is in use!");
-            } catch (TooManyListenersException e) {
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR,
-                        "Cannot attach listener to port!");
-            }
-        } else {
+        portId = serialPortManager.getIdentifier(port);
+        if (portId == null) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR, "Port is not known!");
+            return;
+        }
+
+        // initialize serial port
+        try {
+            serialPort = portId.open(getThing().getUID().toString(), 2000);
+            serialPort.addEventListener(this);
+
+            // activate the DATA_AVAILABLE notifier
+            serialPort.notifyOnDataAvailable(true);
+            inputStream = serialPort.getInputStream();
+
+            updateStatus(ThingStatus.ONLINE);
+        } catch (final IOException ex) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, "I/O error!");
+        } catch (PortInUseException e) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, "Port is in use!");
+        } catch (TooManyListenersException e) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR,
+                    "Cannot attach listener to port!");
         }
     }
 

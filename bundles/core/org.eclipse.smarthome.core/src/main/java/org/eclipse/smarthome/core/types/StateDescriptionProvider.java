@@ -18,7 +18,10 @@ import java.util.Locale;
  * A {@link StateDescriptionProvider} provides localized {@link StateDescription}s for items.
  *
  * @author Dennis Nobel - Initial contribution
+ *
+ * @deprecated Use {@link StateDescriptionFragmentProvider} instead and provide only the known fields.
  */
+@Deprecated
 public interface StateDescriptionProvider {
 
     /**

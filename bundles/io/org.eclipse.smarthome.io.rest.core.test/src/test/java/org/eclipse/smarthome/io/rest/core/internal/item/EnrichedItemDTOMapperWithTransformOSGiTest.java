@@ -19,12 +19,11 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.List;
 
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.service.StateDescriptionService;
 import org.eclipse.smarthome.core.types.StateDescription;
-import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTO;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
@@ -37,10 +36,8 @@ public class EnrichedItemDTOMapperWithTransformOSGiTest extends JavaOSGiTest {
 
     private static final String ITEM_NAME = "Item1";
 
-    private List<StateDescriptionProvider> stateDescriptionProviders;
-
     @Mock
-    private StateDescriptionProvider stateDescriptionProvider;
+    private StateDescriptionService stateDescriptionService;
 
     @Before
     public void setup() {
@@ -48,16 +45,14 @@ public class EnrichedItemDTOMapperWithTransformOSGiTest extends JavaOSGiTest {
 
         StateDescription stateDescription = new StateDescription(BigDecimal.ZERO, BigDecimal.valueOf(100),
                 BigDecimal.TEN, "%d °C", true, Collections.singletonList(new StateOption("SOUND", "My great sound.")));
-        when(stateDescriptionProvider.getStateDescription(ITEM_NAME, null)).thenReturn(stateDescription);
-
-        stateDescriptionProviders = Collections.singletonList(stateDescriptionProvider);
+        when(stateDescriptionService.getStateDescription(ITEM_NAME, null)).thenReturn(stateDescription);
     }
 
     @Test
     public void shouldConsiderTraformationWhenPresent() {
         NumberItem item1 = new NumberItem("Item1");
         item1.setState(new DecimalType("12.34"));
-        item1.setStateDescriptionProviders(stateDescriptionProviders);
+        item1.setStateDescriptionService(stateDescriptionService);
 
         EnrichedItemDTO enrichedDTO = EnrichedItemDTOMapper.map(item1, false, null, null, null);
         assertThat(enrichedDTO, is(notNullValue()));
@@ -72,5 +67,4 @@ public class EnrichedItemDTOMapperWithTransformOSGiTest extends JavaOSGiTest {
         assertThat(sd.getOptions().get(0).getValue(), is("SOUND"));
         assertThat(sd.getOptions().get(0).getLabel(), is("My great sound."));
     }
-
 }

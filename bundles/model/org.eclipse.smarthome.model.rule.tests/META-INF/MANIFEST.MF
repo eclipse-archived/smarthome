@@ -6,20 +6,28 @@ Bundle-SymbolicName: org.eclipse.smarthome.model.rule.tests;singleton:=t
  rue
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
+Fragment-Host: org.eclipse.smarthome.model.rule.runtime
 Import-Package: 
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.core.library,
  org.eclipse.smarthome.core.library.items,
+ org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.model.core,
  org.eclipse.smarthome.model.script.engine,
+ org.eclipse.smarthome.test.java,
+ org.hamcrest,
  org.hamcrest.core,
+ org.junit,
+ org.junit.runner;version="4.0.0",
  org.junit.runner.manipulation;version="4.0.0",
  org.junit.runner.notification;version="4.0.0",
- org.junit.runner;version="4.0.0",
- org.junit.runners.model;version="4.0.0",
- org.junit.runners;version="4.0.0"
+ org.junit.runners;version="4.0.0",
+ org.junit.runners.model;version="4.0.0"
 Require-Bundle: 
  com.google.guava,
  org.eclipse.core.runtime,
  org.eclipse.smarthome.model.rule,
  org.eclipse.xtend.lib,
- org.eclipse.xtext.xbase.lib
+ org.eclipse.xtext.xbase.lib,
+ org.hamcrest

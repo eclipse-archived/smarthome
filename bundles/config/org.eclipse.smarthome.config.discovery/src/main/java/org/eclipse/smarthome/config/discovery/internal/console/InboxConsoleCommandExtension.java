@@ -33,7 +33,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- * This class provides console commands around the inbox functionality
+ * This class provides console commands around the inbox functionality.
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
@@ -42,6 +42,7 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     private static final String SUBCMD_APPROVE = "approve";
     private static final String SUBCMD_IGNORE = "ignore";
+    private static final String SUBCMD_LIST = "list";
     private static final String SUBCMD_LIST_IGNORED = "listignored";
     private static final String SUBCMD_CLEAR = "clear";
 
@@ -88,6 +89,10 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                         console.println("Cannot approve thing as managed thing provider is missing.");
                     }
                     break;
+                case SUBCMD_LIST:
+                    printInboxEntries(console,
+                            inbox.stream().filter(withFlag((DiscoveryResultFlag.NEW))).collect(Collectors.toList()));
+                    break;
                 case SUBCMD_LIST_IGNORED:
                     printInboxEntries(console, inbox.stream().filter(withFlag((DiscoveryResultFlag.IGNORED)))
                             .collect(Collectors.toList()));
@@ -96,6 +101,7 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                     clearInboxEntries(console, inbox.getAll());
                     break;
                 default:
+                    printUsage(console);
                     break;
             }
         } else {
@@ -149,6 +155,7 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
     @Override
     public List<String> getUsages() {
         return Arrays.asList(new String[] { buildCommandUsage("lists all current inbox entries"),
+                buildCommandUsage(SUBCMD_LIST, "lists all current inbox entries"),
                 buildCommandUsage(SUBCMD_LIST_IGNORED, "lists all ignored inbox entries"),
                 buildCommandUsage(SUBCMD_APPROVE + " <thingUID> <label>", "creates a thing for an inbox entry"),
                 buildCommandUsage(SUBCMD_CLEAR, "clears all current inbox entries"),

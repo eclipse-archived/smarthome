@@ -17,10 +17,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.firmware.Firmware;
-import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID;
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler;
 import org.eclipse.smarthome.core.thing.firmware.FirmwareRegistry;
 import org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo;
@@ -38,6 +38,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
  *
  * @author Thomas Höfer - Initial contribution
  * @author Christoph Knauf - added cancel command
+ * @author Dimitar Ivanov - The listing of the firmwares is done for thing UID
  */
 @Component(immediate = true, service = ConsoleCommandExtension.class)
 public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsoleCommandExtension {
@@ -49,6 +50,7 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
 
     private FirmwareUpdateService firmwareUpdateService;
     private FirmwareRegistry firmwareRegistry;
+    private ThingRegistry thingRegistry;
     private final List<FirmwareUpdateHandler> firmwareUpdateHandlers = new CopyOnWriteArrayList<>();
 
     public FirmwareUpdateConsoleCommandExtension() {
@@ -88,15 +90,22 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
 
     private void listFirmwares(Console console, String[] args) {
         if (args.length != 2) {
-            console.println("Specify the thing type id to get its available firmwares: firmware list <thingTypeUID>");
+            console.println("Specify the thing UID to get its available firmwares: firmware list <thingUID>");
             return;
         }
 
-        ThingTypeUID thingTypeUID = new ThingTypeUID(args[1]);
-        Collection<Firmware> firmwares = firmwareRegistry.getFirmwares(thingTypeUID);
+        ThingUID thingUID = new ThingUID(args[1]);
+        Thing thing = thingRegistry.get(thingUID);
+
+        if (thing == null) {
+            console.println("There is no present thing with UID " + thingUID);
+            return;
+        }
+
+        Collection<Firmware> firmwares = firmwareRegistry.getFirmwares(thing);
 
         if (firmwares.isEmpty()) {
-            console.println("No firmwares found.");
+            console.println("No firmwares found for thing with UID " + thingUID);
         }
 
         for (Firmware firmware : firmwares) {
@@ -118,9 +127,9 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
             sb.append(String.format("Firmware status for thing with UID %s is %s.", thingUID,
                     firmwareStatusInfo.getFirmwareStatus()));
 
-            if (firmwareStatusInfo.getUpdatableFirmwareUID() != null) {
+            if (firmwareStatusInfo.getUpdatableFirmwareVersion() != null) {
                 sb.append(String.format(" The latest updatable firmware version is %s.",
-                        firmwareStatusInfo.getUpdatableFirmwareUID().getFirmwareVersion()));
+                        firmwareStatusInfo.getUpdatableFirmwareVersion()));
             }
 
             console.println(sb.toString());
@@ -163,8 +172,7 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
             return;
         }
 
-        FirmwareUID firmwareUID = new FirmwareUID(firmwareUpdateHandler.getThing().getThingTypeUID(), args[2]);
-        firmwareUpdateService.updateFirmware(thingUID, firmwareUID, null);
+        firmwareUpdateService.updateFirmware(thingUID, args[2], null);
         console.println("Firmware update started.");
     }
 
@@ -180,7 +188,7 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
     @Override
     public List<String> getUsages() {
         return Arrays.asList(new String[] {
-                buildCommandUsage(SUBCMD_LIST + " <thingTypeUID>", "lists the available firmwares for a thing type"),
+                buildCommandUsage(SUBCMD_LIST + " <thingUID>", "lists the available firmwares for a thing"),
                 buildCommandUsage(SUBCMD_STATUS + " <thingUID>", "lists the firmware status for a thing"),
                 buildCommandUsage(SUBCMD_CANCEL + " <thingUID>", "cancels the update for a thing"), buildCommandUsage(
                         SUBCMD_UPDATE + " <thingUID> <firmware version>", "updates the firmware for a thing") });
@@ -202,6 +210,15 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
 
     protected void unsetFirmwareRegistry(FirmwareRegistry firmwareRegistry) {
         this.firmwareRegistry = null;
+    }
+
+    @Reference
+    protected void setThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = thingRegistry;
+    }
+
+    protected void unsetThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = null;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)

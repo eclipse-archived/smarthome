@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -56,14 +58,16 @@ public class HueBridge {
 
     private final Gson gson = new GsonBuilder().setDateFormat(DATE_FORMAT).create();
     private HttpClient http = new HttpClient();
+    private ScheduledExecutorService scheduler;
 
     /**
      * Connect with a bridge as a new user.
      *
      * @param ip ip address of bridge
      */
-    public HueBridge(String ip) {
+    public HueBridge(String ip, ScheduledExecutorService scheduler) {
         this.ip = ip;
+        this.scheduler = scheduler;
     }
 
     /**
@@ -76,8 +80,9 @@ public class HueBridge {
      * @param ip ip address of bridge
      * @param username username to authenticate with
      */
-    public HueBridge(String ip, String username) throws IOException, ApiException {
+    public HueBridge(String ip, String username, ScheduledExecutorService scheduler) throws IOException, ApiException {
         this.ip = ip;
+        this.scheduler = scheduler;
         authenticate(username);
     }
 
@@ -130,7 +135,7 @@ public class HueBridge {
 
         handleErrors(result);
 
-        Map<String, Light> lightMap = safeFromJson(result.getBody(), Light.gsonType);
+        Map<String, Light> lightMap = safeFromJson(result.getBody(), Light.GSON_TYPE);
 
         ArrayList<Light> lightList = new ArrayList<>();
 
@@ -242,7 +247,7 @@ public class HueBridge {
 
         handleErrors(result);
 
-        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.gsonType);
+        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.GSON_TYPE);
         SuccessResponse response = entries.get(0);
 
         return (String) response.success.get("/lights/" + enc(light.getId()) + "/name");
@@ -258,12 +263,12 @@ public class HueBridge {
      * @throws DeviceOffException thrown if the specified light is turned off
      * @throws IOException if the bridge cannot be reached
      */
-    public void setLightState(Light light, StateUpdate update) throws IOException, ApiException {
+    public CompletableFuture<Result> setLightState(Light light, StateUpdate update) {
         requireAuthentication();
 
         String body = update.toJson();
-        Result result = http.put(getRelativeURL("lights/" + enc(light.getId()) + "/state"), body);
-        handleErrors(result);
+        return http.putAsync(getRelativeURL("lights/" + enc(light.getId()) + "/state"), body, update.getMessageDelay(),
+                scheduler);
     }
 
     /**
@@ -290,7 +295,7 @@ public class HueBridge {
 
         handleErrors(result);
 
-        Map<String, Group> groupMap = safeFromJson(result.getBody(), Group.gsonType);
+        Map<String, Group> groupMap = safeFromJson(result.getBody(), Group.GSON_TYPE);
         ArrayList<Group> groupList = new ArrayList<>();
 
         groupList.add(new Group());
@@ -324,7 +329,7 @@ public class HueBridge {
 
         handleErrors(result);
 
-        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.gsonType);
+        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.GSON_TYPE);
         SuccessResponse response = entries.get(0);
 
         Group group = new Group();
@@ -354,7 +359,7 @@ public class HueBridge {
 
         handleErrors(result);
 
-        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.gsonType);
+        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.GSON_TYPE);
         SuccessResponse response = entries.get(0);
 
         Group group = new Group();
@@ -405,7 +410,7 @@ public class HueBridge {
 
         handleErrors(result);
 
-        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.gsonType);
+        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.GSON_TYPE);
         SuccessResponse response = entries.get(0);
 
         return (String) response.success.get("/groups/" + enc(group.getId()) + "/name");
@@ -454,7 +459,7 @@ public class HueBridge {
 
         handleErrors(result);
 
-        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.gsonType);
+        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.GSON_TYPE);
         SuccessResponse response = entries.get(0);
 
         return (String) response.success.get("/groups/" + enc(group.getId()) + "/name");
@@ -509,7 +514,7 @@ public class HueBridge {
 
         handleErrors(result);
 
-        Map<String, Schedule> scheduleMap = safeFromJson(result.getBody(), Schedule.gsonType);
+        Map<String, Schedule> scheduleMap = safeFromJson(result.getBody(), Schedule.GSON_TYPE);
 
         ArrayList<Schedule> scheduleList = new ArrayList<>();
 
@@ -687,12 +692,11 @@ public class HueBridge {
         try {
             scheduleCommand = null;
             callback.onScheduleCommand(this);
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
             // Command will automatically fail to return a result because of deferred execution
-        } finally {
-            if (scheduleCommand != null && Util.stringSize(scheduleCommand.getBody()) > 90) {
-                throw new InvalidCommandException("Commmand body is larger than 90 bytes");
-            }
+        }
+        if (scheduleCommand != null && Util.stringSize(scheduleCommand.getBody()) > 90) {
+            throw new InvalidCommandException("Commmand body is larger than 90 bytes");
         }
 
         // Restore HTTP client
@@ -768,7 +772,7 @@ public class HueBridge {
 
         handleErrors(result);
 
-        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.gsonType);
+        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.GSON_TYPE);
         SuccessResponse response = entries.get(0);
 
         return (String) response.success.get("username");
@@ -863,17 +867,21 @@ public class HueBridge {
     }
 
     // Used as assert in all requests to elegantly catch common errors
-    private void handleErrors(Result result) throws IOException, ApiException {
+    public void handleErrors(Result result) throws IOException, ApiException {
         if (result.getResponseCode() != 200) {
             throw new IOException();
         } else {
             try {
-                List<ErrorResponse> errors = gson.fromJson(result.getBody(), ErrorResponse.gsonType);
+                List<ErrorResponse> errors = gson.fromJson(result.getBody(), ErrorResponse.GSON_TYPE);
                 if (errors == null) {
                     return;
                 }
 
                 for (ErrorResponse error : errors) {
+                    if (error.getType() == null) {
+                        continue;
+                    }
+
                     switch (error.getType()) {
                         case 1:
                             username = null;
@@ -894,8 +902,6 @@ public class HueBridge {
                 }
             } catch (JsonParseException e) {
                 // Not an error
-            } catch (NullPointerException e) {
-                // Object that looks like error
             }
         }
     }

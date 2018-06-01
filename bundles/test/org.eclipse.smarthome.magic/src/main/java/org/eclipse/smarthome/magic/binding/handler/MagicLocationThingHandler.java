@@ -12,8 +12,6 @@
  */
 package org.eclipse.smarthome.magic.binding.handler;
 
-import static org.eclipse.smarthome.magic.binding.MagicBindingConstants.CHANNEL_LOCATION;
-
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -34,8 +32,9 @@ public class MagicLocationThingHandler extends BaseThingHandler {
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        if (channelUID.getId().equals(CHANNEL_LOCATION)) {
-        }
+        // process the command for the location channel here
+        // if (channelUID.getId().equals(MagicBindingConstants.CHANNEL_LOCATION)) {
+        // }
     }
 
     @Override

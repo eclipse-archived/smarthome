@@ -90,6 +90,15 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
     };
 }).factory('configService', function(itemService, thingRepository, ruleRepository, $filter, itemRepository) {
 
+    var insertEmptyOption = function(parameter) {
+        if (!parameter.required && ((parameter.options && parameter.options.length > 0) || parameter.context)) {
+            parameter.options.splice(0, 0, {
+                label : '',
+                value : null
+            })
+        }
+    }
+
     var applyParameterContext = function(parameter) {
         if (!parameter.context) {
             return false;
@@ -639,6 +648,38 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
             return groups;
         }
     }
+}).factory('titleService', function() {
+
+    var titleCallback;
+    var subtitlesCallback;
+
+    return {
+        setTitle : setTitle,
+        onTitle : onTitle,
+        setSubtitles : setSubtitles,
+        onSubtitles : onSubtitles
+    }
+
+    function setTitle(title) {
+        if (this.titleCallback) {
+            this.titleCallback(title);
+        }
+    }
+
+    function onTitle(titleCallback) {
+        this.titleCallback = titleCallback;
+    }
+
+    function setSubtitles(subtitles) {
+        if (this.subtitlesCallback) {
+            this.subtitlesCallback(subtitles);
+        }
+    }
+
+    function onSubtitles(subtitlesCallback) {
+        this.subtitlesCallback = subtitlesCallback;
+    }
+
 }).provider("dateTime", function dateTimeProvider() {
     var months, daysOfWeek, shortChars;
     if (window.localStorage.getItem('paperui.language') == 'de') {
@@ -687,11 +728,3 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
         }
     }
 });
-function insertEmptyOption(parameter) {
-    if (!parameter.required && ((parameter.options && parameter.options.length > 0) || parameter.context)) {
-        parameter.options.splice(0, 0, {
-            label : '',
-            value : null
-        })
-    }
-}

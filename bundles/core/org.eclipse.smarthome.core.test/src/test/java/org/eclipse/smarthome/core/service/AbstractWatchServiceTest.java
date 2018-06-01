@@ -230,10 +230,7 @@ public class AbstractWatchServiceTest extends JavaTest {
         try {
             waitForAssert(() -> assertThat(watchService.allFullEvents.size(), is(expected)));
         } catch (AssertionError e) {
-            System.out.println("===");
-            System.out.println("Wrong event count:");
-            watchService.allFullEvents.forEach(event -> System.out.println(event.toString()));
-            System.out.println("===");
+            watchService.allFullEvents.forEach(event -> event.toString());
             throw e;
         }
     }

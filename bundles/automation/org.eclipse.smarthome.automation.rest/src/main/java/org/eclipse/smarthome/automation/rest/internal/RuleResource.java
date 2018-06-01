@@ -171,7 +171,7 @@ public class RuleResource implements RESTResource {
             return Response.status(Status.NOT_FOUND).build();
         }
 
-        return Response.ok().build();
+        return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
     @PUT
@@ -190,7 +190,7 @@ public class RuleResource implements RESTResource {
             return Response.status(Status.NOT_FOUND).build();
         }
 
-        return Response.ok().build();
+        return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
     @GET
@@ -229,7 +229,7 @@ public class RuleResource implements RESTResource {
         } else {
             rule.setConfiguration(new Configuration(config));
             ruleRegistry.update(rule);
-            return Response.ok().build();
+            return Response.ok(null, MediaType.TEXT_PLAIN).build();
         }
     }
 
@@ -249,7 +249,7 @@ public class RuleResource implements RESTResource {
         } else {
             ruleRegistry.setEnabled(ruleUID, !"false".equalsIgnoreCase(enabled));
             // ruleRegistry.update(rule);
-            return Response.ok().build();
+            return Response.ok(null, MediaType.TEXT_PLAIN).build();
         }
     }
 
@@ -268,7 +268,7 @@ public class RuleResource implements RESTResource {
             return Response.status(Status.NOT_FOUND).build();
         } else {
             ruleRegistry.runNow(ruleUID);
-            return Response.ok().build();
+            return Response.ok(null, MediaType.TEXT_PLAIN).build();
         }
     }
 
@@ -399,7 +399,7 @@ public class RuleResource implements RESTResource {
                 configuration.put(param, ConfigUtil.normalizeType(value));
                 module.setConfiguration(configuration);
                 ruleRegistry.update(rule);
-                return Response.ok().build();
+                return Response.ok(null, MediaType.TEXT_PLAIN).build();
             }
         }
         return Response.status(Status.NOT_FOUND).build();

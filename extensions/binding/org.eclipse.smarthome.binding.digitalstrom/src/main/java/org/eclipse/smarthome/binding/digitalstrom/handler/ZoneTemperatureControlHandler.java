@@ -25,11 +25,11 @@ import org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.climate.TemperatureControlSensorTransmitter;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.climate.constants.ControlModes;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.climate.constants.ControlStates;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.climate.jsonResponseContainer.impl.TemperatureControlStatus;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.climate.jsonresponsecontainer.impl.TemperatureControlStatus;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.TemperatureControlStatusListener;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.StructureManager;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.FunctionalColorGroupEnum;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.OutputModeEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.FunctionalColorGroupEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.OutputModeEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.providers.DsChannelTypeProvider;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -72,7 +72,7 @@ public class ZoneTemperatureControlHandler extends BaseThingHandler implements T
     /**
      * Contains all supported thing types of this handler
      */
-    public static Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(
             Arrays.asList(DigitalSTROMBindingConstants.THING_TYPE_ZONE_TEMERATURE_CONTROL));
 
     private final Logger logger = LoggerFactory.getLogger(ZoneTemperatureControlHandler.class);
@@ -298,8 +298,6 @@ public class ZoneTemperatureControlHandler extends BaseThingHandler implements T
                                 "The communication with temperation sensor fails. Temperature control state emergency (temperature control though the control value) is active.");
                     }
                 }
-                // TODO: in case of control-mode zone-follower it is maybe useful to add the followed zone-id, but this
-                // info is not in the control-status
                 Map<String, String> properties = editProperties();
                 properties.put("controlDSUID", tempControlStatus.getControlDSUID());
                 properties.put("controlMode", controlMode.getKey());

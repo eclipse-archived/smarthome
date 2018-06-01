@@ -24,14 +24,20 @@ import java.util.Locale;
 import org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants;
 import org.eclipse.smarthome.binding.digitalstrom.handler.CircuitHandler;
 import org.eclipse.smarthome.binding.digitalstrom.handler.DeviceHandler;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.MeteringTypeEnum;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.MeteringUnitsEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.MeteringTypeEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.MeteringUnitsEnum;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +50,7 @@ import org.slf4j.LoggerFactory;
  * @author Michael Ochel - initial contributer
  * @author Matthias Siegele - initial contributer
  */
+@Component(service = ThingTypeProvider.class, immediate = true)
 public class DsDeviceThingTypeProvider extends BaseDsI18n implements ThingTypeProvider {
 
     /**
@@ -76,6 +83,29 @@ public class DsDeviceThingTypeProvider extends BaseDsI18n implements ThingTypePr
 
     private final String DEVICE_WITH_POWER_SENSORS = "binding:digitalstrom:deviceWithPowerSensors";
     private final String DEVICE_WITHOUT_POWER_SENSORS = "binding:digitalstrom:deviceWithoutPowerSensors";
+
+    @Activate
+    @Override
+    protected void activate(ComponentContext componentContext) {
+        super.activate(componentContext);
+    }
+
+    @Deactivate
+    @Override
+    protected void deactivate(ComponentContext componentContext) {
+        super.deactivate(componentContext);
+    }
+
+    @Reference
+    @Override
+    protected void setTranslationProvider(TranslationProvider translationProvider) {
+        super.setTranslationProvider(translationProvider);
+    }
+
+    @Override
+    protected void unsetTranslationProvider(TranslationProvider translationProvider) {
+        super.unsetTranslationProvider(translationProvider);
+    }
 
     @Override
     protected void init() {

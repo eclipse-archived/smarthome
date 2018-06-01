@@ -46,6 +46,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.ConfigUtil;
@@ -65,18 +66,24 @@ import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID;
+import org.eclipse.smarthome.core.thing.binding.firmware.Firmware;
 import org.eclipse.smarthome.core.thing.dto.ChannelDTO;
 import org.eclipse.smarthome.core.thing.dto.ChannelDTOMapper;
+import org.eclipse.smarthome.core.thing.dto.StrippedThingTypeDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper;
+import org.eclipse.smarthome.core.thing.firmware.FirmwareRegistry;
 import org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo;
 import org.eclipse.smarthome.core.thing.firmware.FirmwareUpdateService;
+import org.eclipse.smarthome.core.thing.firmware.dto.FirmwareDTO;
 import org.eclipse.smarthome.core.thing.firmware.dto.FirmwareStatusDTO;
 import org.eclipse.smarthome.core.thing.i18n.ThingStatusInfoI18nLocalizationService;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHelper;
@@ -113,6 +120,7 @@ import io.swagger.annotations.ApiResponses;
  *         return empty set for config/status if no status available,
  *         add editable flag to thing responses
  * @author Franck Dechavanne - Added DTOs to ApiResponses
+ * @author Dimitar Ivanov - replaced Firmware UID with thing UID and firmware version
  */
 @Path(ThingResource.PATH_THINGS)
 @Api(value = ThingResource.PATH_THINGS)
@@ -134,8 +142,10 @@ public class ThingResource implements RESTResource {
     private ConfigStatusService configStatusService;
     private ConfigDescriptionRegistry configDescRegistry;
     private ThingTypeRegistry thingTypeRegistry;
+    private ChannelTypeRegistry channelTypeRegistry;
     private ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService;
     private FirmwareUpdateService firmwareUpdateService;
+    private FirmwareRegistry firmwareRegistry;
 
     @Context
     private UriInfo uriInfo;
@@ -179,6 +189,7 @@ public class ThingResource implements RESTResource {
         // turn the ThingDTO's configuration into a Configuration
         Configuration configuration = new Configuration(
                 normalizeConfiguration(thingBean.configuration, thingTypeUID, thingUID));
+        normalizeChannels(thingBean, thingUID);
 
         Thing thing = thingRegistry.createThingOfType(thingTypeUID, thingUID, bridgeUID, thingBean.label,
                 configuration);
@@ -303,7 +314,7 @@ public class ThingResource implements RESTResource {
             }
         }
 
-        return Response.ok().build();
+        return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
     /**
@@ -350,6 +361,7 @@ public class ThingResource implements RESTResource {
         // check configuration
         thingBean.configuration = normalizeConfiguration(thingBean.configuration, thing.getThingTypeUID(),
                 thing.getUID());
+        normalizeChannels(thingBean, thing.getUID());
 
         thing = ThingHelper.merge(thing, thingBean);
 
@@ -446,7 +458,7 @@ public class ThingResource implements RESTResource {
 
         ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
                 LocaleUtil.getLocale(language));
-        return Response.ok().entity(thingStatusInfo).build();
+        return Response.ok(null, MediaType.TEXT_PLAIN).entity(thingStatusInfo).build();
     }
 
     @GET
@@ -469,9 +481,9 @@ public class ThingResource implements RESTResource {
 
         ConfigStatusInfo info = configStatusService.getConfigStatus(thingUID, LocaleUtil.getLocale(language));
         if (info != null) {
-            return Response.ok().entity(info.getConfigStatusMessages()).build();
+            return Response.ok(null, MediaType.TEXT_PLAIN).entity(info.getConfigStatusMessages()).build();
         }
-        return Response.ok().entity(Collections.EMPTY_SET).build();
+        return Response.ok(null, MediaType.TEXT_PLAIN).entity(Collections.EMPTY_SET).build();
     }
 
     @PUT
@@ -487,14 +499,22 @@ public class ThingResource implements RESTResource {
             @PathParam("firmwareVersion") @ApiParam(value = "version") String firmwareVersion) throws IOException {
         Thing thing = thingRegistry.get(new ThingUID(thingUID));
         if (thing == null) {
+            logger.info("Received HTTP PUT request for firmware update at '{}' for the unknown thing '{}'.",
+                    uriInfo.getPath(), thingUID);
             return getThingNotFoundResponse(thingUID);
         }
 
-        FirmwareUID firmwareUID = new FirmwareUID(thing.getThingTypeUID(), firmwareVersion);
+        if (StringUtils.isEmpty(firmwareVersion)) {
+            logger.info(
+                    "Received HTTP PUT request for firmware update at '{}' for thing '{}' with unknown firmware version '{}'.",
+                    uriInfo.getPath(), thingUID, firmwareVersion);
+            return JSONResponse.createResponse(Status.BAD_REQUEST, null, "Firmware version is empty");
+        }
 
+        ThingUID uid = thing.getUID();
         try {
-            firmwareUpdateService.updateFirmware(thing.getUID(), firmwareUID, LocaleUtil.getLocale(language));
-        } catch (IllegalArgumentException | NullPointerException | IllegalStateException ex) {
+            firmwareUpdateService.updateFirmware(uid, firmwareVersion, LocaleUtil.getLocale(language));
+        } catch (IllegalArgumentException | IllegalStateException ex) {
             return JSONResponse.createResponse(Status.BAD_REQUEST, null,
                     "Firmware update preconditions not satisfied.");
         }
@@ -510,16 +530,47 @@ public class ThingResource implements RESTResource {
     public Response getFirmwareStatus(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID) throws IOException {
         ThingUID thingUIDObject = new ThingUID(thingUID);
-
-        FirmwareStatusInfo info = firmwareUpdateService.getFirmwareStatusInfo(thingUIDObject);
-        if (info == null) {
+        FirmwareStatusDTO firmwareStatusDto = getThingFirmwareStatusInfo(thingUIDObject);
+        if (firmwareStatusDto == null) {
             return Response.status(Status.NO_CONTENT).build();
         }
 
-        return Response.ok().entity(buildFirmwareStatusDTO(info)).build();
+        return Response.ok(firmwareStatusDto, MediaType.APPLICATION_JSON).build();
     }
 
-    private FirmwareStatusDTO getThingFirmwareStatus(ThingUID thingUID) {
+    @GET
+    @Path("/{thingUID}/firmwares")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Get all available firmwares for provided thing UID", response = StrippedThingTypeDTO.class, responseContainer = "Set")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 204, message = "No firmwares found.") })
+    public Response getFirmwares(@PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
+            @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
+        ThingUID aThingUID = new ThingUID(thingUID);
+        Thing thing = thingRegistry.get(aThingUID);
+        if (null == thing) {
+            logger.info(
+                    "Received HTTP GET request for listing available firmwares at {} for unknown thing with UID '{}'",
+                    uriInfo.getPath(), thingUID);
+            return getThingNotFoundResponse(thingUID);
+        }
+        Collection<Firmware> firmwares = firmwareRegistry.getFirmwares(thing, LocaleUtil.getLocale(language));
+
+        if (firmwares.isEmpty()) {
+            return Response.status(Status.NO_CONTENT).build();
+        }
+
+        Stream<FirmwareDTO> firmwareStream = firmwares.stream().map(this::convertToFirmwareDTO);
+        return Response.ok().entity(new Stream2JSONInputStream(firmwareStream)).build();
+    }
+
+    private FirmwareDTO convertToFirmwareDTO(Firmware firmware) {
+        return new FirmwareDTO(firmware.getThingTypeUID().getAsString(), firmware.getVendor(), firmware.getModel(),
+                firmware.isModelRestricted(), firmware.getDescription(), firmware.getVersion(),
+                firmware.getPrerequisiteVersion(), firmware.getChangelog());
+    }
+
+    private FirmwareStatusDTO getThingFirmwareStatusInfo(ThingUID thingUID) {
         FirmwareStatusInfo info = firmwareUpdateService.getFirmwareStatusInfo(thingUID);
         if (info != null) {
             return buildFirmwareStatusDTO(info);
@@ -529,10 +580,7 @@ public class ThingResource implements RESTResource {
     }
 
     private FirmwareStatusDTO buildFirmwareStatusDTO(FirmwareStatusInfo info) {
-        String updatableFirmwareVersion = info.getUpdatableFirmwareUID() == null ? null
-                : info.getUpdatableFirmwareUID().getFirmwareVersion();
-
-        return new FirmwareStatusDTO(info.getFirmwareStatus().name(), updatableFirmwareVersion);
+        return new FirmwareStatusDTO(info.getFirmwareStatus().name(), info.getUpdatableFirmwareVersion());
     }
 
     /**
@@ -559,7 +607,7 @@ public class ThingResource implements RESTResource {
                 locale);
         boolean managed = managedThingProvider.get(thing.getUID()) != null;
         EnrichedThingDTO enrichedThingDTO = thing != null
-                ? EnrichedThingDTOMapper.map(thing, thingStatusInfo, this.getThingFirmwareStatus(thing.getUID()),
+                ? EnrichedThingDTOMapper.map(thing, thingStatusInfo, this.getThingFirmwareStatusInfo(thing.getUID()),
                         getLinkedItemsMap(thing), managed)
                 : null;
 
@@ -653,7 +701,7 @@ public class ThingResource implements RESTResource {
         boolean managed = managedThingProvider.get(thing.getUID()) != null;
         ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
                 locale);
-        return EnrichedThingDTOMapper.map(thing, thingStatusInfo, this.getThingFirmwareStatus(thing.getUID()),
+        return EnrichedThingDTOMapper.map(thing, thingStatusInfo, this.getThingFirmwareStatusInfo(thing.getUID()),
                 getLinkedItemsMap(thing), managed);
     }
 
@@ -712,8 +760,26 @@ public class ThingResource implements RESTResource {
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry;
+    }
+
+    protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setFirmwareUpdateService(FirmwareUpdateService firmwareUpdateService) {
         this.firmwareUpdateService = firmwareUpdateService;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setFirmwareRegistry(FirmwareRegistry firmwareRegistry) {
+        this.firmwareRegistry = firmwareRegistry;
+    }
+
+    protected void unsetFirmwareRegistry(FirmwareRegistry firmwareRegistry) {
+        this.firmwareRegistry = null;
     }
 
     protected void unsetFirmwareUpdateService(FirmwareUpdateService firmwareUpdateService) {
@@ -754,8 +820,62 @@ public class ThingResource implements RESTResource {
         return ConfigUtil.normalizeTypes(properties, configDescriptions);
     }
 
+    private Map<String, Object> normalizeConfiguration(Map<String, Object> properties, ChannelTypeUID channelTypeUID,
+            ChannelUID channelUID) {
+        if (properties == null || properties.isEmpty()) {
+            return properties;
+        }
+
+        ChannelType channelType = channelTypeRegistry.getChannelType(channelTypeUID);
+        if (channelType == null) {
+            return properties;
+        }
+
+        List<ConfigDescription> configDescriptions = new ArrayList<>(2);
+        if (channelType.getConfigDescriptionURI() != null) {
+            ConfigDescription typeConfigDesc = configDescRegistry
+                    .getConfigDescription(channelType.getConfigDescriptionURI());
+            if (typeConfigDesc != null) {
+                configDescriptions.add(typeConfigDesc);
+            }
+        }
+        if (getConfigDescriptionURI(channelUID) != null) {
+            ConfigDescription channelConfigDesc = configDescRegistry
+                    .getConfigDescription(getConfigDescriptionURI(channelUID));
+            if (channelConfigDesc != null) {
+                configDescriptions.add(channelConfigDesc);
+            }
+        }
+
+        if (configDescriptions.isEmpty()) {
+            return properties;
+        }
+
+        return ConfigUtil.normalizeTypes(properties, configDescriptions);
+    }
+
+    private void normalizeChannels(ThingDTO thingBean, ThingUID thingUID) {
+        if (thingBean.channels != null) {
+            for (ChannelDTO channelBean : thingBean.channels) {
+                if (channelBean.channelTypeUID != null) {
+                    channelBean.configuration = normalizeConfiguration(channelBean.configuration,
+                            new ChannelTypeUID(channelBean.channelTypeUID), new ChannelUID(thingUID, channelBean.id));
+                }
+            }
+        }
+    }
+
     private URI getConfigDescriptionURI(ThingUID thingUID) {
         String uriString = "thing:" + thingUID;
+        try {
+            return new URI(uriString);
+        } catch (URISyntaxException e) {
+            throw new BadRequestException("Invalid URI syntax: " + uriString);
+        }
+    }
+
+    private URI getConfigDescriptionURI(ChannelUID channelUID) {
+        String uriString = "channel:" + channelUID;
         try {
             return new URI(uriString);
         } catch (URISyntaxException e) {
@@ -768,8 +888,8 @@ public class ThingResource implements RESTResource {
         return itemChannelLinkRegistry != null && itemFactory != null && itemRegistry != null
                 && managedItemChannelLinkProvider != null && managedItemProvider != null && managedThingProvider != null
                 && thingRegistry != null && configStatusService != null && configDescRegistry != null
-                && thingTypeRegistry != null && firmwareUpdateService != null
-                && thingStatusInfoI18nLocalizationService != null;
+                && thingTypeRegistry != null && channelTypeRegistry != null && firmwareUpdateService != null
+                && thingStatusInfoI18nLocalizationService != null && firmwareRegistry != null;
     }
 
 }

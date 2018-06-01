@@ -52,7 +52,7 @@ public interface Item extends Identifiable<String> {
      * @return the current state in the requested type or
      *         null, if state cannot be provided as the requested type
      */
-    public @Nullable State getStateAs(Class<? extends State> typeClass);
+    public <T extends State> @Nullable T getStateAs(Class<T> typeClass);
 
     /**
      * returns the name of the item

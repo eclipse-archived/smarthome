@@ -29,6 +29,8 @@ import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
 import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService.SitemapSubscriptionCallback;
+import org.eclipse.smarthome.model.sitemap.Chart;
+import org.eclipse.smarthome.model.sitemap.ColorArray;
 import org.eclipse.smarthome.model.sitemap.Frame;
 import org.eclipse.smarthome.model.sitemap.VisibilityRule;
 import org.eclipse.smarthome.model.sitemap.Widget;
@@ -135,8 +137,16 @@ public class PageChangeListener implements StateChangeListener {
                     items.addAll(getAllItems(((Frame) widget).getChildren()));
                 }
                 // now scan visibility rules
-                for (VisibilityRule vr : widget.getVisibility()) {
-                    addItemWithName(items, vr.getItem());
+                for (VisibilityRule rule : widget.getVisibility()) {
+                    addItemWithName(items, rule.getItem());
+                }
+                // now scan label color rules
+                for (ColorArray rule : widget.getLabelColor()) {
+                    addItemWithName(items, rule.getItem());
+                }
+                // now scan value color rules
+                for (ColorArray rule : widget.getValueColor()) {
+                    addItemWithName(items, rule.getItem());
                 }
             }
         }
@@ -191,7 +201,13 @@ public class PageChangeListener implements StateChangeListener {
                 events.addAll(constructSitemapEvents(item, itemUIRegistry.getChildren((Frame) w)));
             }
 
-            if ((w.getItem() != null && w.getItem().equals(item.getName())) || definesVisibility(w, item.getName())) {
+            boolean skipWidget = (w.getItem() == null) || !w.getItem().equals(item.getName());
+            // We skip the chart widgets having a refresh argument
+            if (!skipWidget && w instanceof Chart) {
+                Chart chartWidget = (Chart) w;
+                skipWidget = chartWidget.getRefresh() > 0;
+            }
+            if (!skipWidget || definesVisibilityOrColor(w, item.getName())) {
                 SitemapWidgetEvent event = new SitemapWidgetEvent();
                 event.sitemapName = sitemapName;
                 event.pageId = pageId;
@@ -220,16 +236,28 @@ public class PageChangeListener implements StateChangeListener {
         return events;
     }
 
-    private boolean definesVisibility(Widget w, String name) {
-        for (VisibilityRule vr : w.getVisibility()) {
-            if (name.equals(vr.getItem())) {
+    private boolean definesVisibilityOrColor(Widget w, String name) {
+        for (VisibilityRule rule : w.getVisibility()) {
+            if (name.equals(rule.getItem())) {
+                return true;
+            }
+        }
+        for (ColorArray rule : w.getLabelColor()) {
+            if (name.equals(rule.getItem())) {
+                return true;
+            }
+        }
+        for (ColorArray rule : w.getValueColor()) {
+            if (name.equals(rule.getItem())) {
                 return true;
             }
         }
         return false;
     }
 
-    public void sitemapContentChanged() {
+    public void sitemapContentChanged(EList<Widget> widgets) {
+        updateItemsAndWidgets(widgets);
+
         SitemapChangedEvent changeEvent = new SitemapChangedEvent();
         changeEvent.pageId = pageId;
         changeEvent.sitemapName = sitemapName;

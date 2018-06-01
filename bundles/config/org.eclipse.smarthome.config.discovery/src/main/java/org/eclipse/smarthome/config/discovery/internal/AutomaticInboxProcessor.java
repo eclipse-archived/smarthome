@@ -17,6 +17,8 @@ import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -25,6 +27,7 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
+import org.eclipse.smarthome.config.discovery.inbox.InboxAutoApprovePredicate;
 import org.eclipse.smarthome.config.discovery.inbox.InboxListener;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.events.AbstractTypedEventSubscriber;
@@ -38,13 +41,18 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class implements a service to automatically ignore {@link Inbox} entries of newly created things.
+ * This class implements a service to automatically ignore or approve {@link Inbox} entries of newly discovered things.
  * <p>
- * The {@link AutomaticInboxProcessor} service implements a {@link EventSubscriber}, that is triggered
+ * <strong>Automatically ignoring inbox entries</strong>
+ * </p>
+ * <p>
+ * The {@link AutomaticInboxProcessor} service implements an {@link EventSubscriber} that is triggered
  * for each thing when coming ONLINE. {@link Inbox} entries with the same representation value like the
  * newly created thing will be automatically set to {@link DiscoveryResultFlag#IGNORED}.
  * </p>
@@ -53,12 +61,24 @@ import org.slf4j.LoggerFactory;
  * are removed from the {@link Inbox} so they could be discovered again afterwards.
  * </p>
  * <p>
- * This service can be enabled or disabled by setting the {@code autoIgnore} property to either
+ * Automatically ignoring inbox entries can be enabled or disabled by setting the {@code autoIgnore} property to either
  * {@code true} or {@code false} via ConfigAdmin.
+ * </p>
+ * <p>
+ * <strong>Automatically approving inbox entries</strong>
+ * </p>
+ * <p>
+ * For each new discovery result, the {@link AutomaticInboxProcessor} queries all DS components implementing
+ * {@link InboxAutoApprovePredicate} whether the result should be automatically approved.
+ * </p>
+ * <p>
+ * If all new discovery results should be automatically approved (regardless of {@link InboxAutoApprovePredicate}s), the
+ * {@code autoApprove} configuration property can be set to {@code true}.
  * </p>
  *
  * @author Andre Fuechsel - Initial Contribution
  * @author Kai Kreuzer - added auto-approve functionality
+ * @author Henning Sudbrock - added hook for selectively auto-approving inbox entries
  */
 @Component(immediate = true, configurationPid = "org.eclipse.smarthome.inbox", service = EventSubscriber.class, property = {
         "service.config.description.uri=system:inbox", "service.config.label=Inbox", "service.config.category=system",
@@ -66,6 +86,9 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingStatusInfoChangedEvent>
         implements InboxListener, RegistryChangeListener<Thing> {
+
+    public static final String AUTO_IGNORE_CONFIG_PROPERTY = "autoIgnore";
+    public static final String ALWAYS_AUTO_APPROVE_CONFIG_PROPERTY = "autoApprove";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -76,7 +99,9 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
     @NonNullByDefault({})
     private Inbox inbox;
     private boolean autoIgnore = true;
-    private boolean autoApprove = false;
+    private boolean alwaysAutoApprove = false;
+
+    private final Set<InboxAutoApprovePredicate> inboxAutoApprovePredicates = new CopyOnWriteArraySet<>();
 
     public AutomaticInboxProcessor() {
         super(ThingStatusInfoChangedEvent.TYPE);
@@ -106,7 +131,7 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
                 }
             }
         }
-        if (autoApprove) {
+        if (alwaysAutoApprove || isToBeAutoApproved(result)) {
             inbox.approve(result.getThingUID(), result.getLabel());
         }
     }
@@ -201,23 +226,27 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
         }
     }
 
-    private void approveAllInboxEntries() {
+    private void autoApproveInboxEntries() {
         for (DiscoveryResult result : inbox.getAll()) {
             if (result.getFlag().equals(DiscoveryResultFlag.NEW)) {
-                inbox.approve(result.getThingUID(), result.getLabel());
+                if (alwaysAutoApprove || isToBeAutoApproved(result)) {
+                    inbox.approve(result.getThingUID(), result.getLabel());
+                }
             }
         }
     }
 
+    private boolean isToBeAutoApproved(DiscoveryResult result) {
+        return inboxAutoApprovePredicates.stream().anyMatch(predicate -> predicate.test(result));
+    }
+
     protected void activate(@Nullable Map<String, @Nullable Object> properties) {
         if (properties != null) {
-            Object value = properties.get("autoIgnore");
+            Object value = properties.get(AUTO_IGNORE_CONFIG_PROPERTY);
             autoIgnore = value == null || !value.toString().equals("false");
-            value = properties.get("autoApprove");
-            autoApprove = value != null && value.toString().equals("true");
-            if (autoApprove) {
-                approveAllInboxEntries();
-            }
+            value = properties.get(ALWAYS_AUTO_APPROVE_CONFIG_PROPERTY);
+            alwaysAutoApprove = value != null && value.toString().equals("true");
+            autoApproveInboxEntries();
         }
     }
 
@@ -250,5 +279,19 @@ public class AutomaticInboxProcessor extends AbstractTypedEventSubscriber<ThingS
     protected void unsetInbox(Inbox inbox) {
         inbox.removeInboxListener(this);
         this.inbox = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    protected void addInboxAutoApprovePredicate(InboxAutoApprovePredicate inboxAutoApprovePredicate) {
+        inboxAutoApprovePredicates.add(inboxAutoApprovePredicate);
+        for (DiscoveryResult result : inbox.getAll()) {
+            if (result.getFlag().equals(DiscoveryResultFlag.NEW) && inboxAutoApprovePredicate.test(result)) {
+                inbox.approve(result.getThingUID(), result.getLabel());
+            }
+        }
+    }
+
+    protected void removeInboxAutoApprovePredicate(InboxAutoApprovePredicate inboxAutoApprovePredicate) {
+        inboxAutoApprovePredicates.remove(inboxAutoApprovePredicate);
     }
 }

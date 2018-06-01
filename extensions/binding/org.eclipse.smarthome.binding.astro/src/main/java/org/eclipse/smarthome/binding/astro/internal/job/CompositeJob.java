@@ -50,7 +50,7 @@ public final class CompositeJob extends AbstractJob {
             try {
                 j.run();
             } catch (RuntimeException ex) {
-                logger.warn("Job execution failed.", ex);
+                LOGGER.warn("Job execution failed.", ex);
             }
         });
     }

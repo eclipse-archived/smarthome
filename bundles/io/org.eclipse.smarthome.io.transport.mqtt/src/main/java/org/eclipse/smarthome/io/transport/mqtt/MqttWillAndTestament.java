@@ -12,7 +12,11 @@
  */
 package org.eclipse.smarthome.io.transport.mqtt;
 
+import java.nio.charset.StandardCharsets;
+
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Class encapsulating the last will and testament that is published after the client has gone offline.
@@ -20,11 +24,15 @@ import org.apache.commons.lang.StringUtils;
  * @author Markus Mann
  *
  */
+@NonNullByDefault
 public class MqttWillAndTestament {
-    private String topic;
-    private byte[] payload;
-    private int qos = 0;
-    private boolean retain = false;
+    private static final int DFL_QOS = 0;
+    private static final boolean DFL_RETAIN = false;
+
+    private final String topic;
+    private final byte @Nullable [] payload;
+    private final int qos;
+    private final boolean retain;
 
     /**
      * Create an instance of the last will using a string with the following format:<br/>
@@ -40,42 +48,65 @@ public class MqttWillAndTestament {
      * @param string the string to parse. If null, null is returned
      * @return the will instance, will be null only if parameter is null
      */
-    public static MqttWillAndTestament fromString(String string) {
-        if (string == null) {
-            return null;
-        }
-        MqttWillAndTestament result = new MqttWillAndTestament();
-        String[] components = string.split(":");
-        for (int i = 0; i < Math.min(components.length, 4); i++) {
-            String value = StringUtils.trimToEmpty(components[i]);
-            switch (i) {
-                case 0:
-                    result.topic = value;
-                    break;
-                case 1:
-                    result.payload = value.getBytes();
-                    break;
-                case 2:
-                    if (!"".equals(value)) {
-                        int qos = Integer.valueOf(value);
-                        if (qos >= 0 && qos <= 2) {
-                            result.qos = qos;
-                        }
-                    }
-                    break;
-                case 3:
-                    result.retain = Boolean.valueOf(value);
-                    break;
-            }
-        }
-        return result.isValid() ? result : null;
+    public static @Nullable MqttWillAndTestament fromString(@Nullable String string) {
+        return fromString(string, null, null, null, null);
     }
 
-    /**
-     * Hide the constructor and force consumers to use the fromString() method or the
-     * constructor requiring all field parameters to be set.
-     */
-    private MqttWillAndTestament() {
+    public static @Nullable MqttWillAndTestament fromString(@Nullable String string, @Nullable String topic,
+            byte @Nullable [] payload, @Nullable Integer qos, @Nullable Boolean retain) {
+        String tmpTopic = null;
+        byte[] tmpPayload = null;
+        int tmpQos = DFL_QOS;
+        boolean tmpRetain = DFL_RETAIN;
+
+        // Parse string if given.
+        if (string != null) {
+            String[] components = string.split(":");
+            for (int i = 0; i < Math.min(components.length, 4); i++) {
+                String value = StringUtils.trimToEmpty(components[i]);
+                switch (i) {
+                    case 0:
+                        tmpTopic = value;
+                        break;
+                    case 1:
+                        tmpPayload = value.getBytes(StandardCharsets.UTF_8);
+                        break;
+                    case 2:
+                        if (!"".equals(value)) {
+                            int tmp = Integer.valueOf(value);
+                            if (tmp >= 0 && tmp <= 2) {
+                                tmpQos = tmp;
+                            }
+                        }
+                        break;
+                    case 3:
+                        tmpRetain = Boolean.valueOf(value);
+                        break;
+                }
+            }
+        }
+
+        // Use explicit given values.
+        if (topic != null) {
+            tmpTopic = topic;
+        }
+        if (payload != null) {
+            tmpPayload = payload;
+        }
+        if (qos != null) {
+            tmpQos = qos;
+        }
+        if (retain != null) {
+            tmpRetain = retain;
+        }
+
+        // Check if valid
+        if (tmpTopic == null || tmpTopic.isEmpty()) {
+            return null;
+        }
+
+        // Create MQTT Last Will and Testament object
+        return new MqttWillAndTestament(tmpTopic, tmpPayload, tmpQos, tmpRetain);
     }
 
     /**
@@ -86,7 +117,7 @@ public class MqttWillAndTestament {
      * @param qos Valid values are 0 (Deliver at most once),1 (Deliver at least once) or 2</li>
      * @param retain true if messages shall be retained
      */
-    public MqttWillAndTestament(String topic, byte[] payload, int qos, boolean retain) {
+    public MqttWillAndTestament(String topic, byte @Nullable [] payload, int qos, boolean retain) {
         if (StringUtils.isBlank(topic)) {
             throw new IllegalArgumentException("Topic must be set");
         }
@@ -94,13 +125,6 @@ public class MqttWillAndTestament {
         this.payload = payload;
         this.qos = qos;
         this.retain = retain;
-    }
-
-    /**
-     * Return true if the last will and testament object is valid.
-     */
-    private boolean isValid() {
-        return !StringUtils.isBlank(topic);
     }
 
     /**
@@ -113,7 +137,7 @@ public class MqttWillAndTestament {
     /**
      * @return the payload of the last will.
      */
-    public byte[] getPayload() {
+    public byte @Nullable [] getPayload() {
         return payload;
     }
 

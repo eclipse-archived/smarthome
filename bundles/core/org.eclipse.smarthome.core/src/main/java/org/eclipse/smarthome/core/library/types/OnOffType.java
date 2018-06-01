@@ -40,13 +40,13 @@ public enum OnOffType implements PrimitiveType, State, Command {
     }
 
     @Override
-    public State as(Class<? extends State> target) {
+    public <T extends State> T as(Class<T> target) {
         if (target == DecimalType.class) {
-            return this == ON ? new DecimalType(1) : DecimalType.ZERO;
+            return target.cast(this == ON ? new DecimalType(1) : DecimalType.ZERO);
         } else if (target == PercentType.class) {
-            return this == ON ? PercentType.HUNDRED : PercentType.ZERO;
+            return target.cast(this == ON ? PercentType.HUNDRED : PercentType.ZERO);
         } else if (target == HSBType.class) {
-            return this == ON ? HSBType.WHITE : HSBType.BLACK;
+            return target.cast(this == ON ? HSBType.WHITE : HSBType.BLACK);
         } else {
             return State.super.as(target);
         }

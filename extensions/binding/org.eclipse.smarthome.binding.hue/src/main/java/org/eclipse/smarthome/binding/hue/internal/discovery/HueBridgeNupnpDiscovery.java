@@ -27,9 +27,11 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
+import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +48,7 @@ import com.google.gson.reflect.TypeToken;
  * @author Andre Fuechsel - make {@link #startScan()} asynchronous
  */
 @NonNullByDefault
+@Component(service = DiscoveryService.class, immediate = true, configurationPid = "discovery.hue")
 public class HueBridgeNupnpDiscovery extends AbstractDiscoveryService {
 
     private static final String MODEL_NAME_PHILIPS_HUE = "<modelName>Philips hue";

@@ -65,9 +65,14 @@ public class ConfigDescriptionConverter extends GenericUnmarshaller<ConfigDescri
         }
 
         URI uri = null;
+        if (uriText == null) {
+            throw new ConversionException(
+                    "No URI provided");
+        }
+
         try {
             uri = new URI(uriText);
-        } catch (NullPointerException | URISyntaxException ex) {
+        } catch (URISyntaxException ex) {
             throw new ConversionException(
                     "The URI '" + uriText + "' in node '" + reader.getNodeName() + "' is invalid!", ex);
         }
@@ -82,7 +87,7 @@ public class ConfigDescriptionConverter extends GenericUnmarshaller<ConfigDescri
 
         // iterate through the nodes, putting the different types into their
         // respective arrays
-        while (nodeIterator.hasNext() == true) {
+        while (nodeIterator.hasNext()) {
             Object node = nodeIterator.next();
             if (node instanceof ConfigDescriptionParameter) {
                 configDescriptionParams.add((ConfigDescriptionParameter) node);

@@ -35,7 +35,6 @@ import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +45,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Karel Goderis - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.sonos", configurationPolicy = ConfigurationPolicy.OPTIONAL)
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.sonos")
 public class SonosHandlerFactory extends BaseThingHandlerFactory {
 
     private final Logger logger = LoggerFactory.getLogger(SonosHandlerFactory.class);

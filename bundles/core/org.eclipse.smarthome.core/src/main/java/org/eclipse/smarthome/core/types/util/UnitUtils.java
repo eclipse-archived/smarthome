@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.core.types.util;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.util.Set;
 
 import javax.measure.Quantity;
@@ -40,7 +42,7 @@ import tec.uom.se.unit.TransformedUnit;
 @NonNullByDefault
 public class UnitUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(UnitUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UnitUtils.class);
 
     public static final String UNIT_PLACEHOLDER = "%unit%";
     public static final String UNIT_PERCENT_FORMAT_STRING = "%%";
@@ -103,7 +105,7 @@ public class UnitUtils {
                 return quantity.getUnit();
             } catch (IllegalArgumentException e) {
                 // we expect this exception in case the extracted string does not match any known unit
-                logger.debug("Unknown unit from pattern: {}", unitSymbol);
+                LOGGER.debug("Unknown unit from pattern: {}", unitSymbol);
             }
         }
 
@@ -111,11 +113,11 @@ public class UnitUtils {
     }
 
     public static boolean isDifferentMeasurementSystem(Unit<? extends Quantity<?>> thisUnit, Unit<?> thatUnit) {
-        Set<? extends Unit<?>> SI = SIUnits.getInstance().getUnits();
-        Set<? extends Unit<?>> US = ImperialUnits.getInstance().getUnits();
+        Set<? extends Unit<?>> siUnits = SIUnits.getInstance().getUnits();
+        Set<? extends Unit<?>> usUnits = ImperialUnits.getInstance().getUnits();
 
-        boolean differentSystems = (SI.contains(thisUnit) && US.contains(thatUnit)) //
-                || (SI.contains(thatUnit) && US.contains(thisUnit));
+        boolean differentSystems = (siUnits.contains(thisUnit) && usUnits.contains(thatUnit)) //
+                || (siUnits.contains(thatUnit) && usUnits.contains(thisUnit));
 
         if (!differentSystems) {
             if (thisUnit instanceof TransformedUnit
@@ -127,6 +129,15 @@ public class UnitUtils {
                     && isMetricConversion(((TransformedUnit<?>) thatUnit).getConverter())) {
                 return isDifferentMeasurementSystem(thisUnit, ((TransformedUnit<?>) thatUnit).getParentUnit());
             }
+        }
+
+        // Compare the unit symbols. For product units (e.g. 1km / 1h) the equality is not given in the Sets above.
+        if (!differentSystems) {
+            Set<String> siSymbols = siUnits.stream().map(Unit::getSymbol).collect(toSet());
+            Set<String> usSymbols = usUnits.stream().map(Unit::getSymbol).collect(toSet());
+
+            differentSystems = (siSymbols.contains(thisUnit.getSymbol()) && usSymbols.contains(thatUnit.getSymbol())) //
+                    || (siSymbols.contains(thatUnit.getSymbol()) && usSymbols.contains(thisUnit.getSymbol()));
         }
 
         return differentSystems;

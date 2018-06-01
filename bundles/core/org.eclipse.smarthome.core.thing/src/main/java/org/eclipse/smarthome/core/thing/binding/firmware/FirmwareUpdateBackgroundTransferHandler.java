@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.core.thing.binding.firmware;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.firmware.FirmwareStatus;
 import org.eclipse.smarthome.core.thing.firmware.FirmwareUpdateService;
 
@@ -25,6 +26,7 @@ import org.eclipse.smarthome.core.thing.firmware.FirmwareUpdateService;
  *
  * @author Thomas Höfer - Initial contribution
  */
+@NonNullByDefault
 public interface FirmwareUpdateBackgroundTransferHandler extends FirmwareUpdateHandler {
 
     /**

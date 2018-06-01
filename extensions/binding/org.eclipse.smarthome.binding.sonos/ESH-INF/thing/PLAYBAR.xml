@@ -27,7 +27,6 @@
 			<channel id="localcoordinator" typeId="localcoordinator" />
 			<channel id="mute" typeId="mute" />
 			<channel id="notificationsound" typeId="notificationsound" />
-			<channel id="notificationvolume" typeId="notificationvolume" />
 			<channel id="playlist" typeId="playlist" />
 			<channel id="clearqueue" typeId="clearqueue" />
 			<channel id="playqueue" typeId="playqueue" />

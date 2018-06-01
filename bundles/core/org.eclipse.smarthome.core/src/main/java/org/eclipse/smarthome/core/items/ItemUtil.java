@@ -17,9 +17,9 @@ import java.util.Objects;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.internal.service.BundleResolverImpl;
 import org.eclipse.smarthome.core.types.State;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 
 /**
@@ -124,7 +124,7 @@ public class ItemUtil {
      */
     @Deprecated
     public static @Nullable State convertToAcceptedState(@Nullable State state, Item item) {
-        BundleContext bundleContext = FrameworkUtil.getBundle(ItemUtil.class).getBundleContext();
+        BundleContext bundleContext = new BundleResolverImpl().resolveBundle(ItemUtil.class).getBundleContext();
         ServiceReference<ItemStateConverter> service = bundleContext.getServiceReference(ItemStateConverter.class);
         if (service == null) {
             return null;

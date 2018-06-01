@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
-  <parent>
-    <groupId>org.eclipse.smarthome</groupId>
-    <artifactId>bundles</artifactId>
-    <version>0.10.0-SNAPSHOT</version>
-  </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>bundles</artifactId>
+    <groupId>org.eclipse.smarthome</groupId>
+    <version>0.10.0-SNAPSHOT</version>
+  </parent>
   <groupId>org.eclipse.smarthome.bundles</groupId>
   <artifactId>io</artifactId>
 
-  <name>Eclipse SmartHome I/O Components</name>
-
   <packaging>pom</packaging>
+
+  <name>Eclipse SmartHome I/O Components</name>
 
   <modules>
     <module>org.eclipse.smarthome.io.console</module>
@@ -41,6 +41,9 @@
     <module>org.eclipse.smarthome.io.transport.mdns</module>
     <module>org.eclipse.smarthome.io.transport.mqtt</module>
     <module>org.eclipse.smarthome.io.transport.mqtt.test</module>
+    <module>org.eclipse.smarthome.io.transport.serial</module>
+    <module>org.eclipse.smarthome.io.transport.serial.javacomm</module>
+    <module>org.eclipse.smarthome.io.transport.serial.rxtx</module>
     <module>org.eclipse.smarthome.io.transport.upnp</module>
     <module>org.eclipse.smarthome.io.transport.upnp.test</module>
   </modules>

@@ -35,7 +35,7 @@ import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.items.events.ItemEventFactory
 import org.eclipse.smarthome.core.items.events.ItemStateEvent
 import org.eclipse.smarthome.core.library.items.StringItem
-import org.eclipse.smarthome.core.library.types.DecimalType
+import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.library.types.StringType
 import org.eclipse.smarthome.core.service.ReadyMarker
 import org.eclipse.smarthome.core.service.ReadyService
@@ -67,6 +67,7 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
 import org.eclipse.smarthome.core.thing.link.ThingLinkManager
+import org.eclipse.smarthome.core.thing.testutil.i18n.DefaultLocaleSetter
 import org.eclipse.smarthome.core.thing.type.ChannelKind
 import org.eclipse.smarthome.core.thing.type.ChannelType
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
@@ -79,6 +80,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.osgi.framework.FrameworkUtil
+import org.osgi.service.cm.ConfigurationAdmin
 
 import com.google.common.collect.Sets
 
@@ -709,13 +711,13 @@ class ThingManagerOSGiTest extends OSGiTest {
         callback.statusUpdated(THING, ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build())
 
         // event should be delivered
-        eventPublisher.post(ItemEventFactory.createCommandEvent(itemName, new DecimalType(10)))
+        eventPublisher.post(ItemEventFactory.createCommandEvent(itemName, OnOffType.ON))
         waitForAssert { assertThat handleCommandWasCalled, is(true) }
 
         handleCommandWasCalled = false
 
         // event should not be delivered, because the source is the same
-        eventPublisher.post(ItemEventFactory.createCommandEvent(itemName, new DecimalType(10), CHANNEL_UID.toString()))
+        eventPublisher.post(ItemEventFactory.createCommandEvent(itemName, OnOffType.ON, CHANNEL_UID.toString()))
         waitFor({handleCommandWasCalled == true}, 1000)
         assertThat handleCommandWasCalled, is(false)
     }
@@ -1190,7 +1192,10 @@ class ThingManagerOSGiTest extends OSGiTest {
         def defaultLocale = localeProvider.getLocale()
 
         // set status to ONLINE (INITIALIZING -> ONLINE)
-        setDefaultLocale(Locale.ENGLISH)
+        new DefaultLocaleSetter(getService(ConfigurationAdmin)).setDefaultLocale(Locale.ENGLISH)
+        waitForAssert {
+            assertThat localeProvider.getLocale(), is(Locale.ENGLISH)
+        }
 
         ThingStatusInfo statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).withDescription("@text/online").build()
         callback.statusUpdated(THING, statusInfo)
@@ -1219,7 +1224,10 @@ class ThingManagerOSGiTest extends OSGiTest {
         infoChangedEvent = null
 
         // set status to OFFLINE (ONLINE -> OFFLINE)
-        setDefaultLocale(Locale.GERMAN)
+        new DefaultLocaleSetter(getService(ConfigurationAdmin)).setDefaultLocale(Locale.GERMAN)
+        waitForAssert {
+            assertThat localeProvider.getLocale(), is(Locale.GERMAN)
+        }
 
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.NONE).withDescription("@text/offline.without-param").build()
         callback.statusUpdated(THING, statusInfo)
@@ -1247,7 +1255,10 @@ class ThingManagerOSGiTest extends OSGiTest {
         infoEvent = null
         infoChangedEvent = null
 
-        setDefaultLocale(defaultLocale)
+        new DefaultLocaleSetter(getService(ConfigurationAdmin)).setDefaultLocale(defaultLocale)
+        waitForAssert {
+            assertThat localeProvider.getLocale(), is(defaultLocale)
+        }
     }
 
     @Test
@@ -1591,7 +1602,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         itemChannelLinkRegistry.add(new ItemChannelLink("testItem", new ChannelUID(THING.getUID(), "channel")))
         waitForAssert { assertThat itemRegistry.get("testItem"), is(notNullValue()) }
 
-        eventPublisher.post(ItemEventFactory.createCommandEvent("testItem", new StringType("TEST")))
+        eventPublisher.post(ItemEventFactory.createCommandEvent("testItem", OnOffType.ON))
 
         assertThat handleCommandCalled, is(false)
 
@@ -1599,13 +1610,13 @@ class ThingManagerOSGiTest extends OSGiTest {
         callback.statusUpdated(THING, statusInfo)
         assertThat THING.statusInfo, is(statusInfo)
 
-        eventPublisher.post(ItemEventFactory.createCommandEvent("testItem", new StringType("TEST")))
+        eventPublisher.post(ItemEventFactory.createCommandEvent("testItem", OnOffType.ON))
 
         waitForAssert {
             assertThat handleCommandCalled, is(true)
         }
         assertThat calledChannelUID, is(equalTo(new ChannelUID(THING.getUID(), "channel")))
-        assertThat calledCommand, is(equalTo(new StringType("TEST")))
+        assertThat calledCommand, is(equalTo(OnOffType.ON))
     }
 
     private void registerThingTypeProvider() {

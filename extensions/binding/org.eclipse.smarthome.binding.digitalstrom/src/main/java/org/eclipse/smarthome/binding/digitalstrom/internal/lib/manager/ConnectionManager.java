@@ -14,8 +14,8 @@ package org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager;
 
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.config.Config;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.ConnectionListener;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.DsAPI;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.HttpTransport;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.DsAPI;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.HttpTransport;
 
 /**
  * The {@link ConnectionManager} manages the connection to a digitalSTROM-Server.

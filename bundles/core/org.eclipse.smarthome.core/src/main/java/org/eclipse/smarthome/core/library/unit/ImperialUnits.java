@@ -21,9 +21,13 @@ import javax.measure.quantity.Speed;
 import javax.measure.quantity.Temperature;
 import javax.measure.spi.SystemOfUnits;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 import tec.uom.se.format.SimpleUnitFormat;
 import tec.uom.se.function.AddConverter;
+import tec.uom.se.function.MultiplyConverter;
 import tec.uom.se.function.RationalConverter;
+import tec.uom.se.unit.ProductUnit;
 import tec.uom.se.unit.TransformedUnit;
 import tec.uom.se.unit.Units;
 
@@ -33,9 +37,10 @@ import tec.uom.se.unit.Units;
  * @author Henning Treu - initial contribution
  *
  */
+@NonNullByDefault
 public class ImperialUnits extends SmartHomeUnits {
 
-    private static ImperialUnits INSTANCE = new ImperialUnits();
+    private static final ImperialUnits INSTANCE = new ImperialUnits();
 
     private ImperialUnits() {
         // avoid external instantiation
@@ -66,28 +71,52 @@ public class ImperialUnits extends SmartHomeUnits {
     public static final Unit<Speed> MILES_PER_HOUR = addUnit(
             new TransformedUnit<>("mph", Units.KILOMETRE_PER_HOUR, new RationalConverter(1609344l, 1000000l)));
 
+    /** Length **/
     public static final Unit<Length> INCH = addUnit(
             new TransformedUnit<>("in", Units.METRE, new RationalConverter(254l, 10000l)));
 
+    public static final Unit<Length> FOOT = addUnit(
+            new TransformedUnit<>("ft", ImperialUnits.INCH, new MultiplyConverter(12.0)));
+    
+    public static final Unit<Length> YARD = addUnit(
+            new TransformedUnit<>("yd", ImperialUnits.FOOT, new MultiplyConverter(3.0)));
+    
+    public static final Unit<Length> CHAIN = addUnit(
+            new TransformedUnit<>("ch", ImperialUnits.YARD, new MultiplyConverter(22.0)));
+    
+    public static final Unit<Length> FURLONG = addUnit(
+            new TransformedUnit<>("fur", ImperialUnits.CHAIN, new MultiplyConverter(10.0)));
+
     public static final Unit<Length> MILE = addUnit(
-            new TransformedUnit<>("mi", Units.METRE, new RationalConverter(1609344l, 1000l)));
+            new TransformedUnit<>("mi", ImperialUnits.FURLONG, new MultiplyConverter(8.0)));
+    
+    public static final Unit<Length> LEAGUE = addUnit(
+            new TransformedUnit<>("lea", ImperialUnits.MILE, new MultiplyConverter(3.0)));
+    
+    public static final Unit<Length> SQUARE_FOOT = addUnit(new ProductUnit<>(FOOT.multiply(FOOT)));
+    public static final Unit<Length> CUBIC_FOOT = addUnit(new ProductUnit<>(SQUARE_FOOT.multiply(FOOT)));
+    
 
     /**
      * Add unit symbols for imperial units.
      */
     static {
-        SimpleUnitFormat.getInstance().label(INCH_OF_MERCURY, "inHg");
-        SimpleUnitFormat.getInstance().label(FAHRENHEIT, "°F");
-        SimpleUnitFormat.getInstance().label(MILES_PER_HOUR, "mph");
-        SimpleUnitFormat.getInstance().label(INCH, "in");
-        SimpleUnitFormat.getInstance().label(MILE, "mi");
+        SimpleUnitFormat.getInstance().label(INCH_OF_MERCURY, INCH_OF_MERCURY.getSymbol());
+        SimpleUnitFormat.getInstance().label(FAHRENHEIT, FAHRENHEIT.getSymbol());
+        SimpleUnitFormat.getInstance().label(MILES_PER_HOUR, MILES_PER_HOUR.getSymbol());
+        SimpleUnitFormat.getInstance().label(INCH, INCH.getSymbol());
+        SimpleUnitFormat.getInstance().label(FOOT, FOOT.getSymbol());
+        SimpleUnitFormat.getInstance().label(YARD, YARD.getSymbol());
+        SimpleUnitFormat.getInstance().label(CHAIN, CHAIN.getSymbol());
+        SimpleUnitFormat.getInstance().label(FURLONG, FURLONG.getSymbol());
+        SimpleUnitFormat.getInstance().label(MILE, MILE.getSymbol());
+        SimpleUnitFormat.getInstance().label(LEAGUE, LEAGUE.getSymbol());
     }
 
     /**
      * Adds a new unit not mapped to any specified quantity type.
      *
-     * @param unit
-     *            the unit being added.
+     * @param unit the unit being added.
      * @return <code>unit</code>.
      */
     private static <U extends Unit<?>> U addUnit(U unit) {

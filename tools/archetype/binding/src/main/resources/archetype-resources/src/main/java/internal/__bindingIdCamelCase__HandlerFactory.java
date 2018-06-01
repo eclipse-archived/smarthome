@@ -19,14 +19,14 @@
  */
 package ${package}.internal;
 
-import static ${package}.${bindingIdCamelCase}BindingConstants.*;
+import static ${package}.internal.${bindingIdCamelCase}BindingConstants.*;
 
 import java.util.Collections;
 import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import ${package}.handler.${bindingIdCamelCase}Handler;
+import ${package}.internal.${bindingIdCamelCase}Handler;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
@@ -40,8 +40,8 @@ import org.osgi.service.component.annotations.Component;
  *
  * @author ${author} - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.${bindingId}")
 @NonNullByDefault
+@Component(configurationPid = "binding.${bindingId}", service = ThingHandlerFactory.class)
 public class ${bindingIdCamelCase}HandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(THING_TYPE_SAMPLE);
@@ -55,7 +55,7 @@ public class ${bindingIdCamelCase}HandlerFactory extends BaseThingHandlerFactory
     protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (thingTypeUID.equals(THING_TYPE_SAMPLE)) {
+        if (THING_TYPE_SAMPLE.equals(thingTypeUID)) {
             return new ${bindingIdCamelCase}Handler(thing);
         }
 

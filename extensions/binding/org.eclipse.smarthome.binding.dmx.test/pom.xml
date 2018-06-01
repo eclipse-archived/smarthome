@@ -1,29 +1,21 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
-    <groupId>org.eclipse.smarthome.binding</groupId>
     <artifactId>pom</artifactId>
+    <groupId>org.eclipse.smarthome.binding</groupId>
     <version>0.10.0-SNAPSHOT</version>
   </parent>
-
   <groupId>org.eclipse.smarthome.archetype</groupId>
   <artifactId>org.eclipse.smarthome.binding.dmx.test</artifactId>
   <version>0.10.0-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
-
   <name>Eclipse Smarthome DMX Binding Tests</name>
-
   <properties>
     <bundle.symbolicName>org.eclipse.smarthome.binding.dmx.test</bundle.symbolicName>
     <bundle.namespace>org.eclipse.smarthome.binding.dmx</bundle.namespace>
   </properties>
-
-
- 
-   <build>
+  <build>
     <plugins>
       <plugin>
         <groupId>${tycho-groupid}</groupId>
@@ -76,7 +68,7 @@
                 <type>eclipse-plugin</type>
                 <id>ch.qos.logback.slf4j</id>
                 <versionRange>0.0.0</versionRange>
-              </requirement> 
+              </requirement>
             </extraRequirements>
           </dependency-resolution>
         </configuration>
@@ -85,6 +77,9 @@
         <groupId>${tycho-groupid}</groupId>
         <artifactId>tycho-surefire-plugin</artifactId>
         <configuration>
+          <systemProperties>
+            <logback.configurationFile>${project.basedir}/src/test/resources/logback.xml</logback.configurationFile>
+          </systemProperties>
           <bundleStartLevel>
             <bundle>
               <id>org.eclipse.equinox.ds</id>
@@ -122,9 +117,9 @@
               <autoStart>true</autoStart>
             </bundle>
             <bundle>
-                <id>org.eclipse.smarthome.config.discovery</id>
-                <level>4</level>
-                <autoStart>true</autoStart>
+              <id>org.eclipse.smarthome.config.discovery</id>
+              <level>4</level>
+              <autoStart>true</autoStart>
             </bundle>
             <bundle>
               <id>org.eclipse.smarthome.core.binding.xml</id>
@@ -135,7 +130,5 @@
         </configuration>
       </plugin>
     </plugins>
- 
-   </build>
-
+  </build>
 </project>

@@ -27,7 +27,7 @@ import org.eclipse.smarthome.automation.type.TriggerType;
  */
 public class AirConditionerTriggerType extends TriggerType {
 
-    public static String UID = "AirConditionerTrigger";
+    public static final String UID = "AirConditionerTrigger";
 
     public static TriggerType initialize() {
         List<Output> output = new ArrayList<Output>();

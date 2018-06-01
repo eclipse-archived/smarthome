@@ -1,4 +1,5 @@
-angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyController', function($rootScope, $scope, $http, $location, $timeout, eventService, toastService, discoveryResultRepository, thingTypeRepository, bindingRepository, itemRepository, restConfig, util) {
+angular.module('PaperUI.controllers', [ 'PaperUI.constants' ])//
+.controller('BodyController', function($rootScope, $scope, $http, $location, $timeout, eventService, toastService, discoveryResultRepository, thingTypeRepository, bindingRepository, itemRepository, restConfig, util, titleService) {
     $scope.scrollTop = 0;
     $(window).scroll(function() {
         $scope.$apply(function(scope) {
@@ -8,10 +9,18 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
     $scope.isBigTitle = function() {
         return $scope.scrollTop < 80 && !$rootScope.simpleHeader;
     }
+
+    titleService.onTitle(function(title) {
+        $rootScope.title = title;
+    })
+    titleService.onSubtitles(function(subtitles) {
+        $scope.subtitles = subtitles;
+    })
+
     $scope.setTitle = function(title) {
         $rootScope.title = title;
     }
-    $scope.subtitles = [];
+
     $scope.setSubtitle = function(args) {
         $scope.subtitles = [];
         $.each(args, function(i, subtitle) {
@@ -80,15 +89,15 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
 
         console.log('Item ' + itemName + ' updated: ' + state);
 
-        itemRepository.getAll(function(items) {
-            angular.forEach(items, function(item) {
-                if (item.name === itemName) {
-                    changeState(item);
-                }
+        itemRepository.filter(function condition(item) {
+            return item.name === itemName;
+        }, function callback(items) {
+            items.forEach(function(item) {
+                changeState(item);
             });
-        }, false);
+        });
 
-        var changeState = function(item) {
+        function changeState(item) {
             var updateState = true;
             if (item.name === itemName) {
                 // ignore ON and OFF update for Dimmer
@@ -97,10 +106,11 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
                         updateState = false;
                     }
                 }
-                if (item.type.indexOf("Number") === 0 || item.groupType.indexOf("Number") === 0) {
-                    if (state.indexOf(' ') > 0) {
-                        item.unit = state.substring(state.indexOf(' ') + 1);
-                        state = state.substring(0, state.indexOf(' '));
+                if (item.type.indexOf("Number") === 0 || (item.groupType && item.groupType.indexOf("Number") === 0)) {
+                    var strState = '' + state;
+                    if (strState.indexOf(' ') > 0) {
+                        item.unit = strState.substring(strState.indexOf(' ') + 1);
+                        state = strState.substring(0, strState.indexOf(' '));
                     }
                     var parsedValue = Number(state);
                     if (!isNaN(parsedValue)) {
@@ -117,9 +127,11 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
 
                 updateState = updateState && item.state !== state;
                 if (updateState) {
-                    console.log('Updating ' + itemName + ' to ' + state)
-                    item.state = state;
-                    item.stateText = util.getItemStateText(item);
+                    $scope.$apply(function() {
+                        item.state = state;
+                        item.stateText = util.getItemStateText(item);
+                    });
+                    console.log('Updating ' + itemName + ' to ' + item.stateText)
                 } else {
                     console.log('Ignoring state ' + state + ' for ' + itemName)
                 }

@@ -20,6 +20,7 @@ import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.TimeZone;
 
@@ -34,7 +35,8 @@ import javax.measure.quantity.Temperature;
 import javax.measure.spi.SystemOfUnits;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.i18n.LocationProvider;
 import org.eclipse.smarthome.core.i18n.TimeZoneProvider;
@@ -75,6 +77,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 
+@NonNullByDefault
 @Component(immediate = true, configurationPid = "org.eclipse.smarthome.core.i18nprovider", property = {
         "service.pid=org.eclipse.smarthome.core.i18nprovider", "service.config.description.uri:String=system:i18n",
         "service.config.label:String=Regional Settings", "service.config.category:String=system" })
@@ -88,22 +91,22 @@ public class I18nProviderImpl
     static final String SCRIPT = "script";
     static final String REGION = "region";
     static final String VARIANT = "variant";
-    private Locale locale;
+    private @Nullable Locale locale;
 
     // TranslationProvider
-    private ResourceBundleTracker resourceBundleTracker;
+    private @NonNullByDefault({}) ResourceBundleTracker resourceBundleTracker;
 
     // LocationProvider
     static final String LOCATION = "location";
-    private PointType location;
+    private @Nullable PointType location;
 
     // TimeZoneProvider
     static final String TIMEZONE = "timezone";
-    private ZoneId timeZone;
+    private @Nullable ZoneId timeZone;
 
     // UnitProvider
     private static final String MEASUREMENT_SYSTEM = "measurementSystem";
-    private SystemOfUnits measurementSystem;
+    private @Nullable SystemOfUnits measurementSystem;
     private final Map<Class<? extends Quantity<?>>, Map<SystemOfUnits, Unit<? extends Quantity<?>>>> dimensionMap = new HashMap<>();
 
     @Activate
@@ -137,30 +140,40 @@ public class I18nProviderImpl
         setMeasurementSystem(measurementSystem);
     }
 
-    private void setMeasurementSystem(String measurementSystem) {
+    private void setMeasurementSystem(@Nullable String measurementSystem) {
         SystemOfUnits oldMeasurementSystem = this.measurementSystem;
 
-        String ms = StringUtils.isBlank(measurementSystem) ? "" : measurementSystem;
+        final String ms;
+        if (measurementSystem == null || measurementSystem.isEmpty()) {
+            ms = "";
+        } else {
+            ms = measurementSystem;
+        }
+
+        final SystemOfUnits newMeasurementSystem;
         switch (ms) {
             case "SI":
-                this.measurementSystem = SIUnits.getInstance();
+                newMeasurementSystem = SIUnits.getInstance();
                 break;
             case "US":
-                this.measurementSystem = ImperialUnits.getInstance();
+                newMeasurementSystem = ImperialUnits.getInstance();
                 break;
             default:
                 logger.debug("Error setting measurement system for value '{}'.", measurementSystem);
-                this.measurementSystem = null;
+                newMeasurementSystem = null;
+                break;
         }
+        this.measurementSystem = newMeasurementSystem;
 
-        if (oldMeasurementSystem != null && this.measurementSystem == null) {
+        if (oldMeasurementSystem != null && newMeasurementSystem == null) {
             logger.info("Measurement system is not set, falling back to locale based system.");
-        } else if (this.measurementSystem != null && !this.measurementSystem.equals(oldMeasurementSystem)) {
-            logger.info("Measurement system set to '{}'.", this.measurementSystem.getName());
+        } else if (newMeasurementSystem != null && !newMeasurementSystem.equals(oldMeasurementSystem)) {
+            logger.info("Measurement system set to '{}'.", newMeasurementSystem.getName());
         }
     }
 
-    private void setLocale(String language, String script, String region, String variant) {
+    private void setLocale(@Nullable String language, @Nullable String script, @Nullable String region,
+            @Nullable String variant) {
         Locale oldLocale = this.locale;
         if (StringUtils.isEmpty(language)) {
             // at least the language must be defined otherwise the system default locale is used
@@ -200,36 +213,40 @@ public class I18nProviderImpl
             logger.warn("Variant ({}) is invalid. Skip it.", variant, ex);
             return;
         }
+        final Locale newLocale = builder.build();
+        locale = newLocale;
 
-        locale = builder.build();
-
-        if (!this.locale.equals(oldLocale)) {
-            logger.info("Locale set to '{}'.", this.locale);
+        if (!newLocale.equals(oldLocale)) {
+            logger.info("Locale set to '{}'.", newLocale);
         }
     }
 
-    private String toStringOrNull(Object value) {
+    private @Nullable String toStringOrNull(@Nullable Object value) {
         return value == null ? null : value.toString();
     }
 
-    private void setLocation(final String location) {
+    private void setLocation(final @Nullable String location) {
         PointType oldLocation = this.location;
-        if (location != null) {
+        PointType newLocation;
+        if (location == null || location.isEmpty()) {
+            newLocation = null;
+        } else {
             try {
-                this.location = PointType.valueOf(location);
+                newLocation = PointType.valueOf(location);
             } catch (IllegalArgumentException e) {
+                newLocation = oldLocation;
                 // preserve old location or null if none was set before
                 logger.warn("Could not set new location: {}, keeping old one, error message: {}", location,
                         e.getMessage());
             }
-            if (!this.location.equals(oldLocation)) {
-                logger.info("Location set to '{}'.", this.location);
-            }
         }
-
+        if (!Objects.equals(newLocation, oldLocation)) {
+            this.location = newLocation;
+            logger.info("Location set to '{}'.", newLocation);
+        }
     }
 
-    private void setTimeZone(final String zoneId) {
+    private void setTimeZone(final @Nullable String zoneId) {
         ZoneId oldTimeZone = this.timeZone;
         if (StringUtils.isBlank(zoneId)) {
             timeZone = null;
@@ -251,20 +268,22 @@ public class I18nProviderImpl
     }
 
     @Override
-    public PointType getLocation() {
+    public @Nullable PointType getLocation() {
         return location;
     }
 
     @Override
     public ZoneId getTimeZone() {
+        final ZoneId timeZone = this.timeZone;
         if (timeZone == null) {
             return TimeZone.getDefault().toZoneId();
         }
-        return this.timeZone;
+        return timeZone;
     }
 
     @Override
     public Locale getLocale() {
+        final Locale locale = this.locale;
         if (locale == null) {
             return Locale.getDefault();
         }
@@ -272,7 +291,8 @@ public class I18nProviderImpl
     }
 
     @Override
-    public String getText(Bundle bundle, String key, String defaultText, Locale locale) {
+    public @Nullable String getText(@Nullable Bundle bundle, @Nullable String key, @Nullable String defaultText,
+            @Nullable Locale locale) {
         LanguageResourceBundleManager languageResource = this.resourceBundleTracker.getLanguageResource(bundle);
 
         if (languageResource != null) {
@@ -286,7 +306,8 @@ public class I18nProviderImpl
     }
 
     @Override
-    public String getText(Bundle bundle, String key, String defaultText, Locale locale, Object... arguments) {
+    public @Nullable String getText(@Nullable Bundle bundle, @Nullable String key, @Nullable String defaultText,
+            @Nullable Locale locale, @Nullable Object @Nullable... arguments) {
         String text = getText(bundle, key, defaultText, locale);
 
         if (text != null) {
@@ -298,18 +319,17 @@ public class I18nProviderImpl
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends @NonNull Quantity<T>> Unit<T> getUnit(Class<T> dimension) {
+    public <T extends Quantity<T>> @Nullable Unit<T> getUnit(@Nullable Class<T> dimension) {
         Map<SystemOfUnits, Unit<? extends Quantity<?>>> map = dimensionMap.get(dimension);
-
-        if (map != null) {
-            return (Unit<T>) map.get(getMeasurementSystem());
+        if (map == null) {
+            return null;
         }
-
-        return null;
+        return (Unit<T>) map.get(getMeasurementSystem());
     }
 
     @Override
     public SystemOfUnits getMeasurementSystem() {
+        final SystemOfUnits measurementSystem = this.measurementSystem;
         if (measurementSystem != null) {
             return measurementSystem;
         }

@@ -13,9 +13,11 @@
 package org.eclipse.smarthome.binding.sonos.internal;
 
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.smarthome.binding.sonos.internal.handler.ZonePlayerHandler;
@@ -29,6 +31,7 @@ import org.eclipse.smarthome.core.audio.URLAudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioStreamException;
 import org.eclipse.smarthome.core.audio.utils.AudioStreamUtils;
+import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
@@ -46,16 +49,10 @@ public class SonosAudioSink implements AudioSink {
 
     private final Logger logger = LoggerFactory.getLogger(SonosAudioSink.class);
 
-    private static final HashSet<AudioFormat> SUPPORTED_AUDIO_FORMATS = new HashSet<>();
-    private static final HashSet<Class<? extends AudioStream>> SUPPORTED_AUDIO_STREAMS = new HashSet<>();
-
-    static {
-        SUPPORTED_AUDIO_FORMATS.add(AudioFormat.WAV);
-        SUPPORTED_AUDIO_FORMATS.add(AudioFormat.MP3);
-
-        SUPPORTED_AUDIO_STREAMS.add(URLAudioStream.class);
-        SUPPORTED_AUDIO_STREAMS.add(FixedLengthAudioStream.class);
-    }
+    private static final Set<AudioFormat> SUPPORTED_AUDIO_FORMATS = Collections
+            .unmodifiableSet(Stream.of(AudioFormat.MP3, AudioFormat.WAV).collect(Collectors.toSet()));
+    private static final Set<Class<? extends AudioStream>> SUPPORTED_AUDIO_STREAMS = Collections
+            .unmodifiableSet(Stream.of(FixedLengthAudioStream.class, URLAudioStream.class).collect(Collectors.toSet()));
 
     private AudioHTTPServer audioHTTPServer;
     private ZonePlayerHandler handler;
@@ -80,7 +77,12 @@ public class SonosAudioSink implements AudioSink {
     @Override
     public void process(AudioStream audioStream)
             throws UnsupportedAudioFormatException, UnsupportedAudioStreamException {
-        if (audioStream instanceof URLAudioStream) {
+        if (audioStream == null) {
+            // in case the audioStream is null, this should be interpreted as a request to end any currently playing
+            // stream.
+            logger.trace("Stop currently playing stream.");
+            handler.stopPlaying(OnOffType.ON);
+        } else if (audioStream instanceof URLAudioStream) {
             // it is an external URL, the speaker can access it itself and play it.
             URLAudioStream urlAudioStream = (URLAudioStream) audioStream;
             handler.playURI(new StringType(urlAudioStream.getURL()));
@@ -116,7 +118,7 @@ public class SonosAudioSink implements AudioSink {
             IOUtils.closeQuietly(audioStream);
             throw new UnsupportedAudioStreamException(
                     "Sonos can only handle FixedLengthAudioStreams and URLAudioStreams.", audioStream.getClass());
-            // TODO: Instead of throwing an exception, we could ourselves try to wrap it into a
+            // Instead of throwing an exception, we could ourselves try to wrap it into a
             // FixedLengthAudioStream, but this might be dangerous as we have no clue, how much data to expect from
             // the stream.
         }
@@ -134,12 +136,13 @@ public class SonosAudioSink implements AudioSink {
 
     @Override
     public PercentType getVolume() {
-        return handler.getNotificationSoundVolume();
+        String volume = handler.getVolume();
+        return volume != null ? new PercentType(volume) : PercentType.ZERO;
     }
 
     @Override
     public void setVolume(PercentType volume) {
-        handler.setNotificationSoundVolume(volume);
+        handler.setVolume(volume);
     }
 
 }

@@ -40,7 +40,7 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory {
     public static final String SUPPORTED_ACTION = "SampleAction";
     public static final String MODULE_HANDLER_FACTORY_NAME = "[SampleHandlerFactory]";
     private Logger logger = LoggerFactory.getLogger(SampleHandlerFactory.class);
-    private static final Collection<String> types;
+    private static final Collection<String> TYPES;
     private List<TriggerHandler> createdTriggerHandler = new ArrayList<TriggerHandler>(10);
 
     static {
@@ -48,7 +48,7 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory {
         temp.add(SUPPORTED_TRIGGER);
         temp.add(SUPPORTED_CONDITION);
         temp.add(SUPPORTED_ACTION);
-        types = Collections.unmodifiableCollection(temp);
+        TYPES = Collections.unmodifiableCollection(temp);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory {
 
     @Override
     public Collection<String> getTypes() {
-        return types;
+        return TYPES;
     }
 
     /**

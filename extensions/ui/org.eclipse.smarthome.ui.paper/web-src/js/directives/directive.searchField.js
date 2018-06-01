@@ -6,7 +6,7 @@ angular.module('PaperUI.directive.searchField', []) //
             model : '=',
             placeholder : '=?'
         },
-        templateUrl : 'partials/directive.searchField.html',
+        templateUrl : 'partials/directives/directive.searchField.html',
         link : function(scope, element, attrs, controllers) {
             scope.placeholder = attrs.placeholder ? attrs.placeholder : 'Search'
             scope.clearSearchField = function(event) {

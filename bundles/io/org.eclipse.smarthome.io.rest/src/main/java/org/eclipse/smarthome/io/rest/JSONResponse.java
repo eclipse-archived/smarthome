@@ -22,7 +22,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.Provider;
 
 import org.eclipse.smarthome.core.library.types.DateTimeType;
@@ -67,7 +66,7 @@ public class JSONResponse {
      * @param errormessage
      * @return Response containing a status and the errormessage in JSON format
      */
-    public static Response createErrorResponse(Response.Status status, String errormessage) {
+    public static Response createErrorResponse(Response.StatusType status, String errormessage) {
         return createResponse(status, null, errormessage);
     }
 
@@ -75,12 +74,12 @@ public class JSONResponse {
      * Depending on the status, create a Response object containing either the entity alone or an error JSON
      * which might hold the entity as well.
      *
-     * @param status the {@link Response.Status} for the response.
+     * @param status the status for the response.
      * @param entity the entity which is transformed into a JSON stream.
      * @param errormessage an optional error message (may be null), ignored if the status family is successful
      * @return Response configure for error or success
      */
-    public static Response createResponse(Response.Status status, Object entity, String errormessage) {
+    public static Response createResponse(Response.StatusType status, Object entity, String errormessage) {
         if (status.getFamily() != Response.Status.Family.SUCCESSFUL) {
             return INSTANCE.createErrorResponse(status, entity, errormessage);
         }
@@ -94,7 +93,7 @@ public class JSONResponse {
      * @param status
      * @return ResponseBuilder configured for "Content-Type" MediaType.APPLICATION_JSON
      */
-    private ResponseBuilder responseBuilder(Response.Status status) {
+    private ResponseBuilder responseBuilder(Response.StatusType status) {
         return Response.status(status).header("Content-Type", MediaType.APPLICATION_JSON);
     }
 
@@ -107,7 +106,7 @@ public class JSONResponse {
      * @param ex
      * @return
      */
-    private JsonElement createErrorJson(String message, Response.Status status, Object entity, Exception ex) {
+    private JsonElement createErrorJson(String message, Response.StatusType status, Object entity, Exception ex) {
         JsonObject resultJson = new JsonObject();
         JsonObject errorJson = new JsonObject();
         resultJson.add(JSON_KEY_ERROR, errorJson);
@@ -139,14 +138,14 @@ public class JSONResponse {
         return resultJson;
     }
 
-    private Response createErrorResponse(Response.Status status, Object entity, String errormessage) {
+    private Response createErrorResponse(Response.StatusType status, Object entity, String errormessage) {
         ResponseBuilder rp = responseBuilder(status);
         JsonElement errorJson = createErrorJson(errormessage, status, entity, null);
         rp.entity(errorJson);
         return rp.build();
     }
 
-    private Response createResponse(Status status, Object entity) {
+    private Response createResponse(Response.StatusType status, final Object entity) {
         ResponseBuilder rp = responseBuilder(status);
 
         if (entity == null) {
@@ -164,15 +163,13 @@ public class JSONResponse {
             PipedInputStream in = new PipedInputStream(out);
             rp.entity(in);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
 
         Thread writerThread = new Thread(() -> {
             try (JsonWriter jsonWriter = new JsonWriter(new BufferedWriter(new OutputStreamWriter(out)))) {
-                if (entity != null) {
-                    gson.toJson(entity, entity.getClass(), jsonWriter);
-                    jsonWriter.flush();
-                }
+                gson.toJson(entity, entity.getClass(), jsonWriter);
+                jsonWriter.flush();
             } catch (IOException | JsonIOException e) {
                 logger.error("Error streaming JSON through PipedInpuStream/PipedOutputStream: ", e);
             }
@@ -202,11 +199,11 @@ public class JSONResponse {
         public Response toResponse(Exception e) {
             logger.debug("exception during REST Handling", e);
 
-            Response.Status status = Response.Status.INTERNAL_SERVER_ERROR;
+            Response.StatusType status = Response.Status.INTERNAL_SERVER_ERROR;
 
             // in case the Exception is a WebApplicationException, it already carries a Status
             if (e instanceof WebApplicationException) {
-                status = (Response.Status) ((WebApplicationException) e).getResponse().getStatusInfo();
+                status = ((WebApplicationException) e).getResponse().getStatusInfo();
             }
 
             JsonElement ret = INSTANCE.createErrorJson(e.getMessage(), status, null, e);

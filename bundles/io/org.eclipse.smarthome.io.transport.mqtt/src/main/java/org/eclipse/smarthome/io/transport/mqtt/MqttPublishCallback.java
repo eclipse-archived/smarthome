@@ -12,11 +12,14 @@
  */
 package org.eclipse.smarthome.io.transport.mqtt;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Implement this to be notified of the success or error of a {@link MqttBrokerConnection}.publish().
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public interface MqttPublishCallback {
     public void onSuccess(MqttPublishResult result);
 

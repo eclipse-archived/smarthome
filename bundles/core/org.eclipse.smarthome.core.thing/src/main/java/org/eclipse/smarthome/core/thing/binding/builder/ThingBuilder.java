@@ -15,6 +15,7 @@ package org.eclipse.smarthome.core.thing.binding.builder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -69,18 +70,18 @@ public class ThingBuilder {
 
     public ThingBuilder withChannel(Channel channel) {
         final Collection<Channel> mutableThingChannels = this.thing.getChannelsMutable();
+        validateChannelUIDs(Collections.singletonList(channel));
         ThingHelper.ensureUniqueChannels(mutableThingChannels, channel);
         mutableThingChannels.add(channel);
         return this;
     }
 
     public ThingBuilder withChannels(Channel... channels) {
-        ThingHelper.ensureUniqueChannels(channels);
-        this.thing.setChannels(new ArrayList<>(Arrays.asList(channels)));
-        return this;
+        return withChannels(Arrays.asList(channels));
     }
 
     public ThingBuilder withChannels(List<Channel> channels) {
+        validateChannelUIDs(channels);
         ThingHelper.ensureUniqueChannels(channels);
         this.thing.setChannels(new ArrayList<>(channels));
         return this;
@@ -122,4 +123,12 @@ public class ThingBuilder {
         return this.thing;
     }
 
+    private void validateChannelUIDs(List<Channel> channels) {
+        for (Channel channel : channels) {
+            if (!thing.getUID().equals(channel.getUID().getThingUID())) {
+                throw new IllegalArgumentException(
+                        "Channel UID '" + channel.getUID() + "' does not match thing UID '" + thing.getUID() + "'");
+            }
+        }
+    }
 }

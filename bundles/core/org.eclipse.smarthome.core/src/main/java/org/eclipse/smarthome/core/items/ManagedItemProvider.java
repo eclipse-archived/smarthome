@@ -15,7 +15,6 @@ package org.eclipse.smarthome.core.items;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +63,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
         public @NonNull String itemType;
 
+        @Deprecated // Only read for backward compatibility. Not written anymore.
         public Set<String> tags;
 
         public String label;
@@ -156,7 +156,6 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
                 Entry<String, PersistedItem> entry = iterator.next();
                 String itemName = entry.getKey();
                 PersistedItem persistedItem = entry.getValue();
-                @SuppressWarnings("null")
                 ActiveItem item = itemFactory.createItem(persistedItem.itemType, itemName);
                 if (item != null) {
                     iterator.remove();
@@ -268,7 +267,6 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
         persistedItem.label = item.getLabel();
         persistedItem.groupNames = new ArrayList<>(item.getGroupNames());
-        persistedItem.tags = new HashSet<>(item.getTags());
         persistedItem.category = item.getCategory();
 
         return persistedItem;
@@ -277,9 +275,11 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
     private void addFunctionToPersisedItem(PersistedItem persistedItem, GroupItem groupItem) {
         if (groupItem.getFunction() != null) {
             GroupFunctionDTO functionDTO = ItemDTOMapper.mapFunction(groupItem.getFunction());
-            persistedItem.functionName = functionDTO.name;
-            if (functionDTO.params != null) {
-                persistedItem.functionParams = Arrays.asList(functionDTO.params);
+            if (functionDTO != null) {
+                persistedItem.functionName = functionDTO.name;
+                if (functionDTO.params != null) {
+                    persistedItem.functionParams = Arrays.asList(functionDTO.params);
+                }
             }
         }
     }

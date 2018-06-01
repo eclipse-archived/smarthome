@@ -143,8 +143,8 @@ angular.module('PaperUI.controllers').service('sharedProperties', function() {
 });
 angular.module('PaperUI.constants').constant('itemConfig', {
     types : [ 'Switch', 'Contact', 'String', 'Number', 'Dimmer', 'DateTime', 'Color', 'Image', 'Player', 'Location', 'Rollershutter', 'Group' ],
-    groupTypes : [ 'Switch', 'Contact', 'Number', 'Dimmer', 'Rollershutter', 'None' ],
-    dimensions : [ "Temperature", "Pressure", "Speed", "Length", "Angle", "Intensity", "Dimensionless", "Acceleration", "AmountOfSubstance", "AngularAcceleration", "AngularVelocity", "Area", "CatalyticActivity", "DataAmount", "DataRate", "Duration", "DynamicViscosity", "ElectricCapacitance", "ElectricCharge", "ElectricConductance", "ElectricCurrent", "ElectricInductance", "ElectricPotential", "ElectricResistance", "Energy", "Force", "Frequency", "Illuminance", "KinematicViscosity", "LuminousFlux", "LuminousIntensity", "MagneticFlux", "MagneticFluxDensity", "Mass", "MassFlowRate", "Power", "RadiationDoseAbsorbed", "RadiationDoseEffective", "RadioactiveActivity", "SolidAngle", "Torque", "Velocity", "Time", "Volume", "VolumetricDensity", "VolumetricFlowRate" ],
+    groupTypes : [ 'Switch', 'Contact', 'Number', 'Dimmer', 'Rollershutter', 'DateTime', 'None' ],
+    dimensions : [ "", "Temperature", "Pressure", "Speed", "Length", "Angle", "Intensity", "Dimensionless", "Acceleration", "AmountOfSubstance", "AngularAcceleration", "AngularVelocity", "Area", "CatalyticActivity", "DataAmount", "DataRate", "Duration", "DynamicViscosity", "ElectricCapacitance", "ElectricCharge", "ElectricConductance", "ElectricCurrent", "ElectricInductance", "ElectricPotential", "ElectricResistance", "Energy", "Force", "Frequency", "Illuminance", "KinematicViscosity", "LuminousFlux", "LuminousIntensity", "MagneticFlux", "MagneticFluxDensity", "Mass", "MassFlowRate", "Power", "RadiationDoseAbsorbed", "RadiationDoseEffective", "RadioactiveActivity", "SolidAngle", "Torque", "Velocity", "Time", "Volume", "VolumetricDensity", "VolumetricFlowRate" ],
     arithmeticFunctions : [ {
         name : "AVG",
         value : "AVG"
@@ -207,5 +207,12 @@ angular.module('PaperUI.constants').constant('itemConfig', {
     }, {
         name : "NOR_CLOSED_OPEN",
         value : "One CLOSED → OPEN else CLOSED"
+    } ],
+    dateTimeFunctions : [ {
+        name : "EARLIEST",
+        value : "EARLIEST"
+    }, {
+        name : "LATEST",
+        value : "LATEST"
     } ]
 });

@@ -16,6 +16,8 @@ A discovery service provides discovery results. The following table gives an ove
 | `thingTypeUID` | Contrary to the `thingUID` is the `thingTypeUID` that specifies the type the discovered thing belongs to. It could be constructed from e.g. a product number. A typical `thingTypeUID` could be the following: `hue:bridge`. 
 | `bridgeUID` | If the discovered thing belongs to a bridge, the `bridgeUID` contains the UID of that bridge. 
 | `properties` | The `properties` of a `DiscoveryResult` contain the configuration for the newly created thing. 
+| `label` | The human readable representation of the discovery result. Do not put IP/MAC addresses or similar into the label but use the special `representationProperty` instead. |
+| `representationProperty` | The name of one of the properties which discriminates the discovery result best against other results of the same type. Typically this is a serial number, IP or MAC address. The representationProperty often matches a configuration parameter and is also explicitly given in the thing-type definition. |
 
 To simplify the implementation of own discovery services, an abstract base class `AbstractDiscoveryService` implements the `DiscoveryService`, that must only be extended. Subclasses of `AbstractDiscoveryService` do not need to handle the `DiscoveryListeners` themselves, they can use the methods `thingDiscovered` and `thingRemoved` to notify the registered listeners. Most of the descriptions in this chapter refer to the `AbstractDiscoveryService`.
 
@@ -98,6 +100,12 @@ The following example implementation for `startScan` is taken from the `HueLight
     }
 ```
 
+### Re-Discovered Results and Things
+
+The `getThingUID` method of the discovery service should create a consistent UID every time the same thing gets discovered.
+This way existing discovery results and existing things with this UID will be updated with the properties from the current scan.
+With this, dynamic discoveries (like UPnP or mDNS) can re-discover existing things and update communication properties like host names or TCP ports.
+
 ### Remove older results
 
 Normally, older discovery results already in the inbox are left untouched by a newly triggered scan. If this behavior is not appropriate for the implemented discovery service, one can override the method `stopScan` to call `removeOlderResults` as shown in the following example from the Hue binding: 
@@ -112,7 +120,15 @@ Normally, older discovery results already in the inbox are left untouched by a n
 
 ### Compare with existing results
 
-In some cases it might be of interest for a discovery service if the same device was discovered before or even a Thing already exists. Therefore, a discovery service may implement the ExtendedDiscoveryService interface and use the injected callback in order to access the DiscoveryResult or Thing for a given ThingUID, if it exists. 
+In some cases it might be of interest for a discovery service if the same device was discovered before or even if a thing already exists.
+Therefore, a discovery service may implement the ExtendedDiscoveryService interface and use the injected callback in order to access the DiscoveryResult or thing for a given thing UID, if it exists.
+
+_Do not use this method to check if an equal result already exists.
+Use the special [representationProperty](../../concepts/discovery.html#inbox) to achieve this._
+
+_Do not use this method to update properties of an existing thing.
+See [Re-Discovered Results and Things](#re-discovered-results-and-things)._ 
+
 
 ```java
     public class SampleDiscoveryService extends AbstractDiscoveryService implements ExtendedDiscoveryService {

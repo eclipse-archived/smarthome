@@ -25,10 +25,11 @@ public interface HttpClientFactory {
 
     /**
      * Creates a new jetty http client.
-     * The returned client is already started but must be stopped
-     * by the consumer after usage. The client lifecycle should be the same as for the consumer.
+     * The returned client is not started yet. You have to start it yourself before using.
+     * Don't forget to stop a started client again after its usage.
+     * The client lifecycle should be the same as for your service.
      * DO NOT CREATE NEW CLIENTS FOR EACH REQUEST!
-     * 
+     *
      * @param consumerName the for identifying the consumer in the jetty thread pool.
      *            Must be between 4 and 20 characters long and must contain only the following characters [a-zA-Z0-9-_]
      * @param endpoint the desired endpoint, protocol and host are sufficient
@@ -39,10 +40,10 @@ public interface HttpClientFactory {
     HttpClient createHttpClient(String consumerName, String endpoint);
 
     /**
-     * Returns the shared jetty http client.
+     * Returns the shared jetty http client. You must not call any setter methods or {@code stop()} on it.
      * The returned client is already started.
-     * 
-     * @return the jetty client
+     *
+     * @return the shared jetty http client
      */
-    CommonHttpClient getCommonHttpClient();
+    HttpClient getCommonHttpClient();
 }

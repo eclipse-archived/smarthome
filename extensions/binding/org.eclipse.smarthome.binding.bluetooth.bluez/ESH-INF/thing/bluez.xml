@@ -7,7 +7,7 @@
 		<label>Bluetooth BlueZ Adapter</label>
 		<description>Linux built-in Bluetooth support</description>
 
-        <representation-property>address</representation-property>
+		<representation-property>address</representation-property>
 
 		<config-description>
 			<parameter name="address" type="text" required="true">
@@ -15,13 +15,13 @@
 				<description>The Bluetooth address of the adapter in format XX:XX:XX:XX:XX:XX</description>
 			</parameter>
 			<parameter name="discovery" type="boolean">
-                <label>Device Discovery</label>
-                <description>Whether this adapter actively participates in Bluetooth device discovery</description>
-                <advanced>true</advanced>
-                <default>true</default>
+				<label>Device Discovery</label>
+				<description>Whether this adapter actively participates in Bluetooth device discovery</description>
+				<advanced>true</advanced>
+				<default>true</default>
 			</parameter>
 		</config-description>
-		
+
 	</bridge-type>
 
 </thing:thing-descriptions>

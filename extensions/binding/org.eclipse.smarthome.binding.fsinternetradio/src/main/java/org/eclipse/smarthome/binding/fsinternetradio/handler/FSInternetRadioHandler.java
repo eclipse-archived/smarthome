@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.util.concurrent.ScheduledFuture;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.smarthome.binding.fsinternetradio.internal.radio.FrontierSiliconRadio;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
@@ -47,15 +48,16 @@ import org.slf4j.LoggerFactory;
  */
 public class FSInternetRadioHandler extends BaseThingHandler {
 
-    private Logger logger = LoggerFactory.getLogger(FSInternetRadioHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(FSInternetRadioHandler.class);
 
     FrontierSiliconRadio radio;
+    private final HttpClient httpClient;
 
     /** Job that runs {@link #updateRunnable}. */
     private ScheduledFuture<?> updateJob;
 
     /** Runnable for job {@link #updateJob} for periodic refresh. */
-    private Runnable updateRunnable = new Runnable() {
+    private final Runnable updateRunnable = new Runnable() {
         @Override
         public void run() {
             if (!radio.isLoggedIn()) {
@@ -114,8 +116,9 @@ public class FSInternetRadioHandler extends BaseThingHandler {
         }
     };
 
-    public FSInternetRadioHandler(Thing thing) {
+    public FSInternetRadioHandler(Thing thing, HttpClient httpClient) {
         super(thing);
+        this.httpClient = httpClient;
     }
 
     @Override
@@ -129,7 +132,7 @@ public class FSInternetRadioHandler extends BaseThingHandler {
             // configuration incomplete
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Configuration incomplete");
         } else {
-            radio = new FrontierSiliconRadio(ip, port.intValue(), pin);
+            radio = new FrontierSiliconRadio(ip, port.intValue(), pin, httpClient);
             logger.debug("Initializing connection to {}:{}", ip, port);
 
             // Long running initialization should be done asynchronously in background
@@ -170,10 +173,6 @@ public class FSInternetRadioHandler extends BaseThingHandler {
             updateJob.cancel(true);
         }
         updateJob = null;
-
-        if (radio != null) {
-            radio.closeClient();
-        }
         radio = null;
     }
 

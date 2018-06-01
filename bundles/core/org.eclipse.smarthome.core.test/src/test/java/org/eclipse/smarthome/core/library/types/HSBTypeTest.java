@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.core.library.types;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
@@ -113,4 +114,63 @@ public class HSBTypeTest {
         assertEquals(null, new HSBType("100,100,100").as(PointType.class));
     }
 
+    @Test
+    public void testConversionToXY() {
+        HSBType hsb = new HSBType("220,90,50");
+        PercentType[] xy = hsb.toXY();
+        assertEquals(new PercentType("16.969364"), xy[0]);
+        assertEquals(new PercentType("12.379659"), xy[1]);
+    }
+
+    @Test
+    public void testCreateFromXY() {
+        HSBType hsb = HSBType.fromXY(5f, 3f);
+        assertEquals(new HSBType("11,100,100"), hsb);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorWithString1() {
+        new HSBType("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorWithString2() {
+        new HSBType("1,2");
+    }
+
+    @Test
+    public void testConstructorWithString3() {
+        HSBType hsb = new HSBType("1,2,3");
+        assertNotNull(hsb);
+        assertThat(hsb.getHue(), is(new DecimalType(1)));
+        assertThat(hsb.getSaturation(), is(new PercentType(2)));
+        assertThat(hsb.getBrightness(), is(new PercentType(3)));
+    }
+
+    @Test
+    public void testConstructorWithString4() {
+        HSBType hsb = new HSBType("1, 2, 3");
+        assertNotNull(hsb);
+        assertThat(hsb.getHue(), is(new DecimalType(1)));
+        assertThat(hsb.getSaturation(), is(new PercentType(2)));
+        assertThat(hsb.getBrightness(), is(new PercentType(3)));
+    }
+
+    @Test
+    public void testConstructorWithString5() {
+        HSBType hsb = new HSBType("  1,    2, 3    ");
+        assertNotNull(hsb);
+        assertThat(hsb.getHue(), is(new DecimalType(1)));
+        assertThat(hsb.getSaturation(), is(new PercentType(2)));
+        assertThat(hsb.getBrightness(), is(new PercentType(3)));
+    }
+
+    @Test
+    public void testConstructorWithString6() {
+        HSBType hsb = new HSBType("1  , 2  , 3   ");
+        assertNotNull(hsb);
+        assertThat(hsb.getHue(), is(new DecimalType(1)));
+        assertThat(hsb.getSaturation(), is(new PercentType(2)));
+        assertThat(hsb.getBrightness(), is(new PercentType(3)));
+    }
 }

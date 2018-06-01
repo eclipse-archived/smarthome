@@ -160,7 +160,7 @@ public class ExtensionResource implements RESTResource {
                 postFailureEvent(extensionId, e.getMessage());
             }
         });
-        return Response.ok().build();
+        return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
     @POST
@@ -179,7 +179,7 @@ public class ExtensionResource implements RESTResource {
             return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "The given URL is malformed or not valid.");
         }
 
-        return Response.ok().build();
+        return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
     @POST
@@ -196,7 +196,7 @@ public class ExtensionResource implements RESTResource {
                 postFailureEvent(extensionId, e.getMessage());
             }
         });
-        return Response.ok().build();
+        return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
     private void postFailureEvent(String extensionId, String msg) {

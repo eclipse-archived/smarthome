@@ -19,7 +19,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Circuit;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Device;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.impl.DSID;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.impl.DSID;
 
 /**
  * The {@link StructureManager} builds the internal model of the digitalSTROM-System.

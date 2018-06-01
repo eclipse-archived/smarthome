@@ -12,12 +12,9 @@
  */
 package org.eclipse.smarthome.io.net.http.internal;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.ArrayList;
@@ -33,7 +30,6 @@ import java.util.stream.Stream;
 
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.smarthome.io.net.http.CommonHttpClient;
 import org.eclipse.smarthome.io.net.http.TrustManagerProvider;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -60,7 +56,7 @@ public class SecureHttpClientFactoryTest {
     public void testGetClient() throws Exception {
         secureHttpClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
 
-        CommonHttpClient client = secureHttpClientFactory.getCommonHttpClient();
+        HttpClient client = secureHttpClientFactory.getCommonHttpClient();
 
         assertThat(client, is(notNullValue()));
 
@@ -92,27 +88,26 @@ public class SecureHttpClientFactoryTest {
         ThreadPoolExecutor workers = new ThreadPoolExecutor(20, 80, 60, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<Runnable>(50 * 50));
 
-        List<CommonHttpClient> clients = new ArrayList<>();
+        List<HttpClient> clients = new ArrayList<>();
 
         final int CLIENTS = 2;
         final int REQUESTS = 2;
 
         for (int i = 0; i < CLIENTS; i++) {
-            CommonHttpClient httpClient = secureHttpClientFactory.getCommonHttpClient();
+            HttpClient httpClient = secureHttpClientFactory.getCommonHttpClient();
             clients.add(httpClient);
         }
 
         final List<String> failures = new ArrayList<>();
 
         for (int i = 0; i < REQUESTS; i++) {
-            for (final CommonHttpClient client : clients) {
+            for (final HttpClient client : clients) {
                 workers.execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
                             ContentResponse response = client.GET(TEST_URL);
                             if (response.getStatus() != 200) {
-                                System.out.println(response.getStatus());
                                 failures.add("Statuscode != 200");
                             }
                         } catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -160,7 +155,6 @@ public class SecureHttpClientFactoryTest {
                         try {
                             ContentResponse response = client.GET(TEST_URL);
                             if (response.getStatus() != 200) {
-                                System.out.println(response.getStatus());
                                 failures.add("Statuscode != 200");
                             }
                         } catch (InterruptedException | ExecutionException | TimeoutException e) {

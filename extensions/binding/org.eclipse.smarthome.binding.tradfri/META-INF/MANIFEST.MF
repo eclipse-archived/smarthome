@@ -21,6 +21,7 @@ Import-Package:
  org.eclipse.californium.elements,
  org.eclipse.californium.scandium,
  org.eclipse.californium.scandium.config,
+ org.eclipse.californium.scandium.dtls,
  org.eclipse.californium.scandium.dtls.pskstore,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.binding.tradfri,
@@ -35,5 +36,6 @@ Import-Package:
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.types,
  org.osgi.framework,
+ org.osgi.service.component,
  org.slf4j
 Service-Component: OSGI-INF/*.xml

@@ -17,11 +17,17 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Map;
 
 import org.eclipse.smarthome.config.core.ConfigOptionProvider;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.magic.binding.MagicService;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -31,6 +37,7 @@ import org.osgi.service.component.annotations.Component;
         "service.pid=org.eclipse.smarthome.magic", "service.config.description.uri=test:magic",
         "service.config.label=Magic", "service.config.category=test" })
 public class MagicServiceImpl implements MagicService {
+    private final Logger logger = LoggerFactory.getLogger(MagicServiceImpl.class);
 
     static final String PARAMETER_BACKEND_DECIMAL = "select_decimal_limit";
 
@@ -49,4 +56,14 @@ public class MagicServiceImpl implements MagicService {
         return null;
     }
 
+    @Activate
+    public void activate(Map<String, Object> properties) {
+        modified(properties);
+    }
+
+    @Modified
+    public void modified(Map<String, Object> properties) {
+        MagicServiceConfig config = new Configuration(properties).as(MagicServiceConfig.class);
+        logger.debug("Magic Service has been modified: {}", config);
+    }
 }

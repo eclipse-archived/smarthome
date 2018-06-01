@@ -18,10 +18,10 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.config.Config;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.ConnectionListener;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.ConnectionManager;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.DsAPI;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.HttpTransport;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.impl.DsAPIImpl;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.impl.HttpTransportImpl;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.DsAPI;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.HttpTransport;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.impl.DsAPIImpl;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.impl.HttpTransportImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ public class ConnectionManagerImpl implements ConnectionManager {
      * {@link DsAPI#query2(String, String)}.
      */
     public final String QUERY_GET_ENABLED_APPLICATION_TOKENS = "/system/security/applicationTokens/enabled/*(*)";
-    private static final Logger logger = LoggerFactory.getLogger(ConnectionManagerImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(ConnectionManagerImpl.class);
 
     private Config config;
     private ConnectionListener connListener;

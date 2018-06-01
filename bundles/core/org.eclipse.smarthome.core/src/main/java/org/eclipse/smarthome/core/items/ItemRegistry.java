@@ -127,4 +127,48 @@ public interface ItemRegistry extends Registry<Item, String> {
      */
     void removeRegistryHook(RegistryHook<Item> hook);
 
+    /**
+     * Adds a tag to the item.
+     *
+     * @param itemName the name of the item
+     * @param tag the tag to be added
+     * @return {@code true} if the collection of tags was modified by this operation
+     */
+    boolean addTag(String itemName, String tag);
+
+    /**
+     * Adds the given tags to the item.
+     *
+     * @param itemName the name of the item
+     * @param tags the tags to be added
+     * @return {@code true} if the collection of tags was modified by this operation
+     */
+    boolean addTags(String itemName, Collection<String> tags);
+
+    /**
+     * Removes a tag from the item.
+     *
+     * @param itemName the name of the item
+     * @param tag the tag to be removed
+     * @return {@code true} if the collection of tags was modified by this operation
+     */
+    boolean removeTag(String itemName, String tag);
+
+    /**
+     * Removes the given tags from the item.
+     *
+     * @param itemName the name of the item
+     * @param tags the tags to be removed
+     * @return {@code true} if the collection of tags was modified by this operation
+     */
+    boolean removeTags(String itemName, Collection<String> tags);
+
+    /**
+     * Removes all tags from the item.
+     *
+     * @param itemName the name of the item
+     * @return {@code true} if the collection of tags was modified by this operation
+     */
+    boolean removeTags(String itemName);
+
 }

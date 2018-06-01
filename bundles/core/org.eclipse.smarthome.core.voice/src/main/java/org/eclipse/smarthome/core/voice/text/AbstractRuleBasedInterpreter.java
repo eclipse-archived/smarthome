@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractRuleBasedInterpreter implements HumanLanguageInterpreter {
 
     private static final String JSGF = "JSGF";
-    private static final Set<String> supportedGrammars = Collections.unmodifiableSet(Collections.singleton(JSGF));
+    private static final Set<String> SUPPORTED_GRAMMERS = Collections.unmodifiableSet(Collections.singleton(JSGF));
 
     private static final String OK = "ok";
     private static final String SORRY = "sorry";
@@ -612,7 +612,7 @@ public abstract class AbstractRuleBasedInterpreter implements HumanLanguageInter
 
     @Override
     public Set<String> getSupportedGrammarFormats() {
-        return supportedGrammars;
+        return SUPPORTED_GRAMMERS;
     }
 
     /**
@@ -842,7 +842,7 @@ public abstract class AbstractRuleBasedInterpreter implements HumanLanguageInter
 
     @Override
     public String getGrammar(Locale locale, String format) {
-        if (format != JSGF) {
+        if (!JSGF.equals(format)) {
             return null;
         }
         JSGFGenerator generator = new JSGFGenerator(ResourceBundle.getBundle(LANGUAGE_SUPPORT, locale));

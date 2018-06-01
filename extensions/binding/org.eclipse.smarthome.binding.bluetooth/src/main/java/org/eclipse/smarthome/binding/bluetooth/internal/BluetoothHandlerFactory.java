@@ -24,14 +24,13 @@ import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 
 /**
  * The {@link BluetoothHandlerFactory} is responsible for creating things and thing handlers.
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.bluetooth", configurationPolicy = ConfigurationPolicy.OPTIONAL)
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.bluetooth")
 public class BluetoothHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = new HashSet<>();

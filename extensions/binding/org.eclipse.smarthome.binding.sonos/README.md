@@ -18,18 +18,21 @@ The Sonos devices are discovered through UPnP in the local network and all devic
 
 The binding has the following configuration options, which can be set for "binding:sonos":
 
-| Parameter | Name    | Description  | Required |
-|-----------------|------------------------|--------------|------------ |
-| opmlUrl | OPML Service URL | URL for the OPML/tunein.com service | no |
-| callbackUrl | Callback URL | URL to use for playing notification sounds, e.g. http://192.168.0.2:8080 | no |
+| Parameter   | Name             | Description                                                              | Required |
+|-------------|------------------|--------------------------------------------------------------------------|----------|
+| opmlUrl     | OPML Service URL | URL for the OPML/tunein.com service                                      | no       |
+| callbackUrl | Callback URL     | URL to use for playing notification sounds, e.g. http://192.168.0.2:8080 | no       |
 
 ## Thing Configuration
 
-The Sonos Thing requires the UPnP UDN (Unique Device Name) as a configuration value in order for the binding to know how to access it. All the Sonos UDN have the "RINCON_000E58D8403A0XXXX" format. Additionally, a refresh interval, used to poll the Sonos device, can be specified (in seconds)
+The Sonos Thing requires the UPnP UDN (Unique Device Name) as a configuration value in order for the binding to know how to access it.
+All the Sonos UDN have the "RINCON_000E58D8403A0XXXX" format.
+Additionally, a refresh interval, used to poll the Sonos device, can be specified (in seconds).
+You can use the `notificationVolume` property for setting a default volume (in percent) to be used to play notifications.
 In the thing file, this looks e.g. like
 
 ```
-Thing sonos:PLAY1:1 [ udn="RINCON_000E58D8403A0XXXX", refresh=60]
+Thing sonos:PLAY1:1 [udn="RINCON_000E58D8403A0XXXX", refresh=60, notificationVolume=25]
 ```
 
 ## Channels
@@ -59,7 +62,6 @@ The devices support the following channels:
 | localcoordinator    | Switch    | R           | Indicator set to ON if the this Zone Player is the Zone Group Coordinator                                                                                 | all                                  |
 | mute                | Switch    | RW          | Set or get the mute state of the master volume of the Zone Player                                                                                         | all                                  |
 | notificationsound   | String    | W           | Play a notification sound by a given URI                                                                                                                  | all                                  |
-| notificationvolume  | Dimmer    | RW          | Set the volume applied to a notification sound                                                                                                            | all                                  |
 | playlinein          | String    | W           | This channel supports playing the audio source connected to the line-in of the zoneplayer identified by the Thing UID or UPnP UDN provided by the String. | PLAY5, CONNECT, CONNECTAMP, PLAYBASE |
 | playlist            | String    | W           | Play the given playlist. The playlist has to predefined in the Sonos Controller app                                                                       | all                                  |
 | playqueue           | Switch    | W           | Play the songs from the current queue                                                                                                                     | all                                  |
@@ -87,11 +89,13 @@ The devices support the following channels:
 ## Audio Support
 
 All supported Sonos devices are registered as an audio sink in the framework.
-Audio streams are treated as notifications, i.e. they are fed into the `notificationsound` channel and changing the volume of the audio sink will change the `notificationvolume`, not the `volume`.
-Note that the `notificationvolume` is set by the binding during each start of the system to equal the master volume (resulting in a barely audible level), making the use of a persistence policy obsolete. In order to control the `notificationvolume` users have to set it manually or by a rule.
-Note that the Sonos binding has a limit of 20 seconds for notification sounds. Any sound that is longer than that will be cut off.
+Audio streams are treated as notifications, i.e. they are fed into the `notificationsound` channel.
+The `notificationsound` channel change the volume of the audio sink to the value defined in the `notificationVolume` property of the thing and restores it after finished playing.
+Note that the Sonos binding has a limit of 20 seconds for notification sounds.
+Any sound that is longer than that will be cut off.
 
-URL audio streams (e.g. an Internet radio stream) are an exception and do not get sent to the `notificationsound` channel. Instead, these will be sent to the `playuri` channel.
+URL audio streams (e.g. an Internet radio stream) are an exception and do not get sent to the `notificationsound` channel.
+Instead, these will be sent to the `playuri` channel.
 
 ## Full Example
 

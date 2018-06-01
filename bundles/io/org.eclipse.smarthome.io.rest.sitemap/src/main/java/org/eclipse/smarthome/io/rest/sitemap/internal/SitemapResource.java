@@ -82,6 +82,12 @@ import org.glassfish.jersey.media.sse.SseBroadcaster;
 import org.glassfish.jersey.media.sse.SseFeature;
 import org.glassfish.jersey.server.BroadcasterListener;
 import org.glassfish.jersey.server.ChunkedOutput;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,6 +108,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Chris Jackson
  * @author Yordan Zhelev - Added Swagger annotations
  */
+@Component(service = { SitemapResource.class, RESTResource.class })
 @Path(SitemapResource.PATH_SITEMAPS)
 @RolesAllowed({ Role.USER, Role.ADMIN })
 @Api(value = SitemapResource.PATH_SITEMAPS)
@@ -131,16 +138,19 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
 
     private final Map<String, EventOutput> eventOutputs = new MapMaker().weakValues().makeMap();
 
+    @Activate
     protected void activate() {
         broadcaster = new SseBroadcaster();
         broadcaster.add(this);
     }
 
+    @Deactivate
     protected void deactivate() {
         broadcaster.remove(this);
         broadcaster = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
         this.itemUIRegistry = itemUIRegistry;
     }
@@ -149,6 +159,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
         this.itemUIRegistry = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     public void setSitemapSubscriptionService(SitemapSubscriptionService subscriptions) {
         this.subscriptions = subscriptions;
     }
@@ -157,6 +168,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
         this.subscriptions = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addSitemapProvider(SitemapProvider provider) {
         sitemapProviders.add(provider);
     }
@@ -269,6 +281,10 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
         if (sitemapname != null && pageId != null) {
             subscriptions.setPageId(subscriptionId, sitemapname, pageId);
         }
+        if (subscriptions.getSitemapName(subscriptionId) == null || subscriptions.getPageId(subscriptionId) == null) {
+            return JSONResponse.createResponse(Status.BAD_REQUEST, null,
+                    "Subscription id " + subscriptionId + " is not yet linked to a sitemap/page.");
+        }
         logger.debug("Client requested sitemap event stream for subscription {}.", subscriptionId);
 
         // Disables proxy buffering when using an nginx http server proxy for this response.
@@ -328,19 +344,26 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
 
     public Collection<SitemapDTO> getSitemapBeans(URI uri) {
         Collection<SitemapDTO> beans = new LinkedList<SitemapDTO>();
+        Set<String> names = new HashSet<>();
         logger.debug("Received HTTP GET request at '{}'.", UriBuilder.fromUri(uri).build().toASCIIString());
         for (SitemapProvider provider : sitemapProviders) {
             for (String modelName : provider.getSitemapNames()) {
                 Sitemap sitemap = provider.getSitemap(modelName);
                 if (sitemap != null) {
-                    SitemapDTO bean = new SitemapDTO();
-                    bean.name = modelName;
-                    bean.icon = sitemap.getIcon();
-                    bean.label = sitemap.getLabel();
-                    bean.link = UriBuilder.fromUri(uri).path(bean.name).build().toASCIIString();
-                    bean.homepage = new PageDTO();
-                    bean.homepage.link = bean.link + "/" + sitemap.getName();
-                    beans.add(bean);
+                    if (!names.contains(modelName)) {
+                        names.add(modelName);
+                        SitemapDTO bean = new SitemapDTO();
+                        bean.name = modelName;
+                        bean.icon = sitemap.getIcon();
+                        bean.label = sitemap.getLabel();
+                        bean.link = UriBuilder.fromUri(uri).path(bean.name).build().toASCIIString();
+                        bean.homepage = new PageDTO();
+                        bean.homepage.link = bean.link + "/" + sitemap.getName();
+                        beans.add(bean);
+                    } else {
+                        logger.warn("Found duplicate sitemap name '{}' - ignoring it. Please check your configuration.",
+                                modelName);
+                    }
                 }
             }
         }
@@ -397,7 +420,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
     private WidgetDTO createWidgetBean(String sitemapName, Widget widget, boolean drillDown, URI uri, String widgetId,
             Locale locale) {
         // Test visibility
-        if (itemUIRegistry.getVisiblity(widget) == false) {
+        if (!itemUIRegistry.getVisiblity(widget)) {
             return null;
         }
 
@@ -615,8 +638,14 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
         Set<GenericItem> items = new HashSet<GenericItem>();
         if (itemUIRegistry != null) {
             for (Widget widget : widgets) {
+                // We skip the chart widgets having a refresh argument
+                boolean skipWidget = false;
+                if (widget instanceof Chart) {
+                    Chart chartWidget = (Chart) widget;
+                    skipWidget = chartWidget.getRefresh() > 0;
+                }
                 String itemName = widget.getItem();
-                if (itemName != null) {
+                if (!skipWidget && itemName != null) {
                     try {
                         Item item = itemUIRegistry.getItem(itemName);
                         if (item instanceof GenericItem) {
@@ -720,6 +749,10 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             SitemapEventOutput sitemapEvent = (SitemapEventOutput) event;
             logger.debug("SSE connection for subscription {} has been closed.", sitemapEvent.getSubscriptionId());
             subscriptions.removeSubscription(sitemapEvent.getSubscriptionId());
+            EventOutput eventOutput = eventOutputs.remove(sitemapEvent.getSubscriptionId());
+            if (eventOutput != null) {
+                broadcaster.remove(eventOutput);
+            }
         }
     }
 

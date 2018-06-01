@@ -15,7 +15,6 @@ Import-Package:
  com.google.gson,
  javax.jmdns,
  javax.net.ssl,
- javax.xml.bind,
  org.apache.commons.io,
  org.apache.commons.lang,
  org.eclipse.jdt.annotation;resolution:=optional,

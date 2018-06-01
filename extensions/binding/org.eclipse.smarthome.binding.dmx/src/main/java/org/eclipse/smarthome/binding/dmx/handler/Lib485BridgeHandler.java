@@ -46,7 +46,7 @@ public class Lib485BridgeHandler extends DmxBridgeHandler {
     public static final int DEFAULT_PORT = 9020;
 
     private final Logger logger = LoggerFactory.getLogger(Lib485BridgeHandler.class);
-    private Map<IpNode, Socket> receiverNodes = new HashMap<IpNode, Socket>();
+    private final Map<IpNode, Socket> receiverNodes = new HashMap<IpNode, Socket>();
 
     public Lib485BridgeHandler(Bridge lib485Bridge) {
         super(lib485Bridge);
@@ -54,7 +54,7 @@ public class Lib485BridgeHandler extends DmxBridgeHandler {
 
     @Override
     protected void openConnection() {
-        if (!this.thing.getStatus().equals(ThingStatus.ONLINE)) {
+        if (getThing().getStatus() != ThingStatus.ONLINE) {
             for (IpNode receiverNode : receiverNodes.keySet()) {
                 Socket socket = receiverNodes.get(receiverNode);
                 if (socket == null) {
@@ -99,7 +99,7 @@ public class Lib485BridgeHandler extends DmxBridgeHandler {
 
     @Override
     protected void sendDmxData() {
-        if (this.thing.getStatus().equals(ThingStatus.ONLINE)) {
+        if (getThing().getStatus() == ThingStatus.ONLINE) {
             long now = System.currentTimeMillis();
             universe.calculateBuffer(now);
             for (IpNode receiverNode : receiverNodes.keySet()) {

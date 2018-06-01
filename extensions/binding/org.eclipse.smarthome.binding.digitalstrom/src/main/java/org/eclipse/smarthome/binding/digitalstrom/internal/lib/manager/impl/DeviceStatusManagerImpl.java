@@ -33,33 +33,33 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.DeviceSt
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.ManagerStatusListener;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.SceneStatusListener;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.TotalPowerConsumptionListener;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.stateEnums.ManagerStates;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.stateEnums.ManagerTypes;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.stateenums.ManagerStates;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.stateenums.ManagerTypes;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.ConnectionManager;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.DeviceStatusManager;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.SceneManager;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.StructureManager;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.SceneReadingJobExecutor;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.SensorJobExecutor;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.SensorJob;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.impl.DeviceConsumptionSensorJob;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.impl.DeviceOutputValueSensorJob;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.impl.SceneConfigReadingJob;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorJobExecutor.sensorJob.impl.SceneOutputValueReadingJob;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.DsAPI;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.constants.JSONApiResponseKeysEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorjobexecutor.SceneReadingJobExecutor;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorjobexecutor.SensorJobExecutor;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorjobexecutor.sensorjob.SensorJob;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorjobexecutor.sensorjob.impl.DeviceConsumptionSensorJob;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorjobexecutor.sensorjob.impl.DeviceOutputValueSensorJob;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorjobexecutor.sensorjob.impl.SceneConfigReadingJob;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.sensorjobexecutor.sensorjob.impl.SceneOutputValueReadingJob;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.DsAPI;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.constants.JSONApiResponseKeysEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Circuit;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Device;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.CachedMeteringValue;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DeviceConstants;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DeviceStateUpdate;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.DeviceBinarayInputEnum;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.MeteringTypeEnum;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.MeteringUnitsEnum;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.OutputModeEnum;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.SensorEnum;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.impl.DSID;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.impl.DeviceStateUpdateImpl;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.CachedMeteringValue;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.DeviceConstants;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.DeviceStateUpdate;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.DeviceBinarayInputEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.MeteringTypeEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.MeteringUnitsEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.OutputModeEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.SensorEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.impl.DSID;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.impl.DeviceStateUpdateImpl;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.impl.DeviceImpl;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.InternalScene;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.constants.ApartmentSceneEnum;
@@ -253,8 +253,6 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
 
             List<Device> currentDeviceList = getDetailedDevices();
 
-            // TODO: Maybe it is better to separate the total power consumption update in a extra Thread. See next
-            // TODO.
             // update the current total power consumption
             if (nextSensorUpdate <= System.currentTimeMillis()) {
                 // check circuits
@@ -280,10 +278,6 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
                 DSID currentDeviceDSID = currentDevice.getDSID();
                 Device eshDevice = tempDeviceMap.remove(currentDeviceDSID);
 
-                // TODO: Maybe it is better to separate the Device-Status updates (send commands to dSS) and the
-                // structure and configuration updates. That will optimize the time to send commands and the
-                // structure and configuration updates can be executed at a higher interval. For that the
-                // DeviceHandler has to inform this DeviceStatusManager to check the updates in an extra Thread.
                 if (eshDevice != null) {
                     checkDeviceConfig(currentDevice, eshDevice);
 

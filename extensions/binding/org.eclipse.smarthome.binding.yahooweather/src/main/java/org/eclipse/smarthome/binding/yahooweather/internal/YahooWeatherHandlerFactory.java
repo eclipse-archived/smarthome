@@ -21,6 +21,8 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * The {@link YahooWeatherHandlerFactory} is responsible for creating things and thing
@@ -28,6 +30,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
  *
  * @author Kai Kreuzer - Initial contribution
  */
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.yahooweather")
 public class YahooWeatherHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections

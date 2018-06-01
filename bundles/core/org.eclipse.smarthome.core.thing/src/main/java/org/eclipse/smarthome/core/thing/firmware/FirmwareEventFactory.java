@@ -15,7 +15,6 @@ package org.eclipse.smarthome.core.thing.firmware;
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFactory;
-import org.eclipse.smarthome.core.thing.ThingUID;
 import org.osgi.service.component.annotations.Component;
 
 import com.google.common.collect.ImmutableSet;
@@ -30,11 +29,10 @@ import com.google.common.collect.ImmutableSet;
  * </ul>
  *
  * @author Thomas Höfer - Initial contribution
+ * @author Dimitar Ivanov - Consolidated all the event information into the FirmwareStatusInfoEvent
  */
 @Component(immediate = true, service = EventFactory.class)
 public final class FirmwareEventFactory extends AbstractEventFactory {
-
-    private static final int THING_UID_TOPIC_IDX = 2;
 
     static final String THING_UID_TOPIC_KEY = "{thingUID}";
 
@@ -68,17 +66,16 @@ public final class FirmwareEventFactory extends AbstractEventFactory {
      * @param firmwareStatusInfo the firmware status information (must not be null)
      * @param thingUID the thing UID for which the new firmware status info is to be sent (must not be null)
      * @return the corresponding firmware status info event
-     * @throws NullPointerException if given firmware status info or thing UID is null
+     * @throws IllegalArgumentException if given firmware status info is null
      */
-    static FirmwareStatusInfoEvent createFirmwareStatusInfoEvent(FirmwareStatusInfo firmwareStatusInfo,
-            ThingUID thingUID) {
+    public static FirmwareStatusInfoEvent createFirmwareStatusInfoEvent(FirmwareStatusInfo firmwareStatusInfo) {
         checkNotNull(firmwareStatusInfo, "firmwareStatusInfo");
-        checkNotNull(thingUID, "thingUID");
 
-        String topic = FIRMWARE_STATUS_TOPIC.replace(THING_UID_TOPIC_KEY, thingUID.getAsString());
+        String topic = FIRMWARE_STATUS_TOPIC.replace(THING_UID_TOPIC_KEY,
+                firmwareStatusInfo.getThingUID().getAsString());
         String payload = serializePayload(firmwareStatusInfo);
 
-        return new FirmwareStatusInfoEvent(topic, payload, firmwareStatusInfo, thingUID);
+        return new FirmwareStatusInfoEvent(topic, payload, firmwareStatusInfo);
     }
 
     /**
@@ -87,17 +84,17 @@ public final class FirmwareEventFactory extends AbstractEventFactory {
      * @param progressInfo the progress information of the firmware update process (must not be null)
      * @param thingUID the thing UID for which the progress info is to be sent (must not be null)
      * @return the corresponding progress info event
-     * @throws NullPointerException if given progress info or thing UID is null
+     * @throws IllegalArgumentException if given progress info is null
      */
-    static FirmwareUpdateProgressInfoEvent createFirmwareUpdateProgressInfoEvent(
-            FirmwareUpdateProgressInfo progressInfo, ThingUID thingUID) {
+    public static FirmwareUpdateProgressInfoEvent createFirmwareUpdateProgressInfoEvent(
+            FirmwareUpdateProgressInfo progressInfo) {
         checkNotNull(progressInfo, "progressInfo");
-        checkNotNull(thingUID, "thingUID");
 
-        String topic = FIRMWARE_UPDATE_PROGRESS_TOPIC.replace(THING_UID_TOPIC_KEY, thingUID.getAsString());
+        String topic = FIRMWARE_UPDATE_PROGRESS_TOPIC.replace(THING_UID_TOPIC_KEY,
+                progressInfo.getThingUID().getAsString());
         String payload = serializePayload(progressInfo);
 
-        return new FirmwareUpdateProgressInfoEvent(topic, payload, progressInfo, thingUID);
+        return new FirmwareUpdateProgressInfoEvent(topic, payload, progressInfo);
     }
 
     /**
@@ -106,37 +103,33 @@ public final class FirmwareEventFactory extends AbstractEventFactory {
      * @param firmwareUpdateResultInfo the firmware update result information (must not be null)
      * @param thingUID the thing UID for which the result information is to be sent (must not be null)
      * @return the corresponding firmware update result info event
-     * @throws NullPointerException if given firmware update result info event or thing UID is null
+     * @throws IllegalArgumentException if given firmware update result info event is null
      */
-    static FirmwareUpdateResultInfoEvent createFirmwareUpdateResultInfoEvent(
-            FirmwareUpdateResultInfo firmwareUpdateResultInfo, ThingUID thingUID) {
+    public static FirmwareUpdateResultInfoEvent createFirmwareUpdateResultInfoEvent(
+            FirmwareUpdateResultInfo firmwareUpdateResultInfo) {
         checkNotNull(firmwareUpdateResultInfo, "firmwareUpdateResultInfo");
-        checkNotNull(thingUID, "thingUID");
 
-        String topic = FIRMWARE_UPDATE_RESULT_TOPIC.replace(THING_UID_TOPIC_KEY, thingUID.getAsString());
+        String topic = FIRMWARE_UPDATE_RESULT_TOPIC.replace(THING_UID_TOPIC_KEY,
+                firmwareUpdateResultInfo.getThingUID().getAsString());
         String payload = serializePayload(firmwareUpdateResultInfo);
 
-        return new FirmwareUpdateResultInfoEvent(topic, payload, firmwareUpdateResultInfo, thingUID);
+        return new FirmwareUpdateResultInfoEvent(topic, payload, firmwareUpdateResultInfo);
     }
 
     private static FirmwareStatusInfoEvent createFirmwareStatusInfoEvent(String topic, String payload) {
         FirmwareStatusInfo firmwareStatusInfo = deserializePayload(payload, FirmwareStatusInfo.class);
-        return new FirmwareStatusInfoEvent(topic, payload, firmwareStatusInfo, getThingUID(topic));
+        return new FirmwareStatusInfoEvent(topic, payload, firmwareStatusInfo);
     }
 
     private static FirmwareUpdateProgressInfoEvent createFirmwareUpdateProgressInfoEvent(String topic, String payload) {
         FirmwareUpdateProgressInfo firmwareUpdateProgressInfo = deserializePayload(payload,
                 FirmwareUpdateProgressInfo.class);
-        return new FirmwareUpdateProgressInfoEvent(topic, payload, firmwareUpdateProgressInfo, getThingUID(topic));
+        return new FirmwareUpdateProgressInfoEvent(topic, payload, firmwareUpdateProgressInfo);
     }
 
     private static FirmwareUpdateResultInfoEvent createFirmwareUpdateResultInfoEvent(String topic, String payload) {
         FirmwareUpdateResultInfo firmwareUpdateResultInfo = deserializePayload(payload, FirmwareUpdateResultInfo.class);
-        return new FirmwareUpdateResultInfoEvent(topic, payload, firmwareUpdateResultInfo, getThingUID(topic));
+        return new FirmwareUpdateResultInfoEvent(topic, payload, firmwareUpdateResultInfo);
     }
 
-    private static ThingUID getThingUID(String topic) {
-        String thingUID = topic.split("/")[THING_UID_TOPIC_IDX];
-        return new ThingUID(thingUID);
-    }
 }

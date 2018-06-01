@@ -31,7 +31,7 @@ import org.eclipse.smarthome.binding.digitalstrom.handler.ZoneTemperatureControl
 import org.eclipse.smarthome.binding.digitalstrom.internal.discovery.DiscoveryServiceManager;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.ConnectionManager;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.impl.ConnectionManagerImpl;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.constants.JSONApiResponseKeysEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.constants.JSONApiResponseKeysEnum;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -39,6 +39,8 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +51,7 @@ import org.slf4j.LoggerFactory;
  * @author Michael Ochel - Initial contribution
  * @author Mathias Siegele - Initial contribution
  */
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.digitalstrom")
 public class DigitalSTROMHandlerFactory extends BaseThingHandlerFactory {
 
     private final Logger logger = LoggerFactory.getLogger(DigitalSTROMHandlerFactory.class);

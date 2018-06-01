@@ -22,7 +22,7 @@ import java.util.Map;
 
 import org.eclipse.smarthome.binding.digitalstrom.handler.BridgeHandler;
 import org.eclipse.smarthome.binding.digitalstrom.handler.SceneHandler;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.FuncNameAndColorGroupEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.FuncNameAndColorGroupEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.InternalScene;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.constants.SceneEnum;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SceneDiscoveryService extends AbstractDiscoveryService {
 
-    private static final Logger logger = LoggerFactory.getLogger(SceneDiscoveryService.class);
+    private final Logger logger = LoggerFactory.getLogger(SceneDiscoveryService.class);
     private final BridgeHandler bridgeHandler;
     private final String sceneType;
 

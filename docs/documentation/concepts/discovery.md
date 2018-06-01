@@ -23,11 +23,11 @@ The inbox holds a list of all discovered things (`DiscoveryResult`) from all act
 Discovery results can either be ignored or approved, where in the latter case a thing is created for them and they become available in the application. If an entry is ignored, it will be hidden in the inbox without creating a thing for it. 
 
 Eclipse SmartHome offers a service to automatically ignore discovery results in the inbox, whenever a thing is created manually, that represents the same thing, as the respective discovery result would create. 
-This thing would either have the same thing UID or the value of its representation property is equal to the representation property's value in the discovery result.  This service is enabled by default but can be disabled by setting `org.eclipse.smarthome:autoIgnore=false`. 
+This thing would either have the same thing UID or the value of its representation property is equal to the representation property's value in the discovery result.  This service is enabled by default but can be disabled by setting `org.eclipse.smarthome.inbox:autoIgnore=false`. 
 
 ### Auto Approve
 
 If the manual acceptence of discovery results by the user is not wished, it is possible to turn on the auto-approval feature of the inbox. 
 In this case, every new entry gets automatically approved immediately (unless it has been marked as ignored as a duplicate).
 
-The auto approval can be enabled by the setting `org.eclipse.smarthome:autoApprove=true`; the default is false.
+The auto approval can be enabled by the setting `org.eclipse.smarthome.inbox:autoApprove=true`; the default is false.

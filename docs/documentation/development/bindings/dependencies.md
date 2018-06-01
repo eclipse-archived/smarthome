@@ -17,12 +17,14 @@ When implementing a binding, you should make sure that you do not introduce too 
  - org.eclipse.smarthome.core.thing.binding.builder  
  - org.eclipse.smarthome.core.thing.type  
  - org.eclipse.smarthome.core.types  
+ - org.eclipse.smarthome.core.util  
  
 Depending on the kind of communication that you need to implement, you can optionally also add any exported packages from these bundles:
 
  - org.eclipse.smarthome.config.discovery
  - org.eclipse.smarthome.io.transport.mdns
  - org.eclipse.smarthome.io.transport.mqtt
+ - org.eclipse.smarthome.io.transport.serial
  - org.eclipse.smarthome.io.transport.upnp
  
 ## Optional Bundles
@@ -44,6 +46,8 @@ You might also have the need to use other libraries for specific use cases like 
  - org.eclipse.jetty.client.api.*  
  - org.eclipse.jetty.http.*  
  - org.eclipse.jetty.util.*  
+ 
+Note: HttpClient instances should be obtained through the `HttpClientFactory` service and unless there are specific configuration requirements, the shared instance should be used.
  
 ## 3rd Party Libraries
 

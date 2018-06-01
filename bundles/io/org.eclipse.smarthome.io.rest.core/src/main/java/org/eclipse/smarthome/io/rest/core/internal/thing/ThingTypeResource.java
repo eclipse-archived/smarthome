@@ -13,7 +13,6 @@
 package org.eclipse.smarthome.io.rest.core.internal.thing;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
@@ -27,7 +26,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
@@ -37,14 +35,11 @@ import org.eclipse.smarthome.config.core.dto.ConfigDescriptionParameterDTO;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionParameterGroupDTO;
 import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.binding.firmware.Firmware;
 import org.eclipse.smarthome.core.thing.dto.ChannelDefinitionDTO;
 import org.eclipse.smarthome.core.thing.dto.ChannelGroupDefinitionDTO;
 import org.eclipse.smarthome.core.thing.dto.StrippedThingTypeDTO;
 import org.eclipse.smarthome.core.thing.dto.StrippedThingTypeDTOMapper;
 import org.eclipse.smarthome.core.thing.dto.ThingTypeDTO;
-import org.eclipse.smarthome.core.thing.firmware.FirmwareRegistry;
-import org.eclipse.smarthome.core.thing.firmware.dto.FirmwareDTO;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
@@ -93,7 +88,6 @@ public class ThingTypeResource implements RESTResource {
 
     private ThingTypeRegistry thingTypeRegistry;
     private ConfigDescriptionRegistry configDescriptionRegistry;
-    private FirmwareRegistry firmwareRegistry;
     private ChannelTypeRegistry channelTypeRegistry;
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
@@ -112,15 +106,6 @@ public class ThingTypeResource implements RESTResource {
 
     protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescriptionRegistry = null;
-    }
-
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    protected void setFirmwareRegistry(FirmwareRegistry firmwareRegistry) {
-        this.firmwareRegistry = firmwareRegistry;
-    }
-
-    protected void unsetFirmwareRegistry(FirmwareRegistry firmwareRegistry) {
-        this.firmwareRegistry = null;
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
@@ -162,25 +147,6 @@ public class ThingTypeResource implements RESTResource {
         } else {
             return Response.noContent().build();
         }
-    }
-
-    @GET
-    @Path("/{thingTypeUID}/firmwares")
-    @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Get all available firmwares for provided thingType", response = StrippedThingTypeDTO.class, responseContainer = "Set")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 204, message = "No firmwares found.") })
-    public Response getFirmwares(@PathParam("thingTypeUID") @ApiParam(value = "thingTypeUID") String thingTypeUID,
-            @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
-        ThingTypeUID athingTypeUID = new ThingTypeUID(thingTypeUID);
-        Collection<Firmware> firmwares = firmwareRegistry.getFirmwares(athingTypeUID, LocaleUtil.getLocale(language));
-
-        if (firmwares.isEmpty()) {
-            return Response.status(Status.NO_CONTENT).build();
-        }
-
-        Stream<FirmwareDTO> firmwareStream = firmwares.stream().map(this::convertToFirmwareDTO);
-        return Response.ok().entity(new Stream2JSONInputStream(firmwareStream)).build();
     }
 
     private ThingTypeDTO convertToThingTypeDTO(ThingType thingType, Locale locale) {
@@ -293,15 +259,8 @@ public class ThingTypeResource implements RESTResource {
         return null;
     }
 
-    private FirmwareDTO convertToFirmwareDTO(Firmware firmware) {
-        return new FirmwareDTO(firmware.getUID().toString(), firmware.getVendor(), firmware.getModel(),
-                firmware.isModelRestricted(), firmware.getDescription(), firmware.getVersion(),
-                firmware.getPrerequisiteVersion(), firmware.getChangelog());
-    }
-
     @Override
     public boolean isSatisfied() {
-        return thingTypeRegistry != null && configDescriptionRegistry != null && firmwareRegistry != null
-                && channelTypeRegistry != null;
+        return thingTypeRegistry != null && configDescriptionRegistry != null && channelTypeRegistry != null;
     }
 }

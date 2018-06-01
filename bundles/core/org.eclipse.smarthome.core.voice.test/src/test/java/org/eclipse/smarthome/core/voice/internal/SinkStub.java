@@ -13,9 +13,11 @@
 package org.eclipse.smarthome.core.voice.internal;
 
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioSink;
@@ -28,15 +30,18 @@ import org.eclipse.smarthome.core.library.types.PercentType;
  * some of the methods are not needed. That's why their implementation is left empty.
  *
  * @author Mihaela Memova - initial contribution
- *
  * @author Velin Yordanov - migrated from groovy to java
+ * @author Christoph Weitkamp - Added parameter to adjust the volume
  *
  */
 public class SinkStub implements AudioSink {
 
     private boolean isStreamProcessed;
-    private boolean isUnsupportedAudioFormatExceptionExpected;
-    private Set<AudioFormat> supportedFormats = new HashSet<AudioFormat>();
+    private PercentType volume;
+    private static final Set<AudioFormat> SUPPORTED_AUDIO_FORMATS = Collections
+            .unmodifiableSet(Stream.of(AudioFormat.MP3, AudioFormat.WAV).collect(Collectors.toSet()));
+    private static final Set<Class<? extends AudioStream>> SUPPORTED_AUDIO_STREAMS = Collections
+            .singleton(AudioStream.class);
 
     private static final String SINK_STUB_ID = "sinkStubID";
     private static final String SINK_STUB_LABEL = "sinkStubLabel";
@@ -62,20 +67,19 @@ public class SinkStub implements AudioSink {
 
     @Override
     public Set<AudioFormat> getSupportedFormats() {
-        supportedFormats.add(AudioFormat.MP3);
-        supportedFormats.add(AudioFormat.WAV);
-        return supportedFormats;
+        return SUPPORTED_AUDIO_FORMATS;
     }
 
     @Override
     public PercentType getVolume() throws IOException {
         // this method will no be used in the tests
-        return null;
+        return volume;
     }
 
     @Override
     public void setVolume(PercentType volume) throws IOException {
         // this method will not be used in the tests
+        this.volume = volume;
     }
 
     public boolean isStreamProcessed() {
@@ -89,7 +93,6 @@ public class SinkStub implements AudioSink {
 
     @Override
     public Set<Class<? extends AudioStream>> getSupportedStreams() {
-        // this method will not be used in the tests
-        return null;
+        return SUPPORTED_AUDIO_STREAMS;
     }
 }

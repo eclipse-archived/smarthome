@@ -47,7 +47,8 @@ public class DmxChannel extends BaseDmxChannel {
     private int suspendedValue = MIN_VALUE;
     private int lastStateValue = -1;
 
-    private boolean isSuspended;
+    private boolean isSuspended = false;
+    private int refreshTime = 0;
     private long lastStateTimestamp = 0;
 
     private final List<BaseAction> actions = new ArrayList<BaseAction>();
@@ -58,12 +59,14 @@ public class DmxChannel extends BaseDmxChannel {
     private final HashMap<ChannelUID, DmxThingHandler> valueListeners = new HashMap<ChannelUID, DmxThingHandler>();
     private Entry<ChannelUID, DmxThingHandler> actionListener = null;
 
-    public DmxChannel(int universeId, int dmxChannelId) {
+    public DmxChannel(int universeId, int dmxChannelId, int refreshTime) {
         super(universeId, dmxChannelId);
+        this.refreshTime = refreshTime;
     }
 
-    public DmxChannel(BaseDmxChannel dmxChannel) {
+    public DmxChannel(BaseDmxChannel dmxChannel, int refreshTime) {
         super(dmxChannel);
+        this.refreshTime = refreshTime;
     }
 
     /**
@@ -141,15 +144,19 @@ public class DmxChannel extends BaseDmxChannel {
      * suspends current value and actions
      */
     public synchronized void suspendAction() {
-        suspendedValue = value;
-        isSuspended = true;
-        suspendedActions.clear();
-        suspendedActions.addAll(actions);
         if (isSuspended) {
             logger.info("second suspend for actions in DMX channel {}, previous will be lost", this);
         } else {
-            logger.trace("suspending actions for channel {}", this);
+            logger.trace("suspending actions and value for channel {}", this);
         }
+
+        suspendedValue = value;
+        suspendedActions.clear();
+        if (hasRunningActions()) {
+            suspendedActions.addAll(actions);
+        }
+
+        isSuspended = true;
     }
 
     /**
@@ -161,11 +168,12 @@ public class DmxChannel extends BaseDmxChannel {
             if (!suspendedActions.isEmpty()) {
                 actions.addAll(suspendedActions);
                 suspendedActions.clear();
+                logger.trace("resuming suspended actions for DMX channel {}", this);
             } else {
                 value = suspendedValue;
+                logger.trace("resuming suspended value for DMX channel {}", this);
             }
             isSuspended = false;
-            logger.trace("resuming suspended actions for DMX channel {}", this);
         } else {
             throw new IllegalStateException("trying to resume actions in non-suspended DMX channel " + this.toString());
         }
@@ -188,8 +196,7 @@ public class DmxChannel extends BaseDmxChannel {
         actions.clear();
         // remove action listener
         if (actionListener != null) {
-            actionListener.getValue().updateState(actionListener.getKey(), OnOffType.OFF);
-            logger.trace("sending ACTION status update to listener {}", actionListener.getKey());
+            actionListener.getValue().updateSwitchState(actionListener.getKey(), OnOffType.OFF);
             actionListener = null;
         }
     }
@@ -257,9 +264,10 @@ public class DmxChannel extends BaseDmxChannel {
      */
     public synchronized Integer getNewHiResValue(long calculationTime) {
         if (hasRunningActions()) {
+            logger.trace("checking actions, list is {}", actions);
             BaseAction action = actions.get(0);
             value = action.getNewValue(this, calculationTime);
-            if (action.getState() == ActionState.COMPLETED) {
+            if (action.getState() == ActionState.COMPLETED && hasRunningActions()) {
                 switchToNextAction();
             } else if (action.getState() == ActionState.COMPLETEDFINAL) {
                 clearAction();
@@ -267,20 +275,22 @@ public class DmxChannel extends BaseDmxChannel {
         }
 
         // send updates not more than once in a second, and only on value change
-        if ((lastStateValue != value) && (calculationTime - lastStateTimestamp > 1000)) {
+        if ((lastStateValue != value) && (calculationTime - lastStateTimestamp > refreshTime)) {
             // notify value listeners if value changed
             for (Entry<ChannelUID, DmxThingHandler> listener : valueListeners.entrySet()) {
-                PercentType state = Util.toPercentValue(Util.toDmxValue(value >> 8));
-                (listener.getValue()).updateState(listener.getKey(), state);
-                logger.trace("sending VALUE status update to listener {}", listener.getKey());
+                int dmxValue = Util.toDmxValue(value >> 8);
+                (listener.getValue()).updateChannelValue(listener.getKey(), dmxValue);
+                logger.trace("sending VALUE={} (raw={}) status update to listener {} ({})", dmxValue, value,
+                        listener.getValue(), listener.getKey());
             }
 
             // notify on/off listeners if on/off state changed
             if ((lastStateValue == 0) || (value == 0)) {
                 OnOffType state = (value == 0) ? OnOffType.OFF : OnOffType.ON;
                 for (Entry<ChannelUID, DmxThingHandler> listener : onOffListeners.entrySet()) {
-                    (listener.getValue()).updateState(listener.getKey(), state);
-                    logger.trace("sending ONOFF status update to listener {}", listener.getKey());
+                    (listener.getValue()).updateSwitchState(listener.getKey(), state);
+                    logger.trace("sending ONOFF={} (raw={}), status update to listener {}", state, value,
+                            listener.getKey());
                 }
             }
 
@@ -299,14 +309,6 @@ public class DmxChannel extends BaseDmxChannel {
      */
     public void addListener(ChannelUID thingChannel, DmxThingHandler listener, ListenerType type) {
         switch (type) {
-            case ONOFF:
-                if (onOffListeners.containsKey(thingChannel)) {
-                    logger.trace("ONOFF listener {} already exists in channel {}", thingChannel, this);
-                } else {
-                    onOffListeners.put(thingChannel, listener);
-                    logger.debug("adding ONOFF listener {} to channel {}", thingChannel, this);
-                }
-                break;
             case VALUE:
                 if (valueListeners.containsKey(thingChannel)) {
                     logger.trace("VALUE listener {} already exists in channel {}", thingChannel, this);
@@ -317,10 +319,10 @@ public class DmxChannel extends BaseDmxChannel {
                 break;
             case ACTION:
                 if (actionListener != null) {
-                    logger.info("replacing action listener {} with {} in channel {}", actionListener.getValue(),
+                    logger.info("replacing ACTION listener {} with {} in channel {}", actionListener.getValue(),
                             listener, this);
                 } else {
-                    logger.debug("adding action listener {} in channel {}", listener, this);
+                    logger.debug("adding ACTION listener {} in channel {}", listener, this);
                 }
                 actionListener = new AbstractMap.SimpleEntry<ChannelUID, DmxThingHandler>(thingChannel, listener);
             default:

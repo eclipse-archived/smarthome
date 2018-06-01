@@ -6,18 +6,19 @@
     "install": "node node_modules/openlayers/tasks/build.js openlayers-esh.json node_modules/openlayers/ol-esh.js",
     "start": "gulp serve --development",
     "build": "gulp default",
-    "test": "gulp test"
+    "test": "gulp test",
+    "dev": "gulp serve --development --noMinify"
   },
   "dependencies": {
-    "angular": "1.4.8",
-    "angular-animate": "1.4.8",
-    "angular-aria": "1.4.8",
+    "angular": "1.5.7",
+    "angular-animate": "1.5.7",
+    "angular-aria": "1.5.7",
+    "angular-messages": "1.5.7",
+    "angular-resource": "1.5.7",
+    "angular-route": "1.5.7",
+    "angular-sanitize": "1.5.7",
     "angular-material": "1.0.1",
     "angular-material-expansion-panel": "0.7.2",
-    "angular-messages": "1.4.8",
-    "angular-resource": "1.4.8",
-    "angular-route": "1.4.8",
-    "angular-sanitize": "1.4.8",
     "angular-ui-sortable": "0.13.4",
     "bootstrap": "3.3.2",
     "eventsource-polyfill": "https://github.com/amvtek/EventSource/tarball/53616d4",
@@ -34,7 +35,7 @@
     "node": ">=0.12.3"
   },
   "devDependencies": {
-    "angular-mocks": "1.4.8",
+    "angular-mocks": "1.5.7",
     "browser-sync": "~2.7.12",
     "del": "^2.0.0",
     "gulp": "^3.9.0",

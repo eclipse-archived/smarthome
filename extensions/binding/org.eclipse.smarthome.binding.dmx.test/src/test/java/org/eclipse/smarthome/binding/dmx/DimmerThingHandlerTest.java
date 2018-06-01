@@ -13,181 +13,105 @@
 package org.eclipse.smarthome.binding.dmx;
 
 import static org.eclipse.smarthome.binding.dmx.DmxBindingConstants.*;
-import static org.eclipse.smarthome.binding.dmx.test.TestBridgeHandler.THING_TYPE_TEST_BRIDGE;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.dmx.handler.DimmerThingHandler;
-import org.eclipse.smarthome.binding.dmx.test.TestBridgeHandler;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingProvider;
-import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
+import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
-import org.eclipse.smarthome.test.java.JavaOSGiTest;
-import org.eclipse.smarthome.test.storage.VolatileStorageService;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Tests cases for {@link DimmerThingHandler}.
+ * Tests cases for {@link DimmerThingHandler} in normal mode.
  *
  * @author Jan N. Klug - Initial contribution
  */
-public class DimmerThingHandlerTest extends JavaOSGiTest {
+public class DimmerThingHandlerTest extends AbstractDmxThingTest {
+    private static final String TEST_CHANNEL_CONFIG = "100";
+    private static final int TEST_FADE_TIME = 1500;
 
-    private static final String TEST_ADDRESS = "localhost";
-    private static final int TEST_UNIVERSE = 1;
-    private static final String TEST_SINGLE_CHANNEL = "100";
-    private static final String TEST_COLOR_CHANNEL = "200/3";
-    private static final int TEST_FADE_TIME = 1000;
-
-    private ManagedThingProvider managedThingProvider;
-    private VolatileStorageService volatileStorageService = new VolatileStorageService();
-
-    Map<String, Object> bridgeProperties;
-    Map<String, Object> thingProperties;
-
-    private Bridge bridge;
+    private Map<String, Object> thingProperties;
     private Thing dimmerThing;
+    private DimmerThingHandler dimmerThingHandler;
+
+    private final ThingUID THING_UID_DIMMER = new ThingUID(THING_TYPE_DIMMER, "testdimmer");
+    private final ChannelUID CHANNEL_UID_BRIGHTNESS = new ChannelUID(THING_UID_DIMMER, CHANNEL_BRIGHTNESS);
 
     @Before
     public void setUp() {
-        registerService(volatileStorageService);
-        managedThingProvider = getService(ThingProvider.class, ManagedThingProvider.class);
-
-        bridgeProperties = new HashMap<>();
-        bridge = BridgeBuilder.create(THING_TYPE_TEST_BRIDGE, "testbridge").withLabel("Test Bridge")
-                .withConfiguration(new Configuration(bridgeProperties)).build();
+        super.setup();
 
         thingProperties = new HashMap<>();
-        thingProperties.put(CONFIG_DMX_ID, TEST_SINGLE_CHANNEL);
+        thingProperties.put(CONFIG_DMX_ID, TEST_CHANNEL_CONFIG);
         thingProperties.put(CONFIG_DIMMER_FADE_TIME, TEST_FADE_TIME);
-        dimmerThing = ThingBuilder.create(THING_TYPE_DIMMER, "testdimmer").withLabel("Dimmer Thing")
-                .withBridge(bridge.getUID()).withConfiguration(new Configuration(thingProperties)).build();
-    }
+        dimmerThing = ThingBuilder
+                .create(THING_TYPE_DIMMER, "testdimmer").withLabel("Dimmer Thing").withBridge(bridge.getUID())
+                .withConfiguration(new Configuration(thingProperties)).withChannel(ChannelBuilder
+                        .create(CHANNEL_UID_BRIGHTNESS, "Brightness").withType(BRIGHTNESS_CHANNEL_TYPEUID).build())
+                .build();
 
-    @After
-    public void tearDown() {
-        managedThingProvider.remove(dimmerThing.getUID());
-        managedThingProvider.remove(bridge.getUID());
-        unregisterService(volatileStorageService);
+        dimmerThingHandler = new DimmerThingHandler(dimmerThing) {
+            @Override
+            protected @Nullable Bridge getBridge() {
+                return bridge;
+            }
+        };
+        initializeHandler(dimmerThingHandler);
     }
 
     @Test
-    public void initializationOfDimmerThing() {
-        assertThat(dimmerThing.getHandler(), is(nullValue()));
-        managedThingProvider.add(bridge);
-        waitForAssert(() -> assertThat(bridge.getHandler(), notNullValue()));
-        TestBridgeHandler bridgeHandler = (TestBridgeHandler) bridge.getHandler();
+    public void testThingStatus() {
+        assertThingStatus(dimmerThing);
+    }
 
-        // check handler present
-        managedThingProvider.add(dimmerThing);
-        waitForAssert(() -> assertThat(dimmerThing.getHandler(), notNullValue()));
-
-        // check that thing turns online id properly configured
-        waitForAssert(() -> assertThat(dimmerThing.getStatus(), is(ThingStatus.ONLINE)));
-
-        // check that thing properly follows bridge status
-        bridgeHandler.updateBridgeStatus(ThingStatus.OFFLINE);
-        waitForAssert(() -> assertThat(dimmerThing.getStatus(), is(ThingStatus.OFFLINE)));
-        bridgeHandler.updateBridgeStatus(ThingStatus.ONLINE);
-        waitForAssert(() -> assertThat(dimmerThing.getStatus(), is(ThingStatus.ONLINE)));
-
+    @Test
+    public void testThingStatus_noBridge() {
         // check that thing is offline if no bridge found
-        managedThingProvider.remove(dimmerThing.getUID());
-        assertThat(dimmerThing.getHandler(), is(nullValue()));
-        dimmerThing = ThingBuilder.create(THING_TYPE_DIMMER, "testdimmer").withLabel("Dimmer Thing")
-                .withConfiguration(new Configuration(thingProperties)).build();
-        managedThingProvider.add(dimmerThing);
-        waitForAssert(() -> assertThat(dimmerThing.getHandler(), notNullValue()));
-        waitForAssert(() -> assertThat(dimmerThing.getStatus(), is(ThingStatus.OFFLINE)));
+        DimmerThingHandler dimmerHandlerWithoutBridge = new DimmerThingHandler(dimmerThing) {
+            @Override
+            protected @Nullable Bridge getBridge() {
+                return null;
+            }
+        };
+        assertThingStatusWithoutBridge(dimmerHandlerWithoutBridge);
     }
 
     @Test
-    public void creationAndDeletionOfColorChannel() {
-        managedThingProvider.add(bridge);
-        managedThingProvider.add(dimmerThing);
-        DimmerThingHandler thingHandler = (DimmerThingHandler) dimmerThing.getHandler();
-        waitForAssert(() -> assertThat(thingHandler, notNullValue()));
+    public void testOnOffCommand() {
+        // on
+        long currentTime = System.currentTimeMillis();
 
-        // color channel not allowed in single channel dimmer
-        waitForAssert(() -> assertThat(thingHandler.getThing().getChannel(CHANNEL_COLOR), nullValue()));
+        dimmerThingHandler.handleCommand(CHANNEL_UID_BRIGHTNESS, OnOffType.ON);
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
 
-        // check that color channel is properly added
-        thingProperties.replace(CONFIG_DMX_ID, TEST_COLOR_CHANNEL);
-        thingHandler.handleConfigurationUpdate(thingProperties);
-        waitForAssert(() -> assertThat(thingHandler.getThing().getChannel(CHANNEL_COLOR), notNullValue()));
+        waitForAssert(() -> {
+            assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS,
+                    state -> assertEquals(OnOffType.ON, state.as(OnOffType.class)));
+        });
 
-        // check that color channel is properly added
-        thingProperties.replace(CONFIG_DMX_ID, TEST_SINGLE_CHANNEL);
-        thingHandler.handleConfigurationUpdate(thingProperties);
-        waitForAssert(() -> assertThat(thingHandler.getThing().getChannel(CHANNEL_COLOR), nullValue()));
+        // off
+        dimmerThingHandler.handleCommand(CHANNEL_UID_BRIGHTNESS, OnOffType.OFF);
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
+
+        waitForAssert(() -> {
+            assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS,
+                    state -> assertEquals(OnOffType.OFF, state.as(OnOffType.class)));
+        });
     }
 
     @Test
-    public void testBrightnessChannel() {
-        managedThingProvider.add(bridge);
-        TestBridgeHandler bridgeHandler = (TestBridgeHandler) bridge.getHandler();
-        waitForAssert(() -> assertThat(bridgeHandler, notNullValue()));
-
-        managedThingProvider.add(dimmerThing);
-        DimmerThingHandler thingHandler = (DimmerThingHandler) dimmerThing.getHandler();
-        waitForAssert(() -> assertThat(thingHandler, notNullValue()));
-
-        long startTime = System.currentTimeMillis();
-
-        // on/off
-        thingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_BRIGHTNESS), OnOffType.ON);
-        assertThat(bridgeHandler.getBufferValue(startTime, Integer.valueOf(TEST_SINGLE_CHANNEL)), is((byte) 0));
-        assertThat(bridgeHandler.getBufferValue(startTime + TEST_FADE_TIME, Integer.valueOf(TEST_SINGLE_CHANNEL)),
-                is((byte) 255));
-        thingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_BRIGHTNESS), OnOffType.OFF);
-        assertThat(bridgeHandler.getBufferValue(startTime, Integer.valueOf(TEST_SINGLE_CHANNEL)), is((byte) 255));
-        assertThat(bridgeHandler.getBufferValue(startTime + 2 * TEST_FADE_TIME, Integer.valueOf(TEST_SINGLE_CHANNEL)),
-                is((byte) 0));
-
-        // setting of values
-        thingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_BRIGHTNESS),
-                DecimalType.valueOf("100"));
-        assertThat(bridgeHandler.getBufferValue(startTime, Integer.valueOf(TEST_SINGLE_CHANNEL)), is((byte) 0));
-        assertThat(bridgeHandler.getBufferValue(startTime + TEST_FADE_TIME, Integer.valueOf(TEST_SINGLE_CHANNEL)),
-                is((byte) 100));
-
-        thingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_BRIGHTNESS), DecimalType.valueOf("0"));
-        assertThat(bridgeHandler.getBufferValue(startTime, Integer.valueOf(TEST_SINGLE_CHANNEL)), is((byte) 100));
-        assertThat(bridgeHandler.getBufferValue(startTime + TEST_FADE_TIME, Integer.valueOf(TEST_SINGLE_CHANNEL)),
-                is((byte) 0));
-
-        thingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_BRIGHTNESS),
-                DecimalType.valueOf("255"));
-        assertThat(bridgeHandler.getBufferValue(startTime, Integer.valueOf(TEST_SINGLE_CHANNEL)), is((byte) 0));
-        assertThat(bridgeHandler.getBufferValue(startTime + TEST_FADE_TIME, Integer.valueOf(TEST_SINGLE_CHANNEL)),
-                is((byte) 255));
-
-        // fading
-        thingHandler.handleCommand(new ChannelUID(dimmerThing.getUID(), CHANNEL_BRIGHTNESS), DecimalType.valueOf("0"));
-        assertThat(bridgeHandler.getBufferValue(startTime, Integer.valueOf(TEST_SINGLE_CHANNEL)), is((byte) 255));
-        assertThat(bridgeHandler.getBufferValue(startTime + Math.round(0.33 * TEST_FADE_TIME),
-                Integer.valueOf(TEST_SINGLE_CHANNEL)), is((byte) 170));
-        assertThat(bridgeHandler.getBufferValue(startTime + Math.round(0.5 * TEST_FADE_TIME),
-                Integer.valueOf(TEST_SINGLE_CHANNEL)), is((byte) 127));
-        assertThat(bridgeHandler.getBufferValue(startTime + Math.round(0.75 * TEST_FADE_TIME),
-                Integer.valueOf(TEST_SINGLE_CHANNEL)), is((byte) 63));
-        assertThat(bridgeHandler.getBufferValue(startTime + TEST_FADE_TIME, Integer.valueOf(TEST_SINGLE_CHANNEL)),
-                is((byte) 0));
-
+    public void testPercentTypeCommand() {
+        assertPercentTypeCommands(dimmerThingHandler, CHANNEL_UID_BRIGHTNESS, TEST_FADE_TIME);
     }
 
 }

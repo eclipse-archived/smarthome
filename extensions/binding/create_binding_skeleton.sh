@@ -8,7 +8,7 @@ author="$2"
 
 [ $# -lt 2 ] && { echo "Usage: $0 <BindingIdInCamelCase> <Author>"; exit 1; }
 
-id=`echo $camelcaseId | tr '[:upper:]' '[:lower:]'` 
+id=`echo $camelcaseId | tr '[:upper:]' '[:lower:]'`
 
 # the binding
 mvn archetype:generate --non-recursive \
@@ -37,4 +37,7 @@ mvn archetype:generate --non-recursive \
 -DbindingId=$id \
 -DbindingIdCamelCase=$camelcaseId \
 -Dauthor="$author"
+
+cp ../../src/etc/NOTICE "org.eclipse.smarthome.binding.$id/"
+cp ../../src/etc/NOTICE "org.eclipse.smarthome.binding.$id.test/"
 

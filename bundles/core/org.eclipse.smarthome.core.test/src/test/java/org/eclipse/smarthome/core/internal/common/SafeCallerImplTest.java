@@ -18,6 +18,10 @@ import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import java.lang.Thread.State;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -536,16 +540,41 @@ public class SafeCallerImplTest extends JavaTest {
             runnable.run();
         } finally {
             long durationMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos);
-            if (low > -1) {
-                assertTrue(MessageFormat.format("Duration should have been above {0} but was {1}", low, durationMillis),
-                        durationMillis >= low);
-            }
-            if (high > -1) {
-                assertTrue(
-                        MessageFormat.format("Duration should have been below {0} but was {1}", high, durationMillis),
-                        durationMillis < high);
+            try {
+                if (low > -1) {
+                    assertTrue(MessageFormat.format("Duration should have been above {0} but was {1}", low,
+                            durationMillis), durationMillis >= low);
+                }
+                if (high > -1) {
+                    assertTrue(MessageFormat.format("Duration should have been below {0} but was {1}", high,
+                            durationMillis), durationMillis < high);
+                }
+            } catch (AssertionError e) {
+                System.out.println(printThreadDump(name.getMethodName()));
+                throw e;
             }
         }
+    }
+
+    private static String printThreadDump(String threadNamePrefix) {
+        final StringBuilder sb = new StringBuilder();
+        final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+        for (ThreadInfo threadInfo : threadMXBean.getThreadInfo(threadMXBean.getAllThreadIds(), Integer.MAX_VALUE)) {
+            if (!threadInfo.getThreadName().startsWith(threadNamePrefix)) {
+                continue;
+            }
+            sb.append("\"");
+            sb.append(threadInfo.getThreadName());
+            sb.append("\" ");
+            sb.append(State.class.getName());
+            sb.append(": ");
+            sb.append(threadInfo.getThreadState());
+            for (final StackTraceElement stackTraceElement : threadInfo.getStackTrace()) {
+                sb.append("\n    at ");
+                sb.append(stackTraceElement);
+            }
+        }
+        return sb.toString();
     }
 
     private static Object sleep(int duration) {

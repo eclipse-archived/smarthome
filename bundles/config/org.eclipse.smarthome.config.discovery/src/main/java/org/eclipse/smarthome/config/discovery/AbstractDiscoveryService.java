@@ -57,8 +57,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractDiscoveryService.class);
 
-    protected static final ScheduledExecutorService scheduler = ThreadPoolManager
-            .getScheduledPool(DISCOVERY_THREADPOOL_NAME);
+    protected final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(DISCOVERY_THREADPOOL_NAME);
 
     private final Set<DiscoveryListener> discoveryListeners = new CopyOnWriteArraySet<>();
     protected @Nullable ScanListener scanListener = null;

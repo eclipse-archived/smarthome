@@ -1,5 +1,4 @@
 Manifest-Version: 1.0
-Bundle-Activator: org.eclipse.smarthome.core.internal.CoreActivator
 Bundle-License: https://www.eclipse.org/legal/epl-2.0/
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Core
@@ -31,7 +30,8 @@ Export-Package:
  org.eclipse.smarthome.core.service,
  org.eclipse.smarthome.core.storage,
  org.eclipse.smarthome.core.types,
- org.eclipse.smarthome.core.types.util
+ org.eclipse.smarthome.core.types.util,
+ org.eclipse.smarthome.core.util
 Ignore-Package: org.eclipse.smarthome.core.internal.items,org.eclipse.sm
  arthome.core.internal,org.eclipse.smarthome.core.internal.events,org.ec
  lipse.smarthome.core.internal.logging

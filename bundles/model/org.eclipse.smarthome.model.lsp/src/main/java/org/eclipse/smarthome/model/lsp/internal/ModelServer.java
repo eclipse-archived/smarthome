@@ -17,19 +17,20 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.smarthome.config.core.ConfigurableService;
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.model.script.ScriptServiceUtil;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.xtext.ide.server.LanguageServerImpl;
 import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -44,7 +45,7 @@ import com.google.inject.Injector;
  * @author Simon Kaufmann - initial contribution and API.
  *
  */
-@Component(immediate = true, service = ModelServer.class, configurationPid = ModelServer.CONFIG_PID, configurationPolicy = ConfigurationPolicy.OPTIONAL, property = {
+@Component(immediate = true, service = ModelServer.class, configurationPid = ModelServer.CONFIG_PID, property = {
         Constants.SERVICE_PID + "=" + ModelServer.CONFIG_PID,
         ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI + "=misc:lsp",
         ConfigurableService.SERVICE_PROPERTY_LABEL + "=Language Server (LSP)",
@@ -54,6 +55,7 @@ public class ModelServer {
     static final String CONFIG_PID = "org.eclipse.smarthome.lsp";
     private static final String KEY_PORT = "port";
     private static final int DEFAULT_PORT = 5007;
+    private final ExecutorService pool = ThreadPoolManager.getPool("lsp");
 
     private final Logger logger = LoggerFactory.getLogger(ModelServer.class);
     private ServerSocket socket;
@@ -73,9 +75,7 @@ public class ModelServer {
         }
         final int serverPort = port;
         injector = Guice.createInjector(new RuntimeServerModule(scriptServiceUtil, scriptEngine));
-        new Thread(() -> {
-            listen(serverPort);
-        }, "Language Server").start();
+        pool.submit(() -> listen(serverPort));
     }
 
     @Deactivate
@@ -97,9 +97,7 @@ public class ModelServer {
                 logger.debug("Going to wait for a client to connect");
                 try {
                     Socket client = socket.accept();
-                    new Thread(() -> {
-                        handleConnection(client);
-                    }, "Client " + client.getRemoteSocketAddress()).start();
+                    pool.submit(() -> handleConnection(client));
                 } catch (IOException e) {
                     if (!socket.isClosed()) {
                         logger.error("Error accepting client connection: {}", e.getMessage());

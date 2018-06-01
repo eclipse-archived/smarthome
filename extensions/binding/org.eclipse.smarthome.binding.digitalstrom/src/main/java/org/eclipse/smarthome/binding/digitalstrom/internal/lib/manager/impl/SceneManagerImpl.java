@@ -25,13 +25,13 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.event.constants.E
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.event.types.EventItem;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.ManagerStatusListener;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.SceneStatusListener;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.stateEnums.ManagerStates;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.stateEnums.ManagerTypes;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.stateenums.ManagerStates;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.stateenums.ManagerTypes;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.ConnectionManager;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.SceneManager;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.StructureManager;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Device;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.impl.DSID;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.impl.DSID;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.InternalScene;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.SceneDiscovery;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.constants.SceneEnum;

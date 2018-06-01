@@ -35,7 +35,7 @@ public class ScriptEngineConsoleCommandExtension extends AbstractConsoleCommandE
     private ScriptEngine scriptEngine;
 
     public ScriptEngineConsoleCommandExtension() {
-        super(">", "Execute scripts");
+        super("script", "Execute scripts");
     }
 
     @Override

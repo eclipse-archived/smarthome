@@ -226,6 +226,12 @@
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.serial/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-config-discovery-usbserial" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.discovery.usbserial/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.discovery.usbserial.linuxsysfs/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-io-console-karaf" description="Karaf Console support for SmartHome stuff" version="${project.version}">
     <feature>esh-base</feature>
     <feature>shell</feature>
@@ -304,7 +310,23 @@
 
   <feature name="esh-io-transport-serial" version="${project.version}">
     <feature>esh-base</feature>
-    <requirement>esh.tp;filter:="(feature=serial)"</requirement>
+    <requirement>osgi.service;filter:="(objectClass=org.eclipse.smarthome.io.transport.serial.SerialPortManager)"</requirement>
+    <feature dependency="true">esh-io-transport-serial-rxtx</feature>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.serial/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-io-transport-serial-javacomm" version="${project.version}">
+    <feature>esh-base</feature>
+    <requirement>esh.tp;filter:="(&amp;(feature=serial)(impl=javacomm))"</requirement>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.serial/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.serial.javacomm/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-io-transport-serial-rxtx" version="${project.version}">
+    <feature>esh-base</feature>
+    <requirement>esh.tp;filter:="(&amp;(feature=serial)(impl=rxtx))"</requirement>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.serial/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.serial.rxtx/${project.version}</bundle>
   </feature>
 
   <feature name="esh-io-transport-upnp" version="${project.version}">

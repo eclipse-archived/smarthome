@@ -1,25 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.eclipse.smarthome.extension.ui</groupId>
     <artifactId>pom</artifactId>
+    <groupId>org.eclipse.smarthome.extension.ui</groupId>
     <version>0.10.0-SNAPSHOT</version>
   </parent>
+
+  <artifactId>org.eclipse.smarthome.ui.paper</artifactId>
+  <packaging>eclipse-plugin</packaging>
+
+  <name>Eclipse SmartHome Paper UI</name>
 
   <properties>
     <bundle.symbolicName>org.eclipse.smarthome.ui.paper</bundle.symbolicName>
     <bundle.namespace>org.eclipse.smarthome.ui.paper</bundle.namespace>
   </properties>
-
-  <artifactId>org.eclipse.smarthome.ui.paper</artifactId>
-
-  <name>Eclipse SmartHome Paper UI</name>
-  <packaging>eclipse-plugin</packaging>
 
   <build>
     <plugins>
@@ -28,25 +26,14 @@
         <artifactId>frontend-maven-plugin</artifactId>
         <version>1.0</version>
 
-        <configuration>
-          <nodeVersion>v8.1.2</nodeVersion>
-          <npmVersion>5.0.3</npmVersion>
-          <nodeDownloadRoot>http://nodejs.org/dist/</nodeDownloadRoot>
-          <npmDownloadRoot>http://registry.npmjs.org/npm/-/</npmDownloadRoot>
-          <environmentVariables>
-            <npm_config_cache>${project.basedir}/npm_cache</npm_config_cache>
-            <npm_config_tmp>${project.basedir}/npm_tmp</npm_config_tmp>
-          </environmentVariables>
-        </configuration>
-
         <executions>
           <execution>
             <id>Install node and npm</id>
+            <!-- optional: default phase is "generate-resources" -->
+            <phase>generate-resources</phase>
             <goals>
               <goal>install-node-and-npm</goal>
             </goals>
-            <!-- optional: default phase is "generate-resources" -->
-            <phase>generate-resources</phase>
           </execution>
 
           <execution>
@@ -67,6 +54,17 @@
           </execution>
 
         </executions>
+
+        <configuration>
+          <nodeVersion>v8.1.2</nodeVersion>
+          <npmVersion>5.8.0</npmVersion>
+          <nodeDownloadRoot>http://nodejs.org/dist/</nodeDownloadRoot>
+          <npmDownloadRoot>http://registry.npmjs.org/npm/-/</npmDownloadRoot>
+          <environmentVariables>
+            <npm_config_cache>${project.basedir}/npm_cache</npm_config_cache>
+            <npm_config_tmp>${project.basedir}/npm_tmp</npm_config_tmp>
+          </environmentVariables>
+        </configuration>
       </plugin>
     </plugins>
   </build>

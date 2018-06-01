@@ -28,7 +28,7 @@ public final class ConfigStatusInfoEvent extends AbstractEvent {
 
     private final ConfigStatusInfo configStatusInfo;
 
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
     /**
      * Creates a new {@link ConfigStatusInfoEvent}.
@@ -37,7 +37,7 @@ public final class ConfigStatusInfoEvent extends AbstractEvent {
      * @param configStatusInfo the corresponding configuration status information to be put as payload into the event
      */
     public ConfigStatusInfoEvent(String topic, ConfigStatusInfo configStatusInfo) {
-        super(topic, gson.toJson(configStatusInfo), null);
+        super(topic, GSON.toJson(configStatusInfo), null);
         this.configStatusInfo = configStatusInfo;
     }
 

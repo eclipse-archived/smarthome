@@ -38,7 +38,7 @@ import org.osgi.framework.Bundle;
  * bundle resources. It extends functionality of {@link AbstractResourceBundleProvider} by specifying:
  * <ul>
  * <li>the path to resources, corresponding to the {@link RuleTemplates}s - root directory
- * {@link AbstractResourceBundleProvider#PATH} with sub-directory "templates".
+ * {@link AbstractResourceBundleProvider#ROOT_DIRECTORY} with sub-directory "templates".
  * <li>type of the {@link Parser}s, corresponding to the {@link RuleTemplates}s - {@link Parser#PARSER_TEMPLATE}
  * <li>specific functionality for loading the {@link RuleTemplates}s
  * <li>tracking the managing service of the {@link ModuleType}s.
@@ -60,7 +60,7 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
      */
     public TemplateResourceBundleProvider() {
         listeners = new LinkedList<ProviderChangeListener<RuleTemplate>>();
-        path = PATH + "/templates/";
+        path = ROOT_DIRECTORY + "/templates/";
     }
 
     @Override

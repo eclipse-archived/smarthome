@@ -26,20 +26,7 @@ To speed up the contribution process, we therefore advice to go through this che
 1. For dependency injection, OSGi Declarative Services should be used.
 1. OSGi Declarative Services should be declared using annotations. The IDE will take care of the service *.xml file creation. See the official OSGi documentation for an [example here](http://enroute.osgi.org/services/org.osgi.service.component.html). We always use `@Activate`, `@Deactivate` and `@Modified` if we define these methods, even if they exist in a super class, to make the code more readable.
 1. Packages that contain classes that are not meant to be used by other bundles should have "internal" in their package name.
-1. [Null annotations](https://wiki.eclipse.org/JDT_Core/Null_Analysis) are used from the Eclipse JDT project. Therefore every bundle should have an **optional** `Import-Package` dependency to `org.eclipse.jdt.annotation`.
-Classes should be annotated by `@NonNullByDefault` and return types, parameter types, generic types etc. are annotated with `@Nullable` only.
-Fields that get a static and mandatory reference injected through OSGi Declarative Services can be annotated with
-
-```java
-@NonNullByDefault({})
-private MyService injectedService;
-```
-
-to skip the nullevaluation for these fields.
-Fields within `ThingHandler` classes that are initialized within the `initialize()` method may also be annotated like this, because the framework ensures that `initialize()` will be called before any other method. However please watch the scenario where the initialization of the handler fails, because then fields might not have been initialized and using them should be prepended by a `null` check.
-There is **no need** for a `@NonNull` annotation because it is set as default.
-The transition of existing classes could be a longer process but if you want to use nullness annotation in a class / interface you need to set the default for the whole class and annotate all types that differ from the default.
-Test classes do not have to be annotated.
+1. [Null annotations](https://wiki.eclipse.org/JDT_Core/Null_Analysis) are used from the Eclipse JDT project. `@NonNullByDefault` and `@Nullable` should be used, for details see [Null annotation conventions](conventions.html#null-annotations).
 
 ## B. OSGi Bundles
 
@@ -63,7 +50,7 @@ Test classes do not have to be annotated.
 1. A few common utility libraries are available that every Eclipse SmartHome based solution has to provide and which can be used throughout the code (and which are made available in the target platform):
  - Apache Commons IO (v2.2)
  - Apache Commons Lang (v2.6)
- - Google Guava (v10.0.1)
+ - ~~Google Guava (v10.0.1)~~ (historically allowed, to be avoided in new contributions)
 
 ## D. Runtime Behavior
 

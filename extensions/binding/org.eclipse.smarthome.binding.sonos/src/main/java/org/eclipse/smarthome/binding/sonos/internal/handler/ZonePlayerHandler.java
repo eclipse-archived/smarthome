@@ -15,7 +15,6 @@ package org.eclipse.smarthome.binding.sonos.internal.handler;
 import static org.eclipse.smarthome.binding.sonos.internal.SonosBindingConstants.*;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -52,7 +51,6 @@ import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.PlayPauseType;
 import org.eclipse.smarthome.core.library.types.RawType;
-import org.eclipse.smarthome.core.library.types.RewindFastforwardType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -122,11 +120,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * Intrinsic lock used to synchronize the execution of notification sounds
      */
     private final Object notificationLock = new Object();
-
-    /**
-     * Separate sound volume used for the notification
-     */
-    private String notificationSoundVolume = null;
 
     /**
      * {@link ThingHandler} instance of the coordinator speaker used for control delegation
@@ -243,17 +236,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 case NOTIFICATIONSOUND:
                     scheduleNotificationSound(command);
                     break;
-                case NOTIFICATIONVOLUME:
-                    setNotificationSoundVolume(command);
-                    break;
                 case STOP:
-                    try {
-                        if (command instanceof OnOffType) {
-                            getCoordinatorHandler().stop();
-                        }
-                    } catch (IllegalStateException e) {
-                        logger.debug("Cannot handle stop command ({})", e.getMessage());
-                    }
+                    stopPlaying(command);
                     break;
                 case VOLUME:
                     setVolumeForGroup(command);
@@ -331,9 +315,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                                 getCoordinatorHandler().previous();
                             }
                         }
-                        if (command instanceof RewindFastforwardType) {
-                            // Rewind and Fast Forward are currently not implemented by the binding
-                        }
+                        // Rewind and Fast Forward are currently not implemented by the binding
                     } catch (IllegalStateException e) {
                         logger.debug("Cannot handle control command ({})", e.getMessage());
                     }
@@ -566,15 +548,15 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         return url;
     }
 
-    protected void updateChannel(String channeldD) {
-        if (!isLinked(channeldD)) {
+    protected void updateChannel(String channelId) {
+        if (!isLinked(channelId)) {
             return;
         }
 
         String url;
 
         State newState = UnDefType.UNDEF;
-        switch (channeldD) {
+        switch (channelId) {
             case STATE:
                 if (stateMap.get("TransportState") != null) {
                     newState = new StringType(stateMap.get("TransportState"));
@@ -710,7 +692,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 break;
         }
         if (newState != null) {
-            updateState(channeldD, newState);
+            updateState(channelId, newState);
         }
     }
 
@@ -969,95 +951,93 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         String stationID = null;
         boolean needsUpdating = false;
 
-        if (currentURI == null) {
-            // Do nothing
-        }
+        // if currentURI == null, we do nothing
+        if (currentURI != null) {
+            if (currentURI.isEmpty()) {
+                // Reset data
+                needsUpdating = true;
+            }
 
-        else if (currentURI.isEmpty()) {
-            // Reset data
-            needsUpdating = true;
-        }
-
-        else if (currentURI.contains(GROUP_URI)) {
-            // The Sonos is a slave member of a group, we do nothing
+            // if (currentURI.contains(GROUP_URI)) we do nothing, because
+            // The Sonos is a slave member of a group
             // The media information will be updated by the coordinator
             // Notification of group change occurs later, so we just check the URI
-        }
 
-        else if (isPlayingStream(currentURI)) {
-            // Radio stream (tune-in)
-            boolean opmlUrlSucceeded = false;
-            stationID = StringUtils.substringBetween(currentURI, ":s", "?sid");
-            if (opmlUrl != null) {
-                String mac = getMACAddress();
-                if (stationID != null && !stationID.isEmpty() && mac != null && !mac.isEmpty()) {
-                    String url = opmlUrl;
-                    url = StringUtils.replace(url, "%id", stationID);
-                    url = StringUtils.replace(url, "%serial", mac);
+            else if (isPlayingStream(currentURI)) {
+                // Radio stream (tune-in)
+                boolean opmlUrlSucceeded = false;
+                stationID = StringUtils.substringBetween(currentURI, ":s", "?sid");
+                if (opmlUrl != null) {
+                    String mac = getMACAddress();
+                    if (stationID != null && !stationID.isEmpty() && mac != null && !mac.isEmpty()) {
+                        String url = opmlUrl;
+                        url = StringUtils.replace(url, "%id", stationID);
+                        url = StringUtils.replace(url, "%serial", mac);
 
-                    String response = null;
-                    try {
-                        response = HttpUtil.executeUrl("GET", url, SOCKET_TIMEOUT);
-                    } catch (IOException e) {
-                        logger.debug("Request to device failed: {}", e);
-                    }
+                        String response = null;
+                        try {
+                            response = HttpUtil.executeUrl("GET", url, SOCKET_TIMEOUT);
+                        } catch (IOException e) {
+                            logger.debug("Request to device failed: {}", e);
+                        }
 
-                    if (response != null) {
-                        List<String> fields = SonosXMLParser.getRadioTimeFromXML(response);
+                        if (response != null) {
+                            List<String> fields = SonosXMLParser.getRadioTimeFromXML(response);
 
-                        if (fields != null && fields.size() > 0) {
-                            opmlUrlSucceeded = true;
+                            if (fields != null && fields.size() > 0) {
+                                opmlUrlSucceeded = true;
 
-                            resultString = new String();
-                            // radio name should be first field
-                            title = fields.get(0);
+                                resultString = new String();
+                                // radio name should be first field
+                                title = fields.get(0);
 
-                            Iterator<String> listIterator = fields.listIterator();
-                            while (listIterator.hasNext()) {
-                                String field = listIterator.next();
-                                resultString = resultString + field;
-                                if (listIterator.hasNext()) {
-                                    resultString = resultString + " - ";
+                                Iterator<String> listIterator = fields.listIterator();
+                                while (listIterator.hasNext()) {
+                                    String field = listIterator.next();
+                                    resultString = resultString + field;
+                                    if (listIterator.hasNext()) {
+                                        resultString = resultString + " - ";
+                                    }
                                 }
-                            }
 
-                            needsUpdating = true;
+                                needsUpdating = true;
+                            }
                         }
                     }
                 }
-            }
-            if (!opmlUrlSucceeded) {
-                if (currentUriMetaData != null) {
-                    title = currentUriMetaData.getTitle();
-                    if ((currentTrack == null) || (currentTrack.getStreamContent() == null)
-                            || currentTrack.getStreamContent().isEmpty()) {
-                        resultString = title;
-                    } else {
-                        resultString = title + " - " + currentTrack.getStreamContent();
+                if (!opmlUrlSucceeded) {
+                    if (currentUriMetaData != null) {
+                        title = currentUriMetaData.getTitle();
+                        if ((currentTrack == null) || (currentTrack.getStreamContent() == null)
+                                || currentTrack.getStreamContent().isEmpty()) {
+                            resultString = title;
+                        } else {
+                            resultString = title + " - " + currentTrack.getStreamContent();
+                        }
+                        needsUpdating = true;
                     }
+                }
+            }
+
+            else if (isPlayingLineIn(currentURI)) {
+                if (currentTrack != null) {
+                    title = currentTrack.getTitle();
+                    resultString = title;
                     needsUpdating = true;
                 }
             }
-        }
 
-        else if (isPlayingLineIn(currentURI)) {
-            if (currentTrack != null) {
-                title = currentTrack.getTitle();
-                resultString = title;
-                needsUpdating = true;
-            }
-        }
-
-        else if (isPlayingRadio(currentURI)
-                || (!currentURI.contains("x-rincon-mp3") && !currentURI.contains("x-sonosapi"))) {
-            // isPlayingRadio(currentURI) is true for Google Play Music radio or Apple Music radio
-            if (currentTrack != null) {
-                artist = !currentTrack.getAlbumArtist().isEmpty() ? currentTrack.getAlbumArtist()
-                        : currentTrack.getCreator();
-                album = currentTrack.getAlbum();
-                title = currentTrack.getTitle();
-                resultString = artist + " - " + album + " - " + title;
-                needsUpdating = true;
+            else if (isPlayingRadio(currentURI)
+                    || (!currentURI.contains("x-rincon-mp3") && !currentURI.contains("x-sonosapi"))) {
+                // isPlayingRadio(currentURI) is true for Google Play Music radio or Apple Music radio
+                if (currentTrack != null) {
+                    artist = !currentTrack.getAlbumArtist().isEmpty() ? currentTrack.getAlbumArtist()
+                            : currentTrack.getCreator();
+                    album = currentTrack.getAlbum();
+                    title = currentTrack.getTitle();
+                    resultString = artist + " - " + album + " - " + title;
+                    needsUpdating = true;
+                }
             }
         }
 
@@ -1557,13 +1537,12 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     /**
      * Sets the volume level for a notification sound
-     * (initializes {@link #notificationSoundVolume})
      *
-     * @param command
+     * @param notificationSoundVolume
      */
-    public void setNotificationSoundVolume(Command command) {
-        if (command != null) {
-            notificationSoundVolume = command.toString();
+    public void setNotificationSoundVolume(PercentType notificationSoundVolume) {
+        if (notificationSoundVolume != null) {
+            setVolumeForGroup(notificationSoundVolume);
         }
     }
 
@@ -1571,19 +1550,13 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * Gets the volume level for a notification sound
      */
     public PercentType getNotificationSoundVolume() {
+        Integer notificationSoundVolume = getConfigAs(ZonePlayerConfiguration.class).notificationVolume;
         if (notificationSoundVolume == null) {
-            // we need to initialize the value for the first time
-            notificationSoundVolume = getVolume();
-            if (notificationSoundVolume != null) {
-                updateState(SonosBindingConstants.NOTIFICATIONVOLUME,
-                        new PercentType(new BigDecimal(notificationSoundVolume)));
-            }
+            // if no value is set we use the current volume instead
+            String volume = getVolume();
+            return volume != null ? new PercentType(volume) : null;
         }
-        if (notificationSoundVolume != null) {
-            return new PercentType(new BigDecimal(notificationSoundVolume));
-        } else {
-            return null;
-        }
+        return new PercentType(notificationSoundVolume);
     }
 
     public void addURIToQueue(String URI, String meta, long desiredFirstTrack, boolean enqueueAsNext) {
@@ -2214,15 +2187,11 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     private void scheduleNotificationSound(final Command command) {
-        scheduler.schedule(new Runnable() {
-
-            @Override
-            public void run() {
-                synchronized (notificationLock) {
-                    playNotificationSoundURI(command);
-                }
+        scheduler.submit(() -> {
+            synchronized (notificationLock) {
+                playNotificationSoundURI(command);
             }
-        }, 0, TimeUnit.MILLISECONDS);
+        });
     }
 
     /**
@@ -2409,10 +2378,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * @param coordinator - {@link ZonePlayerHandler} coordinator for the SONOS device(s)
      */
     private void applyNotificationSoundVolume() {
-        PercentType volume = getNotificationSoundVolume();
-        if (volume != null) {
-            setVolumeForGroup(volume);
-        }
+        setNotificationSoundVolume(getNotificationSoundVolume());
     }
 
     private void waitForFinishedNotification() {
@@ -2573,6 +2539,16 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
         for (String variable : result.keySet()) {
             this.onValueReceived(variable, result.get(variable), "AVTransport");
+        }
+    }
+
+    public void stopPlaying(Command command) {
+        try {
+            if (command instanceof OnOffType) {
+                getCoordinatorHandler().stop();
+            }
+        } catch (IllegalStateException e) {
+            logger.debug("Cannot handle stop command ({})", e.getMessage(), e);
         }
     }
 

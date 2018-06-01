@@ -28,7 +28,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
  */
 public final class NormalizerFactory {
 
-    private static final Map<Type, Normalizer> normalizers;
+    private static final Map<Type, Normalizer> NORMALIZERS;
 
     static {
         Map<Type, Normalizer> map = new HashMap<Type, Normalizer>(11);
@@ -36,7 +36,7 @@ public final class NormalizerFactory {
         map.put(Type.TEXT, new TextNormalizer());
         map.put(Type.INTEGER, new IntNormalizer());
         map.put(Type.DECIMAL, new DecimalNormalizer());
-        normalizers = Collections.unmodifiableMap(map);
+        NORMALIZERS = Collections.unmodifiableMap(map);
     }
 
     private NormalizerFactory() {
@@ -55,7 +55,7 @@ public final class NormalizerFactory {
             throw new IllegalArgumentException("The config description parameter must not be null.");
         }
 
-        Normalizer ret = normalizers.get(configDescriptionParameter.getType());
+        Normalizer ret = NORMALIZERS.get(configDescriptionParameter.getType());
 
         if (configDescriptionParameter.isMultiple()) {
             ret = new ListNormalizer(ret);

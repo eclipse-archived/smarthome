@@ -173,12 +173,8 @@ public class ThingUID extends UID {
      * @return list of bridge ids
      */
     public List<String> getBridgeIds() {
-        List<String> bridgeIds = new ArrayList<>();
-        String[] segments = getSegments();
-        for (int i = 2; i < segments.length - 1; i++) {
-            bridgeIds.add(segments[i]);
-        }
-        return bridgeIds;
+        List<String> allSegments = getAllSegments();
+        return allSegments.subList(2, allSegments.size() - 1);
     }
 
     /**
@@ -187,8 +183,8 @@ public class ThingUID extends UID {
      * @return id the id
      */
     public String getId() {
-        String[] segments = getSegments();
-        return segments[segments.length - 1];
+        List<String> segments = getAllSegments();
+        return segments.get(segments.size() - 1);
     }
 
     @Override

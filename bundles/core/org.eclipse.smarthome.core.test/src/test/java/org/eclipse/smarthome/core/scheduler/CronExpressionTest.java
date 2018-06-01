@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -84,11 +85,6 @@ public class CronExpressionTest {
 
     @Test
     public void findNext() throws ParseException {
-        boolean trace = false;
-
-        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        final int TRIES = 150;
-
         final List<String> expressions = Arrays.asList(new String[] { //
                 "* * * * * ?", //
                 "* * * ? * *", //
@@ -100,41 +96,62 @@ public class CronExpressionTest {
         });
 
         for (final String expr : expressions) {
-            logger.info("Test cron expression: {}", expr);
-            final CronExpression cronExpression;
-            try {
-                cronExpression = new CronExpression(expr);
-            } catch (final IllegalArgumentException | ParseException ex) {
-                logger.error("Error creating a new ConExpression", ex);
-                throw ex;
-            }
-
             Calendar cal = Calendar.getInstance();
-            Date curDate = cal.getTime();
-
-            for (int i = 0; i < TRIES; ++i) {
-                if (trace) {
-                    logger.info("Try to get time after: {}", sdf.format(curDate));
-                }
-                final Date nextDate = cronExpression.getTimeAfter(curDate);
-                if (nextDate == null) {
-                    final String msg = String.format("Cannot find a time after '%s' for expression '%s'",
-                            sdf.format(curDate), cronExpression.getExpression());
-                    logger.error("{}", msg);
-                    Assert.fail(msg);
-                } else {
-                    if (trace) {
-                        logger.info("Got: {}", sdf.format(nextDate));
-                    }
-                }
-
-                cal.setTime(nextDate);
-                // Add some offset
-                cal.add(Calendar.MINUTE, 1);
-                cal.add(Calendar.SECOND, 1);
-                curDate = cal.getTime();
-            }
+            findNextWorker(expr, cal);
         }
+    }
+
+    @Test
+    public void findNextSpecial() throws ParseException {
+        // 2018-03-22 10:12:22.514 AM, Europe/Berlin
+        // DST starts on 2018-03-25 at 02:00 (2 am) local time, when clocks are set ahead 1 hour to 03:00 (3 am).
+        findNextWorker("0 0 * ? * *", getCalendarInstance("Europe/Berlin", 1521709942514L));
+    }
+
+    private void findNextWorker(final String expr, final Calendar cal) throws ParseException {
+        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        final int TRIES = 150;
+        boolean trace = false;
+
+        logger.info("Test cron expression: {}", expr);
+        final CronExpression cronExpression;
+        try {
+            cronExpression = new CronExpression(expr);
+        } catch (final IllegalArgumentException | ParseException ex) {
+            logger.error("Error creating a new ConExpression", ex);
+            throw ex;
+        }
+
+        Date curDate = cal.getTime();
+
+        for (int i = 0; i < TRIES; ++i) {
+            if (trace) {
+                logger.info("Try to get time after: {}", sdf.format(curDate));
+            }
+            final Date nextDate = cronExpression.getTimeAfter(curDate);
+            if (nextDate == null) {
+                final String msg = String.format("Cannot find a time after '%s' for expression '%s'",
+                        sdf.format(curDate), cronExpression.getExpression());
+                logger.error("{}", msg);
+                Assert.fail(msg);
+            } else {
+                if (trace) {
+                    logger.info("Got: {}", sdf.format(nextDate));
+                }
+            }
+
+            cal.setTime(nextDate);
+            // Add some offset
+            cal.add(Calendar.MINUTE, 1);
+            cal.add(Calendar.SECOND, 1);
+            curDate = cal.getTime();
+        }
+    }
+
+    private static Calendar getCalendarInstance(final String timeZone, final long ms) {
+        final Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(timeZone));
+        cal.setTimeInMillis(ms);
+        return cal;
     }
 
 }

@@ -15,7 +15,6 @@ package org.eclipse.smarthome.io.javasound.internal;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
@@ -35,6 +34,8 @@ import org.eclipse.smarthome.core.audio.UnsupportedAudioStreamException;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +45,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
- * 
+ *
  */
+@Component(service = AudioSink.class, immediate = true)
 public class JavaSoundAudioSink implements AudioSink {
 
     private final Logger logger = LoggerFactory.getLogger(JavaSoundAudioSink.class);
@@ -53,12 +55,13 @@ public class JavaSoundAudioSink implements AudioSink {
     private boolean isMac = false;
     private PercentType macVolumeValue = null;
 
-    private static final HashSet<Class<? extends AudioStream>> SUPPORTED_AUDIO_STREAMS = new HashSet<>();
+    // we accept anything that is WAVE with signed PCM codec
+    private static final Set<AudioFormat> SUPPORTED_AUDIO_FORMATS = Collections.singleton(AudioFormat.WAV);
+    // we accept any stream
+    private static final Set<Class<? extends AudioStream>> SUPPORTED_AUDIO_STREAMS = Collections
+            .singleton(AudioStream.class);
 
-    static {
-        SUPPORTED_AUDIO_STREAMS.add(AudioStream.class);
-    }
-
+    @Activate
     protected void activate(BundleContext context) {
         String os = context.getProperty(Constants.FRAMEWORK_OS_NAME);
         if (os != null && os.toLowerCase().startsWith("macos")) {
@@ -80,15 +83,11 @@ public class JavaSoundAudioSink implements AudioSink {
 
     @Override
     public Set<AudioFormat> getSupportedFormats() {
-        // we accept anything that is WAVE with signed PCM codec
-        AudioFormat format = new AudioFormat(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED, null, null, null,
-                null);
-        return Collections.singleton(format);
+        return SUPPORTED_AUDIO_FORMATS;
     }
 
     @Override
     public Set<Class<? extends AudioStream>> getSupportedStreams() {
-        // we accept any stream
         return SUPPORTED_AUDIO_STREAMS;
     }
 

@@ -40,7 +40,7 @@ public class TimerModuleHandlerFactory extends BaseModuleHandlerFactory {
     private Logger logger = LoggerFactory.getLogger(TimerModuleHandlerFactory.class);
 
     public static final String THREADPOOLNAME = "ruletimer";
-    private static final Collection<String> types = Arrays
+    private static final Collection<String> TYPES = Arrays
             .asList(new String[] { GenericCronTriggerHandler.MODULE_TYPE_ID, TimeOfDayTriggerHandler.MODULE_TYPE_ID,
                     DayOfWeekConditionHandler.MODULE_TYPE_ID });
 
@@ -51,7 +51,7 @@ public class TimerModuleHandlerFactory extends BaseModuleHandlerFactory {
 
     @Override
     public Collection<String> getTypes() {
-        return types;
+        return TYPES;
     }
 
     @Override

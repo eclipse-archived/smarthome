@@ -19,5 +19,6 @@ package org.eclipse.smarthome.io.transport.mqtt;
  */
 public enum MqttConnectionState {
     DISCONNECTED,
+    CONNECTING,
     CONNECTED
 }

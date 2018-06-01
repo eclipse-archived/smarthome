@@ -80,7 +80,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ReferenceResolverUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(ReferenceResolverUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReferenceResolverUtil.class);
 
     private ReferenceResolverUtil() {
     }
@@ -218,7 +218,7 @@ public class ReferenceResolverUtil {
             end = reference.indexOf('}', start + 2);
             if (end == -1) {
                 previous = start;
-                logger.warn("Couldn't parse referenced key: {}: expected reference syntax-> ${referencedKey}",
+                LOGGER.warn("Couldn't parse referenced key: {}: expected reference syntax-> ${referencedKey}",
                         reference.substring(start));
                 break;
             }
@@ -230,7 +230,7 @@ public class ReferenceResolverUtil {
             } else {
                 // remain as it is: value is null
                 sb.append(reference.substring(start, end + 1));
-                logger.warn("Cannot find reference for ${ {} } , it will remain the same.", referencedKey);
+                LOGGER.warn("Cannot find reference for ${ {} } , it will remain the same.", referencedKey);
             }
         }
         sb.append(reference.substring(previous));

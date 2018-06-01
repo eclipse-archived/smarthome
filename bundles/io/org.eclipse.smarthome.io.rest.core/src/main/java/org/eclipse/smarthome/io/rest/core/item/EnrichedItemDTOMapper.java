@@ -22,10 +22,13 @@ import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.dto.ItemDTO;
 import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
+import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationHelper;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.io.rest.core.internal.RESTCoreActivator;
 import org.eclipse.smarthome.io.rest.core.internal.item.ItemResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The {@link EnrichedItemDTOMapper} is a utility class to map items into enriched item data transform objects (DTOs).
@@ -34,6 +37,8 @@ import org.eclipse.smarthome.io.rest.core.internal.item.ItemResource;
  * @author Jochen Hiller - Fix #473630 - handle optional dependency to TransformationHelper
  */
 public class EnrichedItemDTOMapper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnrichedItemDTOMapper.class);
 
     /**
      * Maps item into enriched item DTO object.
@@ -109,6 +114,10 @@ public class EnrichedItemDTOMapper {
             } catch (NoClassDefFoundError ex) {
                 // TransformationHelper is optional dependency, so ignore if class not found
                 // return state as it is without transformation
+                return state;
+            } catch (TransformationException e) {
+                LOGGER.debug("Failed transforming the state '{}' with pattern '{}': {}", state,
+                        stateDescription.getPattern(), e.getMessage());
                 return state;
             }
         } else {

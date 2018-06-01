@@ -67,11 +67,6 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
     private static final int SEARCH_TIME = 20;
 
     /**
-     * Initial delay for scanning job in seconds.
-     */
-    private static final int INITIAL_DELAY = 5;
-
-    /**
      * Scan interval for scanning job in seconds.
      */
     private static final int SCAN_INTERVAL = 120;
@@ -96,9 +91,14 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
      */
     private UpnpIOService service;
 
-    public WemoLinkDiscoveryService(WemoBridgeHandler wemoBridgeHandler, UpnpIOService upnpIOService) {
+    private final WemoHttpCall wemoHttpCaller;
+
+    public WemoLinkDiscoveryService(WemoBridgeHandler wemoBridgeHandler, UpnpIOService upnpIOService,
+            WemoHttpCall wemoHttpCaller) {
         super(SEARCH_TIME);
         this.wemoBridgeHandler = wemoBridgeHandler;
+
+        this.wemoHttpCaller = wemoHttpCaller;
 
         if (upnpIOService != null) {
             this.service = upnpIOService;
@@ -118,7 +118,7 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
     }
 
     @Override
-    protected void startScan() {
+    public void startScan() {
         logger.trace("Starting WeMoEndDevice discovery on WeMo Link {}", wemoBridgeHandler.getThing().getUID());
         try {
             String devUDN = "uuid:" + wemoBridgeHandler.getThing().getConfiguration().get(UDN).toString();
@@ -137,7 +137,7 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
                 String deviceURL = StringUtils.substringBefore(descriptorURL.toString(), "/setup.xml");
                 String wemoURL = deviceURL + "/upnp/control/bridge1";
 
-                String endDeviceRequest = WemoHttpCall.executeCall(wemoURL, soapHeader, content);
+                String endDeviceRequest = wemoHttpCaller.executeCall(wemoURL, soapHeader, content);
 
                 if (endDeviceRequest != null) {
                     logger.trace("endDeviceRequest answered '{}'", endDeviceRequest);
@@ -239,8 +239,8 @@ public class WemoLinkDiscoveryService extends AbstractDiscoveryService implement
         logger.trace("Start WeMo device background discovery");
 
         if (scanningJob == null || scanningJob.isCancelled()) {
-            this.scanningJob = AbstractDiscoveryService.scheduler.scheduleWithFixedDelay(this.scanningRunnable,
-                    INITIAL_DELAY, SCAN_INTERVAL, TimeUnit.SECONDS);
+            this.scanningJob = scheduler.scheduleWithFixedDelay(this.scanningRunnable,
+                    LINK_DISCOVERY_SERVICE_INITIAL_DELAY, SCAN_INTERVAL, TimeUnit.SECONDS);
         } else {
             logger.trace("scanningJob active");
         }

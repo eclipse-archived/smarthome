@@ -26,8 +26,8 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.event.types.Event
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.event.types.EventItem;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.event.types.JSONEventImpl;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.ConnectionManager;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.constants.JSONApiResponseKeysEnum;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.impl.JSONResponseHandler;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.constants.JSONApiResponseKeysEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.impl.JSONResponseHandler;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,7 @@ public class EventListener {
 
     private int subscriptionID = 15;
     private final int timeout = 500;
-    private final List<String> subscribedEvents = Collections.synchronizedList(new LinkedList<String>());;
+    private final List<String> subscribedEvents = Collections.synchronizedList(new LinkedList<String>());
     private boolean subscribed = false;
 
     // error message

@@ -13,6 +13,8 @@
 package org.eclipse.smarthome.io.net.http.internal;
 
 import java.security.AccessController;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Map;
@@ -27,8 +29,8 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.eclipse.smarthome.io.net.http.CommonHttpClient;
 import org.eclipse.smarthome.io.net.http.HttpClientFactory;
+import org.eclipse.smarthome.io.net.http.HttpClientInitializationException;
 import org.eclipse.smarthome.io.net.http.TrustManagerProvider;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -63,9 +65,8 @@ public class SecureHttpClientFactory implements HttpClientFactory {
 
     private volatile TrustManagerProvider trustmanagerProvider;
 
-    private QueuedThreadPool threadPool = null;
-    private HttpClient commonHttpClient = null;
-    private CommonHttpClient commonHttpClientFacade = null;
+    private QueuedThreadPool threadPool;
+    private HttpClient commonHttpClient;
 
     private int minThreadsShared;
     private int maxThreadsShared;
@@ -91,19 +92,17 @@ public class SecureHttpClientFactory implements HttpClientFactory {
 
     @Deactivate
     protected void deactivate() {
-        try {
-            if (commonHttpClient != null) {
+        if (commonHttpClient != null) {
+            try {
                 commonHttpClient.stop();
-                commonHttpClientFacade = null;
-                commonHttpClient = null;
-                threadPool = null;
-                logger.info("jetty shared http client stopped");
+            } catch (Exception e) {
+                logger.error("error while stopping shared jetty http client", e);
+                // nothing else we can do here
             }
-        } catch (Exception e) {
-            logger.error("error while stopping jetty shared http client", e);
-            // nothing else we can do here
+            commonHttpClient = null;
+            threadPool = null;
+            logger.info("jetty shared http client stopped");
         }
-
     }
 
     @Override
@@ -111,14 +110,14 @@ public class SecureHttpClientFactory implements HttpClientFactory {
         Objects.requireNonNull(endpoint, "endpoint must not be null");
         logger.debug("httpClient for endpoint {} requested", endpoint);
         checkConsumerName(consumerName);
-        return createHttpClientInternal(consumerName, endpoint);
+        return createHttpClientInternal(consumerName, endpoint, false);
     }
 
     @Override
-    public CommonHttpClient getCommonHttpClient() {
+    public HttpClient getCommonHttpClient() {
         initialize();
         logger.debug("shared httpClient requested");
-        return commonHttpClientFacade;
+        return commonHttpClient;
     }
 
     private void getConfigParameters(Map<String, Object> parameters) {
@@ -152,7 +151,6 @@ public class SecureHttpClientFactory implements HttpClientFactory {
             logger.warn("ignoring invalid type {} for parameter {}", value.getClass().getName(), parameter);
             return defaultValue;
         }
-
     }
 
     private synchronized void initialize() {
@@ -167,8 +165,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
                         }
 
                         if (commonHttpClient == null) {
-                            commonHttpClient = createHttpClientInternal("common", null);
-                            commonHttpClientFacade = new HttpClientDelegate(commonHttpClient);
+                            commonHttpClient = createHttpClientInternal("common", null, true);
                             logger.info("jetty shared http client created");
                         }
 
@@ -180,52 +177,35 @@ public class SecureHttpClientFactory implements HttpClientFactory {
                 if (cause instanceof RuntimeException) {
                     throw (RuntimeException) cause;
                 } else {
-                    throw new RuntimeException(cause);
+                    throw new HttpClientInitializationException(
+                            "unexpected checked exception during initialization of the jetty client", cause);
                 }
             }
         }
     }
 
-    private HttpClient createHttpClientInternal(String consumerName, String endpoint) {
+    private HttpClient createHttpClientInternal(String consumerName, String endpoint, boolean startClient) {
         try {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<HttpClient>() {
                 @Override
                 public HttpClient run() {
-
                     logger.info("creating httpClient for endpoint {}", endpoint);
-                    SslContextFactory sslContextFactory = new SslContextFactory();
-                    sslContextFactory.setEndpointIdentificationAlgorithm("HTTPS");
-                    if (endpoint != null && trustmanagerProvider != null) {
-                        Stream<TrustManager> trustManagerStream = trustmanagerProvider.getTrustManagers(endpoint);
-                        TrustManager[] trustManagers = trustManagerStream.toArray(TrustManager[]::new);
-                        if (trustManagers.length > 0) {
-                            logger.info(
-                                    "using custom trustmanagers (certificate pinning) for httpClient for endpoint {}",
-                                    endpoint);
-                            try {
-                                SSLContext sslContext = SSLContext.getInstance("TLS");
-                                sslContext.init(null, trustManagers, null);
-                                sslContextFactory.setSslContext(sslContext);
-                            } catch (Exception ex) {
-                                throw new RuntimeException(
-                                        "Cannot create an TLS context for the endpoint '" + endpoint + "'!", ex);
-                            }
-                        }
-                    }
-                    String excludeCipherSuites[] = { "^.*_(MD5)$" };
-                    sslContextFactory.setExcludeCipherSuites(excludeCipherSuites);
+                    SslContextFactory sslContextFactory = createSslContextFactory(endpoint);
 
                     HttpClient httpClient = new HttpClient(sslContextFactory);
                     final QueuedThreadPool queuedThreadPool = createThreadPool(consumerName, minThreadsCustom,
                             maxThreadsCustom, keepAliveTimeoutCustom);
 
+                    httpClient.setMaxConnectionsPerDestination(2);
                     httpClient.setExecutor(queuedThreadPool);
 
-                    try {
-                        httpClient.start();
-                    } catch (Exception e) {
-                        logger.error("Could not start jetty client", e);
-                        throw new RuntimeException("Could not start jetty client", e);
+                    if (startClient) {
+                        try {
+                            httpClient.start();
+                        } catch (Exception e) {
+                            logger.error("Could not start jetty client", e);
+                            throw new HttpClientInitializationException("Could not start jetty client", e);
+                        }
                     }
 
                     return httpClient;
@@ -236,7 +216,8 @@ public class SecureHttpClientFactory implements HttpClientFactory {
             if (cause instanceof RuntimeException) {
                 throw (RuntimeException) cause;
             } else {
-                throw new RuntimeException(cause);
+                throw new HttpClientInitializationException(
+                        "unexpected checked exception during initialization of the jetty client", cause);
             }
         }
     }
@@ -274,5 +255,29 @@ public class SecureHttpClientFactory implements HttpClientFactory {
         if (this.trustmanagerProvider == trustmanagerProvider) {
             this.trustmanagerProvider = null;
         }
+    }
+
+    private SslContextFactory createSslContextFactory(String endpoint) {
+        SslContextFactory sslContextFactory = new SslContextFactory();
+        sslContextFactory.setEndpointIdentificationAlgorithm("HTTPS");
+        if (endpoint != null && trustmanagerProvider != null) {
+            Stream<TrustManager> trustManagerStream = trustmanagerProvider.getTrustManagers(endpoint);
+            TrustManager[] trustManagers = trustManagerStream.toArray(TrustManager[]::new);
+            if (trustManagers.length > 0) {
+                logger.info("using custom trustmanagers (certificate pinning) for httpClient for endpoint {}",
+                        endpoint);
+                try {
+                    SSLContext sslContext = SSLContext.getInstance("TLS");
+                    sslContext.init(null, trustManagers, null);
+                    sslContextFactory.setSslContext(sslContext);
+                } catch (NoSuchAlgorithmException | KeyManagementException ex) {
+                    throw new HttpClientInitializationException(
+                            "Cannot create an TLS context for the endpoint '" + endpoint + "'!", ex);
+                }
+            }
+        }
+        String excludeCipherSuites[] = { "^.*_(MD5)$" };
+        sslContextFactory.setExcludeCipherSuites(excludeCipherSuites);
+        return sslContextFactory;
     }
 }

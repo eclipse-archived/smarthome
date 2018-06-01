@@ -20,14 +20,16 @@ import java.math.BigDecimal;
 
 import javax.measure.Unit;
 import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Temperature;
 
+import org.eclipse.smarthome.core.library.dimension.Density;
+import org.eclipse.smarthome.core.library.dimension.Intensity;
 import org.eclipse.smarthome.core.library.unit.ImperialUnits;
 import org.eclipse.smarthome.core.library.unit.MetricPrefix;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
-import org.eclipse.smarthome.core.types.UnDefType;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -70,7 +72,16 @@ public class QuantityTypeTest {
         new QuantityType<>("3 µs");
         new QuantityType<>("3km/h");
         new QuantityType<>("1084 hPa");
+        new QuantityType<>("0E-22 m");
+        new QuantityType<>("10E-3");
+        new QuantityType<>("10E+3");
+        new QuantityType<>("10E3");
         QuantityType.valueOf("2m");
+    }
+
+    @Test
+    public void testReflectiveInstantiation() throws InstantiationException, IllegalAccessException {
+        QuantityType.class.newInstance();
     }
 
     @Test
@@ -152,14 +163,14 @@ public class QuantityTypeTest {
     public void testConversionToOpenCloseType() {
         assertEquals(OpenClosedType.OPEN, new QuantityType<>("1.0").as(OpenClosedType.class));
         assertEquals(OpenClosedType.CLOSED, new QuantityType<>("0.0").as(OpenClosedType.class));
-        assertEquals(UnDefType.UNDEF, new QuantityType<>("0.5").as(OpenClosedType.class));
+        assertNull(new QuantityType<>("0.5").as(OpenClosedType.class));
     }
 
     @Test
     public void testConversionToUpDownType() {
         assertEquals(UpDownType.UP, new QuantityType<>("0.0").as(UpDownType.class));
         assertEquals(UpDownType.DOWN, new QuantityType<>("1.0").as(UpDownType.class));
-        assertEquals(UnDefType.UNDEF, new QuantityType<>("0.5").as(OpenClosedType.class));
+        assertNull(new QuantityType<>("0.5").as(OpenClosedType.class));
     }
 
     @Test
@@ -170,7 +181,7 @@ public class QuantityTypeTest {
     }
 
     @Test
-    public void testConverionToPercentType() {
+    public void testConversionToPercentType() {
         assertEquals(PercentType.HUNDRED, new QuantityType<>("100 %").as(PercentType.class));
         assertEquals(PercentType.ZERO, new QuantityType<>("0 %").as(PercentType.class));
     }
@@ -224,4 +235,49 @@ public class QuantityTypeTest {
         new QuantityType<>("4 m").divide(QuantityType.ZERO);
     }
 
+    @Test
+    public void testExponentials() {
+        QuantityType<Length> exponential = new QuantityType<>("10E-2 m");
+        assertEquals(exponential, new QuantityType<>("10 cm"));
+
+        exponential = new QuantityType<>("10E+3 m");
+        assertEquals(exponential, new QuantityType<>("10 km"));
+
+        exponential = new QuantityType<>("10E3 m");
+        assertEquals(exponential, new QuantityType<>("10 km"));
+    }
+
+    @Test
+    public void testDensity() {
+        QuantityType<Density> density = new QuantityType<>("19816 kg/m³");
+        assertEquals(19816, density.doubleValue(), 1E-5);
+
+        density = density.toUnit("g/cm³");
+        assertEquals("19.816 g/cm³", density.toString());
+    }
+
+    @Test
+    public void testIntensity() {
+        QuantityType<Intensity> density = new QuantityType<>("10 W/m²");
+        assertEquals(10, density.doubleValue(), 1E-5);
+        assertEquals(SmartHomeUnits.IRRADIANCE.toString(), density.getUnit().toString());
+
+        density = density.toUnit("W/cm²");
+        assertEquals("0.001 W/cm²", density.toString());
+
+        density = new QuantityType<Intensity>(2, SmartHomeUnits.IRRADIANCE);
+        assertEquals(2, density.doubleValue(), 1E-5);
+        assertEquals("2 W/m²", density.toString());
+
+        density = new QuantityType<Intensity>("3 W/m^2");
+        assertEquals(3, density.doubleValue(), 1E-5);
+        assertEquals("3 W/m²", density.toString());
+    }
+
+    @Test
+    public void testEnergyUnits() {
+        QuantityType<Energy> energy = new QuantityType<>("28800 J");
+        assertEquals("0.008 kWh", energy.toUnit("kWh").toString());
+        assertEquals("28800 Ws", energy.toUnit("Ws").toString());
+    }
 }

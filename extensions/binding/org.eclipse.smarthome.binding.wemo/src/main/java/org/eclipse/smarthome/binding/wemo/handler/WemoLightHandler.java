@@ -34,7 +34,6 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
@@ -50,7 +49,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Hans-Jörg Merk - Initial contribution
  */
-public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticipant {
+public class WemoLightHandler extends AbstractWemoHandler implements UpnpIOParticipant {
 
     private final Logger logger = LoggerFactory.getLogger(WemoLightHandler.class);
 
@@ -81,7 +80,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
     /**
      * The default refresh initial delay in Seconds.
      */
-    private static int DEFAULT_REFRESH_INITIAL_DELAY = 15;
+    private static final int DEFAULT_REFRESH_INITIAL_DELAY = 15;
 
     private ScheduledFuture<?> refreshJob;
 
@@ -103,8 +102,10 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
         }
     };
 
-    public WemoLightHandler(Thing thing, UpnpIOService upnpIOService) {
+    public WemoLightHandler(Thing thing, UpnpIOService upnpIOService, WemoHttpCall wemoHttpcaller) {
         super(thing);
+
+        this.wemoHttpCaller = wemoHttpcaller;
 
         if (upnpIOService != null) {
             logger.debug("UPnPIOService '{}'", upnpIOService);
@@ -268,7 +269,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                 String wemoURL = getWemoURL();
 
                 if (wemoURL != null && capability != null && value != null) {
-                    String wemoCallResponse = WemoHttpCall.executeCall(wemoURL, soapHeader, content);
+                    String wemoCallResponse = wemoHttpCaller.executeCall(wemoURL, soapHeader, content);
                     if (wemoCallResponse != null) {
                         if (capability != null && capability.equals("10008") && value != null) {
                             OnOffType binaryState = null;
@@ -280,7 +281,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                     }
                 }
             } catch (Exception e) {
-                throw new RuntimeException("Could not send command to WeMo Bridge", e);
+                throw new IllegalStateException("Could not send command to WeMo Bridge", e);
             }
         }
     }
@@ -311,7 +312,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
             String wemoURL = getWemoURL();
 
             if (wemoURL != null) {
-                String wemoCallResponse = WemoHttpCall.executeCall(wemoURL, soapHeader, content);
+                String wemoCallResponse = wemoHttpCaller.executeCall(wemoURL, soapHeader, content);
                 if (wemoCallResponse != null) {
                     wemoCallResponse = StringEscapeUtils.unescapeXml(wemoCallResponse);
                     String response = StringUtils.substringBetween(wemoCallResponse, "<CapabilityValue>",
@@ -339,7 +340,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException("Could not retrieve new Wemo light state", e);
+            throw new IllegalStateException("Could not retrieve new Wemo light state", e);
         }
     }
 

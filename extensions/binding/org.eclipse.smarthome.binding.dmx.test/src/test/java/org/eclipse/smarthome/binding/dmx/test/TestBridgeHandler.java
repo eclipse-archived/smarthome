@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.eclipse.smarthome.binding.dmx.internal.DmxBridgeHandler;
+import org.eclipse.smarthome.binding.dmx.internal.multiverse.BaseDmxChannel;
 import org.eclipse.smarthome.binding.dmx.internal.multiverse.Universe;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -62,6 +63,7 @@ public class TestBridgeHandler extends DmxBridgeHandler {
     @Override
     protected void updateConfiguration() {
         universe = new Universe(MIN_UNIVERSE_ID);
+        universe.setRefreshTime(0);
 
         super.updateConfiguration();
 
@@ -78,27 +80,36 @@ public class TestBridgeHandler extends DmxBridgeHandler {
     }
 
     /**
-     *
-     * get single channel data
+     * calc buffer for timestamp after timespam
      *
      * @param time UNIX timestamp of calculation time
      *
-     * @param index channel number
-     *
-     * @return channel value
+     * @return new timestamp
      */
-    public byte getBufferValue(long time, int index) {
+    public long calcBuffer(long time, long timespan) {
+        logger.debug("calculating buffer for {}", time);
         universe.calculateBuffer(time);
-        byte[] buffer = universe.getBuffer();
-        if ((index > 1) && (index - 1) < buffer.length) {
-            return buffer[index - 1];
-        } else {
-            throw new IllegalArgumentException("index not available");
-        }
+        logger.debug("calculating buffer for {}", time + timespan);
+        universe.calculateBuffer(time + timespan);
+        return time + timespan;
     }
 
     /**
-     * update briudge status manually
+     * get a single value from the dmxBuffer
+     *
+     * @param dmxChannel channel number (1-512)
+     * @return channel value
+     */
+    public int getDmxChannelValue(int dmxChannel) {
+        return universe.getBuffer()[dmxChannel - 1] & 0xFF;
+    }
+
+    public void setDmxChannelValue(int dmxChannel, int value) {
+        this.getDmxChannel(new BaseDmxChannel(MIN_UNIVERSE_ID, dmxChannel), null).setValue(value);
+    }
+
+    /**
+     * update bridge status manually
      *
      * @param status a ThingStatus to set the bridge to
      */

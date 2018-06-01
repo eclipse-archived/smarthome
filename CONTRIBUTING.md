@@ -38,7 +38,6 @@ Here is a sample _good_ Git commit log message:
 
     Write just like if you were discussing with fellows :-)
 
-    Bug: https://github.com/eclipse/smarthome/issues/1
     Also-By: Somebody who also contributed parts of this code <foo@bar.com>
     Signed-off-by: Yourself <baz@foobar.org>
 

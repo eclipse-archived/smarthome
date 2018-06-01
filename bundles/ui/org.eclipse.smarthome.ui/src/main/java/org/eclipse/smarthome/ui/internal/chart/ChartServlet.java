@@ -22,8 +22,10 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageOutputStream;
+import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -66,9 +68,9 @@ import org.slf4j.LoggerFactory;
  * @author Holger Reichert - Support for themes, DPI, legend hiding
  *
  */
-@Component(immediate = true, property = { "service.pid=org.eclipse.smarthome.chart",
-        "service.config.description.uri=system:chart", "service.config.label=Charts",
-        "service.config.category=system" })
+@Component(immediate = true, service = Servlet.class, configurationPid = "org.eclipse.smarthome.chart", property = {
+        "service.pid=org.eclipse.smarthome.chart", "service.config.description.uri=system:chart",
+        "service.config.label=Charts", "service.config.category=system" })
 public class ChartServlet extends HttpServlet {
 
     private static final long serialVersionUID = 7700873790924746422L;
@@ -321,6 +323,10 @@ public class ChartServlet extends HttpServlet {
         } catch (IllegalArgumentException e) {
             logger.warn("Illegal argument in chart: {}", e.getMessage());
             res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Illegal argument in chart: " + e.getMessage());
+        } catch (IIOException e) {
+            // this can happen if the request is terminated while the image is streamed, see
+            // https://github.com/openhab/openhab-distro/issues/684
+            logger.debug("Failed writing image to response stream", e);
         } catch (RuntimeException e) {
             if (logger.isDebugEnabled()) {
                 // we also attach the stack trace

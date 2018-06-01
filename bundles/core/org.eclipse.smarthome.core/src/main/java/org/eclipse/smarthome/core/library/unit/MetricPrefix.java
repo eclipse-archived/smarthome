@@ -15,6 +15,8 @@ package org.eclipse.smarthome.core.library.unit;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * The metric prefixes used to derive units by specific powers of 10. This delegates to the enum instances of
  * {@link tec.uom.se.unit.MetricPrefix}.
@@ -22,6 +24,7 @@ import javax.measure.Unit;
  * @author Henning Treu - initial contribution and API
  *
  */
+@NonNullByDefault
 public class MetricPrefix {
 
     public static <T extends Quantity<T>> Unit<T> YOTTA(Unit<T> unit) {

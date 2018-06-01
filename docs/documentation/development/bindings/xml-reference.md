@@ -40,7 +40,7 @@ The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4
     xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0
         http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
 
-  <config-description uri="{binding|thing-type|bridge-type|channel-type|any_other}:bindingID:...">
+  <config-description uri="{binding|thing-type|channel-type|any_other}:bindingID:...">
     <parameter-group name="String">
       <label>String</label>
       <description>String</description>
@@ -64,7 +64,7 @@ The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4
     </parameter>
   </config-description>
 
-  <config-description uri="{binding|thing-type|bridge-type|channel-type|any_other}:bindingID:...">
+  <config-description uri="{binding|thing-type|channel-type|any_other}:bindingID:...">
     ...
   </config-description>
 ...
@@ -179,7 +179,7 @@ The following code gives an example for one configuration description.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<config-description:config-description uri="bridge-type:my-great-binding:my-bridge-name"
+<config-description:config-description uri="thing-type:my-great-binding:my-bridge-name"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
     xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0
@@ -230,7 +230,7 @@ Binding definitions must be placed as XML file(s) (with the ending `.xml`) in th
     ...
   </config-description>
   OR
-  <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}:bindingID:..." />
+  <config-description-ref uri="{binding|thing-type|channel-type|any_other}:bindingID:..." />
 
 </binding:binding>
 ```
@@ -334,7 +334,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
       ...
     </config-description>
     OR
-    <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}:bindingID:..." />
+    <config-description-ref uri="{binding|thing-type|channel-type|any_other}:bindingID:..." />
   </bridge-type>
 
   <thing-type id="thingTypeID" listed="{true|false}" extensible="channelTypeId1,channelTypeId2,...">
@@ -377,7 +377,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
       ...
     </config-description>
     OR
-    <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}:bindingID:..." />
+    <config-description-ref uri="{binding|thing-type|channel-type|any_other}:bindingID:..." />
   </thing-type>
 
   <channel-type id="channelTypeID" advanced="{true|false}">
@@ -415,7 +415,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
       ...
     </config-description>
     OR
-    <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}:bindingID:..." />
+    <config-description-ref uri="{binding|thing-type|channel-type|any_other}:bindingID:..." />
   </channel-type>   
 
   <channel-group-type id="channelGroupTypeID" advanced="{true|false}">
@@ -510,7 +510,7 @@ The full XML schema for Thing type descriptions is specified in the <a href="htt
 **Hints:**
 
 -  Any identifiers of the types are automatically mapped to unique identifiers: `bindingID:id`.
--  The attribute `uri` in the section `config-description` is optional, it *should not* be specified in bridge/*Thing*/channel type definition files because it's an embedded configuration. If the `uri` is *not* specified, the configuration description is registered as `bridge-type:bindingID:id`, `thing-type:bindingID:id` or `channel-type:bindingID:id` otherwise the given `uri` is used.
+-  The attribute `uri` in the section `config-description` is optional, it *should not* be specified in bridge/*Thing*/channel type definition files because it's an embedded configuration. If the `uri` is *not* specified, the configuration description is registered as `thing-type:bindingID:id` or `channel-type:bindingID:id` otherwise the given `uri` is used.
 -  If a configuration description is already specified somewhere else and the bridge/*Thing*/channel type wants to (re-)use it, a `config-description-ref` should be used instead.
 
 ## Config Status Provider

@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.binding.bluetooth;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.binding.bluetooth.notification.BluetoothConnectionStatusNotification;
 import org.eclipse.smarthome.binding.bluetooth.notification.BluetoothScanNotification;
@@ -39,9 +41,11 @@ public class BeaconBluetoothHandler extends BaseThingHandler implements Bluetoot
     protected BluetoothAdapter adapter;
     protected BluetoothAddress address;
     protected BluetoothDevice device;
+    protected final ReentrantLock deviceLock;
 
     public BeaconBluetoothHandler(@NonNull Thing thing) {
         super(thing);
+        deviceLock = new ReentrantLock();
     }
 
     @Override
@@ -67,17 +71,28 @@ public class BeaconBluetoothHandler extends BaseThingHandler implements Bluetoot
         }
 
         adapter = (BluetoothAdapter) bridgeHandler;
-        device = adapter.getDevice(address);
-        device.addListener(this);
+
+        try {
+            deviceLock.lock();
+            device = adapter.getDevice(address);
+            device.addListener(this);
+        } finally {
+            deviceLock.unlock();
+        }
 
         updateStatus(ThingStatus.UNKNOWN);
     }
 
     @Override
     public void dispose() {
-        if (device != null) {
-            device.removeListener(this);
-            device = null;
+        try {
+            deviceLock.lock();
+            if (device != null) {
+                device.removeListener(this);
+                device = null;
+            }
+        } finally {
+            deviceLock.unlock();
         }
     }
 
@@ -121,8 +136,10 @@ public class BeaconBluetoothHandler extends BaseThingHandler implements Bluetoot
     @Override
     public void onScanRecordReceived(BluetoothScanNotification scanNotification) {
         int rssi = scanNotification.getRssi();
-        device.setRssi(rssi);
-        updateRSSI();
+        if (rssi != Integer.MIN_VALUE) {
+            device.setRssi(rssi);
+            updateRSSI();
+        }
     }
 
     @Override

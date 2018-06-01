@@ -39,6 +39,10 @@ import org.eclipse.smarthome.core.voice.text.InterpretationException;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -51,6 +55,7 @@ import io.swagger.annotations.ApiResponses;
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
+@Component
 @Path(VoiceResource.PATH_SITEMAPS)
 @RolesAllowed({ Role.USER, Role.ADMIN })
 @Api(value = VoiceResource.PATH_SITEMAPS)
@@ -63,6 +68,7 @@ public class VoiceResource implements RESTResource {
 
     private VoiceManager voiceManager;
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     public void setVoiceManager(VoiceManager voiceManager) {
         this.voiceManager = voiceManager;
     }
@@ -121,7 +127,7 @@ public class VoiceResource implements RESTResource {
         if (hli != null) {
             try {
                 hli.interpret(locale, text);
-                return Response.ok().build();
+                return Response.ok(null, MediaType.TEXT_PLAIN).build();
             } catch (InterpretationException e) {
                 return JSONResponse.createErrorResponse(Status.BAD_REQUEST, e.getMessage());
             }
@@ -144,7 +150,7 @@ public class VoiceResource implements RESTResource {
         if (hli != null) {
             try {
                 hli.interpret(locale, text);
-                return Response.ok().build();
+                return Response.ok(null, MediaType.TEXT_PLAIN).build();
             } catch (InterpretationException e) {
                 return JSONResponse.createErrorResponse(Status.BAD_REQUEST, e.getMessage());
             }

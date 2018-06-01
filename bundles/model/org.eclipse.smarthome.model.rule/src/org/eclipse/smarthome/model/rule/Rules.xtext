@@ -102,15 +102,51 @@ ItemName :
 ;
 
 ValidState:
-	ID | Number | STRING
+    ValidStateId | ValidStateNumber | ValidStateString
+;
+
+ValidStateId:
+    value=ID
+;
+
+ValidStateNumber:
+    value=Number
+;
+
+ValidStateString:
+    value=STRING
 ;
 
 ValidCommand:
-	ID | Number | STRING
+    ValidCommandId | ValidCommandNumber | ValidCommandString
+;
+
+ValidCommandId:
+    value=ID
+;
+
+ValidCommandNumber:
+    value=Number
+;
+
+ValidCommandString:
+    value=STRING
 ;
 
 ValidTrigger:
-	ID | Number | STRING
+    ValidTriggerId | ValidTriggerNumber | ValidTriggerString
+;
+
+ValidTriggerId:
+    value=ID
+;
+
+ValidTriggerNumber:
+    value=Number
+;
+
+ValidTriggerString:
+    value=STRING
 ;
 
 ThingValidState:

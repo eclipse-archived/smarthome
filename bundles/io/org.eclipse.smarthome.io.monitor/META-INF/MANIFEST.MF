@@ -1,6 +1,4 @@
 Manifest-Version: 1.0
-Bundle-Activator: org.eclipse.smarthome.io.monitor.internal.MonitorActiv
- ator
 Bundle-License: https://www.eclipse.org/legal/epl-2.0/
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Monitor

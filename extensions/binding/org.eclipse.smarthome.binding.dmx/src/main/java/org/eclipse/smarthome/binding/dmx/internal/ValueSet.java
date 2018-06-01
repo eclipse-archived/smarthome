@@ -31,7 +31,7 @@ public class ValueSet {
     private int fadeTime;
     private int holdTime;
 
-    private List<Integer> values = new ArrayList<Integer>();
+    private final List<Integer> values = new ArrayList<Integer>();
 
     /**
      * constructor with fade times only
@@ -58,12 +58,30 @@ public class ValueSet {
     }
 
     /**
+     * set fade time
+     *
+     * @param fadeTime fade time in ms
+     */
+    public void setFadeTime(int fadeTime) {
+        this.fadeTime = fadeTime;
+    }
+
+    /**
      * get fade time
      *
      * @return fade time in ms
      */
     public int getFadeTime() {
         return fadeTime;
+    }
+
+    /**
+     * set hold time
+     *
+     * @param holdTime fade time in ms
+     */
+    public void setHoldTime(int holdTime) {
+        this.holdTime = holdTime;
     }
 
     /**
@@ -104,6 +122,24 @@ public class ValueSet {
     }
 
     /**
+     * returns true if this value set contains no elements
+     *
+     * @return true if empty
+     */
+    public boolean isEmpty() {
+        return values.isEmpty();
+    }
+
+    /**
+     * returns the number of elements in this value set
+     *
+     * @return number of elements
+     */
+    public int size() {
+        return values.size();
+    }
+
+    /**
      * parse this value set from a string
      *
      * @param valueSetConfig a string holding a complete value set configuration fadeTime:value,value2,...:holdTime
@@ -119,7 +155,7 @@ public class ValueSet {
             }
             return step;
         } else {
-            return null;
+            return new ValueSet(0, -1);
         }
     }
 

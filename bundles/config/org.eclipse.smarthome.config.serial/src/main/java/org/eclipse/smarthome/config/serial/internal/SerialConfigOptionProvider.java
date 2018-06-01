@@ -15,15 +15,14 @@ package org.eclipse.smarthome.config.serial.internal;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 
 import org.eclipse.smarthome.config.core.ConfigOptionProvider;
 import org.eclipse.smarthome.config.core.ParameterOption;
+import org.eclipse.smarthome.io.transport.serial.SerialPortManager;
 import org.osgi.service.component.annotations.Component;
-
-import gnu.io.CommPortIdentifier;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * This service provides serial port names as options for configuration parameters.
@@ -34,18 +33,23 @@ import gnu.io.CommPortIdentifier;
 @Component
 public class SerialConfigOptionProvider implements ConfigOptionProvider {
 
+    private SerialPortManager serialPortManager;
+
+    @Reference
+    protected void setSerialPortManager(final SerialPortManager serialPortManager) {
+        this.serialPortManager = serialPortManager;
+    }
+
+    protected void unsetSerialPortManager(final SerialPortManager serialPortManager) {
+        this.serialPortManager = null;
+    }
+
     @Override
     public Collection<ParameterOption> getParameterOptions(URI uri, String param, String context, Locale locale) {
         List<ParameterOption> options = new ArrayList<>();
         if ("serial-port".equals(context)) {
-            @SuppressWarnings("unchecked")
-            Enumeration<CommPortIdentifier> portList = CommPortIdentifier.getPortIdentifiers();
-            while (portList.hasMoreElements()) {
-                CommPortIdentifier id = portList.nextElement();
-                if (id.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-                    options.add(new ParameterOption(id.getName(), id.getName()));
-                }
-            }
+            serialPortManager.getIdentifiers()
+                    .forEach(id -> options.add(new ParameterOption(id.getName(), id.getName())));
         }
         return options;
     }

@@ -53,8 +53,8 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
     private ScheduledFuture<?> astroDiscoveryJob;
     private PointType previousLocation;
 
-    private static final ThingUID sunThing = new ThingUID(THING_TYPE_SUN, LOCAL);
-    private static final ThingUID moonThing = new ThingUID(THING_TYPE_MOON, LOCAL);
+    private static final ThingUID SUN_THING = new ThingUID(THING_TYPE_SUN, LOCAL);
+    private static final ThingUID MOON_THING = new ThingUID(THING_TYPE_MOON, LOCAL);
 
     /**
      * Creates a AstroDiscoveryService with enabled autostart.
@@ -127,9 +127,9 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
         } else {
             propGeolocation = String.format("%s,%s", location.getLatitude(), location.getLongitude());
         }
-        thingDiscovered(DiscoveryResultBuilder.create(sunThing).withLabel("Local Sun")
+        thingDiscovered(DiscoveryResultBuilder.create(SUN_THING).withLabel("Local Sun")
                 .withProperty("geolocation", propGeolocation).withRepresentationProperty("geolocation").build());
-        thingDiscovered(DiscoveryResultBuilder.create(moonThing).withLabel("Local Moon")
+        thingDiscovered(DiscoveryResultBuilder.create(MOON_THING).withLabel("Local Moon")
                 .withProperty("geolocation", propGeolocation).withRepresentationProperty("geolocation").build());
     }
 

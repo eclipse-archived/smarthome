@@ -13,7 +13,6 @@ Export-Package:
  org.eclipse.smarthome.io.transport.mqtt.reconnect,
  org.eclipse.smarthome.io.transport.mqtt.sslcontext
 Import-Package: 
- javax.naming,
  javax.net,
  javax.net.ssl,
  org.apache.commons.lang,
@@ -22,10 +21,12 @@ Import-Package:
  org.eclipse.paho.client.mqttv3.logging,
  org.eclipse.paho.client.mqttv3.persist,
  org.eclipse.paho.client.mqttv3.util,
+ org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.io.transport.mqtt,
  org.eclipse.smarthome.io.transport.mqtt.reconnect,
  org.eclipse.smarthome.io.transport.mqtt.sslcontext,
+ org.osgi.framework,
  org.osgi.service.cm,
  org.osgi.service.component,
  org.slf4j

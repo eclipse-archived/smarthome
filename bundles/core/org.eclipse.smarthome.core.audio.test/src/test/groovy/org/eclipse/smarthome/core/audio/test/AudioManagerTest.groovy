@@ -25,7 +25,8 @@ import org.junit.Test
 /**
  * OSGi test for {@link AudioManagerImpl}
  *
- * @author Petar Valchev
+ * @author Petar Valchev - Initial contribution and API
+ * @author Christoph Weitkamp - Added parameter to adjust the volume
  *
  */
 public class AudioManagerTest extends AudioOSGiTest {
@@ -36,16 +37,19 @@ public class AudioManagerTest extends AudioOSGiTest {
     }
 
     @Test
-    public void 'null streams are not processed'(){
+    public void 'null streams are processed'(){
         registerSink()
 
         audioManager.play(null, audioSinkFake.getId())
 
         waitForAssert({
-            assertThat "null stream was processed",
+            assertThat "The 'null' stream was not processed",
                     audioSinkFake.isStreamProcessed,
-                    is(false)
+                    is(true)
         })
+        assertThat "The currently playing stream was not stopped",
+                audioSinkFake.isStreamStopped,
+                is(true)
     }
 
     @Test
@@ -151,35 +155,6 @@ public class AudioManagerTest extends AudioOSGiTest {
                     sinkMockVolume,
                     is(PercentType.ZERO)
         })
-    }
-
-    @Test
-    public void 'setVolume method handles IOException'(){
-        registerSink()
-
-        audioSinkFake.isIOExceptionExpected = true
-
-        try{
-            audioManager.setVolume(new PercentType(67), audioSinkFake.getId())
-        } catch (IOException e){
-            fail("An exception $e was thrown, while trying to set the volume of the sink $audioSinkFake.getId()")
-        }
-    }
-
-    @Test
-    public void 'getVolume method handles IOException'(){
-        registerSink()
-
-        audioManager.setVolume(new PercentType(67), audioSinkFake.getId())
-
-        audioSinkFake.isIOExceptionExpected = true
-
-        String sinkMockId = audioSinkFake.getId()
-        try{
-            audioManager.getVolume(sinkMockId)
-        } catch (IOException e){
-            fail("An exception $e was thrown, while trying to set the volume of the sink $audioSinkFake.getId()")
-        }
     }
 
     @Test
@@ -292,6 +267,9 @@ public class AudioManagerTest extends AudioOSGiTest {
                     audioSinkFake.audioFormat,
                     is(nullValue())
         })
+        assertThat "The currently playing stream was stopped",
+                audioSinkFake.isStreamStopped,
+                is(false)
 
         switch(playType){
             case PlayType.STREAM:
@@ -317,7 +295,7 @@ public class AudioManagerTest extends AudioOSGiTest {
     }
 
     /**
-     * 
+     *
      * @param param - either default source or default sink
      */
     private void assertAddedParameterOption(String param){

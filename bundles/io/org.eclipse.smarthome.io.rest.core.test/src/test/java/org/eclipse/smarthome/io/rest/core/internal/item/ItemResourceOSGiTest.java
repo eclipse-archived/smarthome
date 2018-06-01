@@ -31,11 +31,15 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemProvider;
+import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
+import org.eclipse.smarthome.core.items.Metadata;
+import org.eclipse.smarthome.core.items.MetadataKey;
+import org.eclipse.smarthome.core.items.MetadataProvider;
 import org.eclipse.smarthome.core.items.dto.GroupItemDTO;
+import org.eclipse.smarthome.core.items.dto.MetadataDTO;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
@@ -49,9 +53,9 @@ import com.jayway.jsonpath.JsonPath;
 
 public class ItemResourceOSGiTest extends JavaOSGiTest {
 
-    private static final @NonNull String ITEM_NAME1 = "Item1";
-    private static final @NonNull String ITEM_NAME2 = "Item2";
-    private static final @NonNull String ITEM_NAME3 = "Item3";
+    private static final String ITEM_NAME1 = "Item1";
+    private static final String ITEM_NAME2 = "Item2";
+    private static final String ITEM_NAME3 = "Item3";
 
     private GenericItem item1;
     private GenericItem item2;
@@ -61,12 +65,17 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
     private ItemProvider itemProvider;
 
     private ItemResource itemResource;
+    private ItemRegistry itemRegistry;
 
     private ManagedItemProvider managedItemProvider;
 
     @Before
     public void setup() {
         initMocks(this);
+
+        itemRegistry = getService(ItemRegistry.class);
+        assertNotNull(itemRegistry);
+
         itemResource = getService(ItemResource.class);
         itemResource.uriInfo = mock(UriInfo.class);
 
@@ -83,30 +92,30 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
 
     @Test
     public void shouldFilterItemsByTag() throws Exception {
-        item1.addTag("Tag1");
-        item2.addTag("Tag1");
-        item2.addTag("Tag2");
-        item3.addTag("Tag2");
+        itemRegistry.addTag(ITEM_NAME1, "Tag1");
+        itemRegistry.addTag(ITEM_NAME2, "Tag1");
+        itemRegistry.addTag(ITEM_NAME2, "Tag2");
+        itemRegistry.addTag(ITEM_NAME3, "Tag2");
 
-        Response response = itemResource.getItems(null, null, "Tag1", false, null);
+        Response response = itemResource.getItems(null, null, "Tag1", null, false, null);
         assertThat(readItemNamesFromResponse(response), hasItems(ITEM_NAME1, ITEM_NAME2));
 
-        response = itemResource.getItems(null, null, "Tag2", false, null);
+        response = itemResource.getItems(null, null, "Tag2", null, false, null);
         assertThat(readItemNamesFromResponse(response), hasItems(ITEM_NAME2, ITEM_NAME3));
 
-        response = itemResource.getItems(null, null, "NotExistingTag", false, null);
+        response = itemResource.getItems(null, null, "NotExistingTag", null, false, null);
         assertThat(readItemNamesFromResponse(response), hasSize(0));
     }
 
     @Test
     public void shouldFilterItemsByType() throws Exception {
-        Response response = itemResource.getItems(null, "Switch", null, false, null);
+        Response response = itemResource.getItems(null, "Switch", null, null, false, null);
         assertThat(readItemNamesFromResponse(response), hasItems(ITEM_NAME1, ITEM_NAME2));
 
-        response = itemResource.getItems(null, "Dimmer", null, false, null);
+        response = itemResource.getItems(null, "Dimmer", null, null, false, null);
         assertThat(readItemNamesFromResponse(response), hasItems(ITEM_NAME3));
 
-        response = itemResource.getItems(null, "Color", null, false, null);
+        response = itemResource.getItems(null, "Color", null, null, false, null);
         assertThat(readItemNamesFromResponse(response), hasSize(0));
     }
 
@@ -114,15 +123,15 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
     public void shouldAddAndRemoveTags() throws Exception {
         managedItemProvider.add(new SwitchItem("Switch"));
 
-        Response response = itemResource.getItems(null, null, "MyTag", false, null);
+        Response response = itemResource.getItems(null, null, "MyTag", null, false, null);
         assertThat(readItemNamesFromResponse(response), hasSize(0));
 
         itemResource.addTag("Switch", "MyTag");
-        response = itemResource.getItems(null, null, "MyTag", false, null);
+        response = itemResource.getItems(null, null, "MyTag", null, false, null);
         assertThat(readItemNamesFromResponse(response), hasSize(1));
 
         itemResource.removeTag("Switch", "MyTag");
-        response = itemResource.getItems(null, null, "MyTag", false, null);
+        response = itemResource.getItems(null, null, "MyTag", null, false, null);
         assertThat(readItemNamesFromResponse(response), hasSize(0));
     }
 
@@ -131,7 +140,7 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
         JsonParser parser = new JsonParser();
         managedItemProvider.add(new SwitchItem("Switch"));
         itemResource.addTag("Switch", "MyTag");
-        Response response = itemResource.getItems(null, null, "MyTag", false, "type,name");
+        Response response = itemResource.getItems(null, null, "MyTag", null, false, "type,name");
 
         JsonElement result = parser.parse(IOUtils.toString((InputStream) response.getEntity()));
         JsonElement expected = parser.parse("[{type: \"Switch\", name: \"Switch\"}]");
@@ -151,7 +160,7 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
         registerService(itemProvider);
 
         response = itemResource.addTag("UnmanagedItem", "MyTag");
-        assertThat(response.getStatus(), is(Status.METHOD_NOT_ALLOWED.getStatusCode()));
+        assertThat(response.getStatus(), is(Status.OK.getStatusCode()));
     }
 
     private List<String> readItemNamesFromResponse(Response response) throws IOException {
@@ -205,6 +214,56 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
         assertThat(statusCodes.size(), is(2));
         assertThat(statusCodes.get(0), is("error"));
         assertThat(statusCodes.get(1), is("updated"));
+    }
+
+    @Test
+    public void testMetadata() {
+        MetadataDTO dto = new MetadataDTO();
+        dto.value = "some value";
+        assertEquals(201, itemResource.addMetadata(ITEM_NAME1, "namespace", dto).getStatus());
+        assertEquals(200, itemResource.removeMetadata(ITEM_NAME1, "namespace").getStatus());
+        assertEquals(404, itemResource.removeMetadata(ITEM_NAME1, "namespace").getStatus());
+    }
+
+    @Test
+    public void testAddMetadata_nonExistingItem() {
+        MetadataDTO dto = new MetadataDTO();
+        dto.value = "some value";
+        Response response = itemResource.addMetadata("nonExisting", "foo", dto);
+        assertEquals(404, response.getStatus());
+    }
+
+    @Test
+    public void testAddMetadata_update() {
+        MetadataDTO dto = new MetadataDTO();
+        dto.value = "some value";
+        assertEquals(201, itemResource.addMetadata(ITEM_NAME1, "namespace", dto).getStatus());
+        MetadataDTO dto2 = new MetadataDTO();
+        dto2.value = "new value";
+        assertEquals(200, itemResource.addMetadata(ITEM_NAME1, "namespace", dto2).getStatus());
+    }
+
+    @Test
+    public void testRemoveMetadata_nonExistingItem() {
+        Response response = itemResource.removeMetadata("nonExisting", "anything");
+        assertEquals(404, response.getStatus());
+    }
+
+    @Test
+    public void testRemoveMetadata_nonExistingNamespace() {
+        Response response = itemResource.removeMetadata(ITEM_NAME1, "anything");
+        assertEquals(404, response.getStatus());
+    }
+
+    @Test
+    public void testRemoveMetadata_unmanagedMetadata() {
+        MetadataProvider provider = mock(MetadataProvider.class);
+        when(provider.getAll()).thenReturn(
+                Collections.singleton(new Metadata(new MetadataKey("namespace", ITEM_NAME1), "some value", null)));
+        registerService(provider);
+
+        Response response = itemResource.removeMetadata(ITEM_NAME1, "namespace");
+        assertEquals(409, response.getStatus());
     }
 
 }

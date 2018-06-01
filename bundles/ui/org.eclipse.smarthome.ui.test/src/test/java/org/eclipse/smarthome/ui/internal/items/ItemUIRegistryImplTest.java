@@ -42,6 +42,7 @@ import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.core.types.util.UnitUtils;
+import org.eclipse.smarthome.model.sitemap.ColorArray;
 import org.eclipse.smarthome.model.sitemap.Mapping;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapFactory;
@@ -79,6 +80,9 @@ public class ItemUIRegistryImplTest {
 
         when(widget.getItem()).thenReturn("Item");
         when(registry.getItem("Item")).thenReturn(item);
+
+        @SuppressWarnings("unused")
+        Unit<?> fahrenheit = ImperialUnits.FAHRENHEIT; // only used to initialise ESHUnits for conversion
     }
 
     @Test
@@ -164,10 +168,67 @@ public class ItemUIRegistryImplTest {
     }
 
     @Test
-    public void getLabel_labelWithDecimalValueAndUnitConversion() {
-        @SuppressWarnings("unused")
-        Unit<?> fahrenheit = ImperialUnits.FAHRENHEIT; // only used to initialise ESHUnits for conversion
+    public void getLabel_labelWithDecimalValueAndUnit2() {
+        String testLabel = "Label [%.0f " + UnitUtils.UNIT_PLACEHOLDER + "]";
 
+        when(widget.getLabel()).thenReturn(testLabel);
+        when(item.getState()).thenReturn(new QuantityType<>("" + 10f / 3f + " °C"));
+        String label = uiRegistry.getLabel(widget);
+        assertEquals("Label [3 ℃]", label);
+    }
+
+    @Test
+    public void getLabel_labelWithDecimalValueAndUnit3() {
+        String testLabel = "Label [%d %%]";
+
+        when(widget.getLabel()).thenReturn(testLabel);
+        when(item.getState()).thenReturn(new QuantityType<>("" + 10f / 3f + " %"));
+        String label = uiRegistry.getLabel(widget);
+        assertEquals("Label [3 %]", label);
+    }
+
+    @Test
+    public void getLabel_labelWithDecimalValueAndUnit4() {
+        String testLabel = "Label [%.0f %%]";
+
+        when(widget.getLabel()).thenReturn(testLabel);
+        when(item.getState()).thenReturn(new QuantityType<>("" + 10f / 3f + " %"));
+        String label = uiRegistry.getLabel(widget);
+        assertEquals("Label [3 %]", label);
+    }
+
+    @Test
+    public void getLabel_labelWithDecimalValueAndUnit5() {
+        String testLabel = "Label [%d " + UnitUtils.UNIT_PLACEHOLDER + "]";
+
+        when(widget.getLabel()).thenReturn(testLabel);
+        when(item.getState()).thenReturn(new QuantityType<>("33 %"));
+        String label = uiRegistry.getLabel(widget);
+        assertEquals("Label [33 %]", label);
+    }
+
+    @Test
+    public void getLabel_labelWithDecimalValueAndUnit6() {
+        String testLabel = "Label [%.0f " + UnitUtils.UNIT_PLACEHOLDER + "]";
+
+        when(widget.getLabel()).thenReturn(testLabel);
+        when(item.getState()).thenReturn(new QuantityType<>("" + 10f / 3f + " %"));
+        String label = uiRegistry.getLabel(widget);
+        assertEquals("Label [3 %]", label);
+    }
+
+    @Test
+    public void getLabel_labelWithDecimalValueAndUnit7() {
+        String testLabel = "Label [%d %%]";
+
+        when(widget.getLabel()).thenReturn(testLabel);
+        when(item.getState()).thenReturn(new QuantityType<>("33 %"));
+        String label = uiRegistry.getLabel(widget);
+        assertEquals("Label [33 %]", label);
+    }
+
+    @Test
+    public void getLabel_labelWithDecimalValueAndUnitConversion() {
         String testLabel = "Label [%.2f °F]";
 
         when(widget.getLabel()).thenReturn(testLabel);
@@ -310,7 +371,7 @@ public class ItemUIRegistryImplTest {
 
     @Test
     public void getLabel_labelForUndefinedQuantityItemState() throws ItemNotFoundException {
-        String testLabel = "Label [%.2f %unit%]";
+        String testLabel = "Label [%.2f " + UnitUtils.UNIT_PLACEHOLDER + "]";
 
         when(widget.getLabel()).thenReturn(testLabel);
         when(item.getState()).thenReturn(UnDefType.UNDEF);
@@ -528,6 +589,46 @@ public class ItemUIRegistryImplTest {
         when(item.getState()).thenReturn(new StringType("State"));
         String label = uiRegistry.getLabel(w);
         assertEquals("Memory [State]", label);
+    }
+
+    @Test
+    public void getLabelColor_labelWithDecimalValue() throws ItemNotFoundException {
+        String testLabel = "Label [%.3f]";
+
+        when(widget.getLabel()).thenReturn(testLabel);
+
+        ColorArray colorArray = mock(ColorArray.class);
+        when(colorArray.getState()).thenReturn("21");
+        when(colorArray.getCondition()).thenReturn("<");
+        when(colorArray.getArg()).thenReturn("yellow");
+        BasicEList<ColorArray> colorArrays = new BasicEList<ColorArray>();
+        colorArrays.add(colorArray);
+        when(widget.getLabelColor()).thenReturn(colorArrays);
+
+        when(item.getState()).thenReturn(new DecimalType(10f / 3f));
+
+        String color = uiRegistry.getLabelColor(widget);
+        assertEquals("yellow", color);
+    }
+
+    @Test
+    public void getLabelColor_labelWithUnitValue() throws ItemNotFoundException {
+        String testLabel = "Label [%.3f " + UnitUtils.UNIT_PLACEHOLDER + "]";
+
+        when(widget.getLabel()).thenReturn(testLabel);
+
+        ColorArray colorArray = mock(ColorArray.class);
+        when(colorArray.getState()).thenReturn("20");
+        when(colorArray.getCondition()).thenReturn("==");
+        when(colorArray.getArg()).thenReturn("yellow");
+        BasicEList<ColorArray> colorArrays = new BasicEList<ColorArray>();
+        colorArrays.add(colorArray);
+        when(widget.getLabelColor()).thenReturn(colorArrays);
+
+        when(item.getState()).thenReturn(new QuantityType<>("20 °C"));
+
+        String color = uiRegistry.getLabelColor(widget);
+        assertEquals("yellow", color);
     }
 
 }

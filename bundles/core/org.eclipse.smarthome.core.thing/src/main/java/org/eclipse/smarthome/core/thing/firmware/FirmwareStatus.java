@@ -12,9 +12,11 @@
  */
 package org.eclipse.smarthome.core.thing.firmware;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.firmware.Firmware;
+import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler;
 
 /**
  * The {@link FirmwareStatus} enumeration defines all possible statuses for the {@link Firmware} of a {@link Thing}
@@ -23,6 +25,7 @@ import org.eclipse.smarthome.core.thing.binding.firmware.Firmware;
  *
  * @author Thomas Höfer - Initial contribution
  */
+@NonNullByDefault
 public enum FirmwareStatus {
 
     /**

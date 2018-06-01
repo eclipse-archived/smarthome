@@ -25,13 +25,18 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.io.rest.sitemap.internal.PageChangeListener;
 import org.eclipse.smarthome.io.rest.sitemap.internal.SitemapEvent;
 import org.eclipse.smarthome.model.core.EventType;
-import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
 import org.eclipse.smarthome.model.sitemap.LinkableWidget;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapProvider;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +50,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
+@Component(service = SitemapSubscriptionService.class)
 public class SitemapSubscriptionService implements ModelRepositoryChangeListener {
 
     private static final String SITEMAP_PAGE_SEPARATOR = "#";
@@ -58,24 +64,25 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
     }
 
     private ItemUIRegistry itemUIRegistry;
-    private ModelRepository modelRepo;
-    private List<SitemapProvider> sitemapProviders = new ArrayList<>();
+    private final List<SitemapProvider> sitemapProviders = new ArrayList<>();
 
     /* subscription id -> sitemap+page */
     private final Map<String, String> pageOfSubscription = new ConcurrentHashMap<>();
 
     /* subscription id -> callback */
-    private Map<String, SitemapSubscriptionCallback> callbacks = new ConcurrentHashMap<>();
+    private final Map<String, SitemapSubscriptionCallback> callbacks = new ConcurrentHashMap<>();
 
     /* sitemap+page -> listener */
-    private Map<String, PageChangeListener> pageChangeListeners = new ConcurrentHashMap<>();
+    private final Map<String, PageChangeListener> pageChangeListeners = new ConcurrentHashMap<>();
 
     public SitemapSubscriptionService() {
     }
 
+    @Activate
     protected void activate() {
     }
 
+    @Deactivate
     protected void deactivate() {
         pageOfSubscription.clear();
         callbacks.clear();
@@ -85,6 +92,7 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
         pageChangeListeners.clear();
     }
 
+    @Reference
     protected void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
         this.itemUIRegistry = itemUIRegistry;
     }
@@ -93,22 +101,16 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
         this.itemUIRegistry = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addSitemapProvider(SitemapProvider provider) {
         sitemapProviders.add(provider);
+        provider.addModelChangeListener(this);
+
     }
 
     protected void removeSitemapProvider(SitemapProvider provider) {
         sitemapProviders.remove(provider);
-    }
-
-    protected void addModelRepository(ModelRepository modelRepo) {
-        this.modelRepo = modelRepo;
-        this.modelRepo.addModelRepositoryChangeListener(this);
-    }
-
-    protected void removeModelRepository(ModelRepository modelRepo) {
-        this.modelRepo.removeModelRepositoryChangeListener(this);
-        this.modelRepo = null;
+        provider.removeModelChangeListener(this);
     }
 
     /**
@@ -120,7 +122,7 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
     public String createSubscription(SitemapSubscriptionCallback callback) {
         String subscriptionId = UUID.randomUUID().toString();
         callbacks.put(subscriptionId, callback);
-        logger.debug("Created new subscription with id {}", subscriptionId);
+        logger.debug("Created new subscription with id {} ({} active subscriptions)", subscriptionId, callbacks.size());
         return subscriptionId;
     }
 
@@ -139,7 +141,7 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
                 listener.dispose();
             }
         }
-        logger.debug("Removed subscription with id {}", subscriptionId);
+        logger.debug("Removed subscription with id {} ({} active subscriptions)", subscriptionId, callbacks.size());
     }
 
     /**
@@ -156,20 +158,22 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
      * Retrieves the current page id for a subscription.
      *
      * @param subscriptionId the subscription to get the page id for
-     * @return the id of the currently active page
+     * @return the id of the currently active page or null if no page is currently set for the subscription
      */
     public String getPageId(String subscriptionId) {
-        return extractPageId(pageOfSubscription.get(subscriptionId));
+        String sitemapWithPageId = pageOfSubscription.get(subscriptionId);
+        return (sitemapWithPageId == null) ? null : extractPageId(sitemapWithPageId);
     }
 
     /**
      * Retrieves the current sitemap name for a subscription.
      *
      * @param subscriptionId the subscription to get the sitemap name for
-     * @return the name of the current sitemap
+     * @return the name of the current sitemap or null if no sitemap is currently set for the subscription
      */
     public String getSitemapName(String subscriptionId) {
-        return extractSitemapName(pageOfSubscription.get(subscriptionId));
+        String sitemapWithPageId = pageOfSubscription.get(subscriptionId);
+        return (sitemapWithPageId == null) ? null : extractSitemapName(sitemapWithPageId);
     }
 
     private String extractSitemapName(String sitemapWithPageId) {
@@ -197,8 +201,8 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
             addCallbackToListener(sitemapName, pageId, callback);
             pageOfSubscription.put(subscriptionId, getValue(sitemapName, pageId));
 
-            logger.debug("Subscription {} changed to page {} of sitemap {}",
-                    new Object[] { subscriptionId, pageId, sitemapName });
+            logger.debug("Subscription {} changed to page {} of sitemap {} ({} active subscriptions}",
+                    new Object[] { subscriptionId, pageId, sitemapName, callbacks.size() });
         } else {
             throw new IllegalArgumentException("Subscription " + subscriptionId + " does not exist!");
         }
@@ -272,9 +276,11 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
         for (Entry<String, PageChangeListener> listenerEntry : pageChangeListeners.entrySet()) {
             String sitemapWithPage = listenerEntry.getKey();
             String sitemapName = extractSitemapName(sitemapWithPage);
+            String pageId = extractPageId(sitemapWithPage);
 
             if (sitemapName.equals(changedSitemapName)) {
-                listenerEntry.getValue().sitemapContentChanged();
+                EList<Widget> widgets = collectWidgets(sitemapName, pageId);
+                listenerEntry.getValue().sitemapContentChanged(widgets);
             }
         }
     }

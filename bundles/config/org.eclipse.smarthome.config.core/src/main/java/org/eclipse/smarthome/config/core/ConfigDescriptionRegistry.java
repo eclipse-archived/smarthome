@@ -268,7 +268,6 @@ public class ConfigDescriptionRegistry {
                     break;
                 }
             }
-
         }
 
         if (found) {

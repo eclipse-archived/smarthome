@@ -24,9 +24,9 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.SceneSta
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.ConnectionManager;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.SceneManager;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.StructureManager;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.constants.JSONApiResponseKeysEnum;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.impl.JSONResponseHandler;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.constants.FunctionalColorGroupEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.constants.JSONApiResponseKeysEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.impl.JSONResponseHandler;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.FunctionalColorGroupEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.constants.ApartmentSceneEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.constants.SceneEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.constants.ZoneSceneEnum;
@@ -46,7 +46,7 @@ import com.google.gson.JsonObject;
  */
 public class SceneDiscovery {
 
-    private static final Logger logger = LoggerFactory.getLogger(SceneDiscovery.class);
+    private final Logger logger = LoggerFactory.getLogger(SceneDiscovery.class);
     // fields: 0 = namedScenes, 1 = apartmentScenes, 2 = zoneScenes, 3 = reachableScenes
     private final char[] scenesGenerated = "0000".toCharArray();
 
@@ -58,9 +58,8 @@ public class SceneDiscovery {
     private SceneStatusListener discovery;
 
     public static final String NAMEND_SCENE_QUERY = "/apartment/zones/*(ZoneID)/groups/*(group)/scenes/*(scene,name)";
-    // TODO: can be add to dSApi
     public static final String REACHABLE_SCENE_QUERY = "/json/zone/getReachableScenes?id=";
-    public static final String Reachable_GROUPS_QUERY = "/json/apartment/getReachableGroups?token=";
+    public static final String REACHABLE_GROUPS_QUERY = "/json/apartment/getReachableGroups?token=";
 
     /**
      * Creates a new {@link SceneDiscovery} with managed scene by the {@link SceneManager}
@@ -339,7 +338,7 @@ public class SceneDiscovery {
     private HashMap<Integer, List<Short>> getReachableGroups(ConnectionManager connectionManager) {
         HashMap<Integer, List<Short>> reachableGroupsMap = null;
         String response = connectionManager.getHttpTransport()
-                .execute(SceneDiscovery.Reachable_GROUPS_QUERY + connectionManager.getSessionToken());
+                .execute(SceneDiscovery.REACHABLE_GROUPS_QUERY + connectionManager.getSessionToken());
         if (response == null) {
             return null;
         } else {

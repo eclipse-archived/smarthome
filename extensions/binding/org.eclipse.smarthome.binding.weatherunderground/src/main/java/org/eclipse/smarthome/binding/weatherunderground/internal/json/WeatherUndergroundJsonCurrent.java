@@ -528,7 +528,7 @@ public class WeatherUndergroundJsonCurrent {
             return state;
         }
 
-        public String getState_name() {
+        public String getStateName() {
             return state_name;
         }
 
@@ -536,7 +536,7 @@ public class WeatherUndergroundJsonCurrent {
             return country;
         }
 
-        public String getCountry_iso3166() {
+        public String getCountryIso3166() {
             return country_iso3166;
         }
 
