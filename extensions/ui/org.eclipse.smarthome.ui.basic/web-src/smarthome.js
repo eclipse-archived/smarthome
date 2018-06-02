@@ -2220,7 +2220,7 @@
 
 		_t.subscriberError = function() {
 			var
-				notify = renderTemplate(o.notifyTemplateSseLimit, {});
+				notify = renderTemplate(o.notifyTemplateLongPollingMode, {});
 
 			// Failback to long polling mode
 			smarthome.UI.showNotification(notify);
@@ -2294,5 +2294,5 @@
 	notify: ".mdl-notify__container",
 	notifyHidden: "mdl-notify--hidden",
 	notifyTemplateOffline: "template-offline-notify",
-	notifyTemplateSseLimit: "template-sse-limit-notify"
+	notifyTemplateLongPollingMode: "template-long-polling-mode-notify"
 });

@@ -96,7 +96,7 @@ public class PageRenderer extends AbstractWidgetRenderer {
             throws RenderException {
         String snippet = getSnippet(async ? "layer" : "main");
         snippet = snippet.replaceAll("%main.offline-msg%", localizeText("@text/main.offline-msg"));
-        snippet = snippet.replaceAll("%main.sse-limit-msg%", localizeText("@text/main.sse-limit-msg"));
+        snippet = snippet.replaceAll("%main.long-polling-mode-msg%", localizeText("@text/main.long-polling-mode-msg"));
         snippet = snippet.replaceAll("%id%", id);
 
         // if the label contains a value span, we remove this span as
