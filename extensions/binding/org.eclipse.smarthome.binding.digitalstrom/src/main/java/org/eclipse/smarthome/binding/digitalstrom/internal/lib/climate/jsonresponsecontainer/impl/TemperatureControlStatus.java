@@ -70,7 +70,7 @@ public class TemperatureControlStatus extends BaseTemperatureControl {
     }
 
     private void init(JsonObject jObject) {
-        if (isConfigured) {
+        if (isNotSetOff()) {
             if (jObject.get(JSONApiResponseKeysEnum.CONTROL_STATE.getKey()) != null) {
                 this.controlState = jObject.get(JSONApiResponseKeysEnum.CONTROL_STATE.getKey()).getAsShort();
             }

@@ -96,7 +96,7 @@ public class ZoneTemperatureControlDiscoveryService extends AbstractDiscoverySer
         if (tempControlStatus == null) {
             return;
         }
-        if (tempControlStatus.getIsConfigured()) {
+        if (tempControlStatus.isNotSetOff()) {
             logger.debug("found configured zone TemperatureControlStatus = {}", tempControlStatus);
 
             ThingUID thingUID = getThingUID(tempControlStatus);

@@ -374,6 +374,10 @@ The digitalSTROM-Server
 
 **Notes: **
 
+*Generally:*
+
+* The dSS only inform about scene-commands. So if you set the output value of devices e.g. through  the dSS-App, the binding will not be informed about the changes and you have to send a "refresh-command" to update the channel.
+
 *Channels with accepted command type increase and decrease:*
 
   * digitalSTROM will only evaluate increase and decrease commands, if a scene was called before which turn the device on. 

@@ -272,7 +272,7 @@ public class TemperatureControlManager implements EventHandler, TemperatureContr
      */
     public TemperatureControlStatus checkAndGetTemperatureControlStatus(Integer zoneID) {
         TemperatureControlStatus tempConStat = this.temperationControlStatus.get(zoneID);
-        if (tempConStat.getIsConfigured()) {
+        if (tempConStat.isNotSetOff()) {
             return tempConStat;
         }
         return null;
@@ -340,7 +340,7 @@ public class TemperatureControlManager implements EventHandler, TemperatureContr
     }
 
     private void addTemperatureControlStatus(TemperatureControlStatus temperationControlStatus) {
-        if (temperationControlStatus.getIsConfigured()) {
+        if (temperationControlStatus.isNotSetOff()) {
             if (this.temperationControlStatus == null) {
                 this.temperationControlStatus = new HashMap<Integer, TemperatureControlStatus>();
             }

@@ -19,9 +19,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
 
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.event.constants.EventNames;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.event.constants.EventResponseEnum;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.DsAPI;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.constants.JSONApiResponseKeysEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.SensorEnum;
 import org.slf4j.Logger;

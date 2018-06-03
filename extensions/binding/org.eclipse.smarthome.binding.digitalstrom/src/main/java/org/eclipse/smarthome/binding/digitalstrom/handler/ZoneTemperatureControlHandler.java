@@ -270,7 +270,7 @@ public class ZoneTemperatureControlHandler extends BaseThingHandler implements T
 
     @Override
     public synchronized void configChanged(TemperatureControlStatus tempControlStatus) {
-        if (tempControlStatus != null && tempControlStatus.getIsConfigured()) {
+        if (tempControlStatus != null && tempControlStatus.isNotSetOff()) {
             ControlModes controlMode = ControlModes.getControlMode(tempControlStatus.getControlMode());
             ControlStates controlState = ControlStates.getControlState(tempControlStatus.getControlState());
             if (controlMode != null && controlState != null) {

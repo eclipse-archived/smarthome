@@ -118,10 +118,6 @@ public class DigitalSTROMHandlerFactory extends BaseThingHandlerFactory {
     protected ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (thingTypeUID == null) {
-            return null;
-        }
-
         if (BridgeHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             BridgeHandler handler = new BridgeHandler((Bridge) thing);
             if (bridgeHandlers == null) {

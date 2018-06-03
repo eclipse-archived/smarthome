@@ -981,13 +981,11 @@ public class DeviceImpl extends AbstractGeneralDeviceInformations implements Dev
         if (sensorType != null) {
             DeviceSensorValue devSenVal = getDeviceSensorValue(sensorType);
             if (devSenVal.getValid()) {
-                if (devSenVal != null) {
-                    int refresh = Config.DEFAULT_SENSORDATA_REFRESH_INTERVAL;
-                    if (config != null) {
-                        refresh = config.getSensordataRefreshInterval();
-                    }
-                    return (devSenVal.getTimestamp().getTime() + refresh) > System.currentTimeMillis();
+                int refresh = Config.DEFAULT_SENSORDATA_REFRESH_INTERVAL;
+                if (config != null) {
+                    refresh = config.getSensordataRefreshInterval();
                 }
+                return (devSenVal.getTimestamp().getTime() + refresh) > System.currentTimeMillis();
             }
         }
         return false;
@@ -1229,20 +1227,18 @@ public class DeviceImpl extends AbstractGeneralDeviceInformations implements Dev
     @Override
     public void setDeviceSensorByEvent(EventItem event) {
         DeviceSensorValue devSenVal = new DeviceSensorValue(event.getProperties());
-        if (devSenVal != null) {
-            SensorEnum sensorType = devSenVal.getSensorType();
-            if (!isEchoSensor(sensorType)) {
-                logger.debug("Event is no echo, set values {} for sensorType {}", devSenVal, devSenVal.getSensorType());
-                if (SensorEnum.isPowerSensor(sensorType) && getSensorDataReadingInitialized(sensorType)) {
-                    logger.debug("SensorJob was initialized, remove sensorjob for sensorType: {}",
-                            devSenVal.getSensorType());
-                    deviceStateUpdates.add(new DeviceStateUpdateImpl(sensorType, -1));
-                }
-                setDeviceSensorValue(devSenVal);
-            } else {
-                logger.debug("Event is echo remove sensorType {} from echoBox", devSenVal.getSensorType());
-                sensorEchoBox.remove(devSenVal.getSensorType());
+        SensorEnum sensorType = devSenVal.getSensorType();
+        if (!isEchoSensor(sensorType)) {
+            logger.debug("Event is no echo, set values {} for sensorType {}", devSenVal, devSenVal.getSensorType());
+            if (SensorEnum.isPowerSensor(sensorType) && getSensorDataReadingInitialized(sensorType)) {
+                logger.debug("SensorJob was initialized, remove sensorjob for sensorType: {}",
+                        devSenVal.getSensorType());
+                deviceStateUpdates.add(new DeviceStateUpdateImpl(sensorType, -1));
             }
+            setDeviceSensorValue(devSenVal);
+        } else {
+            logger.debug("Event is echo remove sensorType {} from echoBox", devSenVal.getSensorType());
+            sensorEchoBox.remove(devSenVal.getSensorType());
         }
     }
 
