@@ -27,7 +27,7 @@ This is:
 |---------------|----------------------------|------------------------|
 | Length        | Meter (m)                  | Inch (in)              |
 | Temperature   | Celsius (°C)               | Fahrenheit (°F)        |
-| Pressure      | Hektopascal (hPa)          | Inch of mercury (inHg) | 
+| Pressure      | Hectopascal (hPa)          | Inch of mercury (inHg) | 
 | Speed         | Kilometers per hour (km/h) | Miles per hour (mph)   |
 | Intensity     | Irradiance (W/m2)          | Irradiance (W/m2)      |
 | Dimensionless | Abstract unit one (one)    | Abstract unit one (one)|
