@@ -465,9 +465,7 @@ public class ThingManagerImpl
         }
 
         if (!isHandlerRegistered(thing)) {
-            if (thing.isEnabled()) {
-                registerAndInitializeHandler(thing, getThingHandlerFactory(thing));
-            }
+            registerAndInitializeHandler(thing, getThingHandlerFactory(thing));
         } else {
             logger.debug("Handler of tracked thing '{}' already registered.", thing.getUID());
         }
@@ -822,11 +820,8 @@ public class ThingManagerImpl
             }
             thing.setHandler(null);
 
-            ThingStatusDetail detail = /* Storage is available */storage != null
-                    && /* Record for this thing is available */storage.get(thing.getUID().getAsString()) != null
-                    && /* Thing is persisted as disabled */!storage.get(thing.getUID().getAsString())
-                            ? ThingStatusDetail.DISABLED
-                            : ThingStatusDetail.HANDLER_MISSING_ERROR;
+            ThingStatusDetail detail = thing.isEnabled() ? ThingStatusDetail.HANDLER_MISSING_ERROR
+                    : ThingStatusDetail.DISABLED;
 
             setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED, detail));
             thingHandlers.remove(thing.getUID());
@@ -1209,27 +1204,19 @@ public class ThingManagerImpl
 
         if (enabled) {
             // Enable a thing
-            if (!thing.isEnabled()) {
-                logger.debug("Thing {} will be enabled.", thing.getUID().getAsString());
-                if (storage != null) {
-                    storage.remove(thingUID.getAsString());
-                }
-                registerAndInitializeHandler(thing, findThingHandlerFactory(thing.getThingTypeUID()));
-            } else {
-                logger.debug("Cannot enable thing {}. It is already in required state.", thing.getUID().getAsString());
+            logger.debug("Thing {} will be enabled.", thing.getUID().getAsString());
+            if (storage != null) {
+                storage.remove(thingUID.getAsString());
             }
+            setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE));
+            registerAndInitializeHandler(thing, findThingHandlerFactory(thing.getThingTypeUID()));
         } else {
-            if (thing.isEnabled()) {
-                // Disable a thing
-                logger.debug("Thing {} will be disabled.", thing.getUID().getAsString());
-                if (storage != null) {
-                    storage.put(thingUID.getAsString(), enabled);
-                }
-                unregisterAndDisposeHandler(findThingHandlerFactory(thing.getThingTypeUID()), thing,
-                        thing.getHandler());
-            } else {
-                logger.debug("Cannot disable thing {}. It is already in required state.", thing.getUID().getAsString());
+            logger.debug("Thing {} will be disabled.", thing.getUID().getAsString());
+            if (storage != null) {
+                storage.put(thingUID.getAsString(), enabled);
             }
+            setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.DISABLED));
+            unregisterAndDisposeHandler(findThingHandlerFactory(thing.getThingTypeUID()), thing, thing.getHandler());
         }
     }
 

@@ -12,11 +12,16 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URI;
@@ -143,7 +148,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
 
         itemRegistry = getService(ItemRegistry.class);
         assertNotNull(itemRegistry);
-
+        
         itemChannelLinkRegistry = getService(ItemChannelLinkRegistry.class);
         assertNotNull(itemChannelLinkRegistry);
 
@@ -595,17 +600,17 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
             return mockHandler;
         });
 
+
+        ThingStatusInfo enabledStatusInfo = ThingStatusInfoBuilder
+                .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build();
+        THING.setStatusInfo(enabledStatusInfo);
+
         new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
-
-        waitForAssert(() -> {
-            assertThat(THING.getStatus(), is(ThingStatus.INITIALIZING));
-        });
-
         // ensure it didn't run into a dead-lock which gets resolved by the SafeCaller.
         waitForAssert(() -> {
-            assertThat(initializeRunning.get(), is(false));
+            assertThat(initializeRunning.get(), is(true));
         }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
-
+        
         // disable the thing
         new Thread((Runnable) () -> thingManager.setEnabled(THING.getUID(), false)).start();
 
@@ -613,10 +618,52 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
             assertThat(THING.getStatus(), is(ThingStatus.UNINITIALIZED));
             assertThat(THING.getStatusInfo().getStatusDetail(), is(ThingStatusDetail.DISABLED));
         });
+    }
 
+    @Test
+    public void testSetsEnabledThingStatus() {
+        AtomicReference<ThingHandlerCallback> thc = new AtomicReference<>();
+        AtomicReference<Boolean> initializeRunning = new AtomicReference<>(false);
+        AtomicReference<Boolean> disposeRunning = new AtomicReference<>(false);
+
+        registerThingHandlerFactory(THING_TYPE_UID, thing -> {
+            ThingHandler mockHandler = mock(ThingHandler.class);
+            doAnswer(a -> {
+                thc.set((ThingHandlerCallback) a.getArguments()[0]);
+                return null;
+            }).when(mockHandler).setCallback(ArgumentMatchers.isA(ThingHandlerCallback.class));
+            doAnswer(a -> {
+                initializeRunning.set(true);
+                // call thingUpdated() from within initialize()
+                thc.get().thingUpdated(THING);
+                // hang on a little to provoke a potential dead-lock
+                Thread.sleep(1000);
+                initializeRunning.set(false);
+                return null;
+            }).when(mockHandler).initialize();
+            doAnswer(a -> {
+                disposeRunning.set(true);
+                // hang on a little to provoke a potential dead-lock
+                Thread.sleep(1000);
+                disposeRunning.set(false);
+                return null;
+            }).when(mockHandler).dispose();
+            when(mockHandler.getThing()).thenReturn(THING);
+            return mockHandler;
+        });
+
+        ThingStatusInfo disabledStatusInfo = ThingStatusInfoBuilder
+                .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.DISABLED).build();
+        THING.setStatusInfo(disabledStatusInfo);
+        new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
+        // ensure it didn't run into a dead-lock which gets resolved by the SafeCaller.
+        waitForAssert(() -> {
+            assertThat(initializeRunning.get(), is(false));
+        }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
+        
         // enable the thing
         new Thread((Runnable) () -> thingManager.setEnabled(THING.getUID(), true)).start();
-
+        
         waitForAssert(() -> {
             assertThat(THING.getStatus(), is(ThingStatus.INITIALIZING));
         });
@@ -625,7 +672,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
             assertThat(initializeRunning.get(), is(false));
         }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
     }
-
+    
     @Test
     public void testDisabledThingAdded() {
         AtomicReference<ThingHandlerCallback> thc = new AtomicReference<>();
@@ -702,9 +749,9 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
             return mockHandler;
         });
 
-        ThingStatusInfo disabledStatusInfo = ThingStatusInfoBuilder
+        ThingStatusInfo enabledStatusInfo = ThingStatusInfoBuilder
                 .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build();
-        THING.setStatusInfo(disabledStatusInfo);
+        THING.setStatusInfo(enabledStatusInfo);
 
         new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
         // ensure it didn't run into a dead-lock which gets resolved by the SafeCaller.
