@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.Metadata;
 import org.eclipse.smarthome.core.items.MetadataKey;
@@ -40,6 +41,7 @@ import org.osgi.service.component.annotations.Reference;
 public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
     private static final String SUBCMD_LIST = "list";
+    private static final String SUBCMD_LIST_INTERNAL = "listinternal";
     private static final String SUBCMD_ADD = "add";
     private static final String SUBCMD_REMOVE = "remove";
 
@@ -55,6 +57,8 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
         return Arrays.asList(new String[] {
                 buildCommandUsage(SUBCMD_LIST + " [<itemName> [<namespace>]]",
                         "lists all available metadata, can be filtered for a specifc item and namespace"),
+                buildCommandUsage(SUBCMD_LIST_INTERNAL + " [<itemName> [<namespace>]]",
+                        "lists all available INTERNAL metadata, can be filtered for a specifc item and namespace"),
                 buildCommandUsage(SUBCMD_REMOVE + " <itemName> [<namespace>]",
                         "removes metadata for the specific item (for all namespaces or for the given namespace only)"),
                 buildCommandUsage(SUBCMD_ADD + " <itemName> <namespace> <value> [{key1=value1, key2=value2, ...}]",
@@ -67,7 +71,10 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
             String subCommand = args[0];
             switch (subCommand) {
                 case SUBCMD_LIST:
-                    listMetadata(console, args.length > 1 ? args[1] : null, args.length > 2 ? args[2] : null);
+                    listMetadata(console, args.length > 1 ? args[1] : null, args.length > 2 ? args[2] : null, false);
+                    break;
+                case SUBCMD_LIST_INTERNAL:
+                    listMetadata(console, args.length > 1 ? args[1] : null, args.length > 2 ? args[2] : null, true);
                     break;
                 case SUBCMD_ADD:
                     if (args.length < 4) {
@@ -91,19 +98,26 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
         }
     }
 
-    private void listMetadata(Console console, String itemName, String namespace) {
+    private void listMetadata(Console console, String itemName, String namespace, boolean internal) {
         if (itemName == null) {
-            metadataRegistry.stream().map(Metadata::toString).forEach(console::println);
-        } else if (namespace == null) {
-            metadataRegistry.stream().filter(MetadataPredicates.ofItem(itemName)).map(Metadata::toString)
+            metadataRegistry.stream().filter(m -> isInternal(m, internal)).map(Metadata::toString)
                     .forEach(console::println);
+        } else if (namespace == null) {
+            metadataRegistry.stream().filter(MetadataPredicates.ofItem(itemName)).filter(m -> isInternal(m, internal))
+                    .map(Metadata::toString).forEach(console::println);
         } else {
             MetadataKey key = new MetadataKey(namespace, itemName);
-            Metadata metadata = metadataRegistry.get(key);
-            if (metadata != null) {
-                console.println(metadata.toString());
+            if (metadataRegistry.isInternalNamespace(namespace) == internal) {
+                Metadata metadata = metadataRegistry.get(key);
+                if (metadata != null) {
+                    console.println(metadata.toString());
+                }
             }
         }
+    }
+
+    private boolean isInternal(@NonNull Metadata metadata, boolean internal) {
+        return metadataRegistry.isInternalNamespace(metadata.getUID().getNamespace()) == internal;
     }
 
     private void addMetadata(Console console, String itemName, String namespace, String value, String config) {
