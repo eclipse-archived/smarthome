@@ -53,6 +53,7 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
     private UpnpIOService upnpIOService;
     private AudioHTTPServer audioHTTPServer;
     private NetworkAddressService networkAddressService;
+    private SonosStateDescriptionOptionProvider stateDescriptionProvider;
 
     private final Map<String, ServiceRegistration<AudioSink>> audioSinkRegistrations = new ConcurrentHashMap<>();
 
@@ -95,7 +96,7 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
             logger.debug("Creating a ZonePlayerHandler for thing '{}' with UDN '{}'", thing.getUID(),
                     thing.getConfiguration().get(UDN));
 
-            ZonePlayerHandler handler = new ZonePlayerHandler(thing, upnpIOService, opmlUrl);
+            ZonePlayerHandler handler = new ZonePlayerHandler(thing, upnpIOService, opmlUrl, stateDescriptionProvider);
 
             // register the speaker as an audio sink
             String callbackUrl = createCallbackUrl();
@@ -176,4 +177,12 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
         this.networkAddressService = null;
     }
 
+    @Reference
+    protected void setDynamicStateDescriptionProvider(SonosStateDescriptionOptionProvider stateDescriptionProvider) {
+        this.stateDescriptionProvider = stateDescriptionProvider;
+    }
+
+    protected void unsetDynamicStateDescriptionProvider(SonosStateDescriptionOptionProvider stateDescriptionProvider) {
+        this.stateDescriptionProvider = null;
+    }
 }
