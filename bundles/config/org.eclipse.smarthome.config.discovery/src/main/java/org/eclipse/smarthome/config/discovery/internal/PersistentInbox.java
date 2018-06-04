@@ -176,11 +176,11 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     @Override
-    public synchronized boolean add(final @Nullable DiscoveryResult rslt) throws IllegalStateException {
-        if (rslt == null) {
+    public synchronized boolean add(final @Nullable DiscoveryResult discoveryResult) throws IllegalStateException {
+        if (discoveryResult == null) {
             return false;
         }
-        final DiscoveryResult result = rslt;
+        final DiscoveryResult result = discoveryResult;
 
         ThingUID thingUID = result.getThingUID();
         Thing thing = this.thingRegistry.get(thingUID);
@@ -300,7 +300,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     @Override
     @NonNullByDefault({})
     public Stream<DiscoveryResult> stream() {
-        return this.discoveryResultStorage.getValues().stream().filter(discoveryResult -> discoveryResult == null);
+        return this.discoveryResultStorage.getValues().stream().filter(Objects::nonNull);
     }
 
     @Override
