@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.core.thing;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 
 /**
@@ -25,6 +26,7 @@ import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
  *
  * @see ThingRegistry
  */
+@NonNullByDefault
 public interface ThingRegistryChangeListener extends RegistryChangeListener<Thing> {
 
 }
