@@ -19,7 +19,7 @@ A physical light bulb might have a color temperature channel and a color channel
 For sources of information the thing might be the local weather with information from a web service with different channels like temperature, pressure and humidity.
 
 Channels are linked to items, where such links are the glue between the virtual and the physical layer.
-Once such a link is established, a thing reacts on events sent for an item that is linked to one of its channels.
+Once such a link is established, a thing reacts on events sent from an item that is linked to one of its channels.
 Likewise, it actively sends out events for items linked to its channels.
 
 ### Bridges
