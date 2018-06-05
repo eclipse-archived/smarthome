@@ -464,6 +464,7 @@ public class ThingResource implements RESTResource {
     @GET
     @RolesAllowed({ Role.USER, Role.ADMIN })
     @Path("/{thingUID}/config/status")
+    @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets thing's config status.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
             @ApiResponse(code = 404, message = "Thing not found.") })
@@ -481,9 +482,9 @@ public class ThingResource implements RESTResource {
 
         ConfigStatusInfo info = configStatusService.getConfigStatus(thingUID, LocaleUtil.getLocale(language));
         if (info != null) {
-            return Response.ok(null, MediaType.TEXT_PLAIN).entity(info.getConfigStatusMessages()).build();
+            return Response.ok().entity(info.getConfigStatusMessages()).build();
         }
-        return Response.ok(null, MediaType.TEXT_PLAIN).entity(Collections.EMPTY_SET).build();
+        return Response.ok().entity(Collections.EMPTY_SET).build();
     }
 
     @PUT
