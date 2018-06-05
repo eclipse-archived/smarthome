@@ -129,22 +129,42 @@ public abstract class GenericItem implements ActiveItem {
         if (groupItemName == null) {
             throw new IllegalArgumentException("Group item name must not be null!");
         }
+
+        if (checkForGroupLoop(groupItemName)) {
+            return;
+        }
+
         if (!groupNames.contains(groupItemName)) {
             groupNames.add(groupItemName);
         }
     }
 
+    private boolean checkForGroupLoop(String groupItemName) {
+        if (this instanceof GroupItem) {
+            GroupItem group = (GroupItem) this;
+            if (groupItemName.equals(group.getName())) {
+                logger.error("Trying to add Group '{}' to itself, ignoring instruction.", groupItemName);
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void addGroupNames(String... groupItemNames) {
         for (String groupItemName : groupItemNames) {
-            addGroupName(groupItemName);
+            if (!checkForGroupLoop(groupItemName)) {
+                addGroupName(groupItemName);
+            }
         }
     }
 
     @Override
     public void addGroupNames(List<String> groupItemNames) {
         for (String groupItemName : groupItemNames) {
-            addGroupName(groupItemName);
+            if (!checkForGroupLoop(groupItemName)) {
+                addGroupName(groupItemName);
+            }
         }
     }
 
