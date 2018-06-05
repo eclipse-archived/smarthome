@@ -4,8 +4,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>core</artifactId>
     <groupId>org.eclipse.smarthome.bundles</groupId>
+    <artifactId>core</artifactId>
     <version>0.10.0-SNAPSHOT</version>
   </parent>
   <groupId>org.eclipse.smarthome.io</groupId>
