@@ -11,8 +11,7 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Export-Package: 
  org.eclipse.smarthome.core.transform,
- org.eclipse.smarthome.core.transform.actions,
- org.eclipse.smarthome.core.transform.profiles
+ org.eclipse.smarthome.core.transform.actions
 Ignore-Package: org.eclipse.smarthome.binding.http.internal
 Import-Package: 
  org.apache.commons.io,
@@ -31,4 +30,3 @@ Import-Package:
  org.slf4j
 Private-Package: org.eclipse.smarthome.binding.http.internal
 Service-Component: OSGI-INF/*.xml
-Bundle-ActivationPolicy: lazy

@@ -28,8 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link StateProfile} which transforms a state value send from the handler to the framework based on the provided
- * {@link ProfileTypeUID}. The direction from the framework toward the handler is left untouched.
+ * {@link StateProfile} which transforms a state value sent from the handler to the framework based on the provided
+ * {@link ProfileTypeUID}. The state value in the direction from the framework towards the handler is left untouched.
  *
  * @author Stefan Triller - initial contribution
  *
@@ -37,13 +37,13 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class TransformationProfile implements StateProfile {
 
-    private static Logger logger = LoggerFactory.getLogger(TransformationProfile.class);
+    private final Logger logger = LoggerFactory.getLogger(TransformationProfile.class);
 
     public static final String PROFILE_NAME = "Transformation";
     private final ProfileTypeUID profileTypeUID;
     private final TransformationService service;
 
-    private static String PATTERN_PARAM = "pattern";
+    private static final String PATTERN_PARAM = "pattern";
 
     @NonNullByDefault({})
     private final String function;
@@ -60,28 +60,18 @@ public class TransformationProfile implements StateProfile {
         this.callback = callback;
 
         Object paramValue = context.getConfiguration().get(PATTERN_PARAM);
-        logger.debug("Value for parameter '{}' is '{}'", PATTERN_PARAM, paramValue);
-        if (paramValue instanceof String) {
-            String pattern = (String) paramValue;
-            if (pattern.contains(TransformationHelper.FUNCTION_VALUE_DELIMITER)) {
-                function = pattern.split(TransformationHelper.FUNCTION_VALUE_DELIMITER)[0];
-                format = pattern.split(TransformationHelper.FUNCTION_VALUE_DELIMITER)[1];
-            } else {
-                logError();
-                function = null;
-                format = null;
-            }
+        logger.debug("Profile configured with '{}'='{}'", PATTERN_PARAM, paramValue);
+        if (paramValue instanceof String
+                && ((String) paramValue).contains(TransformationHelper.FUNCTION_VALUE_DELIMITER)) {
+            String[] parts = ((String) paramValue).split(TransformationHelper.FUNCTION_VALUE_DELIMITER);
+            function = parts[0];
+            format = parts[1];
         } else {
-            logError();
+            logger.warn("Parameter '{}' has to be a String containing separator '{}'. Profile will be inactive.",
+                    PATTERN_PARAM, TransformationHelper.FUNCTION_VALUE_DELIMITER);
             function = null;
             format = null;
-
         }
-    }
-
-    private void logError() {
-        logger.error("Parameter '{}' has to be a String containing separator '{}'. Profile will be inactive.",
-                PATTERN_PARAM, TransformationHelper.FUNCTION_VALUE_DELIMITER);
     }
 
     @Override
@@ -102,6 +92,10 @@ public class TransformationProfile implements StateProfile {
     @Override
     public void onCommandFromHandler(Command command) {
         if (function == null || format == null) {
+            logger.error(
+                    "Please specify a function and a format for this Profile in the '{}' parameter, e.g \"translation.map:%s\". Returning the original command now.",
+                    PATTERN_PARAM);
+            callback.sendCommand(command);
             return;
         }
         callback.sendCommand((Command) transformState(command));
@@ -110,28 +104,25 @@ public class TransformationProfile implements StateProfile {
     @Override
     public void onStateUpdateFromHandler(State state) {
         if (function == null || format == null) {
+            logger.error(
+                    "Please specify a function and a format for this Profile in the '{}' parameter, e.g \"translation.map:%s\". Returning the original state now.",
+                    PATTERN_PARAM);
+            callback.sendUpdate(state);
             return;
         }
         callback.sendUpdate((State) transformState(state));
     }
 
     private Type transformState(Type state) {
-        if (state instanceof StringType) {
-            String result = state.toFullString();
-            try {
-                String newFormat = String.format(format, state);
-                result = service.transform(function, newFormat);
-            } catch (TransformationException e) {
-                logger.debug("Could not transform state '{}' with function '{}' and format '{}'", state, function,
-                        format);
-            }
-            StringType resultType = new StringType(result);
-            logger.debug("Transformed '{}' into '{}'", state, resultType);
-            return resultType;
-        } else {
-            logger.debug("State '{}' is not of type StringType, skipping transformation.", state);
-            return state;
+        String result = state.toFullString();
+        try {
+            String newFormat = String.format(format, state);
+            result = service.transform(function, newFormat);
+        } catch (TransformationException e) {
+            logger.debug("Could not transform state '{}' with function '{}' and format '{}'", state, function, format);
         }
-
+        StringType resultType = new StringType(result);
+        logger.debug("Transformed '{}' into '{}'", state, resultType);
+        return resultType;
     }
 }

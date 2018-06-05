@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.core.thing.internal.profiles;
 
 import javax.measure.UnconvertibleException;
+import javax.measure.quantity.Dimensionless;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -41,7 +42,7 @@ import tec.uom.se.AbstractUnit;
 @NonNullByDefault
 public class SystemOffsetProfile implements StateProfile {
 
-    private static Logger logger = LoggerFactory.getLogger(SystemOffsetProfile.class);
+    private final Logger logger = LoggerFactory.getLogger(SystemOffsetProfile.class);
     private static final String OFFSET_PARAM = "offset";
 
     private final ProfileCallback callback;
@@ -55,12 +56,12 @@ public class SystemOffsetProfile implements StateProfile {
         this.context = context;
 
         Object paramValue = this.context.getConfiguration().get(OFFSET_PARAM);
-        logger.debug("Parameter '{}' has value '{}' ", OFFSET_PARAM, paramValue);
+        logger.debug("Configuring profile with {} parameter '{}'", OFFSET_PARAM, paramValue);
         if (paramValue instanceof String) {
             try {
                 offset = new QuantityType<>((String) paramValue);
             } catch (IllegalArgumentException e) {
-                logger.error("Cannot convert value '{}' of parameter '{}' into a valid offset of type QyantityType.",
+                logger.error("Cannot convert value '{}' of parameter '{}' into a valid offset of type QuantityType.",
                         paramValue, OFFSET_PARAM);
             }
         } else {
@@ -75,37 +76,34 @@ public class SystemOffsetProfile implements StateProfile {
 
     @Override
     public void onStateUpdateFromItem(State state) {
-        logger.debug("State update from item: '{}'", state);
         callback.handleCommand((Command) applyOffset(state, false));
     }
 
     @Override
     public void onCommandFromItem(Command command) {
-        logger.debug("Command from item: '{}'", command);
         callback.handleCommand((Command) applyOffset(command, false));
     }
 
     @Override
     public void onCommandFromHandler(Command command) {
-        logger.debug("Command from handler: '{}'", command);
         callback.sendCommand((Command) applyOffset(command, true));
     }
 
     @Override
     public void onStateUpdateFromHandler(State state) {
-        logger.debug("State update from handler: '{}'", state);
         callback.sendUpdate((State) applyOffset(state, true));
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private Type applyOffset(Type state, boolean towardsThing) {
+    private Type applyOffset(Type state, boolean towardsItem) {
         QuantityType finalOffset = offset;
         if (finalOffset == null) {
-            logger.error("Offset not configured correctly, returning undef state.");
-            return UnDefType.UNDEF;
+            logger.error(
+                    "Offset not configured correctly, please make sure it is of type QuantityType, e.g. \"3\", \"-1.4\", \"3.2°C\". Using offset 0 now.");
+            return new QuantityType<Dimensionless>("0");
         }
 
-        if (!towardsThing) {
+        if (!towardsItem) {
             finalOffset = finalOffset.negate();
         }
 
@@ -122,14 +120,15 @@ public class SystemOffsetProfile implements StateProfile {
                 }
                 result = qtState.add(finalOffset);
             } catch (UnconvertibleException e) {
-                logger.error("Cannot apply offset '{}' to state '{}' because types do not match.", finalOffset,
-                        qtState);
+                logger.warn("Cannot apply offset '{}' to state '{}' because types do not match.", finalOffset, qtState);
             }
         } else if (state instanceof DecimalType && finalOffset.getUnit().equals(AbstractUnit.ONE)) {
             DecimalType decState = (DecimalType) state;
             result = new DecimalType(decState.doubleValue() + finalOffset.doubleValue());
         } else {
-            logger.error("State '{}' of type '{}' is not applicable for this profile.", state, state.getClass());
+            logger.warn("State '{}' of type '{}' is not applicable for this profile, returning unchanged value.", state,
+                    state.getClass());
+            result = state;
         }
 
         return result;

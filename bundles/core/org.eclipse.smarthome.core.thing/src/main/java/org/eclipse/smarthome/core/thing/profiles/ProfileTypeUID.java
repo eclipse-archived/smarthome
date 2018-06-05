@@ -13,14 +13,12 @@
 package org.eclipse.smarthome.core.thing.profiles;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.UID;
 
 /**
  * Identifier of a profile type.
  *
  * @author Simon Kaufmann - initial contribution and API.
- * @author Stefan Triller - added equals method
  *
  */
 @NonNullByDefault
@@ -47,25 +45,6 @@ public class ProfileTypeUID extends UID {
 
     public String getId() {
         return getSegment(1);
-    }
-
-    @Override
-    public boolean equals(@Nullable Object obj) {
-        if (obj == null || !(obj instanceof ProfileTypeUID)) {
-            return false;
-        }
-
-        ProfileTypeUID other = (ProfileTypeUID) obj;
-
-        if (!getId().equals(other.getId())) {
-            return false;
-        }
-
-        if (!getScope().equals(other.getScope())) {
-            return false;
-        }
-
-        return true;
     }
 
 }

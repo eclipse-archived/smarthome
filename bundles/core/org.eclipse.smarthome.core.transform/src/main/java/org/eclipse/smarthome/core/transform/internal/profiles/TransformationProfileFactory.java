@@ -13,9 +13,9 @@
 package org.eclipse.smarthome.core.transform.internal.profiles;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -28,7 +28,6 @@ import org.eclipse.smarthome.core.thing.profiles.ProfileTypeBuilder;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeProvider;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
 import org.eclipse.smarthome.core.transform.TransformationService;
-import org.eclipse.smarthome.core.transform.profiles.TransformationProfiles;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -45,12 +44,10 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 public class TransformationProfileFactory implements ProfileFactory, ProfileTypeProvider {
 
     private static final String SERVICE_PROPERTY = "smarthome.transform";
+    private static final String SCOPE = "transform";
 
-    private final HashMap<ProfileTypeUID, ProfileType> supportedProfileTypes = new HashMap<>();
-
-    // private final Logger logger = LoggerFactory.getLogger(TransformationProfileFactory.class);
-
-    private final HashMap<ProfileTypeUID, TransformationService> transformationServices = new HashMap<>();
+    private final ConcurrentHashMap<ProfileTypeUID, ProfileType> supportedProfileTypes = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<ProfileTypeUID, TransformationService> transformationServices = new ConcurrentHashMap<>();
 
     @Override
     public Collection<ProfileType> getProfileTypes(@Nullable Locale locale) {
@@ -75,7 +72,7 @@ public class TransformationProfileFactory implements ProfileFactory, ProfileType
     private @Nullable ProfileTypeUID createTransformationProfileTypeUID(Map<String, Object> properties) {
         Object property = properties.get(SERVICE_PROPERTY);
         if (property instanceof String) {
-            return new ProfileTypeUID(TransformationProfiles.SCOPE, (String) property);
+            return new ProfileTypeUID(SCOPE, (String) property);
         }
         return null;
     }

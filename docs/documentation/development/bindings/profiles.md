@@ -105,10 +105,11 @@ If one device should "follow" the actions of another device, the FollowProfile c
 
 The `OffsetProfile` provides the possibility to adjust a value from a device before it arrives at the framework.
 An offset can be specified via the parameter `offset` which has to be a `QuantityType` or `DecimalType`.
-A positive offset is the amount of change from the device towards the framework and vice versa.
+A positive offset is the amount of change from the device towards the framework, i.e. all values from the device are increased by this offset and values sent to the device are decreased by this offset.
+A negative offset subtracts the offset from the value sent by the device to the framework and adds the offset to values sent from the framework to the device.
 
 ```java
-Number MyItem { channel="<bindingID>:<thing-typeID>:MyThing:myChannel"[profile="offset", pattern="<transformFunction>:<valueFormat>"]}
+Number <itemName> { channel="<bindingID>:<thing-typeID>:<thingName>:<channelName>"[profile="offset", offset="<value>"]}
 ```
 
 ### TransformationProfile
@@ -118,8 +119,8 @@ Each `TransformationService` is identified by a property called `smarthome.trans
 This property specifies the name of the transformation.
 The function and format of the value can be specified in the `pattern` parameter of the `TransformationProfile` as a string, separated by a colon.
 Note that these transformations are unidirectional, i.e. they are configured to transform the value send by a device towards the framework, only.
-Commands send by the framework towards the device are passed through the `Profile` without any adjustments.
+Commands sent by the framework towards the device are passed through the profile without any adjustments.
 
 ```java
-String MyItem { channel="<bindingID>:<thing-typeID>:MyThing:myChannel"[profile="transform:<transformationName>", pattern="<transformFunction>:<valueFormat>"]}
+String <itemName> { channel="<bindingID>:<thing-typeID>:<thingName>:<channelName>"[profile="transform:<transformationName>", pattern="<transformFunction>:<valueFormat>"]}
 ```
