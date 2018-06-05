@@ -34,7 +34,7 @@ public class ContentItem {
     private String itemName;
     private int presetID;
     @Expose
-    private Map<String, String> additionalAttributes;
+    private final Map<String, String> additionalAttributes;
 
     /**
      * Creates a new instance of this class
@@ -71,7 +71,7 @@ public class ContentItem {
         if (getOperationMode() == OperationModeType.STANDBY) {
             return true;
         }
-        if (itemName.equals("") || source.equals("")) {
+        if (itemName == null || source == null || itemName.equals("") || source.equals("")) {
             return false;
         } else {
             return true;
