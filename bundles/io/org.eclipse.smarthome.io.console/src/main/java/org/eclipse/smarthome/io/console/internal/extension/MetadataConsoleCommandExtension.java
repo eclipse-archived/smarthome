@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.Metadata;
 import org.eclipse.smarthome.core.items.MetadataKey;
@@ -113,7 +113,8 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
         }
     }
 
-    private boolean isInternal(@NonNull Metadata metadata, boolean internal) {
+    @NonNullByDefault
+    private boolean isInternal(Metadata metadata, boolean internal) {
         return metadataRegistry.isInternalNamespace(metadata.getUID().getNamespace()) == internal;
     }
 
