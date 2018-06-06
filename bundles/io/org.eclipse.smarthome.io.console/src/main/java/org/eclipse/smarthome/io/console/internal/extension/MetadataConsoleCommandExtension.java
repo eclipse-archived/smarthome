@@ -60,7 +60,7 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
                         "lists all available INTERNAL metadata, can be filtered for a specifc item and namespace"),
                 buildCommandUsage(SUBCMD_REMOVE + " <itemName> [<namespace>]",
                         "removes metadata for the specific item (for all namespaces or for the given namespace only)"),
-                buildCommandUsage(SUBCMD_ADD + " <itemName> <namespace> <value> [{key1=value1, key2=value2, ...}]",
+                buildCommandUsage(SUBCMD_ADD + " <itemName> <namespace> <value> [\"{key1=value1, key2=value2, ...}\"]",
                         "adds or updates metadata value (and optional config values) for the specific item in the given namespace") });
     }
 
@@ -139,11 +139,17 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
         if (config == null) {
             return null;
         }
+        String configStr = config;
+        if (configStr.startsWith("{") && configStr.endsWith("}")) {
+            configStr = configStr.substring(1, configStr.length() - 1);
+        }
 
         Map<String, Object> map = new HashMap<>();
-        for (String part : config.split("\\s*,\\s*")) {
+        for (String part : configStr.split("\\s*,\\s*")) {
             String[] subparts = part.split("=", 2);
-            map.put(subparts[0], subparts[1]);
+            if (subparts.length == 2 && subparts[0] != null && subparts[1] != null) {
+                map.put(subparts[0].trim(), subparts[1].trim());
+            }
         }
         return map;
     }
