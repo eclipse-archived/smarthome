@@ -32,8 +32,7 @@ import org.osgi.service.component.annotations.Deactivate;
  *
  * @author Laurent Garnier - Initial contribution
  */
-@Component(service = { DynamicStateDescriptionProvider.class,
-        SonosStateDescriptionOptionProvider.class }, immediate = true)
+@Component(service = { DynamicStateDescriptionProvider.class, SonosStateDescriptionOptionProvider.class })
 @NonNullByDefault
 public class SonosStateDescriptionOptionProvider implements DynamicStateDescriptionProvider {
     private final Map<ChannelUID, @Nullable List<StateOption>> channelOptionsMap = new ConcurrentHashMap<>();

@@ -408,35 +408,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 }
             }
 
-            if (service.equals("ContentDirectory") && variable.equals("SavedQueuesUpdateID")) {
-                List<StateOption> options = new ArrayList<>();
-                for (SonosEntry entry : getPlayLists()) {
-                    options.add(new StateOption(entry.getTitle(), entry.getTitle()));
-                }
-                stateDescriptionProvider.setStateOptions(new ChannelUID(getThing().getUID(), PLAYLIST), options);
-            }
-
-            if (service.equals("ContentDirectory") && variable.equals("FavoritesUpdateID")) {
-                List<StateOption> options = new ArrayList<>();
-                for (SonosEntry entry : getFavorites()) {
-                    options.add(new StateOption(entry.getTitle(), entry.getTitle()));
-                }
-                stateDescriptionProvider.setStateOptions(new ChannelUID(getThing().getUID(), FAVORITE), options);
-            }
-
-            // For favorite radios, we should have checked the state variable named RadioFavoritesUpdateID
-            // Due to a bug in the data type definition of this state variable, it is not set.
-            // As a workaround, we check the state variable named ContainerUpdateIDs.
-            if (service.equals("ContentDirectory") && variable.equals("ContainerUpdateIDs")) {
-                if (value.startsWith("R:0,") || stateDescriptionProvider
-                        .getStateOptions(new ChannelUID(getThing().getUID(), RADIO)) == null) {
-                    List<StateOption> options = new ArrayList<>();
-                    for (SonosEntry entry : getFavoriteRadios()) {
-                        options.add(new StateOption(entry.getTitle(), entry.getTitle()));
-                    }
-                    stateDescriptionProvider.setStateOptions(new ChannelUID(getThing().getUID(), RADIO), options);
-                }
-            }
+            List<StateOption> options = new ArrayList<>();
 
             // update the appropriate channel
             switch (variable) {
@@ -541,6 +513,30 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     break;
                 case "CurrentTuneInStationId":
                     updateChannel(TUNEINSTATIONID);
+                    break;
+                case "SavedQueuesUpdateID": // service ContentDirectoy
+                    for (SonosEntry entry : getPlayLists()) {
+                        options.add(new StateOption(entry.getTitle(), entry.getTitle()));
+                    }
+                    stateDescriptionProvider.setStateOptions(new ChannelUID(getThing().getUID(), PLAYLIST), options);
+                    break;
+                case "FavoritesUpdateID": // service ContentDirectoy
+                    for (SonosEntry entry : getFavorites()) {
+                        options.add(new StateOption(entry.getTitle(), entry.getTitle()));
+                    }
+                    stateDescriptionProvider.setStateOptions(new ChannelUID(getThing().getUID(), FAVORITE), options);
+                    break;
+                // For favorite radios, we should have checked the state variable named RadioFavoritesUpdateID
+                // Due to a bug in the data type definition of this state variable, it is not set.
+                // As a workaround, we check the state variable named ContainerUpdateIDs.
+                case "ContainerUpdateIDs": // service ContentDirectoy
+                    if (value.startsWith("R:0,") || stateDescriptionProvider
+                            .getStateOptions(new ChannelUID(getThing().getUID(), RADIO)) == null) {
+                        for (SonosEntry entry : getFavoriteRadios()) {
+                            options.add(new StateOption(entry.getTitle(), entry.getTitle()));
+                        }
+                        stateDescriptionProvider.setStateOptions(new ChannelUID(getThing().getUID(), RADIO), options);
+                    }
                     break;
                 default:
                     break;
