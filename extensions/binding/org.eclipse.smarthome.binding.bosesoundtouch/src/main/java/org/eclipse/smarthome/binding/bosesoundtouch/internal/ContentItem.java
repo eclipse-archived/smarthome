@@ -71,7 +71,7 @@ public class ContentItem {
         if (getOperationMode() == OperationModeType.STANDBY) {
             return true;
         }
-        if (itemName == null || source == null || itemName.equals("") || source.equals("")) {
+        if (itemName == null || source == null || itemName.isEmpty() || source.isEmpty()) {
             return false;
         } else {
             return true;
