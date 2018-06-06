@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.core.thing.internal.profiles;
 
+import java.math.BigDecimal;
+
 import javax.measure.UnconvertibleException;
 import javax.measure.quantity.Dimensionless;
 
@@ -64,8 +66,16 @@ public class SystemOffsetProfile implements StateProfile {
                 logger.error("Cannot convert value '{}' of parameter '{}' into a valid offset of type QuantityType.",
                         paramValue, OFFSET_PARAM);
             }
+        } else if (paramValue instanceof BigDecimal) {
+            BigDecimal bd = (BigDecimal) paramValue;
+            try {
+                offset = new QuantityType<>(bd.toString());
+            } catch (IllegalArgumentException e) {
+                logger.error("Cannot convert value '{}' of parameter '{}' into a valid offset of type QuantityType.",
+                        paramValue, OFFSET_PARAM);
+            }
         } else {
-            logger.error("Parameter '{}' is not of type String", OFFSET_PARAM);
+            logger.error("Parameter '{}' is not of type String or BigDecimal", OFFSET_PARAM);
         }
     }
 
@@ -126,8 +136,9 @@ public class SystemOffsetProfile implements StateProfile {
             DecimalType decState = (DecimalType) state;
             result = new DecimalType(decState.doubleValue() + finalOffset.doubleValue());
         } else {
-            logger.warn("State '{}' of type '{}' is not applicable for this profile, returning unchanged value.", state,
-                    state.getClass());
+            logger.warn(
+                    "Offset '{}' has a unit, but the binding only sends states without units (DecimalTypes). Returning original state.",
+                    offset);
             result = state;
         }
 
