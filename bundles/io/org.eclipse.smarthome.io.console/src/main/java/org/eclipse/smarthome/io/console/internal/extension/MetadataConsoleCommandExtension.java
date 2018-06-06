@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.Metadata;
 import org.eclipse.smarthome.core.items.MetadataKey;
@@ -36,6 +37,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Andre Fuechsel - Initial contribution
  *
  */
+@NonNullByDefault
 @Component(service = ConsoleCommandExtension.class)
 public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
@@ -44,8 +46,8 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
     private static final String SUBCMD_ADD = "add";
     private static final String SUBCMD_REMOVE = "remove";
 
-    private MetadataRegistry metadataRegistry;
-    private ItemRegistry itemRegistry;
+    private @NonNullByDefault({}) MetadataRegistry metadataRegistry;
+    private @NonNullByDefault({}) ItemRegistry itemRegistry;
 
     public MetadataConsoleCommandExtension() {
         super("metadata", "Access the metadata registry.");
@@ -95,7 +97,8 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
         }
     }
 
-    private void listMetadata(Console console, String itemName, String namespace, boolean internal) {
+    private void listMetadata(Console console, @Nullable String itemName, @Nullable String namespace,
+            boolean internal) {
         if (itemName == null) {
             metadataRegistry.stream().filter(m -> isInternal(m, internal)).map(Metadata::toString)
                     .forEach(console::println);
@@ -113,12 +116,12 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
         }
     }
 
-    @NonNullByDefault
     private boolean isInternal(Metadata metadata, boolean internal) {
         return metadataRegistry.isInternalNamespace(metadata.getUID().getNamespace()) == internal;
     }
 
-    private void addMetadata(Console console, String itemName, String namespace, String value, String config) {
+    private void addMetadata(Console console, String itemName, String namespace, String value,
+            @Nullable String config) {
         if (itemRegistry.get(itemName) == null) {
             console.println("Item " + itemName + " does not exist.");
         } else {
@@ -135,7 +138,7 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
         }
     }
 
-    private Map<String, Object> getConfigMap(String config) {
+    private @Nullable Map<String, Object> getConfigMap(@Nullable String config) {
         if (config == null) {
             return null;
         }
@@ -148,7 +151,7 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
         return map;
     }
 
-    private void removeMetadata(Console console, String itemName, String namespace) {
+    private void removeMetadata(Console console, String itemName, @Nullable String namespace) {
         if (itemRegistry.get(itemName) == null) {
             console.println("Warning: Item " + itemName + " does not exist, removing metadata anyway.");
         }
