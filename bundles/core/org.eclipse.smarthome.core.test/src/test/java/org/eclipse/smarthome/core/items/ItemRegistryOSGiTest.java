@@ -12,17 +12,20 @@
  */
 package org.eclipse.smarthome.core.items;
 
+import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
-import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.items.events.ItemAddedEvent;
 import org.eclipse.smarthome.core.items.events.ItemRemovedEvent;
@@ -35,8 +38,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import com.google.common.collect.Sets;
+import org.mockito.Mock;
 
 /**
  * The {@link ItemRegistryOSGiTest} runs inside an OSGi container and tests the {@link ItemRegistry}.
@@ -59,8 +61,11 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
     private ItemRegistry itemRegistry;
     private ManagedItemProvider itemProvider;
 
+    private @Mock EventSubscriber eventSubscriber;
+
     @Before
     public void setUp() {
+        initMocks(this);
         registerVolatileStorageService();
 
         itemRegistry = getService(ItemRegistry.class);
@@ -268,35 +273,46 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
     }
 
     @Test
-    public void assertItemRegistryEventSubscribersReceiveEventsAboutItemChanges() {
-        EventSubscriber eventSubscriber = mock(EventSubscriber.class);
-        when(eventSubscriber.getSubscribedEventTypes())
-                .thenReturn(Sets.newHashSet(ItemAddedEvent.TYPE, ItemRemovedEvent.TYPE, ItemUpdatedEvent.TYPE));
-
+    public void testItemAddedEvent() {
+        when(eventSubscriber.getSubscribedEventTypes()).thenReturn(Stream.of(ItemAddedEvent.TYPE).collect(toSet()));
         registerService(eventSubscriber);
 
-        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        Item item = new SwitchItem("SomeSwitch");
+        itemRegistry.add(item);
 
-        // add new item
-        itemProvider.add(new SwitchItem("SomeSwitch"));
-        waitForAssert(() -> {
-            verify(eventSubscriber, times(1)).receive(eventCaptor.capture());
-        });
-        assertThat(eventCaptor.getValue(), is(instanceOf(ItemAddedEvent.class)));
+        waitForAssert(() -> verify(eventSubscriber).receive(isA(ItemAddedEvent.class)));
+    }
 
-        // update item
-        itemProvider.update(new SwitchItem("SomeSwitch"));
-        waitForAssert(() -> {
-            verify(eventSubscriber, times(2)).receive(eventCaptor.capture());
-        });
-        assertThat(eventCaptor.getValue(), is(instanceOf(ItemUpdatedEvent.class)));
+    @Test
+    public void testItemUpdatedEvent() {
+        itemRegistry.add(new SwitchItem("SomeSwitch"));
 
-        // remove item
-        itemProvider.remove(new SwitchItem("SomeSwitch").getUID());
-        waitForAssert(() -> {
-            verify(eventSubscriber, times(3)).receive(eventCaptor.capture());
-        });
-        assertThat(eventCaptor.getValue(), is(instanceOf(ItemRemovedEvent.class)));
+        when(eventSubscriber.getSubscribedEventTypes()).thenReturn(Stream.of(ItemUpdatedEvent.TYPE).collect(toSet()));
+        registerService(eventSubscriber);
+
+        SwitchItem item = new SwitchItem("SomeSwitch");
+        item.addTag(OTHER_TAG);
+        itemRegistry.update(item);
+
+        ArgumentCaptor<ItemUpdatedEvent> captor = ArgumentCaptor.forClass(ItemUpdatedEvent.class);
+        waitForAssert(() -> verify(eventSubscriber).receive(captor.capture()));
+        assertTrue(captor.getValue().getItem().tags.contains(OTHER_TAG));
+    }
+
+    @Test
+    public void testItemRemovedEvent() {
+        SwitchItem item = new SwitchItem("SomeSwitch");
+        item.addTag(OTHER_TAG);
+        itemRegistry.add(item);
+
+        when(eventSubscriber.getSubscribedEventTypes()).thenReturn(Stream.of(ItemRemovedEvent.TYPE).collect(toSet()));
+        registerService(eventSubscriber);
+
+        itemRegistry.remove("SomeSwitch");
+
+        ArgumentCaptor<ItemRemovedEvent> captor = ArgumentCaptor.forClass(ItemRemovedEvent.class);
+        waitForAssert(() -> verify(eventSubscriber).receive(captor.capture()));
+        assertTrue(captor.getValue().getItem().tags.contains(OTHER_TAG));
     }
 
     @Test
