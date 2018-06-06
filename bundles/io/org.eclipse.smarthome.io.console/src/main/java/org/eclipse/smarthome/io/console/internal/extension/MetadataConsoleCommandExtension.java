@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.items.ItemRegistry;
@@ -61,7 +60,7 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
                         "lists all available INTERNAL metadata, can be filtered for a specifc item and namespace"),
                 buildCommandUsage(SUBCMD_REMOVE + " <itemName> [<namespace>]",
                         "removes metadata for the specific item (for all namespaces or for the given namespace only)"),
-                buildCommandUsage(SUBCMD_ADD + " <itemName> <namespace> <value> [{key1=value1, key2=value2, ...}]",
+                buildCommandUsage(SUBCMD_ADD + " <itemName> <namespace> <value> [\"{key1=value1, key2=value2, ...}\"]",
                         "adds or updates metadata value (and optional config values) for the specific item in the given namespace") });
     }
 
@@ -80,9 +79,7 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
                     if (args.length < 4) {
                         printUsage(console);
                     } else {
-                        addMetadata(console, args[1], args[2], args[3],
-                                args.length > 4 ? Arrays.stream(args, 4, args.length).collect(Collectors.joining())
-                                        : null);
+                        addMetadata(console, args[1], args[2], args[3], args.length > 4 ? args[4] : null);
                     }
                     break;
                 case SUBCMD_REMOVE:
