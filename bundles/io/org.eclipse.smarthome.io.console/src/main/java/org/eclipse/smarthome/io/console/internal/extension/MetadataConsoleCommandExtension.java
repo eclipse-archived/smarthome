@@ -143,11 +143,8 @@ public class MetadataConsoleCommandExtension extends AbstractConsoleCommandExten
             return null;
         }
         String configStr = config;
-        if (configStr.startsWith("{")) {
-            configStr = configStr.substring(1, configStr.length());
-        }
-        if (configStr.endsWith("}")) {
-            configStr = configStr.substring(0, configStr.length() - 1);
+        if (configStr.startsWith("{") && configStr.endsWith("}")) {
+            configStr = configStr.substring(1, configStr.length() - 1);
         }
 
         Map<String, Object> map = new HashMap<>();
