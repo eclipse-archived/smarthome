@@ -99,9 +99,8 @@ public class TransformationProfileTest {
         ArgumentCaptor<Command> captur = ArgumentCaptor.forClass(Command.class);
         verify(callback, times(1)).sendCommand(captur.capture());
 
-        // we expect input as output because types different from StringType are left untouched by the profile
-        assertTrue(captur.getValue() instanceof DecimalType);
-        assertEquals("23", captur.getValue().toFullString());
+        assertTrue(captur.getValue() instanceof StringType);
+        assertEquals("TransformedValue", captur.getValue().toFullString());
     }
 
     @Test
