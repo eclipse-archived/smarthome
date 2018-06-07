@@ -150,7 +150,7 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
                 services = mdnsClient.list(participant.getServiceType(), FOREGROUND_SCAN_TIMEOUT);
             }
             logger.debug("{} services found for {}; duration: {}ms", services.length, participant.getServiceType(),
-                    (System.currentTimeMillis() - start));
+                    System.currentTimeMillis() - start);
             for (ServiceInfo service : services) {
                 DiscoveryResult result = participant.createResult(service);
                 if (result != null) {
@@ -167,7 +167,7 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
                 services = mdnsClient.list(participant.getServiceType(), FOREGROUND_SCAN_TIMEOUT);
             }
             logger.debug("{} services found for {}; duration: {}ms", services.length, participant.getServiceType(),
-                    (System.currentTimeMillis() - start));
+                    System.currentTimeMillis() - start);
             for (ServiceInfo service : services) {
                 DiscoveryResult result = participant.createResult(service);
                 if (result != null) {
