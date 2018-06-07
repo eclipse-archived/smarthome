@@ -13,10 +13,11 @@
 package org.eclipse.smarthome.storage.json.internal;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
@@ -52,6 +53,25 @@ public class JsonStorageServiceOSGiTest extends JavaOSGiTest {
 
         // clean up database files ...
         FileUtils.deleteDirectory(new File("./runtime"));
+    }
+
+    @Test
+    public void testOnlyAlphanumericCharsInFileName() throws UnsupportedEncodingException {
+        JsonStorageService st = (JsonStorageService) storageService;
+
+        String escaped = st.urlEscapeUnwantedChars("Strange:File-Name~with#Chars");
+        assertEquals("Strange%3AFile-Name%7Ewith%23Chars", escaped);
+
+        // test cut after 127 chars
+        escaped = st.urlEscapeUnwantedChars(
+                "AveryLongFileNameThatNeverEndsAveryLongFileNameThatNeverEndsAveryLongFileNameThatNeverEndsAveryLongFileNameThatNeverEndsAveryLongFileNameThatNeverEnds.json");
+        assertEquals(
+                "AveryLongFileNameThatNeverEndsAveryLongFileNameThatNeverEndsAveryLongFileNameThatNeverEndsAveryLongFileNameThatNeverEndsAveryLo",
+                escaped);
+
+        // test with valid file name
+        escaped = st.urlEscapeUnwantedChars("Allowed.File.Name123");
+        assertEquals("Allowed.File.Name123", escaped);
     }
 
     @Test
@@ -113,7 +133,7 @@ public class JsonStorageServiceOSGiTest extends JavaOSGiTest {
     }
 
     public static class DummyObject {
-        private Configuration configuration = new Configuration();
+        private final Configuration configuration = new Configuration();
     }
 
     public static class PersistedItem {
