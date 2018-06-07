@@ -123,10 +123,12 @@ public class SystemOffsetProfile implements StateProfile {
             QuantityType qtState = (QuantityType) state;
             try {
                 if (finalOffset.getUnit() == AbstractUnit.ONE) {
-                    // allow offsets without unit -> implicitly assume its the same as the one from the state
-                    // TODO: do we want this? User would have to look up the original unit on the channel in the
-                    // binding...
+                    // allow offsets without unit -> implicitly assume its the same as the one from the state, but warn
+                    // the user
                     finalOffset = new QuantityType<>(finalOffset.toBigDecimal(), qtState.getUnit());
+                    logger.warn(
+                            "Received a QuantityType state '{}' with unit, but the offset is defined as a plain number without unit ({}), please consider adding a unit to the profile offset.",
+                            state, offset);
                 }
                 result = qtState.add(finalOffset);
             } catch (UnconvertibleException e) {
@@ -137,8 +139,8 @@ public class SystemOffsetProfile implements StateProfile {
             result = new DecimalType(decState.doubleValue() + finalOffset.doubleValue());
         } else {
             logger.warn(
-                    "Offset '{}' has a unit, but the binding only sends states without units (DecimalTypes). Returning original state.",
-                    offset);
+                    "Offset '{}' cannot be applied to the incompatible state '{}' sent from the binding. Returning original state.",
+                    offset, state);
             result = state;
         }
 
