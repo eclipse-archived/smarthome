@@ -19,9 +19,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.Collections;
 
-import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.items.ManagedMetadataProvider;
 import org.eclipse.smarthome.core.items.Metadata;
 import org.eclipse.smarthome.core.items.MetadataKey;
@@ -44,15 +42,11 @@ public class MetadataRegistryImplTest {
     @SuppressWarnings("rawtypes")
     private @Mock ServiceReference managedProviderRef;
     private @Mock BundleContext bundleContext;
-    private @Mock ManagedItemProvider itemProvider;
     private @Mock ManagedMetadataProvider managedProvider;
     private @Mock Item item;
 
-    private ServiceListener providerTracker;
-
     private MetadataRegistryImpl registry;
-
-    private ProviderChangeListener<Item> providerChangeListener;
+    private ServiceListener providerTracker;
 
     @Before
     @SuppressWarnings("unchecked")
@@ -65,7 +59,6 @@ public class MetadataRegistryImplTest {
 
         registry = new MetadataRegistryImpl();
 
-        registry.setManagedItemProvider(itemProvider);
         registry.setManagedProvider(managedProvider);
         registry.activate(bundleContext);
 
@@ -74,26 +67,6 @@ public class MetadataRegistryImplTest {
         providerTracker = captor.getValue();
         providerTracker.serviceChanged(new ServiceEvent(ServiceEvent.REGISTERED, managedProviderRef));
 
-        ArgumentCaptor<ProviderChangeListener<Item>> captorChangeListener = ArgumentCaptor
-                .forClass(ProviderChangeListener.class);
-        verify(itemProvider).addProviderChangeListener(captorChangeListener.capture());
-        providerChangeListener = captorChangeListener.getValue();
-    }
-
-    @Test
-    public void testManagedItemProviderChangeListenerRegistration() {
-        verify(itemProvider).addProviderChangeListener(any());
-        verifyNoMoreInteractions(itemProvider);
-
-        registry.unsetManagedItemProvider(itemProvider);
-        verify(itemProvider).removeProviderChangeListener(any());
-        verifyNoMoreInteractions(itemProvider);
-    }
-
-    @Test
-    public void testRemoved() {
-        providerChangeListener.removed(itemProvider, item);
-        verify(managedProvider).removeItemMetadata(eq(ITEM_NAME));
     }
 
     @Test
@@ -118,6 +91,16 @@ public class MetadataRegistryImplTest {
         assertEquals("value", res.getValue());
         assertEquals("namespace", res.getUID().getNamespace());
         assertEquals("itemName", res.getUID().getItemName());
+    }
+
+    @Test
+    public void testRemoveItemMetadata() {
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+
+        registry.removeItemMetadata("itemName");
+
+        verify(managedProvider).removeItemMetadata(captor.capture());
+        assertEquals("itemName", captor.getValue());
     }
 
 }

@@ -556,6 +556,11 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         for (RegistryHook<Item> registryHook : registryHooks) {
             registryHook.afterRemoving(element);
         }
+        if (provider instanceof ManagedItemProvider) {
+            // remove our metadata for that item
+            logger.debug("Item {} was removed, trying to clean up corresponding metadata", element.getUID());
+            metadataRegistry.removeItemMetadata(element.getName());
+        }
     }
 
     @Override
