@@ -12,11 +12,12 @@
  */
 package org.eclipse.smarthome.core.thing.internal.profiles;
 
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.thing.CommonTriggerEvents;
 import org.eclipse.smarthome.core.thing.profiles.ProfileCallback;
 import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
@@ -51,15 +52,26 @@ public class RawButtonToggleSwitchProfileTest {
     }
 
     @Test
+    public void testDimmerItem() {
+        TriggerProfile profile = new RawButtonToggleSwitchProfile(mockCallback);
+        verifyAction(profile, UnDefType.NULL, OnOffType.ON);
+        verifyAction(profile, PercentType.HUNDRED, OnOffType.OFF);
+        verifyAction(profile, PercentType.ZERO, OnOffType.ON);
+        verifyAction(profile, new PercentType(50), OnOffType.OFF);
+    }
+
+    @Test
     public void testColorItem() {
         TriggerProfile profile = new RawButtonToggleSwitchProfile(mockCallback);
         verifyAction(profile, UnDefType.NULL, OnOffType.ON);
         verifyAction(profile, HSBType.WHITE, OnOffType.OFF);
         verifyAction(profile, HSBType.BLACK, OnOffType.ON);
+        verifyAction(profile, new HSBType("0,50,50"), OnOffType.OFF);
     }
 
     private void verifyAction(TriggerProfile profile, State preCondition, Command expectation) {
         reset(mockCallback);
+        profile.onStateUpdateFromItem(preCondition);
         profile.onTriggerFromHandler(CommonTriggerEvents.PRESSED);
         verify(mockCallback, times(1)).sendCommand(eq(expectation));
     }
