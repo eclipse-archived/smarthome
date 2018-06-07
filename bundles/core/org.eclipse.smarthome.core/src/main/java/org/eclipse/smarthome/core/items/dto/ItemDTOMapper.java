@@ -14,7 +14,6 @@ package org.eclipse.smarthome.core.items.dto;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.measure.Quantity;
 
@@ -22,12 +21,11 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.internal.items.GroupFunctionHelper;
-import org.eclipse.smarthome.core.items.ActiveItem;
-import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.items.ItemFactory;
+import org.eclipse.smarthome.core.items.ItemBuilder;
+import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
@@ -49,50 +47,46 @@ public class ItemDTOMapper {
      * Maps item DTO into item object.
      *
      * @param itemDTO the DTO
-     * @param itemFactories the item factories in order to create the items
+     * @param itemRegistry the item registry
      * @return the item object
      */
-    public static @Nullable ActiveItem map(ItemDTO itemDTO, Set<ItemFactory> itemFactories) {
+    public static @Nullable Item map(ItemDTO itemDTO, ItemRegistry itemRegistry) {
         if (itemDTO == null) {
             throw new IllegalArgumentException("The argument 'itemDTO' must no be null.");
         }
-        if (itemFactories == null) {
-            throw new IllegalArgumentException("The argument 'itemFactories' must no be null.");
+        if (itemRegistry == null) {
+            throw new IllegalArgumentException("The argument 'itemRegistry' must no be null.");
         }
 
-        GenericItem newItem = null;
         if (itemDTO.type != null) {
-            if (itemDTO instanceof GroupItemDTO && itemDTO.type.equals(GroupItem.TYPE)) {
+            ItemBuilder builder = itemRegistry.newItemBuilder(itemDTO.type, itemDTO.name);
+
+            if (itemDTO instanceof GroupItemDTO && GroupItem.TYPE.equals(itemDTO.type)) {
                 GroupItemDTO groupItemDTO = (GroupItemDTO) itemDTO;
-                GenericItem baseItem = null;
+                Item baseItem = null;
                 if (!StringUtils.isEmpty(groupItemDTO.groupType)) {
-                    baseItem = createItem(groupItemDTO.groupType, itemDTO.name, itemFactories);
+                    baseItem = itemRegistry.newItemBuilder(groupItemDTO.groupType, itemDTO.name).build();
+                    builder.withBaseItem(baseItem);
                 }
                 GroupFunction function = new GroupFunction.Equality();
                 if (groupItemDTO.function != null) {
                     function = mapFunction(baseItem, groupItemDTO.function);
                 }
-                newItem = new GroupItem(itemDTO.name, baseItem, function);
-            } else {
-                String itemType = itemDTO.type;
-                newItem = createItem(itemType, itemDTO.name, itemFactories);
+                builder.withGroupFunction(function);
             }
-            if (newItem != null) {
-                if (itemDTO.label != null) {
-                    newItem.setLabel(itemDTO.label);
-                }
-                if (itemDTO.category != null) {
-                    newItem.setCategory(itemDTO.category);
-                }
-                if (itemDTO.groupNames != null) {
-                    newItem.addGroupNames(itemDTO.groupNames);
-                }
-                if (itemDTO.tags != null) {
-                    newItem.addTags(itemDTO.tags);
-                }
+
+            builder.withLabel(itemDTO.label);
+            builder.withCategory(itemDTO.category);
+            builder.withGroups(itemDTO.groupNames);
+            builder.withTags(itemDTO.tags);
+            try {
+                return builder.build();
+            } catch (IllegalStateException e) {
+                return null;
             }
         }
-        return newItem;
+
+        return null;
     }
 
     public static GroupFunction mapFunction(@Nullable Item baseItem, GroupFunctionDTO function) {
@@ -179,24 +173,6 @@ public class ItemDTOMapper {
         }
 
         return dto;
-    }
-
-    /**
-     * helper: Create new item with name and type
-     *
-     * @param itemType type of the item
-     * @param itemname name of the item
-     * @return the newly created item
-     */
-    private static @Nullable GenericItem createItem(String itemType, String itemname, Set<ItemFactory> itemFactories) {
-        GenericItem newItem = null;
-        for (ItemFactory itemFactory : itemFactories) {
-            newItem = itemFactory.createItem(itemType, itemname);
-            if (newItem != null) {
-                break;
-            }
-        }
-        return newItem;
     }
 
 }

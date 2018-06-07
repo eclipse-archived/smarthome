@@ -48,7 +48,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.core.events.EventPublisher;
-import org.eclipse.smarthome.core.items.ActiveItem;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
@@ -616,8 +615,7 @@ public class ItemResource implements RESTResource {
             return Response.status(Status.BAD_REQUEST).build();
         }
 
-        ActiveItem newItem = createActiveItem(item);
-
+        Item newItem = ItemDTOMapper.map(item, itemRegistry);
         if (newItem == null) {
             logger.warn("Received HTTP PUT request at '{}' with an invalid item type '{}'.", uriInfo.getPath(),
                     item.type);
@@ -660,10 +658,10 @@ public class ItemResource implements RESTResource {
         }
 
         List<GroupItemDTO> wrongTypes = new ArrayList<>();
-        List<ActiveItem> activeItems = new ArrayList<>();
+        List<Item> activeItems = new ArrayList<>();
 
         for (GroupItemDTO item : items) {
-            ActiveItem newItem = createActiveItem(item);
+            Item newItem = ItemDTOMapper.map(item, itemRegistry);
             if (newItem == null) {
                 wrongTypes.add(item);
             } else {
@@ -671,11 +669,11 @@ public class ItemResource implements RESTResource {
             }
         }
 
-        List<ActiveItem> createdItems = new ArrayList<>();
-        List<ActiveItem> updatedItems = new ArrayList<>();
-        List<ActiveItem> failedItems = new ArrayList<>();
+        List<Item> createdItems = new ArrayList<>();
+        List<Item> updatedItems = new ArrayList<>();
+        List<Item> failedItems = new ArrayList<>();
 
-        for (ActiveItem activeItem : activeItems) {
+        for (Item activeItem : activeItems) {
             String itemName = activeItem.getName();
             if (getItem(itemName) == null) {
                 // item does not yet exist, create it
@@ -699,34 +697,17 @@ public class ItemResource implements RESTResource {
             responseList.add(buildStatusObject(item.name, "error", "Received HTTP PUT request at '" + uriInfo.getPath()
                     + "' with an invalid item type '" + item.type + "'."));
         }
-        for (ActiveItem item : failedItems) {
+        for (Item item : failedItems) {
             responseList.add(buildStatusObject(item.getName(), "error", "Cannot update non-managed item"));
         }
-        for (ActiveItem item : createdItems) {
+        for (Item item : createdItems) {
             responseList.add(buildStatusObject(item.getName(), "created", null));
         }
-        for (ActiveItem item : updatedItems) {
+        for (Item item : updatedItems) {
             responseList.add(buildStatusObject(item.getName(), "updated", null));
         }
 
         return JSONResponse.createResponse(Status.OK, responseList, null);
-    }
-
-    private @Nullable ActiveItem createActiveItem(GroupItemDTO item) {
-        ActiveItem activeItem = ItemDTOMapper.map(item, itemFactories);
-        if (activeItem != null) {
-            activeItem.setLabel(item.label);
-            if (item.category != null) {
-                activeItem.setCategory(item.category);
-            }
-            if (item.groupNames != null) {
-                activeItem.addGroupNames(item.groupNames);
-            }
-            if (item.tags != null) {
-                activeItem.addTags(item.tags);
-            }
-        }
-        return activeItem;
     }
 
     private JsonObject buildStatusObject(String itemName, String status, @Nullable String message) {
