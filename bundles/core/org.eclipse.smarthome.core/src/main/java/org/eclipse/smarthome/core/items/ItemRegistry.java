@@ -170,4 +170,21 @@ public interface ItemRegistry extends Registry<Item, String> {
      */
     boolean removeTags(String itemName);
 
+    /**
+     * Create a new {@link ItemBuilder}, which is initialized by the given item.
+     *
+     * @param item the template to initialize the builder with
+     * @return an ItemBuilder instance
+     */
+    ItemBuilder newItemBuilder(Item item);
+
+    /**
+     * Create a new {@link ItemBuilder}, which is initialized by the given item.
+     *
+     * @param itemType the item type to create
+     * @param itemName the name of the item to create
+     * @return an ItemBuilder instance
+     */
+    ItemBuilder newItemBuilder(String itemType, String itemName);
+
 }

@@ -36,6 +36,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.ItemBuilder;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
@@ -1374,6 +1375,24 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             return itemRegistry.removeTags(itemName);
         } else {
             return false;
+        }
+    }
+
+    @Override
+    public ItemBuilder newItemBuilder(Item item) {
+        if (itemRegistry != null) {
+            return itemRegistry.newItemBuilder(item);
+        } else {
+            throw new IllegalStateException("Cannot create an item builder without the item registry");
+        }
+    }
+
+    @Override
+    public ItemBuilder newItemBuilder(String itemType, String itemName) {
+        if (itemRegistry != null) {
+            return itemRegistry.newItemBuilder(itemType, itemName);
+        } else {
+            throw new IllegalStateException("Cannot create an item builder without the item registry");
         }
     }
 
