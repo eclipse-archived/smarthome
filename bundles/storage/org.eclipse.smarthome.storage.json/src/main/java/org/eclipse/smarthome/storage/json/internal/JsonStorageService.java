@@ -13,6 +13,8 @@
 package org.eclipse.smarthome.storage.json.internal;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +32,8 @@ import org.slf4j.LoggerFactory;
  * @author Chris Jackson - Initial Contribution
  */
 public class JsonStorageService implements StorageService {
+
+    private static final int MAX_FILENAME_LENGTH = 127;
 
     private final Logger logger = LoggerFactory.getLogger(JsonStorageService.class);
 
@@ -98,8 +102,13 @@ public class JsonStorageService implements StorageService {
 
     @Override
     public <T> Storage<T> getStorage(String name, ClassLoader classLoader) {
-        File file = new File(dbFolderName, name + ".json");
+        File legacyFile = new File(dbFolderName, name + ".json");
+        File escapedFile = new File(dbFolderName, urlEscapeUnwantedChars(name) + ".json");
 
+        File file = escapedFile;
+        if (legacyFile.exists()) {
+            file = legacyFile;
+        }
         if (!storageList.containsKey(name)) {
             storageList.put(name, (JsonStorage<Object>) new JsonStorage<T>(file, classLoader, maxBackupFiles,
                     writeDelay, maxDeferredPeriod));
@@ -110,5 +119,23 @@ public class JsonStorageService implements StorageService {
     @Override
     public <T> Storage<T> getStorage(String name) {
         return getStorage(name, null);
+    }
+
+    /**
+     * Escapes all invalid url characters and strips the maximum length to 127 to be used as a file name
+     *
+     * @param s the string to be escaped
+     * @return url-encoded string or the original string if UTF-8 is not supported on the system
+     */
+    protected String urlEscapeUnwantedChars(String s) {
+        String result;
+        try {
+            result = URLEncoder.encode(s, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            logger.warn("Encoding UTF-8 is not supported, might generate invalid filenames.");
+            result = s;
+        }
+        int length = Math.min(result.length(), MAX_FILENAME_LENGTH);
+        return result.substring(0, length);
     }
 }
