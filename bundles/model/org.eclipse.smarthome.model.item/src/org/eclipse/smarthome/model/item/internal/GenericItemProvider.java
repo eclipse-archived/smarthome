@@ -29,6 +29,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractProvider;
+import org.eclipse.smarthome.core.items.ActiveItem;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -249,10 +250,10 @@ public class GenericItemProvider extends AbstractProvider<Item>
     }
 
     private Item createItemFromModelItem(ModelItem modelItem) {
-        GenericItem item = null;
+        Item item = null;
         if (modelItem instanceof ModelGroupItem) {
             ModelGroupItem modelGroupItem = (ModelGroupItem) modelItem;
-            GenericItem baseItem;
+            Item baseItem;
             try {
                 baseItem = createItemOfType(modelGroupItem.getType(), modelGroupItem.getName());
             } catch (IllegalArgumentException e) {
@@ -277,7 +278,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
                 return null;
             }
         }
-        if (item != null) {
+        if (item != null && item instanceof ActiveItem) {
             String label = modelItem.getLabel();
             String format = extractFormat(label);
             if (format != null) {
@@ -285,8 +286,8 @@ public class GenericItemProvider extends AbstractProvider<Item>
                 stateDescriptionFragments.put(modelItem.getName(),
                         StateDescriptionFragmentBuilder.create().withPattern(format).build());
             }
-            item.setLabel(label);
-            item.setCategory(modelItem.getIcon());
+            ((ActiveItem) item).setLabel(label);
+            ((ActiveItem) item).setCategory(modelItem.getIcon());
             return item;
         } else {
             return null;
@@ -304,8 +305,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
         return format;
     }
 
-    private GroupItem applyGroupFunction(GenericItem baseItem, ModelGroupItem modelGroupItem,
-            ModelGroupFunction function) {
+    private GroupItem applyGroupFunction(Item baseItem, ModelGroupItem modelGroupItem, ModelGroupFunction function) {
         GroupFunctionDTO dto = new GroupFunctionDTO();
         dto.name = function.getName();
         dto.params = modelGroupItem.getArgs().toArray(new String[modelGroupItem.getArgs().size()]);
@@ -523,13 +523,13 @@ public class GenericItemProvider extends AbstractProvider<Item>
      *
      * @return An Item instance of type {@code itemType} or null if no item factory for it was found.
      */
-    private GenericItem createItemOfType(String itemType, String itemName) {
+    private Item createItemOfType(String itemType, String itemName) {
         if (itemType == null) {
             return null;
         }
 
         for (ItemFactory factory : itemFactorys) {
-            GenericItem item = factory.createItem(itemType, itemName);
+            Item item = factory.createItem(itemType, itemName);
             if (item != null) {
                 logger.trace("Created item '{}' of type '{}'", itemName, itemType);
                 return item;

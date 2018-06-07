@@ -34,7 +34,6 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
-import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
@@ -1222,7 +1221,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     }
 
     @Override
-    public <T extends GenericItem> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags) {
+    public <T extends Item> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags) {
         if (itemRegistry != null) {
             return itemRegistry.getItemsByTag(typeFilter, tags);
         } else {

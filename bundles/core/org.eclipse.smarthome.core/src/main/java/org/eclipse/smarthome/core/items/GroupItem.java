@@ -43,7 +43,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 
     private final Logger logger = LoggerFactory.getLogger(GroupItem.class);
 
-    protected @Nullable final GenericItem baseItem;
+    protected @Nullable final Item baseItem;
 
     protected final CopyOnWriteArrayList<Item> members;
 
@@ -58,7 +58,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         this(name, null, null);
     }
 
-    public GroupItem(String name, @Nullable GenericItem baseItem) {
+    public GroupItem(String name, @Nullable Item baseItem) {
         // only baseItem but no function set -> use Equality
         this(name, baseItem, new GroupFunction.Equality());
     }
@@ -70,7 +70,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      * @param baseItem type of items in the group
      * @param function function to calculate group status out of member status
      */
-    public GroupItem(String name, @Nullable GenericItem baseItem, @Nullable GroupFunction function) {
+    public GroupItem(String name, @Nullable Item baseItem, @Nullable GroupFunction function) {
         super(TYPE, name);
 
         // we only allow GroupItem with BOTH, baseItem AND function set, or NONE of them set
@@ -223,8 +223,8 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     @Override
     public void setUnitProvider(@Nullable UnitProvider unitProvider) {
         super.setUnitProvider(unitProvider);
-        if (baseItem != null) {
-            baseItem.setUnitProvider(unitProvider);
+        if (baseItem != null && baseItem instanceof GenericItem) {
+            ((GenericItem) baseItem).setUnitProvider(unitProvider);
         }
     }
 
@@ -310,9 +310,9 @@ public class GroupItem extends GenericItem implements StateChangeListener {
             newState = function.getStateAs(getStateMembers(getMembers()), typeClass);
         }
 
-        if (newState == null && baseItem != null) {
+        if (newState == null && baseItem != null && baseItem instanceof GenericItem) {
             // we use the transformation method from the base item
-            baseItem.setState(state);
+            ((GenericItem) baseItem).setState(state);
             newState = baseItem.getStateAs(typeClass);
         }
         if (newState == null) {
@@ -381,8 +381,8 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     @Override
     public void setState(State state) {
         State oldState = this.state;
-        if (baseItem != null) {
-            baseItem.setState(state);
+        if (baseItem != null && baseItem instanceof GenericItem) {
+            ((GenericItem) baseItem).setState(state);
             this.state = baseItem.getState();
         } else {
             this.state = state;

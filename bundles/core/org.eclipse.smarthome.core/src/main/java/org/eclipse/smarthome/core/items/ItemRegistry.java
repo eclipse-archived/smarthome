@@ -105,8 +105,7 @@ public interface ItemRegistry extends Registry<Item, String> {
      * @return list of items which contains all of the given tags, which is
      *         filtered by the given type filter.
      */
-    public @NonNull <T extends GenericItem> Collection<T> getItemsByTag(@NonNull Class<T> typeFilter,
-            @NonNull String... tags);
+    public @NonNull <T extends Item> Collection<T> getItemsByTag(@NonNull Class<T> typeFilter, @NonNull String... tags);
 
     /**
      * @see ManagedItemProvider#remove(String, boolean)

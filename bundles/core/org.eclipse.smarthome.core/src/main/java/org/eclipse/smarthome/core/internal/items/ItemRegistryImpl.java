@@ -397,7 +397,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends GenericItem> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags) {
+    public <T extends Item> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags) {
         Collection<T> filteredItems = new ArrayList<T>();
 
         Collection<Item> items = getItemsByTag(tags);
