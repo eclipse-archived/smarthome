@@ -40,6 +40,8 @@ public class NumberExtensionsTest {
     private static final QuantityType<Temperature> Q_CELSIUS_1 = new QuantityType<Temperature>("1 °C");
     private static final QuantityType<Temperature> Q_CELSIUS_2 = new QuantityType<Temperature>("2 °C");
 
+    private static final QuantityType<Temperature> Q_KELVIN = new QuantityType<Temperature>("1 K");
+
     private static final QuantityType<Length> Q_LENGTH_1m = new QuantityType<Length>("1 m");
     private static final QuantityType<Length> Q_LENGTH_2cm = new QuantityType<Length>("2 cm");
 
@@ -59,6 +61,11 @@ public class NumberExtensionsTest {
     @Test
     public void operatorPlus_Quantity_Quantity() {
         assertThat(NumberExtensions.operator_plus(Q_CELSIUS_1, Q_CELSIUS_2), is(QuantityType.valueOf("3 °C")));
+    }
+
+    @Test
+    public void operatorPlus_Quantity_Quantity_withDifferentUnit() {
+        assertThat(NumberExtensions.operator_plus(Q_CELSIUS_1, Q_KELVIN), is(QuantityType.valueOf("2 °C")));
     }
 
     @Test
