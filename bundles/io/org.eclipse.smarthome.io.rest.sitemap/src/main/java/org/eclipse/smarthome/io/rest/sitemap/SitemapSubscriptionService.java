@@ -23,7 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.smarthome.config.core.ConfigurableService;
 import org.eclipse.smarthome.io.rest.sitemap.internal.PageChangeListener;
 import org.eclipse.smarthome.io.rest.sitemap.internal.SitemapEvent;
 import org.eclipse.smarthome.model.core.EventType;
@@ -33,7 +32,6 @@ import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapProvider;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
-import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -54,11 +52,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
-@Component(service = SitemapSubscriptionService.class, configurationPid = "org.eclipse.smarthome.rest.sitemap", property = {
-        Constants.SERVICE_PID + "=org.eclipse.smarthome.rest.sitemap",
-        ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI + "=rest:sitemap",
-        ConfigurableService.SERVICE_PROPERTY_CATEGORY + "=REST",
-        ConfigurableService.SERVICE_PROPERTY_LABEL + "=REST Sitemap" })
+@Component(service = SitemapSubscriptionService.class, configurationPid = "org.eclipse.smarthome.sitemapsubscription")
 public class SitemapSubscriptionService implements ModelRepositoryChangeListener {
 
     private static final String SITEMAP_PAGE_SEPARATOR = "#";
@@ -116,7 +110,11 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
         }
         final String max = Objects.toString(config.get("maxSubscriptions"), null);
         if (max != null) {
-            maxSubscriptions = Integer.parseInt(max);
+            try {
+                maxSubscriptions = Integer.parseInt(max);
+            } catch (NumberFormatException e) {
+                logger.debug("Setting 'maxSubscriptions' must be a number; value '{}' ignored.", max);
+            }
         }
     }
 

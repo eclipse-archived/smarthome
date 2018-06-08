@@ -248,11 +248,12 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
     @Path(SEGMENT_EVENTS + "/subscribe")
     @ApiOperation(value = "Creates a sitemap event subscription.")
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Subscription created."),
-            @ApiResponse(code = 403, message = "Subscriptions limit reached.") })
+            @ApiResponse(code = 503, message = "Subscriptions limit reached.") })
     public Object createEventSubscription() {
         String subscriptionId = subscriptions.createSubscription(this);
         if (subscriptionId == null) {
-            return JSONResponse.createResponse(Status.FORBIDDEN, null, "Max number of subscriptions is reached.");
+            return JSONResponse.createResponse(Status.SERVICE_UNAVAILABLE, null,
+                    "Max number of subscriptions is reached.");
         }
         final EventOutput eventOutput = new SitemapEventOutput(subscriptions, subscriptionId);
         broadcaster.add(eventOutput);
