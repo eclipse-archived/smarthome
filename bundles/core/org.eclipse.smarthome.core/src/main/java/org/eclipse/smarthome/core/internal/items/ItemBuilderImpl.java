@@ -12,7 +12,6 @@
  */
 package org.eclipse.smarthome.core.internal.items;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -43,7 +42,6 @@ public class ItemBuilderImpl implements ItemBuilder {
 
     private @Nullable String category;
     private List<String> groups = Collections.emptyList();
-    private List<String> tags = Collections.emptyList();
     private @Nullable String label;
     private @Nullable Item baseItem;
     private @Nullable GroupFunction groupFunction;
@@ -84,12 +82,6 @@ public class ItemBuilderImpl implements ItemBuilder {
     }
 
     @Override
-    public ItemBuilder withGroups(String... groups) {
-        this.groups = Arrays.asList(groups);
-        return this;
-    }
-
-    @Override
     public ItemBuilder withCategory(@Nullable String category) {
         this.category = category;
         return this;
@@ -114,21 +106,6 @@ public class ItemBuilderImpl implements ItemBuilder {
     }
 
     @Override
-    public ItemBuilder withTags(String... tags) {
-        return this;
-    }
-
-    @Override
-    public ItemBuilder withTags(@Nullable Collection<String> tags) {
-        if (tags != null) {
-            this.tags = new LinkedList<>(tags);
-        } else {
-            this.tags = Collections.emptyList();
-        }
-        return this;
-    }
-
-    @Override
     public Item build() {
         Item item = null;
         if (GroupItem.TYPE.equals(itemType)) {
@@ -136,6 +113,9 @@ public class ItemBuilderImpl implements ItemBuilder {
         } else {
             for (ItemFactory itemFactory : itemFactories) {
                 item = itemFactory.createItem(itemType, name);
+                if (item != null) {
+                    break;
+                }
             }
         }
         if (item == null) {
@@ -146,7 +126,6 @@ public class ItemBuilderImpl implements ItemBuilder {
             activeItem.setLabel(label);
             activeItem.setCategory(category);
             activeItem.addGroupNames(groups);
-            activeItem.addTags(tags);
         }
         return item;
     }

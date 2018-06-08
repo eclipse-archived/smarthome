@@ -78,7 +78,6 @@ public class ItemDTOMapper {
             builder.withLabel(itemDTO.label);
             builder.withCategory(itemDTO.category);
             builder.withGroups(itemDTO.groupNames);
-            builder.withTags(itemDTO.tags);
             try {
                 return builder.build();
             } catch (IllegalStateException e) {

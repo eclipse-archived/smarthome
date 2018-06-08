@@ -470,7 +470,7 @@ public class ItemResource implements RESTResource {
             logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return Response.status(Status.NOT_FOUND).build();
         }
-
+        itemRegistry.removeTags(itemname);
         return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
@@ -626,11 +626,14 @@ public class ItemResource implements RESTResource {
         if (getItem(itemname) == null) {
             // item does not yet exist, create it
             managedItemProvider.add(newItem);
-            return getItemResponse(Status.CREATED, newItem, locale, null);
+            itemRegistry.addTags(itemname, item.tags);
+            return getItemResponse(Status.CREATED, itemRegistry.get(itemname), locale, null);
         } else if (managedItemProvider.get(itemname) != null) {
             // item already exists as a managed item, update it
             managedItemProvider.update(newItem);
-            return getItemResponse(Status.OK, newItem, locale, null);
+            itemRegistry.removeTags(itemname);
+            itemRegistry.addTags(itemname, item.tags);
+            return getItemResponse(Status.OK, itemRegistry.get(itemname), locale, null);
         } else {
             // Item exists but cannot be updated
             logger.warn("Cannot update existing item '{}', because is not managed.", itemname);
@@ -659,11 +662,13 @@ public class ItemResource implements RESTResource {
 
         List<GroupItemDTO> wrongTypes = new ArrayList<>();
         List<Item> activeItems = new ArrayList<>();
+        Map<String, Collection<String>> tagMap = new HashMap<>();
 
         for (GroupItemDTO item : items) {
             Item newItem = ItemDTOMapper.map(item, itemRegistry);
             if (newItem == null) {
                 wrongTypes.add(item);
+                tagMap.put(item.name, item.tags);
             } else {
                 activeItems.add(newItem);
             }
@@ -678,10 +683,13 @@ public class ItemResource implements RESTResource {
             if (getItem(itemName) == null) {
                 // item does not yet exist, create it
                 managedItemProvider.add(activeItem);
+                itemRegistry.addTags(itemName, tagMap.get(itemName));
                 createdItems.add(activeItem);
             } else if (managedItemProvider.get(itemName) != null) {
                 // item already exists as a managed item, update it
                 managedItemProvider.update(activeItem);
+                itemRegistry.removeTags(itemName);
+                itemRegistry.addTags(itemName, tagMap.get(itemName));
                 updatedItems.add(activeItem);
             } else {
                 // Item exists but cannot be updated

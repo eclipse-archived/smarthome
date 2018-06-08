@@ -81,7 +81,7 @@ public class ItemBuilderTest {
 
         Item res = itemRegistry.newItemBuilder("String", "test") //
                 .withCategory("category") //
-                .withGroups("a", "b") //
+                .withGroups(Arrays.asList("a", "b")) //
                 .withLabel("label") //
                 .build();
 
@@ -99,7 +99,7 @@ public class ItemBuilderTest {
 
         Item resItem = itemRegistry.newItemBuilder("Group", "test") //
                 .withCategory("category") //
-                .withGroups("a", "b") //
+                .withGroups(Arrays.asList("a", "b")) //
                 .withLabel("label") //
                 .withBaseItem(baseItem)//
                 .withGroupFunction(mockFunction) //

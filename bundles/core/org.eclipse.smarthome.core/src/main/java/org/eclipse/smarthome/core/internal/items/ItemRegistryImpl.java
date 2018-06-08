@@ -477,6 +477,9 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     @Override
     public boolean addTags(String itemName, Collection<String> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return false;
+        }
         tagLock.writeLock().lock();
         try {
             SortedSet<String> itemTags = readTags(itemName);
@@ -495,6 +498,9 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     @Override
     public boolean removeTags(String itemName, Collection<String> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return false;
+        }
         tagLock.writeLock().lock();
         try {
             SortedSet<String> itemTags = readTags(itemName);

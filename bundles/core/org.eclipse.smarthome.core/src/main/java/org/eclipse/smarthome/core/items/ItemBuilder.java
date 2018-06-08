@@ -51,14 +51,6 @@ public interface ItemBuilder {
     ItemBuilder withGroups(@Nullable Collection<String> groups);
 
     /**
-     * Set the group membership of the item.
-     *
-     * @param groups the group names the item belongs to
-     * @return the builder itself
-     */
-    ItemBuilder withGroups(String... groups);
-
-    /**
      * Set the category of the item.
      *
      * @param category the category
@@ -83,11 +75,5 @@ public interface ItemBuilder {
      * @throws IllegalArgumentException in case this is not a group item
      */
     ItemBuilder withGroupFunction(@Nullable GroupFunction function);
-
-    @Deprecated
-    ItemBuilder withTags(String... tags);
-
-    @Deprecated
-    ItemBuilder withTags(@Nullable Collection<String> tags);
 
 }
