@@ -2285,7 +2285,7 @@
       version="JavaSE-1.8"
       location="${jre.location-1.8}"/>
   <project name="core"
-      label="Runtime and Designer">
+      label="Runtime">
     <setupTask
         xsi:type="git:GitCloneTask"
         id="git.clone.eclipsesmarthome"
@@ -2376,7 +2376,7 @@
       <repository
           url="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/"/>
       <repository
-          url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.7/"/>
+          url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.8"/>
     </setupTask>
     <setupTask
         xsi:type="projects:ProjectsImportTask">
