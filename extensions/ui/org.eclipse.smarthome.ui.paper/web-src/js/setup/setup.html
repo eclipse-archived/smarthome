@@ -26,7 +26,7 @@
 	<div ng-controller="SetupWizardBindingsController" class="white-bg" ng-if="page === 'setup' && path[3] === 'bindings'">
 		<div class="section-header"></div>
 		<div class="container selection-list">
-			<div ng-repeat="binding in data.bindings" ng-click="selectBinding(binding.id)">
+			<div ng-repeat="binding in data.bindings | orderBy:'name'" ng-click="selectBinding(binding.id)">
 				<div layout="row">
 					<div flex="90">
 						<h3>{{binding.name}}</h3>
