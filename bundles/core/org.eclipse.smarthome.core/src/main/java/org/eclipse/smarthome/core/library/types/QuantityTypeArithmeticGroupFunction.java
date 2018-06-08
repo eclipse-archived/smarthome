@@ -20,6 +20,7 @@ import javax.measure.Quantity;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.items.GroupFunction;
+import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.types.State;
@@ -56,6 +57,13 @@ public interface QuantityTypeArithmeticGroupFunction extends GroupFunction {
             return new State[0];
         }
 
+        protected boolean isSameDimension(Item item) {
+            if (item instanceof GroupItem) {
+                return isSameDimension(((GroupItem) item).getBaseItem());
+            }
+            return item instanceof NumberItem && dimension.equals(((NumberItem) item).getDimension());
+        }
+
     }
 
     /**
@@ -77,7 +85,7 @@ public interface QuantityTypeArithmeticGroupFunction extends GroupFunction {
             QuantityType<?> sum = null;
             int count = 0;
             for (Item item : items) {
-                if (item instanceof NumberItem && dimension.equals(((NumberItem) item).getDimension())) {
+                if (isSameDimension(item)) {
                     QuantityType itemState = item.getStateAs(QuantityType.class);
                     if (itemState != null) {
                         if (sum == null) {
@@ -119,7 +127,7 @@ public interface QuantityTypeArithmeticGroupFunction extends GroupFunction {
 
             QuantityType<?> sum = null;
             for (Item item : items) {
-                if (item instanceof NumberItem && dimension.equals(((NumberItem) item).getDimension())) {
+                if (isSameDimension(item)) {
                     QuantityType itemState = item.getStateAs(QuantityType.class);
                     if (itemState != null) {
                         if (sum == null) {
@@ -154,7 +162,7 @@ public interface QuantityTypeArithmeticGroupFunction extends GroupFunction {
 
             QuantityType<?> min = null;
             for (Item item : items) {
-                if (item instanceof NumberItem && dimension.equals(((NumberItem) item).getDimension())) {
+                if (isSameDimension(item)) {
                     QuantityType itemState = item.getStateAs(QuantityType.class);
                     if (itemState != null) {
                         if (min == null
@@ -187,7 +195,7 @@ public interface QuantityTypeArithmeticGroupFunction extends GroupFunction {
 
             QuantityType<?> max = null;
             for (Item item : items) {
-                if (item instanceof NumberItem && dimension.equals(((NumberItem) item).getDimension())) {
+                if (isSameDimension(item)) {
                     QuantityType itemState = item.getStateAs(QuantityType.class);
                     if (itemState != null) {
                         if (max == null

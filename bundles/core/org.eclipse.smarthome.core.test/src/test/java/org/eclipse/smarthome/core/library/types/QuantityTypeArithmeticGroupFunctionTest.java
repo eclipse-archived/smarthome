@@ -20,11 +20,13 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.measure.Quantity;
+import javax.measure.quantity.Power;
 import javax.measure.quantity.Pressure;
 import javax.measure.quantity.Temperature;
 
 import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.items.GroupFunction;
+import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.items.NumberItem;
@@ -216,11 +218,29 @@ public class QuantityTypeArithmeticGroupFunctionTest {
         assertEquals(new QuantityType<Temperature>("23.54 °C"), state);
     }
 
+    @Test
+    public void testSumFunctionQuantityTypeWithGroups() {
+        items.add(createNumberItem("TestItem1", Power.class, new QuantityType<Power>("5 W")));
+        items.add(createGroupItem("TestGroup1", Power.class, new QuantityType<Power>("5 W")));
+
+        function = new QuantityTypeArithmeticGroupFunction.Sum(Power.class);
+        State state = function.calculate(items);
+
+        assertEquals(new QuantityType<Power>("10 W"), state);
+    }
+
     private NumberItem createNumberItem(String name, Class<? extends Quantity<?>> dimension, State state) {
         NumberItem item = new NumberItem(CoreItemFactory.NUMBER + ":" + dimension.getSimpleName(), name);
         item.setUnitProvider(unitProvider);
         item.setState(state);
+        return item;
+    }
 
+    private GroupItem createGroupItem(String name, Class<? extends Quantity<?>> dimension, State state) {
+        GroupItem item = new GroupItem(name,
+                new NumberItem(CoreItemFactory.NUMBER + ":" + dimension.getSimpleName(), name));
+        item.setUnitProvider(unitProvider);
+        item.setState(state);
         return item;
     }
 
