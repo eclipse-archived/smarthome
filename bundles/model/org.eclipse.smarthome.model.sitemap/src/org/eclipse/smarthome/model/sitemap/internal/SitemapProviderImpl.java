@@ -19,6 +19,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.smarthome.model.core.EventType;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
@@ -103,7 +104,11 @@ public class SitemapProviderImpl implements SitemapProvider, ModelRepositoryChan
             if (type == EventType.REMOVED) {
                 sitemapModelCache.remove(modelName);
             } else {
-                sitemapModelCache.put(modelName, (Sitemap) modelRepo.getModel(modelName));
+                EObject sitemap = modelRepo.getModel(modelName);
+                // if the sitemap file is empty it will not be in the repo and thus there is no need to cache it here
+                if (sitemap instanceof Sitemap) {
+                    sitemapModelCache.put(modelName, (Sitemap) sitemap);
+                }
             }
         }
         for (ModelRepositoryChangeListener listener : modelChangeListeners) {
