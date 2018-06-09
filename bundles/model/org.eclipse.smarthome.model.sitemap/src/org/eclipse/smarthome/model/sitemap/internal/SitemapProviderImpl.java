@@ -107,7 +107,7 @@ public class SitemapProviderImpl implements SitemapProvider, ModelRepositoryChan
                 EObject sitemap = modelRepo.getModel(modelName);
                 // if the sitemap file is empty it will not be in the repo and thus there is no need to cache it here
                 if (sitemap instanceof Sitemap) {
-                    sitemapModelCache.put(modelName, (Sitemap) modelRepo.getModel(modelName));
+                    sitemapModelCache.put(modelName, (Sitemap) sitemap);
                 }
             }
         }
