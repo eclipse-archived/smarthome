@@ -11,7 +11,7 @@
 		</div>
 	</div>
 	<div class="row" ng-show="!path[4] && showMore" class="searchBox" search-filters>
-		<md-autocomplete md-no-cache config='{"index":0,"targetField":"bindingType","sourceField":"id"}' class="col-xs-12 md-filter" md-min-length="0" md-selected-item="selectedOptions[0].value" md-item-text="binding.name" md-search-text="searchType" md-items="binding in searchInOptions(bindings,['name'],searchType)" placeholder="Filter by binding"> <md-item-template> <span md-highlight-text="searchType" md-highlight-flags="^i">{{binding.name}}</span> </md-item-template> <md-not-found> No matches found. </md-not-found> </md-autocomplete>
+		<md-autocomplete md-no-cache config='{"index":0,"targetField":"bindingType","sourceField":"id"}' class="col-xs-12 md-filter" md-min-length="0" md-selected-item="selectedOptions[0].value" md-item-text="binding.name" md-search-text="searchType" md-items="binding in searchInOptions(bindings,['name'],searchType) | orderBy:'name'" placeholder="Filter by binding"> <md-item-template> <span md-highlight-text="searchType" md-highlight-flags="^i">{{binding.name}}</span> </md-item-template> <md-not-found> No matches found. </md-not-found> </md-autocomplete>
 	</div>
 	<div class="fab-item" ng-class="{'container':!path[4],'inboxContainer':!path[4]}" ng-repeat="discoveryResult in data.discoveryResults | filter:filter | filter:filterItems(['label','thingUID']) | orderBy:['label','flag']">
 		<md-button title="Add" class="md-fab green" ng-click="approve(discoveryResult.thingUID,discoveryResult.thingTypeUID, $event)" aria-label="Approve"> <i class="material-icons">done</i></md-button>
