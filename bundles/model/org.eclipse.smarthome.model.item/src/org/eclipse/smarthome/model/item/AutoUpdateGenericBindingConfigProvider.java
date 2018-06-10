@@ -20,6 +20,8 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
 import org.osgi.service.component.annotations.Component;
@@ -43,7 +45,8 @@ import org.osgi.service.component.annotations.Component;
  * @author Kai Kreuzer - made it independent from parent abstract classes
  *
  */
-@Component()
+@NonNullByDefault
+@Component
 public class AutoUpdateGenericBindingConfigProvider implements AutoUpdateBindingConfigProvider, BindingConfigReader {
 
     /** caches binding configurations. maps itemNames to {@link BindingConfig}s */
@@ -83,7 +86,7 @@ public class AutoUpdateGenericBindingConfigProvider implements AutoUpdateBinding
 
     protected void parseBindingConfig(String bindingConfig, AutoUpdateBindingConfig config)
             throws BindingConfigParseException {
-        if (bindingConfig != null && !bindingConfig.trim().isEmpty()) {
+        if (!bindingConfig.trim().isEmpty()) {
             try {
                 config.autoupdate = Boolean.valueOf(bindingConfig.trim());
             } catch (IllegalArgumentException iae) {
@@ -94,7 +97,7 @@ public class AutoUpdateGenericBindingConfigProvider implements AutoUpdateBinding
     }
 
     @Override
-    public Boolean autoUpdate(String itemName) {
+    public @Nullable Boolean autoUpdate(String itemName) {
         AutoUpdateBindingConfig config = bindingConfigs.get(itemName);
         return config != null ? config.autoupdate : null;
     }
