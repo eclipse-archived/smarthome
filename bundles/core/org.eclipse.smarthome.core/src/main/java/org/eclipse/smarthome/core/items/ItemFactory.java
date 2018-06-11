@@ -31,7 +31,7 @@ public interface ItemFactory {
      * @return a new Item of type <code>itemTypeName</code> or <code>null</code> if no matching class is known.
      */
     @Nullable
-    GenericItem createItem(@Nullable String itemTypeName, String itemName);
+    Item createItem(@Nullable String itemTypeName, String itemName);
 
     /**
      * Returns the list of all supported ItemTypes of this Factory.
