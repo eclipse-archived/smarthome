@@ -41,6 +41,7 @@
     <feature>esh-base</feature>
     <feature>esh-io-transport-http</feature>
     <feature>esh-io-transport-mdns</feature>
+    <feature>esh-io-transport-http</feature>
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.bosesoundtouch/${project.version}</bundle>
   </feature>
 
