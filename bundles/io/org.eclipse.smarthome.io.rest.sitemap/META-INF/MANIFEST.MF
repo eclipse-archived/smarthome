@@ -18,6 +18,7 @@ Import-Package:
  org.eclipse.emf.common.util,
  org.eclipse.emf.ecore,
  org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.auth,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.items.dto,
@@ -31,5 +32,6 @@ Import-Package:
  org.eclipse.smarthome.ui.items,
  org.glassfish.jersey.media.sse,
  org.glassfish.jersey.server,
+ org.osgi.framework,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
