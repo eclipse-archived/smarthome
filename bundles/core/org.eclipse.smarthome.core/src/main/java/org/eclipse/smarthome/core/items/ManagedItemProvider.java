@@ -121,9 +121,9 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
         return memberNames;
     }
 
-    private GenericItem createItem(@NonNull String itemType, @NonNull String itemName) {
+    private Item createItem(@NonNull String itemType, @NonNull String itemName) {
         for (ItemFactory factory : this.itemFactories) {
-            GenericItem item = factory.createItem(itemType, itemName);
+            Item item = factory.createItem(itemType, itemName);
             if (item != null) {
                 return item;
             }
@@ -156,10 +156,10 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
                 Entry<String, PersistedItem> entry = iterator.next();
                 String itemName = entry.getKey();
                 PersistedItem persistedItem = entry.getValue();
-                ActiveItem item = itemFactory.createItem(persistedItem.itemType, itemName);
-                if (item != null) {
+                Item item = itemFactory.createItem(persistedItem.itemType, itemName);
+                if (item != null && item instanceof ActiveItem) {
                     iterator.remove();
-                    configureItem(persistedItem, item);
+                    configureItem(persistedItem, (ActiveItem) item);
                     notifyListenersAboutAddedElement(item);
                 } else {
                     logger.debug("The added item factory '{}' still could not instantiate item '{}'.", itemFactory,
@@ -189,11 +189,11 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
     @Override
     protected Item toElement(String itemName, PersistedItem persistedItem) {
-        ActiveItem item = null;
+        Item item = null;
 
         if (persistedItem.itemType.equals(ITEM_TYPE_GROUP)) {
             if (persistedItem.baseItemType != null) {
-                GenericItem baseItem = createItem(persistedItem.baseItemType, itemName);
+                Item baseItem = createItem(persistedItem.baseItemType, itemName);
                 if (persistedItem.functionName != null) {
                     GroupFunction function = getGroupFunction(persistedItem, baseItem);
                     item = new GroupItem(itemName, baseItem, function);
@@ -207,7 +207,9 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
             item = createItem(persistedItem.itemType, itemName);
         }
 
-        configureItem(persistedItem, item);
+        if (item != null && item instanceof ActiveItem) {
+            configureItem(persistedItem, (ActiveItem) item);
+        }
 
         if (item == null) {
             failedToCreate.put(itemName, persistedItem);
@@ -218,7 +220,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
         return item;
     }
 
-    private GroupFunction getGroupFunction(PersistedItem persistedItem, GenericItem baseItem) {
+    private GroupFunction getGroupFunction(PersistedItem persistedItem, Item baseItem) {
         GroupFunctionDTO functionDTO = new GroupFunctionDTO();
         functionDTO.name = persistedItem.functionName;
         if (persistedItem.functionParams != null) {
