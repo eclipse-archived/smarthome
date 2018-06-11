@@ -591,7 +591,7 @@
 		};
 		_t.valueMap = {};
 		_t.buttons = [].slice.call(_t.parentNode.querySelectorAll(o.controlButton));
-		_t.setValuePrivate = function(value) {
+		_t.setValuePrivate = function(value, itemState) {
 			if (_t.hasValue) {
 				_t.value.innerHTML = value;
 			}
@@ -608,9 +608,9 @@
 			_t.reset();
 			if (
 				(_t.valueMap !== undefined) &&
-				(_t.valueMap[value] !== undefined)
+				(_t.valueMap[itemState] !== undefined)
 			) {
-				_t.valueMap[value].classList.add(o.buttonActiveClass);
+				_t.valueMap[itemState].classList.add(o.buttonActiveClass);
 			}
 		};
 
