@@ -115,10 +115,6 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
                     String unit = getUnitForWidget(w);
                     command = StringUtils.replace(command, UnitUtils.UNIT_PLACEHOLDER, unit);
                     label = StringUtils.replace(label, UnitUtils.UNIT_PLACEHOLDER, unit);
-
-                    // Special treatment for °C since uom library uses a single character: ℃
-                    // This will ensure the current state matches the cmd and the buttonClass is set accordingly.
-                    command = StringUtils.replace(command, "°C", "℃");
                 }
 
                 button = StringUtils.replace(button, "%item%", w.getItem());

@@ -38,6 +38,7 @@ import tec.uom.se.quantity.QuantityDimension;
 /**
  * @author Gaël L'hopital - initial contribution
  */
+@SuppressWarnings({ "rawtypes", "unchecked", "null" })
 public class QuantityTypeTest {
 
     @Before
@@ -190,7 +191,7 @@ public class QuantityTypeTest {
     public void toFullStringShouldParseToEqualState() {
         QuantityType<Temperature> temp = new QuantityType<>("20 °C");
 
-        assertThat(temp.toFullString(), is("20 ℃"));
+        assertThat(temp.toFullString(), is("20 °C"));
         assertThat(QuantityType.valueOf(temp.toFullString()), is(temp));
     }
 
