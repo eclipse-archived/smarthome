@@ -131,7 +131,6 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
     protected void addSitemapProvider(SitemapProvider provider) {
         sitemapProviders.add(provider);
         provider.addModelChangeListener(this);
-
     }
 
     protected void removeSitemapProvider(SitemapProvider provider) {
