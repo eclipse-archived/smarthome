@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
 import org.eclipse.smarthome.test.OSGiTest;
 import org.eclipse.smarthome.test.internal.java.MissingServiceAnalyzer;
@@ -306,7 +307,7 @@ public class JavaOSGiTest extends JavaTest {
         registerService(new AutoUpdateBindingConfigProvider() {
 
             @Override
-            public Boolean autoUpdate(String itemName) {
+            public @Nullable Boolean autoUpdate(String itemName) {
                 return false;
             }
         });
