@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('PaperUI.controllers.rules', [ 'PaperUI.controllers.extension' ])//
+angular.module('PaperUI.controllers.rules', [ 'ui.sortable', 'PaperUI.controllers.extension' ])//
 .controller('RulesPageController', function($scope, $location, $mdDialog, toastService, $timeout, templateRepository) {
     $scope.navigateTo = function(path) {
         $location.path('rules/' + path);

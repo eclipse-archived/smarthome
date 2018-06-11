@@ -94,11 +94,10 @@ var paths = {
     ],
     JQUI: [{
         'src' : [
-             './node_modules/jquery-ui/ui/data.js',
-             './node_modules/jquery-ui/ui/scroll-parent.js',
+             './node_modules/jquery-ui/ui/core.js',
              './node_modules/jquery-ui/ui/widget.js',
-             './node_modules/jquery-ui/ui/widgets/mouse.js',
-             './node_modules/jquery-ui/ui/widgets/sortable.js',
+             './node_modules/jquery-ui/ui/mouse.js',
+             './node_modules/jquery-ui/ui/sortable.js',
         ],
         'name': 'jquery-ui.js'
     }],
@@ -144,7 +143,6 @@ gulp.task('copyJSLibs', function () {
 gulp.task('copyJQUI', function() {
     return paths.JQUI.forEach(function (obj) {
         return gulp.src(obj.src)
-            //.pipe(angularFilesort())
             .pipe(concat(obj.name))
             .pipe(rename(function (path) {
                 path.basename += '.min';
