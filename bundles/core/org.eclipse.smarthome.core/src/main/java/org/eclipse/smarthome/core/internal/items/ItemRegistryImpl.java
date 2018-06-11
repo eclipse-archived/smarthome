@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
@@ -36,6 +37,8 @@ import org.eclipse.smarthome.core.items.ActiveItem;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.ItemBuilder;
+import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemProvider;
@@ -82,6 +85,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     private StateDescriptionService stateDescriptionService;
     private MetadataRegistry metadataRegistry;
+    private final Set<ItemFactory> itemFactories = new CopyOnWriteArraySet<>();
 
     private UnitProvider unitProvider;
     private ItemStateConverter itemStateConverter;
@@ -397,7 +401,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends GenericItem> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags) {
+    public <T extends Item> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags) {
         Collection<T> filteredItems = new ArrayList<T>();
 
         Collection<Item> items = getItemsByTag(tags);
@@ -473,6 +477,9 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     @Override
     public boolean addTags(String itemName, Collection<String> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return false;
+        }
         tagLock.writeLock().lock();
         try {
             SortedSet<String> itemTags = readTags(itemName);
@@ -493,6 +500,9 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     @Override
     public boolean removeTags(String itemName, Collection<String> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return false;
+        }
         tagLock.writeLock().lock();
         try {
             SortedSet<String> itemTags = readTags(itemName);
@@ -585,6 +595,16 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         registryHooks.remove(hook);
     }
 
+    @Override
+    public ItemBuilder newItemBuilder(Item item) {
+        return new ItemBuilderImpl(itemFactories, item);
+    }
+
+    @Override
+    public ItemBuilder newItemBuilder(String itemType, String itemName) {
+        return new ItemBuilderImpl(itemFactories, itemType, itemName);
+    }
+
     @Activate
     protected void activate(final ComponentContext componentContext) {
         super.activate(componentContext.getBundleContext());
@@ -629,6 +649,15 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     protected void unsetMetadataRegistry(MetadataRegistry metadataRegistry) {
         this.metadataRegistry = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    protected void addItemFactory(ItemFactory itemFactory) {
+        itemFactories.add(itemFactory);
+    }
+
+    protected void removeItemFactory(ItemFactory itemFactory) {
+        itemFactories.remove(itemFactory);
     }
 
 }

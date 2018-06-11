@@ -105,8 +105,7 @@ public interface ItemRegistry extends Registry<Item, String> {
      * @return list of items which contains all of the given tags, which is
      *         filtered by the given type filter.
      */
-    public @NonNull <T extends GenericItem> Collection<T> getItemsByTag(@NonNull Class<T> typeFilter,
-            @NonNull String... tags);
+    public @NonNull <T extends Item> Collection<T> getItemsByTag(@NonNull Class<T> typeFilter, @NonNull String... tags);
 
     /**
      * @see ManagedItemProvider#remove(String, boolean)
@@ -170,5 +169,22 @@ public interface ItemRegistry extends Registry<Item, String> {
      * @return {@code true} if the collection of tags was modified by this operation
      */
     boolean removeTags(String itemName);
+
+    /**
+     * Create a new {@link ItemBuilder}, which is initialized by the given item.
+     *
+     * @param item the template to initialize the builder with
+     * @return an ItemBuilder instance
+     */
+    ItemBuilder newItemBuilder(Item item);
+
+    /**
+     * Create a new {@link ItemBuilder}, which is initialized by the given item.
+     *
+     * @param itemType the item type to create
+     * @param itemName the name of the item to create
+     * @return an ItemBuilder instance
+     */
+    ItemBuilder newItemBuilder(String itemType, String itemName);
 
 }
