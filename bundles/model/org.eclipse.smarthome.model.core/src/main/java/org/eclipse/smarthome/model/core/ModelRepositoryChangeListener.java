@@ -12,10 +12,13 @@
  */
 package org.eclipse.smarthome.model.core;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  *
  * @author Kai Kreuzer - Initial contribution
  */
+@NonNullByDefault
 public interface ModelRepositoryChangeListener {
 
     /**
