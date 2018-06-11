@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.model.item;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.model.item.internal.GenericItemProvider;
 
@@ -22,6 +23,7 @@ import org.eclipse.smarthome.model.item.internal.GenericItemProvider;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@NonNullByDefault
 public interface BindingConfigReader {
 
     /**
@@ -29,7 +31,7 @@ public interface BindingConfigReader {
      *
      * @return the type of the binding
      */
-    public String getBindingType();
+    String getBindingType();
 
     /**
      * Validates if the type of <code>item</code> is valid for this binding.
@@ -41,20 +43,21 @@ public interface BindingConfigReader {
      * @throws BindingConfigParseException if the item type is
      *             invalid for this binding
      */
-    public void validateItemType(String itemType, String bindingConfig) throws BindingConfigParseException;
+    void validateItemType(String itemType, String bindingConfig) throws BindingConfigParseException;
 
     /**
      * This method is called by the {@link GenericItemProvider} whenever it comes
      * across a binding configuration string for an item.
      *
-     * @param context a string of the context from where this item comes from. Usually the file name of the config file
+     * @param context a string of the context from where this item comes from. Usually the file name of the config
+     *            file
      * @param itemType the item type for which the binding config is defined
      * @param itemName the item name for which the binding config is defined
      * @param bindingConfig the configuration string that must be processed
      *
      * @throws BindingConfigParseException if the configuration string is not valid
      */
-    public void processBindingConfiguration(String context, String itemType, String itemName, String bindingConfig,
+    void processBindingConfiguration(String context, String itemType, String itemName, String bindingConfig,
             Configuration configuration) throws BindingConfigParseException;
 
     /**
@@ -63,7 +66,7 @@ public interface BindingConfigReader {
      *
      * @param context the context of the configurations that will be processed
      */
-    public void startConfigurationUpdate(String context);
+    void startConfigurationUpdate(String context);
 
     /**
      * Informs the reader that configuration update is completed for a given context. This is usually called after a
@@ -72,5 +75,5 @@ public interface BindingConfigReader {
      *
      * @param context the context of the configurations that were processed
      */
-    public void stopConfigurationUpdate(String context);
+    void stopConfigurationUpdate(String context);
 }
