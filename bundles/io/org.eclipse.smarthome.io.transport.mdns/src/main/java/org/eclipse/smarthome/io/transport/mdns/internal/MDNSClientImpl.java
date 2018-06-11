@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.time.Duration;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
@@ -150,6 +151,15 @@ public class MDNSClientImpl implements MDNSClient {
         ServiceInfo[] services = new ServiceInfo[0];
         for (JmDNS instance : jmdnsInstances) {
             services = concatenate(services, instance.list(type));
+        }
+        return services;
+    }
+
+    @Override
+    public ServiceInfo[] list(String type, Duration timeout) {
+        ServiceInfo[] services = new ServiceInfo[0];
+        for (JmDNS instance : jmdnsInstances) {
+            services = concatenate(services, instance.list(type, timeout.toMillis()));
         }
         return services;
     }

@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.io.transport.mdns;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Set;
 
 import javax.jmdns.JmDNS;
@@ -37,30 +38,30 @@ public interface MDNSClient {
     /**
      * Listen for services of a given type
      *
-     * @param type: full qualified service type
-     * @param listener: listener for service updates
+     * @param type full qualified service type
+     * @param listener listener for service updates
      */
     public void addServiceListener(String type, ServiceListener listener);
 
     /**
      * Remove listener for services of a given type
      *
-     * @param type: full qualified service type
-     * @param listener: listener for service updates
+     * @param type full qualified service type
+     * @param listener listener for service updates
      */
     public void removeServiceListener(String type, ServiceListener listener);
 
     /**
      * Register a service
      *
-     * @param description: service to register, described by (@link ServiceDescription)
+     * @param description service to register, described by (@link ServiceDescription)
      */
     public void registerService(ServiceDescription description) throws IOException;
 
     /**
      * Unregister a service. The service should have been registered.
      *
-     * @param description: service to remove, described by (@link ServiceDescription)
+     * @param description service to remove, described by (@link ServiceDescription)
      */
     public void unregisterService(ServiceDescription description);
 
@@ -73,10 +74,19 @@ public interface MDNSClient {
     /**
      * Returns a list of service infos of the specified type
      *
-     * @param type: service type name
-     * @return an array of service instance
+     * @param type service type name
+     * @return an array of service instances
      */
     public ServiceInfo[] list(String type);
+
+    /**
+     * Returns a list of service infos of the specified type within timeout
+     *
+     * @param type service type name
+     * @param timeout the amount of time it should wait if no service info is found.
+     * @return an array of service instances
+     */
+    public ServiceInfo[] list(String type, Duration timeout);
 
     /**
      * Close properly JmDNS instances
