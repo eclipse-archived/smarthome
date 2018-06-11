@@ -12,6 +12,9 @@
  */
 package org.eclipse.smarthome.core.autoupdate;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * This interface is implemented by classes that can provide configuration
  * information of the AutoUpdate feature.
@@ -22,6 +25,7 @@ package org.eclipse.smarthome.core.autoupdate;
  * @author Thomas.Eichstaedt-Engelen - Initial contribution
  * @author Kai Kreuzer - refactored to make independent of parent interfaces
  */
+@NonNullByDefault
 public interface AutoUpdateBindingConfigProvider {
 
     /**
@@ -33,6 +37,7 @@ public interface AutoUpdateBindingConfigProvider {
      * @return <code>false</code> to disable the automatic update, <code>true</code> to enable the automatic update and
      *         <code>null</code> if there is no configuration for this item.
      */
+    @Nullable
     Boolean autoUpdate(String itemName);
 
 }
