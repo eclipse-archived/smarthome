@@ -14,8 +14,11 @@ package org.eclipse.smarthome.model.sitemap;
 
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
 
+@NonNullByDefault
 public interface SitemapProvider {
 
     /**
@@ -24,6 +27,7 @@ public interface SitemapProvider {
      * @param sitemapName the name of the sitemap to load
      * @return the object model tree, null if it is not found
      */
+    @Nullable
     Sitemap getSitemap(String sitemapName);
 
     /**
