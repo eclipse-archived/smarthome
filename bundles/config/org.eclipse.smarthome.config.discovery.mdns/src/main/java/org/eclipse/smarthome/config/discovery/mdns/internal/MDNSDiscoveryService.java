@@ -136,9 +136,8 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
      * implementation {@code MDNSClient#list(String)} has a default timeout of 6
      * seconds when no ServiceInfo is found. When there are many participants,
      * waiting 6 seconds for each non-existent type is too long.
-     * 
-     * @param isBackground
-     *            true if it is background scan, false otherwise.
+     *
+     * @param isBackground true if it is background scan, false otherwise.
      */
     private void scan(boolean isBackground) {
         for (MDNSDiscoveryParticipant participant : participants) {
