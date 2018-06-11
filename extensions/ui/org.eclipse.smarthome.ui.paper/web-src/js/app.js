@@ -13,7 +13,7 @@ angular.module('PaperUI', [//
 'PaperUI.services.repositories', //
 'PaperUI.extensions',//
 'PaperUI.directive.configDescription',//
-'ngRoute', 'ngResource', 'ngMaterial', 'ngMessages', 'ngSanitize', 'ui.sortable', 'material.components.expansionPanels' ]) //
+'ngRoute', 'ngResource', 'ngMaterial', 'ngMessages', 'ngSanitize', 'material.components.expansionPanels' ]) //
 .config([ '$routeProvider', '$httpProvider', 'globalConfig', '$mdDateLocaleProvider', 'moduleConfig', 'dateTimeProvider', function($routeProvider, httpProvider, globalConfig, $mdDateLocaleProvider, moduleConfig, dateTimeProvider) {
     $routeProvider.when('/control', {
         templateUrl : 'partials/control/control.html',
