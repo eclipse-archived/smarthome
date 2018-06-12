@@ -28,6 +28,7 @@ import java.util.function.Function;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.common.AbstractUID;
 import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.events.Event;
@@ -40,12 +41,13 @@ import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemStateConverter;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
+import org.eclipse.smarthome.core.library.items.NumberItem;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.internal.link.ItemChannelLinkConfigDescriptionProvider;
@@ -60,6 +62,8 @@ import org.eclipse.smarthome.core.thing.profiles.ProfileFactory;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
 import org.eclipse.smarthome.core.thing.profiles.StateProfile;
 import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.Type;
@@ -104,6 +108,9 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     private SafeCaller safeCaller;
     @NonNullByDefault({})
     private ItemStateConverter itemStateConverter;
+    @NonNullByDefault({})
+    private ChannelTypeRegistry channelTypeRegistry;
+
     private final Set<ItemFactory> itemFactories = new CopyOnWriteArraySet<>();
 
     // link UID -> profile
@@ -212,8 +219,8 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     }
 
     private String normalizeProfileName(String profileName) {
-        if (!profileName.contains(UID.SEPARATOR)) {
-            return ProfileTypeUID.SYSTEM_SCOPE + UID.SEPARATOR + profileName;
+        if (!profileName.contains(AbstractUID.SEPARATOR)) {
+            return ProfileTypeUID.SYSTEM_SCOPE + AbstractUID.SEPARATOR + profileName;
         }
         return profileName;
     }
@@ -302,7 +309,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
                 Channel channel = thing.getChannel(channelUID.getId());
                 if (channel != null) {
                     @Nullable
-                    T convertedType = toAcceptedType(type, channel, acceptedTypesFunction);
+                    T convertedType = toAcceptedType(type, channel, acceptedTypesFunction, item);
                     if (convertedType != null) {
                         if (thing.getHandler() != null) {
                             Profile profile = getProfile(link, item, thing);
@@ -324,13 +331,27 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         });
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Type> @Nullable T toAcceptedType(T originalType, Channel channel,
-            Function<@Nullable String, @Nullable List<Class<? extends T>>> acceptedTypesFunction) {
+            Function<@Nullable String, @Nullable List<Class<? extends T>>> acceptedTypesFunction, Item item) {
         String acceptedItemType = channel.getAcceptedItemType();
         if (acceptedItemType == null) {
             return originalType;
         }
-        List<Class<? extends T>> acceptedTypes = acceptedTypesFunction.apply(channel.getAcceptedItemType());
+
+        // DecimalType/StringType commands send via a NumberItem with dimension:
+        if (!(originalType instanceof QuantityType) && hasDimension(item)) {
+            return (T) ((NumberItem) item).toQuantityType(originalType);
+        }
+
+        // DecimalType/StringType commands send via a plain NumberItem w/o dimension.
+        // We can only guess the correct unit from the channel-type's expected item dimension:
+        if (!(originalType instanceof QuantityType) && channel.getChannelTypeUID() != null) {
+            ChannelType channelType = channelTypeRegistry.getChannelType(channel.getChannelTypeUID());
+            // if (channelType.getItemType())
+        }
+
+        List<Class<? extends T>> acceptedTypes = acceptedTypesFunction.apply(acceptedItemType);
         if (acceptedTypes == null) {
             return originalType;
         }
@@ -355,6 +376,10 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         logger.debug("Received not accepted type '{}' for channel '{}'", originalType.getClass().getSimpleName(),
                 channel.getUID());
         return null;
+    }
+
+    private boolean hasDimension(Item item) {
+        return item instanceof NumberItem && ((NumberItem) item).getDimension() != null;
     }
 
     private @Nullable Item getItem(final String itemName) {

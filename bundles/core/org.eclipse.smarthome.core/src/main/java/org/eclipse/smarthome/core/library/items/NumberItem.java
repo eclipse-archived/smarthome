@@ -27,10 +27,12 @@ import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
+import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
+import org.eclipse.smarthome.core.types.Type;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.core.types.util.UnitUtils;
 
@@ -165,6 +167,18 @@ public class NumberItem extends GenericItem {
 
         if (dimension != null && unitProvider != null) {
             return unitProvider.getUnit((Class<Quantity>) dimension);
+        }
+
+        return null;
+    }
+
+    public @Nullable QuantityType<?> toQuantityType(Type originalType) {
+        Unit<? extends Quantity<?>> itemUnit = getUnit();
+        if (itemUnit != null && originalType instanceof DecimalType) {
+            return new QuantityType<>(((DecimalType) originalType).toBigDecimal(), itemUnit);
+        }
+        if (originalType instanceof StringType) {
+            return new QuantityType<>(((StringType) originalType).toFullString());
         }
 
         return null;
