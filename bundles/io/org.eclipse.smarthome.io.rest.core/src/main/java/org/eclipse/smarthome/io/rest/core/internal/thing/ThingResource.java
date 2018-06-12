@@ -441,6 +441,7 @@ public class ThingResource implements RESTResource {
     @GET
     @RolesAllowed({ Role.USER, Role.ADMIN })
     @Path("/{thingUID}/status")
+    @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets thing's status.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
             @ApiResponse(code = 404, message = "Thing not found.") })
@@ -458,7 +459,7 @@ public class ThingResource implements RESTResource {
 
         ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
                 LocaleUtil.getLocale(language));
-        return Response.ok(null, MediaType.TEXT_PLAIN).entity(thingStatusInfo).build();
+        return Response.ok().entity(thingStatusInfo).build();
     }
 
     @GET
