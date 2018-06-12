@@ -169,7 +169,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             addSubscription();
 
             updateZoneInfo();
-            updateRunningAlarmProperties();
             updateLed();
             updateSleepTimerDuration();
         } catch (Exception e) {
@@ -467,6 +466,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     break;
                 case "AlarmRunning":
                     updateChannel(ALARMRUNNING);
+                    updateRunningAlarmProperties();
                     break;
                 case "RunningAlarmProperties":
                     updateChannel(ALARMPROPERTIES);
