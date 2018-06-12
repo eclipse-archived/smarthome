@@ -37,6 +37,7 @@ import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.library.unit.ImperialUnits;
+import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
@@ -81,8 +82,11 @@ public class ItemUIRegistryImplTest {
         when(widget.getItem()).thenReturn("Item");
         when(registry.getItem("Item")).thenReturn(item);
 
+        // only used to initialise unit conversions && formatter
         @SuppressWarnings("unused")
-        Unit<?> fahrenheit = ImperialUnits.FAHRENHEIT; // only used to initialise ESHUnits for conversion
+        Unit<?> celsius = SIUnits.CELSIUS;
+        @SuppressWarnings("unused")
+        Unit<?> fahrenheit = ImperialUnits.FAHRENHEIT;
     }
 
     @Test
@@ -164,7 +168,7 @@ public class ItemUIRegistryImplTest {
         when(widget.getLabel()).thenReturn(testLabel);
         when(item.getState()).thenReturn(new QuantityType<>("" + 10f / 3f + " °C"));
         String label = uiRegistry.getLabel(widget);
-        assertEquals("Label [3" + sep + "333 ℃]", label);
+        assertEquals("Label [3" + sep + "333 °C]", label);
     }
 
     @Test
@@ -174,7 +178,7 @@ public class ItemUIRegistryImplTest {
         when(widget.getLabel()).thenReturn(testLabel);
         when(item.getState()).thenReturn(new QuantityType<>("" + 10f / 3f + " °C"));
         String label = uiRegistry.getLabel(widget);
-        assertEquals("Label [3 ℃]", label);
+        assertEquals("Label [3 °C]", label);
     }
 
     @Test

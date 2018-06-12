@@ -24,6 +24,7 @@ import javax.measure.spi.SystemOfUnits;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
+import tec.uom.se.format.SimpleUnitFormat;
 import tec.uom.se.unit.Units;
 
 /**
@@ -74,5 +75,10 @@ public class SIUnits extends SmartHomeUnits {
     private static <U extends Unit<?>> U addUnit(U unit) {
         INSTANCE.units.add(unit);
         return unit;
+    }
+
+    static {
+        // Override the default unit symbol ℃ to better support TTS and UIs:
+        SimpleUnitFormat.getInstance().label(CELSIUS, "°C");
     }
 }
