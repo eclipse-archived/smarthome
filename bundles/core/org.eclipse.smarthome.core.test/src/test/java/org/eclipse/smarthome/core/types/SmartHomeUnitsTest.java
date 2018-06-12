@@ -130,6 +130,15 @@ public class SmartHomeUnitsTest {
     }
 
     @Test
+    public void testCelsiusSpecialChar() {
+        QuantityType<Temperature> celsius = new QuantityType<>("20 ℃");
+        assertThat(celsius, is(new QuantityType<>("20 °C")));
+        assertThat(celsius.toFullString(), is("20 °C"));
+
+        assertThat(celsius.getUnit().toString(), is("°C"));
+    }
+
+    @Test
     public void testKmh2Mih() {
         Quantity<Speed> kmh = Quantities.getQuantity(BigDecimal.TEN, SIUnits.KILOMETRE_PER_HOUR);
 
