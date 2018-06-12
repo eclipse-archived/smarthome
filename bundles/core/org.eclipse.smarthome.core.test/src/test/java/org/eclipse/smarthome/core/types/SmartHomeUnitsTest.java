@@ -134,6 +134,8 @@ public class SmartHomeUnitsTest {
         QuantityType<Temperature> celsius = new QuantityType<>("20 ℃");
         assertThat(celsius, is(new QuantityType<>("20 °C")));
         assertThat(celsius.toFullString(), is("20 °C"));
+
+        assertThat(celsius.getUnit().toString(), is("°C"));
     }
 
     @Test
