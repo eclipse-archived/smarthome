@@ -15,6 +15,7 @@ package org.eclipse.smarthome.io.net.http.internal;
 import java.security.AccessController;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Map;
@@ -279,5 +280,79 @@ public class SecureHttpClientFactory implements HttpClientFactory {
         String excludeCipherSuites[] = { "^.*_(MD5)$" };
         sslContextFactory.setExcludeCipherSuites(excludeCipherSuites);
         return sslContextFactory;
+    }
+
+    @Override
+    public @NonNull HttpClient createHttpClient(@NonNull String consumerName,
+            @NonNull SslContextFactory sslContextFactory) {
+        Objects.requireNonNull(sslContextFactory, "SslContextFactory must not be null!");
+        checkConsumerName(consumerName);
+        final PrivilegedExceptionAction<HttpClient> createHttpClient = () -> {
+            logger.info("Creating {} http client with existing SslContextFactory", consumerName);
+            final HttpClient httpClient = new HttpClient(sslContextFactory);
+            final QueuedThreadPool queuedThreadPool = createThreadPool(consumerName, minThreadsCustom, maxThreadsCustom,
+                    keepAliveTimeoutCustom);
+            httpClient.setMaxConnectionsPerDestination(2);
+            httpClient.setExecutor(queuedThreadPool);
+            return httpClient;
+        };
+
+        try {
+            return AccessController.doPrivileged(createHttpClient);
+        } catch (PrivilegedActionException e) {
+            final Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            } else {
+                throw new HttpClientInitializationException(
+                        "unexpected checked exception during initialization of the jetty client", cause);
+            }
+        }
+    }
+
+    @Override
+    public void startHttpClient(@NonNull final HttpClient httpClient) {
+        Objects.requireNonNull(httpClient, "Passed http client must not be null!");
+        // TODO jan.hendriks Do I really need elevated privileges to start the jetty http client?
+        final PrivilegedExceptionAction<Void> startHttpClient = () -> {
+            try {
+                httpClient.start();
+                logger.info("Started jetty http client");
+            } catch (Exception e) {
+                logger.error("Failed to start jetty client", e);
+                throw new HttpClientInitializationException("Failed to start jetty client", e);
+            }
+            return null;
+        };
+
+        try {
+            AccessController.doPrivileged(startHttpClient);
+        } catch (PrivilegedActionException e) {
+            final Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            } else {
+                throw new HttpClientInitializationException(
+                        "Unexpected checked exception during starting of jetty client", cause);
+            }
+        }
+    }
+
+    @Override
+    public void stopHttpClient(@NonNull final HttpClient httpClient) {
+        Objects.requireNonNull(httpClient, "Passed http client must not be null!");
+        // TODO jan.hendriks Do I really need elevated privileges to stop the jetty http client?
+        final PrivilegedAction<Void> stopHttpClient = () -> {
+            try {
+                httpClient.stop();
+                logger.info("Stopped jetty http client");
+            } catch (Exception e) {
+                logger.error("Failed to stop jetty http client", e);
+                // nothing else we can do here
+            }
+            return null;
+        };
+
+        AccessController.doPrivileged(stopHttpClient);
     }
 }
