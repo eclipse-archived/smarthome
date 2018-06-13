@@ -12,12 +12,22 @@
  */
 package org.eclipse.smarthome.model.item;
 
+/**
+ * This exception is used by {@link BindingConfigReader} instances if parsing configurations fails
+ *
+ * @author Kai Kreuzer - Initial contribution
+ *
+ */
 public class BindingConfigParseException extends Exception {
 
     private static final long serialVersionUID = 1434607160082879845L;
 
     public BindingConfigParseException(String msg) {
         super(msg);
+    }
+
+    public BindingConfigParseException(String msg, Exception e) {
+        super(msg, e);
     }
 
 }
