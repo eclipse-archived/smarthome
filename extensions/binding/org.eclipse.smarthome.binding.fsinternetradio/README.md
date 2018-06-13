@@ -16,6 +16,7 @@ Successfully tested are internet radios:
  * [Revo SuperConnect](https://revo.co.uk/products/)
  * [Sangean WFR-28C](http://sg.sangean.com.tw/products/product_category.asp?cid=2)
  * [Roku SoundBridge M1001](https://soundbridge.roku.com/soundbridge/index.php)
+ * [Dual IR 3a](www.dual.de/produkte/digitalradio/radio-station-ir-3a/)
 
 But in principle, all internet radios based on the [Frontier Silicon chipset](http://www.frontier-silicon.com/) should be supported because they share the same API.
 So It is very likely that other internet radio models of the same manufacturers do also work.
@@ -65,17 +66,17 @@ All devices support some of the following channels:
 The radio mode depends on the internet radio model (and its firmware version!).
 This list is just an example how the mapping looks like for some of the devices, please try it out and adjust your sitemap for your particular radio.
 
-| Radio mode | Hama IR110 | Medion MD87180 | Medion MD 86988 | Technisat DigitRadio 580 |
-|------------|------------|----------------|-----------------|--------------------------|
-| 0 | Internet Radio | Internet Radio | Internet Radio | Internet Radio |
-| 1 | Spotify | Music Player (USB, LAN) | Music Player | Spotify |
-| 2 | Player | DAB Radio | FM Radio | (not used) |
-| 3 | AUX in | FM Radio | AUX in | Music Player |
-| 4 | - | AUX in | - | DAB Radio |
-| 5 | - | - | - | FM Radio |
-| 6 | - | - | - | AUX in |
-| 7 | - | - | - | CD |
-| 8 | - | - | - | Bluetooth |
+| Radio mode | Hama IR110 | Medion MD87180 | Medion MD 86988 | Technisat DigitRadio 580 | Dual IR 3a |
+|------------|------------|----------------|-----------------|--------------------------|------------|
+| 0 | Internet Radio | Internet Radio | Internet Radio | Internet Radio | Internet Radio | 
+| 1 | Spotify | Music Player (USB, LAN) | Music Player | Spotify | Spotify |
+| 2 | Player | DAB Radio | FM Radio | (not used) | - |
+| 3 | AUX in | FM Radio | AUX in | Music Player | Music Player |
+| 4 | - | AUX in | - | DAB Radio | DAB Radio |
+| 5 | - | - | - | FM Radio | FM Radio |
+| 6 | - | - | - | AUX in | Bluetooth |
+| 7 | - | - | - | CD | - |
+| 8 | - | - | - | Bluetooth | - |
 
 ## Full Example
 
