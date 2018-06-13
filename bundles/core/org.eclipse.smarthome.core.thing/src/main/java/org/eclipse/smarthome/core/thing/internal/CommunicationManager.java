@@ -25,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import javax.measure.Quantity;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -39,6 +41,7 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemStateConverter;
+import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.library.items.NumberItem;
@@ -62,11 +65,10 @@ import org.eclipse.smarthome.core.thing.profiles.ProfileFactory;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
 import org.eclipse.smarthome.core.thing.profiles.StateProfile;
 import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
-import org.eclipse.smarthome.core.thing.type.ChannelType;
-import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.Type;
+import org.eclipse.smarthome.core.types.util.UnitUtils;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -108,8 +110,6 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     private SafeCaller safeCaller;
     @NonNullByDefault({})
     private ItemStateConverter itemStateConverter;
-    @NonNullByDefault({})
-    private ChannelTypeRegistry channelTypeRegistry;
 
     private final Set<ItemFactory> itemFactories = new CopyOnWriteArraySet<>();
 
@@ -339,16 +339,12 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
             return originalType;
         }
 
-        // DecimalType/StringType commands send via a NumberItem with dimension:
-        if (!(originalType instanceof QuantityType) && hasDimension(item)) {
-            return (T) ((NumberItem) item).toQuantityType(originalType);
-        }
-
-        // DecimalType/StringType commands send via a plain NumberItem w/o dimension.
-        // We can only guess the correct unit from the channel-type's expected item dimension:
-        if (!(originalType instanceof QuantityType) && channel.getChannelTypeUID() != null) {
-            ChannelType channelType = channelTypeRegistry.getChannelType(channel.getChannelTypeUID());
-            // if (channelType.getItemType())
+        if (!(originalType instanceof QuantityType) && item instanceof NumberItem) {
+            @Nullable
+            T quantityType = convertToQquantityType(originalType, item, acceptedItemType);
+            if (quantityType != null) {
+                return quantityType;
+            }
         }
 
         List<Class<? extends T>> acceptedTypes = acceptedTypesFunction.apply(acceptedItemType);
@@ -378,8 +374,39 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         return null;
     }
 
-    private boolean hasDimension(Item item) {
-        return item instanceof NumberItem && ((NumberItem) item).getDimension() != null;
+    @SuppressWarnings("unchecked")
+    private <T extends Type> @Nullable T convertToQquantityType(T originalType, Item item,
+            @Nullable String acceptedItemType) {
+        NumberItem numberItem = (NumberItem) item;
+
+        // DecimalType/StringType commands send via a NumberItem with dimension:
+        Class<? extends Quantity<?>> dimension = numberItem.getDimension();
+
+        if (dimension == null) {
+            // DecimalType/StringType commands send via a plain NumberItem w/o dimension.
+            // We try to guess the correct unit from the channel-type's expected item dimension
+            // or from the item's state description.
+            dimension = getDimension(acceptedItemType);
+
+        }
+
+        if (dimension != null) {
+            return (T) numberItem.toQuantityType(originalType, dimension);
+        }
+
+        return null;
+    }
+
+    private @Nullable Class<? extends Quantity<?>> getDimension(@Nullable String acceptedItemType) {
+        if (acceptedItemType == null || acceptedItemType.isEmpty()) {
+            return null;
+        }
+        String itemTypeExtension = ItemUtil.getItemTypeExtension(acceptedItemType);
+        if (itemTypeExtension == null) {
+            return null;
+        }
+
+        return UnitUtils.parseDimension(itemTypeExtension);
     }
 
     private @Nullable Item getItem(final String itemName) {
