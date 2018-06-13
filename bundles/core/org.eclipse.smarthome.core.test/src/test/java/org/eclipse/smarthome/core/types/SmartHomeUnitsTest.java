@@ -26,6 +26,7 @@ import javax.measure.quantity.Pressure;
 import javax.measure.quantity.Speed;
 import javax.measure.quantity.Temperature;
 
+import org.eclipse.smarthome.core.library.dimension.ArealDensity;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.unit.ImperialUnits;
 import org.eclipse.smarthome.core.library.unit.MetricPrefix;
@@ -245,6 +246,15 @@ public class SmartHomeUnitsTest {
     public void testDb() {
         QuantityType<Dimensionless> ratio = new QuantityType<>("100");
         assertEquals("20.0 dB", ratio.toUnit("dB").toString());
+    }
+
+    @Test
+    public void testDobsonUnits() {
+        // https://en.wikipedia.org/wiki/Dobson_unit
+        QuantityType<ArealDensity> oneDU = new QuantityType<ArealDensity>("1 DU");
+        QuantityType<ArealDensity> mmolpsq = oneDU.toUnit(MetricPrefix.MILLI(Units.MOLE).multiply(Units.METRE.pow(-2)));
+        assertThat(mmolpsq.doubleValue(), is(closeTo(0.4462d, DEFAULT_ERROR)));
+        assertThat(mmolpsq.toUnit(SmartHomeUnits.DOBSON_UNIT).doubleValue(), is(closeTo(1, DEFAULT_ERROR)));
     }
 
 }
