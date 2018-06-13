@@ -4,7 +4,7 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/moquette-dummy-deps/java"/>
-	<classpathentry kind="lib" path="lib/moquette-broker-0.10.jar" sourcepath="lib/moquette-broker-src-0.10.zip"/>
+	<classpathentry kind="lib" path="lib/moquette-broker-0.11.jar"/>
 	<classpathentry kind="lib" path="lib/netty-all-4.1.19.Final.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

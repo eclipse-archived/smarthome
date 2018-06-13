@@ -6,7 +6,7 @@ Bundle-SymbolicName: org.eclipse.smarthome.io.mqttembeddedbroker;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-ClassPath: ., lib/moquette-broker-0.10.jar, lib/netty-all-4.1.19.Final.jar
+Bundle-ClassPath: ., lib/moquette-broker-0.11.jar, lib/netty-all-4.1.19.Final.jar
 Import-Package: 
  org.apache.commons.io,
  org.apache.commons.lang,
