@@ -272,6 +272,8 @@ public class CommunicationManagerTest extends JavaOSGiTest {
         });
         verifyNoMoreInteractions(stateProfile);
         verifyNoMoreInteractions(triggerProfile);
+
+        ITEM_3.setStateDescriptionService(null);
     }
 
     @Test

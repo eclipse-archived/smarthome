@@ -341,7 +341,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
 
         if (!(originalType instanceof QuantityType) && item instanceof NumberItem) {
             @Nullable
-            T quantityType = convertToQquantityType(originalType, item, acceptedItemType);
+            T quantityType = convertToQuantityType(originalType, item, acceptedItemType);
             if (quantityType != null) {
                 return quantityType;
             }
@@ -375,7 +375,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Type> @Nullable T convertToQquantityType(T originalType, Item item,
+    private <T extends Type> @Nullable T convertToQuantityType(T originalType, Item item,
             @Nullable String acceptedItemType) {
         NumberItem numberItem = (NumberItem) item;
 
