@@ -45,6 +45,7 @@ import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.library.items.NumberItem;
+import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -339,11 +340,12 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
             return originalType;
         }
 
-        if (!(originalType instanceof QuantityType) && item instanceof NumberItem) {
+        // DecimalType command send to a NumberItem with dimension defined:
+        if (originalType instanceof DecimalType && hasDimension(item, acceptedItemType)) {
             @Nullable
-            T quantityType = convertToQuantityType(originalType, item, acceptedItemType);
+            QuantityType<?> quantityType = convertToQuantityType((DecimalType) originalType, item, acceptedItemType);
             if (quantityType != null) {
-                return quantityType;
+                return (T) quantityType;
             }
         }
 
@@ -374,16 +376,20 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    private <T extends Type> @Nullable T convertToQuantityType(T originalType, Item item,
+    private boolean hasDimension(Item item, @Nullable String acceptedItemType) {
+        return (item instanceof NumberItem && ((NumberItem) item).getDimension() != null)
+                || getDimension(acceptedItemType) != null;
+    }
+
+    private @Nullable QuantityType<?> convertToQuantityType(DecimalType originalType, Item item,
             @Nullable String acceptedItemType) {
         NumberItem numberItem = (NumberItem) item;
 
-        // DecimalType/StringType commands send via a NumberItem with dimension:
+        // DecimalType command send via a NumberItem with dimension:
         Class<? extends Quantity<?>> dimension = numberItem.getDimension();
 
         if (dimension == null) {
-            // DecimalType/StringType commands send via a plain NumberItem w/o dimension.
+            // DecimalType command send via a plain NumberItem w/o dimension.
             // We try to guess the correct unit from the channel-type's expected item dimension
             // or from the item's state description.
             dimension = getDimension(acceptedItemType);
@@ -391,7 +397,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         }
 
         if (dimension != null) {
-            return (T) numberItem.toQuantityType(originalType, dimension);
+            return numberItem.toQuantityType(originalType, dimension);
         }
 
         return null;

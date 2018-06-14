@@ -27,12 +27,10 @@ import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
-import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
-import org.eclipse.smarthome.core.types.Type;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.core.types.util.UnitUtils;
 
@@ -159,22 +157,19 @@ public class NumberItem extends GenericItem {
     }
 
     /**
-     * Try to convert a {@link DecimalType} or {@link StringType} into a new {@link QuantityType}. The unit for the new
+     * Try to convert a {@link DecimalType} into a new {@link QuantityType}. The unit for the new
      * type is derived either from the state description (which might also give a hint on items w/o dimension) or from
      * the system default unit of the given dimension.
      *
-     * @param originalType the source type, either {@link DecimalType} or {@link StringType}.
+     * @param originalType the source {@link DecimalType}.
      * @param dimension    the dimension to which the new {@link QuantityType} should adhere.
-     * @return the new {@link QuantityType} from the given originalType, {@code null} if originalType does not match.
+     * @return the new {@link QuantityType} from the given originalType, {@code null} if a unit could not be calculated.
      */
-    public @Nullable QuantityType<?> toQuantityType(Type originalType,
+    public @Nullable QuantityType<?> toQuantityType(DecimalType originalType,
             @Nullable Class<? extends Quantity<?>> dimension) {
         Unit<? extends Quantity<?>> itemUnit = getUnit(dimension);
-        if (itemUnit != null && originalType instanceof DecimalType) {
-            return new QuantityType<>(((DecimalType) originalType).toBigDecimal(), itemUnit);
-        }
-        if (originalType instanceof StringType) {
-            return new QuantityType<>(((StringType) originalType).toFullString());
+        if (itemUnit != null) {
+            return new QuantityType<>(originalType.toBigDecimal(), itemUnit);
         }
 
         return null;
