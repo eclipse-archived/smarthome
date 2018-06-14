@@ -340,7 +340,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
             return originalType;
         }
 
-        // DecimalType command send to a NumberItem with dimension defined:
+        // DecimalType command sent to a NumberItem with dimension defined:
         if (originalType instanceof DecimalType && hasDimension(item, acceptedItemType)) {
             @Nullable
             QuantityType<?> quantityType = convertToQuantityType((DecimalType) originalType, item, acceptedItemType);
@@ -385,15 +385,14 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
             @Nullable String acceptedItemType) {
         NumberItem numberItem = (NumberItem) item;
 
-        // DecimalType command send via a NumberItem with dimension:
+        // DecimalType command sent via a NumberItem with dimension:
         Class<? extends Quantity<?>> dimension = numberItem.getDimension();
 
         if (dimension == null) {
-            // DecimalType command send via a plain NumberItem w/o dimension.
+            // DecimalType command sent via a plain NumberItem w/o dimension.
             // We try to guess the correct unit from the channel-type's expected item dimension
             // or from the item's state description.
             dimension = getDimension(acceptedItemType);
-
         }
 
         if (dimension != null) {
