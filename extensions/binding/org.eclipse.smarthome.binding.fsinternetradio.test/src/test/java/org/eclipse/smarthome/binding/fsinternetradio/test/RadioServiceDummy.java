@@ -50,6 +50,7 @@ public class RadioServiceDummy extends HttpServlet {
     private static final String REQUEST_SET_MUTE = "/" + FrontierSiliconRadioConstants.REQUEST_SET_MUTE;
     private static final String REQUEST_GET_MUTE = "/" + FrontierSiliconRadioConstants.REQUEST_GET_MUTE;
     private static final String REQUEST_SET_PRESET = "/" + FrontierSiliconRadioConstants.REQUEST_SET_PRESET;
+    private static final String REQUEST_GET_SIGNAL_STRENGTH = "/" + FrontierSiliconRadioConstants.REQUEST_GET_SIGNAL_STRENGTH;
     private static final String REQUEST_SET_PRESET_ACTION = "/"
             + FrontierSiliconRadioConstants.REQUEST_SET_PRESET_ACTION;
     private static final String REQUEST_GET_PLAY_INFO_TEXT = "/"
@@ -90,6 +91,9 @@ public class RadioServiceDummy extends HttpServlet {
     private String modeTag;
 
     private String radioStation;
+    
+    private String signalStrength;
+    private String signalStrengthTag;
 
     public RadioServiceDummy() {
         this.httpStatus = HttpStatus.OK_200;
@@ -209,6 +213,11 @@ public class RadioServiceDummy extends HttpServlet {
 
                 case (REQUEST_GET_PLAY_INFO_TEXT):
                     tagToReturn = playInfoTextTag;
+                    break;
+
+                case (REQUEST_GET_SIGNAL_STRENGTH):
+                    signalStrengthTag = makeU8Tag(signalStrength);
+                    tagToReturn = absoluteVolumeTag;
                     break;
 
                 default:

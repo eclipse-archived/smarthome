@@ -17,6 +17,7 @@
 			<channel id="play-info-name" typeId="play-info-name" />
 			<channel id="play-info-text" typeId="play-info-text" />
 			<channel id="preset" typeId="preset" />
+			<channel id="signal-strength" typeId="signal-strength" />
 		</channels>
 
 		<properties>
@@ -95,6 +96,13 @@
 		<label>Mode</label>
 		<description>The radio mode, e.g. FM radio, internet radio, AUX, etc.</description>
 		<state min="0" step="1" />
+	</channel-type>
+	<channel-type id="signal-strength" advanced="true">
+		<item-type>Number</item-type>
+		<label>Signal</label>
+		<description>A Wi-Fi signal indicator.</description>
+		<category>QualityOfService</category>
+		<state readOnly="true" pattern="%d dBm" />
 	</channel-type>
 
 </thing:thing-descriptions>

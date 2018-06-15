@@ -32,6 +32,8 @@ public class FrontierSiliconRadioConstants {
     public static final String REQUEST_GET_PLAY_INFO_TEXT = "GET/netRemote.play.info.text";
     public static final String REQUEST_GET_PLAY_INFO_NAME = "GET/netRemote.play.info.name";
 
+    public static final String REQUEST_GET_SIGNAL_STRENGTH = "GET/netRemote.sys.net.wlan.rssi";
+
     /** URL path, must begin with a slash (/) */
     public static final String CONNECTION_PATH = "/fsapi";
 
