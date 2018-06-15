@@ -36,6 +36,7 @@ public interface FSInternetRadioBindingConstants {
     String CHANNEL_PLAY_INFO_NAME = "play-info-name";
     String CHANNEL_PLAY_INFO_TEXT = "play-info-text";
     String CHANNEL_MODE = "mode";
+    String CHANNEL_SIGNAL_STRENGTH = "strength-percent";
 
     // config properties
     String CONFIG_PROPERTY_IP = "ip";

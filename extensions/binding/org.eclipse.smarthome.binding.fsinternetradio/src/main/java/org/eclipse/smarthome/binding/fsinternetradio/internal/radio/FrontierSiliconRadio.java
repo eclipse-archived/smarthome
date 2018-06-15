@@ -239,4 +239,16 @@ public class FrontierSiliconRadio {
         conn.doRequest(REQUEST_SET_MUTE, params);
     }
 
+    /**
+     * read the Wifi signal strength (as percent value, 0-100)
+     *
+     * @return signal strength
+     * @throws IOException if communication with the radio failed, e.g. because the device is not reachable.
+     */
+    public int getSignalPercent() throws IOException {
+        FrontierSiliconRadioApiResult result = conn.doRequest(REQUEST_GET_SIGNAL_STRENGTH);
+        return result.getValueU8AsInt();
+    }
+
+
 }
