@@ -6,7 +6,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.io.net
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
-Bundle-Activator: org.eclipse.smarthome.io.net.http.internal.Activate
 Export-Package: 
  org.eclipse.smarthome.io.net.exec,
  org.eclipse.smarthome.io.net.http

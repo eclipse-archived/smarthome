@@ -22,7 +22,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -42,7 +41,6 @@ import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.util.B64Code;
 import org.eclipse.jetty.util.StringUtil;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.smarthome.core.library.types.RawType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -62,11 +60,9 @@ public class HttpUtil {
     private static Logger logger = LoggerFactory.getLogger(HttpUtil.class);
 
     private static final int DEFAULT_TIMEOUT_MS = 5000;
-    private static final String CONSUMER_THREAD_NAME = "HttpUtil";
 
     private static HttpClientFactory httpClientFactory;
     private static HttpClient httpClient;
-    private static final SslContextFactory SSL_CONTEXT_FACTORY = new SslContextFactory();
 
     private static class ProxyParams {
         public String proxyHost = null;
@@ -171,8 +167,6 @@ public class HttpUtil {
 
     /**
      * Executes the given <code>url</code> with the given <code>httpMethod</code>.
-     * Synchronize the access to the http client during requests because we sometimes manipulate the client (e.g. add
-     * proxy), as this must not interfere with other request calls.
      *
      * @param httpMethod    the HTTP method to use
      * @param url           the url to execute
@@ -190,17 +184,17 @@ public class HttpUtil {
      * @return the response as a ContentResponse object or <code>NULL</code> when the request went wrong
      * @throws IOException when the request execution failed, timed out or it was interrupted
      */
-    private static synchronized ContentResponse executeUrlAndGetReponse(String httpMethod, String url,
-            Properties httpHeaders, InputStream content, String contentType, int timeout, String proxyHost,
-            Integer proxyPort, String proxyUser, String proxyPassword, String nonProxyHosts) throws IOException {
+    private static ContentResponse executeUrlAndGetReponse(String httpMethod, String url, Properties httpHeaders,
+            InputStream content, String contentType, int timeout, String proxyHost, Integer proxyPort, String proxyUser,
+            String proxyPassword, String nonProxyHosts) throws IOException {
 
-        // Create http client from factory "on-demand"
+        // Get shared http client from factory "on-demand"
         if (HttpUtil.httpClient == null) {
             // Bundle was not yet activated or has been deactivated - No better way to handle this case gracefully
-            Objects.requireNonNull(httpClientFactory,
-                    "Http client factory was null probably due to bundle not being ACTIVE");
-            HttpUtil.httpClient = httpClientFactory.createHttpClient(CONSUMER_THREAD_NAME, SSL_CONTEXT_FACTORY);
-            httpClientFactory.startHttpClient(httpClient);
+            if (httpClientFactory == null) {
+                throw new IllegalStateException("Http client factory was null probably due to bundle not being ACTIVE");
+            }
+            HttpUtil.httpClient = httpClientFactory.getCommonHttpClient();
         }
 
         HttpProxy proxy = null;
@@ -259,7 +253,7 @@ public class HttpUtil {
         try {
             ContentResponse response = request.send();
             int statusCode = response.getStatus();
-            if (statusCode >= HttpStatus.BAD_REQUEST_400) {
+            if (logger.isDebugEnabled() && statusCode >= HttpStatus.BAD_REQUEST_400) {
                 String statusLine = statusCode + " " + response.getReason();
                 logger.debug("Method failed: {}", statusLine);
             }
@@ -542,15 +536,6 @@ public class HttpUtil {
     private static boolean isJpeg(byte[] data) {
         return (data.length >= 2 && data[0] == (byte) 0xFF && data[1] == (byte) 0xD8
                 && data[data.length - 2] == (byte) 0xFF && data[data.length - 1] == (byte) 0xD9);
-    }
-
-    public static void stopHttpClient() {
-        if (httpClient != null) {
-            if (httpClientFactory != null) {
-                httpClientFactory.stopHttpClient(httpClient);
-            }
-            httpClient = null;
-        }
     }
 
     @Reference

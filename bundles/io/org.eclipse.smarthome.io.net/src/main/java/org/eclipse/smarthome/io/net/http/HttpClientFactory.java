@@ -14,7 +14,6 @@ package org.eclipse.smarthome.io.net.http;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 /**
  * Factory class to create jetty http clients
@@ -32,32 +31,13 @@ public interface HttpClientFactory {
      * DO NOT CREATE NEW CLIENTS FOR EACH REQUEST!
      *
      * @param consumerName the for identifying the consumer in the jetty thread pool.
-     *                         Must be between 4 and 20 characters long and must contain only the following characters
-     *                         [a-zA-Z0-9-_]
-     * @param endpoint     the desired endpoint, protocol and host are sufficient
+     *            Must be between 4 and 20 characters long and must contain only the following characters [a-zA-Z0-9-_]
+     * @param endpoint the desired endpoint, protocol and host are sufficient
      * @return the jetty client
-     * @throws NullPointerException     if {@code endpoint} or {@code consumerName} is {@code null}
+     * @throws NullPointerException if {@code endpoint} or {@code consumerName} is {@code null}
      * @throws IllegalArgumentException if {@code consumerName} is invalid
      */
     HttpClient createHttpClient(String consumerName, String endpoint);
-
-    /**
-     * Creates a new jetty http client.
-     * The returned client is not started yet. You have to start it yourself before using.
-     * Don't forget to stop a started client again after its usage.
-     * The client lifecycle should be the same as for your service.
-     * DO NOT CREATE NEW CLIENTS FOR EACH REQUEST!
-     *
-     * @param consumerName      for identifying the consumer in the jetty thread pool.
-     *                              Must be between 4 and 20 characters long and must contain only the following
-     *                              characters
-     *                              [a-zA-Z0-9-_]
-     * @param sslContextFactory the passed SslContextFactory
-     * @return the jetty client
-     * @throws NullPointerException              if {@code consumerName} or {@code sslContextFactory} is {@code null}
-     * @throws HttpClientInitializationException if http client could not be initialized
-     */
-    HttpClient createHttpClient(String consumerName, SslContextFactory sslContextFactory);
 
     /**
      * Returns the shared jetty http client. You must not call any setter methods or {@code stop()} on it.
@@ -66,24 +46,4 @@ public interface HttpClientFactory {
      * @return the shared jetty http client
      */
     HttpClient getCommonHttpClient();
-
-    /**
-     * Convenience function to start a given http client.
-     * Tries its best to start the http client using elevated privileges, but throws an Exception if failed.
-     *
-     * @param httpClient http client to start
-     * @throws NullPointerException              if {@code httpClient} is {@code null}
-     * @throws HttpClientInitializationException if {@code httpClient} could not be started
-     */
-    void startHttpClient(HttpClient httpClient);
-
-    /**
-     * Convenience function to stop a given http client.
-     * Tries its best to stop the http client using elevated privileges.
-     *
-     * @param httpClient http client to stop
-     * @throws NullPointerException if {@code httpClient} is {@code null}
-     */
-    void stopHttpClient(HttpClient httpClient);
-
 }
