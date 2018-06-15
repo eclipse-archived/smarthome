@@ -19,7 +19,6 @@ import org.eclipse.smarthome.core.thing.profiles.ProfileContext;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
 import org.eclipse.smarthome.core.thing.profiles.StateProfile;
 import org.eclipse.smarthome.core.transform.TransformationException;
-import org.eclipse.smarthome.core.transform.TransformationHelper;
 import org.eclipse.smarthome.core.transform.TransformationService;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -43,12 +42,13 @@ public class TransformationProfile implements StateProfile {
     private final ProfileTypeUID profileTypeUID;
     private final TransformationService service;
 
-    private static final String PATTERN_PARAM = "pattern";
+    private static final String FUNCTION_PARAM = "function";
+    private static final String SOURCE_PARAM = "sourceFormat";
 
     @NonNullByDefault({})
     private final String function;
     @NonNullByDefault({})
-    private final String format;
+    private final String sourceFormat;
 
     private final ProfileCallback callback;
 
@@ -59,18 +59,19 @@ public class TransformationProfile implements StateProfile {
         this.profileTypeUID = typeUID;
         this.callback = callback;
 
-        Object paramValue = context.getConfiguration().get(PATTERN_PARAM);
-        logger.debug("Profile configured with '{}'='{}'", PATTERN_PARAM, paramValue);
-        if (paramValue instanceof String
-                && ((String) paramValue).contains(TransformationHelper.FUNCTION_VALUE_DELIMITER)) {
-            String[] parts = ((String) paramValue).split(TransformationHelper.FUNCTION_VALUE_DELIMITER);
-            function = parts[0];
-            format = parts[1];
+        Object paramFunction = context.getConfiguration().get(FUNCTION_PARAM);
+        Object paramSource = context.getConfiguration().get(SOURCE_PARAM);
+
+        logger.debug("Profile configured with '{}'='{}', '{}'={}", FUNCTION_PARAM, paramFunction, SOURCE_PARAM,
+                paramSource);
+        if (paramFunction instanceof String && paramSource instanceof String) {
+            function = (String) paramFunction;
+            sourceFormat = (String) paramSource;
         } else {
-            logger.warn("Parameter '{}' has to be a String containing separator '{}'. Profile will be inactive.",
-                    PATTERN_PARAM, TransformationHelper.FUNCTION_VALUE_DELIMITER);
+            logger.warn("Parameter '{}' and '{}' have to be Strings. Profile will be inactive.", FUNCTION_PARAM,
+                    SOURCE_PARAM);
             function = null;
-            format = null;
+            sourceFormat = null;
         }
     }
 
@@ -91,10 +92,10 @@ public class TransformationProfile implements StateProfile {
 
     @Override
     public void onCommandFromHandler(Command command) {
-        if (function == null || format == null) {
+        if (function == null || sourceFormat == null) {
             logger.error(
-                    "Please specify a function and a format for this Profile in the '{}' parameter, e.g \"translation.map:%s\". Returning the original command now.",
-                    PATTERN_PARAM);
+                    "Please specify a function and a source format for this Profile in the '{}', and '{}' parameters, e.g \"translation.map\"  and \"%s\". Returning the original command now.",
+                    FUNCTION_PARAM, SOURCE_PARAM);
             callback.sendCommand(command);
             return;
         }
@@ -103,10 +104,10 @@ public class TransformationProfile implements StateProfile {
 
     @Override
     public void onStateUpdateFromHandler(State state) {
-        if (function == null || format == null) {
+        if (function == null || sourceFormat == null) {
             logger.error(
-                    "Please specify a function and a format for this Profile in the '{}' parameter, e.g \"translation.map:%s\". Returning the original state now.",
-                    PATTERN_PARAM);
+                    "Please specify a function and a source format for this Profile in the '{}' and '{}' parameters, e.g \"translation.map\" and \"%s\". Returning the original state now.",
+                    FUNCTION_PARAM, SOURCE_PARAM);
             callback.sendUpdate(state);
             return;
         }
@@ -116,10 +117,11 @@ public class TransformationProfile implements StateProfile {
     private Type transformState(Type state) {
         String result = state.toFullString();
         try {
-            String newFormat = String.format(format, state);
+            String newFormat = String.format(sourceFormat, state);
             result = service.transform(function, newFormat);
         } catch (TransformationException e) {
-            logger.debug("Could not transform state '{}' with function '{}' and format '{}'", state, function, format);
+            logger.debug("Could not transform state '{}' with function '{}' and format '{}'", state, function,
+                    sourceFormat);
         }
         StringType resultType = new StringType(result);
         logger.debug("Transformed '{}' into '{}'", state, resultType);

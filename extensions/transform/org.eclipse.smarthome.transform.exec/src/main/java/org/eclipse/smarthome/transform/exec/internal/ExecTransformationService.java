@@ -34,11 +34,9 @@ public class ExecTransformationService implements TransformationService {
     /**
      * Transforms the input <code>source</code> by the command line.
      *
-     * @param commandLine
-     *            the command to execute. Command line should contain %s string,
-     *            which will be replaced by the input data.
-     * @param source
-     *            the input to transform
+     * @param commandLine the command to execute. Command line should contain %s string,
+     *                    which will be replaced by the input data.
+     * @param source      the input to transform
      */
     @Override
     public @Nullable String transform(String commandLine, String source) throws TransformationException {
@@ -46,7 +44,7 @@ public class ExecTransformationService implements TransformationService {
             throw new TransformationException("the given parameters 'commandLine' and 'source' must not be null");
         }
 
-        logger.debug("about to transform '{}' by the commanline '{}'", source, commandLine);
+        logger.debug("about to transform '{}' by the commandline '{}'", source, commandLine);
 
         long startTime = System.currentTimeMillis();
 

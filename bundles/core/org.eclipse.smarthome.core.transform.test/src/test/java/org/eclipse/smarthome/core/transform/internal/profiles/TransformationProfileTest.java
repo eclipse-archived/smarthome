@@ -44,7 +44,8 @@ public class TransformationProfileTest {
 
         context = mock(ProfileContext.class);
         Configuration config = new Configuration();
-        config.put("pattern", "DUMMY:%s");
+        config.put("function", "DUMMY");
+        config.put("sourceFormat", "%s");
         when(context.getConfiguration()).thenReturn(config);
 
         typeUID = new ProfileTypeUID("transform", "DUMMY");
