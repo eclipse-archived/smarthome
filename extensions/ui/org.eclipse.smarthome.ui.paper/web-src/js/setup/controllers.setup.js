@@ -18,7 +18,7 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
             if ($scope.thingTypes[key]) {
                 return $scope.thingTypes[key].label;
             } else {
-                return "Unkown device";
+                return "Unknown device";
             }
         } else {
             thingTypeRepository.setDirty(false);
