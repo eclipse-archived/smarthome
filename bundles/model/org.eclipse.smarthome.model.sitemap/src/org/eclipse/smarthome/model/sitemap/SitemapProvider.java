@@ -14,21 +14,41 @@ package org.eclipse.smarthome.model.sitemap;
 
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
 
+@NonNullByDefault
 public interface SitemapProvider {
 
     /**
      * This method provides access to sitemap model files, loads them and returns the object model tree.
-     * 
+     *
      * @param sitemapName the name of the sitemap to load
      * @return the object model tree, null if it is not found
      */
-    public Sitemap getSitemap(String sitemapName);
+    @Nullable
+    Sitemap getSitemap(String sitemapName);
 
     /**
      * Returns the names of all available sitemaps
-     * 
+     *
      * @return names of provided sitemaps
      */
-    public Set<String> getSitemapNames();
+    Set<String> getSitemapNames();
+
+    /**
+     * Add a listener which will be informed subsequently once a model has changed
+     *
+     * @param listener
+     */
+    void addModelChangeListener(ModelRepositoryChangeListener listener);
+
+    /**
+     * Remove a model change listener again
+     *
+     * @param listener
+     */
+    void removeModelChangeListener(ModelRepositoryChangeListener listener);
+
 }

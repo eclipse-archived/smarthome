@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.time.Duration;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,6 +30,9 @@ import org.eclipse.smarthome.io.transport.mdns.MDNSClient;
 import org.eclipse.smarthome.io.transport.mdns.ServiceDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * This class starts the JmDNS and implements interface to register and unregister services.
@@ -36,6 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author Victor Belov
  *
  */
+@Component(immediate = true)
 public class MDNSClientImpl implements MDNSClient {
     private final Logger logger = LoggerFactory.getLogger(MDNSClientImpl.class);
 
@@ -75,6 +80,7 @@ public class MDNSClientImpl implements MDNSClient {
         return jmdnsInstances;
     }
 
+    @Activate
     public void activate() {
         for (InetAddress address : getAllInetAddresses()) {
             try {
@@ -87,6 +93,7 @@ public class MDNSClientImpl implements MDNSClient {
         }
     }
 
+    @Deactivate
     public void deactivate() {
         close();
     }
@@ -144,6 +151,15 @@ public class MDNSClientImpl implements MDNSClient {
         ServiceInfo[] services = new ServiceInfo[0];
         for (JmDNS instance : jmdnsInstances) {
             services = concatenate(services, instance.list(type));
+        }
+        return services;
+    }
+
+    @Override
+    public ServiceInfo[] list(String type, Duration timeout) {
+        ServiceInfo[] services = new ServiceInfo[0];
+        for (JmDNS instance : jmdnsInstances) {
+            services = concatenate(services, instance.list(type, timeout.toMillis()));
         }
         return services;
     }

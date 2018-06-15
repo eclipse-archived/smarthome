@@ -20,18 +20,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.smarthome.config.core.ConfigurableService;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
+import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.io.net.http.HttpContextFactoryService;
+import org.eclipse.smarthome.model.sitemap.Chart;
 import org.eclipse.smarthome.model.sitemap.Frame;
 import org.eclipse.smarthome.model.sitemap.LinkableWidget;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
@@ -42,6 +47,15 @@ import org.eclipse.smarthome.ui.classic.internal.WebAppConfig;
 import org.eclipse.smarthome.ui.classic.internal.render.PageRenderer;
 import org.eclipse.smarthome.ui.classic.render.RenderException;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +67,12 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@Component(immediate = true, service = Servlet.class, configurationPid = "org.eclipse.smarthome.classicui", property = { //
+        Constants.SERVICE_PID + "=org.eclipse.smarthome.classicui", //
+        ConfigurableService.SERVICE_PROPERTY_CATEGORY + "=ui", //
+        ConfigurableService.SERVICE_PROPERTY_LABEL + "=Classic UI", //
+        ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI + "=ui:classic" //
+})
 public class WebAppServlet extends BaseServlet {
 
     private final Logger logger = LoggerFactory.getLogger(WebAppServlet.class);
@@ -71,19 +91,26 @@ public class WebAppServlet extends BaseServlet {
 
     private final WebAppConfig config = new WebAppConfig();
 
-    public void addSitemapProvider(SitemapProvider sitemapProvider) {
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, policy = ReferencePolicy.DYNAMIC)
+    protected void addSitemapProvider(SitemapProvider sitemapProvider) {
         this.sitemapProviders.add(sitemapProvider);
     }
 
-    public void removeSitemapProvider(SitemapProvider sitemapProvider) {
+    protected void removeSitemapProvider(SitemapProvider sitemapProvider) {
         this.sitemapProviders.remove(sitemapProvider);
     }
 
-    public void setPageRenderer(PageRenderer renderer) {
+    @Reference
+    protected void setPageRenderer(PageRenderer renderer) {
         renderer.setConfig(config);
         this.renderer = renderer;
     }
 
+    protected void unsetPageRenderer(PageRenderer renderer) {
+        this.renderer = null;
+    }
+
+    @Activate
     protected void activate(Map<String, Object> configProps, BundleContext bundleContext) {
         config.applyConfig(configProps);
         try {
@@ -99,10 +126,12 @@ public class WebAppServlet extends BaseServlet {
         }
     }
 
+    @Modified
     protected void modified(Map<String, Object> configProps) {
         config.applyConfig(configProps);
     }
 
+    @Deactivate
     protected void deactivate() {
         httpService.unregister(WEBAPP_ALIAS + "/" + SERVLET_NAME);
         httpService.unregister(WEBAPP_ALIAS);
@@ -232,7 +261,15 @@ public class WebAppServlet extends BaseServlet {
         Set<GenericItem> items = new HashSet<GenericItem>();
         if (renderer.getItemUIRegistry() != null) {
             for (Widget widget : widgets) {
-                addItemWithName(items, widget.getItem());
+                // We skip the chart widgets having a refresh argument
+                boolean skipWidget = false;
+                if (widget instanceof Chart) {
+                    Chart chartWidget = (Chart) widget;
+                    skipWidget = chartWidget.getRefresh() > 0;
+                }
+                if (!skipWidget) {
+                    addItemWithName(items, widget.getItem());
+                }
                 if (widget instanceof Frame) {
                     items.addAll(getAllItems(((Frame) widget).getChildren()));
                 }
@@ -291,6 +328,39 @@ public class WebAppServlet extends BaseServlet {
                 changed = true;
             }
         }
+    }
+
+    @Override
+    @Reference
+    public void setItemRegistry(ItemRegistry ItemRegistry) {
+        super.setItemRegistry(ItemRegistry);
+    }
+
+    @Override
+    public void unsetItemRegistry(ItemRegistry ItemRegistry) {
+        super.unsetItemRegistry(ItemRegistry);
+    }
+
+    @Override
+    @Reference
+    public void setHttpService(HttpService HttpService) {
+        super.setHttpService(HttpService);
+    }
+
+    @Override
+    public void unsetHttpService(HttpService HttpService) {
+        super.unsetHttpService(HttpService);
+    }
+
+    @Override
+    @Reference
+    public void setHttpContextFactoryService(HttpContextFactoryService HttpContextFactoryService) {
+        super.setHttpContextFactoryService(HttpContextFactoryService);
+    }
+
+    @Override
+    public void unsetHttpContextFactoryService(HttpContextFactoryService HttpContextFactoryService) {
+        super.unsetHttpContextFactoryService(HttpContextFactoryService);
     }
 
 }

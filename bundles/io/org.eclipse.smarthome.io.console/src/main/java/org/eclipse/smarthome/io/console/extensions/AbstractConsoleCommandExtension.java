@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.io.console.extensions;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.io.console.Console;
 
 /**
@@ -20,6 +21,7 @@ import org.eclipse.smarthome.io.console.Console;
  * @author Markus Rathgeb - Initial contribution and API
  *
  */
+@NonNullByDefault
 public abstract class AbstractConsoleCommandExtension implements ConsoleCommandExtension {
 
     private final String cmd;

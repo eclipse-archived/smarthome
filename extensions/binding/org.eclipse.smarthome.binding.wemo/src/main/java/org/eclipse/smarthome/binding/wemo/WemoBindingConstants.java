@@ -71,6 +71,10 @@ public class WemoBindingConstants {
     public static final String DEVICE_ID = "deviceID";
     public static final String POLLINGINTERVALL = "pollingInterval";
 
+    public static final int SUBSCRIPTION_DURATION = 600;
+    public static final int LINK_DISCOVERY_SERVICE_INITIAL_DELAY = 5;
+    public static final String HTTP_CALL_CONTENT_HEADER = "text/xml; charset=utf-8";
+
     public static final Set<ThingTypeUID> SUPPORTED_BRIDGE_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
 
     public static final Set<ThingTypeUID> SUPPORTED_LIGHT_THING_TYPES = Collections.singleton(THING_TYPE_MZ100);

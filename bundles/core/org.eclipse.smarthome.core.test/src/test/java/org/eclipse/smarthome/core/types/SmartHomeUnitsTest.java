@@ -26,6 +26,7 @@ import javax.measure.quantity.Pressure;
 import javax.measure.quantity.Speed;
 import javax.measure.quantity.Temperature;
 
+import org.eclipse.smarthome.core.library.dimension.ArealDensity;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.unit.ImperialUnits;
 import org.eclipse.smarthome.core.library.unit.MetricPrefix;
@@ -70,6 +71,29 @@ public class SmartHomeUnitsTest {
     }
 
     @Test
+    public void testmmHg2PascalConversion() {
+        Quantity<Pressure> mmHg = Quantities.getQuantity(BigDecimal.ONE, SmartHomeUnits.MILLIMETRE_OF_MERCURY);
+
+        assertThat(mmHg.to(SIUnits.PASCAL), is(Quantities.getQuantity(new BigDecimal("133.322368"), SIUnits.PASCAL)));
+        assertThat(mmHg.to(HECTO(SIUnits.PASCAL)),
+                is(Quantities.getQuantity(new BigDecimal("1.33322368"), HECTO(SIUnits.PASCAL))));
+    }
+
+    @Test
+    public void test_mmHg_UnitSymbol() {
+        assertThat(SmartHomeUnits.MILLIMETRE_OF_MERCURY.getSymbol(), is("mmHg"));
+        assertThat(SmartHomeUnits.MILLIMETRE_OF_MERCURY.toString(), is("mmHg"));
+    }
+
+    @Test
+    public void testPascal2mmHgConversion() {
+        Quantity<Pressure> pascal = Quantities.getQuantity(new BigDecimal("133.322368"), SIUnits.PASCAL);
+
+        assertThat(pascal.to(SmartHomeUnits.MILLIMETRE_OF_MERCURY),
+                is(Quantities.getQuantity(new BigDecimal("1.000"), SmartHomeUnits.MILLIMETRE_OF_MERCURY)));
+    }
+
+    @Test
     public void testHectoPascal2Pascal() {
         Quantity<Pressure> pascal = Quantities.getQuantity(BigDecimal.valueOf(100), SIUnits.PASCAL);
 
@@ -107,12 +131,45 @@ public class SmartHomeUnitsTest {
     }
 
     @Test
+    public void testCelsiusSpecialChar() {
+        QuantityType<Temperature> celsius = new QuantityType<>("20 ℃");
+        assertThat(celsius, is(new QuantityType<>("20 °C")));
+        assertThat(celsius.toFullString(), is("20 °C"));
+
+        assertThat(celsius.getUnit().toString(), is("°C"));
+    }
+
+    @Test
     public void testKmh2Mih() {
         Quantity<Speed> kmh = Quantities.getQuantity(BigDecimal.TEN, SIUnits.KILOMETRE_PER_HOUR);
 
         Quantity<Speed> mph = kmh.to(ImperialUnits.MILES_PER_HOUR);
         assertThat(mph.getUnit(), is(ImperialUnits.MILES_PER_HOUR));
         assertThat(mph.getValue().doubleValue(), is(closeTo(6.21371192237333935d, DEFAULT_ERROR)));
+    }
+
+    @Test
+    public void testKmh2Knot() {
+        Quantity<Speed> kmh = Quantities.getQuantity(new BigDecimal("1.852"), SIUnits.KILOMETRE_PER_HOUR);
+
+        Quantity<Speed> knot = kmh.to(SmartHomeUnits.KNOT);
+        assertThat(knot.getUnit(), is(SmartHomeUnits.KNOT));
+        assertThat(knot.getValue().doubleValue(), is(closeTo(1.000, DEFAULT_ERROR)));
+    }
+
+    @Test
+    public void testKnot2Kmh() {
+        Quantity<Speed> knot = Quantities.getQuantity(BigDecimal.TEN, SmartHomeUnits.KNOT);
+
+        Quantity<Speed> kmh = knot.to(SIUnits.KILOMETRE_PER_HOUR);
+        assertThat(kmh.getUnit(), is(SIUnits.KILOMETRE_PER_HOUR));
+        assertThat(kmh.getValue().doubleValue(), is(closeTo(18.52, DEFAULT_ERROR)));
+    }
+
+    @Test
+    public void test_knot_UnitSymbol() {
+        assertThat(SmartHomeUnits.KNOT.getSymbol(), is("kn"));
+        assertThat(SmartHomeUnits.KNOT.toString(), is("kn"));
     }
 
     @Test
@@ -189,6 +246,15 @@ public class SmartHomeUnitsTest {
     public void testDb() {
         QuantityType<Dimensionless> ratio = new QuantityType<>("100");
         assertEquals("20.0 dB", ratio.toUnit("dB").toString());
+    }
+
+    @Test
+    public void testDobsonUnits() {
+        // https://en.wikipedia.org/wiki/Dobson_unit
+        QuantityType<ArealDensity> oneDU = new QuantityType<ArealDensity>("1 DU");
+        QuantityType<ArealDensity> mmolpsq = oneDU.toUnit(MetricPrefix.MILLI(Units.MOLE).multiply(Units.METRE.pow(-2)));
+        assertThat(mmolpsq.doubleValue(), is(closeTo(0.4462d, DEFAULT_ERROR)));
+        assertThat(mmolpsq.toUnit(SmartHomeUnits.DOBSON_UNIT).doubleValue(), is(closeTo(1, DEFAULT_ERROR)));
     }
 
 }

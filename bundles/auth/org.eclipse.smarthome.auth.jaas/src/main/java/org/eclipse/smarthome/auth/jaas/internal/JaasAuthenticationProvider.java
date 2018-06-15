@@ -71,7 +71,6 @@ public class JaasAuthenticationProvider implements AuthenticationProvider {
             });
             loginContext.login();
 
-            // TODO shall we call logout method on login context?
             return getAuthentication(name, loginContext.getSubject());
         } catch (LoginException e) {
             throw new AuthenticationException("Could not obtain authentication over login context", e);

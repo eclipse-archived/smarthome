@@ -22,7 +22,7 @@
 			</div>
 		</div>
 		<div class="row" ng-show="showMore" class="searchBox" search-filters>
-			<md-autocomplete md-no-cache config='{"index":0,"targetField":"bindingType","sourceField":"id"}' class="col-xs-12 md-filter" md-min-length="0" md-selected-item="selectedOptions[0].value" md-item-text="binding.name" md-search-text="searchType" md-items="binding in searchInOptions(bindings,['name'],searchType)" placeholder="Filter by binding"> <md-item-template> <span md-highlight-text="searchType" md-highlight-flags="^i">{{binding.name}}</span> </md-item-template> <md-not-found> No matches found. </md-not-found> </md-autocomplete>
+			<md-autocomplete md-no-cache config='{"index":0,"targetField":"bindingType","sourceField":"id"}' class="col-xs-12 md-filter" md-min-length="0" md-selected-item="selectedOptions[0].value" md-item-text="binding.name" md-search-text="searchType" md-items="binding in searchInOptions(bindings,['name'],searchType) | orderBy:'name'" placeholder="Filter by binding"> <md-item-template> <span md-highlight-text="searchType" md-highlight-flags="^i">{{binding.name}}</span> </md-item-template> <md-not-found> No matches found. </md-not-found> </md-autocomplete>
 		</div>
 		<div class="container thingContainer">
 			<p class="text-center" ng-show="data.things.length == 0">
@@ -64,7 +64,7 @@
 				</div>
 			</div>
 		</div>
-		<div ng-init="form={}">
+		<div ng-init="form={}" ng-if="thing"> <!-- ng-if="thing" evaluates when EditThingController eventually loads the thing. It is then present for data binding. -->
 			<thing-configuration thing="thing" is-editing="isEditing" form="form"></thing-configuration>
 			<div class="container" ng-show="parameters.length > 0">
 				<h3>Configuration Parameters</h3>

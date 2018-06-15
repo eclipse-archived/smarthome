@@ -100,6 +100,12 @@ The following example implementation for `startScan` is taken from the `HueLight
     }
 ```
 
+### Re-Discovered Results and Things
+
+The `getThingUID` method of the discovery service should create a consistent UID every time the same thing gets discovered.
+This way existing discovery results and existing things with this UID will be updated with the properties from the current scan.
+With this, dynamic discoveries (like UPnP or mDNS) can re-discover existing things and update communication properties like host names or TCP ports.
+
 ### Remove older results
 
 Normally, older discovery results already in the inbox are left untouched by a newly triggered scan. If this behavior is not appropriate for the implemented discovery service, one can override the method `stopScan` to call `removeOlderResults` as shown in the following example from the Hue binding: 
@@ -114,7 +120,15 @@ Normally, older discovery results already in the inbox are left untouched by a n
 
 ### Compare with existing results
 
-In some cases it might be of interest for a discovery service if the same device was discovered before or even a Thing already exists. Therefore, a discovery service may implement the ExtendedDiscoveryService interface and use the injected callback in order to access the DiscoveryResult or Thing for a given ThingUID, if it exists. 
+In some cases it might be of interest for a discovery service if the same device was discovered before or even if a thing already exists.
+Therefore, a discovery service may implement the ExtendedDiscoveryService interface and use the injected callback in order to access the DiscoveryResult or thing for a given thing UID, if it exists.
+
+_Do not use this method to check if an equal result already exists.
+Use the special [representationProperty](../../concepts/discovery.html#inbox) to achieve this._
+
+_Do not use this method to update properties of an existing thing.
+See [Re-Discovered Results and Things](#re-discovered-results-and-things)._ 
+
 
 ```java
     public class SampleDiscoveryService extends AbstractDiscoveryService implements ExtendedDiscoveryService {

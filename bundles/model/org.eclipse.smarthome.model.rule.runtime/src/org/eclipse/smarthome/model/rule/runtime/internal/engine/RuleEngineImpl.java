@@ -89,14 +89,15 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
 
     private ScheduledFuture<?> startupJob;
 
-    // this flag is used to signal that items are still being added and that we hence do not consider the rule engine
-    // ready to be operational
-    private boolean starting = true;
+    // This flag is used to signal that items are still being added and that we hence do not consider the rule engine
+    // ready to be operational.
+    // This field is package private to allow access for unit tests.
+    boolean starting = true;
 
     @Activate
     public void activate() {
         injector = RulesStandaloneSetup.getInjector();
-        triggerManager = injector.getInstance(RuleTriggerManager.class);
+        triggerManager = new RuleTriggerManager(injector);
 
         if (!isEnabled()) {
             logger.info("Rule engine is disabled.");
@@ -440,5 +441,9 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
         } else if (event instanceof ThingStatusInfoChangedEvent) {
             receiveThingStatus((ThingStatusInfoChangedEvent) event);
         }
+    }
+
+    RuleTriggerManager getTriggerManager() {
+        return triggerManager;
     }
 }

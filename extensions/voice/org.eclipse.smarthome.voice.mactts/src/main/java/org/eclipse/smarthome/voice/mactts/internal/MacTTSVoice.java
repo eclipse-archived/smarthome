@@ -18,7 +18,7 @@ import java.util.StringTokenizer;
 import org.eclipse.smarthome.core.voice.Voice;
 
 /**
- * Implementation of the Voice interface for MacOS
+ * Implementation of the Voice interface for macOS
  *
  * @author Kelly Davis - Initial contribution and API
  */

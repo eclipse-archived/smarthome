@@ -4,8 +4,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>bundles</artifactId>
     <groupId>org.eclipse.smarthome</groupId>
+    <artifactId>bundles</artifactId>
     <version>0.10.0-SNAPSHOT</version>
   </parent>
   <groupId>org.eclipse.smarthome.bundles</groupId>
@@ -52,13 +52,14 @@
         <groupId>com.googlecode.maven-download-plugin</groupId>
         <artifactId>download-maven-plugin</artifactId>
         <version>1.2.1</version>
+        <inherited>false</inherited>
         <executions>
           <execution>
             <id>install-antrl3</id>
-            <phase>initialize</phase>
             <goals>
               <goal>wget</goal>
             </goals>
+            <phase>initialize</phase>
             <configuration>
               <url>http://download.itemis.com/antlr-generator-3.2.0-patch.jar</url>
               <unpack>false</unpack>
@@ -66,7 +67,6 @@
             </configuration>
           </execution>
         </executions>
-        <inherited>false</inherited>
       </plugin>
       <plugin>
         <groupId>org.eclipse.xtend</groupId>

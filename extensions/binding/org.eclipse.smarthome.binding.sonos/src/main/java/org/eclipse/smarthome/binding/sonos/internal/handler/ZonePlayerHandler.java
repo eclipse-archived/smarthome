@@ -39,6 +39,7 @@ import org.eclipse.smarthome.binding.sonos.internal.SonosBindingConstants;
 import org.eclipse.smarthome.binding.sonos.internal.SonosEntry;
 import org.eclipse.smarthome.binding.sonos.internal.SonosMetaData;
 import org.eclipse.smarthome.binding.sonos.internal.SonosMusicService;
+import org.eclipse.smarthome.binding.sonos.internal.SonosStateDescriptionOptionProvider;
 import org.eclipse.smarthome.binding.sonos.internal.SonosXMLParser;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZoneGroup;
 import org.eclipse.smarthome.binding.sonos.internal.SonosZonePlayerState;
@@ -64,6 +65,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOParticipant;
@@ -101,7 +103,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private SonosZonePlayerState savedState = null;
 
     private static final Collection<String> SERVICE_SUBSCRIPTIONS = Arrays.asList("DeviceProperties", "AVTransport",
-            "ZoneGroupTopology", "GroupManagement", "RenderingControl", "AudioIn", "HTControl");
+            "ZoneGroupTopology", "GroupManagement", "RenderingControl", "AudioIn", "HTControl", "ContentDirectory");
     private Map<String, Boolean> subscriptionState = new HashMap<String, Boolean>();
     protected static final int SUBSCRIPTION_DURATION = 1800;
     private static final int SOCKET_TIMEOUT = 5000;
@@ -139,6 +141,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     private final Object stateLock = new Object();
 
+    private SonosStateDescriptionOptionProvider stateDescriptionProvider;
+
     private final Runnable pollingRunnable = () -> {
         try {
             logger.debug("Polling job");
@@ -165,7 +169,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             addSubscription();
 
             updateZoneInfo();
-            updateRunningAlarmProperties();
             updateLed();
             updateSleepTimerDuration();
         } catch (Exception e) {
@@ -175,13 +178,15 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     private final String opmlUrl;
 
-    public ZonePlayerHandler(Thing thing, UpnpIOService upnpIOService, String opmlUrl) {
+    public ZonePlayerHandler(Thing thing, UpnpIOService upnpIOService, String opmlUrl,
+            SonosStateDescriptionOptionProvider stateDescriptionProvider) {
         super(thing);
         this.opmlUrl = opmlUrl;
         logger.debug("Creating a ZonePlayerHandler for thing '{}'", getThing().getUID());
         if (upnpIOService != null) {
             this.service = upnpIOService;
         }
+        this.stateDescriptionProvider = stateDescriptionProvider;
     }
 
     @Override
@@ -402,6 +407,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 }
             }
 
+            List<StateOption> options = new ArrayList<>();
+
             // update the appropriate channel
             switch (variable) {
                 case "TransportState":
@@ -459,6 +466,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     break;
                 case "AlarmRunning":
                     updateChannel(ALARMRUNNING);
+                    updateRunningAlarmProperties();
                     break;
                 case "RunningAlarmProperties":
                     updateChannel(ALARMPROPERTIES);
@@ -505,6 +513,30 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     break;
                 case "CurrentTuneInStationId":
                     updateChannel(TUNEINSTATIONID);
+                    break;
+                case "SavedQueuesUpdateID": // service ContentDirectoy
+                    for (SonosEntry entry : getPlayLists()) {
+                        options.add(new StateOption(entry.getTitle(), entry.getTitle()));
+                    }
+                    stateDescriptionProvider.setStateOptions(new ChannelUID(getThing().getUID(), PLAYLIST), options);
+                    break;
+                case "FavoritesUpdateID": // service ContentDirectoy
+                    for (SonosEntry entry : getFavorites()) {
+                        options.add(new StateOption(entry.getTitle(), entry.getTitle()));
+                    }
+                    stateDescriptionProvider.setStateOptions(new ChannelUID(getThing().getUID(), FAVORITE), options);
+                    break;
+                // For favorite radios, we should have checked the state variable named RadioFavoritesUpdateID
+                // Due to a bug in the data type definition of this state variable, it is not set.
+                // As a workaround, we check the state variable named ContainerUpdateIDs.
+                case "ContainerUpdateIDs": // service ContentDirectoy
+                    if (value.startsWith("R:0,") || stateDescriptionProvider
+                            .getStateOptions(new ChannelUID(getThing().getUID(), RADIO)) == null) {
+                        for (SonosEntry entry : getFavoriteRadios()) {
+                            options.add(new StateOption(entry.getTitle(), entry.getTitle()));
+                        }
+                        stateDescriptionProvider.setStateOptions(new ChannelUID(getThing().getUID(), RADIO), options);
+                    }
                     break;
                 default:
                     break;

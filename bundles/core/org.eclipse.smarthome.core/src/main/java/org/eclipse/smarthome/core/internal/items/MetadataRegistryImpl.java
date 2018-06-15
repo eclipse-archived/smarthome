@@ -13,11 +13,7 @@
 package org.eclipse.smarthome.core.internal.items;
 
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
-import org.eclipse.smarthome.core.common.registry.Provider;
-import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.events.EventPublisher;
-import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.items.ManagedMetadataProvider;
 import org.eclipse.smarthome.core.items.Metadata;
 import org.eclipse.smarthome.core.items.MetadataKey;
@@ -30,8 +26,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This is the main implementing class of the {@link MetadataRegistry} interface. It
@@ -43,27 +37,6 @@ import org.slf4j.LoggerFactory;
 @Component(immediate = true, service = { MetadataRegistry.class })
 public class MetadataRegistryImpl extends AbstractRegistry<Metadata, MetadataKey, MetadataProvider>
         implements MetadataRegistry {
-
-    private final Logger logger = LoggerFactory.getLogger(MetadataRegistryImpl.class);
-
-    private final ProviderChangeListener<Item> itemProviderChangeListener = new ProviderChangeListener<Item>() {
-        @Override
-        public void added(Provider<Item> provider, Item element) {
-        }
-
-        @Override
-        public void removed(Provider<Item> provider, Item element) {
-            if (managedProvider != null) {
-                // remove our metadata for that item
-                logger.debug("Item {} was removed, trying to clean up corresponding metadata", element.getUID());
-                ((ManagedMetadataProvider) managedProvider).removeItemMetadata(element.getName());
-            }
-        }
-
-        @Override
-        public void updated(Provider<Item> provider, Item oldelement, Item element) {
-        }
-    };
 
     public MetadataRegistryImpl() {
         super(MetadataProvider.class);
@@ -81,13 +54,9 @@ public class MetadataRegistryImpl extends AbstractRegistry<Metadata, MetadataKey
         super.deactivate();
     }
 
-    @Reference
-    protected void setManagedItemProvider(ManagedItemProvider managedItemProvider) {
-        managedItemProvider.addProviderChangeListener(itemProviderChangeListener);
-    }
-
-    protected void unsetManagedItemProvider(ManagedItemProvider managedItemProvider) {
-        managedItemProvider.removeProviderChangeListener(itemProviderChangeListener);
+    @Override
+    public boolean isInternalNamespace(String namespace) {
+        return namespace.startsWith(INTERNAL_NAMESPACE_PREFIX);
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
@@ -108,6 +77,14 @@ public class MetadataRegistryImpl extends AbstractRegistry<Metadata, MetadataKey
 
     protected void unsetManagedProvider(ManagedMetadataProvider managedProvider) {
         super.removeManagedProvider(managedProvider);
+    }
+
+    @Override
+    public void removeItemMetadata(String itemName) {
+        if (managedProvider != null) {
+            // remove our metadata for that item
+            ((ManagedMetadataProvider) managedProvider).removeItemMetadata(itemName);
+        }
     }
 
 }

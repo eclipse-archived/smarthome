@@ -4,8 +4,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>pom</artifactId>
     <groupId>org.eclipse.smarthome.extension</groupId>
+    <artifactId>pom</artifactId>
     <version>0.10.0-SNAPSHOT</version>
   </parent>
   <groupId>org.eclipse.smarthome.io</groupId>
@@ -17,6 +17,8 @@
 
   <modules>
     <module>org.eclipse.smarthome.io.javasound</module>
+    <module>org.eclipse.smarthome.io.mqttembeddedbroker</module>
+    <module>org.eclipse.smarthome.io.mqttembeddedbroker.test</module>
     <module>org.eclipse.smarthome.io.webaudio</module>
   </modules>
 

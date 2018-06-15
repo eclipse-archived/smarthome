@@ -34,9 +34,9 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
-import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.ItemBuilder;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
@@ -497,8 +497,13 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                         .getTransformationService(UIActivator.getContext(), type);
                 if (transformation != null) {
                     try {
-                        ret = label.substring(0, label.indexOf("[") + 1) + transformation.transform(pattern, value)
-                                + "]";
+                        String transformationResult = transformation.transform(pattern, value);
+                        if (transformationResult != null) {
+                            ret = label.substring(0, label.indexOf("[") + 1) + transformationResult + "]";
+                        } else {
+                            logger.warn("transformation of type {} did not return a valid result", type);
+                            ret = label.substring(0, label.indexOf("[") + 1) + UnDefType.NULL + "]";
+                        }
                     } catch (TransformationException e) {
                         logger.error("transformation throws exception [transformation={}, value={}]", transformation,
                                 value, e);
@@ -1217,7 +1222,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     }
 
     @Override
-    public <T extends GenericItem> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags) {
+    public <T extends Item> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags) {
         if (itemRegistry != null) {
             return itemRegistry.getItemsByTag(typeFilter, tags);
         } else {
@@ -1286,14 +1291,16 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
     @Override
     public String getUnitForWidget(Widget w) {
-        String unit = getUnitFromLabel(w.getLabel());
-        if (StringUtils.isNotBlank(unit) && !UnitUtils.UNIT_PLACEHOLDER.equals(unit)) {
-            return unit;
-        }
-
         try {
             Item item = getItem(w.getItem());
+
+            // we require the item to define a dimension, otherwise no unit will be reported to the UIs.
             if (item instanceof NumberItem && ((NumberItem) item).getDimension() != null) {
+                String unit = getUnitFromLabel(w.getLabel());
+                if (StringUtils.isNotBlank(unit) && !UnitUtils.UNIT_PLACEHOLDER.equals(unit)) {
+                    return unit;
+                }
+
                 return ((NumberItem) item).getUnitSymbol();
             }
         } catch (ItemNotFoundException e) {
@@ -1324,6 +1331,69 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
 
         return null;
+    }
+
+    @Override
+    public boolean addTag(String itemName, String tag) {
+        if (itemRegistry != null) {
+            return itemRegistry.addTag(itemName, tag);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean addTags(String itemName, Collection<String> tags) {
+        if (itemRegistry != null) {
+            return itemRegistry.addTags(itemName, tags);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean removeTag(String itemName, String tag) {
+        if (itemRegistry != null) {
+            return itemRegistry.removeTag(itemName, tag);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean removeTags(String itemName, Collection<String> tags) {
+        if (itemRegistry != null) {
+            return itemRegistry.removeTags(itemName, tags);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean removeTags(String itemName) {
+        if (itemRegistry != null) {
+            return itemRegistry.removeTags(itemName);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public ItemBuilder newItemBuilder(Item item) {
+        if (itemRegistry != null) {
+            return itemRegistry.newItemBuilder(item);
+        } else {
+            throw new IllegalStateException("Cannot create an item builder without the item registry");
+        }
+    }
+
+    @Override
+    public ItemBuilder newItemBuilder(String itemType, String itemName) {
+        if (itemRegistry != null) {
+            return itemRegistry.newItemBuilder(itemType, itemName);
+        } else {
+            throw new IllegalStateException("Cannot create an item builder without the item registry");
+        }
     }
 
 }

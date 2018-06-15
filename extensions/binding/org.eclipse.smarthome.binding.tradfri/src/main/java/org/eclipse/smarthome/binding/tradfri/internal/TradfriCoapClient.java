@@ -20,6 +20,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.californium.core.CoapClient;
+import org.eclipse.californium.core.CoapObserveRelation;
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,40 +35,35 @@ public class TradfriCoapClient extends CoapClient {
 
     private static final int TIMEOUT = 2000;
     private static final int DEFAULT_DELAY_MILLIS = 600;
-    private final Logger logger;
-    private final LinkedList<PayloadCallbackPair> commandsQueue;
-    private final Runnable commandExecutor;
+    private final Logger logger = LoggerFactory.getLogger(TradfriCoapClient.class);
+    private final LinkedList<PayloadCallbackPair> commandsQueue = new LinkedList<>();
     private Future<?> job;
 
     public TradfriCoapClient(URI uri) {
         super(uri);
         setTimeout(TIMEOUT);
-        logger = LoggerFactory.getLogger(getClass());
+    }
 
-        commandsQueue = new LinkedList<>();
-        
-        commandExecutor = () -> {
-            while (true) {
-                try {
-                    int delayTime = 0;
-                    synchronized (this.commandsQueue) {
-                        PayloadCallbackPair payloadCallbackPair = TradfriCoapClient.this.commandsQueue.poll();
-                        if (payloadCallbackPair != null) {
-                            logger.debug("Proccessing payload: {}", payloadCallbackPair.payload);
-                            TradfriCoapClient.this.put(new TradfriCoapHandler(payloadCallbackPair.callback), payloadCallbackPair.payload, MediaTypeRegistry.TEXT_PLAIN);
-                            delayTime = Optional.ofNullable(payloadCallbackPair.delay).orElse(DEFAULT_DELAY_MILLIS);
-                        } else {
-                            return;
-                        }
+    private void executeCommands() {
+        while (true) {
+            try {
+                int delayTime = 0;
+                synchronized (commandsQueue) {
+                    PayloadCallbackPair payloadCallbackPair = commandsQueue.poll();
+                    if (payloadCallbackPair != null) {
+                        logger.debug("Proccessing payload: {}", payloadCallbackPair.payload);
+                        put(new TradfriCoapHandler(payloadCallbackPair.callback), payloadCallbackPair.payload,
+                                MediaTypeRegistry.TEXT_PLAIN);
+                        delayTime = Optional.ofNullable(payloadCallbackPair.delay).orElse(DEFAULT_DELAY_MILLIS);
+                    } else {
+                        return;
                     }
-                    Thread.sleep(delayTime);
-                } catch (InterruptedException e) {
-                    logger.debug("commandExecutorThread was interrupted", e);
                 }
+                Thread.sleep(delayTime);
+            } catch (InterruptedException e) {
+                logger.debug("commandExecutorThread was interrupted", e);
             }
-        };
-        
-        job = null;
+        }
     }
 
     /**
@@ -75,8 +71,8 @@ public class TradfriCoapClient extends CoapClient {
      *
      * @param callback the callback to use for updates
      */
-    public void startObserve(CoapCallback callback) {
-        observe(new TradfriCoapHandler(callback));
+    public CoapObserveRelation startObserve(CoapCallback callback) {
+        return observe(new TradfriCoapHandler(callback));
     }
 
     /**
@@ -125,7 +121,7 @@ public class TradfriCoapClient extends CoapClient {
             if (this.commandsQueue.isEmpty()) {
                 this.commandsQueue.offer(payloadCallbackPair);
                 if (job == null || job.isDone()) {
-                    job = scheduler.submit(commandExecutor);
+                    job = scheduler.submit(() -> executeCommands());
                 }
             } else {
                 this.commandsQueue.offer(payloadCallbackPair);

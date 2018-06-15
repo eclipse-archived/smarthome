@@ -20,12 +20,16 @@ import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.core.types.util.UnitUtils;
 import org.eclipse.smarthome.model.sitemap.Mapping;
 import org.eclipse.smarthome.model.sitemap.Selection;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.classic.render.RenderException;
 import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
+import org.eclipse.smarthome.ui.items.ItemUIRegistry;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@Component(service = WidgetRenderer.class)
 public class SelectionRenderer extends AbstractWidgetRenderer {
 
     private final Logger logger = LoggerFactory.getLogger(SelectionRenderer.class);
@@ -56,6 +61,7 @@ public class SelectionRenderer extends AbstractWidgetRenderer {
         State state = itemUIRegistry.getState(w);
         Selection selection = (Selection) w;
         String mappedValue = "";
+        String rowMappedValue;
 
         Item item = null;
         try {
@@ -65,40 +71,20 @@ public class SelectionRenderer extends AbstractWidgetRenderer {
         }
 
         StringBuilder rowSB = new StringBuilder();
-        for (Mapping mapping : selection.getMappings()) {
-            String rowSnippet = getSnippet("selection_row");
-
-            String command = mapping.getCmd() != null ? mapping.getCmd() : "";
-            String label = mapping.getLabel();
-
-            if (item instanceof NumberItem && ((NumberItem) item).getDimension() != null) {
-                String unit = getUnitForWidget(w);
-                command = StringUtils.replace(command, UnitUtils.UNIT_PLACEHOLDER, unit);
-                label = StringUtils.replace(label, UnitUtils.UNIT_PLACEHOLDER, unit);
-
-                // Special treatment for °C since uom library uses a single character: ℃
-                // This will ensure the current state matches the cmd and the buttonClass is set accordingly.
-                command = StringUtils.replace(command, "°C", "℃");
+        if (selection.getMappings().size() == 0 && item != null && item.getStateDescription() != null) {
+            for (StateOption option : item.getStateDescription().getOptions()) {
+                rowMappedValue = buildRow(selection, option.getLabel(), option.getValue(), item, state, rowSB);
+                if (rowMappedValue != null) {
+                    mappedValue = rowMappedValue;
+                }
             }
-
-            rowSnippet = StringUtils.replace(rowSnippet, "%item%", w.getItem() != null ? w.getItem() : "");
-            rowSnippet = StringUtils.replace(rowSnippet, "%cmd%", StringEscapeUtils.escapeHtml(command));
-            rowSnippet = StringUtils.replace(rowSnippet, "%label%",
-                    label != null ? StringEscapeUtils.escapeHtml(label) : "");
-
-            State compareMappingState = state;
-            if (state instanceof QuantityType) { // convert the item state to the command value for proper
-                                                 // comparison and "checked" attribute calculation
-                compareMappingState = convertStateToLabelUnit((QuantityType<?>) state, command);
+        } else {
+            for (Mapping mapping : selection.getMappings()) {
+                rowMappedValue = buildRow(selection, mapping.getLabel(), mapping.getCmd(), item, state, rowSB);
+                if (rowMappedValue != null) {
+                    mappedValue = rowMappedValue;
+                }
             }
-
-            if (compareMappingState.toString().equals(command)) {
-                rowSnippet = StringUtils.replace(rowSnippet, "%checked%", "checked=\"true\"");
-                mappedValue = (label != null) ? label : command;
-            } else {
-                rowSnippet = StringUtils.replace(rowSnippet, "%checked%", "");
-            }
-            rowSB.append(rowSnippet);
         }
         snippet = StringUtils.replace(snippet, "%label_header%", getLabel(w, mappedValue));
         snippet = StringUtils.replace(snippet, "%rows%", rowSB.toString());
@@ -109,4 +95,53 @@ public class SelectionRenderer extends AbstractWidgetRenderer {
         sb.append(snippet);
         return null;
     }
+
+    private String buildRow(Selection w, String lab, String cmd, Item item, State state, StringBuilder rowSB)
+            throws RenderException {
+        String mappedValue = null;
+        String rowSnippet = getSnippet("selection_row");
+
+        String command = cmd != null ? cmd : "";
+        String label = lab;
+
+        if (item instanceof NumberItem && ((NumberItem) item).getDimension() != null) {
+            String unit = getUnitForWidget(w);
+            command = StringUtils.replace(command, UnitUtils.UNIT_PLACEHOLDER, unit);
+            label = StringUtils.replace(label, UnitUtils.UNIT_PLACEHOLDER, unit);
+        }
+
+        rowSnippet = StringUtils.replace(rowSnippet, "%item%", w.getItem() != null ? w.getItem() : "");
+        rowSnippet = StringUtils.replace(rowSnippet, "%cmd%", StringEscapeUtils.escapeHtml(command));
+        rowSnippet = StringUtils.replace(rowSnippet, "%label%",
+                label != null ? StringEscapeUtils.escapeHtml(label) : "");
+
+        State compareMappingState = state;
+        if (state instanceof QuantityType) { // convert the item state to the command value for proper
+                                             // comparison and "checked" attribute calculation
+            compareMappingState = convertStateToLabelUnit((QuantityType<?>) state, command);
+        }
+
+        if (compareMappingState.toString().equals(command)) {
+            mappedValue = label;
+            rowSnippet = StringUtils.replace(rowSnippet, "%checked%", "checked=\"true\"");
+        } else {
+            rowSnippet = StringUtils.replace(rowSnippet, "%checked%", "");
+        }
+
+        rowSB.append(rowSnippet);
+
+        return mappedValue;
+    }
+
+    @Override
+    @Reference
+    protected void setItemUIRegistry(ItemUIRegistry ItemUIRegistry) {
+        super.setItemUIRegistry(ItemUIRegistry);
+    }
+
+    @Override
+    protected void unsetItemUIRegistry(ItemUIRegistry ItemUIRegistry) {
+        super.unsetItemUIRegistry(ItemUIRegistry);
+    }
+
 }

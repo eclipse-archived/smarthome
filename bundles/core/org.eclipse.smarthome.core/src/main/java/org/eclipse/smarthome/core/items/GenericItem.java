@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -64,7 +65,7 @@ public abstract class GenericItem implements ActiveItem {
 
     protected List<String> groupNames = new ArrayList<String>();
 
-    protected Set<String> tags = new HashSet<String>();
+    protected transient volatile Set<String> tags = ConcurrentHashMap.newKeySet();
 
     protected final String name;
 
@@ -409,9 +410,7 @@ public abstract class GenericItem implements ActiveItem {
      * @return true if state is an acceptedDataType or subclass thereof
      */
     public boolean isAcceptedState(List<Class<? extends State>> acceptedDataTypes, State state) {
-        return acceptedDataTypes.stream()
-                .map(clazz -> clazz.isAssignableFrom(state.getClass()))
-                .filter(found -> found)
+        return acceptedDataTypes.stream().map(clazz -> clazz.isAssignableFrom(state.getClass())).filter(found -> found)
                 .findAny().isPresent();
     }
 

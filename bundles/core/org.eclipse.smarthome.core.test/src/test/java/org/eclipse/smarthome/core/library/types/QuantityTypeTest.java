@@ -25,6 +25,7 @@ import javax.measure.quantity.Length;
 import javax.measure.quantity.Temperature;
 
 import org.eclipse.smarthome.core.library.dimension.Density;
+import org.eclipse.smarthome.core.library.dimension.Intensity;
 import org.eclipse.smarthome.core.library.unit.ImperialUnits;
 import org.eclipse.smarthome.core.library.unit.MetricPrefix;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
@@ -37,6 +38,7 @@ import tec.uom.se.quantity.QuantityDimension;
 /**
  * @author Gaël L'hopital - initial contribution
  */
+@SuppressWarnings({ "rawtypes", "unchecked", "null" })
 public class QuantityTypeTest {
 
     @Before
@@ -189,7 +191,7 @@ public class QuantityTypeTest {
     public void toFullStringShouldParseToEqualState() {
         QuantityType<Temperature> temp = new QuantityType<>("20 °C");
 
-        assertThat(temp.toFullString(), is("20 ℃"));
+        assertThat(temp.toFullString(), is("20 °C"));
         assertThat(QuantityType.valueOf(temp.toFullString()), is(temp));
     }
 
@@ -253,6 +255,24 @@ public class QuantityTypeTest {
 
         density = density.toUnit("g/cm³");
         assertEquals("19.816 g/cm³", density.toString());
+    }
+
+    @Test
+    public void testIntensity() {
+        QuantityType<Intensity> density = new QuantityType<>("10 W/m²");
+        assertEquals(10, density.doubleValue(), 1E-5);
+        assertEquals(SmartHomeUnits.IRRADIANCE.toString(), density.getUnit().toString());
+
+        density = density.toUnit("W/cm²");
+        assertEquals("0.001 W/cm²", density.toString());
+
+        density = new QuantityType<Intensity>(2, SmartHomeUnits.IRRADIANCE);
+        assertEquals(2, density.doubleValue(), 1E-5);
+        assertEquals("2 W/m²", density.toString());
+
+        density = new QuantityType<Intensity>("3 W/m^2");
+        assertEquals(3, density.doubleValue(), 1E-5);
+        assertEquals("3 W/m²", density.toString());
     }
 
     @Test

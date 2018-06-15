@@ -26,6 +26,7 @@ import org.eclipse.smarthome.binding.wemo.handler.WemoHandler;
 import org.eclipse.smarthome.binding.wemo.handler.WemoLightHandler;
 import org.eclipse.smarthome.binding.wemo.handler.WemoMakerHandler;
 import org.eclipse.smarthome.binding.wemo.internal.discovery.WemoLinkDiscoveryService;
+import org.eclipse.smarthome.binding.wemo.internal.http.WemoHttpCall;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -33,8 +34,11 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,9 +49,10 @@ import org.slf4j.LoggerFactory;
  * @author Hans-Jörg Merk - Initial contribution
  * @author Kai Kreuzer - some refactoring for performance and simplification
  */
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.wemo")
 public class WemoHandlerFactory extends BaseThingHandlerFactory {
 
-    private Logger logger = LoggerFactory.getLogger(WemoHandlerFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(WemoHandlerFactory.class);
 
     private UpnpIOService upnpIOService;
 
@@ -58,7 +63,7 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
         return SUPPORTED_THING_TYPES.contains(thingTypeUID);
     }
 
-    private Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
+    private final Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
 
     @Override
     protected ThingHandler createHandler(Thing thing) {
@@ -66,26 +71,28 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
         if (thingTypeUID != null) {
             logger.debug("Trying to create a handler for ThingType '{}", thingTypeUID);
 
+            WemoHttpCall wemoHttpcaller = new WemoHttpCall();
+
             if (thingTypeUID.equals(WemoBindingConstants.THING_TYPE_BRIDGE)) {
                 logger.debug("Creating a WemoBridgeHandler for thing '{}' with UDN '{}'", thing.getUID(),
                         thing.getConfiguration().get(UDN));
                 WemoBridgeHandler handler = new WemoBridgeHandler((Bridge) thing);
-                registerDeviceDiscoveryService(handler);
+                registerDeviceDiscoveryService(handler, wemoHttpcaller);
                 return handler;
             } else if (thingTypeUID.equals(WemoBindingConstants.THING_TYPE_MAKER)) {
                 logger.debug("Creating a WemoMakerHandler for thing '{}' with UDN '{}'", thing.getUID(),
                         thing.getConfiguration().get(UDN));
-                return new WemoMakerHandler(thing, upnpIOService);
+                return new WemoMakerHandler(thing, upnpIOService, wemoHttpcaller);
             } else if (WemoBindingConstants.SUPPORTED_DEVICE_THING_TYPES.contains(thing.getThingTypeUID())) {
                 logger.debug("Creating a WemoHandler for thing '{}' with UDN '{}'", thing.getUID(),
                         thing.getConfiguration().get(UDN));
-                return new WemoHandler(thing, upnpIOService);
+                return new WemoHandler(thing, upnpIOService, wemoHttpcaller);
             } else if (thingTypeUID.equals(WemoBindingConstants.THING_TYPE_COFFEE)) {
                 logger.debug("Creating a WemoCoffeeHandler for thing '{}' with UDN '{}'", thing.getUID(),
                         thing.getConfiguration().get(UDN));
-                return new WemoCoffeeHandler(thing, upnpIOService);
+                return new WemoCoffeeHandler(thing, upnpIOService, wemoHttpcaller);
             } else if (thingTypeUID.equals(WemoBindingConstants.THING_TYPE_MZ100)) {
-                return new WemoLightHandler(thing, upnpIOService);
+                return new WemoLightHandler(thing, upnpIOService, wemoHttpcaller);
             } else {
                 logger.warn("ThingHandler not found for {}", thingTypeUID);
                 return null;
@@ -94,6 +101,7 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
         return null;
     }
 
+    @Reference
     protected void setUpnpIOService(UpnpIOService upnpIOService) {
         this.upnpIOService = upnpIOService;
     }
@@ -113,8 +121,9 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
         }
     }
 
-    private void registerDeviceDiscoveryService(WemoBridgeHandler wemoBridgeHandler) {
-        WemoLinkDiscoveryService discoveryService = new WemoLinkDiscoveryService(wemoBridgeHandler, upnpIOService);
+    private void registerDeviceDiscoveryService(WemoBridgeHandler wemoBridgeHandler, WemoHttpCall wemoHttpCaller) {
+        WemoLinkDiscoveryService discoveryService = new WemoLinkDiscoveryService(wemoBridgeHandler, upnpIOService,
+                wemoHttpCaller);
         this.discoveryServiceRegs.put(wemoBridgeHandler.getThing().getUID(), bundleContext
                 .registerService(DiscoveryService.class.getName(), discoveryService, new Hashtable<String, Object>()));
     }

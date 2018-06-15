@@ -591,7 +591,7 @@
 		};
 		_t.valueMap = {};
 		_t.buttons = [].slice.call(_t.parentNode.querySelectorAll(o.controlButton));
-		_t.setValuePrivate = function(value) {
+		_t.setValuePrivate = function(value, itemState) {
 			if (_t.hasValue) {
 				_t.value.innerHTML = value;
 			}
@@ -608,9 +608,9 @@
 			_t.reset();
 			if (
 				(_t.valueMap !== undefined) &&
-				(_t.valueMap[value] !== undefined)
+				(_t.valueMap[itemState] !== undefined)
 			) {
-				_t.valueMap[value].classList.add(o.buttonActiveClass);
+				_t.valueMap[itemState].classList.add(o.buttonActiveClass);
 			}
 		};
 
@@ -2128,7 +2128,7 @@
 		_t.suppressErrorsState = false;
 
 		function initSubscription(address) {
-			if (featureSupport.eventSource) {
+			if (featureSupport.eventSource && address !== null) {
 				ChangeListenerEventsource.call(_t, address);
 			} else {
 				ChangeListenerLongpolling.call(_t);
@@ -2218,10 +2218,20 @@
 				"&pageid=" + page);
 		};
 
+		_t.subscriberError = function() {
+			var
+				notify = renderTemplate(o.notifyTemplateLongPollingMode, {});
+
+			// Failback to long polling mode
+			smarthome.UI.showNotification(notify);
+			initSubscription(null);
+		};
+
 		ajax({
 			url: _t.subscribeRequestURL,
 			type: "POST",
-			callback: _t.startSubscriber
+			callback: _t.startSubscriber,
+			error: _t.subscriberError
 		});
 	}
 
@@ -2283,5 +2293,6 @@
 	},
 	notify: ".mdl-notify__container",
 	notifyHidden: "mdl-notify--hidden",
-	notifyTemplateOffline: "template-offline-notify"
+	notifyTemplateOffline: "template-offline-notify",
+	notifyTemplateLongPollingMode: "template-long-polling-mode-notify"
 });

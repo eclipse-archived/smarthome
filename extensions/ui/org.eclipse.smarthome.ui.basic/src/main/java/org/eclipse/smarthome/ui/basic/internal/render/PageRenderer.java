@@ -20,6 +20,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.smarthome.core.i18n.LocaleProvider;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.model.sitemap.Frame;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapProvider;
@@ -28,6 +30,14 @@ import org.eclipse.smarthome.ui.basic.internal.WebAppConfig;
 import org.eclipse.smarthome.ui.basic.internal.servlet.WebAppServlet;
 import org.eclipse.smarthome.ui.basic.render.RenderException;
 import org.eclipse.smarthome.ui.basic.render.WidgetRenderer;
+import org.eclipse.smarthome.ui.items.ItemUIRegistry;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,12 +52,26 @@ import org.slf4j.LoggerFactory;
  * @author Vlad Ivanov - BasicUI changes
  *
  */
+@Component(service = { PageRenderer.class })
 public class PageRenderer extends AbstractWidgetRenderer {
 
     private final Logger logger = LoggerFactory.getLogger(PageRenderer.class);
 
     List<WidgetRenderer> widgetRenderers = new ArrayList<WidgetRenderer>();
 
+    @Override
+    @Activate
+    protected void activate(BundleContext bundleContext) {
+        super.activate(bundleContext);
+    }
+
+    @Override
+    @Deactivate
+    protected void deactivate(BundleContext bundleContext) {
+        super.deactivate(bundleContext);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addWidgetRenderer(WidgetRenderer widgetRenderer) {
         widgetRenderer.setConfig(config);
         widgetRenderers.add(widgetRenderer);
@@ -72,6 +96,7 @@ public class PageRenderer extends AbstractWidgetRenderer {
             throws RenderException {
         String snippet = getSnippet(async ? "layer" : "main");
         snippet = snippet.replaceAll("%main.offline-msg%", localizeText("@text/main.offline-msg"));
+        snippet = snippet.replaceAll("%main.long-polling-mode-msg%", localizeText("@text/main.long-polling-mode-msg"));
         snippet = snippet.replaceAll("%id%", id);
 
         // if the label contains a value span, we remove this span as
@@ -225,5 +250,38 @@ public class PageRenderer extends AbstractWidgetRenderer {
         pageSnippet = StringUtils.replace(pageSnippet, "%content%", listSnippet);
 
         return pageSnippet;
+    }
+
+    @Override
+    @Reference
+    protected void setItemUIRegistry(ItemUIRegistry ItemUIRegistry) {
+        super.setItemUIRegistry(ItemUIRegistry);
+    }
+
+    @Override
+    protected void unsetItemUIRegistry(ItemUIRegistry ItemUIRegistry) {
+        super.unsetItemUIRegistry(ItemUIRegistry);
+    }
+
+    @Override
+    @Reference
+    protected void setLocaleProvider(LocaleProvider LocaleProvider) {
+        super.setLocaleProvider(LocaleProvider);
+    }
+
+    @Override
+    protected void unsetLocaleProvider(LocaleProvider LocaleProvider) {
+        super.unsetLocaleProvider(LocaleProvider);
+    }
+
+    @Override
+    @Reference
+    protected void setTranslationProvider(TranslationProvider TranslationProvider) {
+        super.setTranslationProvider(TranslationProvider);
+    }
+
+    @Override
+    protected void unsetTranslationProvider(TranslationProvider TranslationProvider) {
+        super.unsetTranslationProvider(TranslationProvider);
     }
 }

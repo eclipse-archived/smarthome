@@ -19,6 +19,8 @@ import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.io.rest.sse.SseResource;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * The {@link SseEventSubscriber} is responsible for broadcasting Eclipse SmartHome events
@@ -26,12 +28,14 @@ import org.eclipse.smarthome.io.rest.sse.SseResource;
  *
  * @author Stefan Bußweiler - Initial contribution
  */
+@Component
 public class SseEventSubscriber implements EventSubscriber {
 
     private final Set<String> subscribedEventTypes = Collections.singleton(EventSubscriber.ALL_EVENT_TYPES);
 
     private SseResource sseResource;
 
+    @Reference
     protected void setSseResource(SseResource sseResource) {
         this.sseResource = sseResource;
     }

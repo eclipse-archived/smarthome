@@ -15,17 +15,30 @@ package org.eclipse.smarthome.core.internal.items;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.i18n.UnitProvider;
+import org.eclipse.smarthome.core.items.ActiveItem;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.ItemBuilder;
+import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemProvider;
@@ -33,14 +46,21 @@ import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemStateConverter;
 import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
+import org.eclipse.smarthome.core.items.Metadata;
+import org.eclipse.smarthome.core.items.MetadataKey;
+import org.eclipse.smarthome.core.items.MetadataRegistry;
 import org.eclipse.smarthome.core.items.RegistryHook;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.service.StateDescriptionService;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the main implementing class of the {@link ItemRegistry} interface. It
@@ -55,14 +75,51 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 @Component(immediate = true)
 public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvider> implements ItemRegistry {
 
+    static final String TAG_NAMESPACE = MetadataRegistry.INTERNAL_NAMESPACE_PREFIX + "tags";
+    static final String TAG_SEPARATOR = "|";
+    static final String TAG_SPLIT_REGEX = "\\" + TAG_SEPARATOR;
+
+    private final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
     private final List<RegistryHook<Item>> registryHooks = new CopyOnWriteArrayList<>();
+    private final ReadWriteLock tagLock = new ReentrantReadWriteLock(true);
+
     private StateDescriptionService stateDescriptionService;
+    private MetadataRegistry metadataRegistry;
+    private final Set<ItemFactory> itemFactories = new CopyOnWriteArraySet<>();
 
     private UnitProvider unitProvider;
     private ItemStateConverter itemStateConverter;
 
     public ItemRegistryImpl() {
         super(ItemProvider.class);
+    }
+
+    @Override
+    public Stream<Item> stream() {
+        return super.stream().map(item -> {
+            setTagsFromMetadata(item);
+            return item;
+        });
+    }
+
+    private void setTagsFromMetadata(Item item) {
+        if (item instanceof ActiveItem) {
+            ActiveItem activeItem = (ActiveItem) item;
+            activeItem.removeAllTags();
+            tagLock.readLock().lock();
+            try {
+                activeItem.addTags(readTags(item.getName()));
+            } finally {
+                tagLock.readLock().unlock();
+            }
+        }
+    }
+
+    @Override
+    public @Nullable Item get(String key) {
+        Item item = super.get(key);
+        setTagsFromMetadata(item);
+        return item;
     }
 
     @Override
@@ -214,8 +271,31 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     }
 
     @Override
+    public Item add(Item item) {
+        tagLock.writeLock().lock();
+        try {
+            writeTags(item.getName(), item.getTags());
+        } finally {
+            tagLock.writeLock().unlock();
+        }
+        return super.add(item);
+    }
+
+    @Override
+    public Item update(Item item) {
+        tagLock.writeLock().lock();
+        try {
+            writeTags(item.getName(), item.getTags());
+            return super.update(item);
+        } finally {
+            tagLock.writeLock().unlock();
+        }
+    }
+
+    @Override
     protected void onAddElement(Item element) throws IllegalArgumentException {
         initializeItem(element);
+        addTags(element.getName(), element.getTags());
     }
 
     @Override
@@ -227,11 +307,14 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     }
 
     @Override
-    protected void onUpdateElement(Item oldItem, Item item) {
-        if (oldItem instanceof GenericItem) {
-            ((GenericItem) oldItem).dispose();
+    protected void beforeUpdateElement(Item existingElement) {
+        if (existingElement instanceof GenericItem) {
+            ((GenericItem) existingElement).dispose();
         }
+    }
 
+    @Override
+    protected void onUpdateElement(Item oldItem, Item item) {
         // don't use #initialize and retain order of items in groups:
         List<String> oldNames = oldItem.getGroupNames();
         List<String> newNames = item.getGroupNames();
@@ -244,6 +327,9 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
             addMembersToGroupItem((GroupItem) item);
         }
         injectServices(item);
+
+        removeTags(oldItem.getName(), oldItem.getTags());
+        addTags(item.getName(), item.getTags());
     }
 
     @Override
@@ -315,7 +401,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends GenericItem> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags) {
+    public <T extends Item> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags) {
         Collection<T> filteredItems = new ArrayList<T>();
 
         Collection<Item> items = getItemsByTag(tags);
@@ -344,6 +430,99 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
             return ((ManagedItemProvider) this.managedProvider).remove(itemName, recursive);
         } else {
             throw new IllegalStateException("ManagedProvider is not available");
+        }
+    }
+
+    private Metadata serializeTags(MetadataKey key, Set<String> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return null;
+        }
+        String tagString = String.join(TAG_SEPARATOR, tags);
+        Metadata metadata = new Metadata(key, tagString, null);
+        return metadata;
+    }
+
+    private SortedSet<String> readTags(String itemName) {
+        MetadataKey key = new MetadataKey(TAG_NAMESPACE, itemName);
+        SortedSet<String> tags = new TreeSet<>();
+        Metadata metadata = null;
+        metadata = metadataRegistry.get(key);
+        if (metadata != null) {
+            tags.addAll(Arrays.asList(metadata.getValue().split(TAG_SPLIT_REGEX)));
+        }
+        return tags;
+    }
+
+    private void writeTags(String itemName, Set<String> tags) {
+        MetadataKey key = new MetadataKey(TAG_NAMESPACE, itemName);
+        Metadata metadata = serializeTags(key, tags);
+        try {
+            if (metadata == null) {
+                metadataRegistry.remove(key);
+            } else if (metadataRegistry.get(key) != null) {
+                metadataRegistry.update(metadata);
+            } else {
+                metadataRegistry.add(metadata);
+            }
+        } catch (IllegalStateException e) {
+            logger.debug("Could not persist tags of item '{}', presumably no ManagedMetadataProvider was available",
+                    itemName);
+        }
+    }
+
+    @Override
+    public boolean addTag(String itemName, String tag) {
+        return addTags(itemName, Collections.singleton(tag));
+    }
+
+    @Override
+    public boolean addTags(String itemName, Collection<String> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return false;
+        }
+        tagLock.writeLock().lock();
+        try {
+            SortedSet<String> itemTags = readTags(itemName);
+            boolean ret = itemTags.addAll(tags);
+            if (ret) {
+                writeTags(itemName, itemTags);
+            }
+            return ret;
+        } finally {
+            tagLock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public boolean removeTag(String itemName, String tag) {
+        return removeTags(itemName, Collections.singleton(tag));
+    }
+
+    @Override
+    public boolean removeTags(String itemName, Collection<String> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return false;
+        }
+        tagLock.writeLock().lock();
+        try {
+            SortedSet<String> itemTags = readTags(itemName);
+            boolean ret = itemTags.removeAll(tags);
+            writeTags(itemName, itemTags);
+            return ret;
+        } finally {
+            tagLock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public boolean removeTags(String itemName) {
+        tagLock.writeLock().lock();
+        try {
+            SortedSet<String> itemTags = readTags(itemName);
+            writeTags(itemName, null);
+            return !itemTags.isEmpty();
+        } finally {
+            tagLock.writeLock().unlock();
         }
     }
 
@@ -389,6 +568,11 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         for (RegistryHook<Item> registryHook : registryHooks) {
             registryHook.afterRemoving(element);
         }
+        if (provider instanceof ManagedItemProvider) {
+            // remove our metadata for that item
+            logger.debug("Item {} was removed, trying to clean up corresponding metadata", element.getUID());
+            metadataRegistry.removeItemMetadata(element.getName());
+        }
     }
 
     @Override
@@ -411,11 +595,23 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         registryHooks.remove(hook);
     }
 
+    @Override
+    public ItemBuilder newItemBuilder(Item item) {
+        return new ItemBuilderImpl(itemFactories, item);
+    }
+
+    @Override
+    public ItemBuilder newItemBuilder(String itemType, String itemName) {
+        return new ItemBuilderImpl(itemFactories, itemType, itemName);
+    }
+
+    @Activate
     protected void activate(final ComponentContext componentContext) {
         super.activate(componentContext.getBundleContext());
     }
 
     @Override
+    @Deactivate
     protected void deactivate() {
         super.deactivate();
     }
@@ -444,6 +640,24 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     protected void unsetManagedProvider(ManagedItemProvider provider) {
         super.unsetManagedProvider(provider);
+    }
+
+    @Reference
+    protected void setMetadataRegistry(MetadataRegistry metadataRegistry) {
+        this.metadataRegistry = metadataRegistry;
+    }
+
+    protected void unsetMetadataRegistry(MetadataRegistry metadataRegistry) {
+        this.metadataRegistry = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    protected void addItemFactory(ItemFactory itemFactory) {
+        itemFactories.add(itemFactory);
+    }
+
+    protected void removeItemFactory(ItemFactory itemFactory) {
+        itemFactories.remove(itemFactory);
     }
 
 }

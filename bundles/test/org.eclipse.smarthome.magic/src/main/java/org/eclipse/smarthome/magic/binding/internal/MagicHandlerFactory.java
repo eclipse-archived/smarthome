@@ -16,17 +16,21 @@ import static org.eclipse.smarthome.magic.binding.MagicBindingConstants.*;
 
 import java.util.Set;
 
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.eclipse.smarthome.magic.binding.handler.MagicBridgeHandler;
+import org.eclipse.smarthome.magic.binding.handler.MagicBridgedThingHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicColorLightHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicConfigurableThingHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicContactHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicDelayedOnlineHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicDimmableLightHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicExtensibleThingHandler;
+import org.eclipse.smarthome.magic.binding.handler.MagicFirmwareUpdateThingHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicLocationThingHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicOnOffLightHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicThermostatThingHandler;
@@ -40,12 +44,13 @@ import com.google.common.collect.Sets;
  *
  * @author Henning Treu - Initial contribution
  */
-@Component(immediate = true, service = ThingHandlerFactory.class, configurationPid = "binding.magic")
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.magic")
 public class MagicHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Sets.newHashSet(THING_TYPE_EXTENSIBLE_THING,
             THING_TYPE_ON_OFF_LIGHT, THING_TYPE_DIMMABLE_LIGHT, THING_TYPE_COLOR_LIGHT, THING_TYPE_CONTACT_SENSOR,
-            THING_TYPE_CONFIG_THING, THING_TYPE_DELAYED_THING, THING_TYPE_LOCATION, THING_TYPE_THERMOSTAT);
+            THING_TYPE_CONFIG_THING, THING_TYPE_DELAYED_THING, THING_TYPE_LOCATION, THING_TYPE_THERMOSTAT,
+            THING_TYPE_FIRMWARE_UPDATE, THING_TYPE_BRIDGE_1, THING_TYPE_BRIDGE_2, THING_TYPE_BRIDGED_THING);
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -82,6 +87,16 @@ public class MagicHandlerFactory extends BaseThingHandlerFactory {
         }
         if (thingTypeUID.equals(THING_TYPE_THERMOSTAT)) {
             return new MagicThermostatThingHandler(thing);
+        }
+        if (thingTypeUID.equals(THING_TYPE_FIRMWARE_UPDATE)) {
+            return new MagicFirmwareUpdateThingHandler(thing);
+        }
+        if (thingTypeUID.equals(THING_TYPE_BRIDGED_THING)) {
+            return new MagicBridgedThingHandler(thing);
+        }
+
+        if (thingTypeUID.equals(THING_TYPE_BRIDGE_1) || thingTypeUID.equals(THING_TYPE_BRIDGE_2)) {
+            return new MagicBridgeHandler((Bridge) thing);
         }
 
         return null;

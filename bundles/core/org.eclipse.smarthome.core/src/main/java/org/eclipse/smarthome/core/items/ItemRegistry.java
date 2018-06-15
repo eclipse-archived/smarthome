@@ -105,8 +105,7 @@ public interface ItemRegistry extends Registry<Item, String> {
      * @return list of items which contains all of the given tags, which is
      *         filtered by the given type filter.
      */
-    public @NonNull <T extends GenericItem> Collection<T> getItemsByTag(@NonNull Class<T> typeFilter,
-            @NonNull String... tags);
+    public @NonNull <T extends Item> Collection<T> getItemsByTag(@NonNull Class<T> typeFilter, @NonNull String... tags);
 
     /**
      * @see ManagedItemProvider#remove(String, boolean)
@@ -126,5 +125,66 @@ public interface ItemRegistry extends Registry<Item, String> {
      * @param hook
      */
     void removeRegistryHook(RegistryHook<Item> hook);
+
+    /**
+     * Adds a tag to the item.
+     *
+     * @param itemName the name of the item
+     * @param tag the tag to be added
+     * @return {@code true} if the collection of tags was modified by this operation
+     */
+    boolean addTag(String itemName, String tag);
+
+    /**
+     * Adds the given tags to the item.
+     *
+     * @param itemName the name of the item
+     * @param tags the tags to be added
+     * @return {@code true} if the collection of tags was modified by this operation
+     */
+    boolean addTags(String itemName, Collection<String> tags);
+
+    /**
+     * Removes a tag from the item.
+     *
+     * @param itemName the name of the item
+     * @param tag the tag to be removed
+     * @return {@code true} if the collection of tags was modified by this operation
+     */
+    boolean removeTag(String itemName, String tag);
+
+    /**
+     * Removes the given tags from the item.
+     *
+     * @param itemName the name of the item
+     * @param tags the tags to be removed
+     * @return {@code true} if the collection of tags was modified by this operation
+     */
+    boolean removeTags(String itemName, Collection<String> tags);
+
+    /**
+     * Removes all tags from the item.
+     *
+     * @param itemName the name of the item
+     * @return {@code true} if the collection of tags was modified by this operation
+     */
+    boolean removeTags(String itemName);
+
+    /**
+     * Create a new {@link ItemBuilder}, which is initialized by the given item.
+     *
+     * @param item the template to initialize the builder with
+     * @return an ItemBuilder instance
+     */
+    ItemBuilder newItemBuilder(Item item);
+
+    /**
+     * Create a new {@link ItemBuilder}, which is initialized by the given item.
+     *
+     * @param itemType the item type to create
+     * @param itemName the name of the item to create
+     * @return an ItemBuilder instance
+     */
+    ItemBuilder newItemBuilder(String itemType, String itemName);
 
 }

@@ -98,6 +98,8 @@ public class ReadyServiceImpl implements ReadyService {
                 trackers.put(readyTracker, filter);
                 notifyTracker(readyTracker, marker -> readyTracker.onReadyMarkerAdded(marker));
             }
+        } catch (RuntimeException e) {
+            logger.error("Registering tracker '" + readyTracker + "' failed!", e);
         } finally {
             rwlTrackers.writeLock().unlock();
         }

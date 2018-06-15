@@ -58,15 +58,15 @@ public class StateDescriptionConverter extends GenericUnmarshaller<StateDescript
             try {
                 return new BigDecimal(attrValueText);
             } catch (NumberFormatException nfe) {
-                throw new ConversionException("The attribute '" + attribute
-                        + "' has not a valid decimal number format!", nfe);
+                throw new ConversionException(
+                        "The attribute '" + attribute + "' has not a valid decimal number format!", nfe);
             }
         }
 
         return defaultValue;
     }
 
-    private boolean toBoolean(Map<String, String> attributes, String attribute, boolean defaultValue) {
+    private boolean toBoolean(Map<String, String> attributes, String attribute, Boolean defaultValue) {
         String attrValueText = attributes.get(attribute);
 
         if (attrValueText != null) {

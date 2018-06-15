@@ -1,4 +1,4 @@
-describe('module PaperUI.controllers.things', function() {
+describe('module PaperUI.things', function() {
     beforeEach(function() {
         module('PaperUI');
     });

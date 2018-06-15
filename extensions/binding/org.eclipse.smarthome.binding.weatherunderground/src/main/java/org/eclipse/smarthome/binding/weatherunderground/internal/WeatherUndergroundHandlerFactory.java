@@ -34,7 +34,7 @@ import org.osgi.service.component.annotations.Reference;
  *
  * @author Laurent Garnier - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class, immediate = true)
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.weatherunderground")
 public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
 
     private LocaleProvider localeProvider;

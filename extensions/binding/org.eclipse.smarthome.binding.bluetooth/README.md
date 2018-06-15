@@ -2,6 +2,10 @@
 
 This binding provides support for generic Bluetooth devices.
 
+It has the following extensions:
+
+<!--list-subs-->
+
 ## Bridges
 
 In order to function, this binding requires a Bluetoooth adapter to be present, which handles the wireless communication.
@@ -70,3 +74,7 @@ sitemap demo label="Main Menu"
     }
 }
 ```
+
+See also the following extensions for further examples:
+
+<!--list-subs-->

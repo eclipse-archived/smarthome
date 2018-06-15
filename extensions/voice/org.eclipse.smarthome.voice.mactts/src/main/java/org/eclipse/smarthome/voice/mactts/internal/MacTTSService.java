@@ -27,6 +27,7 @@ import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.voice.TTSException;
 import org.eclipse.smarthome.core.voice.TTSService;
 import org.eclipse.smarthome.core.voice.Voice;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
  * @author Pauli Antilla
  * @author Kelly Davis
  */
+@Component
 public class MacTTSService implements TTSService {
 
     private final Logger logger = LoggerFactory.getLogger(MacTTSService.class);
@@ -132,7 +134,7 @@ public class MacTTSService implements TTSService {
 
     @Override
     public String getLabel(Locale locale) {
-        return "MacOS TTS";
+        return "macOS TTS";
     }
 
 }

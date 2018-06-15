@@ -18,6 +18,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.californium.core.CoapObserveRelation;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.binding.tradfri.internal.CoapCallback;
 import org.eclipse.smarthome.binding.tradfri.internal.TradfriCoapClient;
@@ -50,6 +51,8 @@ public abstract class TradfriThingHandler extends BaseThingHandler implements Co
 
     protected TradfriCoapClient coapClient;
 
+    private CoapObserveRelation observeRelation;
+
     public TradfriThingHandler(@NonNull Thing thing) {
         super(thing);
     }
@@ -75,7 +78,7 @@ public abstract class TradfriThingHandler extends BaseThingHandler implements Co
         switch (tradfriGateway.getStatus()) {
             case ONLINE:
                 scheduler.schedule(() -> {
-                    coapClient.startObserve(this);
+                    observeRelation = coapClient.startObserve(this);
                 }, 3, TimeUnit.SECONDS);
                 break;
             case OFFLINE:
@@ -89,6 +92,10 @@ public abstract class TradfriThingHandler extends BaseThingHandler implements Co
     @Override
     public synchronized void dispose() {
         active = false;
+        if (observeRelation != null) {
+            observeRelation.reactiveCancel();
+            observeRelation = null;
+        }
         if (coapClient != null) {
             coapClient.shutdown();
         }
@@ -100,18 +107,24 @@ public abstract class TradfriThingHandler extends BaseThingHandler implements Co
         if (active && getBridge().getStatus() != ThingStatus.OFFLINE && status != ThingStatus.ONLINE) {
             updateStatus(status, statusDetail);
             // we are offline and lost our observe relation - let's try to establish the connection in 10 seconds again
-            scheduler.schedule(() -> coapClient.startObserve(this), 10, TimeUnit.SECONDS);
+            scheduler.schedule(() -> {
+                if (observeRelation != null) {
+                    observeRelation.reactiveCancel();
+                    observeRelation = null;
+                }
+                observeRelation = coapClient.startObserve(this);
+            }, 10, TimeUnit.SECONDS);
         }
     }
 
     @Override
     public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
         super.bridgeStatusChanged(bridgeStatusInfo);
-
-        if (bridgeStatusInfo.getStatus() == ThingStatus.ONLINE) {
-            // the status might have changed because the bridge is completely reconfigured - so we need to re-establish
-            // our CoAP connection as well
+        // the status might have changed because the bridge is completely reconfigured - so we need to re-establish
+        // our CoAP connection as well
+        if (bridgeStatusInfo.getStatus() == ThingStatus.OFFLINE) {
             dispose();
+        } else if (bridgeStatusInfo.getStatus() == ThingStatus.ONLINE) {
             initialize();
         }
     }

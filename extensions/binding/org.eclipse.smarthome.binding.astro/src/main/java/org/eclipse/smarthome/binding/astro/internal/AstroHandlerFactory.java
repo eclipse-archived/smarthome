@@ -38,7 +38,7 @@ import org.osgi.service.component.annotations.Reference;
  *
  * @author Gerhard Riegler - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class, immediate = true)
+@Component(configurationPid = "binding.astro", service = ThingHandlerFactory.class)
 public class AstroHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream
@@ -55,7 +55,7 @@ public class AstroHandlerFactory extends BaseThingHandlerFactory {
     @Override
     protected ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
-        AstroThingHandler thingHandler = null;      
+        AstroThingHandler thingHandler = null;
         if (thingTypeUID.equals(THING_TYPE_SUN)) {
             thingHandler = new SunHandler(thing);
         } else if (thingTypeUID.equals(THING_TYPE_MOON)) {
@@ -81,7 +81,7 @@ public class AstroHandlerFactory extends BaseThingHandlerFactory {
     protected void unsetTimeZoneProvider(TimeZoneProvider timeZone) {
         PropertyUtils.unsetTimeZone();
     }
-    
+
     public static AstroThingHandler getHandler(String thingUid) {
         return ASTRO_THING_HANDLERS.get(thingUid);
     }

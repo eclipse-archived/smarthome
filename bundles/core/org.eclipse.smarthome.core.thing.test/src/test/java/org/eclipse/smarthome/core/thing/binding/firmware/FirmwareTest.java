@@ -13,13 +13,15 @@
 package org.eclipse.smarthome.core.thing.binding.firmware;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -32,6 +34,7 @@ import org.junit.Test;
  *
  * @author Thomas Höfer - Initial contribution
  * @author Henning Sudbrock - Migrated from Groovy to Java
+ * @author Dimitar Ivanov - replaced Firmware UID with thing UID and firmware version
  */
 public class FirmwareTest extends JavaOSGiTest {
 
@@ -39,55 +42,48 @@ public class FirmwareTest extends JavaOSGiTest {
 
     private static final ThingTypeUID thingTypeUID = new ThingTypeUID("binding", "thingType");
 
-    private static final Firmware valpha = new Firmware.Builder(new FirmwareUID(thingTypeUID, "alpha")).build();
-    private static final Firmware valpha1 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "alpha1")).build();
-    private static final Firmware vbeta = new Firmware.Builder(new FirmwareUID(thingTypeUID, "beta"))
+    private static final Firmware valpha = FirmwareBuilder.create(thingTypeUID, "alpha").build();
+    private static final Firmware valpha1 = FirmwareBuilder.create(thingTypeUID, "alpha1").build();
+    private static final Firmware vbeta = FirmwareBuilder.create(thingTypeUID, "beta")
             .withPrerequisiteVersion(valpha1.getVersion()).build();
-    private static final Firmware vbetafix = new Firmware.Builder(new FirmwareUID(thingTypeUID, "beta-fix")).build();
-    private static final Firmware vgamma = new Firmware.Builder(new FirmwareUID(thingTypeUID, "gamma"))
+    private static final Firmware vbetafix = FirmwareBuilder.create(thingTypeUID, "beta-fix").build();
+    private static final Firmware vgamma = FirmwareBuilder.create(thingTypeUID, "gamma")
             .withPrerequisiteVersion(vbetafix.getVersion()).build();
-    private static final Firmware vdelta = new Firmware.Builder(new FirmwareUID(thingTypeUID, "delta")).build();
+    private static final Firmware vdelta = FirmwareBuilder.create(thingTypeUID, "delta").build();
 
-    private static final Firmware xyz = new Firmware.Builder(new FirmwareUID(thingTypeUID, "xyz_1")).build();
-    private static final Firmware abc = new Firmware.Builder(new FirmwareUID(thingTypeUID, "abc.2")).build();
+    private static final Firmware xyz = FirmwareBuilder.create(thingTypeUID, "xyz_1").build();
+    private static final Firmware abc = FirmwareBuilder.create(thingTypeUID, "abc.2").build();
 
-    private static final Firmware v0 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "0")).build();
-    private static final Firmware v0dot0dot9 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "0.0.9")).build();
-    private static final Firmware v1 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1")).build();
-    private static final Firmware v1dot0dot0 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1.0.0")).build();
-    private static final Firmware v1dot0dot1 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1.0.1")).build();
-    private static final Firmware v1dot0dot2 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1.0.2"))
+    private static final Firmware v0 = FirmwareBuilder.create(thingTypeUID, "0").build();
+    private static final Firmware v0dot0dot9 = FirmwareBuilder.create(thingTypeUID, "0.0.9").build();
+    private static final Firmware v1 = FirmwareBuilder.create(thingTypeUID, "1").build();
+    private static final Firmware v1dot0dot0 = FirmwareBuilder.create(thingTypeUID, "1.0.0").build();
+    private static final Firmware v1dot0dot1 = FirmwareBuilder.create(thingTypeUID, "1.0.1").build();
+    private static final Firmware v1dot0dot2 = FirmwareBuilder.create(thingTypeUID, "1.0.2")
             .withPrerequisiteVersion(v1dot0dot1.getVersion()).build();
-    private static final Firmware v1dot0dot2dashfix = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1.0.2-fix"))
-            .build();
-    private static final Firmware v1dot0dot3 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1.0.3"))
+    private static final Firmware v1dot0dot2dashfix = FirmwareBuilder.create(thingTypeUID, "1.0.2-fix").build();
+    private static final Firmware v1dot0dot3 = FirmwareBuilder.create(thingTypeUID, "1.0.3")
             .withPrerequisiteVersion(v1dot0dot2dashfix.getVersion()).build();
-    private static final Firmware v1dash1 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1-1")).build();
-    private static final Firmware v1dot1dot0 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1.1.0"))
+    private static final Firmware v1dash1 = FirmwareBuilder.create(thingTypeUID, "1-1").build();
+    private static final Firmware v1dot1dot0 = FirmwareBuilder.create(thingTypeUID, "1.1.0")
             .withPrerequisiteVersion(v1dot0dot2dashfix.getVersion()).build();
-    private static final Firmware v1dot2dot0 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1.2.0")).build();
-    private static final Firmware v1dot10 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1.10")).build();
-    private static final Firmware v1dot10dot0 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1.10.0")).build();
-    private static final Firmware v1dash11dot2_1 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1-11.2_1"))
-            .build();
-    private static final Firmware v1dot11_2dasha = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1.11_2-a"))
-            .build();
-    private static final Firmware v2dot0dot0 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "2.0.0"))
+    private static final Firmware v1dot2dot0 = FirmwareBuilder.create(thingTypeUID, "1.2.0").build();
+    private static final Firmware v1dot10 = FirmwareBuilder.create(thingTypeUID, "1.10").build();
+    private static final Firmware v1dot10dot0 = FirmwareBuilder.create(thingTypeUID, "1.10.0").build();
+    private static final Firmware v1dash11dot2_1 = FirmwareBuilder.create(thingTypeUID, "1-11.2_1").build();
+    private static final Firmware v1dot11_2dasha = FirmwareBuilder.create(thingTypeUID, "1.11_2-a").build();
+    private static final Firmware v2dot0dot0 = FirmwareBuilder.create(thingTypeUID, "2.0.0")
             .withPrerequisiteVersion(v1dot11_2dasha.getVersion()).build();
 
-    private static final Firmware combined1 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1.2.3-2.3.4"))
-            .build();
-    private static final Firmware combined2 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1.2.3-2.4.1"))
-            .build();
-    private static final Firmware combined3 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1.3.1-2.3.4"))
-            .build();
-    private static final Firmware combined4 = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1.3.1-2.4.1"))
-            .build();
+    private static final Firmware combined1 = FirmwareBuilder.create(thingTypeUID, "1.2.3-2.3.4").build();
+    private static final Firmware combined2 = FirmwareBuilder.create(thingTypeUID, "1.2.3-2.4.1").build();
+    private static final Firmware combined3 = FirmwareBuilder.create(thingTypeUID, "1.3.1-2.3.4").build();
+    private static final Firmware combined4 = FirmwareBuilder.create(thingTypeUID, "1.3.1-2.4.1").build();
 
     @Test
-    public void testBuilder() throws MalformedURLException {
+    public void testFirmwareBuilder() throws MalformedURLException {
+        ThingTypeUID sampleThingTypeUID = new ThingTypeUID("binding", "sampleThingType");
         String version = "1.0.0";
-        FirmwareUID uid = new FirmwareUID(thingTypeUID, version);
         String changelog = "changelog";
         InputStream inputStream = new BufferedInputStream(System.in);
         String description = "description";
@@ -98,13 +94,13 @@ public class FirmwareTest extends JavaOSGiTest {
         String md5hash = "123abc";
         String vendor = "vendor";
 
-        Firmware firmware = new Firmware.Builder(uid).withChangelog(changelog).withInputStream(inputStream)
-                .withDescription(description).withModel(model).withModelRestricted(modelRestricted)
-                .withOnlineChangelog(onlineChangelog).withPrerequisiteVersion(prerequisiteVersion).withVendor(vendor)
-                .withMd5Hash(md5hash).build();
+        Firmware firmware = FirmwareBuilder.create(sampleThingTypeUID, version).withModel(model)
+                .withModelRestricted(modelRestricted).withChangelog(changelog).withInputStream(inputStream)
+                .withDescription(description).withOnlineChangelog(onlineChangelog)
+                .withPrerequisiteVersion(prerequisiteVersion).withVendor(vendor).withMd5Hash(md5hash).build();
 
         assertThat(firmware, is(notNullValue()));
-        assertThat(firmware.getUID(), is(uid));
+        assertThat(firmware.getThingTypeUID(), is(sampleThingTypeUID));
         assertThat(firmware.getChangelog(), is(changelog));
         assertThat(firmware.getInputStream(), is(inputStream));
         assertThat(firmware.getDescription(), is(description));
@@ -164,37 +160,39 @@ public class FirmwareTest extends JavaOSGiTest {
     }
 
     @Test
-    public void testFirmwarePrerequisiteVersion() {
-        assertThat(valpha.isPrerequisiteVersion(vbeta.getVersion()), is(false));
-        assertThat(valpha.isPrerequisiteVersion(null), is(false));
+    public void testFirmwareSuitabilityNoPrerequisiteVersion() {
+        Firmware firmware = firmwareWithVersion("2.0.0");
 
-        assertThat(vbeta.isPrerequisiteVersion(valpha1.getVersion()), is(true));
-        assertThat(vbeta.isPrerequisiteVersion(valpha.getVersion()), is(false));
+        assertTrue(firmware.isSuitableFor(thingWithFirmwareVersion(null)));
+        assertTrue(firmware.isSuitableFor(thingWithFirmwareVersion("1.0.0")));
+        assertTrue(firmware.isSuitableFor(thingWithFirmwareVersion("2.0.0")));
+        assertTrue(firmware.isSuitableFor(thingWithFirmwareVersion("3.0.0")));
+    }
 
-        assertThat(vgamma.isPrerequisiteVersion(vbetafix.getVersion()), is(true));
-        assertThat(vgamma.isPrerequisiteVersion(vbeta.getVersion()), is(false));
+    @Test
+    public void testFirmwareSuitabilityWithPrerequisiteVersion() {
+        Firmware firmware = firmwareWithVersionAndPrerequisiteVersion("3.0.0", "2.0.0");
 
-        assertThat(vdelta.isPrerequisiteVersion(vgamma.getVersion()), is(false));
+        assertFalse(firmware.isSuitableFor(thingWithFirmwareVersion(null)));
+        assertFalse(firmware.isSuitableFor(thingWithFirmwareVersion("1.0.0")));
+        assertTrue(firmware.isSuitableFor(thingWithFirmwareVersion("2.0.0")));
+        assertTrue(firmware.isSuitableFor(thingWithFirmwareVersion("3.0.0")));
+        assertTrue(firmware.isSuitableFor(thingWithFirmwareVersion("4.0.0")));
+    }
 
-        assertThat(v1dot0dot2.isPrerequisiteVersion(v1dot0dot1.getVersion()), is(true));
-        assertThat(v1dot0dot2.isPrerequisiteVersion(v1dot0dot0.getVersion()), is(false));
-        assertThat(v1dot0dot2.isPrerequisiteVersion(v0dot0dot9.getVersion()), is(false));
+    @Test
+    public void testFirmwareSuitabilityWithHigherPrerequisiteVersion() {
+        Firmware firmware = firmwareWithVersionAndPrerequisiteVersion("1.0.0", "2.0.0");
 
-        assertThat(v1dot1dot0.isPrerequisiteVersion(v1dash1.getVersion()), is(true));
-        assertThat(v1dot1dot0.isPrerequisiteVersion(v1dot0dot3.getVersion()), is(true));
-        assertThat(v1dot1dot0.isPrerequisiteVersion(v1dot0dot2dashfix.getVersion()), is(true));
-        assertThat(v1dot1dot0.isPrerequisiteVersion(v1dot0dot2.getVersion()), is(false));
-        assertThat(v1dot1dot0.isPrerequisiteVersion(v1dot0dot1.getVersion()), is(false));
-        assertThat(v1dot1dot0.isPrerequisiteVersion(v0dot0dot9.getVersion()), is(false));
-
-        assertThat(v2dot0dot0.isPrerequisiteVersion(v1dot11_2dasha.getVersion()), is(true));
-        assertThat(v2dot0dot0.isPrerequisiteVersion(v1dash11dot2_1.getVersion()), is(false));
+        assertFalse(firmware.isSuitableFor(thingWithFirmwareVersion(null)));
+        assertFalse(firmware.isSuitableFor(thingWithFirmwareVersion("1.0.0")));
+        assertTrue(firmware.isSuitableFor(thingWithFirmwareVersion("2.0.0")));
+        assertTrue(firmware.isSuitableFor(thingWithFirmwareVersion("3.0.0")));
     }
 
     @Test
     public void testFirmwareIsNotSuitableForThingWithDifferentThingType() {
-        Firmware firmware = new Firmware.Builder(new FirmwareUID(new ThingTypeUID("binding:thingTypeA"), "version"))
-                .build();
+        Firmware firmware = FirmwareBuilder.create(new ThingTypeUID("binding:thingTypeA"), "version").build();
         Thing thing = ThingBuilder.create(new ThingTypeUID("binding:thingTypeB"), "thing").build();
 
         assertThat(firmware.isSuitableFor(thing), is(false));
@@ -202,8 +200,7 @@ public class FirmwareTest extends JavaOSGiTest {
 
     @Test
     public void testNotModelRestrictedFirmwareIsSuitableForThingWithSameThingType() {
-        Firmware firmware = new Firmware.Builder(new FirmwareUID(new ThingTypeUID("binding:thingTypeA"), "version"))
-                .build();
+        Firmware firmware = FirmwareBuilder.create(new ThingTypeUID("binding:thingTypeA"), "version").build();
         Thing thing = ThingBuilder.create(new ThingTypeUID("binding:thingTypeA"), "thing").build();
 
         assertThat(firmware.isSuitableFor(thing), is(true));
@@ -211,7 +208,7 @@ public class FirmwareTest extends JavaOSGiTest {
 
     @Test
     public void testModelRestrictedFirmwareIsSuitableForThingWithSameThingTypeAndSameModel() {
-        Firmware firmware = new Firmware.Builder(new FirmwareUID(new ThingTypeUID("binding:thingTypeA"), "version"))
+        Firmware firmware = FirmwareBuilder.create(new ThingTypeUID("binding:thingTypeA"), "version")
                 .withModelRestricted(true).withModel("someModel").build();
         Thing thing = ThingBuilder.create(new ThingTypeUID("binding:thingTypeA"), "thing").build();
         thing.setProperty(Thing.PROPERTY_MODEL_ID, "someModel");
@@ -221,7 +218,7 @@ public class FirmwareTest extends JavaOSGiTest {
 
     @Test
     public void testModelRestrictedFirmwareIsNotSuitableForThingWithSameThingTypeAndAnotherModel() {
-        Firmware firmware = new Firmware.Builder(new FirmwareUID(new ThingTypeUID("binding:thingTypeA"), "version"))
+        Firmware firmware = FirmwareBuilder.create(new ThingTypeUID("binding:thingTypeA"), "version")
                 .withModelRestricted(true).withModel("someModel").build();
         Thing thing = ThingBuilder.create(new ThingTypeUID("binding:thingTypeA"), "thing").build();
         thing.setProperty(Thing.PROPERTY_MODEL_ID, "someOtherModel");
@@ -229,14 +226,23 @@ public class FirmwareTest extends JavaOSGiTest {
         assertThat(firmware.isSuitableFor(thing), is(false));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void assertThatColonCannotBeUsedAsPartOfTheFirmwareVersion() {
-        new Firmware.Builder(new FirmwareUID(new ThingTypeUID("test", "test"), "1.2:3"));
+    @Test
+    public void testFirmwareIsSuitableForThingWithSameModelAndVendor() {
+        Firmware firmware = FirmwareBuilder.create(new ThingTypeUID("binding:thingTypeA"), "version")
+                .withVendor("bindingVendor").build();
+        Thing thing = ThingBuilder.create(new ThingTypeUID("binding:thingTypeA"), "thing").build();
+
+        assertThat(firmware.isSuitableFor(thing), is(true));
+    }
+
+    @Test
+    public void assertThatColonCanBeUsedAsPartOfTheFirmwareVersion() {
+        FirmwareBuilder.create(thingTypeUID, "1.2:3");
     }
 
     @Test
     public void assertThatFirmwareWithValidMD5HashValueDoesNotThrowExceptionForGetBytes() throws IOException {
-        Firmware firmware = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1"))
+        Firmware firmware = FirmwareBuilder.create(thingTypeUID, "1")
                 .withInputStream(bundleContext.getBundle().getResource(FILE_NAME).openStream())
                 .withMd5Hash("78805a221a988e79ef3f42d7c5bfd418").build();
 
@@ -246,7 +252,7 @@ public class FirmwareTest extends JavaOSGiTest {
 
     @Test(expected = IllegalStateException.class)
     public void assertThatFirmwareWithInvalidMD5HashValueThrowsExceptionForGetBytes() throws IOException {
-        Firmware firmware = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1"))
+        Firmware firmware = FirmwareBuilder.create(thingTypeUID, "1")
                 .withInputStream(bundleContext.getBundle().getResource(FILE_NAME).openStream())
                 .withMd5Hash("78805a221a988e79ef3f42d7c5bfd419").build();
         firmware.getBytes();
@@ -254,11 +260,67 @@ public class FirmwareTest extends JavaOSGiTest {
 
     @Test
     public void assertThatFirmwareWithoutMD5HashValueDoesNotThrowExceptionForGetBytes() throws IOException {
-        Firmware firmware = new Firmware.Builder(new FirmwareUID(thingTypeUID, "1"))
+        Firmware firmware = FirmwareBuilder.create(thingTypeUID, "1")
                 .withInputStream(bundleContext.getBundle().getResource(FILE_NAME).openStream()).build();
 
         byte[] bytes = firmware.getBytes();
         assertThat(bytes, is(notNullValue()));
     }
 
+    @Test
+    public void assertDuplicateFirmwaresWithEquals() throws IOException {
+        String changelog = "changelog";
+        String description = "description";
+        String model = "model";
+        boolean modelRestricted = true;
+        URL onlineChangelog = new URL("https://secure.com/changelog");
+        String prerequisiteVersion = "0.1";
+        String vendor = "vendor";
+        Map<String, String> properties = new HashMap<>();
+        properties.put("prop1", "val1");
+        properties.put("prop2", "val2");
+        InputStream openStream = bundleContext.getBundle().getResource(FILE_NAME).openStream();
+
+        Firmware firmware1 = FirmwareBuilder.create(thingTypeUID, "1").withInputStream(openStream)
+                .withChangelog(changelog).withDescription(description).withModel(model)
+                .withModelRestricted(modelRestricted).withOnlineChangelog(onlineChangelog)
+                .withPrerequisiteVersion(prerequisiteVersion).withVendor(vendor).withProperties(properties).build();
+
+        Firmware firmware2 = FirmwareBuilder.create(thingTypeUID, "1").withInputStream(openStream)
+                .withChangelog(changelog).withDescription(description).withModel(model)
+                .withModelRestricted(modelRestricted).withOnlineChangelog(onlineChangelog)
+                .withPrerequisiteVersion(prerequisiteVersion).withVendor(vendor).withProperties(properties).build();
+
+        assertThat(firmware1.equals(firmware2), is(true));
+        assertThat(firmware2.equals(firmware1), is(true));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullThingTypeOnCreation() {
+        FirmwareBuilder.create(giveNull(), "1");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullFirmwareVersionOnCreation() {
+        FirmwareBuilder.create(thingTypeUID, giveNull());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testEmptyVersionOnCreation() {
+        FirmwareBuilder.create(thingTypeUID, "");
+    }
+
+    private Firmware firmwareWithVersion(String version) {
+        return FirmwareBuilder.create(thingTypeUID, version).build();
+    }
+
+    private Firmware firmwareWithVersionAndPrerequisiteVersion(String version, String prerequisiteVersion) {
+        return FirmwareBuilder.create(thingTypeUID, version).withPrerequisiteVersion(prerequisiteVersion).build();
+    }
+
+    private Thing thingWithFirmwareVersion(String version) {
+        Map<String, String> properties = new HashMap<>();
+        properties.put(Thing.PROPERTY_FIRMWARE_VERSION, version);
+        return ThingBuilder.create(thingTypeUID, "testThing").withProperties(properties).build();
+    }
 }

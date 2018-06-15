@@ -33,6 +33,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
@@ -87,6 +89,7 @@ import org.slf4j.LoggerFactory;
  * @author Christoph Knauf - Added removeThingsForBridge and getPropsAndConfigParams
  *
  */
+@NonNullByDefault
 @Component(immediate = true, service = Inbox.class)
 public final class PersistentInbox implements Inbox, DiscoveryListener, ThingRegistryChangeListener {
 
@@ -129,20 +132,20 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     private final Logger logger = LoggerFactory.getLogger(PersistentInbox.class);
 
     private final Set<InboxListener> listeners = new CopyOnWriteArraySet<>();
-    private DiscoveryServiceRegistry discoveryServiceRegistry;
-    private ThingRegistry thingRegistry;
-    private ManagedThingProvider managedThingProvider;
-    private ThingTypeRegistry thingTypeRegistry;
-    private ConfigDescriptionRegistry configDescRegistry;
-    private StorageService storageService;
-    private volatile Storage<DiscoveryResult> discoveryResultStorage;
+    private @NonNullByDefault({}) DiscoveryServiceRegistry discoveryServiceRegistry;
+    private @NonNullByDefault({}) ThingRegistry thingRegistry;
+    private @NonNullByDefault({}) ManagedThingProvider managedThingProvider;
+    private @NonNullByDefault({}) ThingTypeRegistry thingTypeRegistry;
+    private @NonNullByDefault({}) ConfigDescriptionRegistry configDescRegistry;
+    private @NonNullByDefault({}) StorageService storageService;
+    private volatile @NonNullByDefault({}) Storage<DiscoveryResult> discoveryResultStorage;
     private final Map<DiscoveryResult, Class<?>> resultDiscovererMap = new ConcurrentHashMap<>();
-    private ScheduledFuture<?> timeToLiveChecker;
-    private EventPublisher eventPublisher;
+    private @NonNullByDefault({}) ScheduledFuture<?> timeToLiveChecker;
+    private @Nullable EventPublisher eventPublisher;
     private final List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
 
     @Override
-    public Thing approve(ThingUID thingUID, String label) {
+    public @Nullable Thing approve(ThingUID thingUID, @Nullable String label) {
         if (thingUID == null) {
             throw new IllegalArgumentException("Thing UID must not be null");
         }
@@ -173,43 +176,46 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     @Override
-    public synchronized boolean add(DiscoveryResult result) throws IllegalStateException {
-        if (result != null) {
-            ThingUID thingUID = result.getThingUID();
-            Thing thing = this.thingRegistry.get(thingUID);
+    public synchronized boolean add(final @Nullable DiscoveryResult discoveryResult) throws IllegalStateException {
+        if (discoveryResult == null) {
+            return false;
+        }
+        final DiscoveryResult result = discoveryResult;
 
-            if (thing == null) {
-                DiscoveryResult inboxResult = get(thingUID);
+        ThingUID thingUID = result.getThingUID();
+        Thing thing = this.thingRegistry.get(thingUID);
 
-                if (inboxResult == null) {
-                    discoveryResultStorage.put(result.getThingUID().toString(), result);
-                    notifyListeners(result, EventType.added);
-                    logger.info("Added new thing '{}' to inbox.", thingUID);
+        if (thing == null) {
+            DiscoveryResult inboxResult = get(thingUID);
+
+            if (inboxResult == null) {
+                discoveryResultStorage.put(result.getThingUID().toString(), result);
+                notifyListeners(result, EventType.added);
+                logger.info("Added new thing '{}' to inbox.", thingUID);
+                return true;
+            } else {
+                if (inboxResult instanceof DiscoveryResultImpl) {
+                    DiscoveryResultImpl resultImpl = (DiscoveryResultImpl) inboxResult;
+                    resultImpl.synchronize(result);
+                    discoveryResultStorage.put(result.getThingUID().toString(), resultImpl);
+                    notifyListeners(resultImpl, EventType.updated);
+                    logger.debug("Updated discovery result for '{}'.", thingUID);
                     return true;
                 } else {
-                    if (inboxResult instanceof DiscoveryResultImpl) {
-                        DiscoveryResultImpl resultImpl = (DiscoveryResultImpl) inboxResult;
-                        resultImpl.synchronize(result);
-                        discoveryResultStorage.put(result.getThingUID().toString(), resultImpl);
-                        notifyListeners(resultImpl, EventType.updated);
-                        logger.debug("Updated discovery result for '{}'.", thingUID);
-                        return true;
-                    } else {
-                        logger.warn("Cannot synchronize result with implementation class '{}'.",
-                                inboxResult.getClass().getName());
-                    }
+                    logger.warn("Cannot synchronize result with implementation class '{}'.",
+                            inboxResult.getClass().getName());
                 }
-            } else {
-                logger.debug("Discovery result with thing '{}' not added as inbox entry."
-                        + " It is already present as thing in the ThingRegistry.", thingUID);
+            }
+        } else {
+            logger.debug("Discovery result with thing '{}' not added as inbox entry."
+                    + " It is already present as thing in the ThingRegistry.", thingUID);
 
-                boolean updated = synchronizeConfiguration(result.getThingTypeUID(), result.getProperties(),
-                        thing.getConfiguration());
+            boolean updated = synchronizeConfiguration(result.getThingTypeUID(), result.getProperties(),
+                    thing.getConfiguration());
 
-                if (updated) {
-                    logger.debug("The configuration for thing '{}' is updated...", thingUID);
-                    this.managedThingProvider.update(thing);
-                }
+            if (updated) {
+                logger.debug("The configuration for thing '{}' is updated...", thingUID);
+                this.managedThingProvider.update(thing);
             }
         }
 
@@ -253,8 +259,8 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         return configUpdated;
     }
 
-    private ConfigDescriptionParameter getConfigDescriptionParam(List<ConfigDescriptionParameter> configDescParams,
-            String paramName) {
+    private @Nullable ConfigDescriptionParameter getConfigDescriptionParam(
+            List<ConfigDescriptionParameter> configDescParams, String paramName) {
         for (ConfigDescriptionParameter configDescriptionParameter : configDescParams) {
             if (configDescriptionParameter.getName().equals(paramName)) {
                 return configDescriptionParameter;
@@ -264,17 +270,20 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     @Override
-    public void addInboxListener(InboxListener listener) throws IllegalStateException {
+    public void addInboxListener(@Nullable InboxListener listener) throws IllegalStateException {
         if (listener != null) {
             this.listeners.add(listener);
         }
     }
 
     @Override
-    public List<DiscoveryResult> get(InboxFilterCriteria criteria) throws IllegalStateException {
+    public List<DiscoveryResult> get(@Nullable InboxFilterCriteria criteria) throws IllegalStateException {
         List<DiscoveryResult> filteredEntries = new ArrayList<>();
 
         for (DiscoveryResult discoveryResult : this.discoveryResultStorage.getValues()) {
+            if (discoveryResult == null) {
+                continue;
+            }
             if (matchFilter(discoveryResult, criteria)) {
                 filteredEntries.add(discoveryResult);
             }
@@ -289,12 +298,13 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     @Override
+    @NonNullByDefault({})
     public Stream<DiscoveryResult> stream() {
-        return this.discoveryResultStorage.getValues().stream();
+        return this.discoveryResultStorage.getValues().stream().filter(Objects::nonNull);
     }
 
     @Override
-    public synchronized boolean remove(ThingUID thingUID) throws IllegalStateException {
+    public synchronized boolean remove(@Nullable ThingUID thingUID) throws IllegalStateException {
         if (thingUID != null) {
             DiscoveryResult discoveryResult = get(thingUID);
             if (discoveryResult != null) {
@@ -311,7 +321,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     @Override
-    public void removeInboxListener(InboxListener listener) throws IllegalStateException {
+    public void removeInboxListener(@Nullable InboxListener listener) throws IllegalStateException {
         if (listener != null) {
             this.listeners.remove(listener);
         }
@@ -330,8 +340,8 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     @Override
-    public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
-            Collection<ThingTypeUID> thingTypeUIDs, ThingUID bridgeUID) {
+    public @Nullable Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
+            @Nullable Collection<ThingTypeUID> thingTypeUIDs, @Nullable ThingUID bridgeUID) {
         HashSet<ThingUID> removedThings = new HashSet<>();
         for (DiscoveryResult discoveryResult : getAll()) {
             Class<?> discoverer = resultDiscovererMap.get(discoveryResult);
@@ -372,7 +382,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     @Override
-    public void setFlag(ThingUID thingUID, DiscoveryResultFlag flag) {
+    public void setFlag(ThingUID thingUID, @Nullable DiscoveryResultFlag flag) {
         DiscoveryResult result = get(thingUID);
         if (result instanceof DiscoveryResultImpl) {
             DiscoveryResultImpl resultImpl = (DiscoveryResultImpl) result;
@@ -394,7 +404,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
      * @return the discovery result associated with the specified Thing ID, or
      *         null, if no discovery result could be found
      */
-    private DiscoveryResult get(ThingUID thingUID) {
+    private @Nullable DiscoveryResult get(ThingUID thingUID) {
         if (thingUID != null) {
             return discoveryResultStorage.get(thingUID.toString());
         }
@@ -402,7 +412,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         return null;
     }
 
-    private boolean matchFilter(DiscoveryResult discoveryResult, InboxFilterCriteria criteria) {
+    private boolean matchFilter(DiscoveryResult discoveryResult, @Nullable InboxFilterCriteria criteria) {
         if (criteria != null) {
             String bindingId = criteria.getBindingId();
             if ((bindingId != null) && (!bindingId.isEmpty())) {
@@ -458,7 +468,15 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         }
 
         // in case of EventType added/updated the listeners might have modified the result in the discoveryResultStorage
-        DiscoveryResult resultForEvent = type == EventType.removed ? result : get(result.getThingUID());
+        final DiscoveryResult resultForEvent;
+        if (type == EventType.removed) {
+            resultForEvent = result;
+        } else {
+            resultForEvent = get(result.getThingUID());
+            if (resultForEvent == null) {
+                return;
+            }
+        }
         postEvent(resultForEvent, type);
     }
 

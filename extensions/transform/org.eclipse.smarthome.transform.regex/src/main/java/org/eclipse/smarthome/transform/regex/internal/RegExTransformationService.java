@@ -15,6 +15,8 @@ package org.eclipse.smarthome.transform.regex.internal;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
 import org.slf4j.Logger;
@@ -23,12 +25,13 @@ import org.slf4j.LoggerFactory;
 /**
  * <p>
  * The implementation of {@link TransformationService} which transforms the input by Regular Expressions.
- * 
+ *
  * <p>
  * <b>Note:</b> the given Regular Expression must contain exactly one group!
  *
  * @author Thomas.Eichstaedt-Engelen
  */
+@NonNullByDefault
 public class RegExTransformationService implements TransformationService {
 
     private final Logger logger = LoggerFactory.getLogger(RegExTransformationService.class);
@@ -36,7 +39,7 @@ public class RegExTransformationService implements TransformationService {
     private static final Pattern SUBSTR_PATTERN = Pattern.compile("^s/(.*?[^\\\\])/(.*?[^\\\\])/(.*)$");
 
     @Override
-    public String transform(String regExpression, String source) throws TransformationException {
+    public @Nullable String transform(String regExpression, String source) throws TransformationException {
         if (regExpression == null || source == null) {
             throw new TransformationException("the given parameters 'regex' and 'source' must not be null");
         }

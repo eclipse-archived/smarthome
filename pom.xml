@@ -59,7 +59,7 @@
     <tycho-version>1.1.0</tycho-version>
     <tycho-groupid>org.eclipse.tycho</tycho-groupid>
     <xtext-version>2.12.0</xtext-version>
-    <karaf.version>4.0.3</karaf.version>
+    <karaf.version>4.2.0</karaf.version>
     <ds-annotations.version>1.2.10</ds-annotations.version>
     <jdt-annotations.version>2.1.0</jdt-annotations.version>
     <build.helper.maven.plugin.version>1.8</build.helper.maven.plugin.version>
@@ -186,10 +186,10 @@
           <executions>
             <execution>
               <id>add-source</id>
-              <phase>generate-sources</phase>
               <goals>
                 <goal>add-source</goal>
               </goals>
+              <phase>generate-sources</phase>
               <configuration>
                 <sources>
                   <source>src/main/groovy</source>
@@ -198,10 +198,10 @@
             </execution>
             <execution>
               <id>add-test-source</id>
-              <phase>generate-test-sources</phase>
               <goals>
                 <goal>add-test-source</goal>
               </goals>
+              <phase>generate-test-sources</phase>
               <configuration>
                 <sources>
                   <source>src/test/groovy</source>
@@ -226,13 +226,9 @@
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.6.1</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>compile</goal>
-              </goals>
-            </execution>
-          </executions>
+          <configuration>
+            <compilerId>groovy-eclipse-compiler</compilerId>
+          </configuration>
           <dependencies>
             <dependency>
               <groupId>org.codehaus.groovy</groupId>
@@ -245,21 +241,18 @@
               <version>2.4.3-01</version>
             </dependency>
           </dependencies>
-          <configuration>
-            <compilerId>groovy-eclipse-compiler</compilerId>
-          </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>compile</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
         <plugin>
           <groupId>com.mycila</groupId>
           <artifactId>license-maven-plugin</artifactId>
           <version>3.0</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>check</goal>
-              </goals>
-            </execution>
-          </executions>
           <configuration>
             <basedir>${basedir}</basedir>
             <header>src/etc/header.txt</header>
@@ -296,6 +289,13 @@
             </properties>
             <encoding>UTF-8</encoding>
           </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>check</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
         <plugin>
           <groupId>org.eclipse.xtend</groupId>
@@ -325,24 +325,24 @@
           <groupId>org.openhab.tools.sat</groupId>
           <artifactId>sat-plugin</artifactId>
           <version>${sat.version}</version>
-          <executions>
-            <execution>
-              <id>sat-all</id>
-              <phase>verify</phase>
-              <goals>
-                <goal>checkstyle</goal>
-                <goal>pmd</goal>
-                <goal>spotbugs</goal>
-                <goal>report</goal>
-              </goals>
-            </execution>
-          </executions>
           <configuration>
             <pmdFilter>${basedirRoot}/tools/static-code-analysis/pmd/suppressions.properties</pmdFilter>
             <checkstyleProperties>${basedirRoot}/tools/static-code-analysis/checkstyle/ruleset.properties</checkstyleProperties>
             <checkstyleFilter>${basedirRoot}/tools/static-code-analysis/checkstyle/suppressions.xml</checkstyleFilter>
             <spotbugsExclude>${basedirRoot}/tools/static-code-analysis/spotbugs/suppressions.xml</spotbugsExclude>
           </configuration>
+          <executions>
+            <execution>
+              <id>sat-all</id>
+              <goals>
+                <goal>checkstyle</goal>
+                <goal>pmd</goal>
+                <goal>spotbugs</goal>
+                <goal>report</goal>
+              </goals>
+              <phase>verify</phase>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -354,10 +354,10 @@
         <executions>
           <execution>
             <id>directories</id>
-            <phase>initialize</phase>
             <goals>
               <goal>highest-basedir</goal>
             </goals>
+            <phase>initialize</phase>
             <configuration>
               <property>basedirRoot</property>
             </configuration>
@@ -451,10 +451,10 @@
             <executions>
               <execution>
                 <id>sign</id>
-                <phase>verify</phase>
                 <goals>
                   <goal>sign</goal>
                 </goals>
+                <phase>verify</phase>
               </execution>
             </executions>
           </plugin>
@@ -469,6 +469,14 @@
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
             <version>0.7.4.201502262128</version>
+            <configuration>
+              <dataFile>${session.executionRootDirectory}/target/coverage.jacoco</dataFile>
+              <destFile>${session.executionRootDirectory}/target/coverage.jacoco</destFile>
+              <append>true</append>
+              <excludes>
+                <exclude>**/*Test.*</exclude>
+              </excludes>
+            </configuration>
             <executions>
               <execution>
                 <id>default-prepare-agent</id>
@@ -483,14 +491,6 @@
                 </goals>
               </execution>
             </executions>
-            <configuration>
-              <dataFile>${session.executionRootDirectory}/target/coverage.jacoco</dataFile>
-              <destFile>${session.executionRootDirectory}/target/coverage.jacoco</destFile>
-              <append>true</append>
-              <excludes>
-                <exclude>**/*Test.*</exclude>
-              </excludes>
-            </configuration>
           </plugin>
         </plugins>
       </build>
@@ -514,6 +514,11 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
             <version>2.10.3</version>
+            <configuration>
+              <!-- 'javadoc.opts' project property is set by the 'doclint-java8-disable' profile. It is important to keep 'javadoc' profile declaration after the declaration of 'doclint-java8-disable' profile. -->
+              <additionalparam>${javadoc.opts}</additionalparam>
+              <excludePackageNames>*.internal.*,nl.*</excludePackageNames>
+            </configuration>
             <executions>
               <execution>
                 <id>aggregate</id>
@@ -522,11 +527,6 @@
                 </goals>
               </execution>
             </executions>
-            <configuration>
-              <!-- 'javadoc.opts' project property is set by the 'doclint-java8-disable' profile. It is important to keep 'javadoc' profile declaration after the declaration of 'doclint-java8-disable' profile. -->
-              <additionalparam>${javadoc.opts}</additionalparam>
-              <excludePackageNames>*.internal.*,nl.*</excludePackageNames>
-            </configuration>
           </plugin>
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
@@ -534,10 +534,10 @@
             <executions>
               <execution>
                 <id>attach-artifacts</id>
-                <phase>install</phase>
                 <goals>
                   <goal>attach-artifact</goal>
                 </goals>
+                <phase>install</phase>
                 <configuration>
                   <artifacts>
                     <artifact>

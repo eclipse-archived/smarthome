@@ -30,7 +30,6 @@ import org.eclipse.smarthome.core.i18n.LocaleProvider
 import org.eclipse.smarthome.core.service.ReadyMarker
 import org.eclipse.smarthome.core.service.ReadyMarkerFilter
 import org.eclipse.smarthome.core.service.ReadyService
-import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.Thing
@@ -48,6 +47,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.core.thing.util.ThingHelper
+import org.eclipse.smarthome.core.util.BundleResolver
 import org.eclipse.smarthome.model.core.ModelRepository
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener
 import org.eclipse.smarthome.model.thing.thing.ModelBridge
@@ -86,6 +86,8 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 
     private ThingTypeRegistry thingTypeRegistry
     private ChannelTypeRegistry channelTypeRegistry
+    
+    private BundleResolver bundleResolver;
 
     private Map<String, Collection<Thing>> thingsMap = new ConcurrentHashMap
 
@@ -99,7 +101,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
     private static final Logger logger = LoggerFactory.getLogger(GenericThingProvider)
 
     private val Set<String> loadedXmlThingTypes = new CopyOnWriteArraySet
-
+    
     def void activate() {
         modelRepository.getAllModelNamesOfType("things").forEach [
             createThingsFromModel
@@ -117,7 +119,10 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         }
         if (modelRepository !== null) {
             val model = modelRepository.getModel(modelName) as ThingModel
-            model?.things?.map[
+            if (model === null) {
+                return
+            }
+            flattenModelThings(model.things).map[
                 // Get the ThingHandlerFactories
                 val ThingUID thingUID = constructThingUID
                 if (thingUID !== null) {
@@ -160,23 +165,36 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
             return new ThingTypeUID(thingUID.bindingId, thingUID.thingTypeId)
         }
     }
+    
+    def private Iterable<ModelThing> flattenModelThings(Iterable<ModelThing> things) {
+        if (things === null || things.length === 0) {
+            return #[]
+        }
+        
+        // construct the thingUID up front: this will ensure that short notation things with reference to a bridge 
+        // do not end up with the bridge id in their id. 
+        things.forEach([thingId = thingId ?: constructThingUID.toString])
+        things.filter(typeof(ModelBridge)).forEach([
+            val bridge = it; 
+            bridge.things.forEach([
+                val thing = it;
+                thing.bridgeUID = bridge.id
+                // for long notation (id is already set) leave it like this.
+                // for nested things in short notation, make sure the bridge id is part of the thing id.
+                thing.id = id ?: getThingUID(new ThingUID(bridge.id)).toString;
+            ])
+        ])
+        
+        return things + flattenModelThings(things.filter(typeof(ModelBridge)).map(b | b.things).flatten);
+    }
 
-    def private void createThing(ModelThing modelThing, Bridge parentBridge, Collection<Thing> thingList,
-        ThingHandlerFactory thingHandlerFactory) {
-        val ThingUID thingUID = getThingUID(modelThing, parentBridge?.UID)
+    def private void createThing(ModelThing modelThing, Collection<Thing> thingList, ThingHandlerFactory thingHandlerFactory) {
+        val ThingUID thingUID = getThingUID(modelThing, null)
         if (thingUID === null) {
             // ignore the Thing because its definition is broken
             return
         }
         val thingTypeUID = modelThing.constructThingTypeUID(thingUID)
-        var ThingUID bridgeUID = null
-        if (parentBridge !== null) {
-            bridgeUID = parentBridge.UID
-        } else {
-            if (modelThing.bridgeUID !== null && !modelThing.bridgeUID.empty) {
-                bridgeUID = new ThingUID(modelThing.bridgeUID)
-            }
-        }
 
         if (!isSupportedByThingHandlerFactory(thingTypeUID, thingHandlerFactory)) {
             // return silently, we were not asked to do anything
@@ -198,6 +216,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         
         val location = modelThing.location
 
+        val ThingUID bridgeUID = if (modelThing.bridgeUID !== null) new ThingUID(modelThing.bridgeUID)
         val thingFromHandler = getThingFromThingHandlerFactories(thingTypeUID, label, configuration, thingUID,
             bridgeUID, thingHandlerFactory)
 
@@ -226,13 +245,6 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         }
 
         thingList += thingFromHandler ?: thing
-
-        if (modelThing instanceof ModelBridge) {
-            val bridge = (thingFromHandler ?: thing) as Bridge
-            modelThing.things.forEach [
-                createThing(bridge as Bridge, thingList, thingHandlerFactory)
-            ]
-        }
     }
 
     def private boolean isSupportedByThingHandlerFactory(ThingTypeUID thingTypeUID, ThingHandlerFactory specific) {
@@ -447,6 +459,15 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         modelRepository.removeModelRepositoryChangeListener(this)
         this.modelRepository = null
     }
+    
+    @Reference
+    def protected void setBundleResolver(BundleResolver bundleResolver) {
+        this.bundleResolver = bundleResolver;
+    }
+
+    def protected void unsetBundleResolver(BundleResolver bundleResolver) {
+        this.bundleResolver = null;
+    }
 
     override void modelChanged(String modelName, org.eclipse.smarthome.model.core.EventType type) {
         if (modelName.endsWith("things")) {
@@ -567,7 +588,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
     }
     
     def private getBundleName(ThingHandlerFactory thingHandlerFactory) {
-        FrameworkUtil.getBundle(thingHandlerFactory.class).symbolicName
+        return bundleResolver.resolveBundle(thingHandlerFactory.class).getSymbolicName();
     }
     
     def private handleXmlThingTypesLoaded(String bsn) {
@@ -592,8 +613,8 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         if (modelRepository !== null) {
             val model = modelRepository.getModel(modelName) as ThingModel
             if (model !== null) {
-                model.things.forEach [
-                    createThing(null, newThings, factory)
+                flattenModelThings(model.things).forEach [
+                    createThing(newThings, factory)
                 ]
             }
         }

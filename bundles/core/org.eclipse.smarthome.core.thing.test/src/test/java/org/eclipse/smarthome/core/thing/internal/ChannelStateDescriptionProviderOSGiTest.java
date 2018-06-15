@@ -60,7 +60,6 @@ import org.eclipse.smarthome.core.thing.type.DynamicStateDescriptionProvider;
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.StateDescription;
-import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
@@ -81,7 +80,6 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
 
     private ItemRegistry itemRegistry;
     private ItemChannelLinkRegistry linkRegistry;
-    private StateDescriptionProvider stateDescriptionProvider;
 
     @Mock
     private ComponentContext componentContext;
@@ -206,9 +204,6 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
         registerService(new TestItemProvider(items));
 
         linkRegistry = getService(ItemChannelLinkRegistry.class);
-
-        stateDescriptionProvider = getService(StateDescriptionProvider.class);
-        assertNotNull(stateDescriptionProvider);
     }
 
     @After

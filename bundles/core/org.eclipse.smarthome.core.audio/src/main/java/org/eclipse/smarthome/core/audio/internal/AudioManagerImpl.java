@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.config.core.ConfigOptionProvider;
+import org.eclipse.smarthome.config.core.ConfigurableService;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.core.audio.AudioException;
 import org.eclipse.smarthome.core.audio.AudioManager;
@@ -38,6 +39,14 @@ import org.eclipse.smarthome.core.audio.URLAudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioStreamException;
 import org.eclipse.smarthome.core.library.types.PercentType;
+import org.osgi.framework.Constants;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,18 +59,24 @@ import org.slf4j.LoggerFactory;
  * @author Christoph Weitkamp - Added parameter to adjust the volume
  *
  */
+@Component(immediate = true, configurationPid = "org.eclipse.smarthome.audio", property = { //
+        Constants.SERVICE_PID + "=org.eclipse.smarthome.audio", //
+        ConfigurableService.SERVICE_PROPERTY_CATEGORY + "=system", //
+        ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI + "=" + AudioManagerImpl.CONFIG_URI, //
+        ConfigurableService.SERVICE_PROPERTY_LABEL + "=Audio" //
+})
 public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
 
     // constants for the configuration properties
-    private static final String CONFIG_URI = "system:audio";
+    protected static final String CONFIG_URI = "system:audio";
     private static final String CONFIG_DEFAULT_SINK = "defaultSink";
     private static final String CONFIG_DEFAULT_SOURCE = "defaultSource";
 
     private final Logger logger = LoggerFactory.getLogger(AudioManagerImpl.class);
 
     // service maps
-    private Map<String, AudioSource> audioSources = new ConcurrentHashMap<>();
-    private Map<String, AudioSink> audioSinks = new ConcurrentHashMap<>();
+    private final Map<String, AudioSource> audioSources = new ConcurrentHashMap<>();
+    private final Map<String, AudioSink> audioSinks = new ConcurrentHashMap<>();
 
     /**
      * default settings filled through the service configuration
@@ -69,13 +84,16 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     private String defaultSource;
     private String defaultSink;
 
+    @Activate
     protected void activate(Map<String, Object> config) {
         modified(config);
     }
 
+    @Deactivate
     protected void deactivate() {
     }
 
+    @Modified
     protected void modified(Map<String, Object> config) {
         if (config != null) {
             this.defaultSource = config.containsKey(CONFIG_DEFAULT_SOURCE)
@@ -100,20 +118,36 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     public void play(AudioStream audioStream, String sinkId, PercentType volume) {
         AudioSink sink = getSink(sinkId);
         if (sink != null) {
-            // get current volume
-            PercentType oldVolume = getVolume(sinkId);
+            PercentType oldVolume = null;
+            try {
+                // get current volume
+                oldVolume = getVolume(sinkId);
+            } catch (IOException e) {
+                logger.debug("An exception occurred while getting the volume of sink '{}' : {}", sink.getId(),
+                        e.getMessage(), e);
+            }
             // set notification sound volume
             if (volume != null) {
-                setVolume(volume, sinkId);
+                try {
+                    setVolume(volume, sinkId);
+                } catch (IOException e) {
+                    logger.debug("An exception occurred while setting the volume of sink '{}' : {}", sink.getId(),
+                            e.getMessage(), e);
+                }
             }
             try {
                 sink.process(audioStream);
             } catch (UnsupportedAudioFormatException | UnsupportedAudioStreamException e) {
                 logger.warn("Error playing '{}': {}", audioStream, e.getMessage(), e);
             } finally {
-                if (volume != null) {
+                if (volume != null && oldVolume != null) {
                     // restore volume only if it was set before
-                    setVolume(oldVolume, sinkId);
+                    try {
+                        setVolume(oldVolume, sinkId);
+                    } catch (IOException e) {
+                        logger.debug("An exception occurred while setting the volume of sink '{}' : {}", sink.getId(),
+                                e.getMessage(), e);
+                    }
                 }
             }
         } else {
@@ -158,43 +192,21 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     }
 
     @Override
-    public PercentType getVolume(String sinkId) {
+    public PercentType getVolume(String sinkId) throws IOException {
         AudioSink sink = getSink(sinkId);
 
         if (sink != null) {
-            try {
-                return sink.getVolume();
-            } catch (IOException e) {
-                if (logger.isDebugEnabled()) {
-                    // we also attach the stack trace
-                    logger.warn("An exception occurred while getting the volume of sink '{}' : {}", sink.getId(),
-                            e.getMessage(), e);
-                } else {
-                    logger.warn("An exception occurred while getting the volume of sink '{}' : {}", sink.getId(),
-                            e.getMessage());
-                }
-            }
+            return sink.getVolume();
         }
         return PercentType.ZERO;
     }
 
     @Override
-    public void setVolume(PercentType volume, String sinkId) {
+    public void setVolume(PercentType volume, String sinkId) throws IOException {
         AudioSink sink = getSink(sinkId);
 
         if (sink != null) {
-            try {
-                sink.setVolume(volume);
-            } catch (IOException e) {
-                if (logger.isDebugEnabled()) {
-                    // we also attach the stack trace
-                    logger.warn("An exception occurred while setting the volume of sink '{}' : {}", sink.getId(),
-                            e.getMessage(), e);
-                } else {
-                    logger.warn("An exception occurred while setting the volume of sink '{}' : {}", sink.getId(),
-                            e.getMessage());
-                }
-            }
+            sink.setVolume(volume);
         }
     }
 
@@ -295,6 +307,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
         return null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addAudioSource(AudioSource audioSource) {
         this.audioSources.put(audioSource.getId(), audioSource);
     }
@@ -303,6 +316,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
         this.audioSources.remove(audioSource.getId());
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addAudioSink(AudioSink audioSink) {
         this.audioSinks.put(audioSink.getId(), audioSink);
     }

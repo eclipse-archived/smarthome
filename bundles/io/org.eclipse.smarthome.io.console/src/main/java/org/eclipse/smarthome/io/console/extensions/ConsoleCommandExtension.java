@@ -14,6 +14,7 @@ package org.eclipse.smarthome.io.console.extensions;
 
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.io.console.Console;
 
 /**
@@ -22,6 +23,7 @@ import org.eclipse.smarthome.io.console.Console;
  * @author Oliver Libutzki
  *
  */
+@NonNullByDefault
 public interface ConsoleCommandExtension {
 
     /**

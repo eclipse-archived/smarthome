@@ -22,12 +22,27 @@ XLiteral returns XExpression:
   QuantityLiteral
 ;
 
-QuantityLiteral returns XExpression :
-    {QuantityLiteral} value=Number unit=UNIT
+QuantityLiteral returns XExpression:
+    {QuantityLiteral} 
+    value=Number '|' unit=AbstractUnit
 ;
 
-
-terminal UNIT:
-    '[' ('a' .. 'z'|'A' .. 'Z'|'°'|'/'|'Ω'|'℃'|'%'|'^'|'0' .. '9')+ ']'
+AbstractUnit:
+    StringUnit | IDUnit | SpecificUnit
 ;
 
+StringUnit:
+    value=STRING
+;
+
+IDUnit:
+    value=ID
+;
+
+SpecificUnit:
+    value=COMMON_UNIT_SYMBOLS
+;
+
+COMMON_UNIT_SYMBOLS:
+    '°C' | '°F' | 'Ω' | '℃' | '°' | '%' | 'm²' | 'm³'
+;

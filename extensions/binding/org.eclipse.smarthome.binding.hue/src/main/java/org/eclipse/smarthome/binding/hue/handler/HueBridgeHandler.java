@@ -71,7 +71,7 @@ import org.slf4j.LoggerFactory;
  * @author Denis Dudnik - switched to internally integrated source of Jue library
  */
 @NonNullByDefault
-public class HueBridgeHandler extends ConfigStatusBridgeHandler {
+public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueClient {
 
     private static final String LIGHT_STATE_ADDED = "added";
 
@@ -196,23 +196,35 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
         // not needed
     }
 
+    @Override
     public void updateLightState(FullLight light, StateUpdate stateUpdate) {
         if (hueBridge != null) {
-            try {
-                hueBridge.setLightState(light, stateUpdate);
-            } catch (DeviceOffException e) {
-                updateLightState(light, LightStateConverter.toOnOffLightState(OnOffType.ON));
-                updateLightState(light, stateUpdate);
-            } catch (IOException e) {
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
-            } catch (ApiException e) {
-                // This should not happen - if it does, it is most likely some bug that should be reported.
-                logger.warn("Error while accessing light: {}", e.getMessage(), e);
-            } catch (IllegalStateException e) {
-                logger.trace("Error while accessing light: {}", e.getMessage());
-            }
+            hueBridge.setLightState(light, stateUpdate).thenAccept(result -> {
+                try {
+                    hueBridge.handleErrors(result);
+                } catch (Exception e) {
+                    handleException(light, stateUpdate, e);
+                }
+            }).exceptionally(e -> {
+                handleException(light, stateUpdate, e);
+                return null;
+            });
         } else {
             logger.warn("No bridge connected or selected. Cannot set light state.");
+        }
+    }
+
+    private void handleException(FullLight light, StateUpdate stateUpdate, Throwable e) {
+        if (e instanceof DeviceOffException) {
+            updateLightState(light, LightStateConverter.toOnOffLightState(OnOffType.ON));
+            updateLightState(light, stateUpdate);
+        } else if (e instanceof IOException) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
+        } else if (e instanceof ApiException) {
+            // This should not happen - if it does, it is most likely some bug that should be reported.
+            logger.warn("Error while accessing light: {}", e.getMessage(), e);
+        } else if (e instanceof IllegalStateException) {
+            logger.trace("Error while accessing light: {}", e.getMessage());
         }
     }
 
@@ -234,7 +246,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
 
         if (getConfig().get(HOST) != null) {
             if (hueBridge == null) {
-                hueBridge = new HueBridge((String) getConfig().get(HOST));
+                hueBridge = new HueBridge((String) getConfig().get(HOST), scheduler);
                 hueBridge.setTimeout(5000);
             }
             onUpdate();
@@ -397,6 +409,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
                 "@text/offline.conf-error-creation-username");
     }
 
+    @Override
     public boolean registerLightStatusListener(LightStatusListener lightStatusListener) {
         boolean result = lightStatusListeners.add(lightStatusListener);
         if (result) {
@@ -409,6 +422,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
         return result;
     }
 
+    @Override
     public boolean unregisterLightStatusListener(LightStatusListener lightStatusListener) {
         boolean result = lightStatusListeners.remove(lightStatusListener);
         if (result) {
@@ -417,6 +431,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler {
         return result;
     }
 
+    @Override
     public @Nullable FullLight getLightById(String lightId) {
         return lastLightStates.get(lightId);
     }

@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.transform.exec.internal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
 import org.eclipse.smarthome.io.net.exec.ExecUtil;
@@ -24,6 +26,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Pauli Anttila
  */
+@NonNullByDefault
 public class ExecTransformationService implements TransformationService {
 
     private final Logger logger = LoggerFactory.getLogger(ExecTransformationService.class);
@@ -38,7 +41,7 @@ public class ExecTransformationService implements TransformationService {
      *            the input to transform
      */
     @Override
-    public String transform(String commandLine, String source) throws TransformationException {
+    public @Nullable String transform(String commandLine, String source) throws TransformationException {
         if (commandLine == null || source == null) {
             throw new TransformationException("the given parameters 'commandLine' and 'source' must not be null");
         }

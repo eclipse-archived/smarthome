@@ -4,8 +4,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>bundles</artifactId>
     <groupId>org.eclipse.smarthome</groupId>
+    <artifactId>bundles</artifactId>
     <version>0.10.0-SNAPSHOT</version>
   </parent>
   <groupId>org.eclipse.smarthome.bundles</groupId>
@@ -29,6 +29,7 @@
     <module>org.eclipse.smarthome.core.persistence</module>
     <module>org.eclipse.smarthome.core.scheduler</module>
     <module>org.eclipse.smarthome.core.transform</module>
+    <module>org.eclipse.smarthome.core.transform.test</module>
     <module>org.eclipse.smarthome.core.binding.xml</module>
     <module>org.eclipse.smarthome.core.binding.xml.test</module>
     <module>org.eclipse.smarthome.core.thing.xml</module>

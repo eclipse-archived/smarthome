@@ -15,48 +15,39 @@
 -->
 <features name="${project.artifactId}-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.4.0">
 
-  <feature name="esh-tp" description="Eclipse SmartHome Target Platform" version="${project.version}">
+  <feature name="esh.tp-base" description="Eclipse SmartHome Target Platform Base" version="${project.version}">
+    <capability>esh.tp;feature=base;version=1.0.0</capability>
+
     <feature>scr</feature>
     <feature>eventadmin</feature>
 
-    <feature dependency="true">esh-tp-apache-commons</feature>
-    <feature dependency="true">esh-tp-coap</feature>
-    <feature dependency="true">esh-tp-httpclient</feature>
-    <feature dependency="true">esh-tp-measurement</feature>
-    <feature dependency="true">esh-tp-jax-rs</feature>
-    <feature dependency="true">esh-tp-jax-rs-provider-swagger</feature>
-    <feature dependency="true">esh-tp-jupnp</feature>
-    <feature dependency="true">esh-tp-jmdns</feature>
-    <feature dependency="true">esh-tp-paho</feature>
-    <feature dependency="true">esh-tp-serial-javacomm</feature>
-    <feature dependency="true">esh-tp-serial-rxtx</feature>
-    <feature dependency="true">esh-tp-xtext</feature>
-    <feature dependency="true">esh-tp-xtext-ide</feature>
-    <feature dependency="true">esh-tp-lsp4j</feature>
-
-    <bundle dependency="true">mvn:com.google.code.gson/gson/2.3.1</bundle>
-    <bundle dependency="true">mvn:io.swagger/swagger-annotations/1.5.5</bundle>
-  </feature>
-
-  <feature name="esh-tp-apache-commons" version="${project.version}">
+    <!-- Apache Commons -->
     <bundle dependency="true">mvn:commons-codec/commons-codec/1.6</bundle>
     <bundle dependency="true">mvn:commons-collections/commons-collections/3.2.1</bundle>
-    <bundle dependency="true">mvn:org.apache.commons/commons-collections4/4.1</bundle>
+    <!--<bundle dependency="true">mvn:org.apache.commons/commons-collections4/4.1</bundle>-->
     <bundle dependency="true">mvn:org.apache.commons/commons-exec/1.1</bundle>
     <bundle dependency="true">mvn:commons-io/commons-io/2.2</bundle>
     <bundle dependency="true">mvn:commons-lang/commons-lang/2.6</bundle>
-    <bundle dependency="true">mvn:org.apache.commons/commons-lang3/3.4</bundle>
+    <!--<bundle dependency="true">mvn:org.apache.commons/commons-lang3/3.4</bundle>-->
     <bundle dependency="true">mvn:commons-net/commons-net/3.2</bundle>
+
+    <!-- Gson -->
+    <bundle dependency="true">mvn:com.google.code.gson/gson/2.3.1</bundle>
+
+    <!-- Measurement -->
+    <bundle dependency="true">mvn:javax.measure/unit-api/1.0</bundle>
+    <bundle dependency="true">mvn:tec.uom/uom-se/1.0.8</bundle>
+    <bundle dependency="true">mvn:tec.uom.lib/uom-lib-common/1.0.2</bundle>
   </feature>
 
-  <feature name="esh-tp-coap" description="Californium CoAP library" version="${project.version}">
+  <feature name="esh.tp-coap" description="Californium CoAP library" version="${project.version}">
     <capability>esh.tp;feature=coap;version=1.0.6</capability>
     <bundle>mvn:org.eclipse.californium/californium-osgi/1.0.6</bundle>
     <bundle>mvn:org.eclipse.californium/element-connector/1.0.6</bundle>
     <bundle>mvn:org.eclipse.californium/scandium/1.0.6</bundle>
   </feature>
 
-  <feature name="esh-tp-httpclient" version="${project.version}">
+  <feature name="esh.tp-httpclient" version="${project.version}">
     <capability>esh.tp;feature=httpclient;version=9.3.15.v20161220</capability>
     <bundle dependency="true">mvn:javax.servlet/javax.servlet-api/3.1.0</bundle>
     <bundle dependency="true">mvn:org.eclipse.jetty/jetty-client/9.3.15.v20161220</bundle>
@@ -69,22 +60,22 @@
     <bundle dependency="true">mvn:org.eclipse.jetty.websocket/websocket-client/9.3.15.v20161220</bundle>
   </feature>
 
-  <feature name="esh-tp-jax-rs" version="${project.version}">
+  <feature name="esh.tp-jax-rs" version="${project.version}">
     <capability>esh.tp;feature=jax-rs;version=5.3.1</capability>
-    <feature>esh-tp-jax-rs-min</feature>
+    <feature>esh.tp-jax-rs-min</feature>
   </feature>
 
-  <feature name="esh-tp-jax-rs-min" version="${project.version}">
+  <feature name="esh.tp-jax-rs-min" version="${project.version}">
     <capability>esh.tp;feature=jax-rs-min;version=5.3.1</capability>
     <feature dependency="true">http</feature>
-    <feature dependency="true">esh-kat.cpy-jersey-min-2.22.2</feature>
+    <feature dependency="true">esh.tp-kat.cpy-jersey-min-2.22.2</feature>
     <bundle>mvn:com.eclipsesource.jaxrs/publisher/5.3.1</bundle>
     <config name="com.eclipsesource.jaxrs.connector">
       root=/rest
     </config>
   </feature>
 
-  <feature name="esh-kat.cpy-jersey-min-2.22.2" version="${project.version}">
+  <feature name="esh.tp-kat.cpy-jersey-min-2.22.2" version="${project.version}">
     <feature>http</feature>
     <bundle start-level="36">mvn:org.glassfish.jersey.containers/jersey-container-servlet/2.22.2</bundle>
     <bundle start-level="36">mvn:org.glassfish.jersey.media/jersey-media-sse/2.22.2</bundle>
@@ -108,79 +99,48 @@
     <bundle dependency="true">mvn:org.jvnet.mimepull/mimepull/1.9.6</bundle>
   </feature>
 
-  <feature name="esh-kat.cpy-swagger-jersey2-1.5.8" version="${project.version}">
-    <feature dependency="true">esh-kat.cpy-jersey-min-2.22.2</feature>
-    <bundle>mvn:de.maggu2810.thirdparty.modified.io.swagger/swagger-jersey2-jaxrs/1.5.8.v20160511-1038</bundle>
-    <bundle dependency="true">mvn:io.swagger/swagger-annotations/1.5.8</bundle>
-    <bundle dependency="true">mvn:io.swagger/swagger-core/1.5.8</bundle>
-    <bundle dependency="true">mvn:io.swagger/swagger-jaxrs/1.5.8</bundle>
-    <bundle dependency="true">mvn:io.swagger/swagger-models/1.5.8</bundle>
-    <bundle dependency="true">mvn:de.maggu2810.thirdparty.modified.org.reflections/reflections/0.9.10.v20160429-1435</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/2.4.5</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/2.4.5</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/2.4.5</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-xml/2.4.5</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/2.4.5</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.datatype/jackson-datatype-joda/2.4.5</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/2.4.5</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/2.4.5</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/2.4.5</bundle>
-    <bundle dependency="true">mvn:com.google.code.findbugs/annotations/2.0.1</bundle>
-    <bundle dependency="true">mvn:com.google.guava/guava/18.0</bundle>
-    <bundle dependency="true">mvn:javax.validation/validation-api/1.1.0.Final</bundle>
-    <bundle dependency="true">mvn:joda-time/joda-time/2.2</bundle>
-    <bundle dependency="true">mvn:org.apache.commons/commons-lang3/3.2.1</bundle>
-    <bundle dependency="true">mvn:org.codehaus.woodstox/stax2-api/3.1.4</bundle>
-    <bundle dependency="true">mvn:org.javassist/javassist/3.19.0-GA</bundle>
-    <bundle dependency="true">mvn:org.slf4j/slf4j-api/1.7.7</bundle>
-    <bundle dependency="true">mvn:org.yaml/snakeyaml/1.12</bundle>
-  </feature>
-
-  <feature name="esh-tp-jax-rs-provider-security" description="Security provider for jaxrs" version="${project.version}">
+  <feature name="esh.tp-jax-rs-provider-security" description="Security provider for jaxrs" version="${project.version}">
     <capability>esh.tp;feature=jax-rs-provider-security;version=2.2</capability>
-    <feature dependency="true">esh-tp-jax-rs-min</feature>
+    <feature dependency="true">esh.tp-jax-rs-min</feature>
     <bundle>mvn:com.eclipsesource.jaxrs/provider-security/2.2</bundle>
   </feature>
 
-  <feature name="esh-tp-jax-rs-provider-swagger" description="JAX-RS provider for Swagger integration" version="${project.version}">
-    <capability>esh.tp;feature=jax-rs-provider-swagger;version=1.1.1</capability>
-    <feature dependency="true">esh-tp-jax-rs-min</feature>
-    <feature>esh-kat.cpy-swagger-jersey2-1.5.8</feature>
-
-    <bundle>mvn:de.maggu2810.thirdparty.modified.com.eclipsesource.jaxrs/provider-swagger/1.1.1.201605111122</bundle>
-    <config name="com.eclipsesource.jaxrs.swagger.config">
-      swagger.basePath=/rest
-      swagger.info.title=Eclipse SmartHome REST API
-    </config>
-  </feature>
-
-  <feature name="esh-tp-jupnp" description="UPnP/DLNA library for Java" version="${project.version}">
+  <feature name="esh.tp-jupnp" description="UPnP/DLNA library for Java" version="${project.version}">
     <capability>esh.tp;feature=jupnp;version=2.3.0</capability>
     <feature dependency="true">http</feature>
     <feature dependency="true">scr</feature>
-    <feature dependency="true">esh-tp-httpclient</feature>
+    <feature dependency="true">esh.tp-httpclient</feature>
     <bundle>mvn:org.jupnp/org.jupnp/2.3.0</bundle>
   </feature>
 
-  <feature name="esh-tp-jmdns" description="An implementation of multi-cast DNS in Java." version="${project.version}">
+  <feature name="esh.tp-jmdns" description="An implementation of multi-cast DNS in Java." version="${project.version}">
     <capability>esh.tp;feature=jmdns;version=3.5.2</capability>
 
     <bundle>mvn:org.jmdns/jmdns/3.5.2</bundle>
   </feature>
 
-  <feature name="esh-tp-measurement" version="${project.version}">
-    <bundle>mvn:javax.measure/unit-api/1.0</bundle>
-    <bundle>mvn:tec.uom/uom-se/1.0.8</bundle>
-    <bundle>mvn:tec.uom.lib/uom-lib-common/1.0.2</bundle>
+  <feature name="esh.tp-lsp4j" description="Eclipse LSP4J" version="${project.version}">
+    <capability>esh.tp;feature=lsp4j;version=0.2.1</capability>
+    <feature dependency="true">esh.tp-xtext</feature>
+    <bundle dependency="true">mvn:com.google.code.gson/gson/2.7</bundle>
+
+    <bundle dependency="true">mvn:org.eclipse.lsp4j/org.eclipse.lsp4j/0.2.1</bundle>
+    <bundle dependency="true">mvn:org.eclipse.lsp4j/org.eclipse.lsp4j.jsonrpc/0.2.1</bundle>
   </feature>
 
-  <feature name="esh-tp-paho" description="MQTT v3 Client" version="${project.version}">
+  <feature name="esh.tp-mapdb" description="MapDB" version="${project.version}">
+    <capability>esh.tp;feature=mapdb;version=1.0.9</capability>
+
+    <bundle dependency="true">mvn:org.mapdb/mapdb/1.0.9</bundle>
+  </feature>
+
+  <feature name="esh.tp-paho" description="MQTT v3 Client" version="${project.version}">
     <capability>esh.tp;feature=paho;version=1.0.2</capability>
 
     <bundle>mvn:org.eclipse.paho/org.eclipse.paho.client.mqttv3/1.0.2</bundle>
   </feature>
 
-  <feature name="esh-tp-serial-javacomm" version="${project.version}">
+  <feature name="esh.tp-serial-javacomm" version="${project.version}">
     <capability>esh.tp;feature=serial;impl=javacomm</capability>
     <bundle>mvn:org.eclipse.kura/org.eclipse.soda.dk.comm/1.2.201</bundle>
     <bundle>mvn:org.eclipse.kura/org.eclipse.soda.dk.comm.armv6hf/1.2.201</bundle>
@@ -188,12 +148,12 @@
     <bundle>mvn:org.eclipse.kura/org.eclipse.soda.dk.comm.x86_64/1.2.201</bundle>
   </feature>
 
-  <feature name="esh-tp-serial-rxtx" version="${project.version}">
+  <feature name="esh.tp-serial-rxtx" version="${project.version}">
     <capability>esh.tp;feature=serial;impl=rxtx</capability>
     <bundle>mvn:org.openhab/nrjavaserial/3.12.0.OH</bundle>
   </feature>
 
-  <feature name="esh-tp-xtext" description="Xtext - Language Engineering Made Easy" version="${project.version}">
+  <feature name="esh.tp-xtext" description="Xtext - Language Engineering Made Easy" version="${project.version}">
     <capability>esh.tp;feature=xtext;version=2.12.0</capability>
 
     <bundle>mvn:org.eclipse.xtext/org.eclipse.xtext/2.12.0</bundle>
@@ -232,23 +192,61 @@
     <bundle dependency="true" start-level="20">mvn:org.ow2.asm/asm-all/5.0.2</bundle>
   </feature>
 
-  <feature name="esh-tp-xtext-ide" description="Xtext - IDE Support" version="${project.version}">
+  <feature name="esh.tp-xtext-ide" description="Xtext - IDE Support" version="${project.version}">
     <capability>esh.tp;feature=xtext-ide;version=2.12.0</capability>
-    <feature dependency="true">esh-tp-xtext</feature>
+    <feature dependency="true">esh.tp-xtext</feature>
 
     <!-- Support for the Language Server Protocol -->
     <bundle dependency="true">mvn:de.maggu2810.thirdparty.org.eclipse.xtext/org.eclipse.xtext.ide/2.12.0.sp2</bundle>
     <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.xbase.ide/2.12.0</bundle>
   </feature>
 
-  <feature name="esh-tp-lsp4j" description="Eclipse LSP4J" version="${project.version}">
-    <capability>esh.tp;feature=lsp4j;version=0.2.1</capability>
-    <feature dependency="true">esh-tp-xtext</feature>
-    <bundle dependency="true">mvn:com.google.code.gson/gson/2.7</bundle>
-
-    <bundle dependency="true">mvn:org.eclipse.lsp4j/org.eclipse.lsp4j/0.2.1</bundle>
-    <bundle dependency="true">mvn:org.eclipse.lsp4j/org.eclipse.lsp4j.jsonrpc/0.2.1</bundle>
+  <!--
+  <feature name="esh.tp-swagger-annotations" description="Swagger Annotations" version="${project.version}">
+    <bundle dependency="true">mvn:io.swagger/swagger-annotations/1.5.5</bundle>
   </feature>
+  -->
 
+  <feature name="esh.tp-swagger-jax-rs-provider" description="JAX-RS provider for Swagger integration" version="${project.version}">
+    <details>
+      This feature is currently only for external usage by products and not used by Eclipse SmartHome itself.
+    </details>
+    <capability>esh.tp;feature=jax-rs-provider-swagger;version=1.1.1</capability>
+    <feature dependency="true">esh.tp-jax-rs-min</feature>
+
+    <!-- BEG: swagger-jersey2-1.5.8 -->
+    <feature dependency="true">esh.tp-kat.cpy-jersey-min-2.22.2</feature>
+    <bundle>mvn:de.maggu2810.thirdparty.modified.io.swagger/swagger-jersey2-jaxrs/1.5.8.v20160511-1038</bundle>
+    <bundle dependency="true">mvn:io.swagger/swagger-annotations/1.5.8</bundle>
+    <bundle dependency="true">mvn:io.swagger/swagger-core/1.5.8</bundle>
+    <bundle dependency="true">mvn:io.swagger/swagger-jaxrs/1.5.8</bundle>
+    <bundle dependency="true">mvn:io.swagger/swagger-models/1.5.8</bundle>
+    <bundle dependency="true">mvn:de.maggu2810.thirdparty.modified.org.reflections/reflections/0.9.10.v20160429-1435</bundle>
+    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/2.4.5</bundle>
+    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/2.4.5</bundle>
+    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/2.4.5</bundle>
+    <bundle dependency="true">mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-xml/2.4.5</bundle>
+    <bundle dependency="true">mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/2.4.5</bundle>
+    <bundle dependency="true">mvn:com.fasterxml.jackson.datatype/jackson-datatype-joda/2.4.5</bundle>
+    <bundle dependency="true">mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/2.4.5</bundle>
+    <bundle dependency="true">mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/2.4.5</bundle>
+    <bundle dependency="true">mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/2.4.5</bundle>
+    <bundle dependency="true">mvn:com.google.code.findbugs/annotations/2.0.1</bundle>
+    <bundle dependency="true">mvn:com.google.guava/guava/18.0</bundle>
+    <bundle dependency="true">mvn:javax.validation/validation-api/1.1.0.Final</bundle>
+    <bundle dependency="true">mvn:joda-time/joda-time/2.2</bundle>
+    <bundle dependency="true">mvn:org.apache.commons/commons-lang3/3.2.1</bundle>
+    <bundle dependency="true">mvn:org.codehaus.woodstox/stax2-api/3.1.4</bundle>
+    <bundle dependency="true">mvn:org.javassist/javassist/3.19.0-GA</bundle>
+    <bundle dependency="true">mvn:org.slf4j/slf4j-api/1.7.7</bundle>
+    <bundle dependency="true">mvn:org.yaml/snakeyaml/1.12</bundle>
+    <!-- END: swagger-jersey2-1.5.8 -->
+
+    <bundle>mvn:de.maggu2810.thirdparty.modified.com.eclipsesource.jaxrs/provider-swagger/1.1.1.201605111122</bundle>
+    <config name="com.eclipsesource.jaxrs.swagger.config">
+      swagger.basePath=/rest
+      swagger.info.title=Eclipse SmartHome REST API
+    </config>
+  </feature>
 
 </features>

@@ -15,7 +15,11 @@ package org.eclipse.smarthome.core.thing.firmware;
 import java.util.Collection;
 import java.util.Objects;
 
-import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressStep;
 
 /**
@@ -23,46 +27,34 @@ import org.eclipse.smarthome.core.thing.binding.firmware.ProgressStep;
  *
  * @author Thomas Höfer - Initial contribution
  * @author Christoph Knauf - Added progress and pending
+ * @author Dimitar Ivanov - Consolidated all the needed information for firmware status events
  */
+@NonNullByDefault
 public final class FirmwareUpdateProgressInfo {
 
-    private FirmwareUID firmwareUID;
+    private final ThingUID thingUID;
 
-    private ProgressStep progressStep;
+    private final String firmwareVersion;
 
-    private Collection<ProgressStep> sequence;
+    private final ProgressStep progressStep;
 
-    private boolean pending;
+    private final Collection<ProgressStep> sequence;
 
-    private Integer progress;
+    private final boolean pending;
 
-    /**
-     * Default constructor. Will allow to instantiate this class by reflection.
-     */
-    protected FirmwareUpdateProgressInfo() {
-        // does nothing at all
-    }
+    private final @Nullable Integer progress;
 
-    /**
-     * Creates a new {@link FirmwareUpdateProgressInfo}.
-     *
-     * @param firmwareUID the UID of the firmware that is updated (must not be null)
-     * @param progressStep the current progress step (must not be null)
-     * @param sequence the collection of progress steps describing the sequence of the firmware update process
-     *            (must not be null)
-     * @param pending the flag indicating if the update is pending
-     * @param progress the progress of the update in percent
-     * @throws NullPointerException if firmware UID or current progress step is null
-     * @throws IllegalArgumentException if sequence is null or empty or progress is not between 0 and 100
-     */
-    FirmwareUpdateProgressInfo(FirmwareUID firmwareUID, ProgressStep progressStep, Collection<ProgressStep> sequence,
-            boolean pending, int progress) {
-        Objects.requireNonNull(firmwareUID, "Firmware UID must not be null.");
+    private FirmwareUpdateProgressInfo(ThingUID thingUID, String firmwareVersion, ProgressStep progressStep,
+            Collection<ProgressStep> sequence, boolean pending, int progress) {
+        Objects.requireNonNull(thingUID, "ThingUID must not be null.");
+        Objects.requireNonNull(firmwareVersion, "Firmware version must not be null.");
+
         if (progress < 0 || progress > 100) {
             throw new IllegalArgumentException("The progress must be between 0 and 100.");
         }
 
-        this.firmwareUID = firmwareUID;
+        this.thingUID = thingUID;
+        this.firmwareVersion = firmwareVersion;
         this.progressStep = progressStep;
         this.sequence = sequence;
         this.pending = pending;
@@ -72,24 +64,33 @@ public final class FirmwareUpdateProgressInfo {
     /**
      * Creates a new {@link FirmwareUpdateProgressInfo}.
      *
-     * @param firmwareUID the UID of the firmware that is updated (must not be null)
+     * @param thingUID the thing UID of the thing that is updated (must not be null)
+     * @param firmwareVersion the version of the firmware that is updated (must not be null)
      * @param progressStep the current progress step (must not be null)
      * @param sequence the collection of progress steps describing the sequence of the firmware update process
      *            (must not be null)
      * @param pending the flag indicating if the update is pending
-     * @throws NullPointerException if firmware UID or current progress step is null
-     * @throws NullPointerException if progressStep is null
-     * @throws IllegalArgumentException if sequence is null or empty
+     * @param progress the progress of the update in percent
+     * @return FirmwareUpdateProgressInfo object (not null)
+     * @throws IllegalArgumentException if sequence is null or empty or progress is not between 0 and 100
      */
-    FirmwareUpdateProgressInfo(FirmwareUID firmwareUID, ProgressStep progressStep, Collection<ProgressStep> sequence,
-            boolean pending) {
-        Objects.requireNonNull(firmwareUID, "Firmware UID must not be null.");
+    public static FirmwareUpdateProgressInfo createFirmwareUpdateProgressInfo(ThingUID thingUID, String firmwareVersion,
+            ProgressStep progressStep, Collection<ProgressStep> sequence, boolean pending, int progress) {
+        return new FirmwareUpdateProgressInfo(thingUID, firmwareVersion, progressStep, sequence, pending, progress);
+    }
+
+    private FirmwareUpdateProgressInfo(ThingUID thingUID, String firmwareVersion, ProgressStep progressStep,
+            Collection<ProgressStep> sequence, boolean pending) {
+        Objects.requireNonNull(thingUID, "ThingUID must not be null.");
+        Objects.requireNonNull(firmwareVersion, "Firmware version must not be null.");
+
         if (sequence == null || sequence.isEmpty()) {
             throw new IllegalArgumentException("Sequence must not be null or empty.");
         }
         Objects.requireNonNull(progressStep, "Progress step must not be null.");
 
-        this.firmwareUID = firmwareUID;
+        this.thingUID = thingUID;
+        this.firmwareVersion = firmwareVersion;
         this.progressStep = progressStep;
         this.sequence = sequence;
         this.pending = pending;
@@ -97,12 +98,31 @@ public final class FirmwareUpdateProgressInfo {
     }
 
     /**
-     * Returns the UID of the firmware that is updated.
+     * Creates a new {@link FirmwareUpdateProgressInfo}.
      *
-     * @return the UID of the firmware that is updated (not null)
+     * @param thingUID the thing UID of the thing that is updated (must not be null)
+     * @param firmwareVersion the version of the firmware that is updated (must not be null)
+     * @param progressStep the current progress step (must not be null)
+     * @param sequence the collection of progress steps describing the sequence of the firmware update process
+     *            (must not be null)
+     * @param pending the flag indicating if the update is pending
+     * @return FirmwareUpdateProgressInfo object (not null)
+     * @throws IllegalArgumentException if sequence is null or empty
      */
-    public FirmwareUID getFirmwareUID() {
-        return firmwareUID;
+    @NonNull
+    public static FirmwareUpdateProgressInfo createFirmwareUpdateProgressInfo(ThingUID thingUID,
+            ThingTypeUID thingTypeUID, String firmwareVersion, ProgressStep progressStep,
+            Collection<ProgressStep> sequence, boolean pending) {
+        return new FirmwareUpdateProgressInfo(thingUID, firmwareVersion, progressStep, sequence, pending);
+    }
+
+    /**
+     * Returns the firmware version of the firmware that is updated.
+     *
+     * @return the firmware version of the firmware that is updated (not null)
+     */
+    public String getFirmwareVersion() {
+        return firmwareVersion;
     }
 
     /**
@@ -137,15 +157,26 @@ public final class FirmwareUpdateProgressInfo {
      *
      * @return the progress between 0 and 100 or null if no progress was set
      */
+    @Nullable
     public Integer getProgress() {
         return progress;
+    }
+
+    /**
+     * Returns the thing UID.
+     *
+     * @return the thing UID
+     */
+    public ThingUID getThingUID() {
+        return thingUID;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((firmwareUID == null) ? 0 : firmwareUID.hashCode());
+        result = prime * result + ((thingUID == null) ? 0 : thingUID.hashCode());
+        result = prime * result + ((firmwareVersion == null) ? 0 : firmwareVersion.hashCode());
         result = prime * result + (pending ? 1231 : 1237);
         result = prime * result + progress;
         result = prime * result + ((progressStep == null) ? 0 : progressStep.hashCode());
@@ -154,7 +185,7 @@ public final class FirmwareUpdateProgressInfo {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;
         }
@@ -165,11 +196,18 @@ public final class FirmwareUpdateProgressInfo {
             return false;
         }
         FirmwareUpdateProgressInfo other = (FirmwareUpdateProgressInfo) obj;
-        if (firmwareUID == null) {
-            if (other.firmwareUID != null) {
+        if (thingUID == null) {
+            if (other.thingUID != null) {
                 return false;
             }
-        } else if (!firmwareUID.equals(other.firmwareUID)) {
+        } else if (!thingUID.equals(other.thingUID)) {
+            return false;
+        }
+        if (firmwareVersion == null) {
+            if (other.firmwareVersion != null) {
+                return false;
+            }
+        } else if (!firmwareVersion.equals(other.firmwareVersion)) {
             return false;
         }
         if (pending != other.pending) {
@@ -193,8 +231,9 @@ public final class FirmwareUpdateProgressInfo {
 
     @Override
     public String toString() {
-        return "FirmwareUpdateProgressInfo [firmwareUID=" + firmwareUID + ", progressStep=" + progressStep
-                + ", sequence=" + sequence + ", pending=" + pending + ", progress=" + progress + "]";
+        return "FirmwareUpdateProgressInfo [thingUID=" + thingUID + ", firmwareVersion=" + firmwareVersion
+                + ", progressStep=" + progressStep + ", sequence=" + sequence + ", pending=" + pending + ", progress="
+                + progress + "]";
     }
 
 }

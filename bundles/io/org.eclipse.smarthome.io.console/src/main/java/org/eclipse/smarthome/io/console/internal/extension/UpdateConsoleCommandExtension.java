@@ -25,6 +25,9 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
+import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Console command extension to send status update to item
@@ -33,8 +36,9 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  * @author Markus Rathgeb - Create DS for command extension
  * @author Dennis Nobel - Changed service references to be injected via DS
  * @author Stefan Bußweiler - Migration to new ESH event concept
- * 
+ *
  */
+@Component(service = ConsoleCommandExtension.class)
 public class UpdateConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
     private ItemRegistry itemRegistry;
@@ -85,6 +89,7 @@ public class UpdateConsoleCommandExtension extends AbstractConsoleCommandExtensi
         }
     }
 
+    @Reference
     protected void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
     }
@@ -93,6 +98,7 @@ public class UpdateConsoleCommandExtension extends AbstractConsoleCommandExtensi
         this.itemRegistry = null;
     }
 
+    @Reference
     protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }

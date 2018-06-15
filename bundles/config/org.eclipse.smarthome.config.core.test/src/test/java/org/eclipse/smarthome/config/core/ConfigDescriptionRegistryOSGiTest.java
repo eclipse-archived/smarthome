@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.smarthome.test.java.JavaOSGiTest;
+import org.eclipse.smarthome.test.java.JavaTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -34,7 +34,7 @@ import org.mockito.Mock;
  * @author Simon Kaufmann - converted to Java
  *
  */
-public class ConfigDescriptionRegistryOSGiTest extends JavaOSGiTest {
+public class ConfigDescriptionRegistryOSGiTest extends JavaTest {
 
     private URI URI_DUMMY;
     private URI URI_DUMMY1;
@@ -60,7 +60,7 @@ public class ConfigDescriptionRegistryOSGiTest extends JavaOSGiTest {
         URI_DUMMY1 = new URI("config:Dummy1");
         URI_ALIASED = new URI("config:Aliased");
 
-        configDescriptionRegistry = getService(ConfigDescriptionRegistry.class);
+        configDescriptionRegistry = new ConfigDescriptionRegistry();
         ConfigDescriptionParameter param1 = new ConfigDescriptionParameter("param1",
                 ConfigDescriptionParameter.Type.INTEGER);
         List<ConfigDescriptionParameter> pList1 = new ArrayList<ConfigDescriptionParameter>();
@@ -107,7 +107,7 @@ public class ConfigDescriptionRegistryOSGiTest extends JavaOSGiTest {
 
     @Test
     public void testGetConfigDescription() throws Exception {
-        registerService(configDescriptionProviderMock);
+        configDescriptionRegistry.addConfigDescriptionProvider(configDescriptionProviderMock);
 
         ConfigDescription configDescription = configDescriptionRegistry.getConfigDescription(URI_DUMMY);
         assertThat(configDescription, is(notNullValue()));
@@ -167,8 +167,8 @@ public class ConfigDescriptionRegistryOSGiTest extends JavaOSGiTest {
         assertThat(configDescriptionRegistry.getConfigDescriptions().size(), is(0));
 
         configDescriptionRegistry.addConfigDescriptionProvider(configDescriptionProviderMock);
-        registerService(aliasProvider);
-        registerService(configOptionsProviderMockAliased);
+        configDescriptionRegistry.addConfigDescriptionAliasProvider(aliasProvider);
+        configDescriptionRegistry.addConfigOptionProvider(configOptionsProviderMockAliased);
 
         ConfigDescription res = configDescriptionRegistry.getConfigDescription(URI_ALIASED);
         assertThat(res, is(notNullValue()));
@@ -185,9 +185,9 @@ public class ConfigDescriptionRegistryOSGiTest extends JavaOSGiTest {
         assertThat(configDescriptionRegistry.getConfigDescriptions().size(), is(0));
 
         configDescriptionRegistry.addConfigDescriptionProvider(configDescriptionProviderMock);
-        registerService(aliasProvider);
-        registerService(configOptionsProviderMock);
-        registerService(configOptionsProviderMockAliased);
+        configDescriptionRegistry.addConfigDescriptionAliasProvider(aliasProvider);
+        configDescriptionRegistry.addConfigOptionProvider(configOptionsProviderMock);
+        configDescriptionRegistry.addConfigOptionProvider(configOptionsProviderMockAliased);
 
         ConfigDescription res = configDescriptionRegistry.getConfigDescription(URI_ALIASED);
         assertThat(res, is(notNullValue()));
@@ -204,8 +204,8 @@ public class ConfigDescriptionRegistryOSGiTest extends JavaOSGiTest {
         assertThat(configDescriptionRegistry.getConfigDescriptions().size(), is(0));
 
         configDescriptionRegistry.addConfigDescriptionProvider(configDescriptionProviderMock);
-        registerService(aliasProvider);
-        registerService(configOptionsProviderMock);
+        configDescriptionRegistry.addConfigDescriptionAliasProvider(aliasProvider);
+        configDescriptionRegistry.addConfigOptionProvider(configOptionsProviderMock);
 
         ConfigDescription res = configDescriptionRegistry.getConfigDescription(URI_ALIASED);
         assertThat(res, is(notNullValue()));
@@ -222,7 +222,7 @@ public class ConfigDescriptionRegistryOSGiTest extends JavaOSGiTest {
         assertThat(configDescriptionRegistry.getConfigDescriptions().size(), is(0));
 
         configDescriptionRegistry.addConfigDescriptionProvider(configDescriptionProviderMock);
-        registerService(aliasProvider);
+        configDescriptionRegistry.addConfigDescriptionAliasProvider(aliasProvider);
 
         ConfigDescription res1 = configDescriptionRegistry.getConfigDescription(URI_ALIASED);
         assertThat(res1, is(notNullValue()));

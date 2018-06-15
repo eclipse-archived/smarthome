@@ -30,6 +30,9 @@ import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.classic.internal.servlet.WebAppServlet;
 import org.eclipse.smarthome.ui.classic.render.RenderException;
 import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
+import org.eclipse.smarthome.ui.items.ItemUIRegistry;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +43,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@Component(service = WidgetRenderer.class)
 public class SwitchRenderer extends AbstractWidgetRenderer {
 
     private final Logger logger = LoggerFactory.getLogger(SwitchRenderer.class);
@@ -103,10 +107,6 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
                     String unit = getUnitForWidget(w);
                     command = StringUtils.replace(command, UnitUtils.UNIT_PLACEHOLDER, unit);
                     label = StringUtils.replace(label, UnitUtils.UNIT_PLACEHOLDER, unit);
-
-                    // Special treatment for °C since uom library uses a single character: ℃
-                    // This will ensure the current state matches the cmd and the buttonClass is set accordingly.
-                    command = StringUtils.replace(command, "°C", "℃");
                 }
 
                 button = StringUtils.replace(button, "%item%", w.getItem());
@@ -138,6 +138,17 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
 
         sb.append(snippet);
         return null;
+    }
+
+    @Override
+    @Reference
+    protected void setItemUIRegistry(ItemUIRegistry ItemUIRegistry) {
+        super.setItemUIRegistry(ItemUIRegistry);
+    }
+
+    @Override
+    protected void unsetItemUIRegistry(ItemUIRegistry ItemUIRegistry) {
+        super.unsetItemUIRegistry(ItemUIRegistry);
     }
 
 }

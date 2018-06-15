@@ -13,7 +13,6 @@
     function RepositoryImpl($q, $rootScope, remoteService, dataType, staticData, getOneFunction, idParameterName, elmentId) {
         var self = this;
 
-        this.cacheEnabled = true;
         this.dirty = false;
         this.initialFetch = false;
         this.staticData = staticData
@@ -42,7 +41,7 @@
             }
             var deferred = $q.defer();
             deferred.promise.then(function(res) {
-                if (callback && res !== 'No update') {
+                if (callback) {
                     return callback(res);
                 } else {
                     return;
@@ -56,28 +55,18 @@
                     return;
                 }
             });
-            if (self.cacheEnabled && self.staticData && self.initialFetch && !refresh && !self.dirty) {
+            if (self.staticData && self.initialFetch && !refresh && !self.dirty) {
                 deferred.resolve($rootScope.data[dataType]);
             } else {
                 remoteService.getAll(function(data) {
-                    if ((!self.cacheEnabled || (data.length != $rootScope.data[dataType].length) || self.dirty || refresh)) {
+                    if (((data.length != $rootScope.data[dataType].length) || self.dirty || refresh || !self.initialFetch)) {
                         self.initialFetch = true;
                         $rootScope.data[dataType] = data;
                         self.dirty = false;
-                        deferred.resolve(data);
-                    } else {
-                        // set initial data
-                        if (!self.initialFetch) {
-                            self.initialFetch = true;
-                            $rootScope.data[dataType] = data;
-                            self.dirty = false;
-                        }
-                        deferred.resolve('No update');
                     }
+
+                    deferred.resolve(data);
                 });
-                if (self.cacheEnabled && self.initialFetch) {
-                    deferred.notify($rootScope.data[dataType]);
-                }
             }
             return deferred.promise;
         }

@@ -26,6 +26,12 @@ import org.eclipse.smarthome.io.console.rfc147.internal.extension.HelpConsoleCom
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +44,7 @@ import org.slf4j.LoggerFactory;
  * @author Markus Rathgeb - Initial contribution and API
  *
  */
+@Component(immediate = true, service = {})
 public class ConsoleSupportRfc147 implements ConsoleCommandsContainer {
 
     // private static final String KEY_SCOPE = CommandProcessor.COMMAND_SCOPE;
@@ -49,7 +56,7 @@ public class ConsoleSupportRfc147 implements ConsoleCommandsContainer {
 
     public static final OSGiConsole CONSOLE = new OSGiConsole(SCOPE);
 
-    private Logger logger = LoggerFactory.getLogger(ConsoleSupportRfc147.class);
+    private final Logger logger = LoggerFactory.getLogger(ConsoleSupportRfc147.class);
 
     private final HelpConsoleCommandExtension helpCommand = new HelpConsoleCommandExtension();
 
@@ -69,6 +76,7 @@ public class ConsoleSupportRfc147 implements ConsoleCommandsContainer {
         commands.put(helpCommand, null);
     }
 
+    @Activate
     public void activate(ComponentContext ctx) {
         // Save bundle context to register services.
         this.bc = ctx.getBundleContext();
@@ -87,6 +95,7 @@ public class ConsoleSupportRfc147 implements ConsoleCommandsContainer {
         helpCommand.setConsoleCommandsContainer(this);
     }
 
+    @Deactivate
     public void deactivate() {
         // If we get deactivated, remove from help command (so GC could do their work).
         helpCommand.setConsoleCommandsContainer(null);
@@ -105,6 +114,7 @@ public class ConsoleSupportRfc147 implements ConsoleCommandsContainer {
         this.bc = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addConsoleCommandExtension(ConsoleCommandExtension consoleCommandExtension) {
         final ServiceRegistration<?> old;
 

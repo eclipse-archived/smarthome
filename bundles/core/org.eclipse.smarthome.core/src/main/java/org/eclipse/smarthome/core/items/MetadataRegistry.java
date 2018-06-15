@@ -27,4 +27,21 @@ import org.eclipse.smarthome.core.common.registry.Registry;
 @NonNullByDefault
 public interface MetadataRegistry extends Registry<Metadata, MetadataKey> {
 
+    public static final String INTERNAL_NAMESPACE_PREFIX = "_";
+
+    /**
+     * Determines whether the given namespace is internal.
+     *
+     * @param namespace the metadata namespace to check
+     * @return {@code true} if the given namespace is internal, {@code false} otherwise
+     */
+    boolean isInternalNamespace(String namespace);
+
+    /**
+     * Remove all metadata of a given item
+     *
+     * @param itemname the name of the item for which the metadata is to be removed.
+     */
+    void removeItemMetadata(String name);
+
 }

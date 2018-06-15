@@ -24,7 +24,7 @@ import org.eclipse.smarthome.core.types.Command;
 /**
  * Handler for thing with a configuration parameter
  *
- * @author Stefan Triller
+ * @author Stefan Triller - Initial contribution
  *
  */
 @NonNullByDefault

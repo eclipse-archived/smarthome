@@ -3,8 +3,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>smarthome</artifactId>
     <groupId>org.eclipse.smarthome</groupId>
+    <artifactId>smarthome</artifactId>
     <version>0.10.0-SNAPSHOT</version>
   </parent>
 
@@ -24,10 +24,10 @@
         <executions>
           <execution>
             <id>attach-artifacts</id>
-            <phase>package</phase>
             <goals>
               <goal>attach-artifact</goal>
             </goals>
+            <phase>package</phase>
             <configuration>
               <artifacts>
                 <artifact>

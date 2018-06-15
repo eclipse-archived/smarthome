@@ -12,17 +12,21 @@
  */
 package org.eclipse.smarthome.core.thing.firmware.dto;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * This is a data transfer object that is used to serialize firmware status information.
  *
  * @author Aoun Bukhari - Initial contribution
  *
  */
+@NonNullByDefault
 public class FirmwareStatusDTO {
     public final String status;
-    public final String updatableVersion;
+    public final @Nullable String updatableVersion;
 
-    public FirmwareStatusDTO(String status, String updatableVersion) {
+    public FirmwareStatusDTO(String status, @Nullable String updatableVersion) {
         this.status = status;
         this.updatableVersion = updatableVersion;
     }

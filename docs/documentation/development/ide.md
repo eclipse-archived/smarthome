@@ -20,7 +20,7 @@ The Eclipse IDE is used for Eclipse SmartHome developments. The Eclipse Installe
 ![Step 0](images/ide0.png)
 3. Choose the "Eclipse IDE for Java Developers" and select "Next":
 ![Step 1](images/ide1.png)
-4. Expand the "SmartHome" entry, double click "Runtime and Designer" and select "Next":
+4. Expand the "SmartHome" entry, double click "Runtime" and select "Next":
 ![Step 2](images/ide2.png)
 5. Now provide an installation folder and your Github id (used to push your changesets to) and select "Next":
 ![Step 3](images/ide3.png)

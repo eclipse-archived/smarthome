@@ -45,8 +45,15 @@ var paths = {
             './web-src/js/bindings/bindings-module.js',
             './web-src/js/bindings/route-config.js',
             './web-src/js/bindings/binding-config-dialog.js',
-            './web-src/js/items/controller*.js',
+            './web-src/js/items/items-module.js',
+            './web-src/js/items/route-config.js',
+            './web-src/js/items/service.items.metadata.js',
+            './web-src/js/items/controllers.items.js',
+            './web-src/js/items/directive.metadata-details.js',
+            './web-src/js/items/directive.metadata-list.js',
+            './web-src/js/items/controller.metadata-parameter.dialog.js',
             './web-src/js/system/controller*.js',
+            './web-src/js/things/things-module.js',
             './web-src/js/things/controller*.js',
             './web-src/js/extensions/controller*.js',
             './web-src/js/rules/controller*.js',
@@ -87,11 +94,10 @@ var paths = {
     ],
     JQUI: [{
         'src' : [
-             './node_modules/jquery-ui/ui/data.js',
-             './node_modules/jquery-ui/ui/scroll-parent.js',
+             './node_modules/jquery-ui/ui/core.js',
              './node_modules/jquery-ui/ui/widget.js',
-             './node_modules/jquery-ui/ui/widgets/mouse.js',
-             './node_modules/jquery-ui/ui/widgets/sortable.js',
+             './node_modules/jquery-ui/ui/mouse.js',
+             './node_modules/jquery-ui/ui/sortable.js',
         ],
         'name': 'jquery-ui.js'
     }],
@@ -137,7 +143,6 @@ gulp.task('copyJSLibs', function () {
 gulp.task('copyJQUI', function() {
     return paths.JQUI.forEach(function (obj) {
         return gulp.src(obj.src)
-            //.pipe(angularFilesort())
             .pipe(concat(obj.name))
             .pipe(rename(function (path) {
                 path.basename += '.min';
@@ -238,8 +243,15 @@ gulp.task('inject', ['build'], function () {
                      './web-src/js/bindings/bindings-module.js',
                      './web-src/js/bindings/route-config.js',
                      './web-src/js/bindings/binding-config-dialog.js',
-                     './web-src/js/items/controller*.js',
+                     './web-src/js/items/items-module.js',
+                     './web-src/js/items/route-config.js',
+                     './web-src/js/items/service.items.metadata.js',
+                     './web-src/js/items/controllers.items.js',
+                     './web-src/js/items/directive.metadata-details.js',
+                     './web-src/js/items/directive.metadata-list.js',
+                     './web-src/js/items/controller.metadata-parameter.dialog.js',
                      './web-src/js/system/controller*.js',
+                     './web-src/js/things/things-module.js',
                      './web-src/js/things/controller*.js',
                      './web-src/js/extensions/controller*.js',
                      './web-src/js/rules/controller*.js',
