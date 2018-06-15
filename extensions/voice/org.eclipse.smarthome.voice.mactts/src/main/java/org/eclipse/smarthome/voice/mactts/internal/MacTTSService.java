@@ -134,7 +134,7 @@ public class MacTTSService implements TTSService {
 
     @Override
     public String getLabel(Locale locale) {
-        return "MacOS TTS";
+        return "macOS TTS";
     }
 
 }
