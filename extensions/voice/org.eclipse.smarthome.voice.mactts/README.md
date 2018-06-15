@@ -1,10 +1,10 @@
-# MacOS Text-to-Speech
+# macOS Text-to-Speech
 
 ## Overview
 
-The MacOS Text-to-Speech (TTS) service uses the MacOS "say" command for producing spoken text.
+The macOS Text-to-Speech (TTS) service uses the macOS "say" command for producing spoken text.
 
-Obviously, this service only works on a host that is running MacOS.
+Obviously, this service only works on a host that is running macOS.
 
 ## Configuration
 
