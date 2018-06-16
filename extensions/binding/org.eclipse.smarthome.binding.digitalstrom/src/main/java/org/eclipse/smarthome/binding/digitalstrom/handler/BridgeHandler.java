@@ -665,7 +665,7 @@ public class BridgeHandler extends BaseBridgeHandler
                     break;
                 case UNKNOWN_HOST:
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
-                            "Unkown host name, please check the set host name!");
+                            "Unknown host name, please check the set host name!");
                     break;
                 case INVALID_URL:
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Invalid URL is set.");
