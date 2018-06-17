@@ -343,7 +343,7 @@ public class DeviceStatusManagerImpl implements DeviceStatusManager {
                     if (deviceDiscovery != null) {
                         // only informs discovery, if the device is a output or a sensor device
                         deviceDiscovery.onDeviceAdded(currentDevice);
-                        logger.debug("inform DeviceStatusListener: {} about removed device with dSID {}",
+                        logger.debug("inform DeviceStatusListener: {} about added device with dSID {}",
                                 DeviceStatusListener.DEVICE_DISCOVERY, currentDevice.getDSID().getValue());
                     } else {
                         logger.debug(

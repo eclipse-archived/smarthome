@@ -97,8 +97,9 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
     @Override
     public void initialize() {
         logger.debug("Initializing SceneHandler");
-        if (getBridge() != null) {
-            bridgeStatusChanged(getBridge().getStatusInfo());
+        final Bridge bridge = getBridge();
+        if (bridge != null) {
+            bridgeStatusChanged(bridge.getStatusInfo());
         }
     }
 

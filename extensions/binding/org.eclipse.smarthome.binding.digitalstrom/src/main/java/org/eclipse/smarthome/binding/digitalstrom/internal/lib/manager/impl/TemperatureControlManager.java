@@ -252,13 +252,10 @@ public class TemperatureControlManager implements EventHandler, TemperatureContr
                 this.discovery = null;
                 return;
             }
-            if (temperatureControlStatusListener != null) {
-                temperatureControlStatusListener = zoneTemperationControlListenerMap
-                        .remove(temperatureControlStatusListener.getTemperationControlStatusListenrID());
-                if (discovery != null && temperatureControlStatusListener != null) {
-                    discovery.configChanged(temperationControlStatus
-                            .get(temperatureControlStatusListener.getTemperationControlStatusListenrID()));
-                }
+            if (discovery != null && zoneTemperationControlListenerMap
+                    .remove(temperatureControlStatusListener.getTemperationControlStatusListenrID()) != null) {
+                discovery.configChanged(temperationControlStatus
+                        .get(temperatureControlStatusListener.getTemperationControlStatusListenrID()));
             }
         }
     }

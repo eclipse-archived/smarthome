@@ -86,7 +86,7 @@ public abstract class BaseTemperatureControl extends BaseZoneIdentifier {
      * Returns true, if heating for this zone is not set off (set {@link ControlModes} = {@link ControlModes#OFF}),
      * otherwise false.
      *
-     * @return the true, if the set {@link ControlModes} is not {@link ControlModes#OFF}
+     * @return true, if the set {@link ControlModes} is not {@link ControlModes#OFF}
      */
     public Boolean isNotSetOff() {
         return !ControlModes.OFF.getID().equals(controlMode);

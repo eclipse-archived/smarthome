@@ -1114,9 +1114,7 @@ public class DsAPIImpl implements DsAPI {
                     while (iter.hasNext()) {
                         TemperatureControlStatus tContStat = new TemperatureControlStatus(
                                 iter.next().getAsJsonObject());
-                        if (tContStat != null) {
-                            list.add(tContStat);
-                        }
+                        list.add(tContStat);
                     }
                     return list;
                 }
@@ -1143,9 +1141,7 @@ public class DsAPIImpl implements DsAPI {
                     while (iter.hasNext()) {
                         TemperatureControlConfig tContConf = new TemperatureControlConfig(
                                 iter.next().getAsJsonObject());
-                        if (tContConf != null) {
-                            map.put(tContConf.getZoneID(), tContConf);
-                        }
+                        map.put(tContConf.getZoneID(), tContConf);
                     }
                     return map;
                 }
@@ -1171,9 +1167,7 @@ public class DsAPIImpl implements DsAPI {
                     Iterator<JsonElement> iter = jArray.iterator();
                     while (iter.hasNext()) {
                         TemperatureControlValues tContVal = new TemperatureControlValues(iter.next().getAsJsonObject());
-                        if (tContVal != null) {
-                            map.put(tContVal.getZoneID(), tContVal);
-                        }
+                        map.put(tContVal.getZoneID(), tContVal);
                     }
                     return map;
                 }
@@ -1198,9 +1192,7 @@ public class DsAPIImpl implements DsAPI {
                     Iterator<JsonElement> iter = jArray.iterator();
                     while (iter.hasNext()) {
                         AssignedSensors assignedSensors = new AssignedSensors(iter.next().getAsJsonObject());
-                        if (assignedSensors != null) {
-                            map.put(assignedSensors.getZoneID(), assignedSensors);
-                        }
+                        map.put(assignedSensors.getZoneID(), assignedSensors);
                     }
                     return map;
                 }
@@ -1226,9 +1218,7 @@ public class DsAPIImpl implements DsAPI {
                     Iterator<JsonElement> iter = jArray.iterator();
                     while (iter.hasNext()) {
                         SensorValues sensorValues = new SensorValues(iter.next().getAsJsonObject());
-                        if (sensorValues != null) {
-                            map.put(sensorValues.getZoneID(), sensorValues);
-                        }
+                        map.put(sensorValues.getZoneID(), sensorValues);
                     }
                     map.put(GeneralLibConstance.BROADCAST_ZONE_GROUP_ID, weather);
                     return map;

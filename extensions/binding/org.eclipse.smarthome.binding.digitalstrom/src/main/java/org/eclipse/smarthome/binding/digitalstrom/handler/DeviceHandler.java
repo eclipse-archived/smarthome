@@ -110,8 +110,9 @@ public class DeviceHandler extends BaseThingHandler implements DeviceStatusListe
         logger.debug("Initializing DeviceHandler.");
         if (StringUtils.isNotBlank((String) getConfig().get(DigitalSTROMBindingConstants.DEVICE_DSID))) {
             dSID = getConfig().get(DigitalSTROMBindingConstants.DEVICE_DSID).toString();
-            if (getBridge() != null) {
-                bridgeStatusChanged(getBridge().getStatusInfo());
+            final Bridge bridge = getBridge();
+            if (bridge != null) {
+                bridgeStatusChanged(bridge.getStatusInfo());
             } else {
                 // Set status to OFFLINE if no bridge is available e.g. because the bridge has been removed and the
                 // Thing was reinitialized.
@@ -421,7 +422,7 @@ public class DeviceHandler extends BaseThingHandler implements DeviceStatusListe
         if (device instanceof Device) {
             this.device = null;
             if (this.getThing().getStatus().equals(ThingStatus.ONLINE)) {
-                if (device != null && !((Device) device).isPresent()) {
+                if (!((Device) device).isPresent()) {
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE,
                             "Device is not present in the digitalSTROM-System.");
                 } else {
@@ -930,7 +931,7 @@ public class DeviceHandler extends BaseThingHandler implements DeviceStatusListe
                 logger.debug("Save scene configuration: [{}] to thing with UID {}", saveScene, getThing().getUID());
                 super.updateProperty(key, saveScene);
                 // persist the new property
-                super.updateThing(getThing());
+                // super.updateThing(editThing().build());
             }
         }
 

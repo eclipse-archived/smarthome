@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CircuitScheduler {
 
-    private Logger logger = LoggerFactory.getLogger(CircuitScheduler.class);
+    private final Logger logger = LoggerFactory.getLogger(CircuitScheduler.class);
 
     private class SensorJobComparator implements Comparator<SensorJob> {
 
@@ -43,8 +43,8 @@ public class CircuitScheduler {
 
     private final DSID meterDSID;
     private long nextExecutionTime = System.currentTimeMillis();
-    private PriorityQueue<SensorJob> sensorJobQueue = new PriorityQueue<SensorJob>(10, new SensorJobComparator());
-    private Config config;
+    private final PriorityQueue<SensorJob> sensorJobQueue = new PriorityQueue<SensorJob>(10, new SensorJobComparator());
+    private final Config config;
 
     /**
      * Creates a new {@link CircuitScheduler}.
@@ -108,8 +108,7 @@ public class CircuitScheduler {
             for (Iterator<SensorJob> iter = sensorJobQueue.iterator(); iter.hasNext();) {
                 SensorJob existSensorJob = iter.next();
                 if (existSensorJob.equals(sensorJob)) {
-                    if (existSensorJob != null
-                            && sensorJob.getInitalisationTime() < existSensorJob.getInitalisationTime()) {
+                    if (sensorJob.getInitalisationTime() < existSensorJob.getInitalisationTime()) {
                         iter.remove();
                         sensorJobQueue.add(sensorJob);
                         return true;
