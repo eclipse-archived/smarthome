@@ -536,9 +536,7 @@ public class HttpUtil {
     }
 
     protected void unsetHttpClientFactory(final HttpClientFactory httpClientFactory) {
-        if (HttpUtil.httpClientFactory == httpClientFactory) {
-            HttpUtil.httpClientFactory = null;
-        }
+        HttpUtil.httpClientFactory = null;
     }
 
 }
