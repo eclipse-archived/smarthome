@@ -64,6 +64,10 @@ public class TransformationProfile implements StateProfile {
 
         logger.debug("Profile configured with '{}'='{}', '{}'={}", FUNCTION_PARAM, paramFunction, SOURCE_PARAM,
                 paramSource);
+        // paramSource is an advanced parameter and we assume "%s" if it is not set
+        if (paramSource == null) {
+            paramSource = "%s";
+        }
         if (paramFunction instanceof String && paramSource instanceof String) {
             function = (String) paramFunction;
             sourceFormat = (String) paramSource;
