@@ -101,7 +101,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
             }
             commonHttpClient = null;
             threadPool = null;
-            logger.info("jetty shared http client stopped");
+            logger.debug("jetty shared http client stopped");
         }
     }
 
@@ -166,7 +166,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
 
                         if (commonHttpClient == null) {
                             commonHttpClient = createHttpClientInternal("common", null, true);
-                            logger.info("jetty shared http client created");
+                            logger.debug("jetty shared http client created");
                         }
 
                         return null;
@@ -189,7 +189,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<HttpClient>() {
                 @Override
                 public HttpClient run() {
-                    logger.info("creating httpClient for endpoint {}", endpoint);
+                    logger.debug("creating httpClient for endpoint {}", endpoint);
                     SslContextFactory sslContextFactory = createSslContextFactory(endpoint);
 
                     HttpClient httpClient = new HttpClient(sslContextFactory);
@@ -264,7 +264,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
             Stream<TrustManager> trustManagerStream = trustmanagerProvider.getTrustManagers(endpoint);
             TrustManager[] trustManagers = trustManagerStream.toArray(TrustManager[]::new);
             if (trustManagers.length > 0) {
-                logger.info("using custom trustmanagers (certificate pinning) for httpClient for endpoint {}",
+                logger.debug("using custom trustmanagers (certificate pinning) for httpClient for endpoint {}",
                         endpoint);
                 try {
                     SSLContext sslContext = SSLContext.getInstance("TLS");
