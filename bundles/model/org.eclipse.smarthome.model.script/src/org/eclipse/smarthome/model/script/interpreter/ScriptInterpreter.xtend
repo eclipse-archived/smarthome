@@ -35,6 +35,8 @@ import org.eclipse.xtext.xbase.XMemberFeatureCall
 import org.eclipse.xtext.xbase.interpreter.IEvaluationContext
 import org.eclipse.xtext.xbase.interpreter.impl.XbaseInterpreter
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
+import org.eclipse.xtext.common.types.JvmOperation
+import org.eclipse.xtext.common.types.JvmParameterizedTypeReference
 
 /**
  * The script interpreter handles ESH specific script components, which are not known
@@ -61,7 +63,7 @@ public class ScriptInterpreter extends XbaseInterpreter {
 
         // Check if the JvmField is inferred
         val sourceElement = jvmField.sourceElements.head
-        if (sourceElement != null) {
+        if (sourceElement !== null) {
             val value = context.getValue(QualifiedName.create(jvmField.simpleName))
             value ?: {
 
@@ -77,11 +79,12 @@ public class ScriptInterpreter extends XbaseInterpreter {
 
     override protected invokeFeature(JvmIdentifiableElement feature, XAbstractFeatureCall featureCall,
         Object receiverObj, IEvaluationContext context, CancelIndicator indicator) {
-        if (feature != null && feature.eIsProxy) {
+        if (feature !== null && feature.eIsProxy) {
             if (featureCall instanceof XMemberFeatureCall) {
                 throw new ScriptExecutionException(new ScriptError(
                     "'" + featureCall.getConcreteSyntaxFeatureName() + "' is not a member of '" +
-                        receiverObj?.getClass()?.getName() + "'", featureCall));
+                        (((featureCall?.memberCallTarget as XMemberFeatureCall)?.feature as JvmOperation)?.returnType as JvmParameterizedTypeReference)?.type.qualifiedName
+                         + "'", featureCall));
             } else if (featureCall instanceof XFeatureCall) {
                 throw new ScriptExecutionException(new ScriptError(
                     "The name '" + featureCall.getConcreteSyntaxFeatureName() +
