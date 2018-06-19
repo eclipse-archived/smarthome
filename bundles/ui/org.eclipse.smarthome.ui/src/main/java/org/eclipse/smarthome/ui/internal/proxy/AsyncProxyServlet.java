@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.ui.internal.proxy;
 
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,6 +50,21 @@ public class AsyncProxyServlet extends org.eclipse.jetty.proxy.AsyncProxyServlet
     @Override
     protected HttpClient newHttpClient() {
         return new HttpClient(new SslContextFactory());
+    }
+
+    @Override
+    protected void sendProxyRequest(HttpServletRequest clientRequest, HttpServletResponse proxyResponse,
+            Request proxyRequest) {
+        if (service.proxyingVideoWidget(clientRequest)) {
+            // We disable the timeout for video
+            proxyRequest.timeout(0, TimeUnit.MILLISECONDS);
+
+            // We request the browser to not cache the video
+            proxyResponse.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+            proxyResponse.setHeader("Pragma", "no-cache");
+            proxyResponse.setHeader("Expires", "0");
+        }
+        super.sendProxyRequest(clientRequest, proxyResponse, proxyRequest);
     }
 
     /**
