@@ -28,6 +28,7 @@ public class MarketplaceExtension extends Extension {
     // extension types from marketplace
     public static final String EXT_TYPE_RULE_TEMPLATE = "ruletemplate";
     public static final String EXT_TYPE_BINDING = "binding";
+    public static final String EXT_TYPE_VOICE = "voice";
 
     // extension package formats from marketplace
     public static final String EXT_FORMAT_BUNDLE = "bundle";
