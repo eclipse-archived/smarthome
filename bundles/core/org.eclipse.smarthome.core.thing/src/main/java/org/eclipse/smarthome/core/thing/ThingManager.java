@@ -20,7 +20,7 @@ package org.eclipse.smarthome.core.thing;
 public interface ThingManager {
 
     /**
-     * This method gets <b>enabled</b> {@link ThingStatusd} for a {@link Thing}.
+     * This method gets the <b>enabled</b> status for a {@link Thing}.
      * The only {@link ThingStatus} which is NOT enabled is {@link ThingStatus} with
      * {@link ThingStatusDetail#DISABLED}.
      *
