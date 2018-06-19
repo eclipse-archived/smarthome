@@ -326,6 +326,10 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
 
     private <T extends Type> @Nullable T toAcceptedType(T originalType, Channel channel,
             Function<@Nullable String, @Nullable List<Class<? extends T>>> acceptedTypesFunction) {
+        String acceptedItemType = channel.getAcceptedItemType();
+        if (acceptedItemType == null) {
+            return originalType;
+        }
         List<Class<? extends T>> acceptedTypes = acceptedTypesFunction.apply(channel.getAcceptedItemType());
         if (acceptedTypes == null) {
             return originalType;
