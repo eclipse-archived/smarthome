@@ -18,8 +18,8 @@ import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
- * Modules are the super class of Trigger, Actions and Conditions.
- * The all have an id, a type, a label, a description and a configuration.
+ * Modules are the super class of Trigger, Actions and Conditions. The all have an id, a type, a label, a description
+ * and a configuration.
  *
  * @author Kai Kreuzer - Initial Contribution
  */

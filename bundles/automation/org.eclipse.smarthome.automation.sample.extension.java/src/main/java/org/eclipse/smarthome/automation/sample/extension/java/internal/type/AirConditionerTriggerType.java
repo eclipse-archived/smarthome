@@ -41,7 +41,7 @@ public class AirConditionerTriggerType extends TriggerType {
     }
 
     public AirConditionerTriggerType(List<Output> output) {
-        super(UID, null, "Air Conditioner RuleImpl Trigger", "Template for creation of a Air Conditioner RuleImpl Trigger.",
+        super(UID, null, "Air Conditioner Rule Trigger", "Template for creation of a Air Conditioner Rule Trigger.",
                 null, Visibility.VISIBLE, output);
     }
 }

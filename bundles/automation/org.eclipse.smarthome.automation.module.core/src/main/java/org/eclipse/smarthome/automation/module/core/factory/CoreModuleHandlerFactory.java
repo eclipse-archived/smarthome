@@ -34,8 +34,10 @@ import org.eclipse.smarthome.automation.module.core.handler.RuleEnablementAction
 import org.eclipse.smarthome.automation.module.core.handler.RunRuleActionHandler;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.osgi.service.component.ComponentContext;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - refactored and simplified customized module handling
  *
  */
-@Component(immediate = true)
+@Component
 public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory implements ModuleHandlerFactory {
 
     private final Logger logger = LoggerFactory.getLogger(CoreModuleHandlerFactory.class);
@@ -63,11 +65,16 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory implement
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
 
-    protected void activate(ComponentContext componentContext) {
-        super.activate(componentContext.getBundleContext());
+    private BundleContext bundleContext;
+
+    @Activate
+    protected void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 
-    protected void deactivate(ComponentContext componentContext) {
+    @Override
+    @Deactivate
+    protected void deactivate() {
         super.deactivate();
     }
 
@@ -139,11 +146,6 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory implement
     }
 
     @Override
-    public void dispose() {
-        super.dispose();
-    }
-
-    @Override
     protected synchronized ModuleHandler internalCreate(final Module module, final String ruleUID) {
         logger.trace("create {} -> {} : {}", module.getId(), module.getTypeUID(), ruleUID);
         final String moduleTypeUID = module.getTypeUID();
@@ -151,14 +153,14 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory implement
             // Handle triggers
 
             if (GenericEventTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
-                return new GenericEventTriggerHandler((Trigger) module, this.bundleContext);
+                return new GenericEventTriggerHandler((Trigger) module, bundleContext);
             } else if (ChannelEventTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
-                return new ChannelEventTriggerHandler((Trigger) module, this.bundleContext);
+                return new ChannelEventTriggerHandler((Trigger) module, bundleContext);
             } else if (ItemCommandTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
-                return new ItemCommandTriggerHandler((Trigger) module, this.bundleContext);
+                return new ItemCommandTriggerHandler((Trigger) module, bundleContext);
             } else if (ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID.equals(moduleTypeUID)
                     || ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID.equals(moduleTypeUID)) {
-                return new ItemStateTriggerHandler((Trigger) module, this.bundleContext);
+                return new ItemStateTriggerHandler((Trigger) module, bundleContext);
             }
         } else if (module instanceof Condition) {
             // Handle conditions

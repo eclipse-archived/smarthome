@@ -21,11 +21,10 @@ import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
 /**
- * Actions are the part of "THEN" section of the {@link RuleImpl} definition.
- * Elements of this section are expected result of {@link RuleImpl} execution. The
- * Action can have {@link Output} elements. These actions are used to process
- * input data as source data of other Actions. Building elements of actions ( {@link ConfigDescriptionParameter}s,
- * {@link Input}s and {@link Output}s) are defined by {@link ActionType}
+ * Actions are the part of "THEN" section of the {@link Rule} definition. Elements of this section are expected result
+ * of {@link Rule} execution. The Action can have {@link Output} elements. These actions are used to process input data
+ * as source data of other Actions. Building elements of actions ( {@link ConfigDescriptionParameter}s, {@link Input}s
+ * and {@link Output}s) are defined by {@link ActionType}
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Initial Contribution

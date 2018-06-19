@@ -16,9 +16,10 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Module;
+import org.eclipse.smarthome.automation.Rule;
 
 /**
- * This class defines meta-information properties, used by the RuleImpl Engine when creating connections between
+ * This class defines meta-information properties, used by the Rule Engine when creating connections between
  * modules.
  * The {@link Input}s of a {@link Module} are the entry points for data coming from other {@link Module}s. An
  * {@link Input} can be connected to a single {@link Output} of another {@link Module}, which produces data of an
@@ -94,22 +95,22 @@ public class Input {
      * Constructor of Input object. Creates Input base on type of accepted data
      * and input name
      *
-     * @param name unique name of the {@code Input}.
-     * @param type the acceptable data type for this {@link Input}.
-     * @param label a single word description of the {@code Input}.
-     * @param description user friendly description of the {@code Input}.
-     * @param tags are associated with the {@code Input}. The tags adds additional restrictions to connections between
-     *            {@code Input}s and {@link Output}s. The input tags must be subset of the output tags to succeed the
-     *            connection.
-     *            For example: When we want to connect input to output and both have same
-     *            java.lang.double data type. The the output has assign "temperature" and "celsius" tags then the input
-     *            must have at least one of these output's tags (i.e. "temperature") to connect this {@code Input} to
-     *            the selected output.
-     * @param required determines if the {@code Input} is required or optional.
-     * @param reference refers to the input of parent module type or null. If this input is part of the system module
-     *            the reference should be null.
+     * @param name         unique name of the {@code Input}.
+     * @param type         the acceptable data type for this {@link Input}.
+     * @param label        a single word description of the {@code Input}.
+     * @param description  user friendly description of the {@code Input}.
+     * @param tags         are associated with the {@code Input}. The tags adds additional restrictions to connections
+     *                     between {@code Input}s and {@link Output}s. The input tags must be subset of the output tags
+     *                     to succeed the connection.
+     *                     For example: When we want to connect input to output and both have same java.lang.double data
+     *                     type. The the output has assign "temperature" and "celsius" tags then the input must have at
+     *                     least one of these output's tags (i.e. "temperature") to connect this {@code Input} to the
+     *                     selected output.
+     * @param required     determines if the {@code Input} is required or optional.
+     * @param reference    refers to the input of parent module type or null. If this input is part of the system module
+     *                     the reference should be null.
      * @param defaultValue default value takes place when there is no value for this Input. Type of the default value
-     *            must be the type the Input.
+     *                     must be the type the Input.
      * @throws IllegalArgumentException If one of the name or type parameters is null.
      */
     public Input(String name, String type, String label, String description, Set<String> tags, boolean required,
@@ -131,7 +132,7 @@ public class Input {
     }
 
     /**
-     * This method is used for getting the name of Input. It must be unique in scope of the {@link RuleImpl}.
+     * This method is used for getting the name of Input. It must be unique in scope of the {@link Rule}.
      *
      * @return name is an unique identifier of the Input.
      */
@@ -182,9 +183,9 @@ public class Input {
      * This method is used for getting the tags of the Input. The tags add additional restrictions to connections
      * between {@link Input}s and {@link Output}s. The input tags must be subset of the output tags to succeed the
      * connection.
-     * For example: When we want to connect input to output and they both have same java.lang.double
-     * data type, and the output has assign "temperature" and "celsius" tags then the input must have at least one of
-     * these output's tags (i.e. "temperature") to connect this input to the selected output.
+     * For example: When we want to connect input to output and they both have same java.lang.double data type, and the
+     * output has assign "temperature" and "celsius" tags then the input must have at least one of these output's tags
+     * (i.e. "temperature") to connect this input to the selected output.
      *
      * @return tags associated with this Input.
      */

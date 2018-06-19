@@ -15,13 +15,14 @@ package org.eclipse.smarthome.automation.handler;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.ModuleHandlerCallback;
+import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.type.Output;
 
 /**
  * This is a callback interface to RuleManager which is used by the {@link TriggerHandler} to notify the RuleManager
  * about firing of the {@link Trigger}. These calls from {@link Trigger}s must be stored in a queue
- * and applied to the RuleAngine in order of their appearance. Each {@link RuleImpl} has to create its own instance of
+ * and applied to the RuleAngine in order of their appearance. Each {@link Rule} has to create its own instance of
  * {@link TriggerHandlerCallback}.
  *
  * @author Yordan Mihaylov - Initial Contribution
@@ -34,14 +35,14 @@ public interface TriggerHandlerCallback extends ModuleHandlerCallback {
      * the liked {@link Trigger} instance was fired.
      *
      * @param trigger instance of trigger which was fired. When one TriggerHandler
-     *            serve more then one {@link Trigger} instances, this parameter
-     *            defines which trigger was fired.
+     *                serve more then one {@link Trigger} instances, this parameter
+     *                defines which trigger was fired.
      * @param context is a {@link Map} of output values of the triggered {@link Trigger}. Each entry of the map
-     *            contains:
-     *            <ul>
-     *            <li><code>key</code> - the id of the {@link Output} ,
-     *            <li><code>value</code> - represents output value of the {@link Trigger}'s {@link Output}
-     *            </ul>
+     *                contains:
+     *                <ul>
+     *                <li><code>key</code> - the id of the {@link Output} ,
+     *                <li><code>value</code> - represents output value of the {@link Trigger}'s {@link Output}
+     *                </ul>
      */
     public void triggered(Trigger trigger, Map<String, ?> context);
 

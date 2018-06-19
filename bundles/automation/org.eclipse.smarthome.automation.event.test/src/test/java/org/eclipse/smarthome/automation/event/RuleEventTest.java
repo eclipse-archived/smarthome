@@ -153,7 +153,7 @@ public class RuleEventTest extends JavaOSGiTest {
         Rule rule = RuleBuilder.create("myRule21").withTriggers(triggers).withActions(actions)
                 .withName("RuleEventTestingRule").build();
 
-        logger.info("RuleImpl created: {}", rule.getUID());
+        logger.info("Rule created: {}", rule.getUID());
 
         RuleRegistry ruleRegistry = getService(RuleRegistry.class);
         RuleManager ruleEngine = getService(RuleManager.class);

@@ -113,7 +113,7 @@ public class ScriptRuleTest extends JavaOSGiTest {
         RuleRegistry ruleRegistry = getService(RuleRegistry.class);
         RuleManager ruleEngine = getService(RuleManager.class);
 
-        // WAIT until RuleImpl modules types are parsed and the rule becomes IDLE
+        // WAIT until Rule modules types are parsed and the rule becomes IDLE
         waitForAssert(() -> {
             assertThat(ruleRegistry.getAll().isEmpty(), is(false));
             Rule rule2 = ruleRegistry.get("javascript.rule1");

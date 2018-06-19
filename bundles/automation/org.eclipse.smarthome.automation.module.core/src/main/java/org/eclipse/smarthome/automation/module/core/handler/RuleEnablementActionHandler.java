@@ -79,9 +79,6 @@ public class RuleEnablementActionHandler extends BaseModuleHandler<Action> imple
     public RuleEnablementActionHandler(final Action module) {
         super(module);
         final Configuration config = module.getConfiguration();
-        if (config == null) {
-            throw new IllegalArgumentException("'Configuration' can not be null.");
-        }
 
         final Boolean enable = (Boolean) config.get(ENABLE_KEY);
         if (enable == null) {

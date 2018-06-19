@@ -18,9 +18,9 @@ import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 
 /**
  * This class is responsible to provide a {@link RegistryChangeListener} logic. A instance of it is added to
- * {@link RuleRegistry} service, to listen for changes when a single {@link RuleImpl} has been added, updated, enabled,
- * disabled or removed and to involve RuleImpl Engine to process these changes. Also to send a {@code run} command
- * for a single {@link RuleImpl} to the RuleImpl Engine.
+ * {@link RuleRegistry} service, to listen for changes when a single {@link Rule} has been added, updated, enabled,
+ * disabled or removed and to involve Rule Engine to process these changes. Also to send a {@code run} command
+ * for a single {@link Rule} to the Rule Engine.
  *
  * @author Kai Kreuzer - Initial contribution and API
  *
@@ -28,12 +28,12 @@ import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 public interface RuleManager {
 
     /**
-     * This method gets <b>enabled</b> {@link RuleStatus} for a {@link RuleImpl}.
+     * This method gets <b>enabled</b> {@link RuleStatus} for a {@link Rule}.
      * The <b>enabled</b> rule statuses are {@link RuleStatus#UNINITIALIZED}, {@link RuleStatus#IDLE} and
      * {@link RuleStatus#RUNNING}.
      * The <b>disabled</b> rule status is {@link RuleStatus#DISABLED}.
      *
-     * @param ruleUID UID of the {@link RuleImpl}
+     * @param ruleUID UID of the {@link Rule}
      * @return {@code true} when the {@link RuleStatus} is one of the {@link RuleStatus#UNINITIALIZED},
      *         {@link RuleStatus#IDLE} and {@link RuleStatus#RUNNING}, {@code false} when it is
      *         {@link RuleStatus#DISABLED} and {@code null} when it is not available.
@@ -41,30 +41,30 @@ public interface RuleManager {
     public Boolean isEnabled(String ruleUID);
 
     /**
-     * This method is used for changing <b>enabled</b> state of the {@link RuleImpl}.
+     * This method is used for changing <b>enabled</b> state of the {@link Rule}.
      * The <b>enabled</b> rule statuses are {@link RuleStatus#UNINITIALIZED}, {@link RuleStatus#IDLE} and
      * {@link RuleStatus#RUNNING}.
      * The <b>disabled</b> rule status is {@link RuleStatus#DISABLED}.
      *
-     * @param uid the unique identifier of the {@link RuleImpl}.
-     * @param isEnabled a new <b>enabled / disabled</b> state of the {@link RuleImpl}.
+     * @param uid       the unique identifier of the {@link Rule}.
+     * @param isEnabled a new <b>enabled / disabled</b> state of the {@link Rule}.
      */
     public void setEnabled(String uid, boolean isEnabled);
 
     /**
-     * This method gets {@link RuleStatusInfo} of the specified {@link RuleImpl}.
+     * This method gets {@link RuleStatusInfo} of the specified {@link Rule}.
      *
-     * @param ruleUID UID of the {@link RuleImpl}
-     * @return {@link RuleStatusInfo} object containing status of the looking {@link RuleImpl} or null when a rule with
+     * @param ruleUID UID of the {@link Rule}
+     * @return {@link RuleStatusInfo} object containing status of the looking {@link Rule} or null when a rule with
      *         specified UID does not exists.
      */
     public RuleStatusInfo getStatusInfo(String ruleUID);
 
     /**
-     * Utility method which gets {@link RuleStatus} of the specified {@link RuleImpl}.
+     * Utility method which gets {@link RuleStatus} of the specified {@link Rule}.
      *
-     * @param ruleUID UID of the {@link RuleImpl}
-     * @return {@link RuleStatus} object containing status of the looking {@link RuleImpl} or null when a rule with
+     * @param ruleUID UID of the {@link Rule}
+     * @return {@link RuleStatus} object containing status of the looking {@link Rule} or null when a rule with
      *         specified UID does not exists.
      */
     public RuleStatus getStatus(String ruleUID);
@@ -82,9 +82,9 @@ public interface RuleManager {
      * Same as {@link #runNow(String)} with the additional option to enable/disable evaluation of
      * conditions defined in the target rule. The context can be set here, too, but also might be {@code null}.
      *
-     * @param ruleUID id of the rule whose actions have to be executed.
+     * @param ruleUID            id of the rule whose actions have to be executed.
      * @param considerConditions if {@code true} the conditions of the rule will be checked.
-     * @param context the context that is passed to the conditions and the actions of the rule.
+     * @param context            the context that is passed to the conditions and the actions of the rule.
      */
     public void runNow(String uid, boolean considerConditions, Map<String, Object> context);
 

@@ -33,7 +33,7 @@ import org.eclipse.smarthome.config.core.Configuration;
 @NonNullByDefault
 public class ConditionImpl extends ModuleImpl implements Condition {
 
-    private Map<String, String> inputs = Collections.emptyMap();;
+    private Map<String, String> inputs = Collections.emptyMap();
     private Set<Connection> connections = Collections.emptySet();
 
     @Nullable
@@ -51,20 +51,14 @@ public class ConditionImpl extends ModuleImpl implements Condition {
     /**
      * Constructor of {@link Condition} module object.
      *
-     * @param id id of the module.
-     * @param typeUID unique module type id.
+     * @param id            id of the module.
+     * @param typeUID       unique module type id.
      * @param configuration configuration values of the {@link Condition} module.
-     * @param inputs set of {@link Input}s used by this module.
+     * @param inputs        set of {@link Input}s used by this module.
      */
     public ConditionImpl(String id, String typeUID, Configuration configuration, Map<String, String> inputs) {
         super(id, typeUID, configuration);
         setInputs(inputs);
-    }
-
-    @Override
-    public void setConfiguration(@Nullable Configuration configuration) {
-        this.configuration = configuration == null ? new Configuration()
-                : new Configuration(configuration.getProperties());
     }
 
     /**
@@ -117,7 +111,7 @@ public class ConditionImpl extends ModuleImpl implements Condition {
      * @param inputs map that contains the inputs for this condition.
      */
     public void setInputs(@Nullable Map<String, String> inputs) {
-        this.inputs = inputs != null ? inputs : Collections.emptyMap();
+        this.inputs = inputs == null ? Collections.emptyMap() : Collections.unmodifiableMap(inputs);
     }
 
 }

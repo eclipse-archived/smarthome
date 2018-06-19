@@ -32,11 +32,11 @@ public class RuleStatusInfoEvent extends AbstractEvent {
     /**
      * constructs a new rule status event
      *
-     * @param topic the topic of the event
-     * @param payload the payload of the event
-     * @param source the source of the event
+     * @param topic      the topic of the event
+     * @param payload    the payload of the event
+     * @param source     the source of the event
      * @param statusInfo the status info for this event
-     * @param ruleId the rule for which this event is
+     * @param ruleId     the rule for which this event is
      */
     public RuleStatusInfoEvent(String topic, String payload, String source, RuleStatusInfo statusInfo, String ruleId) {
         super(topic, payload, source);

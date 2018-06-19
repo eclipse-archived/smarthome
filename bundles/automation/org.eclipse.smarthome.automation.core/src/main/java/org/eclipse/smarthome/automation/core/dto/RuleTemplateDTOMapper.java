@@ -17,7 +17,7 @@ import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTOMapper;
 
 /**
- * This is a utility class to convert between the RuleImpl Templates and RuleTemplateDTO objects.
+ * This is a utility class to convert between the Rule Templates and RuleTemplateDTO objects.
  *
  * @author Ana Dimova - Initial contribution
  *

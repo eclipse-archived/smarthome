@@ -31,7 +31,7 @@ public interface TemplateRegistry<E extends Template> extends Registry<E, String
     /**
      * This method is used to get template of specified by type.
      *
-     * @param uid the an unique id in scope of registered templates
+     * @param uid    the an unique id in scope of registered templates
      * @param locale user locale
      * @return template instance or null.
      */
@@ -42,6 +42,7 @@ public interface TemplateRegistry<E extends Template> extends Registry<E, String
      *
      * * @param tag specifies the filter for getting the templates, if it is <code>null</code> then returns all
      * templates.
+     *
      * @return the templates, which correspond to the specified filter.
      */
     public Collection<E> getByTag(String tag);
@@ -58,7 +59,7 @@ public interface TemplateRegistry<E extends Template> extends Registry<E, String
      * This method is used for getting the templates filtered by tags.
      *
      * @param tags set of tags which specifies the filter for getting the templates, if it is <code>null</code> then
-     *            returns all templates.
+     *             returns all templates.
      * @return collection of templates, which correspond to the filter.
      */
     public Collection<E> getByTags(String... tags);
@@ -67,7 +68,7 @@ public interface TemplateRegistry<E extends Template> extends Registry<E, String
      * This method is used for getting the templates filtered by tags.
      *
      * @param tags set of tags which specifies the filter for getting the templates, if it is <code>null</code> then
-     *            returns all templates.
+     *             returns all templates.
      * @return the templates, which correspond to the the filter.
      */
     public Collection<E> getByTags(Locale locale, String... tags);
@@ -76,8 +77,8 @@ public interface TemplateRegistry<E extends Template> extends Registry<E, String
      * This method is used for getting all templates, localized by specified locale,
      *
      * @param locale specifies the localization for the returned elements.
-     *            If a localization resources for this locale are not available the elements are returned with the
-     *            default localization.
+     *               If a localization resources for this locale are not available the elements are returned with the
+     *               default localization.
      * @return collection of templates, corresponding to specified type
      */
     public Collection<E> getAll(Locale locale);

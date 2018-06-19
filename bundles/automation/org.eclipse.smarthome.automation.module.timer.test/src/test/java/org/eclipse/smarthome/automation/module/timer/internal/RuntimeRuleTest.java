@@ -96,7 +96,7 @@ public class RuntimeRuleTest extends JavaOSGiTest {
     @Test
     public void checkDisableAndEnableOfTimerTriggeredRule() {
         /*
-         * Create RuleImpl
+         * Create Rule
          */
         logger.info("Create rule");
         String testExpression = "* * * * * ?";
@@ -108,11 +108,11 @@ public class RuntimeRuleTest extends JavaOSGiTest {
 
         Rule rule = RuleBuilder.create("MyRule" + new Random().nextInt()).withTriggers(triggers)
                 .withName("MyTimerTriggerTestEnableDisableRule").build();
-        logger.info("RuleImpl created: {}", rule.getUID());
+        logger.info("Rule created: {}", rule.getUID());
 
         logger.info("Add rule");
         ruleRegistry.add(rule);
-        logger.info("RuleImpl added");
+        logger.info("Rule added");
 
         int numberOfTests = 1000;
         for (int i = 0; i < numberOfTests; ++i) {
@@ -120,16 +120,16 @@ public class RuntimeRuleTest extends JavaOSGiTest {
             ruleEngine.setEnabled(rule.getUID(), false);
             waitForAssert(() -> {
                 final RuleStatusInfo ruleStatus = ruleEngine.getStatusInfo(rule.getUID());
-                logger.info("RuleImpl status (should be DISABLED): {}", ruleStatus);
+                logger.info("Rule status (should be DISABLED): {}", ruleStatus);
                 assertThat(ruleStatus.getStatusDetail(), is(RuleStatusDetail.DISABLED));
             });
-            logger.info("RuleImpl is disabled");
+            logger.info("Rule is disabled");
 
             logger.info("Enable rule");
             ruleEngine.setEnabled(rule.getUID(), true);
             waitForAssert(() -> {
                 final RuleStatusInfo ruleStatus = ruleEngine.getStatusInfo(rule.getUID());
-                logger.info("RuleImpl status (should be IDLE or RUNNING): {}", ruleStatus);
+                logger.info("Rule status (should be IDLE or RUNNING): {}", ruleStatus);
                 boolean allFine;
                 if (ruleStatus.getStatus().equals(RuleStatus.IDLE)
                         || ruleStatus.getStatus().equals(RuleStatus.RUNNING)) {
@@ -139,7 +139,7 @@ public class RuntimeRuleTest extends JavaOSGiTest {
                 }
                 assertThat(allFine, is(true));
             });
-            logger.info("RuleImpl is enabled");
+            logger.info("Rule is enabled");
         }
     }
 
@@ -169,7 +169,7 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         registerService(itemEventHandler);
 
         /*
-         * Create RuleImpl
+         * Create Rule
          */
         logger.info("Create rule");
         String testExpression = "* * * * * ?";
@@ -187,11 +187,11 @@ public class RuntimeRuleTest extends JavaOSGiTest {
 
         Rule rule = RuleBuilder.create("MyRule" + new Random().nextInt()).withTriggers(triggers).withActions(actions)
                 .withName("MyTimerTriggerTestRule").build();
-        logger.info("RuleImpl created: {}", rule.getUID());
+        logger.info("Rule created: {}", rule.getUID());
 
         logger.info("Add rule");
         ruleRegistry.add(rule);
-        logger.info("RuleImpl added");
+        logger.info("Rule added");
 
         logger.info("Enable rule and wait for idle status");
         ruleEngine.setEnabled(rule.getUID(), true);
@@ -199,7 +199,7 @@ public class RuntimeRuleTest extends JavaOSGiTest {
             final RuleStatusInfo ruleStatus = ruleEngine.getStatusInfo(rule.getUID());
             assertThat(ruleStatus.getStatus(), is(RuleStatus.IDLE));
         });
-        logger.info("RuleImpl is enabled and idle");
+        logger.info("Rule is enabled and idle");
 
         waitForAssert(() -> {
             assertThat(itemEvents.size(), is(3));

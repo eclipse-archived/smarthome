@@ -38,10 +38,9 @@ public class ActionImpl extends ModuleImpl implements Action {
     @Nullable
     private ActionHandler actionHandler;
     private Set<Connection> connections = Collections.emptySet();
-    private Map<String, String> inputs;
+    private Map<String, String> inputs = Collections.emptyMap();
 
     public ActionImpl() {
-        this.inputs = Collections.emptyMap();
     }
 
     /**
@@ -58,20 +57,14 @@ public class ActionImpl extends ModuleImpl implements Action {
     /**
      * Constructor of Action object.
      *
-     * @param UID action unique id.
-     * @param typeUID module type unique id.
+     * @param UID           action unique id.
+     * @param typeUID       module type unique id.
      * @param configuration map of configuration values.
-     * @param inputs set of connections to other modules (triggers and other actions).
+     * @param inputs        set of connections to other modules (triggers and other actions).
      */
-    public ActionImpl(String UID, String typeUID, Configuration configuration, Map<String, String> inputs) {
+    public ActionImpl(String UID, String typeUID, Configuration configuration, @Nullable Map<String, String> inputs) {
         super(UID, typeUID, configuration);
-        this.inputs = inputs;
-    }
-
-    @Override
-    public void setConfiguration(@Nullable Configuration configuration) {
-        this.configuration = configuration == null ? new Configuration()
-                : new Configuration(configuration.getProperties());
+        setInputs(inputs);
     }
 
     /**
@@ -124,10 +117,6 @@ public class ActionImpl extends ModuleImpl implements Action {
      * @param inputs map that contains the inputs for this action.
      */
     public void setInputs(@Nullable Map<String, String> inputs) {
-        if (inputs != null) {
-            this.inputs = inputs;
-        } else {
-            this.inputs = Collections.emptyMap();
-        }
+        this.inputs = inputs == null ? Collections.emptyMap() : Collections.unmodifiableMap(inputs);
     }
 }

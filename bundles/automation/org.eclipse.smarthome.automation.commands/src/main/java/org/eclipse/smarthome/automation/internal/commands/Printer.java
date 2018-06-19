@@ -89,7 +89,7 @@ public class Printer {
     private static final String NOT_REQUIRED = "NOT REQUIRED";
 
     /**
-     * This method is responsible for printing the list with indexes, UIDs, names and statuses of the {@link RuleImpl}s.
+     * This method is responsible for printing the list with indexes, UIDs, names and statuses of the {@link Rule}s.
      *
      * @param autoCommands
      * @param ruleUIDs

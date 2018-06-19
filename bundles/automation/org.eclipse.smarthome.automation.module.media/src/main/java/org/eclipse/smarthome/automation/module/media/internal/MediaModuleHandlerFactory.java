@@ -27,6 +27,7 @@ import org.eclipse.smarthome.automation.module.media.handler.SayActionHandler;
 import org.eclipse.smarthome.core.audio.AudioManager;
 import org.eclipse.smarthome.core.voice.VoiceManager;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -40,6 +41,12 @@ public class MediaModuleHandlerFactory extends BaseModuleHandlerFactory {
             asList(SayActionHandler.TYPE_ID, PlayActionHandler.TYPE_ID));
     private VoiceManager voiceManager;
     private AudioManager audioManager;
+
+    @Override
+    @Deactivate
+    protected void deactivate() {
+        super.deactivate();
+    }
 
     @Override
     public Collection<String> getTypes() {

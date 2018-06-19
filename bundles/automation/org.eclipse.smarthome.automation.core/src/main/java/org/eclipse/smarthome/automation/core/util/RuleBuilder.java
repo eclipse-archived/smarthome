@@ -25,10 +25,7 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.Visibility;
-import org.eclipse.smarthome.automation.core.internal.ActionImpl;
-import org.eclipse.smarthome.automation.core.internal.ConditionImpl;
 import org.eclipse.smarthome.automation.core.internal.RuleImpl;
-import org.eclipse.smarthome.automation.core.internal.TriggerImpl;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -84,9 +81,7 @@ public class RuleBuilder {
     }
 
     public RuleBuilder withVisibility(@Nullable Visibility visibility) {
-        if (visibility != null) {
-            this.rule.setVisibility(visibility);
-        }
+        this.rule.setVisibility(visibility);
         return this;
     }
 
@@ -96,8 +91,8 @@ public class RuleBuilder {
 
     public RuleBuilder withTriggers(@Nullable List<? extends Trigger> triggers) {
         if (triggers != null) {
-            ArrayList<TriggerImpl> triggerList = new ArrayList<>(triggers.size());
-            triggers.forEach(t -> triggerList.add((TriggerImpl) ModuleBuilder.createTrigger(t).build()));
+            ArrayList<Trigger> triggerList = new ArrayList<>(triggers.size());
+            triggers.forEach(t -> triggerList.add(ModuleBuilder.createTrigger(t).build()));
             this.rule.setTriggers(triggerList);
         }
         return this;
@@ -109,8 +104,8 @@ public class RuleBuilder {
 
     public RuleBuilder withConditions(@Nullable List<? extends Condition> conditions) {
         if (conditions != null) {
-            ArrayList<ConditionImpl> conditionList = new ArrayList<>(conditions.size());
-            conditions.forEach(c -> conditionList.add((ConditionImpl) ModuleBuilder.createCondition(c).build()));
+            ArrayList<Condition> conditionList = new ArrayList<>(conditions.size());
+            conditions.forEach(c -> conditionList.add(ModuleBuilder.createCondition(c).build()));
             this.rule.setConditions(conditionList);
         }
         return this;
@@ -122,8 +117,8 @@ public class RuleBuilder {
 
     public RuleBuilder withActions(@Nullable List<? extends Action> actions) {
         if (actions != null) {
-            ArrayList<ActionImpl> actionList = new ArrayList<>(actions.size());
-            actions.forEach(a -> actionList.add((ActionImpl) ModuleBuilder.createAction(a).build()));
+            ArrayList<Action> actionList = new ArrayList<>(actions.size());
+            actions.forEach(a -> actionList.add(ModuleBuilder.createAction(a).build()));
             this.rule.setActions(actionList);
         }
         return this;
@@ -135,23 +130,17 @@ public class RuleBuilder {
     }
 
     public RuleBuilder withTags(@Nullable Set<String> tags) {
-        if (tags != null) {
-            this.rule.setTags(new HashSet<>(tags));
-        }
+        this.rule.setTags(tags);
         return this;
     }
 
     public RuleBuilder withConfiguration(@Nullable Configuration ruleConfiguration) {
-        if (ruleConfiguration != null) {
-            this.rule.setConfiguration(ruleConfiguration);
-        }
+        this.rule.setConfiguration(ruleConfiguration);
         return this;
     }
 
     public RuleBuilder withConfigurationDescriptions(@Nullable List<ConfigDescriptionParameter> configDescs) {
-        if (configDescs != null) {
-            this.rule.setConfigurationDescriptions(new ArrayList<>(configDescs));
-        }
+        this.rule.setConfigurationDescriptions(configDescs);
         return this;
     }
 

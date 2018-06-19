@@ -92,7 +92,7 @@ public class RuleSupportScriptExtension implements ScriptExtensionProvider {
         types.add(AUTOMATION_MANAGER);
         types.add(RULE_REGISTRY);
 
-        presets.put(RULE_SUPPORT, Arrays.asList("Configuration", "Action", "Condition", "Trigger", "RuleImpl"));
+        presets.put(RULE_SUPPORT, Arrays.asList("Configuration", "Action", "Condition", "Trigger", "Rule"));
         presets.put("RuleSimple", Arrays.asList("SimpleActionHandler", "SimpleConditionHandler", "SimpleTriggerHandler",
                 "SimpleRule", "TriggerType", "ConfigDescriptionParameter", "ModuleType", "ActionType", "Visibility"));
         presets.put("RuleFactories",

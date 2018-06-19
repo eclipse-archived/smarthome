@@ -131,7 +131,7 @@ public class AirConditionerRuleTemplate extends RuleTemplate {
 
     public AirConditionerRuleTemplate(Set<String> tags, List<Trigger> triggers, List<Condition> conditions,
             List<Action> actions, List<ConfigDescriptionParameter> configDescriptions) {
-        super(UID, "Managing Air Conditioner RuleImpl Template",
+        super(UID, "Managing Air Conditioner Rule Template",
                 "Template for creation of a rule managing the Air Conditioner in the living room.", tags, triggers,
                 conditions, actions, configDescriptions, Visibility.VISIBLE);
     }

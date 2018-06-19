@@ -31,7 +31,7 @@ public interface ConditionHandler extends ModuleHandler {
      * Method that states if the Condition is satisfied or not
      *
      * @param context is an unmodifiable map containing condition input values and snapshot of trigger output
-     *            values. The output ids are defined in form: ModuleId.outputId.
+     *                values. The output ids are defined in form: ModuleId.outputId.
      * @return true if Condition is satisfied, false otherwise
      */
     public boolean isSatisfied(Map<String, Object> context);

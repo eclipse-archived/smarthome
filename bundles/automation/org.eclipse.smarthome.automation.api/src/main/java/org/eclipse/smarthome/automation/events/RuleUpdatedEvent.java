@@ -24,15 +24,15 @@ public class RuleUpdatedEvent extends AbstractRuleRegistryEvent {
 
     public static final String TYPE = RuleUpdatedEvent.class.getSimpleName();
 
-    private RuleDTO oldRule;
+    private final RuleDTO oldRule;
 
     /**
      * constructs a new rule updated event
      *
-     * @param topic the topic of the event
+     * @param topic   the topic of the event
      * @param payload the payload of the event
-     * @param source the source of the event
-     * @param rule the rule for which is this event
+     * @param source  the source of the event
+     * @param rule    the rule for which is this event
      * @param oldRule the rule that has been updated
      */
     public RuleUpdatedEvent(String topic, String payload, String source, RuleDTO rule, RuleDTO oldRule) {
@@ -54,7 +54,7 @@ public class RuleUpdatedEvent extends AbstractRuleRegistryEvent {
 
     @Override
     public String toString() {
-        return "RuleImpl '" + getRule().uid + "' has been updated.";
+        return "Rule '" + getRule().uid + "' has been updated.";
     }
 
 }

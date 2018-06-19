@@ -126,7 +126,7 @@ public class ScriptedAutomationManager {
             ArrayList<Condition> conditions = new ArrayList<>();
             for (Condition cond : element.getConditions()) {
                 Condition toAdd = cond;
-                if (cond.getId() == null || cond.getId().isEmpty()) {
+                if (cond.getId().isEmpty()) {
                     toAdd = ModuleBuilder.createCondition().withId(Integer.toString(moduleIndex++))
                             .withTypeUID(cond.getTypeUID()).withConfiguration(cond.getConfiguration())
                             .withInputs(cond.getInputs()).build();
@@ -144,7 +144,7 @@ public class ScriptedAutomationManager {
             ArrayList<Trigger> triggers = new ArrayList<>();
             for (Trigger trigger : element.getTriggers()) {
                 Trigger toAdd = trigger;
-                if (trigger.getId() == null || trigger.getId().isEmpty()) {
+                if (trigger.getId().isEmpty()) {
                     toAdd = ModuleBuilder.createTrigger().withId(Integer.toString(moduleIndex++))
                             .withTypeUID(trigger.getTypeUID()).withConfiguration(trigger.getConfiguration()).build();
                 }

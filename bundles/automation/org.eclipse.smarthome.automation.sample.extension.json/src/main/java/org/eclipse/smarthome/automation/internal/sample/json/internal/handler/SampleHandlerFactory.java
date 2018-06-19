@@ -24,7 +24,7 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
-import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,8 +52,10 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory {
     }
 
     @Override
-    public void activate(BundleContext bc) {
-        super.activate(bc);
+    @Deactivate
+    public void deactivate() {
+        createdTriggerHandler.clear();
+        super.deactivate();
     }
 
     @Override
@@ -90,12 +92,6 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory {
     public void ungetHandler(Module module, String ruleUID, ModuleHandler hdlr) {
         createdTriggerHandler.remove(hdlr);
         super.ungetHandler(module, ruleUID, hdlr);
-    }
-
-    @Override
-    public void dispose() {
-        createdTriggerHandler.clear();
-        super.dispose();
     }
 
 }

@@ -44,7 +44,7 @@ import org.osgi.framework.Bundle;
 public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<Rule> {
 
     /**
-     * This field holds the reference to the RuleImpl Registry.
+     * This field holds the reference to the Rule Registry.
      */
     protected ManagedRuleProvider mProvider;
 

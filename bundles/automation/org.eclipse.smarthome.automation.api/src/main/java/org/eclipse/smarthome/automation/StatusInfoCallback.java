@@ -22,8 +22,8 @@ public interface StatusInfoCallback {
     /**
      * The method is called when the rule has update of its status.
      *
-     * @param ruleUID UID of the {@link RuleImpl}
-     * @param statusInfo new status info releated to the {@link RuleImpl}
+     * @param ruleUID    UID of the {@link Rule}
+     * @param statusInfo new status info releated to the {@link Rule}
      */
     void statusInfoChanged(String ruleUID, RuleStatusInfo statusInfo);
 }

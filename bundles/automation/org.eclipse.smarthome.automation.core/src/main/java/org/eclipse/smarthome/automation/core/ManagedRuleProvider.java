@@ -28,7 +28,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
  * @author Ana Dimova - Persistence implementation
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
-@Component(service = { RuleProvider.class, ManagedRuleProvider.class }, immediate = true)
+@Component(service = { RuleProvider.class, ManagedRuleProvider.class })
 public class ManagedRuleProvider extends DefaultAbstractManagedProvider<Rule, String> implements RuleProvider {
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.STATIC)

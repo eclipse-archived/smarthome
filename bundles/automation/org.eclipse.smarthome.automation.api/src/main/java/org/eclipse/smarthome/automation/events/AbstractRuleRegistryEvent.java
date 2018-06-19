@@ -19,7 +19,7 @@ import org.eclipse.smarthome.core.events.AbstractEvent;
  * abstract class for rule events
  *
  * @author Benedikt Niehues - initial contribution
- * @author Markus Rathgeb - Use the DTO for the RuleImpl representation
+ * @author Markus Rathgeb - Use the DTO for the Rule representation
  *
  */
 public abstract class AbstractRuleRegistryEvent extends AbstractEvent {
@@ -29,9 +29,9 @@ public abstract class AbstractRuleRegistryEvent extends AbstractEvent {
     /**
      * Must be called in subclass constructor to create a new rule registry event.
      *
-     * @param topic the topic of the event
+     * @param topic   the topic of the event
      * @param payload the payload of the event
-     * @param source the source of the event
+     * @param source  the source of the event
      * @param ruleDTO the ruleDTO for which this event is created
      */
     public AbstractRuleRegistryEvent(String topic, String payload, String source, RuleDTO rule) {

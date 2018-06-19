@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.automation.core.internal.composite;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,7 +38,6 @@ import org.eclipse.smarthome.automation.type.CompositeTriggerType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,21 +55,25 @@ import org.slf4j.LoggerFactory;
  */
 public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory implements ModuleHandlerFactory {
 
-    private ModuleTypeRegistry mtRegistry;
-    private RuleEngineImpl ruleEngine;
+    private final ModuleTypeRegistry mtRegistry;
+    private final RuleEngineImpl ruleEngine;
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
-     * The constructor of system handler factory for composite module types
+     * The constructor of system handler factory for composite module types.
      *
-     * @param bc is a bundle context
+     * @param context   is a bundle context
      * @param mtManager is a module type manager
-     * @param re is a rule engine
+     * @param re        is a rule engine
      */
-    public CompositeModuleHandlerFactory(BundleContext bc, ModuleTypeRegistry mtRegistry, RuleEngineImpl re) {
+    public CompositeModuleHandlerFactory(ModuleTypeRegistry mtRegistry, RuleEngineImpl re) {
         this.mtRegistry = mtRegistry;
         this.ruleEngine = re;
-        activate(bc);
+    }
+
+    @Override
+    public void deactivate() {
+        super.deactivate();
     }
 
     /**
@@ -79,7 +83,7 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
      */
     @Override
     public Collection<String> getTypes() {
-        return null;
+        return new ArrayList<>();
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -110,43 +114,40 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
     @Override
     public ModuleHandler internalCreate(Module module, String ruleUID) {
         ModuleHandler handler = null;
-        if (module != null) {
-            String moduleType = module.getTypeUID();
-            ModuleType mt = mtRegistry.get(moduleType);
-            if (mt instanceof CompositeTriggerType) {
-                List<Trigger> childModules = ((CompositeTriggerType) mt).getChildren();
-                LinkedHashMap<Trigger, TriggerHandler> mapModuleToHandler = getChildHandlers(module.getId(),
-                        module.getConfiguration(), childModules, ruleUID);
-                if (mapModuleToHandler != null) {
-                    handler = new CompositeTriggerHandler((Trigger) module, (CompositeTriggerType) mt,
-                            mapModuleToHandler, ruleUID);
-                }
-            } else if (mt instanceof CompositeConditionType) {
-                List<Condition> childModules = ((CompositeConditionType) mt).getChildren();
-                LinkedHashMap<Condition, ConditionHandler> mapModuleToHandler = getChildHandlers(module.getId(),
-                        module.getConfiguration(), childModules, ruleUID);
-                if (mapModuleToHandler != null) {
-                    handler = new CompositeConditionHandler((Condition) module, (CompositeConditionType) mt,
-                            mapModuleToHandler, ruleUID);
-                }
-            } else if (mt instanceof CompositeActionType) {
-                List<Action> childModules = ((CompositeActionType) mt).getChildren();
-                LinkedHashMap<Action, ActionHandler> mapModuleToHandler = getChildHandlers(module.getId(),
-                        module.getConfiguration(), childModules, ruleUID);
-                if (mapModuleToHandler != null) {
-                    handler = new CompositeActionHandler((Action) module, (CompositeActionType) mt, mapModuleToHandler,
-                            ruleUID);
-                }
+        String moduleType = module.getTypeUID();
+        ModuleType mt = mtRegistry.get(moduleType);
+        if (mt instanceof CompositeTriggerType) {
+            List<Trigger> childModules = ((CompositeTriggerType) mt).getChildren();
+            LinkedHashMap<Trigger, TriggerHandler> mapModuleToHandler = getChildHandlers(module.getId(),
+                    module.getConfiguration(), childModules, ruleUID);
+            if (mapModuleToHandler != null) {
+                handler = new CompositeTriggerHandler((Trigger) module, (CompositeTriggerType) mt, mapModuleToHandler,
+                        ruleUID);
             }
-            if (handler != null) {
-                logger.debug("Set module handler: {}  -> {} of rule {}.", module.getId(),
-                        handler.getClass().getSimpleName() + "(" + moduleType + ")", ruleUID);
-            } else {
-                logger.debug("Not found module handler {} for moduleType {} of rule {}.", module.getId(), moduleType,
+        } else if (mt instanceof CompositeConditionType) {
+            List<Condition> childModules = ((CompositeConditionType) mt).getChildren();
+            LinkedHashMap<Condition, ConditionHandler> mapModuleToHandler = getChildHandlers(module.getId(),
+                    module.getConfiguration(), childModules, ruleUID);
+            if (mapModuleToHandler != null) {
+                handler = new CompositeConditionHandler((Condition) module, (CompositeConditionType) mt,
+                        mapModuleToHandler, ruleUID);
+            }
+        } else if (mt instanceof CompositeActionType) {
+            List<Action> childModules = ((CompositeActionType) mt).getChildren();
+            LinkedHashMap<Action, ActionHandler> mapModuleToHandler = getChildHandlers(module.getId(),
+                    module.getConfiguration(), childModules, ruleUID);
+            if (mapModuleToHandler != null) {
+                handler = new CompositeActionHandler((Action) module, (CompositeActionType) mt, mapModuleToHandler,
                         ruleUID);
             }
         }
-
+        if (handler != null) {
+            logger.debug("Set module handler: {}  -> {} of rule {}.", module.getId(),
+                    handler.getClass().getSimpleName() + "(" + moduleType + ")", ruleUID);
+        } else {
+            logger.debug("Not found module handler {} for moduleType {} of rule {}.", module.getId(), moduleType,
+                    ruleUID);
+        }
         return handler;
     }
 
@@ -156,11 +157,11 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
      * properties and configuration of composite module see:
      * {@link ReferenceResolver#updateConfiguration(Configuration, Map, Logger)}.
      *
-     * @param compositeConfig configuration values of composite module.
-     * @param childModules list of child modules
+     * @param compositeConfig   configuration values of composite module.
+     * @param childModules      list of child modules
      * @param childModulePrefix defines UID of child module. The rule id is not enough for prefix when a composite type
-     *            is used more then one time in one and the same rule. For example the prefix can be:
-     *            ruleId:compositeModuleId:compositeModileId2.
+     *                          is used more then one time in one and the same rule. For example the prefix can be:
+     *                          ruleId:compositeModuleId:compositeModileId2.
      * @return map of pairs of module and its handler. Return null when some of the child modules can not find its
      *         handler.
      */
@@ -185,18 +186,9 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
                 mapModuleToHandler = null;
                 return null;
             }
-
             mapModuleToHandler.put(child, childHandler);
-
         }
         return mapModuleToHandler;
-    }
-
-    @Override
-    public void dispose() {
-        super.dispose();
-        mtRegistry = null;
-        ruleEngine = null;
     }
 
 }

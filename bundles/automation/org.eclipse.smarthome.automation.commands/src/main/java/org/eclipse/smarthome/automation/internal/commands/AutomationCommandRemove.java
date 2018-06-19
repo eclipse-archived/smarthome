@@ -16,6 +16,8 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.eclipse.smarthome.automation.Rule;
+
 /**
  * This class provides common functionality of commands:
  * <ul>
@@ -33,7 +35,7 @@ import java.net.URL;
 public class AutomationCommandRemove extends AutomationCommand {
 
     /**
-     * This field keeps the UID of the {@link RuleImpl} if command is {@link AutomationCommands#REMOVE_RULE}
+     * This field keeps the UID of the {@link Rule} if command is {@link AutomationCommands#REMOVE_RULE}
      */
     private String id;
 

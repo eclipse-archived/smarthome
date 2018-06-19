@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.automation.core.internal;
 
 import org.eclipse.smarthome.automation.Module;
+import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.Output;
@@ -20,14 +21,14 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
- * Modules are building components of the {@link RuleImpl}s. Each ModuleImpl is
- * identified by id, which is unique in scope of the {@link RuleImpl}. It also has a {@link ModuleType} which provides
+ * Modules are building components of the {@link Rule}s. Each ModuleImpl is
+ * identified by id, which is unique in scope of the {@link Rule}. It also has a {@link ModuleType} which provides
  * meta
  * data of the module. The meta data
  * defines {@link Input}s, {@link Output}s and {@link ConfigDescriptionParameter}s parameters of the {@link ModuleImpl}.
  * <br>
- * Setters of the module don't have immediate effect on the RuleImpl. To apply the
- * changes, they should be set on the {@link RuleImpl} and the RuleImpl has to be
+ * Setters of the module don't have immediate effect on the Rule. To apply the
+ * changes, they should be set on the {@link Rule} and the Rule has to be
  * updated by RuleManager
  *
  * @author Yordan Mihaylov - Initial Contribution
@@ -36,40 +37,40 @@ import org.eclipse.smarthome.config.core.Configuration;
 public abstract class ModuleImpl implements Module {
 
     /**
-     * Id of the ModuleImpl. It is mandatory and unique identifier in scope of the {@link RuleImpl}. The id of the
+     * Id of the ModuleImpl. It is mandatory and unique identifier in scope of the {@link Rule}. The id of the
      * {@link ModuleImpl} is used to identify the module
-     * in the {@link RuleImpl}.
+     * in the {@link Rule}.
      */
-    protected String id;
+    private String id;
 
     /**
      * The label is a short, user friendly name of the {@link ModuleImpl} defined by
      * this descriptor.
      */
-    protected String label;
+    private String label;
 
     /**
      * The description is a long, user friendly description of the {@link ModuleImpl} defined by this descriptor.
      */
-    protected String description;
+    private String description;
 
     /**
      * Configuration values of the ModuleImpl.
      *
      * @see {@link ConfigDescriptionParameter}.
      */
-    protected Configuration configuration;
+    private Configuration configuration;
 
     /**
      * Unique type id of this module.
      */
-    protected String type;
+    private String type;
 
     /**
      * Constructor of the module.
      *
-     * @param id the module id.
-     * @param typeUID unique id of the module type.
+     * @param id            the module id.
+     * @param typeUID       unique id of the module type.
      * @param configuration configuration values of the module.
      */
     public ModuleImpl(String id, String typeUID, Configuration configuration) {
@@ -138,11 +139,6 @@ public abstract class ModuleImpl implements Module {
         this.description = description;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.eclipse.smarthome.automation.core.internal.Module#getConfiguration()
-     */
     @Override
     public Configuration getConfiguration() {
         return configuration;

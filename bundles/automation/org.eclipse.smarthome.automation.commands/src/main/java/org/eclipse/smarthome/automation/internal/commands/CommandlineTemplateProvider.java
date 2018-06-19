@@ -60,7 +60,7 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
      */
     @SuppressWarnings("rawtypes")
     protected ServiceRegistration tpReg;
-    private TemplateRegistry<RuleTemplate> templateRegistry;
+    private final TemplateRegistry<RuleTemplate> templateRegistry;
 
     /**
      * This constructor creates instances of this particular implementation of {@link TemplateProvider}. It does not add
@@ -214,12 +214,12 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
     protected void checkExistence(String uid, List<ParsingNestedException> exceptions) {
         if (templateRegistry == null) {
             exceptions.add(new ParsingNestedException(ParsingNestedException.TEMPLATE, uid,
-                    new IllegalArgumentException("Failed to create RuleImpl Template with UID \"" + uid
-                            + "\"! Can't guarantee yet that other RuleImpl Template with the same UID does not exist.")));
+                    new IllegalArgumentException("Failed to create Rule Template with UID \"" + uid
+                            + "\"! Can't guarantee yet that other Rule Template with the same UID does not exist.")));
         }
         if (templateRegistry.get(uid) != null) {
             exceptions.add(new ParsingNestedException(ParsingNestedException.TEMPLATE, uid,
-                    new IllegalArgumentException("RuleImpl Template with UID \"" + uid
+                    new IllegalArgumentException("Rule Template with UID \"" + uid
                             + "\" already exists! Failed to create a second with the same UID!")));
         }
     }

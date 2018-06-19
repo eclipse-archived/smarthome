@@ -118,8 +118,7 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
      *
      * @param ruleTags the {@link Rule}'s assigned tags.
      */
-    @SuppressWarnings("null")
-    public void setTags(Set<String> ruleTags) {
+    public void setTags(@Nullable Set<String> ruleTags) {
         tags = ruleTags != null ? ruleTags : new HashSet<>();
     }
 
@@ -149,16 +148,10 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
      *
      * @param visibility the {@link Rule}'s {@link Visibility} value.
      */
-    @SuppressWarnings("null")
-    public void setVisibility(Visibility visibility) {
+    public void setVisibility(@Nullable Visibility visibility) {
         this.visibility = visibility == null ? Visibility.VISIBLE : visibility;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.eclipse.smarthome.automation.Rule#getConfiguration()
-     */
     @Override
     public Configuration getConfiguration() {
         return configuration;
@@ -169,8 +162,7 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
      *
      * @param ruleConfiguration the new configuration values.
      */
-    @SuppressWarnings("null")
-    public void setConfiguration(Configuration ruleConfiguration) {
+    public void setConfiguration(@Nullable Configuration ruleConfiguration) {
         this.configuration = ruleConfiguration == null ? new Configuration() : ruleConfiguration;
     }
 
@@ -183,8 +175,7 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
      * This method is used to describe with {@link ConfigDescriptionParameter}s
      * the meta info for configuration properties of the {@link Rule}.
      */
-    @SuppressWarnings("null")
-    public void setConfigurationDescriptions(List<ConfigDescriptionParameter> configDescriptions) {
+    public void setConfigurationDescriptions(@Nullable List<ConfigDescriptionParameter> configDescriptions) {
         this.configDescriptions = configDescriptions == null ? new ArrayList<>() : configDescriptions;
     }
 
@@ -198,8 +189,7 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
      *
      * @param conditions a list with the conditions that should belong to this {@link Rule}.
      */
-    @SuppressWarnings("null")
-    public void setConditions(List<Condition> conditions) {
+    public void setConditions(@Nullable List<Condition> conditions) {
         this.conditions = conditions == null ? new ArrayList<>() : conditions;
     }
 
@@ -218,8 +208,7 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
      *
      * @param actions a list with the actions that should belong to this {@link Rule}.
      */
-    @SuppressWarnings("null")
-    public void setActions(List<Action> actions) {
+    public void setActions(@Nullable List<Action> actions) {
         this.actions = actions == null ? new ArrayList<>() : actions;
     }
 
@@ -228,8 +217,7 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
      *
      * @param triggers a list with the triggers that should belong to this {@link Rule}.
      */
-    @SuppressWarnings("null")
-    public void setTriggers(List<Trigger> triggers) {
+    public void setTriggers(@Nullable List<Trigger> triggers) {
         this.triggers = triggers == null ? new ArrayList<>() : triggers;
     }
 
@@ -240,7 +228,7 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
      * @return module with specified id or {@code null} if it does not belong to this {@link Rule}.
      */
     public @Nullable Module getModule(String moduleId) {
-        for (Module module : getModules(Module.class)) {
+        for (Module module : getModules()) {
             if (module.getId().equals(moduleId)) {
                 return module;
             }
@@ -249,15 +237,21 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
     }
 
     @Override
+    public List<Module> getModules() {
+        final List<Module> result;
+        List<Module> modules = new ArrayList<Module>();
+        modules.addAll(triggers);
+        modules.addAll(conditions);
+        modules.addAll(actions);
+        result = Collections.unmodifiableList(modules);
+        return result;
+    }
+
     @SuppressWarnings("unchecked")
     public <T extends Module> List<T> getModules(@Nullable Class<T> moduleClazz) {
         final List<T> result;
         if (Module.class == moduleClazz) {
-            List<Module> modules = new ArrayList<Module>();
-            modules.addAll(triggers);
-            modules.addAll(conditions);
-            modules.addAll(actions);
-            result = (List<T>) Collections.unmodifiableList(modules);
+            result = (List<T>) getModules();
         } else if (Trigger.class == moduleClazz) {
             result = (List<T>) triggers;
         } else if (Condition.class == moduleClazz) {

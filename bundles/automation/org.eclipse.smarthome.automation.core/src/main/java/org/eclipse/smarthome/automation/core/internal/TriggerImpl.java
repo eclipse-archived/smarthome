@@ -42,12 +42,6 @@ public class TriggerImpl extends ModuleImpl implements Trigger {
         setDescription(trigger.getDescription());
     }
 
-    @Override
-    public void setConfiguration(@Nullable Configuration configuration) {
-        this.configuration = configuration == null ? new Configuration()
-                : new Configuration(configuration.getProperties());
-    }
-
     /**
      * This method gets handler which is responsible for handling of this module.
      *

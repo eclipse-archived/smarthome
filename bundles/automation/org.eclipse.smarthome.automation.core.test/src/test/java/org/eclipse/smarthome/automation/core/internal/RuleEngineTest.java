@@ -191,27 +191,28 @@ public class RuleEngineTest extends JavaOSGiTest {
     @Test
     public void testRuleActions() {
         RuleImpl rule1 = createRule();
-        List<ActionImpl> actions = rule1.getActions();
+        List<Action> actions = new ArrayList<Action>(rule1.getActions());
         ruleRegistry.add(rule1);
 
         RuleImpl rule1Get = ruleEngine.getRuleImpl("rule1");
-        List<ActionImpl> actionsGet = rule1Get.getActions();
+        List<Action> actionsGet = rule1Get.getActions();
         Assert.assertNotNull("Null actions list", actionsGet);
         Assert.assertEquals("Empty actions list", 1, actionsGet.size());
         Assert.assertEquals("Returned actions list should not be a copy", actionsGet, rule1Get.getActions());
 
-        actions.add((ActionImpl) ModuleBuilder.createAction().withId("actionId2").withTypeUID("typeUID2").build());
+        actions.add(ModuleBuilder.createAction().withId("actionId2").withTypeUID("typeUID2").build());
+        rule1.setActions(actions);
         ruleEngine.addRule(rule1);
         rule1Get = ruleEngine.getRuleImpl("rule1");
-        List<ActionImpl> actionsGet2 = rule1Get.getActions();
+        List<Action> actionsGet2 = rule1Get.getActions();
         Assert.assertNotNull("Null actions list", actionsGet2);
         Assert.assertEquals("Action was not added to the rule's list of actions", 2, actionsGet2.size());
         Assert.assertNotNull("RuleImpl action with wrong id is returned", rule1Get.getModule("actionId2"));
 
-        actions.add((ActionImpl) ModuleBuilder.createAction().withId("actionId3").withTypeUID("typeUID3").build());
+        actions.add(ModuleBuilder.createAction().withId("actionId3").withTypeUID("typeUID3").build());
         ruleEngine.addRule(rule1); // ruleEngine.update will update the RuleImpl2.moduleMap with the new module
         rule1Get = ruleEngine.getRuleImpl("rule1");
-        List<ActionImpl> actionsGet3 = rule1Get.getActions();
+        List<Action> actionsGet3 = rule1Get.getActions();
         Assert.assertNotNull("Null actions list", actionsGet3);
         Assert.assertEquals("Action was not added to the rule's list of actions", 3, actionsGet3.size());
         Assert.assertNotNull("RuleImpl modules map was not updated",
@@ -225,20 +226,21 @@ public class RuleEngineTest extends JavaOSGiTest {
     @Test
     public void testRuleTriggers() {
         RuleImpl rule1 = createRule();
-        List<TriggerImpl> triggers = rule1.getTriggers();
+        List<Trigger> triggers = new ArrayList<Trigger>(rule1.getTriggers());
         ruleRegistry.add(rule1);
         RuleImpl rule1Get = ruleEngine.getRuleImpl("rule1");
-        List<TriggerImpl> triggersGet = rule1Get.getTriggers();
+        List<Trigger> triggersGet = rule1Get.getTriggers();
         Assert.assertNotNull("Null triggers list", triggersGet);
         Assert.assertEquals("Empty triggers list", 1, triggersGet.size());
         Assert.assertEquals("Returned triggers list should not be a copy", triggersGet, rule1Get.getTriggers());
 
-        triggers.add((TriggerImpl) ModuleBuilder.createTrigger().withId("triggerId2").withTypeUID("typeUID2").build());
+        triggers.add(ModuleBuilder.createTrigger().withId("triggerId2").withTypeUID("typeUID2").build());
+        rule1.setTriggers(triggers);
         ruleEngine.addRule(rule1); // ruleEngine.update will update the
                                    // RuleImpl2.moduleMap with the new
                                    // module
         RuleImpl rule2Get = ruleEngine.getRuleImpl("rule1");
-        List<TriggerImpl> triggersGet2 = rule2Get.getTriggers();
+        List<Trigger> triggersGet2 = rule2Get.getTriggers();
         Assert.assertNotNull("Null triggers list", triggersGet2);
         Assert.assertEquals("Trigger was not added to the rule's list of triggers", 2, triggersGet2.size());
         Assert.assertEquals("Returned triggers list should not be a copy", triggersGet2, rule2Get.getTriggers());
@@ -252,19 +254,19 @@ public class RuleEngineTest extends JavaOSGiTest {
     @Test
     public void testRuleConditions() {
         RuleImpl rule1 = createRule();
-        List<ConditionImpl> conditions = rule1.getConditions();
+        List<Condition> conditions = new ArrayList<>(rule1.getConditions());
         ruleRegistry.add(rule1);
         RuleImpl rule1Get = ruleEngine.getRuleImpl("rule1");
-        List<ConditionImpl> conditionsGet = rule1Get.getConditions();
+        List<Condition> conditionsGet = rule1Get.getConditions();
         Assert.assertNotNull("Null conditions list", conditionsGet);
         Assert.assertEquals("Empty conditions list", 1, conditionsGet.size());
         Assert.assertEquals("Returned conditions list should not be a copy", conditionsGet, rule1Get.getConditions());
 
-        conditions.add(
-                (ConditionImpl) ModuleBuilder.createCondition().withId("conditionId2").withTypeUID("typeUID2").build());
+        conditions.add(ModuleBuilder.createCondition().withId("conditionId2").withTypeUID("typeUID2").build());
+        rule1.setConditions(conditions);
         ruleEngine.addRule(rule1); // ruleEngine.update will update the RuleImpl2.moduleMap with the new module
         RuleImpl rule2Get = ruleEngine.getRuleImpl("rule1");
-        List<ConditionImpl> conditionsGet2 = rule2Get.getConditions();
+        List<Condition> conditionsGet2 = rule2Get.getConditions();
         Assert.assertNotNull("Null conditions list", conditionsGet2);
         Assert.assertEquals("Condition was not added to the rule's list of conditions", 2, conditionsGet2.size());
         Assert.assertEquals("Returned conditions list should not be a copy", conditionsGet2, rule2Get.getConditions());

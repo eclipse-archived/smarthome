@@ -161,7 +161,7 @@ public class DayOfWeekConditionHandlerTest extends JavaOSGiTest {
         SwitchItem switchedItem = (SwitchItem) itemRegistry.getItem(testItemName2);
 
         /*
-         * Create RuleImpl
+         * Create Rule
          */
         logger.info("Create rule");
         Configuration triggerConfig = new Configuration(Collections.singletonMap("itemName", testItemName1));
@@ -206,11 +206,11 @@ public class DayOfWeekConditionHandlerTest extends JavaOSGiTest {
 
         Rule rule = RuleBuilder.create("MyRule" + new Random().nextInt()).withTriggers(triggers)
                 .withConditions(conditions).withActions(actions).withName("MyDOWConditionTestRule").build();
-        logger.info("RuleImpl created: {}", rule.getUID());
+        logger.info("Rule created: {}", rule.getUID());
 
         logger.info("Add rule");
         ruleRegistry.add(rule);
-        logger.info("RuleImpl added");
+        logger.info("Rule added");
 
         logger.info("Enable rule and wait for idle status");
         ruleEngine.setEnabled(rule.getUID(), true);
@@ -218,7 +218,7 @@ public class DayOfWeekConditionHandlerTest extends JavaOSGiTest {
             final RuleStatusInfo ruleStatus = ruleEngine.getStatusInfo(rule.getUID());
             assertThat(ruleStatus.getStatus(), is(RuleStatus.IDLE));
         });
-        logger.info("RuleImpl is enabled and idle");
+        logger.info("Rule is enabled and idle");
 
         logger.info("Send and wait for item state is ON");
         eventPublisher.post(ItemEventFactory.createStateEvent(testItemName1, OnOffType.ON));
