@@ -10,7 +10,7 @@
             <label>Regular expression</label>
             <description>Regular expression to be applied on the state. Should contain a capture group whose outcome will be the result. For example: .*=(\\d*.\\d*).* extracts the 23.5 from temp=23.5°C</description>
         </parameter>
-        <parameter name="sourceFormat" type="text" required="true">
+        <parameter name="sourceFormat" type="text" required="false">
             <label>State Formatter</label>
             <description>How to format the state on the channel before transforming it, i.e. %s or %.1f °C (default is %s)</description>
             <advanced>true</advanced>

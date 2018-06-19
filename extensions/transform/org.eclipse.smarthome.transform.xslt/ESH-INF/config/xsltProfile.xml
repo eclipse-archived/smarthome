@@ -10,7 +10,7 @@
             <label>XSL Filename</label>
             <description>XSL Filename in transform folder, containing the transformation expression.</description>
         </parameter>
-        <parameter name="sourceFormat" type="text" required="true">
+        <parameter name="sourceFormat" type="text" required="false">
             <label>State Formatter</label>
             <description>How to format the state on the channel before transforming it, i.e. %s or %.1f °C (default is %s)</description>
             <advanced>true</advanced>

@@ -10,7 +10,7 @@
             <label>Command</label>
             <description>Command to be executed on the command line. It should contain %s which will be substituted with the state.</description>
         </parameter>
-        <parameter name="sourceFormat" type="text" required="true">
+        <parameter name="sourceFormat" type="text" required="false">
             <label>State Formatter</label>
             <description>How to format the state on the channel before transforming it, i.e. %s or %.1f °C (default is %s)</description>
             <advanced>true</advanced>
