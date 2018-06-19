@@ -8,6 +8,7 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Export-Package: 
  org.eclipse.smarthome.core.auth,
+ org.eclipse.smarthome.core.auth.client.oauth2,
  org.eclipse.smarthome.core.binding,
  org.eclipse.smarthome.core.binding.dto,
  org.eclipse.smarthome.core.cache,

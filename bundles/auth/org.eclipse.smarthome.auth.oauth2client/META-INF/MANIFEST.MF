@@ -1,0 +1,30 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-License: https://www.eclipse.org/legal/epl-2.0/
+Bundle-Name: Eclipse SmartHome OAuth2Client
+Bundle-SymbolicName: org.eclipse.smarthome.auth.oauth2client
+Bundle-Version: 0.10.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Bundle-Vendor: Eclipse.org/SmartHome
+Service-Component: OSGI-INF/*.xml
+Import-Package: com.google.gson,
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.jetty.client,
+ org.eclipse.jetty.client.api,
+ org.eclipse.jetty.client.util,
+ org.eclipse.jetty.http,
+ org.eclipse.jetty.util,
+ org.eclipse.jetty.util.component,
+ org.eclipse.jetty.util.ssl,
+ org.eclipse.smarthome.core.auth.client.oauth2,
+ org.eclipse.smarthome.core.storage,
+ org.eclipse.smarthome.io.net.http,
+ org.osgi.framework,
+ org.osgi.service.cm,
+ org.osgi.service.component,
+ org.osgi.service.event,
+ org.osgi.service.packageadmin,
+ org.osgi.util.tracker,
+ org.slf4j
+
