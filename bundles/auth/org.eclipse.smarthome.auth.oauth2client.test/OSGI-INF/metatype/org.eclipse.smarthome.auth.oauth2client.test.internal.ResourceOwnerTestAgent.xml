@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.1.0 http://www.osgi.org/xmlns/metatype/v1.1.0">
+	<OCD name="ResourceOwnerTestAgent configurations" id="org.eclipse.smarthome.auth.oauth2client.test.internal.ResourceOwnerTestAgent"
+		description="OAuth Resource Owner Credentials TestAgent configurations">
+
+		<AD name="TOKEN_URL" id="TOKEN_URL" default="https://blah/oauth2/token"
+			required="true" type="String" description="OAuth provider Token URL" />
+		<AD name="AUTH_URL" id="AUTH_URL" default="not used" required="false" type="String" description="OAuth provider Authorization Code URL" />
+		<AD name="CLIENT_ID" id="CLIENT_ID" default="myAwsomeAppId" required="true" type="String" description="The client application id" />
+		<AD name="CLIENT_SECRET" id="CLIENT_SECRET" default="optional myAwsomeAppSecret" required="true" type="String" description="The client application secret" />
+
+		<AD name="REDIRECT_URI" id="REDIRECT_URI" default="not used" required="true" type="String" description="Redirect URI" />
+
+		<AD name="USERNAME" id="USERNAME" default="johndoe" required="true" type="String"
+			description="Real users username" />
+		<AD name="PASSWORD" id="PASSWORD" default="johndoes_password" required="true" type="String" description="Real users password" />
+		<AD name="SCOPE" id="SCOPE" default="scope1 scope2 scope3 scope4" required="true" type="String" description="Space separated list of scope strings" />
+		<AD name="agent" id="agent" default="ResourceOwnerTestAgent" required="true" type="String" description="Agent name do not change" />
+	</OCD>
+	<Designate pid="ResourceOwnerTestAgent">
+		<Object ocdref="org.eclipse.smarthome.auth.oauth2client.test.internal.ResourceOwnerTestAgent" />
+	</Designate>
+</metatype:MetaData>
