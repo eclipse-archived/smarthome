@@ -16,11 +16,13 @@ import java.math.BigDecimal;
 
 import javax.measure.UnconvertibleException;
 import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Temperature;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
+import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.thing.profiles.ProfileCallback;
 import org.eclipse.smarthome.core.thing.profiles.ProfileContext;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
@@ -32,8 +34,6 @@ import org.eclipse.smarthome.core.types.Type;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import tec.uom.se.AbstractUnit;
 
 /**
  * Applies the given parameter "offset" to a QuantityType or DecimalType state
@@ -122,7 +122,7 @@ public class SystemOffsetProfile implements StateProfile {
         if (state instanceof QuantityType) {
             QuantityType qtState = (QuantityType) state;
             try {
-                if (finalOffset.getUnit() == AbstractUnit.ONE) {
+                if (finalOffset.getUnit() == SmartHomeUnits.ONE) {
                     // allow offsets without unit -> implicitly assume its the same as the one from the state, but warn
                     // the user
                     finalOffset = new QuantityType<>(finalOffset.toBigDecimal(), qtState.getUnit());
@@ -130,11 +130,20 @@ public class SystemOffsetProfile implements StateProfile {
                             "Received a QuantityType state '{}' with unit, but the offset is defined as a plain number without unit ({}), please consider adding a unit to the profile offset.",
                             state, offset);
                 }
-                result = qtState.add(finalOffset);
+                // take care of temperatures because they start at offset -273°C = 0K
+                if (qtState.getUnit().getSystemUnit().equals(SmartHomeUnits.KELVIN)) {
+                    QuantityType<Temperature> tmp = handleTemperature(qtState, finalOffset);
+                    if (tmp != null) {
+                        result = tmp;
+                    }
+                } else {
+                    result = qtState.add(finalOffset);
+                }
+
             } catch (UnconvertibleException e) {
                 logger.warn("Cannot apply offset '{}' to state '{}' because types do not match.", finalOffset, qtState);
             }
-        } else if (state instanceof DecimalType && finalOffset.getUnit().equals(AbstractUnit.ONE)) {
+        } else if (state instanceof DecimalType && finalOffset.getUnit().equals(SmartHomeUnits.ONE)) {
             DecimalType decState = (DecimalType) state;
             result = new DecimalType(decState.doubleValue() + finalOffset.doubleValue());
         } else {
@@ -145,5 +154,13 @@ public class SystemOffsetProfile implements StateProfile {
         }
 
         return result;
+    }
+
+    private @Nullable QuantityType<Temperature> handleTemperature(QuantityType<Temperature> qtState,
+            QuantityType<Temperature> finalOffset) {
+        QuantityType<Temperature> newOffset = new QuantityType<Temperature>(finalOffset.doubleValue(),
+                SmartHomeUnits.KELVIN);
+        QuantityType<Temperature> result = qtState.offset(newOffset, SmartHomeUnits.KELVIN);
+        return result.toUnit(qtState.getUnit());
     }
 }

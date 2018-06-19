@@ -44,6 +44,7 @@ Import-Package:
  org.eclipse.smarthome.core.library,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.library.unit,
  org.eclipse.smarthome.core.service,
  org.eclipse.smarthome.core.storage,
  org.eclipse.smarthome.core.thing,
@@ -70,6 +71,5 @@ Import-Package:
  org.osgi.service.component,
  org.osgi.service.event,
  org.osgi.util.tracker,
- org.slf4j,
- tec.uom.se
+ org.slf4j
 Service-Component: OSGI-INF/*.xml

@@ -15,7 +15,9 @@ package org.eclipse.smarthome.core.library.types;
 import static org.eclipse.jdt.annotation.DefaultLocation.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.IllegalFormatConversionException;
+import java.util.List;
 
 import javax.measure.Dimension;
 import javax.measure.IncommensurableException;
@@ -36,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import tec.uom.se.AbstractUnit;
+import tec.uom.se.function.QuantityFunctions;
 import tec.uom.se.quantity.Quantities;
 
 /**
@@ -92,10 +95,10 @@ public class QuantityType<T extends Quantity<T>> extends Number
     /**
      * Creates a new {@link QuantityType} with the given value and {@link Unit}.
      *
-     * @param value the non null measurement value.
-     * @param unit the non null measurement unit.
+     * @param value           the non null measurement value.
+     * @param unit            the non null measurement unit.
      * @param conversionUnits the optional unit map which is used to determine the {@link MeasurementSystem} specific
-     *            unit for conversion.
+     *                        unit for conversion.
      */
     public QuantityType(Number value, Unit<T> unit) {
         // Avoid scientific notation for double
@@ -116,7 +119,7 @@ public class QuantityType<T extends Quantity<T>> extends Number
      * Static access to {@link QuantityType#QuantityType(double, Unit)}.
      *
      * @param value the non null measurement value.
-     * @param unit the non null measurement unit.
+     * @param unit  the non null measurement unit.
      * @return a new {@link QuantityType}
      */
     public static <T extends Quantity<T>> QuantityType<T> valueOf(double value, Unit<T> unit) {
@@ -385,6 +388,21 @@ public class QuantityType<T extends Quantity<T>> extends Number
      */
     public QuantityType<?> divide(QuantityType<?> state) {
         return new QuantityType<>(this.quantity.divide(state.quantity));
+    }
+
+    /**
+     * Apply a given offset to this QuantityType
+     *
+     * @param offset the offset to apply
+     * @return changed QuantityType by offset
+     */
+    public QuantityType<T> offset(QuantityType<T> offset, Unit<T> unit) {
+        List<Quantity<T>> list = new ArrayList<>();
+        list.add(quantity);
+        list.add(offset.quantity);
+
+        final Quantity<T> sum = list.stream().reduce(QuantityFunctions.sum(unit)).get();
+        return new QuantityType<T>(sum);
     }
 
 }

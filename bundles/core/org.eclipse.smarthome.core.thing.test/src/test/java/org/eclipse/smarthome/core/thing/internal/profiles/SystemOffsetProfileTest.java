@@ -195,11 +195,10 @@ public class SystemOffsetProfileTest {
         State result = capture.getValue();
         @SuppressWarnings("unchecked")
         QuantityType<Temperature> decResult = (QuantityType<Temperature>) result;
-        assertEquals(6, decResult.intValue());
+        assertEquals(26, decResult.intValue());
         assertEquals(SIUnits.CELSIUS, decResult.getUnit());
     }
 
-    // TODO: do we want this?
     @Test
     public void testQuantityTypeOnStateUpdateFromHandlerDecimalOffset() {
         ProfileCallback callback = mock(ProfileCallback.class);
