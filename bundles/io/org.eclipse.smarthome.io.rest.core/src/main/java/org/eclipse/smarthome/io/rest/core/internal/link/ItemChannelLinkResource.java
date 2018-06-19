@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.io.rest.core.internal.link;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.security.RolesAllowed;
@@ -91,6 +93,26 @@ public class ItemChannelLinkResource implements RESTResource {
         return Response.ok(thingLinkManager.isAutoLinksEnabled()).build();
     }
 
+    @GET
+    @Path("/{itemName}/{channelUID}")
+    @ApiOperation(value = "Links item to a channel.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 400, message = "Content does not match the path") })
+    public Response getLink(@PathParam("itemName") @ApiParam(value = "itemName") String itemName,
+            @PathParam("channelUID") @ApiParam(value = "channelUID") String channelUid) {
+
+        List<ItemChannelLinkDTO> links = itemChannelLinkRegistry.getAll().stream()
+                .filter(link -> channelUid.equals(link.getLinkedUID().getAsString()))
+                .filter(link -> itemName.equals(link.getItemName())).map(this::toBeans).collect(Collectors.toList());
+
+        if (links.size() == 1) {
+            ItemChannelLinkDTO link = links.get(0);
+            return JSONResponse.createResponse(Status.OK, link, null);
+        }
+        return JSONResponse.createErrorResponse(Status.NOT_FOUND,
+                "No link found for item '" + itemName + "' + and channelUID '" + channelUid + "'");
+    }
+
     @PUT
     @Path("/{itemName}/{channelUID}")
     @ApiOperation(value = "Links item to a channel.")
@@ -114,7 +136,10 @@ public class ItemChannelLinkResource implements RESTResource {
         if (itemChannelLinkRegistry.get(link.getUID()) == null) {
             itemChannelLinkRegistry.add(link);
         } else {
-            itemChannelLinkRegistry.update(link);
+            ItemChannelLink oldLink = itemChannelLinkRegistry.update(link);
+            if (oldLink == null) {
+                return Response.status(Status.METHOD_NOT_ALLOWED).build();
+            }
         }
         return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }

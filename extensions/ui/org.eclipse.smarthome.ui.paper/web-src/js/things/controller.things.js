@@ -133,9 +133,13 @@ angular.module('PaperUI.things') //
 
     itemRepository.getAll(function(items) {
         $scope.items = items;
-        $scope.itemsList = $.grep($scope.items, function(item) {
-            return $scope.acceptedItemTypes.indexOf(item.type) != -1;
-        });
+        if ($scope.acceptedItemTypes.length > 0) {
+            $scope.itemsList = $.grep($scope.items, function(item) {
+                return $scope.acceptedItemTypes.indexOf(item.type) != -1;
+            });
+        } else {
+            $scope.itemsList = $scope.items;
+        }
         $scope.itemsList = $.grep($scope.itemsList, function(item) {
             return $scope.linkedItems.indexOf(item.name) == -1;
         });

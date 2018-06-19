@@ -1,5 +1,5 @@
 angular.module('PaperUI.things') //
-.controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeRepository, configService, thingConfigService, util, itemRepository, channelTypeService, configDescriptionService) {
+.controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeRepository, configService, thingConfigService, util, itemRepository, channelTypeService, configDescriptionService, profileTypeService) {
     $scope.setSubtitle([ 'Things' ]);
 
     var thingUID = $scope.path[4];
@@ -76,51 +76,146 @@ angular.module('PaperUI.things') //
         }
     };
 
+    $scope.editChannel = function(thingUID, channelID, itemName, event) {
+        var channel = $scope.getChannelById(channelID);
+        event.stopImmediatePropagation();
+
+        linkService.getLink({
+            itemName : itemName,
+            channelUID : channel.uid
+        }).$promise.then(function(link) {
+            configDescriptionService.getByUri({
+                uri : "link:" + itemName + " -> " + channel.uid
+            }).$promise.then(function(linkConfigDescription) {
+                var oldConfig = link.configuration;
+
+                $mdDialog.show({
+                    controller : 'SelectProfileDialogController',
+                    controllerAs : '$ctrl',
+                    templateUrl : 'partials/things/dialog.select-profile.html',
+                    targetEvent : event,
+                    hasBackdrop : true,
+                    locals : {
+                        linkConfigDescription : linkConfigDescription,
+                        link : link,
+                        options : undefined
+                    }
+                }).then(function() {
+                    // store link
+                    var eq = JSON.stringify(link.configuration) === JSON.stringify(oldConfig);
+                    if (!eq) {
+                        if (link.configuration && link.configuration['profile'] == "system:default") {
+                            // do not store default profile, since this is chosen by the framework
+                            delete link.configuration['profile'];
+                        }
+                        linkService.link({
+                            itemName : link.itemName,
+                            channelUID : link.channelUID
+                        }, link, function(newItem) {
+                            toastService.showDefaultToast('Link configuration updated');
+                        }, function() {
+                            toastService.showDefaultToast('Could not update link configuration.');
+                        });
+                    }
+                });
+            })
+        });
+    };
+
     $scope.linkChannel = function(channelID, event, preSelect) {
         var channel = $scope.getChannelById(channelID);
         var channelType = $scope.getChannelTypeByUID(channel.channelTypeUID);
 
-        var params = {
-            linkedItems : channel.linkedItems && channel.linkedItems.length > 0 ? channel.linkedItems : '',
-            acceptedItemTypes : channel.acceptedItemTypes,
-            category : channelType && channelType.category ? channelType.category : '',
-            suggestedName : getItemNameSuggestion(channelID, channel.label),
-            suggestedLabel : channel.label,
-            suggestedCategory : channelType && channelType.category ? channelType.category : '',
-            preSelectCreate : preSelect,
-            allowNewItemCreation : $scope.advancedMode && channel.kind !== 'TRIGGER' // allow "Create new Item" in
-            // advanced mode only, disable
-        // for normalMode or trigger
-        // channel
-        }
-        $mdDialog.show({
-            controller : 'LinkChannelDialogController',
-            templateUrl : 'partials/things/dialog.linkchannel.html',
-            targetEvent : event,
-            hasBackdrop : true,
-            params : params
-        }).then(function(newItem) {
-            if (newItem) {
-                linkService.link({
-                    itemName : newItem.itemName,
-                    channelUID : $scope.thing.UID + ':' + channelID
-                }, function() {
-                    $scope.getThing(true);
-                    var item = $.grep($scope.items, function(item) {
-                        return item.name == newItem.itemName;
-                    });
-                    channel.items = channel.items ? channel.items : [];
-                    if (item.length > 0) {
-                        channel.items.push(item[0]);
-                    } else {
-                        channel.items.push({
-                            name : newItem.itemName,
-                            label : newItem.label
-                        });
-                    }
-                    toastService.showDefaultToast('Channel linked');
-                });
+        profileTypeService.getAll().$promise.then(function(profileList) {
+            options = [];
+            for (var i = 0; i < profileList.length; i++) {
+                options.push({
+                    label : profileList[i].label,
+                    value : profileList[i].uid
+                })
             }
+
+            link = {
+                channelUID : channel.uid,
+                configuration : {
+                    profile : undefined
+                },
+                itemName : undefined
+            };
+
+            $mdDialog.show({
+                controller : 'SelectProfileDialogController',
+                controllerAs : '$ctrl',
+                templateUrl : 'partials/things/dialog.select-profile.html',
+                targetEvent : event,
+                hasBackdrop : true,
+                locals : {
+                    linkConfigDescription : undefined,
+                    link : link,
+                    options : options
+                }
+            }).then(function(profileSelected) {
+                if (profileSelected) {
+                    // find selected profile in profileList
+                    for (var i = 0; i < profileList.length; i++) {
+                        if (profileList[i].uid == link.configuration.profile) {
+                            profile = profileList[i];
+                            break;
+                        }
+                    }
+
+                    var acceptedItemTypes = [];
+                    if (profile.uid !== "system:default") {
+                        acceptedItemTypes = profile.supportedItemTypes;
+                    } else {
+                        acceptedItemTypes = channel.acceptedItemTypes;
+                    }
+
+                    var params = {
+                        linkedItems : channel.linkedItems && channel.linkedItems.length > 0 ? channel.linkedItems : '',
+                        acceptedItemTypes : acceptedItemTypes,
+                        category : channelType && channelType.category ? channelType.category : '',
+                        suggestedName : getItemNameSuggestion(channelID, channel.label),
+                        suggestedLabel : channel.label,
+                        suggestedCategory : channelType && channelType.category ? channelType.category : '',
+                        preSelectCreate : preSelect,
+                        allowNewItemCreation : $scope.advancedMode && channel.kind !== 'TRIGGER' // allow "Create new
+                        // Item" in
+                    // advanced mode only, disable for normalMode or trigger channel
+                    }
+
+                    $mdDialog.show({
+                        controller : 'LinkChannelDialogController',
+                        templateUrl : 'partials/things/dialog.linkchannel.html',
+                        targetEvent : event,
+                        hasBackdrop : true,
+                        params : params
+                    }).then(function(newItem) {
+                        if (newItem) {
+                            link.itemName = newItem.itemName;
+                            linkService.link({
+                                itemName : newItem.itemName,
+                                channelUID : $scope.thing.UID + ':' + channelID
+                            }, link, function() {
+                                $scope.getThing(true);
+                                var item = $.grep($scope.items, function(item) {
+                                    return item.name == newItem.itemName;
+                                });
+                                channel.items = channel.items ? channel.items : [];
+                                if (item.length > 0) {
+                                    channel.items.push(item[0]);
+                                } else {
+                                    channel.items.push({
+                                        name : newItem.itemName,
+                                        label : newItem.label
+                                    });
+                                }
+                                toastService.showDefaultToast('Channel linked');
+                            });
+                        }
+                    });
+                }
+            });
         });
     }
 

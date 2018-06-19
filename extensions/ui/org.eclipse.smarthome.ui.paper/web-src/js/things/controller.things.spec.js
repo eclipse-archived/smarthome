@@ -100,9 +100,14 @@ describe('module PaperUI.things', function() {
             } ];
 
             scope.advancedMode = true;
-            spyOn(mdDialog, 'show').and.returnValue(deferred.promise);
+
+            var profileTypeService = injector.get('profileTypeService');
+            spyOn(profileTypeService, 'getAll').and.returnValue({
+                $promise : deferred.promise
+            });
+
             scope.enableChannel(0, 'T', event, true);
-            expect(mdDialog.show).toHaveBeenCalled();
+            expect(profileTypeService.getAll).toHaveBeenCalled();
         });
         it('should link channel simple mode', function() {
             var linkService = injector.get("linkService");
