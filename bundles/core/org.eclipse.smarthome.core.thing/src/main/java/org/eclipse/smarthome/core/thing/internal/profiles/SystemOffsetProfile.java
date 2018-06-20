@@ -22,6 +22,8 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
+import org.eclipse.smarthome.core.library.unit.ImperialUnits;
+import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.thing.profiles.ProfileCallback;
 import org.eclipse.smarthome.core.thing.profiles.ProfileContext;
@@ -157,10 +159,28 @@ public class SystemOffsetProfile implements StateProfile {
     }
 
     private @Nullable QuantityType<Temperature> handleTemperature(QuantityType<Temperature> qtState,
-            QuantityType<Temperature> finalOffset) {
-        QuantityType<Temperature> newOffset = new QuantityType<Temperature>(finalOffset.doubleValue(),
-                SmartHomeUnits.KELVIN);
-        QuantityType<Temperature> result = qtState.offset(newOffset, SmartHomeUnits.KELVIN);
-        return result.toUnit(qtState.getUnit());
+            QuantityType<Temperature> offset) {
+
+        QuantityType<Temperature> finalOffset;
+
+        // do the math in kelvin and afterwards convert it back to the unit of the state
+        QuantityType<Temperature> kelvinState = qtState.toUnit(SmartHomeUnits.KELVIN);
+        QuantityType<Temperature> kelvinOffset = offset.toUnit(SmartHomeUnits.KELVIN);
+
+        if (offset.getUnit().equals(SIUnits.CELSIUS)) {
+            QuantityType<Temperature> zeroCelsius = new QuantityType<>(0, SIUnits.CELSIUS);
+            QuantityType<Temperature> zeroCelsiusInKelvin = zeroCelsius.toUnit(SmartHomeUnits.KELVIN);
+            finalOffset = kelvinOffset.add(zeroCelsiusInKelvin.negate());
+        } else if (offset.getUnit().equals(ImperialUnits.FAHRENHEIT)) {
+            QuantityType<Temperature> zeroFahrenheit = new QuantityType<>(0, ImperialUnits.FAHRENHEIT);
+            QuantityType<Temperature> zeroFahrenheitInKelvin = zeroFahrenheit.toUnit(SmartHomeUnits.KELVIN);
+            finalOffset = kelvinOffset.add(zeroFahrenheitInKelvin.negate());
+        } else {
+            // offset is already in kelvin
+            finalOffset = offset;
+        }
+
+        kelvinState = kelvinState.add(finalOffset);
+        return kelvinState.toUnit(qtState.getUnit());
     }
 }

@@ -12,7 +12,9 @@
  */
 package org.eclipse.smarthome.core.thing.internal.profiles;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.number.IsCloseTo.closeTo;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import javax.measure.Unit;
@@ -195,7 +197,7 @@ public class SystemOffsetProfileTest {
         State result = capture.getValue();
         @SuppressWarnings("unchecked")
         QuantityType<Temperature> decResult = (QuantityType<Temperature>) result;
-        assertEquals(26, decResult.intValue());
+        assertThat(decResult.doubleValue(), is(closeTo(24.6666666666666666666666666666667d, 0.0000000000000001d)));
         assertEquals(SIUnits.CELSIUS, decResult.getUnit());
     }
 
