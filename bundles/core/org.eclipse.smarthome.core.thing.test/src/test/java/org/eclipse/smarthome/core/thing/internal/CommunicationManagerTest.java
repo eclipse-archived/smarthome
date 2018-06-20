@@ -21,15 +21,23 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.measure.quantity.Temperature;
+
 import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
+import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
+import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
+import org.eclipse.smarthome.core.library.unit.SIUnits;
+import org.eclipse.smarthome.core.service.StateDescriptionService;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -53,6 +61,7 @@ import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.StateDescriptionFragmentBuilder;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,23 +78,29 @@ public class CommunicationManagerTest extends JavaOSGiTest {
     private static final String EVENT = "event";
     private static final String ITEM_NAME_1 = "testItem1";
     private static final String ITEM_NAME_2 = "testItem2";
+    private static final String ITEM_NAME_3 = "testItem3";
     private static final SwitchItem ITEM_1 = new SwitchItem(ITEM_NAME_1);
     private static final SwitchItem ITEM_2 = new SwitchItem(ITEM_NAME_2);
+    private static final NumberItem ITEM_3 = new NumberItem(ITEM_NAME_3);
     private static final ThingTypeUID THING_TYPE_UID = new ThingTypeUID("test", "type");
     private static final ThingUID THING_UID = new ThingUID("test", "thing");
     private static final ChannelUID STATE_CHANNEL_UID_1 = new ChannelUID(THING_UID, "state-channel1");
     private static final ChannelUID STATE_CHANNEL_UID_2 = new ChannelUID(THING_UID, "state-channel2");
+    private static final ChannelUID STATE_CHANNEL_UID_3 = new ChannelUID(THING_UID, "state-channel3");
     private static final ChannelUID TRIGGER_CHANNEL_UID_1 = new ChannelUID(THING_UID, "trigger-channel1");
     private static final ChannelUID TRIGGER_CHANNEL_UID_2 = new ChannelUID(THING_UID, "trigger-channel2");
     private static final ItemChannelLink LINK_1_S1 = new ItemChannelLink(ITEM_NAME_1, STATE_CHANNEL_UID_1);
     private static final ItemChannelLink LINK_1_S2 = new ItemChannelLink(ITEM_NAME_1, STATE_CHANNEL_UID_2);
     private static final ItemChannelLink LINK_2_S2 = new ItemChannelLink(ITEM_NAME_2, STATE_CHANNEL_UID_2);
+    private static final ItemChannelLink LINK_3_S3 = new ItemChannelLink(ITEM_NAME_3, STATE_CHANNEL_UID_3);
     private static final ItemChannelLink LINK_1_T1 = new ItemChannelLink(ITEM_NAME_1, TRIGGER_CHANNEL_UID_1);
     private static final ItemChannelLink LINK_1_T2 = new ItemChannelLink(ITEM_NAME_1, TRIGGER_CHANNEL_UID_2);
     private static final ItemChannelLink LINK_2_T2 = new ItemChannelLink(ITEM_NAME_2, TRIGGER_CHANNEL_UID_2);
     private static final Thing THING = ThingBuilder.create(THING_TYPE_UID, THING_UID)
             .withChannels(ChannelBuilder.create(STATE_CHANNEL_UID_1, "").withKind(ChannelKind.STATE).build(),
                     ChannelBuilder.create(STATE_CHANNEL_UID_2, "").withKind(ChannelKind.STATE).build(),
+                    ChannelBuilder.create(STATE_CHANNEL_UID_3, "Number:Temperature").withKind(ChannelKind.STATE)
+                            .build(),
                     ChannelBuilder.create(TRIGGER_CHANNEL_UID_1, "").withKind(ChannelKind.TRIGGER).build(),
                     ChannelBuilder.create(TRIGGER_CHANNEL_UID_2, "").withKind(ChannelKind.TRIGGER).build())
             .build();
@@ -159,13 +174,15 @@ public class CommunicationManagerTest extends JavaOSGiTest {
         ItemChannelLinkRegistry iclRegistry = new ItemChannelLinkRegistry() {
             @Override
             public Stream<ItemChannelLink> stream() {
-                return Arrays.asList(LINK_1_S1, LINK_1_S2, LINK_2_S2, LINK_1_T1, LINK_1_T2, LINK_2_T2).stream();
+                return Arrays.asList(LINK_1_S1, LINK_1_S2, LINK_2_S2, LINK_1_T1, LINK_1_T2, LINK_2_T2, LINK_3_S3)
+                        .stream();
             }
         };
         manager.setItemChannelLinkRegistry(iclRegistry);
 
         when(itemRegistry.get(eq(ITEM_NAME_1))).thenReturn(ITEM_1);
         when(itemRegistry.get(eq(ITEM_NAME_2))).thenReturn(ITEM_2);
+        when(itemRegistry.get(eq(ITEM_NAME_3))).thenReturn(ITEM_3);
         manager.setItemRegistry(itemRegistry);
 
         THING.setHandler(mockHandler);
@@ -174,6 +191,10 @@ public class CommunicationManagerTest extends JavaOSGiTest {
         manager.setThingRegistry(thingRegistry);
 
         manager.addItemFactory(new CoreItemFactory());
+
+        UnitProvider unitProvider = mock(UnitProvider.class);
+        when(unitProvider.getUnit(Temperature.class)).thenReturn(SIUnits.CELSIUS);
+        ITEM_3.setUnitProvider(unitProvider);
     }
 
     @Test
@@ -224,6 +245,35 @@ public class CommunicationManagerTest extends JavaOSGiTest {
         });
         verifyNoMoreInteractions(stateProfile);
         verifyNoMoreInteractions(triggerProfile);
+    }
+
+    @Test
+    public void testItemCommandEvent_Decimal2Quantity() {
+        // Take unit from accepted item type (see channel built from STATE_CHANNEL_UID_3)
+        manager.receive(ItemEventFactory.createCommandEvent(ITEM_NAME_3, DecimalType.valueOf("20")));
+        waitForAssert(() -> {
+            verify(stateProfile).onCommandFromItem(eq(QuantityType.valueOf("20 °C")));
+        });
+        verifyNoMoreInteractions(stateProfile);
+        verifyNoMoreInteractions(triggerProfile);
+    }
+
+    @Test
+    public void testItemCommandEvent_Decimal2Quantity_2() {
+        // Take unit from state description
+        StateDescriptionService stateDescriptionService = mock(StateDescriptionService.class);
+        when(stateDescriptionService.getStateDescription(ITEM_NAME_3, null)).thenReturn(
+                StateDescriptionFragmentBuilder.create().withPattern("%.1f °F").build().toStateDescription());
+        ITEM_3.setStateDescriptionService(stateDescriptionService);
+
+        manager.receive(ItemEventFactory.createCommandEvent(ITEM_NAME_3, DecimalType.valueOf("20")));
+        waitForAssert(() -> {
+            verify(stateProfile).onCommandFromItem(eq(QuantityType.valueOf("20 °F")));
+        });
+        verifyNoMoreInteractions(stateProfile);
+        verifyNoMoreInteractions(triggerProfile);
+
+        ITEM_3.setStateDescriptionService(null);
     }
 
     @Test
