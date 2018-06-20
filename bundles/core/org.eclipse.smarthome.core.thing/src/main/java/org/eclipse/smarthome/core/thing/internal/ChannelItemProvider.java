@@ -283,6 +283,7 @@ public class ChannelItemProvider implements ItemProvider {
                 gItem.addTags(channel.getDefaultTags());
             }
             if (item != null) {
+                logger.trace("Created virtual item '{}'", item.getName());
                 items.put(item.getName(), item);
                 for (ProviderChangeListener<Item> listener : listeners) {
                     listener.added(this, item);
@@ -327,6 +328,7 @@ public class ChannelItemProvider implements ItemProvider {
                 listener.removed(this, item);
             }
             items.remove(key);
+            logger.trace("Removed virtual item '{}'", item.getName());
         }
     }
 
