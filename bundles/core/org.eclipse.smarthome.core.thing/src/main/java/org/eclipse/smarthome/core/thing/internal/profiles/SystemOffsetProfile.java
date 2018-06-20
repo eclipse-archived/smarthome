@@ -46,6 +46,11 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class SystemOffsetProfile implements StateProfile {
 
+    private static final @Nullable QuantityType<Temperature> ZERO_CELSIUS_IN_KELVIN = new QuantityType<>(0,
+            SIUnits.CELSIUS).toUnit(SmartHomeUnits.KELVIN);
+    private static final @Nullable QuantityType<Temperature> ZERO_FAHRENHEIT_IN_KELVIN = new QuantityType<>(0,
+            ImperialUnits.FAHRENHEIT).toUnit(SmartHomeUnits.KELVIN);
+
     private final Logger logger = LoggerFactory.getLogger(SystemOffsetProfile.class);
     private static final String OFFSET_PARAM = "offset";
 
@@ -168,13 +173,9 @@ public class SystemOffsetProfile implements StateProfile {
         QuantityType<Temperature> kelvinOffset = offset.toUnit(SmartHomeUnits.KELVIN);
 
         if (offset.getUnit().equals(SIUnits.CELSIUS)) {
-            QuantityType<Temperature> zeroCelsius = new QuantityType<>(0, SIUnits.CELSIUS);
-            QuantityType<Temperature> zeroCelsiusInKelvin = zeroCelsius.toUnit(SmartHomeUnits.KELVIN);
-            finalOffset = kelvinOffset.add(zeroCelsiusInKelvin.negate());
+            finalOffset = kelvinOffset.add(ZERO_CELSIUS_IN_KELVIN.negate());
         } else if (offset.getUnit().equals(ImperialUnits.FAHRENHEIT)) {
-            QuantityType<Temperature> zeroFahrenheit = new QuantityType<>(0, ImperialUnits.FAHRENHEIT);
-            QuantityType<Temperature> zeroFahrenheitInKelvin = zeroFahrenheit.toUnit(SmartHomeUnits.KELVIN);
-            finalOffset = kelvinOffset.add(zeroFahrenheitInKelvin.negate());
+            finalOffset = kelvinOffset.add(ZERO_FAHRENHEIT_IN_KELVIN.negate());
         } else {
             // offset is already in kelvin
             finalOffset = offset;
