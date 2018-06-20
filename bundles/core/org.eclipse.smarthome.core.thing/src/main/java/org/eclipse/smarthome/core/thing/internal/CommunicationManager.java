@@ -336,9 +336,6 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     private <T extends Type> @Nullable T toAcceptedType(T originalType, Channel channel,
             Function<@Nullable String, @Nullable List<Class<? extends T>>> acceptedTypesFunction, Item item) {
         String acceptedItemType = channel.getAcceptedItemType();
-        if (acceptedItemType == null) {
-            return originalType;
-        }
 
         // DecimalType command sent to a NumberItem with dimension defined:
         if (originalType instanceof DecimalType && hasDimension(item, acceptedItemType)) {
@@ -347,6 +344,10 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
             if (quantityType != null) {
                 return (T) quantityType;
             }
+        }
+
+        if (acceptedItemType == null) {
+            return originalType;
         }
 
         List<Class<? extends T>> acceptedTypes = acceptedTypesFunction.apply(acceptedItemType);
