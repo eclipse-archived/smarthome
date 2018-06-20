@@ -289,6 +289,12 @@ public class ScriptEngineOSGiTest extends JavaOSGiTest {
     }
 
     @Test
+    public void testToUnit_QuantityType2() throws ScriptParsingException, ScriptExecutionException {
+        assertThat(runScript("new QuantityType(20, CELSIUS).toUnit('°F').doubleValue"), is(Double.valueOf(68)));
+        assertThat(runScript("new QuantityType(68, FAHRENHEIT).toUnit('°C').doubleValue"), is(Double.valueOf(20)));
+    }
+
+    @Test
     public void testEquals_QuantityType_Number() throws ScriptParsingException, ScriptExecutionException {
         assertThat(runScript("20|m.equals(20)"), is(false));
     }

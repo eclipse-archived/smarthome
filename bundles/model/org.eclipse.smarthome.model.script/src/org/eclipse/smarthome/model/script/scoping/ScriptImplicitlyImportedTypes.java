@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.smarthome.core.library.unit.ImperialUnits;
+import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.model.persistence.extensions.PersistenceExtensions;
 import org.eclipse.smarthome.model.script.actions.Audio;
 import org.eclipse.smarthome.model.script.actions.BusEvent;
@@ -92,6 +94,9 @@ public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedFeatures {
         result.add(Audio.class);
         result.add(Voice.class);
         result.add(ThingAction.class);
+
+        result.add(ImperialUnits.class);
+        result.add(SIUnits.class);
 
         // jodatime static functions
         result.add(DateTime.class);
