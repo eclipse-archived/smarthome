@@ -25,9 +25,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import javax.measure.Quantity;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.common.AbstractUID;
 import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.events.Event;
@@ -38,14 +41,17 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemStateConverter;
+import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
+import org.eclipse.smarthome.core.library.items.NumberItem;
+import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.events.ChannelTriggeredEvent;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.internal.link.ItemChannelLinkConfigDescriptionProvider;
@@ -63,6 +69,7 @@ import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.Type;
+import org.eclipse.smarthome.core.types.util.UnitUtils;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -104,6 +111,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     private SafeCaller safeCaller;
     @NonNullByDefault({})
     private ItemStateConverter itemStateConverter;
+
     private final Set<ItemFactory> itemFactories = new CopyOnWriteArraySet<>();
 
     // link UID -> profile
@@ -212,8 +220,8 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     }
 
     private String normalizeProfileName(String profileName) {
-        if (!profileName.contains(UID.SEPARATOR)) {
-            return ProfileTypeUID.SYSTEM_SCOPE + UID.SEPARATOR + profileName;
+        if (!profileName.contains(AbstractUID.SEPARATOR)) {
+            return ProfileTypeUID.SYSTEM_SCOPE + AbstractUID.SEPARATOR + profileName;
         }
         return profileName;
     }
@@ -302,7 +310,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
                 Channel channel = thing.getChannel(channelUID.getId());
                 if (channel != null) {
                     @Nullable
-                    T convertedType = toAcceptedType(type, channel, acceptedTypesFunction);
+                    T convertedType = toAcceptedType(type, channel, acceptedTypesFunction, item);
                     if (convertedType != null) {
                         if (thing.getHandler() != null) {
                             Profile profile = getProfile(link, item, thing);
@@ -324,13 +332,25 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         });
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Type> @Nullable T toAcceptedType(T originalType, Channel channel,
-            Function<@Nullable String, @Nullable List<Class<? extends T>>> acceptedTypesFunction) {
+            Function<@Nullable String, @Nullable List<Class<? extends T>>> acceptedTypesFunction, Item item) {
         String acceptedItemType = channel.getAcceptedItemType();
+
+        // DecimalType command sent to a NumberItem with dimension defined:
+        if (originalType instanceof DecimalType && hasDimension(item, acceptedItemType)) {
+            @Nullable
+            QuantityType<?> quantityType = convertToQuantityType((DecimalType) originalType, item, acceptedItemType);
+            if (quantityType != null) {
+                return (T) quantityType;
+            }
+        }
+
         if (acceptedItemType == null) {
             return originalType;
         }
-        List<Class<? extends T>> acceptedTypes = acceptedTypesFunction.apply(channel.getAcceptedItemType());
+
+        List<Class<? extends T>> acceptedTypes = acceptedTypesFunction.apply(acceptedItemType);
         if (acceptedTypes == null) {
             return originalType;
         }
@@ -355,6 +375,44 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         logger.debug("Received not accepted type '{}' for channel '{}'", originalType.getClass().getSimpleName(),
                 channel.getUID());
         return null;
+    }
+
+    private boolean hasDimension(Item item, @Nullable String acceptedItemType) {
+        return (item instanceof NumberItem && ((NumberItem) item).getDimension() != null)
+                || getDimension(acceptedItemType) != null;
+    }
+
+    private @Nullable QuantityType<?> convertToQuantityType(DecimalType originalType, Item item,
+            @Nullable String acceptedItemType) {
+        NumberItem numberItem = (NumberItem) item;
+
+        // DecimalType command sent via a NumberItem with dimension:
+        Class<? extends Quantity<?>> dimension = numberItem.getDimension();
+
+        if (dimension == null) {
+            // DecimalType command sent via a plain NumberItem w/o dimension.
+            // We try to guess the correct unit from the channel-type's expected item dimension
+            // or from the item's state description.
+            dimension = getDimension(acceptedItemType);
+        }
+
+        if (dimension != null) {
+            return numberItem.toQuantityType(originalType, dimension);
+        }
+
+        return null;
+    }
+
+    private @Nullable Class<? extends Quantity<?>> getDimension(@Nullable String acceptedItemType) {
+        if (acceptedItemType == null || acceptedItemType.isEmpty()) {
+            return null;
+        }
+        String itemTypeExtension = ItemUtil.getItemTypeExtension(acceptedItemType);
+        if (itemTypeExtension == null) {
+            return null;
+        }
+
+        return UnitUtils.parseDimension(itemTypeExtension);
     }
 
     private @Nullable Item getItem(final String itemName) {

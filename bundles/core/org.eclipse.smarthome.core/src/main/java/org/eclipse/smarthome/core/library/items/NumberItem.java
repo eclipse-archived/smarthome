@@ -146,15 +146,47 @@ public class NumberItem extends GenericItem {
     /**
      * Derive the unit for this item by the following priority:
      * <ul>
-     * <li>the unit from the current item state</li>
      * <li>the unit parsed from the state description</li>
-     * <li>the default system unit</li>
+     * <li>the default system unit from the item's dimension</li>
      * </ul>
      *
      * @return the {@link Unit} for this item if available, {@code null} otherwise.
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public @Nullable Unit<? extends Quantity<?>> getUnit() {
+        return getUnit(dimension);
+    }
+
+    /**
+     * Try to convert a {@link DecimalType} into a new {@link QuantityType}. The unit for the new
+     * type is derived either from the state description (which might also give a hint on items w/o dimension) or from
+     * the system default unit of the given dimension.
+     *
+     * @param originalType the source {@link DecimalType}.
+     * @param dimension    the dimension to which the new {@link QuantityType} should adhere.
+     * @return the new {@link QuantityType} from the given originalType, {@code null} if a unit could not be calculated.
+     */
+    public @Nullable QuantityType<?> toQuantityType(DecimalType originalType,
+            @Nullable Class<? extends Quantity<?>> dimension) {
+        Unit<? extends Quantity<?>> itemUnit = getUnit(dimension);
+        if (itemUnit != null) {
+            return new QuantityType<>(originalType.toBigDecimal(), itemUnit);
+        }
+
+        return null;
+    }
+
+    /**
+     * Derive the unit for this item by the following priority:
+     * <ul>
+     * <li>the unit parsed from the state description</li>
+     * <li>the default system unit from the (optional) dimension parameter</li>
+     * </ul>
+     *
+     * @param dimension the (optional) dimension
+     * @return the {@link Unit} for this item if available, {@code null} otherwise.
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private @Nullable Unit<? extends Quantity<?>> getUnit(@Nullable Class<? extends Quantity<?>> dimension) {
         StateDescription stateDescription = getStateDescription();
         if (stateDescription != null) {
             Unit<?> stateDescriptionUnit = UnitUtils.parseUnit(stateDescription.getPattern());
