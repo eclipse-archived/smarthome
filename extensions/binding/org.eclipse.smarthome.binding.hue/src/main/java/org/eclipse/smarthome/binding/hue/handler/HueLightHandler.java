@@ -29,6 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.hue.internal.FullLight;
 import org.eclipse.smarthome.binding.hue.internal.HueBridge;
 import org.eclipse.smarthome.binding.hue.internal.State;
+import org.eclipse.smarthome.binding.hue.internal.State.ColorMode;
 import org.eclipse.smarthome.binding.hue.internal.StateUpdate;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
@@ -44,6 +45,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -402,14 +404,19 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         }
         updateState(CHANNEL_COLOR, hsbType);
 
-        PercentType percentType = LightStateConverter.toColorTemperaturePercentType(fullLight.getState());
-        updateState(CHANNEL_COLORTEMPERATURE, percentType);
-
-        percentType = LightStateConverter.toBrightnessPercentType(fullLight.getState());
-        if (!fullLight.getState().isOn()) {
-            percentType = new PercentType(0);
+        ColorMode colorMode = fullLight.getState().getColorMode();
+        if (colorMode != null && colorMode.equals(ColorMode.CT)) {
+            PercentType colorTempPercentType = LightStateConverter.toColorTemperaturePercentType(fullLight.getState());
+            updateState(CHANNEL_COLORTEMPERATURE, colorTempPercentType);
+        } else {
+            updateState(CHANNEL_COLORTEMPERATURE, UnDefType.NULL);
         }
-        updateState(CHANNEL_BRIGHTNESS, percentType);
+
+        PercentType brightnessPercentType = LightStateConverter.toBrightnessPercentType(fullLight.getState());
+        if (!fullLight.getState().isOn()) {
+            brightnessPercentType = new PercentType(0);
+        }
+        updateState(CHANNEL_BRIGHTNESS, brightnessPercentType);
 
         if (fullLight.getState().isOn()) {
             updateState(CHANNEL_SWITCH, OnOffType.ON);
