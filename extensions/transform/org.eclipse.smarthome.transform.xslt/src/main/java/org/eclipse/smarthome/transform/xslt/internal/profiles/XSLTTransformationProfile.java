@@ -39,7 +39,7 @@ public class XSLTTransformationProfile implements StateProfile {
     private final ProfileCallback callback;
 
     private static final String FUNCTION_PARAM = "function";
-    private static final String SOURCE_FORMAT_PARAM = "stateFormat";
+    private static final String SOURCE_FORMAT_PARAM = "sourceFormat";
 
     @NonNullByDefault({})
     private final String function;
