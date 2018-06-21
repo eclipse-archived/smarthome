@@ -19,6 +19,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,7 @@ import org.slf4j.LoggerFactory;
  * @author Thomas.Eichstaedt-Engelen
  */
 @NonNullByDefault
+@Component(immediate = true, property = { "smarthome.transform=REGEX" })
 public class RegExTransformationService implements TransformationService {
 
     private final Logger logger = LoggerFactory.getLogger(RegExTransformationService.class);

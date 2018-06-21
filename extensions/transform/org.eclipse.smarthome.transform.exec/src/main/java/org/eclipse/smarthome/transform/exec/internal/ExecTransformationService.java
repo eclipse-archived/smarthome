@@ -17,6 +17,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
 import org.eclipse.smarthome.io.net.exec.ExecUtil;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
  * @author Pauli Anttila
  */
 @NonNullByDefault
+@Component(immediate = true, property = { "smarthome.transform=EXEC" })
 public class ExecTransformationService implements TransformationService {
 
     private final Logger logger = LoggerFactory.getLogger(ExecTransformationService.class);

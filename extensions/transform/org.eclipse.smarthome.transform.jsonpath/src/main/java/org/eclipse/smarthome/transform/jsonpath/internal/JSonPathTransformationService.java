@@ -19,6 +19,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,7 @@ import com.jayway.jsonpath.PathNotFoundException;
  *
  */
 @NonNullByDefault
+@Component(immediate = true, property = { "smarthome.transform=JSONPATH" })
 public class JSonPathTransformationService implements TransformationService {
 
     private final Logger logger = LoggerFactory.getLogger(JSonPathTransformationService.class);
@@ -44,9 +46,9 @@ public class JSonPathTransformationService implements TransformationService {
      * Transforms the input <code>source</code> by JSonPath expression.
      *
      * @param function JsonPath expression
-     * @param source String which contains JSON
+     * @param source   String which contains JSON
      * @throws TransformationException If the JsonPath expression is invalid, a {@link InvalidPathException} is thrown,
-     *             which is encapsulated in a {@link TransformationException}.
+     *                                 which is encapsulated in a {@link TransformationException}.
      */
     @Override
     public @Nullable String transform(String jsonPathExpression, String source) throws TransformationException {
