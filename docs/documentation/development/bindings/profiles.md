@@ -111,16 +111,3 @@ A negative offset subtracts the offset from the value sent by the device to the 
 ```java
 Number <itemName> { channel="<bindingID>:<thing-typeID>:<thingName>:<channelName>"[profile="offset", offset="<value>"]}
 ```
-
-### TransformationProfile
-
-The `TransformationProfile` offers the functionality of the `TransformationService`s to `Profile`s.
-Each `TransformationService` is identified by a property called `smarthome.transform`.
-This property specifies the name of the transformation.
-The function and format of the value can be specified in the `pattern` parameter of the `TransformationProfile` as a string, separated by a colon.
-Note that these transformations are unidirectional, i.e. they are configured to transform the value send by a device towards the framework, only.
-Commands sent by the framework towards the device are passed through the profile without any adjustments.
-
-```java
-String <itemName> { channel="<bindingID>:<thing-typeID>:<thingName>:<channelName>"[profile="transform:<transformationName>", pattern="<transformFunction>:<valueFormat>"]}
-```
