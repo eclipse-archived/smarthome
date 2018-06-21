@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.core.transform.internal.profiles;
+package org.eclipse.smarthome.transform.map.internal.profiles;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.library.types.StringType;
@@ -19,6 +19,7 @@ import org.eclipse.smarthome.core.thing.profiles.ProfileContext;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
 import org.eclipse.smarthome.core.thing.profiles.StateProfile;
 import org.eclipse.smarthome.core.transform.TransformationException;
+import org.eclipse.smarthome.core.transform.TransformationHelper;
 import org.eclipse.smarthome.core.transform.TransformationService;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -26,45 +27,35 @@ import org.eclipse.smarthome.core.types.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * {@link StateProfile} which transforms a state value sent from the handler to the framework based on the provided
- * {@link ProfileTypeUID}. The state value in the direction from the framework towards the handler is left untouched.
- *
- * @author Stefan Triller - initial contribution
- *
- */
 @NonNullByDefault
-public class TransformationProfile implements StateProfile {
+public class MapTransformationProfile implements StateProfile {
 
-    private final Logger logger = LoggerFactory.getLogger(TransformationProfile.class);
+    public static final ProfileTypeUID PROFILE_TYPE_UID = new ProfileTypeUID(
+            TransformationService.TRANSFORM_PROFILE_SCOPE, "MAP");
 
-    public static final String PROFILE_NAME = "Transformation";
-    private final ProfileTypeUID profileTypeUID;
+    private final Logger logger = LoggerFactory.getLogger(MapTransformationProfile.class);
+
     private final TransformationService service;
+    private final ProfileCallback callback;
 
     private static final String FUNCTION_PARAM = "function";
-    private static final String SOURCE_PARAM = "sourceFormat";
+    private static final String SOURCE_FORMAT_PARAM = "stateFormat";
 
     @NonNullByDefault({})
     private final String function;
     @NonNullByDefault({})
     private final String sourceFormat;
 
-    private final ProfileCallback callback;
-
-    public TransformationProfile(ProfileCallback callback, ProfileContext context, TransformationService service,
-            ProfileTypeUID typeUID) {
-
+    public MapTransformationProfile(ProfileCallback callback, ProfileContext context, TransformationService service) {
         this.service = service;
-        this.profileTypeUID = typeUID;
         this.callback = callback;
 
         Object paramFunction = context.getConfiguration().get(FUNCTION_PARAM);
-        Object paramSource = context.getConfiguration().get(SOURCE_PARAM);
+        Object paramSource = context.getConfiguration().get(SOURCE_FORMAT_PARAM);
 
-        logger.debug("Profile configured with '{}'='{}', '{}'={}", FUNCTION_PARAM, paramFunction, SOURCE_PARAM,
+        logger.debug("Profile configured with '{}'='{}', '{}'={}", FUNCTION_PARAM, paramFunction, SOURCE_FORMAT_PARAM,
                 paramSource);
-        // paramSource is an advanced parameter and we assume "%s" if it is not set
+        // SOURCE_FORMAT_PARAM is an advanced parameter and we assume "%s" if it is not set
         if (paramSource == null) {
             paramSource = "%s";
         }
@@ -73,7 +64,7 @@ public class TransformationProfile implements StateProfile {
             sourceFormat = (String) paramSource;
         } else {
             logger.warn("Parameter '{}' and '{}' have to be Strings. Profile will be inactive.", FUNCTION_PARAM,
-                    SOURCE_PARAM);
+                    SOURCE_FORMAT_PARAM);
             function = null;
             sourceFormat = null;
         }
@@ -81,7 +72,7 @@ public class TransformationProfile implements StateProfile {
 
     @Override
     public ProfileTypeUID getProfileTypeUID() {
-        return profileTypeUID;
+        return PROFILE_TYPE_UID;
     }
 
     @Override
@@ -99,7 +90,7 @@ public class TransformationProfile implements StateProfile {
         if (function == null || sourceFormat == null) {
             logger.error(
                     "Please specify a function and a source format for this Profile in the '{}', and '{}' parameters, e.g \"translation.map\"  and \"%s\". Returning the original command now.",
-                    FUNCTION_PARAM, SOURCE_PARAM);
+                    FUNCTION_PARAM, SOURCE_FORMAT_PARAM);
             callback.sendCommand(command);
             return;
         }
@@ -111,7 +102,7 @@ public class TransformationProfile implements StateProfile {
         if (function == null || sourceFormat == null) {
             logger.error(
                     "Please specify a function and a source format for this Profile in the '{}' and '{}' parameters, e.g \"translation.map\" and \"%s\". Returning the original state now.",
-                    FUNCTION_PARAM, SOURCE_PARAM);
+                    FUNCTION_PARAM, SOURCE_FORMAT_PARAM);
             callback.sendUpdate(state);
             return;
         }
@@ -121,8 +112,12 @@ public class TransformationProfile implements StateProfile {
     private Type transformState(Type state) {
         String result = state.toFullString();
         try {
-            String newFormat = String.format(sourceFormat, state);
-            result = service.transform(function, newFormat);
+            result = TransformationHelper.transform(service, function, sourceFormat, state.toFullString());
+            if (result != null && result.isEmpty()) {
+                // map transformation service returns an empty string if the entry is not found in the map, we will use
+                // the original value
+                result = state.toFullString();
+            }
         } catch (TransformationException e) {
             logger.debug("Could not transform state '{}' with function '{}' and format '{}'", state, function,
                     sourceFormat);
