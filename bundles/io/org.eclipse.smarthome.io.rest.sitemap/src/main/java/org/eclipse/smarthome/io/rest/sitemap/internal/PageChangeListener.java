@@ -23,7 +23,6 @@ import java.util.function.Predicate;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
-import org.eclipse.smarthome.core.items.CommandResultPredictionListener;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
@@ -46,8 +45,9 @@ import org.eclipse.smarthome.ui.items.ItemUIRegistry;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public class PageChangeListener implements StateChangeListener, CommandResultPredictionListener {
+public class PageChangeListener implements StateChangeListener {
 
+    private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool("ui");
     private final String sitemapName;
     private final String pageId;
     private final ItemUIRegistry itemUIRegistry;
@@ -197,23 +197,13 @@ public class PageChangeListener implements StateChangeListener, CommandResultPre
         constructAndSendEvents(item, state);
     }
 
-    @Override
     public void keepCurrentState(Item item) {
-        if (item instanceof GroupItem) {
-            return;
-        }
         scheduler.schedule(() -> {
             constructAndSendEvents(item, item.getState());
         }, 200, TimeUnit.MILLISECONDS);
     }
 
-    private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool("ui");
-
-    @Override
     public void changeStateTo(Item item, State state) {
-        if (item instanceof GroupItem) {
-            return;
-        }
         constructAndSendEvents(item, state);
     }
 
