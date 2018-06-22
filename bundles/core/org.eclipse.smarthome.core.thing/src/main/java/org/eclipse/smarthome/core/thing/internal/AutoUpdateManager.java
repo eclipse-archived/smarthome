@@ -14,7 +14,6 @@ package org.eclipse.smarthome.core.thing.internal;
 
 import static java.util.stream.Collectors.toSet;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.events.EventPublisher;
-import org.eclipse.smarthome.core.items.CommandResultPredictionListener;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
@@ -39,8 +37,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +62,6 @@ public class AutoUpdateManager {
     private @NonNullByDefault({}) ItemChannelLinkRegistry itemChannelLinkRegistry;
     private @NonNullByDefault({}) ThingRegistry thingRegistry;
     private @NonNullByDefault({}) EventPublisher eventPublisher;
-    private final Set<CommandResultPredictionListener> commandResultPredictionListeners = new HashSet<>();
 
     private final Map<ChannelUID, @Nullable AutoUpdatePolicy> autoUpdatePolicies = new ConcurrentHashMap<>();
 
@@ -278,15 +273,6 @@ public class AutoUpdateManager {
 
     protected void unsetEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = null;
-    }
-
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    protected void addStateRevertListener(CommandResultPredictionListener commandResultPredictionListener) {
-        commandResultPredictionListeners.add(commandResultPredictionListener);
-    }
-
-    protected void removeStateRevertListener(CommandResultPredictionListener commandResultPredictionListener) {
-        commandResultPredictionListeners.remove(commandResultPredictionListener);
     }
 
 }
