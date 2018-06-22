@@ -27,6 +27,12 @@ import org.eclipse.smarthome.core.types.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Profile to offer the XsltTransformationservice on a ItemChannelLink
+ *
+ * @author Stefan Triller - initial contribution
+ *
+ */
 @NonNullByDefault
 public class XSLTTransformationProfile implements StateProfile {
 

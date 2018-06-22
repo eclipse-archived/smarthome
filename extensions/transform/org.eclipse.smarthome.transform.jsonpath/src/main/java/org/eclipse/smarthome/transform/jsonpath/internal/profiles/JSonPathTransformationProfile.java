@@ -27,6 +27,12 @@ import org.eclipse.smarthome.core.types.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Profile to offer the JSonPathTransformationservice on a ItemChannelLink
+ *
+ * @author Stefan Triller - initial contribution
+ *
+ */
 @NonNullByDefault
 public class JSonPathTransformationProfile implements StateProfile {
 
