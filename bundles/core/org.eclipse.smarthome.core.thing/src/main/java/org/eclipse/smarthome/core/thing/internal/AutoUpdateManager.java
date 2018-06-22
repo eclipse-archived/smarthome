@@ -21,6 +21,9 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.Metadata;
+import org.eclipse.smarthome.core.items.MetadataKey;
+import org.eclipse.smarthome.core.items.MetadataRegistry;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -61,6 +64,7 @@ public class AutoUpdateManager {
     private @NonNullByDefault({}) ItemChannelLinkRegistry itemChannelLinkRegistry;
     private @NonNullByDefault({}) ThingRegistry thingRegistry;
     private @NonNullByDefault({}) EventPublisher eventPublisher;
+    private @NonNullByDefault({}) MetadataRegistry metadataRegistry;
 
     private boolean enabled = true;
     private boolean sendOptimisticUpdates = false;
@@ -123,9 +127,21 @@ public class AutoUpdateManager {
         if (command instanceof State) {
             final State state = (State) command;
 
-            // TODO: consider user-override via item meta-data
-            // (see https://github.com/eclipse/smarthome/pull/4390)
             Recommendation autoUpdate = shouldAutoUpdate(itemName);
+
+            // consider user-override via item meta-data
+            MetadataKey key = new MetadataKey("autoupdate", itemName);
+            Metadata metadata = metadataRegistry.get(key);
+            if (metadata != null && !metadata.getValue().trim().isEmpty()) {
+                boolean override = Boolean.getBoolean(metadata.getValue());
+                if (override) {
+                    logger.trace("Auto update strategy {} overriden by item metadata to REQUIRED", autoUpdate);
+                    autoUpdate = Recommendation.REQUIRED;
+                } else {
+                    logger.trace("Auto update strategy {} overriden by item metadata to DONT", autoUpdate);
+                    autoUpdate = Recommendation.DONT;
+                }
+            }
 
             switch (autoUpdate) {
                 case REQUIRED:
@@ -179,6 +195,7 @@ public class AutoUpdateManager {
             if (policy == null) {
                 policy = AutoUpdatePolicy.DEFAULT;
             }
+
             switch (policy) {
                 case VETO:
                     ret = Recommendation.DONT;
@@ -195,6 +212,7 @@ public class AutoUpdateManager {
                     break;
             }
         }
+
         return ret;
     }
 
@@ -266,6 +284,15 @@ public class AutoUpdateManager {
 
     protected void unsetEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = null;
+    }
+
+    @Reference
+    protected void setMetadataRegistry(MetadataRegistry metadataRegistry) {
+        this.metadataRegistry = metadataRegistry;
+    }
+
+    protected void unsetMetadataRegistry(MetadataRegistry metadataRegistry) {
+        this.metadataRegistry = null;
     }
 
 }

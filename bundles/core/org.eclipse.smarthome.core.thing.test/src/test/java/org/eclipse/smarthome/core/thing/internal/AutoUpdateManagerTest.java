@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -26,6 +26,7 @@ import java.util.Map;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.GenericItem;
+import org.eclipse.smarthome.core.items.MetadataRegistry;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
@@ -68,6 +69,7 @@ public class AutoUpdateManagerTest {
     private @Mock Thing mockThingOnline;
     private @Mock Thing mockThingHandlerMissing;
     private @Mock ThingHandler mockHandler;
+    private @Mock MetadataRegistry mockMetadataRegistry;
 
     private final List<ItemChannelLink> links = new LinkedList<>();
     private AutoUpdateManager aum;
@@ -95,13 +97,13 @@ public class AutoUpdateManagerTest {
         aum.setItemChannelLinkRegistry(mockLinkRegistry);
         aum.setEventPublisher(mockEventPublisher);
         aum.setThingRegistry(mockThingRegistry);
+        aum.setMetadataRegistry(mockMetadataRegistry);
     }
 
-    private void assertEvent(String expectedContent, String extectedSource) {
+    private void assertStateEvent(String expectedContent, String extectedSource) {
         ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
-        verify(mockEventPublisher).post(eventCaptor.capture());
-        Event event = eventCaptor.getValue();
-        assertTrue(event instanceof ItemStateEvent);
+        verify(mockEventPublisher, atLeastOnce()).post(eventCaptor.capture());
+        Event event = eventCaptor.getAllValues().stream().filter(e -> e instanceof ItemStateEvent).findFirst().get();
         assertEquals(expectedContent, ((ItemStateEvent) event).getItemState().toFullString());
         assertEquals(extectedSource, event.getSource());
         assertNothingHappened();
@@ -109,9 +111,9 @@ public class AutoUpdateManagerTest {
 
     private void assertPredictionEvent(String expectedContent, String extectedSource) {
         ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
-        verify(mockEventPublisher).post(eventCaptor.capture());
-        Event event = eventCaptor.getValue();
-        assertTrue(event instanceof ItemStatePredictedEvent);
+        verify(mockEventPublisher, atLeastOnce()).post(eventCaptor.capture());
+        Event event = eventCaptor.getAllValues().stream().filter(e -> e instanceof ItemStatePredictedEvent).findFirst()
+                .get();
         assertEquals(expectedContent, ((ItemStatePredictedEvent) event).getPredictedState().toFullString());
         assertEquals(extectedSource, event.getSource());
         assertNothingHappened();
@@ -139,7 +141,7 @@ public class AutoUpdateManagerTest {
     public void testAutoUpdate_noLink() {
         aum.receiveCommand(event, item);
 
-        assertEvent("AFTER", AutoUpdateManager.EVENT_SOURCE);
+        assertStateEvent("AFTER", AutoUpdateManager.EVENT_SOURCE);
     }
 
     @Test
@@ -208,7 +210,7 @@ public class AutoUpdateManagerTest {
 
         aum.receiveCommand(event, item);
 
-        assertEvent("AFTER", AutoUpdateManager.EVENT_SOURCE);
+        assertStateEvent("AFTER", AutoUpdateManager.EVENT_SOURCE);
     }
 
     @Test
@@ -260,7 +262,7 @@ public class AutoUpdateManagerTest {
 
         aum.receiveCommand(event, item);
 
-        assertEvent("AFTER", AutoUpdateManager.EVENT_SOURCE);
+        assertStateEvent("AFTER", AutoUpdateManager.EVENT_SOURCE);
     }
 
     @Test
@@ -286,7 +288,7 @@ public class AutoUpdateManagerTest {
 
         aum.receiveCommand(event, item);
 
-        assertEvent("AFTER", AutoUpdateManager.EVENT_SOURCE);
+        assertStateEvent("AFTER", AutoUpdateManager.EVENT_SOURCE);
     }
 
     @Test
@@ -318,8 +320,8 @@ public class AutoUpdateManagerTest {
 
         aum.receiveCommand(event, item);
 
-        assertPredictionEvent("AFTER", AutoUpdateManager.EVENT_SOURCE_OPTIMISTIC);
-        assertEvent("AFTER", AutoUpdateManager.EVENT_SOURCE_OPTIMISTIC); // no?
+        assertPredictionEvent("AFTER", null);
+        assertStateEvent("AFTER", AutoUpdateManager.EVENT_SOURCE_OPTIMISTIC); // no?
     }
 
 }
