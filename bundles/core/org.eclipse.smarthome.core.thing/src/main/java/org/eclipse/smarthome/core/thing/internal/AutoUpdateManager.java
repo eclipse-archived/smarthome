@@ -16,7 +16,6 @@ import static java.util.stream.Collectors.toSet;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -28,8 +27,8 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.eclipse.smarthome.core.thing.binding.AutoUpdatePolicy;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
+import org.eclipse.smarthome.core.thing.type.AutoUpdatePolicy;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.osgi.service.component.annotations.Activate;
@@ -62,8 +61,6 @@ public class AutoUpdateManager {
     private @NonNullByDefault({}) ItemChannelLinkRegistry itemChannelLinkRegistry;
     private @NonNullByDefault({}) ThingRegistry thingRegistry;
     private @NonNullByDefault({}) EventPublisher eventPublisher;
-
-    private final Map<ChannelUID, @Nullable AutoUpdatePolicy> autoUpdatePolicies = new ConcurrentHashMap<>();
 
     private boolean enabled = true;
     private boolean sendOptimisticUpdates = false;
@@ -178,7 +175,7 @@ public class AutoUpdateManager {
                 continue;
             }
 
-            AutoUpdatePolicy policy = autoUpdatePolicies.get(channelUID);
+            AutoUpdatePolicy policy = thing.getChannel(channelUID.getId()).getAutoUpdatePolicy();
             if (policy == null) {
                 policy = AutoUpdatePolicy.DEFAULT;
             }
@@ -242,10 +239,6 @@ public class AutoUpdateManager {
             }
         }
         return isAccepted;
-    }
-
-    protected void setAutoUpdatePolicy(ChannelUID channelUID, AutoUpdatePolicy policy) {
-        autoUpdatePolicies.put(channelUID, policy);
     }
 
     @Reference

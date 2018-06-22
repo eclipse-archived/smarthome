@@ -21,6 +21,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.type.AutoUpdatePolicy;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
@@ -44,6 +45,7 @@ public class ChannelBuilder {
     private @Nullable String label;
     private @Nullable String description;
     private @Nullable ChannelTypeUID channelTypeUID;
+    private AutoUpdatePolicy autoUpdatePolicy = AutoUpdatePolicy.DEFAULT;
 
     private ChannelBuilder(ChannelUID channelUID, @Nullable String acceptedItemType, Set<String> defaultTags) {
         this.channelUID = channelUID;
@@ -167,13 +169,28 @@ public class ChannelBuilder {
     }
 
     /**
+     * Sets the auto update policy. See {@link AutoUpdatePolicy} for details.
+     *
+     * @param policy the auto update policy to use
+     * @return channel builder
+     */
+    public ChannelBuilder withAutoUpdatePolicy(AutoUpdatePolicy policy) {
+        if (policy != null) {
+            this.autoUpdatePolicy = policy;
+        } else {
+            this.autoUpdatePolicy = AutoUpdatePolicy.DEFAULT;
+        }
+        return this;
+    }
+
+    /**
      * Builds and returns the channel.
      *
      * @return channel
      */
     public Channel build() {
         return new Channel(channelUID, channelTypeUID, acceptedItemType, kind, configuration, defaultTags, properties,
-                label, description);
+                label, description, autoUpdatePolicy);
     }
 
 }

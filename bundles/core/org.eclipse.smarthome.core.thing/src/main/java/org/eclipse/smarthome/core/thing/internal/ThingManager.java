@@ -34,7 +34,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
@@ -61,7 +60,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeMigrationService;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.UID;
-import org.eclipse.smarthome.core.thing.binding.AutoUpdatePolicy;
 import org.eclipse.smarthome.core.thing.binding.BridgeHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
@@ -301,11 +299,6 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
         @Override
         public boolean isChannelLinked(ChannelUID channelUID) {
             return !itemChannelLinkRegistry.getLinks(channelUID).isEmpty();
-        }
-
-        @Override
-        public void setAutoUpdatePolicy(@NonNull ChannelUID channelUID, @NonNull AutoUpdatePolicy policy) {
-            autoUpdateManager.setAutoUpdatePolicy(channelUID, policy);
         }
 
     };
