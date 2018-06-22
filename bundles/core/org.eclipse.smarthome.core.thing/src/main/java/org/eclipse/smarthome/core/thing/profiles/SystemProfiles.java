@@ -36,7 +36,8 @@ public interface SystemProfiles {
 
     StateProfileType FOLLOW_TYPE = ProfileTypeBuilder.newState(FOLLOW, "Follow").build();
 
-    StateProfileType OFFSET_TYPE = ProfileTypeBuilder.newState(OFFSET, "Offset").build();
+    StateProfileType OFFSET_TYPE = ProfileTypeBuilder.newState(OFFSET, "Offset").withSupportedItemTypes("Number")
+            .build();
 
     TriggerProfileType RAWBUTTON_TOGGLE_SWITCH_TYPE = ProfileTypeBuilder
             .newTrigger(RAWBUTTON_TOGGLE_SWITCH, "Raw Button Toggle")
