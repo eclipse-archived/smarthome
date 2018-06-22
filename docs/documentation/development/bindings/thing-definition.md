@@ -365,3 +365,35 @@ The description can include limited HTML to enhance the display of this informat
 
 The following HTML tags are allowed : ```<b>, <br />, <em>, <h1>, <h2>, <h3>, <h4>, <h5>, <h6>, <i>, <p>, <small>, <strong>, <sub>, <sup>, <ul>, <ol>, <li>```. 
 These must be inside the XML escape sequence - e.g. ```<description><![CDATA[ HTML marked up text here ]]></description>```.
+
+## Auto Update Policies
+
+Channel types can optionally define a policy with respect to the auto update handling. 
+This influences the decision within the framework if an auto-update of the item's state should be sent in case a command is received for it.
+The auto update policy typically is inherited by the channel from its channel type. 
+Nevertheless, this value can be overridden in the channel definition.
+
+In this example, an auto update policy is defined for the channel type, but is overridden in the channel definition:
+
+```xml
+<channel-type id="channel">
+    <label>Channel with an auto update policy</label>
+    <autoUpdatePolicy>recommend</autoUpdatePolicy>
+</channel-type>
+
+<thing-type id="thingtype">
+    <label>Sample Thing</label>
+    <description>Thing type which overrides the auto update policy of a channel</description>
+    <channels>
+      <channel id="instance" typeId="channel">
+        <autoUpdatePolicy>default</autoUpdatePolicy>
+      </channel>
+    </channels>
+</thing-type>
+```
+
+The following policies are supported:
+
+* **veto**: No automatic state update should be sent by the framework. The thing handler will make sure it sends a state update and it can to it better than just converting the command to a state.
+* **default**: The binding does not care and the framework may do what it deems to be right. The state update which the framework will send out normally will correspond the command state anyway. This is the default of no other policy is set explicitly.
+* **recommend**: An automatic state update should be sent by the framework because no updates will be sent by the binding. This usually is the case when devices don't expose their current state to the handler.

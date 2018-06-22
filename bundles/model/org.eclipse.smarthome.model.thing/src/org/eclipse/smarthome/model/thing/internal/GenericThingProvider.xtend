@@ -350,7 +350,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                 var String itemType
                 var label = it.label
                 val configuration = createConfiguration
-                var autoUpdatePolicy = AutoUpdatePolicy.DEFAULT
+                var AutoUpdatePolicy autoUpdatePolicy = null;
                 if (it.channelType !== null) {
                     channelTypeUID = new ChannelTypeUID(thingUID.bindingId, it.channelType)
                     val resolvedChannelType = channelTypeUID.channelType

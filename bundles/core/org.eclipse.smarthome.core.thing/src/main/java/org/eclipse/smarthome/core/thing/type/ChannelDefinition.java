@@ -32,11 +32,12 @@ import org.eclipse.smarthome.core.thing.Thing;
  */
 public class ChannelDefinition {
 
-    private String id;
-    private ChannelTypeUID channelTypeUID;
+    private final String id;
+    private final ChannelTypeUID channelTypeUID;
     private final Map<String, String> properties;
     private final String label;
     private final String description;
+    private final AutoUpdatePolicy autoUpdatePolicy;
 
     /**
      * Creates a new instance of this class with the specified parameters.
@@ -46,7 +47,7 @@ public class ChannelDefinition {
      * @throws IllegalArgumentException if the ID is null or empty, or the type is null
      */
     public ChannelDefinition(String id, ChannelTypeUID channelTypeUID) throws IllegalArgumentException {
-        this(id, channelTypeUID, null, null, null);
+        this(id, channelTypeUID, null, null, null, null);
     }
 
     /**
@@ -61,6 +62,22 @@ public class ChannelDefinition {
      */
     public ChannelDefinition(String id, ChannelTypeUID channelTypeUID, Map<String, String> properties, String label,
             String description) throws IllegalArgumentException {
+        this(id, channelTypeUID, properties, label, description, null);
+    }
+
+    /**
+     * Creates a new instance of this class with the specified parameters.
+     *
+     * @param id the identifier of the channel (must neither be null nor empty)
+     * @param channelTypeUID the type UID of the channel (must not be null)
+     * @param properties the properties this Channel provides (could be null)
+     * @param label the label for the channel to override channelType (could be null)
+     * @param description the description for the channel to override channelType (could be null)
+     * @param autoUpdatePolicy the auto update policy for the channel to override from the thing type (could be null)
+     * @throws IllegalArgumentException if the ID is null or empty, or the type is null
+     */
+    public ChannelDefinition(String id, ChannelTypeUID channelTypeUID, Map<String, String> properties, String label,
+            String description, AutoUpdatePolicy autoUpdatePolicy) throws IllegalArgumentException {
         if ((id == null) || (id.isEmpty())) {
             throw new IllegalArgumentException("The ID must neither be null nor empty!");
         }
@@ -79,6 +96,7 @@ public class ChannelDefinition {
         this.channelTypeUID = channelTypeUID;
         this.label = label;
         this.description = description;
+        this.autoUpdatePolicy = autoUpdatePolicy;
     }
 
     /**
@@ -127,6 +145,15 @@ public class ChannelDefinition {
      */
     public Map<String, String> getProperties() {
         return properties;
+    }
+
+    /**
+     * Returns the {@link AutoUpdatePolicy} to use for this channel.
+     *
+     * @return the auto update policy
+     */
+    public AutoUpdatePolicy getAutoUpdatePolicy() {
+        return autoUpdatePolicy;
     }
 
     @Override

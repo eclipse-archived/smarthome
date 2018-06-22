@@ -33,4 +33,12 @@ public interface StateChannelTypeBuilder extends ChannelTypeBuilder<StateChannel
      */
     StateChannelTypeBuilder withStateDescription(@Nullable StateDescription stateDescription);
 
+    /**
+     * Sets the auto update policy for the ChannelType
+     *
+     * @param autoUpdatePolicy the auto update policy
+     * @return this builder
+     */
+    StateChannelTypeBuilder withAutoUpdatePolicy(@Nullable AutoUpdatePolicy autoUpdatePolicy);
+
 }

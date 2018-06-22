@@ -174,7 +174,7 @@ public class ChannelBuilder {
      * @param policy the auto update policy to use
      * @return channel builder
      */
-    public ChannelBuilder withAutoUpdatePolicy(AutoUpdatePolicy policy) {
+    public ChannelBuilder withAutoUpdatePolicy(@Nullable AutoUpdatePolicy policy) {
         if (policy != null) {
             this.autoUpdatePolicy = policy;
         } else {
