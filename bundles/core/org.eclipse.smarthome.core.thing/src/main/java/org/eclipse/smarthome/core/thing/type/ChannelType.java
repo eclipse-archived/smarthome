@@ -42,6 +42,7 @@ public class ChannelType extends AbstractDescriptionType {
     private final StateDescription state;
     private final EventDescription event;
     private final URI configDescriptionURI;
+    private final AutoUpdatePolicy autoUpdatePolicy;
 
     /**
      * @deprecated Use the {@link ChannelTypeBuilder} instead.
@@ -60,6 +61,34 @@ public class ChannelType extends AbstractDescriptionType {
     public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, ChannelKind kind, String label,
             String description, String category, Set<String> tags, StateDescription state, EventDescription event,
             URI configDescriptionURI) throws IllegalArgumentException {
+        this(uid, advanced, itemType, kind, label, description, category, tags, state, event, configDescriptionURI,
+                AutoUpdatePolicy.DEFAULT);
+    }
+
+    /**
+     * Creates a new instance of this class with the specified parameters.
+     *
+     * @param uid the unique identifier which identifies this Channel type within
+     *            the overall system (must neither be null, nor empty)
+     * @param advanced true if this channel type contains advanced features, otherwise false
+     * @param itemType the item type of this Channel type, e.g. {@code ColorItem}
+     * @param kind the channel kind.
+     * @param label the human readable label for the according type
+     *            (must neither be null nor empty)
+     * @param description the human readable description for the according type
+     *            (could be null or empty)
+     * @param category the category of this Channel type, e.g. {@code TEMPERATURE} (could be null or empty)
+     * @param tags all tags of this {@link ChannelType}, e.g. {@code Alarm} (could be null or empty)
+     * @param state the restrictions of an item state which gives information how to interpret it
+     *            (could be null)
+     * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
+     * @param autoUpdatePolicy the {@link AutoUpdatePolicy} to use.
+     * @throws IllegalArgumentException if the UID or the item type is null or empty,
+     *             or the the meta information is null
+     */
+    public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, ChannelKind kind, String label,
+            String description, String category, Set<String> tags, StateDescription state, EventDescription event,
+            URI configDescriptionURI, AutoUpdatePolicy autoUpdatePolicy) throws IllegalArgumentException {
         super(uid, label, description);
 
         if (kind == null) {
@@ -87,6 +116,7 @@ public class ChannelType extends AbstractDescriptionType {
         this.category = category;
         this.state = state;
         this.event = event;
+        this.autoUpdatePolicy = autoUpdatePolicy;
     }
 
     @Override
@@ -174,6 +204,15 @@ public class ChannelType extends AbstractDescriptionType {
      */
     public String getCategory() {
         return category;
+    }
+
+    /**
+     * Returns the {@link AutoUpdatePolicy} of for channels of this type.
+     *
+     * @return the {@link AutoUpdatePolicy}
+     */
+    public AutoUpdatePolicy getAutoUpdatePolicy() {
+        return autoUpdatePolicy;
     }
 
 }

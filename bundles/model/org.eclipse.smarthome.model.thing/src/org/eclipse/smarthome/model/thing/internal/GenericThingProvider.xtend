@@ -61,6 +61,7 @@ import org.osgi.service.component.annotations.Component
 import org.osgi.service.component.annotations.Reference
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.eclipse.smarthome.core.thing.type.AutoUpdatePolicy
 
 /**
  * {@link ThingProvider} implementation which computes *.things files.
@@ -349,6 +350,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                 var String itemType
                 var label = it.label
                 val configuration = createConfiguration
+                var autoUpdatePolicy = AutoUpdatePolicy.DEFAULT
                 if (it.channelType !== null) {
                     channelTypeUID = new ChannelTypeUID(thingUID.bindingId, it.channelType)
                     val resolvedChannelType = channelTypeUID.channelType
@@ -358,6 +360,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                         if (label === null) {
                             label = resolvedChannelType.label
                         }
+                        autoUpdatePolicy = resolvedChannelType.autoUpdatePolicy
                         applyDefaultConfiguration(configuration, resolvedChannelType)
                     } else {
                         logger.error("Channel type {} could not be resolved.",  channelTypeUID.asString)
@@ -374,6 +377,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                     .withConfiguration(configuration)
                     .withType(channelTypeUID)
                     .withLabel(label)
+                    .withAutoUpdatePolicy(autoUpdatePolicy)
                 channels += channel.build()
             }
         ]
@@ -383,7 +387,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                 if (channelType !== null) {
                     channels +=
                         ChannelBuilder.create(new ChannelUID(thingTypeUID, thingUID, id), channelType.itemType).
-                            withType(it.channelTypeUID).build
+                            withType(it.channelTypeUID).withAutoUpdatePolicy(channelType.autoUpdatePolicy).build
                 } else {
                     logger.warn(
                         "Could not create channel '{}' for thing '{}', because channel type '{}' could not be found.",

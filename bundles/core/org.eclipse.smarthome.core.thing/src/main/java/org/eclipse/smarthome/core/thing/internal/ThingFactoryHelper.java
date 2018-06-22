@@ -172,7 +172,8 @@ public class ThingFactoryHelper {
                 .withType(channelType.getUID()) //
                 .withDefaultTags(channelType.getTags()) //
                 .withKind(channelType.getKind()) //
-                .withLabel(channelType.getLabel());
+                .withLabel(channelType.getLabel()) //
+                .withAutoUpdatePolicy(channelType.getAutoUpdatePolicy());
 
         String description = channelType.getDescription();
         if (description != null) {
