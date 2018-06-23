@@ -23,6 +23,7 @@ import org.eclipse.smarthome.core.library.items.RollershutterItem;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.core.types.util.UnitUtils;
 import org.eclipse.smarthome.model.sitemap.Mapping;
 import org.eclipse.smarthome.model.sitemap.Switch;
@@ -48,6 +49,10 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
 
     private final Logger logger = LoggerFactory.getLogger(SwitchRenderer.class);
 
+    private static final int MAX_BUTTONS = 4;
+    private static final int MAX_LABEL_SIZE = 12;
+    private static final String ELLIPSIS = "\u2026";
+
     @Override
     public boolean canRender(Widget w) {
         return w instanceof Switch;
@@ -59,6 +64,7 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
 
         String snippetName = null;
         Item item = null;
+        int nbButtons = 0;
         try {
             item = itemUIRegistry.getItem(w.getItem());
             if (s.getMappings().size() == 0) {
@@ -66,11 +72,17 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
                     snippetName = "rollerblind";
                 } else if (item instanceof GroupItem && ((GroupItem) item).getBaseItem() instanceof RollershutterItem) {
                     snippetName = "rollerblind";
+                } else if (item.getStateDescription() != null && item.getStateDescription().getOptions().size() > 0
+                        && item.getStateDescription().getOptions().size() <= MAX_BUTTONS) {
+                    // Render with buttons only when a max of MAX_BUTTONS options are defined
+                    snippetName = "buttons";
+                    nbButtons = item.getStateDescription().getOptions().size();
                 } else {
                     snippetName = "switch";
                 }
             } else {
                 snippetName = "buttons";
+                nbButtons = s.getMappings().size();
             }
         } catch (ItemNotFoundException e) {
             logger.warn("Cannot determine item type of '{}'", w.getItem(), e);
@@ -89,7 +101,7 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
 
         State state = itemUIRegistry.getState(w);
 
-        if (s.getMappings().size() == 0) {
+        if (nbButtons == 0) {
             if (state.equals(OnOffType.ON)) {
                 snippet = snippet.replaceAll("%checked%", "checked=true");
             } else {
@@ -97,38 +109,16 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
             }
         } else {
             StringBuilder buttons = new StringBuilder();
-            for (Mapping mapping : s.getMappings()) {
-                String button = getSnippet("button");
-
-                String command = mapping.getCmd();
-                String label = mapping.getLabel();
-
-                if (item instanceof NumberItem && ((NumberItem) item).getDimension() != null) {
-                    String unit = getUnitForWidget(w);
-                    command = StringUtils.replace(command, UnitUtils.UNIT_PLACEHOLDER, unit);
-                    label = StringUtils.replace(label, UnitUtils.UNIT_PLACEHOLDER, unit);
+            if (s.getMappings().size() > 0) {
+                for (Mapping mapping : s.getMappings()) {
+                    buildButton(s, mapping.getLabel(), mapping.getCmd(), -1, nbButtons > 1, item, state, buttons);
                 }
-
-                button = StringUtils.replace(button, "%item%", w.getItem());
-                button = StringUtils.replace(button, "%cmd%", StringEscapeUtils.escapeHtml(command));
-                button = StringUtils.replace(button, "%label%",
-                        label != null ? StringEscapeUtils.escapeHtml(label) : "");
-
-                String buttonClass;
-                State compareMappingState = state;
-                if (state instanceof QuantityType) { // convert the item state to the command value for proper
-                                                     // comparison and buttonClass calculation
-                    compareMappingState = convertStateToLabelUnit((QuantityType<?>) state, command);
+            } else {
+                for (StateOption option : item.getStateDescription().getOptions()) {
+                    // Truncate the button label to MAX_LABEL_SIZE characters
+                    buildButton(s, option.getLabel(), option.getValue(), MAX_LABEL_SIZE, nbButtons > 1, item, state,
+                            buttons);
                 }
-
-                if (s.getMappings().size() > 1 && compareMappingState.toString().equals(command)) {
-                    buttonClass = "Warn"; // button with red color
-                } else {
-                    buttonClass = "Action"; // button with blue color
-                }
-                button = StringUtils.replace(button, "%type%", buttonClass);
-
-                buttons.append(button);
             }
             snippet = StringUtils.replace(snippet, "%buttons%", buttons.toString());
         }
@@ -138,6 +128,44 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
 
         sb.append(snippet);
         return null;
+    }
+
+    private void buildButton(Switch w, String lab, String cmd, int maxLabelSize, boolean severalButtons, Item item,
+            State state, StringBuilder buttons) throws RenderException {
+        String button = getSnippet("button");
+
+        String command = cmd;
+        String label = lab;
+
+        if (item instanceof NumberItem && ((NumberItem) item).getDimension() != null) {
+            String unit = getUnitForWidget(w);
+            command = StringUtils.replace(command, UnitUtils.UNIT_PLACEHOLDER, unit);
+            label = StringUtils.replace(label, UnitUtils.UNIT_PLACEHOLDER, unit);
+        }
+
+        if (label != null && maxLabelSize >= 1 && label.length() > maxLabelSize) {
+            label = label.substring(0, maxLabelSize - 1) + ELLIPSIS;
+        }
+
+        button = StringUtils.replace(button, "%item%", w.getItem());
+        button = StringUtils.replace(button, "%cmd%", StringEscapeUtils.escapeHtml(command));
+        button = StringUtils.replace(button, "%label%", label != null ? StringEscapeUtils.escapeHtml(label) : "");
+
+        String buttonClass;
+        State compareMappingState = state;
+        if (state instanceof QuantityType) { // convert the item state to the command value for proper
+                                             // comparison and buttonClass calculation
+            compareMappingState = convertStateToLabelUnit((QuantityType<?>) state, command);
+        }
+
+        if (severalButtons && compareMappingState.toString().equals(command)) {
+            buttonClass = "Warn"; // button with red color
+        } else {
+            buttonClass = "Action"; // button with blue color
+        }
+        button = StringUtils.replace(button, "%type%", buttonClass);
+
+        buttons.append(button);
     }
 
     @Override
