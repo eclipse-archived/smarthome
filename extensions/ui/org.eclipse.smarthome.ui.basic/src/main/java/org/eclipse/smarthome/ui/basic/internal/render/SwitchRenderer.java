@@ -53,6 +53,7 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
 
     private static final int MAX_BUTTONS = 4;
     private static final int MAX_LABEL_SIZE = 9;
+    private static final String ELLIPSIS = "\u2026";
 
     @Override
     @Activate
@@ -150,8 +151,8 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
             label = StringUtils.replace(label, UnitUtils.UNIT_PLACEHOLDER, unit);
         }
 
-        if (label != null && maxLabelSize >= 3 && label.length() > maxLabelSize) {
-            label = label.substring(0, maxLabelSize - 3) + "...";
+        if (label != null && maxLabelSize >= 1 && label.length() > maxLabelSize) {
+            label = label.substring(0, maxLabelSize - 1) + ELLIPSIS;
         }
 
         button = StringUtils.replace(button, "%item%", w.getItem());
