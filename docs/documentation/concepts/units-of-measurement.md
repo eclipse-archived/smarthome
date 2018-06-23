@@ -51,6 +51,7 @@ In case the state description should display the unit the binding delivers or th
     
 The special placeholder `%unit%` will then be replaced by the actual unit symbol.
 In addition the placeholder `%unit%` can be placed anywhere in the state description.
+Please note that you should avoid using the placeholder `%unit%` in the definition of an item if this item is included in your persistence strategy. If not, its value could be not restored properly at startup.
  
 #### Defining ChannelTypes
 
