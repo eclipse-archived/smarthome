@@ -132,6 +132,8 @@ Thing weatherunderground:weather:CDG "Météo Paris CDG" [ apikey="XXXXXXXXXXXX"
 
 demo.items:
 
+Please note that you should avoid using "%unit%" in the definition of an item if this item is included in your persistence strategy. If not, its value could be not restored properly at startup.
+
 ```
 String Conditions "Conditions [%s]" {channel="weatherunderground:weather:CDG:current#conditions"}
 Image Icon "Icon" {channel="weatherunderground:weather:CDG:current#icon"}
