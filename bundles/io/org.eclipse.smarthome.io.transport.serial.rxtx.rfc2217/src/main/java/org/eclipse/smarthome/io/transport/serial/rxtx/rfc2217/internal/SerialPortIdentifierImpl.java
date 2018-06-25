@@ -18,7 +18,8 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.io.transport.serial.PortInUseException;
 import org.eclipse.smarthome.io.transport.serial.SerialPort;
 import org.eclipse.smarthome.io.transport.serial.SerialPortIdentifier;
-import org.eclipse.smarthome.io.transport.serial.internal.SerialPortImpl;
+import org.eclipse.smarthome.io.transport.serial.rxtx.SerialPortImpl;
+
 import gnu.io.rfc2217.TelnetSerialPort;
 
 /**
@@ -30,14 +31,16 @@ import gnu.io.rfc2217.TelnetSerialPort;
 public class SerialPortIdentifierImpl implements SerialPortIdentifier {
 
     final TelnetSerialPort id;
+    private URI uri;
 
     /**
      * Constructor.
      *
      * @param id the underlying comm port identifier implementation
      */
-    public SerialPortIdentifierImpl(final TelnetSerialPort id) {
+    public SerialPortIdentifierImpl(final TelnetSerialPort id, URI uri) {
         this.id = id;
+        this.uri = uri;
     }
 
     @Override
@@ -48,15 +51,13 @@ public class SerialPortIdentifierImpl implements SerialPortIdentifier {
 
     @Override
     public SerialPort open(String owner, int timeout) throws PortInUseException {
-        URI url = URI.create(id.getName());
-
         try {
             id.getTelnetClient().setDefaultTimeout(timeout);
-            id.getTelnetClient().connect(url.getHost(), url.getPort());
+            id.getTelnetClient().connect(uri.getHost(), uri.getPort());
             return new SerialPortImpl(id);
         } catch (Exception e) {
             throw new IllegalStateException(
-                    String.format("Unable to establish remote connection to serial port %s", url), e);
+                    String.format("Unable to establish remote connection to serial port %s", uri), e);
         }
     }
 

@@ -12,13 +12,14 @@
  */
 package org.eclipse.smarthome.io.transport.serial.internal;
 
+import java.net.URI;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.io.transport.serial.SerialPortProvider;
 import org.eclipse.smarthome.io.transport.serial.SerialPortIdentifier;
 import org.eclipse.smarthome.io.transport.serial.SerialPortManager;
-import org.eclipse.smarthome.io.transport.serial.rxtx.SerialPortCreator;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -57,10 +58,11 @@ public class SerialPortManagerImpl implements SerialPortManager {
         if (registry == null) {
             return null;
         }
-        SerialPortCreator<SerialPort> portCreator = registry.getPortCreatorForPortName(name, SerialPort.class);
+        URI portUri = URI.create(name);
+        SerialPortProvider<SerialPort> portCreator = registry.getPortProviderForPortName(portUri, SerialPort.class);
         if (portCreator == null) {
             return null;
         }
-        return portCreator.getPortIdentifier(name);
+        return portCreator.getPortIdentifier(portUri);
     }
 }

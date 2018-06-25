@@ -10,18 +10,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.io.transport.serial.rxtx;
+package org.eclipse.smarthome.io.transport.serial;
 
+import java.net.URI;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.io.transport.serial.PortInUseException;
-import org.eclipse.smarthome.io.transport.serial.SerialPort;
-import org.eclipse.smarthome.io.transport.serial.SerialPortIdentifier;
-import org.eclipse.smarthome.io.transport.serial.UnsupportedCommOperationException;
-
-import gnu.io.NoSuchPortException;
 
 /**
  *
@@ -30,17 +25,7 @@ import gnu.io.NoSuchPortException;
  * @param <T>
  */
 @NonNullByDefault
-public interface SerialPortCreator<T> {
-
-    final static String LOCAL = "local";
-
-    /**
-     * Gets whether this {@link SerialPortCreator} is applicable to create the given port.
-     *
-     * @param portName The ports name.
-     * @return Whether the port can be created and opened by this creator.
-     */
-    public boolean isApplicable(String portName, Class<T> expectedClass);
+public interface SerialPortProvider<T> {
 
     /**
      * Gets the {@link SerialPortIdentifier} if it is available or null otherwise.
@@ -51,18 +36,19 @@ public interface SerialPortCreator<T> {
      * @throws UnsupportedCommOperationException
      * @throws PortInUseException
      */
-    public @Nullable SerialPortIdentifier getPortIdentifier(String portName);
+    public @Nullable SerialPortIdentifier getPortIdentifier(URI portName);
 
     /**
-     * Gets the protocol type of the Port to create.
+     * Gets all protocol types which this provider is able to create.
      *
      * @return The protocol type.
      */
-    public String getProtocol();
+    public Stream<ProtocolType> getAcceptedProtocols();
 
     /**
-     * Gets all the available {@link SerialPortIdentifier}s for this {@link SerialPortCreator}.
-     * Please note: Discovery is not available necessarily
+     * Gets all the available {@link SerialPortIdentifier}s for this {@link SerialPortProvider}.
+     * Please note: Discovery is not available necessarily, hence the {@link #getPortIdentifier(URI)} must be used in
+     * this case.
      *
      * @return The available ports
      */

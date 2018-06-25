@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.io.transport.serial.internal;
 
+import java.net.URI;
 import java.util.Enumeration;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -20,20 +21,50 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import javax.comm.CommPortIdentifier;
+import javax.comm.SerialPort;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.io.transport.serial.ProtocolType;
+import org.eclipse.smarthome.io.transport.serial.ProtocolType.PathType;
 import org.eclipse.smarthome.io.transport.serial.SerialPortIdentifier;
-import org.eclipse.smarthome.io.transport.serial.SerialPortManager;
+import org.eclipse.smarthome.io.transport.serial.SerialPortProvider;
 import org.osgi.service.component.annotations.Component;
 
 /**
- * Specific serial port manager implementation.
  *
- * @author Markus Rathgeb - Initial contribution
+ * @author MatthiasS
+ *
  */
 @NonNullByDefault
-@Component
-public class SerialPortManagerImpl implements SerialPortManager {
+@Component(service = SerialPortProvider.class, immediate = true)
+public class JavaCommPortCreator implements SerialPortProvider<SerialPort> {
+
+    @Override
+    public @Nullable SerialPortIdentifier getPortIdentifier(URI port) {
+        CommPortIdentifier ident = null;
+        try {
+            ident = CommPortIdentifier.getPortIdentifier(port.getPath());
+        } catch (javax.comm.NoSuchPortException e) {
+            return null;
+        }
+        return new SerialPortIdentifierImpl(ident);
+
+    }
+
+    @Override
+    public Stream<ProtocolType> getAcceptedProtocols() {
+        return Stream.of(new ProtocolType(PathType.LOCAL, "javacomm"));
+    }
+
+    @Override
+    public Stream<SerialPortIdentifier> getSerialPortIdentifiers() {
+        @SuppressWarnings("unchecked")
+        final Enumeration<CommPortIdentifier> ids = CommPortIdentifier.getPortIdentifiers();
+        return StreamSupport.stream(new SplitIteratorForEnumeration<>(ids), false)
+                .filter(id -> id.getPortType() == CommPortIdentifier.PORT_SERIAL)
+                .map(sid -> new SerialPortIdentifierImpl(sid));
+    }
 
     private static class SplitIteratorForEnumeration<T> extends Spliterators.AbstractSpliterator<T> {
         private final Enumeration<T> e;
@@ -60,14 +91,5 @@ public class SerialPortManagerImpl implements SerialPortManager {
                 action.accept(e.nextElement());
             }
         }
-    }
-
-    @Override
-    public Stream<SerialPortIdentifier> getIdentifiers() {
-        @SuppressWarnings("unchecked")
-        final Enumeration<CommPortIdentifier> ids = CommPortIdentifier.getPortIdentifiers();
-        return StreamSupport.stream(new SplitIteratorForEnumeration<>(ids), false)
-                .filter(id -> id.getPortType() == CommPortIdentifier.PORT_SERIAL)
-                .map(sid -> new SerialPortIdentifierImpl(sid));
     }
 }

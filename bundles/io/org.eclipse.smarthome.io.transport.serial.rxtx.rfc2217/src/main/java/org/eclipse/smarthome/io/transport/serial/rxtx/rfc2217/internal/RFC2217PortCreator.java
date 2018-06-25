@@ -17,8 +17,10 @@ import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.io.transport.serial.ProtocolType;
+import org.eclipse.smarthome.io.transport.serial.ProtocolType.PathType;
 import org.eclipse.smarthome.io.transport.serial.SerialPortIdentifier;
-import org.eclipse.smarthome.io.transport.serial.rxtx.SerialPortCreator;
+import org.eclipse.smarthome.io.transport.serial.SerialPortProvider;
 import org.osgi.service.component.annotations.Component;
 
 import gnu.io.NoSuchPortException;
@@ -31,38 +33,25 @@ import gnu.io.rfc2217.TelnetSerialPort;
  *
  */
 @NonNullByDefault
-@Component(service = SerialPortCreator.class)
-public class RFC2217PortCreator implements SerialPortCreator<TelnetSerialPort> {
+@Component(service = SerialPortProvider.class)
+public class RFC2217PortCreator implements SerialPortProvider<TelnetSerialPort> {
 
     private final static String PROTOCOL = "rfc2217";
-
-    @Override
-    public boolean isApplicable(String portName, Class<TelnetSerialPort> expectedClass) {
-        try {
-            if (expectedClass.isAssignableFrom(TelnetSerialPort.class)) {
-                URI uri = URI.create(portName);
-                return uri.getScheme().equalsIgnoreCase(PROTOCOL);
-            }
-            return false;
-        } catch (Throwable t) {
-            return false;
-        }
-    }
 
     /**
      * @throws UnsupportedCommOperationException if connection to the remote serial port fails.
      * @throws NoSuchPortException if the host does not exist.
      */
     @Override
-    public @Nullable SerialPortIdentifier getPortIdentifier(String portName) {
+    public @Nullable SerialPortIdentifier getPortIdentifier(URI portName) {
         TelnetSerialPort telnetSerialPort = new TelnetSerialPort();
-        telnetSerialPort.setName(portName);
-        return new SerialPortIdentifierImpl(telnetSerialPort);
+        telnetSerialPort.setName(portName.toString());
+        return new SerialPortIdentifierImpl(telnetSerialPort, portName);
     }
 
     @Override
-    public String getProtocol() {
-        return PROTOCOL;
+    public Stream<ProtocolType> getAcceptedProtocols() {
+        return Stream.of(new ProtocolType(PathType.NET, PROTOCOL));
     }
 
     @Override

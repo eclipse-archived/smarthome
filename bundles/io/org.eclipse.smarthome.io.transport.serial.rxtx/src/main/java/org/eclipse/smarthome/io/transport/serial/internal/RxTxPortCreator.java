@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.io.transport.serial.internal;
 
+import java.net.URI;
 import java.util.Enumeration;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -21,8 +22,10 @@ import java.util.stream.StreamSupport;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.io.transport.serial.ProtocolType;
+import org.eclipse.smarthome.io.transport.serial.ProtocolType.PathType;
 import org.eclipse.smarthome.io.transport.serial.SerialPortIdentifier;
-import org.eclipse.smarthome.io.transport.serial.rxtx.SerialPortCreator;
+import org.eclipse.smarthome.io.transport.serial.SerialPortProvider;
 import org.osgi.service.component.annotations.Component;
 
 import gnu.io.CommPortIdentifier;
@@ -34,22 +37,17 @@ import gnu.io.RXTXPort;
  *
  */
 @NonNullByDefault
-@Component(service = SerialPortCreator.class, immediate = true)
-public class RxTxPortCreator implements SerialPortCreator<RXTXPort> {
+@Component(service = SerialPortProvider.class, immediate = true)
+public class RxTxPortCreator implements SerialPortProvider<RXTXPort> {
 
     @Override
-    public boolean isApplicable(String portName, Class<RXTXPort> expectedClass) {
-        return expectedClass.isAssignableFrom(RXTXPort.class);
-    }
-
-    @Override
-    public @Nullable SerialPortIdentifier getPortIdentifier(String port) {
+    public @Nullable SerialPortIdentifier getPortIdentifier(URI port) {
         CommPortIdentifier ident = null;
         if ((System.getProperty("os.name").toLowerCase().indexOf("linux") != -1)) {
-            SerialPortUtil.appendSerialPortProperty(port);
+            SerialPortUtil.appendSerialPortProperty(port.getPath());
         }
         try {
-            ident = CommPortIdentifier.getPortIdentifier(port);
+            ident = CommPortIdentifier.getPortIdentifier(port.getPath());
         } catch (gnu.io.NoSuchPortException e) {
             return null;
         }
@@ -58,8 +56,8 @@ public class RxTxPortCreator implements SerialPortCreator<RXTXPort> {
     }
 
     @Override
-    public String getProtocol() {
-        return LOCAL;
+    public Stream<ProtocolType> getAcceptedProtocols() {
+        return Stream.of(new ProtocolType(PathType.LOCAL, "rxtx"));
     }
 
     @Override
