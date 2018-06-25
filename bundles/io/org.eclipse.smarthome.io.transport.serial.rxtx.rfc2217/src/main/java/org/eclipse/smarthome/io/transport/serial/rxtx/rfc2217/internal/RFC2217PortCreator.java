@@ -23,8 +23,6 @@ import org.eclipse.smarthome.io.transport.serial.SerialPortIdentifier;
 import org.eclipse.smarthome.io.transport.serial.SerialPortProvider;
 import org.osgi.service.component.annotations.Component;
 
-import gnu.io.NoSuchPortException;
-import gnu.io.UnsupportedCommOperationException;
 import gnu.io.rfc2217.TelnetSerialPort;
 
 /**
@@ -34,14 +32,10 @@ import gnu.io.rfc2217.TelnetSerialPort;
  */
 @NonNullByDefault
 @Component(service = SerialPortProvider.class)
-public class RFC2217PortCreator implements SerialPortProvider<TelnetSerialPort> {
+public class RFC2217PortCreator implements SerialPortProvider {
 
     private final static String PROTOCOL = "rfc2217";
 
-    /**
-     * @throws UnsupportedCommOperationException if connection to the remote serial port fails.
-     * @throws NoSuchPortException if the host does not exist.
-     */
     @Override
     public @Nullable SerialPortIdentifier getPortIdentifier(URI portName) {
         TelnetSerialPort telnetSerialPort = new TelnetSerialPort();
@@ -56,6 +50,7 @@ public class RFC2217PortCreator implements SerialPortProvider<TelnetSerialPort> 
 
     @Override
     public Stream<SerialPortIdentifier> getSerialPortIdentifiers() {
+        // TODO implement discovery here. https://github.com/eclipse/smarthome/pull/5560
         return Stream.empty();
     }
 

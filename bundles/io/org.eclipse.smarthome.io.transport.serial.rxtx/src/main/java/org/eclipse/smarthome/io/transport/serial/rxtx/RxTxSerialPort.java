@@ -32,7 +32,7 @@ import gnu.io.SerialPortEvent;
  * @author Markus Rathgeb - Initial contribution
  */
 @NonNullByDefault
-public class SerialPortImpl implements SerialPort {
+public class RxTxSerialPort implements SerialPort {
 
     private final gnu.io.SerialPort sp;
 
@@ -41,7 +41,7 @@ public class SerialPortImpl implements SerialPort {
      *
      * @param sp the underlying serial port implementation
      */
-    public SerialPortImpl(final gnu.io.SerialPort sp) {
+    public RxTxSerialPort(final gnu.io.SerialPort sp) {
         this.sp = sp;
     }
 

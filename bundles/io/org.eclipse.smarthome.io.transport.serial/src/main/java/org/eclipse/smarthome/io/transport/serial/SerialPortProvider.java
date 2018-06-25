@@ -25,7 +25,7 @@ import org.eclipse.jdt.annotation.Nullable;
  * @param <T>
  */
 @NonNullByDefault
-public interface SerialPortProvider<T> {
+public interface SerialPortProvider {
 
     /**
      * Gets the {@link SerialPortIdentifier} if it is available or null otherwise.

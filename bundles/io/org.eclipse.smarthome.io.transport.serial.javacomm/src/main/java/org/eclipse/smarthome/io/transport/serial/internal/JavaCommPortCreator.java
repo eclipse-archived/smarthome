@@ -21,7 +21,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import javax.comm.CommPortIdentifier;
-import javax.comm.SerialPort;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -38,7 +37,7 @@ import org.osgi.service.component.annotations.Component;
  */
 @NonNullByDefault
 @Component(service = SerialPortProvider.class, immediate = true)
-public class JavaCommPortCreator implements SerialPortProvider<SerialPort> {
+public class JavaCommPortCreator implements SerialPortProvider {
 
     @Override
     public @Nullable SerialPortIdentifier getPortIdentifier(URI port) {

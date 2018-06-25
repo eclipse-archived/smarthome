@@ -38,7 +38,7 @@ public class SerialPortRegistry {
 
     private final static Logger logger = LoggerFactory.getLogger(SerialPortRegistry.class);
 
-    private Collection<SerialPortProvider<?>> portCreators;
+    private Collection<SerialPortProvider> portCreators;
 
     public SerialPortRegistry() {
         this.portCreators = new HashSet<>();
@@ -50,11 +50,11 @@ public class SerialPortRegistry {
      * @param creator
      */
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
-    protected void registerSerialPortCreator(SerialPortProvider<?> creator) {
+    protected void registerSerialPortCreator(SerialPortProvider creator) {
         this.portCreators.add(creator);
     }
 
-    protected void unregisterSerialPortCreator(SerialPortProvider<?> creator) {
+    protected void unregisterSerialPortCreator(SerialPortProvider creator) {
         this.portCreators.remove(creator);
     }
 
@@ -64,15 +64,14 @@ public class SerialPortRegistry {
      * @param portName The port's name.
      * @return A found {@link SerialPortProvider} or null if none could be found.
      */
-    @SuppressWarnings("unchecked")
-    public <T> SerialPortProvider<T> getPortProviderForPortName(URI portName, Class<T> expectedClass) {
+    public SerialPortProvider getPortProviderForPortName(URI portName) {
         PathType pathType = PathType.fromURI(portName);
 
-        Optional<SerialPortProvider<?>> first = portCreators.stream().filter(provider -> provider.getAcceptedProtocols()
+        Optional<SerialPortProvider> first = portCreators.stream().filter(provider -> provider.getAcceptedProtocols()
                 .filter(prot -> prot.getScheme().equals(portName.getScheme())).count() > 0).findFirst();
         // get a PortProvider which accepts exactly the port with its scheme. If there is none, just try a port with
         // same type (local, net)
-        return (SerialPortProvider<T>) first
+        return first
                 .orElse(portCreators.stream()
                         .filter(provider -> provider.getAcceptedProtocols()
                                 .filter(prot -> prot.getPathType().equals(pathType)).count() > 0)
@@ -80,7 +79,7 @@ public class SerialPortRegistry {
 
     }
 
-    public Collection<SerialPortProvider<?>> getPortCreators() {
+    public Collection<SerialPortProvider> getPortCreators() {
         return Collections.unmodifiableCollection(portCreators);
     }
 }

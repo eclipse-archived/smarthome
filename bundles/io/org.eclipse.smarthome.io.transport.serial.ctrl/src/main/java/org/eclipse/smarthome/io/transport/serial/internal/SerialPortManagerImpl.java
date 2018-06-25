@@ -17,13 +17,11 @@ import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.io.transport.serial.SerialPortProvider;
 import org.eclipse.smarthome.io.transport.serial.SerialPortIdentifier;
 import org.eclipse.smarthome.io.transport.serial.SerialPortManager;
+import org.eclipse.smarthome.io.transport.serial.SerialPortProvider;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import gnu.io.SerialPort;
 
 /**
  * Specific serial port manager implementation.
@@ -59,7 +57,7 @@ public class SerialPortManagerImpl implements SerialPortManager {
             return null;
         }
         URI portUri = URI.create(name);
-        SerialPortProvider<SerialPort> portCreator = registry.getPortProviderForPortName(portUri, SerialPort.class);
+        SerialPortProvider portCreator = registry.getPortProviderForPortName(portUri);
         if (portCreator == null) {
             return null;
         }

@@ -29,7 +29,6 @@ import org.eclipse.smarthome.io.transport.serial.SerialPortProvider;
 import org.osgi.service.component.annotations.Component;
 
 import gnu.io.CommPortIdentifier;
-import gnu.io.RXTXPort;
 
 /**
  *
@@ -38,7 +37,7 @@ import gnu.io.RXTXPort;
  */
 @NonNullByDefault
 @Component(service = SerialPortProvider.class, immediate = true)
-public class RxTxPortCreator implements SerialPortProvider<RXTXPort> {
+public class RxTxPortCreator implements SerialPortProvider {
 
     @Override
     public @Nullable SerialPortIdentifier getPortIdentifier(URI port) {

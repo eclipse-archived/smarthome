@@ -16,7 +16,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.io.transport.serial.PortInUseException;
 import org.eclipse.smarthome.io.transport.serial.SerialPort;
 import org.eclipse.smarthome.io.transport.serial.SerialPortIdentifier;
-import org.eclipse.smarthome.io.transport.serial.rxtx.SerialPortImpl;
+import org.eclipse.smarthome.io.transport.serial.rxtx.RxTxSerialPort;
 
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
@@ -51,7 +51,7 @@ public class SerialPortIdentifierImpl implements SerialPortIdentifier {
         try {
             final CommPort cp = id.open(owner, timeout);
             if (cp instanceof gnu.io.SerialPort) {
-                return new SerialPortImpl((gnu.io.SerialPort) cp);
+                return new RxTxSerialPort((gnu.io.SerialPort) cp);
             } else {
                 throw new IllegalStateException(
                         String.format("We expect an serial port instead of '%s'", cp.getClass()));

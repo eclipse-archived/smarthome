@@ -6,8 +6,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.io.transport.serial.ctrl;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
-Import-Package: gnu.io,
- org.eclipse.jdt.annotation;resolution:=optional,
+Import-Package: org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.io.transport.serial,
  org.slf4j
 Service-Component: OSGI-INF/*.xml

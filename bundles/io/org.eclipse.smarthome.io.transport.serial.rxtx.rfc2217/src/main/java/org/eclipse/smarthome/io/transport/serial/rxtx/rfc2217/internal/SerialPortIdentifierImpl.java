@@ -18,7 +18,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.io.transport.serial.PortInUseException;
 import org.eclipse.smarthome.io.transport.serial.SerialPort;
 import org.eclipse.smarthome.io.transport.serial.SerialPortIdentifier;
-import org.eclipse.smarthome.io.transport.serial.rxtx.SerialPortImpl;
+import org.eclipse.smarthome.io.transport.serial.rxtx.RxTxSerialPort;
 
 import gnu.io.rfc2217.TelnetSerialPort;
 
@@ -54,7 +54,7 @@ public class SerialPortIdentifierImpl implements SerialPortIdentifier {
         try {
             id.getTelnetClient().setDefaultTimeout(timeout);
             id.getTelnetClient().connect(uri.getHost(), uri.getPort());
-            return new SerialPortImpl(id);
+            return new RxTxSerialPort(id);
         } catch (Exception e) {
             throw new IllegalStateException(
                     String.format("Unable to establish remote connection to serial port %s", uri), e);
