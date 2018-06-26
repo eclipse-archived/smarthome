@@ -12,10 +12,7 @@
  */
 package org.eclipse.smarthome.core.thing.profiles.dto;
 
-import java.util.Locale;
-
 import org.eclipse.smarthome.core.thing.profiles.ProfileType;
-import org.eclipse.smarthome.core.thing.profiles.StateProfileType;
 import org.eclipse.smarthome.core.thing.profiles.TriggerProfileType;
 
 /**
@@ -33,15 +30,8 @@ public class ProfileTypeDTOMapper {
      * @param profileType the profile type to be mapped
      * @return the profile type DTO object
      */
-    public static ProfileTypeDTO map(ProfileType profileType, Locale locale) {
-        if (profileType instanceof StateProfileType) {
-            return new ProfileTypeDTO(profileType.getUID().toString(), profileType.getLabel(), "STATE",
-                    profileType.getSupportedItemTypes());
-        } else if (profileType instanceof TriggerProfileType) {
-            return new ProfileTypeDTO(profileType.getUID().toString(), profileType.getLabel(), "TRIGGER",
-                    profileType.getSupportedItemTypes());
-        }
-        return new ProfileTypeDTO(profileType.getUID().toString(), profileType.getLabel(), null,
-                profileType.getSupportedItemTypes());
+    public static ProfileTypeDTO map(ProfileType profileType) {
+        return new ProfileTypeDTO(profileType.getUID().toString(), profileType.getLabel(),
+                profileType instanceof TriggerProfileType ? "TRIGGER" : "STATE", profileType.getSupportedItemTypes());
     }
 }

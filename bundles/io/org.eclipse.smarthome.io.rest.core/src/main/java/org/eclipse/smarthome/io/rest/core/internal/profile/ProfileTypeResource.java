@@ -35,6 +35,8 @@ import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 import org.eclipse.smarthome.io.rest.core.internal.thing.ThingTypeResource;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +55,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(ProfileTypeResource.PATH_PROFILE_TYPES)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ProfileTypeResource.PATH_PROFILE_TYPES)
-@Component(service = { RESTResource.class, ProfileTypeResource.class })
+@Component
 public class ProfileTypeResource implements RESTResource {
 
     /** The URI path to this resource */
@@ -77,7 +79,7 @@ public class ProfileTypeResource implements RESTResource {
     }
 
     private ProfileTypeDTO convertToProfileTypeDTO(ProfileType profileType, Locale locale) {
-        final ProfileTypeDTO profileTypeDTO = ProfileTypeDTOMapper.map(profileType, locale);
+        final ProfileTypeDTO profileTypeDTO = ProfileTypeDTOMapper.map(profileType);
         if (profileTypeDTO != null) {
             return profileTypeDTO;
         } else {
@@ -87,7 +89,15 @@ public class ProfileTypeResource implements RESTResource {
         return null;
     }
 
-    @Reference
+    @Override
+    public boolean isSatisfied() {
+        if (this.profileTypeRegistry == null) {
+            return false;
+        }
+        return true;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     public void setProfileTypeRegistry(ProfileTypeRegistry registry) {
         this.profileTypeRegistry = registry;
     }

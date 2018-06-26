@@ -95,9 +95,9 @@ public class ItemChannelLinkResource implements RESTResource {
 
     @GET
     @Path("/{itemName}/{channelUID}")
-    @ApiOperation(value = "Links item to a channel.")
+    @ApiOperation(value = "Retrieves links.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 400, message = "Content does not match the path") })
+            @ApiResponse(code = 404, message = "Content does not match the path") })
     public Response getLink(@PathParam("itemName") @ApiParam(value = "itemName") String itemName,
             @PathParam("channelUID") @ApiParam(value = "channelUID") String channelUid) {
 
@@ -117,7 +117,8 @@ public class ItemChannelLinkResource implements RESTResource {
     @Path("/{itemName}/{channelUID}")
     @ApiOperation(value = "Links item to a channel.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 400, message = "Content does not match the path") })
+            @ApiResponse(code = 400, message = "Content does not match the path"),
+            @ApiResponse(code = 405, message = "Link is not editable") })
     public Response link(@PathParam("itemName") @ApiParam(value = "itemName") String itemName,
             @PathParam("channelUID") @ApiParam(value = "channelUID") String channelUid,
             @ApiParam(value = "link data", required = false) ItemChannelLinkDTO bean) {

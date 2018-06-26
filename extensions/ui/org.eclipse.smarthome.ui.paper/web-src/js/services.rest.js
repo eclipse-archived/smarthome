@@ -253,7 +253,6 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
             },
             url : restConfig.restPath + '/links/:itemName/:channelUID',
             transformResponse : function(response, headerGetter, status) {
-                // var response = angular.fromJson(response);
                 var response = {};
                 if (status == 405) {
                     response.customMessage = "Link is not editable.";
