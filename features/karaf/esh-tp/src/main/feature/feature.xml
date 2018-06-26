@@ -106,11 +106,11 @@
   </feature>
 
   <feature name="esh.tp-jupnp" description="UPnP/DLNA library for Java" version="${project.version}">
-    <capability>esh.tp;feature=jupnp;version=2.3.0</capability>
+    <capability>esh.tp;feature=jupnp;version=2.4.0</capability>
     <feature dependency="true">http</feature>
     <feature dependency="true">scr</feature>
     <feature dependency="true">esh.tp-httpclient</feature>
-    <bundle>mvn:org.jupnp/org.jupnp/2.3.0</bundle>
+    <bundle>mvn:org.jupnp/org.jupnp/2.4.0</bundle>
   </feature>
 
   <feature name="esh.tp-jmdns" description="An implementation of multi-cast DNS in Java." version="${project.version}">
