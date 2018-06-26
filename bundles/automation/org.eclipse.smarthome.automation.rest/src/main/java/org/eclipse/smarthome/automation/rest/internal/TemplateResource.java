@@ -61,7 +61,7 @@ public class TemplateResource implements RESTResource {
     @Context
     private UriInfo uriInfo;
 
-    @Reference(cardinality=ReferenceCardinality.OPTIONAL, policy=ReferencePolicy.DYNAMIC)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setTemplateRegistry(TemplateRegistry<RuleTemplate> templateRegistry) {
         this.templateRegistry = templateRegistry;
     }
@@ -70,11 +70,11 @@ public class TemplateResource implements RESTResource {
         this.templateRegistry = null;
     }
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setLocaleService(LocaleService localeService) {
         this.localeService = localeService;
     }
-    
+
     protected void unsetLocaleService(LocaleService localeService) {
         this.localeService = null;
     }
@@ -110,6 +110,6 @@ public class TemplateResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return templateRegistry != null;
+        return templateRegistry != null && localeService != null;
     }
 }

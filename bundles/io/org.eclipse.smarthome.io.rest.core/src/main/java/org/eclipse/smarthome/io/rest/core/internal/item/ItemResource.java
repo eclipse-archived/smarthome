@@ -71,7 +71,6 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.rest.DTOMapper;
 import org.eclipse.smarthome.io.rest.JSONResponse;
-import org.eclipse.smarthome.io.rest.LocaleServiceImpl;
 import org.eclipse.smarthome.io.rest.LocaleService;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
@@ -117,7 +116,7 @@ import io.swagger.annotations.ApiResponses;
 @NonNullByDefault
 @Path(ItemResource.PATH_ITEMS)
 @Api(value = ItemResource.PATH_ITEMS)
-@Component(service = { RESTResource.class, ItemResource.class })
+@Component
 public class ItemResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ItemResource.class);
@@ -143,6 +142,7 @@ public class ItemResource implements RESTResource {
     private MetadataSelectorMatcher metadataSelectorMatcher;
 
     private final Set<ItemFactory> itemFactories = new HashSet<>();
+    @NonNullByDefault({})
     private LocaleService localeService;
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
@@ -199,11 +199,11 @@ public class ItemResource implements RESTResource {
         this.dtoMapper = dtoMapper;
     }
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.STATIC)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setLocaleService(LocaleService localeService) {
         this.localeService = localeService;
     }
-    
+
     protected void unsetLocaleService(LocaleService localeService) {
         this.localeService = null;
     }
@@ -215,7 +215,9 @@ public class ItemResource implements RESTResource {
 
     protected void unsetMetadataSelectorMatcher(MetadataSelectorMatcher metadataSelectorMatcher) {
         this.metadataSelectorMatcher = null;
-    }    @GET
+    }
+
+    @GET
     @RolesAllowed({ Role.USER, Role.ADMIN })
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all available items.", response = EnrichedItemDTO.class, responseContainer = "List")
@@ -819,6 +821,7 @@ public class ItemResource implements RESTResource {
     @Override
     public boolean isSatisfied() {
         return itemRegistry != null && managedItemProvider != null && eventPublisher != null && !itemFactories.isEmpty()
-                && dtoMapper != null && metadataRegistry != null && metadataSelectorMatcher != null;
+                && dtoMapper != null && metadataRegistry != null && metadataSelectorMatcher != null
+                && localeService != null;
     }
 }

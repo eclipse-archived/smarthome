@@ -71,7 +71,7 @@ public class ModuleTypeResource implements RESTResource {
     @Context
     private UriInfo uriInfo;
 
-    @Reference(cardinality=ReferenceCardinality.OPTIONAL, policy=ReferencePolicy.DYNAMIC)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setModuleTypeRegistry(ModuleTypeRegistry moduleTypeRegistry) {
         this.moduleTypeRegistry = moduleTypeRegistry;
     }
@@ -80,11 +80,11 @@ public class ModuleTypeResource implements RESTResource {
         this.moduleTypeRegistry = null;
     }
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setLocaleService(LocaleService localeService) {
         this.localeService = localeService;
     }
-    
+
     protected void unsetLocaleService(LocaleService localeService) {
         this.localeService = null;
     }
@@ -154,7 +154,7 @@ public class ModuleTypeResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return moduleTypeRegistry != null;
+        return moduleTypeRegistry != null && localeService != null;
     }
 
 }

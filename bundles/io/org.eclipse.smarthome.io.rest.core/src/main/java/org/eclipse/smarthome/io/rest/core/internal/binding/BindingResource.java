@@ -71,7 +71,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(BindingResource.PATH_BINDINGS)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = BindingResource.PATH_BINDINGS)
-@Component(service = { RESTResource.class, BindingResource.class })
+@Component
 public class BindingResource implements RESTResource {
 
     /** The URI path to this resource */
@@ -95,11 +95,11 @@ public class BindingResource implements RESTResource {
         this.bindingInfoRegistry = null;
     }
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setLocaleService(LocaleService localeService) {
         this.localeService = localeService;
     }
-    
+
     protected void unsetLocaleService(LocaleService localeService) {
         this.localeService = null;
     }
@@ -226,7 +226,8 @@ public class BindingResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return configurationService != null && configDescRegistry != null && bindingInfoRegistry != null;
+        return configurationService != null && configDescRegistry != null && bindingInfoRegistry != null
+                && localeService != null;
     }
 
 }

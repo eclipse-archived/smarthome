@@ -34,4 +34,12 @@
     <suppress files=".+org.eclipse.smarthome.binding.astro.handler.AstroThingHandler.java" checks="AvoidScheduleAtFixedRateCheck"/>
     <suppress files=".+org.eclipse.smarthome.binding.tradfri.internal.TradfriColor.java" checks="LocalVariableNameCheck"/>
     <suppress files=".+org.eclipse.smarthome.config.discovery.mdns.internal.MDNSDiscoveryService.java|.+org.eclipse.smarthome.config.discovery.upnp.internal.UpnpDiscoveryService.java|.+org.eclipse.smarthome.io.console.eclipse.internal.ConsoleSupportEclipse.java|.+org.eclipse.smarthome.io.console.rfc147.internal.CommandWrapper.java|.+org.eclipse.smarthome.binding.astro.internal.calc.MoonCalc.java|.+org.eclipse.smarthome.core.library.unit.MetricPrefix.java" checks="MethodNameCheck"/>
+
+	<!-- Add suppression as discussed in https://github.com/openhab/static-code-analysis/issues/265 -->
+	<suppress files=".+org.eclipse.smarthome.core.thing.binding.BaseThingHandler.java" checks="DeclarativeServicesDependencyInjectionCheck"/>
+	<suppress files=".+org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory.java" checks="DeclarativeServicesDependencyInjectionCheck"/>
+	<suppress files=".+org.eclipse.smarthome.automation.internal.commands.AbstractCommandProvider.java" checks="DeclarativeServicesDependencyInjectionCheck"/>
+	<suppress files=".+org.eclipse.smarthome.automation.sample.rest.api.internal.Activator.java" checks="DeclarativeServicesDependencyInjectionCheck"/>
+	<suppress files=".+org.eclipse.smarthome.core.common.registry.AbstractRegistry.java" checks="DeclarativeServicesDependencyInjectionCheck"/>
+	<suppress files=".+org.eclipse.smarthome.core.transform.AbstractFileTransformationService.java" checks="DeclarativeServicesDependencyInjectionCheck"/>
 </suppressions>

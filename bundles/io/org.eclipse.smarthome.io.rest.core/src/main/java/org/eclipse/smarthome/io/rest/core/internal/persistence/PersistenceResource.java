@@ -83,7 +83,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(PersistenceResource.PATH)
 @Api(value = PersistenceResource.PATH)
-@Component(service = { RESTResource.class, PersistenceResource.class })
+@Component
 public class PersistenceResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceResource.class);
@@ -110,7 +110,7 @@ public class PersistenceResource implements RESTResource {
         this.persistenceServiceRegistry = null;
     }
 
-    @Reference
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setTimeZoneProvider(TimeZoneProvider timeZoneProvider) {
         this.timeZoneProvider = timeZoneProvider;
     }
@@ -128,11 +128,11 @@ public class PersistenceResource implements RESTResource {
         this.itemRegistry = null;
     }
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setLocaleService(LocaleService localeService) {
         this.localeService = localeService;
     }
-    
+
     protected void unsetLocaleService(LocaleService localeService) {
         this.localeService = null;
     }
@@ -521,6 +521,7 @@ public class PersistenceResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return itemRegistry != null && persistenceServiceRegistry != null;
+        return itemRegistry != null && persistenceServiceRegistry != null && timeZoneProvider != null
+                && localeService != null;
     }
 }

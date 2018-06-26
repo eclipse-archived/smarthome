@@ -68,7 +68,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(ChannelTypeResource.PATH_CHANNEL_TYPES)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ChannelTypeResource.PATH_CHANNEL_TYPES)
-@Component(service = { RESTResource.class, ChannelTypeResource.class })
+@Component
 public class ChannelTypeResource implements RESTResource {
 
     /** The URI path to this resource */
@@ -108,11 +108,11 @@ public class ChannelTypeResource implements RESTResource {
         this.profileTypeRegistry = null;
     }
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setLocaleService(LocaleService localeService) {
         this.localeService = localeService;
     }
-    
+
     protected void unsetLocaleService(LocaleService localeService) {
         this.localeService = null;
     }
@@ -212,7 +212,8 @@ public class ChannelTypeResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return channelTypeRegistry != null && configDescriptionRegistry != null && profileTypeRegistry != null;
+        return channelTypeRegistry != null && configDescriptionRegistry != null && profileTypeRegistry != null
+                && localeService != null;
     }
 
 }

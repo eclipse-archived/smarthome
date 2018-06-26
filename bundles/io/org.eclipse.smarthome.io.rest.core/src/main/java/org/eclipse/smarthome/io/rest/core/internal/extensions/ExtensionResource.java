@@ -70,7 +70,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(ExtensionResource.PATH_EXTENSIONS)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ExtensionResource.PATH_EXTENSIONS)
-@Component(service = { RESTResource.class, ExtensionResource.class })
+@Component
 public class ExtensionResource implements RESTResource {
 
     private static final String THREAD_POOL_NAME = "extensionService";
@@ -103,11 +103,11 @@ public class ExtensionResource implements RESTResource {
         this.eventPublisher = null;
     }
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setLocaleService(LocaleService localeService) {
         this.localeService = localeService;
     }
-    
+
     protected void unsetLocaleService(LocaleService localeService) {
         this.localeService = null;
     }
@@ -219,7 +219,7 @@ public class ExtensionResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return !extensionServices.isEmpty();
+        return !extensionServices.isEmpty() && localeService != null;
     }
 
     private Stream<Extension> getAllExtensions(Locale locale) {

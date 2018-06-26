@@ -19,7 +19,6 @@ Import-Package:
  org.eclipse.smarthome.io.rest;resolution:=optional,
  org.eclipse.smarthome.ui.icon,
  org.osgi.framework,
- org.osgi.service.component.annotations,
  org.osgi.service.http,
  org.slf4j
 Service-Component: OSGI-INF/*.xml

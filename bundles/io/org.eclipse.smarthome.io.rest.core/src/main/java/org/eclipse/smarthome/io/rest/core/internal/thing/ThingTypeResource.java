@@ -78,7 +78,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(ThingTypeResource.PATH_THINGS_TYPES)
 @Api(value = ThingTypeResource.PATH_THINGS_TYPES)
-@Component(service = { RESTResource.class, ThingTypeResource.class })
+@Component
 public class ThingTypeResource implements RESTResource {
 
     /** The URI path to this resource */
@@ -119,11 +119,11 @@ public class ThingTypeResource implements RESTResource {
         this.channelTypeRegistry = null;
     }
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setLocaleService(LocaleService localeService) {
         this.localeService = localeService;
     }
-    
+
     protected void unsetLocaleService(LocaleService localeService) {
         this.localeService = null;
     }
@@ -272,6 +272,7 @@ public class ThingTypeResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return thingTypeRegistry != null && configDescriptionRegistry != null && channelTypeRegistry != null;
+        return thingTypeRegistry != null && configDescriptionRegistry != null && channelTypeRegistry != null
+                && localeService != null;
     }
 }

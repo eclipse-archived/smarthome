@@ -59,7 +59,6 @@ import io.swagger.annotations.ApiResponses;
 @Path(VoiceResource.PATH_SITEMAPS)
 @RolesAllowed({ Role.USER, Role.ADMIN })
 @Api(value = VoiceResource.PATH_SITEMAPS)
-@Component(immediate = true)
 public class VoiceResource implements RESTResource {
 
     static final String PATH_SITEMAPS = "voice";
@@ -79,7 +78,7 @@ public class VoiceResource implements RESTResource {
         this.voiceManager = null;
     }
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.STATIC)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setLocaleService(LocaleService localeService) {
         this.localeService = localeService;
     }
@@ -172,6 +171,6 @@ public class VoiceResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return voiceManager != null;
+        return voiceManager != null && localeService != null;
     }
 }

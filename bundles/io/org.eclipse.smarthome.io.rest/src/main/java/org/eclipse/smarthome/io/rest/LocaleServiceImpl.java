@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
 @Component
 public class LocaleServiceImpl implements LocaleService {
 
-    private static final Logger logger = LoggerFactory.getLogger(LocaleServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(LocaleServiceImpl.class);
 
-    private static LocaleProvider localeProvider;
+    private volatile LocaleProvider localeProvider;
 
     /**
      * Returns the locale in respect to the given "Accept-Language" HTTP header.
@@ -44,6 +44,7 @@ public class LocaleServiceImpl implements LocaleService {
      * @return Locale for the "Accept-Language" HTTP header or default locale if
      *         header is not set or can not be parsed.
      */
+    @Override
     public Locale getLocale(String acceptLanguageHttpHeader) {
         Locale locale = tryGetLocale();
         if (acceptLanguageHttpHeader != null) {

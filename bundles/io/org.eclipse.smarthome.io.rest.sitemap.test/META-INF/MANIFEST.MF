@@ -10,6 +10,7 @@ Fragment-Host: org.eclipse.smarthome.io.rest.sitemap
 Import-Package: 
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.test.java,
  org.hamcrest;core=split,
  org.hamcrest.collection,
  org.hamcrest.core,

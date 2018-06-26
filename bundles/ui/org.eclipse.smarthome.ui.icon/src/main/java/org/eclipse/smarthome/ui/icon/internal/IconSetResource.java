@@ -56,7 +56,7 @@ public class IconSetResource implements RESTResource {
         this.iconProviders.remove(iconProvider);
     }
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
+    @Reference
     protected void setLocaleService(LocaleService localeService) {
         this.localeService = localeService;
     }

@@ -31,9 +31,10 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.ui.icon.IconProvider;
 import org.eclipse.smarthome.ui.icon.IconSet.Format;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
@@ -65,7 +66,7 @@ public class IconServlet extends HttpServlet {
 
     private List<IconProvider> iconProvider = new ArrayList<>();
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.STATIC)
+    @Reference
     public void setHttpService(HttpService httpService) {
         this.httpService = httpService;
     }
@@ -99,6 +100,7 @@ public class IconServlet extends HttpServlet {
         modified(config);
     }
 
+    @Modified
     protected void modified(Map<String, Object> config) {
         Object iconSetId = config.get("default");
         if (iconSetId instanceof String) {

@@ -124,7 +124,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(ThingResource.PATH_THINGS)
 @Api(value = ThingResource.PATH_THINGS)
-@Component(service = { RESTResource.class, ThingResource.class })
+@Component
 public class ThingResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ThingResource.class);
@@ -152,11 +152,11 @@ public class ThingResource implements RESTResource {
     @Context
     private UriInfo uriInfo;
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setLocaleService(LocaleService localeService) {
         this.localeService = localeService;
     }
-    
+
     protected void unsetLocaleService(LocaleService localeService) {
         this.localeService = null;
     }
@@ -527,7 +527,8 @@ public class ThingResource implements RESTResource {
         ThingUID uid = thing.getUID();
         try {
             firmwareUpdateService.updateFirmware(uid, firmwareVersion, localeService.getLocale(language));
-        } catch (IllegalArgumentException | IllegalStateException ex) {            return JSONResponse.createResponse(Status.BAD_REQUEST, null,
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            return JSONResponse.createResponse(Status.BAD_REQUEST, null,
                     "Firmware update preconditions not satisfied.");
         }
 
@@ -566,7 +567,7 @@ public class ThingResource implements RESTResource {
                     uriInfo.getPath(), thingUID);
             return getThingNotFoundResponse(thingUID);
         }
-        Collection<Firmware> firmwares = firmwareRegistry.getFirmwares(thing, LocaleUtil.getLocale(language));
+        Collection<Firmware> firmwares = firmwareRegistry.getFirmwares(thing, localeService.getLocale(language));
 
         if (firmwares.isEmpty()) {
             return Response.status(Status.NO_CONTENT).build();
@@ -901,7 +902,7 @@ public class ThingResource implements RESTResource {
                 && managedItemChannelLinkProvider != null && managedItemProvider != null && managedThingProvider != null
                 && thingRegistry != null && configStatusService != null && configDescRegistry != null
                 && thingTypeRegistry != null && channelTypeRegistry != null && firmwareUpdateService != null
-                && thingStatusInfoI18nLocalizationService != null && firmwareRegistry != null;
+                && thingStatusInfoI18nLocalizationService != null && firmwareRegistry != null && localeService != null;
     }
 
 }

@@ -108,7 +108,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Chris Jackson
  * @author Yordan Zhelev - Added Swagger annotations
  */
-@Component(service = { SitemapResource.class, RESTResource.class })
+@Component(service = RESTResource.class)
 @Path(SitemapResource.PATH_SITEMAPS)
 @RolesAllowed({ Role.USER, Role.ADMIN })
 @Api(value = SitemapResource.PATH_SITEMAPS)
@@ -179,7 +179,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
         sitemapProviders.remove(provider);
     }
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.STATIC)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setLocaleService(LocaleService localeService) {
         this.localeService = localeService;
     }
@@ -781,7 +781,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
 
     @Override
     public boolean isSatisfied() {
-        return itemUIRegistry != null && subscriptions != null;
+        return itemUIRegistry != null && subscriptions != null && localeService != null;
     }
 
 }

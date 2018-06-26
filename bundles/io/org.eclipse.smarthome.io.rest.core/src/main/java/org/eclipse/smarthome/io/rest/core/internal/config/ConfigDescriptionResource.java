@@ -59,7 +59,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(ConfigDescriptionResource.PATH_CONFIG_DESCRIPTIONS)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ConfigDescriptionResource.PATH_CONFIG_DESCRIPTIONS)
-@Component(service = { RESTResource.class, ConfigDescriptionResource.class })
+@Component
 public class ConfigDescriptionResource implements RESTResource {
 
     /** The URI path to this resource */
@@ -69,11 +69,11 @@ public class ConfigDescriptionResource implements RESTResource {
 
     private LocaleService localeService;
 
-    @Reference(cardinality=ReferenceCardinality.MANDATORY, policy=ReferencePolicy.STATIC)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setLocaleService(LocaleService localeService) {
         this.localeService = localeService;
     }
-    
+
     protected void unsetLocaleService(LocaleService localeService) {
         this.localeService = null;
     }
@@ -118,7 +118,7 @@ public class ConfigDescriptionResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return configDescriptionRegistry != null;
+        return configDescriptionRegistry != null && localeService != null;
     }
 
 }

@@ -32,5 +32,6 @@ Import-Package:
  org.eclipse.smarthome.ui.items,
  org.glassfish.jersey.media.sse,
  org.glassfish.jersey.server,
- org.osgi.service.component.annotations, org.osgi.framework, org.slf4j
+ org.osgi.framework,
+ org.slf4j
 Service-Component: OSGI-INF/*.xml
