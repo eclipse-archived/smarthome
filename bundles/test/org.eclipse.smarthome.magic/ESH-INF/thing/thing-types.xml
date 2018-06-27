@@ -119,7 +119,7 @@
 		<config-description uri="thing-type:magic:chattyConfig">
 			<parameter name="interval" type="integer">
 				<label>Interval</label>
-				<description>Interval to send data.</description>
+				<description>Interval to send data in seconds. (Use 0 to disable data sending)</description>
 				<default>5</default>
 			</parameter>
 		</config-description>

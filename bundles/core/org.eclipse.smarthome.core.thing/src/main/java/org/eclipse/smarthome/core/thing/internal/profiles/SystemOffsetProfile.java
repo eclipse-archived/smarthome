@@ -75,12 +75,7 @@ public class SystemOffsetProfile implements StateProfile {
             }
         } else if (paramValue instanceof BigDecimal) {
             BigDecimal bd = (BigDecimal) paramValue;
-            try {
-                offset = new QuantityType<>(bd.toString());
-            } catch (IllegalArgumentException e) {
-                logger.error("Cannot convert value '{}' of parameter '{}' into a valid offset of type QuantityType.",
-                        paramValue, OFFSET_PARAM);
-            }
+            offset = new QuantityType<>(bd.toString());
         } else {
             logger.error("Parameter '{}' is not of type String or BigDecimal", OFFSET_PARAM);
         }
@@ -115,9 +110,9 @@ public class SystemOffsetProfile implements StateProfile {
     private Type applyOffset(Type state, boolean towardsItem) {
         QuantityType finalOffset = offset;
         if (finalOffset == null) {
-            logger.error(
+            logger.warn(
                     "Offset not configured correctly, please make sure it is of type QuantityType, e.g. \"3\", \"-1.4\", \"3.2°C\". Using offset 0 now.");
-            return new QuantityType<Dimensionless>("0");
+            finalOffset = new QuantityType<Dimensionless>("0");
         }
 
         if (!towardsItem) {

@@ -112,7 +112,7 @@ To do so, it can be configured in the `.items` file as follows:
 String <itemName> { channel="<channelUID>"[profile="transform:XSLT", function="<xsltExpression>", sourceFormat="<valueFormat>"]}
 ```
 
-The XSLT expression to be executed has to be set in the `function` parameter.
+The XSLT file (from within the `transform` folder) to be used has to be set in the `function` parameter.
 The parameter `sourceFormat` is optional and can be used to format the input value **before** the transformation, i.e. `%.3f`.
 If omitted the default is `%s`, so the input value will be put into the transformation without any format changes.
 

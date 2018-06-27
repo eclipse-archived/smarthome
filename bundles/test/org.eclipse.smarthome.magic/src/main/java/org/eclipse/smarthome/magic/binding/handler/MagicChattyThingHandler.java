@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,12 +24,15 @@ import java.util.stream.Stream;
 import javax.measure.quantity.Temperature;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -54,14 +58,40 @@ public class MagicChattyThingHandler extends BaseThingHandler {
     private final Set<ChannelUID> numberChannelUIDs = new HashSet<>();
     private final Set<ChannelUID> textChannelUIDs = new HashSet<>();
 
+    private BigDecimal interval = new BigDecimal(0);
+    private final Runnable chatRunnable;
+    private @Nullable ScheduledFuture<?> backgroundJob = null;
+
+    @Override
+    public void initialize() {
+        Configuration config = getConfig();
+        interval = (BigDecimal) config.get(PARAM_INTERVAL);
+
+        if (interval == null) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Interval not set");
+            return;
+        }
+
+        // do not start the chatting job if interval is 0, just set the thing to ONLINE
+        if (interval.intValue() > 0) {
+            backgroundJob = scheduler.scheduleWithFixedDelay(chatRunnable, START_DELAY, interval.intValue(),
+                    TimeUnit.SECONDS);
+        }
+
+        updateStatus(ThingStatus.ONLINE);
+    }
+
+    @Override
+    public void dispose() {
+        if (backgroundJob != null && !backgroundJob.isCancelled()) {
+            backgroundJob.cancel(true);
+        }
+    }
+
     public MagicChattyThingHandler(Thing thing) {
         super(thing);
 
-        Configuration config = getConfig();
-        BigDecimal interval = (BigDecimal) config.get(PARAM_INTERVAL);
-
-        Runnable command = new Runnable() {
-
+        chatRunnable = new Runnable() {
             @Override
             public void run() {
                 for (ChannelUID channelUID : numberChannelUIDs) {
@@ -85,7 +115,7 @@ public class MagicChattyThingHandler extends BaseThingHandler {
                 }
             }
         };
-        scheduler.scheduleWithFixedDelay(command, START_DELAY, interval.intValue(), TimeUnit.SECONDS);
+
     }
 
     @Override

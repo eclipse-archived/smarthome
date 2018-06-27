@@ -69,7 +69,7 @@ public class XPathTransformationProfile implements StateProfile {
             function = (String) paramFunction;
             sourceFormat = (String) paramSource;
         } else {
-            logger.warn("Parameter '{}' and '{}' have to be Strings. Profile will be inactive.", FUNCTION_PARAM,
+            logger.error("Parameter '{}' and '{}' have to be Strings. Profile will be inactive.", FUNCTION_PARAM,
                     SOURCE_FORMAT_PARAM);
             function = null;
             sourceFormat = null;
@@ -94,7 +94,7 @@ public class XPathTransformationProfile implements StateProfile {
     @Override
     public void onCommandFromHandler(Command command) {
         if (function == null || sourceFormat == null) {
-            logger.error(
+            logger.warn(
                     "Please specify a function and a source format for this Profile in the '{}', and '{}' parameters. Returning the original command now.",
                     FUNCTION_PARAM, SOURCE_FORMAT_PARAM);
             callback.sendCommand(command);
@@ -106,7 +106,7 @@ public class XPathTransformationProfile implements StateProfile {
     @Override
     public void onStateUpdateFromHandler(State state) {
         if (function == null || sourceFormat == null) {
-            logger.error(
+            logger.warn(
                     "Please specify a function and a source format for this Profile in the '{}' and '{}' parameters. Returning the original state now.",
                     FUNCTION_PARAM, SOURCE_FORMAT_PARAM);
             callback.sendUpdate(state);
@@ -120,7 +120,7 @@ public class XPathTransformationProfile implements StateProfile {
         try {
             result = TransformationHelper.transform(service, function, sourceFormat, state.toFullString());
         } catch (TransformationException e) {
-            logger.debug("Could not transform state '{}' with function '{}' and format '{}'", state, function,
+            logger.warn("Could not transform state '{}' with function '{}' and format '{}'", state, function,
                     sourceFormat);
         }
         StringType resultType = new StringType(result);

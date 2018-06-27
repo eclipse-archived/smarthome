@@ -15,9 +15,8 @@ package org.eclipse.smarthome.core.library.types;
 import static org.eclipse.jdt.annotation.DefaultLocation.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.IllegalFormatConversionException;
-import java.util.List;
 
 import javax.measure.Dimension;
 import javax.measure.IncommensurableException;
@@ -397,11 +396,8 @@ public class QuantityType<T extends Quantity<T>> extends Number
      * @return changed QuantityType by offset
      */
     public QuantityType<T> offset(QuantityType<T> offset, Unit<T> unit) {
-        List<Quantity<T>> list = new ArrayList<>();
-        list.add(quantity);
-        list.add(offset.quantity);
-
-        final Quantity<T> sum = list.stream().reduce(QuantityFunctions.sum(unit)).get();
+        final Quantity<T> sum = Arrays.asList(quantity, offset.quantity).stream().reduce(QuantityFunctions.sum(unit))
+                .get();
         return new QuantityType<T>(sum);
     }
 
