@@ -34,8 +34,11 @@ public class TransformationHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransformationHelper.class);
 
+    public static final String FUNCTION_VALUE_DELIMITER = ":";
+
     /* RegEx to extract and parse a function String <code>'(.*?)\((.*)\):(.*)'</code> */
-    protected static final Pattern EXTRACT_TRANSFORMFUNCTION_PATTERN = Pattern.compile("(.*?)\\((.*)\\):(.*)");
+    protected static final Pattern EXTRACT_TRANSFORMFUNCTION_PATTERN = Pattern
+            .compile("(.*?)\\((.*)\\)" + FUNCTION_VALUE_DELIMITER + "(.*)");
 
     /**
      * determines whether a pattern refers to a transformation service
@@ -94,19 +97,34 @@ public class TransformationHelper {
             String value = matcher.group(3);
             TransformationService transformation = TransformationHelper.getTransformationService(context, type);
             if (transformation != null) {
-                try {
-                    value = String.format(value, state);
-                    return transformation.transform(pattern, value);
-                } catch (IllegalFormatException e) {
-                    throw new TransformationException("Cannot format state '" + state + "' to format '" + value + "'",
-                            e);
-                }
+                return transform(transformation, pattern, value, state);
             } else {
                 throw new TransformationException("Couldn't transform value because transformation service of type '"
                         + type + "' is not available.");
             }
         } else {
             return state;
+        }
+    }
+
+    /**
+     * Transforms a state string using a transformation service
+     *
+     * @param service the {@link TransformationService} to be used
+     * @param function the function containing the transformation instruction
+     * @param format the format the state should be converted to before transformation
+     * @param state the state to be formatted before being passed into the transformation function
+     * @return the result of the transformation. If no transformation was done, <code>null</code> is returned
+     * @throws TransformationException if transformation service fails or the state cannot be formatted according to the
+     *                                 format
+     */
+    public static @Nullable String transform(TransformationService service, String function, String format,
+            String state) throws TransformationException {
+        try {
+            String value = String.format(format, state);
+            return service.transform(function, value);
+        } catch (IllegalFormatException e) {
+            throw new TransformationException("Cannot format state '" + state + "' to format '" + format + "'", e);
         }
     }
 

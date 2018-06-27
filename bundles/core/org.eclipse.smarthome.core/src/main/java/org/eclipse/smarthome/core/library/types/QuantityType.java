@@ -15,6 +15,7 @@ package org.eclipse.smarthome.core.library.types;
 import static org.eclipse.jdt.annotation.DefaultLocation.*;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.IllegalFormatConversionException;
 
 import javax.measure.Dimension;
@@ -36,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import tec.uom.se.AbstractUnit;
+import tec.uom.se.function.QuantityFunctions;
 import tec.uom.se.quantity.Quantities;
 
 /**
@@ -385,6 +387,18 @@ public class QuantityType<T extends Quantity<T>> extends Number
      */
     public QuantityType<?> divide(QuantityType<?> state) {
         return new QuantityType<>(this.quantity.divide(state.quantity));
+    }
+
+    /**
+     * Apply a given offset to this QuantityType
+     *
+     * @param offset the offset to apply
+     * @return changed QuantityType by offset
+     */
+    public QuantityType<T> offset(QuantityType<T> offset, Unit<T> unit) {
+        final Quantity<T> sum = Arrays.asList(quantity, offset.quantity).stream().reduce(QuantityFunctions.sum(unit))
+                .get();
+        return new QuantityType<T>(sum);
     }
 
 }

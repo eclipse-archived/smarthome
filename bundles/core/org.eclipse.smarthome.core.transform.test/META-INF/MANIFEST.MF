@@ -16,4 +16,7 @@ Import-Package:
  org.junit.rules,
  org.junit.runner,
  org.junit.runners,
+ org.mockito,
+ org.mockito.hamcrest,
+ org.mockito.stubbing,
  org.osgi.service.cm

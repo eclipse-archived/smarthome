@@ -28,6 +28,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
  * @author Pauli Anttila
  */
 @NonNullByDefault
+@Component(immediate = true, property = { "smarthome.transform=JS" })
 public class JavaScriptTransformationService implements TransformationService {
 
     /**
@@ -46,12 +48,10 @@ public class JavaScriptTransformationService implements TransformationService {
      * 'configurations/transform' folder. To organize the various
      * transformations one should use subfolders.
      *
-     * @param filename
-     *            the name of the file which contains the Java script
+     * @param filename the name of the file which contains the Java script
      *            transformation rule. Transformation service inject input
      *            (source) to 'input' variable.
-     * @param source
-     *            the input to transform
+     * @param source the input to transform
      */
     @Override
     public @Nullable String transform(String filename, String source) throws TransformationException {

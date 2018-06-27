@@ -103,6 +103,21 @@ Fri, 18 Dec 2009 9:38 am PST
 450
 ```
 
+## Usage as a Profile
+
+The functionality of this `TransformationService` can be used in a `Profile` on an `ItemChannelLink` too.
+To do so, it can be configured in the `.items` file as follows:
+
+```java
+String <itemName> { channel="<channelUID>"[profile="transform:XSLT", function="<xsltExpression>", sourceFormat="<valueFormat>"]}
+```
+
+The XSLT file (from within the `transform` folder) to be used has to be set in the `function` parameter.
+The parameter `sourceFormat` is optional and can be used to format the input value **before** the transformation, i.e. `%.3f`.
+If omitted the default is `%s`, so the input value will be put into the transformation without any format changes.
+
+Please note: This profile is a one-way transformation, i.e. only values from a device towards the item are changed, the other direction is left untouched.
+
 ## Further Reading
 
 * Extended introduction and more [examples](https://en.wikipedia.org/wiki/XSLT#XSLT_examples) at Wikipedia.

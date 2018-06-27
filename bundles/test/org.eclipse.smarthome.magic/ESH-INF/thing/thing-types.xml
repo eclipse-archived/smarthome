@@ -103,6 +103,28 @@
 		</channels>
 	</thing-type>
 
+	<thing-type id="chatty-thing">
+		<label>Magic ChattyThing</label>
+		<description>A thing that periodically sends data.</description>
+
+		<channels>
+			<channel id="number" typeId="number">
+				<label>Number to show</label>
+			</channel>
+			<channel id="text" typeId="text">
+				<label>Text to show</label>
+			</channel>
+		</channels>
+
+		<config-description uri="thing-type:magic:chattyConfig">
+			<parameter name="interval" type="integer">
+				<label>Interval</label>
+				<description>Interval to send data in seconds. (Use 0 to disable data sending)</description>
+				<default>5</default>
+			</parameter>
+		</config-description>
+	</thing-type>
+
 	<thing-type id="firmware-update">
 		<label>Magic Firmware Updatable Thing</label>
 		<description>A thing which allows updating its firmware</description>

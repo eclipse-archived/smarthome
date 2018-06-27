@@ -65,7 +65,7 @@
 		<label>Contact</label>
 		<state readOnly="true"></state>
 	</channel-type>
-	
+
 	<channel-type id="location">
 		<item-type>Location</item-type>
 		<label>Location</label>
@@ -74,6 +74,11 @@
 	<channel-type id="number">
 		<item-type>Number</item-type>
 		<label>Thing Online(&gt;0)/Offline(&lt;0) Delay</label>
+	</channel-type>
+
+	<channel-type id="text">
+		<item-type>String</item-type>
+		<label>Text channel</label>
 	</channel-type>
 
 	<channel-type id="temperature">
