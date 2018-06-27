@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  */
 @Component(configurationPid = "org.eclipse.smarthome.network", property = { "service.pid=org.eclipse.smarthome.network",
         "service.config.description.uri=system:network", "service.config.label=Network Settings",
-        "service.config.category=system", "service.config.network.poll.frequency=120" })
+        "service.config.category=system", "service.config.network.poll.frequency=60" })
 @NonNullByDefault
 public class NetUtil implements NetworkAddressService {
 
@@ -68,9 +68,9 @@ public class NetUtil implements NetworkAddressService {
     private static final Logger LOGGER = LoggerFactory.getLogger(NetUtil.class);
 
     /**
-     * Default network interface poll frequency 120 seconds.
+     * Default network interface poll frequency 60 seconds.
      */
-    public static final int POLL_DEFAULT_FREQUENCY_SECONDS = 120;
+    public static final int POLL_DEFAULT_FREQUENCY_SECONDS = 60;
 
     private static final Pattern IPV4_PATTERN = Pattern
             .compile("^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
@@ -78,8 +78,10 @@ public class NetUtil implements NetworkAddressService {
     private @Nullable String primaryAddress;
     private @Nullable String configuredBroadcastAddress;
 
+    // must be initialized before activate due to OSGI reference
+    private Set<NetworkAddressChangeListener> networkAddressChangeListeners = ConcurrentHashMap.newKeySet();
+
     private @Nullable Collection<CidrAddress> lastKnownInterfaceAddresses;
-    private @Nullable Set<NetworkAddressChangeListener> networkAddressChangeListeners;
     private @Nullable ScheduledExecutorService scheduledExecutorService = ThreadPoolManager
             .getScheduledPool(ThreadPoolManager.THREAD_POOL_NAME_COMMON);
     private @Nullable ScheduledFuture networkInterfacePollFuture = null;
@@ -89,7 +91,6 @@ public class NetUtil implements NetworkAddressService {
     @Activate
     protected void activate(Map<String, Object> props) {
         lastKnownInterfaceAddresses = Collections.emptyList();
-        networkAddressChangeListeners = ConcurrentHashMap.newKeySet();
         modified(props);
     }
 
@@ -558,10 +559,10 @@ public class NetUtil implements NetworkAddressService {
         List<CidrAddress> unmodifiableAddedList = Collections.unmodifiableList(added);
         List<CidrAddress> unmodifiableRemovedList = Collections.unmodifiableList(removed);
 
-        // notify each listener with a timeout of 5 seconds.
+        // notify each listener with a timeout of 15 seconds.
         // SafeCaller prevents bad listeners running too long or throws runtime exceptions
         networkAddressChangeListeners
-                .forEach(listener -> safeCaller.create(listener, NetworkAddressChangeListener.class).withTimeout(5000)
+                .forEach(listener -> safeCaller.create(listener, NetworkAddressChangeListener.class).withTimeout(15000)
                         .onException(exception -> LOGGER.debug("NetworkAddressChangeListener exception {}", exception))
                         .build().onChanged(unmodifiableAddedList, unmodifiableRemovedList));
     }
