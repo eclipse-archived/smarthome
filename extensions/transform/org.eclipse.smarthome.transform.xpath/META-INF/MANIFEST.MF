@@ -11,7 +11,11 @@ Import-Package:
  javax.xml.parsers,
  javax.xml.xpath,
  org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.thing.profiles,
  org.eclipse.smarthome.core.transform,
+ org.eclipse.smarthome.core.types,
  org.slf4j,
  org.w3c.dom,
  org.xml.sax

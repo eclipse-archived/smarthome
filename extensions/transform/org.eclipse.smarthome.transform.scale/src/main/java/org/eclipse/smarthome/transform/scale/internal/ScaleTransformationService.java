@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 import org.eclipse.smarthome.core.transform.AbstractFileTransformationService;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author Gaël L'hopital
  * @author Markus Rathgeb - drop usage of Guava
  */
+@Component(immediate = true, property = { "smarthome.transform=SCALE" })
 public class ScaleTransformationService extends AbstractFileTransformationService<Map<Range, String>> {
 
     private final Logger logger = LoggerFactory.getLogger(ScaleTransformationService.class);
@@ -82,10 +84,8 @@ public class ScaleTransformationService extends AbstractFileTransformationServic
      * The method transforms the input <code>source</code> by matching searching
      * the range where it fits i.e. [min..max]=value or ]min..max]=value
      *
-     * @param properties
-     *            the list of properties defining all the available ranges
-     * @param source
-     *            the input to transform
+     * @param properties the list of properties defining all the available ranges
+     * @param source the input to transform
      *
      */
     @Override

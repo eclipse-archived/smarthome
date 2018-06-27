@@ -19,6 +19,7 @@ import java.util.Properties;
 import org.eclipse.smarthome.core.transform.AbstractFileTransformationService;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Gaël L'hopital - Make it localizable
  */
+@Component(immediate = true, service = TransformationService.class, property = { "smarthome.transform=MAP" })
 public class MapTransformationService extends AbstractFileTransformationService<Properties> {
 
     private final Logger logger = LoggerFactory.getLogger(MapTransformationService.class);
@@ -39,10 +41,8 @@ public class MapTransformationService extends AbstractFileTransformationService<
      * a file which is stored under the 'configurations/transform' folder. This file should be in property syntax, i.e.
      * simple lines with "key=value" pairs. To organize the various transformations one might use subfolders.
      *
-     * @param properties
-     *            the list of properties which contains the key value pairs for the mapping.
-     * @param source
-     *            the input to transform
+     * @param properties the list of properties which contains the key value pairs for the mapping.
+     * @param source the input to transform
      */
     @Override
     protected String internalTransform(Properties properties, String source) throws TransformationException {

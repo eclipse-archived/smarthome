@@ -34,6 +34,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public interface TransformationService {
 
     public static final String TRANSFORM_FOLDER_NAME = "transform";
+    public static final String TRANSFORM_PROFILE_SCOPE = "transform";
 
     /**
      * Transforms the input <code>source</code> by means of the given <code>function</code> and returns the transformed

@@ -100,3 +100,14 @@ If one device should "follow" the actions of another device, the FollowProfile c
 ```java
 <itemType> <itemName> { channel="<channelUID>", channel="<followChannelUID>"[profile="follow"]"}
 ```
+
+### OffsetProfile
+
+The `OffsetProfile` provides the possibility to adjust a value from a device before it arrives at the framework.
+An offset can be specified via the parameter `offset` which has to be a `QuantityType` or `DecimalType`.
+A positive offset is the amount of change from the device towards the framework, i.e. all values from the device are increased by this offset and values sent to the device are decreased by this offset.
+A negative offset subtracts the offset from the value sent by the device to the framework and adds the offset to values sent from the framework to the device.
+
+```java
+Number <itemName> { channel="<bindingID>:<thing-typeID>:<thingName>:<channelName>"[profile="offset", offset="<value>"]}
+```

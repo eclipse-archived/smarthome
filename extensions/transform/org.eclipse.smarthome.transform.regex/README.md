@@ -83,6 +83,21 @@ To use a dot as litteral in the regex it has to be escape `\.`, but in a string 
 The first backslash escapes the second backslash in the string so it can be used in the regex.
 Using a backslash in a Regex as literal `\\` will have this form `"\\\\"`.
 
+## Usage as a Profile
+
+The functionality of this `TransformationService` can be used in a `Profile` on an `ItemChannelLink` too.
+To do so, it can be configured in the `.items` file as follows:
+
+```java
+String <itemName> { channel="<channelUID>"[profile="transform:REGEX", function="<regex>", sourceFormat="<valueFormat>"]}
+```
+
+The regular expression to be executed has to be set in the `function` parameter.
+The parameter `sourceFormat` is optional and can be used to format the input value **before** the transformation, i.e. `%.3f`.
+If omitted the default is `%s`, so the input value will be put into the transformation without any format changes.
+
+Please note: This profile is a one-way transformation, i.e. only values from a device towards the item are changed, the other direction is left untouched.
+
 ## Further Reading
 
 * A full [introduction](https://www.w3schools.com/jsref/jsref_obj_regexp.asp) for regular expression is available at W3School.
