@@ -94,10 +94,10 @@ public class QuantityType<T extends Quantity<T>> extends Number
     /**
      * Creates a new {@link QuantityType} with the given value and {@link Unit}.
      *
-     * @param value           the non null measurement value.
-     * @param unit            the non null measurement unit.
+     * @param value the non null measurement value.
+     * @param unit the non null measurement unit.
      * @param conversionUnits the optional unit map which is used to determine the {@link MeasurementSystem} specific
-     *                        unit for conversion.
+     *            unit for conversion.
      */
     public QuantityType(Number value, Unit<T> unit) {
         // Avoid scientific notation for double
@@ -118,7 +118,7 @@ public class QuantityType<T extends Quantity<T>> extends Number
      * Static access to {@link QuantityType#QuantityType(double, Unit)}.
      *
      * @param value the non null measurement value.
-     * @param unit  the non null measurement unit.
+     * @param unit the non null measurement unit.
      * @return a new {@link QuantityType}
      */
     public static <T extends Quantity<T>> QuantityType<T> valueOf(double value, Unit<T> unit) {

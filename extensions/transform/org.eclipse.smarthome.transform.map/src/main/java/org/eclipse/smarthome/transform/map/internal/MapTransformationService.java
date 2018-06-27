@@ -41,10 +41,8 @@ public class MapTransformationService extends AbstractFileTransformationService<
      * a file which is stored under the 'configurations/transform' folder. This file should be in property syntax, i.e.
      * simple lines with "key=value" pairs. To organize the various transformations one might use subfolders.
      *
-     * @param properties
-     *                   the list of properties which contains the key value pairs for the mapping.
-     * @param source
-     *                   the input to transform
+     * @param properties the list of properties which contains the key value pairs for the mapping.
+     * @param source the input to transform
      */
     @Override
     protected String internalTransform(Properties properties, String source) throws TransformationException {

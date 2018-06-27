@@ -42,7 +42,7 @@ public interface TransformationService {
      * output. In case of any error an {@link TransformationException} should be thrown.
      *
      * @param function the function to be used to transform the input
-     * @param source   the input to be transformed
+     * @param source the input to be transformed
      * @return the transformed result or <code>null</code> if the
      *         transformation's output is <code>null</code>.
      * @throws TransformationException if any error occurs

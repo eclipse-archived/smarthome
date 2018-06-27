@@ -50,11 +50,9 @@ public class XsltTransformationService implements TransformationService {
      * is stored under the 'configurations/transform' folder. To organize the
      * various transformations one should use subfolders.
      *
-     * @param filename
-     *                 the name of the file which contains the XSLT transformation rule.
-     *                 The name may contain subfoldernames as well
-     * @param source
-     *                 the input to transform
+     * @param filename the name of the file which contains the XSLT transformation rule.
+     *            The name may contain subfoldernames as well
+     * @param source the input to transform
      */
     @Override
     public @Nullable String transform(String filename, String source) throws TransformationException {

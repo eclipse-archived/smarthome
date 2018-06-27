@@ -48,12 +48,10 @@ public class JavaScriptTransformationService implements TransformationService {
      * 'configurations/transform' folder. To organize the various
      * transformations one should use subfolders.
      *
-     * @param filename
-     *                 the name of the file which contains the Java script
-     *                 transformation rule. Transformation service inject input
-     *                 (source) to 'input' variable.
-     * @param source
-     *                 the input to transform
+     * @param filename the name of the file which contains the Java script
+     *            transformation rule. Transformation service inject input
+     *            (source) to 'input' variable.
+     * @param source the input to transform
      */
     @Override
     public @Nullable String transform(String filename, String source) throws TransformationException {

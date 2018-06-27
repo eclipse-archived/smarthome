@@ -54,7 +54,7 @@ public class TransformationHelper {
      * Queries the OSGi service registry for a service that provides a transformation service of
      * a given transformation type (e.g. REGEX, XSLT, etc.)
      *
-     * @param context            the bundle context which can be null
+     * @param context the bundle context which can be null
      * @param transformationType the desired transformation type
      * @return a service instance or null, if none could be found
      */
@@ -82,9 +82,9 @@ public class TransformationHelper {
     /**
      * Transforms a state string using transformation functions within a given pattern.
      *
-     * @param context          a valid bundle context, required for accessing the services
+     * @param context a valid bundle context, required for accessing the services
      * @param stateDescPattern the pattern that contains the transformation instructions
-     * @param state            the state to be formatted before being passed into the transformation function
+     * @param state the state to be formatted before being passed into the transformation function
      * @return the result of the transformation. If no transformation was done, <code>null</code> is returned
      * @throws TransformationException if transformation service is not available or the transformation failed
      */
@@ -110,10 +110,10 @@ public class TransformationHelper {
     /**
      * Transforms a state string using a transformation service
      *
-     * @param service  the {@link TransformationService} to be used
+     * @param service the {@link TransformationService} to be used
      * @param function the function containing the transformation instruction
-     * @param format   the format the state should be converted to before transformation
-     * @param state    the state to be formatted before being passed into the transformation function
+     * @param format the format the state should be converted to before transformation
+     * @param state the state to be formatted before being passed into the transformation function
      * @return the result of the transformation. If no transformation was done, <code>null</code> is returned
      * @throws TransformationException if transformation service fails or the state cannot be formatted according to the
      *                                 format

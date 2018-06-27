@@ -38,7 +38,7 @@ public class ExecTransformationService implements TransformationService {
      *
      * @param commandLine the command to execute. Command line should contain %s string,
      *                    which will be replaced by the input data.
-     * @param source      the input to transform
+     * @param source the input to transform
      */
     @Override
     public @Nullable String transform(String commandLine, String source) throws TransformationException {
