@@ -17,11 +17,14 @@ import java.util.List;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
- * This is an interface that listens for the change of network address.
+ * This is an interface for listeners who wants to be notified for the change of network address.
  * There are only network address adds, and removes; it makes no effort to correlate
- * which existing network is changed.
+ * which existing network is changed. Listeners should register themselves
+ * with this interface as a service.
  *
- * @author Gary Tse
+ * @see NetUtil
+ *
+ * @author Gary Tse - Initial contribution
  */
 @NonNullByDefault
 public interface NetworkAddressChangeListener {

@@ -19,7 +19,6 @@ import org.eclipse.jdt.annotation.Nullable;
  * Interface that provides access to configured network addresses
  *
  * @author Stefan Triller - initial contribution
- * @author Gary Tse - Network address change listener
  *
  */
 @NonNullByDefault
@@ -43,18 +42,4 @@ public interface NetworkAddressService {
      */
     @Nullable
     String getConfiguredBroadcastAddress();
-
-    /**
-     * Add a listener that listens to change of network address of the network interfaces.
-     *
-     * @param listener
-     */
-    void addNetworkAddressChangeListener(NetworkAddressChangeListener listener);
-
-    /**
-     * Removes the listener to stop being notified about network address changes.
-     *
-     * @param listener
-     */
-    void removeNetworkAddressChangeListener(NetworkAddressChangeListener listener);
 }
