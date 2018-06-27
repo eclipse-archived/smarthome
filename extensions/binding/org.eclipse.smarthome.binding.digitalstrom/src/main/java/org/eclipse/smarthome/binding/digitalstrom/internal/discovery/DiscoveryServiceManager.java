@@ -231,9 +231,9 @@ public class DiscoveryServiceManager
     @Override
     public void configChanged(TemperatureControlStatus tempControlStatus) {
         // currently only this thing-type exists
-        if (discoveryServices.get(DigitalSTROMBindingConstants.THING_TYPE_ZONE_TEMERATURE_CONTROL) != null) {
+        if (discoveryServices.get(DigitalSTROMBindingConstants.THING_TYPE_ZONE_TEMERATURE_CONTROL.toString()) != null) {
             ((ZoneTemperatureControlDiscoveryService) discoveryServices
-                    .get(DigitalSTROMBindingConstants.THING_TYPE_ZONE_TEMERATURE_CONTROL))
+                    .get(DigitalSTROMBindingConstants.THING_TYPE_ZONE_TEMERATURE_CONTROL.toString()))
                             .configChanged(tempControlStatus);
         }
     }

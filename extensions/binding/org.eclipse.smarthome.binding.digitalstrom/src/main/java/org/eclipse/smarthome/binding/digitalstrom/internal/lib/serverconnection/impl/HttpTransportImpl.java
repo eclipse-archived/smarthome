@@ -43,7 +43,6 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.config.Config;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.ConnectionListener;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.ConnectionManager;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.HttpTransport;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.simpledsrequestbuilder.constants.ParameterKeys;
@@ -266,7 +265,8 @@ public class HttpTransportImpl implements HttpTransport {
                     }
                 }
                 connection.disconnect();
-                if (response == null && connectionManager != null && loginCounter <= MAY_A_NEW_SESSION_TOKEN_IS_NEEDED) {
+                if (response == null && connectionManager != null
+                        && loginCounter <= MAY_A_NEW_SESSION_TOKEN_IS_NEEDED) {
                     if (connection.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {
                         execute(addSessionToken(request, connectionManager.getNewSessionToken()), connectTimeout,
                                 readTimeout);

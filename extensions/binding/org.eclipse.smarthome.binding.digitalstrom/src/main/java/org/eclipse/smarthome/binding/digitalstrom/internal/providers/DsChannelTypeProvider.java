@@ -25,7 +25,6 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.Device;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.DeviceBinarayInputEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.FunctionalColorGroupEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceparameters.constants.MeteringTypeEnum;

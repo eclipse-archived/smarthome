@@ -103,8 +103,9 @@ public class ZoneTemperatureControlHandler extends BaseThingHandler implements T
     public void initialize() {
         logger.debug("Initializing DeviceHandler.");
         if (getConfig().get(DigitalSTROMBindingConstants.ZONE_ID) != null) {
-            if (getBridge() != null) {
-                bridgeStatusChanged(getBridge().getStatusInfo());
+            final Bridge bridge = getBridge();
+            if (bridge != null) {
+                bridgeStatusChanged(bridge.getStatusInfo());
             } else {
                 // Set status to OFFLINE, if no bridge is available e.g. because the bridge has been removed and the
                 // Thing was reinitialized.
@@ -270,7 +271,7 @@ public class ZoneTemperatureControlHandler extends BaseThingHandler implements T
 
     @Override
     public synchronized void configChanged(TemperatureControlStatus tempControlStatus) {
-        if (tempControlStatus != null && tempControlStatus.getIsConfigured()) {
+        if (tempControlStatus != null && tempControlStatus.isNotSetOff()) {
             ControlModes controlMode = ControlModes.getControlMode(tempControlStatus.getControlMode());
             ControlStates controlState = ControlStates.getControlState(tempControlStatus.getControlState());
             if (controlMode != null && controlState != null) {

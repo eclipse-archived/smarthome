@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.climate.jsonresponsecontainer;
 
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.climate.constants.ControlModes;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverconnection.constants.JSONApiResponseKeysEnum;
 
 import com.google.gson.JsonObject;
@@ -27,7 +28,6 @@ public abstract class BaseTemperatureControl extends BaseZoneIdentifier {
 
     protected String controlDSUID;
     protected Short controlMode;
-    protected Boolean isConfigured;
 
     /**
      * Creates a new {@link BaseTemperatureControl} through the {@link JsonObject} which will be returned by an zone
@@ -41,17 +41,7 @@ public abstract class BaseTemperatureControl extends BaseZoneIdentifier {
      */
     public BaseTemperatureControl(JsonObject jObject, Integer zoneID, String zoneName) {
         super(zoneID, zoneName);
-        if (jObject.get(JSONApiResponseKeysEnum.IS_CONFIGURED.getKey()) != null) {
-            this.isConfigured = jObject.get(JSONApiResponseKeysEnum.IS_CONFIGURED.getKey()).getAsBoolean();
-        }
-        if (isConfigured) {
-            if (jObject.get(JSONApiResponseKeysEnum.CONTROL_MODE.getKey()) != null) {
-                this.controlMode = jObject.get(JSONApiResponseKeysEnum.CONTROL_MODE.getKey()).getAsShort();
-            }
-            if (jObject.get(JSONApiResponseKeysEnum.CONTROL_DSUID.getKey()) != null) {
-                this.controlDSUID = jObject.get(JSONApiResponseKeysEnum.CONTROL_DSUID.getKey()).getAsString();
-            }
-        }
+        init(jObject);
     }
 
     /**
@@ -62,16 +52,15 @@ public abstract class BaseTemperatureControl extends BaseZoneIdentifier {
      */
     public BaseTemperatureControl(JsonObject jObject) {
         super(jObject);
-        if (jObject.get(JSONApiResponseKeysEnum.IS_CONFIGURED.getKey()) != null) {
-            this.isConfigured = jObject.get(JSONApiResponseKeysEnum.IS_CONFIGURED.getKey()).getAsBoolean();
+        init(jObject);
+    }
+
+    private void init(JsonObject jObject) {
+        if (jObject.get(JSONApiResponseKeysEnum.CONTROL_MODE.getKey()) != null) {
+            this.controlMode = jObject.get(JSONApiResponseKeysEnum.CONTROL_MODE.getKey()).getAsShort();
         }
-        if (isConfigured) {
-            if (jObject.get(JSONApiResponseKeysEnum.CONTROL_MODE.getKey()) != null) {
-                this.controlMode = jObject.get(JSONApiResponseKeysEnum.CONTROL_MODE.getKey()).getAsShort();
-            }
-            if (jObject.get(JSONApiResponseKeysEnum.CONTROL_DSUID.getKey()) != null) {
-                this.controlDSUID = jObject.get(JSONApiResponseKeysEnum.CONTROL_DSUID.getKey()).getAsString();
-            }
+        if (jObject.get(JSONApiResponseKeysEnum.CONTROL_DSUID.getKey()) != null) {
+            this.controlDSUID = jObject.get(JSONApiResponseKeysEnum.CONTROL_DSUID.getKey()).getAsString();
         }
     }
 
@@ -94,12 +83,13 @@ public abstract class BaseTemperatureControl extends BaseZoneIdentifier {
     }
 
     /**
-     * Returns true, if heating for this zone is configured, otherwise false.
+     * Returns true, if heating for this zone is not set off (set {@link ControlModes} = {@link ControlModes#OFF}),
+     * otherwise false.
      *
-     * @return the isConfigured
+     * @return true, if the set {@link ControlModes} is not {@link ControlModes#OFF}
      */
-    public Boolean getIsConfigured() {
-        return isConfigured;
+    public Boolean isNotSetOff() {
+        return !ControlModes.OFF.getID().equals(controlMode);
     }
 
 }
