@@ -29,4 +29,3 @@ Import-Package:
  org.osgi.util.tracker,
  org.slf4j
 Private-Package: org.eclipse.smarthome.binding.http.internal
-Service-Component: OSGI-INF/*.xml
