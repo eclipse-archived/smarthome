@@ -21,14 +21,22 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
@@ -41,16 +49,24 @@ import org.slf4j.LoggerFactory;
  * @author Markus Rathgeb - Initial contribution and API
  * @author Mark Herwege - Added methods to find broadcast address(es)
  * @author Stefan Triller - Converted to OSGi service with primary ipv4 conf
+ * @author Gary Tse - Network address change listener
  */
 @Component(configurationPid = "org.eclipse.smarthome.network", property = { "service.pid=org.eclipse.smarthome.network",
         "service.config.description.uri=system:network", "service.config.label=Network Settings",
-        "service.config.category=system" })
+        "service.config.category=system", "service.config.network.interface_poll.frequency_seconds=120" })
 @NonNullByDefault
 public class NetUtil implements NetworkAddressService {
 
     private static final String PRIMARY_ADDRESS = "primaryAddress";
     private static final String BROADCAST_ADDRESS = "broadcastAddress";
+    private static final String INTERFACE_POLL_FREQUENCY_SECONDS_KEY = "service.config.network.interface_poll.frequency_seconds";
+    private static final String THREAD_POOL_NAME = "common";
     private static final Logger LOGGER = LoggerFactory.getLogger(NetUtil.class);
+
+    /**
+     * Default network interface poll frequency 120 seconds.
+     */
+    public static final int INTERFACE_POLL_DEFAULT_FREQUENCY_SECONDS = 120;
 
     private static final Pattern IPV4_PATTERN = Pattern
             .compile("^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
@@ -58,9 +74,25 @@ public class NetUtil implements NetworkAddressService {
     private @Nullable String primaryAddress;
     private @Nullable String configuredBroadcastAddress;
 
+    private Collection<CidrAddress> lastKnownInterfaceAddresses = Collections.emptyList();
+    private Set<NetworkAddressChangeListener> networkAddressChangeListeners = ConcurrentHashMap.newKeySet();
+    private @Nullable ScheduledExecutorService scheduledExecutorService = ExpressionThreadPoolManager
+            .getScheduledPool(THREAD_POOL_NAME);
+    private @Nullable ScheduledFuture<Void> networkInterfacePollFuture = null;
+
     @Activate
     protected void activate(Map<String, Object> props) {
         modified(props);
+    }
+
+    protected void deactivate() {
+        lastKnownInterfaceAddresses = Collections.emptyList();
+        networkAddressChangeListeners = ConcurrentHashMap.newKeySet();
+
+        if (networkInterfacePollFuture != null) {
+            networkInterfacePollFuture.cancel(true);
+            scheduledExecutorService = null; // do not shut it down
+        }
     }
 
     @Modified
@@ -80,6 +112,8 @@ public class NetUtil implements NetworkAddressService {
         } else {
             configuredBroadcastAddress = broadcastAddressConf;
         }
+
+        scheduleToPollNetworkInterface(config);
     }
 
     @Override
@@ -455,6 +489,84 @@ public class NetUtil implements NetworkAddressService {
             return IPV4_PATTERN.matcher(ipAddress).matches();
         }
         return false;
+    }
+
+    private void scheduleToPollNetworkInterface(Map<String, Object> props) {
+
+        final NetUtil myself = this;
+        if (networkInterfacePollFuture != null) {
+            networkInterfacePollFuture.cancel(true);
+            networkInterfacePollFuture = null;
+        }
+
+        Runnable tempRunnable = new Runnable() {
+            @Override
+            public void run() {
+                myself.pollAndNotifyNetworkInterfaceAddress();
+            }
+        };
+
+        String pollFrequenceSecondsStr = "";
+        int pollFrequenceSeconds = INTERFACE_POLL_DEFAULT_FREQUENCY_SECONDS;
+        try {
+            pollFrequenceSecondsStr = (String) props.get(INTERFACE_POLL_FREQUENCY_SECONDS_KEY);
+            pollFrequenceSeconds = Integer.parseInt(pollFrequenceSecondsStr);
+        } catch (NumberFormatException e) {
+            LOGGER.debug("Cannot parse value {} from key {}, will use default {}", pollFrequenceSecondsStr,
+                    INTERFACE_POLL_FREQUENCY_SECONDS_KEY, INTERFACE_POLL_DEFAULT_FREQUENCY_SECONDS);
+        }
+        networkInterfacePollFuture = (ScheduledFuture<Void>) scheduledExecutorService
+                .scheduleWithFixedDelay(tempRunnable, 1, INTERFACE_POLL_DEFAULT_FREQUENCY_SECONDS, TimeUnit.SECONDS);
+    }
+
+    private void pollAndNotifyNetworkInterfaceAddress() {
+        Collection<CidrAddress> newInterfaceAddresses = getAllInterfaceAddresses();
+        if (networkAddressChangeListeners.isEmpty()) {
+            // no listeners listening, just update
+            lastKnownInterfaceAddresses = newInterfaceAddresses;
+            return;
+        }
+
+        // Look for added addresses to notify
+        List<CidrAddress> added = newInterfaceAddresses.stream()
+                .filter(newInterfaceAddr -> !lastKnownInterfaceAddresses.contains(newInterfaceAddr))
+                .collect(Collectors.toList());
+
+        // Look for removed addresses to notify
+        List<CidrAddress> removed = lastKnownInterfaceAddresses.stream()
+                .filter(lastKnownInterfaceAddr -> !newInterfaceAddresses.contains(lastKnownInterfaceAddr))
+                .collect(Collectors.toList());
+
+        lastKnownInterfaceAddresses = newInterfaceAddresses;
+
+        if (!added.isEmpty() || !removed.isEmpty()) {
+            notifyListeners(added, removed);
+        }
+    }
+
+    private void notifyListeners(List<CidrAddress> added, List<CidrAddress> removed) {
+        // Prevent listeners changing the list
+        List<CidrAddress> unmodifiableAddedList = Collections.unmodifiableList(added);
+        List<CidrAddress> unmodifiableRemovedList = Collections.unmodifiableList(removed);
+        networkAddressChangeListeners
+                .forEach(listener -> listener.onChanged(unmodifiableAddedList, unmodifiableRemovedList));
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The frequency of the network interface polling can be modified using the property
+     * service.config.network.interface_poll.frequency_seconds.
+     * The default is 120 seconds (every 2 minutes)
+     */
+    @Override
+    public void addNetworkAddressChangeListener(NetworkAddressChangeListener listener) {
+        networkAddressChangeListeners.add(listener);
+    }
+
+    @Override
+    public void removeNetworkAddressChangeListener(NetworkAddressChangeListener listener) {
+        networkAddressChangeListeners.remove(listener);
     }
 
 }
