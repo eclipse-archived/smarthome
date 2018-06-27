@@ -20,6 +20,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -537,6 +538,8 @@ public class NetUtil implements NetworkAddressService {
                 .filter(lastKnownInterfaceAddr -> !newInterfaceAddresses.contains(lastKnownInterfaceAddr))
                 .collect(Collectors.toList());
 
+        LOGGER.debug("detected {} new network interfaces: {}", added.size(), Arrays.deepToString(added.toArray()));
+        LOGGER.debug("removed {} network interfaces: {}", removed.size(), Arrays.deepToString(removed.toArray()));
         lastKnownInterfaceAddresses = newInterfaceAddresses;
 
         if (!added.isEmpty() || !removed.isEmpty()) {
