@@ -23,7 +23,6 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants;
 import org.eclipse.smarthome.binding.digitalstrom.handler.BridgeHandler;
-import org.eclipse.smarthome.binding.digitalstrom.handler.ZoneTemperatureControlHandler;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.climate.jsonresponsecontainer.impl.TemperatureControlStatus;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
@@ -96,7 +95,7 @@ public class ZoneTemperatureControlDiscoveryService extends AbstractDiscoverySer
         if (tempControlStatus == null) {
             return;
         }
-        if (tempControlStatus.getIsConfigured()) {
+        if (tempControlStatus.isNotSetOff()) {
             logger.debug("found configured zone TemperatureControlStatus = {}", tempControlStatus);
 
             ThingUID thingUID = getThingUID(tempControlStatus);

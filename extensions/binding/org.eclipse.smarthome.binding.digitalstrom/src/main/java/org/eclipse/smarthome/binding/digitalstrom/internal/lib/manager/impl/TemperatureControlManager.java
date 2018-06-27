@@ -252,13 +252,10 @@ public class TemperatureControlManager implements EventHandler, TemperatureContr
                 this.discovery = null;
                 return;
             }
-            if (temperatureControlStatusListener != null) {
-                temperatureControlStatusListener = zoneTemperationControlListenerMap
-                        .remove(temperatureControlStatusListener.getTemperationControlStatusListenrID());
-                if (discovery != null && temperatureControlStatusListener != null) {
-                    discovery.configChanged(temperationControlStatus
-                            .get(temperatureControlStatusListener.getTemperationControlStatusListenrID()));
-                }
+            if (discovery != null && zoneTemperationControlListenerMap
+                    .remove(temperatureControlStatusListener.getTemperationControlStatusListenrID()) != null) {
+                discovery.configChanged(temperationControlStatus
+                        .get(temperatureControlStatusListener.getTemperationControlStatusListenrID()));
             }
         }
     }
@@ -272,7 +269,7 @@ public class TemperatureControlManager implements EventHandler, TemperatureContr
      */
     public TemperatureControlStatus checkAndGetTemperatureControlStatus(Integer zoneID) {
         TemperatureControlStatus tempConStat = this.temperationControlStatus.get(zoneID);
-        if (tempConStat.getIsConfigured()) {
+        if (tempConStat.isNotSetOff()) {
             return tempConStat;
         }
         return null;
@@ -340,7 +337,7 @@ public class TemperatureControlManager implements EventHandler, TemperatureContr
     }
 
     private void addTemperatureControlStatus(TemperatureControlStatus temperationControlStatus) {
-        if (temperationControlStatus.getIsConfigured()) {
+        if (temperationControlStatus.isNotSetOff()) {
             if (this.temperationControlStatus == null) {
                 this.temperationControlStatus = new HashMap<Integer, TemperatureControlStatus>();
             }

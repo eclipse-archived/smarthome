@@ -52,7 +52,7 @@ public class TemperatureControlInternals extends BaseTemperatureControl {
      */
     public TemperatureControlInternals(JsonObject jObject, Integer zoneID, String zoneName) {
         super(jObject, zoneID, zoneName);
-        if (isConfigured) {
+        if (isNotSetOff()) {
             if (jObject.get(JSONApiResponseKeysEnum.CONTROL_STATE.getKey()) != null) {
                 this.controlState = jObject.get(JSONApiResponseKeysEnum.CONTROL_STATE.getKey()).getAsShort();
             }

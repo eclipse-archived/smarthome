@@ -981,13 +981,11 @@ public class DeviceImpl extends AbstractGeneralDeviceInformations implements Dev
         if (sensorType != null) {
             DeviceSensorValue devSenVal = getDeviceSensorValue(sensorType);
             if (devSenVal.getValid()) {
-                if (devSenVal != null) {
-                    int refresh = Config.DEFAULT_SENSORDATA_REFRESH_INTERVAL;
-                    if (config != null) {
-                        refresh = config.getSensordataRefreshInterval();
-                    }
-                    return (devSenVal.getTimestamp().getTime() + refresh) > System.currentTimeMillis();
+                int refresh = Config.DEFAULT_SENSORDATA_REFRESH_INTERVAL;
+                if (config != null) {
+                    refresh = config.getSensordataRefreshInterval();
                 }
+                return (devSenVal.getTimestamp().getTime() + refresh) > System.currentTimeMillis();
             }
         }
         return false;
@@ -1229,20 +1227,18 @@ public class DeviceImpl extends AbstractGeneralDeviceInformations implements Dev
     @Override
     public void setDeviceSensorByEvent(EventItem event) {
         DeviceSensorValue devSenVal = new DeviceSensorValue(event.getProperties());
-        if (devSenVal != null) {
-            SensorEnum sensorType = devSenVal.getSensorType();
-            if (!isEchoSensor(sensorType)) {
-                logger.debug("Event is no echo, set values {} for sensorType {}", devSenVal, devSenVal.getSensorType());
-                if (SensorEnum.isPowerSensor(sensorType) && getSensorDataReadingInitialized(sensorType)) {
-                    logger.debug("SensorJob was initialized, remove sensorjob for sensorType: {}",
-                            devSenVal.getSensorType());
-                    deviceStateUpdates.add(new DeviceStateUpdateImpl(sensorType, -1));
-                }
-                setDeviceSensorValue(devSenVal);
-            } else {
-                logger.debug("Event is echo remove sensorType {} from echoBox", devSenVal.getSensorType());
-                sensorEchoBox.remove(devSenVal.getSensorType());
+        SensorEnum sensorType = devSenVal.getSensorType();
+        if (!isEchoSensor(sensorType)) {
+            logger.debug("Event is no echo, set values {} for sensorType {}", devSenVal, devSenVal.getSensorType());
+            if (SensorEnum.isPowerSensor(sensorType) && getSensorDataReadingInitialized(sensorType)) {
+                logger.debug("SensorJob was initialized, remove sensorjob for sensorType: {}",
+                        devSenVal.getSensorType());
+                deviceStateUpdates.add(new DeviceStateUpdateImpl(sensorType, -1));
             }
+            setDeviceSensorValue(devSenVal);
+        } else {
+            logger.debug("Event is echo remove sensorType {} from echoBox", devSenVal.getSensorType());
+            sensorEchoBox.remove(devSenVal.getSensorType());
         }
     }
 
@@ -1514,111 +1510,118 @@ public class DeviceImpl extends AbstractGeneralDeviceInformations implements Dev
 
     @Override
     public synchronized void updateInternalDeviceState(DeviceStateUpdate deviceStateUpdate) {
-        if (deviceStateUpdate != null) {
-            logger.debug("internal set outputvalue");
-            switch (deviceStateUpdate.getType()) {
-                case DeviceStateUpdate.OUTPUT_DECREASE:
-                    deviceStateUpdate = new DeviceStateUpdateImpl(DeviceStateUpdate.OUTPUT_DECREASE,
-                            internalSetOutputValue(outputValue - getDimmStep()));
-                    break;
-                case DeviceStateUpdate.OUTPUT_INCREASE:
-                    deviceStateUpdate = new DeviceStateUpdateImpl(DeviceStateUpdate.OUTPUT_INCREASE,
-                            internalSetOutputValue(outputValue + getDimmStep()));
-                    break;
-                case DeviceStateUpdate.OUTPUT:
-                    internalSetOutputValue(deviceStateUpdate.getValueAsInteger());
-                    break;
-                case DeviceStateUpdate.ON_OFF:
-                    if (deviceStateUpdate.getValueAsInteger() < 0) {
-                        internalSetOutputValue(0);
-                    } else {
-                        internalSetOutputValue(maxOutputValue);
-                    }
-                    break;
-                case DeviceStateUpdate.OPEN_CLOSE:
-                    if (deviceStateUpdate.getValueAsInteger() < 0) {
-                        internalSetOutputValue(0);
-                    } else {
-                        internalSetOutputValue(maxSlatPosition);
-                    }
-                    break;
-                case DeviceStateUpdate.OPEN_CLOSE_ANGLE:
-                    if (deviceStateUpdate.getValueAsInteger() < 0) {
-                        internalSetAngleValue(0);
-                    } else {
-                        internalSetAngleValue(maxSlatAngle);
-                    }
-                    break;
-                case DeviceStateUpdate.SLAT_DECREASE:
-                    deviceStateUpdate = new DeviceStateUpdateImpl(DeviceStateUpdate.SLAT_DECREASE,
-                            internalSetOutputValue(slatPosition - getDimmStep()));
-                    break;
-                case DeviceStateUpdate.SLAT_INCREASE:
-                    deviceStateUpdate = new DeviceStateUpdateImpl(DeviceStateUpdate.SLAT_INCREASE,
-                            internalSetOutputValue(slatPosition + getDimmStep()));
-                case DeviceStateUpdate.SLATPOSITION:
-                    internalSetOutputValue(deviceStateUpdate.getValueAsInteger());
-                    break;
-                case DeviceStateUpdate.SLAT_ANGLE_DECREASE:
-                    deviceStateUpdate = new DeviceStateUpdateImpl(DeviceStateUpdate.SLAT_ANGLE_DECREASE,
-                            internalSetAngleValue(slatAngle - DeviceConstants.ANGLE_STEP_SLAT));
-                    break;
-                case DeviceStateUpdate.SLAT_ANGLE_INCREASE:
-                    deviceStateUpdate = new DeviceStateUpdateImpl(DeviceStateUpdate.SLAT_ANGLE_INCREASE,
-                            internalSetAngleValue(slatAngle + DeviceConstants.ANGLE_STEP_SLAT));
-                    break;
-                case DeviceStateUpdate.SLAT_ANGLE:
-                    internalSetAngleValue(deviceStateUpdate.getValueAsInteger());
-                    break;
-                case DeviceStateUpdate.UPDATE_CALL_SCENE:
-                    this.internalCallScene(deviceStateUpdate.getValueAsShort());
-                    return;
-                case DeviceStateUpdate.UPDATE_UNDO_SCENE:
-                    this.internalUndoScene();
-                    return;
-                default:
-                    if (deviceStateUpdate.isSensorUpdateType()) {
-                        SensorEnum sensorType = deviceStateUpdate.getTypeAsSensorEnum();
-                        setFloatSensorValue(sensorType, deviceStateUpdate.getValueAsFloat());
-                    }
-                    return;
-            }
+        DeviceStateUpdate deviceStateUpdateInt = internalSetOutputValue(deviceStateUpdate);
+        if (deviceStateUpdateInt != null) {
+            validateActiveScene();
+            informListenerAboutStateUpdate(deviceStateUpdate);
         }
-        if (activeScene != null) {
-            Integer[] sceneOutput = getStandartSceneOutput(activeScene.getSceneID());
-            if (sceneOutput == null) {
-                sceneOutput = sceneOutputMap.get(activeScene.getSceneID());
-            }
-            if (sceneOutput != null) {
-                boolean outputChanged = false;
-                if (isShade()) {
-                    if (isBlind() && sceneOutput[1] != slatAngle) {
-                        logger.debug("Scene output angle: {} setted output value {}", sceneOutput[1], slatAngle);
-                        outputChanged = true;
-                    }
-                    if (sceneOutput[0] != slatPosition) {
-                        logger.debug("Scene output value: {} setted output value {}", sceneOutput[0], slatPosition);
-                        outputChanged = true;
-                    }
-                } else {
-                    if (sceneOutput[0] != outputValue) {
-                        logger.debug("Scene output value: {} setted output value {}", sceneOutput[0], outputValue);
-                        outputChanged = true;
-                    }
-                }
-                if (outputChanged) {
-                    logger.debug("Device output from Device with dSID {} changed deactivate scene {}", dsid.getValue(),
-                            activeScene.getID());
-                    activeScene.deviceSceneChanged((short) -1);
-                    lastScene = null;
-                    activeScene = null;
-                }
+    }
 
-            } else {
-                lastScene = null;
-            }
+    private DeviceStateUpdate internalSetOutputValue(DeviceStateUpdate deviceStateUpdate) {
+        if (deviceStateUpdate == null) {
+            return null;
         }
-        informListenerAboutStateUpdate(deviceStateUpdate);
+        logger.debug("internal set outputvalue");
+        switch (deviceStateUpdate.getType()) {
+            case DeviceStateUpdate.OUTPUT_DECREASE:
+                return new DeviceStateUpdateImpl(DeviceStateUpdate.OUTPUT_DECREASE,
+                        internalSetOutputValue(outputValue - getDimmStep()));
+            case DeviceStateUpdate.OUTPUT_INCREASE:
+                return new DeviceStateUpdateImpl(DeviceStateUpdate.OUTPUT_INCREASE,
+                        internalSetOutputValue(outputValue + getDimmStep()));
+            case DeviceStateUpdate.OUTPUT:
+                internalSetOutputValue(deviceStateUpdate.getValueAsInteger());
+                break;
+            case DeviceStateUpdate.ON_OFF:
+                if (deviceStateUpdate.getValueAsInteger() < 0) {
+                    internalSetOutputValue(0);
+                } else {
+                    internalSetOutputValue(maxOutputValue);
+                }
+                break;
+            case DeviceStateUpdate.OPEN_CLOSE:
+                if (deviceStateUpdate.getValueAsInteger() < 0) {
+                    internalSetOutputValue(0);
+                } else {
+                    internalSetOutputValue(maxSlatPosition);
+                }
+                break;
+            case DeviceStateUpdate.OPEN_CLOSE_ANGLE:
+                if (deviceStateUpdate.getValueAsInteger() < 0) {
+                    internalSetAngleValue(0);
+                } else {
+                    internalSetAngleValue(maxSlatAngle);
+                }
+                break;
+            case DeviceStateUpdate.SLAT_DECREASE:
+                return new DeviceStateUpdateImpl(DeviceStateUpdate.SLAT_DECREASE,
+                        internalSetOutputValue(slatPosition - getDimmStep()));
+            case DeviceStateUpdate.SLAT_INCREASE:
+                return new DeviceStateUpdateImpl(DeviceStateUpdate.SLAT_INCREASE,
+                        internalSetOutputValue(slatPosition + getDimmStep()));
+            case DeviceStateUpdate.SLATPOSITION:
+                internalSetOutputValue(deviceStateUpdate.getValueAsInteger());
+                break;
+            case DeviceStateUpdate.SLAT_ANGLE_DECREASE:
+                return new DeviceStateUpdateImpl(DeviceStateUpdate.SLAT_ANGLE_DECREASE,
+                        internalSetAngleValue(slatAngle - DeviceConstants.ANGLE_STEP_SLAT));
+            case DeviceStateUpdate.SLAT_ANGLE_INCREASE:
+                return new DeviceStateUpdateImpl(DeviceStateUpdate.SLAT_ANGLE_INCREASE,
+                        internalSetAngleValue(slatAngle + DeviceConstants.ANGLE_STEP_SLAT));
+            case DeviceStateUpdate.SLAT_ANGLE:
+                internalSetAngleValue(deviceStateUpdate.getValueAsInteger());
+                break;
+            case DeviceStateUpdate.UPDATE_CALL_SCENE:
+                this.internalCallScene(deviceStateUpdate.getValueAsShort());
+                return null;
+            case DeviceStateUpdate.UPDATE_UNDO_SCENE:
+                this.internalUndoScene();
+                return null;
+            default:
+                if (deviceStateUpdate.isSensorUpdateType()) {
+                    SensorEnum sensorType = deviceStateUpdate.getTypeAsSensorEnum();
+                    setFloatSensorValue(sensorType, deviceStateUpdate.getValueAsFloat());
+                }
+                return null;
+        }
+        return deviceStateUpdate;
+    }
+
+    private void validateActiveScene() {
+        if (activeScene == null) {
+            return;
+        }
+        Integer[] sceneOutput = getStandartSceneOutput(activeScene.getSceneID());
+        if (sceneOutput == null) {
+            sceneOutput = sceneOutputMap.get(activeScene.getSceneID());
+        }
+        if (sceneOutput != null) {
+            boolean outputChanged = false;
+            if (isShade()) {
+                if (isBlind() && sceneOutput[1] != slatAngle) {
+                    logger.debug("Scene output angle: {} setted output value {}", sceneOutput[1], slatAngle);
+                    outputChanged = true;
+                }
+                if (sceneOutput[0] != slatPosition) {
+                    logger.debug("Scene output value: {} setted output value {}", sceneOutput[0], slatPosition);
+                    outputChanged = true;
+                }
+            } else {
+                if (sceneOutput[0] != outputValue) {
+                    logger.debug("Scene output value: {} setted output value {}", sceneOutput[0], outputValue);
+                    outputChanged = true;
+                }
+            }
+            if (outputChanged) {
+                logger.debug("Device output from Device with dSID {} changed deactivate scene {}", dsid.getValue(),
+                        activeScene.getID());
+                activeScene.deviceSceneChanged((short) -1);
+                lastScene = null;
+                activeScene = null;
+            }
+        } else {
+            lastScene = null;
+        }
     }
 
     @Override
@@ -1663,18 +1666,19 @@ public class DeviceImpl extends AbstractGeneralDeviceInformations implements Dev
      */
     private void informListenerAboutStateUpdate(DeviceStateUpdate deviceStateUpdate) {
         if (listener != null) {
-            if (isSwitch() && deviceStateUpdate.getType().equals(DeviceStateUpdate.OUTPUT)) {
-                if (deviceStateUpdate.getValueAsInteger() >= switchPercentOff) {
-                    deviceStateUpdate = new DeviceStateUpdateImpl(DeviceStateUpdate.ON_OFF, DeviceStateUpdate.ON_VALUE);
-                } else {
-                    deviceStateUpdate = new DeviceStateUpdateImpl(DeviceStateUpdate.ON_OFF,
-                            DeviceStateUpdate.OFF_VALUE);
-                }
-            }
-            logger.debug("Inform listener about device state changed: type: {}",
-                    deviceStateUpdate.getType() + ", value: " + deviceStateUpdate.getValue());
-            listener.onDeviceStateChanged(deviceStateUpdate);
+            listener.onDeviceStateChanged(correctDeviceStatusUpdate(deviceStateUpdate));
         }
+    }
+
+    private DeviceStateUpdate correctDeviceStatusUpdate(DeviceStateUpdate deviceStateUpdate) {
+        if (isSwitch() && deviceStateUpdate.getType().equals(DeviceStateUpdate.OUTPUT)) {
+            if (deviceStateUpdate.getValueAsInteger() >= switchPercentOff) {
+                return new DeviceStateUpdateImpl(DeviceStateUpdate.ON_OFF, DeviceStateUpdate.ON_VALUE);
+            } else {
+                return new DeviceStateUpdateImpl(DeviceStateUpdate.ON_OFF, DeviceStateUpdate.OFF_VALUE);
+            }
+        }
+        return deviceStateUpdate;
     }
 
     private void informListenerAboutConfigChange(ChangeableDeviceConfigEnum changedConfig) {

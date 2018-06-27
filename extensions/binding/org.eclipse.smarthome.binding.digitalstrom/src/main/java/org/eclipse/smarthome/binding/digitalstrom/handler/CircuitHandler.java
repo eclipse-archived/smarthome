@@ -80,8 +80,9 @@ public class CircuitHandler extends BaseThingHandler implements DeviceStatusList
         logger.debug("Initializing CircuitHandler.");
         if (StringUtils.isNotBlank((String) getConfig().get(DigitalSTROMBindingConstants.DEVICE_DSID))) {
             dSID = getConfig().get(DigitalSTROMBindingConstants.DEVICE_DSID).toString();
-            if (getBridge() != null) {
-                bridgeStatusChanged(getBridge().getStatusInfo());
+            final Bridge bridge = getBridge();
+            if (bridge != null) {
+                bridgeStatusChanged(bridge.getStatusInfo());
             } else {
                 // Set status to OFFLINE if no bridge is available e.g. because the bridge has been removed and the
                 // Thing was reinitialized.
@@ -187,7 +188,7 @@ public class CircuitHandler extends BaseThingHandler implements DeviceStatusList
         if (device instanceof Circuit) {
             this.circuit = null;
             if (this.getThing().getStatus().equals(ThingStatus.ONLINE)) {
-                if (device != null && !((Device) circuit).isPresent()) {
+                if (!((Device) circuit).isPresent()) {
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE,
                             "Circuit is not present in the digitalSTROM-System.");
                 } else {
