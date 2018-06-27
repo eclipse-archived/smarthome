@@ -47,9 +47,10 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution
  *
  */
-@Component(configurationPid = "org.eclipse.smarthome.threadpool")
+@Component(configurationPid = ThreadPoolManager.CONFIGURATION_PID)
 public class ThreadPoolManager {
 
+    public static final String CONFIGURATION_PID = "org.eclipse.smarthome.threadpool";
     private static final Logger LOGGER = LoggerFactory.getLogger(ThreadPoolManager.class);
 
     protected static final int DEFAULT_THREAD_POOL_SIZE = 5;
