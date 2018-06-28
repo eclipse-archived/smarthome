@@ -14,13 +14,12 @@ package org.eclipse.smarthome.config.discovery.usbserial.linuxsysfs.internal;
 
 import static java.util.Arrays.asList;
 import static org.eclipse.smarthome.config.discovery.usbserial.linuxsysfs.internal.PollingUsbSerialScanner.PAUSE_BETWEEN_SCANS_IN_SECONDS_ATTRIBUTE;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDeviceInformation;
@@ -28,10 +27,6 @@ import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDiscoveryListen
 import org.eclipse.smarthome.config.discovery.usbserial.testutil.UsbSerialDeviceInformationGenerator;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
 
 /**
  * Unit tests for the {@link PollingUsbSerialScanner}.
@@ -45,8 +40,6 @@ public class PollingUsbSerialScannerTest {
     private UsbSerialScanner usbSerialScanner;
     private PollingUsbSerialScanner pollingScanner;
     private UsbSerialDiscoveryListener discoveryListener;
-    private ConfigurationAdmin configAdmin;
-    private Configuration threadPoolManagerConfig;
 
     @Before
     public void setup() throws IOException {
@@ -60,12 +53,6 @@ public class PollingUsbSerialScannerTest {
         Map<String, Object> config = new HashMap<>();
         config.put(PAUSE_BETWEEN_SCANS_IN_SECONDS_ATTRIBUTE, "1");
         pollingScanner.modified(config);
-
-        configAdmin = mock(ConfigurationAdmin.class);
-        pollingScanner.setConfigAdmin(configAdmin);
-
-        threadPoolManagerConfig = mock(Configuration.class);
-        when(configAdmin.getConfiguration(anyString(), anyString())).thenReturn(threadPoolManagerConfig);
     }
 
     @Test
@@ -168,16 +155,6 @@ public class PollingUsbSerialScannerTest {
         // Expectation: discovery listener never called, as usbSerialScanner indicates that no scans possible
 
         verify(discoveryListener, never()).usbSerialDeviceDiscovered(any(UsbSerialDeviceInformation.class));
-    }
-
-    @Test
-    public void testScheduledThreadPoolSizeConfiguredToOneOnActivation() throws IOException {
-        pollingScanner.activate(new HashMap<>());
-
-        Hashtable<String, String> expectedConfig = new Hashtable<>();
-        expectedConfig.put("usb-serial-discovery-linux-sysfs", "1");
-        
-        Mockito.verify(threadPoolManagerConfig).update(ArgumentMatchers.eq(expectedConfig));
     }
 
 }
