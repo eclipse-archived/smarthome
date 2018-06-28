@@ -183,5 +183,3 @@ Examples:
 * milliAmpere - mA
 * centiMetre - cm
 * kiloWatt - kW
-
-Signed-off-by vzorglub@gmail.com
