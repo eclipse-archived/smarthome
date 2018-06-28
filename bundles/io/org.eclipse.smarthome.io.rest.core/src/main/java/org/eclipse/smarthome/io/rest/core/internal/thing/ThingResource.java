@@ -485,7 +485,7 @@ public class ThingResource implements RESTResource {
     public Response setEnabled(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID,
             @ApiParam(value = "enabled") String enabled) throws IOException {
-        final Locale locale = LocaleUtil.getLocale(language);
+        final Locale locale = localeService.getLocale(language);
 
         ThingUID thingUIDObject = new ThingUID(thingUID);
 
