@@ -149,6 +149,10 @@ angular.module('PaperUI.things') //
         return camelStr;
     }
 
+    $scope.getKeysArray = function(object) {
+        return Object.keys(object);
+    }
+
     $scope.unlinkChannel = function(channelID, itemName, event) {
         var channel = $scope.getChannelById(channelID);
         $mdDialog.show({
