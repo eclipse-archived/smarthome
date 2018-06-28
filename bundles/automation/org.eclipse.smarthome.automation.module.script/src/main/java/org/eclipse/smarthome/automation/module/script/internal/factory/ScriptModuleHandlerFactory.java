@@ -23,7 +23,7 @@ import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.module.script.ScriptEngineManager;
 import org.eclipse.smarthome.automation.module.script.internal.handler.ScriptActionHandler;
 import org.eclipse.smarthome.automation.module.script.internal.handler.ScriptConditionHandler;
-import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ScriptModuleHandlerFactory extends BaseModuleHandlerFactory {
 
-    private Logger logger = LoggerFactory.getLogger(ScriptModuleHandlerFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(ScriptModuleHandlerFactory.class);
 
     private ScriptEngineManager scriptEngineManager;
 
@@ -43,8 +43,9 @@ public class ScriptModuleHandlerFactory extends BaseModuleHandlerFactory {
             .asList(new String[] { ScriptActionHandler.SCRIPT_ACTION_ID, ScriptConditionHandler.SCRIPT_CONDITION });
 
     @Override
-    public void activate(BundleContext bundleContext) {
-        super.activate(bundleContext);
+    @Deactivate
+    protected void deactivate() {
+        super.deactivate();
     }
 
     @Override

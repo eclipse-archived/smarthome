@@ -150,7 +150,6 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         listeners.add(listener);
     }
 
-    @SuppressWarnings("null")
     @Override
     public Collection<@NonNull E> getAll() {
         return stream().collect(Collectors.toList());
@@ -291,23 +290,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
             provider.addProviderChangeListener(this);
             elementMap.put(provider, elements);
             for (E element : elementsOfProvider) {
-                try {
-                    K uid = element.getUID();
-                    E existingElement = get(uid);
-                    if (uid != null && existingElement != null) {
-                        logger.warn(
-                                "{} with key '{}' already exists from provider {}! Failed to bulk-add a second with the same UID from provider {}!",
-                                element.getClass().getSimpleName(), uid,
-                                getProvider(existingElement).getClass().getSimpleName(),
-                                provider.getClass().getSimpleName());
-                        continue;
-                    }
-                    onAddElement(element);
-                    elements.add(element);
-                    notifyListenersAboutAddedElement(element);
-                } catch (Exception ex) {
-                    logger.warn("Could not add element: {}", ex.getMessage(), ex);
-                }
+                added(provider, element);
             }
             logger.debug("Provider '{}' has been added.", provider.getClass().getName());
         }

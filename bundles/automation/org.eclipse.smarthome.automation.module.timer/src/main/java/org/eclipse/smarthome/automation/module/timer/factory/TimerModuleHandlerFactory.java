@@ -23,13 +23,13 @@ import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.module.timer.handler.DayOfWeekConditionHandler;
 import org.eclipse.smarthome.automation.module.timer.handler.GenericCronTriggerHandler;
 import org.eclipse.smarthome.automation.module.timer.handler.TimeOfDayTriggerHandler;
-import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This HandlerFactory creates TimerTriggerHandlers to control items within the
- * RuleEngine.
+ * RuleManager.
  *
  * @author Christoph Knauf - initial contribution
  * @author Kai Kreuzer - added new module types
@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TimerModuleHandlerFactory extends BaseModuleHandlerFactory {
 
-    private Logger logger = LoggerFactory.getLogger(TimerModuleHandlerFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(TimerModuleHandlerFactory.class);
 
     public static final String THREADPOOLNAME = "ruletimer";
     private static final Collection<String> TYPES = Arrays
@@ -45,8 +45,9 @@ public class TimerModuleHandlerFactory extends BaseModuleHandlerFactory {
                     DayOfWeekConditionHandler.MODULE_TYPE_ID });
 
     @Override
-    public void activate(BundleContext bundleContext) {
-        super.activate(bundleContext);
+    @Deactivate
+    public void deactivate() {
+        super.deactivate();
     }
 
     @Override

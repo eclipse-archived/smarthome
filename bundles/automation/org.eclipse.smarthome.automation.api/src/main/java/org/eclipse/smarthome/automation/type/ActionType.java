@@ -50,10 +50,11 @@ public class ActionType extends ModuleType {
      * This constructor is responsible to create an instance of {@link ActionType} with base properties - UID, a
      * {@link List} of configuration descriptions and a {@link List} of {@link Input} definitions.
      *
-     * @param UID the {@link ActionType}'s identifier, or {@code null} if a random identifier should be generated.
+     * @param UID                the {@link ActionType}'s identifier, or {@code null} if a random identifier should be
+     *                           generated.
      * @param configDescriptions describing metadata for the configuration of the future {@link Action} instances.
-     * @param inputs a {@link List} with {@link Input} meta-information descriptions of the future {@link Action}
-     *            instances.
+     * @param inputs             a {@link List} with {@link Input} meta-information descriptions of the future
+     *                           {@link Action} instances.
      */
     public ActionType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
             List<Input> inputs) {
@@ -65,12 +66,13 @@ public class ActionType extends ModuleType {
      * configuration descriptions, a {@link List} of {@link Input} definitions and a {@link List} of {@link Output}
      * descriptions.
      *
-     * @param UID the {@link ActionType}'s identifier, or {@code null} if a random identifier should be generated.
+     * @param UID                the {@link ActionType}'s identifier, or {@code null} if a random identifier should be
+     *                           generated.
      * @param configDescriptions describing metadata for the configuration of the future {@link Action} instances.
-     * @param inputs a {@link List} with {@link Input} meta-information descriptions of the future {@link Action}
-     *            instances.
-     * @param outputs a {@link List} with {@link Output} meta-information descriptions of the future {@link Action}
-     *            instances.
+     * @param inputs             a {@link List} with {@link Input} meta-information descriptions of the future
+     *                           {@link Action} instances.
+     * @param outputs            a {@link List} with {@link Output} meta-information descriptions of the future
+     *                           {@link Action} instances.
      */
     public ActionType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
             @Nullable List<Input> inputs, @Nullable List<Output> outputs) {
@@ -82,18 +84,19 @@ public class ActionType extends ModuleType {
      * {@link Set} of tags, visibility, a {@link List} of configuration descriptions, a {@link List} of {@link Input}
      * descriptions and a {@link List} of {@link Output} descriptions.
      *
-     * @param UID the {@link ActionType}'s identifier, or {@code null} if a random identifier should be generated.
+     * @param UID                the {@link ActionType}'s identifier, or {@code null} if a random identifier should be
+     *                           generated.
      * @param configDescriptions describing metadata for the configuration of the future {@link Action} instances.
-     * @param label is a short and accurate name of the {@link ActionType}.
-     * @param description is a short and understandable description of which can be used the {@link ActionType}.
-     * @param tags defines categories that fit the {@link ActionType} and which can serve as criteria for searching
-     *            or filtering it.
-     * @param visibility determines whether the {@link ActionType} can be used by anyone if it is
-     *            {@link Visibility#VISIBLE} or only by its creator if it is {@link Visibility#HIDDEN}.
-     * @param inputs a {@link List} with {@link Input} meta-information descriptions of the future {@link Action}
-     *            instances.
-     * @param outputs a {@link List} with {@link Output} meta-information descriptions of the future {@link Action}
-     *            instances.
+     * @param label              is a short and accurate name of the {@link ActionType}.
+     * @param description        is a short and understandable description of which can be used the {@link ActionType}.
+     * @param tags               defines categories that fit the {@link ActionType} and which can serve as criteria for
+     *                           searching or filtering it.
+     * @param visibility         determines whether the {@link ActionType} can be used by anyone if it is
+     *                           {@link Visibility#VISIBLE} or only by its creator if it is {@link Visibility#HIDDEN}.
+     * @param inputs             a {@link List} with {@link Input} meta-information descriptions of the future
+     *                           {@link Action} instances.
+     * @param outputs            a {@link List} with {@link Output} meta-information descriptions of the future
+     *                           {@link Action} instances.
      */
     public ActionType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
             @Nullable String label, @Nullable String description, @Nullable Set<String> tags,

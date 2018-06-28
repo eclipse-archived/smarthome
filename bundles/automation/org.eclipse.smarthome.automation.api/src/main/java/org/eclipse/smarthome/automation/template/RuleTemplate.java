@@ -93,22 +93,27 @@ public class RuleTemplate implements Template {
     private final List<ConfigDescriptionParameter> configDescriptions;
 
     /**
-     * This constructor creates a {@link RuleTemplate} instance that will be used for creating {@link Rule}s from a set
+     * This constructor creates a {@link RuleTemplate} instance that will be used for creating {@link Rule}s from a
+     * set
      * of modules, belong to the template. When {@code null} is passed for the {@code uid} parameter, the
      * {@link RuleTemplate}'s identifier will be randomly generated.
      *
-     * @param uid the {@link RuleTemplate}'s identifier, or {@code null} if a random identifier should be generated.
-     * @param label the short human-readable {@link RuleTemplate}'s label.
-     * @param description a detailed human-readable {@link RuleTemplate}'s description.
-     * @param tags the {@link RuleTemplate}'s assigned tags.
-     * @param triggers the {@link RuleTemplate}'s triggers list, or {@code null} if the {@link RuleTemplate} should have
-     *            no triggers.
-     * @param conditions the {@link RuleTemplate}'s conditions list, or {@code null} if the {@link RuleTemplate} should
-     *            have no conditions.
-     * @param actions the {@link RuleTemplate}'s actions list, or {@code null} if the {@link RuleTemplate} should have
-     *            no actions.
+     * @param uid                the {@link RuleTemplate}'s identifier, or {@code null} if a random identifier should be
+     *                           generated.
+     * @param label              the short human-readable {@link RuleTemplate}'s label.
+     * @param description        a detailed human-readable {@link RuleTemplate}'s description.
+     * @param tags               the {@link RuleTemplate}'s assigned tags.
+     * @param triggers           the {@link RuleTemplate}'s triggers list, or {@code null} if the {@link RuleTemplate}
+     *                           should have
+     *                           no triggers.
+     * @param conditions         the {@link RuleTemplate}'s conditions list, or {@code null} if the {@link RuleTemplate}
+     *                           should
+     *                           have no conditions.
+     * @param actions            the {@link RuleTemplate}'s actions list, or {@code null} if the {@link RuleTemplate}
+     *                           should have
+     *                           no actions.
      * @param configDescriptions describing metadata for the configuration of the future {@link Rule} instances.
-     * @param visibility the {@link RuleTemplate}'s visibility.
+     * @param visibility         the {@link RuleTemplate}'s visibility.
      */
     public RuleTemplate(@Nullable String UID, @Nullable String label, @Nullable String description,
             @Nullable Set<String> tags, @Nullable List<Trigger> triggers, @Nullable List<Condition> conditions,
@@ -206,7 +211,7 @@ public class RuleTemplate implements Template {
      * This method is used to obtain the modules of the {@link RuleTemplate}, corresponding to the specified class.
      *
      * @param moduleClazz defines the class of the looking modules. It can be {@link Module}, {@link Trigger},
-     *            {@link Condition} or {@link Action}.
+     *                    {@link Condition} or {@link Action}.
      * @return the modules of defined type or empty list if the {@link RuleTemplate} has no modules that belong to the
      *         specified type.
      */
@@ -214,7 +219,7 @@ public class RuleTemplate implements Template {
     public <T extends Module> List<T> getModules(Class<T> moduleClazz) {
         final List<T> result;
         if (Module.class == moduleClazz) {
-            List<Module> modules = new ArrayList<Module>();
+            List<Module> modules = new ArrayList<>();
             modules.addAll(triggers);
             modules.addAll(conditions);
             modules.addAll(actions);

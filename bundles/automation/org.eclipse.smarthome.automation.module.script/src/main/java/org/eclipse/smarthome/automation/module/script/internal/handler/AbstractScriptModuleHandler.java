@@ -47,13 +47,13 @@ public abstract class AbstractScriptModuleHandler<T extends Module> extends Base
 
     protected ScriptEngineManager scriptEngineManager;
 
-    private String engineIdentifier;
+    private final String engineIdentifier;
 
     private Optional<ScriptEngine> scriptEngine = Optional.empty();
     private String type;
     protected String script;
 
-    private String ruleUID;
+    private final String ruleUID;
 
     public AbstractScriptModuleHandler(T module, String ruleUID, ScriptEngineManager scriptEngineManager) {
         super(module);

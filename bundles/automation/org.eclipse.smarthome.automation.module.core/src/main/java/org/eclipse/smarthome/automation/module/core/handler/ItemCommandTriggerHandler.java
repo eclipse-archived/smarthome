@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
+import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventSubscriber;
@@ -43,12 +44,12 @@ public class ItemCommandTriggerHandler extends BaseTriggerModuleHandler implemen
 
     private final Logger logger = LoggerFactory.getLogger(ItemCommandTriggerHandler.class);
 
-    private String itemName;
-    private String command;
-    private String topic;
+    private final String itemName;
+    private final String command;
+    private final String topic;
 
-    private Set<String> types;
-    private BundleContext bundleContext;
+    private final Set<String> types;
+    private final BundleContext bundleContext;
 
     public static final String MODULE_TYPE_ID = "core.ItemCommandTrigger";
 
@@ -83,7 +84,7 @@ public class ItemCommandTriggerHandler extends BaseTriggerModuleHandler implemen
 
     @Override
     public void receive(Event event) {
-        if (ruleEngineCallback != null) {
+        if (callback != null) {
             logger.trace("Received Event: Source: {} Topic: {} Type: {}  Payload: {}", event.getSource(),
                     event.getTopic(), event.getType(), event.getPayload());
             Map<String, Object> values = new HashMap<>();
@@ -92,7 +93,7 @@ public class ItemCommandTriggerHandler extends BaseTriggerModuleHandler implemen
                 if (this.command == null || this.command.equals(command.toFullString())) {
                     values.put("command", command);
                     values.put("event", event);
-                    ruleEngineCallback.triggered(this.module, values);
+                    ((TriggerHandlerCallback) callback).triggered(this.module, values);
                 }
             }
         }

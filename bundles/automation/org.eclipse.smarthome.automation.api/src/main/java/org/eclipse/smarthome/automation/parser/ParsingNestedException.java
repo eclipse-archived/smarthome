@@ -28,21 +28,21 @@ public class ParsingNestedException extends Exception {
     /**
      * This field keeps information about the UID of the automation object for parsing - module type, template or rule.
      */
-    private String id;
+    private final String id;
 
     /**
      * This field keeps information about the type of the automation object for parsing - module type, template or rule.
      */
-    private int type;
+    private final int type;
 
     /**
      * This constructor creates an exception based on exception thrown the parsing plus information about the type of
      * the automation object, its UID and additional message with additional information about the parsing process.
      *
      * @param type is the type of the automation object for parsing.
-     * @param id is the UID of the automation object for parsing.
-     * @param msg is the additional message with additional information about the parsing process.
-     * @param t is the exception thrown during the parsing.
+     * @param id   is the UID of the automation object for parsing.
+     * @param msg  is the additional message with additional information about the parsing process.
+     * @param t    is the exception thrown during the parsing.
      */
     public ParsingNestedException(int type, String id, String msg, Throwable t) {
         super(msg, t);
@@ -55,8 +55,8 @@ public class ParsingNestedException extends Exception {
      * type of the automation object and its UID.
      *
      * @param type is the type of the automation object for parsing.
-     * @param id is the UID of the automation object for parsing.
-     * @param t is the exception thrown during the parsing.
+     * @param id   is the UID of the automation object for parsing.
+     * @param t    is the exception thrown during the parsing.
      */
     public ParsingNestedException(int type, String id, Throwable t) {
         super(t);
@@ -80,8 +80,9 @@ public class ParsingNestedException extends Exception {
             default:
                 break;
         }
-        if (id != null)
+        if (id != null) {
             sb.append(" " + id);
+        }
         sb.append("] " + super.getMessage());
         return sb.toString();
     }

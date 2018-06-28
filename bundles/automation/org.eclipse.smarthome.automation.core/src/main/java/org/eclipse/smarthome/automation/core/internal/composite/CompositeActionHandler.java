@@ -21,7 +21,7 @@ import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
 import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.core.internal.ReferenceResolverUtil;
+import org.eclipse.smarthome.automation.core.util.ReferenceResolver;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.type.CompositeActionType;
 import org.eclipse.smarthome.automation.type.Output;
@@ -40,7 +40,7 @@ public class CompositeActionHandler extends AbstractCompositeModuleHandler<Actio
 
     public static final String REFERENCE = "reference";
 
-    private Map<String, Output> compositeOutputs;
+    private final Map<String, Output> compositeOutputs;
 
     /**
      * Create a system handler for modules of {@link CompositeActionType} type.
@@ -78,8 +78,8 @@ public class CompositeActionHandler extends AbstractCompositeModuleHandler<Actio
                         String childOuputRef = output.getReference();
                         if (childOuputRef != null && childOuputRef.length() > childOuputName.length()) {
                             childOuputRef = childOuputRef.substring(childOuputName.length());
-                            result.put(output.getName(),
-                                    ReferenceResolverUtil.getValue(childResult.getValue(), childOuputRef));
+                            result.put(output.getName(), ReferenceResolver
+                                    .resolveComplexDataReference(childResult.getValue(), childOuputRef));
                         } else {
                             result.put(output.getName(), childResult.getValue());
                         }
@@ -110,7 +110,7 @@ public class CompositeActionHandler extends AbstractCompositeModuleHandler<Actio
                         ref = st.nextToken().trim();
                         int i = ref.indexOf('.');
                         if (i != -1) {
-                            int j = ReferenceResolverUtil.getNextRefToken(ref, i + 1);
+                            int j = ReferenceResolver.getNextRefToken(ref, i + 1);
                             if (j != -1) {
                                 ref = ref.substring(0, j);
                             }
@@ -127,5 +127,4 @@ public class CompositeActionHandler extends AbstractCompositeModuleHandler<Actio
     protected List<Action> getChildren() {
         return moduleType.getChildren();
     }
-
 }

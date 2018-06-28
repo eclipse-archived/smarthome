@@ -18,7 +18,7 @@ import org.eclipse.smarthome.automation.Condition;
 
 /**
  * This interface is implemented by external modules, which are called by the
- * RuleEngine, when it has to check if the {@link Condition} is satisfied or
+ * RuleManager, when it has to check if the {@link Condition} is satisfied or
  * not.
  *
  * @author Yordan Mihaylov - Initial Contribution
@@ -31,7 +31,7 @@ public interface ConditionHandler extends ModuleHandler {
      * Method that states if the Condition is satisfied or not
      *
      * @param context is an unmodifiable map containing condition input values and snapshot of trigger output
-     *            values. The output ids are defined in form: ModuleId.outputId.
+     *                values. The output ids are defined in form: ModuleId.outputId.
      * @return true if Condition is satisfied, false otherwise
      */
     public boolean isSatisfied(Map<String, Object> context);

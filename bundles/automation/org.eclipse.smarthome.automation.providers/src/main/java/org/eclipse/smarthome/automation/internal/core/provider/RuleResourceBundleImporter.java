@@ -20,13 +20,14 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.ManagedRuleProvider;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.core.ManagedRuleProvider;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.osgi.framework.Bundle;
 
 /**
- * This class is implementation of {@link RuleResourceBundleImporter}. It serves for providing {@link Rule}s by loading
+ * This class is implementation of {@link RuleResourceBundleImporter}. It serves for providing {@link Rule}s by
+ * loading
  * bundle resources. It extends functionality of {@link AbstractResourceBundleProvider} by specifying:
  * <ul>
  * <li>the path to resources, corresponding to the {@link Rule}s - root directory

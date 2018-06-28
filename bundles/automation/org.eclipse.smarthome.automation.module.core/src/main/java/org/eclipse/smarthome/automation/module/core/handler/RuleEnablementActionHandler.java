@@ -39,7 +39,8 @@ import org.slf4j.LoggerFactory;
  * }
  * </pre>
  *
- * @author Plamen Peev
+ * @author Plamen Peev - Initial contribution and API
+ * @author Kai Kreuzer - use rule engine instead of registry
  *
  */
 public class RuleEnablementActionHandler extends BaseModuleHandler<Action> implements ActionHandler {
@@ -74,18 +75,10 @@ public class RuleEnablementActionHandler extends BaseModuleHandler<Action> imple
      */
     private final boolean enable;
 
-    /**
-     * Reference to {@link RuleRegistry} service that will be used to enable and disable rules.
-     */
-    private RuleRegistry ruleRegistry;
-
     @SuppressWarnings("unchecked")
-    public RuleEnablementActionHandler(final Action module, final RuleRegistry ruleRegistry) {
+    public RuleEnablementActionHandler(final Action module) {
         super(module);
         final Configuration config = module.getConfiguration();
-        if (config == null) {
-            throw new IllegalArgumentException("'Configuration' can not be null.");
-        }
 
         final Boolean enable = (Boolean) config.get(ENABLE_KEY);
         if (enable == null) {
@@ -97,17 +90,15 @@ public class RuleEnablementActionHandler extends BaseModuleHandler<Action> imple
         if (UIDs == null) {
             throw new IllegalArgumentException("'ruleUIDs' property can not be null.");
         }
-
-        this.ruleRegistry = ruleRegistry;
     }
 
     @Override
     public Map<String, Object> execute(Map<String, Object> context) {
         for (String uid : UIDs) {
-            if (ruleRegistry != null) {
-                ruleRegistry.setEnabled(uid, enable);
+            if (callback != null) {
+                callback.setEnabled(uid, enable);
             } else {
-                logger.warn("Action is not applyed to {} because RuleRegistry is not available.", uid);
+                logger.warn("Action is not applied to {} because rule engine is not available.", uid);
             }
         }
         return null;

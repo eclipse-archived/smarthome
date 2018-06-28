@@ -18,10 +18,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.automation.ModuleHandlerCallback;
+import org.eclipse.smarthome.automation.RuleStatus;
+import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.internal.ReferenceResolverUtil;
-import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
+import org.eclipse.smarthome.automation.core.util.ReferenceResolver;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
+import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 import org.eclipse.smarthome.automation.type.CompositeTriggerType;
 import org.eclipse.smarthome.automation.type.Output;
 
@@ -36,9 +40,9 @@ import org.eclipse.smarthome.automation.type.Output;
  */
 public class CompositeTriggerHandler
         extends AbstractCompositeModuleHandler<Trigger, CompositeTriggerType, TriggerHandler>
-        implements TriggerHandler, RuleEngineCallback {
+        implements TriggerHandler, TriggerHandlerCallback {
 
-    private RuleEngineCallback ruleCallback;
+    private TriggerHandlerCallback callback;
 
     /**
      * Constructor of this system handler.
@@ -60,12 +64,12 @@ public class CompositeTriggerHandler
      * case the method will try to fill the output value in sequence defined in the reference value. The letter
      * reference can be overwritten by the previous ones.
      *
-     * @see org.eclipse.smarthome.automation.handler.RuleEngineCallback#triggered(org.eclipse.smarthome.automation.Trigger,
+     * @see org.eclipse.smarthome.automation.handler.TriggerHandlerCallback#triggered(org.eclipse.smarthome.automation.Trigger,
      *      java.util.Map)
      */
     @Override
     public void triggered(Trigger trigger, Map<String, ?> context) {
-        if (ruleCallback != null) {
+        if (callback != null) {
             List<Output> outputs = moduleType.getOutputs();
             Map<String, Object> result = new HashMap<String, Object>(11);
             for (Output output : outputs) {
@@ -83,10 +87,11 @@ public class CompositeTriggerHandler
                             }
                         }
                         Object value = null;
-                        int idx = ReferenceResolverUtil.getNextRefToken(ref, 1);
+                        int idx = ReferenceResolver.getNextRefToken(ref, 1);
                         if (idx < ref.length()) {
                             String outputId = ref.substring(0, idx);
-                            value = ReferenceResolverUtil.getValue(context.get(outputId), ref.substring(idx + 1));
+                            value = ReferenceResolver.resolveComplexDataReference(context.get(outputId),
+                                    ref.substring(idx + 1));
                         } else {
                             value = context.get(ref);
                         }
@@ -96,7 +101,7 @@ public class CompositeTriggerHandler
                     }
                 }
             }
-            ruleCallback.triggered(module, result);
+            callback.triggered(module, result);
         }
     }
 
@@ -105,29 +110,60 @@ public class CompositeTriggerHandler
      * rule engine. In this way the trigger of composite type will be notified always when some of the child triggers
      * are triggered and has an opportunity to set the outputs of parent trigger to the rule context.
      *
-     * @see org.eclipse.smarthome.automation.handler.TriggerHandler#setRuleEngineCallback(org.eclipse.smarthome.automation.handler.RuleEngineCallback)
+     * @see org.eclipse.smarthome.automation.handler.TriggerHandler#setTriggerHandlerCallback(org.eclipse.smarthome.automation.handler.TriggerHandlerCallback)
      */
     @Override
-    public void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
-        this.ruleCallback = ruleCallback;
-        if (ruleCallback != null) {// could be called with 'null' from dispose
+    public void setCallback(@Nullable ModuleHandlerCallback callback) {
+        this.callback = (TriggerHandlerCallback) callback;
+        if (callback instanceof TriggerHandlerCallback) {// could be called with 'null' from dispose and might not be a
+                                                         // trigger callback
             List<Trigger> children = getChildren();
             for (Trigger child : children) {
                 TriggerHandler handler = moduleHandlerMap.get(child);
-                handler.setRuleEngineCallback(this);
+                handler.setCallback(this);
             }
         }
     }
 
     @Override
     public void dispose() {
-        setRuleEngineCallback(null);
+        setCallback(null);
         super.dispose();
     }
 
     @Override
     protected List<Trigger> getChildren() {
         return moduleType.getChildren();
+    }
+
+    @Override
+    public Boolean isEnabled(String ruleUID) {
+        return callback.isEnabled(ruleUID);
+    }
+
+    @Override
+    public void setEnabled(String uid, boolean isEnabled) {
+        callback.setEnabled(uid, isEnabled);
+    }
+
+    @Override
+    public RuleStatusInfo getStatusInfo(String ruleUID) {
+        return callback.getStatusInfo(ruleUID);
+    }
+
+    @Override
+    public RuleStatus getStatus(String ruleUID) {
+        return callback.getStatus(ruleUID);
+    }
+
+    @Override
+    public void runNow(String uid) {
+        callback.runNow(uid);
+    }
+
+    @Override
+    public void runNow(String uid, boolean considerConditions, Map<String, Object> context) {
+        callback.runNow(uid, considerConditions, context);
     }
 
 }

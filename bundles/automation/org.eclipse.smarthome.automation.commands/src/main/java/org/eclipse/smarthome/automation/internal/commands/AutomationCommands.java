@@ -20,13 +20,16 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
+import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.osgi.framework.BundleContext;
 
@@ -211,7 +214,7 @@ public abstract class AutomationCommands {
     protected CommandlineRuleImporter ruleImporter;
 
     /**
-     * This method is used for getting the rule corresponding to the specified UID from the RuleEngine.
+     * This method is used for getting the rule corresponding to the specified UID from the RuleManager.
      *
      * @param uid
      *            specifies the wanted {@link Rule} uniquely.
@@ -220,9 +223,9 @@ public abstract class AutomationCommands {
     public abstract Rule getRule(String uid);
 
     /**
-     * This method is used to get the all existing rules from the RuleEngine.
+     * This method is used to get the all existing rules from the RuleManager.
      *
-     * @return a collection of all existing rules in the RuleEngine.
+     * @return a collection of all existing rules in the RuleManager.
      */
     public abstract Collection<Rule> getRules();
 
@@ -311,7 +314,7 @@ public abstract class AutomationCommands {
     public abstract <T extends ModuleType> Collection<T> getActions(Locale locale);
 
     /**
-     * This method is used for removing a rule corresponding to the specified UID from the RuleEngine.
+     * This method is used for removing a rule corresponding to the specified UID from the RuleManager.
      *
      * @param uid
      *            specifies the wanted {@link Rule} uniquely.
@@ -320,7 +323,7 @@ public abstract class AutomationCommands {
     public abstract String removeRule(String uid);
 
     /**
-     * This method is used for removing the rules from the RuleEngine, corresponding to the specified filter.
+     * This method is used for removing the rules from the RuleManager, corresponding to the specified filter.
      *
      * @param ruleFilter
      *            specifies the wanted {@link Rule}s.
@@ -345,11 +348,14 @@ public abstract class AutomationCommands {
      * Initializing method.
      *
      * @param bundleContext bundle's context
+     * @param ruleRegistry
+     * @param templateRegistry
      */
-    public void initialize(BundleContext bundleContext) {
-        moduleTypeProvider = new CommandlineModuleTypeProvider(bundleContext);
-        templateProvider = new CommandlineTemplateProvider(bundleContext);
-        ruleImporter = new CommandlineRuleImporter(bundleContext);
+    public void initialize(BundleContext bundleContext, ModuleTypeRegistry moduleTypeRegistry,
+            TemplateRegistry<RuleTemplate> templateRegistry, RuleRegistry ruleRegistry) {
+        moduleTypeProvider = new CommandlineModuleTypeProvider(bundleContext, moduleTypeRegistry);
+        templateProvider = new CommandlineTemplateProvider(bundleContext, templateRegistry);
+        ruleImporter = new CommandlineRuleImporter(bundleContext, ruleRegistry);
     }
 
     /**

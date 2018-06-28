@@ -37,8 +37,8 @@ public class SampleHandlerFactoryCommands extends AbstractConsoleCommandExtensio
     private static final String COMMAND_EXECUTE = "executeTrigger";
 
     private List<TriggerHandler> currentTriggers;
-    private SampleHandlerFactory sampleHandlerFactory;
-    private ServiceRegistration<?> commandsServiceReg;
+    private final SampleHandlerFactory sampleHandlerFactory;
+    private final ServiceRegistration<?> commandsServiceReg;
 
     /**
      * Constructs the SampleHandlerFactoryCommands
@@ -82,7 +82,7 @@ public class SampleHandlerFactoryCommands extends AbstractConsoleCommandExtensio
     }
 
     private void listTriggerHandlers(String[] params, Console console) {
-        console.println("ID                             Rule                             Trigger");
+        console.println("ID                             Rule                                 Trigger");
         console.println("-------------------------------------------------------------------------------------------");
         currentTriggers = sampleHandlerFactory.getCreatedTriggerHandler();
         if (currentTriggers.size() > 0) {

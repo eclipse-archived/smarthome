@@ -33,7 +33,8 @@ public class RulePredicates {
     public static final String PREFIX_SEPARATOR = ":";
 
     /**
-     * Gets the prefix of the {@link Rule}, if any exist. This property is either set by the {@link RuleEngine} when
+     * Gets the prefix of the {@link Rule}, if any exist. This property is either set by the
+     * {@link ModuleHandlerCallback} when
      * the {@link Rule} is added or by the creating party. It's an optional property.
      * <br/>
      * <br/>
@@ -84,7 +85,7 @@ public class RulePredicates {
      * @return created {@link Predicate}
      */
     public static Predicate<Rule> hasAnyOfPrefixes(String... prefixes) {
-        final HashSet<String> namespaceSet = new HashSet<String>(prefixes.length);
+        final HashSet<String> namespaceSet = new HashSet<>(prefixes.length);
         for (final String namespace : prefixes) {
             namespaceSet.add(namespace);
         }
@@ -127,7 +128,7 @@ public class RulePredicates {
         if (tags == null || tags.isEmpty()) {
             return (Predicate<Rule>) r -> true;
         } else {
-            final Set<String> tagSet = new HashSet<String>(tags);
+            final Set<String> tagSet = new HashSet<>(tags);
 
             // everything containing _all_ given tags is matching
             // (Rule might might have more tags than the given set)
@@ -147,7 +148,8 @@ public class RulePredicates {
     }
 
     /**
-     * Creates a {@link Predicate} which can be used to match {@link Rule}s for any of the given tags or {@link Rule}s
+     * Creates a {@link Predicate} which can be used to match {@link Rule}s for any of the given tags or
+     * {@link Rule}s
      * without tags.
      *
      * @param tags to search for
@@ -158,7 +160,7 @@ public class RulePredicates {
             // everything without a tag is matching
             return hasNoTags();
         } else {
-            final Set<String> tagSet = new HashSet<String>(tags);
+            final Set<String> tagSet = new HashSet<>(tags);
 
             // everything containing _any_ of the given tags is matching (more than one tag might match)
             // if the collections are NOT disjoint, they have something in common
@@ -167,7 +169,8 @@ public class RulePredicates {
     }
 
     /**
-     * Creates a {@link Predicate} which can be used to match {@link Rule}s for any of the given tags or {@link Rule}s
+     * Creates a {@link Predicate} which can be used to match {@link Rule}s for any of the given tags or
+     * {@link Rule}s
      * without tags.
      *
      * @param tags to search for

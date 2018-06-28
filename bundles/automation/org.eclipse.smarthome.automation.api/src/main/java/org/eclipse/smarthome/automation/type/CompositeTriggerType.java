@@ -41,11 +41,12 @@ public class CompositeTriggerType extends TriggerType {
      * This constructor is responsible for creation of a {@code CompositeTriggerType} with ordered set of
      * {@link Trigger}s. It initialize only base properties of the {@code CompositeTriggerType}.
      *
-     * @param UID the {@link TriggerType}'s identifier, or {@code null} if a random identifier should be generated.
+     * @param UID                the {@link TriggerType}'s identifier, or {@code null} if a random identifier should be
+     *                           generated.
      * @param configDescriptions describing metadata for the configuration of the future {@link Trigger} instances.
-     * @param outputs a {@link List} with {@link Output} meta-information descriptions of the future {@link Trigger}
-     *            instances.
-     * @param children is a {@link LinkedHashSet} of {@link Trigger}s.
+     * @param outputs            a {@link List} with {@link Output} meta-information descriptions of the future
+     *                           {@link Trigger} instances.
+     * @param children           is a {@link LinkedHashSet} of {@link Trigger}s.
      *
      */
     public CompositeTriggerType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
@@ -58,17 +59,19 @@ public class CompositeTriggerType extends TriggerType {
      * This constructor is responsible for creation of a {@code CompositeTriggerType} with ordered set of
      * {@link Trigger}s. It initialize all properties of the {@code CompositeTriggerType}.
      *
-     * @param UID the {@link TriggerType}'s identifier, or {@code null} if a random identifier should be generated.
+     * @param UID                the {@link TriggerType}'s identifier, or {@code null} if a random identifier should be
+     *                           generated.
      * @param configDescriptions describing metadata for the configuration of the future {@link Trigger} instances.
-     * @param label a short and accurate, human-readable label of the {@link TriggerType}.
-     * @param description a detailed, human-readable description of usage of {@link TriggerType} and its benefits.
-     * @param tags defines categories that fit the {@link TriggerType} and which can serve as criteria for searching
-     *            or filtering it.
-     * @param visibility determines whether the {@link TriggerType} can be used by anyone if it is
-     *            {@link Visibility#VISIBLE} or only by its creator if it is {@link Visibility#HIDDEN}.
-     * @param outputs a {@link List} with {@link Output} meta-information descriptions of the future {@link Trigger}
-     *            instances.
-     * @param children is a {@link LinkedHashSet} of {@link Trigger}s.
+     * @param label              a short and accurate, human-readable label of the {@link TriggerType}.
+     * @param description        a detailed, human-readable description of usage of {@link TriggerType} and its
+     *                           benefits.
+     * @param tags               defines categories that fit the {@link TriggerType} and which can serve as criteria for
+     *                           searching or filtering it.
+     * @param visibility         determines whether the {@link TriggerType} can be used by anyone if it is
+     *                           {@link Visibility#VISIBLE} or only by its creator if it is {@link Visibility#HIDDEN}.
+     * @param outputs            a {@link List} with {@link Output} meta-information descriptions of the future
+     *                           {@link Trigger} instances.
+     * @param children           is a {@link LinkedHashSet} of {@link Trigger}s.
      */
     public CompositeTriggerType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
             @Nullable String label, @Nullable String description, @Nullable Set<String> tags,

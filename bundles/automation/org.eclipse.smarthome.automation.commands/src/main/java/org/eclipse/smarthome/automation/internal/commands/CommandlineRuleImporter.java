@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.parser.ParsingNestedException;
@@ -44,15 +45,19 @@ import org.osgi.framework.ServiceReference;
  */
 public class CommandlineRuleImporter extends AbstractCommandProvider<Rule> {
 
+    private final RuleRegistry ruleRegistry;
+
     /**
      * This constructor creates instances of this particular implementation of Rule Importer. It does not add any new
      * functionality to the constructors of the providers. Only provides consistency by invoking the parent's
      * constructor.
      *
      * @param context is the {@link BundleContext}, used for creating a tracker for {@link Parser} services.
+     * @param ruleRegistry
      */
-    public CommandlineRuleImporter(BundleContext context) {
+    public CommandlineRuleImporter(BundleContext context, RuleRegistry ruleRegistry) {
         super(context);
+        this.ruleRegistry = ruleRegistry;
     }
 
     /**
@@ -116,10 +121,10 @@ public class CommandlineRuleImporter extends AbstractCommandProvider<Rule> {
             while (i.hasNext()) {
                 Rule rule = i.next();
                 if (rule != null) {
-                    if (AutomationCommandsPluggable.ruleRegistry.get(rule.getUID()) != null) {
-                        AutomationCommandsPluggable.ruleRegistry.update(rule);
+                    if (ruleRegistry.get(rule.getUID()) != null) {
+                        ruleRegistry.update(rule);
                     } else {
-                        AutomationCommandsPluggable.ruleRegistry.add(rule);
+                        ruleRegistry.add(rule);
                     }
                 }
             }

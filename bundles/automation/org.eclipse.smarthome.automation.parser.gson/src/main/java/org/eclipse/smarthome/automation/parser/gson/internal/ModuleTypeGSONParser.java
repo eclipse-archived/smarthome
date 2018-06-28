@@ -21,15 +21,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.dto.ActionTypeDTOMapper;
+import org.eclipse.smarthome.automation.core.dto.ConditionTypeDTOMapper;
+import org.eclipse.smarthome.automation.core.dto.TriggerTypeDTOMapper;
+import org.eclipse.smarthome.automation.dto.CompositeActionTypeDTO;
+import org.eclipse.smarthome.automation.dto.CompositeConditionTypeDTO;
+import org.eclipse.smarthome.automation.dto.CompositeTriggerTypeDTO;
+import org.eclipse.smarthome.automation.dto.ModuleTypeDTO;
 import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.parser.ParsingNestedException;
 import org.eclipse.smarthome.automation.type.ActionType;
-import org.eclipse.smarthome.automation.type.CompositeActionType;
-import org.eclipse.smarthome.automation.type.CompositeConditionType;
-import org.eclipse.smarthome.automation.type.CompositeTriggerType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.TriggerType;
@@ -49,7 +50,7 @@ public class ModuleTypeGSONParser extends AbstractGSONParser<ModuleType> {
     public Set<ModuleType> parse(InputStreamReader reader) throws ParsingException {
         try {
             ModuleTypeParsingContainer mtContainer = gson.fromJson(reader, ModuleTypeParsingContainer.class);
-            Set<ModuleType> result = new HashSet<ModuleType>();
+            Set<ModuleType> result = new HashSet<>();
             addAll(result, mtContainer.triggers);
             addAll(result, mtContainer.conditions);
             addAll(result, mtContainer.actions);
@@ -65,36 +66,15 @@ public class ModuleTypeGSONParser extends AbstractGSONParser<ModuleType> {
         gson.toJson(map, writer);
     }
 
-    private void addAll(Set<ModuleType> result, List<? extends ModuleType> moduleTypes) {
+    private void addAll(Set<ModuleType> result, List<? extends ModuleTypeDTO> moduleTypes) {
         if (moduleTypes != null) {
-            for (ModuleType mt : moduleTypes) {
-                if (mt instanceof CompositeTriggerType) {
-                    List<Trigger> children = ((CompositeTriggerType) mt).getChildren();
-                    if (children != null && !children.isEmpty()) {
-                        result.add(mt);
-                    } else {
-                        result.add(new TriggerType(mt.getUID(), mt.getConfigurationDescriptions(), mt.getLabel(),
-                                mt.getDescription(), mt.getTags(), mt.getVisibility(),
-                                ((TriggerType) mt).getOutputs()));
-                    }
-                } else if (mt instanceof CompositeConditionType) {
-                    List<Condition> children = ((CompositeConditionType) mt).getChildren();
-                    if (children != null && !children.isEmpty()) {
-                        result.add(mt);
-                    } else {
-                        result.add(new ConditionType(mt.getUID(), mt.getConfigurationDescriptions(), mt.getLabel(),
-                                mt.getDescription(), mt.getTags(), mt.getVisibility(),
-                                ((ConditionType) mt).getInputs()));
-                    }
-                } else if (mt instanceof CompositeActionType) {
-                    List<Action> children = ((CompositeActionType) mt).getChildren();
-                    if (children != null && !children.isEmpty()) {
-                        result.add(mt);
-                    } else {
-                        result.add(new ActionType(mt.getUID(), mt.getConfigurationDescriptions(), mt.getLabel(),
-                                mt.getDescription(), mt.getTags(), mt.getVisibility(), ((ActionType) mt).getInputs(),
-                                ((ActionType) mt).getOutputs()));
-                    }
+            for (ModuleTypeDTO mt : moduleTypes) {
+                if (mt instanceof CompositeTriggerTypeDTO) {
+                    result.add(TriggerTypeDTOMapper.map((CompositeTriggerTypeDTO) mt));
+                } else if (mt instanceof CompositeConditionTypeDTO) {
+                    result.add(ConditionTypeDTOMapper.map((CompositeConditionTypeDTO) mt));
+                } else if (mt instanceof CompositeActionTypeDTO) {
+                    result.add(ActionTypeDTOMapper.map((CompositeActionTypeDTO) mt));
                 }
             }
         }

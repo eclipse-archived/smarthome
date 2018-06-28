@@ -59,12 +59,11 @@ public class WelcomeHomeHandlerFactory extends BaseModuleHandlerFactory {
 
     @SuppressWarnings("rawtypes")
     private ServiceRegistration factoryRegistration;
-    private Map<String, WelcomeHomeTriggerHandler> triggerHandlers;
-    private Logger logger = LoggerFactory.getLogger(WelcomeHomeHandlerFactory.class);
+    private final Map<String, WelcomeHomeTriggerHandler> triggerHandlers;
+    private final Logger logger = LoggerFactory.getLogger(WelcomeHomeHandlerFactory.class);
 
-    public WelcomeHomeHandlerFactory(BundleContext bc) {
+    public WelcomeHomeHandlerFactory() {
         triggerHandlers = new HashMap<String, WelcomeHomeTriggerHandler>();
-        activate(bc);
     }
 
     @Override

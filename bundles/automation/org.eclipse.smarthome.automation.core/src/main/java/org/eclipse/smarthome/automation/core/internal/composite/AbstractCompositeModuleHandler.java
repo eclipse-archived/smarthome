@@ -20,8 +20,9 @@ import java.util.Map;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
+import org.eclipse.smarthome.automation.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.internal.ReferenceResolverUtil;
+import org.eclipse.smarthome.automation.core.util.ReferenceResolver;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
@@ -84,12 +85,12 @@ public abstract class AbstractCompositeModuleHandler<M extends Module, MT extend
     /**
      * Creates child context that will be passed to the child handler.
      *
-     * @param child Composite Module's child
+     * @param child Composite ModuleImpl's child
      * @param compositeContext context with which child context will be resolved.
      * @return child context ready to be passed to the child for execution.
      */
     protected Map<String, Object> getChildContext(Module child, Map<String, ?> compositeContext) {
-        return ReferenceResolverUtil.getCompositeChildContext(child, compositeContext);
+        return ReferenceResolver.getCompositeChildContext(child, compositeContext);
     }
 
     @Override
@@ -102,6 +103,15 @@ public abstract class AbstractCompositeModuleHandler<M extends Module, MT extend
             }
         }
         moduleHandlerMap = null;
+    }
+
+    @Override
+    public void setCallback(ModuleHandlerCallback callback) {
+        List<M> children = getChildren();
+        for (M child : children) {
+            H handler = moduleHandlerMap.get(child);
+            handler.setCallback(callback);
+        }
     }
 
     protected abstract List<M> getChildren();

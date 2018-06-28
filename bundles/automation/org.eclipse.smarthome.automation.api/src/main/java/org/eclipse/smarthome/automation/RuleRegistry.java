@@ -13,7 +13,6 @@
 package org.eclipse.smarthome.automation;
 
 import java.util.Collection;
-import java.util.Map;
 
 import org.eclipse.smarthome.core.common.registry.Registry;
 
@@ -56,7 +55,7 @@ public interface RuleRegistry extends Registry<Rule, String> {
     /**
      * This method is used to get collection of {@link Rule}s which shares same tag.
      *
-     * @param tag tag set to the rules
+     * @param tag specifies a tag that will filter the rules.
      * @return collection of {@link Rule}s having specified tag.
      */
     public Collection<Rule> getByTag(String tag);
@@ -64,71 +63,9 @@ public interface RuleRegistry extends Registry<Rule, String> {
     /**
      * This method is used to get collection of {@link Rule}s which has specified tags.
      *
-     * @param tags set of {@link Rule}'s tags
+     * @param tags specifies tags that will filter the rules.
      * @return collection of {@link Rule}s having specified tags.
      */
     public Collection<Rule> getByTags(String... tags);
-
-    /**
-     * This method is used for changing <b>enabled</b> state of the {@link Rule}.
-     * The <b>enabled</b> rule statuses are {@link RuleStatus#UNINITIALIZED}, {@link RuleStatus#IDLE} and
-     * {@link RuleStatus#RUNNING}.
-     * The <b>disabled</b> rule status is {@link RuleStatus#DISABLED}.
-     *
-     * @param uid the unique identifier of the {@link Rule}.
-     * @param isEnabled a new <b>enabled / disabled</b> state of the {@link Rule}.
-     */
-    public void setEnabled(String uid, boolean isEnabled);
-
-    /**
-     * This method gets {@link RuleStatusInfo} of the specified {@link Rule}.
-     *
-     * @param ruleUID UID of the {@link Rule}
-     * @return {@link RuleStatusInfo} object containing status of the looking {@link Rule} or null when the rule with
-     *         specified uid does not exists.
-     */
-    public RuleStatusInfo getStatusInfo(String ruleUID);
-
-    /**
-     * Utility method which gets {@link RuleStatus} of the specified {@link Rule}.
-     *
-     * @param ruleUID UID of the {@link Rule}
-     * @return {@link RuleStatus} object containing status of the looking {@link Rule} or null when the rule with
-     *         specified uid does not exists..
-     */
-    public RuleStatus getStatus(String ruleUID);
-
-    /**
-     * This method gets <b>enabled</b> {@link RuleStatus} for a {@link Rule}.
-     * The <b>enabled</b> rule statuses are {@link RuleStatus#UNINITIALIZED}, {@link RuleStatus#IDLE} and
-     * {@link RuleStatus#RUNNING}.
-     * The <b>disabled</b> rule status is {@link RuleStatus#DISABLED}.
-     *
-     * @param ruleUID UID of the {@link Rule}
-     * @return <code>true</code> when the {@link RuleStatus} is one of the {@link RuleStatus#UNINITIALIZED},
-     *         {@link RuleStatus#IDLE} and {@link RuleStatus#RUNNING}, <code>false</code> when it is
-     *         {@link RuleStatus#DISABLED} and <code>null</code> when it is not available.
-     */
-    public Boolean isEnabled(String ruleUID);
-
-    /**
-     * The method "runNow(ruleUID)" skips the triggers and the conditions and directly executes the actions of the rule.
-     * This should always be possible unless an action has a mandatory input that is linked to a trigger.
-     * In that case the action is skipped and the RuleEngine continues execution of rest actions.
-     *
-     * @param ruleUID id of rule whose actions have to be executed
-     *
-     */
-    public void runNow(String ruleUID);
-
-    /**
-     * Same as {@link RuleRegistry#runNow(String)} with additional option to enable/disable evaluation of
-     * conditions defined in the target rule. The context can be set here, too but also might be null.
-     *
-     * @param ruleUID id of rule whose actions have to be executed
-     * @param considerConditions if <code>true</code> the conditions will be checked
-     * @param context the context that is passed to the conditions and the actions
-     */
-    public void runNow(String ruleUID, boolean considerConditions, Map<String, Object> context);
 
 }

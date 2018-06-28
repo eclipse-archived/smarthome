@@ -17,31 +17,12 @@ import org.eclipse.smarthome.automation.Trigger;
 /**
  * This is a base class that can be used by TriggerModuleHandler implementations
  *
- * @author Vasil Ilchev
+ * @author Vasil Ilchev - Initial contribution
  */
 public class BaseTriggerModuleHandler extends BaseModuleHandler<Trigger> implements TriggerHandler {
 
-    /**
-     * Use this callback to 'trigger' this TriggerHandler's Rule
-     */
-    protected RuleEngineCallback ruleEngineCallback;
-
     public BaseTriggerModuleHandler(Trigger module) {
         super(module);
-    }
-
-    @Override
-    public void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
-        this.ruleEngineCallback = ruleCallback;
-    }
-
-    /**
-     * Remove ruleEngineCallback reference - stop triggering the Rule.
-     */
-    @Override
-    public void dispose() {
-        super.dispose();
-        this.ruleEngineCallback = null;
     }
 
 }

@@ -32,6 +32,7 @@ import org.eclipse.smarthome.automation.parser.ParsingNestedException;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
+import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -62,6 +63,7 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
      */
     @SuppressWarnings("rawtypes")
     protected ServiceRegistration mtpReg;
+    private ModuleTypeRegistry moduleTypeRegistry;
 
     /**
      * This constructor creates instances of this particular implementation of {@link ModuleTypeProvider}. It does not
@@ -69,11 +71,13 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
      * parent's constructor.
      *
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
+     * @param moduleTypeRegistry a ModuleTypeRegistry service
      */
-    public CommandlineModuleTypeProvider(BundleContext context) {
+    public CommandlineModuleTypeProvider(BundleContext context, ModuleTypeRegistry moduleTypeRegistry) {
         super(context);
         listeners = new LinkedList<ProviderChangeListener<ModuleType>>();
         mtpReg = bc.registerService(ModuleTypeProvider.class.getName(), this, null);
+        this.moduleTypeRegistry = moduleTypeRegistry;
     }
 
     /**
@@ -218,12 +222,12 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
      * @param exceptions accumulates exceptions if {@link ModuleType} with the same UID exists.
      */
     protected void checkExistence(String uid, List<ParsingNestedException> exceptions) {
-        if (AutomationCommandsPluggable.moduleTypeRegistry == null) {
+        if (this.moduleTypeRegistry == null) {
             exceptions.add(new ParsingNestedException(ParsingNestedException.MODULE_TYPE, uid,
                     new IllegalArgumentException("Failed to create Module Type with UID \"" + uid
                             + "\"! Can't guarantee yet that other Module Type with the same UID does not exist.")));
         }
-        if (AutomationCommandsPluggable.moduleTypeRegistry.get(uid) != null) {
+        if (moduleTypeRegistry.get(uid) != null) {
             exceptions.add(new ParsingNestedException(ParsingNestedException.MODULE_TYPE, uid,
                     new IllegalArgumentException("Module Type with UID \"" + uid
                             + "\" already exists! Failed to create a second with the same UID!")));

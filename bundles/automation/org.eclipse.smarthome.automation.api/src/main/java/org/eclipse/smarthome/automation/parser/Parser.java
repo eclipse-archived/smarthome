@@ -59,7 +59,7 @@ public interface Parser<T> {
      * @param reader {@link InputStreamReader} which reads from a file containing automation object representations.
      * @return a set of automation objects. Each object represents the result of parsing of one object.
      * @throws ParsingException is thrown when json format is wrong or there is a semantic error in description of
-     *             the automation objects.
+     *                          the automation objects.
      */
     public Set<T> parse(InputStreamReader reader) throws ParsingException;
 
@@ -67,9 +67,9 @@ public interface Parser<T> {
      * This method is used to record automation objects in a file with some particular format.
      *
      * @param dataObjects provides an objects for export.
-     * @param writer is {@link OutputStreamWriter} used to write the automation objects in a file.
+     * @param writer      is {@link OutputStreamWriter} used to write the automation objects in a file.
      * @throws Exception is thrown when I/O operation has failed or has been interrupted or generating of the text fails
-     *             for some reasons.
+     *                   for some reasons.
      */
     public void serialize(Set<T> dataObjects, OutputStreamWriter writer) throws Exception;
 

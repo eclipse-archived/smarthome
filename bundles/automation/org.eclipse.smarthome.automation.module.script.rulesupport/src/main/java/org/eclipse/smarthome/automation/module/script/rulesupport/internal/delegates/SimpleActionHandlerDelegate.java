@@ -23,7 +23,7 @@ import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
 import org.eclipse.smarthome.automation.module.script.rulesupport.shared.simple.SimpleActionHandler;
 
 /**
- * The SimpleActionHandlerDelegate allows the registration of {@link SimpleActionHandler}s to the RuleEngine.
+ * The SimpleActionHandlerDelegate allows the registration of {@link SimpleActionHandler}s to the RuleManager.
  *
  * @author Simon Merschjohann
  */

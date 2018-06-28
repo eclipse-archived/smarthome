@@ -13,19 +13,21 @@
 		<div class="container">
 			<p class="text-center" ng-show="data.rules.length == 0">No rules defined yet.</p>
 			<div class="groups">
-				<div class="clickable" ng-repeat="rule in data.rules | orderBy:'uid'" ng-click="configure(rule, $event)">
+				<div class="clickable" ng-repeat="rule in rules | orderBy:'uid'" ng-click="configure(rule, $event)">
 					<div class="rule fab-item text-left">
 						<div class="circle">{{rule.name.substring(0,1)}}</div>
-						<div class="item-content">
-							<div flex="60">
+						<div class="item-content" ng-class="{'enabled' : isEnabled(rule), 'disabled' : !isEnabled(rule)}">
+							<div flex="60" class="description">
 								<h3>
-									{{rule.name}} <small class="badge" ng-class="rule.status.status.toLowerCase()">{{rule.status.status}}</small>
+									{{rule.name}} <small class="badge" ng-class="rule.status.status.toLowerCase()">{{getRuleStatus(rule)}}</small>
 								</h3>
 								<p ng-bind-html="rule.description"></p>
 								<p>{{rule.uid}}</p>
 							</div>
 							<div class="actions" flex="40">
-								<i class="material-icons" aria-label="Run rule" ng-click="runRule(rule.uid,$event)">play_arrow</i> <i class="material-icons" aria-label="Toggle Enable" ng-click="toggleEnabled(rule, $event)">{{rule.enabled ? "alarm_on" : "alarm_off"}}</i> <i class="material-icons" aria-label="Remove" ng-click="remove(rule, $event)">delete</i>
+								<i class="material-icons run-rule" aria-label="Run rule" ng-click="runRule(rule,$event)" aria-disabled="!isEnabled(rule)">play_arrow</i> 
+								<i class="material-icons" aria-label="Toggle Enable" ng-click="toggleEnabled(rule, $event)">{{isEnabled(rule) ? "alarm_on" : "alarm_off"}}</i> 
+								<i class="material-icons" aria-label="Remove" ng-click="remove(rule, $event)">delete</i>
 							</div>
 						</div>
 						<hr class="border-line" ng-show="!$last" />

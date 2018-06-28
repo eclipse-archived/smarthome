@@ -16,10 +16,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Module;
-import org.osgi.framework.BundleContext;
 
 /**
  * This is a base class that can be used by any ModuleHandlerFactory implementation
@@ -30,20 +30,13 @@ import org.osgi.framework.BundleContext;
 @NonNullByDefault
 public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory {
 
-    private final Map<String, ModuleHandler> handlers = new HashMap<String, ModuleHandler>();
+    private final Map<@NonNull String, @NonNull ModuleHandler> handlers = new HashMap<>();
 
-    @NonNullByDefault({})
-    protected BundleContext bundleContext;
-
-    public void activate(BundleContext bundleContext) {
-        if (bundleContext == null) {
-            throw new IllegalArgumentException("BundleContext must not be null.");
+    protected void deactivate() {
+        for (ModuleHandler handler : handlers.values()) {
+            handler.dispose();
         }
-        this.bundleContext = bundleContext;
-    }
-
-    public void deactivate() {
-        dispose();
+        handlers.clear();
     }
 
     protected Map<String, ModuleHandler> getHandlers() {
@@ -51,13 +44,13 @@ public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory {
     }
 
     @Override
-    public ModuleHandler getHandler(Module module, String ruleUID) {
-        ModuleHandler handler = handlers.get(ruleUID + module.getId());
-        if (handler == null) {
-            handler = internalCreate(module, ruleUID);
-            if (handler != null) {
-                handlers.put(ruleUID + module.getId(), handler);
-            }
+    @SuppressWarnings("null")
+    public @Nullable ModuleHandler getHandler(Module module, String ruleUID) {
+        String id = ruleUID + module.getId();
+        ModuleHandler handler = handlers.get(id);
+        handler = handler == null ? internalCreate(module, ruleUID) : handler;
+        if (handler != null) {
+            handlers.put(id, handler);
         }
         return handler;
     }
@@ -65,30 +58,16 @@ public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory {
     /**
      * Create a new handler for the given module.
      *
-     * @param module the {@link Module} for which a handler shoult be created
+     * @param module  the {@link Module} for which a handler should be created
      * @param ruleUID the id of the rule for which the handler should be created
-     * @return A {@link ModuleHandler} instance or <code>null</code> if thins module type is not supported
+     * @return A {@link ModuleHandler} instance or {@code null} if thins module type is not supported
      */
     protected abstract @Nullable ModuleHandler internalCreate(Module module, String ruleUID);
 
-    public void dispose() {
-        for (ModuleHandler handler : handlers.values()) {
-            if (handler != null) {
-                handler.dispose();
-            }
-        }
-        handlers.clear();
-    }
-
     @Override
-    public void ungetHandler(Module module, String ruleUID, ModuleHandler hdlr) {
-        ModuleHandler handler = handlers.get(ruleUID + module.getId());
-        if (handler != null) {
-            this.handlers.remove(ruleUID + module.getId());
-            if (!this.handlers.containsValue(hdlr)) {
-                handler.dispose();
-                handler = null;
-            }
+    public void ungetHandler(Module module, String ruleUID, ModuleHandler handler) {
+        if (handlers.remove(ruleUID + module.getId(), handler)) {
+            handler.dispose();
         }
     }
 }

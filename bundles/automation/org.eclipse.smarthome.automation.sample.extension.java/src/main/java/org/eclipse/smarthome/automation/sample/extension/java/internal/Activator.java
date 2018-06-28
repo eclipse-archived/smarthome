@@ -49,7 +49,7 @@ public class Activator implements BundleActivator {
         rulesProvider = new WelcomeHomeRulesProvider();
         rulesProvider.register(context);
 
-        handlerFactory = new WelcomeHomeHandlerFactory(context);
+        handlerFactory = new WelcomeHomeHandlerFactory();
         handlerFactory.register(context);
 
         commands = new WelcomeHomeCommands(context, rulesProvider, handlerFactory);

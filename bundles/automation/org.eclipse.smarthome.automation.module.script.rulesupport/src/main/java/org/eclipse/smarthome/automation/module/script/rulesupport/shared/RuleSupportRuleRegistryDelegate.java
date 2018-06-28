@@ -14,29 +14,26 @@ package org.eclipse.smarthome.automation.module.script.rulesupport.shared;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
-import org.eclipse.smarthome.automation.RuleStatus;
-import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 
 /**
  * The {@link RuleSupportRuleRegistryDelegate} is wrapping a {@link RuleRegistry} to provide a comfortable way to add
- * rules to the RuleEngine without worrying about the need to remove rules again. Nonetheless, using the addPermanent
+ * rules to the RuleManager without worrying about the need to remove rules again. Nonetheless, using the addPermanent
  * method it is still possible to add rules permanently.
  *
  * @author Simon Merschjohann
  *
  */
 public class RuleSupportRuleRegistryDelegate implements RuleRegistry {
-    private RuleRegistry ruleRegistry;
+    private final RuleRegistry ruleRegistry;
 
-    private HashSet<String> rules = new HashSet<>();
+    private final HashSet<String> rules = new HashSet<>();
 
-    private ScriptedRuleProvider ruleProvider;
+    private final ScriptedRuleProvider ruleProvider;
 
     public RuleSupportRuleRegistryDelegate(RuleRegistry ruleRegistry, ScriptedRuleProvider ruleProvider) {
         this.ruleRegistry = ruleRegistry;
@@ -77,7 +74,7 @@ public class RuleSupportRuleRegistryDelegate implements RuleRegistry {
     }
 
     /**
-     * add a rule permanently to the RuleEngine
+     * add a rule permanently to the RuleManager
      *
      * @param element the rule
      */
@@ -104,16 +101,6 @@ public class RuleSupportRuleRegistryDelegate implements RuleRegistry {
         return ruleRegistry.getByTag(tag);
     }
 
-    @Override
-    public void setEnabled(String uid, boolean isEnabled) {
-        ruleRegistry.setEnabled(uid, isEnabled);
-    }
-
-    @Override
-    public Boolean isEnabled(String ruleUID) {
-        return ruleRegistry.isEnabled(ruleUID);
-    }
-
     /**
      * called when the script is unloaded or reloaded
      */
@@ -131,26 +118,6 @@ public class RuleSupportRuleRegistryDelegate implements RuleRegistry {
     @Override
     public Collection<Rule> getByTags(String... tags) {
         return ruleRegistry.getByTags(tags);
-    }
-
-    @Override
-    public RuleStatusInfo getStatusInfo(String ruleUID) {
-        return ruleRegistry.getStatusInfo(ruleUID);
-    }
-
-    @Override
-    public RuleStatus getStatus(String ruleUID) {
-        return ruleRegistry.getStatus(ruleUID);
-    }
-
-    @Override
-    public void runNow(String ruleUID) {
-        ruleRegistry.runNow(ruleUID);
-    }
-
-    @Override
-    public void runNow(String ruleUID, boolean considerConditions, Map<String, Object> context) {
-        ruleRegistry.runNow(ruleUID, considerConditions, context);
     }
 
 }

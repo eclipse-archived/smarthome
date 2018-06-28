@@ -15,15 +15,10 @@ package org.eclipse.smarthome.automation.core.internal.type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.CompositeActionType;
 import org.eclipse.smarthome.automation.type.CompositeConditionType;
@@ -33,9 +28,9 @@ import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.automation.type.TriggerType;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.Provider;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * The implementation of {@link ModuleTypeRegistry} that is registered as a service.
@@ -43,6 +38,7 @@ import org.eclipse.smarthome.core.common.registry.Provider;
  * @author Yordan Mihaylov - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
+@Component(service = ModuleTypeRegistry.class, immediate = true)
 public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String, ModuleTypeProvider>
         implements ModuleTypeRegistry {
 
@@ -93,7 +89,7 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String,
                 Collection<String> tags = mt.getTags();
                 if (moduleTypeTag == null) {
                     result.add((T) createCopy(mt));
-                } else if (tags != null && tags.contains(moduleTypeTag)) {
+                } else if (tags.contains(moduleTypeTag)) {
                     result.add((T) createCopy(mt));
                 }
             }
@@ -201,13 +197,12 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String,
         if (mType == null) {
             return null;
         }
-
         ModuleType result;
         if (mType instanceof CompositeTriggerType) {
             CompositeTriggerType m = (CompositeTriggerType) mType;
             result = new CompositeTriggerType(mType.getUID(), mType.getConfigurationDescriptions(), mType.getLabel(),
                     mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getOutputs(),
-                    copyTriggers(m.getChildren()));
+                    new ArrayList<>(m.getChildren()));
 
         } else if (mType instanceof TriggerType) {
             TriggerType m = (TriggerType) mType;
@@ -218,7 +213,7 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String,
             CompositeConditionType m = (CompositeConditionType) mType;
             result = new CompositeConditionType(mType.getUID(), mType.getConfigurationDescriptions(), mType.getLabel(),
                     mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs(),
-                    copyConditions(m.getChildren()));
+                    new ArrayList<>(m.getChildren()));
 
         } else if (mType instanceof ConditionType) {
             ConditionType m = (ConditionType) mType;
@@ -229,63 +224,16 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String,
             CompositeActionType m = (CompositeActionType) mType;
             result = new CompositeActionType(mType.getUID(), mType.getConfigurationDescriptions(), mType.getLabel(),
                     mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs(), m.getOutputs(),
-                    copyActions(m.getChildren()));
+                    new ArrayList<>(m.getChildren()));
 
         } else if (mType instanceof ActionType) {
             ActionType m = (ActionType) mType;
             result = new ActionType(mType.getUID(), mType.getConfigurationDescriptions(), mType.getLabel(),
                     mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs(), m.getOutputs());
-
         } else {
             throw new IllegalArgumentException("Invalid template type:" + mType);
         }
         return result;
-    }
-
-    private static List<Trigger> copyTriggers(List<Trigger> triggers) {
-        List<Trigger> res = new ArrayList<Trigger>(11);
-        if (triggers != null) {
-            for (Trigger t : triggers) {
-                Configuration c = new Configuration();
-                c.setProperties(t.getConfiguration().getProperties());
-                Trigger trigger = new Trigger(t.getId(), t.getTypeUID(), c);
-                trigger.setLabel(trigger.getLabel());
-                trigger.setDescription(trigger.getDescription());
-                res.add(trigger);
-            }
-        }
-        return res;
-    }
-
-    private static List<Condition> copyConditions(List<Condition> conditions) {
-        List<Condition> res = new ArrayList<Condition>(11);
-        if (conditions != null) {
-            for (Condition c : conditions) {
-                Configuration conf = new Configuration();
-                conf.setProperties(c.getConfiguration().getProperties());
-                Condition condition = new Condition(c.getId(), c.getTypeUID(), conf,
-                        new HashMap<String, String>(c.getInputs()));
-                condition.setLabel(condition.getLabel());
-                condition.setDescription(condition.getDescription());
-                res.add(condition);
-            }
-        }
-        return res;
-    }
-
-    private static List<Action> copyActions(List<Action> actions) {
-        List<Action> res = new ArrayList<Action>();
-        if (actions != null) {
-            for (Action a : actions) {
-                Configuration c = new Configuration();
-                c.setProperties(a.getConfiguration().getProperties());
-                Action action = new Action(a.getId(), a.getTypeUID(), c, a.getInputs());
-                action.setLabel(a.getLabel());
-                action.setDescription(a.getDescription());
-                res.add(action);
-            }
-        }
-        return res;
     }
 
 }

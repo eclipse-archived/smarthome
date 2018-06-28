@@ -21,7 +21,7 @@ import org.eclipse.smarthome.automation.Rule;
 
 /**
  * This interface is implemented by external modules which are called by the
- * RuleEngine to execute {@link Action}s of the {@link Rule}s.
+ * RuleManager to execute {@link Action}s of the {@link Rule}s.
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Initial Contribution
@@ -31,12 +31,11 @@ import org.eclipse.smarthome.automation.Rule;
 public interface ActionHandler extends ModuleHandler {
 
     /**
-     * The Method is called by the RuleEngine to execute a {@link Rule} {@link Action}.
+     * The Method is called by the RuleManager to execute a {@link Rule} {@link Action}.
      *
      *
      * @param context is an unmodifiable map containing action input values and snapshot of output values of triggers
-     *            and executed actions. The output ids are defined
-     *            in form: ModuleId.outputId
+     *                and executed actions. The output ids are defined in form: ModuleId.outputId
      * @return values map of values which must be set to outputs of the {@link Action} (may be null).
      */
     @Nullable

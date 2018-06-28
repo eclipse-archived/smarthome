@@ -12,21 +12,15 @@
  */
 package org.eclipse.smarthome.automation.core.internal;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.Output;
-import org.slf4j.Logger;
 
 /**
- * This class defines connection between {@link Input} of the current {@link Module} and {@link Output} of the external
- * one. The current module is the module containing {@link Connection} instance and the external one is the
- * module where the current is connected to. <br>
+ * This class defines connection between {@link Input} of the current {@link Module} and {@link Output} of the
+ * external one. The current module is the module containing {@link Connection} instance and the external one is the
+ * module where the current is connected to.<br>
  * The input of the current module is defined by name of the {@link Input}. The {@link Output} of the external module is
  * defined by id of the module and name of the output.
  *
@@ -34,18 +28,16 @@ import org.slf4j.Logger;
  */
 public class Connection {
 
-    public static final String REF_IDENTIFIER = "$";
-
-    private String ouputModuleId;
-    private String outputName;
-    private String inputName;
+    private final String ouputModuleId;
+    private final String outputName;
+    private final String inputName;
 
     /**
      * This constructor is responsible for creation of connections between modules in the rule.
      *
-     * @param inputName is an unique name of the {@code Input} in scope of the {@link Module}.
+     * @param inputName     is an unique name of the {@code Input} in scope of the {@link Module}.
      * @param ouputModuleId is an unique id of the {@code Module} in scope of the {@link Rule}.
-     * @param outputName is an unique name of the {@code Output} in scope of the {@link Module}.
+     * @param outputName    is an unique name of the {@code Output} in scope of the {@link Module}.
      */
     public Connection(String inputName, String ouputModuleId, String outputName) {
         validate("inputName", inputName);
@@ -102,8 +94,8 @@ public class Connection {
      * This method is used to validate the connection.
      *
      * @param field serves to construct an understandable message that indicates what property of the connection is not
-     *            correct.
-     * @param id is the value of the specified property. It can't be empty string.
+     *              correct.
+     * @param id    is the value of the specified property. It can't be empty string.
      */
     private void validate(String field, String id) {
         if (id == null || id.length() == 0) {
@@ -114,45 +106,6 @@ public class Connection {
     @Override
     public String toString() {
         return "Connection " + ouputModuleId + "." + outputName + "->" + inputName;
-    }
-
-    /**
-     * This method is used for collecting of Connections of {@link Module}s.
-     *
-     * @param type specifies the type of the automation object - module type, rule or rule template.
-     * @param UID is the unique identifier of the automation object - module type, rule or rule template.
-     * @param jsonModule is a JSONObject representing the module.
-     * @param exceptions is a list used for collecting the exceptions occurred during {@link Module}s creation.
-     * @param log is used for logging of exceptions.
-     * @return collected Connections
-     */
-    public static Set<Connection> getConnections(Map<String, String> inputs, Logger log) {
-        Set<Connection> connections = new HashSet<Connection>(11);
-        if (inputs != null) {
-            for (Entry<String, String> input : inputs.entrySet()) {
-                String inputName = input.getKey();
-                String outputName = null;
-
-                String output = input.getValue();
-                if (output.startsWith(REF_IDENTIFIER)) {
-                    outputName = output;
-                    Connection connection = new Connection(inputName, null, outputName);
-                    connections.add(connection);
-                } else {
-                    int index = output.indexOf('.');
-                    if (index != -1) {
-                        String outputId = output.substring(0, index);
-                        outputName = output.substring(index + 1);
-                        Connection connection = new Connection(inputName, outputId, outputName);
-                        connections.add(connection);
-                    } else {
-                        log.error("Wrong format of Output : {}: {}", inputName, output);
-                        continue;
-                    }
-                }
-            }
-        }
-        return connections;
     }
 
 }

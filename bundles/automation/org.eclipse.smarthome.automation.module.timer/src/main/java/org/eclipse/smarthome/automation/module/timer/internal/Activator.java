@@ -36,7 +36,6 @@ public class Activator implements BundleActivator {
     @Override
     public void start(BundleContext bundleContext) throws Exception {
         this.moduleHandlerFactory = new TimerModuleHandlerFactory();
-        this.moduleHandlerFactory.activate(bundleContext);
         this.factoryRegistration = bundleContext.registerService(ModuleHandlerFactory.class.getName(),
                 this.moduleHandlerFactory, null);
         logger.debug("started bundle timer.module");
@@ -44,7 +43,7 @@ public class Activator implements BundleActivator {
 
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
-        this.moduleHandlerFactory.dispose();
+        this.moduleHandlerFactory.deactivate();
         if (this.factoryRegistration != null) {
             this.factoryRegistration.unregister();
         }

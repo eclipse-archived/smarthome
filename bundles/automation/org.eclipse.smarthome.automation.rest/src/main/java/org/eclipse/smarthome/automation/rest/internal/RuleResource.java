@@ -41,17 +41,20 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleManager;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.dto.ActionDTOMapper;
+import org.eclipse.smarthome.automation.core.dto.ConditionDTOMapper;
+import org.eclipse.smarthome.automation.core.dto.RuleDTOMapper;
+import org.eclipse.smarthome.automation.core.dto.TriggerDTOMapper;
+import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.automation.dto.ActionDTO;
-import org.eclipse.smarthome.automation.dto.ActionDTOMapper;
 import org.eclipse.smarthome.automation.dto.ConditionDTO;
-import org.eclipse.smarthome.automation.dto.ConditionDTOMapper;
 import org.eclipse.smarthome.automation.dto.ModuleDTO;
 import org.eclipse.smarthome.automation.dto.RuleDTO;
-import org.eclipse.smarthome.automation.dto.RuleDTOMapper;
 import org.eclipse.smarthome.automation.dto.TriggerDTO;
-import org.eclipse.smarthome.automation.dto.TriggerDTOMapper;
 import org.eclipse.smarthome.automation.rest.internal.dto.EnrichedRuleDTO;
 import org.eclipse.smarthome.automation.rest.internal.dto.EnrichedRuleDTOMapper;
 import org.eclipse.smarthome.config.core.ConfigUtil;
@@ -86,6 +89,7 @@ public class RuleResource implements RESTResource {
     private final Logger logger = LoggerFactory.getLogger(RuleResource.class);
 
     private RuleRegistry ruleRegistry;
+    private RuleManager ruleManager;
 
     @Context
     private UriInfo uriInfo;
@@ -97,6 +101,15 @@ public class RuleResource implements RESTResource {
 
     protected void unsetRuleRegistry(RuleRegistry ruleRegistry) {
         this.ruleRegistry = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setRuleManager(RuleManager ruleManager) {
+        this.ruleManager = ruleManager;
+    }
+
+    protected void unsetRuleManager(RuleManager ruleManager) {
+        this.ruleManager = null;
     }
 
     @GET
@@ -115,11 +128,11 @@ public class RuleResource implements RESTResource {
             p = p.and(hasPrefix(prefix));
         }
 
-        // if tags is null or emty list returns all rules
+        // if tags is null or empty list returns all rules
         p = p.and(hasAllTags(tags));
 
         final Collection<EnrichedRuleDTO> rules = ruleRegistry.stream().filter(p) // filter according to Predicates
-                .map(rule -> EnrichedRuleDTOMapper.map(rule, ruleRegistry)) // map matching rules
+                .map(rule -> EnrichedRuleDTOMapper.map(rule, ruleManager)) // map matching rules
                 .collect(Collectors.toList());
 
         return Response.ok(rules).build();
@@ -158,7 +171,7 @@ public class RuleResource implements RESTResource {
     public Response getByUID(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID) {
         Rule rule = ruleRegistry.get(ruleUID);
         if (rule != null) {
-            return Response.ok(EnrichedRuleDTOMapper.map(rule, ruleRegistry)).build();
+            return Response.ok(EnrichedRuleDTOMapper.map(rule, ruleManager)).build();
         } else {
             return Response.status(Status.NOT_FOUND).build();
         }
@@ -233,7 +246,7 @@ public class RuleResource implements RESTResource {
                     uriInfo.getPath(), ruleUID);
             return Response.status(Status.NOT_FOUND).build();
         } else {
-            rule.setConfiguration(new Configuration(config));
+            rule = RuleBuilder.create(rule).withConfiguration(new Configuration(config)).build();
             ruleRegistry.update(rule);
             return Response.ok(null, MediaType.TEXT_PLAIN).build();
         }
@@ -249,12 +262,11 @@ public class RuleResource implements RESTResource {
             @ApiParam(value = "enable", required = true) String enabled) throws IOException {
         Rule rule = ruleRegistry.get(ruleUID);
         if (rule == null) {
-            logger.info("Received HTTP PUT request for update config at '{}' for the unknown rule '{}'.",
+            logger.info("Received HTTP PUT request for set enabled at '{}' for the unknown rule '{}'.",
                     uriInfo.getPath(), ruleUID);
             return Response.status(Status.NOT_FOUND).build();
         } else {
-            ruleRegistry.setEnabled(ruleUID, !"false".equalsIgnoreCase(enabled));
-            // ruleRegistry.update(rule);
+            ruleManager.setEnabled(ruleUID, !"false".equalsIgnoreCase(enabled));
             return Response.ok(null, MediaType.TEXT_PLAIN).build();
         }
     }
@@ -269,12 +281,12 @@ public class RuleResource implements RESTResource {
             throws IOException {
         Rule rule = ruleRegistry.get(ruleUID);
         if (rule == null) {
-            logger.info("Received HTTP PUT request for update config at '{}' for the unknown rule '{}'.",
-                    uriInfo.getPath(), ruleUID);
+            logger.info("Received HTTP PUT request for run now at '{}' for the unknown rule '{}'.", uriInfo.getPath(),
+                    ruleUID);
             return Response.status(Status.NOT_FOUND).build();
         } else {
-            ruleRegistry.runNow(ruleUID);
-            return Response.ok(null, MediaType.TEXT_PLAIN).build();
+            ruleManager.runNow(ruleUID);
+            return Response.ok().build();
         }
     }
 
@@ -403,7 +415,7 @@ public class RuleResource implements RESTResource {
             if (module != null) {
                 Configuration configuration = module.getConfiguration();
                 configuration.put(param, ConfigUtil.normalizeType(value));
-                module.setConfiguration(configuration);
+                module = ModuleBuilder.create(module).withConfiguration(configuration).build();
                 ruleRegistry.update(rule);
                 return Response.ok(null, MediaType.TEXT_PLAIN).build();
             }
@@ -464,7 +476,7 @@ public class RuleResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return ruleRegistry != null;
+        return ruleRegistry != null && ruleManager != null;
     }
 
 }

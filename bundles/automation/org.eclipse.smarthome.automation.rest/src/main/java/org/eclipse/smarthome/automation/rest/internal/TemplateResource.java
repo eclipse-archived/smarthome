@@ -27,8 +27,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.smarthome.automation.core.dto.RuleTemplateDTOMapper;
 import org.eclipse.smarthome.automation.dto.RuleTemplateDTO;
-import org.eclipse.smarthome.automation.dto.RuleTemplateDTOMapper;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;

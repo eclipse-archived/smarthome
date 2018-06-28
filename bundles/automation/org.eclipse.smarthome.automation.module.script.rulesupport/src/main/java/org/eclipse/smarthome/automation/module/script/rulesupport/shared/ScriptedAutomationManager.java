@@ -14,12 +14,13 @@ package org.eclipse.smarthome.automation.module.script.rulesupport.shared;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.UUID;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.automation.module.script.rulesupport.internal.ScriptedCustomModuleHandlerFactory;
 import org.eclipse.smarthome.automation.module.script.rulesupport.internal.ScriptedCustomModuleTypeProvider;
 import org.eclipse.smarthome.automation.module.script.rulesupport.internal.ScriptedPrivateModuleHandlerFactory;
@@ -45,15 +46,15 @@ import org.slf4j.LoggerFactory;
 public class ScriptedAutomationManager {
     private final Logger logger = LoggerFactory.getLogger(ScriptedAutomationManager.class);
 
-    private RuleSupportRuleRegistryDelegate ruleRegistryDelegate;
+    private final RuleSupportRuleRegistryDelegate ruleRegistryDelegate;
 
-    private HashSet<String> modules = new HashSet<>();
-    private HashSet<String> moduleHandlers = new HashSet<>();
-    private HashSet<String> privateHandlers = new HashSet<>();
+    private final HashSet<String> modules = new HashSet<>();
+    private final HashSet<String> moduleHandlers = new HashSet<>();
+    private final HashSet<String> privateHandlers = new HashSet<>();
 
-    private ScriptedCustomModuleHandlerFactory scriptedCustomModuleHandlerFactory;
-    private ScriptedCustomModuleTypeProvider scriptedCustomModuleTypeProvider;
-    private ScriptedPrivateModuleHandlerFactory scriptedPrivateModuleHandlerFactory;
+    private final ScriptedCustomModuleHandlerFactory scriptedCustomModuleHandlerFactory;
+    private final ScriptedCustomModuleTypeProvider scriptedCustomModuleTypeProvider;
+    private final ScriptedPrivateModuleHandlerFactory scriptedPrivateModuleHandlerFactory;
 
     public ScriptedAutomationManager(RuleSupportRuleRegistryDelegate ruleRegistryDelegate,
             ScriptedCustomModuleHandlerFactory scriptedCustomModuleHandlerFactory,
@@ -106,7 +107,7 @@ public class ScriptedAutomationManager {
     }
 
     public Rule addRule(Rule element) {
-        Rule rule = element.getUID() == null ? new Rule(generateUID()) : new Rule(element.getUID());
+        RuleBuilder builder = RuleBuilder.create(element.getUID());
 
         String name = element.getName();
         if (name == null || name.isEmpty()) {
@@ -116,9 +117,7 @@ public class ScriptedAutomationManager {
             }
         }
 
-        rule.setName(name);
-        rule.setDescription(element.getDescription());
-        rule.setTags(element.getTags());
+        builder.withName(name).withDescription(element.getDescription()).withTags(element.getTags());
 
         // used for numbering the modules of the rule
         int moduleIndex = 1;
@@ -127,15 +126,16 @@ public class ScriptedAutomationManager {
             ArrayList<Condition> conditions = new ArrayList<>();
             for (Condition cond : element.getConditions()) {
                 Condition toAdd = cond;
-                if (cond.getId() == null || cond.getId().isEmpty()) {
-                    toAdd = new Condition(Integer.toString(moduleIndex++), cond.getTypeUID(), cond.getConfiguration(),
-                            cond.getInputs());
+                if (cond.getId().isEmpty()) {
+                    toAdd = ModuleBuilder.createCondition().withId(Integer.toString(moduleIndex++))
+                            .withTypeUID(cond.getTypeUID()).withConfiguration(cond.getConfiguration())
+                            .withInputs(cond.getInputs()).build();
                 }
 
                 conditions.add(toAdd);
             }
 
-            rule.setConditions(conditions);
+            builder.withConditions(conditions);
         } catch (Exception ex) {
             // conditions are optional
         }
@@ -144,15 +144,15 @@ public class ScriptedAutomationManager {
             ArrayList<Trigger> triggers = new ArrayList<>();
             for (Trigger trigger : element.getTriggers()) {
                 Trigger toAdd = trigger;
-                if (trigger.getId() == null || trigger.getId().isEmpty()) {
-                    toAdd = new Trigger(Integer.toString(moduleIndex++), trigger.getTypeUID(),
-                            trigger.getConfiguration());
+                if (trigger.getId().isEmpty()) {
+                    toAdd = ModuleBuilder.createTrigger().withId(Integer.toString(moduleIndex++))
+                            .withTypeUID(trigger.getTypeUID()).withConfiguration(trigger.getConfiguration()).build();
                 }
 
                 triggers.add(toAdd);
             }
 
-            rule.setTriggers(triggers);
+            builder.withTriggers(triggers);
         } catch (Exception ex) {
             // triggers are optional
         }
@@ -164,20 +164,18 @@ public class ScriptedAutomationManager {
             String privId = addPrivateActionHandler(
                     new SimpleRuleActionHandlerDelegate((SimpleRuleActionHandler) element));
 
-            Action scriptedAction = new Action(Integer.toString(moduleIndex++), "jsr223.ScriptedAction",
-                    new Configuration(), null);
+            Action scriptedAction = ModuleBuilder.createAction().withId(Integer.toString(moduleIndex++))
+                    .withTypeUID("jsr223.ScriptedAction").withConfiguration(new Configuration()).build();
             scriptedAction.getConfiguration().put("privId", privId);
             actions.add(scriptedAction);
         }
 
-        rule.setActions(actions);
+        builder.withActions(actions);
+
+        Rule rule = builder.build();
+
         ruleRegistryDelegate.add(rule);
-
         return rule;
-    }
-
-    private String generateUID() {
-        return UUID.randomUUID().toString();
     }
 
     public void addConditionType(ConditionType condititonType) {

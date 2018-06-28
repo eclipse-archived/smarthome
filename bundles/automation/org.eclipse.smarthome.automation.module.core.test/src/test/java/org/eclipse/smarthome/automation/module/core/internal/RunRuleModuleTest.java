@@ -15,20 +15,23 @@ package org.eclipse.smarthome.automation.module.core.internal;
 import static org.junit.Assert.*;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleManager;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
-import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.events.Event;
@@ -93,14 +96,14 @@ public class RunRuleModuleTest extends JavaOSGiTest {
                 .unmodifiableMap(Stream.of(new SimpleEntry<>("itemName", "switch3"), new SimpleEntry<>("command", "ON"))
                         .collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()))));
 
-        final Rule sceneRule = new Rule("exampleSceneRule");
-
-        sceneRule.setActions(Arrays.asList(new Action[] {
-                new Action("sceneItemPostCommandAction1", "core.ItemCommandAction", sceneRuleAction1Config, null),
-                new Action("sceneItemPostCommandAction2", "core.ItemCommandAction", sceneRuleAction2Config, null),
-                new Action("sceneItemPostCommandAction3", "core.ItemCommandAction", sceneRuleAction3Config, null) }));
-
-        sceneRule.setName("Example Scene");
+        final Rule sceneRule = RuleBuilder.create("exampleSceneRule").withActions(
+                ModuleBuilder.createAction().withId("sceneItemPostCommandAction1").withTypeUID("core.ItemCommandAction")
+                        .withConfiguration(sceneRuleAction1Config).build(),
+                ModuleBuilder.createAction().withId("sceneItemPostCommandAction2").withTypeUID("core.ItemCommandAction")
+                        .withConfiguration(sceneRuleAction2Config).build(),
+                ModuleBuilder.createAction().withId("sceneItemPostCommandAction3").withTypeUID("core.ItemCommandAction")
+                        .withConfiguration(sceneRuleAction3Config).build())
+                .withName("Example Scene").build();
 
         return sceneRule;
     }
@@ -111,19 +114,19 @@ public class RunRuleModuleTest extends JavaOSGiTest {
                         new SimpleEntry<>("eventTypes", "ItemStateEvent"))
                 .collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()))));
 
+        final List<String> ruleUIDs = new ArrayList<>();
+        ruleUIDs.add("exampleSceneRule");
+
         final Configuration outerRuleActionConfig = new Configuration(
-                Collections.unmodifiableMap(Stream.of(new SimpleEntry<>("ruleUIDs", "[exampleSceneRule]"))
+                Collections.unmodifiableMap(Stream.of(new SimpleEntry<>("ruleUIDs", ruleUIDs))
                         .collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()))));
 
-        final Rule outerRule = new Rule("sceneActivationRule");
-
-        outerRule.setTriggers(Arrays.asList(new Trigger[] {
-                new Trigger("ItemStateChangeTrigger2", "core.GenericEventTrigger", outerRuleTriggerConfig) }));
-
-        outerRule.setActions(Arrays.asList(
-                new Action[] { new Action("RunRuleAction1", "core.RunRuleAction", outerRuleActionConfig, null) }));
-
-        outerRule.setName("scene activator");
+        final Rule outerRule = RuleBuilder.create("sceneActivationRule")
+                .withTriggers(ModuleBuilder.createTrigger().withId("ItemStateChangeTrigger2")
+                        .withTypeUID("core.GenericEventTrigger").withConfiguration(outerRuleTriggerConfig).build())
+                .withActions(ModuleBuilder.createAction().withId("RunRuleAction1").withTypeUID("core.RunRuleAction")
+                        .withConfiguration(outerRuleActionConfig).build())
+                .withName("scene activator").build();
 
         return outerRule;
     }
@@ -131,6 +134,7 @@ public class RunRuleModuleTest extends JavaOSGiTest {
     @Test
     public void sceneActivatedByRule() throws ItemNotFoundException, InterruptedException {
         final RuleRegistry ruleRegistry = getService(RuleRegistry.class);
+        final RuleManager ruleEngine = getService(RuleManager.class);
         Assert.assertNotNull(ruleRegistry);
 
         // Scene rule
@@ -139,9 +143,9 @@ public class RunRuleModuleTest extends JavaOSGiTest {
         logger.info("SceneRule created: {}", sceneRule.getUID());
 
         ruleRegistry.add(sceneRule);
-        ruleRegistry.setEnabled(sceneRule.getUID(), true);
+        ruleEngine.setEnabled(sceneRule.getUID(), true);
         waitForAssert(() -> {
-            Assert.assertEquals(RuleStatus.IDLE, ruleRegistry.getStatusInfo(sceneRule.getUID()).getStatus());
+            Assert.assertEquals(RuleStatus.IDLE, ruleEngine.getStatusInfo(sceneRule.getUID()).getStatus());
         });
 
         // Outer rule
@@ -150,9 +154,9 @@ public class RunRuleModuleTest extends JavaOSGiTest {
         logger.info("SceneActivationRule created: {}", outerRule.getUID());
 
         ruleRegistry.add(outerRule);
-        ruleRegistry.setEnabled(outerRule.getUID(), true);
+        ruleEngine.setEnabled(outerRule.getUID(), true);
         waitForAssert(() -> {
-            Assert.assertEquals(RuleStatus.IDLE, ruleRegistry.getStatusInfo(outerRule.getUID()).getStatus());
+            Assert.assertEquals(RuleStatus.IDLE, ruleEngine.getStatusInfo(outerRule.getUID()).getStatus());
         });
 
         // Test rule
