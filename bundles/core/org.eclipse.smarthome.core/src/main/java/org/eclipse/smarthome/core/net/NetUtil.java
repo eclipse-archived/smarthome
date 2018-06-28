@@ -58,13 +58,13 @@ import org.slf4j.LoggerFactory;
  */
 @Component(configurationPid = "org.eclipse.smarthome.network", property = { "service.pid=org.eclipse.smarthome.network",
         "service.config.description.uri=system:network", "service.config.label=Network Settings",
-        "service.config.category=system", "service.config.network.poll.frequency=60" })
+        "service.config.category=system", "service.config.network.poll.interval=60" })
 @NonNullByDefault
 public class NetUtil implements NetworkAddressService {
 
     private static final String PRIMARY_ADDRESS = "primaryAddress";
     private static final String BROADCAST_ADDRESS = "broadcastAddress";
-    private static final String POLL_FREQUENCY = "service.config.network.poll.frequency";
+    private static final String POLL_INTERVAL = "service.config.network.poll.interval";
     private static final Logger LOGGER = LoggerFactory.getLogger(NetUtil.class);
 
     /**
@@ -126,13 +126,13 @@ public class NetUtil implements NetworkAddressService {
         String pollFrequenceSecondsStr = "";
         int pollFrequenceSeconds = POLL_DEFAULT_FREQUENCY_SECONDS;
         try {
-            Object pollFrequenceSecondsObj = config.get(POLL_FREQUENCY);
+            Object pollFrequenceSecondsObj = config.get(POLL_INTERVAL);
             if (pollFrequenceSecondsObj != null) {
                 pollFrequenceSeconds = Integer.parseInt(pollFrequenceSecondsObj.toString());
             }
         } catch (NullPointerException | NumberFormatException e) {
             LOGGER.debug("Cannot parse value {} from key {}, will use default {}", pollFrequenceSecondsStr,
-                    POLL_FREQUENCY, pollFrequenceSeconds);
+                    POLL_INTERVAL, pollFrequenceSeconds);
         }
 
         scheduleToPollNetworkInterface(pollFrequenceSeconds);
