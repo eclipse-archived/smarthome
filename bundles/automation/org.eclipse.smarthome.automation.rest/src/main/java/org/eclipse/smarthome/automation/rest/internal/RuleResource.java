@@ -58,6 +58,10 @@ import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,6 +80,7 @@ import io.swagger.annotations.ResponseHeader;
  */
 @Path("rules")
 @Api("rules")
+@Component
 public class RuleResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(RuleResource.class);
@@ -85,6 +90,7 @@ public class RuleResource implements RESTResource {
     @Context
     private UriInfo uriInfo;
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setRuleRegistry(RuleRegistry ruleRegistry) {
         this.ruleRegistry = ruleRegistry;
     }

@@ -45,7 +45,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
-import org.eclipse.smarthome.io.rest.LocaleUtil;
+import org.eclipse.smarthome.io.rest.LocaleService;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 import org.osgi.service.component.annotations.Component;
@@ -68,7 +68,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(ChannelTypeResource.PATH_CHANNEL_TYPES)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ChannelTypeResource.PATH_CHANNEL_TYPES)
-@Component(service = { RESTResource.class, ChannelTypeResource.class })
+@Component
 public class ChannelTypeResource implements RESTResource {
 
     /** The URI path to this resource */
@@ -78,6 +78,8 @@ public class ChannelTypeResource implements RESTResource {
     private ConfigDescriptionRegistry configDescriptionRegistry;
 
     private ProfileTypeRegistry profileTypeRegistry;
+
+    private LocaleService localeService;
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
@@ -106,13 +108,22 @@ public class ChannelTypeResource implements RESTResource {
         this.profileTypeRegistry = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setLocaleService(LocaleService localeService) {
+        this.localeService = localeService;
+    }
+
+    protected void unsetLocaleService(LocaleService localeService) {
+        this.localeService = null;
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets all available channel types.", response = ChannelTypeDTO.class, responseContainer = "Set")
     @ApiResponses(value = @ApiResponse(code = 200, message = "OK", response = ChannelTypeDTO.class, responseContainer = "Set"))
     public Response getAll(
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
-        Locale locale = LocaleUtil.getLocale(language);
+        Locale locale = localeService.getLocale(language);
 
         Stream<ChannelTypeDTO> channelStream = channelTypeRegistry.getChannelTypes(locale).stream()
                 .map(c -> convertToChannelTypeDTO(c, locale));
@@ -128,7 +139,7 @@ public class ChannelTypeResource implements RESTResource {
             @ApiResponse(code = 404, message = "No content") })
     public Response getByUID(@PathParam("channelTypeUID") @ApiParam(value = "channelTypeUID") String channelTypeUID,
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
-        Locale locale = LocaleUtil.getLocale(language);
+        Locale locale = localeService.getLocale(language);
         ChannelType channelType = channelTypeRegistry.getChannelType(new ChannelTypeUID(channelTypeUID), locale);
         if (channelType != null) {
             return Response.ok(convertToChannelTypeDTO(channelType, locale)).build();
@@ -201,7 +212,8 @@ public class ChannelTypeResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return channelTypeRegistry != null && configDescriptionRegistry != null && profileTypeRegistry != null;
+        return channelTypeRegistry != null && configDescriptionRegistry != null && profileTypeRegistry != null
+                && localeService != null;
     }
 
 }

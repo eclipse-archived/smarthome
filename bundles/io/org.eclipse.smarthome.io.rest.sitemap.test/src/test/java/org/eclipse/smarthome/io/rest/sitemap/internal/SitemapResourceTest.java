@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -39,11 +40,13 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.io.rest.LocaleService;
 import org.eclipse.smarthome.model.sitemap.ColorArray;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapProvider;
 import org.eclipse.smarthome.model.sitemap.VisibilityRule;
 import org.eclipse.smarthome.model.sitemap.Widget;
+import org.eclipse.smarthome.test.java.JavaTest;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,7 +58,7 @@ import org.mockito.Mock;
  * @author Henning Treu - initial contribution
  *
  */
-public class SitemapResourceTest {
+public class SitemapResourceTest extends JavaTest {
 
     private static final int STATE_UPDATE_WAIT_TIME = 100;
 
@@ -110,6 +113,10 @@ public class SitemapResourceTest {
         visibilityRuleItem = new TestItem(VISIBILITY_RULE_ITEM_NAME);
         labelColorItem = new TestItem(LABEL_COLOR_ITEM_NAME);
         valueColorItem = new TestItem(VALUE_COLOR_ITEM_NAME);
+
+        LocaleService localeService = mock(LocaleService.class);
+        when(localeService.getLocale(null)).thenReturn(Locale.US);
+        sitemapResource.setLocaleService(localeService);
 
         configureSitemapProviderMock();
         configureSitemapMock();

@@ -35,7 +35,7 @@ import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTO;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTOMapper;
 import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.io.rest.JSONResponse;
-import org.eclipse.smarthome.io.rest.LocaleUtil;
+import org.eclipse.smarthome.io.rest.LocaleService;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 import org.osgi.service.component.annotations.Component;
@@ -59,7 +59,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(ConfigDescriptionResource.PATH_CONFIG_DESCRIPTIONS)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ConfigDescriptionResource.PATH_CONFIG_DESCRIPTIONS)
-@Component(service = { RESTResource.class, ConfigDescriptionResource.class })
+@Component
 public class ConfigDescriptionResource implements RESTResource {
 
     /** The URI path to this resource */
@@ -67,13 +67,24 @@ public class ConfigDescriptionResource implements RESTResource {
 
     private ConfigDescriptionRegistry configDescriptionRegistry;
 
+    private LocaleService localeService;
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setLocaleService(LocaleService localeService) {
+        this.localeService = localeService;
+    }
+
+    protected void unsetLocaleService(LocaleService localeService) {
+        this.localeService = null;
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets all available config descriptions.", response = ConfigDescriptionDTO.class, responseContainer = "List")
     @ApiResponses(value = @ApiResponse(code = 200, message = "OK", response = ConfigDescriptionDTO.class, responseContainer = "List"))
     public Response getAll(@HeaderParam("Accept-Language") @ApiParam(value = "Accept-Language") String language, //
             @QueryParam("scheme") @ApiParam(value = "scheme filter", required = false) @Nullable String scheme) {
-        Locale locale = LocaleUtil.getLocale(language);
+        Locale locale = localeService.getLocale(language);
         Collection<ConfigDescription> configDescriptions = configDescriptionRegistry.getConfigDescriptions(locale);
 
         return Response.ok(new Stream2JSONInputStream(configDescriptions.stream().filter(configDescription -> {
@@ -89,7 +100,7 @@ public class ConfigDescriptionResource implements RESTResource {
             @ApiResponse(code = 400, message = "Invalid URI syntax"), @ApiResponse(code = 404, message = "Not found") })
     public Response getByURI(@HeaderParam("Accept-Language") @ApiParam(value = "Accept-Language") String language,
             @PathParam("uri") @ApiParam(value = "uri") String uri) {
-        Locale locale = LocaleUtil.getLocale(language);
+        Locale locale = localeService.getLocale(language);
         URI uriObject = UriBuilder.fromPath(uri).build();
         ConfigDescription configDescription = this.configDescriptionRegistry.getConfigDescription(uriObject, locale);
         return configDescription != null ? Response.ok(ConfigDescriptionDTOMapper.map(configDescription)).build()
@@ -107,7 +118,7 @@ public class ConfigDescriptionResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return configDescriptionRegistry != null;
+        return configDescriptionRegistry != null && localeService != null;
     }
 
 }
