@@ -171,7 +171,6 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
      * @return <code>unit</code>.
      */
     
-    Signed-off-by vzorglub@gmail.com
     private static <U extends Unit<?>> U addUnit(U unit) {
         INSTANCE.units.add(unit);
         return unit;
