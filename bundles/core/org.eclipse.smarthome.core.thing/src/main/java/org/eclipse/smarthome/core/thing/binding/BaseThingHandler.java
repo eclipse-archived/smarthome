@@ -21,7 +21,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -36,7 +35,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
-import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
 import org.eclipse.smarthome.core.types.Command;
@@ -84,10 +82,6 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     @Deprecated // this must not be used by bindings!
     @NonNullByDefault({})
-    protected ConfigDescriptionValidator configDescriptionValidator;
-
-    @Deprecated // this must not be used by bindings!
-    @NonNullByDefault({})
     protected BundleContext bundleContext;
 
     protected Thing thing;
@@ -98,9 +92,6 @@ public abstract class BaseThingHandler implements ThingHandler {
     @SuppressWarnings("rawtypes")
     @NonNullByDefault({})
     private ServiceTracker thingTypeRegistryServiceTracker;
-    @SuppressWarnings("rawtypes")
-    @NonNullByDefault({})
-    private ServiceTracker configDescriptionValidatorServiceTracker;
 
     private @Nullable ThingHandlerCallback callback;
 
@@ -147,22 +138,6 @@ public abstract class BaseThingHandler implements ThingHandler {
             }
         };
         thingTypeRegistryServiceTracker.open();
-        configDescriptionValidatorServiceTracker = new ServiceTracker(this.bundleContext,
-                ConfigDescriptionValidator.class.getName(), null) {
-            @Override
-            public Object addingService(final @Nullable ServiceReference reference) {
-                configDescriptionValidator = (ConfigDescriptionValidator) bundleContext.getService(reference);
-                return configDescriptionValidator;
-            }
-
-            @Override
-            public void removedService(final @Nullable ServiceReference reference, final @Nullable Object service) {
-                synchronized (BaseThingHandler.this) {
-                    configDescriptionValidator = null;
-                }
-            }
-        };
-        configDescriptionValidatorServiceTracker.open();
     }
 
     public void unsetBundleContext(final BundleContext bundleContext) {
@@ -199,7 +174,12 @@ public abstract class BaseThingHandler implements ThingHandler {
         } else {
             // persist new configuration and notify Thing Manager
             updateConfiguration(configuration);
-            callback.configurationUpdated(getThing());
+            if (this.callback != null) {
+                this.callback.configurationUpdated(this.getThing());
+            } else {
+                logger.warn("Handler {} tried updating its configuration although the handler was already disposed.",
+                        this.getClass().getSimpleName());
+            }
         }
     }
 
@@ -291,9 +271,11 @@ public abstract class BaseThingHandler implements ThingHandler {
      *             their declarations in the configuration description
      */
     protected void validateConfigurationParameters(Map<String, Object> configurationParameters) {
-        ThingType thingType = thingTypeRegistry.getThingType(getThing().getThingTypeUID());
-        if (thingType != null && thingType.getConfigDescriptionURI() != null) {
-            configDescriptionValidator.validate(configurationParameters, thingType.getConfigDescriptionURI());
+        if (this.callback != null) {
+            this.callback.validateConfigurationParameters(this.getThing(), configurationParameters);
+        } else {
+            logger.warn("Handler {} tried validating its configuration although the handler was already disposed.",
+                    this.getClass().getSimpleName());
         }
     }
 
