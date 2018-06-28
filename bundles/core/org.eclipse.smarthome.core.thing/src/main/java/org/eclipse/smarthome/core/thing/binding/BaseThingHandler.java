@@ -35,7 +35,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
-import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
@@ -78,10 +77,6 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     @Deprecated // this must not be used by bindings!
     @NonNullByDefault({})
-    protected ThingTypeRegistry thingTypeRegistry;
-
-    @Deprecated // this must not be used by bindings!
-    @NonNullByDefault({})
     protected BundleContext bundleContext;
 
     protected Thing thing;
@@ -89,9 +84,6 @@ public abstract class BaseThingHandler implements ThingHandler {
     @SuppressWarnings("rawtypes")
     @NonNullByDefault({})
     private ServiceTracker thingRegistryServiceTracker;
-    @SuppressWarnings("rawtypes")
-    @NonNullByDefault({})
-    private ServiceTracker thingTypeRegistryServiceTracker;
 
     private @Nullable ThingHandlerCallback callback;
 
@@ -122,27 +114,10 @@ public abstract class BaseThingHandler implements ThingHandler {
             }
         };
         thingRegistryServiceTracker.open();
-        thingTypeRegistryServiceTracker = new ServiceTracker(this.bundleContext, ThingTypeRegistry.class.getName(),
-                null) {
-            @Override
-            public Object addingService(final @Nullable ServiceReference reference) {
-                thingTypeRegistry = (ThingTypeRegistry) bundleContext.getService(reference);
-                return thingTypeRegistry;
-            }
-
-            @Override
-            public void removedService(final @Nullable ServiceReference reference, final @Nullable Object service) {
-                synchronized (BaseThingHandler.this) {
-                    thingTypeRegistry = null;
-                }
-            }
-        };
-        thingTypeRegistryServiceTracker.open();
     }
 
     public void unsetBundleContext(final BundleContext bundleContext) {
         thingRegistryServiceTracker.close();
-        thingTypeRegistryServiceTracker.close();
         this.bundleContext = null;
     }
 
