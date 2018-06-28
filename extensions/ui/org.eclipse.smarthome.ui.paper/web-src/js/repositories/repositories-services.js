@@ -8,6 +8,9 @@ angular.module('PaperUI.services.repositories')//
 }).factory('channelTypeRepository', function(Repository, $q, $rootScope, channelTypeService) {
     $rootScope.data.channelTypes = [];
     return new Repository.create($q, $rootScope, channelTypeService, 'channelTypes', true);
+}).factory('profileTypeRepository', function(Repository, $q, $rootScope, profileTypeService) {
+    $rootScope.data.profileTypes = [];
+    return new Repository.create($q, $rootScope, profileTypeService, 'profileTypes', true);
 }).factory('discoveryResultRepository', function(Repository, $q, $rootScope, inboxService, eventService) {
     var repository = new Repository.create($q, $rootScope, inboxService, 'discoveryResults')
     $rootScope.data.discoveryResults = [];

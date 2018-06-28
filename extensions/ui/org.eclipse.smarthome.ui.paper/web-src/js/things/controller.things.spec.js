@@ -100,14 +100,10 @@ describe('module PaperUI.things', function() {
             } ];
 
             scope.advancedMode = true;
-
-            var profileTypeService = injector.get('profileTypeService');
-            spyOn(profileTypeService, 'getAll').and.returnValue({
-                $promise : deferred.promise
-            });
+            spyOn(mdDialog, 'show').and.returnValue(deferred.promise);
 
             scope.enableChannel(0, 'T', event, true);
-            expect(profileTypeService.getAll).toHaveBeenCalled();
+            expect(mdDialog.show).toHaveBeenCalled();
         });
         it('should link channel simple mode', function() {
             var linkService = injector.get("linkService");
@@ -198,6 +194,12 @@ describe('module PaperUI.things', function() {
             $rootScope.data.items = [ {
                 type : 'T'
             } ];
+            var linkConfig = {
+                profile : "system:default"
+            };
+            var linkModel = {
+                configuration : linkConfig
+            };
             var itemRepository = $injector.get('itemRepository');
             spyOn(itemRepository, 'getAll').and.callFake(function(callback) {
                 return callback([ {
@@ -210,7 +212,8 @@ describe('module PaperUI.things', function() {
                     'linkedItems' : [],
                     'acceptedItemTypes' : [ 'T' ],
                     'category' : '',
-                    allowNewItemCreation : true
+                    allowNewItemCreation : true,
+                    'link' : linkModel
                 }
             });
             mdDialog = $mdDialog;

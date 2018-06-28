@@ -3,20 +3,15 @@
     Select a Profile for the link:
 </h1>
 
-<div class="row includeConfig">
-<fieldset>
-    <legend>Profile:</legend>
-    <div class="col-xs-12 row">
-        <div ng-if="$ctrl.hasOptions()" class="col-xs-11">
-            <md-select placeholder="Select" class="controlSelect" ng-model="$ctrl.link.configuration['profile']">
-                <md-option ng-selected="$ctrl.selectedProfile(option.value)" ng-value="option.value" ng-repeat="option in ::$ctrl.options"> {{::option.label}} <small><span class="small">({{::option.value}})</span></small> </md-option>
-            </md-select>
-        </div>
-    </div>
-</fieldset>
-<fieldset ng-if="$ctrl.hasConfig()">
+<div class="row includeConfig" ng-init="form={}">
+
+<div class="col-xs-12">
+    <profile-selection profile-model="$ctrl.link.configuration['profile']" channel-kind="$ctrl.channelKind"></profile-selection>
+</div>
+
+<fieldset class="row" ng-if="$ctrl.hasConfig()">
     <legend>Configuration:</legend>
-	<div ng-init="form={}">
+	<div>
 	    <config-description configuration="$ctrl.link.configuration" parameters="$ctrl.parameterGroups" expert-mode="$ctrl.expertMode" config-array="$ctrl.configArray" form="form"/>
     </div>
 </fieldset>

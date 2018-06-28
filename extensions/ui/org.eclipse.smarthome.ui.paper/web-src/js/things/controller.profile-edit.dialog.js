@@ -2,47 +2,23 @@
 (function() {
     'use strict';
 
-    angular.module('PaperUI.things').controller('SelectProfileDialogController', SelectProfileDialogController);
+    angular.module('PaperUI.things').controller('ProfileEditDialogController', ProfileEditDialogController);
 
-    function SelectProfileDialogController($scope, $mdDialog, configDescriptionService, configService, linkService, toastService, linkConfigDescription, link, options) {
+    function ProfileEditDialogController($scope, $mdDialog, configDescriptionService, configService, linkService, toastService, linkConfigDescription, link, channelKind) {
         var ctrl = this;
         this.link = link;
+        this.channelKind = channelKind;
         this.linkConfigDescription = linkConfigDescription;
+        this.expertMode = false;
 
         this.oldConfig = link.configuration;
 
         this.cancel = cancel;
         this.close = close;
-        this.hasOptions = hasOptions;
         this.hasConfig = hasConfig;
-        this.selectedProfile = selectedProfile;
 
         this.configuration = undefined;
         this.parameterGroups = undefined;
-
-        if (options === undefined) {
-            if (this.linkConfigDescription.parameters.length > 0) {
-                for (var i = 0; i < this.linkConfigDescription.parameters.length; i++) {
-                    if (this.linkConfigDescription.parameters[i].name == "profile") {
-                        this.options = linkConfigDescription.parameters[i].options;
-                        break;
-                    }
-                }
-            }
-        } else {
-            this.options = options;
-        }
-
-        this.options = this.options.sort(function(a, b) {
-            if (a.value === 'system:default') {
-                return -1;
-            }
-            if (b.value === 'system:default') {
-                return 1;
-            }
-
-            return a.value < b.value ? -1 : a.value > b.value ? 1 : 0
-        })
 
         $scope.$watch(function watchFunction() {
             return ctrl.link.configuration['profile'];
@@ -51,33 +27,26 @@
         });
 
         function cancel() {
+            stripUnsetValues();
             $mdDialog.hide(false);
-        }
-
-        function hasOptions() {
-            return this.options !== null && this.options.length > 0;
         }
 
         function hasConfig() {
             return ctrl.parameterGroups !== undefined;
         }
 
-        function selectedProfile(value) {
-            if (ctrl.link.configuration['profile'] == undefined) {
-                return value == 'system:default';
-            }
-            return (value == ctrl.link.configuration['profile']) || (value == 'system:' + ctrl.link.configuration['profile']);
+        function close() {
+            stripUnsetValues();
+            $mdDialog.hide(true);
         }
 
-        function close() {
+        function stripUnsetValues() {
             // strip unset values for comparison against the old configuration
             Object.keys(link.configuration).forEach(function(key) {
                 if (link.configuration[key] === null) {
                     delete link.configuration[key];
                 }
             });
-
-            $mdDialog.hide(true);
         }
 
         function loadConfigDescriptionForProfile(profileName) {
