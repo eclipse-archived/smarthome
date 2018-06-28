@@ -52,7 +52,7 @@ import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.rest.JSONResponse;
-import org.eclipse.smarthome.io.rest.LocaleUtil;
+import org.eclipse.smarthome.io.rest.LocaleService;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
 import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService;
@@ -108,7 +108,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Chris Jackson
  * @author Yordan Zhelev - Added Swagger annotations
  */
-@Component(service = { SitemapResource.class, RESTResource.class })
+@Component(service = RESTResource.class)
 @Path(SitemapResource.PATH_SITEMAPS)
 @RolesAllowed({ Role.USER, Role.ADMIN })
 @Api(value = SitemapResource.PATH_SITEMAPS)
@@ -133,6 +133,8 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
     private ItemUIRegistry itemUIRegistry;
 
     private SitemapSubscriptionService subscriptions;
+
+    private LocaleService localeService;
 
     private final java.util.List<SitemapProvider> sitemapProviders = new ArrayList<>();
 
@@ -177,6 +179,15 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
         sitemapProviders.remove(provider);
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setLocaleService(LocaleService localeService) {
+        this.localeService = localeService;
+    }
+
+    protected void unsetLocaleService(LocaleService localeService) {
+        this.localeService = null;
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all available sitemaps.", response = SitemapDTO.class, responseContainer = "Collection")
@@ -196,7 +207,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("sitemapname") @ApiParam(value = "sitemap name") String sitemapname,
             @QueryParam("type") String type, @QueryParam("jsoncallback") @DefaultValue("callback") String callback) {
-        final Locale locale = LocaleUtil.getLocale(language);
+        final Locale locale = localeService.getLocale(language);
         logger.debug("Received HTTP GET request at '{}' for media type '{}'.",
                 new Object[] { uriInfo.getPath(), type });
         Object responseObject = getSitemapBean(sitemapname, uriInfo.getBaseUriBuilder().build(), locale);
@@ -215,7 +226,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             @PathParam("sitemapname") @ApiParam(value = "sitemap name") String sitemapname,
             @PathParam("pageid") @ApiParam(value = "page id") String pageId,
             @QueryParam("subscriptionid") @ApiParam(value = "subscriptionid", required = false) String subscriptionId) {
-        final Locale locale = LocaleUtil.getLocale(language);
+        final Locale locale = localeService.getLocale(language);
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
         if (subscriptionId != null) {
@@ -770,7 +781,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
 
     @Override
     public boolean isSatisfied() {
-        return itemUIRegistry != null && subscriptions != null;
+        return itemUIRegistry != null && subscriptions != null && localeService != null;
     }
 
 }

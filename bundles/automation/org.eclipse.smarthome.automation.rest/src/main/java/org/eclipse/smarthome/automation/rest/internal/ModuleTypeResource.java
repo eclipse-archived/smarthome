@@ -40,8 +40,12 @@ import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.automation.type.TriggerType;
-import org.eclipse.smarthome.io.rest.LocaleUtil;
+import org.eclipse.smarthome.io.rest.LocaleService;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -58,19 +62,31 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path("module-types")
 @Api("module-types")
+@Component
 public class ModuleTypeResource implements RESTResource {
 
     private ModuleTypeRegistry moduleTypeRegistry;
+    private LocaleService localeService;
 
     @Context
     private UriInfo uriInfo;
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setModuleTypeRegistry(ModuleTypeRegistry moduleTypeRegistry) {
         this.moduleTypeRegistry = moduleTypeRegistry;
     }
 
     protected void unsetModuleTypeRegistry(ModuleTypeRegistry moduleTypeRegistry) {
         this.moduleTypeRegistry = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setLocaleService(LocaleService localeService) {
+        this.localeService = localeService;
+    }
+
+    protected void unsetLocaleService(LocaleService localeService) {
+        this.localeService = null;
     }
 
     @GET
@@ -81,7 +97,7 @@ public class ModuleTypeResource implements RESTResource {
     public Response getAll(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language,
             @QueryParam("tags") @ApiParam(value = "tags for filtering", required = false) String tagList,
             @QueryParam("type") @ApiParam(value = "filtering by action, condition or trigger", required = false) String type) {
-        final Locale locale = LocaleUtil.getLocale(language);
+        final Locale locale = localeService.getLocale(language);
         final String[] tags = tagList != null ? tagList.split(",") : null;
         final List<ModuleTypeDTO> modules = new ArrayList<ModuleTypeDTO>();
 
@@ -105,7 +121,7 @@ public class ModuleTypeResource implements RESTResource {
             @ApiResponse(code = 404, message = "Module Type corresponding to the given UID does not found.") })
     public Response getByUID(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language,
             @PathParam("moduleTypeUID") @ApiParam(value = "moduleTypeUID", required = true) String moduleTypeUID) {
-        Locale locale = LocaleUtil.getLocale(language);
+        Locale locale = localeService.getLocale(language);
         final ModuleType moduleType = moduleTypeRegistry.get(moduleTypeUID, locale);
         if (moduleType != null) {
             return Response.ok(getModuleTypeDTO(moduleType)).build();
@@ -138,7 +154,7 @@ public class ModuleTypeResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return moduleTypeRegistry != null;
+        return moduleTypeRegistry != null && localeService != null;
     }
 
 }

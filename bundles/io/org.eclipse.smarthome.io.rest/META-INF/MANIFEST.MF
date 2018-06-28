@@ -1,5 +1,4 @@
 Manifest-Version: 1.0
-Bundle-Activator: org.eclipse.smarthome.io.rest.internal.RESTActivator
 Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome REST Interface Bundle

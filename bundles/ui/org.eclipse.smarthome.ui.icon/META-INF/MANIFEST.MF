@@ -9,8 +9,8 @@ Export-Package: org.eclipse.smarthome.ui.icon
 Import-Package: 
  javax.servlet,
  javax.servlet.http,
- javax.ws.rs.core;resolution:=optional,
  javax.ws.rs;resolution:=optional,
+ javax.ws.rs.core;resolution:=optional,
  org.apache.commons.io,
  org.apache.commons.lang,
  org.eclipse.jdt.annotation;resolution:=optional,

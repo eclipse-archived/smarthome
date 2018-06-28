@@ -45,7 +45,7 @@ import org.eclipse.smarthome.core.extension.ExtensionEventFactory;
 import org.eclipse.smarthome.core.extension.ExtensionService;
 import org.eclipse.smarthome.core.extension.ExtensionType;
 import org.eclipse.smarthome.io.rest.JSONResponse;
-import org.eclipse.smarthome.io.rest.LocaleUtil;
+import org.eclipse.smarthome.io.rest.LocaleService;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 import org.osgi.service.component.annotations.Component;
@@ -70,7 +70,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(ExtensionResource.PATH_EXTENSIONS)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = ExtensionResource.PATH_EXTENSIONS)
-@Component(service = { RESTResource.class, ExtensionResource.class })
+@Component
 public class ExtensionResource implements RESTResource {
 
     private static final String THREAD_POOL_NAME = "extensionService";
@@ -82,6 +82,8 @@ public class ExtensionResource implements RESTResource {
     private final Set<ExtensionService> extensionServices = new CopyOnWriteArraySet<>();
 
     private EventPublisher eventPublisher;
+
+    private LocaleService localeService;
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addExtensionService(ExtensionService featureService) {
@@ -101,6 +103,15 @@ public class ExtensionResource implements RESTResource {
         this.eventPublisher = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setLocaleService(LocaleService localeService) {
+        this.localeService = localeService;
+    }
+
+    protected void unsetLocaleService(LocaleService localeService) {
+        this.localeService = null;
+    }
+
     @Context
     UriInfo uriInfo;
 
@@ -110,7 +121,7 @@ public class ExtensionResource implements RESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class) })
     public Response getExtensions(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
-        Locale locale = LocaleUtil.getLocale(language);
+        Locale locale = localeService.getLocale(language);
         return Response.ok(new Stream2JSONInputStream(getAllExtensions(locale))).build();
     }
 
@@ -121,7 +132,7 @@ public class ExtensionResource implements RESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class) })
     public Response getTypes(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
-        Locale locale = LocaleUtil.getLocale(language);
+        Locale locale = localeService.getLocale(language);
         Stream<ExtensionType> extensionTypeStream = getAllExtensionTypes(locale).stream().distinct();
         return Response.ok(new Stream2JSONInputStream(extensionTypeStream)).build();
     }
@@ -135,7 +146,7 @@ public class ExtensionResource implements RESTResource {
     public Response getById(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language,
             @PathParam("extensionId") @ApiParam(value = "extension ID", required = true) String extensionId) {
         logger.debug("Received HTTP GET request at '{}'.", uriInfo.getPath());
-        Locale locale = LocaleUtil.getLocale(language);
+        Locale locale = localeService.getLocale(language);
         ExtensionService extensionService = getExtensionService(extensionId);
         Extension responseObject = extensionService.getExtension(extensionId, locale);
         if (responseObject != null) {
@@ -208,7 +219,7 @@ public class ExtensionResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return !extensionServices.isEmpty();
+        return !extensionServices.isEmpty() && localeService != null;
     }
 
     private Stream<Extension> getAllExtensions(Locale locale) {

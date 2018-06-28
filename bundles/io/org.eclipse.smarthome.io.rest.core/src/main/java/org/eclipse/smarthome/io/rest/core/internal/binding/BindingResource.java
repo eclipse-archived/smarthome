@@ -42,7 +42,7 @@ import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoRegistry;
 import org.eclipse.smarthome.core.binding.dto.BindingInfoDTO;
-import org.eclipse.smarthome.io.rest.LocaleUtil;
+import org.eclipse.smarthome.io.rest.LocaleService;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 import org.eclipse.smarthome.io.rest.core.config.ConfigurationService;
@@ -71,7 +71,7 @@ import io.swagger.annotations.ApiResponses;
 @Path(BindingResource.PATH_BINDINGS)
 @RolesAllowed({ Role.ADMIN })
 @Api(value = BindingResource.PATH_BINDINGS)
-@Component(service = { RESTResource.class, BindingResource.class })
+@Component
 public class BindingResource implements RESTResource {
 
     /** The URI path to this resource */
@@ -84,6 +84,8 @@ public class BindingResource implements RESTResource {
 
     private BindingInfoRegistry bindingInfoRegistry;
 
+    private LocaleService localeService;
+
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setBindingInfoRegistry(BindingInfoRegistry bindingInfoRegistry) {
         this.bindingInfoRegistry = bindingInfoRegistry;
@@ -91,6 +93,15 @@ public class BindingResource implements RESTResource {
 
     protected void unsetBindingInfoRegistry(BindingInfoRegistry bindingInfoRegistry) {
         this.bindingInfoRegistry = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setLocaleService(LocaleService localeService) {
+        this.localeService = localeService;
+    }
+
+    protected void unsetLocaleService(LocaleService localeService) {
+        this.localeService = null;
     }
 
     @Context
@@ -102,7 +113,7 @@ public class BindingResource implements RESTResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = BindingInfoDTO.class, responseContainer = "Set") })
     public Response getAll(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language) {
-        final Locale locale = LocaleUtil.getLocale(language);
+        final Locale locale = localeService.getLocale(language);
         Set<BindingInfo> bindingInfos = bindingInfoRegistry.getBindingInfos(locale);
 
         return Response.ok(new Stream2JSONInputStream(bindingInfos.stream().map(b -> map(b, locale)))).build();
@@ -215,7 +226,8 @@ public class BindingResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return configurationService != null && configDescRegistry != null && bindingInfoRegistry != null;
+        return configurationService != null && configDescRegistry != null && bindingInfoRegistry != null
+                && localeService != null;
     }
 
 }

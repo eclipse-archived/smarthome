@@ -25,10 +25,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.eclipse.smarthome.io.rest.LocaleUtil;
+import org.eclipse.smarthome.io.rest.LocaleService;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.ui.icon.IconProvider;
 import org.eclipse.smarthome.ui.icon.IconSet;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * This is a REST resource that provides information about available icon sets.
@@ -36,10 +40,14 @@ import org.eclipse.smarthome.ui.icon.IconSet;
  * @author Kai Kreuzer - Initial contribution
  */
 @Path("iconsets")
+@Component
 public class IconSetResource implements RESTResource {
 
     private List<IconProvider> iconProviders = new ArrayList<>(5);
 
+    private LocaleService localeService;
+
+    @Reference(cardinality=ReferenceCardinality.MULTIPLE, policy=ReferencePolicy.DYNAMIC)
     protected void addIconProvider(IconProvider iconProvider) {
         this.iconProviders.add(iconProvider);
     }
@@ -48,13 +56,22 @@ public class IconSetResource implements RESTResource {
         this.iconProviders.remove(iconProvider);
     }
 
+    @Reference
+    protected void setLocaleService(LocaleService localeService) {
+        this.localeService = localeService;
+    }
+    
+    protected void unsetLocaleService(LocaleService localeService) {
+        this.localeService = null;
+    }
+
     @Context
     UriInfo uriInfo;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAll(@HeaderParam("Accept-Language") String language) {
-        Locale locale = LocaleUtil.getLocale(language);
+        Locale locale = localeService.getLocale(language);
 
         List<IconSet> iconSets = new ArrayList<>(iconProviders.size());
         for (IconProvider iconProvider : iconProviders) {

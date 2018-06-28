@@ -88,7 +88,7 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHelper;
 import org.eclipse.smarthome.io.rest.JSONResponse;
-import org.eclipse.smarthome.io.rest.LocaleUtil;
+import org.eclipse.smarthome.io.rest.LocaleService;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 import org.eclipse.smarthome.io.rest.core.thing.EnrichedThingDTO;
@@ -124,7 +124,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(ThingResource.PATH_THINGS)
 @Api(value = ThingResource.PATH_THINGS)
-@Component(service = { RESTResource.class, ThingResource.class })
+@Component
 public class ThingResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ThingResource.class);
@@ -147,8 +147,19 @@ public class ThingResource implements RESTResource {
     private FirmwareUpdateService firmwareUpdateService;
     private FirmwareRegistry firmwareRegistry;
 
+    private LocaleService localeService;
+
     @Context
     private UriInfo uriInfo;
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setLocaleService(LocaleService localeService) {
+        this.localeService = localeService;
+    }
+
+    protected void unsetLocaleService(LocaleService localeService) {
+        this.localeService = null;
+    }
 
     /**
      * create a new Thing
@@ -165,7 +176,7 @@ public class ThingResource implements RESTResource {
             @ApiResponse(code = 409, message = "A thing with the same uid already exists.") })
     public Response create(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @ApiParam(value = "thing data", required = true) ThingDTO thingBean) {
-        final Locale locale = LocaleUtil.getLocale(language);
+        final Locale locale = localeService.getLocale(language);
 
         ThingUID thingUID = thingBean.UID == null ? null : new ThingUID(thingBean.UID);
         ThingTypeUID thingTypeUID = new ThingTypeUID(thingBean.thingTypeUID);
@@ -232,7 +243,7 @@ public class ThingResource implements RESTResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = EnrichedThingDTO.class, responseContainer = "Set") })
     public Response getAll(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language) {
-        final Locale locale = LocaleUtil.getLocale(language);
+        final Locale locale = localeService.getLocale(language);
 
         Stream<EnrichedThingDTO> thingStream = thingRegistry.stream().map(t -> convertToEnrichedThingDTO(t, locale))
                 .distinct();
@@ -248,7 +259,7 @@ public class ThingResource implements RESTResource {
             @ApiResponse(code = 404, message = "Thing not found.") })
     public Response getByUID(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID) {
-        final Locale locale = LocaleUtil.getLocale(language);
+        final Locale locale = localeService.getLocale(language);
 
         Thing thing = thingRegistry.get((new ThingUID(thingUID)));
 
@@ -280,7 +291,7 @@ public class ThingResource implements RESTResource {
     public Response remove(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
             @DefaultValue("false") @QueryParam("force") @ApiParam(value = "force") boolean force) {
-        final Locale locale = LocaleUtil.getLocale(language);
+        final Locale locale = localeService.getLocale(language);
 
         ThingUID thingUIDObject = new ThingUID(thingUID);
 
@@ -336,7 +347,7 @@ public class ThingResource implements RESTResource {
     public Response update(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
             @ApiParam(value = "thing", required = true) ThingDTO thingBean) throws IOException {
-        final Locale locale = LocaleUtil.getLocale(language);
+        final Locale locale = localeService.getLocale(language);
 
         ThingUID thingUIDObject = new ThingUID(thingUID);
 
@@ -396,7 +407,7 @@ public class ThingResource implements RESTResource {
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID,
             @ApiParam(value = "configuration parameters") Map<String, Object> configurationParameters)
             throws IOException {
-        final Locale locale = LocaleUtil.getLocale(language);
+        final Locale locale = localeService.getLocale(language);
 
         ThingUID thingUIDObject = new ThingUID(thingUID);
 
@@ -458,7 +469,7 @@ public class ThingResource implements RESTResource {
         }
 
         ThingStatusInfo thingStatusInfo = thingStatusInfoI18nLocalizationService.getLocalizedThingStatusInfo(thing,
-                LocaleUtil.getLocale(language));
+                localeService.getLocale(language));
         return Response.ok().entity(thingStatusInfo).build();
     }
 
@@ -481,7 +492,7 @@ public class ThingResource implements RESTResource {
             return getThingNotFoundResponse(thingUID);
         }
 
-        ConfigStatusInfo info = configStatusService.getConfigStatus(thingUID, LocaleUtil.getLocale(language));
+        ConfigStatusInfo info = configStatusService.getConfigStatus(thingUID, localeService.getLocale(language));
         if (info != null) {
             return Response.ok().entity(info.getConfigStatusMessages()).build();
         }
@@ -515,7 +526,7 @@ public class ThingResource implements RESTResource {
 
         ThingUID uid = thing.getUID();
         try {
-            firmwareUpdateService.updateFirmware(uid, firmwareVersion, LocaleUtil.getLocale(language));
+            firmwareUpdateService.updateFirmware(uid, firmwareVersion, localeService.getLocale(language));
         } catch (IllegalArgumentException | IllegalStateException ex) {
             return JSONResponse.createResponse(Status.BAD_REQUEST, null,
                     "Firmware update preconditions not satisfied.");
@@ -556,7 +567,7 @@ public class ThingResource implements RESTResource {
                     uriInfo.getPath(), thingUID);
             return getThingNotFoundResponse(thingUID);
         }
-        Collection<Firmware> firmwares = firmwareRegistry.getFirmwares(thing, LocaleUtil.getLocale(language));
+        Collection<Firmware> firmwares = firmwareRegistry.getFirmwares(thing, localeService.getLocale(language));
 
         if (firmwares.isEmpty()) {
             return Response.status(Status.NO_CONTENT).build();
@@ -891,7 +902,7 @@ public class ThingResource implements RESTResource {
                 && managedItemChannelLinkProvider != null && managedItemProvider != null && managedThingProvider != null
                 && thingRegistry != null && configStatusService != null && configDescRegistry != null
                 && thingTypeRegistry != null && channelTypeRegistry != null && firmwareUpdateService != null
-                && thingStatusInfoI18nLocalizationService != null && firmwareRegistry != null;
+                && thingStatusInfoI18nLocalizationService != null && firmwareRegistry != null && localeService != null;
     }
 
 }
