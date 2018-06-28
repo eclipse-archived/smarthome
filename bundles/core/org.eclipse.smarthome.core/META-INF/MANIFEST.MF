@@ -70,6 +70,7 @@ Import-Package:
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.core.types.util,
  org.osgi.framework,
+ org.osgi.service.cm,
  org.osgi.service.component,
  org.osgi.service.event,
  org.osgi.service.packageadmin,
