@@ -42,7 +42,7 @@ public class PollingUsbSerialScannerTest {
     private UsbSerialDiscoveryListener discoveryListener;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() {
         usbSerialScanner = mock(UsbSerialScanner.class);
         pollingScanner = new PollingUsbSerialScanner();
         pollingScanner.setUsbSerialScanner(usbSerialScanner);
