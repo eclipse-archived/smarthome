@@ -32,7 +32,7 @@ public interface TemplateProvider<E extends Template> extends Provider<E> {
      * specified or it is not supported a Template with default locale is
      * returned.
      *
-     * @param UID unique id of Template.
+     * @param UID    unique id of Template.
      * @param locale defines localization of label and description of the {@link Template} or null.
      * @return localized Template.
      */

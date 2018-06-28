@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.smarthome.automation.ManagedRuleProvider;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.core.ManagedRuleProvider;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.type.ModuleType;
@@ -27,6 +27,12 @@ import org.eclipse.smarthome.core.common.registry.Provider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.util.tracker.BundleTracker;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
@@ -39,6 +45,7 @@ import org.osgi.util.tracker.BundleTrackerCustomizer;
  *
  */
 @SuppressWarnings("deprecation")
+@Component(immediate = true)
 public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer<Bundle> {
 
     /**
@@ -46,7 +53,7 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
      * {@link AbstractResourceBundleProvider}s of {@link ModuleType}s, {@link Template}s and {@link Rule}s.
      */
     @SuppressWarnings("rawtypes")
-    private List<AutomationResourceBundlesEventQueue> providerEventsQueue = new ArrayList<AutomationResourceBundlesEventQueue>();
+    private final List<AutomationResourceBundlesEventQueue> providerEventsQueue = new ArrayList<AutomationResourceBundlesEventQueue>();
 
     /**
      * This field holds a reference to an importer of {@link Rule}s.
@@ -62,7 +69,7 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
      * This field serves for saving the BundleEvents for the bundles providing automation resources until their
      * processing completes. The events have been for adding, modifying or removing a bundle.
      */
-    private List<BundleEvent> queue = new LinkedList<BundleEvent>();
+    private final List<BundleEvent> queue = new LinkedList<BundleEvent>();
 
     public AutomationResourceBundlesTracker() {
         rImporter = createImporter();
@@ -72,11 +79,13 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
         return new RuleResourceBundleImporter();
     }
 
+    @Activate
     protected void activate(BundleContext bc) {
         bTracker = new BundleTracker<Bundle>(bc, ~Bundle.UNINSTALLED, this);
         bTracker.open();
     }
 
+    @Deactivate
     protected void deactivate(BundleContext bc) {
         bTracker.close();
         bTracker = null;
@@ -84,6 +93,7 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
     }
 
     @SuppressWarnings({ "rawtypes" })
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC, target = "(provider.type=bundle)")
     protected void addProvider(Provider provider) {
         if (provider instanceof AbstractResourceBundleProvider) {
             addAbstractResourceBundleProvider((AbstractResourceBundleProvider) provider);
@@ -114,13 +124,14 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
         }
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setManagedRuleProvider(ManagedRuleProvider mProvider) {
         rImporter.setManagedRuleProvider(mProvider);
         rImporter.activate(null);
         addAbstractResourceBundleProvider(rImporter);
     }
 
-    protected void removeManagedRuleProvider(ManagedRuleProvider mProvider) {
+    protected void unsetManagedRuleProvider(ManagedRuleProvider mProvider) {
         removeAbstractResourceBundleProvider(rImporter);
         rImporter.deactivate();
     }
@@ -131,6 +142,8 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
      * @param parser {@link Parser} service
      * @param properties of the service that has been added.
      */
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC, target = "(parser.type=parser.rule)")
     protected void addParser(Parser<Rule> parser, Map<String, String> properties) {
         rImporter.addParser(parser, properties);
     }
@@ -145,11 +158,12 @@ public class AutomationResourceBundlesTracker implements BundleTrackerCustomizer
         rImporter.removeParser(parser, properties);
     }
 
+    @Reference
     protected void setPackageAdmin(PackageAdmin pkgAdmin) {
         HostFragmentMappingUtil.pkgAdmin = pkgAdmin;
     }
 
-    protected void removePackageAdmin(PackageAdmin pkgAdmin) {
+    protected void unsetPackageAdmin(PackageAdmin pkgAdmin) {
         HostFragmentMappingUtil.pkgAdmin = null;
     }
 

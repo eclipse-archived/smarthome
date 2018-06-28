@@ -20,8 +20,9 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.core.i18n.TranslationProvider;
+import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
 import org.eclipse.smarthome.core.i18n.I18nUtil;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.osgi.framework.Bundle;
 
 /**
@@ -60,25 +61,15 @@ public class ModuleI18nUtil {
     }
 
     private static Trigger createLocalizedTrigger(Trigger module, String label, String description) {
-        Trigger trigger = new Trigger(module.getId(), module.getTypeUID(), module.getConfiguration());
-        trigger.setLabel(label);
-        trigger.setDescription(description);
-        return trigger;
+        return ModuleBuilder.createTrigger(module).withLabel(label).withDescription(description).build();
     }
 
     private static Condition createLocalizedCondition(Condition module, String label, String description) {
-        Condition condition = new Condition(module.getId(), module.getTypeUID(), module.getConfiguration(),
-                module.getInputs());
-        condition.setLabel(label);
-        condition.setDescription(description);
-        return condition;
+        return ModuleBuilder.createCondition(module).withLabel(label).withDescription(description).build();
     }
 
     private static Action createLocalizedAction(Action module, String label, String description) {
-        Action action = new Action(module.getId(), module.getTypeUID(), module.getConfiguration(), module.getInputs());
-        action.setLabel(label);
-        action.setDescription(description);
-        return action;
+        return ModuleBuilder.createAction(module).withLabel(label).withDescription(description).build();
     }
 
     private static String getModuleLabel(TranslationProvider i18nProvider, Bundle bundle, String uid, String moduleName,
@@ -88,8 +79,8 @@ public class ModuleI18nUtil {
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 
-    private static String getModuleDescription(TranslationProvider i18nProvider, Bundle bundle, String uid, String moduleName,
-            String defaultDescription, String prefix, Locale locale) {
+    private static String getModuleDescription(TranslationProvider i18nProvider, Bundle bundle, String uid,
+            String moduleName, String defaultDescription, String prefix, Locale locale) {
         String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription)
                 : inferModuleKey(prefix, uid, moduleName, "description");
         return i18nProvider.getText(bundle, key, defaultDescription, locale);

@@ -12,10 +12,6 @@
   <packaging>eclipse-test-plugin</packaging>
   <name>Eclipse SmartHome Automation Module Timer Tests</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.automation.module.timer.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.automation.module.timer.test</bundle.namespace>
-  </properties>
 
   <build>
     <plugins>

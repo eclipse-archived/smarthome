@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
+import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventSubscriber;
@@ -46,11 +47,11 @@ import org.slf4j.LoggerFactory;
 public class ItemStateTriggerHandler extends BaseTriggerModuleHandler implements EventSubscriber, EventFilter {
     private final Logger logger = LoggerFactory.getLogger(ItemStateTriggerHandler.class);
 
-    private String itemName;
-    private String state;
-    private String previousState;
+    private final String itemName;
+    private final String state;
+    private final String previousState;
     private Set<String> types;
-    private BundleContext bundleContext;
+    private final BundleContext bundleContext;
 
     public static final String UPDATE_MODULE_TYPE_ID = "core.ItemStateUpdateTrigger";
     public static final String CHANGE_MODULE_TYPE_ID = "core.ItemStateChangeTrigger";
@@ -94,7 +95,7 @@ public class ItemStateTriggerHandler extends BaseTriggerModuleHandler implements
 
     @Override
     public void receive(Event event) {
-        if (ruleEngineCallback != null) {
+        if (callback != null) {
             logger.trace("Received Event: Source: {} Topic: {} Type: {}  Payload: {}", event.getSource(),
                     event.getTopic(), event.getType(), event.getPayload());
             Map<String, Object> values = new HashMap<>();
@@ -114,7 +115,7 @@ public class ItemStateTriggerHandler extends BaseTriggerModuleHandler implements
             }
             if (!values.isEmpty()) {
                 values.put("event", event);
-                ruleEngineCallback.triggered(this.module, values);
+                ((TriggerHandlerCallback) callback).triggered(this.module, values);
             }
         }
     }

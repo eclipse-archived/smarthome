@@ -68,8 +68,15 @@ angular.module('PaperUI.controllers.rules', [ 'ui.sortable', 'PaperUI.controller
 }).controller('RulesController', function($scope, $timeout, ruleRepository, ruleService, toastService, extensionService, sharedProperties) {
     $scope.setHeaderText('Shows all rules.');
     $scope.ruleOptions = [ 'New rule', 'Rule from template' ];
+
+    $scope.rules = [];
+
+    $scope.isEnabled = isEnabled;
+
     $scope.refresh = function(force) {
-        ruleRepository.getAll(null, force);
+        ruleRepository.getAll(null, force).then(function(rules) {
+            $scope.rules = rules;
+        });
         extensionService.getAll(function(extensions) {
             var hasRuleExtensions = $.grep(extensions, function(extension) {
                 return extension.type == "ruletemplate";
@@ -78,11 +85,11 @@ angular.module('PaperUI.controllers.rules', [ 'ui.sortable', 'PaperUI.controller
                 $scope.ruleOptions.push('Rule from catalog');
             }
         });
-    };
+    }
 
     $scope.configure = function(rule) {
         $scope.navigateTo('configure/' + rule.uid);
-    };
+    }
 
     $scope.remove = function(rule, e) {
         e.stopImmediatePropagation();
@@ -90,25 +97,27 @@ angular.module('PaperUI.controllers.rules', [ 'ui.sortable', 'PaperUI.controller
             event : e,
             rule : rule
         });
-    };
+    }
 
     $scope.refresh(false);
 
     $scope.removePart = function(opt, id) {
         sharedProperties.removeFromArray(opt, id);
-    };
+    }
+
     $scope.toggleEnabled = function(rule, e) {
         e.stopImmediatePropagation();
+        var newStatus = !isEnabled(rule);
         ruleService.setEnabled({
             ruleUID : rule.uid
-        }, (!rule.enabled).toString(), function() {
-            if (!rule.enabled) {
+        }, newStatus.toString(), function() {
+            if (!newStatus) {
                 toastService.showDefaultToast('Rule disabled.');
             } else {
                 toastService.showDefaultToast('Rule enabled.');
             }
         });
-    };
+    }
 
     $scope.ruleOptionSelected = function(event, value) {
         if (value == 0) {
@@ -120,14 +129,29 @@ angular.module('PaperUI.controllers.rules', [ 'ui.sortable', 'PaperUI.controller
         } else {
             $scope.navigateTo('catalog');
         }
-    };
-    $scope.runRule = function(ruleUID, e) {
+    }
+
+    $scope.runRule = function(rule, e) {
         e.stopImmediatePropagation();
+        if (!isEnabled(rule)) {
+            return;
+        }
+        var ruleUID = rule.uid;
         ruleService.runRule({
             ruleUID : ruleUID
         }, function(response) {
             toastService.showDefaultToast('Rule executed.');
         });
+    }
+
+    $scope.getRuleStatus = function(rule) {
+        var detail = rule.status.statusDetail;
+        var fullStatus = rule.status.status + ((detail && detail !== 'NONE') ? ' - ' + detail : '');
+        return fullStatus;
+    }
+
+    function isEnabled(rule) {
+        return rule.status.statusDetail !== 'DISABLED';
     }
 }).controller('NewRuleController', function($scope, itemRepository, ruleService, ruleRepository, toastService, $mdDialog, sharedProperties, moduleTypeService) {
     $scope.setSubtitle([ 'New Rule' ]);

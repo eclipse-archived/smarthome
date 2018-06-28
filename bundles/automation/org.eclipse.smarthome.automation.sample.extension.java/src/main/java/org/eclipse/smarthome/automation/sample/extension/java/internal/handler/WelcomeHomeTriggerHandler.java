@@ -16,9 +16,11 @@ import java.util.Map;
 
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
+import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 
 /**
- * This class serves to handle the Trigger types provided by this application. It is used to notify the RuleEngine about
+ * This class serves to handle the Trigger types provided by this application. It is used to notify the RuleManager
+ * about
  * firing the {@link Trigger}s.
  *
  * @author Ana Dimova - Initial Contribution
@@ -31,12 +33,12 @@ public class WelcomeHomeTriggerHandler extends BaseTriggerModuleHandler {
     }
 
     /**
-     * This method is used to notify the RuleEngine about firing the {@link Trigger}s.
+     * This method is used to notify the RuleManager about firing the {@link Trigger}s.
      *
      * @param context
      *            is used to provide the output of the {@link Trigger}.
      */
     public void trigger(Map<String, ?> context) {
-        ruleEngineCallback.triggered(module, context);
+        ((TriggerHandlerCallback) callback).triggered(module, context);
     }
 }

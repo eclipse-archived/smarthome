@@ -190,6 +190,7 @@
   <feature name="esh-automation-module-script-rulesupport" version="${project.version}">
     <feature>esh-base</feature>
     <feature dependency="true">esh-automation-api</feature>
+    <feature dependency="true">esh-automation-core</feature>
     <feature dependency="true">esh-automation-module-script</feature>
     <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.module.script.rulesupport/${project.version}</bundle>
   </feature>
@@ -210,6 +211,7 @@
   <feature name="esh-automation-parser-gson" version="${project.version}">
     <feature>esh-base</feature>
     <feature dependency="true">esh-automation-api</feature>
+    <feature dependency="true">esh-automation-core</feature>
     <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.parser.gson/${project.version}</bundle>
   </feature>
 
@@ -223,6 +225,7 @@
   <feature name="esh-automation-rest" version="${project.version}">
     <feature>esh-base</feature>
     <feature dependency="true">esh-automation-api</feature>
+    <feature dependency="true">esh-automation-core</feature>
     <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.rest/${project.version}</bundle>
   </feature>
 

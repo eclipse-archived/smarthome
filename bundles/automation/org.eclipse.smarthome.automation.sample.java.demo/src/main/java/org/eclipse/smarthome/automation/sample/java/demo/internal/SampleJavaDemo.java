@@ -19,13 +19,15 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.Visibility;
+import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.osgi.service.component.ComponentContext;
 
 /**
  * This class shows how to create a rule, using the Java API.It also shows how to add it to the rule engine via
  * RuleRegistry interface.
- * 
+ *
  * @author Plamen Peev - Initial contribution
  */
 public class SampleJavaDemo {
@@ -43,19 +45,21 @@ public class SampleJavaDemo {
     void addRule() {
         final Configuration triggerConfig = new Configuration();
         triggerConfig.put("itemName", "DemoSwitch");
-        final Trigger ruleTrigger = new Trigger("RuleTrigger", "ItemStateChangeTrigger", triggerConfig);
+        final Trigger ruleTrigger = ModuleBuilder.createTrigger().withId("RuleTrigger")
+                .withTypeUID("ItemStateChangeTrigger").withConfiguration(triggerConfig).build();
 
         final Configuration actionConfig = new Configuration();
         actionConfig.put("itemName", "DemoDimmer");
         actionConfig.put("command", "ON");
-        final Action ruleAction = new Action("RuleAction", "ItemPostCommandAction", actionConfig, null);
+        final Action ruleAction = ModuleBuilder.createAction().withId("RuleAction").withTypeUID("ItemPostCommandAction")
+                .withConfiguration(actionConfig).build();
 
         final ArrayList<Trigger> triggers = new ArrayList<Trigger>();
         triggers.add(ruleTrigger);
         final ArrayList<Action> actions = new ArrayList<Action>();
         actions.add(ruleAction);
-        final Rule r = new Rule(RULE_UID, triggers, null, actions, null, null, null, Visibility.VISIBLE);
-        r.setName("DemoRule");
+        final Rule r = RuleBuilder.create(RULE_UID).withTriggers(triggers).withActions(actions)
+                .withVisibility(Visibility.VISIBLE).withName("DemoRule").build();
         ruleRegistry.add(r);
     }
 

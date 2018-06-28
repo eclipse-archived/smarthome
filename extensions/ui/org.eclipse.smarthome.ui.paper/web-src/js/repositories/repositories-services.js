@@ -217,11 +217,6 @@ angular.module('PaperUI.services.repositories')//
             existing.status = {};
             existing.status.status = rule.status;
             existing.status.statusDetail = rule.statusDetail;
-            if (rule.status.toUpperCase() === "DISABLED") {
-                existing.enabled = false;
-            } else {
-                existing.enabled = true;
-            }
         });
     });
 

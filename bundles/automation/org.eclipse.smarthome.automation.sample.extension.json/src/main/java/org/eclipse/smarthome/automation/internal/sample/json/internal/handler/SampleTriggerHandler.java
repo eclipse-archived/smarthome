@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
+import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 
 /**
  * Trigger Handler sample implementation
@@ -26,7 +27,7 @@ import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
  */
 public class SampleTriggerHandler extends BaseTriggerModuleHandler {
     private static final String OUTPUT_REFERENCE = "triggerOutput";
-    private String ruleUID;
+    private final String ruleUID;
 
     public SampleTriggerHandler(Trigger module, String ruleUID) {
         super(module);
@@ -36,7 +37,7 @@ public class SampleTriggerHandler extends BaseTriggerModuleHandler {
     public void trigger(String triggerParam) {
         Map<String, Object> outputs = new HashMap<String, Object>();
         outputs.put(OUTPUT_REFERENCE, triggerParam);
-        ruleEngineCallback.triggered(module, outputs);
+        ((TriggerHandlerCallback) callback).triggered(module, outputs);
     }
 
     String getTriggerID() {

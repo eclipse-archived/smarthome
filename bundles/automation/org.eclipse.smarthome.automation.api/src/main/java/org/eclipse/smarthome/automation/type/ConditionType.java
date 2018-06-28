@@ -39,10 +39,11 @@ public class ConditionType extends ModuleType {
      * This constructor is responsible to create an instance of {@link ConditionType} with base properties - UID, a
      * {@link List} of configuration descriptions and a {@link List} of {@link Input} descriptions.
      *
-     * @param UID the {@link ConditionType}'s identifier, or {@code null} if a random identifier should be generated.
+     * @param UID                the {@link ConditionType}'s identifier, or {@code null} if a random identifier should
+     *                           be generated.
      * @param configDescriptions describing metadata for the configuration of the future {@link Condition} instances.
-     * @param inputs a {@link List} with {@link Input} meta-information descriptions of the future {@link Condition}
-     *            instances.
+     * @param inputs             a {@link List} with {@link Input} meta-information descriptions of the future
+     *                           {@link Condition} instances.
      */
     public ConditionType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
             @Nullable List<Input> inputs) {
@@ -55,16 +56,18 @@ public class ConditionType extends ModuleType {
      * {@link Set} of tags, visibility, a {@link List} of configuration descriptions and a {@link List} of {@link Input}
      * descriptions.
      *
-     * @param UID the {@link ConditionType}'s identifier, or {@code null} if a random identifier should be generated.
+     * @param UID                the {@link ConditionType}'s identifier, or {@code null} if a random identifier should
+     *                           be generated.
      * @param configDescriptions describing metadata for the configuration of the future {@link Condition} instances.
-     * @param label a short and accurate, human-readable label of the {@link ConditionType}.
-     * @param description a detailed, human-readable description of usage of {@link ConditionType} and its benefits.
-     * @param tags defines categories that fit the {@link ConditionType} and which can serve as criteria for searching
-     *            or filtering it.
-     * @param visibility determines whether the {@link ConditionType} can be used by anyone if it is
-     *            {@link Visibility#VISIBLE} or only by its creator if it is {@link Visibility#HIDDEN}.
-     * @param inputs a {@link List} with {@link Input} meta-information descriptions of the future {@link Condition}
-     *            instances.
+     * @param label              a short and accurate, human-readable label of the {@link ConditionType}.
+     * @param description        a detailed, human-readable description of usage of {@link ConditionType} and its
+     *                           benefits.
+     * @param tags               defines categories that fit the {@link ConditionType} and which can serve as criteria
+     *                           for searching or filtering it.
+     * @param visibility         determines whether the {@link ConditionType} can be used by anyone if it is
+     *                           {@link Visibility#VISIBLE} or only by its creator if it is {@link Visibility#HIDDEN}.
+     * @param inputs             a {@link List} with {@link Input} meta-information descriptions of the future
+     *                           {@link Condition} instances.
      */
     public ConditionType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
             @Nullable String label, @Nullable String description, @Nullable Set<String> tags,

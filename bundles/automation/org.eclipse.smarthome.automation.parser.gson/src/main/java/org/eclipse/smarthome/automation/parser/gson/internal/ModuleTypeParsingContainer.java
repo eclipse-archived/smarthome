@@ -14,9 +14,9 @@ package org.eclipse.smarthome.automation.parser.gson.internal;
 
 import java.util.List;
 
-import org.eclipse.smarthome.automation.type.CompositeActionType;
-import org.eclipse.smarthome.automation.type.CompositeConditionType;
-import org.eclipse.smarthome.automation.type.CompositeTriggerType;
+import org.eclipse.smarthome.automation.dto.CompositeActionTypeDTO;
+import org.eclipse.smarthome.automation.dto.CompositeConditionTypeDTO;
+import org.eclipse.smarthome.automation.dto.CompositeTriggerTypeDTO;
 
 /**
  * This is a helper data structure for GSON that represents the JSON format used when having different module types
@@ -26,9 +26,9 @@ import org.eclipse.smarthome.automation.type.CompositeTriggerType;
  */
 public class ModuleTypeParsingContainer {
 
-    public List<CompositeTriggerType> triggers;
+    public List<CompositeTriggerTypeDTO> triggers;
 
-    public List<CompositeConditionType> conditions;
+    public List<CompositeConditionTypeDTO> conditions;
 
-    public List<CompositeActionType> actions;
+    public List<CompositeActionTypeDTO> actions;
 }

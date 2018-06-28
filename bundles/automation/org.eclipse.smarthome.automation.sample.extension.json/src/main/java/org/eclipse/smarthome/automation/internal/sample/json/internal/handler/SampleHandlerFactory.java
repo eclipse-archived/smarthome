@@ -24,7 +24,7 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
-import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +39,9 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory {
     public static final String SUPPORTED_CONDITION = "SampleCondition";
     public static final String SUPPORTED_ACTION = "SampleAction";
     public static final String MODULE_HANDLER_FACTORY_NAME = "[SampleHandlerFactory]";
-    private Logger logger = LoggerFactory.getLogger(SampleHandlerFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(SampleHandlerFactory.class);
     private static final Collection<String> TYPES;
-    private List<TriggerHandler> createdTriggerHandler = new ArrayList<TriggerHandler>(10);
+    private final List<TriggerHandler> createdTriggerHandler = new ArrayList<TriggerHandler>(10);
 
     static {
         List<String> temp = new ArrayList<String>();
@@ -52,8 +52,10 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory {
     }
 
     @Override
-    public void activate(BundleContext bc) {
-        super.activate(bc);
+    @Deactivate
+    public void deactivate() {
+        createdTriggerHandler.clear();
+        super.deactivate();
     }
 
     @Override
@@ -90,12 +92,6 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory {
     public void ungetHandler(Module module, String ruleUID, ModuleHandler hdlr) {
         createdTriggerHandler.remove(hdlr);
         super.ungetHandler(module, ruleUID, hdlr);
-    }
-
-    @Override
-    public void dispose() {
-        createdTriggerHandler.clear();
-        super.dispose();
     }
 
 }

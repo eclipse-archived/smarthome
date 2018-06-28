@@ -31,6 +31,7 @@ import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.RuleTemplateProvider;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
+import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
@@ -59,6 +60,7 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
      */
     @SuppressWarnings("rawtypes")
     protected ServiceRegistration tpReg;
+    private final TemplateRegistry<RuleTemplate> templateRegistry;
 
     /**
      * This constructor creates instances of this particular implementation of {@link TemplateProvider}. It does not add
@@ -67,10 +69,11 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
      *
      * @param context is the {@link BundleContext}, used for creating a tracker for {@link Parser} services.
      */
-    public CommandlineTemplateProvider(BundleContext context) {
+    public CommandlineTemplateProvider(BundleContext context, TemplateRegistry<RuleTemplate> templateRegistry) {
         super(context);
         listeners = new LinkedList<ProviderChangeListener<RuleTemplate>>();
         tpReg = bc.registerService(RuleTemplateProvider.class.getName(), this, null);
+        this.templateRegistry = templateRegistry;
     }
 
     /**
@@ -209,12 +212,12 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
      * @param exceptions accumulates exceptions if {@link ModuleType} with the same UID exists.
      */
     protected void checkExistence(String uid, List<ParsingNestedException> exceptions) {
-        if (AutomationCommandsPluggable.templateRegistry == null) {
+        if (templateRegistry == null) {
             exceptions.add(new ParsingNestedException(ParsingNestedException.TEMPLATE, uid,
                     new IllegalArgumentException("Failed to create Rule Template with UID \"" + uid
                             + "\"! Can't guarantee yet that other Rule Template with the same UID does not exist.")));
         }
-        if (AutomationCommandsPluggable.templateRegistry.get(uid) != null) {
+        if (templateRegistry.get(uid) != null) {
             exceptions.add(new ParsingNestedException(ParsingNestedException.TEMPLATE, uid,
                     new IllegalArgumentException("Rule Template with UID \"" + uid
                             + "\" already exists! Failed to create a second with the same UID!")));

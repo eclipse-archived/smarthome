@@ -18,10 +18,10 @@ import java.util.Collection;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
-import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
+import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.module.core.handler.ChannelEventTriggerHandler;
 import org.eclipse.smarthome.automation.module.core.handler.CompareConditionHandler;
 import org.eclipse.smarthome.automation.module.core.handler.GenericEventConditionHandler;
@@ -34,21 +34,26 @@ import org.eclipse.smarthome.automation.module.core.handler.RuleEnablementAction
 import org.eclipse.smarthome.automation.module.core.handler.RunRuleActionHandler;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.osgi.service.component.ComponentContext;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This HandlerFactory creates ModuleHandlers to control items within the
- * RuleEngine. It contains basic Triggers, Conditions and Actions.
+ * RuleManager. It contains basic Triggers, Conditions and Actions.
  *
  * @author Benedikt Niehues - Initial contribution and API
  * @author Kai Kreuzer - refactored and simplified customized module handling
  *
  */
-public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
+@Component
+public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory implements ModuleHandlerFactory {
 
-    private Logger logger = LoggerFactory.getLogger(CoreModuleHandlerFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(CoreModuleHandlerFactory.class);
 
     private static final Collection<String> TYPES = Arrays.asList(ItemCommandTriggerHandler.MODULE_TYPE_ID,
             ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID, ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID,
@@ -59,22 +64,18 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
 
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
-    private RuleRegistry ruleRegistry;
 
-    protected void activate(ComponentContext componentContext) {
-        super.activate(componentContext.getBundleContext());
+    private BundleContext bundleContext;
+
+    @Activate
+    protected void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 
-    protected void deactivate(ComponentContext componentContext) {
+    @Override
+    @Deactivate
+    protected void deactivate() {
         super.deactivate();
-    }
-
-    protected void setRuleRegistry(RuleRegistry ruleRegistry) {
-        this.ruleRegistry = ruleRegistry;
-    }
-
-    protected void unsetRuleRegistry(RuleRegistry ruleRegistry) {
-        this.ruleRegistry = null;
     }
 
     @Override
@@ -87,6 +88,7 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
      *
      * @param itemRegistry
      */
+    @Reference
     protected void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
         for (ModuleHandler handler : getHandlers().values()) {
@@ -119,6 +121,7 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
      *
      * @param eventPublisher
      */
+    @Reference
     protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
         for (ModuleHandler handler : getHandlers().values()) {
@@ -143,11 +146,6 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
     }
 
     @Override
-    public void dispose() {
-        super.dispose();
-    }
-
-    @Override
     protected synchronized ModuleHandler internalCreate(final Module module, final String ruleUID) {
         logger.trace("create {} -> {} : {}", module.getId(), module.getTypeUID(), ruleUID);
         final String moduleTypeUID = module.getTypeUID();
@@ -155,14 +153,14 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
             // Handle triggers
 
             if (GenericEventTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
-                return new GenericEventTriggerHandler((Trigger) module, this.bundleContext);
+                return new GenericEventTriggerHandler((Trigger) module, bundleContext);
             } else if (ChannelEventTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
-                return new ChannelEventTriggerHandler((Trigger) module, this.bundleContext);
+                return new ChannelEventTriggerHandler((Trigger) module, bundleContext);
             } else if (ItemCommandTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
-                return new ItemCommandTriggerHandler((Trigger) module, this.bundleContext);
+                return new ItemCommandTriggerHandler((Trigger) module, bundleContext);
             } else if (ItemStateTriggerHandler.CHANGE_MODULE_TYPE_ID.equals(moduleTypeUID)
                     || ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID.equals(moduleTypeUID)) {
-                return new ItemStateTriggerHandler((Trigger) module, this.bundleContext);
+                return new ItemStateTriggerHandler((Trigger) module, bundleContext);
             }
         } else if (module instanceof Condition) {
             // Handle conditions
@@ -184,9 +182,9 @@ public class CoreModuleHandlerFactory extends BaseModuleHandlerFactory {
                 postCommandActionHandler.setItemRegistry(itemRegistry);
                 return postCommandActionHandler;
             } else if (RuleEnablementActionHandler.UID.equals(moduleTypeUID)) {
-                return new RuleEnablementActionHandler((Action) module, ruleRegistry);
+                return new RuleEnablementActionHandler((Action) module);
             } else if (RunRuleActionHandler.UID.equals(moduleTypeUID)) {
-                return new RunRuleActionHandler((Action) module, ruleRegistry);
+                return new RunRuleActionHandler((Action) module);
             }
         }
 

@@ -58,7 +58,7 @@ public class RuleSupportScriptExtension implements ScriptExtensionProvider {
     private static HashMap<String, Collection<String>> presets = new HashMap<>();
     private static HashMap<String, Object> staticTypes = new HashMap<>();
     private static HashSet<String> types = new HashSet<String>();
-    private ConcurrentHashMap<String, HashMap<String, Object>> objectCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, HashMap<String, Object>> objectCache = new ConcurrentHashMap<>();
 
     private RuleRegistry ruleRegistry;
     private ScriptedRuleProvider ruleProvider;

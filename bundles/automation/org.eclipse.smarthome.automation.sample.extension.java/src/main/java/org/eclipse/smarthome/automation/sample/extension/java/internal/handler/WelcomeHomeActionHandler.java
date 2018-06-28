@@ -21,7 +21,7 @@ import org.eclipse.smarthome.automation.sample.extension.java.internal.type.Welc
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
- * This class serves to handle the Action types provided by this application. It is used to help the RuleEngine
+ * This class serves to handle the Action types provided by this application. It is used to help the RuleManager
  * to execute the {@link Action}s.
  *
  * @author Ana Dimova - Initial Contribution

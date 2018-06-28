@@ -31,6 +31,7 @@ Import-Package:
  org.eclipse.smarthome.core.storage,
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.test,
+ org.eclipse.smarthome.test.java,
  org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
  org.osgi.framework,
@@ -44,6 +45,5 @@ Require-Bundle:
  org.eclipse.smarthome.automation.module.core,
  org.eclipse.smarthome.automation.parser.gson,
  org.eclipse.smarthome.automation.providers,
- org.eclipse.smarthome.automation.sample.extension.json,
  org.eclipse.smarthome.io.console,
  org.junit

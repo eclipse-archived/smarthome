@@ -15,16 +15,16 @@ package org.eclipse.smarthome.automation.sample.extension.java.internal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.automation.sample.extension.java.internal.template.AirConditionerRuleTemplate;
 import org.eclipse.smarthome.automation.sample.extension.java.internal.type.LightsTriggerType;
 import org.eclipse.smarthome.automation.sample.extension.java.internal.type.StateConditionType;
@@ -64,7 +64,7 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
      * The configuration of the rule created by template should contain as keys all required parameter names of the
      * configuration of the template and their values.
      * In this example the UIDs of the rules is given by the provider, but can be <code>null</code>.
-     * Then the RuleEngine will generate the UID for each provided rule.
+     * Then the RuleManager will generate the UID for each provided rule.
      */
     public WelcomeHomeRulesProvider() {
         // initialize the "AirConditionerSwitchOnRule" rule from template by using UID, templateUID and configuration.
@@ -90,7 +90,7 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
 
     @Override
     public Collection<Rule> getAll() {
-        return rules.values(); // adding the provided rules into RuleEngine
+        return rules.values(); // adding the provided rules into RuleManager
     }
 
     @Override
@@ -113,9 +113,7 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
     public void update(String uid, String template, Configuration config) {
         // specific for this application
         Rule oldelement = rules.get(uid);
-        Rule element = new Rule(uid);
-        element.setTemplateUID(template);
-        element.setConfiguration(config);
+        Rule element = RuleBuilder.create(uid).withTemplateUID(template).withConfiguration(config).build();
         rules.put(uid, element);
 
         // inform all listeners, interested about changing of the rules
@@ -154,9 +152,8 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
         config.put(CONFIG_EXPECTED_RESULT, "The air conditioner is switched on.");
         config.put(AirConditionerRuleTemplate.CONFIG_TARGET_TEMPERATURE, new Integer(18));
         config.put(AirConditionerRuleTemplate.CONFIG_OPERATION, TemperatureConditionType.OPERATOR_HEATING);
-        Rule rule = new Rule(AC_UID);
-        rule.setTemplateUID(AirConditionerRuleTemplate.UID);
-        rule.setConfiguration(config);
+        Rule rule = RuleBuilder.create(AC_UID).withTemplateUID(AirConditionerRuleTemplate.UID).withConfiguration(config)
+                .build();
         return rule;
     }
 
@@ -170,7 +167,7 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
         // initialize the trigger
         String triggerId = "LightsSwitchOnRuleTrigger";
         List<Trigger> triggers = new ArrayList<Trigger>();
-        triggers.add(new Trigger(triggerId, LightsTriggerType.UID, null));
+        triggers.add(ModuleBuilder.createTrigger().withId(triggerId).withTypeUID(LightsTriggerType.UID).build());
 
         // initialize the condition - here the tricky part is the referring into the condition input - trigger output.
         // The syntax is a similar to the JUEL syntax.
@@ -179,7 +176,8 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
         List<Condition> conditions = new ArrayList<Condition>();
         Map<String, String> inputs = new HashMap<String, String>();
         inputs.put(StateConditionType.INPUT_CURRENT_STATE, triggerId + "." + StateConditionType.INPUT_CURRENT_STATE);
-        conditions.add(new Condition("LightsStateCondition", StateConditionType.UID, config, inputs));
+        conditions.add(ModuleBuilder.createCondition().withId("LightsStateCondition")
+                .withTypeUID(StateConditionType.UID).withConfiguration(config).withInputs(inputs).build());
 
         // initialize the action - here the tricky part is the referring into the action configuration parameter - the
         // template configuration parameter. The syntax is a similar to the JUEL syntax.
@@ -187,7 +185,8 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
         config.put(WelcomeHomeActionType.CONFIG_DEVICE, "Lights");
         config.put(WelcomeHomeActionType.CONFIG_RESULT, "Lights are switched on");
         List<Action> actions = new ArrayList<Action>();
-        actions.add(new Action("LightsSwitchOnAction", WelcomeHomeActionType.UID, config, null));
+        actions.add(ModuleBuilder.createAction().withId("LightsSwitchOnAction").withTypeUID(WelcomeHomeActionType.UID)
+                .withConfiguration(config).build());
 
         // initialize the configDescriptions
         List<ConfigDescriptionParameter> configDescriptions = new ArrayList<ConfigDescriptionParameter>();
@@ -207,18 +206,9 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
         config.put(CONFIG_EXPECTED_RESULT, "The lights are switched on.");
 
         // create the rule
-        Rule lightsSwitchOn = new Rule(L_UID);
-        lightsSwitchOn.setTriggers(triggers);
-        lightsSwitchOn.setConfigurationDescriptions(configDescriptions);
-        lightsSwitchOn.setConditions(conditions);
-        lightsSwitchOn.setActions(actions);
-
-        // initialize the tags
-        Set<String> tags = new HashSet<String>();
-        tags.add("lights");
-
-        // set the tags
-        lightsSwitchOn.setTags(tags);
+        Rule lightsSwitchOn = RuleBuilder.create(L_UID).withTriggers(triggers)
+                .withConfigurationDescriptions(configDescriptions).withConditions(conditions).withActions(actions)
+                .withTags("lights").build();
 
         return lightsSwitchOn;
     }

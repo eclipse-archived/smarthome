@@ -1135,8 +1135,26 @@ md-dialog-content .dayParameter {
 	outline: 0;
 }
 
-.rules .disabled {
-background-color: #b8030c;
+.rules .disabled .description {
+	color: grey;
+}
+
+.rules .disabled .run-rule {
+	color: grey;
+}
+
+.rules .disabled .run-rule:hover {
+	color: grey;
+	box-shadow: none;
+	cursor: default;
+}
+
+.rules .enabled .description {
+	color: black;
+}
+
+.rules .uninitialized {
+background-color: #777;
 }
 
 .rules .idle {

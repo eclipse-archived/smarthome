@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
+import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventSubscriber;
@@ -45,8 +46,8 @@ public class ChannelEventTriggerHandler extends BaseTriggerModuleHandler impleme
     private final String eventOnChannel;
     private final String channelUID;
     private final String TOPIC = "smarthome/channels/*/triggered";
-    private Set<String> types = new HashSet<String>();
-    private BundleContext bundleContext;
+    private final Set<String> types = new HashSet<String>();
+    private final BundleContext bundleContext;
 
     private final String CFG_CHANNEL_EVENT = "event";
     private final String CFG_CHANNEL = "channelUID";
@@ -70,14 +71,14 @@ public class ChannelEventTriggerHandler extends BaseTriggerModuleHandler impleme
 
     @Override
     public void receive(Event event) {
-        if (ruleEngineCallback != null) {
+        if (callback != null) {
             logger.trace("Received Event: Source: {} Topic: {} Type: {}  Payload: {}", event.getSource(),
                     event.getTopic(), event.getType(), event.getPayload());
 
             Map<String, Object> values = new HashMap<>();
             values.put("event", event);
 
-            ruleEngineCallback.triggered(this.module, values);
+            ((TriggerHandlerCallback) callback).triggered(this.module, values);
         }
     }
 

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.smarthome.automation.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
@@ -32,6 +33,8 @@ import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * This class provides functionality for defining and executing automation commands for importing, exporting, removing
@@ -39,8 +42,8 @@ import org.osgi.service.component.ComponentContext;
  *
  * @author Ana Dimova - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
- *
  */
+@Component(immediate = true)
 public class AutomationCommandsPluggable extends AutomationCommands implements ConsoleCommandExtension {
 
     /**
@@ -52,22 +55,6 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
      * This constant describes the commands group.
      */
     public static final String DESCRIPTION = "Commands for managing Automation Rules, Templates and ModuleTypes resources.";
-
-    /**
-     * This field holds the reference to the {@code RuleRegistry} providing the {@code Rule} automation objects.
-     */
-    static RuleRegistry ruleRegistry;
-
-    /**
-     * This field holds the reference to the {@code TemplateRegistry} providing the {@code Template} automation objects.
-     */
-    static TemplateRegistry<RuleTemplate> templateRegistry;
-
-    /**
-     * This field holds the reference to the {@code ModuleTypeRegistry} providing the {@code ModuleType} automation
-     * objects.
-     */
-    static ModuleTypeRegistry moduleTypeRegistry;
 
     /**
      * This constant is defined for compatibility and is used to switch to a particular provider of {@code ModuleType}
@@ -88,12 +75,33 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
     private static final int RULE_REGISTRY = 1;
 
     /**
+     * This field holds the reference to the {@code RuleRegistry} providing the {@code Rule} automation objects.
+     */
+    protected RuleRegistry ruleRegistry;
+
+    /**
+     * This field holds the reference to the {@code ModuleHandlerCallback}.
+     */
+    protected ModuleHandlerCallback callback;
+
+    /**
+     * This field holds the reference to the {@code TemplateRegistry} providing the {@code Template} automation objects.
+     */
+    protected TemplateRegistry<RuleTemplate> templateRegistry;
+
+    /**
+     * This field holds the reference to the {@code ModuleTypeRegistry} providing the {@code ModuleType} automation
+     * objects.
+     */
+    protected ModuleTypeRegistry moduleTypeRegistry;
+
+    /**
      * Activating this component - called from DS.
      *
      * @param componentContext
      */
     protected void activate(ComponentContext componentContext) {
-        super.initialize(componentContext.getBundleContext());
+        super.initialize(componentContext.getBundleContext(), moduleTypeRegistry, templateRegistry, ruleRegistry);
     }
 
     /**
@@ -108,8 +116,9 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
      *
      * @param ruleRegistry ruleRegistry service.
      */
+    @Reference
     protected void setRuleRegistry(RuleRegistry ruleRegistry) {
-        AutomationCommandsPluggable.ruleRegistry = ruleRegistry;
+        this.ruleRegistry = ruleRegistry;
     }
 
     /**
@@ -117,8 +126,9 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
      *
      * @param moduleTypeRegistry moduleTypeRegistry service.
      */
+    @Reference
     protected void setModuleTypeRegistry(ModuleTypeRegistry moduleTypeRegistry) {
-        AutomationCommandsPluggable.moduleTypeRegistry = moduleTypeRegistry;
+        this.moduleTypeRegistry = moduleTypeRegistry;
     }
 
     /**
@@ -126,20 +136,35 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
      *
      * @param templateRegistry templateRegistry service.
      */
+    @Reference
     protected void setTemplateRegistry(TemplateRegistry<RuleTemplate> templateRegistry) {
-        AutomationCommandsPluggable.templateRegistry = templateRegistry;
+        this.templateRegistry = templateRegistry;
+    }
+
+    /**
+     * Bind the {@link ModuleHandlerCallback} service - called from DS.
+     *
+     * @param ruleEngine RuleManager service.
+     */
+    @Reference
+    protected void setRuleEngine(ModuleHandlerCallback ruleEngine) {
+        this.callback = ruleEngine;
     }
 
     protected void unsetRuleRegistry(RuleRegistry ruleRegistry) {
-        AutomationCommandsPluggable.ruleRegistry = null;
+        this.ruleRegistry = null;
     }
 
     protected void unsetModuleTypeRegistry(ModuleTypeRegistry moduleTypeRegistry) {
-        AutomationCommandsPluggable.moduleTypeRegistry = null;
+        this.moduleTypeRegistry = null;
     }
 
     protected void unsetTemplateRegistry(TemplateRegistry<RuleTemplate> templateRegistry) {
-        AutomationCommandsPluggable.templateRegistry = null;
+        this.templateRegistry = null;
+    }
+
+    protected void unsetRuleEngine(ModuleHandlerCallback ruleEngine) {
+        this.callback = null;
     }
 
     @Override
@@ -383,8 +408,8 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
 
     @Override
     public RuleStatus getRuleStatus(String ruleUID) {
-        if (ruleRegistry != null) {
-            RuleStatusInfo rsi = ruleRegistry.getStatusInfo(ruleUID);
+        if (callback != null) {
+            RuleStatusInfo rsi = callback.getStatusInfo(ruleUID);
             return rsi != null ? rsi.getStatus() : null;
         } else {
             return null;
@@ -393,8 +418,8 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
 
     @Override
     public void setEnabled(String uid, boolean isEnabled) {
-        if (ruleRegistry != null) {
-            ruleRegistry.setEnabled(uid, isEnabled);
+        if (callback != null) {
+            callback.setEnabled(uid, isEnabled);
         }
 
     }

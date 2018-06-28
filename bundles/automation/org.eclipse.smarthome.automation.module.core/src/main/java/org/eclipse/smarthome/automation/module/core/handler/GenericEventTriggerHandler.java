@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
+import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventSubscriber;
@@ -48,10 +49,10 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
 
     private final Logger logger = LoggerFactory.getLogger(GenericEventTriggerHandler.class);
 
-    private String source;
+    private final String source;
     private String topic;
-    private Set<String> types;
-    private BundleContext bundleContext;
+    private final Set<String> types;
+    private final BundleContext bundleContext;
 
     public static final String MODULE_TYPE_ID = "core.GenericEventTrigger";
 
@@ -66,8 +67,12 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
         super(module);
         this.source = (String) module.getConfiguration().get(CFG_EVENT_SOURCE);
         this.topic = (String) module.getConfiguration().get(CFG_EVENT_TOPIC);
-        this.types = Collections.unmodifiableSet(
-                new HashSet<>(Arrays.asList(((String) module.getConfiguration().get(CFG_EVENT_TYPES)).split(","))));
+        if (module.getConfiguration().get(CFG_EVENT_TYPES) != null) {
+            this.types = Collections.unmodifiableSet(
+                    new HashSet<>(Arrays.asList(((String) module.getConfiguration().get(CFG_EVENT_TYPES)).split(","))));
+        } else {
+            this.types = Collections.emptySet();
+        }
         this.bundleContext = bundleContext;
         Dictionary<String, Object> properties = new Hashtable<String, Object>();
         properties.put("event.topics", topic);
@@ -88,7 +93,7 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
 
     @Override
     public void receive(Event event) {
-        if (ruleEngineCallback != null) {
+        if (callback != null) {
             logger.trace("Received Event: Source: {} Topic: {} Type: {}  Payload: {}", event.getSource(),
                     event.getTopic(), event.getType(), event.getPayload());
             if (!event.getTopic().contains(source)) {
@@ -97,7 +102,7 @@ public class GenericEventTriggerHandler extends BaseTriggerModuleHandler impleme
             Map<String, Object> values = new HashMap<>();
             values.put("event", event);
 
-            ruleEngineCallback.triggered(this.module, values);
+            ((TriggerHandlerCallback) callback).triggered(this.module, values);
         }
     }
 

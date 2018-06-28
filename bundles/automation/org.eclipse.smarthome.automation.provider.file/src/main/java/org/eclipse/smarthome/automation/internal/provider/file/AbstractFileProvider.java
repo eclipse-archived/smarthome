@@ -69,19 +69,19 @@ public abstract class AbstractFileProvider<E> implements Provider<E> {
      * This Map provides structure for fast access to the {@link Parser}s. This provides opportunity for high
      * performance at runtime of the system.
      */
-    private Map<String, Parser<E>> parsers = new ConcurrentHashMap<String, Parser<E>>();
+    private final Map<String, Parser<E>> parsers = new ConcurrentHashMap<String, Parser<E>>();
 
     /**
      * This map is used for mapping the imported automation objects to the file that contains them. This provides
      * opportunity when an event for deletion of the file is received, how to recognize which objects are removed.
      */
-    private Map<URL, List<String>> providerPortfolio = new ConcurrentHashMap<URL, List<String>>();
+    private final Map<URL, List<String>> providerPortfolio = new ConcurrentHashMap<URL, List<String>>();
 
     /**
      * This Map holds URL resources that waiting for a parser to be loaded.
      */
-    private Map<String, List<URL>> urls = new ConcurrentHashMap<String, List<URL>>();
-    private List<ProviderChangeListener<E>> listeners = new ArrayList<ProviderChangeListener<E>>();
+    private final Map<String, List<URL>> urls = new ConcurrentHashMap<String, List<URL>>();
+    private final List<ProviderChangeListener<E>> listeners = new ArrayList<ProviderChangeListener<E>>();
 
     public AbstractFileProvider(String root) {
         this.rootSubdirectory = root;

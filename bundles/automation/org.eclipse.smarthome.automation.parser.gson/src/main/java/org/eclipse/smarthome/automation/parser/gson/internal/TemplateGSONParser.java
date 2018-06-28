@@ -19,9 +19,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.core.dto.RuleTemplateDTOMapper;
+import org.eclipse.smarthome.automation.dto.RuleTemplateDTO;
 import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.parser.ParsingNestedException;
-import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 
 import com.google.gson.reflect.TypeToken;
@@ -44,11 +45,14 @@ public class TemplateGSONParser extends AbstractGSONParser<Template> {
                 JsonToken token = jr.peek();
                 Set<Template> templates = new HashSet<>();
                 if (JsonToken.BEGIN_ARRAY.equals(token)) {
-                    templates.addAll(gson.fromJson(jr, new TypeToken<List<RuleTemplate>>() {
-                    }.getType()));
+                    List<RuleTemplateDTO> templateDtos = gson.fromJson(jr, new TypeToken<List<RuleTemplateDTO>>() {
+                    }.getType());
+                    for (RuleTemplateDTO templateDto : templateDtos) {
+                        templates.add(RuleTemplateDTOMapper.map(templateDto));
+                    }
                 } else {
-                    Template template = gson.fromJson(jr, RuleTemplate.class);
-                    templates.add(template);
+                    RuleTemplateDTO template = gson.fromJson(jr, RuleTemplateDTO.class);
+                    templates.add(RuleTemplateDTOMapper.map(template));
                 }
                 return templates;
             }

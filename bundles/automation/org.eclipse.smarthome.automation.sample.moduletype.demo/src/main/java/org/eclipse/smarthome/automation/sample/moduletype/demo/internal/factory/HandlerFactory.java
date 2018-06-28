@@ -27,14 +27,17 @@ import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.sample.moduletype.demo.internal.handlers.CompareCondition;
 import org.eclipse.smarthome.automation.sample.moduletype.demo.internal.handlers.ConsolePrintAction;
 import org.eclipse.smarthome.automation.sample.moduletype.demo.internal.handlers.ConsoleTrigger;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This class is a factory for creating {@link ConsoleTrigger}, {@link CompareCondition} and {@link ConsolePrintAction}
  * objects.
- * 
+ *
  * @author Plamen Peev - Initial contribution
  */
 public class HandlerFactory extends BaseModuleHandlerFactory implements ModuleHandlerFactory {
@@ -68,6 +71,8 @@ public class HandlerFactory extends BaseModuleHandlerFactory implements ModuleHa
         LOGGER = LoggerFactory.getLogger(HandlerFactory.class);
     }
 
+    private BundleContext bundleContext;
+
     /**
      * This method must deliver the correct handler if this factory can create it or log an error otherwise.
      * It recognises the correct type by {@link Module}'s UID.
@@ -99,18 +104,19 @@ public class HandlerFactory extends BaseModuleHandlerFactory implements ModuleHa
     /**
      * This method is called when all of the services required by this factory are available.
      *
-     * @param componentContext - the {@link ComponentContext} of the HandlerFactory component.
+     * @param bundleContext - the {@link ComponentContext} of the HandlerFactory component.
      */
-    protected void activate(ComponentContext componentContext) {
-        super.activate(componentContext.getBundleContext());
+    @Activate
+    protected void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 
     /**
      * This method is called when a service that is required from this factory becomes unavailable.
-     *
-     * @param componentContext - the {@link ComponentContext} of the HandlerFactory component.
      */
-    protected void deactivate(ComponentContext componentContext) {
+    @Deactivate
+    @Override
+    protected void deactivate() {
         super.deactivate();
     }
 }

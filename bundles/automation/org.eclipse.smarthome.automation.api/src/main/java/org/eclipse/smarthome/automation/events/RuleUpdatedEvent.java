@@ -15,8 +15,7 @@ package org.eclipse.smarthome.automation.events;
 import org.eclipse.smarthome.automation.dto.RuleDTO;
 
 /**
- * An {@link RuleUpdatedEvent} notifies subscribers that an item has been added.
- * Rule added events must be created with the {@link RuleEventFactory}.
+ * An {@link RuleUpdatedEvent} notifies subscribers that a rule has been updated.
  *
  * @author Benedikt Niehues - initial contribution
  *
@@ -25,15 +24,15 @@ public class RuleUpdatedEvent extends AbstractRuleRegistryEvent {
 
     public static final String TYPE = RuleUpdatedEvent.class.getSimpleName();
 
-    private RuleDTO oldRule;
+    private final RuleDTO oldRule;
 
     /**
      * constructs a new rule updated event
      *
-     * @param topic the topic of the event
+     * @param topic   the topic of the event
      * @param payload the payload of the event
-     * @param source the source of the event
-     * @param rule the rule for which is this event
+     * @param source  the source of the event
+     * @param rule    the rule for which is this event
      * @param oldRule the rule that has been updated
      */
     public RuleUpdatedEvent(String topic, String payload, String source, RuleDTO rule, RuleDTO oldRule) {
