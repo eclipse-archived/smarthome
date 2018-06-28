@@ -31,6 +31,8 @@ public interface NetworkAddressChangeListener {
 
     /**
      * When network address is changed, listeners will be notified by this method.
+     * When a network interface changes from "up" to "down", it is considered as "removed".
+     * When a "loopback" or "down" interface is added, the listeners are not notified.
      *
      * @param added Unmodifiable list of recently added network addresses
      * @param removed Unmodifiable list of recently removed network addresses
