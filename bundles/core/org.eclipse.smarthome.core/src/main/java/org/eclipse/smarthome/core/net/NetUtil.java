@@ -58,19 +58,19 @@ import org.slf4j.LoggerFactory;
  */
 @Component(configurationPid = "org.eclipse.smarthome.network", property = { "service.pid=org.eclipse.smarthome.network",
         "service.config.description.uri=system:network", "service.config.label=Network Settings",
-        "service.config.category=system", "service.config.network.poll.interval=60" })
+        "service.config.category=system" })
 @NonNullByDefault
 public class NetUtil implements NetworkAddressService {
 
     private static final String PRIMARY_ADDRESS = "primaryAddress";
     private static final String BROADCAST_ADDRESS = "broadcastAddress";
-    private static final String POLL_INTERVAL = "service.config.network.poll.interval";
+    private static final String POLL_INTERVAL = "service.config.network.pollInterval";
     private static final Logger LOGGER = LoggerFactory.getLogger(NetUtil.class);
 
     /**
-     * Default network interface poll frequency 60 seconds.
+     * Default network interface poll interval 60 seconds.
      */
-    public static final int POLL_DEFAULT_FREQUENCY_SECONDS = 60;
+    public static final int POLL_INTERVAL_SECONDS = 60;
 
     private static final Pattern IPV4_PATTERN = Pattern
             .compile("^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
@@ -78,7 +78,7 @@ public class NetUtil implements NetworkAddressService {
     private @Nullable String primaryAddress;
     private @Nullable String configuredBroadcastAddress;
 
-    // must be initialized before activate due to OSGI reference
+    // must be initialized before activate due to OSGi reference
     private Set<NetworkAddressChangeListener> networkAddressChangeListeners = ConcurrentHashMap.newKeySet();
 
     private @Nullable Collection<CidrAddress> lastKnownInterfaceAddresses;
@@ -123,19 +123,19 @@ public class NetUtil implements NetworkAddressService {
             configuredBroadcastAddress = broadcastAddressConf;
         }
 
-        String pollFrequenceSecondsStr = "";
-        int pollFrequenceSeconds = POLL_DEFAULT_FREQUENCY_SECONDS;
+        Object pollIntervalSecondsObj = null;
+        int pollIntervalSeconds = POLL_INTERVAL_SECONDS;
         try {
-            Object pollFrequenceSecondsObj = config.get(POLL_INTERVAL);
-            if (pollFrequenceSecondsObj != null) {
-                pollFrequenceSeconds = Integer.parseInt(pollFrequenceSecondsObj.toString());
+            pollIntervalSecondsObj = config.get(POLL_INTERVAL);
+            if (pollIntervalSecondsObj != null) {
+                pollIntervalSeconds = Integer.parseInt(pollIntervalSecondsObj.toString());
             }
-        } catch (NullPointerException | NumberFormatException e) {
-            LOGGER.debug("Cannot parse value {} from key {}, will use default {}", pollFrequenceSecondsStr,
-                    POLL_INTERVAL, pollFrequenceSeconds);
+        } catch (NumberFormatException e) {
+            LOGGER.warn("Cannot parse value {} from key {}, will use default {}", pollIntervalSecondsObj, POLL_INTERVAL,
+                    pollIntervalSeconds);
         }
 
-        scheduleToPollNetworkInterface(pollFrequenceSeconds);
+        scheduleToPollNetworkInterface(pollIntervalSeconds);
     }
 
     @Override
@@ -515,7 +515,7 @@ public class NetUtil implements NetworkAddressService {
         return false;
     }
 
-    private void scheduleToPollNetworkInterface(int frequencyInSecs) {
+    private void scheduleToPollNetworkInterface(int intervalInSeconds) {
 
         if (networkInterfacePollFuture != null) {
             networkInterfacePollFuture.cancel(true);
@@ -523,7 +523,7 @@ public class NetUtil implements NetworkAddressService {
         }
 
         networkInterfacePollFuture = scheduledExecutorService.scheduleWithFixedDelay(
-                () -> this.pollAndNotifyNetworkInterfaceAddress(), 1, frequencyInSecs, TimeUnit.SECONDS);
+                () -> this.pollAndNotifyNetworkInterfaceAddress(), 1, intervalInSeconds, TimeUnit.SECONDS);
     }
 
     private void pollAndNotifyNetworkInterfaceAddress() {
@@ -561,10 +561,17 @@ public class NetUtil implements NetworkAddressService {
 
         // notify each listener with a timeout of 15 seconds.
         // SafeCaller prevents bad listeners running too long or throws runtime exceptions
-        networkAddressChangeListeners
-                .forEach(listener -> safeCaller.create(listener, NetworkAddressChangeListener.class).withTimeout(15000)
-                        .onException(exception -> LOGGER.debug("NetworkAddressChangeListener exception {}", exception))
-                        .build().onChanged(unmodifiableAddedList, unmodifiableRemovedList));
+        for (NetworkAddressChangeListener listener : networkAddressChangeListeners) {
+            if (safeCaller == null) {
+                // safeCaller null must be checked between each round, in case it is deactivated
+                break;
+            }
+            NetworkAddressChangeListener safeListener = safeCaller.create(listener, NetworkAddressChangeListener.class)
+                    .withTimeout(15000)
+                    .onException(exception -> LOGGER.debug("NetworkAddressChangeListener exception {}", exception))
+                    .build();
+            safeListener.onChanged(unmodifiableAddedList, unmodifiableRemovedList);
+        }
     }
 
     @Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)

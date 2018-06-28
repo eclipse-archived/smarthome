@@ -53,8 +53,8 @@ public class ThreadPoolManager {
     public static final String CONFIGURATION_PID = "org.eclipse.smarthome.threadpool";
 
     /**
-     * The common thread pool is reserved for occasional, light weight tasks that runs quickly, and
-     * uses little resources to execute. Tasks that does not fit into this category should setup
+     * The common thread pool is reserved for occasional, light weight tasks that run quickly, and
+     * use little resources to execute. Tasks that do not fit into this category should setup
      * their own dedicated pool or permanent thread.
      */
     public static final String THREAD_POOL_NAME_COMMON = "common";
