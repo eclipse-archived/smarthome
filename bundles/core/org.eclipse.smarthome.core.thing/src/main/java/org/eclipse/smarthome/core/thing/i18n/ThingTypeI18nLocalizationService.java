@@ -15,6 +15,7 @@ package org.eclipse.smarthome.core.thing.i18n;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Function;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -73,26 +74,22 @@ public class ThingTypeI18nLocalizationService {
     }
 
     @Nullable
-    private StateDescription createLocalizedStateDescription(Bundle bundle, ChannelType channelType,
-            ChannelTypeUID channelTypeUID, Locale locale) {
-        StateDescription state = channelType.getState();
-
-        if (state != null) {
-            String pattern = thingTypeI18nUtil.getChannelStatePattern(bundle, channelTypeUID, state.getPattern(),
-                    locale);
-
-            List<StateOption> localizedOptions = new ArrayList<>();
-            List<StateOption> options = state.getOptions();
-            for (StateOption stateOption : options) {
-                String optionLabel = thingTypeI18nUtil.getChannelStateOption(bundle, channelTypeUID,
-                        stateOption.getValue(), stateOption.getLabel(), locale);
-                localizedOptions.add(new StateOption(stateOption.getValue(), optionLabel));
-            }
-
-            return new StateDescription(state.getMinimum(), state.getMaximum(), state.getStep(), pattern,
-                    state.isReadOnly(), localizedOptions);
+    private StateDescription createLocalizedStateDescription(final Bundle bundle,
+            final @Nullable StateDescription state, final ChannelTypeUID channelTypeUID, final Locale locale) {
+        if (state == null) {
+            return null;
         }
-        return null;
+        String pattern = thingTypeI18nUtil.getChannelStatePattern(bundle, channelTypeUID, state.getPattern(), locale);
+
+        List<StateOption> localizedOptions = new ArrayList<>();
+        for (final StateOption options : state.getOptions()) {
+            String optionLabel = thingTypeI18nUtil.getChannelStateOption(bundle, channelTypeUID, options.getValue(),
+                    options.getLabel(), locale);
+            localizedOptions.add(new StateOption(options.getValue(), optionLabel));
+        }
+
+        return new StateDescription(state.getMinimum(), state.getMaximum(), state.getStep(), pattern,
+                state.isReadOnly(), localizedOptions);
     }
 
     public ChannelType createLocalizedChannelType(Bundle bundle, ChannelType channelType, Locale locale) {
@@ -101,11 +98,41 @@ public class ThingTypeI18nLocalizationService {
         String description = thingTypeI18nUtil.getChannelDescription(bundle, channelTypeUID,
                 channelType.getDescription(), locale);
 
-        StateDescription state = createLocalizedStateDescription(bundle, channelType, channelTypeUID, locale);
+        StateDescription state = createLocalizedStateDescription(bundle, channelType.getState(), channelTypeUID,
+                locale);
 
         return new ChannelType(channelTypeUID, channelType.isAdvanced(), channelType.getItemType(),
                 channelType.getKind(), label, description, channelType.getCategory(), channelType.getTags(), state,
                 channelType.getEvent(), channelType.getConfigDescriptionURI());
+    }
+
+    private List<ChannelDefinition> createLocalizedChannelDefinitions(final Bundle bundle,
+            final List<ChannelDefinition> channelDefinitions,
+            final Function<ChannelDefinition, @Nullable String> channelLabelResolver,
+            final Function<ChannelDefinition, @Nullable String> channelDescriptionResolver, final Locale locale) {
+        List<ChannelDefinition> localizedChannelDefinitions = new ArrayList<>(channelDefinitions.size());
+        for (final ChannelDefinition channelDefinition : channelDefinitions) {
+            String channelLabel = channelLabelResolver.apply(channelDefinition);
+            String channelDescription = channelDescriptionResolver.apply(channelDefinition);
+            if (channelLabel == null || channelDescription == null) {
+                ChannelTypeUID channelTypeUID = channelDefinition.getChannelTypeUID();
+                ChannelType channelType = channelTypeRegistry.getChannelType(channelTypeUID, locale);
+                if (channelType != null) {
+                    if (channelLabel == null) {
+                        channelLabel = thingTypeI18nUtil.getChannelLabel(bundle, channelTypeUID, channelType.getLabel(),
+                                locale);
+                    }
+                    if (channelDescription == null) {
+                        channelDescription = thingTypeI18nUtil.getChannelDescription(bundle, channelTypeUID,
+                                channelType.getDescription(), locale);
+                    }
+                }
+            }
+            localizedChannelDefinitions
+                    .add(new ChannelDefinition(channelDefinition.getId(), channelDefinition.getChannelTypeUID(),
+                            channelDefinition.getProperties(), channelLabel, channelDescription));
+        }
+        return localizedChannelDefinitions;
     }
 
     public ChannelGroupType createLocalizedChannelGroupType(Bundle bundle, ChannelGroupType channelGroupType,
@@ -116,73 +143,27 @@ public class ThingTypeI18nLocalizationService {
         String description = thingTypeI18nUtil.getChannelGroupDescription(bundle, channelGroupTypeUID,
                 channelGroupType.getDescription(), locale);
 
-        List<ChannelDefinition> localizedChannelDefinitions = new ArrayList<>(
-                channelGroupType.getChannelDefinitions().size());
-        for (ChannelDefinition channelDefinition : channelGroupType.getChannelDefinitions()) {
-            String channelLabel = thingTypeI18nUtil.getChannelLabel(bundle, channelGroupTypeUID, channelDefinition,
-                    channelDefinition.getLabel(), locale);
-            String channelDescription = thingTypeI18nUtil.getChannelDescription(bundle, channelGroupTypeUID,
-                    channelDefinition, channelDefinition.getDescription(), locale);
-            if (channelLabel == null || channelDescription == null) {
-                ChannelTypeUID channelTypeUID = channelDefinition.getChannelTypeUID();
-                ChannelType channelType = channelTypeRegistry.getChannelType(channelTypeUID, locale);
-                if (channelType != null) {
-                    if (channelLabel == null) {
-                        channelLabel = thingTypeI18nUtil.getChannelLabel(bundle, channelTypeUID, channelType.getLabel(),
-                                locale);
-                    }
-                    if (channelDescription == null) {
-                        channelDescription = thingTypeI18nUtil.getChannelDescription(bundle, channelTypeUID,
-                                channelType.getDescription(), locale);
-                    }
-                }
-            }
-            localizedChannelDefinitions
-                    .add(new ChannelDefinition(channelDefinition.getId(), channelDefinition.getChannelTypeUID(),
-                            channelDefinition.getProperties(), channelLabel, channelDescription));
-        }
+        List<ChannelDefinition> localizedChannelDefinitions = createLocalizedChannelDefinitions(bundle,
+                channelGroupType.getChannelDefinitions(),
+                channelDefinition -> thingTypeI18nUtil.getChannelLabel(bundle, channelGroupTypeUID, channelDefinition,
+                        channelDefinition.getLabel(), locale),
+                channelDefinition -> thingTypeI18nUtil.getChannelDescription(bundle, channelGroupTypeUID,
+                        channelDefinition, channelDefinition.getDescription(), locale),
+                locale);
 
         return new ChannelGroupType(channelGroupTypeUID, channelGroupType.isAdvanced(), label, description,
                 channelGroupType.getCategory(), localizedChannelDefinitions);
     }
 
-    public ThingType createLocalizedThingType(Bundle bundle, ThingType thingType, @Nullable Locale locale) {
-        ThingTypeUID thingTypeUID = thingType.getUID();
-        String label = thingTypeI18nUtil.getLabel(bundle, thingTypeUID, thingType.getLabel(), locale);
-        String description = thingTypeI18nUtil.getDescription(bundle, thingTypeUID, thingType.getDescription(), locale);
-
-        List<ChannelDefinition> localizedChannelDefinitions = new ArrayList<>(thingType.getChannelDefinitions().size());
-        for (ChannelDefinition channelDefinition : thingType.getChannelDefinitions()) {
-            String channelLabel = thingTypeI18nUtil.getChannelLabel(bundle, thingTypeUID, channelDefinition,
-                    channelDefinition.getLabel(), locale);
-            String channelDescription = thingTypeI18nUtil.getChannelDescription(bundle, thingTypeUID, channelDefinition,
-                    channelDefinition.getDescription(), locale);
-            if (channelLabel == null || channelDescription == null) {
-                ChannelTypeUID channelTypeUID = channelDefinition.getChannelTypeUID();
-                ChannelType channelType = channelTypeRegistry.getChannelType(channelTypeUID, locale);
-                if (channelType != null) {
-                    if (channelLabel == null) {
-                        channelLabel = thingTypeI18nUtil.getChannelLabel(bundle, channelTypeUID, channelType.getLabel(),
-                                locale);
-                    }
-                    if (channelDescription == null) {
-                        channelDescription = thingTypeI18nUtil.getChannelDescription(bundle, channelTypeUID,
-                                channelType.getDescription(), locale);
-                    }
-                }
-            }
-            localizedChannelDefinitions
-                    .add(new ChannelDefinition(channelDefinition.getId(), channelDefinition.getChannelTypeUID(),
-                            channelDefinition.getProperties(), channelLabel, channelDescription));
-        }
-
-        List<ChannelGroupDefinition> localizedChannelGroupDefinitions = new ArrayList<>(
-                thingType.getChannelGroupDefinitions().size());
-        for (ChannelGroupDefinition channelGroupDefinition : thingType.getChannelGroupDefinitions()) {
-            String channelGroupLabel = thingTypeI18nUtil.getChannelGroupLabel(bundle, thingTypeUID,
-                    channelGroupDefinition, channelGroupDefinition.getLabel(), locale);
-            String channelGroupDescription = thingTypeI18nUtil.getChannelGroupDescription(bundle, thingTypeUID,
-                    channelGroupDefinition, channelGroupDefinition.getDescription(), locale);
+    private List<ChannelGroupDefinition> createLocalizedChannelGroupDefinitions(final Bundle bundle,
+            final List<ChannelGroupDefinition> channelGroupDefinitions,
+            final Function<ChannelGroupDefinition, @Nullable String> channelGroupLabelResolver,
+            final Function<ChannelGroupDefinition, @Nullable String> channelGroupDescriptionResolver,
+            final Locale locale) {
+        List<ChannelGroupDefinition> localizedChannelGroupDefinitions = new ArrayList<>(channelGroupDefinitions.size());
+        for (final ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
+            String channelGroupLabel = channelGroupLabelResolver.apply(channelGroupDefinition);
+            String channelGroupDescription = channelGroupDescriptionResolver.apply(channelGroupDefinition);
             if (channelGroupLabel == null || channelGroupDescription == null) {
                 ChannelGroupTypeUID channelGroupTypeUID = channelGroupDefinition.getTypeUID();
                 ChannelGroupType channelGroupType = channelTypeRegistry.getChannelGroupType(channelGroupTypeUID,
@@ -201,6 +182,29 @@ public class ThingTypeI18nLocalizationService {
             localizedChannelGroupDefinitions.add(new ChannelGroupDefinition(channelGroupDefinition.getId(),
                     channelGroupDefinition.getTypeUID(), channelGroupLabel, channelGroupDescription));
         }
+        return localizedChannelGroupDefinitions;
+    }
+
+    public ThingType createLocalizedThingType(Bundle bundle, ThingType thingType, @Nullable Locale locale) {
+        ThingTypeUID thingTypeUID = thingType.getUID();
+        String label = thingTypeI18nUtil.getLabel(bundle, thingTypeUID, thingType.getLabel(), locale);
+        String description = thingTypeI18nUtil.getDescription(bundle, thingTypeUID, thingType.getDescription(), locale);
+
+        List<ChannelDefinition> localizedChannelDefinitions = createLocalizedChannelDefinitions(bundle,
+                thingType.getChannelDefinitions(),
+                channelDefinition -> thingTypeI18nUtil.getChannelLabel(bundle, thingTypeUID, channelDefinition,
+                        channelDefinition.getLabel(), locale),
+                channelDefinition -> thingTypeI18nUtil.getChannelDescription(bundle, thingTypeUID, channelDefinition,
+                        channelDefinition.getDescription(), locale),
+                locale);
+
+        List<ChannelGroupDefinition> localizedChannelGroupDefinitions = createLocalizedChannelGroupDefinitions(bundle,
+                thingType.getChannelGroupDefinitions(),
+                channelGroupDefinition -> thingTypeI18nUtil.getChannelGroupLabel(bundle, thingTypeUID,
+                        channelGroupDefinition, channelGroupDefinition.getLabel(), locale),
+                channelGroupDefinition -> thingTypeI18nUtil.getChannelGroupDescription(bundle, thingTypeUID,
+                        channelGroupDefinition, channelGroupDefinition.getDescription(), locale),
+                locale);
 
         ThingTypeBuilder builder = ThingTypeBuilder.instance(thingType);
         if (label != null) {
