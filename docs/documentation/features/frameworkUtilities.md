@@ -16,6 +16,7 @@ This service is useful for example in the `ThingHandlerFactory` or an `AudioSink
 Some static methods like `getAllBroadcastAddresses()` for retrieving all interface broadcast addresses or `getInterfaceAddresses()` for retrieving all assigned interface addresses might be usefull as well for discovery services.
 
 ### Network Address Change Listener
+
 The `NetworkAddressChangeListener` is a consumer type OSGi service interface. If listeners want to be notified about network interface address changes, they can implement `NetworkAddressChangeListener` and register as an OSGi service.
 
 Please be aware that not all network interface changes are notified to the listeners, only "useful" network interfaces :--
