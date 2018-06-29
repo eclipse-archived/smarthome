@@ -24,3 +24,4 @@ Import-Package:
  org.osgi.service.cm
 Export-Package: 
   org.eclipse.smarthome.config.discovery.usbserial.testutil
+Automatic-Module-Name: org.eclipse.smarthome.config.discovery.usbserial.test

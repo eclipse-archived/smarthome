@@ -28,3 +28,4 @@ Import-Package:
  org.osgi.util.tracker,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.automation.module.script

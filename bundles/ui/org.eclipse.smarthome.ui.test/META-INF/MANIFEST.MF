@@ -18,3 +18,4 @@ Import-Package:
  org.junit;version="4.0.0",
  org.mockito,
  org.mockito.stubbing
+Automatic-Module-Name: org.eclipse.smarthome.ui.test

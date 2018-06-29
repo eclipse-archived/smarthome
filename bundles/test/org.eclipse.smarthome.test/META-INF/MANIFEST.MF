@@ -43,3 +43,4 @@ Require-Bundle:
  net.bytebuddy.byte-buddy-agent;bundle-version="1.7.0";
  visibility:=reexport,
  org.objenesis;bundle-version="2.6.0";visibility:=reexport
+Automatic-Module-Name: org.eclipse.smarthome.test

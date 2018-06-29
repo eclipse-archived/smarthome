@@ -42,3 +42,4 @@ Import-Package:
  org.osgi.framework,
  org.osgi.service.cm,
  org.osgi.service.component
+Automatic-Module-Name: org.eclipse.smarthome.core.thing.test

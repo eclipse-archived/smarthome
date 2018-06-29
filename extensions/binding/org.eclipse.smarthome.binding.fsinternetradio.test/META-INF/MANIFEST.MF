@@ -32,3 +32,4 @@ Import-Package: javax.servlet,
  org.mockito,
  org.osgi.framework,
  org.osgi.service.http
+Automatic-Module-Name: org.eclipse.smarthome.binding.fsinternetradio.test

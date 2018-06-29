@@ -20,3 +20,4 @@ Import-Package:
  org.mockito,
  org.mockito.invocation,
  org.mockito.stubbing
+Automatic-Module-Name: org.eclipse.smarthome.io.transport.mqtt.test

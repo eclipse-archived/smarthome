@@ -34,3 +34,4 @@ Import-Package:
  org.w3c.dom,
  org.xml.sax
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.binding.wemo

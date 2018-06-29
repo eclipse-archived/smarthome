@@ -13,3 +13,4 @@ Import-Package:
  org.eclipse.smarthome.io.rest,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.io.rest.log

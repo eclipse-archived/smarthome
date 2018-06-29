@@ -31,3 +31,4 @@ Export-Package:
  org.eclipse.smarthome.binding.bluetooth.blukii,
  org.eclipse.smarthome.binding.bluetooth.blukii.handler
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: org.eclipse.smarthome.binding.bluetooth.blukii

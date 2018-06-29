@@ -21,3 +21,4 @@ Import-Package:
  org.eclipse.smarthome.io.rest;resolution:=optional,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.core.id

@@ -31,3 +31,4 @@ Import-Package:
  org.mockito,
  org.mockito.stubbing,
  org.osgi.service.device
+Automatic-Module-Name: org.eclipse.smarthome.binding.hue.test

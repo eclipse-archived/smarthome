@@ -85,3 +85,4 @@ Require-Bundle:
  org.eclipse.xtext;visibility:=reexport,
  org.objectweb.asm;resolution:=optional
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.model.script

@@ -26,3 +26,4 @@ Import-Package:
  org.osgi.framework,
  org.osgi.service.device,
  org.slf4j
+Automatic-Module-Name: org.eclipse.smarthome.binding.tradfri.test

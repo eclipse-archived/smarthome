@@ -29,3 +29,4 @@ Import-Package:
  org.eclipse.smarthome.core.storage,
  org.osgi.framework,
  org.slf4j
+Automatic-Module-Name: org.eclipse.smarthome.automation.api
