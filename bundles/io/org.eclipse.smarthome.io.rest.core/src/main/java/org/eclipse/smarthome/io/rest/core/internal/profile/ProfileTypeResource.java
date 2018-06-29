@@ -32,7 +32,6 @@ import org.eclipse.smarthome.core.thing.profiles.dto.ProfileTypeDTOMapper;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
-import org.eclipse.smarthome.io.rest.core.internal.thing.ThingTypeResource;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -61,7 +60,7 @@ public class ProfileTypeResource implements RESTResource {
     /** The URI path to this resource */
     public static final String PATH_PROFILE_TYPES = "profile-types";
 
-    private final Logger logger = LoggerFactory.getLogger(ThingTypeResource.class);
+    private final Logger logger = LoggerFactory.getLogger(ProfileTypeResource.class);
 
     private ProfileTypeRegistry profileTypeRegistry;
 

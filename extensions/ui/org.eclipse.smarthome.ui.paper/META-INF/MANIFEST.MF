@@ -11,6 +11,7 @@ Import-Package:
  javax.servlet.http,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.io.net.http,
+ org.eclipse.smarthome.io.rest,
  org.osgi.framework,
  org.osgi.service.component;resolution:=optional,
  org.osgi.service.http,
