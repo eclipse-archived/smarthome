@@ -55,16 +55,22 @@
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.dmx/${project.version}</bundle>
   </feature>
 
-  <feature name="esh-binding-hue" version="${project.version}">
-    <feature>esh-base</feature>
-    <feature>esh-io-transport-upnp</feature>
-    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.hue/${project.version}</bundle>
-  </feature>
-
   <feature name="esh-binding-fsinternetradio" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-io-transport-upnp</feature>
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.fsinternetradio/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-binding-homematic" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-io-transport-upnp</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.homematic/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-binding-hue" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-io-transport-upnp</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.hue/${project.version}</bundle>
   </feature>
 
   <feature name="esh-binding-lifx" version="${project.version}">
