@@ -29,7 +29,7 @@ import org.eclipse.smarthome.core.thing.profiles.ProfileType;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeRegistry;
 import org.eclipse.smarthome.core.thing.profiles.dto.ProfileTypeDTO;
 import org.eclipse.smarthome.core.thing.profiles.dto.ProfileTypeDTOMapper;
-import org.eclipse.smarthome.io.rest.LocaleUtil;
+import org.eclipse.smarthome.io.rest.LocaleService;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.Stream2JSONInputStream;
 import org.osgi.service.component.annotations.Component;
@@ -63,6 +63,7 @@ public class ProfileTypeResource implements RESTResource {
     private final Logger logger = LoggerFactory.getLogger(ProfileTypeResource.class);
 
     private ProfileTypeRegistry profileTypeRegistry;
+    private LocaleService localeService;
 
     @GET
     @RolesAllowed({ Role.USER })
@@ -71,7 +72,7 @@ public class ProfileTypeResource implements RESTResource {
     @ApiResponses(value = @ApiResponse(code = 200, message = "OK", response = ProfileTypeDTO.class, responseContainer = "Set"))
     public Response getAll(
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
-        Locale locale = LocaleUtil.getLocale(language);
+        Locale locale = localeService.getLocale(language);
         Stream<ProfileTypeDTO> typeStream = profileTypeRegistry.getProfileTypes(locale).stream()
                 .map(t -> convertToProfileTypeDTO(t, locale));
         return Response.ok(new Stream2JSONInputStream(typeStream)).build();
@@ -94,6 +95,15 @@ public class ProfileTypeResource implements RESTResource {
             return false;
         }
         return true;
+    }
+
+    @Reference
+    public void setLocaleService(LocaleService localeService) {
+        this.localeService = localeService;
+    }
+
+    public void unsetLocaleService(LocaleService localeService) {
+        this.localeService = null;
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
