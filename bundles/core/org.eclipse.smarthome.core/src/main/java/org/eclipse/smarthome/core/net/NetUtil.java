@@ -64,7 +64,7 @@ public class NetUtil implements NetworkAddressService {
 
     private static final String PRIMARY_ADDRESS = "primaryAddress";
     private static final String BROADCAST_ADDRESS = "broadcastAddress";
-    private static final String POLL_INTERVAL = "service.config.network.pollInterval";
+    private static final String POLL_INTERVAL = "pollInterval";
     private static final Logger LOGGER = LoggerFactory.getLogger(NetUtil.class);
 
     /**
