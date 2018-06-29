@@ -43,6 +43,8 @@ public class HomematicBindingConstants {
     public static final String ITEM_TYPE_DIMMER = "Dimmer";
     public static final String ITEM_TYPE_DATETIME = "DateTime";
 
+    public static final String CHANNEL_TYPE_DUTY_CYCLE_RATIO = "DUTY_CYCLE_RATIO";
+
     public static final String CATEGORY_BATTERY = "Battery";
     public static final String CATEGORY_ALARM = "Alarm";
     public static final String CATEGORY_HUMIDITY = "Humidity";

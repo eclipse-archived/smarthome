@@ -24,6 +24,7 @@ public class ListBidcosInterfacesParser extends CommonRpcParser<Object[], ListBi
     private String type;
     private String gatewayAddress;
     private String firmware;
+    private Integer dutyCycleRatio;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -38,6 +39,7 @@ public class ListBidcosInterfacesParser extends CommonRpcParser<Object[], ListBi
                     type = toString(mapMessage.get("TYPE"));
                     firmware = toString(mapMessage.get("FIRMWARE_VERSION"));
                     gatewayAddress = getSanitizedAddress(mapMessage.get("ADDRESS"));
+                    dutyCycleRatio = toInteger(mapMessage.get("DUTY_CYCLE"));
                 }
             }
         }
@@ -63,5 +65,12 @@ public class ListBidcosInterfacesParser extends CommonRpcParser<Object[], ListBi
      */
     public String getFirmware() {
         return firmware;
+    }
+
+    /**
+     * Returns the duty cycle.
+     */
+    public Integer getDutyCycleRatio() {
+        return dutyCycleRatio;
     }
 }
