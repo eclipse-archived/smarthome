@@ -20,18 +20,31 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.common.SafeCaller;
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +54,7 @@ import org.slf4j.LoggerFactory;
  * @author Markus Rathgeb - Initial contribution and API
  * @author Mark Herwege - Added methods to find broadcast address(es)
  * @author Stefan Triller - Converted to OSGi service with primary ipv4 conf
+ * @author Gary Tse - Network address change listener
  */
 @Component(configurationPid = "org.eclipse.smarthome.network", property = { "service.pid=org.eclipse.smarthome.network",
         "service.config.description.uri=system:network", "service.config.label=Network Settings",
@@ -50,7 +64,13 @@ public class NetUtil implements NetworkAddressService {
 
     private static final String PRIMARY_ADDRESS = "primaryAddress";
     private static final String BROADCAST_ADDRESS = "broadcastAddress";
+    private static final String POLL_INTERVAL = "pollInterval";
     private static final Logger LOGGER = LoggerFactory.getLogger(NetUtil.class);
+
+    /**
+     * Default network interface poll interval 60 seconds.
+     */
+    public static final int POLL_INTERVAL_SECONDS = 60;
 
     private static final Pattern IPV4_PATTERN = Pattern
             .compile("^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
@@ -58,9 +78,31 @@ public class NetUtil implements NetworkAddressService {
     private @Nullable String primaryAddress;
     private @Nullable String configuredBroadcastAddress;
 
+    // must be initialized before activate due to OSGi reference
+    private Set<NetworkAddressChangeListener> networkAddressChangeListeners = ConcurrentHashMap.newKeySet();
+
+    private @Nullable Collection<CidrAddress> lastKnownInterfaceAddresses;
+    private @Nullable ScheduledExecutorService scheduledExecutorService = ThreadPoolManager
+            .getScheduledPool(ThreadPoolManager.THREAD_POOL_NAME_COMMON);
+    private @Nullable ScheduledFuture networkInterfacePollFuture = null;
+
+    private @NonNullByDefault({}) SafeCaller safeCaller;
+
     @Activate
     protected void activate(Map<String, Object> props) {
+        lastKnownInterfaceAddresses = Collections.emptyList();
         modified(props);
+    }
+
+    protected void deactivate() {
+        lastKnownInterfaceAddresses = Collections.emptyList();
+        networkAddressChangeListeners = ConcurrentHashMap.newKeySet();
+
+        if (networkInterfacePollFuture != null) {
+            networkInterfacePollFuture.cancel(true);
+            networkInterfacePollFuture = null;
+            scheduledExecutorService = null; // do not shut it down
+        }
     }
 
     @Modified
@@ -80,6 +122,20 @@ public class NetUtil implements NetworkAddressService {
         } else {
             configuredBroadcastAddress = broadcastAddressConf;
         }
+
+        Object pollIntervalSecondsObj = null;
+        int pollIntervalSeconds = POLL_INTERVAL_SECONDS;
+        try {
+            pollIntervalSecondsObj = config.get(POLL_INTERVAL);
+            if (pollIntervalSecondsObj != null) {
+                pollIntervalSeconds = Integer.parseInt(pollIntervalSecondsObj.toString());
+            }
+        } catch (NumberFormatException e) {
+            LOGGER.warn("Cannot parse value {} from key {}, will use default {}", pollIntervalSecondsObj, POLL_INTERVAL,
+                    pollIntervalSeconds);
+        }
+
+        scheduleToPollNetworkInterface(pollIntervalSeconds);
     }
 
     @Override
@@ -269,6 +325,8 @@ public class NetUtil implements NetworkAddressService {
      * List<String> l = getAllInterfaceAddresses().stream().filter(a->a.getAddress() instanceof
      * Inet4Address).map(a->a.getAddress().getHostAddress()).collect(Collectors.toList());
      *
+     * down, or loopback interfaces are skipped.
+     *
      * @return The collected IPv4 and IPv6 Addresses
      */
     public static Collection<CidrAddress> getAllInterfaceAddresses() {
@@ -455,6 +513,83 @@ public class NetUtil implements NetworkAddressService {
             return IPV4_PATTERN.matcher(ipAddress).matches();
         }
         return false;
+    }
+
+    private void scheduleToPollNetworkInterface(int intervalInSeconds) {
+
+        if (networkInterfacePollFuture != null) {
+            networkInterfacePollFuture.cancel(true);
+            networkInterfacePollFuture = null;
+        }
+
+        networkInterfacePollFuture = scheduledExecutorService.scheduleWithFixedDelay(
+                () -> this.pollAndNotifyNetworkInterfaceAddress(), 1, intervalInSeconds, TimeUnit.SECONDS);
+    }
+
+    private void pollAndNotifyNetworkInterfaceAddress() {
+        Collection<CidrAddress> newInterfaceAddresses = getAllInterfaceAddresses();
+        if (networkAddressChangeListeners.isEmpty()) {
+            // no listeners listening, just update
+            lastKnownInterfaceAddresses = newInterfaceAddresses;
+            return;
+        }
+
+        // Look for added addresses to notify
+        List<CidrAddress> added = newInterfaceAddresses.stream()
+                .filter(newInterfaceAddr -> !lastKnownInterfaceAddresses.contains(newInterfaceAddr))
+                .collect(Collectors.toList());
+
+        // Look for removed addresses to notify
+        List<CidrAddress> removed = lastKnownInterfaceAddresses.stream()
+                .filter(lastKnownInterfaceAddr -> !newInterfaceAddresses.contains(lastKnownInterfaceAddr))
+                .collect(Collectors.toList());
+
+        lastKnownInterfaceAddresses = newInterfaceAddresses;
+
+        if (!added.isEmpty() || !removed.isEmpty()) {
+            LOGGER.debug("added {} network interfaces: {}", added.size(), Arrays.deepToString(added.toArray()));
+            LOGGER.debug("removed {} network interfaces: {}", removed.size(), Arrays.deepToString(removed.toArray()));
+
+            notifyListeners(added, removed);
+        }
+    }
+
+    private void notifyListeners(List<CidrAddress> added, List<CidrAddress> removed) {
+        // Prevent listeners changing the list
+        List<CidrAddress> unmodifiableAddedList = Collections.unmodifiableList(added);
+        List<CidrAddress> unmodifiableRemovedList = Collections.unmodifiableList(removed);
+
+        // notify each listener with a timeout of 15 seconds.
+        // SafeCaller prevents bad listeners running too long or throws runtime exceptions
+        for (NetworkAddressChangeListener listener : networkAddressChangeListeners) {
+            if (safeCaller == null) {
+                // safeCaller null must be checked between each round, in case it is deactivated
+                break;
+            }
+            NetworkAddressChangeListener safeListener = safeCaller.create(listener, NetworkAddressChangeListener.class)
+                    .withTimeout(15000)
+                    .onException(exception -> LOGGER.debug("NetworkAddressChangeListener exception {}", exception))
+                    .build();
+            safeListener.onChanged(unmodifiableAddedList, unmodifiableRemovedList);
+        }
+    }
+
+    @Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
+    protected void addNetworkAddressChangeListener(NetworkAddressChangeListener listener) {
+        networkAddressChangeListeners.add(listener);
+    }
+
+    protected void removeNetworkAddressChangeListener(NetworkAddressChangeListener listener) {
+        networkAddressChangeListeners.remove(listener);
+    }
+
+    @Reference
+    protected void setSafeCaller(SafeCaller safeCaller) {
+        this.safeCaller = safeCaller;
+    }
+
+    protected void unsetSafeCaller(SafeCaller safeCaller) {
+        this.safeCaller = null;
     }
 
 }
