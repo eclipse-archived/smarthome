@@ -15,3 +15,4 @@ Import-Package: com.google.gson,
  org.osgi.service.cm,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.config.dispatch

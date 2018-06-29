@@ -48,3 +48,4 @@ Import-Package:
  org.osgi.service.event,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.io.rest.sse

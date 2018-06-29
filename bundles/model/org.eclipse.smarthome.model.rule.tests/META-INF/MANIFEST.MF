@@ -31,3 +31,4 @@ Require-Bundle:
  org.eclipse.xtend.lib,
  org.eclipse.xtext.xbase.lib,
  org.hamcrest
+Automatic-Module-Name: org.eclipse.smarthome.model.rule.tests

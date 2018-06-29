@@ -39,3 +39,4 @@ Import-Package:
 Require-Bundle: 
  org.eclipse.core.runtime
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.model.thing.tests

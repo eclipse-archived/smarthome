@@ -18,3 +18,4 @@ Import-Package:
  org.mockito.stubbing,
  org.osgi.framework,
  org.slf4j
+Automatic-Module-Name: org.eclipse.smarthome.model.core.test

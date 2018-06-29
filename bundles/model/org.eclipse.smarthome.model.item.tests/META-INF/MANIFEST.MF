@@ -33,3 +33,4 @@ Require-Bundle:
  org.eclipse.xtext.testing,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtext.xbase.testing
+Automatic-Module-Name: org.eclipse.smarthome.model.item.tests

@@ -17,3 +17,4 @@ Import-Package:
  org.junit.runners;version="4.0.0",
  org.mockito,
  org.slf4j
+Automatic-Module-Name: org.eclipse.smarthome.model.lsp.test

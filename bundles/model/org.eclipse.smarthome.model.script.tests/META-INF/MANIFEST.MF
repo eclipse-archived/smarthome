@@ -36,3 +36,4 @@ Require-Bundle:
  org.eclipse.core.runtime,
  org.eclipse.xtend.lib,
  org.eclipse.xtext.xbase.lib
+Automatic-Module-Name: org.eclipse.smarthome.model.script.tests

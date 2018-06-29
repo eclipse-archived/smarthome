@@ -20,3 +20,4 @@ Import-Package:
  org.mockito.hamcrest,
  org.mockito.stubbing,
  org.osgi.service.cm
+Automatic-Module-Name: org.eclipse.smarthome.core.transform.test

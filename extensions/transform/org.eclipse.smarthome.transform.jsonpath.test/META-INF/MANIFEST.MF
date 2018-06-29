@@ -11,3 +11,4 @@ Import-Package:
  org.hamcrest;core=split,
  org.hamcrest.core,
  org.junit;version="4.0.0"
+Automatic-Module-Name: org.eclipse.smarthome.transform.jsonpath.test

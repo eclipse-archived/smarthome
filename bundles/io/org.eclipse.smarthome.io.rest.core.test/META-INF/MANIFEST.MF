@@ -49,3 +49,4 @@ Import-Package:
  org.mockito.invocation,
  org.mockito.stubbing,
  org.slf4j
+Automatic-Module-Name: org.eclipse.smarthome.io.rest.core.test

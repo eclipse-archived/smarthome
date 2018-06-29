@@ -9,3 +9,4 @@ Fragment-Host: org.eclipse.smarthome.transform.regex
 Import-Package: 
  org.eclipse.jdt.annotation;resolution:=optional,
  org.junit;version="4.0.0"
+Automatic-Module-Name: org.eclipse.smarthome.transform.regex.test

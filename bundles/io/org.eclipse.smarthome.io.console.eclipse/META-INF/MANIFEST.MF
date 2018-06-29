@@ -15,3 +15,4 @@ Import-Package:
  org.eclipse.smarthome.io.console.extensions,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.io.console.eclipse

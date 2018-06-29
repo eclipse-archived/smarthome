@@ -67,3 +67,4 @@ Require-Bundle:
  ibility:=reexport,
  org.eclipse.xtext;bundle-version="2.1.0";visibility:=reexport
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.model.persistence

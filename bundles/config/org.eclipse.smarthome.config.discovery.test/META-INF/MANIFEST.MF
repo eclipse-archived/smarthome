@@ -32,3 +32,4 @@ Import-Package:
  org.mockito.invocation,
  org.mockito.stubbing,
  org.mockito.verification
+Automatic-Module-Name: org.eclipse.smarthome.config.discovery.test

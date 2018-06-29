@@ -17,3 +17,4 @@ Require-Bundle:
  org.eclipse.xtext.ide,
  org.eclipse.xtext.xbase.ide,
  org.eclipse.xtext.xbase.lib
+Automatic-Module-Name: org.eclipse.smarthome.model.rule.ide

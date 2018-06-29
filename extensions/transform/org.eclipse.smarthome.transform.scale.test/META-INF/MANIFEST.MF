@@ -10,3 +10,4 @@ Import-Package:
  org.eclipse.jdt.annotation;resolution:=optional,
  org.hamcrest.core,
  org.junit
+Automatic-Module-Name: org.eclipse.smarthome.transform.scale.test

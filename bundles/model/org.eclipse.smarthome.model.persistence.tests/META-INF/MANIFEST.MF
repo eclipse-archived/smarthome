@@ -21,3 +21,4 @@ Import-Package:
  org.joda.time,
  org.joda.time.base,
  org.junit;version="4.0.0"
+Automatic-Module-Name: org.eclipse.smarthome.model.persistence.tests

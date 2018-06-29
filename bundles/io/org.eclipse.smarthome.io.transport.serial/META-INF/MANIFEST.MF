@@ -16,3 +16,4 @@ Import-Package:
  org.osgi.service.cm,
  org.osgi.service.component,
  org.slf4j
+Automatic-Module-Name: org.eclipse.smarthome.io.transport.serial

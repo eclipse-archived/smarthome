@@ -14,3 +14,4 @@ Import-Package:
  org.eclipse.smarthome.core.voice,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.voice.mactts

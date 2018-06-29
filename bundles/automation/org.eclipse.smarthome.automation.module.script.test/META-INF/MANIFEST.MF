@@ -45,3 +45,4 @@ Require-Bundle:
  org.eclipse.smarthome.automation.module.script.defaultscope,
  org.eclipse.smarthome.automation.parser.gson,
  org.eclipse.smarthome.automation.providers
+Automatic-Module-Name: org.eclipse.smarthome.automation.module.script.test

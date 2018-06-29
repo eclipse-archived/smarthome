@@ -18,3 +18,4 @@ Import-Package:
  org.hamcrest;core=split,
  org.junit;version="4.0.0",
  org.osgi.framework
+Automatic-Module-Name: org.eclipse.smarthome.core.id.test

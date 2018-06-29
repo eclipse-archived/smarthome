@@ -85,3 +85,4 @@ Private-Package: org.eclipse.smarthome.core.internal,org.eclipse.smartho
  me.core.internal.events,org.eclipse.smarthome.core.internal.items,org.e
  clipse.smarthome.core.internal.logging,org.eclipse.smarthome.core.internal.items.group
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.core
