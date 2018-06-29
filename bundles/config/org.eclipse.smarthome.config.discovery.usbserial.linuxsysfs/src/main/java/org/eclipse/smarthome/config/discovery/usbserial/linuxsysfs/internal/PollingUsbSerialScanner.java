@@ -30,6 +30,7 @@ import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDeviceInformati
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDiscovery;
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDiscoveryListener;
 import org.eclipse.smarthome.config.discovery.usbserial.linuxsysfs.internal.DeltaUsbSerialScanner.Delta;
+import org.eclipse.smarthome.core.common.ThreadFactoryBuilder;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -50,7 +51,7 @@ public class PollingUsbSerialScanner implements UsbSerialDiscovery {
 
     private final Logger logger = LoggerFactory.getLogger(PollingUsbSerialScanner.class);
 
-    private static final String THREAD_NAME = "ESH-usb-serial-discovery-linux-sysfs";
+    private static final String THREAD_NAME = "usb-serial-discovery-linux-sysfs";
 
     public static final String PAUSE_BETWEEN_SCANS_IN_SECONDS_ATTRIBUTE = "pauseBetweenScansInSeconds";
     private static final Duration DEFAULT_PAUSE_BETWEEN_SCANS = Duration.ofSeconds(5);
@@ -83,7 +84,8 @@ public class PollingUsbSerialScanner implements UsbSerialDiscovery {
                     .ofSeconds(parseLong(config.get(PAUSE_BETWEEN_SCANS_IN_SECONDS_ATTRIBUTE).toString()));
         }
 
-        scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler = Executors.newSingleThreadScheduledExecutor(
+                ThreadFactoryBuilder.create().withNamePrefix(THREAD_NAME).withDaemonThreads().build());
     }
 
     @Deactivate
@@ -123,7 +125,6 @@ public class PollingUsbSerialScanner implements UsbSerialDiscovery {
         if (backgroundScanningJob == null) {
             if (deltaUsbSerialScanner.canPerformScans()) {
                 backgroundScanningJob = scheduler.scheduleWithFixedDelay(() -> {
-                    Thread.currentThread().setName(THREAD_NAME);
                     singleScanInternal(false);
                 }, 0, pauseBetweenScans.getSeconds(), TimeUnit.SECONDS);
                 logger.debug("Scheduled USB-Serial background discovery every {} seconds",
