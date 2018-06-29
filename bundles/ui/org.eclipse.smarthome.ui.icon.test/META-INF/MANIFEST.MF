@@ -19,3 +19,4 @@ Import-Package:
  org.eclipse.smarthome.test,
  org.hamcrest;core=split,
  org.junit;version="4.0.0"
+Automatic-Module-Name: org.eclipse.smarthome.ui.icon.test

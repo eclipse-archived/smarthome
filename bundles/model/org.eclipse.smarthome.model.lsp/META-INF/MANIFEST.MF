@@ -35,3 +35,4 @@ Require-Bundle: org.eclipse.smarthome.model.item.ide,
  org.eclipse.smarthome.model.sitemap,
  org.eclipse.smarthome.model.thing
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.model.lsp

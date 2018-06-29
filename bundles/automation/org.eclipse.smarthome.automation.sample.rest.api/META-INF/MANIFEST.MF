@@ -15,3 +15,4 @@ Import-Package:
  org.osgi.service.http,
  org.osgi.util.tracker,
  org.slf4j
+Automatic-Module-Name: org.eclipse.smarthome.automation.sample.rest.api

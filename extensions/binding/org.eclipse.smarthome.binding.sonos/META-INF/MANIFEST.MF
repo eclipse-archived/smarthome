@@ -36,3 +36,4 @@ Import-Package:
  org.xml.sax,
  org.xml.sax.helpers
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.binding.sonos

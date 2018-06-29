@@ -27,3 +27,4 @@ Import-Package:
  org.hamcrest.object,
  org.junit;version="4.0.0",
  org.mockito
+Automatic-Module-Name: org.eclipse.smarthome.io.rest.test

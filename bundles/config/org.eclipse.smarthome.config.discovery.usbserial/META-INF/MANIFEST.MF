@@ -17,3 +17,4 @@ Import-Package:
  org.slf4j
 Service-Component: OSGI-INF/*.xml
 Eclipse-ExtensibleAPI: true
+Automatic-Module-Name: org.eclipse.smarthome.config.discovery.usbserial

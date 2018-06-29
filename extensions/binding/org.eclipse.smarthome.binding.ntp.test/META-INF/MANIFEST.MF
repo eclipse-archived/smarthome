@@ -30,3 +30,4 @@ Import-Package:
  org.mockito.stubbing,
  org.osgi.framework,
  org.osgi.service.component
+Automatic-Module-Name: org.eclipse.smarthome.binding.ntp.test

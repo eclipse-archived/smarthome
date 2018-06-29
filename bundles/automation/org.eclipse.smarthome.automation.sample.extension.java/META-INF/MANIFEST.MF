@@ -24,3 +24,4 @@ Import-Package:
  org.eclipse.smarthome.io.console.extensions,
  org.osgi.framework,
  org.slf4j
+Automatic-Module-Name: org.eclipse.smarthome.automation.sample.extension.java

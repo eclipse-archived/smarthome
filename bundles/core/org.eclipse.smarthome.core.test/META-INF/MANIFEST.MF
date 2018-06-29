@@ -27,3 +27,4 @@ Import-Package:
  org.mockito.invocation,
  org.mockito.stubbing,
  org.osgi.service.cm
+Automatic-Module-Name: org.eclipse.smarthome.core.test

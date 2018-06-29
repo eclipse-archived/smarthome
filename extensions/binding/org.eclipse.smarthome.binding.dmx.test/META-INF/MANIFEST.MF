@@ -41,3 +41,4 @@ Import-Package:
  org.osgi.service.device,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.binding.dmx.test

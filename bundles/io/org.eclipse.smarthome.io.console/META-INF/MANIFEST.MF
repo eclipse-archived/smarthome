@@ -25,3 +25,4 @@ Import-Package:
  org.slf4j
 Originally-Created-By: Apache Maven Bundle Plugin
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.io.console

@@ -16,3 +16,4 @@ Require-Bundle:
  org.eclipse.smarthome.model.persistence,
  org.eclipse.xtext.ide,
  org.eclipse.xtext.xbase.lib
+Automatic-Module-Name: org.eclipse.smarthome.model.persistence.ide

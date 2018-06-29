@@ -21,3 +21,4 @@ Import-Package:
  org.osgi.service.event,
  org.osgi.util.tracker,
  org.slf4j
+Automatic-Module-Name: org.eclipse.smarthome.automation.sample.extension.json

@@ -21,3 +21,4 @@ Import-Package:
  org.slf4j
 Private-Package: org.eclipse.smarthome.core.autoupdate.internal
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.core.autoupdate

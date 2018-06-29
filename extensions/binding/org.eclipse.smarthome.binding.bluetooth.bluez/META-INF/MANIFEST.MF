@@ -35,3 +35,4 @@ Service-Component: OSGI-INF/*.xml
 Export-Package: org.eclipse.smarthome.binding.bluetooth.bluez,
  org.eclipse.smarthome.binding.bluetooth.bluez.handler
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: org.eclipse.smarthome.binding.bluetooth.bluez

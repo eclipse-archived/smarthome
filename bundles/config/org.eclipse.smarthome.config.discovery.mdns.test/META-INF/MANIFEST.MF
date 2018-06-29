@@ -19,3 +19,4 @@ Import-Package:
  org.mockito.stubbing,
  org.mockito.verification,
  org.osgi.service.cm
+Automatic-Module-Name: org.eclipse.smarthome.config.discovery.mdns.test

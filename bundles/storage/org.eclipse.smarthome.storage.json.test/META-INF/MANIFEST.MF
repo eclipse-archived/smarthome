@@ -17,3 +17,4 @@ Import-Package:
  org.hamcrest;core=split,
  org.junit.matchers;version="4.0.0",
  org.junit;version="4.0.0"
+Automatic-Module-Name: org.eclipse.smarthome.storage.json.test

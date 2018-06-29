@@ -14,3 +14,4 @@ Import-Package:
  org.eclipse.smarthome.core.voice,
  org.hamcrest.core,
  org.junit;version="4.0.0"
+Automatic-Module-Name: org.eclipse.smarthome.voice.mactts.test

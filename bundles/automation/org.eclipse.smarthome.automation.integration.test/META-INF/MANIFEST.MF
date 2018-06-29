@@ -47,3 +47,4 @@ Require-Bundle:
  org.eclipse.smarthome.automation.providers,
  org.eclipse.smarthome.io.console,
  org.junit
+Automatic-Module-Name: org.eclipse.smarthome.automation.integration.test

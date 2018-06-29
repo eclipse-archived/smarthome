@@ -27,3 +27,4 @@ Export-Package: org.eclipse.smarthome.binding.bluetooth,
  org.eclipse.smarthome.binding.bluetooth.discovery,
  org.eclipse.smarthome.binding.bluetooth.notification
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: org.eclipse.smarthome.binding.bluetooth

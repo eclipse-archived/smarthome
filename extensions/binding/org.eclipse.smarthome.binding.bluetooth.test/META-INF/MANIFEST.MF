@@ -18,3 +18,4 @@ Import-Package: org.eclipse.smarthome.binding.bluetooth,
  org.osgi.framework,
  org.osgi.service.device,
  org.slf4j
+Automatic-Module-Name: org.eclipse.smarthome.binding.bluetooth.test

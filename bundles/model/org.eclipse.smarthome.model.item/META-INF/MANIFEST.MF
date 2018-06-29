@@ -57,3 +57,4 @@ Require-Bundle:
  org.eclipse.xtext.util,
  org.eclipse.xtext.xbase.lib
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.model.item

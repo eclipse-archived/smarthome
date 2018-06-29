@@ -82,3 +82,4 @@ Import-Package:
  org.quartz.xml,
  org.slf4j
 Private-Package: org.eclipse.smarthome.core.scheduler.internal
+Automatic-Module-Name: org.eclipse.smarthome.core.scheduler

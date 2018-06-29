@@ -34,3 +34,4 @@ Import-Package:
  org.jupnp.model.meta,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.binding.fsinternetradio
