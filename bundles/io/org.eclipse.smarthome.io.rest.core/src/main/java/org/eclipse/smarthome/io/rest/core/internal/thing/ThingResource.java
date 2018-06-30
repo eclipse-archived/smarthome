@@ -78,7 +78,6 @@ import org.eclipse.smarthome.core.thing.firmware.FirmwareUpdateService;
 import org.eclipse.smarthome.core.thing.firmware.dto.FirmwareDTO;
 import org.eclipse.smarthome.core.thing.firmware.dto.FirmwareStatusDTO;
 import org.eclipse.smarthome.core.thing.i18n.ThingStatusInfoI18nLocalizationService;
-import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
@@ -725,27 +724,6 @@ public class ThingResource implements RESTResource {
             linkedItemsMap.put(channel.getUID().getId(), linkedItems);
         }
         return linkedItemsMap;
-    }
-
-    private Channel findChannel(String channelId, Thing thing) {
-        for (Channel channel : thing.getChannels()) {
-            if (channel.getUID().getId().equals(channelId)) {
-                return channel;
-            }
-        }
-        return null;
-    }
-
-    private void unlinkChannelIfAlreadyLinked(ChannelUID channelUID) {
-        Collection<ItemChannelLink> links = managedItemChannelLinkProvider.getAll();
-        for (ItemChannelLink link : links) {
-            if (link.getLinkedUID().equals(channelUID)) {
-                logger.debug(
-                        "Channel '{}' is already linked to item '{}' and will be unlinked before it will be linked to the new item.",
-                        channelUID, link.getItemName());
-                managedItemChannelLinkProvider.remove(link.getUID());
-            }
-        }
     }
 
     public static void updateConfiguration(Thing thing, Configuration configuration) {
