@@ -20,6 +20,7 @@ import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.core.types.util.UnitUtils;
 import org.eclipse.smarthome.model.sitemap.Mapping;
@@ -88,12 +89,15 @@ public class SelectionRenderer extends AbstractWidgetRenderer {
 
         JsonObject jsonObject = new JsonObject();
         StringBuilder rowSB = new StringBuilder();
-        if (selection.getMappings().size() == 0 && item != null && item.getStateDescription() != null) {
-            for (StateOption option : item.getStateDescription().getOptions()) {
-                jsonObject.addProperty(option.getValue(), option.getLabel());
-                rowMappingLabel = buildRow(selection, option.getLabel(), option.getValue(), item, state, rowSB);
-                if (rowMappingLabel != null) {
-                    mappingLabel = rowMappingLabel;
+        if (selection.getMappings().size() == 0 && item != null) {
+            final StateDescription stateDescription = item.getStateDescription();
+            if (stateDescription != null) {
+                for (StateOption option : stateDescription.getOptions()) {
+                    jsonObject.addProperty(option.getValue(), option.getLabel());
+                    rowMappingLabel = buildRow(selection, option.getLabel(), option.getValue(), item, state, rowSB);
+                    if (rowMappingLabel != null) {
+                        mappingLabel = rowMappingLabel;
+                    }
                 }
             }
         } else {
