@@ -21,8 +21,8 @@ import java.util.Collection;
  */
 public class ContentItemMaker {
 
-    private PresetContainer presetContainer;
-    private CommandExecutor commandExecutor;
+    private final PresetContainer presetContainer;
+    private final CommandExecutor commandExecutor;
 
     /**
      * Creates a new instance of this class
@@ -76,9 +76,9 @@ public class ContentItemMaker {
                 return getStoredMusic();
             case TV:
                 return getTV();
-
+            default:
+                throw new OperationModeNotAvailableException();
         }
-        throw new OperationModeNotAvailableException();
     }
 
     private ContentItem getAmazon() throws OperationModeNotAvailableException {
