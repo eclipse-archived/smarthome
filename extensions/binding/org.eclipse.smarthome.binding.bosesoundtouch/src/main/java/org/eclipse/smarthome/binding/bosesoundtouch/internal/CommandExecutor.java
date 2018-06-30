@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.smarthome.binding.bosesoundtouch.BoseSoundTouchConfiguration;
 import org.eclipse.smarthome.binding.bosesoundtouch.handler.BoseSoundTouchHandler;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.NextPreviousType;
@@ -39,9 +38,9 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - code clean up
  */
 public class CommandExecutor implements AvailableSources {
-    private Logger logger = LoggerFactory.getLogger(CommandExecutor.class);
+    private final Logger logger = LoggerFactory.getLogger(CommandExecutor.class);
 
-    private BoseSoundTouchHandler handler;
+    private final BoseSoundTouchHandler handler;
 
     private boolean currentMuted;
     private ContentItem currentContentItem;
@@ -489,12 +488,10 @@ public class CommandExecutor implements AvailableSources {
         }
     }
 
-    public void playNotificationSound(String appKey, BoseSoundTouchNotificationChannelConfiguration notificationConfig
-            , String fileUrl) {
-        String msg = "<play_info>"
-                + "<app_key>" + appKey + "</app_key>"
-                + "<url>" + fileUrl + "</url>"
-                + "<service>" + notificationConfig.notificationService + "</service>"
+    public void playNotificationSound(String appKey, BoseSoundTouchNotificationChannelConfiguration notificationConfig,
+            String fileUrl) {
+        String msg = "<play_info>" + "<app_key>" + appKey + "</app_key>" + "<url>" + fileUrl + "</url>" + "<service>"
+                + notificationConfig.notificationService + "</service>"
                 + (notificationConfig.notificationReason != null
                         ? "<reason>" + notificationConfig.notificationReason + "</reason>"
                         : "")
