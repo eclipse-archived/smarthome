@@ -58,7 +58,7 @@ public class OSGiEventManagerOSGiTest extends JavaOSGiTest {
     private static final String TOPIC_BASED_SUBSCRIBER_3 = "TOPIC_BASED_SUBSCRIBER_3";
     private static final String ALL_EVENT_TYPES_SUBSCRIBER_4 = "ALL_EVENT_TYPES_SUBSCRIBER_4";
 
-    private final Map<String, ServiceRegistration<Object>> serviceRegistrations = new HashMap<>();
+    private final Map<String, ServiceRegistration<?>> serviceRegistrations = new HashMap<>();
 
     private EventPublisher eventPublisher;
 
@@ -243,7 +243,7 @@ public class OSGiEventManagerOSGiTest extends JavaOSGiTest {
         }
     }
 
-    private void internalRegisterService(String key, Class clazz, Object serviceObject) {
+    private <S> void internalRegisterService(String key, Class<S> clazz, S serviceObject) {
         serviceRegistrations.put(key, bundleContext.registerService(clazz, serviceObject, null));
     }
 
