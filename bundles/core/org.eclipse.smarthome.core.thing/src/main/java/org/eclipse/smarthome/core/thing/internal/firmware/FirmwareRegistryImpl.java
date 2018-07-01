@@ -107,13 +107,11 @@ public final class FirmwareRegistryImpl implements FirmwareRegistry {
     }
 
     @Override
-    @Nullable
     public Collection<Firmware> getFirmwares(Thing thing) {
         return getFirmwares(thing, localeProvider.getLocale());
     }
 
     @Override
-    @Nullable
     public Collection<Firmware> getFirmwares(Thing thing, @Nullable Locale locale) {
         ParameterChecks.checkNotNull(thing, "Thing");
 
