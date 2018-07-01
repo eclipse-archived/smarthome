@@ -16,11 +16,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * {@link JavaTest} is an abstract base class for tests which are not necessarily based on OSGi.
  *
  * @author Simon Kaufmann - factored out of JavaOSGiTest
  */
+@NonNullByDefault
 public class JavaTest {
 
     protected static final int DFL_TIMEOUT = 10000;
@@ -112,7 +116,7 @@ public class JavaTest {
      * @param beforeLastCall logic to execute in front of the last call to ${code assertion}
      * @param sleepTime interval for checking the condition
      */
-    protected void waitForAssert(Runnable assertion, Runnable beforeLastCall, long timeout, long sleepTime) {
+    protected void waitForAssert(Runnable assertion, @Nullable Runnable beforeLastCall, long timeout, long sleepTime) {
         waitForAssert(assertion, beforeLastCall, null, timeout, sleepTime);
     }
 
@@ -124,16 +128,10 @@ public class JavaTest {
      * @param afterLastCall logic to execute after the last call to ${code assertion}
      * @param sleepTime interval for checking the condition
      */
-    protected void waitForAssert(Runnable assertion, Runnable beforeLastCall, Runnable afterLastCall, long timeout,
-            long sleepTime) {
+    protected void waitForAssert(Runnable assertion, @Nullable Runnable beforeLastCall,
+            @Nullable Runnable afterLastCall, long timeout, long sleepTime) {
         long waitingTime = 0;
         while (waitingTime < timeout) {
-            if (assertion == null) {
-                waitingTime += sleepTime;
-                internalSleep(sleepTime);
-                continue;
-            }
-
             try {
                 assertion.run();
 
@@ -162,6 +160,12 @@ public class JavaTest {
     /**
      * Useful for testing @NonNull annotated parameters
      *
+     * <p>
+     * This method can be used if you want to check the behavior of a method if you supply null to a non-null marked
+     * argument.
+     * If you use null directly the compiler will raise an error. Using this method allows you to work around that
+     * compiler check by using a null value that is marked as non-null.
+     *
      * @return null for testing purpose
      */
     protected static <T> T giveNull() {
@@ -176,7 +180,8 @@ public class JavaTest {
      * @param sleepTime interval for checking the condition
      * @return the return value of the supplied assertion object's function on success
      */
-    private <T> T waitForAssert(Supplier<T> assertion, Runnable beforeLastCall, long timeout, long sleepTime) {
+    private <T> T waitForAssert(Supplier<T> assertion, @Nullable Runnable beforeLastCall, long timeout,
+            long sleepTime) {
         final long timeoutNs = TimeUnit.MILLISECONDS.toNanos(timeout);
         final long startingTime = System.nanoTime();
         while (System.nanoTime() - startingTime < timeoutNs) {
