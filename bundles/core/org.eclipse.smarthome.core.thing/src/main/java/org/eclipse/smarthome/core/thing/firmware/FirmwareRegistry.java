@@ -90,7 +90,6 @@ public interface FirmwareRegistry {
      * @return the collection of available firmwares for the given thing (not null)
      * @throws IllegalArgumentException if the thing is null
      */
-    @Nullable
     public Collection<Firmware> getFirmwares(Thing thing);
 
     /**
@@ -102,6 +101,5 @@ public interface FirmwareRegistry {
      * @return the collection of available firmwares for the given thing (not null)
      * @throws IllegalArgumentException if the thing is null
      */
-    @Nullable
     public Collection<Firmware> getFirmwares(Thing thing, @Nullable Locale locale);
 }
