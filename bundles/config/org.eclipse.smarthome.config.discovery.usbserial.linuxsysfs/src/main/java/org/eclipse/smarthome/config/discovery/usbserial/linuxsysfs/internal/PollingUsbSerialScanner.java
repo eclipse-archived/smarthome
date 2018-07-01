@@ -85,7 +85,7 @@ public class PollingUsbSerialScanner implements UsbSerialDiscovery {
         }
 
         scheduler = Executors.newSingleThreadScheduledExecutor(
-                ThreadFactoryBuilder.create().withNamePrefix(THREAD_NAME).withDaemonThreads().build());
+                ThreadFactoryBuilder.create().withNamePrefix(THREAD_NAME).withDaemonThreads(true).build());
     }
 
     @Deactivate

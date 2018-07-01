@@ -54,17 +54,14 @@ public class ThreadFactoryBuilderTest {
 
     @Test
     public void testThreadFactoryBuilderDaemonize() {
-        ThreadFactory threadFactory = ThreadFactoryBuilder.create().withDaemonThreads().build();
+        ThreadFactory threadFactory = ThreadFactoryBuilder.create().withDaemonThreads(true).build();
         assertThat(threadFactory.newThread(() -> {
         }).isDaemon(), is(true));
 
-        threadFactory = ThreadFactoryBuilder.create().withNonDaemonThreads().build();
+        threadFactory = ThreadFactoryBuilder.create().withDaemonThreads(false).build();
         assertThat(threadFactory.newThread(() -> {
         }).isDaemon(), is(false));
 
-        threadFactory = ThreadFactoryBuilder.create().withDaemonThreads(true).build();
-        assertThat(threadFactory.newThread(() -> {
-        }).isDaemon(), is(true));
     }
 
     @Test

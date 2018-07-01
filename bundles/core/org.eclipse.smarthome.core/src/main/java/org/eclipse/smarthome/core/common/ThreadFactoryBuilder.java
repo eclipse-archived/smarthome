@@ -26,7 +26,7 @@ import org.eclipse.jdt.annotation.Nullable;
 /**
  * A builder for {@link ThreadFactory} instances. This builder is intended to be use for creating thread factories to be
  * used, e.g., when creating {@link Executor}s via the {@link Executors} utility methods.
- * <p/>
+ * <p>
  * The built {@link ThreadFactory} uses a wrapped {@link ThreadFactory} to create threads (defaulting to
  * {@link Executors#defaultThreadFactory()}, and then overwrites thread properties as indicated in the build process.
  *
@@ -36,14 +36,14 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ThreadFactoryBuilder {
 
     @Nullable
-    private ThreadFactory wrappedThreadFactory = null;
+    private ThreadFactory wrappedThreadFactory;
     @Nullable
-    private String namePrefix = null;
-    private boolean createDaemonThreads = false;
+    private String namePrefix;
+    private boolean daemonThreads;
     @Nullable
-    private UncaughtExceptionHandler uncaughtExceptionHandler = null;
+    private UncaughtExceptionHandler uncaughtExceptionHandler;
     @Nullable
-    private Integer priority = null;
+    private Integer priority;
 
     /**
      * Creates a fresh {@link ThreadFactoryBuilder}.
@@ -72,10 +72,10 @@ public class ThreadFactoryBuilder {
 
     /**
      * Sets the name prefix to be used by the {@link ThreadFactory}.
-     * <p/>
+     * <p>
      * The threads created by the {@link ThreadFactory} will be named 'ESH-namePrefix-i', where i is an integer
      * incremented with each new thread, initialized to 1.
-     * <p/>
+     * <p>
      * If the namePrefix is null, the naming strategy from the wrapped {@link ThreadFactory} is used. Defaults to null.
      *
      * @param namePrefix The name prefix (can be null)
@@ -93,27 +93,7 @@ public class ThreadFactoryBuilder {
      * @return this {@link ThreadFactoryBuilder} instance
      */
     public ThreadFactoryBuilder withDaemonThreads(boolean daemonThreads) {
-        this.createDaemonThreads = daemonThreads;
-        return this;
-    }
-
-    /**
-     * Sets the {@link ThreadFactory} to create daemon threads.
-     *
-     * @return this {@link ThreadFactoryBuilder} instance
-     */
-    public ThreadFactoryBuilder withDaemonThreads() {
-        this.createDaemonThreads = true;
-        return this;
-    }
-
-    /**
-     * Sets the {@link ThreadFactory} to create non-daemon threads.
-     *
-     * @return this {@link ThreadFactoryBuilder} instance
-     */
-    public ThreadFactoryBuilder withNonDaemonThreads() {
-        this.createDaemonThreads = false;
+        this.daemonThreads = daemonThreads;
         return this;
     }
 
@@ -164,12 +144,12 @@ public class ThreadFactoryBuilder {
             wrappedThreadFactory = defaultThreadFactory();
         }
 
-        return ThreadFactoryBuilder.build(wrappedThreadFactory, namePrefix, createDaemonThreads,
-                uncaughtExceptionHandler, priority);
+        return ThreadFactoryBuilder.build(wrappedThreadFactory, namePrefix, daemonThreads, uncaughtExceptionHandler,
+                priority);
     }
 
     private static ThreadFactory build(ThreadFactory wrappedThreadFactory, @Nullable String namePrefix,
-            boolean createDaemonThreads, @Nullable UncaughtExceptionHandler uncaughtExceptionHandler,
+            boolean daemonThreads, @Nullable UncaughtExceptionHandler uncaughtExceptionHandler,
             @Nullable Integer priority) {
 
         return new ThreadFactory() {
@@ -183,7 +163,7 @@ public class ThreadFactoryBuilder {
                     thread.setName(String.format("ESH-%s-%d", namePrefix, threadCounter.getAndIncrement()));
                 }
 
-                thread.setDaemon(createDaemonThreads);
+                thread.setDaemon(daemonThreads);
 
                 if (uncaughtExceptionHandler != null) {
                     thread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
