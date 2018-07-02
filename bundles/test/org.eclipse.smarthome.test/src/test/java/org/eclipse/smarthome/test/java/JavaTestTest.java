@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.test.java;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 import org.junit.Before;
@@ -35,35 +35,18 @@ public class JavaTestTest {
 
     @Test
     public void waitForAssertShouldRunAfterLastCall_whenAssertionSucceeds() {
-        Runnable allwaysSucceedAssertion = mock(Runnable.class);
-        doAnswer(invocation -> {
-            assertTrue(true);
-            return null;
-        }).when(allwaysSucceedAssertion).run();
-
         Runnable afterLastCall = mock(Runnable.class);
-
-        javaTest.waitForAssert(allwaysSucceedAssertion, null, afterLastCall, 10000, 50);
-
+        javaTest.waitForAssert(() -> assertTrue(true), null, afterLastCall, 1000, 50);
         verify(afterLastCall, times(1)).run();
     }
 
     @Test
     public void waitForAssertShouldRunAfterLastCall_whenAssertionFails() {
-        Runnable allwaysFailAssertion = mock(Runnable.class);
-        doAnswer(invocation -> {
-            throw new NullPointerException();
-        }).when(allwaysFailAssertion).run();
-
         Runnable afterLastCall = mock(Runnable.class);
-
         try {
-            javaTest.waitForAssert(allwaysFailAssertion, null, afterLastCall, 10, 5);
-            fail("NPE from mock is expected during last execution.");
-        } catch (NullPointerException e) {
-            // expected
+            javaTest.waitForAssert(() -> assertTrue(false), null, afterLastCall, 1000, 50);
+        } catch (final AssertionError ex) {
         }
-
         verify(afterLastCall, times(1)).run();
     }
 
