@@ -42,6 +42,7 @@ import org.eclipse.smarthome.core.items.dto.GroupItemDTO;
 import org.eclipse.smarthome.core.items.dto.MetadataDTO;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
+import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,7 +77,9 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
         itemRegistry = getService(ItemRegistry.class);
         assertNotNull(itemRegistry);
 
-        itemResource = getService(ItemResource.class);
+        itemResource = getService(RESTResource.class, ItemResource.class);
+        assertNotNull(itemResource);
+
         itemResource.uriInfo = mock(UriInfo.class);
 
         registerVolatileStorageService();
