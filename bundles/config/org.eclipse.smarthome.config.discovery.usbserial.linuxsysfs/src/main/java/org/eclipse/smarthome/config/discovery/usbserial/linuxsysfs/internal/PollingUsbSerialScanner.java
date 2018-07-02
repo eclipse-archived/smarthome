@@ -65,8 +65,7 @@ public class PollingUsbSerialScanner implements UsbSerialDiscovery {
     @NonNullByDefault({})
     private ScheduledExecutorService scheduler;
 
-    @Nullable
-    private ScheduledFuture<?> backgroundScanningJob;
+    private @Nullable ScheduledFuture<?> backgroundScanningJob;
 
     @Reference
     protected void setUsbSerialScanner(UsbSerialScanner usbSerialScanner) {

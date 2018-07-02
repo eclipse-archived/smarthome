@@ -35,15 +35,11 @@ import org.eclipse.jdt.annotation.Nullable;
 @NonNullByDefault
 public class ThreadFactoryBuilder {
 
-    @Nullable
-    private ThreadFactory wrappedThreadFactory;
-    @Nullable
-    private String namePrefix;
+    private @Nullable ThreadFactory wrappedThreadFactory;
+    private @Nullable String namePrefix;
     private boolean daemonThreads;
-    @Nullable
-    private UncaughtExceptionHandler uncaughtExceptionHandler;
-    @Nullable
-    private Integer priority;
+    private @Nullable UncaughtExceptionHandler uncaughtExceptionHandler;
+    private @Nullable Integer priority;
 
     /**
      * Creates a fresh {@link ThreadFactoryBuilder}.
@@ -170,7 +166,7 @@ public class ThreadFactoryBuilder {
                 }
 
                 if (priority != null) {
-                    thread.setPriority(priority.intValue());
+                    thread.setPriority(priority);
                 }
 
                 return thread;
