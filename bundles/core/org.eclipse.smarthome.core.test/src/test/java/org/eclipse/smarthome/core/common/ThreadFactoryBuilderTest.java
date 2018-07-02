@@ -27,11 +27,13 @@ import org.junit.Test;
  */
 public class ThreadFactoryBuilderTest {
 
+    private static final Runnable TEST_RUNNABLE = () -> {
+    };
+
     @Test
-    public void testThreadFactoryBuilderDefaults() {
+    public void testDefaults() {
         ThreadFactory threadFactory = ThreadFactoryBuilder.create().build();
-        Thread thread = threadFactory.newThread(() -> {
-        });
+        Thread thread = threadFactory.newThread(TEST_RUNNABLE);
 
         assertThat(thread.getName(), is(notNullValue()));
         assertThat(thread.isDaemon(), is(false));
@@ -39,33 +41,27 @@ public class ThreadFactoryBuilderTest {
     }
 
     @Test
-    public void testThreadFactoryBuilderNamePrefix() {
+    public void testWithNamePrefix() {
         ThreadFactory threadFactory = ThreadFactoryBuilder.create().withNamePrefix("hello").build();
 
-        assertThat(threadFactory.newThread(() -> {
-        }).getName(), is("ESH-hello-1"));
+        assertThat(threadFactory.newThread(TEST_RUNNABLE).getName(), is("ESH-hello-1"));
 
-        assertThat(threadFactory.newThread(() -> {
-        }).getName(), is("ESH-hello-2"));
+        assertThat(threadFactory.newThread(TEST_RUNNABLE).getName(), is("ESH-hello-2"));
 
-        assertThat(threadFactory.newThread(() -> {
-        }).getName(), is("ESH-hello-3"));
+        assertThat(threadFactory.newThread(TEST_RUNNABLE).getName(), is("ESH-hello-3"));
     }
 
     @Test
-    public void testThreadFactoryBuilderDaemonize() {
+    public void testWithDaemonThreads() {
         ThreadFactory threadFactory = ThreadFactoryBuilder.create().withDaemonThreads(true).build();
-        assertThat(threadFactory.newThread(() -> {
-        }).isDaemon(), is(true));
+        assertThat(threadFactory.newThread(TEST_RUNNABLE).isDaemon(), is(true));
 
         threadFactory = ThreadFactoryBuilder.create().withDaemonThreads(false).build();
-        assertThat(threadFactory.newThread(() -> {
-        }).isDaemon(), is(false));
-
+        assertThat(threadFactory.newThread(TEST_RUNNABLE).isDaemon(), is(false));
     }
 
     @Test
-    public void testThreadFactoryBuilderUncaughtExceptionHandler() {
+    public void testWithUncaughtExceptionHandler() {
         UncaughtExceptionHandler handler = new UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread t, Throwable e) {
@@ -75,29 +71,46 @@ public class ThreadFactoryBuilderTest {
 
         ThreadFactory threadFactory = ThreadFactoryBuilder.create().withUncaughtExceptionHandler(handler).build();
 
-        assertThat(threadFactory.newThread(() -> {
-        }).getUncaughtExceptionHandler(), is(handler));
+        assertThat(threadFactory.newThread(TEST_RUNNABLE).getUncaughtExceptionHandler(), is(handler));
     }
 
     @Test
-    public void testThreadFactoryBuilderPriority() {
+    public void testWithPriority() {
         ThreadFactory threadFactory = ThreadFactoryBuilder.create().withPriority(Thread.MIN_PRIORITY).build();
-        assertThat(threadFactory.newThread(() -> {
-        }).getPriority(), is(Thread.MIN_PRIORITY));
+        assertThat(threadFactory.newThread(TEST_RUNNABLE).getPriority(), is(Thread.MIN_PRIORITY));
 
         threadFactory = ThreadFactoryBuilder.create().withPriority(Thread.MAX_PRIORITY).build();
-        assertThat(threadFactory.newThread(() -> {
-        }).getPriority(), is(Thread.MAX_PRIORITY));
+        assertThat(threadFactory.newThread(TEST_RUNNABLE).getPriority(), is(Thread.MAX_PRIORITY));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testThreadFactoryBuilderPriorityValidationTooLow() {
+    public void testWithPriorityValidationTooLow() {
         ThreadFactoryBuilder.create().withPriority(Thread.MIN_PRIORITY - 1).build();
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testThreadFactoryBuilderPriorityValidationTooHigh() {
+    public void testWithPriorityValidationTooHigh() {
         ThreadFactoryBuilder.create().withPriority(Thread.MAX_PRIORITY + 1).build();
+    }
+
+    @Test
+    public void testWithWrappedThreadFactory() {
+        String testThreadName = "i-am-test";
+
+        ThreadFactory wrappedThreadFactory = new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread result = new Thread(r);
+                result.setName(testThreadName);
+                return result;
+            }
+        };
+
+        ThreadFactory threadFactory = ThreadFactoryBuilder.create().withWrappedThreadFactory(wrappedThreadFactory)
+                .build();
+        Thread testThread = threadFactory.newThread(TEST_RUNNABLE);
+
+        assertThat(testThread.getName(), is(testThreadName));
     }
 
 }
