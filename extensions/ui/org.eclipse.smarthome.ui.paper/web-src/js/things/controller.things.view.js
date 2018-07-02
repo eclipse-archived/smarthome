@@ -145,8 +145,8 @@ angular.module('PaperUI.things') //
             suggestedLabel : channel.label,
             suggestedCategory : channelType && channelType.category ? channelType.category : '',
             preSelectCreate : preSelect,
-            // allow "Create new Item" in advanced mode only, disable for normalMode or trigger channel (if
-            // not bound to a trigger profile)
+            // allow "Create new Item" in advanced mode only, disable for
+            // normalMode
             allowNewItemCreation : $scope.advancedMode,
             link : link,
             channelKind : channel.kind

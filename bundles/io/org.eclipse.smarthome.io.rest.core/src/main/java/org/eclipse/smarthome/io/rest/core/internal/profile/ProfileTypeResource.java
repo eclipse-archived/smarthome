@@ -91,10 +91,7 @@ public class ProfileTypeResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        if (this.profileTypeRegistry == null) {
-            return false;
-        }
-        return true;
+        return this.profileTypeRegistry != null;
     }
 
     @Reference
