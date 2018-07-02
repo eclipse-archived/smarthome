@@ -54,6 +54,7 @@ Import-Package:
  org.eclipse.smarthome.core.thing.link,
  org.eclipse.smarthome.core.thing.link.dto,
  org.eclipse.smarthome.core.thing.profiles,
+ org.eclipse.smarthome.core.thing.profiles.dto,
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.thing.util,
  org.eclipse.smarthome.core.transform;resolution:=optional,

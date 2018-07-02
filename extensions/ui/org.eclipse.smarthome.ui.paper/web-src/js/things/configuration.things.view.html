@@ -87,6 +87,7 @@
 										{{item.label}} <small><span>({{item.name}})</span></small>
 									</div>
 									<div class="col-xs-2 action">
+										<i class="material-icons" ng-click="editChannel(thing.UID, channel.id, item.name, $event)">edit</i>
 										<i class="material-icons" ng-click="disableChannel(thing.UID, channel.id, item.name, $event)">delete</i>
 									</div>
 								</div>

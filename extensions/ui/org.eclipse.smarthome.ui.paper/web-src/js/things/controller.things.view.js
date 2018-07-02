@@ -1,5 +1,5 @@
 angular.module('PaperUI.things') //
-.controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeRepository, configService, thingConfigService, util, itemRepository, channelTypeService, configDescriptionService) {
+.controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeRepository, configService, thingConfigService, util, itemRepository, channelTypeService, configDescriptionService, profileTypeService) {
     $scope.setSubtitle([ 'Things' ]);
 
     var thingUID = $scope.path[4];
@@ -76,9 +76,66 @@ angular.module('PaperUI.things') //
         }
     };
 
+    $scope.editChannel = function(thingUID, channelID, itemName, event) {
+        var channel = $scope.getChannelById(channelID);
+        event.stopImmediatePropagation();
+
+        linkService.getLink({
+            itemName : itemName,
+            channelUID : channel.uid
+        }).$promise.then(function(link) {
+            configDescriptionService.getByUri({
+                uri : "link:" + itemName + " -> " + channel.uid
+            }).$promise.then(function(linkConfigDescription) {
+                var oldConfig = link.configuration;
+
+                $mdDialog.show({
+                    controller : 'ProfileEditDialogController',
+                    controllerAs : '$ctrl',
+                    templateUrl : 'partials/things/dialog.link-edit.html',
+                    targetEvent : event,
+                    hasBackdrop : true,
+                    locals : {
+                        linkConfigDescription : linkConfigDescription,
+                        link : link,
+                        channelKind : channel.kind
+                    }
+                }).then(function(success) {
+                    // store link
+                    if (!success) {
+                        return;
+                    }
+                    var eq = JSON.stringify(link.configuration) === JSON.stringify(oldConfig);
+                    if (!eq) {
+                        if (link.configuration && link.configuration['profile'] == "system:default") {
+                            // do not store default profile, since this is chosen by the framework
+                            delete link.configuration['profile'];
+                        }
+                        linkService.link({
+                            itemName : link.itemName,
+                            channelUID : link.channelUID
+                        }, link, function(newItem) {
+                            toastService.showDefaultToast('Link configuration updated');
+                        }, function() {
+                            toastService.showDefaultToast('Could not update link configuration.');
+                        });
+                    }
+                });
+            })
+        });
+    };
+
     $scope.linkChannel = function(channelID, event, preSelect) {
         var channel = $scope.getChannelById(channelID);
         var channelType = $scope.getChannelTypeByUID(channel.channelTypeUID);
+
+        link = {
+            channelUID : channel.uid,
+            configuration : {
+                profile : undefined
+            },
+            itemName : undefined
+        };
 
         var params = {
             linkedItems : channel.linkedItems && channel.linkedItems.length > 0 ? channel.linkedItems : '',
@@ -88,11 +145,13 @@ angular.module('PaperUI.things') //
             suggestedLabel : channel.label,
             suggestedCategory : channelType && channelType.category ? channelType.category : '',
             preSelectCreate : preSelect,
-            allowNewItemCreation : $scope.advancedMode && channel.kind !== 'TRIGGER' // allow "Create new Item" in
-            // advanced mode only, disable
-        // for normalMode or trigger
-        // channel
+            // allow "Create new Item" in advanced mode only, disable for
+            // normalMode
+            allowNewItemCreation : $scope.advancedMode,
+            link : link,
+            channelKind : channel.kind
         }
+
         $mdDialog.show({
             controller : 'LinkChannelDialogController',
             templateUrl : 'partials/things/dialog.linkchannel.html',
@@ -101,26 +160,64 @@ angular.module('PaperUI.things') //
             params : params
         }).then(function(newItem) {
             if (newItem) {
-                linkService.link({
-                    itemName : newItem.itemName,
-                    channelUID : $scope.thing.UID + ':' + channelID
-                }, function() {
-                    $scope.getThing(true);
-                    var item = $.grep($scope.items, function(item) {
-                        return item.name == newItem.itemName;
-                    });
-                    channel.items = channel.items ? channel.items : [];
-                    if (item.length > 0) {
-                        channel.items.push(item[0]);
-                    } else {
-                        channel.items.push({
-                            name : newItem.itemName,
-                            label : newItem.label
+                link.itemName = newItem.itemName;
+
+                var profileUid = link.configuration['profile'];
+                if (profileUid) {
+                    configDescriptionService.getByUri({
+                        uri : "profile:" + profileUid
+                    }).$promise.then(function(profileConfigDescription) {
+                        // show profile config dialog and then store link
+                        $mdDialog.show({
+                            controller : 'ProfileEditDialogController',
+                            controllerAs : '$ctrl',
+                            templateUrl : 'partials/things/dialog.profile-edit.html',
+                            targetEvent : event,
+                            hasBackdrop : true,
+                            locals : {
+                                linkConfigDescription : undefined,
+                                link : link,
+                                channelKind : channel.kind
+                            }
+                        }).then(function(success) {
+                            if (success) {
+                                storeLink(link, channel, newItem);
+                            } else {
+                                var emptyConfig = {
+                                    profile : link.configuration['profile']
+                                };
+                                link.configuration = emptyConfig;
+                                storeLink(link, channel, newItem);
+                            }
                         });
-                    }
-                    toastService.showDefaultToast('Channel linked');
+                    }, function() {
+                        // no config description for this profile -> store link directly
+                        storeLink(link, channel, newItem);
+                    })
+                }
+            }
+        });
+    }
+
+    function storeLink(link, channel, newItem) {
+        linkService.link({
+            itemName : link.itemName,
+            channelUID : link.channelUID
+        }, link, function() {
+            $scope.getThing(true);
+            var item = $.grep($scope.items, function(item) {
+                return item.name == link.itemName;
+            });
+            channel.items = channel.items ? channel.items : [];
+            if (item.length > 0) {
+                channel.items.push(item[0]);
+            } else {
+                channel.items.push({
+                    name : newItem.itemName,
+                    label : newItem.label
                 });
             }
+            toastService.showDefaultToast('Channel linked');
         });
     }
 
