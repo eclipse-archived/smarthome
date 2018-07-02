@@ -50,6 +50,7 @@ import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * {@link ThingRegistryOSGiTest} tests the {@link ThingRegistry}.
@@ -60,7 +61,7 @@ import org.junit.Test;
 public class ThingRegistryOSGiTest extends JavaOSGiTest {
 
     ManagedThingProvider managedThingProvider;
-    ThingHandlerFactory thingHandlerFactory;
+    ServiceRegistration<?> thingHandlerFactoryServiceReg;
 
     private static final ThingTypeUID THING_TYPE_UID = new ThingTypeUID("binding:type");
     private static final ThingUID THING_UID = new ThingUID(THING_TYPE_UID, "id");
@@ -241,13 +242,13 @@ public class ThingRegistryOSGiTest extends JavaOSGiTest {
 
     private void registerThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         unregisterCurrentThingHandlerFactory();
-        this.thingHandlerFactory = thingHandlerFactory;
-        registerService(thingHandlerFactory, ThingHandlerFactory.class.getName());
+        thingHandlerFactoryServiceReg = registerService(thingHandlerFactory, ThingHandlerFactory.class.getName());
     }
 
     private void unregisterCurrentThingHandlerFactory() {
-        if (this.thingHandlerFactory != null) {
-            unregisterService(thingHandlerFactory);
+        if (thingHandlerFactoryServiceReg != null) {
+            unregisterService(thingHandlerFactoryServiceReg);
+            thingHandlerFactoryServiceReg = null;
         }
     }
 
