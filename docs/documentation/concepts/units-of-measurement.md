@@ -71,3 +71,117 @@ When creating QuantityType states the framework offers some useful packages and 
 The `org.eclipse.smarthome.core.library.unit` package contains the classes `SIUnits`, `ImperialUnits` and `SmartHomeUnits` which provide units unique to either of the measurement systems and common units used in both systems.
 The `MetricPrefix` class provides prefixes like MILLI, CENTI, HECTO, etc. which are wrappers to create derived units.
 The `org.eclipse.smarthome.core.library.dimension` and `javax.measure.quantity` packages provide interfaces which are used to type the generic QuantityType and units. 
+
+## List of Units
+
+List of the unit available with the UoM (Unit of Measurement) types
+
+
+### Imperial:
+
+
+| Type | Unit | Symbol |
+| ---- | ---- | ------ |
+|Pressure|Inch of Mercury|inHg|
+|Temperature|Fahrenheit|°F|
+|Speed|Miles per Hour|mph
+|Length|Inch|in
+|Length|Foot|ft
+|Length|Yard|yd
+|Length|Chain|ch
+|Length|Furlong|fur
+|Length|Mile|mi
+|Length|League|lea
+
+
+### SI:
+
+|Type|Unit|Symbol|
+|----|----|------|
+|Acceleration|Metre per square Second|m/s2
+|AmountOfSubstance|Mole|mol
+|Angle|Radian|rad
+|Angle|Degree|°
+|Angle|Minute Angle|'
+|Angle|Second Angle|''
+|Area|Square Metre|m2
+|ArealDensity|Dobson Unit|DU
+|CatalyticActivity|Katal|kat
+|Dimensionless|Percent|%
+|Dimensionless|Parts per Million|ppm
+|Dimensionless|Decibel|dB
+|ElectricalPotential|Volt|V
+|ElectricCapacitance|Farad|F
+|ElectricCharge|Coulomb|C
+|ElectricConductance|Siemens|S
+|ElectricCurrent|Ampere|A
+|ElectricInductance|Henry|H
+|ElectricResistance|Ohm|Ω
+|Energy|Joule|J
+|Energy|Watt Second|Ws
+|Energy|Watt Hour|Wh
+|Energy|KiloWatt Hour|kWh
+|Force|Newton|N
+|Frequency|Hertz|Hz
+|Illuminance|Lux|lx
+|Intensity|Irradiance|W/m²
+|Length|Metre|m
+|Length|Kilometre|km
+|LuminousFlux|Lumen|lm
+|LuminousIntensity|Candela|cd
+|Temperature|Kelvin|K
+|Temperature|Celcius|°C
+|MagneticFlux|Weber|Wb
+|MagneticFluxDensity|Tesla|T
+|Mass|Kilogram|kg
+|Mass|Gram|g
+|Power|Watt|W
+|Pressure|Pascal|Pa
+|Pressure|hectoPascal|hPa
+|Pressure|Millimetre of Mercury|mmHg
+|Radioactivity|Becquerel|Bq
+|RadiationDoseAbsorbed|Gray|Gy
+|RadiationDoseEffective|Sievert|Sv
+|SolidAngle|Steradian|sr
+|Speed|Metre per Second|m/s
+|Speed|Kilometre per Hour|km/h
+|Speed|Knot|kn
+|Time|Second|s
+|Time|Minute|min
+|Time|Hour|h
+|Time|Day|d
+|Time|Week|week
+|Time|Year|y
+|Volume|Cubic Metre|m3
+
+## Prefixes:
+
+|Name|Symbol|Value|
+|----|------|-----|
+|Yotta|Y|10²⁴|
+|Zetta|Z|10²¹|
+|Exa|E|10¹⁸|
+|Peta|P|10¹⁵|
+|Tera|T|10¹²|
+|Giga|G|10⁹|
+|Mega|M|10⁶|
+|Kilo|k|10³|
+|Hecto|h|10²|
+|Deca|da|10|
+|Deci|d|10⁻¹|
+|Centi|c|10⁻²|
+|Milli|m|10⁻³|
+|Micro|µ|10⁻⁶|
+|Nano|n|10⁻⁹|
+|Pico|p|10⁻¹²|
+|Femto|f|10⁻¹⁵|
+|Atto|a|10⁻¹⁸|
+|Zepto|z|10⁻²¹|
+|Yocto|y|10⁻²⁴|
+
+
+To use the prefixes simply add the prefix to the unit symbol (Above).
+Examples:
+-milliAmpere - mA
+-centiMetre - cm
+kiloWatt - kW
