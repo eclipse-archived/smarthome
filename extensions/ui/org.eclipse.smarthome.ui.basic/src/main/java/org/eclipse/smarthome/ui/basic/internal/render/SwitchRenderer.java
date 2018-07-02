@@ -22,6 +22,7 @@ import org.eclipse.smarthome.core.library.items.RollershutterItem;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.core.types.util.UnitUtils;
 import org.eclipse.smarthome.model.sitemap.Mapping;
@@ -86,13 +87,16 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
                     snippetName = "rollerblind";
                 } else if (item instanceof GroupItem && ((GroupItem) item).getBaseItem() instanceof RollershutterItem) {
                     snippetName = "rollerblind";
-                } else if (item.getStateDescription() != null && item.getStateDescription().getOptions().size() > 0
-                        && item.getStateDescription().getOptions().size() <= MAX_BUTTONS) {
-                    // Render with buttons only when a max of MAX_BUTTONS options are defined
-                    snippetName = "buttons";
-                    nbButtons = item.getStateDescription().getOptions().size();
                 } else {
-                    snippetName = "switch";
+                    final StateDescription stateDescription = item.getStateDescription();
+                    final int optsSize = stateDescription == null ? -1 : stateDescription.getOptions().size();
+                    if (optsSize > 0 && optsSize <= MAX_BUTTONS) {
+                        // Render with buttons only when a max of MAX_BUTTONS options are defined
+                        snippetName = "buttons";
+                        nbButtons = optsSize;
+                    } else {
+                        snippetName = "switch";
+                    }
                 }
             } else {
                 snippetName = "buttons";
@@ -121,10 +125,15 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
                     buildButton(s, mapping.getLabel(), mapping.getCmd(), -1, nbButtons > 1, item, state, buttons);
                 }
             } else {
-                for (StateOption option : item.getStateDescription().getOptions()) {
-                    // Truncate the button label to MAX_LABEL_SIZE characters
-                    buildButton(s, option.getLabel(), option.getValue(), MAX_LABEL_SIZE, nbButtons > 1, item, state,
-                            buttons);
+                if (item != null) {
+                    final StateDescription stateDescription = item.getStateDescription();
+                    if (stateDescription != null) {
+                        for (StateOption option : stateDescription.getOptions()) {
+                            // Truncate the button label to MAX_LABEL_SIZE characters
+                            buildButton(s, option.getLabel(), option.getValue(), MAX_LABEL_SIZE, nbButtons > 1, item,
+                                    state, buttons);
+                        }
+                    }
                 }
             }
             snippet = StringUtils.replace(snippet, "%buttons%", buttons.toString());
