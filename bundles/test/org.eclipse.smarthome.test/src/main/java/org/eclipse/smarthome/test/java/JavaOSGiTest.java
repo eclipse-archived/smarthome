@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
 import org.eclipse.smarthome.test.OSGiTest;
@@ -44,10 +45,11 @@ import org.osgi.framework.ServiceRegistration;
  *
  * @author Markus Rathgeb - Create a pure Java implementation based on the Groovy {@link OSGiTest} class
  */
+@NonNullByDefault
 public class JavaOSGiTest extends JavaTest {
 
     private final Map<String, List<ServiceRegistration<?>>> registeredServices = new HashMap<>();
-    protected BundleContext bundleContext;
+    protected @NonNullByDefault({}) BundleContext bundleContext;
 
     @Before
     public void bindBundleContext() {
@@ -56,14 +58,14 @@ public class JavaOSGiTest extends JavaTest {
     }
 
     /**
-     * Initialise the {@link BundleContext}, which is used for registration and unregistration of OSGi services.
+     * Initialize the {@link BundleContext}, which is used for registration and unregistration of OSGi services.
      *
      * <p>
      * This uses the bundle context of the test class itself.
      *
      * @return bundle context
      */
-    private BundleContext initBundleContext() {
+    private @Nullable BundleContext initBundleContext() {
         final Bundle bundle = FrameworkUtil.getBundle(this.getClass());
         if (bundle != null) {
             return bundle.getBundleContext();
@@ -72,7 +74,7 @@ public class JavaOSGiTest extends JavaTest {
         }
     }
 
-    private <T> T unrefService(final ServiceReference<T> serviceReference) {
+    private <T> @Nullable T unrefService(final @Nullable ServiceReference<T> serviceReference) {
         if (serviceReference == null) {
             return null;
         } else {
@@ -86,7 +88,7 @@ public class JavaOSGiTest extends JavaTest {
      * @param clazz class under which the OSGi service is registered
      * @return OSGi service or null if no service can be found for the given class
      */
-    protected <T> T getService(Class<T> clazz) {
+    protected <T> @Nullable T getService(Class<T> clazz) {
         @SuppressWarnings("unchecked")
         final ServiceReference<T> serviceReference = (ServiceReference<T>) bundleContext
                 .getServiceReference(clazz.getName());
@@ -106,7 +108,7 @@ public class JavaOSGiTest extends JavaTest {
      * @param filter
      * @return OSGi service or null if no service can be found for the given class
      */
-    protected <T> T getService(Class<T> clazz, Predicate<ServiceReference<T>> filter) {
+    protected <T> @Nullable T getService(Class<T> clazz, Predicate<ServiceReference<T>> filter) {
         final ServiceReference<T> serviceReferences[] = getServices(clazz);
 
         if (serviceReferences == null) {
@@ -129,7 +131,7 @@ public class JavaOSGiTest extends JavaTest {
         }
     }
 
-    private <T> ServiceReference<T>[] getServices(final Class<T> clazz) {
+    private <T> ServiceReference<T> @Nullable [] getServices(final Class<T> clazz) {
         try {
             @SuppressWarnings("unchecked")
             ServiceReference<T> serviceReferences[] = (ServiceReference<T>[]) bundleContext
@@ -147,7 +149,7 @@ public class JavaOSGiTest extends JavaTest {
      * @param implementationClass the implementation class
      * @return OSGi service or null if no service can be found for the given class
      */
-    protected <T, I extends T> I getService(Class<T> clazz, Class<I> implementationClass) {
+    protected <T, I extends T> @Nullable I getService(Class<T> clazz, Class<I> implementationClass) {
         @SuppressWarnings("unchecked")
         final I service = (I) getService(clazz, srvRef -> implementationClass.isInstance(unrefService(srvRef)));
         return service;
@@ -203,7 +205,7 @@ public class JavaOSGiTest extends JavaTest {
      * @return service registration object
      */
     protected ServiceRegistration<?> registerService(final Object service, final String interfaceName,
-            final Dictionary<String, ?> properties) {
+            final @Nullable Dictionary<String, ?> properties) {
         assertThat(interfaceName, is(notNullValue()));
         final ServiceRegistration<?> srvReg = bundleContext.registerService(interfaceName, service, properties);
         saveServiceRegistration(interfaceName, srvReg);
@@ -252,7 +254,7 @@ public class JavaOSGiTest extends JavaTest {
      * @param service the service
      * @return the service registration that was unregistered or null if no service could be found
      */
-    protected ServiceRegistration<?> unregisterService(final Object service) {
+    protected @Nullable ServiceRegistration<?> unregisterService(final Object service) {
         return unregisterService(getInterfaceName(service));
     }
 
@@ -262,7 +264,7 @@ public class JavaOSGiTest extends JavaTest {
      * @param interfaceName the interface name of the service
      * @return the first service registration that was unregistered or null if no service could be found
      */
-    protected ServiceRegistration<?> unregisterService(final String interfaceName) {
+    protected @Nullable ServiceRegistration<?> unregisterService(final String interfaceName) {
         ServiceRegistration<?> reg = null;
         List<ServiceRegistration<?>> regList = registeredServices.remove(interfaceName);
         if (regList != null) {
@@ -276,14 +278,16 @@ public class JavaOSGiTest extends JavaTest {
      * Returns the interface name for a given service object by choosing the first interface.
      *
      * @param service service object
-     * @return name of the first interface or null if the object has no interfaces
+     * @return name of the first interface if interfaces are implemented
+     * @throws IllegalArgumentException if no interface is implemented
      */
     protected String getInterfaceName(final Object service) {
         Class<?>[] classes = service.getClass().getInterfaces();
         if (classes.length >= 1) {
             return classes[0].getName();
         } else {
-            return null;
+            throw new IllegalArgumentException(String
+                    .format("The given reference (class: %s) does not implement an interface.", service.getClass()));
         }
     }
 
