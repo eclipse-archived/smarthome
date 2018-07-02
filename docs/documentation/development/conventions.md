@@ -21,7 +21,7 @@ Classes should be annotated with `@NonNullByDefault`:
 
 ```java
 @NonNullByDefault
-public class MyClass(){};
+public class MyClass(){}
 ```
 
 Return types, parameter types, generic types etc. are annotated with `@Nullable` only.
