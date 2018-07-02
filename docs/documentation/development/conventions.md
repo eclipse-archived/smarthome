@@ -17,12 +17,32 @@ There will be a warning in the IDE for this check, but that is fine.
 For private methods or methods in an internal package the annotations are respected and additional `null` checks are omitted.
 
 To use the annotations, every bundle must have an **optional** `Import-Package` dependency to `org.eclipse.jdt.annotation`.
-Classes should be annotated by `@NonNullByDefault` and return types, parameter types, generic types etc. are annotated with `@Nullable` only.
+Classes should be annotated with `@NonNullByDefault`:
+
+```java
+@NonNullByDefault
+public class MyClass(){}
+```
+
+Return types, parameter types, generic types etc. are annotated with `@Nullable` only.
+The annotation should be written in front of the type.
+
+Fields should be annotated like this:
+
+```java
+private @Nullable MyType myField;
+```
+
+Methods should be annotated as follows:
+
+```java
+private @Nullable MyReturnType myMethod(){};
+```
+
 Fields that get a static and mandatory reference injected through OSGi Declarative Services can be annotated with
 
 ```java
-@NonNullByDefault({})
-private MyService injectedService;
+private @NonNullByDefault({}) MyService injectedService;
 ```
 
 to skip the nullevaluation for these fields.
