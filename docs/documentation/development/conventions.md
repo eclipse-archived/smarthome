@@ -18,11 +18,24 @@ For private methods or methods in an internal package the annotations are respec
 
 To use the annotations, every bundle must have an **optional** `Import-Package` dependency to `org.eclipse.jdt.annotation`.
 Classes should be annotated by `@NonNullByDefault` and return types, parameter types, generic types etc. are annotated with `@Nullable` only.
+The annotation should be written before the type, not before the visibility modifier.
+
+Fields should be annotated like this:
+
+```java
+private @Nullable MyType myField;
+```
+
+Methods should be annotated as follows:
+
+```java
+private @Nullable MyReturnType myMethod(){};
+```
+
 Fields that get a static and mandatory reference injected through OSGi Declarative Services can be annotated with
 
 ```java
-@NonNullByDefault({})
-private MyService injectedService;
+private @NonNullByDefault({}) MyService injectedService;
 ```
 
 to skip the nullevaluation for these fields.
