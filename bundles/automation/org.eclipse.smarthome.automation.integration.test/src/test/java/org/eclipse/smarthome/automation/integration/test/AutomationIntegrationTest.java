@@ -678,11 +678,11 @@ public class AutomationIntegrationTest extends JavaOSGiTest {
     @Test
     public void assertThatARuleCreatedFromATemplateIsExecutedAsExpected() {
         logger.info("assert that a rule created from a template is executed as expected");
-        TemplateRegistry templateRegistry = getService(TemplateRegistry.class);
+        TemplateRegistry<?> templateRegistry = getService(TemplateRegistry.class);
         assertThat(templateRegistry, is(notNullValue()));
         waitForAssert(() -> {
             Template template = null;
-            template = (Template) templateRegistry.get("SimpleTestTemplate");
+            template = templateRegistry.get("SimpleTestTemplate");
             assertThat(template, is(notNullValue()));
             assertThat(template.getTags(), is(notNullValue()));
             assertThat(template.getTags().size(), is(not(0)));
@@ -732,11 +732,11 @@ public class AutomationIntegrationTest extends JavaOSGiTest {
     @Test
     public void assertThatARuleCreatedFromAMoreComplexTemplateIsExecutedAsExpected() {
         logger.info("assert that a rule created from a more complex template is executed as expected");
-        TemplateRegistry templateRegistry = getService(TemplateRegistry.class);
+        TemplateRegistry<?> templateRegistry = getService(TemplateRegistry.class);
         assertThat(templateRegistry, is(notNullValue()));
         waitForAssert(() -> {
             Template template = null;
-            template = (Template) templateRegistry.get("TestTemplateWithCompositeModules");
+            template = templateRegistry.get("TestTemplateWithCompositeModules");
             assertThat(template, is(notNullValue()));
             assertThat(template.getTags(), is(notNullValue()));
             assertThat(template.getTags().size(), is(not(0)));

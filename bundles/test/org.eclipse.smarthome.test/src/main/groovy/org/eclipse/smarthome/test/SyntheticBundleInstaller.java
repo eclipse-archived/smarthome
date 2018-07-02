@@ -284,7 +284,7 @@ public class SyntheticBundleInstaller {
             return;
         }
         long startTime = System.nanoTime();
-        ServiceReference readyServiceRef = context.getServiceReference(ReadyService.class.getName());
+        ServiceReference<?> readyServiceRef = context.getServiceReference(ReadyService.class.getName());
         ReadyService readyService = (ReadyService) context.getService(readyServiceRef);
         ReadyMarker expected = new ReadyMarker(marker, bundle.getSymbolicName());
         while (!readyService.isReady(expected)) {
