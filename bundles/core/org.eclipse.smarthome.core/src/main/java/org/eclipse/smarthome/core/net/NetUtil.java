@@ -84,7 +84,7 @@ public class NetUtil implements NetworkAddressService {
     private @Nullable Collection<CidrAddress> lastKnownInterfaceAddresses;
     private @Nullable ScheduledExecutorService scheduledExecutorService = ThreadPoolManager
             .getScheduledPool(ThreadPoolManager.THREAD_POOL_NAME_COMMON);
-    private @Nullable ScheduledFuture networkInterfacePollFuture = null;
+    private @Nullable ScheduledFuture<?> networkInterfacePollFuture = null;
 
     private @NonNullByDefault({}) SafeCaller safeCaller;
 
