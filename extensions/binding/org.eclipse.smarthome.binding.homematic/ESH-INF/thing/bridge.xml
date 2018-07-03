@@ -7,6 +7,11 @@
 	<bridge-type id="bridge">
 		<label>Homematic Bridge</label>
 		<description>The Homematic bridge represents a Homematic gateway</description>
+		
+		<channels>
+			<channel typeId="DUTY_CYCLE_RATIO" id="DUTY_CYCLE_RATIO"/>
+		</channels>
+		
 		<representation-property>serialNumber</representation-property>
 
 		<config-description>
@@ -101,4 +106,11 @@
 
 		</config-description>
 	</bridge-type>
+	
+	<channel-type id="DUTY_CYCLE_RATIO">
+		<item-type>Number</item-type>
+		<label>Duty Cycle</label>
+		<description>Current duty cycle usage</description>
+		<state readOnly="true" min="0" max="100" pattern="%d %%"/>
+	</channel-type>
 </thing:thing-descriptions>
