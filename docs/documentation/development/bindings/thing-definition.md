@@ -394,6 +394,6 @@ In this example, an auto update policy is defined for the channel type, but is o
 
 The following policies are supported:
 
-* **veto**: No automatic state update should be sent by the framework. The thing handler will make sure it sends a state update and it can to it better than just converting the command to a state.
-* **default**: The binding does not care and the framework may do what it deems to be right. The state update which the framework will send out normally will correspond the command state anyway. This is the default of no other policy is set explicitly.
+* **veto**: No automatic state update should be sent by the framework. The thing handler will make sure it sends a state update and it can do it better than just converting the command to a state.
+* **default**: The binding does not care and the framework may do what it deems to be right. The state update which the framework will send out normally will correspond the command state anyway. This is the default if no other policy is set explicitly.
 * **recommend**: An automatic state update should be sent by the framework because no updates will be sent by the binding. This usually is the case when devices don't expose their current state to the handler.

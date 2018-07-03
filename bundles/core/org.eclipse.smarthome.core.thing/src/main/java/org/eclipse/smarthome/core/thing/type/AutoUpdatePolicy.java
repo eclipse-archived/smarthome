@@ -22,13 +22,13 @@ package org.eclipse.smarthome.core.thing.type;
 public enum AutoUpdatePolicy {
     /**
      * No automatic state update should be sent by the framework. The handler will make sure it sends a state update and
-     * it can to it better than just converting the command to a state.
+     * it can do it better than just converting the command to a state.
      */
     VETO,
 
     /**
      * The binding does not care and the framework may do what it deems to be right. The state update which the
-     * framework will send out normally will correspond the command state anyway. This is the default of no other policy
+     * framework will send out normally will correspond the command state anyway. This is the default if no other policy
      * is set.
      */
     DEFAULT,
