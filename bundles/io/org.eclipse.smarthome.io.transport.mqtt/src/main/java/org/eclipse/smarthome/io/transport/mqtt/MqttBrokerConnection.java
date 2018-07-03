@@ -41,7 +41,7 @@ import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 import org.eclipse.smarthome.config.core.ConfigConstants;
-import org.eclipse.smarthome.io.transport.mqtt.internal.ClientCallbacks;
+import org.eclipse.smarthome.io.transport.mqtt.internal.ClientCallback;
 import org.eclipse.smarthome.io.transport.mqtt.internal.MqttActionAdapterCallback;
 import org.eclipse.smarthome.io.transport.mqtt.internal.TopicSubscribers;
 import org.eclipse.smarthome.io.transport.mqtt.reconnect.AbstractReconnectStrategy;
@@ -72,7 +72,7 @@ public class MqttBrokerConnection {
      */
     public enum Protocol {
         TCP,
-        Websockets
+        WEBSOCKETS
     };
 
     /// Connection parameters
@@ -111,12 +111,12 @@ public class MqttBrokerConnection {
      * {@link MqttConnectionObserver}s.
      */
     @NonNullByDefault({})
-    public class ConnectionCallbacks implements IMqttActionListener {
+    public class ConnectionCallback implements IMqttActionListener {
         private final MqttBrokerConnection connection;
         private final Runnable cancelTimeoutFuture;
         private CompletableFuture<Boolean> future = new CompletableFuture<Boolean>();
 
-        public ConnectionCallbacks(MqttBrokerConnection mqttBrokerConnectionImpl) {
+        public ConnectionCallback(MqttBrokerConnection mqttBrokerConnectionImpl) {
             this.connection = mqttBrokerConnectionImpl;
             this.cancelTimeoutFuture = mqttBrokerConnectionImpl::cancelTimeoutFuture;
         }
@@ -168,11 +168,11 @@ public class MqttBrokerConnection {
     }
 
     /** Client callback object */
-    protected ClientCallbacks clientCallbacks = new ClientCallbacks(this, connectionObservers, subscribers);
+    protected ClientCallback clientCallback = new ClientCallback(this, connectionObservers, subscribers);
     /** Connection callback object */
-    protected ConnectionCallbacks connectionCallbacks;
+    protected ConnectionCallback connectionCallback;
     /** Action callback object */
-    protected IMqttActionListener actionCallbacks = new MqttActionAdapterCallback();
+    protected IMqttActionListener actionCallback = new MqttActionAdapterCallback();
 
     /**
      * Create a new TCP MQTT client connection to a server with the given host and port.
@@ -218,7 +218,7 @@ public class MqttBrokerConnection {
         this.port = port != null ? port : (secure ? 8883 : 1883);
         this.clientId = newClientID;
         setReconnectStrategy(new PeriodicReconnectStrategy());
-        connectionCallbacks = new ConnectionCallbacks(this);
+        connectionCallback = new ConnectionCallback(this);
     }
 
     /**
@@ -466,7 +466,7 @@ public class MqttBrokerConnection {
         MqttAsyncClient client = this.client;
         if (client != null && client.isConnected()) {
             try {
-                client.subscribe(topic, qos, future, actionCallbacks);
+                client.subscribe(topic, qos, future, actionCallback);
             } catch (org.eclipse.paho.client.mqttv3.MqttException e) {
                 future.completeExceptionally(e);
             }
@@ -479,12 +479,12 @@ public class MqttBrokerConnection {
      *
      */
     protected CompletableFuture<Boolean> subscribeRaw(String topic) {
-        logger.trace("Unsubscribing message consumer for topic '{}' from broker '{}'", topic, host);
+        logger.trace("subscribeRaw message consumer for topic '{}' from broker '{}'", topic, host);
         CompletableFuture<Boolean> future = new CompletableFuture<Boolean>();
         try {
             MqttAsyncClient client = this.client;
             if (client != null && client.isConnected()) {
-                client.subscribe(topic, qos, future, actionCallbacks);
+                client.subscribe(topic, qos, future, actionCallback);
             } else {
                 future.complete(false);
             }
@@ -536,7 +536,7 @@ public class MqttBrokerConnection {
         CompletableFuture<Boolean> future = new CompletableFuture<Boolean>();
         try {
             if (client.isConnected()) {
-                client.unsubscribe(topic, future, actionCallbacks);
+                client.unsubscribe(topic, future, actionCallback);
             } else {
                 future.complete(false);
             }
@@ -633,14 +633,14 @@ public class MqttBrokerConnection {
             client = null;
         }
 
-        CompletableFuture<Boolean> future = connectionCallbacks.createFuture();
+        CompletableFuture<Boolean> future = connectionCallback.createFuture();
 
         StringBuilder serverURI = new StringBuilder();
         switch (protocol) {
             case TCP:
                 serverURI.append(secure ? "ssl://" : "tcp://");
                 break;
-            case Websockets:
+            case WEBSOCKETS:
                 serverURI.append(secure ? "wss://" : "ws://");
                 break;
             default:
@@ -675,9 +675,9 @@ public class MqttBrokerConnection {
         this.dataStore = _dataStore;
 
         // Connect
-        _client.setCallback(clientCallbacks);
+        _client.setCallback(clientCallback);
         try {
-            _client.connect(createMqttOptions(), null, connectionCallbacks);
+            _client.connect(createMqttOptions(), null, connectionCallback);
             logger.info("Starting MQTT broker connection to '{}' with clientid {} and file store '{}'", host,
                     getClientId(), tmpDir);
         } catch (org.eclipse.paho.client.mqttv3.MqttException | ConfigurationException e) {
@@ -689,7 +689,7 @@ public class MqttBrokerConnection {
         ScheduledExecutorService executor = timeoutExecutor;
         if (executor != null) {
             final ScheduledFuture<?> timeoutFuture = this.timeoutFuture.getAndSet(executor.schedule(
-                    () -> connectionCallbacks.onFailure(null, new TimeoutException()), timeout, TimeUnit.MILLISECONDS));
+                    () -> connectionCallback.onFailure(null, new TimeoutException()), timeout, TimeUnit.MILLISECONDS));
             if (timeoutFuture != null) {
                 timeoutFuture.cancel(false);
             }
@@ -700,6 +700,8 @@ public class MqttBrokerConnection {
     /**
      * Encapsulates the creation of the paho MqttAsyncClient
      *
+     * @param serverURI A paho uri like ssl://host:port, tcp://host:port, ws[s]://host:port
+     * @param clientId the mqtt client ID
      * @param dataStore The datastore to save qos!=0 messages until they are delivered.
      * @return Returns a valid MqttAsyncClient
      * @throws org.eclipse.paho.client.mqttv3.MqttException
@@ -786,7 +788,7 @@ public class MqttBrokerConnection {
             // We need to thread change here. Because paho does not allow to disconnect within a callback method
             unsubscribeAll().thenRunAsync(() -> {
                 try {
-                    client.disconnect(100, future, actionCallbacks);
+                    client.disconnect(100, future, actionCallback);
                 } catch (org.eclipse.paho.client.mqttv3.MqttException e) {
                     logger.debug("Error while closing connection to broker", e);
                     future.complete(false);
@@ -815,7 +817,7 @@ public class MqttBrokerConnection {
             return;
         }
         try {
-            IMqttDeliveryToken deliveryToken = client_.publish(topic, payload, qos, retain, listener, actionCallbacks);
+            IMqttDeliveryToken deliveryToken = client_.publish(topic, payload, qos, retain, listener, actionCallback);
             logger.debug("Publishing message {} to topic '{}'", deliveryToken.getMessageId(), topic);
         } catch (org.eclipse.paho.client.mqttv3.MqttException e) {
             listener.onFailure(topic, new MqttException(e));
@@ -864,7 +866,7 @@ public class MqttBrokerConnection {
         // publish message asynchronously
         CompletableFuture<Boolean> f = new CompletableFuture<Boolean>();
         try {
-            client.publish(topic, payload, qos, retain, f, actionCallbacks);
+            client.publish(topic, payload, qos, retain, f, actionCallback);
         } catch (org.eclipse.paho.client.mqttv3.MqttException e) {
             f.completeExceptionally(new MqttException(e));
         }

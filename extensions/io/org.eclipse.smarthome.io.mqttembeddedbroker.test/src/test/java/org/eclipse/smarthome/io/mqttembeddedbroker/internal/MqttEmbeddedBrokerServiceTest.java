@@ -109,7 +109,7 @@ public class MqttEmbeddedBrokerServiceTest {
     }
 
     @Test
-    public void connectToEmbeddedServer() throws InterruptedException {
+    public void connectToEmbeddedServer() throws InterruptedException, IOException {
         ServiceConfiguration config = new ServiceConfiguration();
         config.username = "username";
         config.password = "password";

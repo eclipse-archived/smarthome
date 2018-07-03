@@ -56,7 +56,7 @@ public class MqttBrokerConnectionTests {
         assertThat(connection.connectionState(), is(MqttConnectionState.CONNECTED));
 
         // Test if subscription is active
-        connection.clientCallbacks.messageArrived("homie/device123/$name", new MqttMessage("hello".getBytes()));
+        connection.clientCallback.messageArrived("homie/device123/$name", new MqttMessage("hello".getBytes()));
         verify(subscriber).processMessage(eq("homie/device123/$name"), eq("hello".getBytes()));
     }
 
@@ -80,7 +80,7 @@ public class MqttBrokerConnectionTests {
         assertTrue(connection.hasSubscribers());
         assertThat(connection.connectionState(), is(MqttConnectionState.CONNECTED));
 
-        connection.clientCallbacks.messageArrived("homie/device123/$name", new MqttMessage("hello".getBytes()));
+        connection.clientCallback.messageArrived("homie/device123/$name", new MqttMessage("hello".getBytes()));
 
         verify(subscriber).processMessage(eq("homie/device123/$name"), eq("hello".getBytes()));
         verify(subscriber2).processMessage(eq("homie/device123/$name"), eq("hello".getBytes()));
@@ -159,7 +159,7 @@ public class MqttBrokerConnectionTests {
         when(token.getException()).thenReturn(new org.eclipse.paho.client.mqttv3.MqttException(1));
 
         connection.isConnecting = true; /* Pretend that start did something */
-        connection.connectionCallbacks.onFailure(token, null);
+        connection.connectionCallback.onFailure(token, null);
 
         // Check lostConnect
         verify(mockPolicy).lostConnection();
@@ -168,7 +168,7 @@ public class MqttBrokerConnectionTests {
         assertTrue(mockPolicy.isReconnecting());
 
         // Fake connection established
-        connection.connectionCallbacks.onSuccess(token);
+        connection.connectionCallback.onSuccess(token);
         assertFalse(mockPolicy.isReconnecting());
     }
 
@@ -220,9 +220,9 @@ public class MqttBrokerConnectionTests {
         connection.connectTimeout = true;
 
         CompletableFuture<Boolean> future = connection.start();
-        verify(connection.connectionCallbacks).createFuture();
-        verify(connection.connectionCallbacks, times(0)).onSuccess(any());
-        verify(connection.connectionCallbacks, times(0)).onFailure(any(), any());
+        verify(connection.connectionCallback).createFuture();
+        verify(connection.connectionCallback, times(0)).onSuccess(any());
+        verify(connection.connectionCallback, times(0)).onFailure(any(), any());
         assertNotNull(connection.timeoutFuture);
 
         assertThat(future.get(70, TimeUnit.MILLISECONDS), is(false));
@@ -245,7 +245,7 @@ public class MqttBrokerConnectionTests {
 
         // Cause a success callback
         connection.connectionStateOverwrite = MqttConnectionState.CONNECTED;
-        connection.connectionCallbacks.onSuccess(null);
+        connection.connectionCallback.onSuccess(null);
         verify(connectionObserver, times(1)).connectionStateChanged(eq(MqttConnectionState.CONNECTED), isNull());
 
         // Cause a failure callback with a mocked token
@@ -255,7 +255,7 @@ public class MqttBrokerConnectionTests {
         when(token.getException()).thenReturn(testException);
 
         connection.connectionStateOverwrite = MqttConnectionState.DISCONNECTED;
-        connection.connectionCallbacks.onFailure(token, null);
+        connection.connectionCallback.onFailure(token, null);
         verify(connectionObserver, times(1)).connectionStateChanged(eq(MqttConnectionState.DISCONNECTED),
                 eq(testException));
 

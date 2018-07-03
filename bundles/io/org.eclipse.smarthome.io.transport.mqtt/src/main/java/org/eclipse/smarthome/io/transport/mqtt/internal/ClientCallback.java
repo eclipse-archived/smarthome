@@ -34,13 +34,13 @@ import org.slf4j.LoggerFactory;
  *
  * @author David Graeff - Initial contribution
  */
-public class ClientCallbacks implements MqttCallback {
-    final Logger logger = LoggerFactory.getLogger(ClientCallbacks.class);
+public class ClientCallback implements MqttCallback {
+    final Logger logger = LoggerFactory.getLogger(ClientCallback.class);
     private final MqttBrokerConnection connection;
     private final List<MqttConnectionObserver> connectionObservers;
     private final Map<String, TopicSubscribers> subscribers;
 
-    public ClientCallbacks(MqttBrokerConnection mqttBrokerConnectionImpl,
+    public ClientCallback(MqttBrokerConnection mqttBrokerConnectionImpl,
             List<MqttConnectionObserver> connectionObservers, Map<String, TopicSubscribers> subscribers) {
         this.connection = mqttBrokerConnectionImpl;
         this.connectionObservers = connectionObservers;
@@ -71,7 +71,6 @@ public class ClientCallbacks implements MqttCallback {
 
     @Override
     public void messageArrived(String topic, MqttMessage message) {
-        // Wrap in try..catch to not pull the paho library down
         byte[] payload = message.getPayload();
         logger.trace("Received message on topic '{}' : {}", topic, new String(payload));
         List<MqttMessageSubscriber> matches = new ArrayList<>();

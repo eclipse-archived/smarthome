@@ -14,7 +14,8 @@ package org.eclipse.smarthome.io.mqttembeddedbroker.internal;
 
 import java.io.IOException;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 
 /**
@@ -22,19 +23,20 @@ import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public interface EmbeddedBrokerService {
     /**
      * Starts the embedded broker.
      *
      * @param port The broker port.
      * @param secure Allow only secure connections if true or only plain connections otherwise.
-     * @param username Broker authentication user name. May be null.
-     * @param password Broker authentication password. May be null.
+     * @param username Broker authentication user name.
+     * @param password Broker authentication password.
      * @param persistence_filename The filename were persistent data should be stored.
      * @throws IOException If any error happens, like the port is already in use, this exception is thrown.
      */
-    void startEmbeddedServer(Integer portParam, boolean secure, String username, String password,
-            @NonNull String persistenceFilenameParam) throws IOException;
+    void startEmbeddedServer(@Nullable Integer portParam, boolean secure, @Nullable String username,
+            @Nullable String password, String persistenceFilenameParam) throws IOException;
 
     /**
      * Stops the embedded broker, if it is started.
@@ -44,5 +46,6 @@ public interface EmbeddedBrokerService {
     /**
      * Returns the MQTT broker connection, connected to the embedded broker
      */
-    public MqttBrokerConnection getConnection();
+    @Nullable
+    MqttBrokerConnection getConnection();
 }

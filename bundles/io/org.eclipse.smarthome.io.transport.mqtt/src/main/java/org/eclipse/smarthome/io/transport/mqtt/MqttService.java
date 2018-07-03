@@ -5,7 +5,7 @@
  * information regarding copyright ownership.
  *
  * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
+ * terms of the Eclipse License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0
  *
  * SPDX-License-Identifier: EPL-2.0
@@ -37,19 +37,19 @@ public interface MqttService {
      *
      * @param observer The observer
      */
-    public void addBrokersListener(MqttServiceObserver observer);
+    void addBrokersListener(MqttServiceObserver observer);
 
     /**
      * Remove a listener and don't get notified of new/removed brokers anymore.
      *
      * @param observer The observer
      */
-    public void removeBrokersListener(MqttServiceObserver observer);
+    void removeBrokersListener(MqttServiceObserver observer);
 
     /**
      * Return true if a broker listener has been added via addBrokersListener().
      */
-    public boolean hasBrokerObservers();
+    boolean hasBrokerObservers();
 
     /**
      * Lookup an broker connection by name.
@@ -57,7 +57,8 @@ public interface MqttService {
      * @param brokerName to look for.
      * @return existing connection or null
      */
-    public @Nullable MqttBrokerConnection getBrokerConnection(String brokerName);
+    @Nullable
+    MqttBrokerConnection getBrokerConnection(String brokerName);
 
     /**
      * Adds a broker connection to the service.
@@ -71,7 +72,7 @@ public interface MqttService {
      * @return Return true if the connection could be added successfully, return false if there is already
      *         an existing connection with the same name.
      */
-    public boolean addBrokerConnection(String brokerID, MqttBrokerConnection connection);
+    boolean addBrokerConnection(String brokerID, MqttBrokerConnection connection);
 
     /**
      * Remove a broker connection by name
@@ -79,10 +80,11 @@ public interface MqttService {
      * @param brokerName The broker ID
      * @return Returns the removed broker connection, or null if there was none with the given name.
      */
-    public @Nullable MqttBrokerConnection removeBrokerConnection(String brokerID);
+    @Nullable
+    MqttBrokerConnection removeBrokerConnection(String brokerID);
 
     /**
      * Returns an unmodifiable map with all configured brokers of this service and the broker ID as keys.
      */
-    public Map<String, MqttBrokerConnection> getAllBrokerConnections();
+    Map<String, MqttBrokerConnection> getAllBrokerConnections();
 }

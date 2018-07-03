@@ -24,8 +24,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.config.core.ConfigurableService;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -41,7 +41,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,19 +62,28 @@ import io.moquette.spi.security.IAuthorizator;
         ConfigurableService.SERVICE_PROPERTY_DESCRIPTION_URI + "=mqtt:mqttembeddedbroker",
         ConfigurableService.SERVICE_PROPERTY_CATEGORY + "=MQTT",
         ConfigurableService.SERVICE_PROPERTY_LABEL + "=MQTT Embedded Broker" })
+@NonNullByDefault
 public class EmbeddedBrokerServiceImpl implements EmbeddedBrokerService, ConfigurableService, MqttConnectionObserver,
-        MqttServiceObserver, MqttEmbeddedBrokerStartedListener, BrokerMetricsListener {
-    private MqttService service;
+        MqttServiceObserver, MqttEmbeddedBrokerStartedListener {
+    private @Nullable MqttService service;
     // private NetworkServerTls networkServerTls; //TODO wait for NetworkServerTls implementation
 
-    protected Server server;
+    @NonNullByDefault({})
+    class BrokerMetricsListenerEx implements BrokerMetricsListener {
+        @Override
+        public void connectedClientIDs(Collection<String> clientIDs) {
+            logger.debug("Connected clients: {}", clientIDs.stream().collect(Collectors.joining(", ")));
+        }
+    }
+
+    protected @Nullable Server server;
     private final Logger logger = LoggerFactory.getLogger(EmbeddedBrokerServiceImpl.class);
     protected MqttEmbeddedBrokerDetectStart detectStart = new MqttEmbeddedBrokerDetectStart(this);
-    protected MqttEmbeddedBrokerMetrics metrics = new MqttEmbeddedBrokerMetrics(this);
+    protected MqttEmbeddedBrokerMetrics metrics = new MqttEmbeddedBrokerMetrics(new BrokerMetricsListenerEx());
 
-    private MqttBrokerConnection connection;
+    private @Nullable MqttBrokerConnection connection;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    @Reference
     public void setMqttService(MqttService service) {
         this.service = service;
     }
@@ -91,14 +99,13 @@ public class EmbeddedBrokerServiceImpl implements EmbeddedBrokerService, Configu
     // }
 
     @Activate
-    public void activate(Map<String, Object> data) {
+    public void activate(Map<String, Object> data) throws IOException {
         initialize(new Configuration(data).as(ServiceConfiguration.class));
     }
 
-    public void initialize(ServiceConfiguration config) {
-        if (config.port == null) {
-            config.port = config.secure ? 8883 : 1883;
-        }
+    @SuppressWarnings("null")
+    public void initialize(ServiceConfiguration config) throws IOException {
+        int port = config.port == null ? (config.port = config.secure ? 8883 : 1883) : config.port;
 
         // Create MqttBrokerConnection
         connection = service.getBrokerConnection(Constants.CLIENTID);
@@ -116,13 +123,7 @@ public class EmbeddedBrokerServiceImpl implements EmbeddedBrokerService, Configu
         }
 
         // Start embedded server
-        try {
-            startEmbeddedServer(config.port, config.secure, config.username, config.password, config.persistenceFile);
-        } catch (IOException e) {
-            logger.debug("Could not start embedded broker", e);
-            logger.debug(e.getLocalizedMessage());
-            return;
-        }
+        startEmbeddedServer(port, config.secure, config.username, config.password, config.persistenceFile);
     }
 
     @Deactivate
@@ -130,8 +131,11 @@ public class EmbeddedBrokerServiceImpl implements EmbeddedBrokerService, Configu
         if (service != null) {
             service.removeBrokersListener(this);
         }
-        if (connection == null && server != null) {
-            server.stopServer();
+        MqttBrokerConnection connection = this.connection;
+        if (connection == null) {
+            if (server != null) {
+                server.stopServer();
+            }
             server = null;
             return;
         }
@@ -154,6 +158,7 @@ public class EmbeddedBrokerServiceImpl implements EmbeddedBrokerService, Configu
     public void brokerAdded(String brokerID, MqttBrokerConnection broker) {
     }
 
+    @SuppressWarnings("null")
     @Override
     public void brokerRemoved(String brokerID, MqttBrokerConnection broker) {
         // Do not allow this connection to be removed. Add it again.
@@ -162,37 +167,23 @@ public class EmbeddedBrokerServiceImpl implements EmbeddedBrokerService, Configu
         }
     }
 
-    /**
-     * Starts the embedded broker.
-     *
-     * @param port The broker port.
-     * @param secure Allow only secure connections if true or only plain connections otherwise.
-     * @param username Broker authentication user name. May be null.
-     * @param password Broker authentication password. May be null.
-     * @param persistence_filename The filename were persistent data should be stored.
-     * @throws IOException If any error happens, like the port is already in use, this exception is thrown.
-     */
     @Override
-    public void startEmbeddedServer(Integer portParam, boolean secure, String username, String password,
-            @NonNull String persistenceFilenameParam) throws IOException {
-        Integer port = portParam;
+    public void startEmbeddedServer(@Nullable Integer portParam, boolean secure, @Nullable String username,
+            @Nullable String password, String persistenceFilenameParam) throws IOException {
         String persistenceFilename = persistenceFilenameParam;
         Server server = new Server();
         Properties properties = new Properties();
 
         // Host and port
         properties.put(BrokerConstants.HOST_PROPERTY_NAME, "127.0.0.1");
+        int port;
         if (secure) {
-            if (port == null) {
-                port = 8883;
-            }
+            port = (portParam == null) ? port = 8883 : portParam;
             properties.put(BrokerConstants.SSL_PORT_PROPERTY_NAME, Integer.toString(port));
             properties.put(BrokerConstants.PORT_PROPERTY_NAME, BrokerConstants.DISABLED_PORT_BIND);
             properties.put(BrokerConstants.KEY_MANAGER_PASSWORD_PROPERTY_NAME, "esheshesh");
         } else {
-            if (port == null) {
-                port = 1883;
-            }
+            port = (portParam == null) ? port = 1883 : portParam;
             // with SSL_PORT_PROPERTY_NAME set, netty tries to evaluate the SSL context and shuts down immediately.
             // properties.put(BrokerConstants.SSL_PORT_PROPERTY_NAME, BrokerConstants.DISABLED_PORT_BIND);
             properties.put(BrokerConstants.PORT_PROPERTY_NAME, Integer.toString(port));
@@ -200,7 +191,7 @@ public class EmbeddedBrokerServiceImpl implements EmbeddedBrokerService, Configu
 
         // Authentication
         io.moquette.spi.security.IAuthenticator authentificator = null;
-        if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+        if (username != null && password != null && username.length() > 0 && password.length() > 0) {
             properties.put(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, false);
             properties.put(BrokerConstants.AUTHENTICATOR_CLASS_NAME,
                     MqttEmbeddedBrokerUserAuthenticator.class.getName());
@@ -237,9 +228,6 @@ public class EmbeddedBrokerServiceImpl implements EmbeddedBrokerService, Configu
         detectStart.startBrokerStartedDetection(port, s);
     }
 
-    /**
-     * Stops the embedded broker, if it is started.
-     */
     @Override
     public void stopEmbeddedServer() {
         if (this.server != null) {
@@ -258,7 +246,7 @@ public class EmbeddedBrokerServiceImpl implements EmbeddedBrokerService, Configu
     }
 
     @Override
-    public void connectionStateChanged(MqttConnectionState state, Throwable error) {
+    public void connectionStateChanged(MqttConnectionState state, @Nullable Throwable error) {
         if (state == MqttConnectionState.CONNECTED) {
             logger.debug("Embedded broker connection connected");
         } else {
@@ -274,8 +262,13 @@ public class EmbeddedBrokerServiceImpl implements EmbeddedBrokerService, Configu
         }
     }
 
+    @SuppressWarnings("null")
     @Override
     public void mqttEmbeddedBrokerStarted(boolean timeout) {
+        MqttBrokerConnection connection = this.connection;
+        if (connection == null) {
+            return;
+        }
         service.addBrokerConnection(Constants.CLIENTID, connection);
 
         connection.start().exceptionally(e -> {
@@ -290,15 +283,7 @@ public class EmbeddedBrokerServiceImpl implements EmbeddedBrokerService, Configu
     }
 
     @Override
-    public void connectedClientIDs(Collection<String> clientIDs) {
-        logger.debug("Connected clients: {}", clientIDs.stream().collect(Collectors.joining(", ")));
-    }
-
-    /**
-     * Returns the MQTT broker connection, connected to the embedded broker
-     */
-    @Override
-    public MqttBrokerConnection getConnection() {
+    public @Nullable MqttBrokerConnection getConnection() {
         return connection;
     }
 }
