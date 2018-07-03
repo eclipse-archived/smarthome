@@ -142,6 +142,8 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
     public static final Unit<Energy> KILOWATT_HOUR = addUnit(MetricPrefix.KILO(WATT_HOUR));
     public static final Unit<Pressure> MILLIMETRE_OF_MERCURY = addUnit(new TransformedUnit<>("mmHg", Units.PASCAL,
             new RationalConverter(BigInteger.valueOf(133322368), BigInteger.valueOf(1000000))));
+    public static final Unit<Pressure> BAR = addUnit(new TransformedUnit<>("bar", Units.PASCAL,
+            new RationalConverter(BigInteger.valueOf(100000), BigInteger.valueOf(1))));
     public static final Unit<ArealDensity> DOBSON_UNIT = addUnit(
             new ProductUnit<ArealDensity>(MetricPrefix.MILLI(Units.MOLE).multiply(0.4462).divide(Units.METRE.pow(2))));
 
@@ -157,6 +159,7 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
         SimpleUnitFormat.getInstance().label(WATT_HOUR, "Wh");
         SimpleUnitFormat.getInstance().label(KILOWATT_HOUR, "kWh");
         SimpleUnitFormat.getInstance().label(MILLIMETRE_OF_MERCURY, MILLIMETRE_OF_MERCURY.getSymbol());
+        SimpleUnitFormat.getInstance().label(BAR, BAR.getSymbol());
         SimpleUnitFormat.getInstance().label(KNOT, KNOT.getSymbol());
         SimpleUnitFormat.getInstance().label(DOBSON_UNIT, "DU");
     }
