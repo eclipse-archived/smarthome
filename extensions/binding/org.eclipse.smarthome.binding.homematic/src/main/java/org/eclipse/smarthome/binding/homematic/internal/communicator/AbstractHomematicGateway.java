@@ -37,6 +37,7 @@ import org.eclipse.smarthome.binding.homematic.internal.communicator.client.RpcC
 import org.eclipse.smarthome.binding.homematic.internal.communicator.client.TransferMode;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.client.UnknownParameterSetException;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.client.XmlRpcClient;
+import org.eclipse.smarthome.binding.homematic.internal.communicator.parser.ListBidcosInterfacesParser;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.server.BinRpcServer;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.server.RpcEventListener;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.server.RpcServer;
@@ -885,6 +886,7 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Home
 
     /**
      * Thread which validates the connection to the gateway and restarts the RPC client if necessary.
+     * It also polls for the current duty cycle ratio of the gateway after every successful connection validation.
      */
     private class ConnectionTrackerThread implements Runnable {
         private boolean connectionLost;
@@ -908,6 +910,12 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Home
                     getRpcClient(getDefaultInterface()).ping(getDefaultInterface(), id);
                 }
                 ping = true;
+
+                try {
+                    updateDutyCycleRatio();
+                } catch (IOException e) {
+                    logger.debug("Could not read the duty cycle ratio: {}", e.getMessage());
+                }
             } catch (IOException ex) {
                 try {
                     handleInvalidConnection();
@@ -920,6 +928,16 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Home
         public void pongReceived() {
             pong = true;
             connectionConfirmed();
+        }
+
+        private void updateDutyCycleRatio() throws IOException {
+            ListBidcosInterfacesParser parser = getRpcClient(getDefaultInterface())
+                    .listBidcosInterfaces(getDefaultInterface());
+            Integer dutyCycleRatio = parser.getDutyCycleRatio();
+
+            if (dutyCycleRatio != null) {
+                gatewayAdapter.onDutyCycleRatioUpdate(dutyCycleRatio);
+            }
         }
 
         private void connectionConfirmed() {

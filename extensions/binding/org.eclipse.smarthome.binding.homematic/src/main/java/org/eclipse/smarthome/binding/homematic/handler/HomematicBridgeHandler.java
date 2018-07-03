@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.binding.homematic.handler;
 
+import static org.eclipse.smarthome.binding.homematic.HomematicBindingConstants.CHANNEL_TYPE_DUTY_CYCLE_RATIO;
 import static org.eclipse.smarthome.core.thing.Thing.*;
 
 import java.io.IOException;
@@ -34,6 +35,7 @@ import org.eclipse.smarthome.binding.homematic.internal.model.HmGatewayInfo;
 import org.eclipse.smarthome.binding.homematic.internal.type.HomematicTypeGenerator;
 import org.eclipse.smarthome.binding.homematic.internal.type.UidUtils;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
+import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -42,6 +44,7 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.osgi.framework.ServiceRegistration;
@@ -56,7 +59,10 @@ import org.slf4j.LoggerFactory;
 public class HomematicBridgeHandler extends BaseBridgeHandler implements HomematicGatewayAdapter {
     private final Logger logger = LoggerFactory.getLogger(HomematicBridgeHandler.class);
     private static final long REINITIALIZE_DELAY_SECONDS = 10;
+    private static final int DUTY_CYCLE_RATIO_LIMIT = 99;
     private static SimplePortPool portPool = new SimplePortPool();
+
+    private final Object dutyCycleRatioUpdateLock = new Object();
 
     private HomematicConfig config;
     private HomematicGateway gateway;
@@ -67,6 +73,7 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
     private ServiceRegistration<?> discoveryServiceRegistration;
 
     private final String ipv4Address;
+    private boolean isInDutyCycle = false;
 
     public HomematicBridgeHandler(@NonNull Bridge bridge, HomematicTypeGenerator typeGenerator, String ipv4Address,
             HttpClient httpClient) {
@@ -328,6 +335,34 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
             HomematicThingHandler thingHandler = (HomematicThingHandler) hmThing.getHandler();
             if (thingHandler != null) {
                 thingHandler.deviceLoaded(device);
+            }
+        }
+    }
+
+    @Override
+    public void onDutyCycleRatioUpdate(int dutyCycleRatio) {
+        ThingHandlerCallback callback = getCallback();
+        if (callback == null) {
+            logger.debug(
+                    "Duty Cycle ratio update is skipped for the homematic bridge '{}' because the handler is not initialized yet.",
+                    thing.getUID());
+            return;
+        }
+
+        synchronized (dutyCycleRatioUpdateLock) {
+            callback.stateUpdated(thing.getChannel(CHANNEL_TYPE_DUTY_CYCLE_RATIO).getUID(),
+                    new DecimalType(dutyCycleRatio));
+
+            if (!isInDutyCycle && dutyCycleRatio >= DUTY_CYCLE_RATIO_LIMIT) {
+                logger.info("Duty cycle threshold exceeded by homematic bridge {}, it will go OFFLINE.",
+                        thing.getUID());
+                isInDutyCycle = true;
+                this.updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.DUTY_CYCLE);
+            } else if (isInDutyCycle && dutyCycleRatio < DUTY_CYCLE_RATIO_LIMIT) {
+                logger.info("Homematic bridge {} fell below duty cycle threshold and will come ONLINE again.",
+                        thing.getUID());
+                isInDutyCycle = false;
+                this.updateStatus(ThingStatus.ONLINE);
             }
         }
     }
