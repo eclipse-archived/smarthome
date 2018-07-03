@@ -61,7 +61,7 @@ import org.slf4j.LoggerFactory;
  */
 @Component(immediate = true)
 public class HttpUtil {
-    private static Logger logger = LoggerFactory.getLogger(HttpUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpUtil.class);
 
     private static final int DEFAULT_TIMEOUT_MS = 5000;
 
@@ -231,7 +231,7 @@ public class HttpUtil {
                 request.header(HttpHeader.AUTHORIZATION, basicAuthentication);
             }
         } catch (URISyntaxException e) {
-            logger.debug("String {} can not be parsed as URI reference", url);
+            LOGGER.debug("String {} can not be parsed as URI reference", url);
         }
 
         // add content if a valid method is given ...
@@ -243,16 +243,16 @@ public class HttpUtil {
             }
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("About to execute {}", request.getURI());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("About to execute {}", request.getURI());
         }
 
         try {
             ContentResponse response = request.send();
             int statusCode = response.getStatus();
-            if (logger.isDebugEnabled() && statusCode >= HttpStatus.BAD_REQUEST_400) {
+            if (LOGGER.isDebugEnabled() && statusCode >= HttpStatus.BAD_REQUEST_400) {
                 String statusLine = statusCode + " " + response.getReason();
-                logger.debug("Method failed: {}", statusLine);
+                LOGGER.debug("Method failed: {}", statusLine);
             }
 
             return response;
@@ -279,7 +279,7 @@ public class HttpUtil {
                 try {
                     proxyParams.proxyPort = Integer.valueOf(proxyPortString);
                 } catch (NumberFormatException e) {
-                    logger.warn("'{}' is not a valid proxy port - using default port ({}) instead", proxyPortString,
+                    LOGGER.warn("'{}' is not a valid proxy port - using default port ({}) instead", proxyPortString,
                             proxyParams.proxyPort);
                 }
             }
@@ -307,7 +307,7 @@ public class HttpUtil {
                 URL url = new URL(urlString);
                 givenHost = url.getHost();
             } catch (MalformedURLException e) {
-                logger.error("the given url {} is malformed", urlString);
+                LOGGER.error("the given url {} is malformed", urlString);
             }
 
             String[] hosts = nonProxyHosts.split("\\|");
@@ -442,16 +442,16 @@ public class HttpUtil {
             byte[] data = response.getContent();
             long length = (data == null) ? 0 : data.length;
             String mediaType = response.getMediaType();
-            logger.debug("Media download response: status {} content length {} media type {} (URL {})",
+            LOGGER.debug("Media download response: status {} content length {} media type {} (URL {})",
                     response.getStatus(), length, mediaType, url);
 
             if (response.getStatus() != HttpStatus.OK_200 || length == 0) {
-                logger.debug("Media download failed: unexpected return code {} (URL {})", response.getStatus(), url);
+                LOGGER.debug("Media download failed: unexpected return code {} (URL {})", response.getStatus(), url);
                 return null;
             }
 
             if (maxContentLength >= 0 && length > maxContentLength) {
-                logger.debug("Media download aborted: content length {} too big (URL {})", length, url);
+                LOGGER.debug("Media download aborted: content length {} too big (URL {})", length, url);
                 return null;
             }
 
@@ -460,16 +460,16 @@ public class HttpUtil {
                 if ((contentType == null || contentType.isEmpty()) && scanTypeInContent) {
                     // We try to get the type from the data
                     contentType = guessContentTypeFromData(data);
-                    logger.debug("Media download: content type from data: {} (URL {})", contentType, url);
+                    LOGGER.debug("Media download: content type from data: {} (URL {})", contentType, url);
                 }
                 if (contentType != null && contentType.isEmpty()) {
                     contentType = null;
                 }
                 if (contentType == null) {
-                    logger.debug("Media download aborted: unknown content type (URL {})", url);
+                    LOGGER.debug("Media download aborted: unknown content type (URL {})", url);
                     return null;
                 } else if (!contentType.matches(contentTypeRegex)) {
-                    logger.debug("Media download aborted: unexpected content type \"{}\" (URL {})", contentType, url);
+                    LOGGER.debug("Media download aborted: unexpected content type \"{}\" (URL {})", contentType, url);
                     return null;
                 }
             } else if (contentType == null || contentType.isEmpty()) {
@@ -478,10 +478,10 @@ public class HttpUtil {
 
             rawData = new RawType(data, contentType);
 
-            logger.debug("Media downloaded: size {} type {} (URL {})", rawData.getBytes().length, rawData.getMimeType(),
+            LOGGER.debug("Media downloaded: size {} type {} (URL {})", rawData.getBytes().length, rawData.getMimeType(),
                     url);
         } catch (IOException e) {
-            logger.debug("Media download failed (URL {}) : {}", url, e.getMessage());
+            LOGGER.debug("Media download failed (URL {}) : {}", url, e.getMessage());
         }
         return rawData;
     }
@@ -507,7 +507,7 @@ public class HttpUtil {
                     contentType = null;
                 }
             } catch (final IOException e) {
-                logger.debug("Failed to determine content type: {}", e.getMessage());
+                LOGGER.debug("Failed to determine content type: {}", e.getMessage());
             }
         } catch (final IOException ex) {
             // Error on closing input stream -- nothing we can do here.
