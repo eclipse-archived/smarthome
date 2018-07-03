@@ -72,7 +72,7 @@ The `org.eclipse.smarthome.core.library.unit` package contains the classes `SIUn
 The `MetricPrefix` class provides prefixes like MILLI, CENTI, HECTO, etc. which are wrappers to create derived units.
 The `org.eclipse.smarthome.core.library.dimension` and `javax.measure.quantity` packages provide interfaces which are used to type the generic QuantityType and units. 
 
-List of Units
+## List of Units
 
 All units which are currently supported by default are listed in the tables below.
 
