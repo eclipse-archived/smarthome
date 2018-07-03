@@ -257,4 +257,10 @@ public class SmartHomeUnitsTest {
         assertThat(mmolpsq.toUnit(SmartHomeUnits.DOBSON_UNIT).doubleValue(), is(closeTo(1, DEFAULT_ERROR)));
     }
 
+    @Test
+    public void testBar2Pascal() {
+        Quantity<Pressure> bar = Quantities.getQuantity(BigDecimal.valueOf(1), SmartHomeUnits.BAR);
+        assertThat(bar.to(SIUnits.PASCAL), is(Quantities.getQuantity(100000, SIUnits.PASCAL)));
+    }
+
 }
