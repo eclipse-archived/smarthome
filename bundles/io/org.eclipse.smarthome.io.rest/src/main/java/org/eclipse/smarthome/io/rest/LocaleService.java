@@ -14,12 +14,16 @@ package org.eclipse.smarthome.io.rest;
 
 import java.util.Locale;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * Provides helper method for working with locales.
  *
  * @author Lyubomir Papazov - initial contribution
  *
  */
+@NonNullByDefault
 public interface LocaleService {
 
     /**
@@ -29,5 +33,5 @@ public interface LocaleService {
      * @return Locale for the "Accept-Language" HTTP header or default locale if
      *         header is not set or can not be parsed.
      */
-    Locale getLocale(String acceptLanguageHttpHeader);
+    Locale getLocale(@Nullable String acceptLanguageHttpHeader);
 }
