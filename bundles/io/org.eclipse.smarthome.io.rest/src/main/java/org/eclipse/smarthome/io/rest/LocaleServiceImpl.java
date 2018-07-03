@@ -14,6 +14,8 @@ package org.eclipse.smarthome.io.rest;
 
 import java.util.Locale;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -31,21 +33,15 @@ import org.slf4j.LoggerFactory;
  * @authro Lyubomir Papazov - Add component annotation, rename the class to LocaleService and add method tryGetLocale
  */
 @Component
+@NonNullByDefault
 public class LocaleServiceImpl implements LocaleService {
 
     private final Logger logger = LoggerFactory.getLogger(LocaleServiceImpl.class);
 
-    private volatile LocaleProvider localeProvider;
+    private volatile @Nullable LocaleProvider localeProvider;
 
-    /**
-     * Returns the locale in respect to the given "Accept-Language" HTTP header.
-     *
-     * @param language value of the "Accept-Language" HTTP header (can be null).
-     * @return Locale for the "Accept-Language" HTTP header or default locale if
-     *         header is not set or can not be parsed.
-     */
     @Override
-    public Locale getLocale(String acceptLanguageHttpHeader) {
+    public Locale getLocale(@Nullable String acceptLanguageHttpHeader) {
         Locale locale = tryGetLocale();
         if (acceptLanguageHttpHeader != null) {
             int pos = acceptLanguageHttpHeader.indexOf(',');
