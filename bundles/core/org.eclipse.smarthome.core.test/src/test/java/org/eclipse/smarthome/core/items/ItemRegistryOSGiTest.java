@@ -48,6 +48,7 @@ import org.mockito.Mock;
  * @author Kai Kreuzer - added tests for all items changed cases
  * @author Sebastian Janzen - added test for getItemsByTag
  */
+@SuppressWarnings("null")
 public class ItemRegistryOSGiTest extends JavaOSGiTest {
 
     private final static String ITEM_NAME = "switchItem";
@@ -86,6 +87,7 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
 
     @After
     public void tearDown() {
+        unregisterService(eventSubscriber);
         unregisterService(itemProvider);
     }
 
