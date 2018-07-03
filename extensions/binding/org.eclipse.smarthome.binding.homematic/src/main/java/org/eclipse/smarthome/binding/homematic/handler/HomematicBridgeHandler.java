@@ -59,6 +59,7 @@ import org.slf4j.LoggerFactory;
 public class HomematicBridgeHandler extends BaseBridgeHandler implements HomematicGatewayAdapter {
     private final Logger logger = LoggerFactory.getLogger(HomematicBridgeHandler.class);
     private static final long REINITIALIZE_DELAY_SECONDS = 10;
+    private static final int DUTY_CYCLE_RATIO_LIMIT = 99;
     private static SimplePortPool portPool = new SimplePortPool();
 
     private final Object dutyCycleRatioUpdateLock = new Object();
@@ -344,23 +345,22 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
         if (callback == null) {
             logger.debug(
                     "Duty Cycle ratio update is skipped for the homematic bridge '{}' because the handler is not initialized yet.",
-                    thing.getBridgeUID().getId());
+                    thing.getUID());
             return;
         }
 
         synchronized (dutyCycleRatioUpdateLock) {
-            final int dutyCycleRatioLimit = 99;
             callback.stateUpdated(thing.getChannel(CHANNEL_TYPE_DUTY_CYCLE_RATIO).getUID(),
                     new DecimalType(dutyCycleRatio));
 
-            if (!isInDutyCycle && dutyCycleRatio >= dutyCycleRatioLimit) {
+            if (!isInDutyCycle && dutyCycleRatio >= DUTY_CYCLE_RATIO_LIMIT) {
                 logger.info("Duty cycle threshold exceeded by homematic bridge {}, it will go OFFLINE.",
-                        thing.getBridgeUID().getId());
+                        thing.getUID());
                 isInDutyCycle = true;
                 this.updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.DUTY_CYCLE);
-            } else if (isInDutyCycle && dutyCycleRatio < dutyCycleRatioLimit) {
+            } else if (isInDutyCycle && dutyCycleRatio < DUTY_CYCLE_RATIO_LIMIT) {
                 logger.info("Homematic bridge {} fell below duty cycle threshold and will come ONLINE again.",
-                        thing.getBridgeUID().getId());
+                        thing.getUID());
                 isInDutyCycle = false;
                 this.updateStatus(ThingStatus.ONLINE);
             }

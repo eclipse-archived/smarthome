@@ -111,6 +111,6 @@
 		<item-type>Number</item-type>
 		<label>Duty Cycle</label>
 		<description>Current duty cycle usage</description>
-		<state readOnly="true" pattern="%d %%"/>
+		<state readOnly="true" min="0" max="100" pattern="%d %%"/>
 	</channel-type>
 </thing:thing-descriptions>
