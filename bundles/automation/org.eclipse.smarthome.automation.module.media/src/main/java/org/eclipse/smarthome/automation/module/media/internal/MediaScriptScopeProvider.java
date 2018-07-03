@@ -68,7 +68,7 @@ public class MediaScriptScopeProvider implements ScriptExtensionProvider {
 
     @Override
     public Object get(String scriptIdentifier, String type) {
-        return elements.get("type");
+        return elements.get(type);
     }
 
     @Override
