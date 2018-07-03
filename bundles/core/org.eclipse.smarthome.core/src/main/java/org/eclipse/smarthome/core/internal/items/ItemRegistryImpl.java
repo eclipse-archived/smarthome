@@ -660,4 +660,13 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         itemFactories.remove(itemFactory);
     }
 
+    @Reference(target = "(component.name=org.eclipse.smarthome.core.library.CoreItemFactory)")
+    protected void setCoreItemFactory(ItemFactory coreItemFactory) {
+        // do nothing - just depend on it
+    }
+
+    protected void unsetCoreItemFactory(ItemFactory coreItemFactory) {
+        // do nothing
+    }
+
 }
