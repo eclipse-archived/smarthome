@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.io.net.http;
 
+import static org.eclipse.jetty.http.HttpMethod.*;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +24,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -48,7 +51,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Some common methods to be used in both HTTP-In-Binding and HTTP-Out-Binding
+ * Some common methods to be used in HTTP-In-Binding, HTTP-Out-Binding and other bindings
+ *
+ * For advanced usage direct use of the Jetty client is preferred
  *
  * @author Thomas Eichstaedt-Engelen
  * @author Kai Kreuzer - Initial contribution and API
@@ -56,7 +61,6 @@ import org.slf4j.LoggerFactory;
  */
 @Component(immediate = true)
 public class HttpUtil {
-
     private static Logger logger = LoggerFactory.getLogger(HttpUtil.class);
 
     private static final int DEFAULT_TIMEOUT_MS = 5000;
@@ -64,11 +68,11 @@ public class HttpUtil {
     private static HttpClientFactory httpClientFactory;
 
     private static class ProxyParams {
-        public String proxyHost = null;
-        public int proxyPort = 80;
-        public String proxyUser = null;
-        public String proxyPassword = null;
-        public String nonProxyHosts = null;
+        String proxyHost;
+        int proxyPort = 80;
+        String proxyUser;
+        String proxyPassword;
+        String nonProxyHosts;
     }
 
     /**
@@ -335,17 +339,11 @@ public class HttpUtil {
      *                                      <code>POST</POST> or <code>DELETE</code>
      */
     public static HttpMethod createHttpMethod(String httpMethodString) {
-        if ("GET".equals(httpMethodString)) {
-            return HttpMethod.GET;
-        } else if ("PUT".equals(httpMethodString)) {
-            return HttpMethod.PUT;
-        } else if ("POST".equals(httpMethodString)) {
-            return HttpMethod.POST;
-        } else if ("DELETE".equals(httpMethodString)) {
-            return HttpMethod.DELETE;
-        } else {
-            throw new IllegalArgumentException("given httpMethod '" + httpMethodString + "' is unknown");
-        }
+        // @formatter:off
+        return Optional.ofNullable(HttpMethod.fromString(httpMethodString))
+                .filter(m -> m == GET || m == POST || m == PUT || m == DELETE)
+                .orElseThrow(() -> new IllegalArgumentException("Given HTTP Method '" + httpMethodString + "' is unknown"));
+        // @formatter:on
     }
 
     /**
