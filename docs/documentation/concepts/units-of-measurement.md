@@ -127,8 +127,6 @@ SI:
 | Length                 | Kilometre               | km     |
 | LuminousFlux           | Lumen                   | lm     |
 | LuminousIntensity      | Candela                 | cd     |
-| Temperature            | Kelvin                  | K      |
-| Temperature            | Celcius                 | °C     |
 | MagneticFlux           | Weber                   | Wb     |
 | MagneticFluxDensity    | Tesla                   | T      |
 | Mass                   | Kilogram                | kg     |
@@ -144,6 +142,8 @@ SI:
 | Speed                  | Metre per Second        | m/s    |
 | Speed                  | Kilometre per Hour      | km/h   |
 | Speed                  | Knot                    | kn     |
+| Temperature            | Kelvin                  | K      |
+| Temperature            | Celsius                 | °C     |
 | Time                   | Second                  | s      |
 | Time                   | Minute                  | min    |
 | Time                   | Hour                    | h      |
