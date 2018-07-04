@@ -99,12 +99,12 @@ public class ChannelTypeBuilder {
         return this;
     }
 
-    public ChannelTypeBuilder withDescription(String description) {
+    public ChannelTypeBuilder withDescription(@Nullable String description) {
         this.description = description;
         return this;
     }
 
-    public ChannelTypeBuilder withCategory(String category) {
+    public ChannelTypeBuilder withCategory(@Nullable String category) {
         this.category = category;
         return this;
     }
@@ -119,17 +119,17 @@ public class ChannelTypeBuilder {
         return this;
     }
 
-    public ChannelTypeBuilder withStateDescription(StateDescription stateDescription) {
+    public ChannelTypeBuilder withStateDescription(@Nullable StateDescription stateDescription) {
         this.stateDescription = stateDescription;
         return this;
     }
 
-    public ChannelTypeBuilder withEventDescription(EventDescription eventDescription) {
+    public ChannelTypeBuilder withEventDescription(@Nullable EventDescription eventDescription) {
         this.eventDescription = eventDescription;
         return this;
     }
 
-    public ChannelTypeBuilder withConfigDescriptionURI(URI configDescriptionURI) {
+    public ChannelTypeBuilder withConfigDescriptionURI(@Nullable URI configDescriptionURI) {
         this.configDescriptionURI = configDescriptionURI;
         return this;
     }
