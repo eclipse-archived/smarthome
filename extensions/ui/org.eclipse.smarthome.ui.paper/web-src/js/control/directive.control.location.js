@@ -1,27 +1,36 @@
-angular.module('PaperUI.controllers.control') //
-.directive('locationControl', function() {
-    var controller = function($scope) {
-        var updateFormattedState = function() {
-            if ($scope.item.state !== 'UNDEF' && $scope.item.state !== 'NULL') {
-                var latitude = parseFloat($scope.item.state.split(',')[0]);
-                var longitude = parseFloat($scope.item.state.split(',')[1]);
-                $scope.formattedState = latitude + '°N ' + longitude + '°E';
-            } else {
-                $scope.formattedState = '- °N - °E';
-            }
+angular.module('PaperUI.controllers.control').component('locationControl', {
+    bindings : {
+        item : '=',
+        readOnly : '<'
+    },
+    templateUrl : 'partials/control/directive.control.location.html',
+    controller : controller
+});
+
+function controller() {
+    ctrl = this;
+    this.formattedState
+
+    $onInit = activate;
+
+    $doCheck = function() {
+        var newFormattedState = updateFormattedState();
+        if (newFormattedState !== ctrl.formattedState) {
+            ctrl.formattedState = newFormattedState;
         }
-
-        $scope.$watch('item.state', function() {
-            updateFormattedState();
-        });
-
-        updateFormattedState();
     }
 
-    return {
-        restrict : 'E',
-        scope : true,
-        templateUrl : 'partials/control/directive.control.location.html',
-        controller : controller
+    function activate() {
+        ctrl.formattedState = updateFormattedState();
     }
-})
+
+    function updateFormattedState() {
+        if (ctrl.item.state !== 'UNDEF' && ctrl.item.state !== 'NULL') {
+            var latitude = parseFloat(ctrl.item.state.split(',')[0]);
+            var longitude = parseFloat(ctrl.item.state.split(',')[1]);
+            return latitude + '°N ' + longitude + '°E';
+        } else {
+            return '- °N - °E';
+        }
+    }
+}

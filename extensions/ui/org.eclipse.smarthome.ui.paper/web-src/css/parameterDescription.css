@@ -82,11 +82,11 @@
 	cursor: pointer;
 }
 
-parameter-description.show-more>.ellipsis, 
-parameter-description.show-more>.ellipsis:before {
+div.ellipsis.show-more, 
+div.ellipsis.show-more:before {
 	height: 100%;
 }
 
-parameter-description:not(.show-more) .less {
+div.ellipsis:not(.show-more) .less {
 	display: none;
 }

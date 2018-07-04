@@ -2,17 +2,10 @@
 (function() {
     'use strict';
 
-    angular.module('PaperUI.bindings').directive('bindingsList', BindingsList);
-
-    function BindingsList() {
-        return {
-            restrict : 'E',
-            scope : {},
-            controllerAs : '$ctrl',
-            templateUrl : 'partials/bindings/directive.bindings-list.html',
-            controller : BindingsListController
-        }
-    }
+    angular.module('PaperUI.bindings').component('bindingsList', {
+        templateUrl : 'partials/bindings/directive.bindings-list.html',
+        controller : BindingsListController
+    });
 
     BindingsListController.$inject = [ '$location', 'extensionService', '$mdDialog', 'bindingRepository', 'titleService' ];
 

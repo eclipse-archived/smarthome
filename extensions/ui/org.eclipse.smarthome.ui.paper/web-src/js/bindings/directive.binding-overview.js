@@ -2,22 +2,11 @@
 (function() {
     'use strict';
 
-    angular.module('PaperUI.bindings').directive('bindingOverview', BindingOverview);
+    angular.module('PaperUI.bindings').component('bindingOverview', {
+        bindings : {
+            binding : '='
+        },
+        templateUrl : 'partials/bindings/directive.binding-overview.html',
+    });
 
-    function BindingOverview() {
-        return {
-            restrict : 'E',
-            scope : {},
-            bindToController : {
-                binding : '='
-            },
-            controllerAs : '$ctrl',
-            templateUrl : 'partials/bindings/directive.binding-overview.html',
-            controller : BindingOverviewController
-        }
-    }
-
-    function BindingOverviewController() {
-        // nothing to do, yet
-    }
 })();
