@@ -41,7 +41,7 @@
 	<channel-type id="shadeLength">
 		<item-type>Number</item-type>
 		<label>Shade Length</label>
-		<description>Projected shade length ratio (depends upon Elevation)</description>
+		<description>Projected shade length ratio (derived from Elevation)</description>
 		<state readOnly="true" pattern="%.2f" />
 	</channel-type>
 
