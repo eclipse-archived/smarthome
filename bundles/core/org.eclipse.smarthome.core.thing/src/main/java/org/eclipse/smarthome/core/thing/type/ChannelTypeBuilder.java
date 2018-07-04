@@ -33,9 +33,9 @@ import org.eclipse.smarthome.core.types.StateDescription;
 public class ChannelTypeBuilder {
 
     // mandatory
-    private @Nullable String bindingId;
-    private @Nullable String channelTypeId;
-    private @Nullable String label;
+    private final String bindingId;
+    private final String channelTypeId;
+    private final String label;
 
     // optional
     private boolean advanced;
@@ -48,20 +48,10 @@ public class ChannelTypeBuilder {
     private @Nullable EventDescription eventDescription;
     private @Nullable URI configDescriptionURI;
 
-    // mandatory values
-    public ChannelTypeBuilder withBindingId(String bindingId) {
+    public ChannelTypeBuilder(String bindingId, String channelTypeId, String label) {
         this.bindingId = bindingId;
-        return this;
-    }
-
-    public ChannelTypeBuilder withChannelTypeId(String channelTypeId) {
         this.channelTypeId = channelTypeId;
-        return this;
-    }
-
-    public ChannelTypeBuilder withLabel(String itemType) {
-        this.itemType = itemType;
-        return this;
+        this.label = label;
     }
 
     public ChannelType build() {
