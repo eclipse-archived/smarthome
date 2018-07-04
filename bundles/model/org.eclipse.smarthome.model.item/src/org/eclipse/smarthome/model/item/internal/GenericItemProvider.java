@@ -228,7 +228,6 @@ public class GenericItemProvider extends AbstractProvider<Item>
                     Item item = createItemFromModelItem(modelItem);
                     if (item != null) {
                         internalDispatchBindings(modelName, item, modelItem.getBindings());
-                        provideTags(modelItem);
                     }
                 }
             }
@@ -240,8 +239,23 @@ public class GenericItemProvider extends AbstractProvider<Item>
         }
     }
 
+    private void provideTags(String modelName, Collection<String> itemNames) {
+        if (modelRepository != null) {
+            ItemModel model = (ItemModel) modelRepository.getModel(modelName);
+            if (model != null) {
+                for (ModelItem modelItem : model.getItems()) {
+                    if (itemNames.contains(modelItem.getName())) {
+                        provideTags(modelItem);
+                    }
+                }
+            }
+        }
+    }
+
     private void provideTags(ModelItem modelItem) {
         if (modelItem.getTags() == null || modelItem.getTags().isEmpty()) {
+            genericMetaDataProvider.removeMetadata(MetadataRegistry.INTERNAL_NAMESPACE_PREFIX + "tags",
+                    modelItem.getName());
             return;
         }
         String tagString = String.join("|", modelItem.getTags());
@@ -422,6 +436,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
                     Map<String, Item> oldItems = toItemMap(itemsMap.get(modelName));
                     Map<String, Item> newItems = toItemMap(getItemsFromModel(modelName));
                     itemsMap.put(modelName, newItems.values());
+                    provideTags(modelName, newItems.keySet());
                     for (Item newItem : newItems.values()) {
                         if (oldItems.containsKey(newItem.getName())) {
                             Item oldItem = oldItems.get(newItem.getName());

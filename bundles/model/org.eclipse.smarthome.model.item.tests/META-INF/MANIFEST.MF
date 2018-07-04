@@ -20,14 +20,15 @@ Import-Package:
  org.eclipse.smarthome.core.thing.util,
  org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.java,
- org.hamcrest.core,
  org.hamcrest;core=split,
+ org.hamcrest.core,
+ org.junit;version="4.0.0",
+ org.junit.runner;version="4.0.0",
  org.junit.runner.manipulation;version="4.0.0",
  org.junit.runner.notification;version="4.0.0",
- org.junit.runner;version="4.0.0",
- org.junit.runners.model;version="4.0.0",
  org.junit.runners;version="4.0.0",
- org.junit;version="4.0.0"
+ org.junit.runners.model;version="4.0.0",
+ org.mockito
 Require-Bundle: 
  org.eclipse.core.runtime,
  org.eclipse.xtext.testing,

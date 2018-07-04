@@ -11,6 +11,7 @@ import static java.util.stream.Collectors.toSet;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -23,8 +24,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.common.registry.AbstractProvider;
 import org.eclipse.smarthome.core.items.Metadata;
 import org.eclipse.smarthome.core.items.MetadataKey;
-import org.eclipse.smarthome.core.items.MetadataPredicates;
 import org.eclipse.smarthome.core.items.MetadataProvider;
+import org.eclipse.smarthome.core.items.MetadataRegistry;
 import org.osgi.service.component.annotations.Component;
 
 /**
@@ -40,11 +41,11 @@ import org.osgi.service.component.annotations.Component;
 @Component(service = { MetadataProvider.class, GenericMetadataProvider.class })
 public class GenericMetadataProvider extends AbstractProvider<Metadata> implements MetadataProvider {
 
-    private final Set<Metadata> metadata = new HashSet<>();
+    private final Map<MetadataKey, Metadata> metadata = new HashMap<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     /**
-     * Adds metadata to this provider
+     * Adds metadata to this provider or overrides it if already available.
      *
      * @param bindingType
      * @param itemName
@@ -54,13 +55,39 @@ public class GenericMetadataProvider extends AbstractProvider<Metadata> implemen
             @Nullable Map<String, Object> configuration) {
         MetadataKey key = new MetadataKey(bindingType, itemName);
         Metadata md = new Metadata(key, value, configuration);
+        Metadata previous = null;
         try {
             lock.writeLock().lock();
-            metadata.add(md);
+            previous = metadata.remove(key);
+            metadata.put(key, md);
         } finally {
             lock.writeLock().unlock();
         }
-        notifyListenersAboutAddedElement(md);
+        if (previous != null) {
+            notifyListenersAboutUpdatedElement(previous, md);
+        } else {
+            notifyListenersAboutAddedElement(md);
+        }
+    }
+
+    /**
+     * Removes metadata from this provider
+     *
+     * @param bindingType
+     * @param itemName
+     */
+    public void removeMetadata(String bindingType, String itemName) {
+        MetadataKey key = new MetadataKey(bindingType, itemName);
+        Metadata previous = null;
+        try {
+            lock.writeLock().lock();
+            previous = metadata.remove(key);
+        } finally {
+            lock.writeLock().unlock();
+        }
+        if (previous != null) {
+            notifyListenersAboutRemovedElement(previous);
+        }
     }
 
     /**
@@ -69,15 +96,21 @@ public class GenericMetadataProvider extends AbstractProvider<Metadata> implemen
      * @param itemName
      */
     public void removeMetadata(String itemName) {
-        Set<Metadata> toBeRemoved;
+        Set<MetadataKey> toBeRemoved;
+        Set<Metadata> removed = new HashSet<>();
         try {
             lock.writeLock().lock();
-            toBeRemoved = metadata.stream().filter(MetadataPredicates.ofItem(itemName)).collect(toSet());
-            metadata.removeAll(toBeRemoved);
+            toBeRemoved = metadata.keySet().stream() //
+                    .filter(key -> key.getItemName().equals(itemName)) //
+                    .filter(key -> !key.getNamespace().startsWith(MetadataRegistry.INTERNAL_NAMESPACE_PREFIX)) //
+                    .collect(toSet());
+            toBeRemoved.forEach(key -> {
+                removed.add(metadata.remove(key));
+            });
         } finally {
             lock.writeLock().unlock();
         }
-        for (Metadata m : toBeRemoved) {
+        for (Metadata m : removed) {
             notifyListenersAboutRemovedElement(m);
         }
     }
@@ -86,7 +119,7 @@ public class GenericMetadataProvider extends AbstractProvider<Metadata> implemen
     public Collection<Metadata> getAll() {
         try {
             lock.readLock().lock();
-            return Collections.unmodifiableSet(metadata);
+            return Collections.unmodifiableCollection(metadata.values());
         } finally {
             lock.readLock().unlock();
         }
