@@ -25,7 +25,6 @@ import java.util.function.Predicate;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
-import org.eclipse.smarthome.test.OSGiTest;
 import org.eclipse.smarthome.test.internal.java.MissingServiceAnalyzer;
 import org.eclipse.smarthome.test.storage.VolatileStorageService;
 import org.junit.After;
@@ -40,10 +39,11 @@ import org.osgi.framework.ServiceRegistration;
 
 /**
  * {@link JavaOSGiTest} is an abstract base class for OSGi based tests. It provides convenience methods to register and
- * unregister mocks as OSGi services. All services, which are registered through the {@link OSGiTest#registerService}
+ * unregister mocks as OSGi services. All services, which are registered through the
+ * {@link JavaOSGiTest#registerService}
  * methods, are unregistered automatically in the tear down of the test.
  *
- * @author Markus Rathgeb - Create a pure Java implementation based on the Groovy {@link OSGiTest} class
+ * @author Markus Rathgeb - Create a pure Java implementation based on the Groovy {@code OSGiTest} class
  */
 @NonNullByDefault
 public class JavaOSGiTest extends JavaTest {
