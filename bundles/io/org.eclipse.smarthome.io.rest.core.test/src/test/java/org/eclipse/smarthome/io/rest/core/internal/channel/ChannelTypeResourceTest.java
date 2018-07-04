@@ -14,7 +14,7 @@ package org.eclipse.smarthome.io.rest.core.internal.channel;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -33,6 +33,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
+import org.eclipse.smarthome.io.rest.LocaleServiceImpl;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +53,7 @@ public class ChannelTypeResourceTest {
     public void setup() {
         initMocks(this);
         channelTypeResource = new ChannelTypeResource();
-
+        channelTypeResource.setLocaleService(new LocaleServiceImpl());
         channelTypeResource.setChannelTypeRegistry(channelTypeRegistry);
         channelTypeResource.setProfileTypeRegistry(profileTypeRegistry);
     }
