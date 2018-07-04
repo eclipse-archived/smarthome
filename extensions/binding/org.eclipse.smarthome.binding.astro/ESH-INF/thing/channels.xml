@@ -10,6 +10,7 @@
 		<channels>
 			<channel id="azimuth" typeId="azimuth" />
 			<channel id="elevation" typeId="elevation" />
+			<channel id="shadeLength" typeId="shadeLength" />
 		</channels>
 	</channel-group-type>
 
@@ -36,6 +37,13 @@
 		<description>The elevation of the planet</description>
 		<state readOnly="true" pattern="%.2f °" />
 	</channel-type>
+	
+    <channel-type id="shadeLength">
+        <item-type>Number</item-type>
+        <label>Shade Length</label>
+        <description>Projected shade length ratio depending</description>
+        <state readOnly="true" pattern="%.2f" />
+    </channel-type>
 
 	<channel-type id="directRadiation">
 		<item-type>Number</item-type>
