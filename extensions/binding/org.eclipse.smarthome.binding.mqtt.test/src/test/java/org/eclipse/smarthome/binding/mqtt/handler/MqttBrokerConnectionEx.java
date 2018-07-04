@@ -46,7 +46,7 @@ public class MqttBrokerConnectionEx extends MqttBrokerConnection {
     }
 
     void setConnectionCallback(MqttBrokerConnectionEx o) {
-        connectionCallbacks = spy(new ConnectionCallbacks(o));
+        connectionCallback = spy(new ConnectionCallback(o));
     }
 
     @Override
