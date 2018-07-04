@@ -13,6 +13,7 @@ Import-Package:
  org.hamcrest;core=split,
  org.hamcrest.core,
  org.junit;version="4.0.0",
+ org.junit.rules,
  org.mockito,
  org.mockito.stubbing
 Automatic-Module-Name: org.eclipse.smarthome.io.net.test
