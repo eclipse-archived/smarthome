@@ -108,7 +108,7 @@ SI:
 | Dimensionless          | Percent                 | %      |
 | Dimensionless          | Parts per Million       | ppm    |
 | Dimensionless          | Decibel                 | dB     |
-| ElectricalPotential    | Volt                    | V      |
+| ElectricPotential      | Volt                    | V      |
 | ElectricCapacitance    | Farad                   | F      |
 | ElectricCharge         | Coulomb                 | C      |
 | ElectricConductance    | Siemens                 | S      |
@@ -135,6 +135,7 @@ SI:
 | Pressure               | Pascal                  | Pa     |
 | Pressure               | hectoPascal             | hPa    |
 | Pressure               | Millimetre of Mercury   | mmHg   |
+| Pressure               | Bar                     | bar    |
 | Radioactivity          | Becquerel               | Bq     |
 | RadiationDoseAbsorbed  | Gray                    | Gy     |
 | RadiationDoseEffective | Sievert                 | Sv     |
@@ -183,4 +184,4 @@ To use the prefixes simply add the prefix to the unit symbol e.g.
 Examples:
 -milliAmpere - `mA`
 -centiMetre - `cm`
-kiloWatt - `kW`
+-kiloWatt - `kW`
