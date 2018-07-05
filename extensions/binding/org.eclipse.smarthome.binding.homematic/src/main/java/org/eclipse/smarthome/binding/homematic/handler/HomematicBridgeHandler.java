@@ -341,17 +341,11 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
 
     @Override
     public void onDutyCycleRatioUpdate(int dutyCycleRatio) {
-        ThingHandlerCallback callback = getCallback();
-        if (callback == null) {
-            logger.debug(
-                    "Duty Cycle ratio update is skipped for the homematic bridge '{}' because the handler is not initialized yet.",
-                    thing.getUID());
-            return;
-        }
-
         synchronized (dutyCycleRatioUpdateLock) {
-            callback.stateUpdated(thing.getChannel(CHANNEL_TYPE_DUTY_CYCLE_RATIO).getUID(),
-                    new DecimalType(dutyCycleRatio));
+            Channel dutyCycleRatioChannel = thing.getChannel(CHANNEL_TYPE_DUTY_CYCLE_RATIO);
+            if (dutyCycleRatioChannel != null) {
+                this.updateState(dutyCycleRatioChannel.getUID(), new DecimalType(dutyCycleRatio));
+            }
 
             if (!isInDutyCycle && dutyCycleRatio >= DUTY_CYCLE_RATIO_LIMIT) {
                 logger.info("Duty cycle threshold exceeded by homematic bridge {}, it will go OFFLINE.",
