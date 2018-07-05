@@ -19,17 +19,20 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * Holds the calculated azimuth and elevation.
  *
  * @author Gerhard Riegler - Initial contribution
+ * @author Gaël L'hopital - Added shade length
  */
 public class Position {
     private double azimuth;
     private double elevation;
+    private double shadeLength;
 
     public Position() {
     }
 
-    public Position(double azimuth, double elevation) {
+    public Position(double azimuth, double elevation, double shadeLength) {
         this.azimuth = azimuth;
         this.elevation = elevation;
+        this.shadeLength = shadeLength;
     }
 
     /**
@@ -60,10 +63,24 @@ public class Position {
         this.elevation = elevation;
     }
 
+    /**
+     * Returns the shade length.
+     */
+    public double getShadeLength() {
+        return shadeLength;
+    }
+
+    /**
+     * Sets the shade length.
+     */
+    public void setShadeLength(double shadeLength) {
+        this.shadeLength = shadeLength;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("azimuth", azimuth)
-                .append("elevation", elevation).toString();
+                .append("elevation", elevation).append("shadeLength", shadeLength).toString();
     }
 
 }
