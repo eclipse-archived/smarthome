@@ -14,6 +14,7 @@ package org.eclipse.smarthome.core.internal.items;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +46,7 @@ public class ItemBuilderImpl implements ItemBuilder {
     private @Nullable String label;
     private @Nullable Item baseItem;
     private @Nullable GroupFunction groupFunction;
+    private Set<String> tags = Collections.emptySet();
 
     public ItemBuilderImpl(Set<ItemFactory> itemFactories, Item item) {
         this.itemFactories = itemFactories;
@@ -53,6 +55,7 @@ public class ItemBuilderImpl implements ItemBuilder {
         this.category = item.getCategory();
         this.groups = item.getGroupNames();
         this.label = item.getLabel();
+        this.tags = item.getTags();
         if (item instanceof GroupItem) {
             this.baseItem = ((GroupItem) item).getBaseItem();
             this.groupFunction = ((GroupItem) item).getFunction();
@@ -106,6 +109,12 @@ public class ItemBuilderImpl implements ItemBuilder {
     }
 
     @Override
+    public ItemBuilder withTags(Set<String> tags) {
+        this.tags = new HashSet<>(tags);
+        return this;
+    }
+
+    @Override
     public Item build() {
         Item item = null;
         if (GroupItem.TYPE.equals(itemType)) {
@@ -126,6 +135,7 @@ public class ItemBuilderImpl implements ItemBuilder {
             activeItem.setLabel(label);
             activeItem.setCategory(category);
             activeItem.addGroupNames(groups);
+            activeItem.addTags(tags);
         }
         return item;
     }
