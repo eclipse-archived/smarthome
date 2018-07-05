@@ -48,14 +48,11 @@ public class ChannelTypeBuilder {
     private @Nullable EventDescription eventDescription;
     private @Nullable URI configDescriptionURI;
 
-    public ChannelTypeBuilder(String bindingId, String channelTypeId, String label) {
-        this.bindingId = bindingId;
-        this.channelTypeId = channelTypeId;
-        this.label = label;
+    public ChannelTypeBuilder(ChannelTypeUID channelTypeUID, String label) {
+        this(channelTypeUID.getBindingId(), channelTypeUID.getId(), label);
     }
 
-    public ChannelType build() {
-
+    public ChannelTypeBuilder(String bindingId, String channelTypeId, String label) {
         if (StringUtils.isBlank(bindingId)) {
             throw new IllegalArgumentException("The bindingId must neither be null nor empty.");
         }
@@ -66,6 +63,17 @@ public class ChannelTypeBuilder {
             throw new IllegalArgumentException("The label must neither be null nor empty.");
         }
 
+        this.bindingId = bindingId;
+        this.channelTypeId = channelTypeId;
+        this.label = label;
+    }
+
+    /**
+     * Build the ChannelType with the given values
+     *
+     * @return the created ChannelType
+     */
+    public ChannelType build() {
         return new ChannelType(new ChannelTypeUID(bindingId, channelTypeId), advanced, itemType, kind, label,
                 description, category, tags.isEmpty() ? null : tags, stateDescription, eventDescription,
                 configDescriptionURI);
@@ -76,13 +84,19 @@ public class ChannelTypeBuilder {
      * Specify whether this is an advanced channel, default is false
      *
      * @param advanced true is this is an advanced {@link ChannelType}
-     * @return
+     * @return this Builder
      */
     public ChannelTypeBuilder isAdvanced(boolean advanced) {
         this.advanced = advanced;
         return this;
     }
 
+    /**
+     * Only for ChannelType of kind STATE
+     *
+     * @param itemType
+     * @return this Builder
+     */
     public ChannelTypeBuilder withItemType(String itemType) {
         this.itemType = itemType;
         return this;
@@ -92,43 +106,85 @@ public class ChannelTypeBuilder {
      * Set the {@link ChannelKind} of the channel, if unset STATE will be used
      *
      * @param kind the {@link ChannelKind}
-     * @return
+     * @return this Builder
      */
     public ChannelTypeBuilder withKind(ChannelKind kind) {
         this.kind = kind;
         return this;
     }
 
+    /**
+     * Sets the Description for the ChannelType
+     *
+     * @param description StateDescription for the ChannelType
+     * @return this Builder
+     */
     public ChannelTypeBuilder withDescription(@Nullable String description) {
         this.description = description;
         return this;
     }
 
+    /**
+     * Sets the Category for the ChannelType
+     *
+     * @param category Category for the ChannelType
+     * @return this Builder
+     */
     public ChannelTypeBuilder withCategory(@Nullable String category) {
         this.category = category;
         return this;
     }
 
+    /**
+     * Adds a tag to the ChannelType
+     *
+     * @param tag Tag to be added to the ChannelType
+     * @return this Builder
+     */
     public ChannelTypeBuilder withTag(String tag) {
         this.tags.add(tag);
         return this;
     }
 
+    /**
+     * Adds a Sets the StateDescription for the ChannelType
+     *
+     * @param tags Collection of tags to be added to the ChannelType
+     * @return this Builder
+     */
     public ChannelTypeBuilder withTags(Collection<String> tags) {
         this.tags.addAll(tags);
         return this;
     }
 
+    /**
+     * Sets the StateDescription for the ChannelType (only for ChannelType of kind STATE)
+     *
+     * @param stateDescription StateDescription for the ChannelType
+     * @return this Builder
+     */
     public ChannelTypeBuilder withStateDescription(@Nullable StateDescription stateDescription) {
         this.stateDescription = stateDescription;
         return this;
     }
 
+    /**
+     * Sets the EventDescription for the ChannelType (only for ChannelType of kind TRIGGER)
+     *
+     * @param eventDescription EventDescription for the ChannelType
+     * @return this Builder
+     */
     public ChannelTypeBuilder withEventDescription(@Nullable EventDescription eventDescription) {
         this.eventDescription = eventDescription;
         return this;
     }
 
+    /**
+     * Sets the ConfigDescriptionURI for the ChannelType
+     *
+     * @param configDescriptionURI URI that references the ConfigDescription of the ChannelType
+     * @return this Builder
+     */
     public ChannelTypeBuilder withConfigDescriptionURI(@Nullable URI configDescriptionURI) {
         this.configDescriptionURI = configDescriptionURI;
         return this;
