@@ -484,9 +484,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         try {
             SortedSet<String> itemTags = readTags(itemName);
             boolean ret = itemTags.addAll(tags);
-            if (ret) {
-                writeTags(itemName, itemTags);
-            }
+            writeTags(itemName, itemTags);
             return ret;
         } finally {
             tagLock.writeLock().unlock();
