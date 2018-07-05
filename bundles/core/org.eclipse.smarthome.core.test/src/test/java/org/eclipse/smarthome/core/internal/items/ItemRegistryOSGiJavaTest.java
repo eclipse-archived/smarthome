@@ -33,6 +33,7 @@ import org.eclipse.smarthome.core.items.MetadataKey;
 import org.eclipse.smarthome.core.items.MetadataRegistry;
 import org.eclipse.smarthome.core.library.items.StringItem;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -65,7 +66,10 @@ public class ItemRegistryOSGiJavaTest extends JavaOSGiTest {
 
         itemRegistry = getService(ItemRegistry.class);
         assertNotNull(itemRegistry);
+    }
 
+    @After
+    public void tearDown() {
         itemRegistry.removeRegistryChangeListener(mockListener);
     }
 
@@ -226,9 +230,6 @@ public class ItemRegistryOSGiJavaTest extends JavaOSGiTest {
         Item res = captor.getValue();
         assertEquals(1, res.getTags().size());
         assertEquals("hello", res.getTags().iterator().next());
-
-        StringItem item = new StringItem(ITEM_NAME);
-        managedItemProvider.update(item);
     }
 
     @Test
