@@ -15,23 +15,16 @@ package org.eclipse.smarthome.core.internal.items;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.stream.Stream;
 
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.i18n.UnitProvider;
-import org.eclipse.smarthome.core.items.ActiveItem;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
@@ -44,8 +37,6 @@ import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemStateConverter;
 import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
-import org.eclipse.smarthome.core.items.Metadata;
-import org.eclipse.smarthome.core.items.MetadataKey;
 import org.eclipse.smarthome.core.items.MetadataRegistry;
 import org.eclipse.smarthome.core.items.RegistryHook;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
@@ -53,7 +44,6 @@ import org.eclipse.smarthome.core.service.StateDescriptionService;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -73,13 +63,9 @@ import org.slf4j.LoggerFactory;
 @Component(immediate = true)
 public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvider> implements ItemRegistry {
 
-    static final String TAG_NAMESPACE = MetadataRegistry.INTERNAL_NAMESPACE_PREFIX + "tags";
-    static final String TAG_SEPARATOR = "|";
-    static final String TAG_SPLIT_REGEX = "\\" + TAG_SEPARATOR;
-
     private final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
-    private final List<RegistryHook<Item>> registryHooks = new CopyOnWriteArrayList<>();
 
+    private final List<RegistryHook<Item>> registryHooks = new CopyOnWriteArrayList<>();
     private StateDescriptionService stateDescriptionService;
     private MetadataRegistry metadataRegistry;
     private final Set<ItemFactory> itemFactories = new CopyOnWriteArraySet<>();
@@ -89,29 +75,6 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     public ItemRegistryImpl() {
         super(ItemProvider.class);
-    }
-
-    @Override
-    public Stream<Item> stream() {
-        return super.stream().map(item -> {
-            setTagsFromMetadata(item);
-            return item;
-        });
-    }
-
-    private void setTagsFromMetadata(Item item) {
-        if (item instanceof ActiveItem) {
-            ActiveItem activeItem = (ActiveItem) item;
-            activeItem.removeAllTags();
-            activeItem.addTags(readTags(item.getName()));
-        }
-    }
-
-    @Override
-    public @Nullable Item get(String key) {
-        Item item = super.get(key);
-        setTagsFromMetadata(item);
-        return item;
     }
 
     @Override
@@ -263,21 +226,8 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     }
 
     @Override
-    public Item add(Item item) {
-        writeTags(item.getName(), item.getTags());
-        return super.add(item);
-    }
-
-    @Override
-    public Item update(Item item) {
-        writeTags(item.getName(), item.getTags());
-        return super.update(item);
-    }
-
-    @Override
     protected void onAddElement(Item element) throws IllegalArgumentException {
         initializeItem(element);
-        addTags(element, element.getTags());
     }
 
     @Override
@@ -309,9 +259,6 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
             addMembersToGroupItem((GroupItem) item);
         }
         injectServices(item);
-
-        removeTags(oldItem, oldItem.getTags());
-        addTags(item, item.getTags());
     }
 
     @Override
@@ -415,84 +362,6 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         }
     }
 
-    private Metadata serializeTags(MetadataKey key, Set<String> tags) {
-        if (tags == null || tags.isEmpty()) {
-            return null;
-        }
-        String tagString = String.join(TAG_SEPARATOR, tags);
-        Metadata metadata = new Metadata(key, tagString, null);
-        return metadata;
-    }
-
-    private SortedSet<String> readTags(String itemName) {
-        MetadataKey key = new MetadataKey(TAG_NAMESPACE, itemName);
-        SortedSet<String> tags = new TreeSet<>();
-        Metadata metadata = metadataRegistry.get(key);
-        if (metadata != null) {
-            tags.addAll(Arrays.asList(metadata.getValue().split(TAG_SPLIT_REGEX)));
-        }
-        return tags;
-    }
-
-    private void writeTags(String itemName, Set<String> tags) {
-        MetadataKey key = new MetadataKey(TAG_NAMESPACE, itemName);
-        Metadata metadata = serializeTags(key, tags);
-        try {
-            if (metadata == null) {
-                metadataRegistry.remove(key);
-            } else if (metadataRegistry.get(key) != null) {
-                metadataRegistry.update(metadata);
-            } else {
-                metadataRegistry.add(metadata);
-            }
-        } catch (IllegalStateException e) {
-            logger.warn("Could not persist tags of item '{}', presumably no ManagedMetadataProvider was available",
-                    itemName);
-        }
-    }
-
-    @Override
-    public boolean addTag(String itemName, String tag) {
-        return addTags(itemName, Collections.singleton(tag));
-    }
-
-    @Override
-    public boolean addTags(String itemName, Collection<String> tags) {
-        Item item = get(itemName);
-        if (item == null) {
-            throw new IllegalArgumentException("Item " + itemName + " does not exist");
-        }
-        return addTags(item, tags);
-    }
-
-    private boolean addTags(Item item, Collection<String> tags) {
-        SortedSet<String> itemTags = readTags(item.getName());
-        boolean ret = itemTags.addAll(tags);
-        writeTags(item.getName(), itemTags);
-        return ret;
-    }
-
-    @Override
-    public boolean removeTag(String itemName, String tag) {
-        return removeTags(itemName, Collections.singleton(tag));
-    }
-
-    @Override
-    public boolean removeTags(String itemName, Collection<String> tags) {
-        Item item = get(itemName);
-        if (item == null) {
-            throw new IllegalArgumentException("Item " + itemName + " does not exist");
-        }
-        return removeTags(item, tags);
-    }
-
-    private boolean removeTags(Item item, Collection<String> tags) {
-        SortedSet<String> itemTags = readTags(item.getName());
-        boolean ret = itemTags.removeAll(tags);
-        writeTags(item.getName(), itemTags);
-        return ret;
-    }
-
     @Override
     protected void notifyListenersAboutAddedElement(Item element) {
         super.notifyListenersAboutAddedElement(element);
@@ -578,7 +447,6 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     }
 
     @Override
-    @Deactivate
     protected void deactivate() {
         super.deactivate();
     }
