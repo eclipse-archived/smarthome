@@ -81,6 +81,7 @@ public class GenericItemProvider2Test extends JavaOSGiTest {
     public void tearDown() {
         modelRepository.removeModel(TESTMODEL_NAME);
         modelRepository.removeModel(TESTMODEL_NAME2);
+        itemRegistry.removeRegistryChangeListener(mockListener);
     }
 
     @Test
@@ -292,7 +293,7 @@ public class GenericItemProvider2Test extends JavaOSGiTest {
     }
 
     @Test
-    public void testNotificationsContainTags() {
+    public void testAddedNotificationsContainTags() {
         itemRegistry.addRegistryChangeListener(mockListener);
 
         modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream("Switch s [foo]".getBytes()));
@@ -302,24 +303,36 @@ public class GenericItemProvider2Test extends JavaOSGiTest {
         Item res = captor.getValue();
         assertEquals("s", res.getName());
         assertEquals(1, res.getTags().size());
+    }
+
+    @Test
+    public void testUpdatedNotificationsContainTags() {
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream("Switch s [foo]".getBytes()));
+
+        itemRegistry.addRegistryChangeListener(mockListener);
 
         modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream("Switch s [foo, bar]".getBytes()));
 
-        ArgumentCaptor<Item> captor2 = ArgumentCaptor.forClass(Item.class);
-        verify(mockListener).updated(ArgumentMatchers.any(Item.class), captor2.capture());
-        Item res2 = captor2.getValue();
-        assertEquals("s", res2.getName());
-        assertEquals(2, res2.getTags().size());
+        ArgumentCaptor<Item> captor = ArgumentCaptor.forClass(Item.class);
+        verify(mockListener).updated(ArgumentMatchers.any(Item.class), captor.capture());
+        Item res = captor.getValue();
+        assertEquals("s", res.getName());
+        assertEquals(2, res.getTags().size());
+    }
+
+    @Test
+    public void testRemovedNotificationsContainTags() {
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream("Switch s [foo]".getBytes()));
+
+        itemRegistry.addRegistryChangeListener(mockListener);
 
         modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream("".getBytes()));
 
-        ArgumentCaptor<Item> captor3 = ArgumentCaptor.forClass(Item.class);
-        verify(mockListener).added(captor3.capture());
-        Item res3 = captor3.getValue();
-        assertEquals("s", res3.getName());
-        assertEquals(2, res3.getTags().size());
-
-        itemRegistry.removeRegistryChangeListener(mockListener);
+        ArgumentCaptor<Item> captor = ArgumentCaptor.forClass(Item.class);
+        verify(mockListener).removed(captor.capture());
+        Item res = captor.getValue();
+        assertEquals("s", res.getName());
+        assertEquals(1, res.getTags().size());
     }
 
     @Test
