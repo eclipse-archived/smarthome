@@ -105,27 +105,27 @@ The following XML snippet shows a system channel-type definition and thing-type 
 
 There exist systemwide channels that are available by default:
 
-| Channel Type ID | Reference typeId       | Item Type    | Category         | Description  |
-|-----------------|------------------------|--------------|----------------- |------------- |
-| signal-strength | system.signal-strength | Number       | QualityOfService | Represents signal strength of a device as a Number with values 0, 1, 2, 3 or 4; 0 being worst strength and 4 being best strength.  |
-| low-battery     | system.low-battery     | Switch       | Battery          | Represents a low battery warning with possible values on/off. |
-| battery-level   | system.battery-level   | Number       | Battery          | Represents the battery level as a percentage (0-100%). Bindings for things supporting battery level in a different format (e.g. 4 levels) should convert to a percentage to provide a consistent battery level reading. |
-| power           | system.power           | Switch       | -                | Turn a device on/off. |
-| brightness      | system.brightness      | Dimmer       | Light            | Brightness of a bulb (0-100%). |
-| color           | system.color           | Color        | ColorLight       | Color of a bulb. |
-| color-temperature | system.color-temperature | Dimmer    | ColorLight       | Color temperature of a bulb (0-100%). 0% should be the coldest setting (highest Kelvin value). |
-| location        | system.location        | Location     | -                |Location in lat.,lon.,height coordinates.
-| motion          |system.motion           | Switch       | Motion           | Motion detected by the device (ON if motion is detected).
-| mute            | system.mute            | Switch       | SoundVolume      | Turn on/off the volume of a device. |
-| volume          | system.volume          | Dimmer       | SoundVolume      | Change the sound volume of a device (0-100%). |
-| media-control   | system.media-control   | Player       | MediaControl     | Control for a media player. |
-| media-title     | system.media-title     | String       | -                | Title of a (played) media file. |
-| media-artist    | system.media-artist    | String       | -                | Artist of a (played) media file. |
-| outdoor-temperature | system.outdoor-temperature | Number:Temperature | Temperature | Current outdoor temperature. |
-| wind-direction  | system.wind-direction  | Number:Angle  | Wind            | Wind direction in degrees (0-360°). |
-| wind-speed      | system.wind-speed      | Number:Speed | Wind             | Wind speed |
-| atmospheric-humidity | system.atmospheric-humidity | Number:Dimensionless | Humidity | Atmospheric humidity in percent. |
-| barometric-pressure | system.barometric-pressure | Number:Pressure | Pressure | Barometric pressure |
+| Channel Type ID      | Reference typeId            | Item Type            | Category         | Description                                                                                                                                                                                                             |
+|----------------------|-----------------------------|----------------------|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| signal-strength      | system.signal-strength      | Number               | QualityOfService | Represents signal strength of a device as a Number with values 0, 1, 2, 3 or 4; 0 being worst strength and 4 being best strength.                                                                                       |
+| low-battery          | system.low-battery          | Switch               | Battery          | Represents a low battery warning with possible values on/off.                                                                                                                                                           |
+| battery-level        | system.battery-level        | Number               | Battery          | Represents the battery level as a percentage (0-100%). Bindings for things supporting battery level in a different format (e.g. 4 levels) should convert to a percentage to provide a consistent battery level reading. |
+| power                | system.power                | Switch               | -                | Turn a device on/off.                                                                                                                                                                                                   |
+| brightness           | system.brightness           | Dimmer               | Light            | Brightness of a bulb (0-100%).                                                                                                                                                                                          |
+| color                | system.color                | Color                | ColorLight       | Color of a bulb.                                                                                                                                                                                                        |
+| color-temperature    | system.color-temperature    | Dimmer               | ColorLight       | Color temperature of a bulb (0-100%). 0% should be the coldest setting (highest Kelvin value).                                                                                                                          |
+| location             | system.location             | Location             | -                | Location in lat.,lon.,height coordinates.                                                                                                                                                                               |
+| motion               | system.motion               | Switch               | Motion           | Motion detected by the device (ON if motion is detected).                                                                                                                                                               |
+| mute                 | system.mute                 | Switch               | SoundVolume      | Turn on/off the volume of a device.                                                                                                                                                                                     |
+| volume               | system.volume               | Dimmer               | SoundVolume      | Change the sound volume of a device (0-100%).                                                                                                                                                                           |
+| media-control        | system.media-control        | Player               | MediaControl     | Control for a media player.                                                                                                                                                                                             |
+| media-title          | system.media-title          | String               | -                | Title of a (played) media file.                                                                                                                                                                                         |
+| media-artist         | system.media-artist         | String               | -                | Artist of a (played) media file.                                                                                                                                                                                        |
+| outdoor-temperature  | system.outdoor-temperature  | Number:Temperature   | Temperature      | Current outdoor temperature.                                                                                                                                                                                            |
+| wind-direction       | system.wind-direction       | Number:Angle         | Wind             | Wind direction in degrees (0-360°).                                                                                                                                                                                     |
+| wind-speed           | system.wind-speed           | Number:Speed         | Wind             | Wind speed                                                                                                                                                                                                              |
+| atmospheric-humidity | system.atmospheric-humidity | Number:Dimensionless | Humidity         | Atmospheric humidity in percent.                                                                                                                                                                                        |
+| barometric-pressure  | system.barometric-pressure  | Number:Pressure      | Pressure         | Barometric pressure                                                                                                                                                                                                     |
 
 For further information about categories see the [categories page](../../concepts/categories.html).
 
