@@ -148,5 +148,6 @@ public class ChannelTypeBuilderTest {
         ChannelType channelType = triggerBuilder.withEventDescription(EVENT_DESCRIPTION).build();
 
         assertThat(channelType.getEvent(), is(EVENT_DESCRIPTION));
+        assertThat(channelType.getKind(), is(ChannelKind.TRIGGER));
     }
 }
