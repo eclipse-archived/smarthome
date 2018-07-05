@@ -17,6 +17,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.types.StateDescription;
 
 /**
+ * Interface for builders for {@link ChannelType}s of kind STATE
  *
  * @author Stefan Triller - Initial Contribution
  *

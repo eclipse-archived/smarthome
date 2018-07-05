@@ -28,7 +28,7 @@ class TriggerChannelTypeBuilderImpl extends AbstractChannelTypeBuilder<TriggerCh
 
     private @Nullable EventDescription eventDescription;
 
-    public TriggerChannelTypeBuilderImpl(ChannelTypeUID channelTypeUID, String label) {
+    TriggerChannelTypeBuilderImpl(ChannelTypeUID channelTypeUID, String label) {
         super(channelTypeUID, label);
     }
 

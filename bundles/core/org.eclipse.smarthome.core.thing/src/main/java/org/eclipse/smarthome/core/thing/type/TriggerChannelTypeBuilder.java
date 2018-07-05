@@ -16,6 +16,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.types.EventDescription;
 
 /**
+ * Interface for builders for {@link ChannelType}s of kind TRIGGER
  *
  * @author Stefan Triller - Initial Contribution
  *

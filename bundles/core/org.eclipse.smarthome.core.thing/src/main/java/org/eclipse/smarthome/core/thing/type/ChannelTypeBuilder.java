@@ -22,10 +22,26 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  */
 @NonNullByDefault
 public class ChannelTypeBuilder {
+
+    /**
+     * Create an instance of a ChannelTypeBuilder for {@link ChannelType}s of type STATE
+     *
+     * @param channelTypeUID UID of the ChannelType
+     * @param label Label for the ChannelType
+     * @param itemType ItemType that can be linked to the ChannelType
+     * @return ChannelTypeBuilder for {@link ChannelType}s of type STATE
+     */
     public static StateChannelTypeBuilder state(ChannelTypeUID channelTypeUID, String label, String itemType) {
         return new StateChannelTypeBuilderImpl(channelTypeUID, label, itemType);
     }
 
+    /**
+     * Create an instance of a ChannelTypeBuilder for {@link ChannelType}s of type TRIGGER
+     *
+     * @param channelTypeUID UID of the ChannelType
+     * @param label Label for the ChannelType
+     * @return ChannelTypeBuilder for {@link ChannelType}s of type TRGIGGER
+     */
     public static TriggerChannelTypeBuilder trigger(ChannelTypeUID channelTypeUID, String label) {
         return new TriggerChannelTypeBuilderImpl(channelTypeUID, label);
     }

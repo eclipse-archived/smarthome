@@ -24,7 +24,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  *
  */
 @NonNullByDefault
-public interface IChannelTypeBuilder<T extends IChannelTypeBuilder<T>> {
+interface IChannelTypeBuilder<T extends IChannelTypeBuilder<T>> {
     /**
      * Specify whether this is an advanced channel, default is false
      *
@@ -58,7 +58,7 @@ public interface IChannelTypeBuilder<T extends IChannelTypeBuilder<T>> {
     T withTag(String tag);
 
     /**
-     * Adds a Sets the StateDescription for the ChannelType
+     * Sets the StateDescription for the ChannelType
      *
      * @param tags Collection of tags to be added to the ChannelType
      * @return this Builder

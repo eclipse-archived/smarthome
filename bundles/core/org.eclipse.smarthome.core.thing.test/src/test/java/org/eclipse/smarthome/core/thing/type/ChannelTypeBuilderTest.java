@@ -62,6 +62,21 @@ public class ChannelTypeBuilderTest {
         triggerBuilder = ChannelTypeBuilder.trigger(CHANNEL_TYPE_UID, LABEL);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void whenLabelIsBlankForState_shouldFail() {
+        ChannelTypeBuilder.state(CHANNEL_TYPE_UID, "", ITEM_TYPE);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void whenItemTypeIsBlankForState_shouldFail() {
+        ChannelTypeBuilder.state(CHANNEL_TYPE_UID, LABEL, "");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void whenLabelIsBlankForTrigger_shouldFail() {
+        ChannelTypeBuilder.trigger(CHANNEL_TYPE_UID, "");
+    }
+
     @Test
     public void withLabelAndChannelTypeUID_shouldCreateChannelType() {
         ChannelType channelType = stateBuilder.build();
@@ -69,17 +84,18 @@ public class ChannelTypeBuilderTest {
         assertThat(channelType.getUID(), is(CHANNEL_TYPE_UID));
         assertThat(channelType.getItemType(), is(ITEM_TYPE));
         assertThat(channelType.getLabel(), is(LABEL));
+        assertThat(channelType.getKind(), is(ChannelKind.STATE));
     }
 
     @Test
-    public void withdefaultAdvancedIsFalse() {
+    public void withDefaultAdvancedIsFalse() {
         ChannelType channelType = stateBuilder.build();
 
         assertThat(channelType.isAdvanced(), is(false));
     }
 
     @Test
-    public void withLabelAndChannelTypeIdAndBindingID_shouldSetAdvanced() {
+    public void isAdvanced_shouldSetAdvanced() {
         ChannelType channelType = stateBuilder.isAdvanced(true).build();
 
         assertThat(channelType.isAdvanced(), is(true));

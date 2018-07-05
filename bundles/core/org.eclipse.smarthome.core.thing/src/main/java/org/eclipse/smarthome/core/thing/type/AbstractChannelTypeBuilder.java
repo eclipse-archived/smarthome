@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -27,6 +28,7 @@ import org.eclipse.jdt.annotation.Nullable;
  *
  */
 @NonNullByDefault
+@SuppressWarnings("unchecked")
 abstract class AbstractChannelTypeBuilder<T extends IChannelTypeBuilder<T>> implements IChannelTypeBuilder<T> {
 
     protected final ChannelTypeUID channelTypeUID;
@@ -38,6 +40,15 @@ abstract class AbstractChannelTypeBuilder<T extends IChannelTypeBuilder<T>> impl
     protected @Nullable URI configDescriptionURI;
 
     public AbstractChannelTypeBuilder(ChannelTypeUID channelTypeUID, String label) {
+
+        if (channelTypeUID == null) {
+            throw new IllegalArgumentException("ChannelTypeUID must be set.");
+        }
+
+        if (StringUtils.isEmpty(label)) {
+            throw new IllegalArgumentException("Label for a ChannelType must not be empty.");
+        }
+
         this.channelTypeUID = channelTypeUID;
         this.label = label;
     }

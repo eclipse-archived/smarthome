@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.core.thing.type;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.types.StateDescription;
@@ -29,8 +30,13 @@ class StateChannelTypeBuilderImpl extends AbstractChannelTypeBuilder<StateChanne
     private @Nullable StateDescription stateDescription;
     private final String itemType;
 
-    public StateChannelTypeBuilderImpl(ChannelTypeUID channelTypeUID, String label, String itemType) {
+    StateChannelTypeBuilderImpl(ChannelTypeUID channelTypeUID, String label, String itemType) {
         super(channelTypeUID, label);
+
+        if (StringUtils.isEmpty(itemType)) {
+            throw new IllegalArgumentException("Supported itemType for a ChannelType must not be empty.");
+        }
+
         this.itemType = itemType;
     }
 
