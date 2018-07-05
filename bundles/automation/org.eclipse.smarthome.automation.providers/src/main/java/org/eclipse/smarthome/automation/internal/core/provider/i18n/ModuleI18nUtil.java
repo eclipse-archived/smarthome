@@ -74,15 +74,14 @@ public class ModuleI18nUtil {
 
     private static String getModuleLabel(TranslationProvider i18nProvider, Bundle bundle, String uid, String moduleName,
             String defaultLabel, String prefix, Locale locale) {
-        String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel)
-                : inferModuleKey(prefix, uid, moduleName, "label");
+        String key = I18nUtil.stripConstantOr(defaultLabel, () -> inferModuleKey(prefix, uid, moduleName, "label"));
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 
     private static String getModuleDescription(TranslationProvider i18nProvider, Bundle bundle, String uid,
             String moduleName, String defaultDescription, String prefix, Locale locale) {
-        String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription)
-                : inferModuleKey(prefix, uid, moduleName, "description");
+        String key = I18nUtil.stripConstantOr(defaultDescription,
+                () -> inferModuleKey(prefix, uid, moduleName, "description"));
         return i18nProvider.getText(bundle, key, defaultDescription, locale);
     }
 

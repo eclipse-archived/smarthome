@@ -25,22 +25,20 @@ import org.osgi.framework.Bundle;
  */
 public class BindingI18nUtil {
 
-    private TranslationProvider i18nProvider;
+    private final TranslationProvider i18nProvider;
 
     public BindingI18nUtil(TranslationProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
     }
 
     public String getDescription(Bundle bundle, String bindingId, String defaultDescription, Locale locale) {
-        String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription) : inferKey(
-                bindingId, "description");
+        String key = I18nUtil.stripConstantOr(defaultDescription, () -> inferKey(bindingId, "description"));
 
         return i18nProvider.getText(bundle, key, defaultDescription, locale);
     }
 
     public String getName(Bundle bundle, String bindingId, String defaultLabel, Locale locale) {
-        String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel) : inferKey(bindingId,
-                "name");
+        String key = I18nUtil.stripConstantOr(defaultLabel, () -> inferKey(bindingId, "name"));
 
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
