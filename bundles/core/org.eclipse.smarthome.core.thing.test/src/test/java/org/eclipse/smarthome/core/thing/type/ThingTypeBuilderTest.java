@@ -102,35 +102,35 @@ public class ThingTypeBuilderTest {
     }
 
     @Test
-    public void whithDescription_shouldSetDescription() {
+    public void withDescription_shouldSetDescription() {
         ThingType thingType = builder.withDescription(DESCRIPTION).build();
 
         assertThat(thingType.getDescription(), is(DESCRIPTION));
     }
 
     @Test
-    public void whithCategory_shouldSetCategory() {
+    public void withCategory_shouldSetCategory() {
         ThingType thingType = builder.withCategory(CATEGORY).build();
 
         assertThat(thingType.getCategory(), is(CATEGORY));
     }
 
     @Test
-    public void whithListed_shouldBeListed() {
+    public void withListed_shouldBeListed() {
         ThingType thingType = builder.isListed(false).build();
 
         assertThat(thingType.isListed(), is(false));
     }
 
     @Test
-    public void whithRepresentationProperty_shouldSetRepresentationProperty() {
+    public void withRepresentationProperty_shouldSetRepresentationProperty() {
         ThingType thingType = builder.withRepresentationProperty(REPRESENTATION_PROPERTY).build();
 
         assertThat(thingType.getRepresentationProperty(), is(REPRESENTATION_PROPERTY));
     }
 
     @Test
-    public void whithChannelDefinitions_shouldSetUnmodifiableChannelDefinitions() {
+    public void withChannelDefinitions_shouldSetUnmodifiableChannelDefinitions() {
         ThingType thingType = builder.withChannelDefinitions(mockList(ChannelDefinition.class, 2)).build();
 
         assertThat(thingType.getChannelDefinitions(), is(hasSize(2)));
@@ -143,7 +143,7 @@ public class ThingTypeBuilderTest {
     }
 
     @Test
-    public void whithChannelGroupDefinitions_shouldSetUnmodifiableChannelGroupDefinitions() {
+    public void withChannelGroupDefinitions_shouldSetUnmodifiableChannelGroupDefinitions() {
         ThingType thingType = builder.withChannelGroupDefinitions(mockList(ChannelGroupDefinition.class, 2)).build();
 
         assertThat(thingType.getChannelGroupDefinitions(), is(hasSize(2)));
@@ -169,7 +169,7 @@ public class ThingTypeBuilderTest {
     }
 
     @Test
-    public void whithConfigDescriptionURI_shouldSetConfigDescriptionURI() throws Exception {
+    public void withConfigDescriptionURI_shouldSetConfigDescriptionURI() throws Exception {
         ThingType thingType = builder.withConfigDescriptionURI(new URI(CONF_URI)).build();
 
         assertThat(thingType.getConfigDescriptionURI(), is(new URI(CONF_URI)));
