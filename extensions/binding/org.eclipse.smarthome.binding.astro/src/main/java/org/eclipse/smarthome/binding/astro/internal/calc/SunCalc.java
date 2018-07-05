@@ -76,10 +76,12 @@ public class SunCalc {
 
         double azimuth = getAzimuth(th, a, phi, d) / DEG2RAD;
         double elevation = getElevation(th, a, phi, d) / DEG2RAD;
+        double shadeLength = getShadeLength(elevation);
 
         Position position = sun.getPosition();
         position.setAzimuth(azimuth + 180);
         position.setElevation(elevation);
+        position.setShadeLength(shadeLength);
 
         setRadiationInfo(calendar, elevation, altitude, sun);
     }
@@ -314,6 +316,10 @@ public class SunCalc {
 
     private double getElevation(double th, double a, double phi, double d) {
         return Math.asin(Math.sin(phi) * Math.sin(d) + Math.cos(phi) * Math.cos(d) * Math.cos(th - a));
+    }
+
+    private double getShadeLength(double elevation) {
+        return 1 / Math.tan(elevation * DEG2RAD);
     }
 
     private double getHourAngle(double h, double phi, double d) {
