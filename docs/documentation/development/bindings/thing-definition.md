@@ -119,13 +119,13 @@ There exist systemwide channels that are available by default:
 | mute            | system.mute            | Switch       | SoundVolume      | Turn on/off the volume of a device. |
 | volume          | system.volume          | Dimmer       | SoundVolume      | Change the sound volume of a device (0-100%). |
 | media-control   | system.media-control   | Player       | MediaControl     | Control for a media player. |
-| media-title     | system.media-title     | String       | -                | Title of a (played) song. |
-| media-artist    | system.media-artist    | String       | -                | Artist of a (played) song. |
-| outdoor-temperature | system:outdoor-temperature | Number: Temperature | Temperature | Current Outdoor Temperature. |
+| media-title     | system.media-title     | String       | -                | Title of a (played) media file. |
+| media-artist    | system.media-artist    | String       | -                | Artist of a (played) media file. |
+| outdoor-temperature | system.outdoor-temperature | Number:Temperature | Temperature | Current outdoor temperature. |
 | wind-direction  | system.wind-direction  | Number:Angle  | Wind            | Wind direction in degrees (0-360°). |
 | wind-speed      | system.wind-speed      | Number:Speed | Wind             | Wind speed |
-| atmospheric-humidity | system:atmospheric-humidity | Number:Dimensionless | Humidity | Atmospheric Humidity in percent. |
-| barometric-pressure | system:barometric-pressure | Number:Pressure | Pressure | Barometric Pressure |
+| atmospheric-humidity | system.atmospheric-humidity | Number:Dimensionless | Humidity | Atmospheric humidity in percent. |
+| barometric-pressure | system.barometric-pressure | Number:Pressure | Pressure | Barometric pressure |
 
 For further information about categories see the [categories page](../../concepts/categories.html).
 

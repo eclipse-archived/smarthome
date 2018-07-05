@@ -178,7 +178,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
                     .withItemType("Dimmer")
                     .withStateDescription(
                             new StateDescription(BigDecimal.ZERO, new BigDecimal(100), null, "%d", false, null))
-                    .build();
+                    .withCategory("ColorLight").build();
 
     // media channels
 
@@ -186,9 +186,10 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      * Volume: default system wide {@link ChannelType} which allows changing the audio volume from 0-100%
      */
     public static final ChannelType SYSTEM_VOLUME = new ChannelTypeBuilder(BINDING_ID, "volume", "Volume")
-            .withItemType("Dimmer").withDescription("Change the sound volume of a device").withStateDescription(
+            .withItemType("Dimmer").withDescription("Change the sound volume of a device")
+            .withStateDescription(
                     new StateDescription(BigDecimal.ZERO, new BigDecimal(100), null, "%d %%", false, null))
-            .build();
+            .withCategory("SoundVolume").build();
 
     /**
      * Mute: default system wide {@link ChannelType} which allows muting and un-muting audio
@@ -207,7 +208,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      */
     public static final ChannelType SYSTEM_MEDIA_TITLE = new ChannelTypeBuilder(BINDING_ID, "media-title",
             "Media Title")
-                    .withItemType("String").withDescription("Title of a (played) song")
+                    .withItemType("String").withDescription("Title of a (played) media file")
                     .withStateDescription(
                             StateDescriptionFragmentBuilder.create().withReadOnly(true).build().toStateDescription())
                     .build();
@@ -217,7 +218,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      */
     public static final ChannelType SYSTEM_MEDIA_ARTIST = new ChannelTypeBuilder(BINDING_ID, "media-artist",
             "Media Artist")
-                    .withItemType("String").withDescription("Artist of a (played) song")
+                    .withItemType("String").withDescription("Artist of a (played) media file")
                     .withStateDescription(
                             StateDescriptionFragmentBuilder.create().withReadOnly(true).build().toStateDescription())
                     .build();
@@ -257,7 +258,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
     public static final ChannelType SYSTEM_ATMOSPHERIC_HUMIDITY = new ChannelTypeBuilder(BINDING_ID,
             "atmospheric-humidity", "Atmospheric Humidity").withItemType("Number:Dimensionless")
                     .withCategory("Humidity").withStateDescription(StateDescriptionFragmentBuilder.create()
-                            .withReadOnly(true).withPattern("%.0f %unit%").build().toStateDescription())
+                            .withReadOnly(true).withPattern("%.0f %%").build().toStateDescription())
                     .build();
 
     /**
