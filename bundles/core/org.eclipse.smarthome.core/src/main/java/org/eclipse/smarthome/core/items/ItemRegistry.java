@@ -163,13 +163,6 @@ public interface ItemRegistry extends Registry<Item, String> {
     boolean removeTags(String itemName, Collection<String> tags);
 
     /**
-     * Removes all tags from the item.
-     *
-     * @param itemName the name of the item
-     */
-    void removeTags(String itemName);
-
-    /**
      * Create a new {@link ItemBuilder}, which is initialized by the given item.
      *
      * @param item the template to initialize the builder with
