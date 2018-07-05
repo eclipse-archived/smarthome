@@ -13,20 +13,22 @@
 package org.eclipse.smarthome.core.thing.type;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.smarthome.core.types.EventDescription;
 
 /**
- * Builder for {@link ChannelType}s
  *
- * @author Stefan Triller- Initial contribution
+ * @author Stefan Triller - Initial Contribution
  *
  */
 @NonNullByDefault
-public class ChannelTypeBuilder {
-    public static StateChannelTypeBuilder state(ChannelTypeUID channelTypeUID, String label, String itemType) {
-        return new StateChannelTypeBuilderImpl(channelTypeUID, label, itemType);
-    }
+public interface TriggerChannelTypeBuilder extends IChannelTypeBuilder<TriggerChannelTypeBuilder> {
 
-    public static TriggerChannelTypeBuilder trigger(ChannelTypeUID channelTypeUID, String label) {
-        return new TriggerChannelTypeBuilderImpl(channelTypeUID, label);
-    }
+    /**
+     * Sets the EventDescription for the ChannelType
+     *
+     * @param eventDescription EventDescription for the ChannelType
+     * @return this Builder
+     */
+    TriggerChannelTypeBuilder withEventDescription(EventDescription eventDescription);
+
 }
