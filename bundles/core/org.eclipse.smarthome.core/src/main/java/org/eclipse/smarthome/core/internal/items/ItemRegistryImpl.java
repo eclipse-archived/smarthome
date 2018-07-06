@@ -495,7 +495,6 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     @Override
     protected void notifyListenersAboutAddedElement(Item element) {
-        setTagsFromMetadata(element);
         super.notifyListenersAboutAddedElement(element);
         postEvent(ItemEventFactory.createAddedEvent(element));
     }
@@ -508,7 +507,6 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     @Override
     protected void notifyListenersAboutUpdatedElement(Item oldElement, Item element) {
-        setTagsFromMetadata(element);
         super.notifyListenersAboutUpdatedElement(oldElement, element);
         postEvent(ItemEventFactory.createUpdateEvent(element, oldElement));
     }
