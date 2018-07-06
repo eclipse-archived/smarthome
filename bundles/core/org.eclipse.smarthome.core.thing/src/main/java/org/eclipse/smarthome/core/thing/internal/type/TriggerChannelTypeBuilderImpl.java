@@ -10,10 +10,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.core.thing.type;
+package org.eclipse.smarthome.core.thing.internal.type;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.thing.type.ChannelKind;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
+import org.eclipse.smarthome.core.thing.type.TriggerChannelTypeBuilder;
 import org.eclipse.smarthome.core.types.EventDescription;
 
 /**
@@ -23,12 +27,12 @@ import org.eclipse.smarthome.core.types.EventDescription;
  *
  */
 @NonNullByDefault
-class TriggerChannelTypeBuilderImpl extends AbstractChannelTypeBuilder<TriggerChannelTypeBuilder>
+public class TriggerChannelTypeBuilderImpl extends AbstractChannelTypeBuilder<TriggerChannelTypeBuilder>
         implements TriggerChannelTypeBuilder {
 
     private @Nullable EventDescription eventDescription;
 
-    TriggerChannelTypeBuilderImpl(ChannelTypeUID channelTypeUID, String label) {
+    public TriggerChannelTypeBuilderImpl(ChannelTypeUID channelTypeUID, String label) {
         super(channelTypeUID, label);
     }
 
