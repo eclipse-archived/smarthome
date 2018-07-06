@@ -14,6 +14,7 @@ package org.eclipse.smarthome.config.discovery.upnp.internal;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -22,6 +23,8 @@ import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.config.discovery.upnp.UpnpDiscoveryParticipant;
+import org.eclipse.smarthome.core.net.CidrAddress;
+import org.eclipse.smarthome.core.net.NetworkAddressChangeListener;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.jupnp.UpnpService;
@@ -29,6 +32,7 @@ import org.jupnp.model.meta.LocalDevice;
 import org.jupnp.model.meta.RemoteDevice;
 import org.jupnp.registry.Registry;
 import org.jupnp.registry.RegistryListener;
+import org.jupnp.transport.RouterException;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
@@ -45,8 +49,8 @@ import org.slf4j.LoggerFactory;
  * @author Andre Fuechsel - Added call of removeOlderResults
  *
  */
-@Component(immediate = true, service = DiscoveryService.class, configurationPid = "discovery.upnp")
-public class UpnpDiscoveryService extends AbstractDiscoveryService implements RegistryListener {
+@Component(immediate = true, service = {DiscoveryService.class, NetworkAddressChangeListener.class}, configurationPid = "discovery.upnp")
+public class UpnpDiscoveryService extends AbstractDiscoveryService implements RegistryListener, NetworkAddressChangeListener {
 
     private final Logger logger = LoggerFactory.getLogger(UpnpDiscoveryService.class);
 
@@ -210,6 +214,25 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
                 logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
             }
         }
+    }
+
+    @Override
+    public void onChanged(final List<CidrAddress> added, final List<CidrAddress> removed) {
+        scheduler.execute(() -> {
+            if (!removed.isEmpty()) {
+                upnpService.getRegistry().removeAllRemoteDevices();
+            }
+
+            try {
+                upnpService.getRouter().disable();
+                upnpService.getRouter().enable();
+
+                startScan();
+            } catch (RouterException e) {
+                logger.error("Could not retstart UPnP network components.", e);
+            }
+        });
+
     }
 
     @Override
