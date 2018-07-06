@@ -14,12 +14,16 @@ package org.eclipse.smarthome.core.internal.items;
 
 import static org.eclipse.smarthome.core.internal.items.ItemRegistryImpl.*;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
@@ -29,8 +33,11 @@ import org.eclipse.smarthome.core.items.MetadataKey;
 import org.eclipse.smarthome.core.items.MetadataRegistry;
 import org.eclipse.smarthome.core.library.items.StringItem;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 
 /**
  *
@@ -44,9 +51,11 @@ public class ItemRegistryOSGiJavaTest extends JavaOSGiTest {
     private ItemRegistry itemRegistry;
     private MetadataRegistry metadataRegistry;
     private ManagedItemProvider managedItemProvider;
+    private @Mock RegistryChangeListener<Item> mockListener;
 
     @Before
     public void setup() {
+        initMocks(this);
         registerVolatileStorageService();
 
         managedItemProvider = getService(ManagedItemProvider.class);
@@ -57,6 +66,11 @@ public class ItemRegistryOSGiJavaTest extends JavaOSGiTest {
 
         itemRegistry = getService(ItemRegistry.class);
         assertNotNull(itemRegistry);
+    }
+
+    @After
+    public void tearDown() {
+        itemRegistry.removeRegistryChangeListener(mockListener);
     }
 
     @Test
@@ -202,6 +216,52 @@ public class ItemRegistryOSGiJavaTest extends JavaOSGiTest {
         itemRegistry.removeTag(ITEM_NAME, "hello");
 
         assertTagsInMetadata(ITEM_NAME);
+    }
+
+    @Test
+    public void testAddedNotificationsContainTagsFromMetadata() {
+        itemRegistry.addRegistryChangeListener(mockListener);
+
+        prepareMetadata(ITEM_NAME, "hello");
+        prepareItem(ITEM_NAME);
+
+        ArgumentCaptor<Item> captor = ArgumentCaptor.forClass(Item.class);
+        verify(mockListener).added(captor.capture());
+        Item res = captor.getValue();
+        assertEquals(1, res.getTags().size());
+        assertEquals("hello", res.getTags().iterator().next());
+    }
+
+    @Test
+    public void testUpdatedNotificationsContainTagsFromMetadata() {
+        prepareMetadata(ITEM_NAME, "hello");
+        prepareItem(ITEM_NAME);
+
+        itemRegistry.addRegistryChangeListener(mockListener);
+
+        StringItem item = new StringItem(ITEM_NAME);
+        managedItemProvider.update(item);
+
+        ArgumentCaptor<Item> captor = ArgumentCaptor.forClass(Item.class);
+        verify(mockListener).updated(any(Item.class), captor.capture());
+        Item res = captor.getValue();
+        assertEquals(1, res.getTags().size());
+        assertEquals("hello", res.getTags().iterator().next());
+    }
+
+    @Test
+    public void testRemovedNotificationsContainTagsFromMetadata() {
+        prepareMetadata(ITEM_NAME, "hello");
+        prepareItem(ITEM_NAME);
+
+        itemRegistry.addRegistryChangeListener(mockListener);
+        managedItemProvider.remove(ITEM_NAME);
+
+        ArgumentCaptor<Item> captor = ArgumentCaptor.forClass(Item.class);
+        verify(mockListener).removed(captor.capture());
+        Item res = captor.getValue();
+        assertEquals(1, res.getTags().size());
+        assertEquals("hello", res.getTags().iterator().next());
     }
 
     private void prepareItem(String itemName, String... tags) {
