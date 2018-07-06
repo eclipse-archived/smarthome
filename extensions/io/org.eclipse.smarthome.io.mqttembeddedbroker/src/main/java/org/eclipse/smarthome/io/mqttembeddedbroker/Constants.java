@@ -10,18 +10,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.io.transport.mqtt;
-
-import org.eclipse.jdt.annotation.NonNullByDefault;
+package org.eclipse.smarthome.io.mqttembeddedbroker;
 
 /**
- * Implement this to be notified of the success or error of a {@link MqttBrokerConnection}.publish().
+ * MQTT embedded broker constants
  *
  * @author David Graeff - Initial contribution
  */
-@NonNullByDefault
-public interface MqttPublishCallback {
-    public void onSuccess(MqttPublishResult result);
-
-    public void onFailure(MqttPublishResult result, Throwable error);
+public class Constants {
+    /**
+     * The broker connection client ID. You can request the embedded broker connection via the MqttService:
+     *
+     * <pre>
+     * MqttBrokerConnection c = mqttService.getBrokerConnection(Constants.CLIENTID);
+     * </pre>
+     */
+    public static final String CLIENTID = "embedded-mqtt-broker";
 }

@@ -14,22 +14,18 @@ package org.eclipse.smarthome.binding.mqtt.handler;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import org.eclipse.smarthome.binding.mqtt.internal.MqttThingID;
 import org.eclipse.smarthome.core.thing.Bridge;
-import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.eclipse.smarthome.io.transport.mqtt.MqttConnectionState;
 import org.eclipse.smarthome.io.transport.mqtt.MqttException;
 import org.eclipse.smarthome.io.transport.mqtt.MqttService;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.osgi.service.cm.ConfigurationException;
@@ -69,46 +65,29 @@ public class AbstractBrokerHandlerTest {
         handler.brokerAdded("nonsense_id", brokerConnection);
         assertNull(handler.connection);
         // We do not expect a status change, because brokerAdded will do nothing with invalid connections.
-        verify(callback, times(0)).statusUpdated(anyObject(), anyObject());
+        verify(callback, times(0)).statusUpdated(any(), any());
     }
 
     @Test
     public void brokerRemovedBroker() throws ConfigurationException, MqttException {
-        MqttBrokerConnection brokerConnection = mock(MqttBrokerConnection.class);
-        when(brokerConnection.connectionState()).thenReturn(MqttConnectionState.CONNECTED);
-        handler.brokerAdded(handler.brokerID, brokerConnection);
-        assertThat(handler.connection, is(brokerConnection));
-        handler.brokerRemoved("something", brokerConnection);
+        MqttBrokerConnectionEx connection = spy(
+                new MqttBrokerConnectionEx("10.10.0.10", 80, false, "BrokerHandlerTest"));
+        handler.brokerAdded(handler.brokerID, connection);
+        assertThat(handler.connection, is(connection));
+        handler.brokerRemoved("something", connection);
         assertNull(handler.connection);
     }
 
     @Test
-    public void brokerAddedConnectedBroker() throws ConfigurationException, MqttException {
-        MqttBrokerConnection brokerConnection = mock(MqttBrokerConnection.class);
-        when(brokerConnection.connectionState()).thenReturn(MqttConnectionState.CONNECTED);
-        handler.brokerAdded(handler.brokerID, brokerConnection);
-        assertThat(handler.connection, is(brokerConnection));
+    public void brokerAdded() throws ConfigurationException, MqttException {
+        MqttBrokerConnectionEx connection = spy(
+                new MqttBrokerConnectionEx("10.10.0.10", 80, false, "BrokerHandlerTest"));
+        handler.brokerAdded(handler.brokerID, connection);
+        assertThat(handler.connection, is(connection));
 
-        // We do not expect a call to start because the broker connection is already "connected".
-        verify(brokerConnection, times(0)).start();
+        verify(connection).start();
 
-        ArgumentCaptor<ThingStatusInfo> statusInfoCaptor = ArgumentCaptor.forClass(ThingStatusInfo.class);
-        verify(callback).statusUpdated(eq(thing), statusInfoCaptor.capture());
-        Assert.assertThat(statusInfoCaptor.getValue().getStatus(), is(ThingStatus.ONLINE));
-    }
-
-    @Test
-    public void brokerAddedDisconnectedBroker() throws ConfigurationException, MqttException {
-        MqttBrokerConnection brokerConnection = mock(MqttBrokerConnection.class);
-        when(brokerConnection.connectionState()).thenReturn(MqttConnectionState.DISCONNECTED);
-        handler.brokerAdded(handler.brokerID, brokerConnection);
-        assertThat(handler.connection, is(brokerConnection));
-
-        // We expect a call to start because the broker connection is not connected.
-        verify(brokerConnection).start();
-
-        // We do not expect a synchronous status update. The online/offline status will be updated
-        // as soon as the connection is established or a timeout happened.
-        verify(callback, times(0)).statusUpdated(any(), any());
+        // First connecting then connected
+        verify(callback, times(2)).statusUpdated(any(), any());
     }
 }

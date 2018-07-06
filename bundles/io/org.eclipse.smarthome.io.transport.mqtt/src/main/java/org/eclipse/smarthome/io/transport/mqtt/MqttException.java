@@ -13,9 +13,8 @@
 package org.eclipse.smarthome.io.transport.mqtt;
 
 /**
- * Thrown if an error occurs communicating with the server.
- * The exception contains a reason code. The semantic of the reason
- * code depends on the underlying implementation.
+ * Thrown if an error occurs communicating with the server. The exception contains a reason code. The semantic of the
+ * reason code depends on the underlying implementation.
  *
  * @author David Graeff - Initial contribution
  */

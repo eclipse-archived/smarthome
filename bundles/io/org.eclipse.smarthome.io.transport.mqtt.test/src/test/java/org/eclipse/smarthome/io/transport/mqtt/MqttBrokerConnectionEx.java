@@ -12,46 +12,45 @@
  */
 package org.eclipse.smarthome.io.transport.mqtt;
 
+import static org.mockito.Mockito.spy;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
-import org.osgi.service.cm.ConfigurationException;
+import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
 
 /**
  * We need an extended MqttBrokerConnection to overwrite the protected `connectionCallbacks` with
- * an instance that takes the mocked version of `MqttBrokerConnection`.
+ * an instance that takes the mocked version of `MqttBrokerConnection` and overwrite the connection state.
+ *
+ * We also replace the internal MqttAsyncClient with a spied one, that in respect to the success flags
+ * immediately succeed or fail with publish, subscribe, unsubscribe, connect, disconnect.
+ *
+ * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
 public class MqttBrokerConnectionEx extends MqttBrokerConnection {
     public MqttConnectionState connectionStateOverwrite = MqttConnectionState.DISCONNECTED;
+    public boolean publishSuccess = true;
+    public boolean subscribeSuccess = true;
+    public boolean unsubscribeSuccess = true;
+    public boolean disconnectSuccess = true;
+    public boolean connectSuccess = true;
+    public boolean connectTimeout = false;
 
     public MqttBrokerConnectionEx(String host, @Nullable Integer port, boolean secure, String clientId) {
         super(host, port, secure, clientId);
     }
 
-    void setConnectionCallback(MqttBrokerConnectionEx o, IMqttToken t) {
-        connectionCallbacks = new ConnectionCallbacks(o);
-        connectionToken = t;
+    void setConnectionCallback(MqttBrokerConnectionEx o) {
+        connectionCallback = spy(new ConnectionCallback(o));
     }
 
-    /**
-     * Do not connect to any server. Just return a MqttAsyncClient. We will wait for the timeout in some tests
-     * and use {@link #connectionState()} for pretending to be connected.
-     */
     @Override
-    protected @NonNull MqttAsyncClient createAndConnectClient() throws MqttException, ConfigurationException {
-        StringBuilder serverURI = new StringBuilder();
-        serverURI.append((secure ? "ssl://" : "tcp://"));
-        serverURI.append(host);
-        serverURI.append(":");
-        serverURI.append(port);
-        try {
-            return new MqttAsyncClient(serverURI.toString(), clientId);
-        } catch (org.eclipse.paho.client.mqttv3.MqttException e) {
-            throw new MqttException(e);
-        }
+    protected MqttAsyncClient createClient(String serverURI, String clientId, MqttClientPersistence dataStore)
+            throws org.eclipse.paho.client.mqttv3.MqttException {
+        return spy(new MqttAsyncClientEx(serverURI, clientId, dataStore, this));
     }
 
     @Override

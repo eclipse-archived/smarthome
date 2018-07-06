@@ -83,6 +83,12 @@
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.lirc/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-binding-mqtt" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-io-transport-mqtt</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.mqtt/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-binding-ntp" version="${project.version}">
     <feature>esh-base</feature>
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.ntp/${project.version}</bundle>

@@ -12,7 +12,7 @@
   <artifactId>org.eclipse.smarthome.binding.mqtt.test</artifactId>
   <packaging>eclipse-test-plugin</packaging>
 
-  <name>MqttBroker Binding Tests</name>
+  <name>Eclipse SmartHome MQTT Binding Tests</name>
 
   <properties>
     <bundle.symbolicName>org.eclipse.smarthome.binding.mqtt.test</bundle.symbolicName>
