@@ -15,8 +15,8 @@ package org.eclipse.smarthome.config.core.i18n;
 import java.net.URI;
 import java.util.Locale;
 
-import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.i18n.I18nUtil;
+import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.osgi.framework.Bundle;
 
 /**
@@ -28,7 +28,7 @@ import org.osgi.framework.Bundle;
  */
 public class ConfigDescriptionGroupI18nUtil {
 
-    private TranslationProvider i18nProvider;
+    private final TranslationProvider i18nProvider;
 
     public ConfigDescriptionGroupI18nUtil(TranslationProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
@@ -36,15 +36,14 @@ public class ConfigDescriptionGroupI18nUtil {
 
     public String getGroupDescription(Bundle bundle, URI configDescriptionURI, String groupName,
             String defaultDescription, Locale locale) {
-        String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription) : inferKey(
-                configDescriptionURI, groupName, "description");
+        String key = I18nUtil.stripConstantOr(defaultDescription,
+                () -> inferKey(configDescriptionURI, groupName, "description"));
         return i18nProvider.getText(bundle, key, defaultDescription, locale);
     }
 
     public String getGroupLabel(Bundle bundle, URI configDescriptionURI, String groupName, String defaultLabel,
             Locale locale) {
-        String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel) : inferKey(
-                configDescriptionURI, groupName, "label");
+        String key = I18nUtil.stripConstantOr(defaultLabel, () -> inferKey(configDescriptionURI, groupName, "label"));
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 
