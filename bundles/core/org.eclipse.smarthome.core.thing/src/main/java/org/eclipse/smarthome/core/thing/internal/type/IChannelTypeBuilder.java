@@ -10,12 +10,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.core.thing.type;
+package org.eclipse.smarthome.core.thing.internal.type;
 
 import java.net.URI;
 import java.util.Collection;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
 
 /**
  * Interface for ChannelTypeBuilder
@@ -24,7 +25,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  *
  */
 @NonNullByDefault
-interface IChannelTypeBuilder<T extends IChannelTypeBuilder<T>> {
+public interface IChannelTypeBuilder<T extends IChannelTypeBuilder<T>> {
     /**
      * Specify whether this is an advanced channel, default is false
      *

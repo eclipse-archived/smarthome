@@ -13,6 +13,8 @@
 package org.eclipse.smarthome.core.thing.type;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.smarthome.core.thing.internal.type.StateChannelTypeBuilderImpl;
+import org.eclipse.smarthome.core.thing.internal.type.TriggerChannelTypeBuilderImpl;
 
 /**
  * Builder for {@link ChannelType}s
