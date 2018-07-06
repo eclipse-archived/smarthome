@@ -256,31 +256,33 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      *
      * @param discoveryResult Holds the information needed to identify the discovered device.
      */
-    protected void thingDiscovered(DiscoveryResult discoveryResult) {
+    protected void thingDiscovered(final DiscoveryResult discoveryResult) {
+        final DiscoveryResult discoveryResultNew;
         if (this.i18nProvider != null && this.localeProvider != null) {
             Bundle bundle = FrameworkUtil.getBundle(this.getClass());
 
             String defaultLabel = discoveryResult.getLabel();
 
-            String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel)
-                    : inferKey(discoveryResult, "label");
+            String key = I18nUtil.stripConstantOr(defaultLabel, () -> inferKey(discoveryResult, "label"));
 
             String label = this.i18nProvider.getText(bundle, key, defaultLabel, this.localeProvider.getLocale());
 
-            discoveryResult = new DiscoveryResultImpl(discoveryResult.getThingTypeUID(), discoveryResult.getThingUID(),
-                    discoveryResult.getBridgeUID(), discoveryResult.getProperties(),
+            discoveryResultNew = new DiscoveryResultImpl(discoveryResult.getThingTypeUID(),
+                    discoveryResult.getThingUID(), discoveryResult.getBridgeUID(), discoveryResult.getProperties(),
                     discoveryResult.getRepresentationProperty(), label, discoveryResult.getTimeToLive());
+        } else {
+            discoveryResultNew = discoveryResult;
         }
         for (DiscoveryListener discoveryListener : discoveryListeners) {
             try {
-                discoveryListener.thingDiscovered(this, discoveryResult);
+                discoveryListener.thingDiscovered(this, discoveryResultNew);
             } catch (Exception e) {
                 logger.error("An error occurred while calling the discovery listener {}.",
                         discoveryListener.getClass().getName(), e);
             }
         }
         synchronized (cachedResults) {
-            cachedResults.put(discoveryResult.getThingUID(), discoveryResult);
+            cachedResults.put(discoveryResultNew.getThingUID(), discoveryResultNew);
         }
     }
 

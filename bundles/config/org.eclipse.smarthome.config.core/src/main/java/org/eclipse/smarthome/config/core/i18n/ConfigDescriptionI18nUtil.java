@@ -42,22 +42,22 @@ public class ConfigDescriptionI18nUtil {
 
     public String getParameterPattern(Bundle bundle, URI configDescriptionURI, String parameterName,
             String defaultPattern, Locale locale) {
-        String key = I18nUtil.isConstant(defaultPattern) ? I18nUtil.stripConstant(defaultPattern)
-                : inferKey(configDescriptionURI, parameterName, "pattern");
+        String key = I18nUtil.stripConstantOr(defaultPattern,
+                () -> inferKey(configDescriptionURI, parameterName, "pattern"));
         return i18nProvider.getText(bundle, key, defaultPattern, locale);
     }
 
     public String getParameterDescription(Bundle bundle, URI configDescriptionURI, String parameterName,
             String defaultDescription, Locale locale) {
-        String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription)
-                : inferKey(configDescriptionURI, parameterName, "description");
+        String key = I18nUtil.stripConstantOr(defaultDescription,
+                () -> inferKey(configDescriptionURI, parameterName, "description"));
         return i18nProvider.getText(bundle, key, defaultDescription, locale);
     }
 
     public String getParameterLabel(Bundle bundle, URI configDescriptionURI, String parameterName, String defaultLabel,
             Locale locale) {
-        String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel)
-                : inferKey(configDescriptionURI, parameterName, "label");
+        String key = I18nUtil.stripConstantOr(defaultLabel,
+                () -> inferKey(configDescriptionURI, parameterName, "label"));
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 
@@ -67,8 +67,8 @@ public class ConfigDescriptionI18nUtil {
             return defaultOptionLabel;
         }
 
-        String key = I18nUtil.isConstant(defaultOptionLabel) ? I18nUtil.stripConstant(defaultOptionLabel)
-                : inferKey(configDescriptionURI, parameterName, "option." + optionValue);
+        String key = I18nUtil.stripConstantOr(defaultOptionLabel,
+                () -> inferKey(configDescriptionURI, parameterName, "option." + optionValue));
 
         return i18nProvider.getText(bundle, key, defaultOptionLabel, locale);
     }
@@ -81,8 +81,8 @@ public class ConfigDescriptionI18nUtil {
                 return label;
             }
         }
-        String key = I18nUtil.isConstant(defaultUnitLabel) ? I18nUtil.stripConstant(defaultUnitLabel)
-                : inferKey(configDescriptionURI, parameterName, "unitLabel");
+        String key = I18nUtil.stripConstantOr(defaultUnitLabel,
+                () -> inferKey(configDescriptionURI, parameterName, "unitLabel"));
         return i18nProvider.getText(bundle, key, defaultUnitLabel, locale);
     }
 
