@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.core.common;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.junit.Assert.assertThat;
 
 import java.lang.Thread.UncaughtExceptionHandler;
@@ -41,14 +42,47 @@ public class ThreadFactoryBuilderTest {
     }
 
     @Test
-    public void testWithNamePrefix() {
-        ThreadFactory threadFactory = ThreadFactoryBuilder.create().withNamePrefix("hello").build();
+    public void testWithNamePrefixAndWithName() {
+        ThreadFactory threadFactory = ThreadFactoryBuilder.create().withNamePrefix("prefix").withName("hello").build();
+
+        assertThat(threadFactory.newThread(TEST_RUNNABLE).getName(), is("prefix-hello-1"));
+        assertThat(threadFactory.newThread(TEST_RUNNABLE).getName(), is("prefix-hello-2"));
+        assertThat(threadFactory.newThread(TEST_RUNNABLE).getName(), is("prefix-hello-3"));
+    }
+
+    @Test
+    public void testWithDefaultNamePrefix() {
+        ThreadFactory threadFactory = ThreadFactoryBuilder.create().withName("hello").build();
 
         assertThat(threadFactory.newThread(TEST_RUNNABLE).getName(), is("ESH-hello-1"));
-
         assertThat(threadFactory.newThread(TEST_RUNNABLE).getName(), is("ESH-hello-2"));
-
         assertThat(threadFactory.newThread(TEST_RUNNABLE).getName(), is("ESH-hello-3"));
+    }
+
+    @Test
+    public void testWithNamePrefixWithoutName() {
+        ThreadFactory threadFactory = ThreadFactoryBuilder.create().withNamePrefix("prefix").build();
+
+        assertThat(threadFactory.newThread(TEST_RUNNABLE).getName(), startsWith("prefix"));
+    }
+
+    @Test
+    public void testWithoutNamePrefixWithName() {
+        ThreadFactory threadFactory = ThreadFactoryBuilder.create().withNamePrefix(null).withName("hello").build();
+
+        assertThat(threadFactory.newThread(TEST_RUNNABLE).getName(), is("hello-1"));
+        assertThat(threadFactory.newThread(TEST_RUNNABLE).getName(), is("hello-2"));
+        assertThat(threadFactory.newThread(TEST_RUNNABLE).getName(), is("hello-3"));
+    }
+
+    @Test
+    public void testWithoutNamePrefixWithoutName() {
+        ThreadFactory threadFactory = ThreadFactoryBuilder.create().withNamePrefix(null).withName(null).build();
+
+        // Create a thread, to check that there are no exceptions.
+        threadFactory.newThread(TEST_RUNNABLE);
+
+        // No more assertions on the name, as it depends only on the wrapped thread factory's naming strategy.
     }
 
     @Test
@@ -110,7 +144,7 @@ public class ThreadFactoryBuilderTest {
                 .build();
         Thread testThread = threadFactory.newThread(TEST_RUNNABLE);
 
-        assertThat(testThread.getName(), is(testThreadName));
+        assertThat(testThread.getName(), is("ESH-" + testThreadName));
     }
 
 }
