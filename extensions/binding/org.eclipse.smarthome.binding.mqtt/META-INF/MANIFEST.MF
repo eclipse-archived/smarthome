@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: org.eclipse.smarthome.binding.mqtt
 Bundle-ManifestVersion: 2
-Bundle-Name: MQTT Binding
+Bundle-Name: Eclipse SmartHome MQTT Binding
 Bundle-SymbolicName: org.eclipse.smarthome.binding.mqtt;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier

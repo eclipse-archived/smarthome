@@ -15,18 +15,14 @@ package org.eclipse.smarthome.io.transport.mqtt;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
- * Implement this interface and register on the {@see MqttBrokerConnection} to get notified
- * of incoming Mqtt messages on the given topic.
+ * Implement this to be notified of the success or error of a any method in {@link MqttBrokerConnection} that takes a
+ * callback.
  *
  * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
-public interface MqttMessageSubscriber {
-    /**
-     * Process a received MQTT message.
-     *
-     * @param topic The mqtt topic on which the message was received.
-     * @param payload content of the message.
-     */
-    public void processMessage(String topic, byte[] payload);
+public interface MqttActionCallback {
+    public void onSuccess(String topic);
+
+    public void onFailure(String topic, Throwable error);
 }

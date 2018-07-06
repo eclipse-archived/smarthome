@@ -10,12 +10,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.io.transport.mqtt;
+package org.eclipse.smarthome.io.transport.mqtt.internal;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
+import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnectionEx;
+import org.eclipse.smarthome.io.transport.mqtt.MqttService;
+import org.eclipse.smarthome.io.transport.mqtt.MqttServiceObserver;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.osgi.service.cm.ConfigurationException;
@@ -29,7 +33,7 @@ public class MqttServiceTests {
     // Tests addBrokersListener/removeBrokersListener
     @Test
     public void brokerConnectionListenerTests() throws ConfigurationException {
-        MqttService service = new MqttService();
+        MqttService service = new MqttServiceImpl();
         assertFalse(service.hasBrokerObservers());
         MqttServiceObserver observer = mock(MqttServiceObserver.class);
 
@@ -58,7 +62,7 @@ public class MqttServiceTests {
 
     @Test
     public void brokerConnectionAddRemoveEnumerateTests() {
-        MqttService service = new MqttService();
+        MqttService service = new MqttServiceImpl();
         MqttBrokerConnectionEx connection = new MqttBrokerConnectionEx("tcp://123.123.123.123", null, false,
                 "brokerConnectionAddRemoveEnumerateTests");
         // Add

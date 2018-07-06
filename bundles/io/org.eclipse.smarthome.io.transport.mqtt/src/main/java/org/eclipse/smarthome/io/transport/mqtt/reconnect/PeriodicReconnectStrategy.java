@@ -19,8 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.io.transport.mqtt.MqttException;
-import org.osgi.service.cm.ConfigurationException;
+import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,23 +105,21 @@ public class PeriodicReconnectStrategy extends AbstractReconnectStrategy {
             return;
         }
 
-        assert brokerConnection != null;
-        logger.info("Try to restore connection to '{}' every {}ms", brokerConnection.getHost(),
-                getReconnectFrequency());
-
         assert scheduler != null;
         scheduledTask = scheduler.scheduleWithFixedDelay(() -> {
+            MqttBrokerConnection brokerConnection = this.brokerConnection;
             // If the broker connections is not available anymore, stop the timed reconnect.
             if (brokerConnection == null) {
                 stop();
                 return;
             }
-            try {
-                assert brokerConnection != null;
-                brokerConnection.start();
-            } catch (MqttException | ConfigurationException e) {
+            logger.info("Try to restore connection to '{}'. Next attempt in {}ms", brokerConnection.getHost(),
+                    getReconnectFrequency());
+
+            brokerConnection.start().exceptionally(e -> {
                 logger.warn("Broker connection couldn't be started", e);
-            }
+                return false;
+            });
         }, getFirstReconnectAfter(), getReconnectFrequency(), TimeUnit.MILLISECONDS);
     }
 

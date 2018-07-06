@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
+Automatic-Module-Name: org.eclipse.smarthome.io.transport.mqtt.test
 Bundle-ManifestVersion: 2
 Bundle-Name: Tests for the Mqtt transport I/O bundle
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -8,6 +9,7 @@ Bundle-Version: 0.10.0.qualifier
 Fragment-Host: org.eclipse.smarthome.io.transport.mqtt
 Import-Package: 
  org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.paho.client.mqttv3,
  org.eclipse.smarthome.io.transport.mqtt,
  org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.java,
