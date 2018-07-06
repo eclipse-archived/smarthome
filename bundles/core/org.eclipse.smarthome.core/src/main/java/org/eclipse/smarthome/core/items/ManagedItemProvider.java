@@ -297,14 +297,4 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
         super.unsetStorageService(storageService);
     }
 
-    @Reference
-    protected void setManagedMetadataProvider(ManagedMetadataProvider mmp) {
-        // no-op
-        // just make it a required dependency to ensure tags can be migrated successfully
-    }
-
-    protected void unsetManagedMetadataProvider(ManagedMetadataProvider mmp) {
-        // no-op
-    }
-
 }
