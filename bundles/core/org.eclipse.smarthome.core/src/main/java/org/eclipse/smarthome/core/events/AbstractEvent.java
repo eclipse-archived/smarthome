@@ -12,27 +12,31 @@
  */
 package org.eclipse.smarthome.core.events;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * Abstract implementation of the {@link Event} interface.
- * 
+ *
  * @author Stefan Bußweiler - Initial contribution
  */
+@NonNullByDefault
 public abstract class AbstractEvent implements Event {
 
     private final String topic;
 
     private final String payload;
 
-    private final String source;
+    private final @Nullable String source;
 
     /**
      * Must be called in subclass constructor to create a new event.
-     * 
+     *
      * @param topic the topic
      * @param payload the payload
      * @param source the source
      */
-    public AbstractEvent(String topic, String payload, String source) {
+    public AbstractEvent(String topic, String payload, @Nullable String source) {
         this.topic = topic;
         this.payload = payload;
         this.source = source;
@@ -49,7 +53,7 @@ public abstract class AbstractEvent implements Event {
     }
 
     @Override
-    public String getSource() {
+    public @Nullable String getSource() {
         return source;
     }
 

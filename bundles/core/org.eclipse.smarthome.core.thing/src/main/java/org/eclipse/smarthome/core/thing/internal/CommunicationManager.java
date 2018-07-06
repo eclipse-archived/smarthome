@@ -288,7 +288,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         void handle(Profile profile, Thing thing, T type);
     }
 
-    private <T extends Type> void handleEvent(String itemName, T type, String source,
+    private <T extends Type> void handleEvent(String itemName, T type, @Nullable String source,
             Function<@Nullable String, @Nullable List<Class<? extends T>>> acceptedTypesFunction,
             ProfileAction<T> action) {
         final Item item = getItem(itemName);
