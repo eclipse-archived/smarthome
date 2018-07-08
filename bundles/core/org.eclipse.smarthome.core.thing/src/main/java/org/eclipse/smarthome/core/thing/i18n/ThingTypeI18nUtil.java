@@ -63,10 +63,10 @@ public class ThingTypeI18nUtil {
         return i18nProvider.getText(bundle, key, defaultDescription, locale);
     }
 
-    public String getChannelDescription(Bundle bundle, ChannelGroupTypeUID channelGroupTypeUID,
-            ChannelDefinition channel, String defaultLabel, Locale locale) {
-        String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel)
-                : inferChannelGroupKey(channelGroupTypeUID, channel, "description");
+    public @Nullable String getChannelDescription(Bundle bundle, ChannelGroupTypeUID channelGroupTypeUID,
+            ChannelDefinition channel, String defaultLabel, @Nullable Locale locale) {
+        String key = I18nUtil.stripConstantOr(defaultLabel,
+                () -> inferChannelGroupKey(channelGroupTypeUID, channel, "description"));
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 
@@ -83,10 +83,10 @@ public class ThingTypeI18nUtil {
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 
-    public String getChannelLabel(Bundle bundle, ChannelGroupTypeUID channelGroupTypeUID, ChannelDefinition channel,
-            String defaultLabel, Locale locale) {
-        String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel)
-                : inferChannelGroupKey(channelGroupTypeUID, channel, "label");
+    public @Nullable String getChannelLabel(Bundle bundle, ChannelGroupTypeUID channelGroupTypeUID,
+            ChannelDefinition channel, String defaultLabel, @Nullable Locale locale) {
+        String key = I18nUtil.stripConstantOr(defaultLabel,
+                () -> inferChannelGroupKey(channelGroupTypeUID, channel, "label"));
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 

@@ -73,9 +73,9 @@ public class ThingTypeI18nLocalizationService {
         this.channelTypeRegistry = null;
     }
 
-    @Nullable
-    private StateDescription createLocalizedStateDescription(final Bundle bundle,
-            final @Nullable StateDescription state, final ChannelTypeUID channelTypeUID, final Locale locale) {
+    private @Nullable StateDescription createLocalizedStateDescription(final Bundle bundle,
+            final @Nullable StateDescription state, final ChannelTypeUID channelTypeUID,
+            final @Nullable Locale locale) {
         if (state == null) {
             return null;
         }
@@ -92,7 +92,7 @@ public class ThingTypeI18nLocalizationService {
                 state.isReadOnly(), localizedOptions);
     }
 
-    public ChannelType createLocalizedChannelType(Bundle bundle, ChannelType channelType, Locale locale) {
+    public ChannelType createLocalizedChannelType(Bundle bundle, ChannelType channelType, @Nullable Locale locale) {
         ChannelTypeUID channelTypeUID = channelType.getUID();
         String label = thingTypeI18nUtil.getChannelLabel(bundle, channelTypeUID, channelType.getLabel(), locale);
         String description = thingTypeI18nUtil.getChannelDescription(bundle, channelTypeUID,
@@ -109,7 +109,8 @@ public class ThingTypeI18nLocalizationService {
     private List<ChannelDefinition> createLocalizedChannelDefinitions(final Bundle bundle,
             final List<ChannelDefinition> channelDefinitions,
             final Function<ChannelDefinition, @Nullable String> channelLabelResolver,
-            final Function<ChannelDefinition, @Nullable String> channelDescriptionResolver, final Locale locale) {
+            final Function<ChannelDefinition, @Nullable String> channelDescriptionResolver,
+            final @Nullable Locale locale) {
         List<ChannelDefinition> localizedChannelDefinitions = new ArrayList<>(channelDefinitions.size());
         for (final ChannelDefinition channelDefinition : channelDefinitions) {
             String channelLabel = channelLabelResolver.apply(channelDefinition);
@@ -136,7 +137,7 @@ public class ThingTypeI18nLocalizationService {
     }
 
     public ChannelGroupType createLocalizedChannelGroupType(Bundle bundle, ChannelGroupType channelGroupType,
-            Locale locale) {
+            @Nullable Locale locale) {
         ChannelGroupTypeUID channelGroupTypeUID = channelGroupType.getUID();
         String label = thingTypeI18nUtil.getChannelGroupLabel(bundle, channelGroupTypeUID, channelGroupType.getLabel(),
                 locale);
@@ -159,7 +160,7 @@ public class ThingTypeI18nLocalizationService {
             final List<ChannelGroupDefinition> channelGroupDefinitions,
             final Function<ChannelGroupDefinition, @Nullable String> channelGroupLabelResolver,
             final Function<ChannelGroupDefinition, @Nullable String> channelGroupDescriptionResolver,
-            final Locale locale) {
+            final @Nullable Locale locale) {
         List<ChannelGroupDefinition> localizedChannelGroupDefinitions = new ArrayList<>(channelGroupDefinitions.size());
         for (final ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
             String channelGroupLabel = channelGroupLabelResolver.apply(channelGroupDefinition);
