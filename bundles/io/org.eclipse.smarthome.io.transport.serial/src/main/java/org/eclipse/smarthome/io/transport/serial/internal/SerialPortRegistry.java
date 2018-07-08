@@ -25,18 +25,15 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
+ * Registers all {@link SerialPortProvider}s which can be accessed here.
  *
  * @author Matthias Steigenberger - Initial Contribution
  *
  */
 @Component(service = SerialPortRegistry.class)
 public class SerialPortRegistry {
-
-    private final static Logger logger = LoggerFactory.getLogger(SerialPortRegistry.class);
 
     private Collection<SerialPortProvider> portCreators;
 
@@ -72,18 +69,25 @@ public class SerialPortRegistry {
         PathType pathType = PathType.fromURI(portName);
 
         synchronized (this.portCreators) {
-
-            Optional<SerialPortProvider> first = portCreators.stream().filter(provider -> provider
-                    .getAcceptedProtocols().filter(prot -> prot.getScheme().equals(portName.getScheme())).count() > 0)
-                    .findFirst();
+            String scheme = portName.getScheme();
+            Optional<SerialPortProvider> first = scheme != null
+                    ? portCreators.stream()
+                            .filter(provider -> provider.getAcceptedProtocols()
+                                    .filter(prot -> prot.getScheme().equals(scheme)).count() > 0)
+                            .findFirst()
+                    : Optional.empty();
             // get a PortProvider which accepts exactly the port with its scheme. If there is none, just try a port with
             // same type (local, net)
+            if (!first.isPresent() && scheme != null) {
+                return null;
+            }
 
-            return first.orElse(portName.getScheme() != null ? null
-                    : portCreators.stream()
-                            .filter(provider -> provider.getAcceptedProtocols()
-                                    .filter(prot -> prot.getPathType().equals(pathType)).count() > 0)
-                            .findFirst().orElse(null));
+            return first.orElseGet(() -> {
+                return portCreators.stream()
+                        .filter(provider -> provider.getAcceptedProtocols()
+                                .filter(prot -> prot.getPathType().equals(pathType)).count() > 0)
+                        .findFirst().orElse(null);
+            });
         }
     }
 

@@ -32,7 +32,7 @@ import org.osgi.service.component.annotations.Component;
 
 /**
  *
- * @author MatthiasS
+ * @author Matthias Steigenberger - Initial Contribution
  *
  */
 @NonNullByDefault

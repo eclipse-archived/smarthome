@@ -22,6 +22,8 @@ import org.eclipse.smarthome.io.transport.serial.SerialPortManager;
 import org.eclipse.smarthome.io.transport.serial.SerialPortProvider;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Specific serial port manager implementation.
@@ -31,6 +33,8 @@ import org.osgi.service.component.annotations.Reference;
 @NonNullByDefault
 @Component
 public class SerialPortManagerImpl implements SerialPortManager {
+
+    private final Logger logger = LoggerFactory.getLogger(SerialPortManagerImpl.class);
 
     private @NonNullByDefault({}) SerialPortRegistry registry;
 
@@ -59,6 +63,7 @@ public class SerialPortManagerImpl implements SerialPortManager {
         URI portUri = URI.create(name);
         SerialPortProvider portCreator = registry.getPortProviderForPortName(portUri);
         if (portCreator == null) {
+            logger.warn("No SerialPortProvider found for: " + name);
             return null;
         }
         return portCreator.getPortIdentifier(portUri);

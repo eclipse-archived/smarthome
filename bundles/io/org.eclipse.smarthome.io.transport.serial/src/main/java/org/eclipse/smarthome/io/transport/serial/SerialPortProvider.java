@@ -19,6 +19,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
+ * Provides a concrete SerialPort which can handle remote (e.g. via rfc2217) or local ports.
  *
  * @author Matthias Steigenberger - Initial Contribution
  *

@@ -15,21 +15,27 @@ package org.eclipse.smarthome.io.transport.serial;
 import java.net.URI;
 
 /**
+ * Holds the {@link PathType}, which specifies whether its a local or remote path and the scheme.
  *
- * @author MatthiasS
+ * @author Matthias Steigenberger - Initial Contribution
  *
  */
 public class ProtocolType {
+
+    /**
+     * Remote (NET) or Local path.
+     *
+     */
     public enum PathType {
-        NET,
-        LOCAL;
+    NET,
+    LOCAL;
         public static PathType fromURI(URI uri) {
             return uri.getSchemeSpecificPart().startsWith("//") ? NET : LOCAL;
         }
     }
 
-    PathType pathType;
-    String scheme;
+    private PathType pathType;
+    private String scheme;
 
     public ProtocolType(PathType pathType, String scheme) {
         this.pathType = pathType;

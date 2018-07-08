@@ -36,7 +36,6 @@ public class SerialPortUtil {
         String serialPortsProperty = System.getProperty(GNU_IO_RXTX_SERIAL_PORTS);
         String newValue = initSerialPort(port, serialPortsProperty);
         if (newValue != null) {
-
             System.setProperty(GNU_IO_RXTX_SERIAL_PORTS, newValue);
         }
     }
