@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 /**
  *
- * @author MatthiasS
+ * @author Matthias Steigenberger - Initial Contribution
  *
  */
 public class SerialPortUtil {
