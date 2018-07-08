@@ -30,10 +30,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author MatthiasS
+ * @author Matthias Steigenberger - Initial Contribution
  *
  */
-@Component(immediate = true, service = SerialPortRegistry.class)
+@Component(service = SerialPortRegistry.class)
 public class SerialPortRegistry {
 
     private final static Logger logger = LoggerFactory.getLogger(SerialPortRegistry.class);
@@ -51,11 +51,15 @@ public class SerialPortRegistry {
      */
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
     protected void registerSerialPortCreator(SerialPortProvider creator) {
-        this.portCreators.add(creator);
+        synchronized (this.portCreators) {
+            this.portCreators.add(creator);
+        }
     }
 
     protected void unregisterSerialPortCreator(SerialPortProvider creator) {
-        this.portCreators.remove(creator);
+        synchronized (this.portCreators) {
+            this.portCreators.remove(creator);
+        }
     }
 
     /**
@@ -67,19 +71,25 @@ public class SerialPortRegistry {
     public SerialPortProvider getPortProviderForPortName(URI portName) {
         PathType pathType = PathType.fromURI(portName);
 
-        Optional<SerialPortProvider> first = portCreators.stream().filter(provider -> provider.getAcceptedProtocols()
-                .filter(prot -> prot.getScheme().equals(portName.getScheme())).count() > 0).findFirst();
-        // get a PortProvider which accepts exactly the port with its scheme. If there is none, just try a port with
-        // same type (local, net)
-        return first
-                .orElse(portCreators.stream()
-                        .filter(provider -> provider.getAcceptedProtocols()
-                                .filter(prot -> prot.getPathType().equals(pathType)).count() > 0)
-                        .findFirst().orElse(null));
+        synchronized (this.portCreators) {
 
+            Optional<SerialPortProvider> first = portCreators.stream().filter(provider -> provider
+                    .getAcceptedProtocols().filter(prot -> prot.getScheme().equals(portName.getScheme())).count() > 0)
+                    .findFirst();
+            // get a PortProvider which accepts exactly the port with its scheme. If there is none, just try a port with
+            // same type (local, net)
+
+            return first.orElse(portName.getScheme() != null ? null
+                    : portCreators.stream()
+                            .filter(provider -> provider.getAcceptedProtocols()
+                                    .filter(prot -> prot.getPathType().equals(pathType)).count() > 0)
+                            .findFirst().orElse(null));
+        }
     }
 
     public Collection<SerialPortProvider> getPortCreators() {
-        return Collections.unmodifiableCollection(portCreators);
+        synchronized (this.portCreators) {
+            return Collections.unmodifiableCollection(new HashSet<>(portCreators));
+        }
     }
 }

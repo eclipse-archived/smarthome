@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.io.transport.serial.internal.SerialPortManagerImpl">
+   <service>
+      <provide interface="org.eclipse.smarthome.io.transport.serial.SerialPortManager"/>
+   </service>
+   <reference bind="setSerialportRegistry" interface="org.eclipse.smarthome.io.transport.serial.internal.SerialPortRegistry" name="SerialportRegistry" unbind="unsetSerialportRegistry"/>
+   <implementation class="org.eclipse.smarthome.io.transport.serial.internal.SerialPortManagerImpl"/>
+</scr:component>

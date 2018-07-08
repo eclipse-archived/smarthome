@@ -32,11 +32,11 @@ import gnu.io.CommPortIdentifier;
 
 /**
  *
- * @author MatthiasS
+ * @author Matthias Steigenberger - Initial Contribution
  *
  */
 @NonNullByDefault
-@Component(service = SerialPortProvider.class, immediate = true)
+@Component(service = SerialPortProvider.class)
 public class RxTxPortCreator implements SerialPortProvider {
 
     @Override

@@ -20,9 +20,8 @@ import org.eclipse.jdt.annotation.Nullable;
 
 /**
  *
- * @author MatthiasS
+ * @author Matthias Steigenberger - Initial Contribution
  *
- * @param <T>
  */
 @NonNullByDefault
 public interface SerialPortProvider {

@@ -17,6 +17,5 @@ Import-Package:
  org.osgi.service.component,
  org.slf4j
 Automatic-Module-Name: org.eclipse.smarthome.io.transport.serial
-Service-Component: OSGI-INF/org.eclipse.smarthome.io.transport.serial.internal.SerialPortRegistry.xml,
- OSGI-INF/org.eclipse.smarthome.io.transport.serial.internal.SerialPortManagerImpl.xml
+Service-Component: OSGI-INF/*.xml
 Bundle-ActivationPolicy: lazy

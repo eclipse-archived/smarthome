@@ -27,7 +27,7 @@ import gnu.io.rfc2217.TelnetSerialPort;
 
 /**
  *
- * @author MatthiasS
+ * @author Matthias Steigenberger - Initial Contribution
  *
  */
 @NonNullByDefault
