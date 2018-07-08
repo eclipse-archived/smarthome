@@ -25,6 +25,7 @@ import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeBuilder;
@@ -180,9 +181,14 @@ public class ThingTypeI18nLocalizationService {
                         channelDefinition, channelDefinition.getDescription(), locale),
                 locale);
 
-        return new ChannelGroupType(channelGroupTypeUID, channelGroupType.isAdvanced(),
-                label == null ? defaultLabel : label, description, channelGroupType.getCategory(),
-                localizedChannelDefinitions);
+        ChannelGroupTypeBuilder builder = ChannelGroupTypeBuilder
+                .instance(channelGroupTypeUID, label == null ? defaultLabel : label)
+                .isAdvanced(channelGroupType.isAdvanced()).withCategory(channelGroupType.getCategory())
+                .withChannelDefinitions(localizedChannelDefinitions);
+        if (description != null) {
+            builder.withDescription(description);
+        }
+        return builder.build();
     }
 
     private List<ChannelGroupDefinition> createLocalizedChannelGroupDefinitions(final Bundle bundle,

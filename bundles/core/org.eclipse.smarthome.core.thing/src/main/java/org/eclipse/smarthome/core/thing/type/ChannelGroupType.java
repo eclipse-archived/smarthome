@@ -32,8 +32,6 @@ public class ChannelGroupType extends AbstractDescriptionType {
     private final String category;
 
     /**
-     * Deprecated: Will be removed before 1.0 release in favor for constructor with category
-     *
      * Creates a new instance of this class with the specified parameters.
      *
      * @param uid the unique identifier which identifies this channel group type within the
@@ -46,6 +44,8 @@ public class ChannelGroupType extends AbstractDescriptionType {
      * @param channelDefinitions the channel definitions this channel group forms
      *            (could be null or empty)
      * @throws IllegalArgumentException if the UID is null, or the label is null or empty
+     *
+     * @deprecated Use the {@link ChannelGroupTypeBuilder} instead.
      */
     @Deprecated
     public ChannelGroupType(ChannelGroupTypeUID uid, boolean advanced, String label, String description,
