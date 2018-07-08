@@ -27,10 +27,13 @@ import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
+import org.eclipse.smarthome.core.thing.type.StateChannelTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
+import org.eclipse.smarthome.core.thing.type.TriggerChannelTypeBuilder;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
 import org.osgi.framework.Bundle;
@@ -94,16 +97,41 @@ public class ThingTypeI18nLocalizationService {
 
     public ChannelType createLocalizedChannelType(Bundle bundle, ChannelType channelType, @Nullable Locale locale) {
         ChannelTypeUID channelTypeUID = channelType.getUID();
-        String label = thingTypeI18nUtil.getChannelLabel(bundle, channelTypeUID, channelType.getLabel(), locale);
+        String defaultLabel = channelType.getLabel();
+        String label = thingTypeI18nUtil.getChannelLabel(bundle, channelTypeUID, defaultLabel, locale);
         String description = thingTypeI18nUtil.getChannelDescription(bundle, channelTypeUID,
                 channelType.getDescription(), locale);
 
-        StateDescription state = createLocalizedStateDescription(bundle, channelType.getState(), channelTypeUID,
-                locale);
+        switch (channelType.getKind()) {
+            case STATE:
+                StateDescription state = createLocalizedStateDescription(bundle, channelType.getState(), channelTypeUID,
+                        locale);
 
-        return new ChannelType(channelTypeUID, channelType.isAdvanced(), channelType.getItemType(),
-                channelType.getKind(), label, description, channelType.getCategory(), channelType.getTags(), state,
-                channelType.getEvent(), channelType.getConfigDescriptionURI());
+                StateChannelTypeBuilder stateBuilder = ChannelTypeBuilder
+                        .state(channelTypeUID, label == null ? defaultLabel : label, channelType.getItemType())
+                        .isAdvanced(channelType.isAdvanced()).withCategory(channelType.getCategory())
+                        .withConfigDescriptionURI(channelType.getConfigDescriptionURI()).withTags(channelType.getTags())
+                        .withStateDescription(state);
+                if (description != null) {
+                    stateBuilder.withDescription(description);
+                }
+                return stateBuilder.build();
+            case TRIGGER:
+                TriggerChannelTypeBuilder triggerBuilder = ChannelTypeBuilder
+                        .trigger(channelTypeUID, label == null ? defaultLabel : label)
+                        .isAdvanced(channelType.isAdvanced()).withCategory(channelType.getCategory())
+                        .withConfigDescriptionURI(channelType.getConfigDescriptionURI()).withTags(channelType.getTags())
+                        .withEventDescription(channelType.getEvent());
+                if (description != null) {
+                    triggerBuilder.withDescription(description);
+                }
+                return triggerBuilder.build();
+            default:
+                return new ChannelType(channelTypeUID, channelType.isAdvanced(), channelType.getItemType(),
+                        channelType.getKind(), label == null ? defaultLabel : label, description,
+                        channelType.getCategory(), channelType.getTags(), channelType.getState(),
+                        channelType.getEvent(), channelType.getConfigDescriptionURI());
+        }
     }
 
     private List<ChannelDefinition> createLocalizedChannelDefinitions(final Bundle bundle,
@@ -139,8 +167,8 @@ public class ThingTypeI18nLocalizationService {
     public ChannelGroupType createLocalizedChannelGroupType(Bundle bundle, ChannelGroupType channelGroupType,
             @Nullable Locale locale) {
         ChannelGroupTypeUID channelGroupTypeUID = channelGroupType.getUID();
-        String label = thingTypeI18nUtil.getChannelGroupLabel(bundle, channelGroupTypeUID, channelGroupType.getLabel(),
-                locale);
+        String defaultLabel = channelGroupType.getLabel();
+        String label = thingTypeI18nUtil.getChannelGroupLabel(bundle, channelGroupTypeUID, defaultLabel, locale);
         String description = thingTypeI18nUtil.getChannelGroupDescription(bundle, channelGroupTypeUID,
                 channelGroupType.getDescription(), locale);
 
@@ -152,8 +180,9 @@ public class ThingTypeI18nLocalizationService {
                         channelDefinition, channelDefinition.getDescription(), locale),
                 locale);
 
-        return new ChannelGroupType(channelGroupTypeUID, channelGroupType.isAdvanced(), label, description,
-                channelGroupType.getCategory(), localizedChannelDefinitions);
+        return new ChannelGroupType(channelGroupTypeUID, channelGroupType.isAdvanced(),
+                label == null ? defaultLabel : label, description, channelGroupType.getCategory(),
+                localizedChannelDefinitions);
     }
 
     private List<ChannelGroupDefinition> createLocalizedChannelGroupDefinitions(final Bundle bundle,
