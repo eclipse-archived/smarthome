@@ -19,7 +19,7 @@ The following Item types are currently available (alphabetical order):
 | Contact            | Item storing status of e.g. door/window contacts | OpenClose |
 | DateTime           | Stores date and time | - |
 | Dimmer             | Item carrying a percentage value for dimmers | OnOff, IncreaseDecrease, Percent |
-| Group              | Item to nest other Items / collect them in groups | - |
+| Group              | Item to nest other Items / collect them in Groups | - |
 | Image              | Holds the binary data of an image | - |
 | Location           | Stores GPS coordinates | Point |
 | Number             | Stores values in number format, takes an optional dimension suffix  | Decimal |
@@ -31,10 +31,10 @@ The following Item types are currently available (alphabetical order):
 
 ## Group Items
 
-Group Items collect other Items into groups.
-Group Items can themselves be members of other group Items.
+Group Items collect other Items into Groups.
+Group Items can themselves be members of other Group Items.
 Cyclic membership is not forbidden but strongly not recommended.
-User interfaces might display group Items as single entries and provide navigation to its members.
+User interfaces might display Group Items as single entries and provide navigation to its members.
 
 Example for a Group Item as a simple collection of other Items:
 ```
@@ -46,11 +46,11 @@ Example for a Group Item as a simple collection of other Items:
 ### Derive Group State from Member Items
 
 Group Items can derive their own state from their member Items.
-To derive a state the group Item must be constructed using a base Item and a group function.
-When calculating the state, group functions recursively traverse the group's members and also take members of subgroups into account.
-If a subgroup however defines a state on its own (having base Item & group function set) traversal stops and the state of the subgroup member is taken. 
+To derive a state the Group Item must be constructed using a base Item and a Group function.
+When calculating the state, Group functions recursively traverse the Group's members and also take members of subgroups into account.
+If a subgroup however defines a state on its own (having base Item & Group function set) traversal stops and the state of the subgroup member is taken. 
 
-Available group functions:
+Available Group functions:
 
 | Function           | Parameters                    | Base Item                                   | Description                                                                                                                                      |
 |--------------------|-------------------------------|---------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -61,13 +61,13 @@ Available group functions:
 | LATEST, EARLIEST   | -                             | DateTime                                    | Sets the state to the latest/earliest date from all member states                                                                                |
 
 
-Examples for derived states on group Items when declared in the Item DSL:
+Examples for derived states on Group Items when declared in the Item DSL:
 
-- `Group:Number:COUNT(".*")` counts all members of the group matching the given regular expression, here any character or state (simply count all members).
+- `Group:Number:COUNT(".*")` counts all members of the Group matching the given regular expression, here any character or state (simply count all members).
 - `Group:Number:AVG` calculates the average value over all member states which can be interpreted as `DecimalTypes`.
-- `Group:Switch:OR(ON,OFF)` sets the group state to `ON` if any of its members has the state `ON`, `OFF` if all are off.    
-- `Group:Switch:AND(ON,OFF)` sets the group state to `ON` if all of its members have the state `ON`, `OFF` if any of the group members has a different state than `ON`.
-- `Group:DateTime:LATEST` sets the group state to the latest date from all its members states.
+- `Group:Switch:OR(ON,OFF)` sets the Group state to `ON` if any of its members has the state `ON`, `OFF` if all are off.    
+- `Group:Switch:AND(ON,OFF)` sets the Group state to `ON` if all of its members have the state `ON`, `OFF` if any of the Group members has a different state than `ON`.
+- `Group:DateTime:LATEST` sets the Group state to the latest date from all its members states.
 
 ## State and Command Type Formatting
 

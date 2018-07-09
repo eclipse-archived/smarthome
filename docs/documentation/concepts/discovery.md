@@ -18,12 +18,17 @@ It is possible to override this setting and deactivate background discovery for 
 
 ## Inbox
 
-The inbox holds a list of all discovered Things (`DiscoveryResult`) from all active discovery services. A discovery result represents a discovered Thing of a specific Thing type, that could be instantiated as a Thing. The result usually contains properties that identify the discovered Things further like IP address or a serial number. Each discovery result also has a timestamp when it was added to or updated in the inbox and it may also contain a time to live, indicating the time after which it is be automatically removed from the inbox. 
+The inbox holds a list of all discovered Things (`DiscoveryResult`) from all active discovery services. 
+A discovery result represents a discovered Thing of a specific Thing type, that could be instantiated as a Thing. 
+The result usually contains properties that identify the discovered Things further like IP address or a serial number. 
+Each discovery result also has a timestamp when it was added to or updated in the inbox and it may also contain a time to live, indicating the time after which it is be automatically removed from the inbox. 
 
-Discovery results can either be ignored or approved, where in the latter case a Thing is created for them and they become available in the application. If an entry is ignored, it will be hidden in the inbox without creating a Thing for it. 
+Discovery results can either be ignored or approved, where in the latter case a Thing is created for them and they become available in the application. 
+If an entry is ignored, it will be hidden in the inbox without creating a Thing for it. 
 
 Eclipse SmartHome offers a service to automatically ignore discovery results in the inbox, whenever a Thing is created manually, that represents the same Thing, as the respective discovery result would create. 
-This Thing would either have the same Thing UID or the value of its representation property is equal to the representation property's value in the discovery result.  This service is enabled by default but can be disabled by setting `org.eclipse.smarthome.inbox:autoIgnore=false`. 
+This Thing would either have the same Thing UID or the value of its representation property is equal to the representation property's value in the discovery result.
+This service is enabled by default but can be disabled by setting `org.eclipse.smarthome.inbox:autoIgnore=false`. 
 
 ### Auto Approve
 
