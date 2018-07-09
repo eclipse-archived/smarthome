@@ -1,0 +1,157 @@
+/**
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+package org.eclipse.smarthome.binding.mqtt.generic.internal;
+
+import java.math.BigDecimal;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.library.CoreItemFactory;
+import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
+import org.eclipse.smarthome.core.library.types.PercentType;
+import org.eclipse.smarthome.core.library.types.StringType;
+import org.eclipse.smarthome.core.library.types.UpDownType;
+import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.State;
+
+/**
+ * Implements a percentage value. Minimum and maximum are definable.
+ *
+ * @author David Graeff - Initial contribution
+ */
+@NonNullByDefault
+public class NumberValue implements AbstractMqttThingValue {
+    private final double min;
+    private final double max;
+    private final double step;
+    private final Boolean isFloat;
+    private final boolean isPercent;
+
+    private PercentType percentValue;
+    private DecimalType numberValue;
+
+    public NumberValue(@Nullable Boolean isFloat, @Nullable BigDecimal min, @Nullable BigDecimal max,
+            @Nullable BigDecimal step, boolean isPercent) {
+        this.isFloat = isFloat == null ? true : isFloat;
+        this.min = min == null ? 0.0 : min.doubleValue();
+        this.max = max == null ? 100.0 : max.doubleValue();
+        this.step = step == null ? 1.0 : step.doubleValue();
+        this.isPercent = isPercent;
+        percentValue = new PercentType();
+        numberValue = new DecimalType();
+    }
+
+    @Override
+    public State getValue() {
+        return isPercent ? percentValue : numberValue;
+    }
+
+    @Override
+    public String update(Command command) throws IllegalArgumentException {
+        if (isPercent) {
+            if (command instanceof StringType) {
+                double v = Double.valueOf(((StringType) command).toString());
+                v = (v - min) * 100.0 / (max - min);
+                percentValue = new PercentType(new BigDecimal(v));
+            } else if (command instanceof PercentType) {
+                percentValue = ((PercentType) command);
+            } else if (command instanceof DecimalType) {
+                double v = ((DecimalType) command).doubleValue();
+                v = (v - min) * 100.0 / (max - min);
+                percentValue = new PercentType(new BigDecimal(v));
+            } else if (command instanceof IncreaseDecreaseType) {
+                if (((IncreaseDecreaseType) command) == IncreaseDecreaseType.INCREASE) {
+                    double v = percentValue.doubleValue() + step;
+                    if (v <= max) {
+                        percentValue = new PercentType(new BigDecimal(v));
+                    }
+                } else {
+                    double v = percentValue.doubleValue() - step;
+                    if (v >= min) {
+                        percentValue = new PercentType(new BigDecimal(v));
+                    }
+                }
+            } else if (command instanceof UpDownType) {
+                if (((UpDownType) command) == UpDownType.UP) {
+                    double v = percentValue.doubleValue() + step;
+                    if (v <= max) {
+                        percentValue = new PercentType(new BigDecimal(v));
+                    }
+                } else {
+                    double v = percentValue.doubleValue() - step;
+                    if (v >= min) {
+                        percentValue = new PercentType(new BigDecimal(v));
+                    }
+                }
+            } else {
+                throw new IllegalArgumentException(
+                        "Type " + command.getClass().getName() + " not supported for PercentValue");
+            }
+
+            if (isFloat) {
+                return percentValue.toString();
+            } else {
+                return String.valueOf(percentValue.intValue());
+            }
+        } else {
+            if (command instanceof StringType) {
+                numberValue = DecimalType.valueOf(((StringType) command).toString());
+            } else if (command instanceof DecimalType) {
+                numberValue = (DecimalType) command;
+            } else if (command instanceof PercentType) {
+                numberValue = ((PercentType) command);
+            } else if (command instanceof IncreaseDecreaseType) {
+                double v;
+                if (((IncreaseDecreaseType) command) == IncreaseDecreaseType.INCREASE) {
+                    v = numberValue.doubleValue() + step;
+                } else {
+                    v = numberValue.doubleValue() - step;
+                }
+                numberValue = new PercentType(new BigDecimal(v));
+            } else if (command instanceof UpDownType) {
+                double v;
+                if (((UpDownType) command) == UpDownType.UP) {
+                    v = numberValue.doubleValue() + step;
+                } else {
+                    v = numberValue.doubleValue() - step;
+                }
+                numberValue = new PercentType(new BigDecimal(v));
+            } else {
+                throw new IllegalArgumentException(
+                        "Type " + command.getClass().getName() + " not supported for NumberValue");
+            }
+
+            if (isFloat) {
+                return numberValue.toString();
+            } else {
+                return String.valueOf(numberValue.intValue());
+            }
+        }
+    }
+
+    @Override
+    public State update(String updatedValue) throws IllegalArgumentException {
+        if (isPercent) {
+            percentValue = PercentType.valueOf(updatedValue);
+            return percentValue;
+        }
+        numberValue = DecimalType.valueOf(updatedValue);
+        return numberValue;
+    }
+
+    @Override
+    public String channelTypeID() {
+        return isPercent ? CoreItemFactory.DIMMER : CoreItemFactory.NUMBER;
+    }
+}
