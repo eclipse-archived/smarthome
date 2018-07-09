@@ -109,8 +109,8 @@ public class ItemBuilderImpl implements ItemBuilder {
     }
 
     @Override
-    public ItemBuilder withTags(Set<String> tags) {
-        this.tags = new HashSet<>(tags);
+    public ItemBuilder withTags(@Nullable Set<String> tags) {
+        this.tags = tags != null ? new HashSet<>(tags) : Collections.emptySet();
         return this;
     }
 

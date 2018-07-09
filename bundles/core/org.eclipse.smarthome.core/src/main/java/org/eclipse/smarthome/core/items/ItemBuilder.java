@@ -77,6 +77,12 @@ public interface ItemBuilder {
      */
     ItemBuilder withGroupFunction(@Nullable GroupFunction function);
 
-    ItemBuilder withTags(Set<String> tags);
+    /**
+     * Set the tags
+     * 
+     * @param tags the tags
+     * @return the builder itself
+     */
+    ItemBuilder withTags(@Nullable Set<String> tags);
 
 }
