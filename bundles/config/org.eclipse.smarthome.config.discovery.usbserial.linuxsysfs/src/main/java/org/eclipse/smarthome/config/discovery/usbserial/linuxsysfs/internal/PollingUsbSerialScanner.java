@@ -57,13 +57,11 @@ public class PollingUsbSerialScanner implements UsbSerialDiscovery {
     private static final Duration DEFAULT_PAUSE_BETWEEN_SCANS = Duration.ofSeconds(5);
     private Duration pauseBetweenScans = DEFAULT_PAUSE_BETWEEN_SCANS;
 
-    @NonNullByDefault({})
-    private DeltaUsbSerialScanner deltaUsbSerialScanner;
+    private @NonNullByDefault({}) DeltaUsbSerialScanner deltaUsbSerialScanner;
 
     private final Set<UsbSerialDiscoveryListener> discoveryListeners = new CopyOnWriteArraySet<>();
 
-    @NonNullByDefault({})
-    private ScheduledExecutorService scheduler;
+    private @NonNullByDefault({}) ScheduledExecutorService scheduler;
 
     private @Nullable ScheduledFuture<?> backgroundScanningJob;
 
