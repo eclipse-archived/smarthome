@@ -71,7 +71,7 @@ public class ChannelGroupTypeBuilder {
     /**
      * Specify whether this is an advanced {@link ChannelGroupType}, default is false
      *
-     * @param advanced true is this is an advanced {@link ChannelGroupType}
+     * @param advanced true if this is an advanced {@link ChannelGroupType}
      * @return this Builder
      */
     public ChannelGroupTypeBuilder isAdvanced(boolean advanced) {
