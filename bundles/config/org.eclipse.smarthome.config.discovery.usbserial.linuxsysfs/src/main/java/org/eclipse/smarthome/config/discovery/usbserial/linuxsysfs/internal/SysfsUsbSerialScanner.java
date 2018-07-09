@@ -154,8 +154,7 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
      * <p/>
      * If the symbolic link cannot be converted to the real path, null is returned and a warning is logged.
      */
-    @Nullable
-    private Path getSysfsDevicePath(Path ttyFile) {
+    private @Nullable Path getSysfsDevicePath(Path ttyFile) {
         try {
             return ttyFile.toRealPath();
         } catch (IOException e) {
@@ -171,8 +170,7 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
      * <p/>
      * Returns null if the path does not point to a folder within the sysfs description of a USB device.
      */
-    @Nullable
-    private UsbSerialDeviceInformation tryGetUsbSerialDeviceInformation(SerialPortInfo serialPortInfo)
+    private @Nullable UsbSerialDeviceInformation tryGetUsbSerialDeviceInformation(SerialPortInfo serialPortInfo)
             throws IOException {
         Path usbInterfacePath = getUsbInterfaceParentPath(serialPortInfo.getSysfsPath());
 
@@ -193,8 +191,7 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
      * Walks up the directory structure of a path in the sysfs, trying to find a directory that represents an interface
      * of a USB device.
      */
-    @Nullable
-    private Path getUsbInterfaceParentPath(Path sysfsPath) {
+    private @Nullable Path getUsbInterfaceParentPath(Path sysfsPath) {
         if (sysfsPath.getFileName() == null) {
             return null;
         } else if (SYSFS_USB_INTERFACE_DIRECTORY_PATTERN.matcher(sysfsPath.getFileName().toString()).matches()) {
@@ -243,8 +240,7 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
         return new String(readAllBytes(path)).trim();
     }
 
-    @Nullable
-    private String getContentIfFileExists(Path path) throws IOException {
+    private @Nullable String getContentIfFileExists(Path path) throws IOException {
         return exists(path) ? getContent(path) : null;
     }
 

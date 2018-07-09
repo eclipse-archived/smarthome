@@ -78,24 +78,21 @@ public class UsbSerialDeviceInformation {
     /**
      * @return The serial number of the USB device (field 'iSerialNumber' in the USB standard device descriptor).
      */
-    @Nullable
-    public String getSerialNumber() {
+    public @Nullable String getSerialNumber() {
         return serialNumber;
     }
 
     /**
      * @return The manufacturer of the USB device (field 'iManufacturer' in the USB standard device descriptor).
      */
-    @Nullable
-    public String getManufacturer() {
+    public @Nullable String getManufacturer() {
         return manufacturer;
     }
 
     /**
      * @return The product description of the USB device (field 'iProduct' in the USB standard device descriptor).
      */
-    @Nullable
-    public String getProduct() {
+    public @Nullable String getProduct() {
         return product;
     }
 
@@ -110,8 +107,7 @@ public class UsbSerialDeviceInformation {
     /**
      * @return Description of the used USB interface (field 'iInterface' in the USB standard interface descriptor).
      */
-    @Nullable
-    public String getInterfaceDescription() {
+    public @Nullable String getInterfaceDescription() {
         return interfaceDescription;
     }
 
