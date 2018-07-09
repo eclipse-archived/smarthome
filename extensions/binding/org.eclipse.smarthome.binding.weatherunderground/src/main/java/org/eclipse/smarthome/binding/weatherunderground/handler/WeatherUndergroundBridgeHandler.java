@@ -33,7 +33,6 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
@@ -318,7 +317,8 @@ public class WeatherUndergroundBridgeHandler extends BaseBridgeHandler {
         LANG_ISO_TO_WU_CODES.put("ZW", "ZW");
     }
 
-    private Map<ThingUID, @Nullable ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
+    @Nullable
+    private ServiceRegistration<?> discoveryService;
 
     String error = "";
     @Nullable
@@ -414,20 +414,11 @@ public class WeatherUndergroundBridgeHandler extends BaseBridgeHandler {
         this.apikey = apikey;
     }
 
-    public Map<ThingUID, @Nullable ServiceRegistration<?>> getDiscoveryServiceRegs() {
-        return discoveryServiceRegs;
-    }
-
-    public void setDiscoveryServiceRegs(Map<ThingUID, @Nullable ServiceRegistration<?>> discoveryServiceRegs) {
-        this.discoveryServiceRegs = discoveryServiceRegs;
-    }
-
     @Override
     public void handleRemoval() {
         // removes the old registration service associated to the bridge, if existing
-        ServiceRegistration<?> dis = this.getDiscoveryServiceRegs().get(this.getThing().getUID());
-        if (null != dis) {
-            dis.unregister();
+        if (discoveryService != null) {
+            discoveryService.unregister();
         }
         super.handleRemoval();
     }
@@ -529,5 +520,9 @@ public class WeatherUndergroundBridgeHandler extends BaseBridgeHandler {
         }
 
         return resultOk ? result : null;
+    }
+
+    public void setDiscoveryService(ServiceRegistration<?> discoveryService) {
+        this.discoveryService = discoveryService;
     }
 }

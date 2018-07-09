@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.smarthome.binding.weatherunderground.handler.WeatherUndergroundBridgeHandler;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
@@ -53,16 +52,15 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
     private ScheduledFuture<?> discoveryJob;
     private PointType previousLocation;
 
-    private final WeatherUndergroundBridgeHandler weatherUndergroundBridgeHandler;
+    ThingUID bridgeUID;
 
     /**
      * Creates a WeatherUndergroundDiscoveryService with enabled autostart.
      */
 
-    public WeatherUndergroundDiscoveryService(WeatherUndergroundBridgeHandler weatherUndergroundBridgeHandler,
-            LocationProvider locationProvider) {
+    public WeatherUndergroundDiscoveryService(ThingUID bridgeUID, LocationProvider locationProvider) {
         super(SUPPORTED_THING_TYPES, DISCOVER_TIMEOUT_SECONDS, true);
-        this.weatherUndergroundBridgeHandler = weatherUndergroundBridgeHandler;
+        this.bridgeUID = bridgeUID;
         this.locationProvider = locationProvider;
     }
 
@@ -118,7 +116,6 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
 
     public void createResults(PointType location) {
         ThingUID localWeatherThing = new ThingUID(THING_TYPE_WEATHER, LOCAL);
-        ThingUID bridgeUID = weatherUndergroundBridgeHandler.getThing().getUID();
         Map<String, Object> properties = new HashMap<>(3);
         properties.put(LOCATION, String.format("%s,%s", location.getLatitude(), location.getLongitude()));
         thingDiscovered(DiscoveryResultBuilder.create(localWeatherThing).withLabel("Local Weather")

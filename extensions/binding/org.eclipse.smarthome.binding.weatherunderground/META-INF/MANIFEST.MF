@@ -37,4 +37,8 @@ Service-Component: OSGI-INF/*.xml
 Automatic-Module-Name: org.eclipse.smarthome.binding.weatherunderground
 =======
 Service-Component: OSGI-INF/*.xml
+<<<<<<< HEAD
 >>>>>>> 248a900ec... Updated Manifest.mf
+=======
+Automatic-Module-Name: org.eclipse.smarthome.binding.weatherunderground
+>>>>>>> a5faed6bd... Internalize discovery service
