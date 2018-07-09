@@ -69,8 +69,7 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
 
     private final Set<UsbSerialDeviceInformation> previouslyDiscovered = new CopyOnWriteArraySet<>();
 
-    @NonNullByDefault({})
-    private UsbSerialDiscovery usbSerialDiscovery;
+    private @NonNullByDefault({}) UsbSerialDiscovery usbSerialDiscovery;
 
     public UsbSerialDiscoveryService() {
         super(5);

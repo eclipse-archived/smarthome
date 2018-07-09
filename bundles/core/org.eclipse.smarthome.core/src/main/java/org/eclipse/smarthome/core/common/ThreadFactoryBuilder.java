@@ -24,8 +24,8 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * A builder for {@link ThreadFactory} instances. This builder is intended to be use for creating thread factories to be
- * used, e.g., when creating {@link Executor}s via the {@link Executors} utility methods.
+ * A builder for {@link ThreadFactory} instances. This builder is intended to be used for creating thread factories to
+ * be used, e.g., when creating {@link Executor}s via the {@link Executors} utility methods.
  * <p>
  * The built {@link ThreadFactory} uses a wrapped {@link ThreadFactory} to create threads (defaulting to
  * {@link Executors#defaultThreadFactory()}, and then overwrites thread properties as indicated in the build process.
@@ -121,7 +121,7 @@ public class ThreadFactoryBuilder {
 
     /**
      * Sets the {@link Thread.UncaughtExceptionHandler} to be used for created threads. If set to null, the built
-     * {@link ThreadFactory} will not set a handler. Defaults to null.
+     * {@link ThreadFactory} will not change the handler set by the wrapped {@link ThreadFactory}. Defaults to null.
      *
      * @param uncaughtExceptionHandler The {@link Thread.UncaughtExceptionHandler} to be use for created threads.
      * @return this {@link ThreadFactoryBuilder} instance
@@ -135,7 +135,7 @@ public class ThreadFactoryBuilder {
     /**
      * Sets the priority to be set for created threads. Must be a valid thread priority, as indicated by
      * {@link Thread#MIN_PRIORITY} and {@link Thread#MAX_PRIORITY}. If set to null, the built {@link ThreadFactory} will
-     * not set a priority. Defaults to null.
+     * not change the priority set by the wrapped {@link ThreadFactory}. Defaults to null.
      *
      * @param priority The priority to be used for created threads.
      * @return this {@link ThreadFactoryBuilder} instance
@@ -156,7 +156,7 @@ public class ThreadFactoryBuilder {
     }
 
     /**
-     * Builds the {@link ThreadFactory}, configuring it as specified during the build.
+     * Builds the {@link ThreadFactory}, configuring it as specified.
      *
      * @return the {@link ThreadFactory}
      */

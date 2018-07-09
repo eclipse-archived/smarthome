@@ -63,7 +63,7 @@ public class ThreadFactoryBuilderTest {
     public void testWithNamePrefixWithoutName() {
         ThreadFactory threadFactory = ThreadFactoryBuilder.create().withNamePrefix("prefix").build();
 
-        assertThat(threadFactory.newThread(TEST_RUNNABLE).getName(), startsWith("prefix"));
+        assertThat(threadFactory.newThread(TEST_RUNNABLE).getName(), startsWith("prefix-"));
     }
 
     @Test
