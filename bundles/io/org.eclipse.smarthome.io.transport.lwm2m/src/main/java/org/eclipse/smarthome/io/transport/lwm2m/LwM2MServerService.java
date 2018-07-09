@@ -10,8 +10,15 @@ package org.eclipse.smarthome.io.transport.lwm2m;
 import java.util.Collection;
 import java.util.Map;
 
+import org.eclipse.smarthome.io.net.security.api.NetworkServerTls;
 import org.eclipse.smarthome.io.transport.lwm2m.api.ClientRegistry;
 import org.eclipse.smarthome.io.transport.lwm2m.api.LwM2MClient;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,20 +44,30 @@ import org.slf4j.LoggerFactory;
  *
  * @author David Graeff - Initial contribution
  */
+@Component(service = ClientRegistry.class, immediate = false, name = "LwM2MServerService")
 public class LwM2MServerService implements ClientRegistry {
     private final Logger logger = LoggerFactory.getLogger(LwM2MServerService.class);
+    private NetworkServerTls networkServerTls;
 
+    @Activate
     public void activate(Map<String, Object> config) {
         logger.debug("Starting LwM2M Service");
         modified(config);
     }
 
+    @Deactivate
     public void deactivate() {
         logger.debug("Stopping LwM2M Service");
     }
 
+    @Modified
     public void modified(Map<String, Object> config) {
         logger.debug("Configuration of LwM2M Service changed");
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    public void setNetworkServerTls(NetworkServerTls networkServerTls) {
+        this.networkServerTls = networkServerTls;
     }
 
     @Override

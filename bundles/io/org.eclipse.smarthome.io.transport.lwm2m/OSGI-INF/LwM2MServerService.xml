@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="false" modified="modified" name="LwM2MServerService">
+   <service>
+      <provide interface="org.eclipse.smarthome.io.transport.lwm2m.api.ClientRegistry"/>
+   </service>
+   <reference bind="setNetworkServerTls" cardinality="1..1" interface="NetworkServerTls" name="NetworkServerTls"/>
+   <implementation class="org.eclipse.smarthome.io.transport.lwm2m.LwM2MServerService"/>
+</scr:component>

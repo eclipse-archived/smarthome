@@ -1,4 +1,4 @@
-package org.openhab.binding.lwm2mleshan.internal;
+package org.eclipse.smarthome.binding.lwm2m.old;
 
 import org.eclipse.leshan.core.node.LwM2mResource;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -6,7 +6,6 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.openhab.binding.lwm2mleshan.lwm2mLeshanBindingConstants;
 
 // Thing ID pattern: bindingID/thingTypeId/bridge0..n/thingID/channelID
 // For lwm2m with a pattern of /endpoint/objectid/objectinstanceid/resourceid/resourceinstanceid
@@ -16,6 +15,8 @@ import org.openhab.binding.lwm2mleshan.lwm2mLeshanBindingConstants;
 // * the resourceid is the channelID if no channelGroupId otherwise the channelGroupId,
 // * the resourceinstanceid is default 0. If there is a channelGroupID, the channelID is the instanceID.
 public class Lwm2mUID {
+    private static final String BINDING_ID = null;
+
     public static String getEndpoint(Thing thing) {
         return thing instanceof Bridge ? thing.getUID().getId() : thing.getBridgeUID().getId();
     }
@@ -44,7 +45,7 @@ public class Lwm2mUID {
     }
 
     public static ThingTypeUID getThingTypeUID(int objectID) {
-        return new ThingTypeUID(lwm2mLeshanBindingConstants.BINDING_ID, String.valueOf(objectID));
+        return new ThingTypeUID(BINDING_ID, String.valueOf(objectID));
     }
 
     public static ChannelUID createChannelUID(ThingUID uid, String channelID) {

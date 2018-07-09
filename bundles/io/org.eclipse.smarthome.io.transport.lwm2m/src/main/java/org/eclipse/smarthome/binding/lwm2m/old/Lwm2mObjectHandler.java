@@ -5,12 +5,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.openhab.binding.lwm2mleshan.handler;
+package org.eclipse.smarthome.binding.lwm2m.old;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -19,11 +18,12 @@ import org.eclipse.leshan.core.model.ResourceModel;
 import org.eclipse.leshan.core.model.ResourceModel.Type;
 import org.eclipse.leshan.core.node.LwM2mNode;
 import org.eclipse.leshan.core.node.LwM2mObjectInstance;
+import org.eclipse.leshan.core.node.LwM2mPath;
 import org.eclipse.leshan.core.node.LwM2mResource;
 import org.eclipse.leshan.core.observation.Observation;
-import org.eclipse.leshan.server.client.Client;
-import org.eclipse.leshan.server.observation.ObservationRegistryListener;
-import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.leshan.core.response.ObserveResponse;
+import org.eclipse.leshan.server.observation.ObservationListener;
+import org.eclipse.leshan.server.registration.Registration;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
@@ -32,20 +32,15 @@ import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
+import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
-import org.openhab.binding.lwm2mleshan.lwm2mLeshanBindingConstants;
-import org.openhab.binding.lwm2mleshan.internal.LeshanOpenhab;
-import org.openhab.binding.lwm2mleshan.internal.Lwm2mUID;
-import org.openhab.binding.lwm2mleshan.internal.ObjectInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,47 +53,27 @@ import org.slf4j.LoggerFactory;
  *
  * @author David Graeff - Initial contribution
  */
-public class Lwm2mObjectHandler extends BaseThingHandler implements ObservationRegistryListener {
+public class Lwm2mObjectHandler implements ObservationListener {
 
     private static final int UNITS_RESOURCE = 5701;
+    private static final String BINDING_ID = null;
     private Logger logger = LoggerFactory.getLogger(Lwm2mObjectHandler.class);
     private final LeshanOpenhab leshan;
-    public final ObjectInstance id;
+    public final LwM2mPath path;
     public final ObjectModel objectModel;
     public String unit;
     private Observation observe;
     private LwM2mObjectInstance objectNode;
+    private Thing thing;
+    private Registration client;
 
-    public Lwm2mObjectHandler(Thing thing, LeshanOpenhab leshan, ObjectInstance id) {
-        super(thing);
+    public Lwm2mObjectHandler(Thing thing, LeshanOpenhab leshan, Registration client, LwM2mPath path) {
         this.leshan = leshan;
-        this.id = id;
-        objectModel = leshan.getObjectModel(id.getClient(), id.getObjectID());
+        this.path = path;
+        this.client = client;
+        objectModel = leshan.getObjectModel(client, path.getObjectId());
     }
 
-    // Avoid dispose+initialize because of a configuration change on the bridge
-    @Override
-    public void handleConfigurationUpdate(Map<String, Object> configurationParameters) {
-        validateConfigurationParameters(configurationParameters);
-
-        Configuration configuration = editConfiguration();
-        for (Entry<String, Object> configurationParmeter : configurationParameters.entrySet()) {
-            configuration.put(configurationParmeter.getKey(), configurationParmeter.getValue());
-        }
-
-        updateConfiguration(configuration);
-    }
-
-    // Avoid dispose+initialize because of a configuration change on the thing
-    @Override
-    public void thingUpdated(Thing thing) {
-    }
-
-    public ThingRegistry getThingRegistry() {
-        return thingRegistry;
-    }
-
-    @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         int resID = Integer.valueOf(channelUID.getId());
         ResourceModel resourceModel = objectModel.resources.get(resID);
@@ -107,19 +82,34 @@ public class Lwm2mObjectHandler extends BaseThingHandler implements ObservationR
             return;
         }
         try {
-            leshan.requestChange(id, unit, resourceModel, command);
+            leshan.requestChange(client, path, unit, resourceModel, command);
         } catch (Exception e) {
             e.printStackTrace();
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getLocalizedMessage());
         }
     }
 
-    @Override
+    private void updateStatus(ThingStatus offline, ThingStatusDetail communicationError, String localizedMessage) {
+    }
+
+    private void updateStatus(ThingStatus initializing) {
+    }
+
+    private void updateState(String id2, State newState) {
+    }
+
+    private ThingBuilder editThing() {
+        return null;
+    }
+
+    private void updateThing(Thing build) {
+    }
+
     public void initialize() {
         updateStatus(ThingStatus.INITIALIZING);
         try {
-            observe = leshan.startObserve(id, this);
-            objectNode = leshan.requestValues(id);
+            observe = leshan.startObserve(client, path, this);
+            objectNode = leshan.requestValues(client, path);
         } catch (Exception e) {
             e.printStackTrace();
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getLocalizedMessage());
@@ -129,12 +119,10 @@ public class Lwm2mObjectHandler extends BaseThingHandler implements ObservationR
         updateStatus(ThingStatus.ONLINE);
     }
 
-    @Override
     public void dispose() {
         if (observe != null) {
             leshan.stopObserve(observe, this);
         }
-        super.dispose();
     }
 
     public void updateLwM2mNode(LwM2mObjectInstance value) {
@@ -190,8 +178,7 @@ public class Lwm2mObjectHandler extends BaseThingHandler implements ObservationR
         updatedChannels.add(resource.getId());
 
         if (channel == null) {
-            ChannelType channelType = TypeResolver
-                    .resolve(new ChannelTypeUID(lwm2mLeshanBindingConstants.BINDING_ID, channelID));
+            ChannelType channelType = TypeResolver.resolve(new ChannelTypeUID(BINDING_ID, channelID));
 
             if (channelType == null) {
                 logger.debug("Add new channel in %s FAILED: %s. No xml type found", thing.getUID().getAsString(),
@@ -297,30 +284,7 @@ public class Lwm2mObjectHandler extends BaseThingHandler implements ObservationR
     }
 
     @Override
-    public void newObservation(Observation observation) {
-    }
-
-    @Override
     public void cancelled(Observation observation) {
-    }
-
-    /**
-     * Callback from the Leshan Lwm2m obser
-     *
-     * @param observation
-     * @param value
-     */
-    @Override
-    public void newValue(Observation observation, LwM2mNode value) {
-        if (!id.equals(observation.getPath())) {
-            return;
-        }
-
-        if (value instanceof LwM2mObjectInstance) {
-            updateLwM2mNode((LwM2mObjectInstance) value);
-        } else if (value instanceof LwM2mResource) {
-            updateResource((LwM2mResource) value);
-        }
     }
 
     /**
@@ -332,19 +296,40 @@ public class Lwm2mObjectHandler extends BaseThingHandler implements ObservationR
      *
      * @param clientUpdated
      */
-    public void updateClient(Client clientUpdated) {
-        this.id.setClient(clientUpdated);
-        ObjectInstance[] objectLinks = leshan.getObjectLinks(id.getClient());
+    public void updateClient(Registration clientUpdated) {
+        this.client = clientUpdated;
+        LwM2mPath[] objectPaths = leshan.getObjectLinks(client);
         boolean found = false;
-        for (ObjectInstance objectInstance : objectLinks) {
-            if (objectInstance.equals(id)) {
+        for (LwM2mPath objectPath : objectPaths) {
+            if (objectPath.equals(path)) {
                 found = true;
                 break;
             }
         }
 
-        if (!found) {
-            thingRegistry.remove(thing.getUID());
+        // TODO
+    }
+
+    @Override
+    public void newObservation(Observation observation, Registration registration) {
+    }
+
+    @Override
+    public void onResponse(Observation observation, Registration registration, ObserveResponse response) {
+        if (!path.equals(observation.getPath())) {
+            return;
         }
+
+        LwM2mNode value = response.getContent();
+
+        if (value instanceof LwM2mObjectInstance) {
+            updateLwM2mNode((LwM2mObjectInstance) value);
+        } else if (value instanceof LwM2mResource) {
+            updateResource((LwM2mResource) value);
+        }
+    }
+
+    @Override
+    public void onError(Observation observation, Registration registration, Exception error) {
     }
 }

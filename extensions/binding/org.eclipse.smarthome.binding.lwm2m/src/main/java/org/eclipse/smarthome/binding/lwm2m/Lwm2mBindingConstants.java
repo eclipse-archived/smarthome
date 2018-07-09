@@ -17,9 +17,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * @author David Graeff - Initial contribution
  */
 public class Lwm2mBindingConstants {
-
     public static final String BINDING_ID = "lwm2m";
-
-    // List of all Thing Type UIDs
     public static final ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, "client");
 }

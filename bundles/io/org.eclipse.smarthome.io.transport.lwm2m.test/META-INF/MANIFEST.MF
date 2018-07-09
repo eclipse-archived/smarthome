@@ -6,7 +6,9 @@ Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Fragment-Host: org.eclipse.smarthome.io.transport.lwm2m
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.eclipse.smarthome.io.transport.lwm2m,
+Import-Package: org.eclipse.leshan,
+ org.eclipse.leshan.server.registration,
+ org.eclipse.smarthome.io.transport.lwm2m,
  org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.java,
  org.hamcrest;core=split,

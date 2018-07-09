@@ -24,9 +24,10 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,47 +42,38 @@ import org.slf4j.LoggerFactory;
  *
  * @author David Graeff - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPolicy = ConfigurationPolicy.OPTIONAL, name = "binding.lwm2m")
+@Component(service = ThingHandlerFactory.class, immediate = true)
 public class Lwm2mHandlerFactory extends BaseThingHandlerFactory {
     private final Logger logger = LoggerFactory.getLogger(Lwm2mHandlerFactory.class);
     final Set<ThingTypeUID> supportedThingTypeUIDs = new HashSet<>();
-    private ServiceTracker<ThingTypeRegistry, ThingTypeRegistry> thingTypeRegistryServiceTracker;
-
-    protected ThingTypeRegistry getThingTypeRegistry() {
-        ThingTypeRegistry r = thingTypeRegistryServiceTracker.getService();
-        if (r == null) {
-            throw new RuntimeException(
-                    "The ThingTypeRegistry was not available in Lwm2mHandlerFactory.supportsThingType");
-        }
-        return r;
-    }
+    private ThingTypeRegistry thingTypeRegistry;
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
-        if (supportedThingTypeUIDs.isEmpty()) {
-            ThingTypeRegistry r = getThingTypeRegistry();
-            for (ThingType t : r.getThingTypes()) {
-                if (t.getBindingId().equals(Lwm2mBindingConstants.BINDING_ID)) {
-                    supportedThingTypeUIDs.add(t.getUID());
-                }
-            }
-            supportedThingTypeUIDs.add(Lwm2mBindingConstants.THING_TYPE_BRIDGE);
-
-            logger.info("LwM2M supported things: {}", supportedThingTypeUIDs.size());
-        }
         return supportedThingTypeUIDs.contains(thingTypeUID);
     }
 
+    @Reference
+    public void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
+        this.thingTypeRegistry = thingTypeRegistry;
+    }
+
+    @Activate
     @Override
     protected void activate(ComponentContext componentContext) {
         super.activate(componentContext);
-        thingTypeRegistryServiceTracker = new ServiceTracker<>(bundleContext, ThingTypeRegistry.class.getName(), null);
-        thingTypeRegistryServiceTracker.open();
+        for (ThingType t : thingTypeRegistry.getThingTypes()) {
+            if (t.getBindingId().equals(Lwm2mBindingConstants.BINDING_ID)) {
+                supportedThingTypeUIDs.add(t.getUID());
+            }
+        }
+        supportedThingTypeUIDs.add(Lwm2mBindingConstants.THING_TYPE_BRIDGE);
+        logger.info("LwM2M supported things: {}", supportedThingTypeUIDs.size());
     }
 
+    @Deactivate
     @Override
     protected void deactivate(ComponentContext componentContext) {
-        thingTypeRegistryServiceTracker.close();
         super.deactivate(componentContext);
     }
 

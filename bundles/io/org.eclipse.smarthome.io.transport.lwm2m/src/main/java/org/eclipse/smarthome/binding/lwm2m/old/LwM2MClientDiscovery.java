@@ -10,66 +10,45 @@ package org.eclipse.smarthome.binding.lwm2m.old;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.leshan.server.client.Client;
-import org.eclipse.leshan.server.client.ClientRegistryListener;
-import org.eclipse.leshan.server.client.ClientUpdate;
-import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
-import org.eclipse.smarthome.config.discovery.DiscoveryResult;
-import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
-import org.eclipse.smarthome.config.discovery.DiscoveryService;
-import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.leshan.core.observation.Observation;
+import org.eclipse.leshan.server.registration.Registration;
+import org.eclipse.leshan.server.registration.RegistrationListener;
+import org.eclipse.leshan.server.registration.RegistrationUpdate;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 
-public class LwM2MClientDiscovery extends AbstractDiscoveryService implements ClientRegistryListener {
-    private ServiceRegistration<?> reg = null;
-
+public class LwM2MClientDiscovery implements RegistrationListener {
     public LwM2MClientDiscovery() {
-        super(0);
+
     }
 
-    public void stop() {
-        if (reg != null) {
-            reg.unregister();
+    public void start(BundleContext bundleContext, Iterator<Registration> clients) {
+        while (clients.hasNext()) {
+            registered(clients.next());
         }
-        reg = null;
     }
 
     @Override
-    protected void startScan() {
-    }
-
-    public void start(BundleContext bundleContext, Collection<Client> clients) {
-        if (reg != null) {
-            return;
-        }
-        reg = bundleContext.registerService(DiscoveryService.class.getName(), this, new Hashtable<String, Object>());
-        for (Client client : clients) {
-            registered(client);
-        }
-
-        createTestBridge();
-    }
-
-    @Override
-    public void registered(Client client) {
+    public void registered(Registration registration) {
         Map<String, Object> properties = new HashMap<>(3);
-        ThingUID uid = new ThingUID(lwm2mLeshanBindingConstants.BRIDGE_TYPE, client.getEndpoint());
-        DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(uid).withProperties(properties)
-                .withLabel(client.getAddress().getHostAddress()).build();
-        thingDiscovered(discoveryResult);
+        // ThingUID uid = new ThingUID(lwm2mLeshanBindingConstants.BRIDGE_TYPE, registration.getEndpoint());
+        // DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(uid).withProperties(properties)
+        // .withLabel(client.getAddress().getHostAddress()).build();
+        // thingDiscovered(discoveryResult);
     }
 
     @Override
-    public void updated(ClientUpdate update, Client clientUpdated) {
+    public void updated(RegistrationUpdate update, Registration updatedRegistration,
+            Registration previousRegistration) {
+        // TODO Auto-generated method stub
+
     }
 
     @Override
-    public void unregistered(Client client) {
-        ThingUID thingUID = new ThingUID(lwm2mLeshanBindingConstants.BRIDGE_TYPE, client.getEndpoint());
-        thingRemoved(thingUID);
+    public void unregistered(Registration registration, Collection<Observation> observations, boolean expired) {
+        // ThingUID thingUID = new ThingUID(lwm2mLeshanBindingConstants.BRIDGE_TYPE, registration.getEndpoint());
+        // thingRemoved(thingUID);
     }
 }

@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Implementation-Title: transform lwm2m to esh
+Implementation-Version: 1.0
+

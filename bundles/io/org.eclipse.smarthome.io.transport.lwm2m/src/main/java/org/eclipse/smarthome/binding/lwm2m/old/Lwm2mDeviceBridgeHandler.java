@@ -5,34 +5,32 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.openhab.binding.lwm2mleshan.handler;
+package org.eclipse.smarthome.binding.lwm2m.old;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.naming.CommunicationException;
 
 import org.eclipse.leshan.core.node.LwM2mObjectInstance;
+import org.eclipse.leshan.core.node.LwM2mPath;
 import org.eclipse.leshan.core.node.LwM2mResource;
-import org.eclipse.leshan.server.client.Client;
-import org.eclipse.leshan.server.client.ClientRegistryListener;
-import org.eclipse.leshan.server.client.ClientUpdate;
-import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.leshan.core.observation.Observation;
+import org.eclipse.leshan.server.registration.Registration;
+import org.eclipse.leshan.server.registration.RegistrationListener;
+import org.eclipse.leshan.server.registration.RegistrationUpdate;
 import org.eclipse.smarthome.core.thing.Bridge;
-import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
-import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.binding.firmware.Firmware;
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler;
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressCallback;
 import org.eclipse.smarthome.core.thing.binding.firmware.ProgressStep;
-import org.eclipse.smarthome.core.types.Command;
-import org.openhab.binding.lwm2mleshan.internal.CreateThings;
-import org.openhab.binding.lwm2mleshan.internal.LeshanOpenhab;
-import org.openhab.binding.lwm2mleshan.internal.ObjectInstance;
+import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,12 +51,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author David Graeff - Initial contribution
  */
-public class Lwm2mDeviceBridgeHandler extends BaseBridgeHandler
-        implements ClientRegistryListener, FirmwareUpdateHandler {
+public class Lwm2mDeviceBridgeHandler implements RegistrationListener, FirmwareUpdateHandler {
     @SuppressWarnings("unused")
     private Logger logger = LoggerFactory.getLogger(Lwm2mDeviceBridgeHandler.class);
     private final LeshanOpenhab leshan;
-    public Client client;
+    public Registration client;
     // Location of this lwm2m device, only available if Object 6 is supported on the device
     private String latitude;
     private String longitude;
@@ -69,44 +66,42 @@ public class Lwm2mDeviceBridgeHandler extends BaseBridgeHandler
     private static int FIRMWARE_STATE_IN_PROGRESS = 2;
     private static int FIRMWARE_STATE_READY_TO_BOOT_NEW_FIRMWARE = 3;
     private int firmwareUpdateState;
+    private Thing thing;
 
-    public Lwm2mDeviceBridgeHandler(Bridge bridge, LeshanOpenhab leshan, Client client) {
-        super(bridge);
+    public Lwm2mDeviceBridgeHandler(Bridge bridge, LeshanOpenhab leshan, Registration client) {
+
         this.leshan = leshan;
         this.client = client;
     }
 
-    // Avoid dispose+initialize because of a configuration change on the bridge
-    @Override
-    public void thingUpdated(Thing thing) {
-        this.thing = thing;
+    private void updateStatus(ThingStatus offline, ThingStatusDetail communicationError, String localizedMessage) {
     }
 
-    // Avoid dispose+initialize because of a configuration change on the bridge
-    @Override
-    public void handleConfigurationUpdate(Map<String, Object> configurationParameters) {
-        validateConfigurationParameters(configurationParameters);
-
-        Configuration configuration = editConfiguration();
-        for (Entry<String, Object> configurationParmeter : configurationParameters.entrySet()) {
-            configuration.put(configurationParmeter.getKey(), configurationParmeter.getValue());
-        }
-
-        updateConfiguration(configuration);
+    private void updateStatus(ThingStatus initializing) {
     }
 
-    private boolean extractData(ObjectInstance objectInstance, Map<String, String> properties) {
+    private void updateState(String id2, State newState) {
+    }
+
+    private ThingBuilder editThing() {
+        return null;
+    }
+
+    private void updateThing(Thing build) {
+    }
+
+    private boolean extractData(LwM2mPath path, Map<String, String> properties) {
         try {
             LwM2mObjectInstance values;
             try {
-                values = leshan.requestValues(objectInstance);
+                values = leshan.requestValues(client, path);
             } catch (CommunicationException e) {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getLocalizedMessage());
                 return false;
             }
             Map<Integer, LwM2mResource> resources = values.getResources();
             for (Entry<Integer, LwM2mResource> entry : resources.entrySet()) {
-                extractDataValue(objectInstance.getObjectID(), entry.getKey(), entry.getValue(), properties);
+                extractDataValue(path.getObjectId(), entry.getKey(), entry.getValue(), properties);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -160,23 +155,20 @@ public class Lwm2mDeviceBridgeHandler extends BaseBridgeHandler
         }
     }
 
-    @Override
     public void dispose() {
         leshan.stopClientObserve(this);
-        super.dispose();
     }
 
-    @Override
     public void initialize() {
         updateStatus(ThingStatus.INITIALIZING);
         firmwareUpdateState = FIRMWARE_UPDATE_NOT_SUPPORTED;
         leshan.startClientObserve(this);
-        ObjectInstance[] objectLinks = leshan.getObjectLinks(client);
+        LwM2mPath[] objectLinks = leshan.getObjectLinks(client);
 
         Map<String, String> properties = editProperties();
 
-        for (ObjectInstance objectInstance : objectLinks) {
-            switch (objectInstance.getObjectID()) {
+        for (LwM2mPath objectPath : objectLinks) {
+            switch (objectPath.getObjectId()) {
                 case 0: // Security
                 case 1: // Server
                 case 2: // Access Control
@@ -185,14 +177,13 @@ public class Lwm2mDeviceBridgeHandler extends BaseBridgeHandler
                     break;
                 case 3: // Device
                 case 5: // Firmware
-                case 6: // Location
-                    if (!extractData(objectInstance, properties)) {
+                case 6: // Location^
+                    if (!extractData(objectPath, properties)) {
                         return;
                     }
                     break;
                 default:
-                    CreateThings.createThing(thingRegistry, objectInstance.getObjectID(),
-                            objectInstance.getInstanceID());
+
             }
         }
 
@@ -200,32 +191,44 @@ public class Lwm2mDeviceBridgeHandler extends BaseBridgeHandler
         updateStatus(ThingStatus.ONLINE);
     }
 
-    @Override
-    public void handleCommand(ChannelUID channelUID, Command command) {
+    private void updateProperties(Map<String, String> properties) {
+        // TODO Auto-generated method stub
+
+    }
+
+    private Map<String, String> editProperties() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
-    public void registered(Client client) {
+    public void registered(Registration client) {
     }
 
     @Override
-    public void updated(ClientUpdate update, Client clientUpdated) {
-        if (clientUpdated.equals(client)) {
-            this.client = clientUpdated;
+    public void updated(RegistrationUpdate update, Registration updatedRegistration,
+            Registration previousRegistration) {
+        if (update.equals(client)) {
+            this.client = updatedRegistration;
             for (Thing objectThing : getBridge().getThings()) {
                 ThingHandler handler = objectThing.getHandler();
                 if (handler == null) {
                     continue;
                 }
-                ((Lwm2mObjectHandler) handler).updateClient(clientUpdated);
+                ((Lwm2mObjectHandler) handler).updateClient(updatedRegistration);
             }
             dispose();
             initialize();
         }
     }
 
+    private Bridge getBridge() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     @Override
-    public void unregistered(Client client) {
+    public void unregistered(Registration registration, Collection<Observation> observations, boolean expired) {
         if (client.equals(this.client)) {
             // Client not available -> set state to offline and remove client listener.
             // We should be reinitialized by the discovery service if the client reconnects.
@@ -245,4 +248,17 @@ public class Lwm2mDeviceBridgeHandler extends BaseBridgeHandler
     public boolean isUpdateExecutable() {
         return thing.getStatus() == ThingStatus.ONLINE && firmwareUpdateState == FIRMWARE_STATE_IDLE;
     }
+
+    @Override
+    public void cancel() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public Thing getThing() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

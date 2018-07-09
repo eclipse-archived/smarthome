@@ -1,11 +1,11 @@
-package org.openhab.binding.lwm2mleshan.internal;
+package org.eclipse.smarthome.binding.lwm2m.old;
 
 import org.eclipse.leshan.core.node.LwM2mPath;
-import org.eclipse.leshan.server.client.Client;
+import org.eclipse.leshan.server.registration.Registration;
 import org.eclipse.smarthome.core.thing.Thing;
 
 public class ObjectInstance {
-    private Client client;
+    private Registration client;
     private int object;
     private int instance = 0;
     private boolean hasInstances = false;
@@ -14,13 +14,13 @@ public class ObjectInstance {
         return instance;
     }
 
-    public ObjectInstance(Client client, Thing thing) {
+    public ObjectInstance(Registration client, Thing thing) {
         this.setClient(client);
         this.object = Integer.valueOf(thing.getThingTypeUID().getId());
         this.instance = Integer.valueOf(thing.getUID().getId());
     }
 
-    public ObjectInstance(Client client, int object, int instance) {
+    public ObjectInstance(Registration client, int object, int instance) {
         this.setClient(client);
         this.object = object;
         this.instance = instance;
@@ -30,7 +30,7 @@ public class ObjectInstance {
         return hasInstances;
     }
 
-    public ObjectInstance(Client client, String url) {
+    public ObjectInstance(Registration client, String url) {
         this.setClient(client);
         String[] parts = url.split("/");
         object = Integer.valueOf(parts[0]);
@@ -44,11 +44,11 @@ public class ObjectInstance {
         return object;
     }
 
-    public Client getClient() {
+    public Registration getClient() {
         return client;
     }
 
-    public void setClient(Client client) {
+    public void setClient(Registration client) {
         this.client = client;
     }
 

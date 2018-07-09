@@ -1,0 +1,26 @@
+apply plugin: 'application'
+
+repositories {
+    mavenCentral()
+} 
+
+dependencies {
+    compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
+    compile group: 'net.sf.saxon', name: 'Saxon-HE', version: '9.8.0-12'
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+}
+
+mainClassName = "org.openhab2.lwm2m.Main"
+version = '1.0'
+jar {
+    manifest {
+        attributes ('Implementation-Title': 'transform lwm2m to esh',
+                   'Implementation-Version': version)
+    }
+}
+
+task(up, type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = mainClassName
+    args "-u"
+}

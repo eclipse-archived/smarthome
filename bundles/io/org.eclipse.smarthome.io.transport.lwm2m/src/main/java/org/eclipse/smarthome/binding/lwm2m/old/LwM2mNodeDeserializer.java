@@ -13,7 +13,7 @@
  * Contributors:
  *     Sierra Wireless - initial API and implementation
  *******************************************************************************/
-package org.openhab.binding.lwm2mleshan.internal;
+package org.eclipse.smarthome.binding.lwm2m.old;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
