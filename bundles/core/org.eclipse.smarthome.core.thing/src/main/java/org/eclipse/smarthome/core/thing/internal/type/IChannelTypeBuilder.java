@@ -29,7 +29,7 @@ public interface IChannelTypeBuilder<T extends IChannelTypeBuilder<T>> {
     /**
      * Specify whether this is an advanced channel, default is false
      *
-     * @param advanced true is this is an advanced {@link ChannelType}
+     * @param advanced true if this is an advanced {@link ChannelType}
      * @return this Builder
      */
     T isAdvanced(boolean advanced);
