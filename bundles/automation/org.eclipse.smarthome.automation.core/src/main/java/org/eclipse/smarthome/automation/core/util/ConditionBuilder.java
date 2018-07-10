@@ -48,7 +48,7 @@ public class ConditionBuilder extends ModuleBuilder<ConditionBuilder, Condition>
     }
 
     public ConditionBuilder withInputs(@Nullable Map<String, String> inputs) {
-        this.inputs = Collections.unmodifiableMap(new HashMap<>(inputs));
+        this.inputs = inputs != null ? Collections.unmodifiableMap(new HashMap<>(inputs)) : null;
         return this;
     }
 
