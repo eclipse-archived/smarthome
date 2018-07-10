@@ -35,14 +35,14 @@ This is:
 
 ## NumberItem linked to QuantityType Channel
 
-In addition to the automated conversion the `NumberItem` linked to a channel delivering `QuantityTypes` can be configured to always have state updates converted to a specific unit. 
+In addition to the automated conversion the `NumberItem` linked to a Channel delivering `QuantityTypes` can be configured to always have state updates converted to a specific unit. 
 The unit given in the state description is parsed and then used for conversion (if necessary).
 The framework assumes that the unit to parse is always the last token in the state description.
 If the parsing failed the locale based default conversion takes place.
 
     Number:Temperature temperature "Outside [%.2f °F]" { channel="...:current#temperature" }
     
-In the example the `NumberItem` is specified to bind to channels which offer values from the dimension `Temperature`.
+In the example the `NumberItem` is specified to bind to Channels which offer values from the dimension `Temperature`.
 Without the dimension information the `NumberItem` only will receive updates of type `DecimalType` without a unit and any conversion.
 The state description defines two decimal places for the value and the fix unit °F.
 In case the state description should display the unit the binding delivers or the framework calculates through locale based conversion the pattern will look like this:
@@ -54,7 +54,7 @@ In addition the placeholder `%unit%` can be placed anywhere in the state descrip
  
 #### Defining ChannelTypes
 
-In order to match `NumberItems` and channels and define a default state description with unit placeholder the channel also has to provide an item type which includes the dimension information:
+In order to match `NumberItems` and Channels and define a default state description with unit placeholder the Channel also has to provide an Item type which includes the dimension information:
 
 
     <channel-type id="temperature">
