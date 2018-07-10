@@ -366,6 +366,8 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
             ItemStatePredictedEvent prediction = (ItemStatePredictedEvent) event;
             Item item = itemUIRegistry.get(prediction.getItemName());
             if (item instanceof GroupItem) {
+                // don't send out auto-update events for group items as those will calculate their state based on their
+                // members and predictions aren't really possible in that case (or at least would be highly complex).
                 return;
             }
             for (PageChangeListener pageChangeListener : pageChangeListeners.values()) {

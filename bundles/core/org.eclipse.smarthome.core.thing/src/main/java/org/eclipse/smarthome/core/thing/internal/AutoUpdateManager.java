@@ -50,9 +50,10 @@ import org.slf4j.LoggerFactory;
  */
 @NonNullByDefault
 @Component(immediate = true, service = {
-        AutoUpdateManager.class }, configurationPid = "org.eclipse.smarthome.autoupdatemanager", configurationPolicy = ConfigurationPolicy.OPTIONAL)
+        AutoUpdateManager.class }, configurationPid = "org.eclipse.smarthome.autoupdate", configurationPolicy = ConfigurationPolicy.OPTIONAL)
 public class AutoUpdateManager {
 
+    private static final String AUTOUPDATE_KEY = "autoupdate";
     protected static final String EVENT_SOURCE = "org.eclipse.smarthome.core.autoupdate";
     protected static final String EVENT_SOURCE_OPTIMISTIC = "org.eclipse.smarthome.core.autoupdate.optimistic";
 
@@ -130,10 +131,10 @@ public class AutoUpdateManager {
             Recommendation autoUpdate = shouldAutoUpdate(itemName);
 
             // consider user-override via item meta-data
-            MetadataKey key = new MetadataKey("autoupdate", itemName);
+            MetadataKey key = new MetadataKey(AUTOUPDATE_KEY, itemName);
             Metadata metadata = metadataRegistry.get(key);
             if (metadata != null && !metadata.getValue().trim().isEmpty()) {
-                boolean override = Boolean.getBoolean(metadata.getValue());
+                boolean override = Boolean.parseBoolean(metadata.getValue());
                 if (override) {
                     logger.trace("Auto update strategy {} overriden by item metadata to REQUIRED", autoUpdate);
                     autoUpdate = Recommendation.REQUIRED;

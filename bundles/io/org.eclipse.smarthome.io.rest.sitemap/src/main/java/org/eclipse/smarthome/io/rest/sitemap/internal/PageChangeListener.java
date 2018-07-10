@@ -47,7 +47,9 @@ import org.eclipse.smarthome.ui.items.ItemUIRegistry;
  */
 public class PageChangeListener implements StateChangeListener {
 
-    private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool("ui");
+    private static final int REVERT_INTERVAL = 300;
+    private final ScheduledExecutorService scheduler = ThreadPoolManager
+            .getScheduledPool(ThreadPoolManager.THREAD_POOL_NAME_COMMON);
     private final String sitemapName;
     private final String pageId;
     private final ItemUIRegistry itemUIRegistry;
@@ -200,7 +202,7 @@ public class PageChangeListener implements StateChangeListener {
     public void keepCurrentState(Item item) {
         scheduler.schedule(() -> {
             constructAndSendEvents(item, item.getState());
-        }, 200, TimeUnit.MILLISECONDS);
+        }, REVERT_INTERVAL, TimeUnit.MILLISECONDS);
     }
 
     public void changeStateTo(Item item, State state) {
