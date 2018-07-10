@@ -1,243 +1,194 @@
 'use strict';
 
-var test = State;
-if(test === undefined) {
+if(State === undefined) {
     throw "State not defined";
 }
 
-test = Command;
-if(test === undefined) {
+if(Command === undefined) {
     throw "Command not defined";
 }
 
-test = StringUtils;
-if(test === undefined) {
+if(StringUtils === undefined) {
     throw "StringUtils not defined";
 }
 
-test = URLEncoder;
-if(test === undefined) {
+if(URLEncoder === undefined) {
     throw "URLEncoder not defined";
 }
 
-test = FileUtils;
-if(test === undefined) {
+if(FileUtils === undefined) {
     throw "FileUtils not defined";
 }
 
-test = FilenameUtils;
-if(test === undefined) {
+if(FilenameUtils === undefined) {
     throw "FilenameUtils not defined";
 }
 
-test = File;
-if(test === undefined) {
+if(File === undefined) {
     throw "File not defined";
 }
 
 //types
-
-test = IncreaseDecreaseType;
-if(test === undefined) {
+if(IncreaseDecreaseType === undefined) {
     throw "IncreaseDecreaseType not defined";
 }
 
-test = DECREASE;
-if(test === undefined) {
+if(DECREASE === undefined) {
     throw "DECREASE not defined";
 }
 
-test = INCREASE;
-if(test === undefined) {
+if(INCREASE === undefined) {
     throw "INCREASE not defined";
 }
 
-test = OnOffType;
-if(test === undefined) {
+if(OnOffType === undefined) {
     throw "OnOffType not defined";
 }
 
-test = ON;
-if(test === undefined) {
+if(ON === undefined) {
     throw "OFF not defined";
 }
 
-test = OpenClosedType;
-if(test === undefined) {
+if(OpenClosedType === undefined) {
     throw "OpenClosedType not defined";
 }
 
-test = CLOSED;
-if(test === undefined) {
+if(CLOSED === undefined) {
     throw "CLOSED not defined";
 }
 
-test = OPEN;
-if(test === undefined) {
+if(OPEN === undefined) {
     throw "OPEN not defined";
 }
 
-test = StopMoveType;
-if(test === undefined) {
+if(StopMoveType === undefined) {
     throw "StopMoveType not defined";
 }
 
-test = MOVE;
-if(test === undefined) {
+if(MOVE === undefined) {
     throw "MOVE not defined";
 }
 
-test = STOP;
-if(test === undefined) {
+if(STOP === undefined) {
     throw "STOP not defined";
 }
 
-test = UpDownType;
-if(test === undefined) {
+if(UpDownType === undefined) {
     throw "UpDownType not defined";
 }
 
-test = DOWN;
-if(test === undefined) {
+if(DOWN === undefined) {
     throw "DOWN not defined";
 }
 
-test = UP;
-if(test === undefined) {
+if(UP === undefined) {
     throw "UP not defined";
 }
 
-test = UnDefType;
-if(test === undefined) {
+if(UnDefType === undefined) {
     throw "UnDefType not defined";
 }
 
-test = NULL;
-if(test === undefined) {
+if(NULL === undefined) {
     throw "NULL not defined";
 }
 
-test = NextPreviousType;
-if(test === undefined) {
+if(NextPreviousType === undefined) {
     throw "NextPreviousType not defined";
 }
 
-test = NEXT;
-if(test === undefined) {
+if(NEXT === undefined) {
     throw "NEXT not defined";
 }
 
-test = PREVIOUS;
-if(test === undefined) {
+if(PREVIOUS === undefined) {
     throw "PREVIOUS not defined";
 }
 
-test = PlayPauseType;
-if(test === undefined) {
+if(PlayPauseType === undefined) {
     throw "PlayPauseType not defined";
 }
 
-test = PLAY;
-if(test === undefined) {
+if(PLAY === undefined) {
     throw "PLAY not defined";
 }
 
-test = PAUSE;
-if(test === undefined) {
+if(PAUSE === undefined) {
     throw "PAUSE not defined";
 }
 
-test = RewindFastforwardType;
-if(test === undefined) {
+if(RewindFastforwardType === undefined) {
     throw "RewindFastforwardType not defined";
 }
 
-test = REWIND;
-if(test === undefined) {
+if(REWIND === undefined) {
     throw "REWIND not defined";
 }
 
-test = FASTFORWARD;
-if(test === undefined) {
+if(FASTFORWARD === undefined) {
     throw "FASTFORWARD not defined";
 }
 
-test = QuantityType;
-if(test === undefined) {
+if(QuantityType === undefined) {
     throw "QuantityType not defined";
 }
 
-test = StringListType;
-if(test === undefined) {
+if(StringListType === undefined) {
     throw "StringListType not defined";
 }
 
-test = RawType;
-if(test === undefined) {
+if(RawType === undefined) {
     throw "RawType not defined";
 }
 
-test = DateTimeType;
-if(test === undefined) {
+if(DateTimeType === undefined) {
     throw "DateTimeType not defined";
 }
 
-test = DecimalType;
-if(test === undefined) {
+if(DecimalType === undefined) {
     throw "DecimalType not defined";
 }
 
-test = DateTimeType;
-if(test === undefined) {
+if(DateTimeType === undefined) {
     throw "DateTimeType not defined";
 }
 
-test = HSBType;
-if(test === undefined) {
+if(HSBType === undefined) {
     throw "HSBType not defined";
 }
 
-test = PercentType;
-if(test === undefined) {
+if(PercentType === undefined) {
     throw "PercentType not defined";
 }
 
-test = PointType;
-if(test === undefined) {
+if(PointType === undefined) {
     throw "PointType not defined";
 }
 
-test = StringType;
-if(test === undefined) {
+if(StringType === undefined) {
     throw "StringType not defined";
 }
 
-test = items;
-if(test === undefined) {
+if(items === undefined) {
     throw "items not defined";
 }
 
-test = ir;
-if(test === undefined) {
+if(ir === undefined) {
     throw "ir not defined";
 }
 
-test = itemRegistry;
-if(test === undefined) {
+if(itemRegistry === undefined) {
     throw "itemRegistry not defined";
 }
 
-test = things;
-if(test === undefined) {
+if(things === undefined) {
     throw "things not defined";
 }
 
-test = events;
-if(test === undefined) {
+if(events === undefined) {
     throw "events not defined";
 }
 
-test = rules;
-if(test === undefined) {
+if(rules === undefined) {
     throw "rules not defined";
 }
