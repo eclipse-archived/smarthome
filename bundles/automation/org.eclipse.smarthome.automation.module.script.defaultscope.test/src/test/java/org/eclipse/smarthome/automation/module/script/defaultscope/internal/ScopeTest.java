@@ -13,8 +13,9 @@
 package org.eclipse.smarthome.automation.module.script.defaultscope.internal;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
@@ -47,12 +48,14 @@ public class ScopeTest extends JavaOSGiTest {
     }
 
     @Test
-    public void testScopeDefinesItemTypes() throws FileNotFoundException, ScriptException {
-        engine.eval(new FileReader(new File(path + File.separator + workingFile)));
+    public void testScopeDefinesItemTypes() throws ScriptException, IOException {
+        URL url = bundleContext.getBundle().getResource(path + File.separator + workingFile);
+        engine.eval(new InputStreamReader(url.openStream()));
     }
 
     @Test(expected = ScriptException.class)
-    public void testScopeDoesNotDefineFoobar() throws FileNotFoundException, ScriptException {
-        engine.eval(new FileReader(new File(path + File.separator + failureFile)));
+    public void testScopeDoesNotDefineFoobar() throws ScriptException, IOException {
+        URL url = bundleContext.getBundle().getResource(path + File.separator + failureFile);
+        engine.eval(new InputStreamReader(url.openStream()));
     }
 }
