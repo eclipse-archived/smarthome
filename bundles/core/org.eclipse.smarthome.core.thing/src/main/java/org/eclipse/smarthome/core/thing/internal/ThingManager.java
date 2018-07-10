@@ -127,7 +127,6 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     private EventPublisher eventPublisher;
 
     private CommunicationManager communicationManager;
-    private AutoUpdateManager autoUpdateManager;
 
     private ReadyService readyService;
 
@@ -1201,15 +1200,6 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
 
     protected void unsetSafeCaller(SafeCaller safeCaller) {
         this.safeCaller = null;
-    }
-
-    @Reference
-    public void setAutoUpdateManager(AutoUpdateManager autoUpdateManager) {
-        this.autoUpdateManager = autoUpdateManager;
-    }
-
-    public void unsetAutoUpdateManager(AutoUpdateManager autoUpdateManager) {
-        this.autoUpdateManager = null;
     }
 
 }
