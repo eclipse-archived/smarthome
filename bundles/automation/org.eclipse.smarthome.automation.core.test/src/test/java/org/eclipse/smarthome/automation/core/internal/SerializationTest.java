@@ -5,7 +5,9 @@ import static org.junit.Assert.assertEquals;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,13 +31,12 @@ public class SerializationTest {
     @Test
     public void serializeDeserializeRule() {
         // Create simple rule with one trigger.
-        final RuleImpl rule = new RuleImpl("foo");
         final List<Trigger> triggers = new LinkedList<>();
         triggers.add(new TriggerImpl("id", "typeUID", new Configuration()));
-        rule.setTriggers(triggers);
+        final Rule rule = RuleBuilder.create("foo").withTriggers(triggers).build();
 
         // Try to serialize and deserialize rule
-        final RuleImpl deserialized = serializeDeserialize(RuleImpl.class, rule);
+        final Rule deserialized = serializeDeserialize(Rule.class, rule);
 
         // Check if the rules are equals
         assertEquals(rule, deserialized);
