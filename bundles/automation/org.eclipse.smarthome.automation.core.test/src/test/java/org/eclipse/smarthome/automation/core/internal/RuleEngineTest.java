@@ -24,8 +24,10 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleManager;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.ActionBuilder;
+import org.eclipse.smarthome.automation.core.util.ConditionBuilder;
 import org.eclipse.smarthome.automation.core.util.RuleBuilder;
+import org.eclipse.smarthome.automation.core.util.TriggerBuilder;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
@@ -191,7 +193,7 @@ public class RuleEngineTest extends JavaOSGiTest {
         Assert.assertEquals("Empty actions list", 1, actionsGet.size());
         Assert.assertEquals("Returned actions list should not be a copy", actionsGet, rule1Get.getActions());
 
-        actions.add(ModuleBuilder.createAction().withId("actionId2").withTypeUID("typeUID2").build());
+        actions.add(ActionBuilder.create().withId("actionId2").withTypeUID("typeUID2").build());
         rule1 = RuleBuilder.create(rule1).withActions(actions).build();
         ruleEngine.addRule(rule1);
         rule1Get = ruleEngine.getRule("rule1");
@@ -200,7 +202,7 @@ public class RuleEngineTest extends JavaOSGiTest {
         Assert.assertEquals("Action was not added to the rule's list of actions", 2, actionsGet2.size());
         Assert.assertNotNull("Rule action with wrong id is returned", rule1Get.getModule("actionId2"));
 
-        actions.add(ModuleBuilder.createAction().withId("actionId3").withTypeUID("typeUID3").build());
+        actions.add(ActionBuilder.create().withId("actionId3").withTypeUID("typeUID3").build());
         ruleEngine.addRule(rule1); // ruleEngine.update will update the Rule2.moduleMap with the new module
         rule1Get = ruleEngine.getRule("rule1");
         List<Action> actionsGet3 = rule1Get.getActions();
@@ -224,7 +226,7 @@ public class RuleEngineTest extends JavaOSGiTest {
         Assert.assertEquals("Empty triggers list", 1, triggersGet.size());
         Assert.assertEquals("Returned triggers list should not be a copy", triggersGet, rule1Get.getTriggers());
 
-        triggers.add(ModuleBuilder.createTrigger().withId("triggerId2").withTypeUID("typeUID2").build());
+        triggers.add(TriggerBuilder.create().withId("triggerId2").withTypeUID("typeUID2").build());
         rule1 = RuleBuilder.create(rule1).withTriggers(triggers).build();
         ruleEngine.addRule(rule1); // ruleEngine.update will update the
                                    // Rule2.moduleMap with the new
@@ -252,7 +254,7 @@ public class RuleEngineTest extends JavaOSGiTest {
         Assert.assertEquals("Empty conditions list", 1, conditionsGet.size());
         Assert.assertEquals("Returned conditions list should not be a copy", conditionsGet, rule1Get.getConditions());
 
-        conditions.add(ModuleBuilder.createCondition().withId("conditionId2").withTypeUID("typeUID2").build());
+        conditions.add(ConditionBuilder.create().withId("conditionId2").withTypeUID("typeUID2").build());
         rule1 = RuleBuilder.create(rule1).withConditions(conditions).build();
         ruleEngine.addRule(rule1); // ruleEngine.update will update the Rule2.moduleMap with the new module
         Rule rule2Get = ruleEngine.getRule("rule1");
@@ -281,8 +283,8 @@ public class RuleEngineTest extends JavaOSGiTest {
         configurations.put("a", "x");
         configurations.put("b", "y");
         configurations.put("c", "z");
-        triggers.add(ModuleBuilder.createTrigger().withId("triggerId").withTypeUID(type)
-                .withConfiguration(configurations).build());
+        triggers.add(TriggerBuilder.create().withId("triggerId").withTypeUID(type).withConfiguration(configurations)
+                .build());
         return triggers;
     }
 
@@ -297,7 +299,7 @@ public class RuleEngineTest extends JavaOSGiTest {
         String outputName = "triggerOutput";
         String inputName = "conditionInput";
         inputs.put(inputName, ouputModuleId + "." + outputName);
-        conditions.add(ModuleBuilder.createCondition().withId("conditionId").withTypeUID(type)
+        conditions.add(ConditionBuilder.create().withId("conditionId").withTypeUID(type)
                 .withConfiguration(configurations).withInputs(inputs).build());
         return conditions;
     }
@@ -314,7 +316,7 @@ public class RuleEngineTest extends JavaOSGiTest {
         String inputName = "actionInput";
         inputs.put(inputName, ouputModuleId + "." + outputName);
         inputs.put("in6", ouputModuleId + "." + outputName);
-        actions.add(ModuleBuilder.createAction().withId("actionId").withTypeUID(type).withConfiguration(configurations)
+        actions.add(ActionBuilder.create().withId("actionId").withTypeUID(type).withConfiguration(configurations)
                 .withInputs(inputs).build());
         return actions;
     }

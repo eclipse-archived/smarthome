@@ -20,7 +20,9 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.ActionBuilder;
+import org.eclipse.smarthome.automation.core.util.ConditionBuilder;
+import org.eclipse.smarthome.automation.core.util.TriggerBuilder;
 import org.eclipse.smarthome.core.i18n.I18nUtil;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.osgi.framework.Bundle;
@@ -61,15 +63,15 @@ public class ModuleI18nUtil {
     }
 
     private static Trigger createLocalizedTrigger(Trigger module, String label, String description) {
-        return ModuleBuilder.createTrigger(module).withLabel(label).withDescription(description).build();
+        return TriggerBuilder.create(module).withLabel(label).withDescription(description).build();
     }
 
     private static Condition createLocalizedCondition(Condition module, String label, String description) {
-        return ModuleBuilder.createCondition(module).withLabel(label).withDescription(description).build();
+        return ConditionBuilder.create(module).withLabel(label).withDescription(description).build();
     }
 
     private static Action createLocalizedAction(Action module, String label, String description) {
-        return ModuleBuilder.createAction(module).withLabel(label).withDescription(description).build();
+        return ActionBuilder.create(module).withLabel(label).withDescription(description).build();
     }
 
     private static String getModuleLabel(TranslationProvider i18nProvider, Bundle bundle, String uid, String moduleName,

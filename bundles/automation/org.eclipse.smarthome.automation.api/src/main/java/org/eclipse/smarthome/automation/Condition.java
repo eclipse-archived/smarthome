@@ -42,13 +42,8 @@ public class Condition extends Module {
 
     private transient @Nullable ConditionHandler conditionHandler;
 
-    public Condition() {
-    }
-
-    public Condition(Condition condition) {
-        this(condition.getId(), condition.getTypeUID(), condition.getConfiguration(), condition.getInputs());
-        setLabel(condition.getLabel());
-        setDescription(condition.getDescription());
+    // Gson
+    Condition() {
     }
 
     /**
@@ -57,11 +52,14 @@ public class Condition extends Module {
      * @param id id of the module.
      * @param typeUID unique module type id.
      * @param configuration configuration values of the {@link Condition} module.
+     * @param label the label
+     * @param description description
      * @param inputs set of {@link Input}s used by this module.
      */
-    public Condition(String id, String typeUID, Configuration configuration, Map<String, String> inputs) {
-        super(id, typeUID, configuration);
-        setInputs(inputs);
+    public Condition(String id, String typeUID, @Nullable Configuration configuration, @Nullable String label,
+            @Nullable String description, @Nullable Map<String, String> inputs) {
+        super(id, typeUID, configuration, label, description);
+        this.inputs = inputs == null ? Collections.emptyMap() : Collections.unmodifiableMap(inputs);
     }
 
     /**

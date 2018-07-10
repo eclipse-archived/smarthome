@@ -34,8 +34,9 @@ import org.eclipse.smarthome.automation.RuleManager;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.ActionBuilder;
 import org.eclipse.smarthome.automation.core.util.RuleBuilder;
+import org.eclipse.smarthome.automation.core.util.TriggerBuilder;
 import org.eclipse.smarthome.automation.events.RuleAddedEvent;
 import org.eclipse.smarthome.automation.events.RuleRemovedEvent;
 import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent;
@@ -144,10 +145,9 @@ public class RuleEventTest extends JavaOSGiTest {
         actionCfgEntries.put("command", "ON");
         Configuration actionConfig = new Configuration(actionCfgEntries);
 
-        List<Trigger> triggers = Collections
-                .singletonList(ModuleBuilder.createTrigger().withId("ItemStateChangeTrigger2")
-                        .withTypeUID("core.GenericEventTrigger").withConfiguration(triggerConfig).build());
-        List<Action> actions = Collections.singletonList(ModuleBuilder.createAction().withId("ItemPostCommandAction2")
+        List<Trigger> triggers = Collections.singletonList(TriggerBuilder.create().withId("ItemStateChangeTrigger2")
+                .withTypeUID("core.GenericEventTrigger").withConfiguration(triggerConfig).build());
+        List<Action> actions = Collections.singletonList(ActionBuilder.create().withId("ItemPostCommandAction2")
                 .withTypeUID("core.ItemCommandAction").withConfiguration(actionConfig).build());
 
         Rule rule = RuleBuilder.create("myRule21").withTriggers(triggers).withActions(actions)

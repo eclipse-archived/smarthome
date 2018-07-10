@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.ActionBuilder;
 import org.eclipse.smarthome.automation.dto.ActionDTO;
 import org.eclipse.smarthome.config.core.Configuration;
 
@@ -37,7 +37,7 @@ public class ActionDTOMapper extends ModuleDTOMapper {
     }
 
     public static Action mapDto(final ActionDTO actionDto) {
-        return ModuleBuilder.createAction().withId(actionDto.id).withTypeUID(actionDto.type)
+        return ActionBuilder.create().withId(actionDto.id).withTypeUID(actionDto.type)
                 .withConfiguration(new Configuration(actionDto.configuration)).withInputs(actionDto.inputs)
                 .withLabel(actionDto.label).withDescription(actionDto.description).build();
     }

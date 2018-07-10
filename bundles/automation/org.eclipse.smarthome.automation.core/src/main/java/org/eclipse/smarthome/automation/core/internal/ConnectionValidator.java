@@ -289,7 +289,7 @@ public class ConnectionValidator {
     /**
      * Collects the {@link Connection}s of {@link Module}s.
      *
-     * @param type specifies the type of the automation object - module type, rule or rule template.
+     * @param typeUID specifies the type of the automation object - module type, rule or rule template.
      * @param UID is the unique identifier of the automation object - module type, rule or rule template.
      * @param jsonModule is a JSONObject representing the module.
      * @param exceptions is a list used for collecting the exceptions occurred during {@link Module}s creation.

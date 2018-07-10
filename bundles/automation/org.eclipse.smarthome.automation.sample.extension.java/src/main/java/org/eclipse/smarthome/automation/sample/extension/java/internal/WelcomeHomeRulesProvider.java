@@ -23,8 +23,10 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.ActionBuilder;
+import org.eclipse.smarthome.automation.core.util.ConditionBuilder;
 import org.eclipse.smarthome.automation.core.util.RuleBuilder;
+import org.eclipse.smarthome.automation.core.util.TriggerBuilder;
 import org.eclipse.smarthome.automation.sample.extension.java.internal.template.AirConditionerRuleTemplate;
 import org.eclipse.smarthome.automation.sample.extension.java.internal.type.LightsTriggerType;
 import org.eclipse.smarthome.automation.sample.extension.java.internal.type.StateConditionType;
@@ -167,7 +169,7 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
         // initialize the trigger
         String triggerId = "LightsSwitchOnRuleTrigger";
         List<Trigger> triggers = new ArrayList<Trigger>();
-        triggers.add(ModuleBuilder.createTrigger().withId(triggerId).withTypeUID(LightsTriggerType.UID).build());
+        triggers.add(TriggerBuilder.create().withId(triggerId).withTypeUID(LightsTriggerType.UID).build());
 
         // initialize the condition - here the tricky part is the referring into the condition input - trigger output.
         // The syntax is a similar to the JUEL syntax.
@@ -176,8 +178,8 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
         List<Condition> conditions = new ArrayList<Condition>();
         Map<String, String> inputs = new HashMap<String, String>();
         inputs.put(StateConditionType.INPUT_CURRENT_STATE, triggerId + "." + StateConditionType.INPUT_CURRENT_STATE);
-        conditions.add(ModuleBuilder.createCondition().withId("LightsStateCondition")
-                .withTypeUID(StateConditionType.UID).withConfiguration(config).withInputs(inputs).build());
+        conditions.add(ConditionBuilder.create().withId("LightsStateCondition").withTypeUID(StateConditionType.UID)
+                .withConfiguration(config).withInputs(inputs).build());
 
         // initialize the action - here the tricky part is the referring into the action configuration parameter - the
         // template configuration parameter. The syntax is a similar to the JUEL syntax.
@@ -185,7 +187,7 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
         config.put(WelcomeHomeActionType.CONFIG_DEVICE, "Lights");
         config.put(WelcomeHomeActionType.CONFIG_RESULT, "Lights are switched on");
         List<Action> actions = new ArrayList<Action>();
-        actions.add(ModuleBuilder.createAction().withId("LightsSwitchOnAction").withTypeUID(WelcomeHomeActionType.UID)
+        actions.add(ActionBuilder.create().withId("LightsSwitchOnAction").withTypeUID(WelcomeHomeActionType.UID)
                 .withConfiguration(config).build());
 
         // initialize the configDescriptions

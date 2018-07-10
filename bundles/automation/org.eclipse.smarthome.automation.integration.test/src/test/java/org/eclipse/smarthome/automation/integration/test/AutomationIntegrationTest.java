@@ -41,8 +41,10 @@ import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.Visibility;
 import org.eclipse.smarthome.automation.core.ManagedRuleProvider;
-import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.ActionBuilder;
+import org.eclipse.smarthome.automation.core.util.ConditionBuilder;
 import org.eclipse.smarthome.automation.core.util.RuleBuilder;
+import org.eclipse.smarthome.automation.core.util.TriggerBuilder;
 import org.eclipse.smarthome.automation.events.RuleAddedEvent;
 import org.eclipse.smarthome.automation.events.RuleRemovedEvent;
 import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent;
@@ -266,19 +268,18 @@ public class AutomationIntegrationTest extends JavaOSGiTest {
         params.put("itemName", "myLampItem3");
         params.put("command", "ON");
         Configuration actionConfig = new Configuration(params);
-        List<Trigger> triggers = Collections
-                .singletonList(ModuleBuilder.createTrigger().withId("ItemStateChangeTrigger")
-                        .withTypeUID("core.GenericEventTrigger").withConfiguration(triggerConfig).build());
+        List<Trigger> triggers = Collections.singletonList(TriggerBuilder.create().withId("ItemStateChangeTrigger")
+                .withTypeUID("core.GenericEventTrigger").withConfiguration(triggerConfig).build());
         Map<String, String> inputs = new HashMap<>();
         inputs.put("topic", "ItemStateChangeTrigger.topic");
         inputs.put("event", "ItemStateChangeTrigger.event");
 
         // def conditionInputs=[topicConnection] as Set
         List<Condition> conditions = Collections.singletonList(
-                ModuleBuilder.createCondition().withId("EventCondition_2").withTypeUID("core.GenericEventCondition")
+                ConditionBuilder.create().withId("EventCondition_2").withTypeUID("core.GenericEventCondition")
                         .withConfiguration(condition1Config).withInputs(inputs).build());
 
-        List<Action> actions = Collections.singletonList(ModuleBuilder.createAction().withId("ItemPostCommandAction2")
+        List<Action> actions = Collections.singletonList(ActionBuilder.create().withId("ItemPostCommandAction2")
                 .withTypeUID("core.ItemCommandAction").withConfiguration(actionConfig).build());
 
         Rule rule = RuleBuilder.create("myRule21_ConnectionTest").withTriggers(triggers).withConditions(conditions)
@@ -336,18 +337,17 @@ public class AutomationIntegrationTest extends JavaOSGiTest {
         params.put("itemName", "myLampItem3");
         params.put("command", "ON");
         Configuration actionConfig = new Configuration(params);
-        List<Trigger> triggers = Collections
-                .singletonList(ModuleBuilder.createTrigger().withId("ItemStateChangeTrigger")
-                        .withTypeUID("GenericEventTriggerWhichDoesNotExist").withConfiguration(triggerConfig).build());
+        List<Trigger> triggers = Collections.singletonList(TriggerBuilder.create().withId("ItemStateChangeTrigger")
+                .withTypeUID("GenericEventTriggerWhichDoesNotExist").withConfiguration(triggerConfig).build());
         Map<String, String> inputs = new HashMap<>();
         inputs.put("topic", "ItemStateChangeTrigger.topic");
         inputs.put("event", "ItemStateChangeTrigger.event");
 
         // def conditionInputs=[topicConnection] as Set
         List<Condition> conditions = Collections.singletonList(
-                ModuleBuilder.createCondition().withId("EventCondition_2").withTypeUID("core.GenericEventCondition")
+                ConditionBuilder.create().withId("EventCondition_2").withTypeUID("core.GenericEventCondition")
                         .withConfiguration(condition1Config).withInputs(inputs).build());
-        List<Action> actions = Collections.singletonList(ModuleBuilder.createAction().withId("ItemPostCommandAction2")
+        List<Action> actions = Collections.singletonList(ActionBuilder.create().withId("ItemPostCommandAction2")
                 .withTypeUID("core.ItemCommandAction").withConfiguration(actionConfig).build());
 
         Rule rule = RuleBuilder.create("myRule21_UNINITIALIZED").withTriggers(triggers).withConditions(conditions)
@@ -429,10 +429,9 @@ public class AutomationIntegrationTest extends JavaOSGiTest {
         params.put("itemName", "myLampItem3");
         params.put("command", "ON");
         Configuration actionConfig = new Configuration(params);
-        List<Trigger> triggers = Collections
-                .singletonList(ModuleBuilder.createTrigger().withId("ItemStateChangeTrigger3")
-                        .withTypeUID("core.ItemStateChangeTrigger").withConfiguration(triggerConfig).build());
-        List<Action> actions = Collections.singletonList(ModuleBuilder.createAction().withId("ItemPostCommandAction3")
+        List<Trigger> triggers = Collections.singletonList(TriggerBuilder.create().withId("ItemStateChangeTrigger3")
+                .withTypeUID("core.ItemStateChangeTrigger").withConfiguration(triggerConfig).build());
+        List<Action> actions = Collections.singletonList(ActionBuilder.create().withId("ItemPostCommandAction3")
                 .withTypeUID("core.ItemCommandAction").withConfiguration(actionConfig).build());
 
         Rule rule = RuleBuilder.create("myRule21" + new Random().nextInt() + "_COMPOSITE").withTriggers(triggers)
@@ -496,14 +495,14 @@ public class AutomationIntegrationTest extends JavaOSGiTest {
         params.put("itemName", "myLampItem3");
         params.put("command", "OFFF");
         Configuration actionConfig3 = new Configuration(params);
-        List<Trigger> triggers = Collections.singletonList(ModuleBuilder.createTrigger().withId("GenericEventTriggerId")
+        List<Trigger> triggers = Collections.singletonList(TriggerBuilder.create().withId("GenericEventTriggerId")
                 .withTypeUID("core.GenericEventTrigger").withConfiguration(triggerConfig).build());
         List<Action> actions = Arrays.asList(new Action[] {
-                ModuleBuilder.createAction().withId("ItemPostCommandActionId").withTypeUID("core.ItemCommandAction")
+                ActionBuilder.create().withId("ItemPostCommandActionId").withTypeUID("core.ItemCommandAction")
                         .withConfiguration(actionConfig).build(),
-                ModuleBuilder.createAction().withId("ItemPostCommandActionId2").withTypeUID("core.ItemCommandAction")
+                ActionBuilder.create().withId("ItemPostCommandActionId2").withTypeUID("core.ItemCommandAction")
                         .withConfiguration(actionConfig2).build(),
-                ModuleBuilder.createAction().withId("ItemPostCommandActionId3").withTypeUID("core.ItemCommandAction")
+                ActionBuilder.create().withId("ItemPostCommandActionId3").withTypeUID("core.ItemCommandAction")
                         .withConfiguration(actionConfig3).build() });
 
         Rule rule = RuleBuilder.create("runNowRule" + new Random().nextInt()).withTriggers(triggers)
@@ -561,10 +560,9 @@ public class AutomationIntegrationTest extends JavaOSGiTest {
         params.put("itemName", "myLampItem4");
         params.put("command", "ON");
         Configuration actionConfig = new Configuration(params);
-        List<Trigger> triggers = Collections
-                .singletonList(ModuleBuilder.createTrigger().withId("ItemStateChangeTrigger4")
-                        .withTypeUID("core.ItemStateChangeTrigger").withConfiguration(triggerConfig).build());
-        List<Action> actions = Collections.singletonList(ModuleBuilder.createAction().withId("ItemPostCommandAction4")
+        List<Trigger> triggers = Collections.singletonList(TriggerBuilder.create().withId("ItemStateChangeTrigger4")
+                .withTypeUID("core.ItemStateChangeTrigger").withConfiguration(triggerConfig).build());
+        List<Action> actions = Collections.singletonList(ActionBuilder.create().withId("ItemPostCommandAction4")
                 .withTypeUID("core.ItemCommandAction").withConfiguration(actionConfig).build());
 
         Rule rule = RuleBuilder.create("myRule21" + new Random().nextInt() + "_COMPOSITE").withTriggers(triggers)
@@ -628,10 +626,9 @@ public class AutomationIntegrationTest extends JavaOSGiTest {
         params.put("itemName", "myLampItem2");
         params.put("command", "ON");
         Configuration actionConfig = new Configuration(params);
-        List<Trigger> triggers = Collections
-                .singletonList(ModuleBuilder.createTrigger().withId("ItemStateChangeTrigger2")
-                        .withTypeUID("core.GenericEventTrigger").withConfiguration(triggerConfig).build());
-        List<Action> actions = Collections.singletonList(ModuleBuilder.createAction().withId("ItemPostCommandAction2")
+        List<Trigger> triggers = Collections.singletonList(TriggerBuilder.create().withId("ItemStateChangeTrigger2")
+                .withTypeUID("core.GenericEventTrigger").withConfiguration(triggerConfig).build());
+        List<Action> actions = Collections.singletonList(ActionBuilder.create().withId("ItemPostCommandAction2")
                 .withTypeUID("core.ItemCommandAction").withConfiguration(actionConfig).build());
 
         Rule rule = RuleBuilder.create("myRule21").withTriggers(triggers).withActions(actions)
@@ -903,11 +900,10 @@ public class AutomationIntegrationTest extends JavaOSGiTest {
         configs.put("command", "ON");
         Configuration actionConfig = new Configuration(configs);
         String triggerUID = "ItemStateChangeTrigger_" + rand;
-        List<Trigger> triggers = Collections.singletonList(ModuleBuilder.createTrigger().withId(triggerUID)
+        List<Trigger> triggers = Collections.singletonList(TriggerBuilder.create().withId(triggerUID)
                 .withTypeUID("core.GenericEventTrigger").withConfiguration(triggerConfig).build());
-        List<Action> actions = Collections
-                .singletonList(ModuleBuilder.createAction().withId("ItemPostCommandAction_" + rand)
-                        .withTypeUID("core.ItemCommandAction").withConfiguration(actionConfig).build());
+        List<Action> actions = Collections.singletonList(ActionBuilder.create().withId("ItemPostCommandAction_" + rand)
+                .withTypeUID("core.ItemCommandAction").withConfiguration(actionConfig).build());
 
         Rule rule = RuleBuilder.create("myRule_" + rand).withTriggers(triggers).withActions(actions)
                 .withName("RuleByJAVA_API_" + rand).build();
@@ -940,20 +936,19 @@ public class AutomationIntegrationTest extends JavaOSGiTest {
         configs.put("command", "ON");
         Configuration actionConfig = new Configuration(configs);
         String triggerId = "ItemStateChangeTrigger" + random;
-        List<Trigger> triggers = Collections.singletonList(ModuleBuilder.createTrigger().withId(triggerId)
+        List<Trigger> triggers = Collections.singletonList(TriggerBuilder.create().withId(triggerId)
                 .withTypeUID("core.GenericEventTrigger").withConfiguration(triggerConfig).build());
         List<Condition> conditions = Stream.of(
-                ModuleBuilder.createCondition().withId("ItemStateCondition" + random)
+                ConditionBuilder.create().withId("ItemStateCondition" + random)
                         .withTypeUID("core.GenericCompareCondition").withConfiguration(condition1Config)
                         .withInputs(Collections.singletonMap("input", triggerId + ".event")).build(),
-                ModuleBuilder.createCondition().withId("ItemStateCondition" + (random + 1))
+                ConditionBuilder.create().withId("ItemStateCondition" + (random + 1))
                         .withTypeUID("core.GenericCompareCondition").withConfiguration(condition2Config)
                         .withInputs(Collections.singletonMap("input", triggerId + ".event")).build())
                 .collect(toList());
 
-        List<Action> actions = Collections
-                .singletonList(ModuleBuilder.createAction().withId("ItemPostCommandAction" + random)
-                        .withTypeUID("core.ItemCommandAction").withConfiguration(actionConfig).build());
+        List<Action> actions = Collections.singletonList(ActionBuilder.create().withId("ItemPostCommandAction" + random)
+                .withTypeUID("core.ItemCommandAction").withConfiguration(actionConfig).build());
 
         Rule rule = RuleBuilder.create("myRule_" + random).withTriggers(triggers).withConditions(conditions)
                 .withActions(actions).withName("RuleByJAVA_API" + random).withTags("myRule_" + random).build();

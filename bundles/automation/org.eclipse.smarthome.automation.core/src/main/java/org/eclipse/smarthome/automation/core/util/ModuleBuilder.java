@@ -12,130 +12,78 @@
  */
 package org.eclipse.smarthome.automation.core.util;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
-import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
  * This class allows the easy construction of a {@link Module} instance using the builder pattern.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Markus Rathgeb - Split implementation for different module types in sub classes
  *
  */
 @NonNullByDefault
-public class ModuleBuilder<T extends Module> {
+public abstract class ModuleBuilder<B extends ModuleBuilder<B, T>, T extends Module> {
 
-    private final Module module;
+    private @Nullable String id;
+    private @Nullable String typeUID;
+    protected @Nullable Configuration configuration;
+    protected @Nullable String label;
+    protected @Nullable String description;
 
-    protected ModuleBuilder(Module module) {
-        this.module = module;
+    protected ModuleBuilder() {
     }
 
-    public static ModuleBuilder<Action> createAction() {
-        Action action = new Action();
-        return new ModuleBuilder<Action>(action);
+    protected ModuleBuilder(T module) {
+        this.id = module.getId();
+        this.typeUID = module.getTypeUID();
+        this.configuration = module.getConfiguration();
+        this.label = module.getLabel();
+        this.description = module.getDescription();
     }
 
-    public static ModuleBuilder<? extends Module> create(Module module) {
-        if (module instanceof Action) {
-            return createAction((Action) module);
-        } else if (module instanceof Condition) {
-            return createCondition((Condition) module);
-        } else if (module instanceof Trigger) {
-            return createTrigger((Trigger) module);
-        } else {
-            throw new IllegalArgumentException("Parameter must be an instance of Action, Condition or Trigger.");
+    public B withId(String id) {
+        this.id = id;
+        return (B) this;
+    }
+
+    public B withTypeUID(String typeUID) {
+        this.typeUID = typeUID;
+        return (B) this;
+    }
+
+    public B withConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+        return (B) this;
+    }
+
+    public B withLabel(@Nullable String label) {
+        this.label = label;
+        return (B) this;
+    }
+
+    public B withDescription(@Nullable String description) {
+        this.description = description;
+        return (B) this;
+    }
+
+    protected String getId() {
+        final String id = this.id;
+        if (id == null) {
+            throw new IllegalStateException("The ID must not be null.");
         }
+        return id;
     }
 
-    public static ModuleBuilder<Action> createAction(Action action) {
-        Action Action = new Action();
-        fillModuleFields(action, Action);
-        Action.setInputs(new HashMap<>(action.getInputs()));
-        return new ModuleBuilder<Action>(Action);
-    }
-
-    public static ModuleBuilder<Trigger> createTrigger() {
-        Trigger trigger = new Trigger();
-        return new ModuleBuilder<Trigger>(trigger);
-    }
-
-    public static ModuleBuilder<Trigger> createTrigger(Trigger trigger) {
-        Trigger Trigger = new Trigger();
-        fillModuleFields(trigger, Trigger);
-        return new ModuleBuilder<Trigger>(Trigger);
-    }
-
-    public static ModuleBuilder<Condition> createCondition() {
-        Condition condition = new Condition();
-        return new ModuleBuilder<Condition>(condition);
-    }
-
-    public static ModuleBuilder<Condition> createCondition(Condition condition) {
-        Condition Condition = new Condition();
-        fillModuleFields(condition, Condition);
-        Condition.setInputs(new HashMap<>(condition.getInputs()));
-        return new ModuleBuilder<Condition>(Condition);
-    }
-
-    public ModuleBuilder<T> withId(@Nullable String id) {
-        this.module.setId(id);
-        return this;
-    }
-
-    public ModuleBuilder<T> withTypeUID(@Nullable String typeUID) {
-        this.module.setTypeUID(typeUID);
-        return this;
-    }
-
-    public ModuleBuilder<T> withLabel(@Nullable String label) {
-        this.module.setLabel(label);
-        return this;
-    }
-
-    public ModuleBuilder<T> withDescription(@Nullable String description) {
-        this.module.setDescription(description);
-        return this;
-    }
-
-    public ModuleBuilder<T> withConfiguration(Configuration configuration) {
-        this.module.setConfiguration(configuration);
-        return this;
-    }
-
-    public ModuleBuilder<T> withInputs(@Nullable Map<String, String> inputs) {
-        if (inputs == null) {
-            return this;
+    protected String getTypeUID() {
+        final String typeUID = this.typeUID;
+        if (typeUID == null) {
+            throw new IllegalStateException("The type UID must not be null.");
         }
-        if (module instanceof Trigger) {
-            throw new UnsupportedOperationException();
-        }
-        if (module instanceof Condition) {
-            ((Condition) module).setInputs(new HashMap<>(inputs));
-        }
-        if (module instanceof Action) {
-            ((Action) module).setInputs(new HashMap<>(inputs));
-        }
-        return this;
+        return typeUID;
     }
 
-    @SuppressWarnings("unchecked")
-    public T build() {
-        return (T) this.module;
-    }
-
-    private static void fillModuleFields(Module module, Module Module) {
-        Module.setId(module.getId());
-        Module.setTypeUID(module.getTypeUID());
-        Module.setLabel(module.getLabel());
-        Module.setDescription(module.getDescription());
-        Module.setConfiguration(new Configuration(module.getConfiguration().getProperties()));
-    }
+    public abstract T build();
 }

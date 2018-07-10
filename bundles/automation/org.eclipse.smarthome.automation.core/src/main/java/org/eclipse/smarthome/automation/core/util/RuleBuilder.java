@@ -122,7 +122,7 @@ public class RuleBuilder {
     public RuleBuilder withTriggers(@Nullable List<? extends Trigger> triggers) {
         if (triggers != null) {
             ArrayList<Trigger> triggerList = new ArrayList<>(triggers.size());
-            triggers.forEach(t -> triggerList.add(ModuleBuilder.createTrigger(t).build()));
+            triggers.forEach(t -> triggerList.add(TriggerBuilder.create(t).build()));
             this.triggers = triggerList;
         }
         return this;
@@ -135,7 +135,7 @@ public class RuleBuilder {
     public RuleBuilder withConditions(@Nullable List<? extends Condition> conditions) {
         if (conditions != null) {
             ArrayList<Condition> conditionList = new ArrayList<>(conditions.size());
-            conditions.forEach(c -> conditionList.add(ModuleBuilder.createCondition(c).build()));
+            conditions.forEach(c -> conditionList.add(ConditionBuilder.create(c).build()));
             this.conditions = conditionList;
         }
         return this;
@@ -148,7 +148,7 @@ public class RuleBuilder {
     public RuleBuilder withActions(@Nullable List<? extends Action> actions) {
         if (actions != null) {
             ArrayList<Action> actionList = new ArrayList<>(actions.size());
-            actions.forEach(a -> actionList.add(ModuleBuilder.createAction(a).build()));
+            actions.forEach(a -> actionList.add(ActionBuilder.create(a).build()));
             this.actions = actionList;
         }
         return this;

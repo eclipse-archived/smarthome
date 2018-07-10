@@ -64,21 +64,27 @@ public class Module {
      */
     private String type;
 
+    // Gson
+    Module() {
+        this("", "", null, null, null);
+    }
+
     /**
      * Constructor of the module.
      *
      * @param id the module id.
      * @param typeUID unique id of the module type.
      * @param configuration configuration values of the module.
+     * @param label the label
+     * @param description the description
      */
-    public Module(String id, String typeUID, @Nullable Configuration configuration) {
+    public Module(String id, String typeUID, @Nullable Configuration configuration, @Nullable String label,
+            @Nullable String description) {
         this.id = id;
         this.type = typeUID;
         this.configuration = configuration == null ? new Configuration() : configuration;
-    }
-
-    public Module() {
-        this("", "", null);
+        this.label = label;
+        this.description = description;
     }
 
     /**

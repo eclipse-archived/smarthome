@@ -32,17 +32,13 @@ public class Trigger extends Module {
 
     private transient @Nullable TriggerHandler triggerHandler;
 
-    public Trigger() {
+    // Gson
+    Trigger() {
     }
 
-    public Trigger(String id, String typeUID, Configuration configuration) {
-        super(id, typeUID, configuration);
-    }
-
-    public Trigger(Trigger trigger) {
-        super(trigger.getId(), trigger.getTypeUID(), trigger.getConfiguration());
-        setLabel(trigger.getLabel());
-        setDescription(trigger.getDescription());
+    public Trigger(String id, String typeUID, Configuration configuration, @Nullable String label,
+            @Nullable String description) {
+        super(id, typeUID, configuration, label, description);
     }
 
     /**

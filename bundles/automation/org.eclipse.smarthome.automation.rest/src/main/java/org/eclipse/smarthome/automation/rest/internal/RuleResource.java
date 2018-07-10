@@ -48,8 +48,11 @@ import org.eclipse.smarthome.automation.core.dto.ActionDTOMapper;
 import org.eclipse.smarthome.automation.core.dto.ConditionDTOMapper;
 import org.eclipse.smarthome.automation.core.dto.RuleDTOMapper;
 import org.eclipse.smarthome.automation.core.dto.TriggerDTOMapper;
+import org.eclipse.smarthome.automation.core.util.ActionBuilder;
+import org.eclipse.smarthome.automation.core.util.ConditionBuilder;
 import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
 import org.eclipse.smarthome.automation.core.util.RuleBuilder;
+import org.eclipse.smarthome.automation.core.util.TriggerBuilder;
 import org.eclipse.smarthome.automation.dto.ActionDTO;
 import org.eclipse.smarthome.automation.dto.ConditionDTO;
 import org.eclipse.smarthome.automation.dto.ModuleDTO;
@@ -415,7 +418,19 @@ public class RuleResource implements RESTResource {
             if (module != null) {
                 Configuration configuration = module.getConfiguration();
                 configuration.put(param, ConfigUtil.normalizeType(value));
-                module = ModuleBuilder.create(module).withConfiguration(configuration).build();
+
+                final ModuleBuilder<?, ?> builder;
+                if (module instanceof Action) {
+                    builder = ActionBuilder.create((Action) module);
+                } else if (module instanceof Condition) {
+                    builder = ConditionBuilder.create((Condition) module);
+                } else if (module instanceof Trigger) {
+                    builder = TriggerBuilder.create((Trigger) module);
+                } else {
+                    return Response.status(Status.NOT_FOUND).build();
+                }
+
+                module = builder.withConfiguration(configuration).build();
                 ruleRegistry.update(rule);
                 return Response.ok(null, MediaType.TEXT_PLAIN).build();
             }
