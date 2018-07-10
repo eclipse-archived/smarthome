@@ -76,25 +76,6 @@ public class Condition extends Module {
     }
 
     /**
-     * This method gets handler which is responsible for handling of this module.
-     *
-     * @return handler of the module or null.
-     */
-    @Nullable
-    public ConditionHandler getModuleHandler() {
-        return conditionHandler;
-    }
-
-    /**
-     * This method sets handler of the module.
-     *
-     * @param conditionHandler
-     */
-    public void setModuleHandler(@Nullable ConditionHandler conditionHandler) {
-        this.conditionHandler = conditionHandler;
-    }
-
-    /**
      * This method is used to get input connections of the Condition. The connections
      * are links between {@link Input}s of the current {@link Module} and {@link Output}s of other
      * {@link Module}s.
@@ -106,7 +87,35 @@ public class Condition extends Module {
     }
 
     /**
+     * This method gets handler which is responsible for handling of this module.
+     *
+     * <p>
+     * For the Rule Engine implementation only.
+     *
+     * @return handler of the module or null.
+     */
+    @Nullable
+    public ConditionHandler getModuleHandler() {
+        return conditionHandler;
+    }
+
+    /**
+     * This method sets handler of the module.
+     *
+     * <p>
+     * For the Rule Engine implementation only.
+     *
+     * @param conditionHandler
+     */
+    public void setModuleHandler(@Nullable ConditionHandler conditionHandler) {
+        this.conditionHandler = conditionHandler;
+    }
+
+    /**
      * This method is used to connect {@link Input}s of the Condition to {@link Output}s of other {@link Module}s.
+     *
+     * <p>
+     * For the Rule Engine implementation only.
      *
      * @param inputs map that contains the inputs for this condition.
      */

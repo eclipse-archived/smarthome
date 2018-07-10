@@ -77,25 +77,6 @@ public class Action extends Module {
     }
 
     /**
-     * This method gets handler which is responsible for handling of this module.
-     *
-     * @return handler of the module or null.
-     */
-    @Nullable
-    public ActionHandler getModuleHandler() {
-        return actionHandler;
-    }
-
-    /**
-     * This method sets handler of the module.
-     *
-     * @param actionHandler
-     */
-    public void setModuleHandler(@Nullable ActionHandler actionHandler) {
-        this.actionHandler = actionHandler;
-    }
-
-    /**
      * This method is used to get input connections of the Action. The connections
      * are links between {@link Input}s of the this {@link Module} and {@link Output}s
      * of other {@link Module}s.
@@ -108,7 +89,35 @@ public class Action extends Module {
     }
 
     /**
+     * This method gets handler which is responsible for handling of this module.
+     *
+     * <p>
+     * For the Rule Engine implementation only.
+     *
+     * @return handler of the module or null.
+     */
+    @Nullable
+    public ActionHandler getModuleHandler() {
+        return actionHandler;
+    }
+
+    /**
+     * This method sets handler of the module.
+     *
+     * <p>
+     * For the Rule Engine implementation only.
+     *
+     * @param actionHandler
+     */
+    public void setModuleHandler(@Nullable ActionHandler actionHandler) {
+        this.actionHandler = actionHandler;
+    }
+
+    /**
      * This method is used to connect {@link Input}s of the action to {@link Output}s of other {@link Module}s.
+     *
+     * <p>
+     * For the Rule Engine implementation only.
      *
      * @param inputs map that contains the inputs for this action.
      */

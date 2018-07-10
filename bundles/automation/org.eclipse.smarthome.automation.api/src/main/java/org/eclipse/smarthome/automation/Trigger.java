@@ -44,6 +44,9 @@ public class Trigger extends Module {
     /**
      * This method gets handler which is responsible for handling of this module.
      *
+     * <p>
+     * For the Rule Engine implementation only.
+     *
      * @return handler of the module or null.
      */
     public @Nullable TriggerHandler getModuleHandler() {
@@ -52,6 +55,9 @@ public class Trigger extends Module {
 
     /**
      * This method sets handler of the module.
+     *
+     * <p>
+     * For the Rule Engine implementation only.
      *
      * @param triggerHandler
      */
