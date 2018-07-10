@@ -195,6 +195,7 @@ public class RuleEngineTest extends JavaOSGiTest {
 
         actions.add(ActionBuilder.create().withId("actionId2").withTypeUID("typeUID2").build());
         rule1 = RuleBuilder.create(rule1).withActions(actions).build();
+        ruleRegistry.update(rule1);
         ruleEngine.addRule(rule1);
         rule1Get = ruleEngine.getRule("rule1");
         List<Action> actionsGet2 = rule1Get.getActions();
@@ -203,6 +204,8 @@ public class RuleEngineTest extends JavaOSGiTest {
         Assert.assertNotNull("Rule action with wrong id is returned", rule1Get.getModule("actionId2"));
 
         actions.add(ActionBuilder.create().withId("actionId3").withTypeUID("typeUID3").build());
+        rule1 = RuleBuilder.create(rule1).withActions(actions).build();
+        ruleRegistry.update(rule1);
         ruleEngine.addRule(rule1); // ruleEngine.update will update the Rule2.moduleMap with the new module
         rule1Get = ruleEngine.getRule("rule1");
         List<Action> actionsGet3 = rule1Get.getActions();
@@ -228,6 +231,7 @@ public class RuleEngineTest extends JavaOSGiTest {
 
         triggers.add(TriggerBuilder.create().withId("triggerId2").withTypeUID("typeUID2").build());
         rule1 = RuleBuilder.create(rule1).withTriggers(triggers).build();
+        ruleRegistry.update(rule1);
         ruleEngine.addRule(rule1); // ruleEngine.update will update the
                                    // Rule2.moduleMap with the new
                                    // module
@@ -254,8 +258,10 @@ public class RuleEngineTest extends JavaOSGiTest {
         Assert.assertEquals("Empty conditions list", 1, conditionsGet.size());
         Assert.assertEquals("Returned conditions list should not be a copy", conditionsGet, rule1Get.getConditions());
 
-        conditions.add(ConditionBuilder.create().withId("conditionId2").withTypeUID("typeUID2").build());
+        conditions.add(ConditionBuilder.create().withId("conditionId2")
+                .withTypeUID(TestModuleTypeProvider.CONDITION_TYPE).build());
         rule1 = RuleBuilder.create(rule1).withConditions(conditions).build();
+        ruleRegistry.update(rule1);
         ruleEngine.addRule(rule1); // ruleEngine.update will update the Rule2.moduleMap with the new module
         Rule rule2Get = ruleEngine.getRule("rule1");
         List<Condition> conditionsGet2 = rule2Get.getConditions();
