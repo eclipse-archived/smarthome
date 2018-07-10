@@ -1,6 +1,5 @@
 'use strict';
 
-var test = UnDefType.FOOBAR;
-if(test === undefined) {
-    throw "UnDefType.FOOBAR not defined";
+if(FOOBAR === undefined  && UnDefType.FOOBAR === undefined) {
+    throw "FOOBAR and UnDefType.FOOBAR not defined";
 }
