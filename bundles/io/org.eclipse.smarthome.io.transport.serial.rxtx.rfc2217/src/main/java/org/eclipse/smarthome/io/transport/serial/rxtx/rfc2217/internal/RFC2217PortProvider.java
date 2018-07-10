@@ -32,7 +32,7 @@ import gnu.io.rfc2217.TelnetSerialPort;
  */
 @NonNullByDefault
 @Component(service = SerialPortProvider.class)
-public class RFC2217PortCreator implements SerialPortProvider {
+public class RFC2217PortProvider implements SerialPortProvider {
 
     private final static String PROTOCOL = "rfc2217";
 

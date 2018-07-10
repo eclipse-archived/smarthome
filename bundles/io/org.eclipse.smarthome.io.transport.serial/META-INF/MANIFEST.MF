@@ -18,4 +18,3 @@ Import-Package:
  org.slf4j
 Automatic-Module-Name: org.eclipse.smarthome.io.transport.serial
 Service-Component: OSGI-INF/*.xml
-Bundle-ActivationPolicy: lazy

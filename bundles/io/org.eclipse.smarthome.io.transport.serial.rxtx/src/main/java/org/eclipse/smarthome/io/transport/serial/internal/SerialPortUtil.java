@@ -12,16 +12,21 @@
  */
 package org.eclipse.smarthome.io.transport.serial.internal;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  *
  * @author Matthias Steigenberger - Initial Contribution
  *
  */
+@NonNullByDefault
 public class SerialPortUtil {
 
     private static final String GNU_IO_RXTX_SERIAL_PORTS = "gnu.io.rxtx.SerialPorts";
@@ -40,9 +45,9 @@ public class SerialPortUtil {
         }
     }
 
-    static String initSerialPort(String port, String serialPortsProperty) {
+    static @Nullable String initSerialPort(String port, @Nullable String serialPortsProperty) {
 
-        String pathSeparator = System.getProperty("path.separator", ":");
+        String pathSeparator = File.pathSeparator;
         Set<String> serialPorts = null;
         if (serialPortsProperty != null) {
             serialPorts = Stream.of(serialPortsProperty.split(pathSeparator)).collect(Collectors.toSet());
@@ -55,4 +60,5 @@ public class SerialPortUtil {
         }
         return null;
     }
+
 }

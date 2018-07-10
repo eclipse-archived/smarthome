@@ -23,9 +23,9 @@ import org.eclipse.smarthome.io.transport.serial.rxtx.RxTxSerialPort;
 import gnu.io.rfc2217.TelnetSerialPort;
 
 /**
- * Specific serial port identifier implementation.
+ * Specific serial port identifier implementation for RFC2217.
  *
- * @author Markus Rathgeb - Initial contribution
+ * @author atthias Steigenberger - Initial contribution
  */
 @NonNullByDefault
 public class SerialPortIdentifierImpl implements SerialPortIdentifier {

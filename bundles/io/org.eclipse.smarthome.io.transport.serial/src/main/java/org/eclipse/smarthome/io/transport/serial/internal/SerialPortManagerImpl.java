@@ -63,7 +63,7 @@ public class SerialPortManagerImpl implements SerialPortManager {
         URI portUri = URI.create(name);
         SerialPortProvider portCreator = registry.getPortProviderForPortName(portUri);
         if (portCreator == null) {
-            logger.warn("No SerialPortProvider found for: " + name);
+            logger.warn("No SerialPortProvider found for: {}", name);
             return null;
         }
         return portCreator.getPortIdentifier(portUri);

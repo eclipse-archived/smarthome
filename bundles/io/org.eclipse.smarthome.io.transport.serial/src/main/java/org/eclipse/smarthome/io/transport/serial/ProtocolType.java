@@ -14,12 +14,15 @@ package org.eclipse.smarthome.io.transport.serial;
 
 import java.net.URI;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Holds the {@link PathType}, which specifies whether its a local or remote path and the scheme.
  *
  * @author Matthias Steigenberger - Initial Contribution
  *
  */
+@NonNullByDefault
 public class ProtocolType {
 
     /**

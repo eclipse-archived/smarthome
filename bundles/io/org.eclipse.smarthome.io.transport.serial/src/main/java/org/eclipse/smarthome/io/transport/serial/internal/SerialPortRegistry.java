@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.io.transport.serial.ProtocolType.PathType;
 import org.eclipse.smarthome.io.transport.serial.SerialPortProvider;
 import org.osgi.service.component.annotations.Component;
@@ -33,9 +34,10 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
  *
  */
 @Component(service = SerialPortRegistry.class)
+@NonNullByDefault
 public class SerialPortRegistry {
 
-    private Collection<SerialPortProvider> portCreators;
+    private @NonNullByDefault({}) Collection<SerialPortProvider> portCreators;
 
     public SerialPortRegistry() {
         this.portCreators = new HashSet<>();
@@ -65,7 +67,7 @@ public class SerialPortRegistry {
      * @param portName The port's name.
      * @return A found {@link SerialPortProvider} or null if none could be found.
      */
-    public SerialPortProvider getPortProviderForPortName(URI portName) {
+    public @NonNullByDefault({}) SerialPortProvider getPortProviderForPortName(URI portName) {
         PathType pathType = PathType.fromURI(portName);
 
         synchronized (this.portCreators) {
@@ -82,12 +84,11 @@ public class SerialPortRegistry {
                 return null;
             }
 
-            return first.orElseGet(() -> {
-                return portCreators.stream()
-                        .filter(provider -> provider.getAcceptedProtocols()
-                                .filter(prot -> prot.getPathType().equals(pathType)).count() > 0)
-                        .findFirst().orElse(null);
-            });
+            return first
+                    .orElse(portCreators.stream()
+                            .filter(provider -> provider.getAcceptedProtocols()
+                                    .filter(prot -> prot.getPathType().equals(pathType)).count() > 0)
+                            .findFirst().orElse(null));
         }
     }
 

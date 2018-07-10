@@ -37,7 +37,7 @@ import org.osgi.service.component.annotations.Component;
  */
 @NonNullByDefault
 @Component(service = SerialPortProvider.class)
-public class JavaCommPortCreator implements SerialPortProvider {
+public class JavaCommPortProvider implements SerialPortProvider {
 
     @Override
     public @Nullable SerialPortIdentifier getPortIdentifier(URI port) {

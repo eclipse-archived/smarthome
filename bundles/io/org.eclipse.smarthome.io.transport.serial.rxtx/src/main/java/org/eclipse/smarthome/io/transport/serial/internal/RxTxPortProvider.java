@@ -37,7 +37,7 @@ import gnu.io.CommPortIdentifier;
  */
 @NonNullByDefault
 @Component
-public class RxTxPortCreator implements SerialPortProvider {
+public class RxTxPortProvider implements SerialPortProvider {
 
     @Override
     public @Nullable SerialPortIdentifier getPortIdentifier(URI port) {
