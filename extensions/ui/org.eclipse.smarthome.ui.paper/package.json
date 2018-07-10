@@ -53,6 +53,7 @@
     "karma-jasmine": "^1.0.2",
     "karma-junit7-sonarqube-reporter": "0.0.5",
     "karma-phantomjs-launcher": "^1.0.1",
-    "karma-spec-reporter": "0.0.26"
+    "karma-spec-reporter": "0.0.26",
+    "merge-stream": "^1.0.1"
   }
 }

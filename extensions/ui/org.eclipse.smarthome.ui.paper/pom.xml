@@ -27,8 +27,8 @@
         <version>1.0</version>
 
         <configuration>
-          <nodeVersion>v8.1.2</nodeVersion>
-          <npmVersion>5.8.0</npmVersion>
+          <nodeVersion>v10.4.0</nodeVersion>
+          <npmVersion>6.1.0</npmVersion>
           <nodeDownloadRoot>http://nodejs.org/dist/</nodeDownloadRoot>
           <npmDownloadRoot>http://registry.npmjs.org/npm/-/</npmDownloadRoot>
           <environmentVariables>

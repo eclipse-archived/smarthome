@@ -11,6 +11,7 @@ var angularFilesort = require('gulp-angular-filesort'),
     uglify = require('gulp-uglify'),
     inject = require('gulp-inject'),
     util = require('gulp-util'),
+    merge = require('merge-stream'),
     Server = require('karma').Server;
 var isDevelopment = !!util.env.development;
 var noMinify = util.env.noMinify
@@ -141,16 +142,19 @@ gulp.task('copyJSLibs', function () {
 });
 
 gulp.task('copyJQUI', function() {
-    return paths.JQUI.forEach(function (obj) {
-        return gulp.src(obj.src)
+    var streams = merge();
+    paths.JQUI.forEach(function (obj) {
+        streams.add(gulp.src(obj.src)
             .pipe(concat(obj.name))
             .pipe(rename(function (path) {
                 path.basename += '.min';
                 return path;
             }))
             .pipe(uglify())
-            .pipe(gulp.dest('./web/js'));
+            .pipe(gulp.dest('./web/js')));
     });
+
+    return streams;
 });
 
 gulp.task('copyJSMisc', function () {
@@ -174,7 +178,8 @@ gulp.task('copyFontLibs', function () {
 });
 
 gulp.task('concat', function () {
-    return paths.concat.forEach(function (obj) {
+    var streams = merge();
+    paths.concat.forEach(function (obj) {
         var result = gulp.src(obj.src)
             .pipe(angularFilesort())
             .pipe(concat(obj.name))
@@ -188,8 +193,10 @@ gulp.task('concat', function () {
         }
         result = result.pipe(gulp.dest('./web/js'));
             
-        return result;
+        streams.add(result);
     });
+
+    return streams;
 });
 
 gulp.task('clean', function () {
