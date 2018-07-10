@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
+import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.Rule;
@@ -504,11 +505,11 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         List<Module> modules = rule.getModules();
         for (Module m : modules) {
             updateMapModuleTypeToRule(rUID, m.getTypeUID());
-            if (m instanceof ConditionImpl) {
-                ((ConditionImpl) m).setConnections(resolveConnections(((ConditionImpl) m).getInputs()));
+            if (m instanceof Condition) {
+                ((Condition) m).setConnections(resolveConnections(((Condition) m).getInputs()));
             }
-            if (m instanceof ActionImpl) {
-                ((ActionImpl) m).setConnections(resolveConnections(((ActionImpl) m).getInputs()));
+            if (m instanceof Action) {
+                ((Action) m).setConnections(resolveConnections(((Action) m).getInputs()));
             }
         }
         String errMsgs;
@@ -595,12 +596,12 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                 try {
                     ModuleHandler moduleHandler = getModuleHandler(m, rUID);
                     if (moduleHandler != null) {
-                        if (m instanceof ActionImpl) {
-                            ((ActionImpl) m).setModuleHandler((ActionHandler) moduleHandler);
-                        } else if (m instanceof ConditionImpl) {
-                            ((ConditionImpl) m).setModuleHandler((ConditionHandler) moduleHandler);
-                        } else if (m instanceof TriggerImpl) {
-                            ((TriggerImpl) m).setModuleHandler((TriggerHandler) moduleHandler);
+                        if (m instanceof Action) {
+                            ((Action) m).setModuleHandler((ActionHandler) moduleHandler);
+                        } else if (m instanceof Condition) {
+                            ((Condition) m).setModuleHandler((ConditionHandler) moduleHandler);
+                        } else if (m instanceof Trigger) {
+                            ((Trigger) m).setModuleHandler((TriggerHandler) moduleHandler);
                         }
                     } else {
                         if (sb == null) {
@@ -650,12 +651,12 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         if (modules != null) {
             for (T m : modules) {
                 ModuleHandler handler = null;
-                if (m instanceof ActionImpl) {
-                    handler = ((ActionImpl) m).getModuleHandler();
-                } else if (m instanceof ConditionImpl) {
-                    handler = ((ConditionImpl) m).getModuleHandler();
-                } else if (m instanceof TriggerImpl) {
-                    handler = ((TriggerImpl) m).getModuleHandler();
+                if (m instanceof Action) {
+                    handler = ((Action) m).getModuleHandler();
+                } else if (m instanceof Condition) {
+                    handler = ((Condition) m).getModuleHandler();
+                } else if (m instanceof Trigger) {
+                    handler = ((Trigger) m).getModuleHandler();
                 }
 
                 if (handler != null) {
@@ -663,12 +664,12 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                     if (factory != null) {
                         factory.ungetHandler(m, ruleUID, handler);
                     }
-                    if (m instanceof ActionImpl) {
-                        ((ActionImpl) m).setModuleHandler(null);
-                    } else if (m instanceof ConditionImpl) {
-                        ((ConditionImpl) m).setModuleHandler(null);
-                    } else if (m instanceof TriggerImpl) {
-                        ((TriggerImpl) m).setModuleHandler(null);
+                    if (m instanceof Action) {
+                        ((Action) m).setModuleHandler(null);
+                    } else if (m instanceof Condition) {
+                        ((Condition) m).setModuleHandler(null);
+                    } else if (m instanceof Trigger) {
+                        ((Trigger) m).setModuleHandler(null);
                     }
                 }
             }
@@ -685,19 +686,19 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
     private void register(Rule rule) {
         TriggerHandlerCallback thCallback = getTriggerHandlerCallback(rule.getUID());
         rule.getTriggers().forEach(t -> {
-            TriggerHandler triggerHandler = ((TriggerImpl) t).getModuleHandler();
+            TriggerHandler triggerHandler = t.getModuleHandler();
             if (triggerHandler != null) {
                 triggerHandler.setCallback(thCallback);
             }
         });
         rule.getConditions().forEach(c -> {
-            ConditionHandler conditionHandler = ((ConditionImpl) c).getModuleHandler();
+            ConditionHandler conditionHandler = c.getModuleHandler();
             if (conditionHandler != null) {
                 conditionHandler.setCallback(moduleHandlerCallback);
             }
         });
         rule.getActions().forEach(a -> {
-            ActionHandler actionHandler = ((ActionImpl) a).getModuleHandler();
+            ActionHandler actionHandler = a.getModuleHandler();
             if (actionHandler != null) {
                 actionHandler.setCallback(moduleHandlerCallback);
             }
@@ -1142,7 +1143,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
             if (ruleStatus != RuleStatus.RUNNING) {
                 return false;
             }
-            ConditionImpl c = (ConditionImpl) it.next();
+            Condition c = it.next();
             ConditionHandler tHandler = c.getModuleHandler();
             Map<String, Object> context = getContext(rule.getUID(), c.getConnections());
             if (tHandler != null && !tHandler.isSatisfied(Collections.unmodifiableMap(context))) {
@@ -1170,7 +1171,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
             if (ruleStatus != RuleStatus.RUNNING) {
                 return;
             }
-            ActionImpl action = (ActionImpl) it.next();
+            Action action = it.next();
             ActionHandler aHandler = action.getModuleHandler();
             if (aHandler != null) {
                 String rUID = rule.getUID();
@@ -1303,7 +1304,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                 boolean isConnectionChanged = false;
                 ConditionType ct = (ConditionType) mtRegistry.get(c.getTypeUID());
                 if (ct != null) {
-                    Set<Connection> connections = copyConnections(((ConditionImpl) c).getConnections());
+                    Set<Connection> connections = copyConnections(c.getConnections());
 
                     for (Input input : ct.getInputs()) {
                         if (isConnected(input, connections)) {
@@ -1316,8 +1317,8 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                     if (isConnectionChanged) {
                         // update condition inputs
                         Map<String, String> connectionMap = getConnectionMap(connections);
-                        ((ConditionImpl) c).setInputs(connectionMap);
-                        ((ConditionImpl) c).setConnections(connections);
+                        c.setInputs(connectionMap);
+                        c.setConnections(connections);
                     }
                 }
             }
@@ -1328,7 +1329,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                 boolean isConnectionChanged = false;
                 ActionType at = (ActionType) mtRegistry.get(a.getTypeUID());
                 if (at != null) {
-                    Set<Connection> connections = copyConnections(((ConditionImpl) a).getConnections());
+                    Set<Connection> connections = copyConnections(a.getConnections());
                     for (Input input : at.getInputs()) {
                         if (isConnected(input, connections)) {
                             continue; // the input is already connected. Skip it.
@@ -1343,8 +1344,8 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                     if (isConnectionChanged) {
                         // update condition inputs
                         Map<String, String> connectionMap = getConnectionMap(connections);
-                        ((ConditionImpl) a).setInputs(connectionMap);
-                        ((ConditionImpl) a).setConnections(connections);
+                        a.setInputs(connectionMap);
+                        a.setConnections(connections);
                     }
                 }
             }

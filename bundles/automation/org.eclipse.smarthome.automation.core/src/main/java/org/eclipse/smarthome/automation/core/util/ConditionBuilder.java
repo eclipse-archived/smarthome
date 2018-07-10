@@ -30,20 +30,20 @@ import org.eclipse.smarthome.config.core.Configuration;
  *
  */
 @NonNullByDefault
-public class ModuleBuilder<T extends Module> {
+public class ConditionBuilder<T extends Module> {
 
     private final Module module;
 
-    protected ModuleBuilder(Module module) {
+    protected ConditionBuilder(Module module) {
         this.module = module;
     }
 
-    public static ModuleBuilder<Action> createAction() {
+    public static ConditionBuilder<Action> createAction() {
         Action action = new Action();
-        return new ModuleBuilder<Action>(action);
+        return new ConditionBuilder<Action>(action);
     }
 
-    public static ModuleBuilder<? extends Module> create(Module module) {
+    public static ConditionBuilder<? extends Module> create(Module module) {
         if (module instanceof Action) {
             return createAction((Action) module);
         } else if (module instanceof Condition) {
@@ -55,62 +55,62 @@ public class ModuleBuilder<T extends Module> {
         }
     }
 
-    public static ModuleBuilder<Action> createAction(Action action) {
+    public static ConditionBuilder<Action> createAction(Action action) {
         Action Action = new Action();
         fillModuleFields(action, Action);
         Action.setInputs(new HashMap<>(action.getInputs()));
-        return new ModuleBuilder<Action>(Action);
+        return new ConditionBuilder<Action>(Action);
     }
 
-    public static ModuleBuilder<Trigger> createTrigger() {
+    public static ConditionBuilder<Trigger> createTrigger() {
         Trigger trigger = new Trigger();
-        return new ModuleBuilder<Trigger>(trigger);
+        return new ConditionBuilder<Trigger>(trigger);
     }
 
-    public static ModuleBuilder<Trigger> createTrigger(Trigger trigger) {
+    public static ConditionBuilder<Trigger> createTrigger(Trigger trigger) {
         Trigger Trigger = new Trigger();
         fillModuleFields(trigger, Trigger);
-        return new ModuleBuilder<Trigger>(Trigger);
+        return new ConditionBuilder<Trigger>(Trigger);
     }
 
-    public static ModuleBuilder<Condition> createCondition() {
+    public static ConditionBuilder<Condition> createCondition() {
         Condition condition = new Condition();
-        return new ModuleBuilder<Condition>(condition);
+        return new ConditionBuilder<Condition>(condition);
     }
 
-    public static ModuleBuilder<Condition> createCondition(Condition condition) {
+    public static ConditionBuilder<Condition> createCondition(Condition condition) {
         Condition Condition = new Condition();
         fillModuleFields(condition, Condition);
         Condition.setInputs(new HashMap<>(condition.getInputs()));
-        return new ModuleBuilder<Condition>(Condition);
+        return new ConditionBuilder<Condition>(Condition);
     }
 
-    public ModuleBuilder<T> withId(@Nullable String id) {
+    public ConditionBuilder<T> withId(@Nullable String id) {
         this.module.setId(id);
         return this;
     }
 
-    public ModuleBuilder<T> withTypeUID(@Nullable String typeUID) {
+    public ConditionBuilder<T> withTypeUID(@Nullable String typeUID) {
         this.module.setTypeUID(typeUID);
         return this;
     }
 
-    public ModuleBuilder<T> withLabel(@Nullable String label) {
+    public ConditionBuilder<T> withLabel(@Nullable String label) {
         this.module.setLabel(label);
         return this;
     }
 
-    public ModuleBuilder<T> withDescription(@Nullable String description) {
+    public ConditionBuilder<T> withDescription(@Nullable String description) {
         this.module.setDescription(description);
         return this;
     }
 
-    public ModuleBuilder<T> withConfiguration(Configuration configuration) {
+    public ConditionBuilder<T> withConfiguration(Configuration configuration) {
         this.module.setConfiguration(configuration);
         return this;
     }
 
-    public ModuleBuilder<T> withInputs(@Nullable Map<String, String> inputs) {
+    public ConditionBuilder<T> withInputs(@Nullable Map<String, String> inputs) {
         if (inputs == null) {
             return this;
         }

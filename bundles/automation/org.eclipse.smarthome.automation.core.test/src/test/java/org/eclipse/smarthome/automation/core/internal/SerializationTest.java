@@ -32,7 +32,7 @@ public class SerializationTest {
     public void serializeDeserializeRule() {
         // Create simple rule with one trigger.
         final List<Trigger> triggers = new LinkedList<>();
-        triggers.add(new TriggerImpl("id", "typeUID", new Configuration()));
+        triggers.add(new Trigger("id", "typeUID", new Configuration()));
         final Rule rule = RuleBuilder.create("foo").withTriggers(triggers).build();
 
         // Try to serialize and deserialize rule

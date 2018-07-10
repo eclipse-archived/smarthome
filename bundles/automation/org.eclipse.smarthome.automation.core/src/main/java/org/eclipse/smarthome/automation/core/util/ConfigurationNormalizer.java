@@ -19,7 +19,6 @@ import java.util.Map.Entry;
 
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.RuleRegistry;
-import org.eclipse.smarthome.automation.core.internal.ModuleImpl;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;

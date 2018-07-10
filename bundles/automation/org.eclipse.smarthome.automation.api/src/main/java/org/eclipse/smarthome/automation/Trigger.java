@@ -12,10 +12,13 @@
  */
 package org.eclipse.smarthome.automation;
 
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.Configuration;
 
 /**
  * Trigger modules are used in the 'ON' section of {@link Rule} definition. They defines what fires the {@link Rule}
@@ -23,7 +26,41 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * {@link ConfigDescriptionParameter}s and {@link Output}s defined by {@link TriggerType}.
  *
  * @author Yordan Mihaylov - Initial Contribution
+ * @author Markus Rathgeb - Remove interface and implementation split
  */
-public interface Trigger extends Module {
+public class Trigger extends Module {
+
+    private transient @Nullable TriggerHandler triggerHandler;
+
+    public Trigger() {
+    }
+
+    public Trigger(String id, String typeUID, Configuration configuration) {
+        super(id, typeUID, configuration);
+    }
+
+    public Trigger(Trigger trigger) {
+        super(trigger.getId(), trigger.getTypeUID(), trigger.getConfiguration());
+        setLabel(trigger.getLabel());
+        setDescription(trigger.getDescription());
+    }
+
+    /**
+     * This method gets handler which is responsible for handling of this module.
+     *
+     * @return handler of the module or null.
+     */
+    public @Nullable TriggerHandler getModuleHandler() {
+        return triggerHandler;
+    }
+
+    /**
+     * This method sets handler of the module.
+     *
+     * @param triggerHandler
+     */
+    public void setModuleHandler(@Nullable TriggerHandler triggerHandler) {
+        this.triggerHandler = triggerHandler;
+    }
 
 }

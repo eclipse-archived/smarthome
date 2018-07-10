@@ -30,20 +30,20 @@ import org.eclipse.smarthome.config.core.Configuration;
  *
  */
 @NonNullByDefault
-public class ModuleBuilder<T extends Module> {
+public class ActionBuilder<T extends Module> {
 
     private final Module module;
 
-    protected ModuleBuilder(Module module) {
+    protected ActionBuilder(Module module) {
         this.module = module;
     }
 
-    public static ModuleBuilder<Action> createAction() {
+    public static ActionBuilder<Action> createAction() {
         Action action = new Action();
-        return new ModuleBuilder<Action>(action);
+        return new ActionBuilder<Action>(action);
     }
 
-    public static ModuleBuilder<? extends Module> create(Module module) {
+    public static ActionBuilder<? extends Module> create(Module module) {
         if (module instanceof Action) {
             return createAction((Action) module);
         } else if (module instanceof Condition) {
@@ -55,62 +55,62 @@ public class ModuleBuilder<T extends Module> {
         }
     }
 
-    public static ModuleBuilder<Action> createAction(Action action) {
+    public static ActionBuilder<Action> createAction(Action action) {
         Action Action = new Action();
         fillModuleFields(action, Action);
         Action.setInputs(new HashMap<>(action.getInputs()));
-        return new ModuleBuilder<Action>(Action);
+        return new ActionBuilder<Action>(Action);
     }
 
-    public static ModuleBuilder<Trigger> createTrigger() {
+    public static ActionBuilder<Trigger> createTrigger() {
         Trigger trigger = new Trigger();
-        return new ModuleBuilder<Trigger>(trigger);
+        return new ActionBuilder<Trigger>(trigger);
     }
 
-    public static ModuleBuilder<Trigger> createTrigger(Trigger trigger) {
+    public static ActionBuilder<Trigger> createTrigger(Trigger trigger) {
         Trigger Trigger = new Trigger();
         fillModuleFields(trigger, Trigger);
-        return new ModuleBuilder<Trigger>(Trigger);
+        return new ActionBuilder<Trigger>(Trigger);
     }
 
-    public static ModuleBuilder<Condition> createCondition() {
+    public static ActionBuilder<Condition> createCondition() {
         Condition condition = new Condition();
-        return new ModuleBuilder<Condition>(condition);
+        return new ActionBuilder<Condition>(condition);
     }
 
-    public static ModuleBuilder<Condition> createCondition(Condition condition) {
+    public static ActionBuilder<Condition> createCondition(Condition condition) {
         Condition Condition = new Condition();
         fillModuleFields(condition, Condition);
         Condition.setInputs(new HashMap<>(condition.getInputs()));
-        return new ModuleBuilder<Condition>(Condition);
+        return new ActionBuilder<Condition>(Condition);
     }
 
-    public ModuleBuilder<T> withId(@Nullable String id) {
+    public ActionBuilder<T> withId(@Nullable String id) {
         this.module.setId(id);
         return this;
     }
 
-    public ModuleBuilder<T> withTypeUID(@Nullable String typeUID) {
+    public ActionBuilder<T> withTypeUID(@Nullable String typeUID) {
         this.module.setTypeUID(typeUID);
         return this;
     }
 
-    public ModuleBuilder<T> withLabel(@Nullable String label) {
+    public ActionBuilder<T> withLabel(@Nullable String label) {
         this.module.setLabel(label);
         return this;
     }
 
-    public ModuleBuilder<T> withDescription(@Nullable String description) {
+    public ActionBuilder<T> withDescription(@Nullable String description) {
         this.module.setDescription(description);
         return this;
     }
 
-    public ModuleBuilder<T> withConfiguration(Configuration configuration) {
+    public ActionBuilder<T> withConfiguration(Configuration configuration) {
         this.module.setConfiguration(configuration);
         return this;
     }
 
-    public ModuleBuilder<T> withInputs(@Nullable Map<String, String> inputs) {
+    public ActionBuilder<T> withInputs(@Nullable Map<String, String> inputs) {
         if (inputs == null) {
             return this;
         }
