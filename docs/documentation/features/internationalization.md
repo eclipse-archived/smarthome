@@ -228,6 +228,10 @@ XML file (thing-types.xml):
         <label>Weather Forecast</label>
         <description>This is the weather forecast</description>
         <channels>
+            <channel id="temperature" typeId="temperature">
+                <label>Temperature</label>
+                <description>Forecasted temperature</description>
+            </channel>
             <channel id="maxTemperature" typeId="maxTemperature" />
         </channels>
     </channel-group-type>
@@ -324,6 +328,10 @@ channel-type.weatherunderground.temperature.description = La température actuel
 channel-type.weatherunderground.maxTemperature.label = Température maximale
 channel-type.weatherunderground.maxTemperature.description = La température maximale.
 
+# channels inside a channel group type
+channel-group-type.weatherunderground.current.channel.temperature.label = Température
+channel-group-type.weatherunderground.current.channel.temperature.description = La température prévue.
+
 # channel type configuration
 channel-type.config.weatherunderground.temperature.SourceUnit.label = Unité de température
 channel-type.config.weatherunderground.temperature.SourceUnit.description = Choix de l'unité de température fournie par le service Weather Underground pour la température actuelle.
@@ -337,6 +345,7 @@ channel-type.config.weatherunderground.maxTemperature.SourceUnit.option.F = Degr
 ```
 
 So the label of a channel group type can be referenced with `channel-group-type.<binding-id>.<channel-group-type-id>.label` and the label of a channel group definition with `thing-type.<binding-id>.<thing-type-id>.group.<channel-group-id>.label`.
+A label of a channel definition inside a channel group type can be translated with `channel-group-type.<binding-id>.<channel-group-type-id>.channel.<channel-id>.label`.
 
 ### Using custom Keys
 
