@@ -13,7 +13,7 @@
 package org.eclipse.smarthome.core.thing.xml.test;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,6 +24,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.test.SyntheticBundleInstaller;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
@@ -161,51 +162,77 @@ public class SystemWideChannelTypesTest extends JavaOSGiTest {
 
         // install test bundle
         Bundle sysBundle = SyntheticBundleInstaller.install(bundleContext, SYSTEM_CHANNELS_BUNDLE_NAME);
-        assertThat(sysBundle, is(notNullValue()));
+        assertNotNull(sysBundle);
 
         Collection<ThingType> thingTypes = thingTypeProvider.getThingTypes(Locale.GERMAN);
-        assertThat(thingTypes.size(), is(initialNumberOfThingTypes + 1));
+        assertEquals(initialNumberOfThingTypes + 1, thingTypes.size());
 
         ThingType wirelessRouterType = thingTypes.stream()
                 .filter(it -> it.getUID().getAsString().equals("SystemChannels:wireless-router")).findFirst().get();
-        assertThat(wirelessRouterType, is(notNullValue()));
+        assertNotNull(wirelessRouterType);
 
         List<ChannelDefinition> channelDefs = wirelessRouterType.getChannelDefinitions();
-        assertThat(channelDefs.size(), is(3));
+        assertEquals(3, channelDefs.size());
 
         ChannelDefinition myChannel = channelDefs.stream().filter(
                 it -> it.getId().equals("test") && it.getChannelTypeUID().getAsString().equals("system:my-channel"))
                 .findFirst().get();
-        assertThat(myChannel, is(notNullValue()));
+        assertNotNull(myChannel);
 
         ChannelDefinition sigStr = channelDefs.stream().filter(it -> it.getId().equals("sigstr")
                 && it.getChannelTypeUID().getAsString().equals("system:signal-strength")).findFirst().get();
-        assertThat(sigStr, is(notNullValue()));
+        assertNotNull(sigStr);
 
         ChannelDefinition lowBat = channelDefs.stream().filter(
                 it -> it.getId().equals("lowbat") && it.getChannelTypeUID().getAsString().equals("system:low-battery"))
                 .findFirst().get();
-        assertThat(lowBat, is(notNullValue()));
+        assertNotNull(lowBat);
 
-        assertThat(channelTypeRegistry.getChannelType(myChannel.getChannelTypeUID(), Locale.GERMAN).getLabel(),
-                is("Mein String My Channel"));
-        assertThat(channelTypeRegistry.getChannelType(myChannel.getChannelTypeUID(), Locale.GERMAN).getDescription(),
-                is("Wetterinformation mit My Channel Type Beschreibung"));
+        ChannelType myChannelChannelType = channelTypeRegistry.getChannelType(myChannel.getChannelTypeUID(),
+                Locale.GERMAN);
+        assertNotNull(myChannelChannelType);
+        assertEquals("Mein String My Channel", myChannelChannelType.getLabel());
+        assertEquals("Wetterinformation mit My Channel Type Beschreibung", myChannelChannelType.getDescription());
 
-        assertThat(myChannel.getLabel(), is("Mein String My Channel"));
-        assertThat(myChannel.getDescription(), is("Wetterinformation mit My Channel Type Beschreibung"));
+        assertEquals("Mein String My Channel", myChannel.getLabel());
+        assertEquals("Wetterinformation mit My Channel Type Beschreibung", myChannel.getDescription());
 
-        assertThat(channelTypeRegistry.getChannelType(sigStr.getChannelTypeUID(), Locale.GERMAN).getLabel(),
-                is("Signalstärke"));
+        ChannelType sigStrChannelType = channelTypeRegistry.getChannelType(sigStr.getChannelTypeUID(), Locale.GERMAN);
+        assertNotNull(sigStrChannelType);
+        assertEquals("Signalstärke", sigStrChannelType.getLabel());
 
-        assertThat(sigStr.getLabel(), is("Meine spezial Signalstärke"));
-        assertThat(sigStr.getDescription(), is("Meine spezial Beschreibung für Signalstärke"));
+        List<StateOption> sigStrChannelTypeOptions = sigStrChannelType.getState().getOptions();
+        assertEquals(5, sigStrChannelTypeOptions.size());
 
-        assertThat(channelTypeRegistry.getChannelType(lowBat.getChannelTypeUID(), Locale.GERMAN).getLabel(),
-                is("Niedriger Batteriestatus"));
+        StateOption noSignalOption = sigStrChannelTypeOptions.stream().filter(it -> "0".equals(it.getValue()))
+                .findFirst().get();
+        assertNotNull(noSignalOption);
+        assertEquals("Kein Signal", noSignalOption.getLabel());
+        StateOption weakOption = sigStrChannelTypeOptions.stream().filter(it -> "1".equals(it.getValue())).findFirst()
+                .get();
+        assertNotNull(weakOption);
+        assertEquals("Schwach", weakOption.getLabel());
+        StateOption averageOption = sigStrChannelTypeOptions.stream().filter(it -> "2".equals(it.getValue()))
+                .findFirst().get();
+        assertNotNull(averageOption);
+        assertEquals("Durchschnittlich", averageOption.getLabel());
+        StateOption goodOption = sigStrChannelTypeOptions.stream().filter(it -> "3".equals(it.getValue())).findFirst()
+                .get();
+        assertNotNull(goodOption);
+        assertEquals("Gut", goodOption.getLabel());
+        StateOption excellentOption = sigStrChannelTypeOptions.stream().filter(it -> "4".equals(it.getValue()))
+                .findFirst().get();
+        assertNotNull(excellentOption);
+        assertEquals("Ausgezeichnet", excellentOption.getLabel());
 
-        assertThat(lowBat.getLabel(), is("Niedriger Batteriestatus"));
-        assertThat(lowBat.getDescription(), is(nullValue()));
+        assertEquals("Meine spezial Signalstärke", sigStr.getLabel());
+        assertEquals("Meine spezial Beschreibung für Signalstärke", sigStr.getDescription());
+
+        assertEquals("Niedriger Batteriestatus",
+                channelTypeRegistry.getChannelType(lowBat.getChannelTypeUID(), Locale.GERMAN).getLabel());
+
+        assertEquals("Niedriger Batteriestatus", lowBat.getLabel());
+        assertNull(lowBat.getDescription());
     }
 
     private List<ChannelType> getChannelTypes() {
