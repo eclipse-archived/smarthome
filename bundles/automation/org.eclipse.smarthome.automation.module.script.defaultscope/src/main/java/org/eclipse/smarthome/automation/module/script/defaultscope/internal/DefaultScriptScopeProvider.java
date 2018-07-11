@@ -30,16 +30,23 @@ import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
+import org.eclipse.smarthome.core.library.types.NextPreviousType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.library.types.PercentType;
+import org.eclipse.smarthome.core.library.types.PlayPauseType;
 import org.eclipse.smarthome.core.library.types.PointType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
+import org.eclipse.smarthome.core.library.types.RawType;
+import org.eclipse.smarthome.core.library.types.RewindFastforwardType;
 import org.eclipse.smarthome.core.library.types.StopMoveType;
+import org.eclipse.smarthome.core.library.types.StringListType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,6 +139,25 @@ public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
         elements.put("DOWN", UpDownType.DOWN);
         elements.put("UP", UpDownType.UP);
 
+        elements.put("UnDefType", UnDefType.class);
+        elements.put("NULL", UnDefType.NULL);
+        elements.put("UNDEF", UnDefType.UNDEF);
+
+        elements.put("NextPreviousType", NextPreviousType.class);
+        elements.put("NEXT", NextPreviousType.NEXT);
+        elements.put("PREVIOUS", NextPreviousType.PREVIOUS);
+
+        elements.put("PlayPauseType", PlayPauseType.class);
+        elements.put("PLAY", PlayPauseType.PLAY);
+        elements.put("PAUSE", PlayPauseType.PAUSE);
+
+        elements.put("RewindFastforwardType", RewindFastforwardType.class);
+        elements.put("REWIND", RewindFastforwardType.REWIND);
+        elements.put("FASTFORWARD", RewindFastforwardType.FASTFORWARD);
+
+        elements.put("QuantityType", QuantityType.class);
+        elements.put("StringListType", StringListType.class);
+        elements.put("RawType", RawType.class);
         elements.put("DateTimeType", DateTimeType.class);
         elements.put("DecimalType", DecimalType.class);
         elements.put("HSBType", HSBType.class);
