@@ -117,6 +117,27 @@ public class SystemWideChannelTypesTest extends JavaOSGiTest {
         List<StateOption> signalStrengthChannelTypeOptions = signalStrengthChannelType.getState().getOptions();
         assertEquals(5, signalStrengthChannelTypeOptions.size());
 
+        StateOption noSignalOption = signalStrengthChannelTypeOptions.stream().filter(it -> "0".equals(it.getValue()))
+                .findFirst().get();
+        assertNotNull(noSignalOption);
+        assertEquals("Kein Signal", noSignalOption.getLabel());
+        StateOption weakOption = signalStrengthChannelTypeOptions.stream().filter(it -> "1".equals(it.getValue()))
+                .findFirst().get();
+        assertNotNull(weakOption);
+        assertEquals("Schwach", weakOption.getLabel());
+        StateOption averageOption = signalStrengthChannelTypeOptions.stream().filter(it -> "2".equals(it.getValue()))
+                .findFirst().get();
+        assertNotNull(averageOption);
+        assertEquals("Durchschnittlich", averageOption.getLabel());
+        StateOption goodOption = signalStrengthChannelTypeOptions.stream().filter(it -> "3".equals(it.getValue()))
+                .findFirst().get();
+        assertNotNull(goodOption);
+        assertEquals("Gut", goodOption.getLabel());
+        StateOption excellentOption = signalStrengthChannelTypeOptions.stream().filter(it -> "4".equals(it.getValue()))
+                .findFirst().get();
+        assertNotNull(excellentOption);
+        assertEquals("Ausgezeichnet", excellentOption.getLabel());
+
         ChannelType lowBatteryChannelType = channelTypeRegistry.getChannelType(LOW_BATTERY_CHANNEL_TYPE_UID,
                 Locale.GERMAN);
         assertNotNull(lowBatteryChannelType);
@@ -128,5 +149,98 @@ public class SystemWideChannelTypesTest extends JavaOSGiTest {
         assertNotNull(batteryLevelChannelType);
         assertEquals("Batterieladung", batteryLevelChannelType.getLabel());
         assertNull(batteryLevelChannelType.getDescription());
+
+        ChannelType powerChannelType = channelTypeRegistry.getChannelType(POWER_CHANNEL_TYPE_UID, Locale.GERMAN);
+        assertNotNull(powerChannelType);
+        assertEquals("Power", powerChannelType.getLabel());
+        assertNull(powerChannelType.getDescription());
+
+        ChannelType locationChannelType = channelTypeRegistry.getChannelType(LOCATION_CHANNEL_TYPE_UID, Locale.GERMAN);
+        assertNotNull(locationChannelType);
+        assertEquals("Ort", locationChannelType.getLabel());
+        assertEquals("Ort in geographischen Koordinaten (Breitengrad/Längengrad/Höhe).",
+                locationChannelType.getDescription());
+
+        ChannelType motionChannelType = channelTypeRegistry.getChannelType(MOTION_CHANNEL_TYPE_UID, Locale.GERMAN);
+        assertNotNull(motionChannelType);
+        assertEquals("Bewegung", motionChannelType.getLabel());
+        assertEquals("Zeigt eine erkannte Bewegung an.", motionChannelType.getDescription());
+
+        ChannelType brightnessChannelType = channelTypeRegistry.getChannelType(BRIGHTNESS_CHANNEL_TYPE_UID,
+                Locale.GERMAN);
+        assertNotNull(brightnessChannelType);
+        assertEquals("Helligkeit", brightnessChannelType.getLabel());
+        assertNull(brightnessChannelType.getDescription());
+
+        ChannelType colorChannelType = channelTypeRegistry.getChannelType(COLOR_CHANNEL_TYPE_UID, Locale.GERMAN);
+        assertNotNull(colorChannelType);
+        assertEquals("Farbe", colorChannelType.getLabel());
+        assertNull(colorChannelType.getDescription());
+
+        ChannelType colorTemperatureChannelType = channelTypeRegistry.getChannelType(COLOR_TEMPERATURE_CHANNEL_TYPE_UID,
+                Locale.GERMAN);
+        assertNotNull(colorTemperatureChannelType);
+        assertEquals("Farbtemperatur", colorTemperatureChannelType.getLabel());
+        assertNull(colorTemperatureChannelType.getDescription());
+
+        ChannelType volumeChannelType = channelTypeRegistry.getChannelType(VOLUME_CHANNEL_TYPE_UID, Locale.GERMAN);
+        assertNotNull(volumeChannelType);
+        assertEquals("Lautstärke", volumeChannelType.getLabel());
+        assertEquals("Ermöglicht die Steuerung der Lautstärke.", volumeChannelType.getDescription());
+
+        ChannelType muteChannelType = channelTypeRegistry.getChannelType(MUTE_CHANNEL_TYPE_UID, Locale.GERMAN);
+        assertNotNull(muteChannelType);
+        assertEquals("Stumm schalten", muteChannelType.getLabel());
+        assertEquals("Ermöglicht die Lautstärke auf stumm zu schalten.", muteChannelType.getDescription());
+
+        ChannelType mediaControlChannelType = channelTypeRegistry.getChannelType(MEDIA_CONTROL_CHANNEL_TYPE_UID,
+                Locale.GERMAN);
+        assertNotNull(mediaControlChannelType);
+        assertEquals("Fernbedienung", mediaControlChannelType.getLabel());
+        assertNull(mediaControlChannelType.getDescription());
+
+        ChannelType mediaTitleChannelType = channelTypeRegistry.getChannelType(MEDIA_TITLE_CHANNEL_TYPE_UID,
+                Locale.GERMAN);
+        assertNotNull(mediaTitleChannelType);
+        assertEquals("Titel", mediaTitleChannelType.getLabel());
+        assertEquals("Zeigt den Titel der (aktuell abgespielten) Video- oder Audiodatei an.",
+                mediaTitleChannelType.getDescription());
+
+        ChannelType mediaArtistChannelType = channelTypeRegistry.getChannelType(MEDIA_ARTIST_CHANNEL_TYPE_UID,
+                Locale.GERMAN);
+        assertNotNull(mediaArtistChannelType);
+        assertEquals("Künstler", mediaArtistChannelType.getLabel());
+        assertEquals("Zeigt den Künstler der (aktuell abgespielten) Video- oder Audiodatei an.",
+                mediaArtistChannelType.getDescription());
+
+        ChannelType windDirectionChannelType = channelTypeRegistry.getChannelType(WIND_DIRECTION_CHANNEL_TYPE_UID,
+                Locale.GERMAN);
+        assertNotNull(windDirectionChannelType);
+        assertEquals("Windrichtung", windDirectionChannelType.getLabel());
+        assertNull(windDirectionChannelType.getDescription());
+
+        ChannelType windSpeedChannelType = channelTypeRegistry.getChannelType(WIND_SPEED_CHANNEL_TYPE_UID,
+                Locale.GERMAN);
+        assertNotNull(windSpeedChannelType);
+        assertEquals("Windgeschwindigkeit", windSpeedChannelType.getLabel());
+        assertNull(windSpeedChannelType.getDescription());
+
+        ChannelType outdoorTemperatureChannelType = channelTypeRegistry
+                .getChannelType(OUTDOOR_TEMPERATURE_CHANNEL_TYPE_UID, Locale.GERMAN);
+        assertNotNull(outdoorTemperatureChannelType);
+        assertEquals("Außentemperatur", outdoorTemperatureChannelType.getLabel());
+        assertNull(outdoorTemperatureChannelType.getDescription());
+
+        ChannelType atmosphericHumidityChannelType = channelTypeRegistry
+                .getChannelType(ATMOSPHERIC_HUMIDITY_CHANNEL_TYPE_UID, Locale.GERMAN);
+        assertNotNull(atmosphericHumidityChannelType);
+        assertEquals("Luftfeuchtigkeit", atmosphericHumidityChannelType.getLabel());
+        assertNull(atmosphericHumidityChannelType.getDescription());
+
+        ChannelType barometricPressureChannelType = channelTypeRegistry
+                .getChannelType(BAROMETRIC_PRESSURE_CHANNEL_TYPE_UID, Locale.GERMAN);
+        assertNotNull(barometricPressureChannelType);
+        assertEquals("Luftdruck", barometricPressureChannelType.getLabel());
+        assertNull(barometricPressureChannelType.getDescription());
     }
 }

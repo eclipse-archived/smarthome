@@ -24,7 +24,6 @@ import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
-import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.test.SyntheticBundleInstaller;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
@@ -197,39 +196,8 @@ public class SystemWideChannelTypesTest extends JavaOSGiTest {
         assertEquals("Mein String My Channel", myChannel.getLabel());
         assertEquals("Wetterinformation mit My Channel Type Beschreibung", myChannel.getDescription());
 
-        ChannelType sigStrChannelType = channelTypeRegistry.getChannelType(sigStr.getChannelTypeUID(), Locale.GERMAN);
-        assertNotNull(sigStrChannelType);
-        assertEquals("Signalstärke", sigStrChannelType.getLabel());
-
-        List<StateOption> sigStrChannelTypeOptions = sigStrChannelType.getState().getOptions();
-        assertEquals(5, sigStrChannelTypeOptions.size());
-
-        StateOption noSignalOption = sigStrChannelTypeOptions.stream().filter(it -> "0".equals(it.getValue()))
-                .findFirst().get();
-        assertNotNull(noSignalOption);
-        assertEquals("Kein Signal", noSignalOption.getLabel());
-        StateOption weakOption = sigStrChannelTypeOptions.stream().filter(it -> "1".equals(it.getValue())).findFirst()
-                .get();
-        assertNotNull(weakOption);
-        assertEquals("Schwach", weakOption.getLabel());
-        StateOption averageOption = sigStrChannelTypeOptions.stream().filter(it -> "2".equals(it.getValue()))
-                .findFirst().get();
-        assertNotNull(averageOption);
-        assertEquals("Durchschnittlich", averageOption.getLabel());
-        StateOption goodOption = sigStrChannelTypeOptions.stream().filter(it -> "3".equals(it.getValue())).findFirst()
-                .get();
-        assertNotNull(goodOption);
-        assertEquals("Gut", goodOption.getLabel());
-        StateOption excellentOption = sigStrChannelTypeOptions.stream().filter(it -> "4".equals(it.getValue()))
-                .findFirst().get();
-        assertNotNull(excellentOption);
-        assertEquals("Ausgezeichnet", excellentOption.getLabel());
-
         assertEquals("Meine spezial Signalstärke", sigStr.getLabel());
         assertEquals("Meine spezial Beschreibung für Signalstärke", sigStr.getDescription());
-
-        assertEquals("Niedriger Batteriestatus",
-                channelTypeRegistry.getChannelType(lowBat.getChannelTypeUID(), Locale.GERMAN).getLabel());
 
         assertEquals("Niedriger Batteriestatus", lowBat.getLabel());
         assertNull(lowBat.getDescription());
