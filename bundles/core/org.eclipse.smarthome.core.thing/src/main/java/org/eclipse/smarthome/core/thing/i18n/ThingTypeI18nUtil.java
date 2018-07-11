@@ -32,6 +32,7 @@ import org.osgi.framework.Bundle;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Laurent Garnier - add translation for channel group label and channel group description
+ * @author Christoph Weitkamp - fix localized label and description for channel definition
  */
 @NonNullByDefault
 public class ThingTypeI18nUtil {
@@ -58,8 +59,15 @@ public class ThingTypeI18nUtil {
     public @Nullable String getChannelGroupDescription(Bundle bundle, ChannelGroupTypeUID channelGroupTypeUID,
             @Nullable String defaultDescription, @Nullable Locale locale) {
         String key = I18nUtil.stripConstantOr(defaultDescription,
-                () -> inferChannelKey(channelGroupTypeUID, "description"));
+                () -> inferChannelGroupKey(channelGroupTypeUID, "description"));
         return i18nProvider.getText(bundle, key, defaultDescription, locale);
+    }
+
+    public @Nullable String getChannelDescription(Bundle bundle, ChannelGroupTypeUID channelGroupTypeUID,
+            ChannelDefinition channel, String defaultLabel, @Nullable Locale locale) {
+        String key = I18nUtil.stripConstantOr(defaultLabel,
+                () -> inferChannelGroupKey(channelGroupTypeUID, channel, "description"));
+        return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 
     public @Nullable String getChannelGroupDescription(Bundle bundle, ThingTypeUID thingTypeUID,
@@ -75,6 +83,13 @@ public class ThingTypeI18nUtil {
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 
+    public @Nullable String getChannelLabel(Bundle bundle, ChannelGroupTypeUID channelGroupTypeUID,
+            ChannelDefinition channel, String defaultLabel, @Nullable Locale locale) {
+        String key = I18nUtil.stripConstantOr(defaultLabel,
+                () -> inferChannelGroupKey(channelGroupTypeUID, channel, "label"));
+        return i18nProvider.getText(bundle, key, defaultLabel, locale);
+    }
+
     public @Nullable String getChannelLabel(Bundle bundle, ThingTypeUID thingTypeUID, ChannelDefinition channel,
             String defaultLabel, @Nullable Locale locale) {
         String key = I18nUtil.stripConstantOr(defaultLabel, () -> inferThingTypeKey(thingTypeUID, channel, "label"));
@@ -83,7 +98,7 @@ public class ThingTypeI18nUtil {
 
     public @Nullable String getChannelGroupLabel(Bundle bundle, ChannelGroupTypeUID channelGroupTypeUID,
             String defaultLabel, @Nullable Locale locale) {
-        String key = I18nUtil.stripConstantOr(defaultLabel, () -> inferChannelKey(channelGroupTypeUID, "label"));
+        String key = I18nUtil.stripConstantOr(defaultLabel, () -> inferChannelGroupKey(channelGroupTypeUID, "label"));
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 
@@ -119,13 +134,19 @@ public class ThingTypeI18nUtil {
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 
-    private String inferChannelKey(ChannelGroupTypeUID channelGroupTypeUID, String lastSegment) {
+    private String inferChannelKey(ChannelTypeUID channelTypeUID, String lastSegment) {
+        return "channel-type." + channelTypeUID.getBindingId() + "." + channelTypeUID.getId() + "." + lastSegment;
+    }
+
+    private String inferChannelGroupKey(ChannelGroupTypeUID channelGroupTypeUID, String lastSegment) {
         return "channel-group-type." + channelGroupTypeUID.getBindingId() + "." + channelGroupTypeUID.getId() + "."
                 + lastSegment;
     }
 
-    private String inferChannelKey(ChannelTypeUID channelTypeUID, String lastSegment) {
-        return "channel-type." + channelTypeUID.getBindingId() + "." + channelTypeUID.getId() + "." + lastSegment;
+    private String inferChannelGroupKey(ChannelGroupTypeUID channelGroupTypeUID, ChannelDefinition channel,
+            String lastSegment) {
+        return "channel-group-type." + channelGroupTypeUID.getBindingId() + "." + channelGroupTypeUID.getId()
+                + ".channel." + channel.getId() + "." + lastSegment;
     }
 
     private String inferThingTypeKey(ThingTypeUID thingTypeUID, String lastSegment) {
