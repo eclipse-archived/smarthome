@@ -330,7 +330,10 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
         channelGroupTypes = Collections.emptyList();
         channelTypes = Collections.unmodifiableCollection(Arrays.asList(new ChannelType[] {
                 SYSTEM_CHANNEL_SIGNAL_STRENGTH, SYSTEM_CHANNEL_LOW_BATTERY, SYSTEM_CHANNEL_BATTERY_LEVEL,
-                SYSTEM_TRIGGER, SYSTEM_RAWBUTTON, SYSTEM_BUTTON, SYSTEM_RAWROCKER }));
+                SYSTEM_TRIGGER, SYSTEM_RAWBUTTON, SYSTEM_BUTTON, SYSTEM_RAWROCKER, SYSTEM_POWER, SYSTEM_LOCATION,
+                SYSTEM_MOTION, SYSTEM_BRIGHTNESS, SYSTEM_COLOR, SYSTEM_COLOR_TEMPERATURE, SYSTEM_VOLUME, SYSTEM_MUTE,
+                SYSTEM_MEDIA_CONTROL, SYSTEM_MEDIA_TITLE, SYSTEM_MEDIA_ARTIST, SYSTEM_WIND_DIRECTION, SYSTEM_WIND_SPEED,
+                SYSTEM_OUTDOOR_TEMPERATURE, SYSTEM_ATMOSPHERIC_HUMIDITY, SYSTEM_BAROMETRIC_PRESSURE }));
     }
 
     @Override
@@ -363,6 +366,38 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
             return createLocalizedChannelType(bundle, SYSTEM_BUTTON, locale);
         } else if (channelTypeUID.equals(SYSTEM_RAWROCKER.getUID())) {
             return createLocalizedChannelType(bundle, SYSTEM_RAWROCKER, locale);
+        } else if (channelTypeUID.equals(SYSTEM_POWER.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_POWER, locale);
+        } else if (channelTypeUID.equals(SYSTEM_LOCATION.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_LOCATION, locale);
+        } else if (channelTypeUID.equals(SYSTEM_MOTION.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_MOTION, locale);
+        } else if (channelTypeUID.equals(SYSTEM_BRIGHTNESS.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_BRIGHTNESS, locale);
+        } else if (channelTypeUID.equals(SYSTEM_COLOR.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_COLOR, locale);
+        } else if (channelTypeUID.equals(SYSTEM_COLOR_TEMPERATURE.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_COLOR_TEMPERATURE, locale);
+        } else if (channelTypeUID.equals(SYSTEM_VOLUME.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_VOLUME, locale);
+        } else if (channelTypeUID.equals(SYSTEM_MUTE.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_MUTE, locale);
+        } else if (channelTypeUID.equals(SYSTEM_MEDIA_CONTROL.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_MEDIA_CONTROL, locale);
+        } else if (channelTypeUID.equals(SYSTEM_MEDIA_TITLE.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_MEDIA_TITLE, locale);
+        } else if (channelTypeUID.equals(SYSTEM_MEDIA_ARTIST.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_MEDIA_ARTIST, locale);
+        } else if (channelTypeUID.equals(SYSTEM_WIND_DIRECTION.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_WIND_DIRECTION, locale);
+        } else if (channelTypeUID.equals(SYSTEM_WIND_SPEED.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_WIND_SPEED, locale);
+        } else if (channelTypeUID.equals(SYSTEM_OUTDOOR_TEMPERATURE.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_OUTDOOR_TEMPERATURE, locale);
+        } else if (channelTypeUID.equals(SYSTEM_ATMOSPHERIC_HUMIDITY.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_ATMOSPHERIC_HUMIDITY, locale);
+        } else if (channelTypeUID.equals(SYSTEM_BAROMETRIC_PRESSURE.getUID())) {
+            return createLocalizedChannelType(bundle, SYSTEM_BAROMETRIC_PRESSURE, locale);
         }
         return null;
     }
