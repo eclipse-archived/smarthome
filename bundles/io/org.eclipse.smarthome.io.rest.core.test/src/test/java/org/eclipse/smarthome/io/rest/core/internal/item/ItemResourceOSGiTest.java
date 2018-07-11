@@ -33,7 +33,6 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemProvider;
-import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.items.Metadata;
 import org.eclipse.smarthome.core.items.MetadataKey;
@@ -66,16 +65,12 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
     private ItemProvider itemProvider;
 
     private ItemResource itemResource;
-    private ItemRegistry itemRegistry;
 
     private ManagedItemProvider managedItemProvider;
 
     @Before
     public void setup() {
         initMocks(this);
-
-        itemRegistry = getService(ItemRegistry.class);
-        assertNotNull(itemRegistry);
 
         itemResource = getService(RESTResource.class, ItemResource.class);
         assertNotNull(itemResource);
@@ -95,10 +90,10 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
 
     @Test
     public void shouldFilterItemsByTag() throws Exception {
-        itemRegistry.addTag(ITEM_NAME1, "Tag1");
-        itemRegistry.addTag(ITEM_NAME2, "Tag1");
-        itemRegistry.addTag(ITEM_NAME2, "Tag2");
-        itemRegistry.addTag(ITEM_NAME3, "Tag2");
+        item1.addTag("Tag1");
+        item2.addTag("Tag1");
+        item2.addTag("Tag2");
+        item3.addTag("Tag2");
 
         Response response = itemResource.getItems(null, null, "Tag1", null, false, null);
         assertThat(readItemNamesFromResponse(response), hasItems(ITEM_NAME1, ITEM_NAME2));
@@ -163,7 +158,7 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
         registerService(itemProvider);
 
         response = itemResource.addTag("UnmanagedItem", "MyTag");
-        assertThat(response.getStatus(), is(Status.OK.getStatusCode()));
+        assertThat(response.getStatus(), is(Status.METHOD_NOT_ALLOWED.getStatusCode()));
     }
 
     private List<String> readItemNamesFromResponse(Response response) throws IOException {

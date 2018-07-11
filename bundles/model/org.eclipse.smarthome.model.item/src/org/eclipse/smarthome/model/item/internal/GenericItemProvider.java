@@ -36,7 +36,6 @@ import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemProvider;
-import org.eclipse.smarthome.core.items.MetadataRegistry;
 import org.eclipse.smarthome.core.items.dto.GroupFunctionDTO;
 import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.types.StateDescriptionFragment;
@@ -239,30 +238,6 @@ public class GenericItemProvider extends AbstractProvider<Item>
         }
     }
 
-    private void provideTags(String modelName, Collection<String> itemNames) {
-        if (modelRepository != null) {
-            ItemModel model = (ItemModel) modelRepository.getModel(modelName);
-            if (model != null) {
-                for (ModelItem modelItem : model.getItems()) {
-                    if (itemNames.contains(modelItem.getName())) {
-                        provideTags(modelItem);
-                    }
-                }
-            }
-        }
-    }
-
-    private void provideTags(ModelItem modelItem) {
-        if (modelItem.getTags() == null || modelItem.getTags().isEmpty()) {
-            genericMetaDataProvider.removeMetadata(MetadataRegistry.INTERNAL_NAMESPACE_PREFIX + "tags",
-                    modelItem.getName());
-            return;
-        }
-        String tagString = String.join("|", modelItem.getTags());
-        genericMetaDataProvider.addMetadata(MetadataRegistry.INTERNAL_NAMESPACE_PREFIX + "tags", modelItem.getName(),
-                tagString, null);
-    }
-
     private Item createItemFromModelItem(ModelItem modelItem) {
         Item item = null;
         if (modelItem instanceof ModelGroupItem) {
@@ -302,6 +277,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
             }
             ((ActiveItem) item).setLabel(label);
             ((ActiveItem) item).setCategory(modelItem.getIcon());
+            assignTags(modelItem, (ActiveItem) item);
             return item;
         } else {
             return null;
@@ -317,6 +293,13 @@ public class GenericItemProvider extends AbstractProvider<Item>
             format = label.substring(label.indexOf("[") + 1, label.lastIndexOf("]"));
         }
         return format;
+    }
+
+    private void assignTags(ModelItem modelItem, ActiveItem item) {
+        List<String> tags = modelItem.getTags();
+        for (String tag : tags) {
+            item.addTag(tag);
+        }
     }
 
     private GroupItem applyGroupFunction(Item baseItem, ModelGroupItem modelGroupItem, ModelGroupFunction function) {
@@ -421,7 +404,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
                     logger.error("Binding configuration of type '{}' of item '{}' could not be parsed correctly.",
                             bindingType, item.getName(), e);
                 }
-            } else if (!bindingType.startsWith(MetadataRegistry.INTERNAL_NAMESPACE_PREFIX)) {
+            } else {
                 genericMetaDataProvider.addMetadata(bindingType, item.getName(), config, configuration.getProperties());
             }
         }
@@ -436,7 +419,6 @@ public class GenericItemProvider extends AbstractProvider<Item>
                     Map<String, Item> oldItems = toItemMap(itemsMap.get(modelName));
                     Map<String, Item> newItems = toItemMap(getItemsFromModel(modelName));
                     itemsMap.put(modelName, newItems.values());
-                    provideTags(modelName, newItems.keySet());
                     for (Item newItem : newItems.values()) {
                         if (oldItems.containsKey(newItem.getName())) {
                             Item oldItem = oldItems.get(newItem.getName());

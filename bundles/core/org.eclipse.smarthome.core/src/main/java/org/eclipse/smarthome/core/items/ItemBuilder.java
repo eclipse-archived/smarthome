@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.core.items;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -75,5 +76,13 @@ public interface ItemBuilder {
      * @throws IllegalArgumentException in case this is not a group item
      */
     ItemBuilder withGroupFunction(@Nullable GroupFunction function);
+
+    /**
+     * Set the tags
+     * 
+     * @param tags the tags
+     * @return the builder itself
+     */
+    ItemBuilder withTags(@Nullable Set<String> tags);
 
 }
