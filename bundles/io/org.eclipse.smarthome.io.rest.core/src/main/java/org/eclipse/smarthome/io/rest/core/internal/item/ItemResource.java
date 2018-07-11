@@ -48,6 +48,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.items.ActiveItem;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
@@ -480,7 +481,6 @@ public class ItemResource implements RESTResource {
             logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return Response.status(Status.NOT_FOUND).build();
         }
-        itemRegistry.removeTags(itemname);
         return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
@@ -494,11 +494,19 @@ public class ItemResource implements RESTResource {
     public Response addTag(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
             @PathParam("tag") @ApiParam(value = "tag", required = true) String tag) {
         Item item = getItem(itemname);
+
         if (item == null) {
             logger.info("Received HTTP PUT request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return Response.status(Status.NOT_FOUND).build();
         }
-        itemRegistry.addTag(itemname, tag);
+
+        if (managedItemProvider.get(itemname) == null) {
+            return Response.status(Status.METHOD_NOT_ALLOWED).build();
+        }
+
+        ((ActiveItem) item).addTag(tag);
+        managedItemProvider.update(item);
+
         return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
@@ -512,11 +520,19 @@ public class ItemResource implements RESTResource {
     public Response removeTag(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
             @PathParam("tag") @ApiParam(value = "tag", required = true) String tag) {
         Item item = getItem(itemname);
+
         if (item == null) {
             logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return Response.status(Status.NOT_FOUND).build();
         }
-        itemRegistry.removeTag(itemname, tag);
+
+        if (managedItemProvider.get(itemname) == null) {
+            return Response.status(Status.METHOD_NOT_ALLOWED).build();
+        }
+
+        ((ActiveItem) item).removeTag(tag);
+        managedItemProvider.update(item);
+
         return Response.ok(null, MediaType.TEXT_PLAIN).build();
     }
 
@@ -539,11 +555,6 @@ public class ItemResource implements RESTResource {
         if (item == null) {
             logger.info("Received HTTP PUT request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return Response.status(Status.NOT_FOUND).build();
-        }
-
-        if (metadataRegistry.isInternalNamespace(namespace)) {
-            logger.info("Received HTTP PUT request at '{}' for internal namespace '{}'.", uriInfo.getPath(), namespace);
-            return Response.status(Status.FORBIDDEN).build();
         }
 
         MetadataKey key = new MetadataKey(namespace, itemname);
@@ -574,12 +585,6 @@ public class ItemResource implements RESTResource {
         if (item == null) {
             logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return Response.status(Status.NOT_FOUND).build();
-        }
-
-        if (metadataRegistry.isInternalNamespace(namespace)) {
-            logger.info("Received HTTP DELETE request at '{}' for internal namespace '{}'.", uriInfo.getPath(),
-                    namespace);
-            return Response.status(Status.FORBIDDEN).build();
         }
 
         MetadataKey key = new MetadataKey(namespace, itemname);
@@ -636,13 +641,10 @@ public class ItemResource implements RESTResource {
         if (getItem(itemname) == null) {
             // item does not yet exist, create it
             managedItemProvider.add(newItem);
-            itemRegistry.addTags(itemname, item.tags);
             return getItemResponse(Status.CREATED, itemRegistry.get(itemname), locale, null);
         } else if (managedItemProvider.get(itemname) != null) {
             // item already exists as a managed item, update it
             managedItemProvider.update(newItem);
-            itemRegistry.removeTags(itemname);
-            itemRegistry.addTags(itemname, item.tags);
             return getItemResponse(Status.OK, itemRegistry.get(itemname), locale, null);
         } else {
             // Item exists but cannot be updated
@@ -693,13 +695,10 @@ public class ItemResource implements RESTResource {
             if (getItem(itemName) == null) {
                 // item does not yet exist, create it
                 managedItemProvider.add(activeItem);
-                itemRegistry.addTags(itemName, tagMap.get(itemName));
                 createdItems.add(activeItem);
             } else if (managedItemProvider.get(itemName) != null) {
                 // item already exists as a managed item, update it
                 managedItemProvider.update(activeItem);
-                itemRegistry.removeTags(itemName);
-                itemRegistry.addTags(itemName, tagMap.get(itemName));
                 updatedItems.add(activeItem);
             } else {
                 // Item exists but cannot be updated

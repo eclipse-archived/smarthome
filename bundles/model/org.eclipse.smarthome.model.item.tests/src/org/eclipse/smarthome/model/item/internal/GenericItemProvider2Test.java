@@ -13,14 +13,11 @@
 package org.eclipse.smarthome.model.item.internal;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.Iterator;
 
-import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
@@ -38,9 +35,6 @@ import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mock;
 
 /**
  *
@@ -55,11 +49,9 @@ public class GenericItemProvider2Test extends JavaOSGiTest {
     private ModelRepository modelRepository;
     private ItemRegistry itemRegistry;
     private MetadataRegistry metadataRegistry;
-    private @Mock RegistryChangeListener<Item> mockListener;
 
     @Before
     public void setUp() {
-        initMocks(this);
         registerVolatileStorageService();
 
         itemRegistry = getService(ItemRegistry.class);
@@ -81,7 +73,6 @@ public class GenericItemProvider2Test extends JavaOSGiTest {
     public void tearDown() {
         modelRepository.removeModel(TESTMODEL_NAME);
         modelRepository.removeModel(TESTMODEL_NAME2);
-        itemRegistry.removeRegistryChangeListener(mockListener);
     }
 
     @Test
@@ -290,49 +281,6 @@ public class GenericItemProvider2Test extends JavaOSGiTest {
         Item item3 = itemRegistry.get("s");
         assertNotNull(item3);
         assertEquals(0, item3.getTags().size());
-    }
-
-    @Test
-    public void testAddedNotificationsContainTags() {
-        itemRegistry.addRegistryChangeListener(mockListener);
-
-        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream("Switch s [foo]".getBytes()));
-
-        ArgumentCaptor<Item> captor = ArgumentCaptor.forClass(Item.class);
-        verify(mockListener).added(captor.capture());
-        Item res = captor.getValue();
-        assertEquals("s", res.getName());
-        assertEquals(1, res.getTags().size());
-    }
-
-    @Test
-    public void testUpdatedNotificationsContainTags() {
-        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream("Switch s [foo]".getBytes()));
-
-        itemRegistry.addRegistryChangeListener(mockListener);
-
-        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream("Switch s [foo, bar]".getBytes()));
-
-        ArgumentCaptor<Item> captor = ArgumentCaptor.forClass(Item.class);
-        verify(mockListener).updated(ArgumentMatchers.any(Item.class), captor.capture());
-        Item res = captor.getValue();
-        assertEquals("s", res.getName());
-        assertEquals(2, res.getTags().size());
-    }
-
-    @Test
-    public void testRemovedNotificationsContainTags() {
-        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream("Switch s [foo]".getBytes()));
-
-        itemRegistry.addRegistryChangeListener(mockListener);
-
-        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream("".getBytes()));
-
-        ArgumentCaptor<Item> captor = ArgumentCaptor.forClass(Item.class);
-        verify(mockListener).removed(captor.capture());
-        Item res = captor.getValue();
-        assertEquals("s", res.getName());
-        assertEquals(1, res.getTags().size());
     }
 
     @Test

@@ -16,10 +16,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
+import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
 import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
@@ -46,6 +48,7 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
     private static final String SUBCMD_RMTAG = "rmTag";
 
     private ItemRegistry itemRegistry;
+    private ManagedItemProvider managedItemProvider;
 
     public ItemConsoleCommandExtension() {
         super("items", "Access the item registry.");
@@ -85,7 +88,11 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
                     break;
                 case SUBCMD_ADDTAG:
                     if (args.length > 2) {
-                        handleTags(itemRegistry::addTag, args[2], args[1], console);
+                        Item item = itemRegistry.get(args[1]);
+                        if (item instanceof GenericItem) {
+                            GenericItem gItem = (GenericItem) item;
+                            handleTags(gItem::addTag, args[2], gItem, console);
+                        }
                     } else {
                         console.println("Specify the name of the item and the tag: " + this.getCommand() + " "
                                 + SUBCMD_ADDTAG + " <itemName> <tag>");
@@ -93,7 +100,11 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
                     break;
                 case SUBCMD_RMTAG:
                     if (args.length > 2) {
-                        handleTags(itemRegistry::removeTag, args[2], args[1], console);
+                        Item item = itemRegistry.get(args[1]);
+                        if (item instanceof GenericItem) {
+                            GenericItem gItem = (GenericItem) item;
+                            handleTags(gItem::removeTag, args[2], gItem, console);
+                        }
                     } else {
                         console.println("Specify the name of the item and the tag: " + this.getCommand() + " "
                                 + SUBCMD_RMTAG + " <itemName> <tag>");
@@ -109,11 +120,19 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
         }
     }
 
-    private void handleTags(final BiFunction<String, String, Boolean> func, final String tag, String itemName,
-            Console console) {
-        boolean res = func.apply(itemName, tag);
-        if (res) {
-            console.println("Successfully changed tag " + tag + " on item " + itemName);
+    private <T> void handleTags(final Consumer<T> func, final T tag, GenericItem gItem, Console console) {
+        // allow adding/removing of tags only for managed items
+        if (managedItemProvider.get(gItem.getName()) != null) {
+            // add or remove tag method is passed here
+            func.accept(tag);
+
+            Item oldItem = itemRegistry.update(gItem);
+            if (oldItem != null) {
+                console.println("Successfully changed tag " + tag + " on item " + gItem.getName());
+            }
+        } else {
+            console.println("Error: Cannot change tag " + tag + " on item " + gItem.getName()
+                    + " because this item does not belong to a ManagedProvider");
         }
     }
 
@@ -147,6 +166,15 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
 
     protected void unsetItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = null;
+    }
+
+    @Reference
+    protected void setManagedItemProvider(ManagedItemProvider managedItemProvider) {
+        this.managedItemProvider = managedItemProvider;
+    }
+
+    protected void unsetManagedItemProvider(ManagedItemProvider managedItemProvider) {
+        this.managedItemProvider = null;
     }
 
 }

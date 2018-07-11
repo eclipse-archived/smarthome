@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -65,7 +64,7 @@ public abstract class GenericItem implements ActiveItem {
 
     protected List<String> groupNames = new ArrayList<String>();
 
-    protected transient volatile Set<String> tags = ConcurrentHashMap.newKeySet();
+    protected Set<String> tags = new HashSet<String>();
 
     protected final String name;
 
