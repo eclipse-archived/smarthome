@@ -13,14 +13,14 @@
 package org.eclipse.smarthome.binding.homematic.handler;
 
 /**
- * Exception if the BridgeHandler is not available.
+ * Exception if the HomematicGateway is not available.
  *
  * @author Gerhard Riegler - Initial contribution
  */
-public class BridgeHandlerNotAvailableException extends Exception {
+public class GatewayNotAvailableException extends Exception {
     private static final long serialVersionUID = 95628391238530L;
 
-    public BridgeHandlerNotAvailableException(String message) {
+    public GatewayNotAvailableException(String message) {
         super(message);
     }
 

@@ -94,16 +94,17 @@ public class HomematicThingHandler extends BaseThingHandler {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, ex.getMessage());
             } catch (IOException ex) {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, ex.getMessage());
-            } catch (BridgeHandlerNotAvailableException ex) {
-                // ignore
+            } catch (GatewayNotAvailableException ex) {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE, ex.getMessage());
             } catch (Exception ex) {
                 logger.error("{}", ex.getMessage(), ex);
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, ex.getMessage());
             }
         });
     }
 
     private void doInitializeInBackground()
-            throws BridgeHandlerNotAvailableException, HomematicClientException, IOException {
+            throws GatewayNotAvailableException, HomematicClientException, IOException {
         HomematicGateway gateway = getHomematicGateway();
         HmDevice device = gateway.getDevice(UidUtils.getHomematicAddress(getThing()));
         HmChannel channelZero = device.getChannel(0);
@@ -281,7 +282,7 @@ public class HomematicThingHandler extends BaseThingHandler {
                     }
                 }
             }
-        } catch (HomematicClientException | BridgeHandlerNotAvailableException ex) {
+        } catch (HomematicClientException | GatewayNotAvailableException ex) {
             logger.warn("{}", ex.getMessage());
         } catch (IOException ex) {
             if (dp != null && dp.getChannel().getDevice().isOffline()) {
@@ -302,7 +303,7 @@ public class HomematicThingHandler extends BaseThingHandler {
      * Evaluates the channel and datapoint for this channelUID and updates the state of the channel.
      */
     private void updateChannelState(ChannelUID channelUID)
-            throws BridgeHandlerNotAvailableException, HomematicClientException, IOException, ConverterException {
+            throws GatewayNotAvailableException, HomematicClientException, IOException, ConverterException {
         HomematicGateway gateway = getHomematicGateway();
         HmDatapointInfo dpInfo = UidUtils.createHmDatapointInfo(channelUID);
         HmDatapoint dp = gateway.getDatapoint(dpInfo);
@@ -333,7 +334,7 @@ public class HomematicThingHandler extends BaseThingHandler {
                     logger.warn("Channel not found for datapoint '{}'", new HmDatapointInfo(dp));
                 }
             }
-        } catch (BridgeHandlerNotAvailableException ex) {
+        } catch (GatewayNotAvailableException ex) {
             // ignore
         } catch (Exception ex) {
             logger.error("{}", ex.getMessage(), ex);
@@ -344,7 +345,7 @@ public class HomematicThingHandler extends BaseThingHandler {
      * Converts the value of the datapoint to a State, updates the channel and also sets the thing status if necessary.
      */
     private void updateChannelState(final HmDatapoint dp, Channel channel)
-            throws IOException, BridgeHandlerNotAvailableException, ConverterException {
+            throws IOException, GatewayNotAvailableException, ConverterException {
 
         if (dp.isTrigger()) {
             if (dp.getValue() != null) {
@@ -367,7 +368,7 @@ public class HomematicThingHandler extends BaseThingHandler {
      * Loads all values for the given Homematic channel if it is not initialized.
      */
     private void loadHomematicChannelValues(HmChannel hmChannel)
-            throws BridgeHandlerNotAvailableException, IOException {
+            throws GatewayNotAvailableException, IOException {
         if (!hmChannel.isInitialized()) {
             synchronized (this) {
                 if (!hmChannel.isInitialized()) {
@@ -389,7 +390,7 @@ public class HomematicThingHandler extends BaseThingHandler {
     /**
      * Updates the thing status based on device status.
      */
-    private void updateStatus(HmDevice device) throws BridgeHandlerNotAvailableException, IOException {
+    private void updateStatus(HmDevice device) throws GatewayNotAvailableException, IOException {
         loadHomematicChannelValues(device.getChannel(0));
 
         ThingStatus oldStatus = thing.getStatus();
@@ -440,7 +441,7 @@ public class HomematicThingHandler extends BaseThingHandler {
     /**
      * Returns the Homematic gateway if the bridge is available.
      */
-    private HomematicGateway getHomematicGateway() throws BridgeHandlerNotAvailableException {
+    private HomematicGateway getHomematicGateway() throws GatewayNotAvailableException {
         final Bridge bridge = getBridge();
         if (bridge != null) {
             HomematicBridgeHandler bridgeHandler = (HomematicBridgeHandler) bridge.getHandler();
@@ -448,10 +449,8 @@ public class HomematicThingHandler extends BaseThingHandler {
                 return bridgeHandler.getGateway();
             }
         }
-        if (thing.getStatus() != ThingStatus.INITIALIZING) {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.HANDLER_MISSING_ERROR);
-        }
-        throw new BridgeHandlerNotAvailableException("BridgeHandler not yet available!");
+
+        throw new GatewayNotAvailableException("HomematicGateway not yet available!");
     }
 
     @Override
@@ -501,7 +500,7 @@ public class HomematicThingHandler extends BaseThingHandler {
                 }
             }
             gateway.triggerDeviceValuesReload(device);
-        } catch (HomematicClientException | BridgeHandlerNotAvailableException ex) {
+        } catch (HomematicClientException | GatewayNotAvailableException ex) {
             logger.error("Error setting thing properties: {}", ex.getMessage(), ex);
         }
     }
@@ -543,7 +542,7 @@ public class HomematicThingHandler extends BaseThingHandler {
     public void deviceLoaded(HmDevice device) {
         try {
             updateStatus(device);
-        } catch (BridgeHandlerNotAvailableException ex) {
+        } catch (GatewayNotAvailableException ex) {
             // ignore
         } catch (IOException ex) {
             logger.warn("Could not reinitialize the device '{}': {}", device.getAddress(), ex.getMessage(), ex);
