@@ -86,7 +86,7 @@ public class GenericMetadataProvider extends AbstractProvider<Metadata> implemen
     public Collection<Metadata> getAll() {
         try {
             lock.readLock().lock();
-            return Collections.unmodifiableSet(metadata);
+            return Collections.unmodifiableSet(new HashSet<>(metadata));
         } finally {
             lock.readLock().unlock();
         }
