@@ -346,10 +346,10 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
 
         builder.withProperty(LifxBindingConstants.CONFIG_PROPERTY_DEVICE_ID, macAsLabel);
         builder.withProperty(LifxBindingConstants.PROPERTY_MAC_ADDRESS, macAsLabel);
-        builder.withProperty(LifxBindingConstants.PROPERTY_PRODUCT_ID, product.getProduct());
+        builder.withProperty(LifxBindingConstants.PROPERTY_PRODUCT_ID, Long.toString(product.getProduct()));
         builder.withProperty(LifxBindingConstants.PROPERTY_PRODUCT_NAME, product.getName());
-        builder.withProperty(LifxBindingConstants.PROPERTY_PRODUCT_VERSION, light.productVersion);
-        builder.withProperty(LifxBindingConstants.PROPERTY_VENDOR_ID, product.getVendor());
+        builder.withProperty(LifxBindingConstants.PROPERTY_PRODUCT_VERSION, Long.toString(light.productVersion));
+        builder.withProperty(LifxBindingConstants.PROPERTY_VENDOR_ID, Long.toString(product.getVendor()));
         builder.withProperty(LifxBindingConstants.PROPERTY_VENDOR_NAME, product.getVendorName());
 
         return builder.build();
