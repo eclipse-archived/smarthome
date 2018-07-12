@@ -19,6 +19,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.ComplexType;
 import org.eclipse.smarthome.core.types.PrimitiveType;
@@ -32,6 +34,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author John Cocula
  *
  */
+@NonNullByDefault
 public class PointType implements ComplexType, Command, State {
 
     public static final double EARTH_GRAVITATIONAL_CONSTANT = 3.986004418e14;
@@ -78,9 +81,6 @@ public class PointType implements ComplexType, Command, State {
     }
 
     public PointType(String value) {
-        if (value == null) {
-            throw new IllegalArgumentException("Constructor argument must not be null");
-        }
         if (!value.isEmpty()) {
             List<String> elements = Arrays.stream(value.split(",")).map(in -> in.trim()).collect(Collectors.toList());
             if (elements.size() >= 2) {
@@ -180,8 +180,8 @@ public class PointType implements ComplexType, Command, State {
     }
 
     @Override
-    public SortedMap<String, PrimitiveType> getConstituents() {
-        SortedMap<String, PrimitiveType> result = new TreeMap<String, PrimitiveType>();
+    public SortedMap<String, @Nullable PrimitiveType> getConstituents() {
+        SortedMap<String, @Nullable PrimitiveType> result = new TreeMap<>();
         result.put(KEY_LATITUDE, getLatitude());
         result.put(KEY_LONGITUDE, getLongitude());
         result.put(KEY_ALTITUDE, getAltitude());
@@ -221,14 +221,14 @@ public class PointType implements ComplexType, Command, State {
 
     @Override
     public int hashCode() {
-        int tmp = 10000 * (getLatitude() == null ? 0 : getLatitude().hashCode());
-        tmp += 100 * (getLongitude() == null ? 0 : getLongitude().hashCode());
-        tmp += (getAltitude() == null ? 0 : getAltitude().hashCode());
+        int tmp = 10000 * getLatitude().hashCode();
+        tmp += 100 * getLongitude().hashCode();
+        tmp += getAltitude().hashCode();
         return tmp;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;
         }
@@ -239,14 +239,6 @@ public class PointType implements ComplexType, Command, State {
             return false;
         }
         PointType other = (PointType) obj;
-        if ((getLatitude() != null && other.getLatitude() == null)
-                || (getLatitude() == null && other.getLatitude() != null)
-                || (getLongitude() != null && other.getLongitude() == null)
-                || (getLongitude() == null && other.getLongitude() != null)
-                || (getAltitude() != null && other.getAltitude() == null)
-                || (getAltitude() == null && other.getAltitude() != null)) {
-            return false;
-        }
         if (!getLatitude().equals(other.getLatitude()) || !getLongitude().equals(other.getLongitude())
                 || !getAltitude().equals(other.getAltitude())) {
             return false;

@@ -15,6 +15,8 @@ package org.eclipse.smarthome.core.library.types;
 import java.math.BigDecimal;
 import java.util.IllegalFormatConversionException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
@@ -26,6 +28,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@NonNullByDefault
 public class DecimalType extends Number implements PrimitiveType, State, Command, Comparable<DecimalType> {
 
     private static final long serialVersionUID = 4226845847123464690L;
@@ -99,7 +102,7 @@ public class DecimalType extends Number implements PrimitiveType, State, Command
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;
         }
@@ -145,12 +148,12 @@ public class DecimalType extends Number implements PrimitiveType, State, Command
         return value.longValue();
     }
 
-    protected <T extends State> T defaultConversion(Class<T> target) {
+    protected <T extends State> @Nullable T defaultConversion(@Nullable Class<T> target) {
         return State.super.as(target);
     }
 
     @Override
-    public <T extends State> T as(Class<T> target) {
+    public <T extends State> @Nullable T as(@Nullable Class<T> target) {
         if (target == OnOffType.class) {
             return target.cast(equals(ZERO) ? OnOffType.OFF : OnOffType.ON);
         } else if (target == PercentType.class) {

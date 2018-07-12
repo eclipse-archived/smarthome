@@ -89,7 +89,10 @@ public class ItemStateConverterImpl implements ItemStateConverter {
 
                 return state;
             } else {
-                return state.as(DecimalType.class);
+                State convertedState = state.as(DecimalType.class);
+                if (convertedState != null) {
+                    return convertedState;
+                }
             }
         }
 

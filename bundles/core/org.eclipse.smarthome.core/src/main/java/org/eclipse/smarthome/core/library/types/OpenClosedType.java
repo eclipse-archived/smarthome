@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.core.library.types;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
@@ -20,6 +22,7 @@ import org.eclipse.smarthome.core.types.State;
  *
  * @author Kai Kreuzer - Initial contribution
  */
+@NonNullByDefault
 public enum OpenClosedType implements PrimitiveType, State, Command {
     OPEN,
     CLOSED;
@@ -40,7 +43,7 @@ public enum OpenClosedType implements PrimitiveType, State, Command {
     }
 
     @Override
-    public <T extends State> T as(Class<T> target) {
+    public <T extends State> @Nullable T as(@Nullable Class<T> target) {
         if (target == DecimalType.class) {
             return target.cast(this == OPEN ? new DecimalType(1) : DecimalType.ZERO);
         } else if (target == PercentType.class) {

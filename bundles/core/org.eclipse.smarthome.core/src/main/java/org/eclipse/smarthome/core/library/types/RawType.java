@@ -15,6 +15,8 @@ package org.eclipse.smarthome.core.library.types;
 import java.util.Arrays;
 import java.util.Base64;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
 
@@ -26,6 +28,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author Laurent Garnier - add MIME type
  *
  */
+@NonNullByDefault
 public class RawType implements PrimitiveType, State {
 
     public static final String DEFAULT_MIME_TYPE = "application/octet-stream";
@@ -44,9 +47,7 @@ public class RawType implements PrimitiveType, State {
     }
 
     public RawType(byte[] bytes, String mimeType) {
-        if (mimeType == null) {
-            throw new IllegalArgumentException("mimeType argument must not be null");
-        } else if (mimeType.isEmpty()) {
+        if (mimeType.isEmpty()) {
             throw new IllegalArgumentException("mimeType argument must not be blank");
         }
         this.bytes = bytes;
@@ -63,9 +64,7 @@ public class RawType implements PrimitiveType, State {
 
     public static RawType valueOf(String value) {
         int idx, idx2;
-        if (value == null) {
-            throw new IllegalArgumentException("Argument must not be null");
-        } else if (value.isEmpty()) {
+        if (value.isEmpty()) {
             throw new IllegalArgumentException("Argument must not be blank");
         } else if (!value.startsWith("data:") || ((idx = value.indexOf(",")) < 0)) {
             throw new IllegalArgumentException("Invalid data URI syntax for argument " + value);
@@ -99,7 +98,7 @@ public class RawType implements PrimitiveType, State {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;
         }

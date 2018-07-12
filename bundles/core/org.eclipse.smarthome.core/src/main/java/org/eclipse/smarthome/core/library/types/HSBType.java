@@ -20,6 +20,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.ComplexType;
 import org.eclipse.smarthome.core.types.PrimitiveType;
@@ -33,6 +35,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author Chris Jackson - Added fromRGB
  *
  */
+@NonNullByDefault
 public class HSBType extends PercentType implements ComplexType, State, Command {
 
     private static final long serialVersionUID = 322902950356613226L;
@@ -71,18 +74,13 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
     }
 
     public HSBType(String value) {
-        if (value != null) {
-            List<String> constituents = Arrays.stream(value.split(",")).map(in -> in.trim())
-                    .collect(Collectors.toList());
-            if (constituents.size() == 3) {
-                this.hue = new BigDecimal(constituents.get(0));
-                this.saturation = new BigDecimal(constituents.get(1));
-                this.value = new BigDecimal(constituents.get(2));
-            } else {
-                throw new IllegalArgumentException(value + " is not a valid HSBType syntax");
-            }
+        List<String> constituents = Arrays.stream(value.split(",")).map(in -> in.trim()).collect(Collectors.toList());
+        if (constituents.size() == 3) {
+            this.hue = new BigDecimal(constituents.get(0));
+            this.saturation = new BigDecimal(constituents.get(1));
+            this.value = new BigDecimal(constituents.get(2));
         } else {
-            throw new IllegalArgumentException("Constructor argument must not be null");
+            throw new IllegalArgumentException(value + " is not a valid HSBType syntax");
         }
     }
 
@@ -163,8 +161,8 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
     }
 
     @Override
-    public SortedMap<String, PrimitiveType> getConstituents() {
-        TreeMap<String, PrimitiveType> map = new TreeMap<String, PrimitiveType>();
+    public SortedMap<String, @Nullable PrimitiveType> getConstituents() {
+        TreeMap<String, @Nullable PrimitiveType> map = new TreeMap<>();
         map.put(KEY_HUE, getHue());
         map.put(KEY_SATURATION, getSaturation());
         map.put(KEY_BRIGHTNESS, getBrightness());
@@ -220,14 +218,14 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
 
     @Override
     public int hashCode() {
-        int tmp = 10000 * (getHue() == null ? 0 : getHue().hashCode());
-        tmp += 100 * (getSaturation() == null ? 0 : getSaturation().hashCode());
-        tmp += (getBrightness() == null ? 0 : getBrightness().hashCode());
+        int tmp = 10000 * getHue().hashCode();
+        tmp += 100 * getSaturation().hashCode();
+        tmp += getBrightness().hashCode();
         return tmp;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;
         }
@@ -238,13 +236,6 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
             return false;
         }
         HSBType other = (HSBType) obj;
-        if ((getHue() != null && other.getHue() == null) || (getHue() == null && other.getHue() != null)
-                || (getSaturation() != null && other.getSaturation() == null)
-                || (getSaturation() == null && other.getSaturation() != null)
-                || (getBrightness() != null && other.getBrightness() == null)
-                || (getBrightness() == null && other.getBrightness() != null)) {
-            return false;
-        }
         if (!getHue().equals(other.getHue()) || !getSaturation().equals(other.getSaturation())
                 || !getBrightness().equals(other.getBrightness())) {
             return false;
@@ -364,7 +355,7 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
     }
 
     @Override
-    public <T extends State> T as(Class<T> target) {
+    public <T extends State> @Nullable T as(@Nullable Class<T> target) {
         if (target == OnOffType.class) {
             // if brightness is not completely off, we consider the state to be on
             return target.cast(getBrightness().equals(PercentType.ZERO) ? OnOffType.OFF : OnOffType.ON);
