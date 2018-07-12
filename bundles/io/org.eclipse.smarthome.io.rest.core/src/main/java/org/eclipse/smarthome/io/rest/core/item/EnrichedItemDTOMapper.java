@@ -59,7 +59,7 @@ public class EnrichedItemDTOMapper {
     private static EnrichedItemDTO map(Item item, ItemDTO itemDTO, URI uri, boolean drillDown,
             Predicate<Item> itemFilter, Locale locale) {
         String state = item.getState().toFullString();
-        String transformedState = considerTransformation(state, item.getStateDescription(locale));
+        String transformedState = considerTransformation(state, item, locale);
         if (transformedState != null && transformedState.equals(state)) {
             transformedState = null;
         }
@@ -106,7 +106,8 @@ public class EnrichedItemDTOMapper {
         }
     }
 
-    private static String considerTransformation(String state, StateDescription stateDescription) {
+    private static String considerTransformation(String state, Item item, Locale locale) {
+        StateDescription stateDescription = item.getStateDescription(locale);
         if (stateDescription != null && stateDescription.getPattern() != null && state != null) {
             try {
                 return TransformationHelper.transform(RESTCoreActivator.getBundleContext(),
@@ -116,8 +117,8 @@ public class EnrichedItemDTOMapper {
                 // return state as it is without transformation
                 return state;
             } catch (TransformationException e) {
-                LOGGER.debug("Failed transforming the state '{}' with pattern '{}': {}", state,
-                        stateDescription.getPattern(), e.getMessage());
+                LOGGER.warn("Failed transforming the state '{}' on item '{}' with pattern '{}': {}", state,
+                        item.getName(), stateDescription.getPattern(), e.getMessage());
                 return state;
             }
         } else {
