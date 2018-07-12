@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nUtil;
@@ -55,7 +57,7 @@ import org.osgi.service.component.annotations.Reference;
 @Component(immediate = true)
 public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
 
-    private static final String BINDING_ID = "system";
+    static final String BINDING_ID = "system";
 
     /**
      * Signal strength default system wide {@link ChannelType}. Represents signal strength of a device as a number
@@ -318,33 +320,28 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
 
     }
 
-    private final Collection<ChannelGroupType> channelGroupTypes;
-    private final Collection<ChannelType> channelTypes;
+    private static final Collection<ChannelGroupType> CHANNEL_GROUP_TYPES = Collections.emptyList();
+    private static final Collection<ChannelType> CHANNEL_TYPES = Collections
+            .unmodifiableList(Stream.of(SYSTEM_CHANNEL_SIGNAL_STRENGTH, SYSTEM_CHANNEL_LOW_BATTERY,
+                    SYSTEM_CHANNEL_BATTERY_LEVEL, SYSTEM_TRIGGER, SYSTEM_RAWBUTTON, SYSTEM_BUTTON, SYSTEM_RAWROCKER,
+                    SYSTEM_POWER, SYSTEM_LOCATION, SYSTEM_MOTION, SYSTEM_BRIGHTNESS, SYSTEM_COLOR,
+                    SYSTEM_COLOR_TEMPERATURE, SYSTEM_VOLUME, SYSTEM_MUTE, SYSTEM_MEDIA_CONTROL, SYSTEM_MEDIA_TITLE,
+                    SYSTEM_MEDIA_ARTIST, SYSTEM_WIND_DIRECTION, SYSTEM_WIND_SPEED, SYSTEM_OUTDOOR_TEMPERATURE,
+                    SYSTEM_ATMOSPHERIC_HUMIDITY, SYSTEM_BAROMETRIC_PRESSURE).collect(Collectors.toList()));
 
     private final Map<LocalizedChannelTypeKey, ChannelType> localizedChannelTypeCache = new ConcurrentHashMap<>();
 
     private ThingTypeI18nUtil thingTypeI18nUtil;
     private BundleResolver bundleResolver;
 
-    public DefaultSystemChannelTypeProvider() {
-        channelGroupTypes = Collections.emptyList();
-        channelTypes = Collections.unmodifiableCollection(Arrays.asList(new ChannelType[] {
-                SYSTEM_CHANNEL_SIGNAL_STRENGTH, SYSTEM_CHANNEL_LOW_BATTERY, SYSTEM_CHANNEL_BATTERY_LEVEL,
-                SYSTEM_TRIGGER, SYSTEM_RAWBUTTON, SYSTEM_BUTTON, SYSTEM_RAWROCKER, SYSTEM_POWER, SYSTEM_LOCATION,
-                SYSTEM_MOTION, SYSTEM_BRIGHTNESS, SYSTEM_COLOR, SYSTEM_COLOR_TEMPERATURE, SYSTEM_VOLUME, SYSTEM_MUTE,
-                SYSTEM_MEDIA_CONTROL, SYSTEM_MEDIA_TITLE, SYSTEM_MEDIA_ARTIST, SYSTEM_WIND_DIRECTION, SYSTEM_WIND_SPEED,
-                SYSTEM_OUTDOOR_TEMPERATURE, SYSTEM_ATMOSPHERIC_HUMIDITY, SYSTEM_BAROMETRIC_PRESSURE }));
-    }
-
     @Override
     public Collection<ChannelType> getChannelTypes(Locale locale) {
-        final List<ChannelType> allChannelTypes = new ArrayList<>(10);
+        final List<ChannelType> allChannelTypes = new ArrayList<>();
         final Bundle bundle = bundleResolver.resolveBundle(DefaultSystemChannelTypeProvider.class);
 
-        for (final ChannelType channelType : channelTypes) {
+        for (final ChannelType channelType : CHANNEL_TYPES) {
             allChannelTypes.add(createLocalizedChannelType(bundle, channelType, locale));
         }
-
         return allChannelTypes;
     }
 
@@ -352,52 +349,10 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
     public ChannelType getChannelType(ChannelTypeUID channelTypeUID, Locale locale) {
         final Bundle bundle = bundleResolver.resolveBundle(DefaultSystemChannelTypeProvider.class);
 
-        if (channelTypeUID.equals(SYSTEM_CHANNEL_SIGNAL_STRENGTH.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_SIGNAL_STRENGTH, locale);
-        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_LOW_BATTERY.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_LOW_BATTERY, locale);
-        } else if (channelTypeUID.equals(SYSTEM_CHANNEL_BATTERY_LEVEL.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_CHANNEL_BATTERY_LEVEL, locale);
-        } else if (channelTypeUID.equals(SYSTEM_TRIGGER.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_TRIGGER, locale);
-        } else if (channelTypeUID.equals(SYSTEM_RAWBUTTON.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_RAWBUTTON, locale);
-        } else if (channelTypeUID.equals(SYSTEM_BUTTON.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_BUTTON, locale);
-        } else if (channelTypeUID.equals(SYSTEM_RAWROCKER.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_RAWROCKER, locale);
-        } else if (channelTypeUID.equals(SYSTEM_POWER.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_POWER, locale);
-        } else if (channelTypeUID.equals(SYSTEM_LOCATION.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_LOCATION, locale);
-        } else if (channelTypeUID.equals(SYSTEM_MOTION.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_MOTION, locale);
-        } else if (channelTypeUID.equals(SYSTEM_BRIGHTNESS.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_BRIGHTNESS, locale);
-        } else if (channelTypeUID.equals(SYSTEM_COLOR.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_COLOR, locale);
-        } else if (channelTypeUID.equals(SYSTEM_COLOR_TEMPERATURE.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_COLOR_TEMPERATURE, locale);
-        } else if (channelTypeUID.equals(SYSTEM_VOLUME.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_VOLUME, locale);
-        } else if (channelTypeUID.equals(SYSTEM_MUTE.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_MUTE, locale);
-        } else if (channelTypeUID.equals(SYSTEM_MEDIA_CONTROL.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_MEDIA_CONTROL, locale);
-        } else if (channelTypeUID.equals(SYSTEM_MEDIA_TITLE.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_MEDIA_TITLE, locale);
-        } else if (channelTypeUID.equals(SYSTEM_MEDIA_ARTIST.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_MEDIA_ARTIST, locale);
-        } else if (channelTypeUID.equals(SYSTEM_WIND_DIRECTION.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_WIND_DIRECTION, locale);
-        } else if (channelTypeUID.equals(SYSTEM_WIND_SPEED.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_WIND_SPEED, locale);
-        } else if (channelTypeUID.equals(SYSTEM_OUTDOOR_TEMPERATURE.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_OUTDOOR_TEMPERATURE, locale);
-        } else if (channelTypeUID.equals(SYSTEM_ATMOSPHERIC_HUMIDITY.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_ATMOSPHERIC_HUMIDITY, locale);
-        } else if (channelTypeUID.equals(SYSTEM_BAROMETRIC_PRESSURE.getUID())) {
-            return createLocalizedChannelType(bundle, SYSTEM_BAROMETRIC_PRESSURE, locale);
+        for (final ChannelType channelType : CHANNEL_TYPES) {
+            if (channelTypeUID.equals(channelType.getUID())) {
+                return createLocalizedChannelType(bundle, channelType, locale);
+            }
         }
         return null;
     }
@@ -409,7 +364,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
 
     @Override
     public Collection<ChannelGroupType> getChannelGroupTypes(Locale locale) {
-        return channelGroupTypes;
+        return CHANNEL_GROUP_TYPES;
     }
 
     @Reference
