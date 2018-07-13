@@ -23,7 +23,8 @@ import org.eclipse.jdt.annotation.Nullable;
  * This is a data container for information about a USB device and the serial port that can be
  * used to access the device using a serial interface.
  * <p/>
- * It contains, on the one hand, information from the USB standard device descriptor and standard interface descriptor, and, on
+ * It contains, on the one hand, information from the USB standard device descriptor and standard interface descriptor,
+ * and, on
  * the other hand, the name of the serial port (for Linux, this would be, e.g., '/dev/ttyUSB0', for Windows, e.g.,
  * 'COM4').
  *
@@ -35,16 +36,12 @@ public class UsbSerialDeviceInformation {
     private final int vendorId;
     private final int productId;
 
-    @Nullable
-    private final String serialNumber;
-    @Nullable
-    private final String manufacturer;
-    @Nullable
-    private final String product;
+    private final @Nullable String serialNumber;
+    private final @Nullable String manufacturer;
+    private final @Nullable String product;
 
     private final int interfaceNumber;
-    @Nullable
-    private final String interfaceDescription;
+    private final @Nullable String interfaceDescription;
 
     private final String serialPort;
 
@@ -81,24 +78,21 @@ public class UsbSerialDeviceInformation {
     /**
      * @return The serial number of the USB device (field 'iSerialNumber' in the USB standard device descriptor).
      */
-    @Nullable
-    public String getSerialNumber() {
+    public @Nullable String getSerialNumber() {
         return serialNumber;
     }
 
     /**
      * @return The manufacturer of the USB device (field 'iManufacturer' in the USB standard device descriptor).
      */
-    @Nullable
-    public String getManufacturer() {
+    public @Nullable String getManufacturer() {
         return manufacturer;
     }
 
     /**
      * @return The product description of the USB device (field 'iProduct' in the USB standard device descriptor).
      */
-    @Nullable
-    public String getProduct() {
+    public @Nullable String getProduct() {
         return product;
     }
 
@@ -113,8 +107,7 @@ public class UsbSerialDeviceInformation {
     /**
      * @return Description of the used USB interface (field 'iInterface' in the USB standard interface descriptor).
      */
-    @Nullable
-    public String getInterfaceDescription() {
+    public @Nullable String getInterfaceDescription() {
         return interfaceDescription;
     }
 

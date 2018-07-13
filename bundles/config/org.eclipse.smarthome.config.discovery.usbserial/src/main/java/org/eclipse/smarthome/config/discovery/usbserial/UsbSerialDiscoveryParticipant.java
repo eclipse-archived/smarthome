@@ -45,8 +45,7 @@ public interface UsbSerialDiscoveryParticipant {
      * @return the according discovery result or <code>null</code> if the device is not
      *         supported by this participant
      */
-    @Nullable
-    public DiscoveryResult createResult(UsbSerialDeviceInformation deviceInformation);
+    public @Nullable DiscoveryResult createResult(UsbSerialDeviceInformation deviceInformation);
 
     /**
      * Returns the thing UID for a USB device with corresponding serial port.
@@ -55,6 +54,5 @@ public interface UsbSerialDiscoveryParticipant {
      * @return a thing UID or <code>null</code> if the device is not supported
      *         by this participant
      */
-    @Nullable
-    public ThingUID getThingUID(UsbSerialDeviceInformation deviceInformation);
+    public @Nullable ThingUID getThingUID(UsbSerialDeviceInformation deviceInformation);
 }

@@ -19,6 +19,7 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -29,9 +30,10 @@ import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDeviceInformati
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDiscovery;
 import org.eclipse.smarthome.config.discovery.usbserial.UsbSerialDiscoveryListener;
 import org.eclipse.smarthome.config.discovery.usbserial.linuxsysfs.internal.DeltaUsbSerialScanner.Delta;
-import org.eclipse.smarthome.core.common.ThreadPoolManager;
+import org.eclipse.smarthome.core.common.ThreadFactoryBuilder;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -49,20 +51,19 @@ public class PollingUsbSerialScanner implements UsbSerialDiscovery {
 
     private final Logger logger = LoggerFactory.getLogger(PollingUsbSerialScanner.class);
 
-    private static final String THREAD_POOL_NAME = "usb-serial-discovery-linux-sysfs";
+    private static final String THREAD_NAME = "usb-serial-discovery-linux-sysfs";
 
     public static final String PAUSE_BETWEEN_SCANS_IN_SECONDS_ATTRIBUTE = "pauseBetweenScansInSeconds";
     private static final Duration DEFAULT_PAUSE_BETWEEN_SCANS = Duration.ofSeconds(5);
     private Duration pauseBetweenScans = DEFAULT_PAUSE_BETWEEN_SCANS;
 
-    @NonNullByDefault({})
-    private DeltaUsbSerialScanner deltaUsbSerialScanner;
+    private @NonNullByDefault({}) DeltaUsbSerialScanner deltaUsbSerialScanner;
 
     private final Set<UsbSerialDiscoveryListener> discoveryListeners = new CopyOnWriteArraySet<>();
 
-    private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(THREAD_POOL_NAME);
-    @Nullable
-    private ScheduledFuture<?> backgroundScanningJob;
+    private @NonNullByDefault({}) ScheduledExecutorService scheduler;
+
+    private @Nullable ScheduledFuture<?> backgroundScanningJob;
 
     @Reference
     protected void setUsbSerialScanner(UsbSerialScanner usbSerialScanner) {
@@ -79,6 +80,14 @@ public class PollingUsbSerialScanner implements UsbSerialDiscovery {
             pauseBetweenScans = Duration
                     .ofSeconds(parseLong(config.get(PAUSE_BETWEEN_SCANS_IN_SECONDS_ATTRIBUTE).toString()));
         }
+
+        scheduler = Executors.newSingleThreadScheduledExecutor(
+                ThreadFactoryBuilder.create().withNamePrefix(THREAD_NAME).withDaemonThreads(true).build());
+    }
+
+    @Deactivate
+    protected void deactivate() {
+        scheduler.shutdown();
     }
 
     @Modified
