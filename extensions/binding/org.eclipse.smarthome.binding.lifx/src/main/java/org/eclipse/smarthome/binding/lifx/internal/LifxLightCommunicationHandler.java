@@ -194,8 +194,12 @@ public class LifxLightCommunicationHandler {
                 MACAddress discoveredAddress = response.getTarget();
                 if (packetFromConfiguredHost && macAddress == null) {
                     macAddress = discoveredAddress;
-                    selectorContext.setMACAddress(macAddress);
                     currentLightState.setOnline(discoveredAddress);
+
+                    LifxSelectorContext context = selectorContext;
+                    if (context != null) {
+                        context.setMACAddress(macAddress);
+                    }
                     return;
                 } else if (macAddress != null && macAddress.equals(discoveredAddress)) {
                     boolean newHost = host == null || !address.equals(host);
@@ -215,8 +219,12 @@ public class LifxLightCommunicationHandler {
                             try {
                                 cancelKey(unicastKey, logId);
                                 unicastKey = openUnicastChannel(selector, logId, host);
-                                selectorContext.setHost(host);
-                                selectorContext.setUnicastKey(unicastKey);
+
+                                LifxSelectorContext context = selectorContext;
+                                if (context != null) {
+                                    context.setHost(host);
+                                    context.setUnicastKey(unicastKey);
+                                }
                             } catch (IOException e) {
                                 logger.warn("{} while opening the unicast channel of the light ({}): {}",
                                         e.getClass().getSimpleName(), logId, e.getMessage());

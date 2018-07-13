@@ -16,6 +16,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * A generic handler that dynamically creates "standard" packet instances.
  *
@@ -28,6 +30,7 @@ import java.nio.ByteBuffer;
  * @author Tim Buckley - Initial Contribution
  * @author Karel Goderis - Enhancement for the V2 LIFX Firmware and LAN Protocol Specification
  */
+@NonNullByDefault
 public class GenericHandler<T extends Packet> implements PacketHandler<T> {
 
     private Constructor<T> constructor;

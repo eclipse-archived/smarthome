@@ -14,6 +14,7 @@ package org.eclipse.smarthome.binding.lifx.internal.listener;
 
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightPropertiesUpdater;
 
 /**
@@ -22,6 +23,7 @@ import org.eclipse.smarthome.binding.lifx.internal.LifxLightPropertiesUpdater;
  *
  * @author Wouter Born - Update light properties when online
  */
+@NonNullByDefault
 public interface LifxPropertiesUpdateListener {
 
     /**

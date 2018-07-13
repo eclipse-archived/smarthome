@@ -33,7 +33,7 @@ public class StateLocationResponse extends Packet {
 
     private ByteBuffer location;
     private String label;
-    private long updated_at;
+    private long updatedAt;
 
     public static int getType() {
         return TYPE;
@@ -56,11 +56,11 @@ public class StateLocationResponse extends Packet {
     }
 
     public long getUpdatedAt() {
-        return updated_at;
+        return updatedAt;
     }
 
-    public void setUpdatedAt(long updated_at) {
-        this.updated_at = updated_at;
+    public void setUpdatedAt(long updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     @Override
@@ -77,13 +77,13 @@ public class StateLocationResponse extends Packet {
     protected void parsePacket(ByteBuffer bytes) {
         location = FIELD_LOCATION.value(bytes);
         label = FIELD_LABEL.value(bytes);
-        updated_at = FIELD_UPDATED_AT.value(bytes);
+        updatedAt = FIELD_UPDATED_AT.value(bytes);
     }
 
     @Override
     protected ByteBuffer packetBytes() {
         return ByteBuffer.allocate(packetLength()).put(FIELD_LOCATION.bytes(location)).put(FIELD_LABEL.bytes(label))
-                .put(FIELD_UPDATED_AT.bytes(updated_at));
+                .put(FIELD_UPDATED_AT.bytes(updatedAt));
     }
 
     @Override

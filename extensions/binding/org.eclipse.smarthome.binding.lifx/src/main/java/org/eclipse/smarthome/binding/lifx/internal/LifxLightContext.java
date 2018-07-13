@@ -14,6 +14,7 @@ package org.eclipse.smarthome.binding.lifx.internal;
 
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.lifx.handler.LifxLightHandler;
 import org.eclipse.smarthome.binding.lifx.handler.LifxLightHandler.CurrentLightState;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Products;
@@ -23,6 +24,7 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.Products;
  *
  * @author Wouter Born - Add optional host configuration parameter
  */
+@NonNullByDefault
 public class LifxLightContext {
 
     private final String logId;

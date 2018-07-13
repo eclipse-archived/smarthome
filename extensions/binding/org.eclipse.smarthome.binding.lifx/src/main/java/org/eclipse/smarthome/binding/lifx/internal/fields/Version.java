@@ -12,9 +12,12 @@
  */
 package org.eclipse.smarthome.binding.lifx.internal.fields;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * @author Wouter Born - Add Thing properties
  */
+@NonNullByDefault
 public class Version {
 
     private long major;

@@ -15,6 +15,9 @@ package org.eclipse.smarthome.binding.lifx.internal.protocol;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * A static factory for registering packet types that may be received and
  * dispatched to client cod * request types, like {@code PowerStateRequest}) or types received only via UDP
@@ -25,16 +28,18 @@ import java.util.Map;
  * @author Karel Goderis - Enhancement for the V2 LIFX Firmware and LAN Protocol Specification
  * @author Wouter Born - Support LIFX 2016 product line-up and infrared functionality
  */
+@NonNullByDefault
 public class PacketFactory {
 
-    private static PacketFactory instance;
+    private static @Nullable PacketFactory instance;
 
-    public static synchronized  PacketFactory getInstance() {
-        if (instance == null) {
-            instance = new PacketFactory();
+    public static synchronized PacketFactory getInstance() {
+        PacketFactory result = instance;
+        if (result == null) {
+            result = new PacketFactory();
+            instance = result;
         }
-
-        return instance;
+        return result;
     }
 
     private final Map<Integer, PacketHandler<?>> handlers;

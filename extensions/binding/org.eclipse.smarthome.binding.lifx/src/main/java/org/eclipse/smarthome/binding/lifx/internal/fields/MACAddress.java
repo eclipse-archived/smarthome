@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +30,7 @@ import org.slf4j.LoggerFactory;
  * @author Tim Buckley
  * @author Karel Goderis
  */
+@NonNullByDefault
 public class MACAddress {
 
     public static final MACAddress BROADCAST_ADDRESS = new MACAddress("000000000000", true);
@@ -35,7 +38,7 @@ public class MACAddress {
     private final Logger logger = LoggerFactory.getLogger(MACAddress.class);
 
     private ByteBuffer bytes;
-    private String hex;
+    private String hex = "";
 
     public ByteBuffer getBytes() {
         return bytes;
@@ -128,7 +131,7 @@ public class MACAddress {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (obj == null) {
             return false;
         }

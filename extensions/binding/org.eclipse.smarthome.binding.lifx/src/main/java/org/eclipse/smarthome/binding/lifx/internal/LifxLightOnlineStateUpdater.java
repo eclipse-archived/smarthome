@@ -19,6 +19,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.lifx.handler.LifxLightHandler.CurrentLightState;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetEchoRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetServiceRequest;
@@ -31,6 +33,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Wouter Born - Extracted class from LifxLightHandler
  */
+@NonNullByDefault
 public class LifxLightOnlineStateUpdater {
 
     private static final int ECHO_POLLING_INTERVAL = 15;
@@ -45,7 +48,7 @@ public class LifxLightOnlineStateUpdater {
 
     private final ReentrantLock lock = new ReentrantLock();
 
-    private ScheduledFuture<?> echoJob;
+    private @Nullable ScheduledFuture<?> echoJob;
     private LocalDateTime lastSeen = LocalDateTime.MIN;
     private int unansweredEchoPackets;
 
@@ -90,7 +93,8 @@ public class LifxLightOnlineStateUpdater {
         try {
             lock.lock();
             communicationHandler.addResponsePacketListener(this::handleResponsePacket);
-            if (echoJob == null || echoJob.isCancelled()) {
+            ScheduledFuture<?> localEchoJob = echoJob;
+            if (localEchoJob == null || localEchoJob.isCancelled()) {
                 echoJob = scheduler.scheduleWithFixedDelay(this::sendEchoPackets, 0, ECHO_POLLING_INTERVAL,
                         TimeUnit.SECONDS);
             }
@@ -105,8 +109,9 @@ public class LifxLightOnlineStateUpdater {
         try {
             lock.lock();
             communicationHandler.removeResponsePacketListener(this::handleResponsePacket);
-            if (echoJob != null && !echoJob.isCancelled()) {
-                echoJob.cancel(true);
+            ScheduledFuture<?> localEchoJob = echoJob;
+            if (localEchoJob != null && !localEchoJob.isCancelled()) {
+                localEchoJob.cancel(true);
                 echoJob = null;
             }
         } catch (Exception e) {
