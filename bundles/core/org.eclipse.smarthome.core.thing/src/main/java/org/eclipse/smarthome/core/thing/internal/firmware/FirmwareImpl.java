@@ -12,7 +12,8 @@
  */
 package org.eclipse.smarthome.core.thing.internal.firmware;
 
-import static org.eclipse.smarthome.core.thing.Thing.*;
+import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_FIRMWARE_VERSION;
+import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_MODEL_ID;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -30,6 +32,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.firmware.Firmware;
+import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareInstallationRestrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +57,7 @@ public final class FirmwareImpl implements Firmware {
     private final @Nullable String description;
     private final Version version;
     private final @Nullable Version prerequisiteVersion;
+    private final FirmwareInstallationRestrictions customRestrictions;
     private final @Nullable String changelog;
     private final @Nullable URL onlineChangelog;
     private final @Nullable transient InputStream inputStream;
@@ -72,18 +76,20 @@ public final class FirmwareImpl implements Firmware {
      * @param description the description of the firmware (can be null)
      * @param version the version of the firmware (not null)
      * @param prerequisiteVersion the prerequisite version of the firmware (can be null)
+     * @param customRestrictions custom {@link FirmwareInstallationRestrictions} for applying additional restrictions on
+     *            the firmware (can be null). If null, a default function will be used to return always true
      * @param changelog the changelog of the firmware (can be null)
      * @param onlineChangelog the URL the an online changelog of the firmware (can be null)
      * @param inputStream the input stream for the binary content of the firmware (can be null)
      * @param md5Hash the MD5 hash value of the firmware (can be null)
      * @param properties the immutable properties of the firmware (can be null)
-     *
      * @throws IllegalArgumentException if the ThingTypeUID or the firmware version are null
      */
     public FirmwareImpl(ThingTypeUID thingTypeUID, @Nullable String vendor, @Nullable String model,
             boolean modelRestricted, @Nullable String description, String version, @Nullable String prerequisiteVersion,
-            @Nullable String changelog, @Nullable URL onlineChangelog, @Nullable InputStream inputStream,
-            @Nullable String md5Hash, @Nullable Map<String, String> properties) {
+            @Nullable FirmwareInstallationRestrictions customRestrictions, @Nullable String changelog,
+            @Nullable URL onlineChangelog, @Nullable InputStream inputStream, @Nullable String md5Hash,
+            @Nullable Map<String, String> properties) {
         ParameterChecks.checkNotNull(thingTypeUID, "ThingTypeUID");
         this.thingTypeUID = thingTypeUID;
         ParameterChecks.checkNotNullOrEmpty(version, "Firmware version");
@@ -93,6 +99,7 @@ public final class FirmwareImpl implements Firmware {
         this.modelRestricted = modelRestricted;
         this.description = description;
         this.prerequisiteVersion = prerequisiteVersion != null ? new Version(prerequisiteVersion) : null;
+        this.customRestrictions = customRestrictions != null ? customRestrictions : t -> true;
         this.changelog = changelog;
         this.onlineChangelog = onlineChangelog;
         this.inputStream = inputStream;
@@ -137,6 +144,11 @@ public final class FirmwareImpl implements Firmware {
     @Nullable
     public String getPrerequisiteVersion() {
         return (prerequisiteVersion != null) ? prerequisiteVersion.toString() : null;
+    }
+
+    @Override
+    public FirmwareInstallationRestrictions getCustomRestrictions() {
+        return customRestrictions;
     }
 
     @Override
@@ -219,7 +231,8 @@ public final class FirmwareImpl implements Firmware {
 
     @Override
     public boolean isSuitableFor(Thing thing) {
-        return hasSameThingType(thing) && hasRequiredModel(thing) && firmwareOnThingIsHighEnough(thing);
+        return hasSameThingType(thing) && hasRequiredModel(thing) && firmwareOnThingIsHighEnough(thing)
+                && customRestrictions.apply(thing);
     }
 
     @Override
