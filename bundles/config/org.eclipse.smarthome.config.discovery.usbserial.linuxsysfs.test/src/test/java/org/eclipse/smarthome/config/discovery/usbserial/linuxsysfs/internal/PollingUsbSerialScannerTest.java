@@ -35,11 +35,11 @@ import org.junit.Test;
  */
 public class PollingUsbSerialScannerTest {
 
-    UsbSerialDeviceInformationGenerator usbDeviceInfoGenerator = new UsbSerialDeviceInformationGenerator();
+    private UsbSerialDeviceInformationGenerator usbDeviceInfoGenerator = new UsbSerialDeviceInformationGenerator();
 
-    UsbSerialScanner usbSerialScanner;
-    PollingUsbSerialScanner pollingScanner;
-    UsbSerialDiscoveryListener discoveryListener;
+    private UsbSerialScanner usbSerialScanner;
+    private PollingUsbSerialScanner pollingScanner;
+    private UsbSerialDiscoveryListener discoveryListener;
 
     @Before
     public void setup() {
@@ -122,6 +122,7 @@ public class PollingUsbSerialScannerTest {
                 .thenReturn(new HashSet<>(asList(usb2, usb3)));
         when(usbSerialScanner.canPerformScans()).thenReturn(true);
 
+        pollingScanner.activate(new HashMap<>());
         pollingScanner.startBackgroundScanning();
 
         Thread.sleep(1500);
