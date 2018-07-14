@@ -28,6 +28,7 @@ import org.eclipse.jdt.annotation.Nullable;
  * This interface is similar to the serial port of the 'Java Communications API'.
  *
  * @author Markus Rathgeb - Initial contribution
+ * @author Kai Kreuzer - added further methods
  */
 @NonNullByDefault
 public interface SerialPort extends Closeable {
@@ -113,6 +114,13 @@ public interface SerialPort extends Closeable {
     OutputStream getOutputStream() throws IOException;
 
     /**
+     * Retrieves the name of the serial port.
+     *
+     * @return the name of the serial port
+     */
+    String getName();
+
+    /**
      * Registers a {@link SerialPortEventListener} object to listen for {@link SerialEvents}.
      *
      * <p>
@@ -157,4 +165,25 @@ public interface SerialPort extends Closeable {
      * @throws IllegalArgumentException on a negative timeout value
      */
     void enableReceiveTimeout(int timeout) throws UnsupportedCommOperationException, IllegalArgumentException;
+
+    /**
+     * Disable receive timeout.
+     */
+    void disableReceiveTimeout();
+
+    /**
+     * Sets the flow control mode value.
+     *
+     * @param flowcontrol The flowcontrol (<code>int</code>) parameter.
+     * @throws UnsupportedCommOperationException Unsupported Comm Operation Exception.
+     */
+    void setFlowControlMode(int flowcontrolRtsctsOut) throws UnsupportedCommOperationException;
+
+    /**
+     * Enable receive threshold with the specified thresh parameter.
+     *
+     * @param thresh The thresh (<code>int</code>) parameter.
+     * @throws UnsupportedCommOperationException Unsupported Comm Operation Exception.
+     */
+    void enableReceiveThreshold(int i) throws UnsupportedCommOperationException;
 }
