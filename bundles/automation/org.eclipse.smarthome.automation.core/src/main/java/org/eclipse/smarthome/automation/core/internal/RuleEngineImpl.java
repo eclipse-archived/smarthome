@@ -90,7 +90,6 @@ import org.slf4j.LoggerFactory;
  * @author Benedikt Niehues - change behavior for unregistering ModuleHandler
  *
  */
-@SuppressWarnings("rawtypes")
 @Component(immediate = true)
 public class RuleEngineImpl implements RuleManager, RegistryChangeListener<ModuleType> {
 
@@ -171,7 +170,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * UID to
      * re-initialization task as a {@link Future} instance.
      */
-    private Map<String, Future> scheduleTasks = new HashMap<String, Future>(31);
+    private Map<String, Future<?>> scheduleTasks = new HashMap<>(31);
 
     /**
      * Performs the {@link Rule} re-initialization tasks.
@@ -532,7 +531,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
             register(rule);
             // change status to IDLE
             setStatus(rUID, new RuleStatusInfo(RuleStatus.IDLE));
-            Future f = scheduleTasks.remove(rUID);
+            Future<?> f = scheduleTasks.remove(rUID);
             if (f != null) {
                 if (!f.isDone()) {
                     f.cancel(true);
@@ -904,7 +903,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * @param rUID the UID of the {@link RuleImpl}.
      */
     protected void scheduleRuleInitialization(final String rUID) {
-        Future f = scheduleTasks.get(rUID);
+        Future<?> f = scheduleTasks.get(rUID);
         if (f == null || f.isDone()) {
             ScheduledExecutorService ex = getScheduledExecutor();
             f = ex.schedule(new Runnable() {
@@ -1207,7 +1206,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
             compositeFactory.deactivate();
             compositeFactory = null;
         }
-        for (Future f : scheduleTasks.values()) {
+        for (Future<?> f : scheduleTasks.values()) {
             f.cancel(true);
         }
         if (scheduleTasks.isEmpty() && executor != null) {
