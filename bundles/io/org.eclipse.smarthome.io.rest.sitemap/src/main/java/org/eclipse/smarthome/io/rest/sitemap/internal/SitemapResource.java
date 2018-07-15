@@ -21,6 +21,9 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import javax.annotation.security.RolesAllowed;
@@ -45,6 +48,7 @@ import javax.ws.rs.core.UriInfo;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.smarthome.core.auth.Role;
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
@@ -140,14 +144,37 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
 
     private final Map<String, EventOutput> eventOutputs = new MapMaker().weakValues().makeMap();
 
+    private ScheduledExecutorService scheduler = ThreadPoolManager
+            .getScheduledPool(ThreadPoolManager.THREAD_POOL_NAME_COMMON);
+
+    private ScheduledFuture<?> cleanSubscriptionsJob;
+
     @Activate
     protected void activate() {
         broadcaster = new SseBroadcaster();
         broadcaster.add(this);
+
+        // The clean SSE subscriptions job sends an ALIVE event to all subscribers. This will trigger
+        // an exception when the subscriber is dead, leading to the release of the SSE subscription
+        // on server side.
+        // In practice, the exception occurs only after the sending of a second ALIVE event. So this
+        // will require two runs of the job to release an SSE subscription.
+        // The clean SSE subscriptions job is run every 5 minutes.
+        cleanSubscriptionsJob = scheduler.scheduleAtFixedRate(() -> {
+            logger.debug("Run clean SSE subscriptions job");
+            if (subscriptions != null) {
+                subscriptions.checkAliveClients();
+            }
+        }, 1, 5, TimeUnit.MINUTES);
     }
 
     @Deactivate
     protected void deactivate() {
+        if (cleanSubscriptionsJob != null && !cleanSubscriptionsJob.isCancelled()) {
+            logger.debug("Cancel clean SSE subscriptions job");
+            cleanSubscriptionsJob.cancel(true);
+            cleanSubscriptionsJob = null;
+        }
         broadcaster.remove(this);
         broadcaster = null;
     }
@@ -758,6 +785,15 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
         OutboundEvent outboundEvent = eventBuilder.name("event").mediaType(MediaType.APPLICATION_JSON_TYPE).data(event)
                 .build();
         broadcaster.broadcast(outboundEvent);
+    }
+
+    @Override
+    public void onRelease(String subscriptionId) {
+        logger.debug("SSE connection for subscription {} has been released.", subscriptionId);
+        EventOutput eventOutput = eventOutputs.remove(subscriptionId);
+        if (eventOutput != null) {
+            broadcaster.remove(eventOutput);
+        }
     }
 
     @Override

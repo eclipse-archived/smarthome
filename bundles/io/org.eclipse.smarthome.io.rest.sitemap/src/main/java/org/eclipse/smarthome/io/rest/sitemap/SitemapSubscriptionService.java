@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.io.rest.sitemap;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,8 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
     public interface SitemapSubscriptionCallback {
 
         void onEvent(SitemapEvent event);
+
+        void onRelease(String subscriptionId);
     }
 
     private ItemUIRegistry itemUIRegistry;
@@ -74,6 +77,9 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
 
     /* subscription id -> callback */
     private final Map<String, SitemapSubscriptionCallback> callbacks = new ConcurrentHashMap<>();
+
+    /* subscription id -> creation date */
+    private final Map<String, ZonedDateTime> creationDates = new ConcurrentHashMap<>();
 
     /* sitemap+page -> listener */
     private final Map<String, PageChangeListener> pageChangeListeners = new ConcurrentHashMap<>();
@@ -151,6 +157,7 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
         }
         String subscriptionId = UUID.randomUUID().toString();
         callbacks.put(subscriptionId, callback);
+        creationDates.put(subscriptionId, ZonedDateTime.now());
         logger.debug("Created new subscription with id {} ({} active subscriptions for a max of {})", subscriptionId,
                 callbacks.size(), maxSubscriptions);
         return subscriptionId;
@@ -162,6 +169,7 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
      * @param subscriptionId the id of the subscription to remove
      */
     public void removeSubscription(String subscriptionId) {
+        creationDates.remove(subscriptionId);
         callbacks.remove(subscriptionId);
         String sitemapPage = pageOfSubscription.remove(subscriptionId);
         if (sitemapPage != null && !pageOfSubscription.values().contains(sitemapPage)) {
@@ -312,6 +320,24 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
                 EList<Widget> widgets = collectWidgets(sitemapName, pageId);
                 listenerEntry.getValue().sitemapContentChanged(widgets);
             }
+        }
+    }
+
+    public void checkAliveClients() {
+        // Release the subscriptions that are not attached to a page
+        for (Entry<String, ZonedDateTime> dateEntry : creationDates.entrySet()) {
+            String subscriptionId = dateEntry.getKey();
+            SitemapSubscriptionCallback callback = callbacks.get(subscriptionId);
+            if (getPageId(subscriptionId) == null && callback != null
+                    && dateEntry.getValue().isBefore(ZonedDateTime.now().minusSeconds(30))) {
+                logger.debug("Release subscription {} as sitemap page is not set", subscriptionId);
+                removeSubscription(subscriptionId);
+                callback.onRelease(subscriptionId);
+            }
+        }
+        // Send an ALIVE event to all subscribers to trigger an exception for dead subscribers
+        for (Entry<String, PageChangeListener> listenerEntry : pageChangeListeners.entrySet()) {
+            listenerEntry.getValue().sendAliveEvent();
         }
     }
 }
