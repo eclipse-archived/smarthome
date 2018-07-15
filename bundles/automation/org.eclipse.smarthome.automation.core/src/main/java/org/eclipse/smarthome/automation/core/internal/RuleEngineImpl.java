@@ -511,7 +511,6 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                 ((ActionImpl) m).setConnections(resolveConnections(((ActionImpl) m).getInputs()));
             }
         }
-        String errMsgs;
         try {
             validateModuleIDs(rule);
         } catch (IllegalArgumentException e) {
@@ -523,13 +522,12 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
             autoMapConnections(rule);
             ConnectionValidator.validateConnections(mtRegistry, rule);
         } catch (IllegalArgumentException e) {
-            errMsgs = "\n Validation of rule " + rUID + " has failed! " + e.getLocalizedMessage();
             // change status to UNINITIALIZED
-            setStatus(rUID,
-                    new RuleStatusInfo(RuleStatus.UNINITIALIZED, RuleStatusDetail.INVALID_RULE, errMsgs.trim()));
+            setStatus(rUID, new RuleStatusInfo(RuleStatus.UNINITIALIZED, RuleStatusDetail.INVALID_RULE,
+                    "Validation of rule " + rUID + " has failed! " + e.getLocalizedMessage()));
             return;
         }
-        errMsgs = setModuleHandlers(rUID, modules);
+        final String errMsgs = setModuleHandlers(rUID, modules);
         if (errMsgs == null) {
             register(rule);
             // change status to IDLE
