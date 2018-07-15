@@ -24,4 +24,11 @@ public class UnsupportedCommOperationException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
+    public UnsupportedCommOperationException() {
+        super();
+    }
+
+    public UnsupportedCommOperationException(Throwable cause) {
+        super(cause);
+    }
 }

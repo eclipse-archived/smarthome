@@ -29,6 +29,7 @@ import org.eclipse.smarthome.io.transport.serial.UnsupportedCommOperationExcepti
  * Specific serial port implementation.
  *
  * @author Markus Rathgeb - Initial contribution
+ * @author Kai Kreuzer - added further methods
  */
 @NonNullByDefault
 public class SerialPortImpl implements SerialPort {
@@ -55,7 +56,7 @@ public class SerialPortImpl implements SerialPort {
         try {
             sp.setSerialPortParams(baudrate, dataBits, stopBits, parity);
         } catch (javax.comm.UnsupportedCommOperationException ex) {
-            throw new UnsupportedCommOperationException();
+            throw new UnsupportedCommOperationException(ex);
         }
     }
 
@@ -100,7 +101,35 @@ public class SerialPortImpl implements SerialPort {
         try {
             sp.enableReceiveTimeout(timeout);
         } catch (javax.comm.UnsupportedCommOperationException ex) {
-            throw new UnsupportedCommOperationException();
+            throw new UnsupportedCommOperationException(ex);
+        }
+    }
+
+    @Override
+    public void disableReceiveTimeout() {
+        sp.disableReceiveTimeout();
+    }
+
+    @Override
+    public String getName() {
+        return sp.getName();
+    }
+
+    @Override
+    public void setFlowControlMode(int flowcontrolRtsctsOut) throws UnsupportedCommOperationException {
+        try {
+            sp.setFlowControlMode(flowcontrolRtsctsOut);
+        } catch (javax.comm.UnsupportedCommOperationException e) {
+            throw new UnsupportedCommOperationException(e);
+        }
+    }
+
+    @Override
+    public void enableReceiveThreshold(int i) throws UnsupportedCommOperationException {
+        try {
+            sp.enableReceiveThreshold(i);
+        } catch (javax.comm.UnsupportedCommOperationException e) {
+            throw new UnsupportedCommOperationException(e);
         }
     }
 
