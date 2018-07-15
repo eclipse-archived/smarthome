@@ -24,8 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.eclipse.smarthome.core.i18n.TranslationProvider;
-import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nUtil;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nLocalizationService;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
@@ -52,7 +52,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Moritz Kammerer - Added system trigger types
  * @author Christoph Weitkamp - Added support for translation
  * @author Stefan Triller - Added more system channels
- *
+ * @author Christoph Weitkamp - factored out common i18n aspects into {@link ThingTypeI18nLocalizationService}
  */
 @Component(immediate = true)
 public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
@@ -135,7 +135,8 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      * Power: default system wide {@link ChannelType} which allows turning off (potentially on) a device
      */
     public static final ChannelType SYSTEM_POWER = ChannelTypeBuilder
-            .state(new ChannelTypeUID(BINDING_ID, "power"), "Power", "Switch").build();
+            .state(new ChannelTypeUID(BINDING_ID, "power"), "Power", "Switch")
+            .withDescription("Device is operable when channel has state ON").build();
 
     /**
      * Location: default system wide {@link ChannelType} which displays a location
@@ -331,7 +332,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
 
     private final Map<LocalizedChannelTypeKey, ChannelType> localizedChannelTypeCache = new ConcurrentHashMap<>();
 
-    private ThingTypeI18nUtil thingTypeI18nUtil;
+    private ThingTypeI18nLocalizationService thingTypeI18nLocalizationService;
     private BundleResolver bundleResolver;
 
     @Override
@@ -368,12 +369,14 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
     }
 
     @Reference
-    public void setTranslationProvider(TranslationProvider i18nProvider) {
-        thingTypeI18nUtil = new ThingTypeI18nUtil(i18nProvider);
+    public void setThingTypeI18nLocalizationService(
+            final ThingTypeI18nLocalizationService thingTypeI18nLocalizationService) {
+        this.thingTypeI18nLocalizationService = thingTypeI18nLocalizationService;
     }
 
-    public void unsetTranslationProvider(TranslationProvider i18nProvider) {
-        thingTypeI18nUtil = null;
+    public void unsetThingTypeI18nLocalizationService(
+            final ThingTypeI18nLocalizationService thingTypeI18nLocalizationService) {
+        this.thingTypeI18nLocalizationService = null;
     }
 
     @Reference
@@ -393,53 +396,23 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
             return cachedEntry;
         }
 
-        if (thingTypeI18nUtil != null) {
-            ChannelTypeUID channelTypeUID = channelType.getUID();
-
-            String label = thingTypeI18nUtil.getChannelLabel(bundle, channelTypeUID, channelType.getLabel(), locale);
-            String description = thingTypeI18nUtil.getChannelDescription(bundle, channelTypeUID,
-                    channelType.getDescription(), locale);
-
-            StateDescription state = createLocalizedChannelState(bundle, channelType, channelTypeUID, locale);
-
-            ChannelType localizedChannelType = new ChannelType(channelTypeUID, channelType.isAdvanced(),
-                    channelType.getItemType(), channelType.getKind(), label, description, channelType.getCategory(),
-                    channelType.getTags(), state, channelType.getEvent(), channelType.getConfigDescriptionURI());
-
+        ChannelType localizedChannelType = localize(bundle, channelType, locale);
+        if (localizedChannelType != null) {
             localizedChannelTypeCache.put(localizedChannelTypeKey, localizedChannelType);
-
             return localizedChannelType;
+        } else {
+            return channelType;
         }
-
-        return channelType;
     }
 
-    private StateDescription createLocalizedChannelState(Bundle bundle, ChannelType channelType,
-            ChannelTypeUID channelTypeUID, Locale locale) {
-        StateDescription state = channelType.getState();
-
-        if (state != null) {
-            String pattern = thingTypeI18nUtil.getChannelStatePattern(bundle, channelTypeUID, state.getPattern(),
-                    locale);
-
-            List<StateOption> localizedOptions = new ArrayList<>();
-            List<StateOption> options = state.getOptions();
-            for (StateOption stateOption : options) {
-                String optionLabel = thingTypeI18nUtil.getChannelStateOption(bundle, channelTypeUID,
-                        stateOption.getValue(), stateOption.getLabel(), locale);
-                localizedOptions.add(new StateOption(stateOption.getValue(), optionLabel));
-            }
-
-            return new StateDescription(state.getMinimum(), state.getMaximum(), state.getStep(), pattern,
-                    state.isReadOnly(), localizedOptions);
+    private @Nullable ChannelType localize(Bundle bundle, ChannelType channelType, Locale locale) {
+        if (thingTypeI18nLocalizationService == null) {
+            return null;
         }
-        return null;
+        return thingTypeI18nLocalizationService.createLocalizedChannelType(bundle, channelType, locale);
     }
 
     private LocalizedChannelTypeKey getLocalizedChannelTypeKey(UID uid, Locale locale) {
-        String localeString = locale != null ? locale.toLanguageTag() : null;
-        LocalizedChannelTypeKey localizedChannelTypeKey = new LocalizedChannelTypeKey(uid,
-                locale != null ? localeString : null);
-        return localizedChannelTypeKey;
+        return new LocalizedChannelTypeKey(uid, locale != null ? locale.toLanguageTag() : null);
     }
 }
