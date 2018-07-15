@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.automation.core.internal;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.type.Input;
@@ -69,18 +70,19 @@ public abstract class ModuleImpl implements Module {
     /**
      * Constructor of the module.
      *
-     * @param id            the module id.
-     * @param typeUID       unique id of the module type.
+     * @param id the module id.
+     * @param typeUID unique id of the module type.
      * @param configuration configuration values of the module.
+     * @param label the label
+     * @param description the description
      */
-    public ModuleImpl(String id, String typeUID, Configuration configuration) {
+    public ModuleImpl(String id, String typeUID, @Nullable Configuration configuration, @Nullable String label,
+            @Nullable String description) {
         this.id = id;
         this.type = typeUID;
-        setConfiguration(configuration);
-    }
-
-    public ModuleImpl() {
-        setConfiguration(null);
+        this.configuration = configuration == null ? new Configuration() : configuration;
+        this.label = label;
+        this.description = description;
     }
 
     @Override

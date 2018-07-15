@@ -12,134 +12,123 @@
  */
 package org.eclipse.smarthome.automation.core.util;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.internal.ActionImpl;
-import org.eclipse.smarthome.automation.core.internal.ConditionImpl;
-import org.eclipse.smarthome.automation.core.internal.ModuleImpl;
-import org.eclipse.smarthome.automation.core.internal.TriggerImpl;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
  * This class allows the easy construction of a {@link Module} instance using the builder pattern.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Markus Rathgeb - Split implementation for different module types in sub classes
  *
  */
 @NonNullByDefault
-public class ModuleBuilder<T extends Module> {
+public abstract class ModuleBuilder<B extends ModuleBuilder<B, T>, T extends Module> {
 
-    private final ModuleImpl module;
-
-    protected ModuleBuilder(ModuleImpl module) {
-        this.module = module;
+    public static ActionBuilder createAction() {
+        return ActionBuilder.create();
     }
 
-    public static ModuleBuilder<Action> createAction() {
-        ActionImpl action = new ActionImpl();
-        return new ModuleBuilder<Action>(action);
+    public static ActionBuilder createAction(final Action action) {
+        return ActionBuilder.create(action);
     }
 
-    public static ModuleBuilder<? extends Module> create(Module module) {
+    public static ConditionBuilder createCondition() {
+        return ConditionBuilder.create();
+    }
+
+    public static ConditionBuilder createCondition(final Condition condition) {
+        return ConditionBuilder.create(condition);
+    }
+
+    public static TriggerBuilder createTrigger() {
+        return TriggerBuilder.create();
+    }
+
+    public static TriggerBuilder createTrigger(final Trigger trigger) {
+        return TriggerBuilder.create(trigger);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <B extends ModuleBuilder<B, T>, T extends Module> ModuleBuilder<B, T> create(Module module) {
         if (module instanceof Action) {
-            return createAction((Action) module);
+            return (ModuleBuilder<B, T>) createAction((Action) module);
         } else if (module instanceof Condition) {
-            return createCondition((Condition) module);
+            return (ModuleBuilder<B, T>) createCondition((Condition) module);
         } else if (module instanceof Trigger) {
-            return createTrigger((Trigger) module);
+            return (ModuleBuilder<B, T>) createTrigger((Trigger) module);
         } else {
             throw new IllegalArgumentException("Parameter must be an instance of Action, Condition or Trigger.");
         }
     }
 
-    public static ModuleBuilder<Action> createAction(Action action) {
-        ActionImpl actionImpl = new ActionImpl();
-        fillModuleFields(action, actionImpl);
-        actionImpl.setInputs(new HashMap<>(action.getInputs()));
-        return new ModuleBuilder<Action>(actionImpl);
+    private @Nullable String id;
+    private @Nullable String typeUID;
+    protected @Nullable Configuration configuration;
+    protected @Nullable String label;
+    protected @Nullable String description;
+
+    protected ModuleBuilder() {
     }
 
-    public static ModuleBuilder<Trigger> createTrigger() {
-        TriggerImpl trigger = new TriggerImpl();
-        return new ModuleBuilder<Trigger>(trigger);
+    protected ModuleBuilder(T module) {
+        this.id = module.getId();
+        this.typeUID = module.getTypeUID();
+        this.configuration = module.getConfiguration();
+        this.label = module.getLabel();
+        this.description = module.getDescription();
     }
 
-    public static ModuleBuilder<Trigger> createTrigger(Trigger trigger) {
-        TriggerImpl triggerImpl = new TriggerImpl();
-        fillModuleFields(trigger, triggerImpl);
-        return new ModuleBuilder<Trigger>(triggerImpl);
+    public B withId(String id) {
+        this.id = id;
+        return myself();
     }
 
-    public static ModuleBuilder<Condition> createCondition() {
-        ConditionImpl condition = new ConditionImpl();
-        return new ModuleBuilder<Condition>(condition);
+    public B withTypeUID(String typeUID) {
+        this.typeUID = typeUID;
+        return myself();
     }
 
-    public static ModuleBuilder<Condition> createCondition(Condition condition) {
-        ConditionImpl conditionImpl = new ConditionImpl();
-        fillModuleFields(condition, conditionImpl);
-        conditionImpl.setInputs(new HashMap<>(condition.getInputs()));
-        return new ModuleBuilder<Condition>(conditionImpl);
+    public B withConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+        return myself();
     }
 
-    public ModuleBuilder<T> withId(@Nullable String id) {
-        this.module.setId(id);
-        return this;
+    public B withLabel(@Nullable String label) {
+        this.label = label;
+        return myself();
     }
 
-    public ModuleBuilder<T> withTypeUID(@Nullable String typeUID) {
-        this.module.setTypeUID(typeUID);
-        return this;
-    }
-
-    public ModuleBuilder<T> withLabel(@Nullable String label) {
-        this.module.setLabel(label);
-        return this;
-    }
-
-    public ModuleBuilder<T> withDescription(@Nullable String description) {
-        this.module.setDescription(description);
-        return this;
-    }
-
-    public ModuleBuilder<T> withConfiguration(Configuration configuration) {
-        this.module.setConfiguration(configuration);
-        return this;
-    }
-
-    public ModuleBuilder<T> withInputs(@Nullable Map<String, String> inputs) {
-        if (inputs == null) {
-            return this;
-        }
-        if (module instanceof TriggerImpl) {
-            throw new UnsupportedOperationException();
-        }
-        if (module instanceof ConditionImpl) {
-            ((ConditionImpl) module).setInputs(new HashMap<>(inputs));
-        }
-        if (module instanceof ActionImpl) {
-            ((ActionImpl) module).setInputs(new HashMap<>(inputs));
-        }
-        return this;
+    public B withDescription(@Nullable String description) {
+        this.description = description;
+        return myself();
     }
 
     @SuppressWarnings("unchecked")
-    public T build() {
-        return (T) this.module;
+    private B myself() {
+        return (B) this;
     }
 
-    private static void fillModuleFields(Module module, ModuleImpl moduleImpl) {
-        moduleImpl.setId(module.getId());
-        moduleImpl.setTypeUID(module.getTypeUID());
-        moduleImpl.setLabel(module.getLabel());
-        moduleImpl.setDescription(module.getDescription());
-        moduleImpl.setConfiguration(new Configuration(module.getConfiguration().getProperties()));
+    protected String getId() {
+        final String id = this.id;
+        if (id == null) {
+            throw new IllegalStateException("The ID must not be null.");
+        }
+        return id;
     }
+
+    protected String getTypeUID() {
+        final String typeUID = this.typeUID;
+        if (typeUID == null) {
+            throw new IllegalStateException("The type UID must not be null.");
+        }
+        return typeUID;
+    }
+
+    public abstract T build();
 }

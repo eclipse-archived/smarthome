@@ -35,36 +35,24 @@ import org.eclipse.smarthome.config.core.Configuration;
 @NonNullByDefault
 public class ActionImpl extends ModuleImpl implements Action {
 
-    @Nullable
-    private ActionHandler actionHandler;
+    private @Nullable ActionHandler actionHandler;
     private Set<Connection> connections = Collections.emptySet();
     private Map<String, String> inputs = Collections.emptyMap();
-
-    public ActionImpl() {
-    }
-
-    /**
-     * Utility constructor creating copy of passed action.
-     *
-     * @param action another action which is uses as base of created
-     */
-    public ActionImpl(final Action action) {
-        this(action.getId(), action.getTypeUID(), action.getConfiguration(), action.getInputs());
-        setLabel(action.getLabel());
-        setDescription(action.getDescription());
-    }
 
     /**
      * Constructor of Action object.
      *
-     * @param UID           action unique id.
-     * @param typeUID       module type unique id.
+     * @param UID action unique id.
+     * @param typeUID module type unique id.
      * @param configuration map of configuration values.
-     * @param inputs        set of connections to other modules (triggers and other actions).
+     * @param label the label
+     * @param description description
+     * @param inputs set of connections to other modules (triggers and other actions).
      */
-    public ActionImpl(String UID, String typeUID, Configuration configuration, @Nullable Map<String, String> inputs) {
-        super(UID, typeUID, configuration);
-        setInputs(inputs);
+    public ActionImpl(String UID, String typeUID, @Nullable Configuration configuration, @Nullable String label,
+            @Nullable String description, @Nullable Map<String, String> inputs) {
+        super(UID, typeUID, configuration, label, description);
+        this.inputs = inputs == null ? Collections.emptyMap() : Collections.unmodifiableMap(inputs);
     }
 
     /**

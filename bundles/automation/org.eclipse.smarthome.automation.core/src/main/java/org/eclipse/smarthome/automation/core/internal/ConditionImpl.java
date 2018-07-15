@@ -35,30 +35,22 @@ public class ConditionImpl extends ModuleImpl implements Condition {
 
     private Map<String, String> inputs = Collections.emptyMap();
     private Set<Connection> connections = Collections.emptySet();
-
-    @Nullable
-    private ConditionHandler conditionHandler;
-
-    public ConditionImpl() {
-    }
-
-    public ConditionImpl(Condition condition) {
-        this(condition.getId(), condition.getTypeUID(), condition.getConfiguration(), condition.getInputs());
-        setLabel(condition.getLabel());
-        setDescription(condition.getDescription());
-    }
+    private @Nullable ConditionHandler conditionHandler;
 
     /**
      * Constructor of {@link Condition} module object.
      *
-     * @param id            id of the module.
-     * @param typeUID       unique module type id.
+     * @param id id of the module.
+     * @param typeUID unique module type id.
      * @param configuration configuration values of the {@link Condition} module.
-     * @param inputs        set of {@link Input}s used by this module.
+     * @param label the label
+     * @param description description
+     * @param inputs set of {@link Input}s used by this module.
      */
-    public ConditionImpl(String id, String typeUID, Configuration configuration, Map<String, String> inputs) {
-        super(id, typeUID, configuration);
-        setInputs(inputs);
+    public ConditionImpl(String id, String typeUID, @Nullable Configuration configuration, @Nullable String label,
+            @Nullable String description, @Nullable Map<String, String> inputs) {
+        super(id, typeUID, configuration, label, description);
+        this.inputs = inputs == null ? Collections.emptyMap() : Collections.unmodifiableMap(inputs);
     }
 
     /**
