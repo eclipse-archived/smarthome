@@ -152,8 +152,10 @@ public class SystemWideChannelTypesTest extends JavaOSGiTest {
 
         ChannelType powerChannelType = channelTypeRegistry.getChannelType(POWER_CHANNEL_TYPE_UID, Locale.GERMAN);
         assertNotNull(powerChannelType);
-        assertEquals("Power", powerChannelType.getLabel());
-        assertNull(powerChannelType.getDescription());
+        assertEquals("Betrieb", powerChannelType.getLabel());
+        assertEquals(
+                "Ermöglicht die Steuerung der Betriebsbereitschaft. Das Gerät ist betriebsbereit, wenn \"Betrieb\" den Status ON hat.",
+                powerChannelType.getDescription());
 
         ChannelType locationChannelType = channelTypeRegistry.getChannelType(LOCATION_CHANNEL_TYPE_UID, Locale.GERMAN);
         assertNotNull(locationChannelType);

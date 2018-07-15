@@ -135,7 +135,8 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      * Power: default system wide {@link ChannelType} which allows turning off (potentially on) a device
      */
     public static final ChannelType SYSTEM_POWER = ChannelTypeBuilder
-            .state(new ChannelTypeUID(BINDING_ID, "power"), "Power", "Switch").build();
+            .state(new ChannelTypeUID(BINDING_ID, "power"), "Power", "Switch")
+            .withDescription("Device is operable when channel has state ON").build();
 
     /**
      * Location: default system wide {@link ChannelType} which displays a location
