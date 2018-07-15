@@ -567,7 +567,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * This method can be used in order to post events through the Eclipse SmartHome events bus. A common
      * use case is to notify event subscribers about the {@link RuleImpl}'s status change.
      *
-     * @param ruleUID    the UID of the {@link RuleImpl}, whose status is changed.
+     * @param ruleUID the UID of the {@link RuleImpl}, whose status is changed.
      * @param statusInfo the new {@link RuleImpl}s status.
      */
     protected void postRuleStatusInfoEvent(String ruleUID, RuleStatusInfo statusInfo) {
@@ -584,7 +584,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
     /**
      * This method links modules to corresponding module handlers.
      *
-     * @param rUID    id of rule containing these modules
+     * @param rUID id of rule containing these modules
      * @param modules list of modules
      * @return null when all modules are connected or list of RuleErrors for missing handlers.
      */
@@ -709,12 +709,12 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * {@link ModuleHandlerFactory} is disposed or some {@link ModuleType} is updated. The {@link RuleImpl} is
      * available but its state should become {@link RuleStatus#UNINITIALIZED}.
      *
-     * @param r      rule that should be unregistered.
+     * @param r rule that should be unregistered.
      * @param detail provides the {@link RuleStatusDetail}, corresponding to the new <b>uninitialized</b> status, should
-     *               be {@code null} if the status will be skipped.
-     * @param msg    provides the {@link RuleStatusInfo} description, corresponding to the new <b>uninitialized</b>
-     *               status,
-     *               should be {@code null} if the status will be skipped.
+     *            be {@code null} if the status will be skipped.
+     * @param msg provides the {@link RuleStatusInfo} description, corresponding to the new <b>uninitialized</b>
+     *            status,
+     *            should be {@code null} if the status will be skipped.
      */
     private void unregister(RuleImpl r, RuleStatusDetail detail, String msg) {
         if (r != null) {
@@ -745,7 +745,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
     /**
      * This method is used to obtain a {@link ModuleHandler} for the specified {@link ModuleImpl}.
      *
-     * @param m       the {@link ModuleImpl} which is looking for a handler.
+     * @param m the {@link ModuleImpl} which is looking for a handler.
      * @param ruleUID UID of the {@link RuleImpl} that the specified {@link ModuleImpl} belongs to.
      * @return handler that processing this module. Could be {@code null} if the {@link ModuleHandlerFactory} is not
      *         available.
@@ -786,7 +786,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * list of
      * {@link RuleImpl}s that use this {@link ModuleType}.
      *
-     * @param rUID         the UID of the {@link RuleImpl}.
+     * @param rUID the UID of the {@link RuleImpl}.
      * @param moduleTypeId the UID of the {@link ModuleType}.
      */
     public synchronized void updateMapModuleTypeToRule(String rUID, String moduleTypeId) {
@@ -888,7 +888,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
     /**
      * This method updates the status of the {@link RuleImpl}
      *
-     * @param rUID          unique id of the rule
+     * @param rUID unique id of the rule
      * @param newStatusInfo the new status of the rule
      */
     private void setStatus(String rUID, RuleStatusInfo newStatusInfo) {
@@ -970,7 +970,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * {@link TriggerData} is available. This method switches
      *
      * @param ruleUID the {@link Rule} which has to evaluate new {@link TriggerData}.
-     * @param td      {@link TriggerData} object containing new values for {@link Trigger}'s {@link Output}s
+     * @param td {@link TriggerData} object containing new values for {@link Trigger}'s {@link Output}s
      */
     protected void runRule(String ruleUID, TriggerHandlerCallbackImpl.TriggerData td) {
         if (thCallbacks.get(ruleUID) == null) {
@@ -1082,7 +1082,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      *
      * @param moduleUID uid of updated module.
      *
-     * @param outputs   new output values.
+     * @param outputs new output values.
      */
     private void updateContext(String ruleUID, String moduleUID, Map<String, ?> outputs) {
         Map<String, Object> context = getContext(ruleUID, null);
@@ -1354,8 +1354,8 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
     /**
      * Try to connect a free input to available outputs.
      *
-     * @param input              a free input which has to be connected
-     * @param outputTagMap       a map of set of tags to outptu references
+     * @param input a free input which has to be connected
+     * @param outputTagMap a map of set of tags to outptu references
      * @param currentConnections current connections of this module
      * @return true when only one output which meets auto mapping criteria is found. False otherwise.
      */
