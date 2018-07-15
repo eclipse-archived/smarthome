@@ -104,4 +104,31 @@ public class SerialPortImpl implements SerialPort {
         }
     }
 
+    @Override
+    public void disableReceiveTimeout() {
+        sp.disableReceiveTimeout();
+    }
+
+    @Override
+    public String getName() {
+        return sp.getName();
+    }
+
+    @Override
+    public void setFlowControlMode(int flowcontrolRtsctsOut) throws UnsupportedCommOperationException {
+        try {
+            sp.setFlowControlMode(flowcontrolRtsctsOut);
+        } catch (gnu.io.UnsupportedCommOperationException e) {
+            throw new UnsupportedCommOperationException(e);
+        }
+    }
+
+    @Override
+    public void enableReceiveThreshold(int i) throws UnsupportedCommOperationException {
+        try {
+            sp.enableReceiveThreshold(i);
+        } catch (gnu.io.UnsupportedCommOperationException e) {
+            throw new UnsupportedCommOperationException(e);
+        }
+    }
 }
