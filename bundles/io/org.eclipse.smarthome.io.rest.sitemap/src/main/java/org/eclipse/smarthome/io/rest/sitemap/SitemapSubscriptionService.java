@@ -12,7 +12,6 @@
  */
 package org.eclipse.smarthome.io.rest.sitemap;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +78,7 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
     private final Map<String, SitemapSubscriptionCallback> callbacks = new ConcurrentHashMap<>();
 
     /* subscription id -> creation date */
-    private final Map<String, ZonedDateTime> creationDates = new ConcurrentHashMap<>();
+    private final Map<String, Long> creationDates = new ConcurrentHashMap<>();
 
     /* sitemap+page -> listener */
     private final Map<String, PageChangeListener> pageChangeListeners = new ConcurrentHashMap<>();
@@ -157,7 +156,7 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
         }
         String subscriptionId = UUID.randomUUID().toString();
         callbacks.put(subscriptionId, callback);
-        creationDates.put(subscriptionId, ZonedDateTime.now());
+        creationDates.put(subscriptionId, System.currentTimeMillis());
         logger.debug("Created new subscription with id {} ({} active subscriptions for a max of {})", subscriptionId,
                 callbacks.size(), maxSubscriptions);
         return subscriptionId;
@@ -325,11 +324,11 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
 
     public void checkAliveClients() {
         // Release the subscriptions that are not attached to a page
-        for (Entry<String, ZonedDateTime> dateEntry : creationDates.entrySet()) {
+        for (Entry<String, Long> dateEntry : creationDates.entrySet()) {
             String subscriptionId = dateEntry.getKey();
             SitemapSubscriptionCallback callback = callbacks.get(subscriptionId);
             if (getPageId(subscriptionId) == null && callback != null
-                    && dateEntry.getValue().isBefore(ZonedDateTime.now().minusSeconds(30))) {
+                    && (dateEntry.getValue().longValue() + 30000) < System.currentTimeMillis()) {
                 logger.debug("Release subscription {} as sitemap page is not set", subscriptionId);
                 removeSubscription(subscriptionId);
                 callback.onRelease(subscriptionId);
