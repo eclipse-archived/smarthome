@@ -300,6 +300,9 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     @Override
     @NonNullByDefault({})
     public Stream<DiscoveryResult> stream() {
+    	if (this.discoveryResultStorage == null || this.discoveryResultStorage.getValues() == null) {
+    		return Stream.empty();
+    	}
         return this.discoveryResultStorage.getValues().stream().filter(Objects::nonNull);
     }
 
